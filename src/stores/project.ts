@@ -311,6 +311,8 @@ export const useProjectStore = defineStore('project', () => {
     });
     window.addEventListener('pagehide', () => void autosave.flush());
     window.addEventListener('beforeunload', (e) => {
+      // Write the draft now: Firefox aborts IndexedDB writes started later, during pagehide.
+      void autosave.flush();
       if (dirty.value && !readOnly.value) e.preventDefault();
     });
   }

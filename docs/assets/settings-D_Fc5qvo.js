@@ -1,1 +1,0 @@
-import{t as e}from"./settings-B33bfStB.js";import{L as t,i as n}from"./index-BMacecm3.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

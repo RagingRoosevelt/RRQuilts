@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
 import { lockedProjects } from '@/session/tab-lock';
 import { unsavedDrafts, type Draft } from '@/storage/drafts';
@@ -37,7 +37,8 @@ import { useProjectStore } from '@/stores/project';
 
 const project = useProjectStore();
 const router = useRouter();
-const drafts = ref<Draft[]>([]);
+// shallowRef: draft docs get frozen on restore; a deep-reactive proxy would break that.
+const drafts = shallowRef<Draft[]>([]);
 const open = ref(false);
 
 const when = (t: number) => new Date(t).toLocaleString();
