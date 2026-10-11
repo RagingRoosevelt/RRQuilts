@@ -129,7 +129,12 @@ function remove(id: string) {
 </script>
 
 <style scoped>
+.palette-tray {
+  min-width: 0; /* let the strip scroll instead of widening the page */
+  width: 100%;
+}
 .strip {
+  min-width: 0;
   display: flex;
   flex-wrap: nowrap;
   align-items: center;

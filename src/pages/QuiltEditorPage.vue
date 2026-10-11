@@ -243,6 +243,10 @@ function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
 <style scoped>
 .editor {
   overflow: hidden;
+  min-width: 0;
+}
+.editor > * {
+  min-width: 0;
 }
 .bar {
   border-top: 1px solid rgba(128, 128, 128, 0.25);

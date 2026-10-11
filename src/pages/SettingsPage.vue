@@ -21,6 +21,8 @@
         />
       </div>
 
+      <div class="text-caption text-grey-7">RRQuilts {{ version }} · build {{ build }}</div>
+
       <div class="q-gutter-sm">
         <div class="text-subtitle1">Settings file (.rrq_conf)</div>
         <q-btn outline icon="download" label="Export" @click="exportConf" />
@@ -46,6 +48,12 @@ import { useSettingsStore } from '@/stores/settings';
 const $q = useQuasar();
 const store = useSettingsStore();
 const fileInput = ref<HTMLInputElement>();
+const version = import.meta.env.APP_VERSION;
+// The main bundle's hashed file name changes with every build (dev server shows "dev").
+const mainScript = document.querySelector<HTMLScriptElement>(
+  'script[type="module"][src*="/assets/index-"]',
+);
+const build = /index-([\w-]+)\.js$/.exec(mainScript?.src ?? '')?.[1] ?? 'dev';
 
 function exportConf() {
   const doc = toConf(store.settings, import.meta.env.APP_VERSION);
