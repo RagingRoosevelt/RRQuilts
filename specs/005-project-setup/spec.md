@@ -160,7 +160,8 @@ can be exported as `.rrq_conf` and re-imported.
 - **FR-010**: The app MUST be Vue 3 + Quasar (Vite) with TypeScript strict, Pinia, Vue Router history
   mode, Vitest, ESLint + Prettier.
 - **FR-011**: PWA mode MUST precache the whole app; navigation fallback to `index.html` within the base
-  path; update prompt instead of auto-reload.
+  path; update prompt instead of auto-reload; checks for a new version when the app regains
+  focus and hourly while open (not only on page load).
 - **FR-012**: The shell MUST include the spec 004 routes as placeholders and the redirect for editor
   URLs without an open project.
 - **FR-013**: Settings MUST persist via a guarded local storage wrapper and export/import `.rrq_conf`

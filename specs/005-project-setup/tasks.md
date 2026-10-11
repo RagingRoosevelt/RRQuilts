@@ -58,7 +58,9 @@ description: "Tasks for 005 Project Setup & Delivery Pipeline"
 
 - [x] T020 [P] [US4] Create original placeholder icon `assets/icon.svg` → 1024px PNG; generate icons with `@quasar/icongenie` into `public/`; reference in manifest (incl. maskable)
 - [x] T021 [US4] Implement update prompt in `src-pwa/register-service-worker.ts`: on `updated`, persistent Notify "Update available — Reload"; on click post `SKIP_WAITING` to the waiting worker and reload on `controllerchange`
-- [ ] T022 [US4] Verify offline load of every route and the update flow per quickstart §3
+- [x] T022 [US4] Verify offline load of every route and the update flow per quickstart §3
+  - 2026-10-11: install as PWA and offline launch verified manually (server stopped); update prompt
+    appeared after a rebuild.
 
 ## Phase 7: User Story 5 — Shell matches app flow (P2)
 
