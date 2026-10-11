@@ -249,8 +249,18 @@
         <q-card-section>
           <div class="text-h6">This block is placed in a quilt</div>
           <div v-for="w in inUseDialog.where" :key="w.quilt" class="q-mt-sm">
-            <b>{{ w.quilt }}</b
-            >: {{ w.spots }}
+            <div class="text-weight-medium">{{ w.quilt }}</div>
+            <div class="row q-mt-xs" style="gap: 4px">
+              <q-badge
+                v-for="(spot, i) in w.spots"
+                :key="i"
+                outline
+                rounded
+                color="primary"
+                class="q-px-sm q-py-xs"
+                :label="spot"
+              />
+            </div>
           </div>
           <div class="q-mt-sm text-grey-7">Deleting it empties those spaces (you can undo).</div>
         </q-card-section>
@@ -308,7 +318,7 @@ const blockInput = ref<HTMLInputElement>();
 const inUseDialog = ref<{
   id: string;
   quilt: string;
-  where: { quilt: string; spots: string }[];
+  where: { quilt: string; spots: string[] }[];
   remove: () => void;
 } | null>(null);
 const tab = ref('quilts');
@@ -544,13 +554,13 @@ function deleteBlock(id: string) {
     });
   if (!users.length) return remove();
   const where = users.map((q) => {
-    const spots = Object.entries(q.layers[0].slots)
-      .filter(([, c]) => c.block === id)
-      .map(([slot]) => describeSlot(slot));
+    const spots = Object.keys(q.layers[0].slots)
+      .filter((slot) => q.layers[0].slots[slot]!.block === id)
+      .sort((x, y) => x.localeCompare(y, undefined, { numeric: true }))
+      .map(describeSlot);
     const items = q.layers.flatMap((l) => l.items).filter((i) => i.ref === id).length;
-    const list = spots.length > 4 ? [`${spots.length} spaces`] : spots;
-    if (items) list.push(`${items} appliqué/overlay item${items > 1 ? 's' : ''}`);
-    return { quilt: q.notecard.name, spots: list.join('; ') };
+    if (items) spots.push(`${items} appliqué item${items > 1 ? 's' : ''}`);
+    return { quilt: q.notecard.name, spots };
   });
   inUseDialog.value = { id, where, remove, quilt: users[0]!.id };
 }
