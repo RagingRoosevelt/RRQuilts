@@ -44,12 +44,12 @@ before or with each module; quickstart scenarios map 1:1 to test files in
 
 ## Phase 4: User Story 2 — Edits to a block keep its colors (P1)
 
-- [ ] T020 [P] [US2] `src/model/geometry/path.ts`: arc center/radius in design space, point at/tangent/curvature, flatten (0.2% tolerance), area (shoelace on flattened), point-in-polygon; tests `model/geometry.path.spec.ts`
-- [ ] T021 [P] [US2] `src/model/geometry/intersect.ts`: line–line, line–arc, arc–arc analytic; line–Bézier cubic roots; Bézier–arc and Bézier–Bézier subdivision; collinear/co-circular overlap merge; tests `model/geometry.intersect.spec.ts`
-- [ ] T022 [US2] `src/model/geometry/arrangement.ts`: split at params (line, partial arc sweep, de Casteljau), vertex merge, degree-1 pruning → unconnected ids, half-edge face walk with tangent+curvature ordering, faces → paths with original kinds
-- [ ] T023 [US2] `src/model/blocks/derive.ts`: `deriveSeamPatches(block)` (adds outline, normalizes to design space and back); test `model/derive.spec.ts`: nine-patch = 9, Ohio Star lines → expected count and areas summing to block area, arc → curved patches with `A`, floating segment → unconnected & drawing unchanged, tangent arcs, near-duplicate nodes (quickstart 5)
-- [ ] T024 [US2] `src/model/blocks/remap.ts`: grid-sampling overlap (128×128), stable id claim order, fill inheritance across block colorings and quilt colorings, foundation section cleanup + `needsReview`; test `model/remap.spec.ts` (quickstart 6)
-- [ ] T025 [US2] `src/model/coloring.ts`: `paint(quilt, slotId, patchId, fill, scope)` with copy-on-write, alternate scope, unreferenced coloring cleanup; test `model/coloring.spec.ts` (quickstart 7)
+- [x] T020 [P] [US2] `src/model/geometry/path.ts`: arc center/radius in design space, point at/tangent/curvature, flatten (0.2% tolerance), area (shoelace on flattened), point-in-polygon; tests `model/geometry.path.spec.ts`
+- [x] T021 [P] [US2] `src/model/geometry/intersect.ts`: line–line, line–arc, arc–arc analytic; line–Bézier cubic roots; Bézier–arc and Bézier–Bézier subdivision; collinear/co-circular overlap merge; tests `model/geometry.intersect.spec.ts`
+- [x] T022 [US2] `src/model/geometry/arrangement.ts`: split at params (line, partial arc sweep, de Casteljau), vertex merge, degree-1 pruning → unconnected ids, half-edge face walk with tangent+curvature ordering, faces → paths with original kinds
+- [x] T023 [US2] `src/model/blocks/derive.ts`: `deriveSeamPatches(block)` (adds outline, normalizes to design space and back); test `model/derive.spec.ts`: nine-patch = 9, Ohio Star lines → expected count and areas summing to block area, arc → curved patches with `A`, floating segment → unconnected & drawing unchanged, tangent arcs, near-duplicate nodes (quickstart 5)
+- [x] T024 [US2] `src/model/blocks/remap.ts`: grid-sampling overlap (128×128), stable id claim order, fill inheritance across block colorings and quilt colorings, foundation section cleanup + `needsReview`; test `model/remap.spec.ts` (quickstart 6); orchestrated by `blocks/edit.ts` `applySeamEdit`
+- [x] T025 [US2] `src/model/coloring.ts`: `paint(quilt, slotId, patchId, fill, scope)` with copy-on-write, alternate scope, unreferenced coloring cleanup; test `model/coloring.spec.ts` (quickstart 7)
 
 ## Phase 5: User Story 3 — Changing a layout keeps what still fits (P2)
 
