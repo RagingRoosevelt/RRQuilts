@@ -20,6 +20,8 @@ export interface DrawOptions {
   dpr: number;
   view: View;
   outlines: boolean;
+  /** Show each placed block's name over it. */
+  labels?: boolean;
   hover?: string | null;
   selected?: Set<string>;
   /** Visual theme: patch outline and empty-space colors. */
@@ -134,6 +136,43 @@ export function drawQuilt(
     ctx.lineWidth = hi * px;
     ctx.strokeStyle = hi === 3 ? '#1976d2' : 'rgba(25,118,210,0.7)';
     ctx.stroke(slotPath(slot));
+  }
+  if (o.labels) drawLabels(ctx, quilt, generated, blocks, base, o.dpr);
+}
+
+/** Block names centered on their placements (screen-space text, skipped where too small). */
+function drawLabels(
+  ctx: CanvasRenderingContext2D,
+  quilt: Quilt,
+  generated: Generated,
+  blocks: Map<string, Block>,
+  base: M,
+  dpr: number,
+) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (const slot of generated.slots) {
+    const content = quilt.layers[0].slots[slot.id];
+    const block = content && blocks.get(content.block);
+    if (!block || block.notecard.tags?.includes('system')) continue;
+    const [a, b, c, d, e, f] = mul(base, slot.transform);
+    const width = Math.min(Math.hypot(a, b), Math.hypot(c, d)); // device px
+    if (width < 48 * dpr) continue;
+    const size = Math.min(13 * dpr, width / 6);
+    ctx.font = `${size}px sans-serif`;
+    let text = block.notecard.name;
+    const max = width * 0.9 - size;
+    while (text.length > 1 && ctx.measureText(text).width > max) text = text.slice(0, -2) + '…';
+    const x = a / 2 + c / 2 + e;
+    const y = b / 2 + d / 2 + f;
+    const w = ctx.measureText(text).width + size;
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.beginPath();
+    ctx.roundRect(x - w / 2, y - size * 0.8, w, size * 1.6, size * 0.4);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillText(text, x, y);
   }
 }
 

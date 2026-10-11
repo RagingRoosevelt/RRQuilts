@@ -499,14 +499,25 @@ function deleteQuilt(id: string) {
 
 function deleteBlock(id: string) {
   const users = quiltsUsing(id);
-  if (users.length) {
-    $q.dialog({
-      title: 'This block is in use',
-      message: `Remove it from ${users.map((q) => `"${q.notecard.name}"`).join(', ')} first.`,
+  const remove = () =>
+    project.change((d) => {
+      for (const q of d.project.quilts) {
+        const slots = q.layers[0].slots;
+        for (const [k, s] of Object.entries(slots)) if (s.block === id) delete slots[k];
+        for (const l of q.layers) l.items = l.items.filter((i) => i.ref !== id);
+        const used = new Set(Object.values(slots).map((s) => s.coloring));
+        for (const l of q.layers) for (const i of l.items) if (i.coloring) used.add(i.coloring);
+        for (const c of Object.keys(q.colorings)) if (!used.has(c)) delete q.colorings[c];
+      }
+      d.project.blocks = d.project.blocks.filter((b) => b.id !== id);
     });
-    return;
-  }
-  project.change((d) => void (d.project.blocks = d.project.blocks.filter((b) => b.id !== id)));
+  if (!users.length) return remove();
+  $q.dialog({
+    title: 'This block is in use',
+    message: `It's placed in ${users.map((q) => `"${q.notecard.name}"`).join(', ')}. Deleting it empties those spaces (you can undo).`,
+    cancel: { label: 'Cancel', flat: true },
+    ok: { label: 'Remove from quilts and delete', color: 'negative', flat: true },
+  }).onOk(remove);
 }
 </script>
 

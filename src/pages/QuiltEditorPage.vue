@@ -40,6 +40,16 @@
       >
         <q-tooltip>{{ outlinesLabel }}</q-tooltip>
       </q-btn>
+      <q-btn
+        flat
+        round
+        dense
+        :icon="editor.labels ? 'label' : 'label_off'"
+        :aria-label="labelsLabel"
+        @click="editor.labels = !editor.labels"
+      >
+        <q-tooltip>{{ labelsLabel }}</q-tooltip>
+      </q-btn>
     </div>
 
     <div class="row col no-wrap" style="min-height: 0">
@@ -72,6 +82,7 @@
           :generated="generated"
           :hover="hover?.slotId ?? null"
           :outlines="editor.outlines"
+          :labels="editor.labels"
           :pan-only="editor.mode !== 'design' || editor.tool === 'pan'"
           @tap="onTap"
           @hover="(h) => (hover = h)"
@@ -209,6 +220,7 @@ function selectTool(id: Tool) {
   editor.tool = id;
 }
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
+const labelsLabel = computed(() => (editor.labels ? 'Hide block names' : 'Show block names'));
 
 const fmt = (n: number) => `${Number(n.toFixed(3))}`;
 const dims = (b: [number, number, number, number]) =>

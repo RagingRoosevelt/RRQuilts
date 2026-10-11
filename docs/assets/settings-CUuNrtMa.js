@@ -1,1 +1,0 @@
-import{t as e}from"./settings-DEx-1KZH.js";import{U as t,i as n}from"./index-Ct9uGoqR.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

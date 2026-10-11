@@ -23,6 +23,7 @@ export const useEditorStore = defineStore('editor', () => {
   const color = ref<string | null>(null);
   const recentColors = ref<string[]>([]);
   const outlines = ref(true);
+  const labels = ref(false);
   const views = reactive(new Map<string, View>());
   /** Flip direction; tapping the Flip tool while it's active switches it. */
   const flipAxis = ref<'h' | 'v'>('h');
@@ -49,6 +50,7 @@ export const useEditorStore = defineStore('editor', () => {
     color,
     recentColors,
     outlines,
+    labels,
     views,
     flipAxis,
     blockMode,

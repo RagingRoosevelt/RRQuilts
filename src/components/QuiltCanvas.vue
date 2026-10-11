@@ -35,6 +35,7 @@ const props = defineProps<{
   view: View | undefined;
   hover: string | null;
   outlines: boolean;
+  labels: boolean;
   panOnly: boolean;
 }>();
 const emit = defineEmits<{
@@ -64,6 +65,7 @@ const vp = useViewport({
       dpr,
       view,
       outlines: props.outlines,
+      labels: props.labels,
       hover: props.hover,
       dark: $q.dark.isActive,
     });
@@ -83,6 +85,7 @@ watch(
     props.view,
     props.hover,
     props.outlines,
+    props.labels,
     $q.dark.isActive,
   ],
   vp.schedule,
