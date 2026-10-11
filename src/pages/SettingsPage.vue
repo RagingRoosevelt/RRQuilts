@@ -48,7 +48,7 @@ const store = useSettingsStore();
 const fileInput = ref<HTMLInputElement>();
 
 function exportConf() {
-  const doc = toConf(store.settings, import.meta.env.QCLI_APP_VERSION ?? 'dev');
+  const doc = toConf(store.settings, import.meta.env.APP_VERSION);
   const url = URL.createObjectURL(
     new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' }),
   );

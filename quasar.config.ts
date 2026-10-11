@@ -7,10 +7,9 @@ import { join } from 'node:path';
 const base = process.env.RRQ_BASE || '/RRQuilts/';
 const poll = process.env.RRQ_POLL === '1';
 const distDir = 'docs';
-// Exposed to the client (QCLI_ prefix); written into exported files as the app version.
-process.env.QCLI_APP_VERSION = (
-  JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }
-).version;
+// Written into saved files as the app version (import.meta.env.APP_VERSION).
+const appVersion = (JSON.parse(readFileSync('package.json', 'utf8')) as { version: string })
+  .version;
 
 export default defineConfig(() => ({
   boot: ['settings'],
@@ -25,6 +24,7 @@ export default defineConfig(() => ({
     publicPath: base,
     distDir,
     sourcemap: false,
+    defineEnv: { APP_VERSION: appVersion },
     vitePlugins: [
       [
         'vite-plugin-checker',

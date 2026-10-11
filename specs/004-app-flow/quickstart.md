@@ -17,6 +17,8 @@ Manual (`make dev`, Chrome unless noted):
    first tab's latest edits and is editable.
 6. **Firefox fallback**: New → Ctrl+S → downloads `Untitled.rrq` with a one-time note explaining
    why it downloads; Open via picker works.
-7. **No storage**: private window with storage blocked → editing works; status shows "Draft not
-   kept — save to file".
+7. **No storage**: block site data for the app (Chrome: Site settings → this site → Cookies and
+   site data → Block) → editing works; status shows "Draft not kept — save to file".
+   Private windows are *not* this case: Chrome and Firefox give them working, temporary
+   IndexedDB, so drafts are kept until the private session ends.
 8. **Unsaved warning**: with unsaved changes, close the tab → browser asks to confirm.

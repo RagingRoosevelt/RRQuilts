@@ -1,0 +1,1 @@
+import{f as e,i as t}from"./index-BPmRrEb1.js";var n=t(()=>{e().applyTheme()});export{n as default};

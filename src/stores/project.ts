@@ -27,7 +27,7 @@ import { forgetRecent, getRecent, rememberRecent, type RecentEntry } from '@/sto
 export type SaveStatus = 'none' | 'new' | 'saved' | 'unsaved' | 'unsaved-no-draft' | 'read-only';
 export type SaveResult = 'saved' | 'downloaded' | 'cancelled';
 
-const APP = import.meta.env.QCLI_APP_VERSION ?? 'dev';
+const APP = import.meta.env.APP_VERSION;
 
 export const useProjectStore = defineStore('project', () => {
   const doc = shallowRef<RrqDoc | null>(null);
@@ -50,11 +50,17 @@ export const useProjectStore = defineStore('project', () => {
     return draftOk.value ? 'unsaved' : 'unsaved-no-draft';
   });
 
+  let askedPersist = false;
   async function writeDraft() {
     if (!doc.value || readOnly.value) return;
     try {
       await putDraft(doc.value, dirty.value);
       draftOk.value = true;
+      // Ask the browser not to evict drafts/libraries under storage pressure (best effort).
+      if (!askedPersist) {
+        askedPersist = true;
+        void navigator.storage?.persist?.().catch(() => {});
+      }
     } catch {
       draftOk.value = false;
     }

@@ -1,3 +1,3 @@
 interface ImportMetaEnv {
-  readonly QCLI_APP_VERSION?: string;
+  readonly APP_VERSION: string;
 }
