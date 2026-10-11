@@ -83,6 +83,7 @@
           :hover="hover?.slotId ?? null"
           :outlines="editor.outlines"
           :labels="editor.labels"
+          :selected="found"
           :pan-only="editor.mode !== 'design' || editor.tool === 'pan'"
           @tap="onTap"
           @hover="(h) => (hover = h)"
@@ -220,6 +221,12 @@ function selectTool(id: Tool) {
   editor.tool = id;
 }
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
+/** Find tool: outline every placement of the selected block. */
+const found = computed(() => {
+  if (editor.tool !== 'find' || !editor.block || !quilt.value) return undefined;
+  const slots = quilt.value.layers[0].slots;
+  return new Set(Object.keys(slots).filter((id) => slots[id]!.block === editor.block));
+});
 const labelsLabel = computed(() => (editor.labels ? 'Hide block names' : 'Show block names'));
 
 const fmt = (n: number) => `${Number(n.toFixed(3))}`;

@@ -53,3 +53,14 @@ export const ensureSlotContent = (quilt: Quilt, slotIds: string[]) => {
     }
   });
 };
+
+/** "row 2, column 3", "sash", "left border"… for telling people where a placement is. */
+export function describeSlot(slotId: string): string {
+  const b = /^b:r(\d+)c(\d+)/.exec(slotId);
+  if (b) return `row ${b[1]}, column ${b[2]}`;
+  const g = slotGroup(slotId);
+  if (g === 'sash') return 'a sash';
+  if (g === 'cs') return 'a cornerstone';
+  if (g.startsWith('border:')) return `border ${Number(g.slice(7)) + 1}`;
+  return 'a space';
+}

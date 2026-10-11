@@ -36,6 +36,8 @@ const props = defineProps<{
   hover: string | null;
   outlines: boolean;
   labels: boolean;
+  /** Slots to outline (e.g. every placement of the block being found). */
+  selected?: Set<string> | undefined;
   panOnly: boolean;
 }>();
 const emit = defineEmits<{
@@ -66,6 +68,7 @@ const vp = useViewport({
       view,
       outlines: props.outlines,
       labels: props.labels,
+      ...(props.selected ? { selected: props.selected } : {}),
       hover: props.hover,
       dark: $q.dark.isActive,
     });
@@ -86,6 +89,7 @@ watch(
     props.hover,
     props.outlines,
     props.labels,
+    props.selected,
     $q.dark.isActive,
   ],
   vp.schedule,

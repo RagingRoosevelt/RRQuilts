@@ -244,6 +244,30 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    <q-dialog :model-value="!!inUseDialog" @update:model-value="inUseDialog = null">
+      <q-card v-if="inUseDialog" style="width: 420px; max-width: 95vw">
+        <q-card-section>
+          <div class="text-h6">This block is placed in a quilt</div>
+          <div v-for="w in inUseDialog.where" :key="w.quilt" class="q-mt-sm">
+            <b>{{ w.quilt }}</b
+            >: {{ w.spots }}
+          </div>
+          <div class="q-mt-sm text-grey-7">Deleting it empties those spaces (you can undo).</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat no-caps icon="search" label="Show me" @click="showPlacements" />
+          <q-btn v-close-popup flat no-caps label="Cancel" />
+          <q-btn
+            v-close-popup
+            flat
+            no-caps
+            color="negative"
+            label="Remove from quilts and delete"
+            @click="inUseDialog!.remove()"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <NotecardDialog ref="notecard" @save="saveCard" />
     <QuiltWizard ref="wizard" :units="project.doc.units" @create="startQuilt" />
   </q-page>
@@ -260,6 +284,7 @@ import { allPatches } from '@/model/blocks/patches';
 import { attribution, copyBlock, newBlock } from '@/editor/block-ops';
 import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
+import { describeSlot } from '@/model/plain';
 import type { Block } from '@/model/schema/block';
 import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
@@ -280,6 +305,12 @@ const library = useLibraryStore();
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
 const blockInput = ref<HTMLInputElement>();
+const inUseDialog = ref<{
+  id: string;
+  quilt: string;
+  where: { quilt: string; spots: string }[];
+  remove: () => void;
+} | null>(null);
 const tab = ref('quilts');
 const preview = ref<string | null>(null);
 const dragFrom = ref<number | null>(null);
@@ -512,12 +543,25 @@ function deleteBlock(id: string) {
       d.project.blocks = d.project.blocks.filter((b) => b.id !== id);
     });
   if (!users.length) return remove();
-  $q.dialog({
-    title: 'This block is in use',
-    message: `It's placed in ${users.map((q) => `"${q.notecard.name}"`).join(', ')}. Deleting it empties those spaces (you can undo).`,
-    cancel: { label: 'Cancel', flat: true },
-    ok: { label: 'Remove from quilts and delete', color: 'negative', flat: true },
-  }).onOk(remove);
+  const where = users.map((q) => {
+    const spots = Object.entries(q.layers[0].slots)
+      .filter(([, c]) => c.block === id)
+      .map(([slot]) => describeSlot(slot));
+    const items = q.layers.flatMap((l) => l.items).filter((i) => i.ref === id).length;
+    const list = spots.length > 4 ? [`${spots.length} spaces`] : spots;
+    if (items) list.push(`${items} appliqué/overlay item${items > 1 ? 's' : ''}`);
+    return { quilt: q.notecard.name, spots: list.join('; ') };
+  });
+  inUseDialog.value = { id, where, remove, quilt: users[0]!.id };
+}
+
+function showPlacements() {
+  const d = inUseDialog.value!;
+  inUseDialog.value = null;
+  editor.mode = 'design';
+  editor.tool = 'find';
+  editor.block = d.id;
+  void router.push(`/project/quilt/${d.quilt}`);
 }
 </script>
 
