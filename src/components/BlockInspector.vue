@@ -138,9 +138,9 @@
           <template #append>
             <q-btn
               dense
-              unelevated
+              outline
               no-caps
-              color="primary"
+              class="inline-op"
               icon="rotate_right"
               label="Rotate"
               @click="emit('op', { kind: 'rotate', deg: angle, about })"
@@ -172,9 +172,9 @@
         <template #append>
           <q-btn
             dense
-            unelevated
+            outline
             no-caps
-            color="primary"
+            class="inline-op"
             icon="open_in_full"
             label="Resize"
             @click="emit('op', { kind: 'resize', pct, about })"
@@ -211,9 +211,9 @@
           <template #append>
             <q-btn
               dense
-              unelevated
+              outline
               no-caps
-              color="primary"
+              class="inline-op"
               label="Split"
               @click="emit('op', { kind: 'nodes', mode: { kind: 'parts', n: parts } })"
             />
@@ -377,3 +377,12 @@ const clampInt = (v: string | number | null) =>
 const setSnap = (patch: Partial<SnapSettings>) =>
   emit('settings', { snap: { ...props.settings.snap, ...patch } });
 </script>
+
+<style scoped>
+.inline-op {
+  color: #000; /* same as the other op buttons, not the field's muted adornment color */
+}
+:global(.body--dark) .inline-op {
+  color: #fff;
+}
+</style>
