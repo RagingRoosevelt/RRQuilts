@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq_conf.v1.json",
+  "title": "RRQuilts settings (.rrq_conf) v1",
+  "type": "object",
+  "required": ["format", "version", "settings"],
+  "properties": {
+    "format": { "const": "rrq_conf" },
+    "version": { "const": 1 },
+    "app": { "type": "string" },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "theme": { "enum": ["auto", "light", "dark"], "default": "auto" },
+        "units": { "enum": ["in", "cm"], "default": "in" },
+        "hintsDismissed": { "type": "array", "items": { "type": "string" }, "default": [] }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
