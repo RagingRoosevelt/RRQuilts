@@ -44,7 +44,11 @@ description: "Tasks for 006 First Quilt"
 ## Phase 6: Polish
 
 - [x] T021 Performance check: 30×30 quilt set/paint < 100 ms (perf test on model ops + manual on canvas)
-- [ ] T022 `CLAUDE.md` (render/editor modules, Immer + Vue rules); quickstart manual run; `make commit`
+- [x] T022 `CLAUDE.md` (render/editor modules, Immer + Vue rules); quickstart manual run; `make commit`
+  - 2026-10-11 manual run passed: wizard, set All/Alternate, erase, paint modes, swap, undo/redo,
+    layout resizing + warnings, sketchbook, save, 30×30 responsiveness, tablet feel. Fixed during the
+    run: tray/color-editor overflow, tooltips. Not explicitly reported: rotate/flip, eyedropper,
+    color add/edit/delete, border add/clone/mitered/locks.
 
 ## Dependencies
 
