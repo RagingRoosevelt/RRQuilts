@@ -38,7 +38,7 @@ description: "Tasks for 004 App Flow — saving slice (US2 + minimal Home)"
 - [x] T017 Update `CLAUDE.md` (storage/session modules); quickstart manual run; `make commit`
   - 2026-10-11 manual run passed: save/overwrite (Chrome), download fallback (Firefox), crash
     restore, flush on hide, read-only second tab + takeover, no-storage status, unsaved warning.
-    Recent list reopen: not yet reported.
+    Recent list reopen: works in Chrome; hidden in Firefox by design (no file handles).
 
 ## Dependencies
 
