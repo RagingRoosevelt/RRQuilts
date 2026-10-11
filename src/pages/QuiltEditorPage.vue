@@ -142,6 +142,7 @@ import type { Border, Layout } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 import type { Hit } from '@/render/hit';
 import { useEditorStore, type Tool } from '@/stores/editor';
+import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
 
 const $q = useQuasar();
@@ -151,6 +152,7 @@ const route = useRoute();
 const router = useRouter();
 const project = useProjectStore();
 const editor = useEditorStore();
+const library = useLibraryStore();
 
 const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === route.params.id));
 watch(
@@ -224,7 +226,10 @@ const hoverSize = computed(() => {
 
 function onTap(hit: Hit) {
   if (!project.doc || !quilt.value) return;
-  const r = applyTool(project.doc, quilt.value.id, slotIds.value, hit, editor);
+  const r = applyTool(project.doc, quilt.value.id, slotIds.value, hit, {
+    ...editor.$state,
+    library: library.lookup,
+  });
   if (r.selectBlock) editor.block = r.selectBlock;
   if (r.selectColor) editor.useColor(r.selectColor);
   if (r.message) $q.notify({ message: r.message, timeout: 1500 });

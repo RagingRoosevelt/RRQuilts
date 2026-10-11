@@ -5,9 +5,8 @@ import { copyBlock } from '@/editor/block-ops';
 import { allPatches } from '@/model/blocks/patches';
 import { contentVersion } from '@/model/identity';
 import {
-  embed,
   isLibraryItem,
-  pruneLibraryItems,
+  syncLibraryItems,
   swapToLibraryVersion,
   useMyCopy,
   versionMismatches,
@@ -43,21 +42,27 @@ describe('library items in projects', () => {
   it('new projects contain no library items; using one embeds it and the colors it needs', async () => {
     const { doc, lookup } = await setup();
     expect(doc.project.blocks).toHaveLength(0);
-    const d = embed(doc, lookup, { blocks: ['rrquilts.ohio-star'] });
+    const d = syncLibraryItems(
+      place(doc, 'rrquilts.ohio-star', { p1: { color: 'rrquilts.gold' } }),
+      lookup,
+    );
     expect(d.project.blocks.map((b) => b.id)).toEqual(['rrquilts.ohio-star']);
     expect(isLibraryItem(d.project.blocks[0]!)).toBe(true);
     expect(d.project.palette.colors.map((c) => c.id).sort()).toEqual([
       'rrquilts.cream',
+      'rrquilts.gold',
       'rrquilts.navy',
       'rrquilts.red',
     ]);
-    expect(embed(d, lookup, { blocks: ['rrquilts.ohio-star'] })).toBe(d); // already there
+    expect(syncLibraryItems(d, lookup)).toBe(d); // nothing to do
   });
 
   it('prunes library items nothing uses, keeps used ones and my own work', async () => {
     const { doc, lookup } = await setup();
-    let d = embed(doc, lookup, { blocks: ['rrquilts.ohio-star', 'rrquilts.nine-patch'] });
-    d = place(d, 'rrquilts.ohio-star', {});
+    let d = place(doc, 'rrquilts.nine-patch', {});
+    d = syncLibraryItems(d, lookup);
+    expect(d.project.blocks.map((b) => b.id)).toEqual(['rrquilts.nine-patch']);
+    d = place(d, 'rrquilts.ohio-star', {}); // replaces the only placement
     d = produce(
       d,
       (x) =>
@@ -67,7 +72,7 @@ describe('library items in projects', () => {
           rgb: [1, 2, 3],
         }),
     );
-    d = pruneLibraryItems(d);
+    d = syncLibraryItems(d, lookup);
     expect(d.project.blocks.map((b) => b.id)).toEqual(['rrquilts.ohio-star']);
     expect(d.project.palette.colors.map((c) => c.id)).toContain('me.mine');
     expect(d.project.palette.colors.map((c) => c.id)).not.toContain('rrquilts.blue'); // nine patch's
@@ -75,7 +80,7 @@ describe('library items in projects', () => {
 
   it('reports same id at a different version, and can switch to the library version keeping quilt colors', async () => {
     const { doc, lookup, lib } = await setup();
-    let d = embed(doc, lookup, { blocks: ['rrquilts.four-patch'] });
+    let d = syncLibraryItems(place(doc, 'rrquilts.four-patch', {}), lookup);
     const fp = d.project.blocks[0]!;
     // Pretend the project has an older version: same id, a slightly different size.
     const older = { ...fp, size: [10, 12] as [number, number] };
@@ -101,8 +106,8 @@ describe('library items in projects', () => {
 
   it('editing makes my copy, used in quilts instead of the library block', async () => {
     const { doc, lookup } = await setup();
-    let d = embed(doc, lookup, { blocks: ['rrquilts.ohio-star'] });
-    d = place(d, 'rrquilts.ohio-star', { p1: { color: 'rrquilts.red' } });
+    let d = place(doc, 'rrquilts.ohio-star', { p1: { color: 'rrquilts.red' } });
+    d = syncLibraryItems(d, lookup);
     const lib = d.project.blocks[0]!;
     const mine = copyBlock(lib, [], 'Jane Doe');
     d = useMyCopy(d, lib.id, mine, true);

@@ -2,6 +2,7 @@
 import type { Generated, Slot } from '@/model/layout/slots';
 import type { Block } from '@/model/schema/block';
 import type { ColoringBody, Fill } from '@/model/schema/coloring';
+import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
 import { mul, type M } from './affine';
@@ -49,8 +50,11 @@ function hatch(ctx: CanvasRenderingContext2D, dark: boolean) {
   return hatchCache.pattern ?? '#ddd';
 }
 
-export function colorLookup(doc: RrqDoc) {
-  const colors = new Map(doc.project.palette.colors.map((c) => [c.id, `rgb(${c.rgb.join(',')})`]));
+/** Fill → CSS color. `extra`: library colors not (yet) in the project, e.g. for library blocks. */
+export function colorLookup(doc: RrqDoc, extra: readonly Color[] = []) {
+  const colors = new Map(
+    [...extra, ...doc.project.palette.colors].map((c) => [c.id, `rgb(${c.rgb.join(',')})`]),
+  );
   const fabrics = new Map(
     doc.project.palette.fabrics.map((f) => [f.id, `rgb(${f.average.join(',')})`]),
   );

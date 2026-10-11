@@ -21,6 +21,19 @@
         />
       </div>
 
+      <div>
+        <div class="text-subtitle1">Your name</div>
+        <q-input
+          v-model.trim="store.settings.author"
+          outlined
+          dense
+          maxlength="100"
+          placeholder="anonymous"
+          :hint="`Shown in projects, blocks, and packs you share. Ids of items you create start with “${slug}.” (existing items keep theirs).`"
+          @update:model-value="store.settings.authorAsked = true"
+        />
+      </div>
+
       <div class="text-caption text-grey-7">RRQuilts {{ version }} · build {{ build }}</div>
 
       <div class="q-gutter-sm">
@@ -41,13 +54,15 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { authorSlug } from '@/model/identity';
 import { parseConf, toConf } from '@/settings/settings';
 import { useSettingsStore } from '@/stores/settings';
 
 const $q = useQuasar();
 const store = useSettingsStore();
 const fileInput = ref<HTMLInputElement>();
+const slug = computed(() => authorSlug(store.settings.author));
 const version = import.meta.env.APP_VERSION;
 // The main bundle's hashed file name changes with every build (dev server shows "dev").
 const mainScript = document.querySelector<HTMLScriptElement>(

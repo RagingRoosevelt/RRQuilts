@@ -1,6 +1,6 @@
 // Library items in projects (spec 008): a library item is embedded only while something uses it,
 // keeps its identity (`id@version`), and is never edited in place.
-import { produce } from 'immer';
+import { produce, type Draft } from 'immer';
 import { allPatches } from './blocks/patches';
 import { assignIds } from './blocks/remap';
 import { pathPolygon } from './geometry/path';
@@ -24,57 +24,49 @@ const toUnits = (b: Block, units: RrqDoc['units']): Block =>
 const colorsIn = (colorings: ColoringBody[]) =>
   colorings.flatMap((c) => Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])));
 
-/** Copy library blocks/colors into the project if missing (plus colors their default colorings use). */
-export function embed(
-  doc: RrqDoc,
-  lib: LibraryLookup,
-  want: { blocks?: string[]; colors?: string[] },
-): RrqDoc {
-  const p = doc.project;
-  const haveBlocks = new Set(p.blocks.map((b) => b.id));
-  const haveColors = new Set(p.palette.colors.map((c) => c.id));
-  const blocks = (want.blocks ?? [])
-    .filter((id) => !haveBlocks.has(id))
-    .map((id) => lib.block(id))
-    .filter((b) => !!b);
-  const colorIds = [...(want.colors ?? []), ...colorsIn(blocks.flatMap((b) => b.colorings))];
-  const colors = [...new Set(colorIds)]
-    .filter((id) => !haveColors.has(id))
-    .map((id) => lib.color(id))
-    .filter((c) => !!c);
-  if (!blocks.length && !colors.length) return doc;
-  return produce(doc, (d) => {
-    d.project.blocks.push(...blocks.map((b) => toUnits(b, doc.units)));
-    d.project.palette.colors.push(...colors);
-  });
-}
-
-/** Remove embedded library items nothing uses anymore (blocks first, then colors). */
-export function pruneLibraryItems(doc: RrqDoc): RrqDoc {
-  const p = doc.project;
-  const usedBlocks = new Set(
+const blocksUsed = (p: RrqDoc['project']) =>
+  new Set(
     p.quilts.flatMap((q) => [
       ...Object.values(q.layers[0].slots).map((s) => s.block),
       ...q.layers.flatMap((l) => l.items.flatMap((i) => (i.ref ? [i.ref] : []))),
     ]),
   );
+
+/**
+ * Keep library items in step with use, inside one edit: embed library blocks/colors that are
+ * referenced but missing (converted to project units), then drop library items nothing uses.
+ */
+export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
+  const p = d.project;
+  if (lib) {
+    const have = new Set(p.blocks.map((b) => b.id));
+    for (const id of blocksUsed(p)) {
+      const b = !have.has(id) ? lib.block(id) : undefined;
+      if (b) p.blocks.push(toUnits(b, d.units));
+    }
+  }
+  const usedBlocks = blocksUsed(p);
   const keptBlocks = p.blocks.filter((b) => !isLibraryItem(b) || usedBlocks.has(b.id));
+  if (keptBlocks.length !== p.blocks.length) p.blocks = keptBlocks;
   const usedColors = new Set(
     colorsIn([
-      ...keptBlocks.flatMap((b) => b.colorings),
+      ...p.blocks.flatMap((b) => b.colorings),
       ...p.quilts.flatMap((q) => Object.values(q.colorings)),
     ]),
   );
+  if (lib) {
+    const have = new Set(p.palette.colors.map((c) => c.id));
+    for (const id of usedColors) {
+      const c = !have.has(id) ? lib.color(id) : undefined;
+      if (c) p.palette.colors.push(c);
+    }
+  }
   const keptColors = p.palette.colors.filter((c) => !isLibraryItem(c) || usedColors.has(c.id));
-  if (keptBlocks.length === p.blocks.length && keptColors.length === p.palette.colors.length)
-    return doc;
-  return produce(doc, (d) => {
-    d.project.blocks = d.project.blocks.filter((b) => keptBlocks.some((k) => k.id === b.id));
-    d.project.palette.colors = d.project.palette.colors.filter((c) =>
-      keptColors.some((k) => k.id === c.id),
-    );
-  });
+  if (keptColors.length !== p.palette.colors.length) p.palette.colors = keptColors;
 }
+
+export const syncLibraryItems = (doc: RrqDoc, lib?: LibraryLookup): RrqDoc =>
+  produce(doc, (d) => syncDraft(d, lib));
 
 /** Embedded library items whose library has the same id at a different version. */
 export function versionMismatches(doc: RrqDoc, lib: LibraryLookup) {
@@ -125,7 +117,7 @@ export function swapToLibraryVersion(doc: RrqDoc, libBlock: Block, lib: LibraryL
       }
     }
   });
-  return embed(swapped, lib, { colors: colorsIn(next.colorings) });
+  return syncLibraryItems(swapped, lib);
 }
 
 /** Add the user's copy of a library block and use it wherever the library block was used. */
@@ -144,5 +136,5 @@ export function useMyCopy(
       for (const i of q.layers.flatMap((l) => l.items)) if (i.ref === libBlockId) i.ref = copy.id;
     }
   });
-  return pruneLibraryItems(withCopy);
+  return syncLibraryItems(withCopy);
 }

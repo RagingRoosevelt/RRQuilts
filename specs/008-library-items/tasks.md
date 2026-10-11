@@ -10,8 +10,8 @@
 
 ## Phase 2: App wiring
 - [ ] T005 Settings: author + authorAsked (validated, exported); Settings page field with privacy note; first-creation prompt composable
-- [ ] T006 `stores/library.ts` (built-in loaded with versions); project store: new projects empty, prune inside `change`, stamp versions on save, mismatch detection on open
-- [ ] T007 actions: library lookup for set/paint/swap embedding; render color lookup includes library colors
+- [x] T006 `stores/library.ts` (built-in loaded with versions); project store: new projects empty, prune inside `change`, stamp versions on save, mismatch detection on open
+- [x] T007 actions: library lookup for set/paint/swap embedding; render color lookup includes library colors
 
 ## Phase 3: UI
 - [ ] T008 Tray: My blocks / Library; My colors / Library colors

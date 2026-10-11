@@ -1,6 +1,7 @@
 // Small images of quilts and blocks for sketchbook cards, cached per (immutable) object.
 import { generateSlots } from '@/model/layout/slots';
 import type { Block } from '@/model/schema/block';
+import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
 import { colorLookup, drawBlock, drawQuilt, fitView } from './draw';
@@ -46,6 +47,7 @@ export function blockThumbnail(
   px = 160,
   dark = false,
   coloringId?: string,
+  libraryColors: readonly Color[] = [],
 ) {
   const coloring = block.colorings.find((c) => c.id === coloringId) ?? block.colorings[0];
   return cached(
@@ -55,7 +57,11 @@ export function blockThumbnail(
       const [c, ctx] = canvas(px);
       const s = (px - 8) / Math.max(...block.size);
       ctx.setTransform(s, 0, 0, s, 4, 4);
-      drawBlock(ctx, block, coloring, colorLookup(doc), { outlines: true, lineWidth: 1 / s, dark });
+      drawBlock(ctx, block, coloring, colorLookup(doc, libraryColors), {
+        outlines: true,
+        lineWidth: 1 / s,
+        dark,
+      });
       return c.toDataURL();
     },
   );

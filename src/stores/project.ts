@@ -1,13 +1,22 @@
 // The open project: in-memory document, file link, save status, crash-recovery draft, and the
 // one-editing-tab lock. All edits go through `change()`.
-import { freeze, produceWithPatches, type Draft as ImmerDraft } from 'immer';
+import { freeze, produce, produceWithPatches, type Draft as ImmerDraft } from 'immer';
 import { defineStore } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 import { parseProject, serializeProject } from '@/model/io';
 import { newId } from '@/model/ids';
 import { createProject } from '@/model/new-project';
+import type { Block } from '@/model/schema/block';
+import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
-import { addStarterContent } from '@/content/starter';
+import { stampVersions } from '@/model/identity';
+import {
+  swapToLibraryVersion,
+  syncDraft,
+  syncLibraryItems,
+  versionMismatches,
+} from '@/model/library-items';
+import { useLibraryStore } from './library';
 import { createHistory } from '@/editor/undo';
 import { createAutosave } from '@/session/autosave';
 import { useSettingsStore } from '@/stores/settings';
@@ -41,6 +50,8 @@ export const useProjectStore = defineStore('project', () => {
   const savedRevision = ref(0);
   const draftOk = ref(true);
   const readOnly = ref(false);
+  /** Embedded library items whose library holds a different version (asked about after open). */
+  const mismatches = shallowRef<ReturnType<typeof versionMismatches>>([]);
   /** Set when another tab took over editing (shown as an explanation). */
   const lostToOtherTab = ref(false);
   let lock: HeldLock | null = null;
@@ -103,9 +114,9 @@ export const useProjectStore = defineStore('project', () => {
     if (opts.dirty && !readOnly.value) await writeDraft();
   }
 
-  /** New project with the starter blocks and colors, in the units chosen in Settings. */
+  /** New, empty project in the units chosen in Settings (library items embed when used). */
   const newProject = (name?: string) =>
-    load(addStarterContent(createProject(name, useSettingsStore().settings.units, APP)), {
+    load(createProject(name, useSettingsStore().settings.units, APP), {
       saved: false,
       dirty: false,
     });
@@ -115,6 +126,7 @@ export const useProjectStore = defineStore('project', () => {
     const r = await parseProject(await picked.file.text());
     if (!r.ok) throw new Error(r.error);
     await load(r.doc, { handle: picked.handle ?? null, saved: true, dirty: false });
+    mismatches.value = versionMismatches(r.doc, useLibraryStore().lookup);
     await rememberRecent({
       id: r.doc.project.id,
       name: r.doc.project.name,
@@ -175,7 +187,13 @@ export const useProjectStore = defineStore('project', () => {
     opts: { coalesce?: string } = {},
   ) {
     if (!doc.value || readOnly.value) return;
-    const [next, patches, inverse] = produceWithPatches(doc.value, recipe);
+    const lib = useLibraryStore().lookup;
+    // Library items embed when used and leave when unused, in the same undo step (spec 008).
+    const [next, patches, inverse] = produceWithPatches(doc.value, (d) => {
+      const r = recipe(d);
+      if (r) return syncLibraryItems(r, lib);
+      syncDraft(d, lib);
+    });
     if (!patches.length) return;
     doc.value = next;
     history.record(patches, inverse, opts.coalesce);
@@ -215,8 +233,14 @@ export const useProjectStore = defineStore('project', () => {
     }).catch(() => {});
   }
 
+  /** Give my own items current versions/revisions before writing them out (spec 008). */
+  async function stamp() {
+    if (doc.value) doc.value = freeze(await stampVersions(doc.value), true);
+  }
+
   async function save(): Promise<SaveResult> {
     if (!doc.value || readOnly.value) return 'cancelled';
+    await stamp();
     if (handle.value && (await ensurePermission(handle.value, 'readwrite'))) {
       await writeToHandle(handle.value, serializeProject(doc.value));
       await afterSave(handle.value);
@@ -227,6 +251,7 @@ export const useProjectStore = defineStore('project', () => {
 
   async function saveAs(): Promise<SaveResult> {
     if (!doc.value || readOnly.value) return 'cancelled';
+    await stamp();
     const text = serializeProject(doc.value);
     if (supportsFileAccess()) {
       const h = await saveWithPicker(doc.value.project.name, text);
@@ -289,9 +314,29 @@ export const useProjectStore = defineStore('project', () => {
     });
   }
 
+  /** Switch the chosen items to their library version (one undo step). */
+  function useLibraryVersions(ids: string[]) {
+    const lib = useLibraryStore().lookup;
+    if (!doc.value) return;
+    let next = doc.value;
+    for (const m of mismatches.value.filter((x) => ids.includes(x.project.id))) {
+      next =
+        m.kind === 'block'
+          ? swapToLibraryVersion(next, m.library as Block, lib)
+          : produce(next, (x) => {
+              const i = x.project.palette.colors.findIndex((c) => c.id === m.project.id);
+              x.project.palette.colors[i] = m.library as Color;
+            });
+    }
+    change(() => next);
+    mismatches.value = [];
+  }
+
   return {
     doc,
     handle,
+    mismatches,
+    useLibraryVersions,
     isOpen,
     dirty,
     status,

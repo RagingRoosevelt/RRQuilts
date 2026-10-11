@@ -8,6 +8,10 @@ export interface Settings {
   theme: Theme;
   units: Units;
   hintsDismissed: string[];
+  /** Name the user is known by; its slug prefixes ids of items they create (spec 008). */
+  author: string;
+  /** The author name has been asked for once. */
+  authorAsked: boolean;
   // Keys added by later app versions are kept as-is.
   [key: string]: unknown;
 }
@@ -29,12 +33,20 @@ export const FORMAT = 'rrq_conf';
 // ponytail: single version so far; add a migrations table keyed by version when v2 exists.
 export const VERSION = 1;
 
-export const defaults = (): Settings => ({ theme: 'auto', units: 'in', hintsDismissed: [] });
+export const defaults = (): Settings => ({
+  theme: 'auto',
+  units: 'in',
+  hintsDismissed: [],
+  author: '',
+  authorAsked: false,
+});
 
 const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   theme: (v) => v === 'auto' || v === 'light' || v === 'dark',
   units: (v) => v === 'in' || v === 'cm',
   hintsDismissed: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
+  author: (v) => typeof v === 'string' && v.length <= 100,
+  authorAsked: (v) => typeof v === 'boolean',
 };
 
 const isObject = (v: unknown): v is Record<string, unknown> =>

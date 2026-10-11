@@ -2,6 +2,7 @@
 // a selection change. The editor page applies the result through project.change (one undo step).
 import { produce } from 'immer';
 import { allPatches } from '@/model/blocks/patches';
+import type { LibraryLookup } from '@/model/library-items';
 import { fillKey, paint, spray, swap } from '@/model/coloring';
 import { newId } from '@/model/ids';
 import {
@@ -27,6 +28,8 @@ export interface ToolState {
   flipAxis?: 'h' | 'v';
   /** Which of a block's colorings "Set" uses (default: its first). */
   coloringOf?: ReadonlyMap<string, string>;
+  /** Library blocks can be set without being in the project yet (they embed on change). */
+  library?: LibraryLookup;
 }
 
 type Orientation = { rotation: 0 | 90 | 180 | 270; flip: boolean };
@@ -70,7 +73,7 @@ export function applyTool(
 
   switch (s.tool) {
     case 'set': {
-      const block = s.block && blocks.get(s.block);
+      const block = s.block ? (blocks.get(s.block) ?? s.library?.block(s.block)) : undefined;
       if (!block) return { message: 'Pick a block in the tray first.' };
       const targets = setTargets(slotIds, hit.slotId, s.scope);
       return {
