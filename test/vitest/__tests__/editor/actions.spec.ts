@@ -212,7 +212,7 @@ describe('editor actions', () => {
     expect(performance.now() - t).toBeLessThan(100);
   });
 
-  it('flip mirrors as seen on screen and cycles ↔ → ↕ → original, even on rotated blocks', () => {
+  it('flip mirrors left↔right or top↕bottom as seen on screen, even on rotated blocks', () => {
     const { doc, ids, byName } = setup();
     let d = run(doc, ids, 'b:r1c1', {
       tool: 'set',
@@ -221,22 +221,18 @@ describe('editor actions', () => {
       color: null,
     }).doc!;
     d = run(d, ids, 'b:r1c1', { tool: 'rotate', scope: 'this', block: null, color: null }).doc!; // 90°
+    const z = (x: M) => x.map((v) => v + 0) as M; // -0 → 0
     const m = (x: RrqDoc): M => {
       const c = q(x).layers[0].slots['b:r1c1']!;
-      return orient(c.rotation, c.flip).map((v) => v + 0) as M; // -0 → 0
+      return z(orient(c.rotation, c.flip));
     };
-    const z = (x: M) => x.map((v) => v + 0);
     const H: M = [-1, 0, 0, 1, 1, 0]; // screen mirror left↔right in the unit square
     const V: M = [1, 0, 0, -1, 0, 1]; // screen mirror top↕bottom
-    const s0 = m(d);
-    const flip = (x: RrqDoc, flipStep: 1 | 2 | 3) =>
-      run(x, ids, 'b:r1c1', { tool: 'flip', scope: 'this', block: null, color: null, flipStep })
+    const flip = (x: RrqDoc, flipAxis: 'h' | 'v') =>
+      run(x, ids, 'b:r1c1', { tool: 'flip', scope: 'this', block: null, color: null, flipAxis })
         .doc!;
-    const d1 = flip(d, 1);
-    expect(m(d1)).toEqual(z(mul(H, s0)));
-    const d2 = flip(d1, 2);
-    expect(m(d2)).toEqual(z(mul(V, s0)));
-    const d3 = flip(d2, 3);
-    expect(m(d3)).toEqual(s0);
+    expect(m(flip(d, 'h'))).toEqual(z(mul(H, m(d))));
+    expect(m(flip(d, 'v'))).toEqual(z(mul(V, m(d))));
+    expect(m(flip(flip(d, 'v'), 'v'))).toEqual(m(d)); // mirroring twice restores
   });
 });

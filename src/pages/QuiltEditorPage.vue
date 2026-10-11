@@ -53,11 +53,12 @@
           :color="editor.tool === t.id ? 'primary' : undefined"
           dense
           :icon="t.icon"
-          :aria-label="t.label"
+          :class="{ 'flip-v': t.id === 'flip' && editor.flipAxis === 'v' }"
+          :aria-label="labelOf(t)"
           :disable="project.readOnly && t.id !== 'pan' && t.id !== 'find' && t.id !== 'eyedropper'"
-          @click="editor.tool = t.id"
+          @click="selectTool(t.id)"
         >
-          <q-tooltip anchor="center right" self="center left">{{ t.label }}</q-tooltip>
+          <q-tooltip anchor="center right" self="center left">{{ labelOf(t) }}</q-tooltip>
         </q-btn>
       </div>
 
@@ -187,7 +188,7 @@ const tools: { id: Tool; icon: string; label: string }[] = [
 const HINTS: Record<Tool, string> = {
   set: 'Tap a space to set the selected block.',
   rotate: 'Tap a block to turn it 90°.',
-  flip: 'Tap a block to mirror it left↔right; tap again for top↕bottom, again to restore.',
+  flip: 'Tap a block to mirror it. Tap the Flip tool again to switch left↔right / top↕bottom.',
   erase: 'Tap a block to remove it.',
   find: 'Tap a block to select it in the tray.',
   paint: 'Tap a patch to color it.',
@@ -197,6 +198,14 @@ const HINTS: Record<Tool, string> = {
   pan: 'Drag to move around.',
 };
 const toolHint = computed(() => HINTS[editor.tool]);
+const labelOf = (t: { id: Tool; label: string }) =>
+  t.id === 'flip' ? (editor.flipAxis === 'v' ? 'Flip top↕bottom' : 'Flip left↔right') : t.label;
+/** Choosing Flip while it's already active switches its direction. */
+function selectTool(id: Tool) {
+  if (id === 'flip' && editor.tool === 'flip')
+    editor.flipAxis = editor.flipAxis === 'h' ? 'v' : 'h';
+  editor.tool = id;
+}
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
 
 const fmt = (n: number) => `${Number(n.toFixed(3))}`;
@@ -215,20 +224,7 @@ const hoverSize = computed(() => {
 
 function onTap(hit: Hit) {
   if (!project.doc || !quilt.value) return;
-  // Repeated Flip taps on the same space cycle ↔ → ↕ → original; anything else starts over.
-  const last = editor.lastFlip;
-  const flipStep =
-    last && last.slotId === hit.slotId && last.scope === editor.scope
-      ? (((last.step % 3) + 1) as 1 | 2 | 3)
-      : 1;
-  const r = applyTool(project.doc, quilt.value.id, slotIds.value, hit, {
-    ...editor.$state,
-    flipStep,
-  });
-  editor.lastFlip =
-    editor.tool === 'flip' && r.doc
-      ? { slotId: hit.slotId, scope: editor.scope, step: flipStep }
-      : null;
+  const r = applyTool(project.doc, quilt.value.id, slotIds.value, hit, editor);
   if (r.selectBlock) editor.block = r.selectBlock;
   if (r.selectColor) editor.useColor(r.selectColor);
   if (r.message) $q.notify({ message: r.message, timeout: 1500 });
@@ -271,6 +267,9 @@ function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
 .bar {
   border-top: 1px solid rgba(128, 128, 128, 0.25);
   border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+}
+.flip-v :deep(.q-icon) {
+  transform: rotate(90deg);
 }
 .rail {
   overflow-y: auto;

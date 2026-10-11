@@ -23,8 +23,8 @@ export interface ToolState {
   scope: Scope;
   block: string | null;
   color: string | null;
-  /** Flip cycle step for repeated taps on the same space: 1 ↔, 2 ↕, 3 back to the original. */
-  flipStep?: 1 | 2 | 3;
+  /** Flip direction: 'h' mirrors left↔right, 'v' top↕bottom (as seen on screen). */
+  flipAxis?: 'h' | 'v';
 }
 
 type Orientation = { rotation: 0 | 90 | 180 | 270; flip: boolean };
@@ -35,9 +35,6 @@ const mirrorV = (o: Orientation): Orientation => ({
   rotation: norm(180 - o.rotation),
   flip: !o.flip,
 });
-/** Step 1: ↔ of the original; step 2: ↕ of the original; step 3: the original again. */
-const flipCycle = (o: Orientation, step: 1 | 2 | 3) =>
-  step === 1 ? mirrorH(o) : step === 2 ? mirrorV(mirrorH(o)) : mirrorV(o);
 
 export interface Result {
   doc?: RrqDoc;
@@ -102,7 +99,8 @@ export function applyTool(
               const c = q.layers[0].slots[t];
               if (!c) continue;
               if (s.tool === 'erase') delete q.layers[0].slots[t];
-              else if (s.tool === 'flip') Object.assign(c, flipCycle(c, s.flipStep ?? 1));
+              else if (s.tool === 'flip')
+                Object.assign(c, s.flipAxis === 'v' ? mirrorV(c) : mirrorH(c));
               else c.rotation = ((c.rotation + 90) % 360) as typeof c.rotation;
             }
             pruneColorings(q);
