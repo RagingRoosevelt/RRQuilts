@@ -6,14 +6,15 @@ import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
 import { colorLookup, drawBlock, drawQuilt, fitView } from './draw';
 
-const cache = new WeakMap<object, Map<string, string>>();
+const cache = new WeakMap<object, Map<string, { dep: unknown; url: string }>>();
 
-function cached(key: object, extra: string, render: () => string) {
+/** Cached per (immutable) `key` + `extra`; re-rendered when `dep` (e.g. the blocks array) changes. */
+function cached(key: object, extra: string, render: () => string, dep?: unknown) {
   let m = cache.get(key);
   if (!m) cache.set(key, (m = new Map()));
   let v = m.get(extra);
-  if (!v) m.set(extra, (v = render()));
-  return v;
+  if (!v || v.dep !== dep) m.set(extra, (v = { dep, url: render() }));
+  return v.url;
 }
 
 function canvas(px: number) {
@@ -23,10 +24,9 @@ function canvas(px: number) {
 }
 
 export function quiltThumbnail(doc: RrqDoc, quilt: Quilt, px = 240, dark = false) {
-  // Keyed by the quilt and palette/blocks arrays: any edit to them yields new objects.
   return cached(
     quilt,
-    `${px}:${dark}:${doc.project.blocks.length}:${doc.project.palette.colors.length}`,
+    `${px}:${dark}:${doc.project.palette.colors.length}`,
     () => {
       const [c, ctx] = canvas(px);
       const g = generateSlots(quilt.layout, quilt.borders);
@@ -38,6 +38,7 @@ export function quiltThumbnail(doc: RrqDoc, quilt: Quilt, px = 240, dark = false
       });
       return c.toDataURL();
     },
+    doc.project, // blocks or colors changed → redraw
   );
 }
 

@@ -3,7 +3,7 @@
 import { produce } from 'immer';
 import { allPatches } from '@/model/blocks/patches';
 import type { LibraryLookup } from '@/model/library-items';
-import { fillKey, paint, spray, swap } from '@/model/coloring';
+import { fillKey, paint, resolveColoring, spray, swap } from '@/model/coloring';
 import { newId } from '@/model/ids';
 import {
   ensurePlainBlock,
@@ -69,7 +69,12 @@ export function applyTool(
   const content = quilt.layers[0].slots[hit.slotId];
   const group = slotGroup(hit.slotId);
   const fillAtHit = (): Fill | undefined =>
-    content ? quilt!.colorings[content.coloring]?.fills[hit.patchId ?? PLAIN_PATCH] : undefined;
+    content
+      ? resolveColoring(quilt!.colorings[content.coloring], blocks.get(content.block))?.fills[
+          hit.patchId ?? PLAIN_PATCH
+        ]
+      : undefined;
+  const blockOf = (id: string) => blocks.get(id);
 
   switch (s.tool) {
     case 'set': {
@@ -85,7 +90,8 @@ export function applyTool(
             while (coloring in q.colorings);
             const chosen = s.coloringOf?.get(block.id);
             const src = block.colorings.find((c) => c.id === chosen) ?? block.colorings[0];
-            q.colorings[coloring] = { fills: { ...(src?.fills ?? {}) } };
+            // Follows the block's coloring; recoloring in the quilt adds overrides.
+            q.colorings[coloring] = src ? { base: src.id, fills: {} } : { fills: {} };
             for (const t of targets)
               q.layers[0].slots[t] = { block: block.id, coloring, rotation: 0, flip: false };
             pruneColorings(q);
@@ -136,17 +142,17 @@ export function applyTool(
       }
       const match = fillAtHit();
       if (s.tool === 'swap') {
-        quilt = swap(quilt, match, fill, patchesOf);
+        quilt = swap(quilt, match, fill, patchesOf, blockOf);
       } else if (s.tool === 'spray') {
         const filled = Object.keys(quilt.layers[0].slots);
         const targets =
           s.scope === 'this'
             ? [hit.slotId]
             : filled.filter((id) => s.scope === 'all' || parity(id) === parity(hit.slotId));
-        quilt = spray(quilt, targets, match, fill, patchesOf);
+        quilt = spray(quilt, targets, match, fill, patchesOf, blockOf);
       } else {
         const targets = placementTargets(quilt, slotIds, hit.slotId, s.scope);
-        quilt = paint(quilt, targets, hit.patchId ?? PLAIN_PATCH, fill);
+        quilt = paint(quilt, targets, hit.patchId ?? PLAIN_PATCH, fill, blockOf);
       }
       if (fillKey(match) === fillKey(fill) && s.tool !== 'paint') return {};
       return { doc: withQuilt(next, quilt) };

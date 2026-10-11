@@ -135,7 +135,11 @@ export function remapColoring<T extends ColoringBody>(
     if (from && c.fills[from]) fills[id] = c.fills[from];
     if (from && c.threads?.[from]) threads[id] = c.threads[from];
   }
-  return { ...c, fills, ...(c.threads ? { threads } : {}) };
+  const cleared = c.cleared && [
+    ...c.cleared.filter((k) => !oldIds.has(k)),
+    ...assignments.flatMap(({ id, from }) => (from && c.cleared!.includes(from) ? [id] : [])),
+  ];
+  return { ...c, fills, ...(c.threads ? { threads } : {}), ...(cleared ? { cleared } : {}) };
 }
 
 export interface Section {

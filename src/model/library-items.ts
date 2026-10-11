@@ -2,7 +2,7 @@
 // keeps its identity (`id@version`), and is never edited in place.
 import { produce, type Draft } from 'immer';
 import { allPatches } from './blocks/patches';
-import { assignIds } from './blocks/remap';
+import { assignIds, remapColoring } from './blocks/remap';
 import { pathPolygon } from './geometry/path';
 import type { Block } from './schema/block';
 import type { ColoringBody } from './schema/coloring';
@@ -98,8 +98,11 @@ export function swapToLibraryVersion(doc: RrqDoc, libBlock: Block, lib: LibraryL
     path: p.path,
     poly: pathPolygon(p.path, next.size),
   }));
-  const from = assignIds(oldPatches, newPatches).map((a) => a.from);
-  const newIds = allPatches(next).map((p) => p.id);
+  const assignments = assignIds(oldPatches, newPatches).map((a, i) => ({
+    ...a,
+    id: allPatches(next)[i]!.id,
+  }));
+  const oldIds = new Set(oldPatches.map((p) => p.id));
   const swapped = produce(doc, (d) => {
     d.project.blocks = d.project.blocks.map((b) => (b.id === next.id ? next : b));
     for (const q of d.project.quilts) {
@@ -108,13 +111,7 @@ export function swapToLibraryVersion(doc: RrqDoc, libBlock: Block, lib: LibraryL
       );
       for (const id of used) {
         const c = q.colorings[id];
-        if (!c) continue;
-        const fills: ColoringBody['fills'] = {};
-        newIds.forEach((pid, i) => {
-          const src = from[i];
-          if (src && c.fills[src]) fills[pid] = c.fills[src];
-        });
-        c.fills = fills;
+        if (c) q.colorings[id] = remapColoring(c, assignments, oldIds);
       }
     }
   });

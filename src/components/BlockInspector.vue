@@ -130,16 +130,23 @@
           dense
           outlined
           type="number"
+          label="Angle"
           suffix="°"
-          style="width: 90px"
-        />
-        <q-btn
-          dense
-          flat
-          no-caps
-          label="Rotate"
-          @click="emit('op', { kind: 'rotate', deg: angle, about })"
-        />
+          style="width: 170px"
+          @keyup.enter="emit('op', { kind: 'rotate', deg: angle, about })"
+        >
+          <template #append>
+            <q-btn
+              dense
+              unelevated
+              no-caps
+              color="primary"
+              icon="rotate_right"
+              label="Rotate"
+              @click="emit('op', { kind: 'rotate', deg: angle, about })"
+            />
+          </template>
+        </q-input>
       </div>
       <div class="row" style="gap: 6px">
         <q-btn
@@ -152,16 +159,28 @@
           @click="emit('op', { kind: 'flip', axis: f.axis, about })"
         />
       </div>
-      <div class="row items-center" style="gap: 6px">
-        <q-input v-model.number="pct" dense outlined type="number" suffix="%" style="width: 90px" />
-        <q-btn
-          dense
-          flat
-          no-caps
-          label="Resize"
-          @click="emit('op', { kind: 'resize', pct, about })"
-        />
-      </div>
+      <q-input
+        v-model.number="pct"
+        dense
+        outlined
+        type="number"
+        label="Scale"
+        suffix="%"
+        style="width: 170px"
+        @keyup.enter="emit('op', { kind: 'resize', pct, about })"
+      >
+        <template #append>
+          <q-btn
+            dense
+            unelevated
+            no-caps
+            color="primary"
+            icon="open_in_full"
+            label="Resize"
+            @click="emit('op', { kind: 'resize', pct, about })"
+          />
+        </template>
+      </q-input>
       <div class="text-caption">Add nodes</div>
       <div class="row items-center" style="gap: 6px">
         <q-btn
@@ -185,15 +204,21 @@
           type="number"
           min="2"
           max="24"
-          style="width: 70px"
-        />
-        <q-btn
-          dense
-          outline
-          no-caps
-          label="Parts"
-          @click="emit('op', { kind: 'nodes', mode: { kind: 'parts', n: parts } })"
-        />
+          label="Equal parts"
+          style="width: 160px"
+          @keyup.enter="emit('op', { kind: 'nodes', mode: { kind: 'parts', n: parts } })"
+        >
+          <template #append>
+            <q-btn
+              dense
+              unelevated
+              no-caps
+              color="primary"
+              label="Split"
+              @click="emit('op', { kind: 'nodes', mode: { kind: 'parts', n: parts } })"
+            />
+          </template>
+        </q-input>
         <q-btn
           dense
           outline

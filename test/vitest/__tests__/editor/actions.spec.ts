@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { addStarterContent } from '@/content/starter';
 import { applyTool, type ToolState } from '@/editor/actions';
 import { allPatches } from '@/model/blocks/patches';
+import { paint, resolveColoring } from '@/model/coloring';
+import { produce } from 'immer';
 import { mul, orient, type M } from '@/render/affine';
 import { generateSlots } from '@/model/layout/slots';
 import { createProject } from '@/model/new-project';
@@ -60,9 +62,14 @@ describe('editor actions', () => {
     expect(slots['b:r2c2']!.block).toBe(a);
     expect(slots['b:r1c2']!.block).toBe(b);
     expect(slots['b:r2c1']!.block).toBe(b);
-    // New placements start with the block's default coloring.
-    expect(q(d).colorings[slots['b:r1c1']!.coloring]!.fills).toEqual(
-      byName('Ohio Star').colorings[0]!.fills,
+    // New placements follow the block's default coloring.
+    const star = byName('Ohio Star');
+    expect(q(d).colorings[slots['b:r1c1']!.coloring]).toEqual({
+      base: star.colorings[0]!.id,
+      fills: {},
+    });
+    expect(resolveColoring(q(d).colorings[slots['b:r1c1']!.coloring], star)!.fills).toEqual(
+      star.colorings[0]!.fills,
     );
     expect(Object.keys(q(d).colorings)).toHaveLength(2);
   });
@@ -256,5 +263,44 @@ describe('editor actions', () => {
       coloringOf: new Map([[star.id, 'alt']]),
     }).doc!;
     expect(q(d).colorings[q(d).layers[0].slots['b:r1c1']!.coloring]!.fills).toEqual({});
+  });
+
+  it('placements follow later changes to the block coloring, except where recolored in the quilt', () => {
+    const { doc, ids, byName, color } = setup();
+    const star = byName('Ohio Star');
+    const [p1, p2] = allPatches(star).map((p) => p.id);
+    let d = run(doc, ids, 'b:r1c1', {
+      tool: 'set',
+      scope: 'all',
+      block: star.id,
+      color: null,
+    }).doc!;
+    // Recolor p1 in the quilt, then clear p2 there.
+    d = run(
+      d,
+      ids,
+      'b:r1c1',
+      { tool: 'paint', scope: 'all', block: null, color: color('Gold') },
+      p1,
+    ).doc!;
+    const slotIds = Object.keys(q(d).layers[0].slots);
+    const cleared = paint(q(d), slotIds, p2!, undefined, (id) =>
+      d.project.blocks.find((b) => b.id === id),
+    );
+    d = produce(d, (x) => void (x.project.quilts[0] = cleared));
+    // Now change the block's own coloring everywhere.
+    d = produce(d, (x) => {
+      const fills = x.project.blocks.find((b) => b.id === star.id)!.colorings[0]!.fills;
+      for (const k of Object.keys(fills)) fills[k] = { color: color('Black') };
+    });
+    const block = d.project.blocks.find((b) => b.id === star.id)!;
+    const c = q(d).colorings[q(d).layers[0].slots['b:r2c2']!.coloring];
+    const fills = resolveColoring(c, block)!.fills;
+    expect(fills[p1!]).toEqual({ color: color('Gold') });
+    expect(fills[p2!]).toBeUndefined();
+    const others = allPatches(block)
+      .map((p) => p.id)
+      .filter((p) => p !== p1 && p !== p2);
+    expect(others.every((p) => fills[p]?.['color' as never] === color('Black'))).toBe(true);
   });
 });

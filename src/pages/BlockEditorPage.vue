@@ -158,7 +158,7 @@ import {
   type BlockEditorSettings,
   type SelectionOp,
 } from '@/editor/block-ops';
-import { fillKey } from '@/model/coloring';
+import { detachColoring, fillKey } from '@/model/coloring';
 import {
   addNodes,
   cloneSegments,
@@ -254,11 +254,12 @@ const withBlock = (doc: RrqDoc, fn: (b: Block) => Block): RrqDoc =>
   });
 
 /** A drawing change: re-derive patches (stable ids, inherited fills) and mark library items derived. */
-function applyDrawing(drawing: Drawing) {
+function applyDrawing(drawing: Drawing, editorPatch?: Partial<BlockEditorSettings>) {
   const id = block.value!.id;
+  const nextEditor = editorPatch && { ...settings.value, ...editorPatch };
   project.change(() => {
     const r = applySeamEdit(project.doc!, id, drawing);
-    return withBlock(r.doc, markDerived);
+    return withBlock(r.doc, (b) => markDerived(nextEditor ? { ...b, editor: nextEditor } : b));
   });
   const live = new Set(drawing.segments.map((s) => s.id));
   selection.value = new Set([...selection.value].filter((s) => live.has(s)));
@@ -334,9 +335,8 @@ function onOp(op: SelectionOp) {
     selection.value = r.ids;
   } else if (op.kind === 'guides') {
     const r = toGuides(d, ids);
-    const guides = [...settings.value.guides, ...r.guides];
-    applyDrawing(r.drawing);
-    saveSettings({ guides });
+    // One undo step for both the seams removed and the guides added.
+    applyDrawing(r.drawing, { guides: [...settings.value.guides, ...r.guides] });
   } else if (op.kind === 'rotate')
     applyDrawing(transformSegments(d, ids, transforms.rotate(op.deg, center()), size));
   else if (op.kind === 'flip')
@@ -392,7 +392,11 @@ function renameColoringPrompt() {
 }
 function removeColoring() {
   const id = coloringId.value!;
-  project.change(() => withBlock(project.doc!, (b) => deleteColoring(b, id)));
+  const blockId = block.value!.id;
+  // Quilts following this coloring keep its colors as their own.
+  project.change(() =>
+    withBlock(detachColoring(project.doc!, blockId, id), (b) => deleteColoring(b, id)),
+  );
   editor.coloringOf.delete(block.value!.id);
 }
 

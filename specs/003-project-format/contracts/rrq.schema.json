@@ -660,6 +660,16 @@
                               }
                             }
                           }
+                        },
+                        "base": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]{1,32}$"
+                        },
+                        "cleared": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
                         }
                       }
                     }
@@ -1225,6 +1235,16 @@
                               }
                             }
                           }
+                        },
+                        "base": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]{1,32}$"
+                        },
+                        "cleared": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
                         }
                       }
                     }
@@ -1651,6 +1671,16 @@
                                 }
                               }
                             }
+                          }
+                        },
+                        "base": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]{1,32}$"
+                        },
+                        "cleared": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
                           }
                         }
                       }
@@ -2282,6 +2312,16 @@
                               }
                             }
                           }
+                        },
+                        "base": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]{1,32}$"
+                        },
+                        "cleared": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
                         }
                       }
                     }
@@ -2797,6 +2837,16 @@
                                 }
                               }
                             }
+                          }
+                        },
+                        "base": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]{1,32}$"
+                        },
+                        "cleared": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
                           }
                         }
                       }
@@ -4343,6 +4393,16 @@
                               }
                             }
                           }
+                        }
+                      },
+                      "base": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9]{1,32}$"
+                      },
+                      "cleared": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
                         }
                       }
                     }

@@ -1,6 +1,7 @@
 // Draw a quilt on a 2-D canvas. View maps quilt units → CSS pixels; `dpr` scales to device pixels.
 import type { Generated, Slot } from '@/model/layout/slots';
 import type { Block } from '@/model/schema/block';
+import { resolveColoring } from '@/model/coloring';
 import type { ColoringBody, Fill } from '@/model/schema/coloring';
 import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
@@ -118,7 +119,7 @@ export function drawQuilt(
     const m = placementMatrix(slot, content, block);
     ctx.setTransform(...mul(base, m));
     const unitsPerPx = px / Math.sqrt(Math.abs(m[0] * m[3] - m[1] * m[2]));
-    drawBlock(ctx, block, quilt.colorings[content.coloring], fillOf, {
+    drawBlock(ctx, block, resolveColoring(quilt.colorings[content.coloring], block), fillOf, {
       outlines: o.outlines,
       lineWidth: unitsPerPx,
       dark: o.dark,

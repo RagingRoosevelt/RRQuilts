@@ -17,6 +17,13 @@ export const ThreadUse = Type.Object({
 export const ColoringBody = Type.Object({
   fills: Type.Record(Type.String(), Fill),
   threads: Type.Optional(Type.Record(Type.String(), ThreadUse)),
+  /**
+   * Quilt colorings only: the block coloring this one follows. `fills` then override it per patch,
+   * so later changes to the block's coloring show wherever the quilt hasn't recolored.
+   */
+  base: Type.Optional(Id),
+  /** Patches left unfilled in the quilt although `base` fills them. */
+  cleared: Type.Optional(Type.Array(Type.String())),
 });
 
 export const Coloring = Type.Object({
