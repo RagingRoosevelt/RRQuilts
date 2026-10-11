@@ -15,8 +15,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/', component: () => import('@/pages/HomePage.vue') },
   {
     path: '/project',
-    component: placeholder,
-    props: { title: 'Project sketchbook' },
+    component: () => import('@/pages/SketchbookPage.vue'),
     meta: project,
   },
   {

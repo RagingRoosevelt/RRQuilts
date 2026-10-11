@@ -19,7 +19,7 @@ Authoritative definitions live in `src/model/schema/` (TypeBox) and the generate
 
 ## Project
 
-`{ name, palette: { fabrics, colors, threads }, blocks, photos, embroidery, quilts, fonts }`; list
+`{ id, name, palette: { fabrics, colors, threads }, blocks, photos, embroidery, quilts, fonts }`; list
 order = display order.
 
 | Entity | Fields | Invariants |

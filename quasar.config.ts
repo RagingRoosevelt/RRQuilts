@@ -66,7 +66,7 @@ export default defineConfig(() => ({
 
   framework: {
     config: { dark: 'auto' },
-    plugins: ['Notify', 'Dark'],
+    plugins: ['Notify', 'Dark', 'Dialog'],
   },
 
   animations: [],

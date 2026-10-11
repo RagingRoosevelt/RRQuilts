@@ -70,6 +70,11 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 - `quasar.config.ts` — base path (`RRQ_BASE`), `docs/` output, 404/.nojekyll hook, PWA options
 - `src/router/routes.ts` — routes + open-project guard; `src/pages/` screens
 - `src/settings/` — settings persistence + `.rrq_conf`; `src/stores/` Pinia stores
+- `src/stores/project.ts` — the open project; **all edits go through `change(fn)`** (bumps
+  revision, schedules the draft). Status, save/save-as/copy, open file/recent/draft, tab takeover
+- `src/storage/` — IndexedDB (`idb.ts` wrapper; `drafts`, `recent`) and `.rrq` file I/O
+  (File System Access with download/input fallback)
+- `src/session/` — 15 s draft autosave throttle; one-editing-tab Web Lock + BroadcastChannel
 - `src-pwa/` — manifest, update prompt (`register-sw.ts`); has its own `package.json`
 - `test/vitest/__tests__/` — unit tests
 - `docker/default.conf.template` — nginx (base path substituted at start)

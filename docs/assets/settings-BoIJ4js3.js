@@ -1,1 +1,0 @@
-import{i as e}from"./index-Cceq4Id5.js";import{t}from"./settings-Dxb7paon.js";var n=e(()=>{t().applyTheme()});export{n as default};

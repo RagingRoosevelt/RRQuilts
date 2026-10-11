@@ -61,7 +61,7 @@ before or with each module; quickstart scenarios map 1:1 to test files in
 ## Phase 6: Polish
 
 - [x] T030 Document `src/model/` in `CLAUDE.md` (module map, purity rule, how to add a migration / layout generator / slot grammar)
-- [ ] T031 `make check` clean; commit with `make commit`
+- [x] T031 `make check` clean; commit with `make commit`
 
 ## Dependencies
 

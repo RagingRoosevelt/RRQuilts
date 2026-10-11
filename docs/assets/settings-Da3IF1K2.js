@@ -1,0 +1,1 @@
+import{f as e,i as t}from"./index-BUNWQN3N.js";var n=t(()=>{e().applyTheme()});export{n as default};

@@ -34,6 +34,7 @@
     "project": {
       "type": "object",
       "required": [
+        "id",
         "name",
         "palette",
         "blocks",
@@ -43,6 +44,10 @@
         "fonts"
       ],
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]{1,32}$"
+        },
         "name": {
           "type": "string"
         },

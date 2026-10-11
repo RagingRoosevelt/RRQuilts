@@ -109,7 +109,7 @@ rotation, and coloring; the new column is empty.
 
 **Project**
 
-- **FR-010**: `project` MUST contain `name`, `palette` (`fabrics`, `colors`, `threads`), `blocks`
+- **FR-010**: `project` MUST contain `id` (stable across renames; new for copies), `name`, `palette` (`fabrics`, `colors`, `threads`), `blocks`
   (blocks, motifs, stencils, frames), `photos`, `embroidery`, `quilts`, and `fonts` used by text.
 - **FR-011**: Every item MUST carry a `notecard` (`name`, `notes`, `reference`, `tags`; blocks also
   `categories`).

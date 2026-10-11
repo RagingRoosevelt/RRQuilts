@@ -2,6 +2,7 @@ import Type from 'typebox';
 import { Block } from './block';
 import { Embroidery, Font, Palette, Photo } from './palette';
 import { Quilt } from './quilt';
+import { Id } from './shared';
 
 export const FORMAT = 'rrq';
 export const VERSION = 1;
@@ -9,6 +10,8 @@ export const VERSION = 1;
 export const Units = Type.Union([Type.Literal('in'), Type.Literal('cm')]);
 
 export const Project = Type.Object({
+  /** Stable identity across renames and file copies (drafts, tab locks, recent list). */
+  id: Id,
   name: Type.String(),
   palette: Palette,
   blocks: Type.Array(Block),
