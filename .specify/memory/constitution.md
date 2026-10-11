@@ -1,6 +1,9 @@
 <!--
 Sync Impact Report
-- Version change: 1.3.0 → 1.4.0 (MINOR: .rrq_lib widened to also serve as resource pack — Principle III;
+- Version change: 1.5.0 → 1.6.0 (MINOR: CI gate, Node 24 LTS, container file ownership/polling,
+  README requirement, make commit/push — Technology Stack, Build/Hosting, Development Workflow)
+- Prior: 1.4.0 → 1.5.0 (MINOR: autosaved project drafts in IndexedDB — Principle IV)
+- Prior: 1.3.0 → 1.4.0 (MINOR: .rrq_lib widened to also serve as resource pack — Principle III;
   free/no-sign-up/MIT licensing — Principle I)
 - Prior: 1.2.2 → 1.3.0 (MINOR: on-device library storage (IndexedDB) + .rrq_lib format;
   user-initiated resource-repository fetches allowed as the sole network exception —
@@ -83,6 +86,8 @@ All data stays on the user's device unless the user explicitly exports it.
   Access API where available; fall back to download (`<a download>`) + `<input type="file">`
   elsewhere (Firefox, Safari, iOS).
 - Settings persist in `localStorage` and can be exported to / imported from `.rrq_conf`.
+- The open project is autosaved as a draft in IndexedDB for crash recovery; the `.rrq` file
+  remains the user's saved copy, and the draft is never a substitute for saving to file.
 - Personal libraries and downloaded repository content persist in IndexedDB (too large for
   `localStorage`); personal libraries export to / import from `.rrq_lib`. The app SHOULD request
   persistent storage and MUST warn when storage is full or was cleared.
@@ -117,11 +122,13 @@ Rationale: small bundle = fast offline cache, small surface = fewer bugs.
 | State | Pinia (Quasar default) |
 | PWA | Quasar PWA mode (`quasar mode add pwa`), Workbox `GenerateSW` |
 | Settings persistence | `localStorage` (via Quasar `LocalStorage` or thin wrapper) |
-| Library persistence | IndexedDB (personal libraries, cached repository content) |
+| Library persistence | IndexedDB (project drafts, personal libraries, cached repository content) |
 | Project persistence | `.rrq` files via File System Access API + download/upload fallback |
 | Unit tests | Vitest (Quasar testing extension) |
 | Lint/format | ESLint + Prettier (Quasar scaffold defaults) |
 | Package manager | npm |
+| Runtime (build container) | Node 24 LTS, exact version pinned |
+| CI | GitHub Actions running `make check` |
 
 - Target browsers: current evergreen Chrome/Edge, Firefox, Safari (desktop + iPad).
 - Build output (`docs/`) is the deployable artifact (see Build, Hosting & Tooling).
@@ -148,9 +155,10 @@ hand-edited, never used for documentation.
   path), so deep links work offline and, once installed, never hit the Pages 404.
 
 **Docker**: one multi-stage `Dockerfile`, two targets:
-- `build` — pinned Node LTS image; runs `npm ci` + lint/test/build. Used to produce
+- `build` — pinned Node 24 LTS image; runs `npm ci` + lint/test/build. Used to produce
   `docs/` with nothing but Docker installed on the host (bind-mount repo, output lands in
-  `./docs`).
+  `./docs`). Files it writes MUST be owned by the host user, not root; the dev server MUST
+  fall back to polling where container file watching is unreliable.
 - `serve` — pinned `nginx:alpine` image serving the built `docs/` content; long-running
   host for self-hosting or local preview of the production build.
 - nginx MUST fall back to `index.html` for unknown paths (`try_files $uri $uri/ /index.html`).
@@ -158,7 +166,7 @@ hand-edited, never used for documentation.
   `manifest.json` so PWA updates are picked up; hashed assets cache long-term.
 - Base image versions pinned (exact tags), no `latest`.
 
-**Makefile** (host needs only `make` + Docker; targets run in the `build` container
+**Makefile** (host needs only `make`, Docker, and git; targets run in the `build` container
 unless noted):
 
 | Target | Does |
@@ -171,6 +179,8 @@ unless noted):
 | `make check` | `lint` + `test` + `build` (pre-merge gate) |
 | `make serve` | Build `serve` image, run nginx on `localhost:8080` serving `docs/` |
 | `make clean` | Remove `node_modules`, Quasar caches, `docs/` |
+| `make commit MSG="…"` | Host: run `check` (rebuilds `docs/`), stage all incl. `docs/`, commit |
+| `make push` | Host: refuse if tree dirty or `docs/` stale, then push current branch |
 | `make help` | List targets (default target) |
 
 `localhost` counts as a secure context, so the service worker works under `make serve`.
@@ -198,8 +208,14 @@ Minimum envelope (details defined per feature in `specs/`):
 - Every plan MUST pass the Constitution Check against Principles I–V.
 - Required tests: file-format parse/validate/migrate; settings load/save/import/export;
   core geometry/calculation logic. UI tests only where logic lives in components.
+- Commit and push via `make commit` / `make push` so pre-steps always run; extra pre-steps are
+  added there, not remembered by hand.
 - Before merge: `make check` passes and `docs/` is rebuilt and committed; offline smoke
   test via `make serve` (load once, go offline, reload, open/save a project).
+- CI (GitHub Actions) MUST run `make check` on every push and pull request and MUST fail when
+  the committed `docs/` differs from a fresh build.
+- `README.md` MUST document prerequisites, make targets, GitHub Pages setup, and base-path
+  override, and be kept current with them.
 
 ## Governance
 
@@ -208,4 +224,4 @@ This constitution supersedes other practices. Amendments are made via
 (MAJOR: principle removed/redefined; MINOR: principle/section added; PATCH: wording).
 Runtime development guidance lives in `CLAUDE.md`.
 
-**Version**: 1.4.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-10
+**Version**: 1.6.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-10

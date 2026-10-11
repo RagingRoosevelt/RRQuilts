@@ -27,7 +27,7 @@ like sketchbook/worktable are fine).
 - **Projects**: `.rrq` files — JSON, saved/opened on the user's filesystem.
   File System Access API where supported; download + `<input type="file">` fallback.
 - **Settings**: `localStorage`; export/import as `.rrq_conf` (JSON).
-- **Personal libraries / repo cache**: IndexedDB.
+- **Project drafts / personal libraries / repo cache**: IndexedDB (drafts = crash recovery, not a save).
 - **Resource repositories**: git repos of extra library content, fetched on user request (the only
   network use). Cached for offline. Untrusted: validate, never execute. Projects embed used items.
 - **Library files**: `.rrq_lib` (JSON) — one format for personal-library backup and shareable
@@ -61,3 +61,4 @@ Host needs only `make` + Docker. Run `make help` for the list.
 - `make test` / `make lint` / `make check` (lint + test + build, pre-merge gate)
 - `make serve` — nginx container serving `docs/` on `localhost:8080`
 - `make clean`
+- `make commit MSG="…"` — check + rebuild `docs/` + commit all; `make push` — refuses if dirty/stale, then pushes
