@@ -98,6 +98,24 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   writing a generator and adding its id grammar there; `reconcile`/`applyLayout` on changes
 - Fixture with every entity: `test/fixtures/everything.rrq`
 
+## Editor (spec 006)
+
+- `src/render/` — Canvas 2D: `paths.ts` cached `Path2D` per block (design units, true arcs),
+  `draw.ts` quilt drawing + `fitView`, `hit.ts` tap → slot/patch (model polygons, testable),
+  `affine.ts`/`placement.ts` transforms, `thumbnail.ts` cached data URLs
+- `src/editor/` — `actions.ts` (pure: tap + tool → new doc), `scope.ts` (This/All/Alternate),
+  `undo.ts` (Immer patch history), `color.ts`/`colors.ts`
+- `src/stores/editor.ts` — session tool/mode/scope/selection/view state
+- Plain sashes/cornerstones/borders use the hidden `plain` block (`src/model/plain.ts`)
+- Starter blocks/colors: `src/content/starter.ts` (sample-point colorings)
+
+### Immer + Vue rules
+
+- The project lives in a `shallowRef` and is **frozen**: never mutate it or bind `v-model` to it.
+  Edit via `project.change(recipe, { coalesce? })` — mutate the draft or return a new document.
+- Don't pass Vue reactive proxies into Immer (`toRaw` if ever needed).
+- Model functions return frozen results; tests that hand-edit them must `structuredClone` first.
+
 ## Gotchas
 
 - Dev-server file watching must not see big folders: npm cache lives in `~/.cache/rrquilts-npm`

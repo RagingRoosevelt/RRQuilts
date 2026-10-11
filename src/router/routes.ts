@@ -20,8 +20,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/project/quilt/:id',
-    component: placeholder,
-    props: { title: 'Quilt editor' },
+    component: () => import('@/pages/QuiltEditorPage.vue'),
     meta: project,
   },
   {

@@ -28,22 +28,22 @@ description: "Tasks for 006 First Quilt"
 
 ## Phase 4: Quilt editor
 
-- [ ] T012 `stores/editor.ts`: mode, tool, scope, selected block/color, recent colors, view per quilt
-- [ ] T013 `components/QuiltCanvas.vue`: canvas sizing (devicePixelRatio), rAF redraw, pointer/touch (tap, drag-pan, pinch, wheel), hover size readout, Fit
-- [ ] T014 `pages/QuiltEditorPage.vue`: mode tabs, tool rail, inspector, bottom bar (Apply to, tray); finished/center size always visible
-- [ ] T015 Layout mode inspector: cols/rows, block size (lock square), sashing (lock), sash border; drop warning with count
-- [ ] T016 Borders mode inspector: list (select/add/insert/delete/clone/reorder), style (3 + "coming soon"), side sizes with locks
-- [ ] T017 Design tools: Set, Rotate, Flip, Erase, Find; Paint, Spray, Swap, Eyedropper; Pan
-- [ ] T018 `components/PaletteTray.vue` + `ColorEditor.vue`: blocks tab, colors tab (recent first), add/rename/reorder/delete color
+- [x] T012 `stores/editor.ts`: mode, tool, scope, selected block/color, recent colors, view per quilt
+- [x] T013 `components/QuiltCanvas.vue`: canvas sizing (devicePixelRatio), rAF redraw, pointer/touch (tap, drag-pan, pinch, wheel), hover size readout, Fit
+- [x] T014 `pages/QuiltEditorPage.vue`: mode tabs, tool rail, inspector, bottom bar (Apply to, tray); finished/center size always visible
+- [x] T015 Layout mode inspector: cols/rows, block size (lock square), sashing (lock), sash border; drop warning with count
+- [x] T016 Borders mode inspector: list (select/add/insert/delete/clone/reorder), style (3 + "coming soon"), side sizes with locks
+- [x] T017 Design tools: Set, Rotate, Flip, Erase, Find; Paint, Spray, Swap, Eyedropper; Pan
+- [x] T018 `components/PaletteTray.vue` + `ColorEditor.vue`: blocks tab, colors tab (recent first), add/rename/reorder/delete color
 
 ## Phase 5: Sketchbook & wizard
 
-- [ ] T019 `components/QuiltWizard.vue` (3 skippable steps, defaults FR-001) from Home and sketchbook
-- [ ] T020 `pages/SketchbookPage.vue`: tabs, cards with thumbnails, open, duplicate as variation, notecard edit, drag reorder, guarded delete; block preview dialog
+- [x] T019 `components/QuiltWizard.vue` (3 skippable steps, defaults FR-001) from Home and sketchbook
+- [x] T020 `pages/SketchbookPage.vue`: tabs, cards with thumbnails, open, duplicate as variation, notecard edit, drag reorder, guarded delete; block preview dialog
 
 ## Phase 6: Polish
 
-- [ ] T021 Performance check: 30×30 quilt set/paint < 100 ms (perf test on model ops + manual on canvas)
+- [x] T021 Performance check: 30×30 quilt set/paint < 100 ms (perf test on model ops + manual on canvas)
 - [ ] T022 `CLAUDE.md` (render/editor modules, Immer + Vue rules); quickstart manual run; `make commit`
 
 ## Dependencies

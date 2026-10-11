@@ -7,8 +7,10 @@ import { parseProject, serializeProject } from '@/model/io';
 import { newId } from '@/model/ids';
 import { createProject } from '@/model/new-project';
 import type { RrqDoc } from '@/model/schema/project';
+import { addStarterContent } from '@/content/starter';
 import { createHistory } from '@/editor/undo';
 import { createAutosave } from '@/session/autosave';
+import { useSettingsStore } from '@/stores/settings';
 import {
   acquireEditLock,
   answerFlushRequests,
@@ -101,8 +103,12 @@ export const useProjectStore = defineStore('project', () => {
     if (opts.dirty && !readOnly.value) await writeDraft();
   }
 
+  /** New project with the starter blocks and colors, in the units chosen in Settings. */
   const newProject = (name?: string) =>
-    load(createProject(name, undefined, APP), { saved: false, dirty: false });
+    load(addStarterContent(createProject(name, useSettingsStore().settings.units, APP)), {
+      saved: false,
+      dirty: false,
+    });
 
   /** Open a file; returns problems found while loading (shown to the user). */
   async function openFile(picked: Picked): Promise<string[]> {
