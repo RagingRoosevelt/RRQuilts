@@ -126,6 +126,26 @@ The user sets the name they want to be known by; items they create carry it in t
    uses `anonymous`.
 3. **Given** ids already created, **Then** they never change when the name changes.
 
+---
+
+### User Story 6 - Share a single block as a file (Priority: P2)
+
+A quilter exports one block to a `.rrqb` file (JSON) and anyone can import it as their own block.
+
+**Why this priority**: Lightweight sharing without building a pack.
+
+**Independent Test**: Export Ohio Star from the sketchbook → `ohio-star.rrqb`; import it in a cm
+project → it appears under My blocks at 25.4 cm with its colors, credited to its library.
+
+**Acceptance Scenarios**:
+
+1. **Given** a block, **When** the user chooses Export block, **Then** a `.rrqb` file holds the block,
+   the colors its own colorings use, the units, and the exporter's name.
+2. **Given** a `.rrqb`, **When** imported, **Then** the block is added under My blocks (editable),
+   converted to the project's units; existing attribution is kept, or the exporter is credited.
+3. **Given** the same id at the same version already in the project, **Then** nothing is added; same
+   id with a different design → added as a copy with the importer's new id and a "(2)" name.
+
 ### Edge Cases
 
 - Two people with the same display name → the random part keeps ids unique.
@@ -178,6 +198,12 @@ The user sets the name they want to be known by; items they create carry it in t
 - **FR-030**: Library items MUST be read-only. "Edit" on one MUST create the user's copy (new id,
   revision 1, `source` derived) and offer to use it in quilts that use the library item (default on).
 - **FR-031**: Quilt colorings MUST NOT change a block's id, version, or revision.
+
+**Block files**
+
+- **FR-040**: Users MUST be able to export one block as `.rrqb` (`format: "rrqb"`, `version`, `units`,
+  `author`, `block`, `colors`) and import it as their own block (FR-030 attribution rules; untrusted
+  input validated like `.rrq`; fills referencing missing colors dropped).
 
 ### Key Entities
 

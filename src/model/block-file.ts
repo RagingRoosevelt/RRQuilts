@@ -1,0 +1,131 @@
+// Single-block files (.rrqb): one block plus the colors its own colorings use. Imported blocks are
+// the user's own (editable); the original author stays credited (constitution Principle VI).
+import { produce } from 'immer';
+import Type from 'typebox';
+import Value from 'typebox/value';
+import { findDuplicateIds } from './ids';
+import { itemId } from './identity';
+import { createProject } from './new-project';
+import { variationName } from './new-quilt';
+import { Block } from './schema/block';
+import { Color } from './schema/palette';
+import { Units, type RrqDoc } from './schema/project';
+
+export const BLOCK_FORMAT = 'rrqb';
+export const BLOCK_VERSION = 1;
+
+export const BlockFile = Type.Object({
+  format: Type.Literal(BLOCK_FORMAT),
+  version: Type.Integer({ minimum: 1 }),
+  units: Units,
+  /** Display name of whoever exported it. */
+  author: Type.Optional(Type.String()),
+  block: Block,
+  colors: Type.Array(Color),
+});
+export type BlockFile = Type.Static<typeof BlockFile>;
+
+const colorIdsOf = (b: Block) =>
+  new Set(
+    b.colorings.flatMap((c) =>
+      Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])),
+    ),
+  );
+
+export function serializeBlock(doc: RrqDoc, blockId: string, author: string): string {
+  const block = doc.project.blocks.find((b) => b.id === blockId);
+  if (!block) throw new Error(`No block ${blockId}`);
+  const used = colorIdsOf(block);
+  const file: BlockFile = {
+    format: BLOCK_FORMAT,
+    version: BLOCK_VERSION,
+    units: doc.units,
+    ...(author ? { author } : {}),
+    block,
+    colors: doc.project.palette.colors.filter((c) => used.has(c.id)),
+  };
+  return JSON.stringify(file);
+}
+
+export function parseBlockFile(
+  text: string,
+): { ok: true; file: BlockFile } | { ok: false; error: string } {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    return { ok: false, error: 'Not a block file (not valid JSON).' };
+  }
+  const r = raw as Record<string, unknown> | null;
+  if (!r || r.format !== BLOCK_FORMAT) return { ok: false, error: 'Not an RRQuilts block file.' };
+  if (typeof r.version === 'number' && r.version > BLOCK_VERSION) {
+    return { ok: false, error: 'This block is from a newer RRQuilts. Update the app to open it.' };
+  }
+  if (!Value.Check(BlockFile, raw)) {
+    const e = [...Value.Errors(BlockFile, raw)][0];
+    return {
+      ok: false,
+      error: `Block file is damaged: ${e ? `${e.instancePath || '/'}: ${e.message}` : ''}`,
+    };
+  }
+  const empty = createProject();
+  const palette = { ...empty.project.palette, colors: raw.colors };
+  const dup = findDuplicateIds({
+    ...empty,
+    project: { ...empty.project, palette, blocks: [raw.block] },
+  });
+  if (dup.length) return { ok: false, error: `Block file is damaged: ${dup[0]}` };
+  return { ok: true, file: raw };
+}
+
+/**
+ * Add an imported block to a project as the user's own block. Same id and version already there →
+ * unchanged; same id, different design → added as a copy with a new id. Returns the block's id.
+ */
+export function importBlock(
+  doc: RrqDoc,
+  file: BlockFile,
+  me: string,
+): { doc: RrqDoc; blockId: string } {
+  const existing = doc.project.blocks.find((b) => b.id === file.block.id);
+  if (existing && existing.version && existing.version === file.block.version) {
+    return { doc, blockId: existing.id };
+  }
+  const k = file.units === doc.units ? 1 : doc.units === 'cm' ? 2.54 : 1 / 2.54;
+  const haveColors = new Set(doc.project.palette.colors.map((c) => c.id));
+  const known = new Set([...haveColors, ...file.colors.map((c) => c.id)]);
+  const block = produce(file.block, (b) => {
+    b.size = [b.size[0] * k, b.size[1] * k];
+    if (existing) {
+      b.id = itemId(me);
+      b.notecard.name = variationName(
+        b.notecard.name,
+        doc.project.blocks.map((x) => x.notecard.name),
+      );
+      delete b.revision;
+      delete b.version;
+    }
+    // Library items stay credited; an exported own block gets its exporter credited.
+    if (b.source) b.source.derived = true;
+    else if (file.author) {
+      b.source = {
+        libraryId: BLOCK_FORMAT,
+        itemId: file.block.id,
+        revision: file.block.revision ?? 1,
+        author: file.author,
+        name: file.block.notecard.name,
+        derived: true,
+      };
+    }
+    for (const c of b.colorings) {
+      for (const [pid, f] of Object.entries(c.fills))
+        if ('color' in f && !known.has(f.color)) delete c.fills[pid];
+      for (const [pid, f] of Object.entries(c.fills)) if ('fabric' in f) delete c.fills[pid]; // ponytail: fabrics aren't in .rrqb yet
+    }
+  });
+  const next = produce(doc, (d) => {
+    d.project.blocks.push(block);
+    d.project.palette.colors.push(...file.colors.filter((c) => !haveColors.has(c.id)));
+  });
+  return { doc: next, blockId: block.id };
+}
