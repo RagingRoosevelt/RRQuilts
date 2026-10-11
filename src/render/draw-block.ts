@@ -27,6 +27,8 @@ export interface BlockDrawOptions {
   marquee?: [Pt, Pt] | null;
   snapPoint?: Pt | null;
   bulge?: Pt | null;
+  /** While dragging: the drawing as it will be on release (seams follow live). */
+  liveDrawing?: Drawing | null;
 }
 
 function segPath(p: Path2D, g: Seg) {
@@ -110,7 +112,7 @@ export function drawBlockEditor(
   ctx.strokeRect(0, 0, w, h);
 
   // Seams
-  const d = 'drawing' in block ? block.drawing : undefined;
+  const d = o.liveDrawing ?? ('drawing' in block ? block.drawing : undefined);
   if (d && o.mode === 'draw') {
     for (const s of d.segments) {
       const p = new Path2D();

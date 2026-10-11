@@ -77,6 +77,7 @@ const preview = shallowRef<Seg | null>(null);
 const previewRect = shallowRef<[Pt, Pt] | null>(null);
 const marquee = shallowRef<[Pt, Pt] | null>(null);
 const snapPoint = shallowRef<Pt | null>(null);
+const liveDrawing = shallowRef<Drawing | null>(null);
 let gesture:
   | { kind: 'seam'; start: Snapped }
   | { kind: 'grid'; start: Snapped }
@@ -168,7 +169,8 @@ const vp = useViewport({
       previewRect: previewRect.value,
       marquee: marquee.value,
       snapPoint: snapPoint.value,
-      bulge: bulge.value,
+      bulge: liveDrawing.value ? null : bulge.value,
+      liveDrawing: liveDrawing.value,
     });
   },
 
@@ -251,20 +253,29 @@ const vp = useViewport({
       const others = withoutNode(drawing.value, g.id);
       const s = snapAt(p, others);
       snapPoint.value = s.p;
-      const n = drawing.value.nodes.find((x) => x.id === g.id)!;
-      preview.value = { kind: 'line', a: [n.x * size.value[0], n.y * size.value[1]], b: s.p };
+      liveDrawing.value = moveNode(
+        drawing.value,
+        g.id,
+        s.p[0] / size.value[0],
+        s.p[1] / size.value[1],
+      );
     } else if (g.kind === 'move') {
       const s = snapAt(p);
-      preview.value = { kind: 'line', a: g.grab.p, b: s.p };
+      const [dx, dy] = [s.p[0] - g.grab.p[0], s.p[1] - g.grab.p[1]];
+      liveDrawing.value = transformSegments(
+        drawing.value,
+        g.ids,
+        transforms.translate(dx, dy),
+        size.value,
+      );
     } else if (g.kind === 'bulge') {
       const seg = drawing.value.segments.find((x) => x.id === g.seg);
       if (seg?.kind !== 'arc') return;
       const geo = segGeom(drawing.value, seg, size.value);
-      preview.value = {
-        kind: 'arc',
-        a: geo.a,
-        b: geo.b,
-        sweep: clampSweep(sweepFromHandle(geo.a, geo.b, p)),
+      const sweep = clampSweep(sweepFromHandle(geo.a, geo.b, p));
+      liveDrawing.value = {
+        ...drawing.value,
+        segments: drawing.value.segments.map((x) => (x.id === g.seg ? { ...seg, sweep } : x)),
       };
     }
     vp.schedule();
@@ -273,7 +284,7 @@ const vp = useViewport({
   onDragEnd(p) {
     const g = gesture;
     gesture = null;
-    preview.value = previewRect.value = marquee.value = null;
+    preview.value = previewRect.value = marquee.value = liveDrawing.value = null;
     if (!g) return;
     const d = drawing.value;
     if (g.kind === 'seam') {
@@ -339,7 +350,7 @@ watch(
   ],
   vp.schedule,
 );
-watch([preview, previewRect, marquee, snapPoint], vp.schedule);
+watch([preview, previewRect, marquee, snapPoint, liveDrawing], vp.schedule);
 defineExpose({ fit: vp.fit });
 </script>
 
