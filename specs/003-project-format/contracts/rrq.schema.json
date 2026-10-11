@@ -73,7 +73,7 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "pattern": "^[a-z0-9]{1,32}$"
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                   },
                   "notecard": {
                     "type": "object",
@@ -138,6 +138,14 @@
                         "type": "boolean"
                       }
                     }
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
                   },
                   "image": {
                     "type": "object",
@@ -226,7 +234,7 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "pattern": "^[a-z0-9]{1,32}$"
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                   },
                   "notecard": {
                     "type": "object",
@@ -291,6 +299,14 @@
                         "type": "boolean"
                       }
                     }
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
                   },
                   "rgb": {
                     "type": "array",
@@ -329,7 +345,7 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "pattern": "^[a-z0-9]{1,32}$"
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                   },
                   "notecard": {
                     "type": "object",
@@ -394,6 +410,14 @@
                         "type": "boolean"
                       }
                     }
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
                   },
                   "rgb": {
                     "type": "array",
@@ -446,7 +470,7 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "pattern": "^[a-z0-9]{1,32}$"
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                   },
                   "notecard": {
                     "type": "object",
@@ -512,6 +536,14 @@
                       }
                     }
                   },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
                   "size": {
                     "type": "array",
                     "additionalItems": false,
@@ -558,7 +590,7 @@
                                   "properties": {
                                     "fabric": {
                                       "type": "string",
-                                      "pattern": "^[a-z0-9]{1,32}$"
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                     },
                                     "offset": {
                                       "type": "array",
@@ -586,7 +618,7 @@
                                   "properties": {
                                     "color": {
                                       "type": "string",
-                                      "pattern": "^[a-z0-9]{1,32}$"
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                     }
                                   }
                                 }
@@ -607,7 +639,7 @@
                               "properties": {
                                 "thread": {
                                   "type": "string",
-                                  "pattern": "^[a-z0-9]{1,32}$"
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                 },
                                 "style": {
                                   "anyOf": [
@@ -1003,7 +1035,7 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "pattern": "^[a-z0-9]{1,32}$"
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                   },
                   "notecard": {
                     "type": "object",
@@ -1069,6 +1101,14 @@
                       }
                     }
                   },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
                   "size": {
                     "type": "array",
                     "additionalItems": false,
@@ -1115,7 +1155,7 @@
                                   "properties": {
                                     "fabric": {
                                       "type": "string",
-                                      "pattern": "^[a-z0-9]{1,32}$"
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                     },
                                     "offset": {
                                       "type": "array",
@@ -1143,7 +1183,7 @@
                                   "properties": {
                                     "color": {
                                       "type": "string",
-                                      "pattern": "^[a-z0-9]{1,32}$"
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                     }
                                   }
                                 }
@@ -1164,7 +1204,7 @@
                               "properties": {
                                 "thread": {
                                   "type": "string",
-                                  "pattern": "^[a-z0-9]{1,32}$"
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                 },
                                 "style": {
                                   "anyOf": [
@@ -1422,7 +1462,7 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "pattern": "^[a-z0-9]{1,32}$"
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                   },
                   "notecard": {
                     "type": "object",
@@ -1488,6 +1528,14 @@
                       }
                     }
                   },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
                   "size": {
                     "type": "array",
                     "additionalItems": false,
@@ -1534,7 +1582,7 @@
                                   "properties": {
                                     "fabric": {
                                       "type": "string",
-                                      "pattern": "^[a-z0-9]{1,32}$"
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                     },
                                     "offset": {
                                       "type": "array",
@@ -1562,7 +1610,7 @@
                                   "properties": {
                                     "color": {
                                       "type": "string",
-                                      "pattern": "^[a-z0-9]{1,32}$"
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                     }
                                   }
                                 }
@@ -1583,7 +1631,7 @@
                               "properties": {
                                 "thread": {
                                   "type": "string",
-                                  "pattern": "^[a-z0-9]{1,32}$"
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                 },
                                 "style": {
                                   "anyOf": [
@@ -2044,7 +2092,7 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "pattern": "^[a-z0-9]{1,32}$"
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                   },
                   "notecard": {
                     "type": "object",
@@ -2110,6 +2158,14 @@
                       }
                     }
                   },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
                   "size": {
                     "type": "array",
                     "additionalItems": false,
@@ -2156,7 +2212,7 @@
                                   "properties": {
                                     "fabric": {
                                       "type": "string",
-                                      "pattern": "^[a-z0-9]{1,32}$"
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                     },
                                     "offset": {
                                       "type": "array",
@@ -2184,7 +2240,7 @@
                                   "properties": {
                                     "color": {
                                       "type": "string",
-                                      "pattern": "^[a-z0-9]{1,32}$"
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                     }
                                   }
                                 }
@@ -2205,7 +2261,7 @@
                               "properties": {
                                 "thread": {
                                   "type": "string",
-                                  "pattern": "^[a-z0-9]{1,32}$"
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                 },
                                 "style": {
                                   "anyOf": [
@@ -2552,7 +2608,7 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "pattern": "^[a-z0-9]{1,32}$"
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                   },
                   "notecard": {
                     "type": "object",
@@ -2618,6 +2674,14 @@
                       }
                     }
                   },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
                   "size": {
                     "type": "array",
                     "additionalItems": false,
@@ -2664,7 +2728,7 @@
                                   "properties": {
                                     "fabric": {
                                       "type": "string",
-                                      "pattern": "^[a-z0-9]{1,32}$"
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                     },
                                     "offset": {
                                       "type": "array",
@@ -2692,7 +2756,7 @@
                                   "properties": {
                                     "color": {
                                       "type": "string",
-                                      "pattern": "^[a-z0-9]{1,32}$"
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                     }
                                   }
                                 }
@@ -2713,7 +2777,7 @@
                               "properties": {
                                 "thread": {
                                   "type": "string",
-                                  "pattern": "^[a-z0-9]{1,32}$"
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                 },
                                 "style": {
                                   "anyOf": [
@@ -3703,7 +3767,7 @@
             "properties": {
               "id": {
                 "type": "string",
-                "pattern": "^[a-z0-9]{1,32}$"
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
               },
               "notecard": {
                 "type": "object",
@@ -3768,6 +3832,14 @@
                     "type": "boolean"
                   }
                 }
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{12}$"
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 1
               },
               "image": {
                 "type": "object",
@@ -3814,7 +3886,7 @@
             "properties": {
               "id": {
                 "type": "string",
-                "pattern": "^[a-z0-9]{1,32}$"
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
               },
               "notecard": {
                 "type": "object",
@@ -3879,6 +3951,14 @@
                     "type": "boolean"
                   }
                 }
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{12}$"
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 1
               },
               "file": {
                 "type": "object",
@@ -3913,7 +3993,7 @@
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "pattern": "^[a-z0-9]{1,32}$"
+                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                 }
               }
             }
@@ -3934,7 +4014,7 @@
             "properties": {
               "id": {
                 "type": "string",
-                "pattern": "^[a-z0-9]{1,32}$"
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
               },
               "notecard": {
                 "type": "object",
@@ -3999,6 +4079,14 @@
                     "type": "boolean"
                   }
                 }
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{12}$"
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 1
               },
               "layout": {
                 "anyOf": [
@@ -4186,7 +4274,7 @@
                                 "properties": {
                                   "fabric": {
                                     "type": "string",
-                                    "pattern": "^[a-z0-9]{1,32}$"
+                                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                   },
                                   "offset": {
                                     "type": "array",
@@ -4214,7 +4302,7 @@
                                 "properties": {
                                   "color": {
                                     "type": "string",
-                                    "pattern": "^[a-z0-9]{1,32}$"
+                                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                   }
                                 }
                               }
@@ -4235,7 +4323,7 @@
                             "properties": {
                               "thread": {
                                 "type": "string",
-                                "pattern": "^[a-z0-9]{1,32}$"
+                                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                               },
                               "style": {
                                 "anyOf": [
@@ -4290,7 +4378,7 @@
                             "properties": {
                               "block": {
                                 "type": "string",
-                                "pattern": "^[a-z0-9]{1,32}$"
+                                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                               },
                               "coloring": {
                                 "type": "string",
@@ -4356,7 +4444,7 @@
                             },
                             "ref": {
                               "type": "string",
-                              "pattern": "^[a-z0-9]{1,32}$"
+                              "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                             },
                             "x": {
                               "type": "number"
@@ -4427,7 +4515,7 @@
                                 },
                                 "font": {
                                   "type": "string",
-                                  "pattern": "^[a-z0-9]{1,32}$"
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                 },
                                 "size": {
                                   "type": "number",
@@ -4505,7 +4593,7 @@
                             },
                             "ref": {
                               "type": "string",
-                              "pattern": "^[a-z0-9]{1,32}$"
+                              "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                             },
                             "x": {
                               "type": "number"
@@ -4576,7 +4664,7 @@
                                 },
                                 "font": {
                                   "type": "string",
-                                  "pattern": "^[a-z0-9]{1,32}$"
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                 },
                                 "size": {
                                   "type": "number",
@@ -4654,7 +4742,7 @@
                             },
                             "ref": {
                               "type": "string",
-                              "pattern": "^[a-z0-9]{1,32}$"
+                              "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                             },
                             "x": {
                               "type": "number"
@@ -4725,7 +4813,7 @@
                                 },
                                 "font": {
                                   "type": "string",
-                                  "pattern": "^[a-z0-9]{1,32}$"
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                                 },
                                 "size": {
                                   "type": "number",
@@ -4777,7 +4865,7 @@
             "properties": {
               "id": {
                 "type": "string",
-                "pattern": "^[a-z0-9]{1,32}$"
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
               },
               "family": {
                 "type": "string"

@@ -2,6 +2,7 @@
 import { produce } from 'immer';
 import { deriveSeamPatches } from '@/model/blocks/derive';
 import { newId } from '@/model/ids';
+import { itemId } from '@/model/identity';
 import { variationName } from '@/model/new-quilt';
 import type { Block, SeamBlock } from '@/model/schema/block';
 import type { Units } from '@/model/schema/project';
@@ -26,10 +27,15 @@ export function editorSettings(block: Block, units: Units): BlockEditorSettings 
   };
 }
 
-export function newBlock(name: string, size: [number, number], units: Units): SeamBlock {
+export function newBlock(
+  name: string,
+  size: [number, number],
+  units: Units,
+  author = '',
+): SeamBlock {
   const drawing = { nodes: [], segments: [] };
   return {
-    id: newId(),
+    id: itemId(author),
     kind: 'seam',
     size,
     notecard: { name },
@@ -40,11 +46,13 @@ export function newBlock(name: string, size: [number, number], units: Units): Se
   };
 }
 
-/** Copy for "Edit a copy": new id, "(2)" name, attribution kept and marked derived. */
-export function copyBlock(block: Block, takenNames: string[]): Block {
+/** Copy for "Edit a copy": the author's own id, "(2)" name, attribution kept and marked derived. */
+export function copyBlock(block: Block, takenNames: string[], author = ''): Block {
   return produce(block, (b) => {
-    b.id = newId();
+    b.id = itemId(author);
     b.notecard.name = variationName(block.notecard.name, takenNames);
+    delete b.version; // stamped on save; revisions restart for the new item
+    delete b.revision;
     if (b.source) b.source.derived = true;
   });
 }

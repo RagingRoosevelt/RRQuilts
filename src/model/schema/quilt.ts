@@ -1,6 +1,6 @@
 import Type from 'typebox';
 import { ColoringBody } from './coloring';
-import { Id, Size, Vec2, itemBase } from './shared';
+import { Id, ItemId, Size, Vec2, itemBase } from './shared';
 
 const count = Type.Integer({ minimum: 1, maximum: 100 });
 const length = Type.Number({ minimum: 0 });
@@ -65,7 +65,7 @@ export const Border = Type.Object({
 });
 
 export const SlotContent = Type.Object({
-  block: Id,
+  block: ItemId,
   coloring: Id,
   rotation: Type.Union([Type.Literal(0), Type.Literal(90), Type.Literal(180), Type.Literal(270)]),
   flip: Type.Boolean(),
@@ -73,7 +73,7 @@ export const SlotContent = Type.Object({
 
 export const Text = Type.Object({
   value: Type.String(),
-  font: Id,
+  font: ItemId,
   size: Type.Number({ exclusiveMinimum: 0 }),
   bold: Type.Boolean(),
   italic: Type.Boolean(),
@@ -83,7 +83,7 @@ export const Text = Type.Object({
 export const Item = Type.Object({
   id: Id,
   kind: Type.Enum(['block', 'motif', 'stencil', 'photo', 'text', 'embroidery']),
-  ref: Type.Optional(Id),
+  ref: Type.Optional(ItemId),
   x: Type.Number(),
   y: Type.Number(),
   w: Type.Number({ exclusiveMinimum: 0 }),

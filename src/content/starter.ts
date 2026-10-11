@@ -4,8 +4,9 @@
 import { produce } from 'immer';
 import { deriveSeamPatches } from '@/model/blocks/derive';
 import { pathPolygon, pointInPolygon } from '@/model/geometry/path';
-import { newId } from '@/model/ids';
-import type { Segment } from '@/model/schema/block';
+import { contentVersion } from '@/model/identity';
+import type { SeamBlock, Segment } from '@/model/schema/block';
+import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 
 type P = [number, number];
@@ -406,53 +407,98 @@ function superS(): Seam[] {
   ];
 }
 
-/** Add the starter colors and blocks to a project (new projects only). */
-export function addStarterContent(doc: RrqDoc): RrqDoc {
-  const size: [number, number] = doc.units === 'cm' ? [25, 25] : [10, 10];
-  const colorIds = STARTER_COLORS.map(() => newId());
-  return produce(doc, (d) => {
-    STARTER_COLORS.forEach(([name, rgb], i) => {
-      d.project.palette.colors.push({ id: colorIds[i]!, notecard: { name }, rgb });
-    });
-    for (const b of STARTER_BLOCKS) {
-      const nodes: { id: string; x: number; y: number }[] = [];
-      const node = ([x, y]: P) => {
-        const id = newId();
-        nodes.push({ id, x, y });
-        return id;
-      };
-      const segments: Segment[] = b.seams.map((s) =>
-        s.length === 3
-          ? { id: newId(), kind: 'arc', from: node(s[0]), to: node(s[1]), sweep: s[2] }
-          : { id: newId(), kind: 'line', from: node(s[0]), to: node(s[1]) },
-      );
-      const drawing = { nodes, segments };
-      const derived = deriveSeamPatches(drawing, size);
-      const patches = derived.patches.map((p) => ({ id: newId(), path: p.path }));
-      const fills: Record<string, { color: string }> = {};
-      for (const p of patches) {
-        const poly = pathPolygon(p.path, size);
-        const hit = b.points.find(([px, py]) => pointInPolygon([px, py], poly));
-        fills[p.id] = { color: colorIds[hit ? hit[2] : b.base]! };
-      }
-      d.project.blocks.push({
-        id: newId(),
-        kind: 'seam',
-        size,
-        notecard: { name: b.name, tags: ['starter'] },
-        source: {
-          libraryId: 'rrquilts-starter',
-          itemId: b.name.toLowerCase().replace(/[^a-z]+/g, '-'),
-          revision: 1,
-          name: b.name,
-          library: STARTER_LIBRARY.name,
-          author: STARTER_LIBRARY.author,
-          license: STARTER_LIBRARY.license,
-        },
-        drawing,
-        patches,
-        colorings: [{ id: 'k1', fills }],
-      });
+// --- Built-in library (spec 008) ---------------------------------------------------------------
+
+export const LIBRARY_ID = 'rrquilts-starter';
+const libId = (name: string) =>
+  `rrquilts.${name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')}`;
+const credit = (name: string) => ({
+  libraryId: LIBRARY_ID,
+  itemId: libId(name),
+  revision: 1,
+  name,
+  library: STARTER_LIBRARY.name,
+  author: STARTER_LIBRARY.author,
+  license: STARTER_LIBRARY.license,
+});
+
+export interface BuiltinItems {
+  colors: Color[];
+  blocks: SeamBlock[];
+}
+
+/**
+ * The built-in library in inches, with deterministic ids (`rrquilts.<name>`, and n1/s1/p1… inside
+ * blocks) so its content versions are stable across app loads.
+ */
+export function builtinItems(): BuiltinItems {
+  const size: [number, number] = [10, 10];
+  const colors: Color[] = STARTER_COLORS.map(([name, rgb]) => ({
+    id: libId(name),
+    notecard: { name },
+    rgb,
+    source: credit(name),
+    revision: 1,
+  }));
+  const blocks = STARTER_BLOCKS.map((b): SeamBlock => {
+    const nodes: { id: string; x: number; y: number }[] = [];
+    const node = ([x, y]: P) => {
+      const id = `n${nodes.length + 1}`;
+      nodes.push({ id, x, y });
+      return id;
+    };
+    const segments: Segment[] = b.seams.map((sm, i) =>
+      sm.length === 3
+        ? { id: `s${i + 1}`, kind: 'arc', from: node(sm[0]), to: node(sm[1]), sweep: sm[2] }
+        : { id: `s${i + 1}`, kind: 'line', from: node(sm[0]), to: node(sm[1]) },
+    );
+    const drawing = { nodes, segments };
+    const patches = deriveSeamPatches(drawing, size).patches.map((p, i) => ({
+      id: `p${i + 1}`,
+      path: p.path,
+    }));
+    const fills: Record<string, { color: string }> = {};
+    for (const p of patches) {
+      const poly = pathPolygon(p.path, size);
+      const hit = b.points.find(([px, py]) => pointInPolygon([px, py], poly));
+      fills[p.id] = { color: colors[hit ? hit[2] : b.base]!.id };
     }
+    return {
+      id: libId(b.name),
+      kind: 'seam',
+      size,
+      notecard: { name: b.name, tags: ['starter'] },
+      source: credit(b.name),
+      revision: 1,
+      drawing,
+      patches,
+      colorings: [{ id: 'k1', fills }],
+    };
+  });
+  return { colors, blocks };
+}
+
+/** The built-in library with content versions (computed once at startup). */
+export async function builtinLibrary(): Promise<BuiltinItems> {
+  const items = builtinItems();
+  for (const x of [...items.colors, ...items.blocks]) x.version = await contentVersion(x, 'in');
+  return items;
+}
+
+/** Embed the whole built-in library into a project, converted to its units (tests, samples). */
+export function addStarterContent(doc: RrqDoc): RrqDoc {
+  const items = builtinItems();
+  const k = doc.units === 'cm' ? 2.54 : 1;
+  return produce(doc, (d) => {
+    d.project.palette.colors.push(...items.colors);
+    d.project.blocks.push(
+      ...items.blocks.map((b) => ({
+        ...b,
+        size: [b.size[0] * k, b.size[1] * k] as [number, number],
+      })),
+    );
   });
 }

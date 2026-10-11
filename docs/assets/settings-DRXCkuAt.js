@@ -1,1 +1,0 @@
-import{t as e}from"./settings-loYYI3RY.js";import{n as t}from"./index-Bh_Q92ER.js";var n=t(()=>{e().applyTheme()});export{n as default};

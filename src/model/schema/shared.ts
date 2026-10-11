@@ -2,6 +2,11 @@
 import Type from 'typebox';
 
 export const Id = Type.String({ pattern: '^[a-z0-9]{1,32}$' });
+/**
+ * Shareable item id: `<author>.<random>` (spec 008), e.g. `jane-doe.k3x9q2m7ta` or
+ * `rrquilts.ohio-star`. Plain ids (no author) are accepted for local/older items.
+ */
+export const ItemId = Type.String({ pattern: '^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$' });
 export const Vec2 = Type.Tuple([Type.Number(), Type.Number()]);
 const positive = Type.Number({ exclusiveMinimum: 0 });
 export const Size = Type.Tuple([positive, positive]);
@@ -68,9 +73,13 @@ export const Path = Type.Array(PathCommand, { minItems: 2 });
 
 /** Fields every top-level item carries. */
 export const itemBase = {
-  id: Id,
+  id: ItemId,
   notecard: Notecard,
   source: Type.Optional(Source),
+  /** Content hash (12 hex) of the item's design; `id@version` identifies an exact version. */
+  version: Type.Optional(Type.String({ pattern: '^[a-f0-9]{12}$' })),
+  /** Human-friendly counter, incremented whenever `version` changes. */
+  revision: Type.Optional(Type.Integer({ minimum: 1 })),
 };
 
 export type Path = Type.Static<typeof Path>;

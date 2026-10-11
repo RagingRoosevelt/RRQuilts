@@ -1,14 +1,14 @@
 import Type from 'typebox';
-import { Id, Vec2 } from './shared';
+import { Id, ItemId, Vec2 } from './shared';
 
 /** A patch filled with fabric (offset/rotation = fussy cut) or a solid color. Absent = unfilled. */
 export const Fill = Type.Union([
-  Type.Object({ fabric: Id, offset: Vec2, rotation: Type.Number() }),
-  Type.Object({ color: Id }),
+  Type.Object({ fabric: ItemId, offset: Vec2, rotation: Type.Number() }),
+  Type.Object({ color: ItemId }),
 ]);
 
 export const ThreadUse = Type.Object({
-  thread: Id,
+  thread: ItemId,
   style: Type.Union([Type.Literal('solid'), Type.Literal('dashed')]),
   weight: Type.Number({ exclusiveMinimum: 0 }),
 });
