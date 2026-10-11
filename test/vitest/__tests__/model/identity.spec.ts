@@ -38,3 +38,16 @@ describe('item identity', () => {
     expect(doc.project.blocks[0]!.version).not.toBe(first.version);
   });
 });
+
+describe('sha256 fallback', () => {
+  it('matches Web Crypto for empty, short, and multi-block inputs', async () => {
+    const { sha256Hex, sha256HexJs } = await import('@/model/io');
+    for (const n of [0, 3, 55, 56, 64, 1000]) {
+      const bytes = Uint8Array.from({ length: n }, (_, i) => (i * 31) & 255);
+      expect(sha256HexJs(bytes)).toBe(await sha256Hex(bytes));
+    }
+    expect(sha256HexJs(new TextEncoder().encode('abc'))).toBe(
+      'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+    );
+  });
+});
