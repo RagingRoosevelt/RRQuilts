@@ -1,6 +1,7 @@
 <!--
 Sync Impact Report
-- Version change: 1.5.0 → 1.6.0 (MINOR: CI gate, Node 24 LTS, container file ownership/polling,
+- Version change: 1.6.0 → 1.7.0 (MINOR: TypeBox as the schema/validation library — Technology Stack)
+- Prior: 1.5.0 → 1.6.0 (MINOR: CI gate, Node 24 LTS, container file ownership/polling,
   README requirement, make commit/push — Technology Stack, Build/Hosting, Development Workflow)
 - Prior: 1.4.0 → 1.5.0 (MINOR: autosaved project drafts in IndexedDB — Principle IV)
 - Prior: 1.3.0 → 1.4.0 (MINOR: .rrq_lib widened to also serve as resource pack — Principle III;
@@ -124,6 +125,7 @@ Rationale: small bundle = fast offline cache, small surface = fewer bugs.
 | Settings persistence | `localStorage` (via Quasar `LocalStorage` or thin wrapper) |
 | Library persistence | IndexedDB (project drafts, personal libraries, cached repository content) |
 | Project persistence | `.rrq` files via File System Access API + download/upload fallback |
+| Schemas & validation | TypeBox (JSON Schema + TS types; interpreted `Value.Check`, no runtime codegen) |
 | Unit tests | Vitest (Quasar testing extension) |
 | Lint/format | ESLint + Prettier (Quasar scaffold defaults) |
 | Package manager | npm |
@@ -224,4 +226,4 @@ This constitution supersedes other practices. Amendments are made via
 (MAJOR: principle removed/redefined; MINOR: principle/section added; PATCH: wording).
 Runtime development guidance lives in `CLAUDE.md`.
 
-**Version**: 1.6.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-10
+**Version**: 1.7.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-11
