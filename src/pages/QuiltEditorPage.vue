@@ -16,7 +16,9 @@
         aria-label="Undo"
         :disable="!project.canUndo"
         @click="project.undo()"
-      />
+      >
+        <q-tooltip>Undo (Ctrl+Z)</q-tooltip>
+      </q-btn>
       <q-btn
         flat
         round
@@ -25,15 +27,19 @@
         aria-label="Redo"
         :disable="!project.canRedo"
         @click="project.redo()"
-      />
+      >
+        <q-tooltip>Redo (Ctrl+Shift+Z)</q-tooltip>
+      </q-btn>
       <q-btn
         flat
         round
         dense
         :icon="editor.outlines ? 'border_all' : 'border_clear'"
-        aria-label="Toggle patch outlines"
+        :aria-label="outlinesLabel"
         @click="editor.outlines = !editor.outlines"
-      />
+      >
+        <q-tooltip>{{ outlinesLabel }}</q-tooltip>
+      </q-btn>
     </div>
 
     <div class="row col no-wrap" style="min-height: 0">
@@ -191,6 +197,7 @@ const HINTS: Record<Tool, string> = {
   pan: 'Drag to move around.',
 };
 const toolHint = computed(() => HINTS[editor.tool]);
+const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
 
 const fmt = (n: number) => `${Number(n.toFixed(3))}`;
 const dims = (b: [number, number, number, number]) =>
