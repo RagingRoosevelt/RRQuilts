@@ -1,7 +1,7 @@
 <template>
   <q-dialog v-model="open">
-    <q-card style="width: 340px">
-      <q-card-section class="q-gutter-sm">
+    <q-card style="width: 340px; max-width: 95vw">
+      <q-card-section class="column" style="gap: 8px">
         <div class="text-h6">{{ title }}</div>
         <div class="swatch" :style="{ background: hex }" />
         <q-input v-model="name" dense label="Name" />
@@ -28,12 +28,12 @@
             />
           </div>
         </div>
-        <div class="row q-gutter-sm">
+        <div class="row no-wrap" style="gap: 6px">
           <q-input
             :model-value="hex"
             dense
             label="Hex"
-            style="width: 110px"
+            style="flex: 2; min-width: 0"
             @update:model-value="(v) => setHex(String(v ?? ''))"
           />
           <q-input
@@ -43,7 +43,7 @@
             dense
             type="number"
             :label="c"
-            style="width: 56px"
+            style="flex: 1; min-width: 0"
             @update:model-value="(v) => setChannel(i, Number(v))"
           />
         </div>

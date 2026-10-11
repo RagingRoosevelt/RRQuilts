@@ -5,7 +5,7 @@
       <q-tab name="colors" label="Colors" />
     </q-tabs>
 
-    <div v-if="tab === 'blocks'" class="row no-wrap scroll-x q-pa-sm q-gutter-sm">
+    <div v-if="tab === 'blocks'" class="strip q-pa-sm" style="gap: 8px">
       <button
         v-for="b in blocks"
         :key="b.id"
@@ -18,7 +18,7 @@
       </button>
     </div>
 
-    <div v-else class="row no-wrap scroll-x q-pa-sm q-gutter-xs items-center">
+    <div v-else class="strip q-pa-sm" style="gap: 4px">
       <q-btn
         v-if="!project.readOnly"
         round
@@ -129,8 +129,12 @@ function remove(id: string) {
 </script>
 
 <style scoped>
-.scroll-x {
+.strip {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
   overflow-x: auto;
+  overflow-y: hidden;
 }
 .tile,
 .swatch {

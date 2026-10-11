@@ -1,5 +1,5 @@
 <template>
-  <q-page v-if="project.doc && quilt" class="editor column no-wrap">
+  <q-page v-if="project.doc && quilt" class="editor column no-wrap" :style-fn="fill">
     <!-- Mode tabs + undo -->
     <div class="row items-center no-wrap q-px-sm bar">
       <q-tabs v-model="editor.mode" dense no-caps inline-label class="col">
@@ -36,9 +36,9 @@
       />
     </div>
 
-    <div class="row col no-wrap">
+    <div class="row col no-wrap" style="min-height: 0">
       <!-- Tool rail (Design) -->
-      <div v-if="editor.mode === 'design'" class="rail column q-pa-xs q-gutter-xs">
+      <div v-if="editor.mode === 'design'" class="rail column no-wrap q-pa-xs" style="gap: 4px">
         <q-btn
           v-for="t in tools"
           :key="t.id"
@@ -101,7 +101,7 @@
 
     <!-- Bottom bar (Design) -->
     <div v-if="editor.mode === 'design'" class="bar column">
-      <div class="row items-center q-px-sm q-gutter-sm">
+      <div class="row items-center no-wrap q-px-sm" style="gap: 8px">
         <span class="text-caption">Apply to</span>
         <q-btn-toggle
           v-model="editor.scope"
@@ -138,6 +138,8 @@ import { useEditorStore, type Tool } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 
 const $q = useQuasar();
+// Fill exactly the space under the header (which grows with the read-only banner): no page scroll.
+const fill = (offset: number) => ({ height: `calc(100vh - ${offset}px)` });
 const route = useRoute();
 const router = useRouter();
 const project = useProjectStore();
@@ -240,13 +242,14 @@ function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
 
 <style scoped>
 .editor {
-  height: calc(100vh - 50px);
+  overflow: hidden;
 }
 .bar {
   border-top: 1px solid rgba(128, 128, 128, 0.25);
   border-bottom: 1px solid rgba(128, 128, 128, 0.25);
 }
 .rail {
+  overflow-y: auto;
   border-right: 1px solid rgba(128, 128, 128, 0.25);
 }
 .inspector {
