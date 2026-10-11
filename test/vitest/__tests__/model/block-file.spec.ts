@@ -8,7 +8,8 @@ import { produce } from 'immer';
 describe('.rrqb block files', () => {
   it('round-trips a block with just the colors it uses, into a cm project as my own block', () => {
     const src = addStarterContent(createProject());
-    const text = serializeBlock(src, 'rrquilts.ohio-star', 'Jane Doe');
+    const star = src.project.blocks.find((b) => b.id === 'rrquilts.ohio-star')!;
+    const text = serializeBlock(star, 'in', src.project.palette.colors, 'Jane Doe');
     const parsed = parseBlockFile(text);
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
@@ -27,7 +28,9 @@ describe('.rrqb block files', () => {
   it('credits the exporter of an own block; a clashing id with a different design becomes a copy', () => {
     const mine = newBlock('Mine', [10, 10], 'in', 'Jane Doe');
     const src = produce(createProject(), (d) => void d.project.blocks.push(mine));
-    const parsed = parseBlockFile(serializeBlock(src, mine.id, 'Jane Doe'));
+    const parsed = parseBlockFile(
+      serializeBlock(mine, 'in', src.project.palette.colors, 'Jane Doe'),
+    );
     if (!parsed.ok) throw new Error(parsed.error);
     const once = importBlock(createProject(), parsed.file, 'Sam');
     expect(once.blockId).toBe(mine.id);

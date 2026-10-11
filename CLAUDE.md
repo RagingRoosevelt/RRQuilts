@@ -107,7 +107,15 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   `undo.ts` (Immer patch history), `color.ts`/`colors.ts`
 - `src/stores/editor.ts` — session tool/mode/scope/selection/view state
 - Plain sashes/cornerstones/borders use the hidden `plain` block (`src/model/plain.ts`)
-- Starter blocks/colors: `src/content/starter.ts` (sample-point colorings, CC-BY-4.0 attribution)
+- Starter blocks/colors: `src/content/starter.ts` → built-in library (`builtinLibrary()`, ids
+  `rrquilts.<name>`, deterministic inner ids so versions are stable), loaded at boot into
+  `stores/library.ts`; `addStarterContent` only for tests
+- Library items (spec 008, `src/model/library-items.ts`): `isLibraryItem` = has `source`, not
+  `derived` → read-only. `project.change` runs `syncDraft` every edit: embeds referenced library
+  blocks/colors, prunes unused ones (same undo step). `splitItems` = Mine vs Library for display
+- Identity (`src/model/identity.ts`): shareable ids `<author-slug>.<random>`; `version` = 12-hex
+  content hash (sizes hashed in inches), `revision` display counter; stamped on save
+- `.rrqb` single-block files: `src/model/block-file.ts`
 
 ## Block editor (spec 007)
 

@@ -6,36 +6,36 @@
     </q-tabs>
 
     <div v-if="tab === 'blocks'" class="strip q-pa-sm" style="gap: 8px">
-      <button
-        v-for="b in blocks"
-        :key="b.id"
-        class="tile"
-        :class="{ active: editor.block === b.id }"
-        :title="b.notecard.name"
-        @click="pickBlock(b.id)"
-      >
-        <img
-          :src="blockThumbnail(doc, b, 96, $q.dark.isActive, editor.coloringOf.get(b.id))"
-          :alt="b.notecard.name"
-        />
-        <span v-if="b.colorings.length > 1" class="count">{{ b.colorings.length }}</span>
-        <!-- Blocks with several colorings: right-click / long-press to choose which one to set. -->
-        <q-menu v-if="b.colorings.length > 1" touch-position context-menu>
-          <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
-            <button
-              v-for="(c, i) in b.colorings"
-              :key="c.id"
-              v-close-popup
-              class="tile"
-              :class="{ active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id }"
-              :title="c.name ?? `Coloring ${i + 1}`"
-              @click="chooseColoring(b.id, c.id)"
-            >
-              <img :src="blockThumbnail(doc, b, 96, $q.dark.isActive, c.id)" :alt="c.name ?? ''" />
-            </button>
-          </div>
-        </q-menu>
-      </button>
+      <template v-for="group in blockGroups" :key="group.label">
+        <span v-if="group.items.length" class="section">{{ group.label }}</span>
+        <button
+          v-for="b in group.items"
+          :key="b.id"
+          class="tile"
+          :class="{ active: editor.block === b.id }"
+          :title="b.notecard.name"
+          @click="pickBlock(b.id)"
+        >
+          <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
+          <span v-if="b.colorings.length > 1" class="count">{{ b.colorings.length }}</span>
+          <!-- Blocks with several colorings: right-click / long-press to choose which one to set. -->
+          <q-menu v-if="b.colorings.length > 1" touch-position context-menu>
+            <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+              <button
+                v-for="(c, i) in b.colorings"
+                :key="c.id"
+                v-close-popup
+                class="tile"
+                :class="{ active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id }"
+                :title="c.name ?? `Coloring ${i + 1}`"
+                @click="chooseColoring(b.id, c.id)"
+              >
+                <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
+              </button>
+            </div>
+          </q-menu>
+        </button>
+      </template>
     </div>
 
     <div v-else class="strip q-pa-sm" style="gap: 4px">
@@ -48,26 +48,29 @@
         aria-label="Add color"
         @click="editorDialog?.show()"
       />
-      <button
-        v-for="c in colors"
-        :key="c.id"
-        class="swatch"
-        :class="{ active: editor.color === c.id }"
-        :style="{ background: `rgb(${c.rgb.join(',')})` }"
-        :title="c.notecard.name"
-        @click="pickColor(c.id)"
-      >
-        <q-menu v-if="!project.readOnly" touch-position context-menu>
-          <q-list dense style="min-width: 140px">
-            <q-item v-close-popup clickable @click="edit(c.id)">
-              <q-item-section>Edit…</q-item-section>
-            </q-item>
-            <q-item v-close-popup clickable @click="remove(c.id)">
-              <q-item-section class="text-negative">Delete</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </button>
+      <template v-for="group in colorGroups" :key="group.label">
+        <span v-if="group.items.length" class="section">{{ group.label }}</span>
+        <button
+          v-for="c in group.items"
+          :key="c.id"
+          class="swatch"
+          :class="{ active: editor.color === c.id }"
+          :style="{ background: `rgb(${c.rgb.join(',')})` }"
+          :title="c.notecard.name"
+          @click="pickColor(c.id)"
+        >
+          <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
+            <q-list dense style="min-width: 140px">
+              <q-item v-close-popup clickable @click="edit(c.id)">
+                <q-item-section>Edit…</q-item-section>
+              </q-item>
+              <q-item v-close-popup clickable @click="remove(c.id)">
+                <q-item-section class="text-negative">Delete</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </button>
+      </template>
     </div>
     <ColorEditor ref="editorDialog" @done="saveColor" />
   </div>
@@ -79,14 +82,19 @@ import { computed, ref } from 'vue';
 import ColorEditor from '@/components/ColorEditor.vue';
 import { colorInUse, deleteColor } from '@/editor/colors';
 import type { RGB } from '@/editor/color';
-import { newId } from '@/model/ids';
+import { itemId } from '@/model/identity';
+import { useSettingsStore } from '@/stores/settings';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
+import { useLibraryStore } from '@/stores/library';
+import { splitItems } from '@/model/library-items';
+import type { Block } from '@/model/schema/block';
 import { useProjectStore } from '@/stores/project';
 
 const $q = useQuasar();
 const project = useProjectStore();
 const editor = useEditorStore();
+const library = useLibraryStore();
 const editorDialog = ref<InstanceType<typeof ColorEditor>>();
 const editing = ref<string | null>(null);
 
@@ -100,14 +108,28 @@ const tab = computed({
   set: (t) => (editor.tool = t === 'colors' ? 'paint' : 'set'),
 });
 const doc = computed(() => project.doc!);
-const blocks = computed(() =>
-  doc.value.project.blocks.filter((b) => !b.notecard.tags?.includes('system')),
-);
-const colors = computed(() => {
-  const all = doc.value.project.palette.colors;
-  const recent = editor.recentColors.map((id) => all.find((c) => c.id === id)).filter((c) => !!c);
-  return [...recent, ...all.filter((c) => !editor.recentColors.includes(c.id))];
+const blockGroups = computed(() => {
+  const own = doc.value.project.blocks.filter((b) => !b.notecard.tags?.includes('system'));
+  const { mine, library: lib } = splitItems(own, library.items.blocks);
+  return [
+    { label: 'Mine', items: mine },
+    { label: 'Library', items: lib },
+  ];
 });
+/** Recently used colors first within each section. */
+const recentFirst = <T extends { id: string }>(all: T[]) => [
+  ...editor.recentColors.map((id) => all.find((c) => c.id === id)).filter((c) => !!c),
+  ...all.filter((c) => !editor.recentColors.includes(c.id)),
+];
+const colorGroups = computed(() => {
+  const { mine, library: lib } = splitItems(doc.value.project.palette.colors, library.items.colors);
+  return [
+    { label: 'Mine', items: recentFirst(mine), mine: true },
+    { label: 'Library', items: recentFirst(lib), mine: false },
+  ];
+});
+const thumb = (b: Block, coloringId?: string) =>
+  blockThumbnail(doc.value, b, 96, $q.dark.isActive, coloringId, library.items.colors);
 
 function pickBlock(id: string) {
   editor.block = id;
@@ -138,7 +160,7 @@ function saveColor({ name, rgb }: { name: string; rgb: RGB }) {
       existing.notecard.name = name;
       existing.rgb = rgb;
     } else {
-      const nid = newId();
+      const nid = itemId(useSettingsStore().settings.author);
       d.project.palette.colors.push({ id: nid, notecard: { name }, rgb });
       editor.useColor(nid);
     }
@@ -169,6 +191,18 @@ function remove(id: string) {
   align-items: center;
   overflow-x: auto;
   overflow-y: hidden;
+}
+.section {
+  flex: none;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 11px;
+  opacity: 0.7;
+  padding-left: 4px;
+  border-left: 1px solid rgba(128, 128, 128, 0.4);
+}
+.section:first-child {
+  border-left: none;
 }
 .tile,
 .swatch {

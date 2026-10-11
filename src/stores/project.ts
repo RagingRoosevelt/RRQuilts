@@ -301,6 +301,7 @@ export const useProjectStore = defineStore('project', () => {
     lock = null;
     doc.value = null;
     handle.value = null;
+    mismatches.value = [];
   }
 
   // Never lose more than a moment of work when the tab goes away.
@@ -317,7 +318,7 @@ export const useProjectStore = defineStore('project', () => {
   /** Switch the chosen items to their library version (one undo step). */
   function useLibraryVersions(ids: string[]) {
     const lib = useLibraryStore().lookup;
-    if (!doc.value) return;
+    if (!doc.value || !ids.length) return void (mismatches.value = []);
     let next = doc.value;
     for (const m of mismatches.value.filter((x) => ids.includes(x.project.id))) {
       next =

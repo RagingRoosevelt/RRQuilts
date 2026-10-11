@@ -15,10 +15,7 @@
     <q-tabs v-model="tab" dense no-caps align="left">
       <q-tab name="quilts" :label="`Quilts (${quilts.length})`" />
       <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
-      <q-tab
-        name="colors"
-        :label="`Fabrics & Colors (${project.doc.project.palette.colors.length})`"
-      />
+      <q-tab name="colors" :label="`Fabrics & Colors (${colorGroups[0]!.items.length})`" />
       <q-tab name="photos" label="Photos" />
       <q-tab name="threads" label="Threads" />
     </q-tabs>
@@ -84,91 +81,149 @@
       </div>
     </div>
 
-    <div v-else-if="tab === 'blocks'" class="cards">
-      <button v-if="!project.readOnly" class="card add" @click="newBlockDialog">
-        <q-icon name="add" size="lg" />
-        <div>New block</div>
-      </button>
-      <div
-        v-for="(b, i) in blocks"
-        :key="b.id"
-        class="card"
-        :draggable="!project.readOnly"
-        @dragstart="dragFrom = i"
-        @dragover.prevent
-        @drop="drop('blocks', i)"
-      >
-        <button class="thumb" @click="openBlock(b.id)">
-          <img
-            :src="blockThumbnail(project.doc, b, 200, $q.dark.isActive)"
-            :alt="b.notecard.name"
-          />
+    <template v-else-if="tab === 'blocks'">
+      <div class="text-subtitle2 q-mb-sm">My blocks</div>
+      <div class="cards">
+        <button v-if="!project.readOnly" class="card add" @click="newBlockDialog">
+          <q-icon name="add" size="lg" />
+          <div>New block</div>
         </button>
-        <div class="row items-center no-wrap">
-          <div class="col ellipsis">{{ b.notecard.name }}</div>
-          <q-btn v-if="!project.readOnly" flat round dense icon="more_vert" aria-label="Actions">
-            <q-menu>
-              <q-list dense style="min-width: 160px">
-                <q-item
-                  v-close-popup
-                  clickable
-                  :disable="b.kind !== 'seam'"
-                  @click="openBlock(b.id)"
-                >
-                  <q-item-section>Edit</q-item-section>
-                </q-item>
-                <q-item
-                  v-close-popup
-                  clickable
-                  :disable="b.kind !== 'seam'"
-                  @click="editCopy(b.id)"
-                >
-                  <q-item-section>Edit a copy</q-item-section>
-                </q-item>
-                <q-item v-close-popup clickable @click="preview = b.id">
-                  <q-item-section>Details</q-item-section>
-                </q-item>
-                <q-item v-close-popup clickable @click="editCard('blocks', b.id)"
-                  ><q-item-section>Notecard…</q-item-section></q-item
-                >
-                <q-item
-                  v-close-popup
-                  clickable
-                  :disable="i === 0"
-                  @click="moveItem('blocks', i, -1)"
-                  ><q-item-section>Move earlier</q-item-section></q-item
-                >
-                <q-item
-                  v-close-popup
-                  clickable
-                  :disable="i === blocks.length - 1"
-                  @click="moveItem('blocks', i, 1)"
-                  ><q-item-section>Move later</q-item-section></q-item
-                >
-                <q-item v-close-popup clickable @click="deleteBlock(b.id)"
-                  ><q-item-section class="text-negative">Delete</q-item-section></q-item
-                >
-              </q-list>
-            </q-menu>
-          </q-btn>
+        <button v-if="!project.readOnly" class="card add" @click="blockInput?.click()">
+          <q-icon name="upload_file" size="lg" />
+          <div>Import block (.rrqb)</div>
+        </button>
+        <div
+          v-for="(b, i) in blocks"
+          :key="b.id"
+          class="card"
+          :draggable="!project.readOnly"
+          @dragstart="dragFrom = i"
+          @dragover.prevent
+          @drop="drop('blocks', i)"
+        >
+          <button class="thumb" @click="openBlock(b.id)">
+            <img :src="thumb(b, 200)" :alt="b.notecard.name" />
+          </button>
+          <div class="row items-center no-wrap">
+            <div class="col ellipsis">{{ b.notecard.name }}</div>
+            <q-btn flat round dense icon="more_vert" aria-label="Actions">
+              <q-menu>
+                <q-list dense style="min-width: 160px">
+                  <template v-if="!project.readOnly">
+                    <q-item
+                      v-close-popup
+                      clickable
+                      :disable="b.kind !== 'seam'"
+                      @click="openBlock(b.id)"
+                    >
+                      <q-item-section>Edit</q-item-section>
+                    </q-item>
+                    <q-item
+                      v-close-popup
+                      clickable
+                      :disable="b.kind !== 'seam'"
+                      @click="editCopy(b.id)"
+                    >
+                      <q-item-section>Edit a copy</q-item-section>
+                    </q-item>
+                  </template>
+                  <q-item v-close-popup clickable @click="preview = b.id">
+                    <q-item-section>Details</q-item-section>
+                  </q-item>
+                  <q-item v-close-popup clickable @click="exportBlock(b)">
+                    <q-item-section>Export (.rrqb)</q-item-section>
+                  </q-item>
+                  <template v-if="!project.readOnly">
+                    <q-item v-close-popup clickable @click="editCard('blocks', b.id)"
+                      ><q-item-section>Notecard…</q-item-section></q-item
+                    >
+                    <q-item
+                      v-close-popup
+                      clickable
+                      :disable="i === 0"
+                      @click="moveItem('blocks', i, -1)"
+                      ><q-item-section>Move earlier</q-item-section></q-item
+                    >
+                    <q-item
+                      v-close-popup
+                      clickable
+                      :disable="i === blocks.length - 1"
+                      @click="moveItem('blocks', i, 1)"
+                      ><q-item-section>Move later</q-item-section></q-item
+                    >
+                    <q-item v-close-popup clickable @click="deleteBlock(b.id)"
+                      ><q-item-section class="text-negative">Delete</q-item-section></q-item
+                    >
+                  </template>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div v-else-if="tab === 'colors'" class="row q-gutter-sm">
-      <div
-        v-for="c in project.doc.project.palette.colors"
-        :key="c.id"
-        class="column items-center"
-        style="width: 72px"
-      >
-        <div class="swatch" :style="{ background: `rgb(${c.rgb.join(',')})` }" />
-        <div class="text-caption ellipsis full-width text-center">{{ c.notecard.name }}</div>
+      <div class="text-subtitle2 q-mt-lg q-mb-sm">Library</div>
+      <div class="cards">
+        <div v-for="b in libBlocks" :key="b.id" class="card">
+          <button class="thumb" @click="preview = b.id">
+            <img :src="thumb(b, 200)" :alt="b.notecard.name" />
+          </button>
+          <div class="row items-center no-wrap">
+            <div class="col ellipsis">
+              {{ b.notecard.name }}
+              <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
+                <q-tooltip>Used in this project</q-tooltip>
+              </q-icon>
+            </div>
+            <q-btn flat round dense icon="more_vert" aria-label="Actions">
+              <q-menu>
+                <q-list dense style="min-width: 160px">
+                  <q-item
+                    v-if="!project.readOnly"
+                    v-close-popup
+                    clickable
+                    :disable="b.kind !== 'seam'"
+                    @click="editLibrary(b)"
+                  >
+                    <q-item-section>Edit (makes your copy)</q-item-section>
+                  </q-item>
+                  <q-item v-close-popup clickable @click="preview = b.id">
+                    <q-item-section>Details</q-item-section>
+                  </q-item>
+                  <q-item v-close-popup clickable @click="exportBlock(b)">
+                    <q-item-section>Export (.rrqb)</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </div>
+        </div>
       </div>
-      <div class="full-width text-caption text-grey-7">
-        Add and edit colors from the tray in the quilt editor. Fabrics arrive in a later version.
+      <input
+        ref="blockInput"
+        type="file"
+        accept=".rrqb,application/json"
+        hidden
+        @change="importBlockFile"
+      />
+    </template>
+
+    <template v-else-if="tab === 'colors'">
+      <template v-for="group in colorGroups" :key="group.label">
+        <div class="text-subtitle2 q-mb-sm">{{ group.label }}</div>
+        <div class="swatches q-mb-lg">
+          <div v-for="c in group.items" :key="c.id" class="column items-center" style="width: 72px">
+            <div class="swatch" :style="{ background: `rgb(${c.rgb.join(',')})` }" />
+            <div class="text-caption ellipsis full-width text-center">{{ c.notecard.name }}</div>
+          </div>
+          <div v-if="!group.items.length" class="text-caption text-grey-7">None yet.</div>
+        </div>
+      </template>
+      <div class="text-caption text-grey-7">
+        Add and edit your colors from the tray in the quilt editor. Fabrics arrive in a later
+        version.
       </div>
-    </div>
+    </template>
     <div v-else class="text-grey-7">Coming in a later version.</div>
 
     <q-dialog :model-value="!!preview" @update:model-value="preview = null">
@@ -178,13 +233,12 @@
           <div class="text-caption text-grey-7">
             {{ previewBlock.size.join(' × ') }} {{ project.doc.units }} ·
             {{ patchCount(previewBlock) }} patches
+            <template v-if="previewBlock.revision">
+              · revision {{ previewBlock.revision }}</template
+            >
           </div>
         </q-card-section>
-        <img
-          :src="blockThumbnail(project.doc, previewBlock, 320, $q.dark.isActive)"
-          style="width: 100%"
-          alt=""
-        />
+        <img :src="thumb(previewBlock, 320)" style="width: 100%" alt="" />
         <q-card-section v-if="attribution(previewBlock)" class="text-caption text-grey-7">
           {{ attribution(previewBlock) }}
         </q-card-section>
@@ -210,12 +264,22 @@ import type { Block } from '@/model/schema/block';
 import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
+import { useLibraryStore } from '@/stores/library';
+import { useSettingsStore } from '@/stores/settings';
+import { useAuthor } from '@/composables/author';
+import { importBlock, parseBlockFile, serializeBlock } from '@/model/block-file';
+import { splitItems, toUnits, useMyCopy } from '@/model/library-items';
+import { download } from '@/storage/files';
 
 const $q = useQuasar();
 const router = useRouter();
 const project = useProjectStore();
 const editor = useEditorStore();
 const startQuilt = useStartQuilt();
+const library = useLibraryStore();
+const settings = useSettingsStore();
+const askAuthor = useAuthor();
+const blockInput = ref<HTMLInputElement>();
 const tab = ref('quilts');
 const preview = ref<string | null>(null);
 const dragFrom = ref<number | null>(null);
@@ -224,10 +288,27 @@ const wizard = ref<InstanceType<typeof QuiltWizard>>();
 let editing: { list: 'quilts' | 'blocks'; id: string } | null = null;
 
 const quilts = computed(() => project.doc!.project.quilts);
-const blocks = computed(() =>
-  project.doc!.project.blocks.filter((b) => !b.notecard.tags?.includes('system')),
+const split = computed(() =>
+  splitItems(
+    project.doc!.project.blocks.filter((b) => !b.notecard.tags?.includes('system')),
+    library.items.blocks,
+  ),
 );
-const previewBlock = computed(() => blocks.value.find((b) => b.id === preview.value));
+const blocks = computed(() => split.value.mine);
+const libBlocks = computed(() => split.value.library);
+const colorGroups = computed(() => {
+  const c = splitItems(project.doc!.project.palette.colors, library.items.colors);
+  return [
+    { label: 'My colors', items: c.mine },
+    { label: 'Library colors', items: c.library },
+  ];
+});
+const previewBlock = computed(() =>
+  [...blocks.value, ...libBlocks.value].find((b) => b.id === preview.value),
+);
+const thumb = (b: Block, px: number) =>
+  blockThumbnail(project.doc!, b, px, $q.dark.isActive, undefined, library.items.colors);
+const inUse = (id: string) => quiltsUsing(id).length > 0;
 const patchCount = (b: Block) => allPatches(b).length;
 
 function rename(value: string | number | null) {
@@ -267,15 +348,16 @@ function openBlock(id: string) {
     ok: { label: 'Edit anyway', flat: true },
   })
     .onOk(go)
-    .onCancel(() => editCopy(id));
+    .onCancel(() => void editCopy(id));
 }
 
-function editCopy(id: string) {
+async function editCopy(id: string) {
   const b = blocks.value.find((x) => x.id === id);
   if (!b) return;
   const copy = copyBlock(
     b,
     blocks.value.map((x) => x.notecard.name),
+    await askAuthor(),
   );
   const at = project.doc!.project.blocks.indexOf(b) + 1;
   project.change((d) => void d.project.blocks.splice(at, 0, copy));
@@ -291,13 +373,65 @@ function newBlockDialog() {
     message: `Finished size ${s} × ${s} ${units} — you can change it in the block editor.`,
     prompt: { model: `Block ${blocks.value.length + 1}`, type: 'text' },
     cancel: true,
-  }).onOk((name: string) => {
-    const b = newBlock(name.trim() || 'Block', [s, s], units);
-    project.change((d) => void d.project.blocks.push(b));
+  }).onOk((name: string) => void createBlock(name.trim() || 'Block', s));
+}
+
+async function createBlock(name: string, s: number) {
+  const b = newBlock(name, [s, s], project.doc!.units, await askAuthor());
+  project.change((d) => void d.project.blocks.push(b));
+  editor.blockMode = 'draw';
+  editor.blockTool = 'line';
+  void router.push(`/project/block/${b.id}`);
+}
+
+/** Library blocks are read-only: editing makes your copy, optionally used in their place. */
+async function editLibrary(lib: Block) {
+  const copy = copyBlock(
+    toUnits(lib, project.doc!.units),
+    blocks.value.map((x) => x.notecard.name),
+    await askAuthor(),
+  );
+  const users = quiltsUsing(lib.id);
+  const go = (replace: boolean) => {
+    project.change(() => useMyCopy(project.doc!, lib.id, copy, replace));
     editor.blockMode = 'draw';
-    editor.blockTool = 'line';
-    void router.push(`/project/block/${b.id}`);
-  });
+    void router.push(`/project/block/${copy.id}`);
+  };
+  if (!users.length) return go(false);
+  $q.dialog({
+    title: `Use your copy of "${lib.notecard.name}"?`,
+    message: `It's used in ${users.map((q) => `"${q.notecard.name}"`).join(', ')}. Your copy can replace it there (colors are kept).`,
+    persistent: true,
+    ok: { label: 'Use my copy there', flat: true },
+    cancel: { label: 'Keep the library block', flat: true },
+  })
+    .onOk(() => go(true))
+    .onCancel(() => go(false));
+}
+
+function exportBlock(b: Block) {
+  const palette = [...project.doc!.project.palette.colors, ...library.items.colors];
+  const author = settings.settings.author;
+  download(b.notecard.name, serializeBlock(b, project.doc!.units, palette, author), 'rrqb');
+}
+
+async function importBlockFile(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+  if (!file) return;
+  const r = parseBlockFile(await file.text());
+  if (!r.ok) {
+    $q.notify({ type: 'negative', message: r.error });
+    return;
+  }
+  const res = importBlock(project.doc!, r.file, settings.settings.author);
+  if (res.doc === project.doc) {
+    $q.notify({ message: `"${r.file.block.notecard.name}" is already in this project.` });
+    return;
+  }
+  project.change(() => res.doc);
+  $q.notify({ type: 'positive', message: `Imported "${r.file.block.notecard.name}".` });
 }
 
 function openQuilt(id: string) {
@@ -411,6 +545,11 @@ function deleteBlock(id: string) {
   width: 100%;
   aspect-ratio: 1;
   object-fit: contain;
+}
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .swatch {
   width: 56px;

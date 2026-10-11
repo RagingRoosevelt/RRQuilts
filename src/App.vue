@@ -2,12 +2,14 @@
   <div class="fit" @dragover.prevent @drop.prevent="onDrop">
     <MainLayout />
     <RestoreDrafts />
+    <VersionDialog />
   </div>
 </template>
 
 <script setup lang="ts">
 import MainLayout from '@/layouts/MainLayout.vue';
 import RestoreDrafts from '@/components/RestoreDrafts.vue';
+import VersionDialog from '@/components/VersionDialog.vue';
 import { useOpenProject } from '@/composables/open-project';
 import { useProjectStore } from '@/stores/project';
 

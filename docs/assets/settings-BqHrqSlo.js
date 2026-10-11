@@ -1,1 +1,0 @@
-import{t as e}from"./settings-tgMGCSYP.js";import{t}from"./library-BRSGETg8.js";import{n}from"./index-CNj-ccBR.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

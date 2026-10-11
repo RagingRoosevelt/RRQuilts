@@ -169,6 +169,7 @@ import {
   transforms,
 } from '@/editor/draw-ops';
 import { applySeamEdit } from '@/model/blocks/edit';
+import { isLibraryItem } from '@/model/library-items';
 import type { Pt } from '@/model/geometry/path';
 import type { Block, Drawing } from '@/model/schema/block';
 import type { RrqDoc } from '@/model/schema/project';
@@ -191,6 +192,13 @@ watch(
   anyBlock,
   (b) => {
     if (project.doc && !b) void router.replace('/project');
+    // Library blocks are read-only (spec 008): "Edit" in the sketchbook makes your copy.
+    if (b && isLibraryItem(b)) {
+      $q.notify({
+        message: 'Library blocks are read-only. Use Edit in the sketchbook to make your copy.',
+      });
+      void router.replace('/project');
+    }
   },
   { immediate: true },
 );

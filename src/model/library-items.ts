@@ -9,7 +9,7 @@ import type { ColoringBody } from './schema/coloring';
 import type { Color } from './schema/palette';
 import type { RrqDoc } from './schema/project';
 
-type Sourced = { source?: { derived?: boolean } | undefined };
+type Sourced = { source?: { libraryId: string; derived?: boolean | undefined } | undefined };
 /** Came from a library and hasn't been changed: read-only, identified by `id@version`. */
 export const isLibraryItem = (x: Sourced) => !!x.source && !x.source.derived;
 
@@ -18,7 +18,8 @@ export interface LibraryLookup {
   color(id: string): Color | undefined;
 }
 
-const toUnits = (b: Block, units: RrqDoc['units']): Block =>
+/** A library block (inches) in project units. */
+export const toUnits = (b: Block, units: RrqDoc['units']): Block =>
   units === 'cm' ? { ...b, size: [b.size[0] * 2.54, b.size[1] * 2.54] } : b;
 
 const colorsIn = (colorings: ColoringBody[]) =>
@@ -137,4 +138,23 @@ export function useMyCopy(
     }
   });
   return syncLibraryItems(withCopy);
+}
+
+/**
+ * My items vs library items for display. A library entry shows the project's embedded copy when
+ * there is one (it's what the project uses); embedded items whose library isn't installed follow.
+ */
+export function splitItems<T extends { id: string } & Sourced>(
+  project: readonly T[],
+  library: readonly T[],
+) {
+  const embedded = new Map(project.filter(isLibraryItem).map((x) => [x.id, x]));
+  const libIds = new Set(library.map((x) => x.id));
+  return {
+    mine: project.filter((x) => !isLibraryItem(x)),
+    library: [
+      ...library.map((x) => embedded.get(x.id) ?? x),
+      ...[...embedded.values()].filter((x) => !libIds.has(x.id)),
+    ],
+  };
 }

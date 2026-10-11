@@ -6,6 +6,7 @@ import { allPatches } from '@/model/blocks/patches';
 import { contentVersion } from '@/model/identity';
 import {
   isLibraryItem,
+  splitItems,
   syncLibraryItems,
   swapToLibraryVersion,
   useMyCopy,
@@ -115,5 +116,25 @@ describe('library items in projects', () => {
     expect(mine.id).toMatch(/^jane-doe\./);
     expect(isLibraryItem(mine)).toBe(false);
     expect(d.project.quilts[0]!.layers[0].slots['b:r1c1']!.block).toBe(mine.id);
+  });
+});
+
+describe('splitItems', () => {
+  it('lists mine first, library entries once, preferring embedded copies, then uninstalled ones', () => {
+    const src = { libraryId: 'l', itemId: 'x', revision: 1 };
+    type Item = { id: string; source?: typeof src; tag?: string };
+    const mine: Item = { id: 'me.a' };
+    const embedded = { id: 'lib.b', source: src, tag: 'project' };
+    const orphan = { id: 'gone.c', source: src };
+    const r = splitItems(
+      [mine, embedded, orphan],
+      [
+        { id: 'lib.a2', source: src },
+        { id: 'lib.b', source: src, tag: 'library' },
+      ],
+    );
+    expect(r.mine).toEqual([mine]);
+    expect(r.library.map((x) => x.id)).toEqual(['lib.a2', 'lib.b', 'gone.c']);
+    expect(r.library[1]).toBe(embedded);
   });
 });

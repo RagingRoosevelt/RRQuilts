@@ -32,17 +32,22 @@ const colorIdsOf = (b: Block) =>
     ),
   );
 
-export function serializeBlock(doc: RrqDoc, blockId: string, author: string): string {
-  const block = doc.project.blocks.find((b) => b.id === blockId);
-  if (!block) throw new Error(`No block ${blockId}`);
+/** `palette`: colors to draw from (project + library); only those the block uses are written. */
+export function serializeBlock(
+  block: Block,
+  units: Units,
+  palette: readonly Color[],
+  author: string,
+): string {
   const used = colorIdsOf(block);
+  const colors = [...new Map(palette.filter((c) => used.has(c.id)).map((c) => [c.id, c])).values()];
   const file: BlockFile = {
     format: BLOCK_FORMAT,
     version: BLOCK_VERSION,
-    units: doc.units,
+    units,
     ...(author ? { author } : {}),
     block,
-    colors: doc.project.palette.colors.filter((c) => used.has(c.id)),
+    colors,
   };
   return JSON.stringify(file);
 }

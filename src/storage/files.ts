@@ -29,8 +29,8 @@ export const supportsFileAccess = () =>
   typeof window.showOpenFilePicker === 'function' &&
   typeof window.showSaveFilePicker === 'function';
 
-export const fileNameFor = (name: string) =>
-  `${name.replace(/[\\/:*?"<>|]+/g, '_').trim() || 'Untitled'}.rrq`;
+export const fileNameFor = (name: string, ext = 'rrq') =>
+  `${name.replace(/[\\/:*?"<>|]+/g, '_').trim() || 'Untitled'}.${ext}`;
 
 const isAbort = (e: unknown) => e instanceof DOMException && e.name === 'AbortError';
 
@@ -92,11 +92,11 @@ export async function saveWithPicker(
 }
 
 /** Fallback save: download a copy. */
-export function download(name: string, text: string) {
+export function download(name: string, text: string, ext = 'rrq') {
   const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
   const a = document.createElement('a');
   a.href = url;
-  a.download = fileNameFor(name);
+  a.download = fileNameFor(name, ext);
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
