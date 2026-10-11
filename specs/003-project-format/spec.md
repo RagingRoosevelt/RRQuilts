@@ -104,6 +104,8 @@ rotation, and coloring; the new column is empty.
   migrate forward; newer versions MUST be refused with "update the app".
 - **FR-005a**: Items copied between files with different `units` MUST be converted to the
   destination's units.
+- **FR-005b**: Shareable items carry `id` = `<author>.<random>`, a content-hash `version`, and a
+  display `revision`; library items are embedded only while used (spec 008).
 - **FR-005**: Projects MUST be self-contained: all assets embedded (packed form, as in spec 002), and
   items from libraries copied in with `source` (`libraryId`, `itemId`, `revision`, and for
   attribution `name`, `library`, `author`, `license` (SPDX), `derived` when copied-and-changed). Copies and

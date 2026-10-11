@@ -245,6 +245,9 @@ changelog note, commit, and see the update offered with that note.
 - **FR-040**: Projects and personal libraries MUST record `source` (`libraryId`, `itemId`, `revision`)
   for items taken from packs or repositories, and show source, author, and license on notecards.
 - **FR-041**: The built-in starter library MUST itself be a `pack` in this format bundled with the app.
+- **FR-042**: Library items are identified by `id@version` (spec 008): `id` = `<author>.<random>`,
+  `version` = content hash, plus a display `revision`; matching across libraries and projects uses
+  `id@version`.
 
 ### Key Entities
 
