@@ -14,33 +14,33 @@ before or with each module; quickstart scenarios map 1:1 to test files in
 
 ## Phase 1: Setup
 
-- [ ] T001 Add `typebox@1.3.x` dependency (lockfile via `npm install` in the build container)
-- [ ] T002 Create `src/model/` folders and an ESLint rule (or comment-enforced convention + test) that `src/model/**` imports nothing from `vue`, `quasar`, or `@/stores`
+- [x] T001 Add `typebox@1.3.x` dependency (lockfile via `npm install` in the build container)
+- [x] T002 Create `src/model/` folders and an ESLint rule (or comment-enforced convention + test) that `src/model/**` imports nothing from `vue`, `quasar`, or `@/stores`
 
 ## Phase 2: Foundational (schemas, ids, io)
 
-- [ ] T003 [P] `src/model/ids.ts`: `newId()` (10-char base-36 via `crypto.getRandomValues`), `collectIds(doc)` duplicate detection
-- [ ] T004 [P] `src/model/schema/shared.ts`: Id, Notecard, Source, Asset, RGB, Path commands (`M`/`L`/`A`/`C`/`Z` tuples, sweep bounds)
-- [ ] T005 [P] `src/model/schema/palette.ts`: Fabric, Color, Thread, Photo, Embroidery, Font
-- [ ] T006 [P] `src/model/schema/block.ts`: Block union by `kind` (seam, grid, applique, motif, stencil, frame, combo), Patch, Drawing (nodes/segments), Foundation, Editor
-- [ ] T007 [P] `src/model/schema/coloring.ts`: Fill, ThreadUse, Coloring
-- [ ] T008 [P] `src/model/schema/quilt.ts`: Layout (style union; `horizontal` fully specified, other styles shape-validated), Border, Layers (3 fixed), SlotContent, Item, Text
-- [ ] T009 `src/model/schema/project.ts`: Project + Envelope; export `RrqDoc` static type
-- [ ] T010 `src/model/io.ts`: `parseProject(text)` (JSON → migrations → `Value.Check` → readable deepest error → integrity: duplicate ids reject, dangling refs report, asset sha256 verify), `serializeProject(doc)` (stable key order, current version), `migrations` table
-- [ ] T011 `scripts/gen-schema.ts` + `npm run schema`: write `public/schemas/rrq.v1.json` and `specs/003-project-format/contracts/rrq.schema.json`
-- [ ] T012 `test/fixtures/everything.rrq`: every entity, every block kind, every path command, unknown keys at several levels, one embedded small PNG
+- [x] T003 [P] `src/model/ids.ts`: `newId()` (10-char base-36 via `crypto.getRandomValues`), `collectIds(doc)` duplicate detection
+- [x] T004 [P] `src/model/schema/shared.ts`: Id, Notecard, Source, Asset, RGB, Path commands (`M`/`L`/`A`/`C`/`Z` tuples, sweep bounds)
+- [x] T005 [P] `src/model/schema/palette.ts`: Fabric, Color, Thread, Photo, Embroidery, Font
+- [x] T006 [P] `src/model/schema/block.ts`: Block union by `kind` (seam, grid, applique, motif, stencil, frame, combo), Patch, Drawing (nodes/segments), Foundation, Editor
+- [x] T007 [P] `src/model/schema/coloring.ts`: Fill, ThreadUse, Coloring
+- [x] T008 [P] `src/model/schema/quilt.ts`: Layout (style union; `horizontal` fully specified, other styles shape-validated), Border, Layers (3 fixed), SlotContent, Item, Text
+- [x] T009 `src/model/schema/project.ts`: Project + Envelope; export `RrqDoc` static type
+- [x] T010 `src/model/io.ts`: `parseProject(text)` (JSON → migrations → `Value.Check` → readable deepest error → integrity: duplicate ids reject, dangling refs report, asset sha256 verify), `serializeProject(doc)` (stable key order, current version), `migrations` table
+- [x] T011 `npm run schema` (schema test with `WRITE_SCHEMA=1`; no extra tooling): write `public/schemas/rrq.v1.json` and `specs/003-project-format/contracts/rrq.schema.json`
+- [x] T012 `test/fixtures/everything.rrq`: every entity, every block kind, every path command, unknown keys at several levels, one embedded small PNG
 
 **Checkpoint**: files load and save.
 
 ## Phase 3: User Story 1 — Designs survive save and reopen (P1) 🎯
 
-- [ ] T013 [P] [US1] Test `model/io.roundtrip.spec.ts`: fixture parse → serialize → parse deep-equal; arcs stay `A`, Béziers stay `C`; unknown keys preserved (quickstart 1)
-- [ ] T014 [P] [US1] Test `model/io.reject.spec.ts`: wrong format, newer version, duplicate ids, malformed path, bad sha256, dangling refs reported (quickstart 2)
-- [ ] T015 [P] [US1] Test `model/io.migrate.spec.ts`: synthetic migration registered in-test runs in order (quickstart 3)
-- [ ] T016 [P] [US1] Test `model/schema.published.spec.ts`: generated schema equals committed `public/schemas/rrq.v1.json` (quickstart 10)
-- [ ] T017 [US1] `src/model/units.ts`: length-field table + `convertUnits(doc, to)`; test `model/units.spec.ts` in→cm→in within 1e-9, geometry untouched (quickstart 4)
-- [ ] T018 [US1] Test `model/perf.spec.ts`: synthetic 10 quilts / 100 blocks / 50 × 300 KB images parses < 3 s (quickstart 9)
-- [ ] T019 [US1] Make T013–T018 pass
+- [x] T013 [P] [US1] Test `model/io.roundtrip.spec.ts`: fixture parse → serialize → parse deep-equal; arcs stay `A`, Béziers stay `C`; unknown keys preserved (quickstart 1)
+- [x] T014 [P] [US1] Test `model/io.reject.spec.ts`: wrong format, newer version, duplicate ids, malformed path, bad sha256, dangling refs reported (quickstart 2)
+- [x] T015 [P] [US1] Test `model/io.migrate.spec.ts`: synthetic migration registered in-test runs in order (quickstart 3)
+- [x] T016 [P] [US1] Test `model/schema.published.spec.ts`: generated schema equals committed `public/schemas/rrq.v1.json` (quickstart 10)
+- [x] T017 [US1] `src/model/units.ts`: length-field table + `convertUnits(doc, to)`; test `model/units.spec.ts` in→cm→in within 1e-9, geometry untouched (quickstart 4)
+- [x] T018 [US1] Test `model/perf.spec.ts`: synthetic 10 quilts / 100 blocks / 50 × 300 KB images parses < 3 s (quickstart 9)
+- [x] T019 [US1] Make T013–T018 pass
 
 ## Phase 4: User Story 2 — Edits to a block keep its colors (P1)
 

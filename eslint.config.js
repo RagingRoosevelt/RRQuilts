@@ -73,11 +73,23 @@ export default defineConfigWithVueTs(
   },
 
   {
-    files: ['src-pwa/sw/**/*.ts'],
-    languageOptions: {
-      globals: {
-        ...globals.serviceworker,
-      },
+    // The file-format model is framework-free (usable from workers, tests, and tools).
+    files: ['src/model/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            'vue',
+            'vue-router',
+            'pinia',
+            'quasar',
+            '@/stores/*',
+            '@/pages/*',
+            '@/layouts/*',
+          ],
+        },
+      ],
     },
   },
 

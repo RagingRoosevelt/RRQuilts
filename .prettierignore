@@ -7,3 +7,4 @@ reference
 .quasar
 node_modules
 package-lock.json
+public/schemas

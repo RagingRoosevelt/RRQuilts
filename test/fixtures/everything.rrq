@@ -1,0 +1,881 @@
+{
+ "format": "rrq",
+ "version": 1,
+ "app": "0.0.1",
+ "units": "in",
+ "futureTopLevel": {
+  "keep": true
+ },
+ "project": {
+  "name": "Everything",
+  "futureProjectKey": [
+   1,
+   2,
+   3
+  ],
+  "palette": {
+   "fabrics": [
+    {
+     "id": "fab1",
+     "notecard": {
+      "name": "Indigo Dot",
+      "notes": "n",
+      "reference": "r",
+      "tags": [
+       "blue"
+      ]
+     },
+     "image": {
+      "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+      "type": "image/png",
+      "sha256": "c414cd0e204de974f73753c7e28d7638e7b3691bb8b1a2bab6b25bb7fed7ce77",
+      "width": 1,
+      "height": 1
+     },
+     "size": [
+      5,
+      5
+     ],
+     "average": [
+      38,
+      52,
+      110
+     ],
+     "manufacturer": "Acme",
+     "sku": "A-1",
+     "source": {
+      "libraryId": "lib1",
+      "itemId": "indigo",
+      "revision": 2
+     }
+    }
+   ],
+   "colors": [
+    {
+     "id": "col1",
+     "notecard": {
+      "name": "Cream"
+     },
+     "rgb": [
+      250,
+      245,
+      230
+     ]
+    },
+    {
+     "id": "col2",
+     "notecard": {
+      "name": "Red"
+     },
+     "rgb": [
+      200,
+      40,
+      40
+     ]
+    }
+   ],
+   "threads": [
+    {
+     "id": "thr1",
+     "notecard": {
+      "name": "Gold"
+     },
+     "rgb": [
+      212,
+      175,
+      55
+     ],
+     "number": "5633",
+     "manufacturer": "Acme"
+    }
+   ]
+  },
+  "blocks": [
+   {
+    "id": "seam1",
+    "kind": "seam",
+    "size": [
+     9,
+     9
+    ],
+    "notecard": {
+     "name": "Curved",
+     "categories": [
+      "Curves"
+     ]
+    },
+    "drawing": {
+     "nodes": [
+      {
+       "id": "n1",
+       "x": 0,
+       "y": 0
+      },
+      {
+       "id": "n2",
+       "x": 1,
+       "y": 1,
+       "handle": "corner"
+      },
+      {
+       "id": "n3",
+       "x": 1,
+       "y": 0
+      },
+      {
+       "id": "n4",
+       "x": 0,
+       "y": 1
+      }
+     ],
+     "segments": [
+      {
+       "id": "s1",
+       "from": "n1",
+       "to": "n2",
+       "kind": "line"
+      },
+      {
+       "id": "s2",
+       "from": "n3",
+       "to": "n4",
+       "kind": "arc",
+       "sweep": 90
+      },
+      {
+       "id": "s3",
+       "from": "n1",
+       "to": "n3",
+       "kind": "bezier",
+       "c1": [
+        0.3,
+        0.1
+       ],
+       "c2": [
+        0.7,
+        0.1
+       ]
+      }
+     ]
+    },
+    "patches": [
+     {
+      "id": "p1",
+      "path": [
+       [
+        "M",
+        0,
+        0
+       ],
+       [
+        "L",
+        1,
+        0
+       ],
+       [
+        "A",
+        0,
+        1,
+        90
+       ],
+       [
+        "Z"
+       ]
+      ]
+     },
+     {
+      "id": "p2",
+      "path": [
+       [
+        "M",
+        0,
+        0
+       ],
+       [
+        "C",
+        0.3,
+        0.1,
+        0.7,
+        0.1,
+        1,
+        0
+       ],
+       [
+        "L",
+        0,
+        0
+       ],
+       [
+        "Z"
+       ]
+      ],
+      "flags": [
+       "self-intersecting"
+      ]
+     }
+    ],
+    "unconnected": [
+     "s3"
+    ],
+    "colorings": [
+     {
+      "id": "k1",
+      "fills": {
+       "p1": {
+        "fabric": "fab1",
+        "offset": [
+         0.5,
+         0.25
+        ],
+        "rotation": 45
+       },
+       "p2": {
+        "color": "col1"
+       }
+      },
+      "threads": {
+       "p1": {
+        "thread": "thr1",
+        "style": "dashed",
+        "weight": 0.5
+       }
+      }
+     }
+    ],
+    "foundation": {
+     "sections": [
+      {
+       "id": "sec1",
+       "patches": [
+        "p1",
+        "p2"
+       ],
+       "needsReview": true
+      }
+     ]
+    },
+    "editor": {
+     "snaps": [
+      12,
+      12
+     ],
+     "futureEditorKey": "x"
+    }
+   },
+   {
+    "id": "grid1",
+    "kind": "grid",
+    "size": [
+     6,
+     6
+    ],
+    "notecard": {
+     "name": "Grid"
+    },
+    "grid": {
+     "type": "circle",
+     "params": {
+      "rings": 3,
+      "spokes": 8
+     }
+    },
+    "patches": [
+     {
+      "id": "p",
+      "path": [
+       [
+        "M",
+        0,
+        0
+       ],
+       [
+        "L",
+        1,
+        0
+       ],
+       [
+        "L",
+        1,
+        1
+       ],
+       [
+        "L",
+        0,
+        1
+       ],
+       [
+        "Z"
+       ]
+      ]
+     }
+    ],
+    "colorings": []
+   },
+   {
+    "id": "app1",
+    "kind": "applique",
+    "size": [
+     8,
+     8
+    ],
+    "notecard": {
+     "name": "Flower"
+    },
+    "patches": [
+     {
+      "id": "pa",
+      "path": [
+       [
+        "M",
+        0.2,
+        0.2
+       ],
+       [
+        "L",
+        0.8,
+        0.2
+       ],
+       [
+        "L",
+        0.5,
+        0.8
+       ],
+       [
+        "Z"
+       ]
+      ]
+     }
+    ],
+    "stitches": [
+     {
+      "id": "st1",
+      "path": [
+       [
+        "M",
+        0.1,
+        0.1
+       ],
+       [
+        "L",
+        0.2,
+        0.3
+       ]
+      ]
+     }
+    ],
+    "background": {
+     "id": "bg",
+     "path": [
+      [
+       "M",
+       0,
+       0
+      ],
+      [
+       "L",
+       1,
+       0
+      ],
+      [
+       "L",
+       1,
+       1
+      ],
+      [
+       "L",
+       0,
+       1
+      ],
+      [
+       "Z"
+      ]
+     ]
+    },
+    "colorings": [
+     {
+      "id": "k1",
+      "fills": {
+       "bg": {
+        "color": "col1"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "id": "mot1",
+    "kind": "motif",
+    "size": [
+     4,
+     4
+    ],
+    "notecard": {
+     "name": "Leaf"
+    },
+    "patches": [
+     {
+      "id": "pa",
+      "path": [
+       [
+        "M",
+        0,
+        0
+       ],
+       [
+        "L",
+        1,
+        0
+       ],
+       [
+        "L",
+        1,
+        1
+       ],
+       [
+        "L",
+        0,
+        1
+       ],
+       [
+        "Z"
+       ]
+      ]
+     }
+    ],
+    "stitches": [],
+    "colorings": []
+   },
+   {
+    "id": "sten1",
+    "kind": "stencil",
+    "size": [
+     4,
+     4
+    ],
+    "notecard": {
+     "name": "Feather"
+    },
+    "patches": [],
+    "stitches": [
+     {
+      "id": "st",
+      "path": [
+       [
+        "M",
+        0,
+        0
+       ],
+       [
+        "C",
+        0.2,
+        0.5,
+        0.8,
+        0.5,
+        1,
+        1
+       ]
+      ]
+     }
+    ],
+    "colorings": []
+   },
+   {
+    "id": "frm1",
+    "kind": "frame",
+    "size": [
+     10,
+     10
+    ],
+    "notecard": {
+     "name": "Frame"
+    },
+    "patches": [
+     {
+      "id": "pa",
+      "path": [
+       [
+        "M",
+        0,
+        0
+       ],
+       [
+        "L",
+        1,
+        0
+       ],
+       [
+        "L",
+        1,
+        1
+       ],
+       [
+        "L",
+        0,
+        1
+       ],
+       [
+        "Z"
+       ]
+      ]
+     }
+    ],
+    "stitches": [],
+    "colorings": []
+   },
+   {
+    "id": "cmb1",
+    "kind": "combo",
+    "size": [
+     10,
+     10
+    ],
+    "notecard": {
+     "name": "Combo"
+    },
+    "pieced": {
+     "kind": "grid",
+     "grid": {
+      "type": "rectangle",
+      "params": {
+       "cols": 2,
+       "rows": 2
+      }
+     },
+     "patches": [
+      {
+       "id": "g1",
+       "path": [
+        [
+         "M",
+         0,
+         0
+        ],
+        [
+         "L",
+         1,
+         0
+        ],
+        [
+         "L",
+         1,
+         1
+        ],
+        [
+         "L",
+         0,
+         1
+        ],
+        [
+         "Z"
+        ]
+       ]
+      }
+     ]
+    },
+    "applique": {
+     "patches": [
+      {
+       "id": "a1",
+       "path": [
+        [
+         "M",
+         0,
+         0
+        ],
+        [
+         "L",
+         1,
+         0
+        ],
+        [
+         "L",
+         1,
+         1
+        ],
+        [
+         "L",
+         0,
+         1
+        ],
+        [
+         "Z"
+        ]
+       ]
+      }
+     ],
+     "stitches": []
+    },
+    "colorings": []
+   },
+   {
+    "id": "plain",
+    "kind": "grid",
+    "size": [
+     1,
+     1
+    ],
+    "notecard": {
+     "name": "Plain"
+    },
+    "grid": {
+     "type": "rectangle",
+     "params": {}
+    },
+    "patches": [
+     {
+      "id": "p",
+      "path": [
+       [
+        "M",
+        0,
+        0
+       ],
+       [
+        "L",
+        1,
+        0
+       ],
+       [
+        "L",
+        1,
+        1
+       ],
+       [
+        "L",
+        0,
+        1
+       ],
+       [
+        "Z"
+       ]
+      ]
+     }
+    ],
+    "colorings": []
+   }
+  ],
+  "photos": [
+   {
+    "id": "pho1",
+    "notecard": {
+     "name": "Photo"
+    },
+    "image": {
+     "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+     "type": "image/png",
+     "sha256": "c414cd0e204de974f73753c7e28d7638e7b3691bb8b1a2bab6b25bb7fed7ce77",
+     "width": 1,
+     "height": 1
+    }
+   }
+  ],
+  "embroidery": [
+   {
+    "id": "emb1",
+    "notecard": {
+     "name": "Rose"
+    },
+    "file": {
+     "data": "data:application/octet-stream;base64,gAIAAG5vdC1yZWFsbHktc3RpdGNoZXM=",
+     "type": "application/octet-stream",
+     "sha256": "4d7b39b55e65e0925d762b8c09bb04d1c207f0949d1314b98499293ebb8688c2"
+    },
+    "threads": [
+     "thr1"
+    ]
+   }
+  ],
+  "fonts": [
+   {
+    "id": "fnt1",
+    "family": "Inter",
+    "bundled": "inter"
+   }
+  ],
+  "quilts": [
+   {
+    "id": "q1",
+    "notecard": {
+     "name": "Version A"
+    },
+    "futureQuiltKey": true,
+    "layout": {
+     "style": "horizontal",
+     "cols": 5,
+     "rows": 6,
+     "block": [
+      9,
+      9
+     ],
+     "sash": [
+      1,
+      1
+     ],
+     "sashBorder": true
+    },
+    "borders": [
+     {
+      "style": "long-horizontal",
+      "sides": [
+       2,
+       2,
+       2,
+       2
+      ]
+     },
+     {
+      "style": "corner-blocks",
+      "sides": [
+       3,
+       3,
+       3,
+       3
+      ],
+      "blocks": [
+       4,
+       5
+      ]
+     }
+    ],
+    "colorings": {
+     "qk1": {
+      "fills": {
+       "p1": {
+        "color": "col2"
+       }
+      }
+     },
+     "qk2": {
+      "fills": {
+       "p": {
+        "fabric": "fab1",
+        "offset": [
+         0,
+         0
+        ],
+        "rotation": 0
+       }
+      }
+     }
+    },
+    "layers": [
+     {
+      "visible": true,
+      "slots": {
+       "b:r1c1": {
+        "block": "seam1",
+        "coloring": "qk1",
+        "rotation": 90,
+        "flip": true
+       },
+       "sash:v:r1c0": {
+        "block": "plain",
+        "coloring": "qk2",
+        "rotation": 0,
+        "flip": false
+       }
+      },
+      "items": []
+     },
+     {
+      "visible": true,
+      "items": [
+       {
+        "id": "it1",
+        "kind": "motif",
+        "ref": "mot1",
+        "x": 10,
+        "y": 10,
+        "w": 4,
+        "h": 4,
+        "rotation": 15,
+        "skew": [
+         0,
+         0
+        ],
+        "flip": false,
+        "clip": "center"
+       },
+       {
+        "id": "it2",
+        "kind": "text",
+        "x": 1,
+        "y": 1,
+        "w": 20,
+        "h": 2,
+        "rotation": 0,
+        "skew": [
+         0,
+         0
+        ],
+        "flip": false,
+        "clip": "none",
+        "text": {
+         "value": "For Mom\n2026",
+         "font": "fnt1",
+         "size": 1.5,
+         "bold": true,
+         "italic": false,
+         "align": "center"
+        }
+       },
+       {
+        "id": "it3",
+        "kind": "photo",
+        "ref": "pho1",
+        "x": 30,
+        "y": 5,
+        "w": 5,
+        "h": 7,
+        "rotation": 0,
+        "skew": [
+         0.1,
+         0
+        ],
+        "flip": false,
+        "clip": "quilt"
+       }
+      ]
+     },
+     {
+      "visible": false,
+      "items": [
+       {
+        "id": "it4",
+        "kind": "stencil",
+        "ref": "sten1",
+        "x": 0,
+        "y": 0,
+        "w": 60,
+        "h": 70,
+        "rotation": 0,
+        "skew": [
+         0,
+         0
+        ],
+        "flip": false,
+        "clip": "quilt"
+       },
+       {
+        "id": "it5",
+        "kind": "embroidery",
+        "ref": "emb1",
+        "x": 5,
+        "y": 5,
+        "w": 4,
+        "h": 4,
+        "rotation": 90,
+        "skew": [
+         0,
+         0
+        ],
+        "flip": true,
+        "clip": "none"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}
