@@ -75,158 +75,206 @@
 
     <!-- Selection -->
     <div v-if="tool === 'select' && selection.size && !readonly" class="column" style="gap: 8px">
-      <div class="text-subtitle2">
-        {{ selection.size }} seam{{ selection.size > 1 ? 's' : '' }} selected
-      </div>
-      <div class="row" style="gap: 6px">
-        <q-btn
-          dense
-          outline
-          no-caps
-          icon="delete"
-          label="Delete"
-          @click="emit('op', { kind: 'delete' })"
-        />
-        <q-btn
-          dense
-          outline
-          no-caps
-          icon="content_copy"
-          label="Clone"
-          @click="emit('op', { kind: 'clone' })"
-        />
-        <q-btn
-          dense
-          outline
-          no-caps
-          icon="timeline"
-          label="To guides"
-          @click="emit('op', { kind: 'guides' })"
-        />
-      </div>
-      <q-btn-toggle
-        v-model="about"
+      <q-expansion-item
+        default-opened
         dense
-        no-caps
-        spread
-        :options="[
-          { label: 'About block center', value: 'block' },
-          { label: 'About selection', value: 'selection' },
-        ]"
-      />
-      <div class="row items-center" style="gap: 6px">
-        <q-btn
-          v-for="a in [90, 180, 270]"
-          :key="a"
-          dense
-          outline
-          no-caps
-          :label="`${a}°`"
-          icon="rotate_right"
-          @click="emit('op', { kind: 'rotate', deg: a, about })"
-        />
-        <q-input
-          v-model.number="angle"
-          dense
-          outlined
-          type="number"
-          label="Angle"
-          suffix="°"
-          style="width: 170px"
-          @keyup.enter="emit('op', { kind: 'rotate', deg: angle, about })"
-        >
-          <template #append>
-            <q-btn
-              dense
-              outline
-              no-caps
-              class="inline-op"
-              icon="rotate_right"
-              label="Rotate"
-              @click="emit('op', { kind: 'rotate', deg: angle, about })"
-            />
-          </template>
-        </q-input>
-      </div>
-      <div class="row" style="gap: 6px">
-        <q-btn
-          v-for="f in flips"
-          :key="f.axis"
-          dense
-          outline
-          no-caps
-          :label="f.label"
-          @click="emit('op', { kind: 'flip', axis: f.axis, about })"
-        />
-      </div>
-      <q-input
-        v-model.number="pct"
-        dense
-        outlined
-        type="number"
-        label="Scale"
-        suffix="%"
-        style="width: 170px"
-        @keyup.enter="emit('op', { kind: 'resize', pct, about })"
+        label="Selection"
+        :caption="`${selection.size} seam${selection.size > 1 ? 's' : ''} selected`"
+        class="op-section"
+        header-class="text-subtitle2"
       >
-        <template #append>
-          <q-btn
-            dense
-            outline
-            no-caps
-            class="inline-op"
-            icon="open_in_full"
-            label="Resize"
-            @click="emit('op', { kind: 'resize', pct, about })"
-          />
-        </template>
-      </q-input>
-      <div class="text-caption">Add nodes</div>
-      <div class="row items-center" style="gap: 6px">
-        <q-btn
-          dense
-          outline
-          no-caps
-          label="Midpoint"
-          @click="emit('op', { kind: 'nodes', mode: { kind: 'mid' } })"
-        />
-        <q-btn
-          dense
-          outline
-          no-caps
-          label="Thirds"
-          @click="emit('op', { kind: 'nodes', mode: { kind: 'thirds' } })"
-        />
-        <q-input
-          v-model.number="parts"
-          dense
-          outlined
-          type="number"
-          min="2"
-          max="24"
-          label="Equal parts"
-          style="width: 160px"
-          @keyup.enter="emit('op', { kind: 'nodes', mode: { kind: 'parts', n: parts } })"
-        >
-          <template #append>
+        <div class="column q-pa-sm" style="gap: 8px">
+          <div class="row" style="gap: 6px">
             <q-btn
               dense
               outline
               no-caps
-              class="inline-op"
-              label="Split"
-              @click="emit('op', { kind: 'nodes', mode: { kind: 'parts', n: parts } })"
+              icon="delete"
+              label="Delete"
+              @click="emit('op', { kind: 'delete' })"
             />
-          </template>
-        </q-input>
-        <q-btn
-          dense
-          outline
-          no-caps
-          label="At crossings"
-          @click="emit('op', { kind: 'nodes', mode: { kind: 'crossings' } })"
-        />
-      </div>
+            <q-btn
+              dense
+              outline
+              no-caps
+              icon="content_copy"
+              label="Clone"
+              @click="emit('op', { kind: 'clone' })"
+            />
+            <q-btn
+              dense
+              outline
+              no-caps
+              icon="timeline"
+              label="To guides"
+              @click="emit('op', { kind: 'guides' })"
+            />
+          </div>
+          <div class="text-caption text-grey-7">Rotate, flip, and scale around</div>
+          <q-btn-toggle
+            v-model="about"
+            dense
+            no-caps
+            spread
+            :options="[
+              { label: 'Block center', value: 'block' },
+              { label: 'Selection center', value: 'selection' },
+            ]"
+          />
+        </div>
+      </q-expansion-item>
+      <q-expansion-item
+        default-opened
+        dense
+        label="Rotate"
+        class="op-section"
+        header-class="text-subtitle2"
+      >
+        <div class="column q-pa-sm" style="gap: 8px">
+          <div class="row items-center" style="gap: 6px">
+            <q-btn
+              v-for="a in [90, 180, 270]"
+              :key="a"
+              dense
+              outline
+              no-caps
+              :label="`${a}°`"
+              icon="rotate_right"
+              @click="emit('op', { kind: 'rotate', deg: a, about })"
+            />
+            <q-input
+              v-model.number="angle"
+              dense
+              outlined
+              type="number"
+              label="Angle"
+              suffix="°"
+              style="width: 170px"
+              @keyup.enter="emit('op', { kind: 'rotate', deg: angle, about })"
+            >
+              <template #append>
+                <q-btn
+                  dense
+                  outline
+                  no-caps
+                  class="inline-op"
+                  icon="rotate_right"
+                  label="Rotate"
+                  @click="emit('op', { kind: 'rotate', deg: angle, about })"
+                />
+              </template>
+            </q-input>
+          </div>
+        </div>
+      </q-expansion-item>
+      <q-expansion-item
+        default-opened
+        dense
+        label="Flip"
+        class="op-section"
+        header-class="text-subtitle2"
+      >
+        <div class="column q-pa-sm" style="gap: 8px">
+          <div class="row" style="gap: 6px">
+            <q-btn
+              v-for="f in flips"
+              :key="f.axis"
+              dense
+              outline
+              no-caps
+              :label="f.label"
+              @click="emit('op', { kind: 'flip', axis: f.axis, about })"
+            />
+          </div>
+        </div>
+      </q-expansion-item>
+      <q-expansion-item
+        default-opened
+        dense
+        label="Scale"
+        class="op-section"
+        header-class="text-subtitle2"
+      >
+        <div class="column q-pa-sm" style="gap: 8px">
+          <q-input
+            v-model.number="pct"
+            dense
+            outlined
+            type="number"
+            label="Percent"
+            suffix="%"
+            style="width: 170px"
+            @keyup.enter="emit('op', { kind: 'resize', pct, about })"
+          >
+            <template #append>
+              <q-btn
+                dense
+                outline
+                no-caps
+                class="inline-op"
+                icon="open_in_full"
+                label="Resize"
+                @click="emit('op', { kind: 'resize', pct, about })"
+              />
+            </template>
+          </q-input>
+        </div>
+      </q-expansion-item>
+      <q-expansion-item
+        default-opened
+        dense
+        label="Add nodes"
+        class="op-section"
+        header-class="text-subtitle2"
+      >
+        <div class="column q-pa-sm" style="gap: 8px">
+          <div class="row items-center" style="gap: 6px">
+            <q-btn
+              dense
+              outline
+              no-caps
+              label="Midpoint"
+              @click="emit('op', { kind: 'nodes', mode: { kind: 'mid' } })"
+            />
+            <q-btn
+              dense
+              outline
+              no-caps
+              label="Thirds"
+              @click="emit('op', { kind: 'nodes', mode: { kind: 'thirds' } })"
+            />
+            <q-input
+              v-model.number="parts"
+              dense
+              outlined
+              type="number"
+              min="2"
+              max="24"
+              label="Equal parts"
+              style="width: 160px"
+              @keyup.enter="emit('op', { kind: 'nodes', mode: { kind: 'parts', n: parts } })"
+            >
+              <template #append>
+                <q-btn
+                  dense
+                  outline
+                  no-caps
+                  class="inline-op"
+                  label="Split"
+                  @click="emit('op', { kind: 'nodes', mode: { kind: 'parts', n: parts } })"
+                />
+              </template>
+            </q-input>
+            <q-btn
+              dense
+              outline
+              no-caps
+              label="At crossings"
+              @click="emit('op', { kind: 'nodes', mode: { kind: 'crossings' } })"
+            />
+          </div>
+        </div>
+      </q-expansion-item>
     </div>
     <div v-else-if="tool === 'select'" class="text-caption text-grey-7">
       Tap a seam to select it (Shift adds), drag a box around seams, Ctrl+A selects all.
@@ -239,11 +287,11 @@
     <q-expansion-item
       default-opened
       dense
-      dense-toggle
       label="Snapping & graph paper"
-      header-class="text-subtitle2 q-px-none"
+      class="op-section"
+      header-class="text-subtitle2"
     >
-      <div class="column q-pt-sm" style="gap: 8px">
+      <div class="column q-pa-sm" style="gap: 8px">
         <q-btn-toggle
           :model-value="settings.snap.mode"
           dense
@@ -379,6 +427,12 @@ const setSnap = (patch: Partial<SnapSettings>) =>
 </script>
 
 <style scoped>
+.op-section {
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
 .inline-op {
   color: #000; /* same as the other op buttons, not the field's muted adornment color */
 }
