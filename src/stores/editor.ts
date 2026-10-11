@@ -20,11 +20,13 @@ export const useEditorStore = defineStore('editor', () => {
   const recentColors = ref<string[]>([]);
   const outlines = ref(true);
   const views = reactive(new Map<string, View>());
+  /** Last flip tap, so tapping the same space again continues the ↔ / ↕ / original cycle. */
+  const lastFlip = ref<{ slotId: string; scope: Scope; step: 1 | 2 | 3 } | null>(null);
 
   function useColor(id: string) {
     color.value = id;
     recentColors.value = [id, ...recentColors.value.filter((c) => c !== id)].slice(0, 12);
   }
 
-  return { mode, tool, scope, block, color, recentColors, outlines, views, useColor };
+  return { mode, tool, scope, block, color, recentColors, outlines, views, lastFlip, useColor };
 });

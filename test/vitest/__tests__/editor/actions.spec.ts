@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { addStarterContent } from '@/content/starter';
 import { applyTool, type ToolState } from '@/editor/actions';
 import { allPatches } from '@/model/blocks/patches';
+import { mul, orient, type M } from '@/render/affine';
 import { generateSlots } from '@/model/layout/slots';
 import { createProject } from '@/model/new-project';
 import type { RrqDoc } from '@/model/schema/project';
@@ -77,7 +78,8 @@ describe('editor actions', () => {
     d = run(d, ids, 'b:r1c1', { tool: 'rotate', scope: 'all', block: null, color: null }).doc!;
     d = run(d, ids, 'b:r1c1', { tool: 'flip', scope: 'this', block: null, color: null }).doc!;
     expect(q(d).layers[0].slots['b:r2c2']).toMatchObject({ rotation: 90, flip: false });
-    expect(q(d).layers[0].slots['b:r1c1']).toMatchObject({ rotation: 90, flip: true });
+    // Mirroring a 90°-rotated block on screen = 270° + flip in placement terms.
+    expect(q(d).layers[0].slots['b:r1c1']).toMatchObject({ rotation: 270, flip: true });
     d = run(d, ids, 'b:r1c1', { tool: 'erase', scope: 'this', block: null, color: null }).doc!;
     expect(q(d).layers[0].slots['b:r1c1']).toBeUndefined();
   });
@@ -208,5 +210,33 @@ describe('editor actions', () => {
       allPatches(star)[0]!.id,
     );
     expect(performance.now() - t).toBeLessThan(100);
+  });
+
+  it('flip mirrors as seen on screen and cycles ↔ → ↕ → original, even on rotated blocks', () => {
+    const { doc, ids, byName } = setup();
+    let d = run(doc, ids, 'b:r1c1', {
+      tool: 'set',
+      scope: 'this',
+      block: byName('Pinwheel').id,
+      color: null,
+    }).doc!;
+    d = run(d, ids, 'b:r1c1', { tool: 'rotate', scope: 'this', block: null, color: null }).doc!; // 90°
+    const m = (x: RrqDoc): M => {
+      const c = q(x).layers[0].slots['b:r1c1']!;
+      return orient(c.rotation, c.flip).map((v) => v + 0) as M; // -0 → 0
+    };
+    const z = (x: M) => x.map((v) => v + 0);
+    const H: M = [-1, 0, 0, 1, 1, 0]; // screen mirror left↔right in the unit square
+    const V: M = [1, 0, 0, -1, 0, 1]; // screen mirror top↕bottom
+    const s0 = m(d);
+    const flip = (x: RrqDoc, flipStep: 1 | 2 | 3) =>
+      run(x, ids, 'b:r1c1', { tool: 'flip', scope: 'this', block: null, color: null, flipStep })
+        .doc!;
+    const d1 = flip(d, 1);
+    expect(m(d1)).toEqual(z(mul(H, s0)));
+    const d2 = flip(d1, 2);
+    expect(m(d2)).toEqual(z(mul(V, s0)));
+    const d3 = flip(d2, 3);
+    expect(m(d3)).toEqual(s0);
   });
 });

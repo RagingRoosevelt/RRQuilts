@@ -187,7 +187,7 @@ const tools: { id: Tool; icon: string; label: string }[] = [
 const HINTS: Record<Tool, string> = {
   set: 'Tap a space to set the selected block.',
   rotate: 'Tap a block to turn it 90°.',
-  flip: 'Tap a block to mirror it.',
+  flip: 'Tap a block to mirror it left↔right; tap again for top↕bottom, again to restore.',
   erase: 'Tap a block to remove it.',
   find: 'Tap a block to select it in the tray.',
   paint: 'Tap a patch to color it.',
@@ -215,7 +215,20 @@ const hoverSize = computed(() => {
 
 function onTap(hit: Hit) {
   if (!project.doc || !quilt.value) return;
-  const r = applyTool(project.doc, quilt.value.id, slotIds.value, hit, editor);
+  // Repeated Flip taps on the same space cycle ↔ → ↕ → original; anything else starts over.
+  const last = editor.lastFlip;
+  const flipStep =
+    last && last.slotId === hit.slotId && last.scope === editor.scope
+      ? (((last.step % 3) + 1) as 1 | 2 | 3)
+      : 1;
+  const r = applyTool(project.doc, quilt.value.id, slotIds.value, hit, {
+    ...editor.$state,
+    flipStep,
+  });
+  editor.lastFlip =
+    editor.tool === 'flip' && r.doc
+      ? { slotId: hit.slotId, scope: editor.scope, step: flipStep }
+      : null;
   if (r.selectBlock) editor.block = r.selectBlock;
   if (r.selectColor) editor.useColor(r.selectColor);
   if (r.message) $q.notify({ message: r.message, timeout: 1500 });
