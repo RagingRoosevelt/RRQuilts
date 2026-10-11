@@ -173,6 +173,14 @@ export function cloneSegments(d: Drawing, ids: Set<string>, dx: number, dy: numb
   };
 }
 
+/** The drawing as a dragged node should see it for snapping: without the node or its seams. */
+export function withoutNode(d: Drawing, nodeId: string): Drawing {
+  return {
+    nodes: d.nodes.filter((n) => n.id !== nodeId),
+    segments: d.segments.filter((s) => s.from !== nodeId && s.to !== nodeId),
+  };
+}
+
 export function moveNode(d: Drawing, nodeId: string, x: number, y: number): Drawing {
   return {
     nodes: d.nodes.map((n) => (n.id === nodeId ? { ...n, x, y } : n)),

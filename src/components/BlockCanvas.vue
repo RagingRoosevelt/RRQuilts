@@ -28,6 +28,7 @@ import {
   addLine,
   arcMidpoint,
   moveNode,
+  withoutNode,
   segGeom,
   splitSegments,
   sweepFromHandle,
@@ -247,7 +248,7 @@ const vp = useViewport({
     } else if (g.kind === 'marquee') {
       marquee.value = [g.start, p];
     } else if (g.kind === 'node') {
-      const others = { ...drawing.value, nodes: drawing.value.nodes.filter((n) => n.id !== g.id) };
+      const others = withoutNode(drawing.value, g.id);
       const s = snapAt(p, others);
       snapPoint.value = s.p;
       const n = drawing.value.nodes.find((x) => x.id === g.id)!;
@@ -300,7 +301,7 @@ const vp = useViewport({
       });
       emit('update:selection', new Set(ids.map((s) => s.id)));
     } else if (g.kind === 'node') {
-      const others = { ...d, nodes: d.nodes.filter((n) => n.id !== g.id) };
+      const others = withoutNode(d, g.id);
       const s = snapAt(p, others);
       emit('drawing', moveNode(d, g.id, s.p[0] / size.value[0], s.p[1] / size.value[1]));
     } else if (g.kind === 'move') {

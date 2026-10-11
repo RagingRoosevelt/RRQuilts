@@ -11,6 +11,7 @@ import {
   saveColoringAs,
 } from '@/editor/block-ops';
 import { snap, defaultSnap } from '@/editor/snap';
+import { withoutNode } from '@/editor/draw-ops';
 import { createProject } from '@/model/new-project';
 
 describe('snapping', () => {
@@ -49,6 +50,15 @@ describe('snapping', () => {
     expect(r.p[0]).toBeCloseTo(r.p[1], 9);
     // Where a grid point lies on the seam, use it (exact and on the grid).
     expect(snap([5.04, 4.97], diag, size, s, 0.3)).toMatchObject({ kind: 'grid', p: [5, 5] });
+  });
+
+  it('a dragged node snaps against the rest of the drawing (its own seams excluded)', () => {
+    let d = addLine({ nodes: [], segments: [] }, { x: 0, y: 0.5 }, { x: 0.5, y: 0.5 });
+    d = addLine(d, { x: 0.3, y: 0 }, { x: 0.3, y: 1 });
+    const end = d.nodes[1]!.id; // free end of the horizontal seam
+    const r = snap([3.05, 7.12], withoutNode(d, end), size, s, 0.3);
+    expect(r.kind).not.toBe('free');
+    expect(r.p[0]).toBeCloseTo(3); // on the vertical seam (here at the grid point on it)
   });
 
   it('falls back to the pointer, clamped to the block', () => {
