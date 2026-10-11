@@ -21,6 +21,14 @@ export const Source = Type.Object({
   libraryId: Type.String(),
   itemId: Type.String(),
   revision: Type.Integer({ minimum: 1 }),
+  /** Attribution carried with the item (constitution Principle VI). */
+  name: Type.Optional(Type.String()),
+  library: Type.Optional(Type.String()),
+  author: Type.Optional(Type.String()),
+  /** SPDX identifier. */
+  license: Type.Optional(Type.String()),
+  /** True once the item has been copied-and-changed or edited. */
+  derived: Type.Optional(Type.Boolean()),
 });
 
 /** Embedded binary (packed form). Library repositories may use `path` instead (spec 002). */

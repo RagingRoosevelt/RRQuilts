@@ -19,7 +19,11 @@ export const ColoringBody = Type.Object({
   threads: Type.Optional(Type.Record(Type.String(), ThreadUse)),
 });
 
-export const Coloring = Type.Object({ id: Id, ...ColoringBody.properties });
+export const Coloring = Type.Object({
+  id: Id,
+  name: Type.Optional(Type.String()),
+  ...ColoringBody.properties,
+});
 
 export type Fill = Type.Static<typeof Fill>;
 export type ColoringBody = Type.Static<typeof ColoringBody>;

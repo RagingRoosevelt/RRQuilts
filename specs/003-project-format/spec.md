@@ -106,7 +106,7 @@ rotation, and coloring; the new column is empty.
   destination's units.
 - **FR-005**: Projects MUST be self-contained: all assets embedded (packed form, as in spec 002), and
   items from libraries copied in with `source` (`libraryId`, `itemId`, `revision`, and for
-  attribution `library`, `author`, `license` (SPDX), `derived` when copied-and-changed). Copies and
+  attribution `name`, `library`, `author`, `license` (SPDX), `derived` when copied-and-changed). Copies and
   edits keep `source` (constitution Principle VI).
 
 **Project**

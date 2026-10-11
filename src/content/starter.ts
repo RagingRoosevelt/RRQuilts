@@ -9,6 +9,12 @@ import type { Segment } from '@/model/schema/block';
 import type { RrqDoc } from '@/model/schema/project';
 
 type P = [number, number];
+
+export const STARTER_LIBRARY = {
+  name: 'RRQuilts starter',
+  author: 'RRQuilts contributors',
+  license: 'CC-BY-4.0',
+} as const;
 type Seam = [P, P] | [P, P, number]; // line, or arc with sweep (degrees)
 
 export const STARTER_COLORS: [string, [number, number, number]][] = [
@@ -394,6 +400,10 @@ export function addStarterContent(doc: RrqDoc): RrqDoc {
           libraryId: 'rrquilts-starter',
           itemId: b.name.toLowerCase().replace(/[^a-z]+/g, '-'),
           revision: 1,
+          name: b.name,
+          library: STARTER_LIBRARY.name,
+          author: STARTER_LIBRARY.author,
+          license: STARTER_LIBRARY.license,
         },
         drawing,
         patches,
