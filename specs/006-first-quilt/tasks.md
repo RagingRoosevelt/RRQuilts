@@ -21,10 +21,10 @@ description: "Tasks for 006 First Quilt"
 
 ## Phase 3: Renderer
 
-- [ ] T008 `src/render/paths.ts`: block → `Path2D` per patch in design space (L / A via center+radius / C), cached by block object identity
-- [ ] T009 `src/render/draw.ts`: draw slots (fills, hatch for unfilled, outlines toggle), borders, selection/hover highlight; view transform (zoom/pan/fit)
-- [ ] T010 `src/render/hit.ts`: point → `{ slotId, patchId }`; tests with a mocked `isPointInPath` replaced by model point-in-polygon in Node
-- [ ] T011 `src/render/thumbnail.ts`: quilt/block → data URL, cached by revision
+- [x] T008 `src/render/paths.ts`: block → `Path2D` per patch in design space (L / A via center+radius / C), cached by block object identity
+- [x] T009 `src/render/draw.ts`: draw slots (fills, hatch for unfilled, outlines toggle), borders, selection/hover highlight; view transform (zoom/pan/fit)
+- [x] T010 `src/render/hit.ts`: point → `{ slotId, patchId }`; uses cached model polygons (testable in Node, no `isPointInPath`)
+- [x] T011 `src/render/thumbnail.ts`: quilt/block → data URL, cached by revision
 
 ## Phase 4: Quilt editor
 
