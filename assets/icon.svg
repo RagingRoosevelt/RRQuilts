@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Placeholder mark: a pinwheel block of half-square triangles. -->
+  <rect width="1024" height="1024" rx="160" fill="#2f4a73"/>
+  <g transform="translate(192 192)">
+    <rect width="640" height="640" fill="#f4ecd8"/>
+    <path d="M0 0H320V320Z" fill="#c8553d"/>
+    <path d="M640 0V320H320Z" fill="#c8553d"/>
+    <path d="M640 640H320V320Z" fill="#c8553d"/>
+    <path d="M0 640V320H320Z" fill="#c8553d"/>
+  </g>
+</svg>

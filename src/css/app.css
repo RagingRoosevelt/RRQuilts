@@ -1,0 +1,7 @@
+/* app global css */
+.text-inherit {
+  color: inherit;
+}
+.no-decoration {
+  text-decoration: none;
+}

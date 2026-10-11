@@ -54,11 +54,30 @@ Flow: `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/specki
 
 ## Commands
 
-Host needs only `make` + Docker. Run `make help` for the list.
+Host needs only Docker, make, git (no Node). Run `make` for the list.
 
-- `make dev` — dev server (PWA mode)
-- `make build` — production build → `docs/`
-- `make test` / `make lint` / `make check` (lint + test + build, pre-merge gate)
-- `make serve` — nginx container serving `docs/` on `localhost:8080`
-- `make clean`
-- `make commit MSG="…"` — check + rebuild `docs/` + commit all; `make push` — refuses if dirty/stale, then pushes
+- `make dev` — dev server at `localhost:9000/RRQuilts/` (`POLL=1` if edits aren't picked up)
+- `make test` / `make lint` (ESLint + vue-tsc + Prettier check) / `make format`
+- `make build` — production build → `docs/` (reproducible; CI fails if committed `docs/` is stale)
+- `make check` — lint → test → build
+- `make serve` — nginx at `localhost:8080/RRQuilts/` serving `docs/`
+- `make commit MSG="…"` — check + rebuild `docs/` + commit all; `make push` — refuses if dirty/stale
+- Ad-hoc commands in the container: copy the `RUN` macro in the Makefile (quote the repo path — it
+  contains a space).
+
+## Code layout
+
+- `quasar.config.ts` — base path (`RRQ_BASE`), `docs/` output, 404/.nojekyll hook, PWA options
+- `src/router/routes.ts` — routes + open-project guard; `src/pages/` screens
+- `src/settings/` — settings persistence + `.rrq_conf`; `src/stores/` Pinia stores
+- `src-pwa/` — manifest, update prompt (`register-sw.ts`); has its own `package.json`
+- `test/vitest/__tests__/` — unit tests
+- `docker/default.conf.template` — nginx (base path substituted at start)
+- `assets/icon.svg` — placeholder icon source; regenerate with `@quasar/icongenie` (skip apple
+  launch images — they bloat the offline cache)
+
+## Gotchas
+
+- Dev-server file watching must not see big folders: npm cache lives in `~/.cache/rrquilts-npm`
+  (outside the repo); Vite ignores `docs/`, `specs/`, `reference/`.
+- Workbox `skipWaiting` is forced off — updates apply only via the in-app prompt.

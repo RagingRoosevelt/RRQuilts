@@ -1,0 +1,9 @@
+docs
+specs
+reference
+.specify
+.claude
+.cache
+.quasar
+node_modules
+package-lock.json

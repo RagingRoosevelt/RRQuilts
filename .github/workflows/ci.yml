@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/rrquilts-npm
+          key: npm-${{ hashFiles('package-lock.json', 'src-pwa/package-lock.json') }}
+
+      - name: Lint, test, build
+        run: make check
+
+      - name: docs/ matches a fresh build
+        run: |
+          if [ -n "$(git status --porcelain -- docs)" ]; then
+            echo "::error::docs/ is out of date. Run 'make build' (or 'make commit') and commit the result."
+            git status --short -- docs
+            exit 1
+          fi

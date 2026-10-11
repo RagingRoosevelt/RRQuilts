@@ -11,6 +11,7 @@ Host prerequisites: Docker, make, git. "Container" = `rrquilts-build` image, rep
 | `build` | container | `quasar build -m pwa` → `docs/` incl. `404.html`, `.nojekyll`; honors `RRQ_BASE` | build fails |
 | `test` | container | Vitest run (no watch) | any test fails |
 | `lint` | container | ESLint + Prettier check | any violation |
+| `format` | container | Prettier `--write` on the repo | — |
 | `check` | container | `lint` → `test` → `build`, stops at first failure | any step fails |
 | `serve` | host (docker) | Builds `serve` image (nginx config + current `docs/` copied in), runs it on `localhost:8080` | image/run fails |
 | `clean` | container | Removes `node_modules`, `.quasar`, caches, `docs/` | — |

@@ -1,0 +1,4 @@
+# Only docker/ and docs/ are needed in the build context.
+*
+!docker/
+!docs/

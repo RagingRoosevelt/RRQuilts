@@ -1,2 +1,15 @@
 # Reference quilt software manuals: copyrighted, local reference only
 reference/
+
+# Dependencies, caches, tool output (docs/ is build output but IS committed)
+node_modules
+.cache
+.quasar
+/dist
+/quasar.config.*.temporary.compiled*
+coverage
+
+.env*
+.DS_Store
+.thumbs.db
+npm-debug.log*

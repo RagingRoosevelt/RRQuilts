@@ -1,0 +1,59 @@
+{
+  "name": "rrquilts",
+  "version": "0.0.1",
+  "description": "Free, offline-capable quilt design tool",
+  "productName": "RRQuilts",
+  "author": "RagingRoosevelt",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "lint": "eslint -c ./eslint.config.js \"./src*/**/*.{ts,js,cjs,mjs,vue}\" \"./test/**/*.ts\" && vue-tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "dev": "quasar dev",
+    "build": "quasar build",
+    "typecheck": "vue-tsc --noEmit",
+    "postinstall": "quasar prepare --silent",
+    "test:unit": "vitest",
+    "test:unit:ci": "vitest run"
+  },
+  "dependencies": {
+    "@quasar/extras": "^2.1.0",
+    "pinia": "^4.0.2",
+    "quasar": "^2.35.0",
+    "vue": "^3.5.22",
+    "vue-router": "^5.0.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@quasar/app-vite": "^3.10.2",
+    "@quasar/quasar-app-extension-testing-unit-vitest": "^3.0.0",
+    "@types/node": "^22.19.11",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.7.0",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^10.8.0",
+    "eslint-plugin-vue": "^10.8.0",
+    "globals": "^17.4.0",
+    "postcss": "^8.5.8",
+    "prettier": "^3.8.1",
+    "typescript": "^6.0.0",
+    "vite-plugin-checker": "^0.14.5",
+    "vue-eslint-parser": "^10.4.0",
+    "vue-tsc": "^3.3.3",
+    "@vue/test-utils": "^2.4.11",
+    "vitest": "^4.1.11"
+  },
+  "keywords": [
+    "quasar",
+    "quasar-app",
+    "quasar-cli",
+    "quasar-app-vite",
+    "vite",
+    "vue",
+    "vuejs"
+  ],
+  "engines": {
+    "node": ">= 26 || ^24 || ^22.12"
+  }
+}
