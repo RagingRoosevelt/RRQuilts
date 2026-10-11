@@ -107,7 +107,17 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   `undo.ts` (Immer patch history), `color.ts`/`colors.ts`
 - `src/stores/editor.ts` — session tool/mode/scope/selection/view state
 - Plain sashes/cornerstones/borders use the hidden `plain` block (`src/model/plain.ts`)
-- Starter blocks/colors: `src/content/starter.ts` (sample-point colorings)
+- Starter blocks/colors: `src/content/starter.ts` (sample-point colorings, CC-BY-4.0 attribution)
+
+## Block editor (spec 007)
+
+- `src/editor/draw-ops.ts` — pure seam-line operations on a `Drawing` (normalized coords; design
+  space = × block size for rotation/arcs); `snap.ts` (nodes → grid → seams); `block-ops.ts`
+  (new/copy/colorings/attribution, `SelectionOp`)
+- `src/composables/viewport.ts` — shared zoom/pan/pinch + tap/drag routing (tools claim drags)
+- `src/render/draw-block.ts`; `components/BlockCanvas.vue` (tool gestures), `BlockInspector.vue`,
+  `pages/BlockEditorPage.vue` — every drawing change goes through `applySeamEdit` + `markDerived`
+- Library items keep `source` attribution; edits/copies set `derived` (constitution Principle VI)
 
 ### Immer + Vue rules
 

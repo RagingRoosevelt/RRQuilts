@@ -25,8 +25,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/project/block/:id',
-    component: placeholder,
-    props: { title: 'Block editor' },
+    component: () => import('@/pages/BlockEditorPage.vue'),
     meta: project,
   },
   {

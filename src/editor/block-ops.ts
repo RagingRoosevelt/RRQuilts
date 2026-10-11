@@ -5,7 +5,7 @@ import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
 import type { Block, SeamBlock } from '@/model/schema/block';
 import type { Units } from '@/model/schema/project';
-import type { Guide } from './draw-ops';
+import type { Guide, NodeMode } from './draw-ops';
 import { defaultSnap, type SnapSettings } from './snap';
 
 export interface BlockEditorSettings {
@@ -91,3 +91,11 @@ export const deleteColoring = (block: Block, id: string) =>
   block.colorings.length <= 1
     ? block
     : produce(block, (b) => void (b.colorings = b.colorings.filter((c) => c.id !== id)));
+
+/** Operations the inspector asks for on the selected seams. */
+export type SelectionOp =
+  | { kind: 'delete' | 'clone' | 'guides' }
+  | { kind: 'rotate'; deg: number; about: 'block' | 'selection' }
+  | { kind: 'flip'; axis: 'h' | 'v' | 'd1' | 'd2'; about: 'block' | 'selection' }
+  | { kind: 'resize'; pct: number; about: 'block' | 'selection' }
+  | { kind: 'nodes'; mode: NodeMode };

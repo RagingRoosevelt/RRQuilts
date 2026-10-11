@@ -235,4 +235,26 @@ describe('editor actions', () => {
     expect(m(flip(d, 'v'))).toEqual(z(mul(V, m(d))));
     expect(m(flip(flip(d, 'v'), 'v'))).toEqual(m(d)); // mirroring twice restores
   });
+
+  it('set uses the coloring chosen for that block', () => {
+    const { doc, ids, byName } = setup();
+    const star = byName('Ohio Star');
+    const withTwo = {
+      ...doc,
+      project: {
+        ...doc.project,
+        blocks: doc.project.blocks.map((b) =>
+          b.id === star.id ? { ...b, colorings: [...b.colorings, { id: 'alt', fills: {} }] } : b,
+        ),
+      },
+    };
+    const d = run(withTwo, ids, 'b:r1c1', {
+      tool: 'set',
+      scope: 'this',
+      block: star.id,
+      color: null,
+      coloringOf: new Map([[star.id, 'alt']]),
+    }).doc!;
+    expect(q(d).colorings[q(d).layers[0].slots['b:r1c1']!.coloring]!.fills).toEqual({});
+  });
 });

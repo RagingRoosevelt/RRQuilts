@@ -85,6 +85,10 @@
     </div>
 
     <div v-else-if="tab === 'blocks'" class="cards">
+      <button v-if="!project.readOnly" class="card add" @click="newBlockDialog">
+        <q-icon name="add" size="lg" />
+        <div>New block</div>
+      </button>
       <div
         v-for="(b, i) in blocks"
         :key="b.id"
@@ -94,7 +98,7 @@
         @dragover.prevent
         @drop="drop('blocks', i)"
       >
-        <button class="thumb" @click="preview = b.id">
+        <button class="thumb" @click="openBlock(b.id)">
           <img
             :src="blockThumbnail(project.doc, b, 200, $q.dark.isActive)"
             :alt="b.notecard.name"
@@ -105,6 +109,25 @@
           <q-btn v-if="!project.readOnly" flat round dense icon="more_vert" aria-label="Actions">
             <q-menu>
               <q-list dense style="min-width: 160px">
+                <q-item
+                  v-close-popup
+                  clickable
+                  :disable="b.kind !== 'seam'"
+                  @click="openBlock(b.id)"
+                >
+                  <q-item-section>Edit</q-item-section>
+                </q-item>
+                <q-item
+                  v-close-popup
+                  clickable
+                  :disable="b.kind !== 'seam'"
+                  @click="editCopy(b.id)"
+                >
+                  <q-item-section>Edit a copy</q-item-section>
+                </q-item>
+                <q-item v-close-popup clickable @click="preview = b.id">
+                  <q-item-section>Details</q-item-section>
+                </q-item>
                 <q-item v-close-popup clickable @click="editCard('blocks', b.id)"
                   ><q-item-section>Notecard…</q-item-section></q-item
                 >
@@ -162,9 +185,9 @@
           style="width: 100%"
           alt=""
         />
-        <q-card-section class="text-caption text-grey-7"
-          >Editing blocks arrives with the block editor.</q-card-section
-        >
+        <q-card-section v-if="attribution(previewBlock)" class="text-caption text-grey-7">
+          {{ attribution(previewBlock) }}
+        </q-card-section>
       </q-card>
     </q-dialog>
     <NotecardDialog ref="notecard" @save="saveCard" />
@@ -180,6 +203,7 @@ import NotecardDialog from '@/components/NotecardDialog.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
 import { useStartQuilt } from '@/composables/start-quilt';
 import { allPatches } from '@/model/blocks/patches';
+import { attribution, copyBlock, newBlock } from '@/editor/block-ops';
 import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
 import type { Block } from '@/model/schema/block';
@@ -209,6 +233,71 @@ const patchCount = (b: Block) => allPatches(b).length;
 function rename(value: string | number | null) {
   const name = String(value ?? '').trim();
   if (name) project.change((d) => void (d.project.name = name), { coalesce: 'rename' });
+}
+
+function quiltsUsing(id: string) {
+  return quilts.value.filter((q) =>
+    [
+      ...Object.values(q.layers[0].slots).map((s) => s.block),
+      ...q.layers.flatMap((l) => l.items.map((i) => i.ref)),
+    ].includes(id),
+  );
+}
+
+/** Open the block editor; warn once when the block is used in quilts (edits update them). */
+const warnedBlocks = new Set<string>();
+function openBlock(id: string) {
+  const b = blocks.value.find((x) => x.id === id);
+  if (!b) return;
+  if (b.kind !== 'seam') {
+    preview.value = id;
+    return;
+  }
+  const users = quiltsUsing(id);
+  const go = () => {
+    editor.blockMode = 'draw';
+    void router.push(`/project/block/${id}`);
+  };
+  if (!users.length || warnedBlocks.has(id) || project.readOnly) return go();
+  warnedBlocks.add(id);
+  $q.dialog({
+    title: 'This block is in use',
+    message: `Changes will update ${users.length} quilt${users.length > 1 ? 's' : ''}: ${users.map((q) => `"${q.notecard.name}"`).join(', ')}. To leave them alone, use "Edit a copy".`,
+    cancel: { label: 'Edit a copy', flat: true },
+    ok: { label: 'Edit anyway', flat: true },
+  })
+    .onOk(go)
+    .onCancel(() => editCopy(id));
+}
+
+function editCopy(id: string) {
+  const b = blocks.value.find((x) => x.id === id);
+  if (!b) return;
+  const copy = copyBlock(
+    b,
+    blocks.value.map((x) => x.notecard.name),
+  );
+  const at = project.doc!.project.blocks.indexOf(b) + 1;
+  project.change((d) => void d.project.blocks.splice(at, 0, copy));
+  editor.blockMode = 'draw';
+  void router.push(`/project/block/${copy.id}`);
+}
+
+function newBlockDialog() {
+  const units = project.doc!.units;
+  const s = units === 'cm' ? 25 : 10;
+  $q.dialog({
+    title: 'New block',
+    message: `Finished size ${s} × ${s} ${units} — you can change it in the block editor.`,
+    prompt: { model: `Block ${blocks.value.length + 1}`, type: 'text' },
+    cancel: true,
+  }).onOk((name: string) => {
+    const b = newBlock(name.trim() || 'Block', [s, s], units);
+    project.change((d) => void d.project.blocks.push(b));
+    editor.blockMode = 'draw';
+    editor.blockTool = 'line';
+    void router.push(`/project/block/${b.id}`);
+  });
 }
 
 function openQuilt(id: string) {
@@ -275,12 +364,7 @@ function deleteQuilt(id: string) {
 }
 
 function deleteBlock(id: string) {
-  const users = quilts.value.filter((q) =>
-    [
-      ...Object.values(q.layers[0].slots).map((s) => s.block),
-      ...q.layers.flatMap((l) => l.items.map((i) => i.ref)),
-    ].includes(id),
-  );
+  const users = quiltsUsing(id);
   if (users.length) {
     $q.dialog({
       title: 'This block is in use',

@@ -40,16 +40,23 @@ export function quiltThumbnail(doc: RrqDoc, quilt: Quilt, px = 240, dark = false
   );
 }
 
-export function blockThumbnail(doc: RrqDoc, block: Block, px = 160, dark = false) {
-  return cached(block, `${px}:${dark}:${doc.project.palette.colors.length}`, () => {
-    const [c, ctx] = canvas(px);
-    const s = (px - 8) / Math.max(...block.size);
-    ctx.setTransform(s, 0, 0, s, 4, 4);
-    drawBlock(ctx, block, block.colorings[0], colorLookup(doc), {
-      outlines: true,
-      lineWidth: 1 / s,
-      dark,
-    });
-    return c.toDataURL();
-  });
+export function blockThumbnail(
+  doc: RrqDoc,
+  block: Block,
+  px = 160,
+  dark = false,
+  coloringId?: string,
+) {
+  const coloring = block.colorings.find((c) => c.id === coloringId) ?? block.colorings[0];
+  return cached(
+    block,
+    `${px}:${dark}:${coloring?.id ?? ''}:${doc.project.palette.colors.length}`,
+    () => {
+      const [c, ctx] = canvas(px);
+      const s = (px - 8) / Math.max(...block.size);
+      ctx.setTransform(s, 0, 0, s, 4, 4);
+      drawBlock(ctx, block, coloring, colorLookup(doc), { outlines: true, lineWidth: 1 / s, dark });
+      return c.toDataURL();
+    },
+  );
 }

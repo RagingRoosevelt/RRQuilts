@@ -25,6 +25,8 @@ export interface ToolState {
   color: string | null;
   /** Flip direction: 'h' mirrors left↔right, 'v' top↕bottom (as seen on screen). */
   flipAxis?: 'h' | 'v';
+  /** Which of a block's colorings "Set" uses (default: its first). */
+  coloringOf?: ReadonlyMap<string, string>;
 }
 
 type Orientation = { rotation: 0 | 90 | 180 | 270; flip: boolean };
@@ -78,7 +80,9 @@ export function applyTool(
             let coloring: string;
             do coloring = newId();
             while (coloring in q.colorings);
-            q.colorings[coloring] = { fills: { ...(block.colorings[0]?.fills ?? {}) } };
+            const chosen = s.coloringOf?.get(block.id);
+            const src = block.colorings.find((c) => c.id === chosen) ?? block.colorings[0];
+            q.colorings[coloring] = { fills: { ...(src?.fills ?? {}) } };
             for (const t of targets)
               q.layers[0].slots[t] = { block: block.id, coloring, rotation: 0, flip: false };
             pruneColorings(q);

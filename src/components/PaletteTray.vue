@@ -1,6 +1,6 @@
 <template>
   <div class="palette-tray column no-wrap">
-    <q-tabs v-model="tab" dense no-caps align="left" class="col-auto">
+    <q-tabs v-if="!colorsOnly" v-model="tab" dense no-caps align="left" class="col-auto">
       <q-tab name="blocks" label="Blocks" />
       <q-tab name="colors" label="Colors" />
     </q-tabs>
@@ -14,7 +14,27 @@
         :title="b.notecard.name"
         @click="pickBlock(b.id)"
       >
-        <img :src="blockThumbnail(doc, b, 96, $q.dark.isActive)" :alt="b.notecard.name" />
+        <img
+          :src="blockThumbnail(doc, b, 96, $q.dark.isActive, editor.coloringOf.get(b.id))"
+          :alt="b.notecard.name"
+        />
+        <span v-if="b.colorings.length > 1" class="count">{{ b.colorings.length }}</span>
+        <!-- Blocks with several colorings: right-click / long-press to choose which one to set. -->
+        <q-menu v-if="b.colorings.length > 1" touch-position context-menu>
+          <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+            <button
+              v-for="(c, i) in b.colorings"
+              :key="c.id"
+              v-close-popup
+              class="tile"
+              :class="{ active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id }"
+              :title="c.name ?? `Coloring ${i + 1}`"
+              @click="chooseColoring(b.id, c.id)"
+            >
+              <img :src="blockThumbnail(doc, b, 96, $q.dark.isActive, c.id)" :alt="c.name ?? ''" />
+            </button>
+          </div>
+        </q-menu>
       </button>
     </div>
 
@@ -70,8 +90,13 @@ const editor = useEditorStore();
 const editorDialog = ref<InstanceType<typeof ColorEditor>>();
 const editing = ref<string | null>(null);
 
+/** Block editor: colors only, and picking a color doesn't touch the quilt editor's tool. */
+const props = withDefaults(defineProps<{ colorsOnly?: boolean }>(), { colorsOnly: false });
 const tab = computed({
-  get: () => (['paint', 'spray', 'swap', 'eyedropper'].includes(editor.tool) ? 'colors' : 'blocks'),
+  get: () =>
+    props.colorsOnly || ['paint', 'spray', 'swap', 'eyedropper'].includes(editor.tool)
+      ? 'colors'
+      : 'blocks',
   set: (t) => (editor.tool = t === 'colors' ? 'paint' : 'set'),
 });
 const doc = computed(() => project.doc!);
@@ -88,9 +113,13 @@ function pickBlock(id: string) {
   editor.block = id;
   if (editor.tool !== 'set') editor.tool = 'set';
 }
+function chooseColoring(blockId: string, coloringId: string) {
+  editor.coloringOf.set(blockId, coloringId);
+  pickBlock(blockId);
+}
 function pickColor(id: string) {
   editor.useColor(id);
-  if (!['paint', 'spray', 'swap'].includes(editor.tool)) editor.tool = 'paint';
+  if (!props.colorsOnly && !['paint', 'spray', 'swap'].includes(editor.tool)) editor.tool = 'paint';
 }
 
 function edit(id: string) {
@@ -149,6 +178,21 @@ function remove(id: string) {
   padding: 0;
   cursor: pointer;
   background: none;
+}
+.tile {
+  position: relative;
+}
+.count {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  min-width: 16px;
+  padding: 0 3px;
+  border-radius: 8px;
+  font-size: 10px;
+  line-height: 16px;
+  background: var(--q-primary);
+  color: white;
 }
 .tile img {
   display: block;

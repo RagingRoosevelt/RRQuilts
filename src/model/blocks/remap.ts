@@ -30,6 +30,33 @@ function labelAt(p: Pt, polys: Pt[][]): number {
   return hit;
 }
 
+/**
+ * Label every sample cell with the (last) polygon containing its center. Each polygon only tests
+ * the cells inside its bounding box, so cost ≈ total bbox area instead of cells × polygons.
+ */
+function rasterize(polys: Pt[][]): Int32Array {
+  const labels = new Int32Array(N * N).fill(-1);
+  polys.forEach((poly, k) => {
+    let [x0, y0, x1, y1] = [Infinity, Infinity, -Infinity, -Infinity];
+    for (const [x, y] of poly) {
+      x0 = Math.min(x0, x);
+      y0 = Math.min(y0, y);
+      x1 = Math.max(x1, x);
+      y1 = Math.max(y1, y);
+    }
+    const i0 = Math.max(0, Math.floor(x0 * N - 0.5));
+    const i1 = Math.min(N - 1, Math.ceil(x1 * N - 0.5));
+    const j0 = Math.max(0, Math.floor(y0 * N - 0.5));
+    const j1 = Math.min(N - 1, Math.ceil(y1 * N - 0.5));
+    for (let i = i0; i <= i1; i++) {
+      for (let j = j0; j <= j1; j++) {
+        if (pointInPolygon([(i + 0.5) / N, (j + 0.5) / N], poly)) labels[i * N + j] = k;
+      }
+    }
+  });
+  return labels;
+}
+
 function interiorPoint(poly: Pt[]): Pt {
   const c: Pt = [
     poly.reduce((s, p) => s + p[0], 0) / poly.length,
@@ -51,15 +78,14 @@ export function assignIds(oldPatches: OldPatch[], fresh: DerivedPatch[]): Assign
   const newPolys = fresh.map((p) => p.poly);
   const counts = new Map<string, number>(); // `${new}:${old}` → samples
   const sampled = new Set<number>();
-  for (let i = 0; i < N; i++) {
-    for (let j = 0; j < N; j++) {
-      const p: Pt = [(i + 0.5) / N, (j + 0.5) / N];
-      const n = labelAt(p, newPolys);
-      if (n < 0) continue;
-      sampled.add(n);
-      const o = labelAt(p, oldPolys);
-      if (o >= 0) counts.set(`${n}:${o}`, (counts.get(`${n}:${o}`) ?? 0) + 1);
-    }
+  const newLabels = rasterize(newPolys);
+  const oldLabels = rasterize(oldPolys);
+  for (let c = 0; c < N * N; c++) {
+    const n = newLabels[c]!;
+    if (n < 0) continue;
+    sampled.add(n);
+    const o = oldLabels[c]!;
+    if (o >= 0) counts.set(`${n}:${o}`, (counts.get(`${n}:${o}`) ?? 0) + 1);
   }
   fresh.forEach((_, n) => {
     if (sampled.has(n)) return;

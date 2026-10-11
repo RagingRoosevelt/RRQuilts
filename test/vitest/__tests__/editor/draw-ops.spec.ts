@@ -17,6 +17,10 @@ import {
 } from '@/editor/draw-ops';
 import { deriveSeamPatches } from '@/model/blocks/derive';
 import type { Drawing } from '@/model/schema/block';
+import { applySeamEdit } from '@/model/blocks/edit';
+import { addStarterContent } from '@/content/starter';
+import { createProject } from '@/model/new-project';
+import { newBlock } from '@/editor/block-ops';
 
 const empty: Drawing = { nodes: [], segments: [] };
 const size = [9, 9] as const;
@@ -124,5 +128,22 @@ describe('drawing operations', () => {
     const r = toGuides(d, new Set([d.segments[0]!.id]));
     expect(r.drawing.segments).toHaveLength(1);
     expect(r.guides).toEqual([{ a: [0, 0.5], b: [1, 0.5] }]);
+  });
+
+  it('a 200-seam block edit (derive + remap) takes under 100 ms', () => {
+    const doc0 = addStarterContent(createProject());
+    const b = newBlock('Busy', [10, 10], 'in');
+    let doc = { ...doc0, project: { ...doc0.project, blocks: [...doc0.project.blocks, b] } };
+    let d: Drawing = addGrid(empty, [0, 0], [1, 1], 10, 10);
+    for (let k = 0; d.segments.length < 200; k++) {
+      const x = (k % 10) / 10;
+      const y = Math.floor(k / 10) / 10;
+      d = addLine(d, pt(x, y), pt(x + 0.1, y + 0.1));
+    }
+    doc = applySeamEdit(doc, b.id, d).doc;
+    const next = addLine(d, pt(0.05, 0), pt(0.05, 1));
+    const start = performance.now();
+    applySeamEdit(doc, b.id, next);
+    expect(performance.now() - start).toBeLessThan(100);
   });
 });

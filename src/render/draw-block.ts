@@ -15,7 +15,7 @@ export interface BlockDrawOptions {
   dark: boolean;
   /** 'draw' shows light patches + seams; 'color' shows the coloring. */
   mode: 'draw' | 'color';
-  coloring?: ColoringBody;
+  coloring: ColoringBody | undefined;
   snap: SnapSettings;
   graph: { show: boolean; step: number };
   guides: { a: Pt; b: Pt; sweep?: number }[];
