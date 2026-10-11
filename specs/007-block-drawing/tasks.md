@@ -13,8 +13,8 @@ description: "Tasks for 007 Drawing Your Own Blocks"
 
 ## Phase 2: Viewport & rendering
 
-- [ ] T005 `src/composables/viewport.ts`; refactor `QuiltCanvas.vue` onto it (no behavior change)
-- [ ] T006 `src/render/draw-block.ts`: block at design scale, patches (light fill or coloring), seams, unconnected seams highlighted, nodes, selection, guides (dashed), graph paper, snap preview
+- [x] T005 `src/composables/viewport.ts`; refactor `QuiltCanvas.vue` onto it (no behavior change)
+- [x] T006 `src/render/draw-block.ts`: block at design scale, patches (light fill or coloring), seams, unconnected seams highlighted, nodes, selection, guides (dashed), graph paper, snap preview
 
 ## Phase 3: Block editor
 
