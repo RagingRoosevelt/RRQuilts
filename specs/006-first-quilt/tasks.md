@@ -16,8 +16,8 @@ description: "Tasks for 006 First Quilt"
 
 ## Phase 2: Undo
 
-- [ ] T006 `src/editor/undo.ts`: history of Immer patch pairs, 200-step cap, coalesce same key within 1 s; tests
-- [ ] T007 `stores/project.ts`: `change(recipe, { coalesce? })` via `produceWithPatches`; `undo`/`redo`/`canUndo`/`canRedo`; history cleared on load/close/takeover; keyboard shortcuts
+- [x] T006 `src/editor/undo.ts`: history of Immer patch pairs, 200-step cap, coalesce same key within 1 s; tests
+- [x] T007 `stores/project.ts`: `change(recipe, { coalesce? })` via `produceWithPatches`; `undo`/`redo`/`canUndo`/`canRedo`; history cleared on load/close/takeover; keyboard shortcuts
 
 ## Phase 3: Renderer
 

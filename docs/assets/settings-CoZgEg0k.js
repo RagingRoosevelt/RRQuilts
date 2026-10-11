@@ -1,0 +1,1 @@
+import{f as e,i as t}from"./index-OkiQ84ym.js";var n=t(()=>{e().applyTheme()});export{n as default};

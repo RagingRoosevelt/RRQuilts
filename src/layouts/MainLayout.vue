@@ -43,13 +43,27 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import SaveStatus from '@/components/SaveStatus.vue';
 import { useProjectStore } from '@/stores/project';
 
 const $q = useQuasar();
 const project = useProjectStore();
 const taking = ref(false);
+
+// Undo/redo everywhere except while typing in a field (fields keep their own undo).
+function onKey(e: KeyboardEvent) {
+  const t = e.target as HTMLElement | null;
+  if (t?.closest('input, textarea, [contenteditable="true"]')) return;
+  if (!(e.ctrlKey || e.metaKey)) return;
+  const k = e.key.toLowerCase();
+  if (k === 'z' && !e.shiftKey) project.undo();
+  else if ((k === 'z' && e.shiftKey) || k === 'y') project.redo();
+  else return;
+  e.preventDefault();
+}
+onMounted(() => window.addEventListener('keydown', onKey));
+onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 
 async function continueHere() {
   taking.value = true;

@@ -29,6 +29,6 @@ const counts = computed(() => {
 
 function rename(value: string | number | null) {
   const name = String(value ?? '').trim();
-  if (name) project.change((d) => void (d.project.name = name));
+  if (name) project.change((d) => void (d.project.name = name), { coalesce: 'rename' });
 }
 </script>

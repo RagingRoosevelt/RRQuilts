@@ -1,11 +1,13 @@
 // The open project: in-memory document, file link, save status, crash-recovery draft, and the
 // one-editing-tab lock. All edits go through `change()`.
+import { freeze, produceWithPatches, type Draft as ImmerDraft } from 'immer';
 import { defineStore } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 import { parseProject, serializeProject } from '@/model/io';
 import { newId } from '@/model/ids';
 import { createProject } from '@/model/new-project';
 import type { RrqDoc } from '@/model/schema/project';
+import { createHistory } from '@/editor/undo';
 import { createAutosave } from '@/session/autosave';
 import {
   acquireEditLock,
@@ -87,7 +89,7 @@ export const useProjectStore = defineStore('project', () => {
     opts: { handle?: FileSystemFileHandle | null; saved: boolean; dirty: boolean },
   ) {
     close();
-    doc.value = next;
+    doc.value = freeze(next, true);
     handle.value = opts.handle ?? null;
     savedOnce.value = opts.saved;
     revision.value = opts.dirty ? 1 : 0;
@@ -144,12 +146,52 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /** Apply an edit. `fn` gets a copy and returns the new document (or mutates the copy). */
-  function change(fn: (d: RrqDoc) => RrqDoc | void) {
-    if (!doc.value || readOnly.value) return;
-    const copy = structuredClone(doc.value);
-    doc.value = fn(copy) ?? copy;
+  const history = createHistory();
+  const canUndo = ref(false);
+  const canRedo = ref(false);
+  const syncHistory = () => {
+    canUndo.value = history.canUndo;
+    canRedo.value = history.canRedo;
+  };
+
+  function touched() {
     revision.value++;
     autosave.changed();
+    syncHistory();
+  }
+
+  /**
+   * Apply an edit as an Immer recipe: mutate the draft, or return a replacement document.
+   * Every change is one undo step; changes with the same `coalesce` key within 1 s merge.
+   */
+  function change(
+    recipe: (d: ImmerDraft<RrqDoc>) => RrqDoc | void,
+    opts: { coalesce?: string } = {},
+  ) {
+    if (!doc.value || readOnly.value) return;
+    const [next, patches, inverse] = produceWithPatches(doc.value, recipe);
+    if (!patches.length) return;
+    doc.value = next;
+    history.record(patches, inverse, opts.coalesce);
+    touched();
+  }
+
+  function undo() {
+    if (!doc.value || readOnly.value) return;
+    const prev = history.undo(doc.value);
+    if (prev) {
+      doc.value = prev;
+      touched();
+    }
+  }
+
+  function redo() {
+    if (!doc.value || readOnly.value) return;
+    const next = history.redo(doc.value);
+    if (next) {
+      doc.value = next;
+      touched();
+    }
   }
 
   async function afterSave(h: FileSystemFileHandle | null) {
@@ -209,16 +251,20 @@ export const useProjectStore = defineStore('project', () => {
     lock = r.lock;
     const draft = await getDraft(id).catch(() => undefined);
     if (draft) {
-      doc.value = draft.doc;
+      doc.value = freeze(draft.doc, true);
       if (draft.dirty) revision.value = savedRevision.value + 1;
     }
     readOnly.value = false;
     lostToOtherTab.value = false;
+    history.clear();
+    syncHistory();
     return { holderAnswered: r.holderAnswered };
   }
 
   /** Close the open project. Unsaved work stays in its draft for restoring later. */
   function close() {
+    history.clear();
+    syncHistory();
     autosave.dispose();
     lock?.release();
     lock = null;
@@ -251,6 +297,10 @@ export const useProjectStore = defineStore('project', () => {
     restoreDraft,
     discardDraft,
     change,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
     save,
     saveAs,
     saveCopy,
