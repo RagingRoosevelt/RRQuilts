@@ -53,14 +53,14 @@ before or with each module; quickstart scenarios map 1:1 to test files in
 
 ## Phase 5: User Story 3 — Changing a layout keeps what still fits (P2)
 
-- [ ] T026 [US3] `src/model/layout/slots.ts`: Slot type (id, outline, affine transform), `generateSlots` dispatcher, `reconcile(quilt, newLayout, newBorders)` → kept/dropped
-- [ ] T027 [US3] `src/model/layout/horizontal.ts`: blocks, sashes, cornerstones, sash border per `contracts/slot-ids.md`
-- [ ] T028 [US3] `src/model/layout/borders.ts`: plain strip borders (`long-horizontal`, `long-vertical`, `mitered`) with per-side sizes
-- [ ] T029 [US3] Test `model/slots.spec.ts`: 5×6 + sashing + sash border + 2 borders → ids, outlines, transforms, finished size; 5×6→6×6 keeps 30; →4×6 reports 6 dropped (quickstart 8)
+- [x] T026 [US3] `src/model/layout/slots.ts`: Slot type (id, outline, affine transform), `generateSlots` dispatcher, `reconcile(quilt, newLayout, newBorders)` → kept/dropped
+- [x] T027 [US3] `src/model/layout/horizontal.ts`: blocks, sashes, cornerstones, sash border per `contracts/slot-ids.md`
+- [x] T028 [US3] `src/model/layout/borders.ts`: plain strip borders (`long-horizontal`, `long-vertical`, `mitered`) with per-side sizes
+- [x] T029 [US3] Test `model/slots.spec.ts`: 5×6 + sashing + sash border + 2 borders → ids, outlines, transforms, finished size; 5×6→6×6 keeps 30; →4×6 reports 6 dropped (quickstart 8)
 
 ## Phase 6: Polish
 
-- [ ] T030 Document `src/model/` in `CLAUDE.md` (module map, purity rule, how to add a migration / layout generator / slot grammar)
+- [x] T030 Document `src/model/` in `CLAUDE.md` (module map, purity rule, how to add a migration / layout generator / slot grammar)
 - [ ] T031 `make check` clean; commit with `make commit`
 
 ## Dependencies

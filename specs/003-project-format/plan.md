@@ -62,7 +62,7 @@ specs/003-project-format/
 ├── quickstart.md
 ├── contracts/
 │   ├── slot-ids.md
-│   └── rrq.schema.json      # generated during implementation (npm run schema)
+│   └── rrq.schema.json      # generated (npm run schema)
 └── tasks.md                 # /speckit-tasks
 ```
 
@@ -78,6 +78,7 @@ src/model/
 │   ├── path.ts          # path commands, arc center/radius, flatten, point-in-polygon, area
 │   ├── intersect.ts     # line/arc analytic, Bézier subdivision, overlap merging
 │   └── arrangement.ts   # split, prune (unconnected), half-edge faces → patch paths
+├── blocks/edit.ts       # applySeamEdit: derive + remap across block and quilt colorings
 ├── blocks/
 │   ├── derive.ts        # deriveSeamPatches(block)
 │   └── remap.ts         # stable ids + fill inheritance + foundation flags (grid sampling)
@@ -86,7 +87,6 @@ src/model/
     ├── slots.ts         # Slot type, generateSlots dispatcher, reconcile
     ├── horizontal.ts    # Horizontal layout generator
     └── borders.ts       # plain strip borders
-scripts/gen-schema.ts    # writes public/schemas/rrq.v1.json + contracts copy
 public/schemas/rrq.v1.json
 test/vitest/__tests__/model/   # one spec per quickstart scenario
 test/fixtures/everything.rrq

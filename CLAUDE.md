@@ -76,6 +76,23 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 - `assets/icon.svg` — placeholder icon source; regenerate with `@quasar/icongenie` (skip apple
   launch images — they bloat the offline cache)
 
+## File-format model (`src/model/`, spec 003)
+
+Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over `RrqDoc`.
+
+- `schema/` — TypeBox schemas = TS types + validation + published JSON Schema
+  (`public/schemas/rrq.v1.json`; regenerate with `npm run schema`, a test fails on drift)
+- `io.ts` — `parseProject` (JSON → migrate → validate → duplicate ids → dangling refs + asset
+  hashes reported), `serializeProject`. New version: bump `VERSION`, add `migrations[old]`.
+- `units.ts` — only real lengths scale; block geometry is normalized 0…1
+- `geometry/` — lines, circular arcs (`sweep` deg, + = CCW on screen, y down), Béziers;
+  `arrangement.ts` turns seams into faces (outline component only; dangling → unconnected)
+- `blocks/edit.ts` `applySeamEdit` — derive + stable ids/fills (`remap.ts`, 128² sampling)
+- `coloring.ts` `paint` — copy-on-write quilt colorings (this / allIdentical / alternate)
+- `layout/` — slots per `specs/003-project-format/contracts/slot-ids.md`; add a layout style by
+  writing a generator and adding its id grammar there; `reconcile`/`applyLayout` on changes
+- Fixture with every entity: `test/fixtures/everything.rrq`
+
 ## Gotchas
 
 - Dev-server file watching must not see big folders: npm cache lives in `~/.cache/rrquilts-npm`
