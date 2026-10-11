@@ -17,12 +17,13 @@ const expected: Record<string, number> = {
   'Churn Dash': 17,
   'Ohio Star': 21,
   "Drunkard's Path": 2,
+  'Super S': 7,
 };
 
 describe('starter content', () => {
   const doc = addStarterContent(createProject());
 
-  it('adds 36 colors and 12 blocks', () => {
+  it('adds 36 colors and 13 blocks', () => {
     expect(doc.project.palette.colors).toHaveLength(36);
     expect(doc.project.blocks.map((b) => b.notecard.name)).toEqual(
       STARTER_BLOCKS.map((b) => b.name),

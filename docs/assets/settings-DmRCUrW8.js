@@ -1,1 +1,0 @@
-import{t as e}from"./settings-loYYI3RY.js";import{n as t}from"./index-5dzbW_2F.js";var n=t(()=>{e().applyTheme()});export{n as default};

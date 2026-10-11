@@ -360,7 +360,51 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     base: C.Cream!,
     points: [[0.2, 0.2, C.Denim!]],
   },
+  {
+    // The "Super S" / "Cool S": drawn on a 2 × 5 grid (u, v), 2" units, centered in the block.
+    name: 'Super S',
+    seams: superS(),
+    base: C.Cream!,
+    points: [
+      [0.38, 0.3, C['Barn Red']!], // top-left column + point
+      [0.5, 0.5, C['Barn Red']!], // diagonal
+      [0.62, 0.7, C['Barn Red']!], // bottom-right column + point
+      [0.62, 0.3, C.Gold!], // upper hook
+      [0.38, 0.7, C.Gold!], // lower hook
+    ],
+  },
 ];
+
+function superS(): Seam[] {
+  const P = (u: number, v: number): P => [(3 + 2 * u) / 10, v / 5];
+  const path = (pts: [number, number][]): Seam[] =>
+    pts.slice(1).map((q, i) => [P(...pts[i]!), P(...q)]);
+  return [
+    // Outline, clockwise from the top point (the points touch the block's top and bottom edges).
+    ...path([
+      [1, 0],
+      [2, 1],
+      [2, 2],
+      [1.5, 2.5],
+      [2, 3],
+      [2, 4],
+      [1, 5],
+      [0, 4],
+      [0, 3],
+      [0.5, 2.5],
+      [0, 2],
+      [0, 1],
+      [1, 0],
+    ]),
+    // Inside: the two middle lines, the two diagonals, and two short seams so every piece can be sewn.
+    [P(1, 0), P(1, 2)],
+    [P(1, 3), P(1, 5)],
+    [P(0, 2), P(1, 3)],
+    [P(1, 2), P(2, 3)],
+    [P(0, 2), P(1, 2)],
+    [P(1, 3), P(2, 3)],
+  ];
+}
 
 /** Add the starter colors and blocks to a project (new projects only). */
 export function addStarterContent(doc: RrqDoc): RrqDoc {
