@@ -51,7 +51,7 @@ confirm author/license show and the item is read-only until copied.
 **Acceptance Scenarios**:
 
 1. **Given** a personal library, **When** the user chooses "share as pack", **Then** they confirm
-   name, description, author, and license (default CC-BY-4.0) and a `.rrq_lib` of kind `pack` is saved.
+   name, description, author, and license (default CC-BY-SA-4.0) and a `.rrq_lib` of kind `pack` is saved.
 2. **Given** a pack file, **When** imported, **Then** it appears under packs, separate from the user's
    own libraries, with author and license visible.
 3. **Given** a pack item, **When** the user wants to change it, **Then** they copy it into their own
@@ -120,7 +120,7 @@ changelog note, commit, and see the update offered with that note.
 **Acceptance Scenarios**:
 
 1. **Given** a personal library, **When** the user chooses "export as repository", **Then** they
-   confirm name, description, author, license (default CC-BY-4.0), and a zip downloads containing
+   confirm name, description, author, license (default CC-BY-SA-4.0), and a zip downloads containing
    `rrq_lib.json` (kind `pack`, images as separate files), `assets/`, `LICENSE`, and `README.md`.
 2. **Given** that zip unzipped at a repository root and pushed, **When** anyone connects to it,
    **Then** it loads with no edits.
@@ -167,7 +167,14 @@ changelog note, commit, and see the update offered with that note.
   `version` (schema version, integer), `units` (`"in"` | `"cm"`, as in spec 003), `kind` (`"personal"` | `"pack"`), `id` (stable unique id),
   `revision` (integer, increases with each published change), `name`, `description`, `categories`,
   `items`; packs additionally require `author` (`name`, optional `url`) and `license`.
-- **FR-002**: `license` MUST be an SPDX identifier; "share as pack" MUST default it to `CC-BY-4.0`.
+- **FR-002**: `license` MUST be an SPDX identifier; "share as pack" MUST default it to
+  `CC-BY-SA-4.0` (share-alike by default, constitution Principle VI), changeable by the author
+  unless an item's license requires share-alike.
+- **FR-002a**: Exports MUST enforce item licenses: every item's attribution (author, library,
+  license) is kept and listed in a generated credits section (`credits` in the document, and in
+  `README.md` for repository zips); items derived from share-alike content force a compatible
+  share-alike pack license; items whose license forbids redistribution or derivatives are excluded
+  with an explanation.
   An item MAY carry its own `license`, which overrides the document's.
 - **FR-003**: `categories` MUST be a list of `{ id, name, styles: [{ id, name }] }`; every item MUST
   reference an existing category and style.

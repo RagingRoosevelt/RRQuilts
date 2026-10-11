@@ -1,6 +1,7 @@
 <!--
 Sync Impact Report
-- Version change: 1.6.0 → 1.7.0 (MINOR: TypeBox as the schema/validation library — Technology Stack)
+- Version change: 1.7.0 → 1.8.0 (MINOR: added Principle VI — Respect Content Licenses)
+- Prior: 1.6.0 → 1.7.0 (MINOR: TypeBox as the schema/validation library — Technology Stack)
 - Prior: 1.5.0 → 1.6.0 (MINOR: CI gate, Node 24 LTS, container file ownership/polling,
   README requirement, make commit/push — Technology Stack, Build/Hosting, Development Workflow)
 - Prior: 1.4.0 → 1.5.0 (MINOR: autosaved project drafts in IndexedDB — Principle IV)
@@ -113,6 +114,22 @@ abstractions.
 
 Rationale: small bundle = fast offline cache, small surface = fewer bugs.
 
+### VI. Respect Content Licenses
+
+Library content (blocks, fabrics, layouts, …) carries its author and license, and the app keeps
+those obligations intact automatically.
+
+- Every item copied from a library/pack/repository keeps its source (library, item, revision,
+  author, license) — including copies and edited versions, which are marked as derived.
+- Requirements the app can enforce, it MUST enforce: attribution travels with items and is listed
+  when sharing; share-alike licenses propagate to anything derived from them that is shared; items
+  whose license forbids sharing or derivatives can't be exported in a pack.
+- Defaults follow the same spirit when nothing requires it: always attribute sources, and offer
+  share-alike as the default license for shared packs.
+- The app's own built-in content is original and openly licensed.
+
+Rationale: quilters share designs; the app should make honest sharing the easy path.
+
 ## Technology Stack & Constraints
 
 | Concern | Choice |
@@ -207,7 +224,7 @@ Minimum envelope (details defined per feature in `specs/`):
 
 - Spec Kit flow: `/speckit-specify` → `/speckit-clarify` (optional) → `/speckit-plan`
   → `/speckit-tasks` → `/speckit-implement`.
-- Every plan MUST pass the Constitution Check against Principles I–V.
+- Every plan MUST pass the Constitution Check against Principles I–VI.
 - Required tests: file-format parse/validate/migrate; settings load/save/import/export;
   core geometry/calculation logic. UI tests only where logic lives in components.
 - Commit and push via `make commit` / `make push` so pre-steps always run; extra pre-steps are
@@ -226,4 +243,4 @@ This constitution supersedes other practices. Amendments are made via
 (MAJOR: principle removed/redefined; MINOR: principle/section added; PATCH: wording).
 Runtime development guidance lives in `CLAUDE.md`.
 
-**Version**: 1.7.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-11
+**Version**: 1.8.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-11
