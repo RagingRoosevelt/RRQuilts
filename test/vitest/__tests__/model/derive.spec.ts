@@ -142,6 +142,32 @@ describe('seam-line patch derivation', () => {
     expect(r.unconnected.sort()).toEqual(['s0', 's1']);
   });
 
+  it('a seam that crosses a line but overshoots it is flagged (loose end)', () => {
+    const r = derive([
+      [
+        [0, 0.5],
+        [1, 0.5],
+      ],
+      [
+        [0.5, 0],
+        [0.5, 0.7],
+      ], // crosses the horizontal seam, ends in mid-air below it
+    ]);
+    expect(r.patches).toHaveLength(3); // the stub doesn't split anything
+    expect(r.unconnected).toEqual(['s1']);
+  });
+
+  it('a seam running past the block edge is flagged', () => {
+    const r = derive([
+      [
+        [-0.2, 0.5],
+        [1, 0.5],
+      ],
+    ]);
+    expect(r.patches).toHaveLength(2);
+    expect(r.unconnected).toEqual(['s0']);
+  });
+
   it('a floating closed shape is unconnected (not pieceable)', () => {
     const r = derive([
       [

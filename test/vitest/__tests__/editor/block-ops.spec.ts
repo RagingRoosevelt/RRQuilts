@@ -27,7 +27,7 @@ describe('snapping', () => {
   });
 
   it('snaps onto seams when enabled and grid is off; divisions mode uses n parts', () => {
-    const onSeam = snap([3.33, 5.08], drawing, size, { ...s, grid: false, seams: true }, 0.3);
+    const onSeam = snap([3.33, 5.08], drawing, size, { ...s, grid: false }, 0.3);
     expect(onSeam.kind).toBe('seam');
     expect(onSeam.p[1]).toBeCloseTo(5);
     const div = snap(
@@ -39,6 +39,16 @@ describe('snapping', () => {
     );
     expect(div.p[0]).toBeCloseTo(10 / 3);
     expect(div.p[1]).toBeCloseTo(20 / 3);
+  });
+
+  it('ends on a diagonal seam rather than a nearby grid point off the seam', () => {
+    const diag = addLine({ nodes: [], segments: [] }, { x: 0, y: 0 }, { x: 1, y: 1 });
+    // Near (3.3, 3.4): grid point (3.25, 3.5) is off the diagonal; the diagonal is closer to exact.
+    const r = snap([3.3, 3.42], diag, size, s, 0.3);
+    expect(r.kind).toBe('seam');
+    expect(r.p[0]).toBeCloseTo(r.p[1], 9);
+    // Where a grid point lies on the seam, use it (exact and on the grid).
+    expect(snap([5.04, 4.97], diag, size, s, 0.3)).toMatchObject({ kind: 'grid', p: [5, 5] });
   });
 
   it('falls back to the pointer, clamped to the block', () => {

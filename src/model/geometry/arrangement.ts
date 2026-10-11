@@ -2,8 +2,8 @@
 //
 // 1. Split every segment where it meets another (intersections + endpoints lying on it).
 // 2. Merge endpoints within eps into vertices; drop zero-length and duplicate pieces (overlaps).
-// 3. Keep the component containing the block outline; prune dangling edges. Everything removed is
-//    reported as unconnected (by source segment id) — the user's drawing is never changed.
+// 3. Keep the component containing the block outline; prune dangling edges. A seam with any removed
+//    piece is reported as unconnected (by id) — the user's drawing is never changed.
 // 4. Walk faces with half-edges sorted by tangent angle (ties by curvature); bounded faces are the
 //    loops that turn counter-clockwise on screen.
 import { intersect, project } from './intersect';
@@ -148,9 +148,9 @@ export function arrange(input: InputSeg[], eps: number): Arrangement {
   edges.forEach((e, k) => {
     if (!alive.has(k)) for (const s of e.sources) unconnected.add(s);
   });
+  // Any dropped piece means the seam has a loose end (dangling, overshooting a crossing, or
+  // running past the outline) — flag it, even if other pieces of it still bound patches.
   for (const { id, outline } of input) if (outline) unconnected.delete(id);
-  // A segment is only unconnected if none of its pieces survived.
-  for (const k of alive) for (const s of edges[k]!.sources) unconnected.delete(s);
 
   // 4. Faces.
   const out: Half[][] = verts.map(() => []);

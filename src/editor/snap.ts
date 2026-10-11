@@ -22,7 +22,7 @@ export const defaultSnap = (units: 'in' | 'cm'): SnapSettings => ({
   divisions: [3, 3],
   grid: true,
   nodes: true,
-  seams: false,
+  seams: true,
 });
 
 export interface Snapped {
@@ -68,15 +68,19 @@ export function snap(
       return { p: best.q, endpoint: best.id ? { node: best.id } : norm(best.q), kind: 'node' };
   }
 
+  // Grid point candidate.
+  let grid: Pt | undefined;
   if (s.grid) {
     const [gx, gy] = gridSpacing(s, size);
     const q: Pt = [
       Math.min(w, Math.max(0, Math.round(p[0] / gx) * gx)),
       Math.min(h, Math.max(0, Math.round(p[1] / gy) * gy)),
     ];
-    if (dist(p, q) <= radius) return { p: q, endpoint: norm(q), kind: 'grid' };
+    if (dist(p, q) <= radius) grid = q;
   }
 
+  // Seam candidate. Ending on a seam wins over a nearby grid point — unless that grid point is
+  // itself on the seam (then use it: it's both exact and on the grid).
   if (s.seams) {
     const corners: Pt[] = [
       [0, 0],
@@ -85,13 +89,18 @@ export function snap(
       [0, h],
     ];
     const outline = corners.map((a, i): Seg => ({ kind: 'line', a, b: corners[(i + 1) % 4]! }));
-    let best: { q: Pt; d: number } | undefined;
+    let best: { q: Pt; d: number; g: Seg } | undefined;
     for (const g of [...outline, ...drawing.segments.map((x) => segGeom(drawing, x, size))]) {
       const r = project(g, p);
-      if (r.d <= radius && (!best || r.d < best.d)) best = { q: pointAt(g, r.t), d: r.d };
+      if (r.d <= radius && (!best || r.d < best.d)) best = { q: pointAt(g, r.t), d: r.d, g };
     }
-    if (best) return { p: best.q, endpoint: norm(best.q), kind: 'seam' };
+    if (best) {
+      const onSeam = grid && project(best.g, grid).d <= 1e-6 * Math.max(w, h);
+      if (onSeam) return { p: grid!, endpoint: norm(grid!), kind: 'grid' };
+      return { p: best.q, endpoint: norm(best.q), kind: 'seam' };
+    }
   }
+  if (grid) return { p: grid, endpoint: norm(grid), kind: 'grid' };
 
   const q: Pt = [Math.min(w, Math.max(0, p[0])), Math.min(h, Math.max(0, p[1]))];
   return { p: q, endpoint: norm(q), kind: 'free' };
