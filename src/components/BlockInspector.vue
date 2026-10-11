@@ -212,6 +212,7 @@
 
     <!-- Snapping & aids -->
     <q-expansion-item
+      default-opened
       dense
       dense-toggle
       label="Snapping & graph paper"
