@@ -78,7 +78,7 @@ description: "Tasks for 005 Project Setup & Delivery Pipeline"
 ## Phase 8: Polish
 
 - [x] T031 Update `CLAUDE.md` commands section with real targets and any gotchas found
-- [ ] T032 Run full quickstart.md validation; `make check` clean; commit with `make commit`
+- [x] T032 Run full quickstart.md validation; `make check` clean; commit with `make commit`
 
 ## Dependencies
 
