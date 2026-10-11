@@ -1,5 +1,6 @@
 // Unit conversion. Only real-world lengths change; block geometry is normalized (0…1), and
 // angles, colors, and counts are unitless.
+import { produce } from 'immer';
 import type { ColoringBody } from './schema/coloring';
 import type { RrqDoc, Units } from './schema/project';
 
@@ -19,29 +20,29 @@ function scaleColoring(c: ColoringBody, k: number) {
 /** Returns a converted copy; the input is not modified. */
 export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
   const k = unitFactor(doc.units, to);
-  const out = structuredClone(doc);
-  out.units = to;
-  if (k === 1) return out;
-  const p = out.project;
-  for (const f of p.palette.fabrics) f.size = scalePair(f.size, k);
-  for (const b of p.blocks) {
-    b.size = scalePair(b.size, k);
-    for (const c of b.colorings) scaleColoring(c, k);
-  }
-  for (const q of p.quilts) {
-    if (q.layout.style === 'horizontal') {
-      q.layout.block = scalePair(q.layout.block, k);
-      q.layout.sash = scalePair(q.layout.sash, k);
+  return produce(doc, (out) => {
+    out.units = to;
+    if (k === 1) return;
+    const p = out.project;
+    for (const f of p.palette.fabrics) f.size = scalePair(f.size, k);
+    for (const b of p.blocks) {
+      b.size = scalePair(b.size, k);
+      for (const c of b.colorings) scaleColoring(c, k);
     }
-    for (const b of q.borders) b.sides = b.sides.map((s) => s * k) as typeof b.sides;
-    for (const c of Object.values(q.colorings)) scaleColoring(c, k);
-    for (const item of q.layers.flatMap((l) => l.items)) {
-      item.x *= k;
-      item.y *= k;
-      item.w *= k;
-      item.h *= k;
-      if (item.text) item.text.size *= k;
+    for (const q of p.quilts) {
+      if (q.layout.style === 'horizontal') {
+        q.layout.block = scalePair(q.layout.block, k);
+        q.layout.sash = scalePair(q.layout.sash, k);
+      }
+      for (const b of q.borders) b.sides = b.sides.map((s) => s * k) as typeof b.sides;
+      for (const c of Object.values(q.colorings)) scaleColoring(c, k);
+      for (const item of q.layers.flatMap((l) => l.items)) {
+        item.x *= k;
+        item.y *= k;
+        item.w *= k;
+        item.h *= k;
+        if (item.text) item.text.size *= k;
+      }
     }
-  }
-  return out;
+  });
 }

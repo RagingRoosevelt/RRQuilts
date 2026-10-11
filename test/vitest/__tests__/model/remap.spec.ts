@@ -68,7 +68,7 @@ const patchAt = (doc: RrqDoc, p: [number, number]) =>
 
 describe('stable ids and fills after seam edits', () => {
   it('splitting the center of a colored nine-patch keeps the other 8 patches', () => {
-    let doc = setup();
+    let doc = structuredClone(setup()); // results are frozen; copy to edit by hand
     const before = seam(doc);
     expect(before.patches).toHaveLength(9);
     // Color each patch differently in the block coloring and the quilt coloring.

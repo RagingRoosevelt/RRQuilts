@@ -2,6 +2,7 @@
 // the stored layout/border parameters; ids are derived from position (contracts/slot-ids.md).
 // Coordinates are quilt units with the origin at the top-left of the quilt center (borders are
 // at negative coordinates / beyond the center size).
+import { produce } from 'immer';
 import type { PathCommand } from '../schema/shared';
 import type { Border, Layout, Quilt, SlotContent } from '../schema/quilt';
 import { borderSlots } from './borders';
@@ -65,9 +66,10 @@ export function reconcile(quilt: Quilt, layout: Layout, borders: Border[]): Reco
 
 /** Apply a new layout/borders, keeping content in slots that still exist. Returns a copy. */
 export function applyLayout(quilt: Quilt, layout: Layout, borders: Border[]): Quilt {
-  const q = structuredClone(quilt);
-  q.layout = structuredClone(layout);
-  q.borders = structuredClone(borders);
-  q.layers[0].slots = reconcile(quilt, layout, borders).slots;
-  return q;
+  const { slots } = reconcile(quilt, layout, borders);
+  return produce(quilt, (q) => {
+    q.layout = layout;
+    q.borders = borders;
+    q.layers[0].slots = slots;
+  });
 }
