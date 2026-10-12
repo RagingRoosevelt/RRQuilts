@@ -60,6 +60,20 @@ const link = (lib: LibraryDoc, data: { id: string; version?: string; revision?: 
   derived: true,
 });
 
+/** The project's own colors a block uses (library colors are found through their library). */
+async function ownColors(doc: RrqDoc, block: Block) {
+  const used = new Set(
+    block.colorings.flatMap((c) =>
+      Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])),
+    ),
+  );
+  const own = doc.project.palette.colors.filter(
+    (c) => used.has(c.id) && !(c.source && !c.source.derived),
+  );
+  const colors = await Promise.all(own.map((c) => asLibraryData(c, c.revision ?? 1)));
+  return colors.length ? { colors } : {};
+}
+
 const findBlock = (lib: LibraryDoc, id: string) =>
   lib.items.find(
     (i): i is Extract<LibraryItem, { type: 'block' }> => i.type === 'block' && i.data.id === id,
@@ -80,7 +94,12 @@ export async function addBlock(
   const block = doc.project.blocks.find((b) => b.id === blockId);
   if (!block) return { lib, doc };
   const data = await asLibraryData(toInches(block, doc.units), 1);
-  const item: LibraryItem = { type: 'block', ...(category ? { category } : {}), data };
+  const item: LibraryItem = {
+    type: 'block',
+    ...(category ? { category } : {}),
+    data,
+    ...(await ownColors(doc, block)),
+  };
   return {
     lib: { ...lib, items: [...lib.items.filter((i) => i.data.id !== data.id), item] },
     doc: produce(doc, (d) => {
@@ -128,8 +147,14 @@ export async function syncBlock(
     { ...toInches(block, doc.units), id: item.data.id, notecard: item.data.notecard },
     (item.data.revision ?? 1) + 1,
   );
+  const next: LibraryItem = {
+    type: 'block',
+    ...(item.category ? { category: item.category } : {}),
+    data,
+    ...(await ownColors(doc, block)),
+  };
   return {
-    lib: { ...lib, items: lib.items.map((i) => (i === item ? { ...item, data } : i)) },
+    lib: { ...lib, items: lib.items.map((i) => (i === item ? next : i)) },
     doc: produce(doc, (d) => {
       d.project.blocks.find((x) => x.id === blockId)!.source = link(lib, data);
     }),
@@ -295,6 +320,16 @@ export async function setCollectionColors(lib: LibraryDoc, id: string, colors: C
   return mapItem(lib, id, () => ({ ...item, data }));
 }
 
+/** Add or replace (same id) an imported color collection, kept as the file has it (credits too). */
+export async function putCollection(lib: LibraryDoc, c: ColorCollection): Promise<LibraryDoc> {
+  const colors = await Promise.all(c.colors.map((x) => asLibraryData(x, x.revision ?? 1)));
+  const data = await asLibraryData({ ...c, colors }, c.revision ?? 1);
+  const item: LibraryItem = { type: 'colors', data };
+  return lib.items.some((i) => i.data.id === c.id)
+    ? mapItem(lib, c.id, (i) => ({ ...item, ...(i.category ? { category: i.category } : {}) }))
+    : { ...lib, items: [...lib.items, item] };
+}
+
 /** "Copy to my library" from a pack or built-in: the user's own copy, earlier work credited. */
 export async function copyToMine(
   lib: LibraryDoc,
@@ -319,7 +354,8 @@ export async function copyToMine(
           },
           1,
         );
-  const copy = { type: item.type, data } as LibraryItem;
+  const colors = item.type === 'block' && item.colors ? { colors: item.colors } : {};
+  const copy = { type: item.type, data, ...colors } as LibraryItem;
   return { ...lib, items: [...lib.items, copy] };
 }
 
@@ -342,11 +378,15 @@ export function withSources(lib: LibraryDoc) {
       : { ...x, source: { ...source(x), name: x.notecard.name } };
   const blocks: Block[] = [];
   const collections: ColorCollection[] = [];
+  const blockColors: Color[] = [];
   for (const i of lib.items) {
-    if (i.type === 'block') blocks.push(stamp(i.data));
-    else collections.push({ ...i.data, colors: i.data.colors.map(stamp) });
+    if (i.type === 'block') {
+      blocks.push(stamp(i.data));
+      blockColors.push(...(i.colors ?? []).map(stamp));
+    } else collections.push({ ...i.data, colors: i.data.colors.map(stamp) });
   }
-  return { blocks, collections, colors: collections.flatMap((c) => c.colors) };
+  // Collection colors first: they win when a block carries the same color.
+  return { blocks, collections, colors: [...collections.flatMap((c) => c.colors), ...blockColors] };
 }
 export type LibraryView = ReturnType<typeof withSources> & { doc: LibraryDoc };
 
@@ -356,7 +396,7 @@ export function lookupOf(views: readonly LibraryView[]): LibraryLookup {
   const colors = new Map<string, Color>();
   for (const v of [...views].reverse()) {
     for (const b of v.blocks) blocks.set(b.id, b);
-    for (const c of v.colors) colors.set(c.id, c);
+    for (const c of [...v.colors].reverse()) colors.set(c.id, c);
   }
   return { block: (id) => blocks.get(id), color: (id) => colors.get(id) };
 }

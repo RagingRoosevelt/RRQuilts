@@ -1,8 +1,8 @@
 // Minimal promise wrapper over IndexedDB. Any failure (blocked storage, quota, private mode)
 // surfaces as a rejected promise; callers degrade gracefully.
 const DB = 'rrquilts';
-const VERSION = 1;
-export const STORES = ['drafts', 'recent'] as const;
+const VERSION = 2;
+export const STORES = ['drafts', 'recent', 'libraries'] as const;
 export type StoreName = (typeof STORES)[number];
 
 let opening: Promise<IDBDatabase> | undefined;

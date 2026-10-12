@@ -34,7 +34,7 @@ const routes: RouteRecordRaw[] = [
     props: { title: 'Image editor' },
     meta: project,
   },
-  { path: '/libraries', component: placeholder, props: { title: 'Libraries' } },
+  { path: '/libraries', component: () => import('@/pages/LibrariesPage.vue') },
   { path: '/settings', component: () => import('@/pages/SettingsPage.vue') },
   { path: '/:catchAll(.*)*', component: () => import('@/pages/NotFoundPage.vue') },
 ];

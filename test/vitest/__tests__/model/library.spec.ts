@@ -7,6 +7,7 @@ import {
   importCollectionColors,
   parseCollectionFile,
 } from '@/model/collection-file';
+import { allPatches } from '@/model/blocks/patches';
 import { ALL_RIGHTS } from '@/model/credits';
 import {
   addBlock,
@@ -59,6 +60,19 @@ describe('My library: blocks', () => {
     const b = r.doc.project.blocks[0]!;
     expect(isLibraryItem(b)).toBe(false);
     expect(linkState(r.lib, b, 'cm')).toBe('synced');
+  });
+
+  it('carries the project colors the block uses; other projects can draw it', async () => {
+    const { doc, id } = projectWithBlock();
+    const colored = produce(withColors(doc), (d) => {
+      const b = d.project.blocks[0]!;
+      b.colorings[0]!.fills = { [allPatches(b)[0]!.id]: { color: 'jane.red' } };
+    });
+    const { lib } = await addBlock(emptyPersonal(ME), colored, id);
+    const item = lib.items[0]!;
+    expect(item.type === 'block' && item.colors?.map((c) => c.id)).toEqual(['jane.red']);
+    const view = { doc: lib, ...withSources(lib) };
+    expect(isLibraryItem(lookupOf([view]).color('jane.red')!)).toBe(true);
   });
 
   it('edit → changed → sync bumps the revision; a stale copy is a conflict', async () => {

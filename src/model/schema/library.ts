@@ -14,7 +14,13 @@ export const ColorCollection = Type.Object({ ...itemBase, colors: Type.Array(Col
 const category = { category: Type.Optional(Type.String()) };
 /** `data` is the project-schema object itself (id, notecard, author, license, credits inside). */
 export const LibraryItem = Type.Union([
-  Type.Object({ type: Type.Literal('block'), ...category, data: Block }),
+  Type.Object({
+    type: Type.Literal('block'),
+    ...category,
+    data: Block,
+    /** Colors its colorings use that aren't library colors (as in `.rrqbl`). */
+    colors: Type.Optional(Type.Array(Color)),
+  }),
   Type.Object({ type: Type.Literal('colors'), ...category, data: ColorCollection }),
 ]);
 
