@@ -75,8 +75,9 @@ Items and projects carry a license; earlier work in the chain limits the choice.
 
 1. **Given** the license picker, **Then** each option shows its name and, on a second line, its
    terms spelled out.
-2. **Given** an item with no license of its own, **Then** it uses the project license (shown as
-   "Project license (…)"); a new project's license is CC BY-SA.
+2. **Given** a new, copied, or imported item, **Then** it gets the project license at that moment
+   and keeps it when the project license changes later (items from older files without one are
+   pinned to the old project license first); a new project's license is CC BY-SA.
 3. **Given** credits (or, for a quilt, others' blocks) under a restrictive license, **Then** the
    license is locked with the reason shown: All rights reserved → All rights reserved;
    non-commercial → CC BY-NC-SA; share-alike → CC BY-SA. Public domain, CC0, and CC BY sources leave
@@ -95,10 +96,10 @@ Items and projects carry a license; earlier work in the chain limits the choice.
   each `{ author?, name?, license?, library? }`); projects MAY carry `author`, `notes`, `license`.
   None affect an item's version hash.
 - **FR-002**: Copying, or changing the drawing of, a block whose author isn't the user MUST append
-  the previous author to `credits` and set the user as author; the item's own license is cleared
-  (it follows the lock or the project license).
-- **FR-003**: The effective license is: chain lock (FR-004) → the item's license → the project
-  license → CC BY-SA.
+  the previous author to `credits` and set the user as author; the item's license resets to the
+  project license (the lock may override it).
+- **FR-003**: The effective license is: chain lock (FR-004) → the item's license (set on creation,
+  copy, and import) → the project license (older items only) → CC BY-SA.
 - **FR-004**: Lock = strictest of the credits' licenses (blocks), plus others' blocks' effective
   licenses and their credits (quilts): All rights reserved > non-commercial > share-alike > free.
 - **FR-005**: Details tabs per US2; edits are one undo step each (typing coalesced).
