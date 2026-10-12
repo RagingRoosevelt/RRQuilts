@@ -12,6 +12,8 @@ export interface Settings {
   author: string;
   /** The author name has been asked for once. */
   authorAsked: boolean;
+  /** Labels of inspector sections the user collapsed. */
+  collapsedSections: string[];
   // Keys added by later app versions are kept as-is.
   [key: string]: unknown;
 }
@@ -39,6 +41,7 @@ export const defaults = (): Settings => ({
   hintsDismissed: [],
   author: '',
   authorAsked: false,
+  collapsedSections: [],
 });
 
 const validators: Partial<Record<string, (v: unknown) => boolean>> = {
@@ -47,6 +50,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   hintsDismissed: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   author: (v) => typeof v === 'string' && v.length <= 100,
   authorAsked: (v) => typeof v === 'boolean',
+  collapsedSections: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
 };
 
 const isObject = (v: unknown): v is Record<string, unknown> =>

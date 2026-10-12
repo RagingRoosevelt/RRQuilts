@@ -76,7 +76,8 @@
     <!-- Selection -->
     <div v-if="tool === 'select' && selection.size && !readonly" class="column" style="gap: 8px">
       <q-expansion-item
-        default-opened
+        :model-value="open('Selection')"
+        @update:model-value="(v) => setOpen('Selection', v)"
         dense
         label="Selection"
         :caption="`${selection.size} seam${selection.size > 1 ? 's' : ''} selected`"
@@ -124,7 +125,8 @@
         </div>
       </q-expansion-item>
       <q-expansion-item
-        default-opened
+        :model-value="open('Rotate')"
+        @update:model-value="(v) => setOpen('Rotate', v)"
         dense
         label="Rotate"
         class="op-section"
@@ -168,7 +170,8 @@
         </div>
       </q-expansion-item>
       <q-expansion-item
-        default-opened
+        :model-value="open('Flip')"
+        @update:model-value="(v) => setOpen('Flip', v)"
         dense
         label="Flip"
         class="op-section"
@@ -189,7 +192,8 @@
         </div>
       </q-expansion-item>
       <q-expansion-item
-        default-opened
+        :model-value="open('Scale')"
+        @update:model-value="(v) => setOpen('Scale', v)"
         dense
         label="Scale"
         class="op-section"
@@ -221,7 +225,8 @@
         </div>
       </q-expansion-item>
       <q-expansion-item
-        default-opened
+        :model-value="open('Add nodes')"
+        @update:model-value="(v) => setOpen('Add nodes', v)"
         dense
         label="Add nodes"
         class="op-section"
@@ -285,7 +290,8 @@
 
     <!-- Snapping & aids -->
     <q-expansion-item
-      default-opened
+      :model-value="open('Snapping & graph paper')"
+      @update:model-value="(v) => setOpen('Snapping & graph paper', v)"
       dense
       label="Snapping & graph paper"
       class="op-section"
@@ -390,6 +396,7 @@ import { attribution, type BlockEditorSettings, type SelectionOp } from '@/edito
 import type { SnapSettings } from '@/editor/snap';
 import type { SeamBlock } from '@/model/schema/block';
 import { useEditorStore, type BlockTool } from '@/stores/editor';
+import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
   block: SeamBlock;
@@ -407,6 +414,13 @@ const emit = defineEmits<{
 }>();
 
 const editor = useEditorStore();
+const app = useSettingsStore();
+// Collapsed sections are remembered app-wide (by label).
+const open = (label: string) => !app.settings.collapsedSections.includes(label);
+function setOpen(label: string, value: boolean) {
+  const rest = app.settings.collapsedSections.filter((l) => l !== label);
+  app.settings.collapsedSections = value ? rest : [...rest, label];
+}
 const about = ref<'block' | 'selection'>('block');
 const angle = ref(45);
 const pct = ref(50);
