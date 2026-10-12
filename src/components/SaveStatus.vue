@@ -1,20 +1,13 @@
 <template>
-  <div v-if="project.isOpen" class="row items-center no-wrap q-gutter-sm">
-    <q-badge rounded :color="look.color" class="q-pa-xs" />
-    <span class="text-caption gt-xs">{{ look.label }}</span>
-    <q-btn
-      v-if="!project.readOnly"
-      flat
-      dense
-      no-caps
-      icon="save"
-      label="Save"
-      :loading="saving"
-      @click="save(false)"
-    >
-      <q-tooltip>Save (Ctrl+S) · Save as (Ctrl+Shift+S)</q-tooltip>
+  <template v-if="project.isOpen">
+    <q-icon v-if="project.readOnly" name="lock" size="sm" class="q-mx-sm">
+      <q-tooltip>{{ look.label }}</q-tooltip>
+    </q-icon>
+    <q-btn v-else flat round icon="save" :loading="saving" aria-label="Save" @click="save(false)">
+      <q-badge floating rounded :color="look.color" class="status-dot" />
+      <q-tooltip>{{ look.label }} · Save (Ctrl+S) · Save as (Ctrl+Shift+S)</q-tooltip>
     </q-btn>
-  </div>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -70,3 +63,13 @@ function onKey(e: KeyboardEvent) {
 onMounted(() => window.addEventListener('keydown', onKey));
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 </script>
+
+<style scoped>
+.status-dot {
+  top: 6px;
+  right: 6px;
+  padding: 5px;
+  min-height: 0;
+  border: 2px solid var(--q-primary);
+}
+</style>

@@ -2,18 +2,42 @@
   <q-layout view="hHh lpR fFf">
     <q-header bordered>
       <q-toolbar>
-        <q-toolbar-title class="row items-center no-wrap q-gutter-sm">
-          <router-link to="/" class="text-inherit no-decoration">RRQuilts</router-link>
-          <router-link
-            v-if="project.doc"
-            to="/project"
-            class="text-inherit no-decoration text-subtitle1 ellipsis"
-          >
-            · {{ project.doc.project.name }}
-          </router-link>
-        </q-toolbar-title>
+        <q-btn-dropdown
+          v-if="$q.screen.xs"
+          flat
+          no-caps
+          :icon="current.icon"
+          :label="current.label"
+          aria-label="Go to"
+        >
+          <q-list>
+            <q-item
+              v-for="n in nav"
+              :key="n.to"
+              v-close-popup
+              clickable
+              :to="n.to"
+              :active="n === current"
+            >
+              <q-item-section avatar><q-icon :name="n.icon" /></q-item-section>
+              <q-item-section>{{ n.label }}</q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
+        <template v-else>
+          <q-btn
+            v-for="n in nav"
+            :key="n.to"
+            flat
+            no-caps
+            :icon="n.icon"
+            :label="n.label"
+            :to="n.to"
+            :class="{ 'nav-active': n === current }"
+          />
+        </template>
+        <q-space />
         <SaveStatus />
-        <q-btn flat round icon="collections_bookmark" to="/libraries" aria-label="Libraries" />
         <q-btn flat round icon="settings" to="/settings" aria-label="Settings" />
       </q-toolbar>
       <q-banner v-if="project.readOnly" dense class="bg-grey-3 text-dark">
@@ -43,13 +67,26 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import SaveStatus from '@/components/SaveStatus.vue';
 import { useProjectStore } from '@/stores/project';
 
 const $q = useQuasar();
 const project = useProjectStore();
 const taking = ref(false);
+const route = useRoute();
+
+const HOME = { to: '/', icon: 'home', label: 'RRQuilts' };
+const nav = computed(() => [
+  HOME,
+  ...(project.isOpen ? [{ to: '/project', icon: 'grid_view', label: 'Project' }] : []),
+  { to: '/libraries', icon: 'collections_bookmark', label: 'Libraries' },
+]);
+// Settings and unknown pages show Home in the compact menu.
+const current = computed(
+  () => nav.value.find((n) => n !== HOME && route.path.startsWith(n.to)) ?? HOME,
+);
 
 // Undo/redo everywhere except while typing in a field (fields keep their own undo).
 function onKey(e: KeyboardEvent) {
@@ -80,3 +117,9 @@ async function continueHere() {
   }
 }
 </script>
+
+<style scoped>
+.nav-active {
+  background: rgba(255, 255, 255, 0.15);
+}
+</style>
