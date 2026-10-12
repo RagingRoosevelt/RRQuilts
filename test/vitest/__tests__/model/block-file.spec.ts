@@ -4,6 +4,7 @@ import {
   importBlock,
   importProjectBlocks,
   parseBlockFile,
+  projectBlockChoices,
   serializeBlock,
 } from '@/model/block-file';
 import { createProject } from '@/model/new-project';
@@ -58,12 +59,16 @@ describe('.rrqb block files', () => {
       d.project.author = 'Jane Doe';
     });
     const into = createProject('dst', 'cm');
-    const r = importProjectBlocks(into, from, 'Sam', (id) => id.startsWith('rrquilts.'));
+    const skip = (id: string) => id.startsWith('rrquilts.');
+    const choices = projectBlockChoices(into, from, skip);
+    expect(choices.map((c) => [c.block.id, c.here])).toEqual([[mine.id, false]]);
+    const r = importProjectBlocks(into, from, 'Sam', [mine.id]);
     expect(r.added).toBe(1);
     expect(r.doc.project.blocks.map((b) => [b.id, b.size[0]])).toEqual([[mine.id, 25.4]]);
     expect(r.doc.project.quilts).toHaveLength(0);
-    expect(importProjectBlocks(r.doc, from, 'Sam', () => true).added).toBe(0); // already there
-    expect(importProjectBlocks(into, from, 'Sam').added).toBe(14); // starter blocks too
+    expect(projectBlockChoices(r.doc, from, skip)[0]!.here).toBe(true); // already there
+    expect(projectBlockChoices(into, from)).toHaveLength(14); // starter blocks too
+    expect(importProjectBlocks(into, from, 'Sam', []).added).toBe(0); // only what's picked
   });
 
   it('rejects other files and damaged blocks', () => {

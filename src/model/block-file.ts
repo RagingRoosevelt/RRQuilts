@@ -135,22 +135,36 @@ export function importBlock(
   return { doc: next, blockId: block.id };
 }
 
+const fileFor = (b: Block, from: RrqDoc) =>
+  blockFile(b, from.units, from.project.palette.colors, from.project.author ?? '');
+
 /**
- * Import every block of another (already parsed) project, nothing else, as if each were a `.rrqb`.
- * Blocks from a library the user already has (`skip`) are left out. Returns how many were added.
+ * Blocks of another (already parsed) project that could be imported, and whether each is already
+ * here unchanged. Blocks from a library the user already has (`skip`) are left out.
  */
+export function projectBlockChoices(
+  doc: RrqDoc,
+  from: RrqDoc,
+  skip: (id: string) => boolean = () => false,
+) {
+  return from.project.blocks
+    .filter((b) => !b.notecard.tags?.includes('system') && !(isLibraryItem(b) && skip(b.id)))
+    .map((block) => ({ block, here: importBlock(doc, fileFor(block, from), '').doc === doc }));
+}
+
+/** Import the chosen blocks (`ids`) of another project, nothing else, as if each were a `.rrqb`. */
 export function importProjectBlocks(
   doc: RrqDoc,
   from: RrqDoc,
   me: string,
-  skip: (id: string) => boolean = () => false,
+  ids: Iterable<string>,
 ): { doc: RrqDoc; added: number } {
+  const chosen = new Set(ids);
   let next = doc;
   let added = 0;
   for (const b of from.project.blocks) {
-    if (b.notecard.tags?.includes('system') || (isLibraryItem(b) && skip(b.id))) continue;
-    const file = blockFile(b, from.units, from.project.palette.colors, from.project.author ?? '');
-    const r = importBlock(next, file, me);
+    if (!chosen.has(b.id)) continue;
+    const r = importBlock(next, fileFor(b, from), me);
     if (r.doc !== next) added++;
     next = r.doc;
   }

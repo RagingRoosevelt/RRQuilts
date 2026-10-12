@@ -305,6 +305,54 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog :model-value="!!picking" @update:model-value="picking = null">
+      <q-card v-if="picking" style="width: 640px; max-width: 95vw">
+        <q-card-section>
+          <div class="text-h6">Import blocks from "{{ picking.from.project.name }}"</div>
+          <div class="text-caption text-grey-7">Pick the blocks to add to My blocks.</div>
+        </q-card-section>
+        <q-card-section class="q-pt-none picks">
+          <button
+            v-for="c in picking.choices"
+            :key="c.block.id"
+            class="pick"
+            :class="{ active: picking.picked.includes(c.block.id) }"
+            :disabled="c.here"
+            @click="togglePick(c.block.id)"
+          >
+            <img :src="blockThumbnail(picking.from, c.block, 96, $q.dark.isActive)" alt="" />
+            <q-checkbox
+              :model-value="c.here || picking.picked.includes(c.block.id)"
+              :disable="c.here"
+              dense
+              size="xs"
+              :label="c.block.notecard.name"
+              class="text-caption"
+              @update:model-value="togglePick(c.block.id)"
+              @click.stop
+            />
+            <div v-if="c.here" class="text-caption text-grey-7">Already here</div>
+          </button>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            no-caps
+            label="All"
+            @click="picking.picked = picking.choices.filter((c) => !c.here).map((c) => c.block.id)"
+          />
+          <q-btn flat no-caps label="None" @click="picking.picked = []" />
+          <q-btn v-close-popup flat no-caps label="Cancel" />
+          <q-btn
+            color="primary"
+            no-caps
+            :label="`Import ${picking.picked.length}`"
+            :disable="!picking.picked.length"
+            @click="importPicked"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-dialog :model-value="!!inUseDialog" @update:model-value="inUseDialog = null">
       <q-card v-if="inUseDialog" style="width: 420px; max-width: 95vw">
         <q-card-section>
@@ -367,9 +415,11 @@ import {
   importBlock,
   importProjectBlocks,
   parseBlockFile,
+  projectBlockChoices,
   serializeBlock,
 } from '@/model/block-file';
 import { parseProject } from '@/model/io';
+import type { RrqDoc } from '@/model/schema/project';
 import {
   isLibraryItem,
   splitItems,
@@ -560,7 +610,13 @@ async function importBlockFile(e: Event) {
   $q.notify({ type: 'positive', message: `Imported "${r.file.block.notecard.name}".` });
 }
 
-/** Every block of another project file, nothing else (one undo step). */
+/** Another project's blocks to pick from; only the picked ones come in (one undo step). */
+const picking = ref<{
+  from: RrqDoc;
+  choices: ReturnType<typeof projectBlockChoices>;
+  picked: string[];
+} | null>(null);
+
 async function importProjectBlocksFile(e: Event) {
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -571,20 +627,32 @@ async function importProjectBlocksFile(e: Event) {
     $q.notify({ type: 'negative', message: r.error });
     return;
   }
-  const res = importProjectBlocks(
-    project.doc!,
-    r.doc,
-    settings.settings.author,
-    (id) => !!library.lookup.block(id),
-  );
-  if (!res.added) {
-    $q.notify({ message: 'No new blocks in that project.' });
+  const choices = projectBlockChoices(project.doc!, r.doc, (id) => !!library.lookup.block(id));
+  if (!choices.some((c) => !c.here)) {
+    $q.notify({ message: `No new blocks in "${r.doc.project.name}".` });
     return;
   }
+  picking.value = {
+    from: r.doc,
+    choices,
+    picked: choices.filter((c) => !c.here).map((c) => c.block.id),
+  };
+}
+
+function togglePick(id: string) {
+  const p = picking.value!;
+  p.picked = p.picked.includes(id) ? p.picked.filter((x) => x !== id) : [...p.picked, id];
+}
+
+function importPicked() {
+  const p = picking.value!;
+  picking.value = null;
+  const res = importProjectBlocks(project.doc!, p.from, settings.settings.author, p.picked);
+  if (!res.added) return;
   project.change(() => res.doc);
   $q.notify({
     type: 'positive',
-    message: `Imported ${res.added} block${res.added > 1 ? 's' : ''} from "${r.doc.project.name}" (undo removes them).`,
+    message: `Imported ${res.added} block${res.added > 1 ? 's' : ''} from "${p.from.project.name}" (undo removes ${res.added > 1 ? 'them' : 'it'}).`,
   });
 }
 
@@ -683,6 +751,37 @@ function showPlacements() {
 </script>
 
 <style scoped>
+.picks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  max-height: 60vh;
+  overflow: auto;
+}
+.pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 2px solid rgba(128, 128, 128, 0.3);
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  min-width: 0;
+}
+.pick.active {
+  border-color: var(--q-primary);
+}
+.pick:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.pick img {
+  width: 96px;
+  height: 96px;
+}
 .revision {
   text-decoration: underline dotted;
   cursor: help;
