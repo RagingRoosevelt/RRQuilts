@@ -279,8 +279,7 @@ function applyDrawing(drawing: Drawing, editorPatch?: Partial<BlockEditorSetting
 function rename(name: string) {
   if (name.trim())
     project.change(
-      (d) =>
-        void (d.project.blocks.find((b) => b.id === block.value!.id)!.notecard.name = name.trim()),
+      (d) => void (d.project.blocks.find((b) => b.id === block.value!.id)!.notecard.name = name),
       { coalesce: 'block-name' },
     );
 }

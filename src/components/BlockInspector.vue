@@ -8,8 +8,8 @@
         outlined
         label="Block name"
         :readonly="readonly"
-        debounce="300"
         @update:model-value="(v) => emit('rename', String(v ?? ''))"
+        @blur="(e: Event) => emit('rename', (e.target as HTMLInputElement).value.trim())"
       />
       <div class="row no-wrap" style="gap: 8px">
         <LengthInput

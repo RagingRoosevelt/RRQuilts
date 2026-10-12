@@ -6,17 +6,18 @@ const lockName = (id: string) => `rrq-edit:${id}`;
 const supported = () => typeof navigator !== 'undefined' && !!navigator.locks;
 
 export interface HeldLock {
-  release(): void;
+  /** Resolves once the lock is actually free (re-acquiring before then fails). */
+  release(): Promise<void>;
 }
 
 type Message = { type: 'flush' | 'flushed'; projectId: string };
 
 /** Hold the lock; resolves null if another tab has it (unless `steal`). `onLost` fires if stolen. */
 function hold(projectId: string, steal: boolean, onLost: () => void): Promise<HeldLock | null> {
-  if (!supported()) return Promise.resolve({ release() {} });
+  if (!supported()) return Promise.resolve({ release: () => Promise.resolve() });
   return new Promise((resolve) => {
     let release: (() => void) | undefined;
-    navigator.locks
+    const settled = navigator.locks
       .request(lockName(projectId), steal ? { steal: true } : { ifAvailable: true }, (lock) => {
         if (!lock) {
           resolve(null);
@@ -24,7 +25,12 @@ function hold(projectId: string, steal: boolean, onLost: () => void): Promise<He
         }
         return new Promise<void>((done) => {
           release = done;
-          resolve({ release: done });
+          resolve({
+            release: () => {
+              done();
+              return settled;
+            },
+          });
         });
       })
       .catch(() => {

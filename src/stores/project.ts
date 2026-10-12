@@ -101,7 +101,7 @@ export const useProjectStore = defineStore('project', () => {
     next: RrqDoc,
     opts: { handle?: FileSystemFileHandle | null; saved: boolean; dirty: boolean },
   ) {
-    close();
+    await close();
     doc.value = freeze(next, true);
     handle.value = opts.handle ?? null;
     savedOnce.value = opts.saved;
@@ -294,15 +294,16 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /** Close the open project. Unsaved work stays in its draft for restoring later. */
-  function close() {
+  function close(): Promise<void> {
     history.clear();
     syncHistory();
     autosave.dispose();
-    lock?.release();
+    const released = lock?.release() ?? Promise.resolve();
     lock = null;
     doc.value = null;
     handle.value = null;
     mismatches.value = [];
+    return released;
   }
 
   // Never lose more than a moment of work when the tab goes away.

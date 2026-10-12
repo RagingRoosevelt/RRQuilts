@@ -7,9 +7,9 @@
         borderless
         input-class="text-h6"
         :readonly="project.readOnly"
-        debounce="300"
         aria-label="Project name"
         @update:model-value="rename"
+        @blur="(e: Event) => rename((e.target as HTMLInputElement).value.trim())"
       />
     </div>
     <q-tabs v-model="tab" dense no-caps align="left">
@@ -236,8 +236,12 @@
             {{ previewBlock.size.join(' × ') }} {{ project.doc.units }} ·
             {{ patchCount(previewBlock) }} patches
             <template v-if="previewBlock.revision">
-              · revision {{ previewBlock.revision }}</template
-            >
+              ·
+              <span class="revision"
+                >revision {{ previewBlock.revision }}
+                <q-tooltip>{{ previewBlock.id }}@{{ previewBlock.version ?? '—' }}</q-tooltip>
+              </span>
+            </template>
           </div>
         </q-card-section>
         <img :src="thumb(previewBlock, 560)" style="width: 100%; display: block" alt="" />
@@ -383,8 +387,8 @@ const inUse = (id: string) => quiltsUsing(id).length > 0;
 const patchCount = (b: Block) => allPatches(b).length;
 
 function rename(value: string | number | null) {
-  const name = String(value ?? '').trim();
-  if (name) project.change((d) => void (d.project.name = name), { coalesce: 'rename' });
+  const name = String(value ?? '');
+  if (name.trim()) project.change((d) => void (d.project.name = name), { coalesce: 'rename' });
 }
 
 function quiltsUsing(id: string) {
@@ -609,6 +613,10 @@ function showPlacements() {
 </script>
 
 <style scoped>
+.revision {
+  text-decoration: underline dotted;
+  cursor: help;
+}
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));

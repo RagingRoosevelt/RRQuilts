@@ -6,9 +6,20 @@
       dense
       outlined
       :readonly="ro"
-      debounce="300"
       @update:model-value="(v) => set('name', v)"
+      @blur="(e: Event) => set('name', (e.target as HTMLInputElement).value, true)"
     />
+    <div
+      v-if="kind === 'block' && target"
+      class="text-caption text-grey-7"
+      style="margin-top: -8px"
+    >
+      <span v-if="target.revision" class="revision"
+        >Revision {{ target.revision }}
+        <q-tooltip>{{ target.id }}@{{ target.version }}</q-tooltip>
+      </span>
+      <span v-else>Not saved yet (revision 1 on first save)</span>
+    </div>
     <q-input
       :model-value="item.author ?? ''"
       label="Author"
@@ -16,13 +27,13 @@
       dense
       outlined
       :readonly="ro"
-      debounce="300"
       :hint="
         credits.length
           ? 'Whoever made this version. Earlier contributors stay credited below.'
           : undefined
       "
       @update:model-value="(v) => set('author', v)"
+      @blur="(e: Event) => set('author', (e.target as HTMLInputElement).value, true)"
     />
     <q-select
       :model-value="current"
@@ -71,8 +82,8 @@
       dense
       outlined
       :readonly="ro"
-      debounce="300"
       @update:model-value="(v) => set('notes', v)"
+      @blur="(e: Event) => set('notes', (e.target as HTMLInputElement).value, true)"
     />
 
     <template v-if="credits.length">
@@ -197,9 +208,11 @@ function setUnits(units: Units) {
 }
 
 type Field = 'name' | 'notes' | 'author' | 'license';
-function set(field: Field, raw: string | number | null) {
-  const value = String(raw ?? '').trim();
-  if (field === 'name' && !value) return;
+/** Typing keeps spaces as typed; leaving the field (`final`) trims them. */
+function set(field: Field, raw: string | number | null, final = false) {
+  const text = String(raw ?? '');
+  if (field === 'name' && !text.trim()) return;
+  const value = text.trim() ? (final ? text.trim() : text) : '';
   project.change(
     (d) => {
       const p = d.project;
@@ -236,3 +249,10 @@ function set(field: Field, raw: string | number | null) {
   );
 }
 </script>
+
+<style scoped>
+.revision {
+  text-decoration: underline dotted;
+  cursor: help;
+}
+</style>
