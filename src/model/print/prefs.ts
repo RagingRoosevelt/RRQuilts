@@ -1,0 +1,117 @@
+// Print preferences (app settings, spec 010). Values that differ by unit system are kept per system
+// and in that system's units: inches for `in`, centimeters for `cm`.
+import type { Units } from '../schema/project';
+
+export type PaperId = 'letter' | 'a4' | 'a0';
+export type BlockSection = 'templates' | 'rotary' | 'picture';
+export type QuiltSection = 'picture' | 'yardage' | 'rotary';
+
+const perUnits = <T>(inches: T, cm: T) => ({ in: inches, cm });
+
+export const PRINT_DEFAULTS = {
+  paper: perUnits<PaperId>('letter', 'a4'),
+  landscape: false,
+  seam: perUnits(0.25, 0.75),
+  /** Rounding step for cut sizes; 0 = exact. */
+  rounding: perUnits(0.125, 0.5),
+  width: perUnits('42', '110'),
+  /** Fabric rounding step: ⅛ yd = 4.5″; 10 cm. */
+  fabricStep: perUnits(4.5, 10),
+  overhang: perUnits(4, 10),
+  bindingWidth: perUnits(2.5, 6),
+  cutLine: 'solid' as 'solid' | 'dashed',
+  sewLine: 'dashed' as 'dashed' | 'dotted' | 'solid' | 'none',
+  grain: true,
+  lineWeight: 'thin' as 'thin' | 'medium' | 'thick',
+  mirror: false,
+  outline: false,
+  blockSections: ['templates', 'rotary'] as BlockSection[],
+  quiltSections: ['picture', 'yardage', 'rotary'] as QuiltSection[],
+};
+export type PrintPrefs = typeof PRINT_DEFAULTS;
+
+const isObj = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
+
+/** `raw` over `def`, keeping only values of the same type (settings are untrusted). */
+function mergeLike<T>(def: T, raw: unknown): T {
+  if (isObj(def)) {
+    if (!isObj(raw)) return def;
+    const out: Record<string, unknown> = {};
+    for (const k of Object.keys(def)) out[k] = mergeLike(def[k], raw[k]);
+    return out as T;
+  }
+  if (Array.isArray(def))
+    return (Array.isArray(raw) && raw.every((x) => typeof x === 'string') ? raw : def) as T;
+  return (typeof raw === typeof def ? raw : def) as T;
+}
+
+export const printPrefs = (raw: unknown): PrintPrefs => mergeLike(PRINT_DEFAULTS, raw);
+
+export const PAPERS: Record<Units, { id: PaperId; label: string }[]> = {
+  in: [
+    { id: 'letter', label: 'Letter (8½ × 11 in)' },
+    { id: 'a0', label: 'A0 (copy shop, 33.1 × 46.8 in)' },
+  ],
+  cm: [
+    { id: 'a4', label: 'A4 (21 × 29.7 cm)' },
+    { id: 'a0', label: 'A0 (copy shop, 84.1 × 118.9 cm)' },
+  ],
+};
+/** Paper size in millimeters, portrait. */
+export const PAPER_MM: Record<PaperId, [number, number]> = {
+  letter: [215.9, 279.4],
+  a4: [210, 297],
+  a0: [841, 1189],
+};
+
+export interface WidthOption {
+  id: string;
+  label: string;
+  /** Usable width across the fabric (project units). */
+  usable: number;
+  fatQuarter?: { depth: number };
+}
+export const WIDTHS: Record<Units, WidthOption[]> = {
+  in: [
+    { id: '42', label: '42″ (40″ usable)', usable: 40 },
+    { id: '44', label: '44″ (42″ usable)', usable: 42 },
+    { id: '60', label: '60″ (58″ usable)', usable: 58 },
+    { id: 'fq', label: 'Fat quarters (18″ × 21″)', usable: 20, fatQuarter: { depth: 18 } },
+  ],
+  cm: [
+    { id: '110', label: '110 cm (105 cm usable)', usable: 105 },
+    { id: '150', label: '150 cm (145 cm usable)', usable: 145 },
+    { id: 'fq', label: 'Fat quarters (50 × 55 cm)', usable: 53, fatQuarter: { depth: 50 } },
+  ],
+};
+
+export const ROUNDINGS: Record<Units, { value: number; label: string }[]> = {
+  in: [
+    { value: 0.125, label: '⅛″' },
+    { value: 0.0625, label: '1/16″' },
+    { value: 0, label: 'None' },
+  ],
+  cm: [
+    { value: 0.5, label: '5 mm' },
+    { value: 0.1, label: '1 mm' },
+    { value: 0, label: 'None' },
+  ],
+};
+
+export const FABRIC_STEPS: Record<Units, { value: number; label: string }[]> = {
+  in: [
+    { value: 4.5, label: '⅛ yd' },
+    { value: 9, label: '¼ yd' },
+    { value: 18, label: '½ yd' },
+  ],
+  cm: [
+    { value: 10, label: '10 cm' },
+    { value: 20, label: '20 cm' },
+    { value: 45, label: '45 cm' },
+  ],
+};
+
+/** The chosen option, falling back to the first when the stored id isn't offered. */
+export const pick = <T extends { id: string }>(list: T[], id: string) =>
+  list.find((x) => x.id === id) ?? list[0]!;

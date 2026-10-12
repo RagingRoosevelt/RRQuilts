@@ -14,6 +14,8 @@ export interface Settings {
   authorAsked: boolean;
   /** Labels of inspector sections the user collapsed. */
   collapsedSections: string[];
+  /** Print preferences (spec 010), merged with defaults where used (`printPrefs`). */
+  print: Record<string, unknown>;
   // Keys added by later app versions are kept as-is.
   [key: string]: unknown;
 }
@@ -42,6 +44,7 @@ export const defaults = (): Settings => ({
   author: '',
   authorAsked: false,
   collapsedSections: [],
+  print: {},
 });
 
 const validators: Partial<Record<string, (v: unknown) => boolean>> = {
@@ -50,6 +53,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   hintsDismissed: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   author: (v) => typeof v === 'string' && v.length <= 100,
   authorAsked: (v) => typeof v === 'boolean',
+  print: (v) => isObject(v),
   collapsedSections: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
 };
 

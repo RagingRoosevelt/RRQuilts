@@ -120,6 +120,14 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   (origin first); copying/editing others' work (`creditCopy`) appends the previous author. Chain
   locks the license (ARR > NC > SA). `components/DetailsPanel.vue` = Details tab (project/quilt/block)
 
+## Printing (spec 010)
+
+- `src/model/print/` (framework-free): `pieces.ts` (block/quilt pieces, lettered templates),
+  `rotary.ts` (cut sizes, strip plans), `yardage.ts`, `pack.ts`, `polygon.ts`, `format.ts`,
+  `prefs.ts` (print prefs in app settings `print`, merged with defaults)
+- `components/PrintOptions.vue` (Print tabs) → `/project/print/:kind/:id` → `pages/PrintPage.vue`
+  (sheets at true size in SVG, `@page` injected, browser print / Save as PDF)
+
 ## Block editor (spec 007)
 
 - `src/editor/draw-ops.ts` — pure seam-line operations on a `Drawing` (normalized coords; design

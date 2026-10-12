@@ -54,6 +54,23 @@ export function quiltPieces(doc: RrqDoc, quilt: Quilt, blockId?: string): Piece[
   });
 }
 
+/** A template laid out for printing, in its own box (0…w, 0…h), project units. */
+export interface PlacedPiece {
+  key: string;
+  letter: string;
+  /** Cutting line and sewing line. */
+  cut: Pt[];
+  sew: Pt[];
+  center: Pt;
+  /** Grain direction (unit vector) and arrow length. */
+  grain: Pt;
+  grainLength: number;
+  note: string;
+  x: number;
+  y: number;
+  w: number;
+}
+
 export interface Template {
   letter: string;
   /** Outline of the first such piece. */

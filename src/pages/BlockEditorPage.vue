@@ -71,9 +71,12 @@
       </div>
 
       <div class="inspector q-pa-md scroll">
-        <div v-if="editor.blockMode === 'print'" class="text-grey-7">
-          Printing templates is coming in a later version.
-        </div>
+        <PrintOptions
+          v-if="editor.blockMode === 'print'"
+          kind="block"
+          :id="block.id"
+          :coloring-id="coloringId"
+        />
         <DetailsPanel v-else-if="editor.blockMode === 'details'" kind="block" :id="block.id" />
         <BlockInspector
           v-else-if="editor.blockMode === 'draw'"
@@ -152,6 +155,7 @@ import BlockCanvas from '@/components/BlockCanvas.vue';
 import BlockInspector from '@/components/BlockInspector.vue';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
+import PrintOptions from '@/components/PrintOptions.vue';
 import {
   deleteColoring,
   editorSettings,
