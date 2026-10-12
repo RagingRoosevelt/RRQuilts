@@ -73,7 +73,7 @@
   - Thumbnails via `blockThumbnail(emptyDoc, …)` with all library colors.
 - `SketchbookPage.vue`: Library section grouped by library; block menu "Add to my library…"
   (category) / "Sync to my library" (+ icon) / "Copy to my library" on pack items; Fabrics & Colors:
-  select own colors → "Save to my library…" / "Add to collection…"; Import `.rrqcc` there.
+  select own colors → "Save to my library…" / "Add to library collection…"; Import `.rrqcc` there.
 - `PaletteTray.vue`: library colors grouped by collection; library colors get "Edit a copy…" (linked
   copy) so color changes can sync back.
 - Dialogs: Backup (checkboxes), Restore (merge/replace My library; keep/replace each same-id pack),

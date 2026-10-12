@@ -280,7 +280,7 @@
           dense
           no-caps
           icon="playlist_add"
-          label="Add to collection…"
+          label="Add to library collection…"
           :disable="!pickedColors.length || !myCollections.length"
           @click="addToCollectionDialog"
         />
@@ -834,7 +834,7 @@ async function saveCollectionNamed(name: string) {
 
 function addToCollectionDialog() {
   $q.dialog({
-    title: 'Add to collection',
+    title: 'Add to library collection',
     options: {
       type: 'radio',
       model: myCollections.value[0]!.id,

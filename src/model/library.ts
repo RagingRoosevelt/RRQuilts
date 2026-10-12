@@ -215,7 +215,7 @@ async function nextCollection(c: ColorCollection, colors: Color[]) {
   return asLibraryData({ ...c, colors }, (c.revision ?? 1) + 1);
 }
 
-/** "Add to collection": the chosen colors join it (its next version); they stay linked. */
+/** "Add to library collection": the chosen colors join it (its next version); they stay linked. */
 export async function addToCollection(
   lib: LibraryDoc,
   doc: RrqDoc,
