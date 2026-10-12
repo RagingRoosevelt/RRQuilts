@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { download, fileNameFor, saveWithPicker, supportsFileAccess } from '@/storage/files';
+import { download, fileNameFor, pickSaveHandle, supportsFileAccess } from '@/storage/files';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -28,25 +28,20 @@ describe('file saving', () => {
     expect(blob?.size).toBe(16);
   });
 
-  it('writes through the picked handle and returns it; cancel returns null', async () => {
-    const written: string[] = [];
-    const handle = {
-      createWritable: () =>
-        Promise.resolve({
-          write: (t: string) => (written.push(t), Promise.resolve()),
-          close: () => Promise.resolve(),
-        }),
-    } as unknown as FileSystemFileHandle;
+  it('asks where to save (name-only type label); cancel returns null', async () => {
+    const handle = {} as FileSystemFileHandle;
     window.showSaveFilePicker = vi.fn(() => Promise.resolve(handle));
-    expect(await saveWithPicker('Sampler', 'TEXT')).toBe(handle);
-    expect(written).toEqual(['TEXT']);
+    expect(await pickSaveHandle('Sampler')).toBe(handle);
     expect(window.showSaveFilePicker).toHaveBeenCalledWith(
-      expect.objectContaining({ suggestedName: 'Sampler.rrq' }),
+      expect.objectContaining({
+        suggestedName: 'Sampler.rrq',
+        types: [{ description: 'RRQuilts project file', accept: { 'application/json': ['.rrq'] } }],
+      }),
     );
 
     window.showSaveFilePicker = vi.fn(() =>
       Promise.reject(new DOMException('cancel', 'AbortError')),
     );
-    expect(await saveWithPicker('Sampler', 'TEXT')).toBeNull();
+    expect(await pickSaveHandle('Sampler')).toBeNull();
   });
 });

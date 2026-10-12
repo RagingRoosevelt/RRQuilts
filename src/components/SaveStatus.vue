@@ -3,7 +3,15 @@
     <q-icon v-if="project.readOnly" name="lock" size="sm" class="q-mx-sm">
       <q-tooltip>{{ look.label }}</q-tooltip>
     </q-icon>
-    <q-btn v-else flat round icon="save" :loading="saving" aria-label="Save" @click="save(false)">
+    <q-btn
+      v-else
+      flat
+      round
+      icon="save"
+      :loading="project.writing"
+      aria-label="Save"
+      @click="save(false)"
+    >
       <q-badge floating rounded :color="look.color" class="status-dot" />
       <q-tooltip>{{ look.label }} · Save (Ctrl+S) · Save as (Ctrl+Shift+S)</q-tooltip>
     </q-btn>
@@ -12,14 +20,13 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted } from 'vue';
 import { useProjectStore, type SaveStatus } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 
 const $q = useQuasar();
 const project = useProjectStore();
 const settings = useSettingsStore();
-const saving = ref(false);
 
 const LOOKS: Record<SaveStatus, { color: string; label: string }> = {
   none: { color: 'grey', label: '' },
@@ -34,8 +41,7 @@ const look = computed(() => LOOKS[project.status]);
 const DOWNLOAD_NOTE = 'download-save';
 
 async function save(as: boolean) {
-  if (saving.value || !project.isOpen || project.readOnly) return;
-  saving.value = true;
+  if (project.writing || !project.isOpen || project.readOnly) return;
   try {
     const r = await (as ? project.saveAs() : project.save());
     if (r === 'downloaded' && !settings.settings.hintsDismissed.includes(DOWNLOAD_NOTE)) {
@@ -49,8 +55,6 @@ async function save(as: boolean) {
     }
   } catch (e) {
     $q.notify({ type: 'negative', message: `Couldn't save: ${(e as Error).message}` });
-  } finally {
-    saving.value = false;
   }
 }
 

@@ -50,6 +50,11 @@ const pickerTypes = (exts: FileExt[]): PickerType[] => [
   { description: '*.json - JSON', accept: { 'application/json': ['.json'] } },
 ];
 const TYPES = pickerTypes(['rrq']);
+/** Save dialogs add the extension themselves, so their labels are names only. */
+const saveType = (ext: FileExt): PickerType => ({
+  description: FILE_TYPES[ext],
+  accept: { 'application/json': [`.${ext}`] },
+});
 
 export const supportsFileAccess = () =>
   typeof window.showOpenFilePicker === 'function' &&
@@ -119,19 +124,14 @@ export async function writeToHandle(handle: FileSystemFileHandle, text: string) 
   await w.close();
 }
 
-/** Save via a picker. Returns the chosen handle, or null when the user cancels. */
-export async function saveWithPicker(
-  name: string,
-  text: string,
-): Promise<FileSystemFileHandle | null> {
+/** Ask where to save a project. Null when the user cancels. */
+export async function pickSaveHandle(name: string): Promise<FileSystemFileHandle | null> {
   try {
-    const handle = await window.showSaveFilePicker!({
+    return await window.showSaveFilePicker!({
       suggestedName: fileNameFor(name),
-      types: TYPES,
+      types: [saveType('rrq')],
       id: 'rrq',
     });
-    await writeToHandle(handle, text);
-    return handle;
   } catch (e) {
     if (isAbort(e)) return null;
     throw e;
@@ -144,7 +144,7 @@ export async function exportFile(name: string, text: string, ext: FileExt) {
   try {
     const handle = await window.showSaveFilePicker!({
       suggestedName: fileNameFor(name, ext),
-      types: [pickerType(ext)],
+      types: [saveType(ext)],
       id: ext,
     });
     await writeToHandle(handle, text);
@@ -155,7 +155,8 @@ export async function exportFile(name: string, text: string, ext: FileExt) {
 
 /** Fallback save: download a copy. */
 export function download(name: string, text: string, ext = 'rrq') {
-  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  // Not application/json: Android browsers append ".json" to the name for that type.
+  const url = URL.createObjectURL(new Blob([text], { type: 'application/octet-stream' }));
   const a = document.createElement('a');
   a.href = url;
   a.download = fileNameFor(name, ext);

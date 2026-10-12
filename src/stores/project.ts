@@ -31,7 +31,7 @@ import { getDraft, markDraftClean, putDraft, removeDraft, type Draft } from '@/s
 import {
   download,
   ensurePermission,
-  saveWithPicker,
+  pickSaveHandle,
   supportsFileAccess,
   writeToHandle,
   type Picked,
@@ -240,12 +240,24 @@ export const useProjectStore = defineStore('project', () => {
     if (doc.value) doc.value = freeze(await stampVersions(doc.value), true);
   }
 
+  /** Writing a file (not while a save dialog is open: some never report a cancel). */
+  const writing = ref(false);
+  async function write(h: FileSystemFileHandle | null, text: string) {
+    writing.value = true;
+    try {
+      if (h) await writeToHandle(h, text);
+      else download(doc.value!.project.name, text);
+      await afterSave(h);
+    } finally {
+      writing.value = false;
+    }
+  }
+
   async function save(): Promise<SaveResult> {
     if (!doc.value || readOnly.value) return 'cancelled';
     await stamp();
     if (handle.value && (await ensurePermission(handle.value, 'readwrite'))) {
-      await writeToHandle(handle.value, serializeProject(doc.value));
-      await afterSave(handle.value);
+      await write(handle.value, serializeProject(doc.value));
       return 'saved';
     }
     return saveAs();
@@ -256,13 +268,12 @@ export const useProjectStore = defineStore('project', () => {
     await stamp();
     const text = serializeProject(doc.value);
     if (supportsFileAccess()) {
-      const h = await saveWithPicker(doc.value.project.name, text);
+      const h = await pickSaveHandle(doc.value.project.name);
       if (!h) return 'cancelled';
-      await afterSave(h);
+      await write(h, text);
       return 'saved';
     }
-    download(doc.value.project.name, text);
-    await afterSave(null);
+    await write(null, text);
     return 'downloaded';
   }
 
@@ -346,6 +357,7 @@ export const useProjectStore = defineStore('project', () => {
   return {
     doc,
     handle,
+    writing,
     mismatches,
     useLibraryVersions,
     isOpen,
