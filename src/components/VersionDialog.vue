@@ -42,7 +42,7 @@
         <q-checkbox
           v-model="deleteCopies"
           dense
-          label="Delete the project's copy of what switches to the library version"
+          label="Delete the project version when switching to the library version"
         />
         <div v-if="!deleteCopies" class="text-caption text-grey-7 q-mt-xs">
           Otherwise it's kept under My blocks / My colors, named with its revision.
