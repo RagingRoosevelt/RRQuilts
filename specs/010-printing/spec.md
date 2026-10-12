@@ -27,7 +27,7 @@ picture, block picture — from the existing Print tabs."
 - Q: Yardage? → A: By color. Fabric width 42″ (40″ usable) default; 44″, 60″, fat quarters; metric
   110 cm, 150 cm, fat quarters. Rounded up to ⅛ yd (default), ¼ yd, ½ yd; metric 10 cm (default),
   20 cm, 45 cm. Borders from strips. Backing and binding included.
-- Q: Paper? → A: Inch projects Letter (default) or A0; cm projects A4 (default) or A0. Portrait
+- Q: Paper? → A: Inch projects Letter; cm projects A4 (A0 dropped). Portrait
   (default) or landscape.
 - Q: Look? → A: User settings, defaulting to a solid cutting line, dashed sewing line, grain arrow,
   thin lines, mirror off.

@@ -14,12 +14,15 @@
         v-for="(s, i) in sheets"
         :key="i"
         class="sheet"
-        :class="{ flow: s.kind === 'rotary' || s.kind === 'yardage' }"
+        :class="{ flow: s.kind === 'rotary' || s.kind === 'yardage' || s.kind === 'credits' }"
         :style="sheetStyle"
       >
         <header class="row items-baseline no-wrap">
-          <div class="col ellipsis">
-            <b>{{ view.title }}</b> · {{ view.size }} · {{ s.heading }}
+          <div class="col" style="min-width: 0">
+            <div class="ellipsis">
+              <b>{{ view.title }}</b> · {{ view.size }} · {{ s.heading }}
+            </div>
+            <div v-if="i === 0" class="ellipsis byline">{{ view.byline }}</div>
           </div>
           <div class="text-grey-8">{{ doc.project.name }}</div>
         </header>
@@ -169,6 +172,31 @@
             </div>
           </div>
 
+          <!-- Credits: everyone whose work this is built on -->
+          <div v-else-if="s.kind === 'credits'" class="column" style="gap: 8px">
+            <div>
+              <b>{{ view.title }}</b> — {{ view.byline }}
+            </div>
+            <template v-if="view.basedOn.length">
+              <div class="text-weight-medium">Based on</div>
+              <ul>
+                <li v-for="(c, j) in view.basedOn" :key="j">{{ creditLine(c) }}</li>
+              </ul>
+            </template>
+            <template v-if="view.blocks.length">
+              <div class="text-weight-medium">Blocks</div>
+              <ul>
+                <li v-for="(b, j) in view.blocks" :key="j">
+                  {{ b.name }}<template v-if="b.author"> by {{ b.author }}</template> ·
+                  {{ b.license }}
+                  <ul v-if="b.basedOn.length">
+                    <li v-for="(c, k) in b.basedOn" :key="k">based on {{ creditLine(c) }}</li>
+                  </ul>
+                </li>
+              </ul>
+            </template>
+          </div>
+
           <!-- Pictures -->
           <div v-else-if="s.kind === 'picture'" class="column items-center" style="gap: 6px">
             <svg
@@ -193,7 +221,10 @@
         </div>
 
         <footer class="row items-end no-wrap" style="gap: 12px">
-          <div class="col credits">{{ view.credits }}</div>
+          <div class="col credits">
+            {{ view.title }} · {{ view.byline
+            }}<template v-if="hasCredits"> · full credits on the last page</template>
+          </div>
           <div class="column items-center">
             <div
               class="scale-square"
@@ -234,18 +265,11 @@ import {
   type PlacedPiece,
 } from '@/model/print/pieces';
 import { bounds, offset, rotate, shapeKey, snugRotation } from '@/model/print/polygon';
-import {
-  FABRIC_STEPS,
-  PAPERS,
-  PAPER_MM,
-  ROUNDINGS,
-  WIDTHS,
-  pick,
-  printPrefs,
-} from '@/model/print/prefs';
+import { FABRIC_STEPS, PAPER, ROUNDINGS, WIDTHS, pick, printPrefs } from '@/model/print/prefs';
 import { cutPlan, type Cut, type CutKind, type CutLine } from '@/model/print/rotary';
 import { backing, binding, fabricNeeds } from '@/model/print/yardage';
 import type { Block } from '@/model/schema/block';
+import type { Credit } from '@/model/schema/shared';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
@@ -281,15 +305,14 @@ const fabricLabel = (x: number) => fmtFabric(x, units.value);
 
 // Paper and the area left for content (project units).
 const MARGIN_MM = 12.7;
-const HEADER_MM = 10;
+const HEADER_MM = 14;
 const FOOTER_MM = 34;
 const paperMm = computed(() => {
-  const [w, h] = PAPER_MM[prefs.value.paper[units.value]];
+  const [w, h] = PAPER[units.value].mm;
   return prefs.value.landscape ? [h, w] : [w, h];
 });
 const paperLabel = computed(
-  () =>
-    `${PAPERS[units.value].find((p) => p.id === prefs.value.paper[units.value])?.label ?? ''}, ${prefs.value.landscape ? 'landscape' : 'portrait'}`,
+  () => `${PAPER[units.value].label}, ${prefs.value.landscape ? 'landscape' : 'portrait'}`,
 );
 const area = computed<[number, number]>(() => [
   (paperMm.value[0]! - 2 * MARGIN_MM) / mm.value,
@@ -361,7 +384,12 @@ function howLabel(l: CutLine) {
 interface View {
   title: string;
   size: string;
-  credits: string;
+  /** "By Jane · CC BY-SA 4.0" */
+  byline: string;
+  /** Earlier work this is based on (origin first). */
+  basedOn: Credit[];
+  /** Quilts: blocks made by others (or based on others' work), with their chains. */
+  blocks: { name: string; author?: string | undefined; license: string; basedOn: Credit[] }[];
   pieces: Piece[];
   /** Picture: outlines (+ fills) in their own coordinates. */
   picture: { d: string; css: string }[];
@@ -386,19 +414,17 @@ const view = computed<View | undefined>(() => {
     const pieces = quiltPieces(dd, quilt);
     const [x0, y0, x1, y1] = g.bounds;
     const me = app.settings.author;
-    const others = blocksByOthers(dd, quilt, me).map(
-      (u) => `${u.block.notecard.name}${u.own ? '' : ` by ${u.author}`}`,
-    );
     return {
       title: quilt.notecard.name,
       size: sizeLabel(x1 - x0, y1 - y0),
-      credits: [
-        `By ${quilt.author ?? 'anonymous'}`,
-        licenseName(effectiveLicense(quilt, dd, quiltLock(dd, quilt))),
-        others.length ? `Blocks: ${others.join('; ')}` : '',
-      ]
-        .filter(Boolean)
-        .join(' · '),
+      byline: `By ${quilt.author ?? 'anonymous'} · ${licenseName(effectiveLicense(quilt, dd, quiltLock(dd, quilt)))}`,
+      basedOn: priorCredits(quilt),
+      blocks: blocksByOthers(dd, quilt, me).map((u) => ({
+        name: u.block.notecard.name,
+        author: u.own ? undefined : u.author,
+        license: licenseName(u.license),
+        basedOn: u.credits,
+      })),
       pieces,
       picture: [
         ...g.slots.map((s) => ({
@@ -436,19 +462,12 @@ const view = computed<View | undefined>(() => {
     pieces = blockPieces(block, size, keyColoring);
   }
   const one = blockPieces(block, size, keyColoring);
-  const credits = priorCredits(block);
   return {
     title: block.notecard.name,
     size: sizeLabel(...size) + (quilt ? ` · counts for “${quilt.notecard.name}”` : ''),
-    credits: [
-      `By ${authorOf(block) ?? 'anonymous'}`,
-      licenseName(effectiveLicense(block, dd, blockLock(block))),
-      credits.length
-        ? `Based on ${credits.map((c) => `${c.name ?? 'earlier work'} by ${c.author ?? 'anonymous'}`).join('; ')}`
-        : '',
-    ]
-      .filter(Boolean)
-      .join(' · '),
+    byline: `By ${authorOf(block) ?? 'anonymous'} · ${licenseName(effectiveLicense(block, dd, blockLock(block)))}`,
+    basedOn: priorCredits(block),
+    blocks: [],
     pieces,
     picture: one.map((p) => ({ d: d(p.poly), css: fillInfo(p.fill).css })),
     pictureBox: [0, 0, size[0], size[1]],
@@ -531,6 +550,7 @@ type Sheet =
       backing: number;
       binding: { strips: number; length: number };
     }
+  | { kind: 'credits'; heading: string }
   | {
       kind: 'picture';
       heading: string;
@@ -687,8 +707,20 @@ const sheets = computed<Sheet[]>(() => {
       });
     }
   }
+  if (out.length && hasCredits.value) out.push({ kind: 'credits', heading: 'Credits' });
   return out;
 });
+const hasCredits = computed(
+  () => !!view.value && (view.value.basedOn.length > 0 || view.value.blocks.length > 0),
+);
+const creditLine = (c: Credit) =>
+  [
+    `${c.name ?? 'Earlier work'} by ${c.author ?? 'anonymous'}`,
+    c.license && licenseName(c.license),
+    c.library,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
 // The browser prints at the chosen paper size with no margins of its own.
 let pageStyle: HTMLStyleElement | null = null;
@@ -733,7 +765,7 @@ const print = () => window.print();
   font-size: 10pt;
 }
 .sheet header {
-  height: 10mm;
+  height: 12mm;
   border-bottom: 0.3mm solid #000;
   margin-bottom: 2mm;
 }
@@ -751,6 +783,9 @@ const print = () => window.print();
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
+}
+.byline {
+  font-size: 9pt;
 }
 .scale-square {
   border: 0.3mm solid #000;

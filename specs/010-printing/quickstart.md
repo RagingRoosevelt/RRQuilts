@@ -9,6 +9,6 @@
 5. Quilt editor › Print: Quilt picture, Yardage, Rotary chart → yardage per color, backing
    (two panels when wider than 40″), binding.
 6. Fabric width "Fat quarters" → yardage in fat quarters; backing/binding still from 42″ fabric.
-7. A cm project: paper A4/A0, 7.5 mm seams, 5 mm rounding, 10 cm steps.
+7. A cm project: paper A4, 7.5 mm seams, 5 mm rounding, 10 cm steps.
 8. A huge custom block size (e.g. 30″): oversized templates split across pages with shaded
    overlaps.

@@ -2,14 +2,12 @@
 // and in that system's units: inches for `in`, centimeters for `cm`.
 import type { Units } from '../schema/project';
 
-export type PaperId = 'letter' | 'a4' | 'a0';
 export type BlockSection = 'templates' | 'rotary' | 'picture';
 export type QuiltSection = 'picture' | 'yardage' | 'rotary';
 
 const perUnits = <T>(inches: T, cm: T) => ({ in: inches, cm });
 
 export const PRINT_DEFAULTS = {
-  paper: perUnits<PaperId>('letter', 'a4'),
   landscape: false,
   seam: perUnits(0.25, 0.75),
   /** Rounding step for cut sizes; 0 = exact. */
@@ -48,21 +46,10 @@ function mergeLike<T>(def: T, raw: unknown): T {
 
 export const printPrefs = (raw: unknown): PrintPrefs => mergeLike(PRINT_DEFAULTS, raw);
 
-export const PAPERS: Record<Units, { id: PaperId; label: string }[]> = {
-  in: [
-    { id: 'letter', label: 'Letter (8½ × 11 in)' },
-    { id: 'a0', label: 'A0 (copy shop, 33.1 × 46.8 in)' },
-  ],
-  cm: [
-    { id: 'a4', label: 'A4 (21 × 29.7 cm)' },
-    { id: 'a0', label: 'A0 (copy shop, 84.1 × 118.9 cm)' },
-  ],
-};
-/** Paper size in millimeters, portrait. */
-export const PAPER_MM: Record<PaperId, [number, number]> = {
-  letter: [215.9, 279.4],
-  a4: [210, 297],
-  a0: [841, 1189],
+/** One paper per unit system: Letter for inches, A4 for centimeters (portrait, millimeters). */
+export const PAPER: Record<Units, { label: string; mm: [number, number] }> = {
+  in: { label: 'Letter (8½ × 11 in)', mm: [215.9, 279.4] },
+  cm: { label: 'A4 (21 × 29.7 cm)', mm: [210, 297] },
 };
 
 export interface WidthOption {
