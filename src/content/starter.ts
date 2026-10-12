@@ -1,5 +1,5 @@
-// Built-in starter content: 13 traditional blocks drawn originally as seam lines (Public Domain
-// Mark) and 36 solid colors (CC-BY-4.0), by RRQuilts contributors.
+// Built-in starter content: 13 traditional blocks drawn originally as seam lines and 36 solid
+// colors, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
 import { produce } from 'immer';
 import { deriveSeamPatches } from '@/model/blocks/derive';
@@ -14,9 +14,8 @@ type P = [number, number];
 export const STARTER_LIBRARY = {
   name: 'RRQuilts starter',
   author: 'RRQuilts contributors',
-  license: 'CC-BY-4.0',
-  /** The blocks are traditional designs (spec 009). */
-  blockLicense: 'PDM-1.0',
+  /** Traditional designs and plain colors (spec 009). */
+  license: 'PDM-1.0',
 } as const;
 type Seam = [P, P] | [P, P, number]; // line, or arc with sweep (degrees)
 
@@ -417,14 +416,14 @@ const libId = (name: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')}`;
-const credit = (name: string, license: string = STARTER_LIBRARY.license) => ({
+const credit = (name: string) => ({
   libraryId: LIBRARY_ID,
   itemId: libId(name),
   revision: 1,
   name,
   library: STARTER_LIBRARY.name,
   author: STARTER_LIBRARY.author,
-  license,
+  license: STARTER_LIBRARY.license,
 });
 
 export interface BuiltinItems {
@@ -473,7 +472,7 @@ export function builtinItems(): BuiltinItems {
       kind: 'seam',
       size,
       notecard: { name: b.name, tags: ['starter'] },
-      source: credit(b.name, STARTER_LIBRARY.blockLicense),
+      source: credit(b.name),
       revision: 1,
       drawing,
       patches,
