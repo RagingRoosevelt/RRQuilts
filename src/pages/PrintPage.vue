@@ -83,8 +83,12 @@
           <!-- Rotary cutting chart -->
           <div v-else-if="s.kind === 'rotary'" class="column" style="gap: 10px">
             <div class="text-caption">
-              Seam allowance {{ fmt(seam) }} included; cut sizes rounded up to {{ roundingLabel }}.
-              Strips are cut across the usable fabric width ({{ fmt(usableForCuts) }}).
+              Seam allowance {{ fmt(seam) }} included;
+              {{
+                step
+                  ? `cut sizes rounded up to the next ${roundingLabel}`
+                  : 'cut sizes exact (not rounded)'
+              }}. Strips are cut across the usable fabric width ({{ fmt(usableForCuts) }}).
             </div>
             <div v-for="g in s.groups" :key="g.fill" class="avoid-break">
               <div class="row items-center" style="gap: 6px">
@@ -123,8 +127,8 @@
           <!-- Yardage -->
           <div v-else-if="s.kind === 'yardage'" class="column" style="gap: 10px">
             <div class="text-caption">
-              {{ widthOption.label }}; rounded up to {{ fabricStepLabel }}. Borders are cut from
-              strips across the fabric; estimates never come out short.
+              {{ widthOption.label }}; rounded up to the next {{ fabricStepLabel }}. Borders are cut
+              from strips across the fabric; estimates never come out short.
             </div>
             <table>
               <thead>

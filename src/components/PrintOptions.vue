@@ -64,12 +64,12 @@
         />
         <q-select
           :model-value="prefs.rounding[units]"
-          :options="ROUNDINGS[units]"
+          :options="roundingOptions"
           emit-value
           map-options
           dense
           outlined
-          label="Round cut sizes up to"
+          label="Cut size rounding"
           @update:model-value="(v: number) => setUnit('rounding', v)"
         />
       </div>
@@ -96,12 +96,12 @@
         />
         <q-select
           :model-value="prefs.fabricStep[units]"
-          :options="FABRIC_STEPS[units]"
+          :options="fabricStepOptions"
           emit-value
           map-options
           dense
           outlined
-          label="Round fabric up to"
+          label="Fabric rounding"
           @update:model-value="(v: number) => setUnit('fabricStep', v)"
         />
         <LengthInput
@@ -222,6 +222,17 @@ type PerUnit = 'paper' | 'seam' | 'rounding' | 'width' | 'fabricStep' | 'overhan
 function setUnit<K extends PerUnit>(key: K, value: PrintPrefs[K]['in']) {
   set(key, { ...prefs.value[key], [units.value]: value });
 }
+
+// "Up to the next ⅛″": rounding never makes a piece smaller than it needs to be.
+const roundingOptions = computed(() =>
+  ROUNDINGS[units.value].map((r) => ({
+    value: r.value,
+    label: r.value ? `Up to the next ${r.label}` : 'None (exact sizes)',
+  })),
+);
+const fabricStepOptions = computed(() =>
+  FABRIC_STEPS[units.value].map((f) => ({ value: f.value, label: `Up to the next ${f.label}` })),
+);
 
 const sectionOptions = computed(() =>
   props.kind === 'block'
