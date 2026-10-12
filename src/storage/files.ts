@@ -22,7 +22,7 @@ declare global {
 }
 
 const TYPES: PickerType[] = [
-  { description: 'RRQuilts project', accept: { 'application/json': ['.rrq'] } },
+  { description: 'RRQuilts project', accept: { 'application/json': ['.rrq', '.json'] } },
 ];
 
 export const supportsFileAccess = () =>
@@ -53,7 +53,7 @@ export async function pickProject(): Promise<Picked | null> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.rrq,application/json';
+    input.accept = '.rrq,.json';
     input.onchange = () => resolve(input.files?.[0] ? { file: input.files[0] } : null);
     input.oncancel = () => resolve(null);
     input.click();
