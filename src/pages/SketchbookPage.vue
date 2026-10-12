@@ -273,16 +273,7 @@
           icon="collections_bookmark"
           label="Save to my library…"
           :disable="!pickedColors.length"
-          @click="saveAsCollection"
-        />
-        <q-btn
-          outline
-          dense
-          no-caps
-          icon="playlist_add"
-          label="Add to library collection…"
-          :disable="!pickedColors.length || !myCollections.length"
-          @click="addToCollectionDialog"
+          @click="saveColors = { to: '', name: '' }"
         />
         <q-btn
           v-if="changedColors.length"
@@ -481,6 +472,37 @@
             color="negative"
             label="Remove from quilts and delete"
             @click="inUseDialog!.remove()"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog :model-value="!!saveColors" @update:model-value="saveColors = null">
+      <q-card v-if="saveColors" style="width: 380px; max-width: 95vw">
+        <q-card-section class="q-gutter-sm">
+          <div class="text-h6">Save to my library</div>
+          <div class="text-grey-7">{{ pickedColors.length }} color(s)</div>
+          <q-select
+            v-model="saveColors.to"
+            :options="[
+              { label: 'New collection', value: '' },
+              ...myCollections.map((c) => ({ label: c.notecard.name, value: c.id })),
+            ]"
+            emit-value
+            map-options
+            label="Collection"
+          />
+          <q-input v-if="!saveColors.to" v-model="saveColors.name" autofocus label="Name" />
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn v-close-popup flat no-caps label="Cancel" />
+          <q-btn
+            v-close-popup
+            flat
+            no-caps
+            color="primary"
+            label="Save"
+            :disable="!saveColors.to && !saveColors.name.trim()"
+            @click="void savePickedColors(saveColors!)"
           />
         </q-card-actions>
       </q-card>
@@ -806,15 +828,15 @@ const changedColors = computed(() =>
 );
 const collectionInput = ref<HTMLInputElement>();
 
-function saveAsCollection() {
-  $q.dialog({
-    title: 'Save to my library',
-    message: `${pickedColors.value.length} color(s) → a new color collection in ${MY_LIBRARY}. Name:`,
-    prompt: { model: '', type: 'text', isValid: (v: string) => !!v.trim() },
-    cancel: true,
-  }).onOk((name: string) => void saveCollectionNamed(name));
-}
-async function saveCollectionNamed(name: string) {
+const saveColors = ref<{ to: string; name: string } | null>(null);
+async function savePickedColors({ to, name }: { to: string; name: string }) {
+  if (to) {
+    const r = await addToCollection(library.mine!, project.doc!, to, pickedColors.value);
+    await library.saveMine(r.lib);
+    applyLinks(r.doc);
+    pickedColors.value = [];
+    return void $q.notify({ type: 'positive', message: 'Added to the collection.' });
+  }
   const category = await askCategory();
   if (category === null) return;
   const author = await askAuthor();
@@ -830,25 +852,6 @@ async function saveCollectionNamed(name: string) {
   applyLinks(r.doc);
   pickedColors.value = [];
   $q.notify({ type: 'positive', message: `Saved “${name.trim()}” to ${MY_LIBRARY}.` });
-}
-
-function addToCollectionDialog() {
-  $q.dialog({
-    title: 'Add to library collection',
-    options: {
-      type: 'radio',
-      model: myCollections.value[0]!.id,
-      items: myCollections.value.map((c) => ({ label: c.notecard.name, value: c.id })),
-    },
-    cancel: true,
-  }).onOk((id: string) => void addPickedTo(id));
-}
-async function addPickedTo(id: string) {
-  const r = await addToCollection(library.mine!, project.doc!, id, pickedColors.value);
-  await library.saveMine(r.lib);
-  applyLinks(r.doc);
-  pickedColors.value = [];
-  $q.notify({ type: 'positive', message: 'Added to the collection.' });
 }
 
 async function syncColors() {

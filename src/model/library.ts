@@ -186,7 +186,7 @@ const linkColors = (doc: RrqDoc, lib: LibraryDoc, colors: readonly Color[]) =>
     }
   });
 
-/** "Save to my library": the chosen project colors become a new collection; they stay linked. */
+/** "Save to my library" as a new collection: the chosen project colors become a new collection; they stay linked. */
 export async function saveCollection(
   lib: LibraryDoc,
   doc: RrqDoc,
@@ -215,7 +215,7 @@ async function nextCollection(c: ColorCollection, colors: Color[]) {
   return asLibraryData({ ...c, colors }, (c.revision ?? 1) + 1);
 }
 
-/** "Add to library collection": the chosen colors join it (its next version); they stay linked. */
+/** "Save to my library" into an existing collection: the chosen colors join it (its next version); they stay linked. */
 export async function addToCollection(
   lib: LibraryDoc,
   doc: RrqDoc,

@@ -111,9 +111,9 @@ Sunset's colors.
 
 **Acceptance Scenarios**:
 
-1. **Given** the project's own colors, **When** the user selects some and chooses "Save as
-   collection", **Then** a new collection is stored in My library (name, category optional).
-2. **Given** an existing collection, **When** the user chooses "Add to collection", **Then** the
+1. **Given** the project's own colors, **When** the user selects some and chooses "Save to my
+   library" with "New collection" and a name, **Then** a new collection is stored in My library (name, category optional).
+2. **Given** an existing collection, **When** the user picks it in that dialog's collection list, **Then** the
    selected colors join it (its next version).
 3. **Given** a library color changed in a project (Edit makes a linked copy), **Then** "Sync to my
    library" updates that color in its collection.
