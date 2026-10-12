@@ -160,11 +160,27 @@ describe('My library: color collections', () => {
     const r = parseCollectionFile(JSON.stringify(collectionFile(coll as never, 'test')));
     expect(r.ok).toBe(true);
     if (!r.ok) return;
-    const imp = importCollectionColors(createProject(), r.file);
+    const imp = importCollectionColors(createProject(), r.file.collection);
     expect(imp.added).toBe(1);
     expect(isLibraryItem(imp.doc.project.palette.colors[0]!)).toBe(false);
-    expect(importCollectionColors(imp.doc, r.file).added).toBe(0);
+    expect(importCollectionColors(imp.doc, r.file.collection).added).toBe(0);
     expect(parseCollectionFile('{"format":"rrqcc","version":9}').ok).toBe(false);
+  });
+
+  it('overwrite import drops unused own colors, keeps used ones', () => {
+    const doc = produce(withColors(projectWithBlock().doc), (d) => {
+      d.project.blocks[0]!.colorings[0]!.fills['p1'] = { color: 'jane.blue' };
+    });
+    const green = {
+      id: 'x.green',
+      notecard: { name: 'Green' },
+      rgb: [0, 200, 0] as [number, number, number],
+    };
+    const c = { id: 'x.coll', notecard: { name: 'Greens' }, colors: [green] };
+    const r = importCollectionColors(doc, c, 'overwrite');
+    expect(r.doc.project.palette.colors.map((x) => x.id)).toEqual(['jane.blue', 'x.green']);
+    expect(r.removed).toBe(1);
+    expect(importCollectionColors(doc, c).doc.project.palette.colors).toHaveLength(3);
   });
 
   it('built-in colors look up through the "Basic colors" collection', async () => {

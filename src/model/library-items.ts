@@ -23,7 +23,7 @@ export interface LibraryLookup {
 export const toUnits = (b: Block, units: RrqDoc['units']): Block =>
   units === 'cm' ? { ...b, size: [b.size[0] * 2.54, b.size[1] * 2.54] } : b;
 
-const colorsIn = (colorings: ColoringBody[]) =>
+export const colorsIn = (colorings: ColoringBody[]) =>
   colorings.flatMap((c) => Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])));
 
 export const blocksUsed = (p: RrqDoc['project']) =>

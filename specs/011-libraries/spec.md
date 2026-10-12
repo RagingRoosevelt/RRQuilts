@@ -118,6 +118,9 @@ Sunset's colors.
 3. **Given** a library color changed in a project (Edit makes a linked copy), **Then** "Sync to my
    library" updates that color in its collection.
 4. **Given** the built-in colors, **Then** they appear as one collection, "Basic colors".
+5. **Given** any library's collection, **When** the user chooses "Import from library" in Fabrics &
+   Colors, **Then** its colors become the project's own (linked) colors: Append adds them; Overwrite
+   also removes the user's own colors no patch uses. One undo step reverts it.
 5. **Given** a collection on the Libraries page, **Then** the user can rename it, reorder, rename,
    or remove its colors.
 6. **Given** a collection, **When** the user chooses Export, **Then** a `.rrqcc` file downloads with

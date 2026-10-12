@@ -276,6 +276,14 @@
           @click="saveColors = { to: '', name: '' }"
         />
         <q-btn
+          outline
+          dense
+          no-caps
+          icon="download"
+          label="Import from library…"
+          @click="importing = { from: allCollections[0]?.value ?? '', mode: 'append' }"
+        />
+        <q-btn
           v-if="changedColors.length"
           outline
           dense
@@ -503,6 +511,49 @@
             label="Save"
             :disable="!saveColors.to && !saveColors.name.trim()"
             @click="void savePickedColors(saveColors!)"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog :model-value="!!importing" @update:model-value="importing = null">
+      <q-card v-if="importing" style="width: 380px; max-width: 95vw">
+        <q-card-section class="q-gutter-sm">
+          <div class="text-h6">Import from library</div>
+          <q-select
+            v-model="importing.from"
+            :options="allCollections"
+            emit-value
+            map-options
+            label="Collection"
+          />
+          <q-btn-toggle
+            v-model="importing.mode"
+            no-caps
+            spread
+            :options="[
+              { label: 'Append', value: 'append' },
+              { label: 'Overwrite', value: 'overwrite' },
+            ]"
+          />
+          <div class="text-caption text-grey-7">
+            {{
+              importing.mode === 'append'
+                ? 'Adds its colors to yours.'
+                : 'Replaces your colors with its colors. Colors used in a block or quilt stay.'
+            }}
+            Undo reverts it.
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn v-close-popup flat no-caps label="Cancel" />
+          <q-btn
+            v-close-popup
+            flat
+            no-caps
+            color="primary"
+            label="Import"
+            :disable="!importing.from"
+            @click="importFromLibrary(importing!)"
           />
         </q-card-actions>
       </q-card>
@@ -863,6 +914,26 @@ async function syncColors() {
   $q.notify({ type: 'positive', message: `Synced colors to ${MY_LIBRARY}.` });
 }
 
+const importing = ref<{ from: string; mode: 'append' | 'overwrite' } | null>(null);
+const allCollections = computed(() =>
+  library.views.flatMap((v) =>
+    v.collections.map((c) => ({ label: `${c.notecard.name} · ${v.doc.name}`, value: c.id, c })),
+  ),
+);
+function importFromLibrary({ from, mode }: { from: string; mode: 'append' | 'overwrite' }) {
+  const c = allCollections.value.find((x) => x.value === from)?.c;
+  if (!c) return;
+  const r = importCollectionColors(project.doc!, c, mode);
+  if (!r.added && !r.removed)
+    return void $q.notify({ message: `“${c.notecard.name}”'s colors are already here.` });
+  project.change(() => r.doc);
+  const parts = [`added ${r.added}`, ...(r.removed ? [`removed ${r.removed}`] : [])];
+  $q.notify({
+    type: 'positive',
+    message: `Imported “${c.notecard.name}”: ${parts.join(', ')} (undo reverts).`,
+  });
+}
+
 async function importCollectionFile(e: Event) {
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -870,7 +941,7 @@ async function importCollectionFile(e: Event) {
   if (!file) return;
   const r = parseCollectionFile(await file.text());
   if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
-  const res = importCollectionColors(project.doc!, r.file);
+  const res = importCollectionColors(project.doc!, r.file.collection);
   if (!res.added)
     return void $q.notify({
       message: `“${r.file.collection.notecard.name}”'s colors are already here.`,
