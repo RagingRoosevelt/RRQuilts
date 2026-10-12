@@ -594,7 +594,9 @@ const sheets = computed<Sheet[]>(() => {
   const [aw, ah] = area.value;
   const gap = units.value === 'in' ? 0.25 : 0.6;
 
-  for (const section of wanted) {
+  // Always in the same order, whatever order the boxes were ticked in.
+  const ORDER = isBlock ? ['templates', 'rotary', 'picture'] : ['picture', 'yardage', 'rotary'];
+  for (const section of ORDER.filter((x) => wanted.includes(x))) {
     if (section === 'picture') {
       const [x0, y0, x1, y1] = v.pictureBox;
       const w = x1 - x0;
