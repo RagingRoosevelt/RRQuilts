@@ -138,6 +138,46 @@
     </q-expansion-item>
 
     <q-expansion-item
+      :model-value="open('Templates')"
+      dense
+      label="Templates"
+      header-class="text-subtitle2"
+      class="op-section"
+      @update:model-value="(v) => setOpen('Templates', v)"
+    >
+      <div class="column q-pa-sm" style="gap: 8px">
+        <q-select
+          :model-value="prefs.cutLine"
+          :options="['solid', 'dashed']"
+          dense
+          outlined
+          label="Cutting line"
+          @update:model-value="(v: PrintPrefs['cutLine']) => set('cutLine', v)"
+        />
+        <q-select
+          :model-value="prefs.sewLine"
+          :options="['dashed', 'dotted', 'solid', 'none']"
+          dense
+          outlined
+          label="Sewing line"
+          @update:model-value="(v: PrintPrefs['sewLine']) => set('sewLine', v)"
+        />
+        <q-toggle
+          :model-value="prefs.grain"
+          dense
+          label="Grain lines"
+          @update:model-value="(v: boolean) => set('grain', v)"
+        />
+        <q-toggle
+          :model-value="prefs.mirror"
+          dense
+          label="Mirror templates"
+          @update:model-value="(v: boolean) => set('mirror', v)"
+        />
+      </div>
+    </q-expansion-item>
+
+    <q-expansion-item
       :model-value="open('Look')"
       dense
       label="Look"
@@ -154,36 +194,6 @@
           label="Line weight"
           @update:model-value="(v: PrintPrefs['lineWeight']) => set('lineWeight', v)"
         />
-        <template v-if="kind === 'block'">
-          <q-select
-            :model-value="prefs.cutLine"
-            :options="['solid', 'dashed']"
-            dense
-            outlined
-            label="Cutting line"
-            @update:model-value="(v: PrintPrefs['cutLine']) => set('cutLine', v)"
-          />
-          <q-select
-            :model-value="prefs.sewLine"
-            :options="['dashed', 'dotted', 'solid', 'none']"
-            dense
-            outlined
-            label="Sewing line"
-            @update:model-value="(v: PrintPrefs['sewLine']) => set('sewLine', v)"
-          />
-          <q-toggle
-            :model-value="prefs.grain"
-            dense
-            label="Grain line arrow"
-            @update:model-value="(v: boolean) => set('grain', v)"
-          />
-          <q-toggle
-            :model-value="prefs.mirror"
-            dense
-            label="Mirror templates"
-            @update:model-value="(v: boolean) => set('mirror', v)"
-          />
-        </template>
         <q-toggle
           :model-value="prefs.outline"
           dense
