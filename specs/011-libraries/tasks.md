@@ -16,4 +16,4 @@
       linked copies
 - [x] T010 Colors: Save as collection / Add to collection; `.rrqcc` import in Fabrics & Colors;
       tray groups by collection; Edit a copy of library colors
-- [ ] T011 Playwright smoke; `quickstart.md`; CLAUDE.md; `make commit`
+- [x] T011 Playwright smoke; `quickstart.md`; CLAUDE.md; `make commit`

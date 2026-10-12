@@ -120,6 +120,17 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   (origin first); copying/editing others' work (`creditCopy`) appends the previous author. Chain
   locks the license (ARR > NC > SA). `components/DetailsPanel.vue` = Details tab (project/quilt/block)
 
+## Libraries (spec 011)
+
+- `src/model/schema/library.ts` (`.rrqlib`: My library backups with embedded packs, and packs;
+  items `{ type: 'block' | 'colors', category?, data, colors? }`, content in inches),
+  `model/library-file.ts` (parse with per-item skips, backup, restore, license-checked `packDoc`),
+  `model/library.ts` (add/sync with **linked copies** — own project items whose `source.derived`
+  points at a My-library item; conflicts via `source.version`; collections; `withSources`/`lookupOf`
+  over all libraries), `model/collection-file.ts` (`.rrqcc`)
+- `stores/library.ts`: built-in + My library + packs (IndexedDB `libraries`, `storage/libraries.ts`);
+  `items`/`lookup` cover every library. `pages/LibrariesPage.vue`; sketchbook Add/Sync/Copy
+
 ## Printing (spec 010)
 
 - `src/model/print/` (framework-free): `pieces.ts` (block/quilt pieces, lettered templates),
