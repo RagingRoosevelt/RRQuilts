@@ -227,6 +227,17 @@
         />
         <div>
           <div class="text-caption text-grey-7">Labels on each piece</div>
+          <q-btn-toggle
+            :model-value="prefs.labelsInside"
+            no-caps
+            dense
+            class="q-mb-xs"
+            :options="[
+              { label: 'Inside the template', value: true },
+              { label: 'Under it', value: false },
+            ]"
+            @update:model-value="(v: boolean) => set('labelsInside', v)"
+          />
           <q-checkbox
             v-for="l in LABELS"
             :key="l.key"

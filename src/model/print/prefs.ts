@@ -37,6 +37,8 @@ export const PRINT_DEFAULTS = {
   shadeSeam: false,
   curveMarks: true,
   labels: { letter: true, counts: true, size: false },
+  /** Labels inside the template (at its roomiest spot) or as a caption under it. */
+  labelsInside: true,
   tint: false,
   onePerPage: false,
   /** Label the block page's picture with template codes (then template pages skip their key). */

@@ -471,8 +471,7 @@ const look = computed(() => ({
   markLength: prefs.value.seamAllowance ? seam.value : seam.value / 2,
   labels: prefs.value.labels,
   tint: prefs.value.tint,
-  /** One per page: the notes go inside the template. */
-  inside: prefs.value.onePerPage,
+  inside: prefs.value.labelsInside,
 }));
 
 // Colors by fill key.
