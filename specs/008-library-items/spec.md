@@ -204,6 +204,8 @@ project → it appears under My blocks at 25.4 cm with its colors, credited to i
 - **FR-040**: Users MUST be able to export one block as `.rrqb` (`format: "rrqb"`, `version`, `units`,
   `author`, `block`, `colors`) and import it as their own block (FR-030 attribution rules; untrusted
   input validated like `.rrq`; fills referencing missing colors dropped).
+- **FR-041**: Users MUST be able to import every block of another `.rrq` (nothing else) the same way;
+  library blocks already in the user's library are skipped; identical blocks are not duplicated.
 
 ### Key Entities
 

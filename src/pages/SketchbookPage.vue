@@ -93,6 +93,10 @@
           <q-icon name="upload_file" size="lg" />
           <div>Import block (.rrqb)</div>
         </button>
+        <button v-if="!project.readOnly" class="card add" @click="projectBlocksInput?.click()">
+          <q-icon name="drive_folder_upload" size="lg" />
+          <div>Import blocks from project</div>
+        </button>
         <div
           v-for="(b, i) in blocks"
           :key="b.id"
@@ -220,6 +224,13 @@
         </div>
       </div>
       <input ref="blockInput" type="file" accept=".rrqb,.json" hidden @change="importBlockFile" />
+      <input
+        ref="projectBlocksInput"
+        type="file"
+        accept=".rrq,.json"
+        hidden
+        @change="importProjectBlocksFile"
+      />
     </template>
 
     <DetailsPanel v-else-if="tab === 'details'" kind="project" />
@@ -352,7 +363,13 @@ import { useProjectStore } from '@/stores/project';
 import { useLibraryStore } from '@/stores/library';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthor } from '@/composables/author';
-import { importBlock, parseBlockFile, serializeBlock } from '@/model/block-file';
+import {
+  importBlock,
+  importProjectBlocks,
+  parseBlockFile,
+  serializeBlock,
+} from '@/model/block-file';
+import { parseProject } from '@/model/io';
 import {
   isLibraryItem,
   splitItems,
@@ -375,6 +392,7 @@ const otherVersions = computed(
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
 const blockInput = ref<HTMLInputElement>();
+const projectBlocksInput = ref<HTMLInputElement>();
 const inUseDialog = ref<{
   id: string;
   quilt: string;
@@ -540,6 +558,34 @@ async function importBlockFile(e: Event) {
   }
   project.change(() => res.doc);
   $q.notify({ type: 'positive', message: `Imported "${r.file.block.notecard.name}".` });
+}
+
+/** Every block of another project file, nothing else (one undo step). */
+async function importProjectBlocksFile(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+  if (!file) return;
+  const r = await parseProject(await file.text());
+  if (!r.ok) {
+    $q.notify({ type: 'negative', message: r.error });
+    return;
+  }
+  const res = importProjectBlocks(
+    project.doc!,
+    r.doc,
+    settings.settings.author,
+    (id) => !!library.lookup.block(id),
+  );
+  if (!res.added) {
+    $q.notify({ message: 'No new blocks in that project.' });
+    return;
+  }
+  project.change(() => res.doc);
+  $q.notify({
+    type: 'positive',
+    message: `Imported ${res.added} block${res.added > 1 ? 's' : ''} from "${r.doc.project.name}" (undo removes them).`,
+  });
 }
 
 function openQuilt(id: string) {

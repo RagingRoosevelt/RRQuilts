@@ -55,13 +55,7 @@
         <div class="text-subtitle1">Settings file (.rrq_conf)</div>
         <q-btn outline icon="download" label="Export" @click="exportConf" />
         <q-btn outline icon="upload" label="Import" @click="fileInput?.click()" />
-        <input
-          ref="fileInput"
-          type="file"
-          accept=".rrq_conf,application/json"
-          hidden
-          @change="importConf"
-        />
+        <input ref="fileInput" type="file" accept=".rrq_conf,.json" hidden @change="importConf" />
       </div>
     </div>
   </q-page>

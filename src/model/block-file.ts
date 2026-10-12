@@ -5,7 +5,8 @@ import Type from 'typebox';
 import Value from 'typebox/value';
 import { findDuplicateIds } from './ids';
 import { DEFAULT_LICENSE, settleCredits } from './credits';
-import { itemId } from './identity';
+import { canonicalContent, itemId, stableStringify } from './identity';
+import { isLibraryItem } from './library-items';
 import { createProject } from './new-project';
 import { variationName } from './new-quilt';
 import { Block } from './schema/block';
@@ -33,16 +34,16 @@ const colorIdsOf = (b: Block) =>
     ),
   );
 
-/** `palette`: colors to draw from (project + library); only those the block uses are written. */
-export function serializeBlock(
+/** `palette`: colors to draw from (project + library); only those the block uses are kept. */
+export function blockFile(
   block: Block,
   units: Units,
   palette: readonly Color[],
   author: string,
-): string {
+): BlockFile {
   const used = colorIdsOf(block);
   const colors = [...new Map(palette.filter((c) => used.has(c.id)).map((c) => [c.id, c])).values()];
-  const file: BlockFile = {
+  return {
     format: BLOCK_FORMAT,
     version: BLOCK_VERSION,
     units,
@@ -50,8 +51,10 @@ export function serializeBlock(
     block,
     colors,
   };
-  return JSON.stringify(file);
 }
+
+export const serializeBlock = (...args: Parameters<typeof blockFile>) =>
+  JSON.stringify(blockFile(...args));
 
 export function parseBlockFile(
   text: string,
@@ -94,9 +97,12 @@ export function importBlock(
   me: string,
 ): { doc: RrqDoc; blockId: string } {
   const existing = doc.project.blocks.find((b) => b.id === file.block.id);
-  if (existing && existing.version && existing.version === file.block.version) {
-    return { doc, blockId: existing.id };
-  }
+  const same = (x: Block) =>
+    x.version && file.block.version
+      ? x.version === file.block.version
+      : stableStringify(canonicalContent(x, doc.units)) ===
+        stableStringify(canonicalContent(file.block, file.units));
+  if (existing && same(existing)) return { doc, blockId: existing.id };
   const k = file.units === doc.units ? 1 : doc.units === 'cm' ? 2.54 : 1 / 2.54;
   const haveColors = new Set(doc.project.palette.colors.map((c) => c.id));
   const known = new Set([...haveColors, ...file.colors.map((c) => c.id)]);
@@ -127,4 +133,26 @@ export function importBlock(
     d.project.palette.colors.push(...file.colors.filter((c) => !haveColors.has(c.id)));
   });
   return { doc: next, blockId: block.id };
+}
+
+/**
+ * Import every block of another (already parsed) project, nothing else, as if each were a `.rrqb`.
+ * Blocks from a library the user already has (`skip`) are left out. Returns how many were added.
+ */
+export function importProjectBlocks(
+  doc: RrqDoc,
+  from: RrqDoc,
+  me: string,
+  skip: (id: string) => boolean = () => false,
+): { doc: RrqDoc; added: number } {
+  let next = doc;
+  let added = 0;
+  for (const b of from.project.blocks) {
+    if (b.notecard.tags?.includes('system') || (isLibraryItem(b) && skip(b.id))) continue;
+    const file = blockFile(b, from.units, from.project.palette.colors, from.project.author ?? '');
+    const r = importBlock(next, file, me);
+    if (r.doc !== next) added++;
+    next = r.doc;
+  }
+  return { doc: next, added };
 }

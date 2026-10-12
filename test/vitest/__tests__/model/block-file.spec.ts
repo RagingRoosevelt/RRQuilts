@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { addStarterContent } from '@/content/starter';
-import { importBlock, parseBlockFile, serializeBlock } from '@/model/block-file';
+import {
+  importBlock,
+  importProjectBlocks,
+  parseBlockFile,
+  serializeBlock,
+} from '@/model/block-file';
 import { createProject } from '@/model/new-project';
 import { newBlock } from '@/editor/block-ops';
 import { produce } from 'immer';
@@ -36,9 +41,29 @@ describe('.rrqb block files', () => {
     const once = importBlock(createProject(), parsed.file, 'Sam');
     expect(once.blockId).toBe(mine.id);
     expect(once.doc.project.blocks[0]!.author).toBe('Jane Doe');
-    const twice = importBlock(once.doc, parsed.file, 'Sam');
+    expect(importBlock(once.doc, parsed.file, 'Sam').doc).toBe(once.doc); // same design: no-op
+    const changed = {
+      ...parsed.file,
+      block: { ...parsed.file.block, size: [12, 12] as [number, number] },
+    };
+    const twice = importBlock(once.doc, changed, 'Sam');
     expect(twice.blockId).toMatch(/^sam\./);
     expect(twice.doc.project.blocks.map((b) => b.notecard.name)).toEqual(['Mine', 'Mine (2)']);
+  });
+
+  it('imports only the blocks of another project, skipping library blocks I already have', () => {
+    const mine = newBlock('Mine', [10, 10], 'in', 'Jane Doe');
+    const from = produce(addStarterContent(createProject('src', 'in')), (d) => {
+      d.project.blocks.push(mine);
+      d.project.author = 'Jane Doe';
+    });
+    const into = createProject('dst', 'cm');
+    const r = importProjectBlocks(into, from, 'Sam', (id) => id.startsWith('rrquilts.'));
+    expect(r.added).toBe(1);
+    expect(r.doc.project.blocks.map((b) => [b.id, b.size[0]])).toEqual([[mine.id, 25.4]]);
+    expect(r.doc.project.quilts).toHaveLength(0);
+    expect(importProjectBlocks(r.doc, from, 'Sam', () => true).added).toBe(0); // already there
+    expect(importProjectBlocks(into, from, 'Sam').added).toBe(14); // starter blocks too
   });
 
   it('rejects other files and damaged blocks', () => {
