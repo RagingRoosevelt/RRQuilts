@@ -471,7 +471,6 @@ const look = computed(() => ({
   markLength: prefs.value.seamAllowance ? seam.value : seam.value / 2,
   labels: prefs.value.labels,
   tint: prefs.value.tint,
-  inside: prefs.value.labelsInside,
 }));
 
 // Colors by fill key.
@@ -618,10 +617,10 @@ const view = computed<View | undefined>(() => {
 
 // Templates: each distinct shape, cut line around it, rotated snug, packed on pages.
 function templateItems(pieces: Piece[], prefix: string) {
-  const { mirror, seamAllowance, trimPoints, tint } = prefs.value;
-  // Tinted: one template per fabric, so each prints in its own color.
+  const { mirror, seamAllowance, trimPoints, tint, labels } = prefs.value;
+  // Tinted or color-keyed: one template per fabric.
   const list = templates(pieces, prefix).flatMap((t) =>
-    tint && t.counts.size > 1
+    (tint || labels.color) && t.counts.size > 1
       ? [...t.counts].map(([fill, n]) => ({ ...t, counts: new Map([[fill, n]]) }))
       : [t],
   );
@@ -869,7 +868,7 @@ const sheets = computed<Sheet[]>(() => {
   return out;
 });
 
-// Tinted templates carry their fabric's number (A-2 = A cut from fabric 2), numbered in order of
+// With the color key, templates carry their fabric's number (A-2 = A cut from fabric 2), numbered in order of
 // first appearance across the printout.
 const fabricNos = computed(
   () =>
@@ -880,9 +879,13 @@ const fabricNos = computed(
     ),
 );
 const code = (letter: string, fill: string) =>
-  prefs.value.tint && fabricNos.value.has(fill) ? `${letter}-${fabricNos.value.get(fill)}` : letter;
+  prefs.value.labels.color && fabricNos.value.has(fill)
+    ? `${letter}-${fabricNos.value.get(fill)}`
+    : letter;
 const fabricItems = computed(() =>
-  prefs.value.tint ? [...fabricNos.value].map(([f, n]) => ({ fill: f, n, ...fillInfo(f) })) : [],
+  prefs.value.labels.color
+    ? [...fabricNos.value].map(([f, n]) => ({ fill: f, n, ...fillInfo(f) }))
+    : [],
 );
 const fabricLegend = computed(() => fabricItems.value.map((x) => `${x.n} ${x.name}`).join(' · '));
 

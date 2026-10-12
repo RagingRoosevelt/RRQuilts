@@ -34,8 +34,8 @@ picture, block picture — from the existing Print tabs."
   trimmed points (tips under 90° cut ¼″ past the sewing corner), shaded seam allowance, curve
   alignment marks (notch mid-curve), labels (letter / cut counts / finished size), tint by fabric
   (one fabric only), one template per page.
-- Q: Tinted templates? → A: One per fabric, coded by fabric number (A-2 = A from fabric 2; legend on
-  the key). The template key is on the block page by default (option); template pages then skip
+- Q: Tinted templates? → A: One per fabric. A separate "Color key" label codes them by fabric number
+  (A-2 = A from fabric 2; legend on the key). The template key is on the block page by default (option); template pages then skip
   it. Block pages show fabric pills only for fabrics that block uses.
 - Q: Look? → A: User settings, defaulting to a solid cutting line, dashed sewing line, grain arrow,
   thin lines, mirror off.

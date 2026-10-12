@@ -36,9 +36,11 @@ export const PRINT_DEFAULTS = {
   trimPoints: false,
   shadeSeam: false,
   curveMarks: true,
-  labels: { letter: true, counts: true, size: false },
-  /** Labels inside the template (at its roomiest spot) or as a caption under it. */
-  labelsInside: true,
+  /**
+   * Checked: printed on the template; unchecked: under it. `color`: fabric numbers in template codes
+   * (A-2), one template per fabric, with a legend.
+   */
+  labels: { letter: true, counts: true, size: false, color: false },
   tint: false,
   onePerPage: false,
   /** Label the block page's picture with template codes (then template pages skip their key). */

@@ -226,18 +226,9 @@
           @update:model-value="(v: boolean) => set('onePerPage', v)"
         />
         <div>
-          <div class="text-caption text-grey-7">Labels on each template</div>
-          <q-btn-toggle
-            :model-value="prefs.labelsInside"
-            no-caps
-            dense
-            class="q-my-xs"
-            :options="[
-              { label: 'On template', value: true },
-              { label: 'Under template', value: false },
-            ]"
-            @update:model-value="(v: boolean) => set('labelsInside', v)"
-          />
+          <div class="text-caption text-grey-7">
+            Labels on each template (unchecked ones print under it)
+          </div>
           <div class="label-grid">
             <q-checkbox
               v-for="l in LABELS"
@@ -389,6 +380,7 @@ const LABELS = [
   { key: 'letter', label: 'Letter' },
   { key: 'counts', label: 'Cut counts' },
   { key: 'size', label: 'Finished size' },
+  { key: 'color', label: 'Color key' },
 ] as const;
 
 // What the preview prints (sent up whenever it changes).
