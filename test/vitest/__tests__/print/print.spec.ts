@@ -24,6 +24,9 @@ describe('print geometry', () => {
     expect(fmtLen(3.3125, 'in')).toBe('3 5/16″');
     expect(fmtLen(0.25, 'in')).toBe('¼″');
     expect(fmtLen(9.5, 'cm')).toBe('9.5 cm');
+    expect(fmtLen(1 / 3, 'in')).toBe('0.333″ (~ 5/16″)');
+    expect(fmtLen(10 / 3, 'in')).toBe('3.333″ (~ 3 5/16″)');
+    expect(fmtLen(2 / 3, 'in')).toBe('0.667″ (~ 11/16″)');
     expect(fmtFabric(49.5, 'in')).toBe('1⅜ yd');
     expect(roundUp(3.854, 0.125)).toBe(3.875);
   });
