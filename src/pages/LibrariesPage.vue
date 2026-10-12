@@ -521,6 +521,7 @@
 </template>
 
 <script setup lang="ts">
+import { useAskCategory } from '@/composables/category';
 // Libraries (spec 011): browse every library; manage My library; back up, restore, share, import.
 import { useQuasar } from 'quasar';
 import { computed, defineComponent, h, ref } from 'vue';
@@ -665,21 +666,11 @@ function remove(id: string) {
     ok: { label: 'Delete', color: 'negative', flat: true },
   }).onOk(() => void update((l) => removeItem(l, id)));
 }
-function pickCategory(id: string) {
-  const lib = library.mine!;
-  const item = lib.items.find((i) => i.data.id === id);
-  $q.dialog({
-    title: 'Category',
-    options: {
-      type: 'radio',
-      model: item?.category ?? '',
-      items: [
-        { label: 'Uncategorized', value: '' },
-        ...lib.categories.map((c) => ({ label: c.name, value: c.id })),
-      ],
-    },
-    cancel: true,
-  }).onOk((v: string) => void update((l) => setCategory(l, id, v || undefined)));
+const askCategory = useAskCategory();
+async function pickCategory(id: string) {
+  const item = library.mine!.items.find((i) => i.data.id === id);
+  const v = await askCategory('Category', item?.category ?? '');
+  if (v !== null) await update((l) => setCategory(l, id, v));
 }
 
 const tagging = ref<{ id: string; tags: string[]; styles: string[] } | null>(null);

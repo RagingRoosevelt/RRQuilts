@@ -582,6 +582,7 @@ import { useProjectStore } from '@/stores/project';
 import { useLibraryStore } from '@/stores/library';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthor } from '@/composables/author';
+import { useAskCategory } from '@/composables/category';
 import {
   importBlock,
   importProjectBlocks,
@@ -774,29 +775,8 @@ async function editLibrary(lib: Block) {
 // --- My library (spec 011) ---
 const linkOf = (b: Block) => linkState(library.mine ?? undefined, b, project.doc!.units);
 
-/** Category for a new My-library item (asked only when there are categories). */
-function askCategory(): Promise<string | undefined | null> {
-  const cats = library.mine?.categories ?? [];
-  if (!cats.length) return Promise.resolve(undefined);
-  return new Promise((resolve) =>
-    $q
-      .dialog({
-        title: `Add to ${MY_LIBRARY}`,
-        message: 'Category',
-        options: {
-          type: 'radio',
-          model: '',
-          items: [
-            { label: 'Uncategorized', value: '' },
-            ...cats.map((c) => ({ label: c.name, value: c.id })),
-          ],
-        },
-        cancel: true,
-      })
-      .onOk((v: string) => resolve(v || undefined))
-      .onCancel(() => resolve(null)),
-  );
-}
+const askCategoryFor = useAskCategory();
+const askCategory = () => askCategoryFor(`Add to ${MY_LIBRARY}`);
 
 /** Take the library links a My-library operation set on blocks/colors into the open project. */
 function applyLinks(next: RrqDoc) {
