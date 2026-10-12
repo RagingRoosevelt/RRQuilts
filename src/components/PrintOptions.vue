@@ -214,6 +214,12 @@
           @update:model-value="(v: boolean) => set('tint', v)"
         />
         <q-toggle
+          :model-value="prefs.keyOnBlockPage"
+          dense
+          label="Template key on the block page"
+          @update:model-value="(v: boolean) => set('keyOnBlockPage', v)"
+        />
+        <q-toggle
           :model-value="prefs.onePerPage"
           dense
           label="One template per page"

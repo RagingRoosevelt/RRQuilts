@@ -39,6 +39,8 @@ export const PRINT_DEFAULTS = {
   labels: { letter: true, counts: true, size: false },
   tint: false,
   onePerPage: false,
+  /** Label the block page's picture with template codes (then template pages skip their key). */
+  keyOnBlockPage: true,
   lineWeight: 'thin' as 'thin' | 'medium' | 'thick',
   mirror: false,
   outline: false,

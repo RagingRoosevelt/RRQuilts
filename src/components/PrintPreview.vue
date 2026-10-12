@@ -205,7 +205,7 @@
                     stroke="#000"
                     :stroke-width="(stroke / s.scale) * 0.6"
                   />
-                  <!-- Template key (one template per page puts it here) -->
+                  <!-- Template key -->
                   <text
                     v-for="(l, j) in s.labels"
                     :key="`k${j}`"
@@ -213,9 +213,7 @@
                     :y="l.y + (font / s.scale) * 0.3"
                     :font-size="(font / s.scale) * 0.8"
                     text-anchor="middle"
-                    stroke="#fff"
-                    :stroke-width="(font / s.scale) * 0.06"
-                    paint-order="stroke"
+                    :fill="l.light ? '#fff' : '#000'"
                   >
                     {{ l.text }}
                   </text>
@@ -224,9 +222,13 @@
                   <div class="text-h6">{{ s.name }}</div>
                   <div>Finished size {{ s.size }}</div>
                   <div v-if="s.labels.length" class="text-caption">
-                    Letters are the template codes<template v-if="fabricLegend">
-                      · fabrics: {{ fabricLegend }}</template
-                    >
+                    Letters are the template codes.
+                    <div v-if="s.fabrics.length" class="row q-mt-xs" style="gap: 4px">
+                      <span v-for="f in s.fabrics" :key="f.n" class="pill">
+                        <span class="chip" :style="{ background: f.css }" /> {{ f.n }} ·
+                        {{ f.name }}
+                      </span>
+                    </div>
                   </div>
                   <div>
                     {{ s.count }} block{{ s.count === 1 ? '' : 's' }}
@@ -716,8 +718,10 @@ type Sheet =
       byline: string;
       basedOn: Credit[];
       notes?: string | undefined;
-      /** Template codes on the picture (one template per page). */
-      labels: { x: number; y: number; text: string }[];
+      /** Template codes on the picture (the template key). */
+      labels: { x: number; y: number; text: string; light: boolean }[];
+      /** Fabric numbers this block uses (tinted codes). */
+      fabrics: { n: number; name: string; css: string }[];
     }
   | {
       kind: 'picture';
@@ -803,7 +807,7 @@ const sheets = computed<Sheet[]>(() => {
           size: v.blockSize!,
           keyPieces: v.keyPieces,
           heading: 'Templates',
-          noKey: prefs.value.onePerPage && wanted.includes('picture'),
+          noKey: prefs.value.keyOnBlockPage && wanted.includes('picture'),
         }),
       );
     }
@@ -816,7 +820,7 @@ const sheets = computed<Sheet[]>(() => {
             keyPieces: blockPieces(u.block, u.size, u.coloring),
             heading: `Templates: ${u.number} · ${u.block.notecard.name}`,
             prefix: String(u.number),
-            noKey: prefs.value.onePerPage && wanted.includes('blocks'),
+            noKey: prefs.value.keyOnBlockPage && wanted.includes('blocks'),
           }),
         );
       }
@@ -875,21 +879,23 @@ const fabricNos = computed(
 );
 const code = (letter: string, fill: string) =>
   prefs.value.tint && fabricNos.value.has(fill) ? `${letter}-${fabricNos.value.get(fill)}` : letter;
-const fabricLegend = computed(() =>
-  prefs.value.tint
-    ? [...fabricNos.value].map(([f, n]) => `${n} ${fillInfo(f).name}`).join(' · ')
-    : '',
+const fabricItems = computed(() =>
+  prefs.value.tint ? [...fabricNos.value].map(([f, n]) => ({ fill: f, n, ...fillInfo(f) })) : [],
 );
+const fabricLegend = computed(() => fabricItems.value.map((x) => `${x.n} ${x.name}`).join(' · '));
 
 /** Each patch's template code at its center (block coordinates), for keys. */
 function keyLabels(keyPieces: Piece[], prefix: string) {
   const letters = new Map(templates(keyPieces, prefix).map((t) => [shapeKey(t.poly), t.letter]));
   return keyPieces.map((p) => {
     const c = p.poly.reduce((a, q) => [a[0] + q[0], a[1] + q[1]], [0, 0]);
+    const [R, G, B] = (fillInfo(p.fill).css.match(/\d+/g) ?? ['255', '255', '255']).map(Number);
     return {
       x: c[0] / p.poly.length,
       y: c[1] / p.poly.length,
       text: code(letters.get(shapeKey(p.poly)) ?? '', p.fill),
+      /** Light text on dark fabric (pictures in color only). */
+      light: !prefs.value.outline && 0.299 * R! + 0.587 * G! + 0.114 * B! < 128,
     };
   });
 }
@@ -1058,7 +1064,8 @@ function blockPage(
     byline: `By ${authorOf(block) ?? 'anonymous'} · ${licenseName(effectiveLicense(block, dd, blockLock(block)))}`,
     basedOn: priorCredits(block),
     notes: block.notecard.notes,
-    labels: prefs.value.onePerPage ? keyLabels(one, number ? String(number) : '') : [],
+    labels: prefs.value.keyOnBlockPage ? keyLabels(one, number ? String(number) : '') : [],
+    fabrics: fabricItems.value.filter((f) => pieces.has(f.fill)),
   };
 }
 const creditLine = (c: Credit) =>
@@ -1150,6 +1157,12 @@ const fit = computed(() =>
 .notes {
   white-space: pre-wrap;
   text-align: left;
+}
+.pill {
+  border: 0.2mm solid #666;
+  border-radius: 999px;
+  padding: 0.3mm 2mm;
+  white-space: nowrap;
 }
 .byline {
   font-size: 9pt;
