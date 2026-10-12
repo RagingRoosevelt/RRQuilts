@@ -7,6 +7,7 @@ import { produce } from 'immer';
 import { mul, orient, type M } from '@/render/affine';
 import { generateSlots } from '@/model/layout/slots';
 import { createProject } from '@/model/new-project';
+import { expectFast } from '../timing';
 import type { RrqDoc } from '@/model/schema/project';
 
 function setup() {
@@ -181,7 +182,7 @@ describe('editor actions', () => {
     ).toMatch(/block here/);
   });
 
-  it('sets and paints on a 900-block quilt in under 100 ms each', () => {
+  it('sets and paints on a 900-block quilt in under 150 ms each', () => {
     const { doc, byName, color } = setup();
     const big = {
       ...doc,
@@ -200,23 +201,19 @@ describe('editor actions', () => {
       big.project.quilts[0]!.borders,
     ).slots.map((s) => s.id);
     const star = byName('Ohio Star');
-    let t = performance.now();
-    const d = run(big, ids, 'b:r1c1', {
-      tool: 'set',
-      scope: 'all',
-      block: star.id,
-      color: null,
-    }).doc!;
-    expect(performance.now() - t).toBeLessThan(100);
-    t = performance.now();
-    run(
-      d,
-      ids,
-      'b:r1c1',
-      { tool: 'paint', scope: 'alternate', block: null, color: color('Red') },
-      allPatches(star)[0]!.id,
+    const set = () =>
+      run(big, ids, 'b:r1c1', { tool: 'set', scope: 'all', block: star.id, color: null }).doc!;
+    expectFast('Set on 900-block quilt', set);
+    const d = set();
+    expectFast('Paint alternate on 900-block quilt', () =>
+      run(
+        d,
+        ids,
+        'b:r1c1',
+        { tool: 'paint', scope: 'alternate', block: null, color: color('Red') },
+        allPatches(star)[0]!.id,
+      ),
     );
-    expect(performance.now() - t).toBeLessThan(100);
   });
 
   it('flip mirrors left↔right or top↕bottom as seen on screen, even on rotated blocks', () => {

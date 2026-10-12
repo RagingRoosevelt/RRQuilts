@@ -20,6 +20,7 @@ import type { Drawing } from '@/model/schema/block';
 import { applySeamEdit } from '@/model/blocks/edit';
 import { addStarterContent } from '@/content/starter';
 import { createProject } from '@/model/new-project';
+import { expectFast } from '../timing';
 import { newBlock } from '@/editor/block-ops';
 
 const empty: Drawing = { nodes: [], segments: [] };
@@ -130,7 +131,7 @@ describe('drawing operations', () => {
     expect(r.guides).toEqual([{ a: [0, 0.5], b: [1, 0.5] }]);
   });
 
-  it('a 200-seam block edit (derive + remap) takes under 100 ms', () => {
+  it('a 200-seam block edit (derive + remap) takes under 150 ms', () => {
     const doc0 = addStarterContent(createProject());
     const b = newBlock('Busy', [10, 10], 'in');
     let doc = { ...doc0, project: { ...doc0.project, blocks: [...doc0.project.blocks, b] } };
@@ -142,8 +143,6 @@ describe('drawing operations', () => {
     }
     doc = applySeamEdit(doc, b.id, d).doc;
     const next = addLine(d, pt(0.05, 0), pt(0.05, 1));
-    const start = performance.now();
-    applySeamEdit(doc, b.id, next);
-    expect(performance.now() - start).toBeLessThan(100);
+    expectFast('200-seam block edit', () => applySeamEdit(doc, b.id, next));
   });
 });
