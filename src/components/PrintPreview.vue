@@ -63,7 +63,15 @@
                   >
                     {{ l.text }}
                   </text>
-                  <text :x="0" :y="p.h + font" :font-size="font * 0.8">Key</text>
+                  <text :x="0" :y="p.keyBlock.height + font" :font-size="font * 0.8">Key</text>
+                  <text
+                    v-if="fabricLegend"
+                    :x="0"
+                    :y="p.keyBlock.height + font * 2.1"
+                    :font-size="font * 0.7"
+                  >
+                    Fabrics: {{ fabricLegend }}
+                  </text>
                 </template>
                 <TemplatePiece v-else :piece="p" :look="look" />
               </g>
@@ -197,10 +205,29 @@
                     stroke="#000"
                     :stroke-width="(stroke / s.scale) * 0.6"
                   />
+                  <!-- Template key (one template per page puts it here) -->
+                  <text
+                    v-for="(l, j) in s.labels"
+                    :key="`k${j}`"
+                    :x="l.x"
+                    :y="l.y + (font / s.scale) * 0.3"
+                    :font-size="(font / s.scale) * 0.8"
+                    text-anchor="middle"
+                    stroke="#fff"
+                    :stroke-width="(font / s.scale) * 0.06"
+                    paint-order="stroke"
+                  >
+                    {{ l.text }}
+                  </text>
                 </svg>
                 <div class="column" style="gap: 4px">
                   <div class="text-h6">{{ s.name }}</div>
                   <div>Finished size {{ s.size }}</div>
+                  <div v-if="s.labels.length" class="text-caption">
+                    Letters are the template codes<template v-if="fabricLegend">
+                      · fabrics: {{ fabricLegend }}</template
+                    >
+                  </div>
                   <div>
                     {{ s.count }} block{{ s.count === 1 ? '' : 's' }}
                     <template v-if="s.quilt">planned in “{{ s.quilt }}”</template>
@@ -619,7 +646,7 @@ function templateItems(pieces: Piece[], prefix: string) {
     const counts = [...t.counts.entries()].map(([fill, n]) => `${n} ${fillInfo(fill).name}`);
     return {
       key: `${t.letter}|${fills.join()}`,
-      letter: t.letter,
+      letter: fills.length === 1 ? code(t.letter, fills[0]!) : t.letter,
       cut: c.map(shift),
       sew,
       center: [cx, cy] as Pt,
@@ -689,6 +716,8 @@ type Sheet =
       byline: string;
       basedOn: Credit[];
       notes?: string | undefined;
+      /** Template codes on the picture (one template per page). */
+      labels: { x: number; y: number; text: string }[];
     }
   | {
       kind: 'picture';
@@ -701,6 +730,7 @@ type Sheet =
       scale: number;
     };
 interface KeyBlock {
+  height: number;
   paths: string[];
   labels: { x: number; y: number; text: string }[];
 }
@@ -773,6 +803,7 @@ const sheets = computed<Sheet[]>(() => {
           size: v.blockSize!,
           keyPieces: v.keyPieces,
           heading: 'Templates',
+          noKey: prefs.value.onePerPage && wanted.includes('picture'),
         }),
       );
     }
@@ -785,6 +816,7 @@ const sheets = computed<Sheet[]>(() => {
             keyPieces: blockPieces(u.block, u.size, u.coloring),
             heading: `Templates: ${u.number} · ${u.block.notecard.name}`,
             prefix: String(u.number),
+            noKey: prefs.value.onePerPage && wanted.includes('blocks'),
           }),
         );
       }
@@ -831,6 +863,37 @@ const sheets = computed<Sheet[]>(() => {
   return out;
 });
 
+// Tinted templates carry their fabric's number (A-2 = A cut from fabric 2), numbered in order of
+// first appearance across the printout.
+const fabricNos = computed(
+  () =>
+    new Map(
+      [...new Set(view.value?.pieces.map((p) => p.fill) ?? [])]
+        .filter((f) => f !== 'none')
+        .map((f, i) => [f, i + 1]),
+    ),
+);
+const code = (letter: string, fill: string) =>
+  prefs.value.tint && fabricNos.value.has(fill) ? `${letter}-${fabricNos.value.get(fill)}` : letter;
+const fabricLegend = computed(() =>
+  prefs.value.tint
+    ? [...fabricNos.value].map(([f, n]) => `${n} ${fillInfo(f).name}`).join(' · ')
+    : '',
+);
+
+/** Each patch's template code at its center (block coordinates), for keys. */
+function keyLabels(keyPieces: Piece[], prefix: string) {
+  const letters = new Map(templates(keyPieces, prefix).map((t) => [shapeKey(t.poly), t.letter]));
+  return keyPieces.map((p) => {
+    const c = p.poly.reduce((a, q) => [a[0] + q[0], a[1] + q[1]], [0, 0]);
+    return {
+      x: c[0] / p.poly.length,
+      y: c[1] / p.poly.length,
+      text: code(letters.get(shapeKey(p.poly)) ?? '', p.fill),
+    };
+  });
+}
+
 /** Blocks placed in the quilt being printed, in layout order: size and coloring of the first. */
 function quiltBlocks() {
   const dd = doc.value!;
@@ -864,6 +927,8 @@ function templateSheets(src: {
   heading: string;
   /** Letter prefix: the block's number in a quilt printout. */
   prefix?: string;
+  /** The key is on the block page instead. */
+  noKey?: boolean;
 }): Sheet[] {
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
@@ -872,9 +937,6 @@ function templateSheets(src: {
   const items = templateItems(src.pieces, prefix);
   // Key: the block with each patch's letter, about a quarter of the page wide.
   const keyScale = Math.min(aw, ah) / 4 / Math.max(...src.size);
-  const letters = new Map(
-    templates(src.keyPieces, prefix).map((t) => [shapeKey(t.poly), t.letter]),
-  );
   const keyItem = {
     key: 'key',
     letter: '',
@@ -889,21 +951,20 @@ function templateSheets(src: {
     x: 0,
     y: 0,
     w: src.size[0] * keyScale,
-    h: src.size[1] * keyScale + font.value * 1.5,
+    h: src.size[1] * keyScale + font.value * (fabricLegend.value ? 2.7 : 1.5),
     keyBlock: {
+      height: src.size[1] * keyScale,
       paths: src.keyPieces.map((p) => d(p.poly.map(([x, y]): Pt => [x * keyScale, y * keyScale]))),
-      labels: src.keyPieces.map((p) => {
-        const c = p.poly.reduce((a, q) => [a[0] + q[0], a[1] + q[1]], [0, 0]);
-        const t = templates([p])[0]!;
-        return {
-          x: (c[0] / p.poly.length) * keyScale,
-          y: (c[1] / p.poly.length) * keyScale,
-          text: letters.get(shapeKey(t.poly)) ?? '',
-        };
-      }),
+      labels: keyLabels(src.keyPieces, prefix).map((l) => ({
+        ...l,
+        x: l.x * keyScale,
+        y: l.y * keyScale,
+      })),
     },
   };
-  const all: (PlacedPiece & { h: number; keyBlock?: KeyBlock })[] = [keyItem, ...items];
+  const all: (PlacedPiece & { h: number; keyBlock?: KeyBlock })[] = src.noKey
+    ? items
+    : [keyItem, ...items];
   const boxes = all.map((it) => ({ w: it.w, h: it.h + font.value * 2.4 }));
   // One per page: pack each on its own (still turned to fit, still tiled when too big).
   const { pages, oversize } = prefs.value.onePerPage
@@ -997,6 +1058,7 @@ function blockPage(
     byline: `By ${authorOf(block) ?? 'anonymous'} · ${licenseName(effectiveLicense(block, dd, blockLock(block)))}`,
     basedOn: priorCredits(block),
     notes: block.notecard.notes,
+    labels: prefs.value.onePerPage ? keyLabels(one, number ? String(number) : '') : [],
   };
 }
 const creditLine = (c: Credit) =>
