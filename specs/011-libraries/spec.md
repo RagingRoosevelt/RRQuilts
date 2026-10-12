@@ -105,7 +105,7 @@ library has revision 2, and every project offers the new version.
 
 Colors live in My library as named collections ("Kona brights", "Granny's scraps"), not one by one.
 
-**Independent Test**: Fabrics & Colors › select four of the project's colors › Save as collection
+**Independent Test**: Fabrics & Colors › select four of the project's colors › Save to my library
 "Sunset" → Libraries › My library shows Sunset with four swatches; another project's palette lists
 Sunset's colors.
 

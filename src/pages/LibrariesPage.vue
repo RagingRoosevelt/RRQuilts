@@ -212,7 +212,7 @@
         <div v-else class="text-grey-7 q-pa-md" style="max-width: 560px">
           Your own blocks and color collections, available in every project on this device. Add a
           block from a project's Blocks tab (<b>Add to my library</b>), save colors from its Fabrics
-          & Colors tab (<b>Save as collection</b>), or import a backup.
+          & Colors tab (<b>Save to my library</b>), or import a backup.
         </div>
       </div>
     </div>

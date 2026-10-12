@@ -271,7 +271,7 @@
           dense
           no-caps
           icon="collections_bookmark"
-          label="Save as collection…"
+          label="Save to my library…"
           :disable="!pickedColors.length"
           @click="saveAsCollection"
         />
@@ -808,8 +808,8 @@ const collectionInput = ref<HTMLInputElement>();
 
 function saveAsCollection() {
   $q.dialog({
-    title: 'Save as collection',
-    message: `${pickedColors.value.length} color(s) → a new collection in ${MY_LIBRARY}`,
+    title: 'Save to my library',
+    message: `${pickedColors.value.length} color(s) → a new color collection in ${MY_LIBRARY}. Name:`,
     prompt: { model: '', type: 'text', isValid: (v: string) => !!v.trim() },
     cancel: true,
   }).onOk((name: string) => void saveCollectionNamed(name));

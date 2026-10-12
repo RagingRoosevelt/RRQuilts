@@ -7,7 +7,7 @@ Settings: author "Jane".
 2. Starter › Ohio Star › Copy to my library → My library has it, author Jane, "Based on Ohio Star by
    RRQuilts contributors".
 3. New project A › Blocks › New block "Jane Star", color it with a new own color › card menu › Add
-   to my library… → bookmark icon. Fabrics & Colors › tap two own colors › Save as collection
+   to my library… → bookmark icon. Fabrics & Colors › tap two own colors › Save to my library
    "Jewel".
 4. New project B › Blocks → a "My library" group lists Jane Star (drawn in its colors); the tray's
    colors list "Jewel". Set Jane Star in a quilt.

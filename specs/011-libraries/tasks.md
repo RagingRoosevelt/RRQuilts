@@ -14,6 +14,6 @@
       /remove
 - [x] T009 Sketchbook: Library grouped by library; Add / Sync / Copy to my library; `splitItems`
       linked copies
-- [x] T010 Colors: Save as collection / Add to collection; `.rrqcc` import in Fabrics & Colors;
+- [x] T010 Colors: Save to my library / Add to collection; `.rrqcc` import in Fabrics & Colors;
       tray groups by collection; Edit a copy of library colors
 - [x] T011 Playwright smoke; `quickstart.md`; CLAUDE.md; `make commit`
