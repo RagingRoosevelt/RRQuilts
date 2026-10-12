@@ -74,6 +74,13 @@ printout matches; the scale square measures 1″.
 1. **Given** a quilt or block, **Then** a picture in color or outlines only, with name and finished
    size; blocks at true size when they fit the page, otherwise scaled with the scale stated.
 
+### User Story 5 - Block pages (Priority: P2)
+
+1. **Given** a quilt printout with Block pages, **Then** each block used gets a page: picture,
+   finished size, number planned, fabric per color for all of them, and its credits; the Credits
+   page is then left out (each block page carries its own). Without block pages, a Credits page
+   lists everyone. A block printout's "Block page" is the same page.
+
 ### Every printout
 
 - Header: name, finished size, project. Footer: author, license, everyone credited (spec 009).

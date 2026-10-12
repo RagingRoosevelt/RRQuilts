@@ -3,7 +3,7 @@
 import type { Units } from '../schema/project';
 
 export type BlockSection = 'templates' | 'rotary' | 'picture';
-export type QuiltSection = 'picture' | 'yardage' | 'rotary';
+export type QuiltSection = 'picture' | 'blocks' | 'yardage' | 'rotary';
 
 const perUnits = <T>(inches: T, cm: T) => ({ in: inches, cm });
 
@@ -33,7 +33,7 @@ export const PRINT_DEFAULTS = {
   mirror: false,
   outline: false,
   blockSections: ['templates', 'rotary'] as BlockSection[],
-  quiltSections: ['picture', 'yardage', 'rotary'] as QuiltSection[],
+  quiltSections: ['picture', 'blocks', 'yardage', 'rotary'] as QuiltSection[],
 };
 export type PrintPrefs = typeof PRINT_DEFAULTS;
 

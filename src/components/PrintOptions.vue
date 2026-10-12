@@ -256,10 +256,11 @@ const sectionOptions = computed(() =>
     ? [
         { value: 'templates', label: 'Templates' },
         { value: 'rotary', label: 'Rotary cutting chart' },
-        { value: 'picture', label: 'Block picture' },
+        { value: 'picture', label: 'Block page (picture, fabric, credits)' },
       ]
     : [
         { value: 'picture', label: 'Quilt picture' },
+        { value: 'blocks', label: 'Block pages (picture, fabric, credits)' },
         { value: 'yardage', label: 'Yardage estimate' },
         { value: 'rotary', label: 'Rotary cutting chart' },
       ],

@@ -178,7 +178,80 @@
               </div>
             </div>
 
-            <!-- Credits: everyone whose work this is built on -->
+            <!-- A block: picture, size, how many, fabric for all of them, credits -->
+            <div v-else-if="s.kind === 'block'" class="column" style="gap: 8px">
+              <div class="row no-wrap" style="gap: 16px">
+                <svg
+                  :width="`${s.w * s.scale}${units}`"
+                  :height="`${s.h * s.scale}${units}`"
+                  :viewBox="`0 0 ${s.w} ${s.h}`"
+                  style="flex: none"
+                >
+                  <path
+                    v-for="(p, j) in s.polys"
+                    :key="j"
+                    :d="p.d"
+                    :fill="prefs.outline ? 'none' : p.css"
+                    stroke="#000"
+                    :stroke-width="(stroke / s.scale) * 0.6"
+                  />
+                </svg>
+                <div class="column" style="gap: 4px">
+                  <div class="text-h6">{{ s.name }}</div>
+                  <div>Finished size {{ s.size }}</div>
+                  <div>
+                    {{ s.count }} block{{ s.count === 1 ? '' : 's' }}
+                    <template v-if="s.quilt">planned in “{{ s.quilt }}”</template>
+                  </div>
+                  <div class="text-caption">
+                    {{
+                      s.scale >= 0.999
+                        ? 'Picture at true size'
+                        : `Picture at ${Math.round(s.scale * 100)}%`
+                    }}
+                  </div>
+                </div>
+              </div>
+              <div class="text-weight-medium">
+                Fabric for {{ s.count === 1 ? 'this block' : `all ${s.count} blocks` }}
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fabric</th>
+                    <th>Pieces</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="n in s.needs" :key="n.fill">
+                    <td>
+                      <span class="chip" :style="{ background: fillInfo(n.fill).css }" />
+                      {{ fillInfo(n.fill).name }}
+                    </td>
+                    <td>{{ s.pieces.get(n.fill) ?? 0 }}</td>
+                    <td>
+                      {{
+                        n.fatQuarters !== undefined
+                          ? `${n.fatQuarters} fat quarter${n.fatQuarters === 1 ? '' : 's'}`
+                          : fabricLabel(n.length)
+                      }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="text-caption">
+                {{ widthOption.label }}; seam allowance {{ fmt(seam) }}; rounded up to the next
+                {{ fabricStepLabel }}.
+              </div>
+              <div class="text-weight-medium">Credits</div>
+              <div>{{ s.byline }}</div>
+              <ul v-if="s.basedOn.length">
+                <li v-for="(c, j) in s.basedOn" :key="j">Based on {{ creditLine(c) }}</li>
+              </ul>
+            </div>
+
+            <!-- Credits: everyone whose work this builds on (when no block pages carry them) -->
             <div v-else-if="s.kind === 'credits'" class="column" style="gap: 8px">
               <div>
                 <b>{{ view.title }}</b> — {{ view.byline }}
@@ -223,14 +296,14 @@
                 {{ s.scale >= 0.999 ? 'True size' : `Scaled to ${Math.round(s.scale * 100)}%` }} ·
                 finished {{ view.size }}
               </div>
+              <div v-if="!isBlockKind && view.basedOn.length" class="text-caption">
+                Based on {{ view.basedOn.map(creditLine).join('; ') }}
+              </div>
             </div>
           </div>
 
           <footer class="row items-end no-wrap" style="gap: 12px">
-            <div class="col credits">
-              {{ view.title }} · {{ view.byline
-              }}<template v-if="hasCredits"> · full credits on the last page</template>
-            </div>
+            <div class="col credits">{{ view.title }} · {{ view.byline }}</div>
             <div class="column items-center">
               <div
                 class="scale-square"
@@ -284,6 +357,7 @@ import {
 import { cutPlan, type Cut, type CutKind, type CutLine } from '@/model/print/rotary';
 import { backing, binding, fabricNeeds } from '@/model/print/yardage';
 import type { Block } from '@/model/schema/block';
+import type { Quilt } from '@/model/schema/quilt';
 import type { Credit } from '@/model/schema/shared';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
@@ -434,13 +508,12 @@ const view = computed<View | undefined>(() => {
     const g = generateSlots(quilt.layout, quilt.borders);
     const pieces = quiltPieces(dd, quilt);
     const [x0, y0, x1, y1] = g.bounds;
-    const me = app.settings.author;
     return {
       title: quilt.notecard.name,
       size: sizeLabel(x1 - x0, y1 - y0),
       byline: `By ${quilt.author ?? 'anonymous'} · ${licenseName(effectiveLicense(quilt, dd, quiltLock(dd, quilt)))}`,
       basedOn: priorCredits(quilt),
-      blocks: blocksByOthers(dd, quilt, me).map((u) => ({
+      blocks: blocksByOthers(dd, quilt, app.settings.author).map((u) => ({
         name: u.block.notecard.name,
         author: u.own ? undefined : u.author,
         license: licenseName(u.license),
@@ -569,7 +642,27 @@ type Sheet =
       backing: number;
       binding: { strips: number; length: number };
     }
-  | { kind: 'credits'; heading: string }
+  | {
+      kind: 'credits';
+      heading: string;
+    }
+  | {
+      kind: 'block';
+      heading: string;
+      name: string;
+      size: string;
+      count: number;
+      quilt?: string | undefined;
+      polys: { d: string; css: string }[];
+      w: number;
+      h: number;
+      scale: number;
+      needs: ReturnType<typeof fabricNeeds>;
+      /** Pieces to cut, by fill. */
+      pieces: Map<string, number>;
+      byline: string;
+      basedOn: Credit[];
+    }
   | {
       kind: 'picture';
       heading: string;
@@ -595,8 +688,50 @@ const sheets = computed<Sheet[]>(() => {
   const gap = units.value === 'in' ? 0.25 : 0.6;
 
   // Always in the same order, whatever order the boxes were ticked in.
-  const ORDER = isBlock ? ['templates', 'rotary', 'picture'] : ['picture', 'yardage', 'rotary'];
+  const ORDER = isBlock
+    ? ['templates', 'rotary', 'picture']
+    : ['picture', 'blocks', 'yardage', 'rotary'];
   for (const section of ORDER.filter((x) => wanted.includes(x))) {
+    if (section === 'picture' && isBlock && v.block) {
+      const quilt = doc.value!.project.quilts.find((q) => q.id === props.target?.quilt);
+      out.push(
+        blockPage(
+          v.block,
+          v.blockSize!,
+          v.keyPieces!,
+          v.pieces,
+          quilt ? count(quilt, v.block.id) : 1,
+          quilt?.notecard.name,
+        ),
+      );
+      continue;
+    }
+    if (section === 'blocks' && !isBlock) {
+      const dd = doc.value!;
+      const quilt = dd.project.quilts.find((q) => q.id === props.id)!;
+      const slots = generateSlots(quilt.layout, quilt.borders).slots;
+      const seen = new Set<string>();
+      for (const slot of slots) {
+        const content = quilt.layers[0].slots[slot.id];
+        const block = content && dd.project.blocks.find((b) => b.id === content.block);
+        if (!content || !block || seen.has(block.id) || block.notecard.tags?.includes('system'))
+          continue;
+        seen.add(block.id);
+        const size: [number, number] = [slot.transform[0], slot.transform[3]];
+        const coloring = resolveColoring(quilt.colorings[content.coloring], block);
+        out.push(
+          blockPage(
+            block,
+            size,
+            blockPieces(block, size, coloring),
+            quiltPieces(dd, quilt, block.id),
+            count(quilt, block.id),
+            undefined,
+          ),
+        );
+      }
+      continue;
+    }
     if (section === 'picture') {
       const [x0, y0, x1, y1] = v.pictureBox;
       const w = x1 - x0;
@@ -728,12 +863,49 @@ const sheets = computed<Sheet[]>(() => {
       });
     }
   }
-  if (out.length && hasCredits.value) out.push({ kind: 'credits', heading: 'Credits' });
+  // Block pages carry each block's credits; without them, everyone goes on a Credits page.
+  const blockPages = out.some((x) => x.kind === 'block');
+  if (out.length && !blockPages && (v.basedOn.length || v.blocks.length))
+    out.push({ kind: 'credits', heading: 'Credits' });
   return out;
 });
-const hasCredits = computed(
-  () => !!view.value && (view.value.basedOn.length > 0 || view.value.blocks.length > 0),
-);
+
+const isBlockKind = computed(() => props.kind === 'block');
+const count = (quilt: Quilt, blockId: string) =>
+  Object.values(quilt.layers[0].slots).filter((c) => c.block === blockId).length;
+
+/** One block's page: picture (up to half the page), fabric for every placement, credits. */
+function blockPage(
+  block: Block,
+  size: [number, number],
+  one: Piece[],
+  all: Piece[],
+  n: number,
+  quiltName: string | undefined,
+): Sheet {
+  const [aw, ah] = area.value;
+  const fabric = widthOption.value;
+  const lines = cutPlan(all, seam.value, step.value, fabric.usable);
+  const pieces = new Map<string, number>();
+  for (const p of all) pieces.set(p.fill, (pieces.get(p.fill) ?? 0) + 1);
+  const dd = doc.value!;
+  return {
+    kind: 'block',
+    heading: `Block: ${block.notecard.name}`,
+    name: block.notecard.name,
+    size: sizeLabel(...size),
+    count: n,
+    quilt: quiltName,
+    polys: one.map((p) => ({ d: d(p.poly), css: fillInfo(p.fill).css })),
+    w: size[0],
+    h: size[1],
+    scale: Math.min(1, (aw * 0.6) / size[0], (ah * 0.5) / size[1]),
+    needs: fabricNeeds(lines, fabric, prefs.value.fabricStep[units.value]),
+    pieces,
+    byline: `By ${authorOf(block) ?? 'anonymous'} · ${licenseName(effectiveLicense(block, dd, blockLock(block)))}`,
+    basedOn: priorCredits(block),
+  };
+}
 const creditLine = (c: Credit) =>
   [
     `${c.name ?? 'Earlier work'} by ${c.author ?? 'anonymous'}`,
