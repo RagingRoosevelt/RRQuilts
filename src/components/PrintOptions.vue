@@ -29,7 +29,17 @@
 
     <q-expansion-item dense label="Paper" header-class="text-subtitle2" class="op-section">
       <div class="column q-pa-sm" style="gap: 8px">
-        <div class="text-body2">{{ PAPER[units].label }}</div>
+        <q-select
+          :model-value="paper.id"
+          :options="PAPERS"
+          option-value="id"
+          emit-value
+          map-options
+          dense
+          outlined
+          label="Paper"
+          @update:model-value="(v: PaperId) => setUnit('paper', v)"
+        />
         <q-btn-toggle
           :model-value="prefs.landscape"
           no-caps
@@ -183,9 +193,11 @@ import { generateSlots } from '@/model/layout/slots';
 import { fmtLen } from '@/model/print/format';
 import {
   FABRIC_STEPS,
-  PAPER,
+  PAPERS,
+  type PaperId,
   ROUNDINGS,
   WIDTHS,
+  pick,
   printPrefs,
   type PrintPrefs,
 } from '@/model/print/prefs';
@@ -203,11 +215,12 @@ const app = useSettingsStore();
 const router = useRouter();
 const units = computed(() => project.doc!.units);
 const prefs = computed(() => printPrefs(app.settings.print));
+const paper = computed(() => pick(PAPERS, prefs.value.paper[units.value]));
 
 function set<K extends keyof PrintPrefs>(key: K, value: PrintPrefs[K]) {
   app.settings.print = { ...app.settings.print, [key]: value };
 }
-type PerUnit = 'seam' | 'rounding' | 'width' | 'fabricStep' | 'overhang' | 'bindingWidth';
+type PerUnit = 'paper' | 'seam' | 'rounding' | 'width' | 'fabricStep' | 'overhang' | 'bindingWidth';
 function setUnit<K extends PerUnit>(key: K, value: PrintPrefs[K]['in']) {
   set(key, { ...prefs.value[key], [units.value]: value });
 }

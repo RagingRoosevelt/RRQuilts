@@ -265,7 +265,7 @@ import {
   type PlacedPiece,
 } from '@/model/print/pieces';
 import { bounds, offset, rotate, shapeKey, snugRotation } from '@/model/print/polygon';
-import { FABRIC_STEPS, PAPER, ROUNDINGS, WIDTHS, pick, printPrefs } from '@/model/print/prefs';
+import { FABRIC_STEPS, PAPERS, ROUNDINGS, WIDTHS, pick, printPrefs } from '@/model/print/prefs';
 import { cutPlan, type Cut, type CutKind, type CutLine } from '@/model/print/rotary';
 import { backing, binding, fabricNeeds } from '@/model/print/yardage';
 import type { Block } from '@/model/schema/block';
@@ -283,6 +283,7 @@ const app = useSettingsStore();
 const doc = computed(() => project.doc);
 const units = computed(() => doc.value?.units ?? 'in');
 const prefs = computed(() => printPrefs(app.settings.print));
+const paper = computed(() => pick(PAPERS, prefs.value.paper[units.value]));
 /** Millimeters per project unit. */
 const mm = computed(() => (units.value === 'in' ? 25.4 : 10));
 const fmt = (x: number) => fmtLen(x, units.value);
@@ -308,11 +309,11 @@ const MARGIN_MM = 12.7;
 const HEADER_MM = 14;
 const FOOTER_MM = 34;
 const paperMm = computed(() => {
-  const [w, h] = PAPER[units.value].mm;
+  const [w, h] = paper.value.mm;
   return prefs.value.landscape ? [h, w] : [w, h];
 });
 const paperLabel = computed(
-  () => `${PAPER[units.value].label}, ${prefs.value.landscape ? 'landscape' : 'portrait'}`,
+  () => `${paper.value.label}, ${prefs.value.landscape ? 'landscape' : 'portrait'}`,
 );
 const area = computed<[number, number]>(() => [
   (paperMm.value[0]! - 2 * MARGIN_MM) / mm.value,

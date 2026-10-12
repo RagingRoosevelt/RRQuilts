@@ -8,6 +8,8 @@ export type QuiltSection = 'picture' | 'yardage' | 'rotary';
 const perUnits = <T>(inches: T, cm: T) => ({ in: inches, cm });
 
 export const PRINT_DEFAULTS = {
+  /** Any paper in any project; the default follows the units (Letter for inches, A4 for cm). */
+  paper: perUnits<PaperId>('letter', 'a4'),
   landscape: false,
   seam: perUnits(0.25, 0.75),
   /** Rounding step for cut sizes; 0 = exact. */
@@ -46,11 +48,12 @@ function mergeLike<T>(def: T, raw: unknown): T {
 
 export const printPrefs = (raw: unknown): PrintPrefs => mergeLike(PRINT_DEFAULTS, raw);
 
-/** One paper per unit system: Letter for inches, A4 for centimeters (portrait, millimeters). */
-export const PAPER: Record<Units, { label: string; mm: [number, number] }> = {
-  in: { label: 'Letter (8½ × 11 in)', mm: [215.9, 279.4] },
-  cm: { label: 'A4 (21 × 29.7 cm)', mm: [210, 297] },
-};
+export const PAPERS = [
+  { id: 'letter', label: 'Letter (8½ × 11 in)', mm: [215.9, 279.4] },
+  { id: 'legal', label: 'Legal (8½ × 14 in)', mm: [215.9, 355.6] },
+  { id: 'a4', label: 'A4 (21 × 29.7 cm)', mm: [210, 297] },
+] as const;
+export type PaperId = (typeof PAPERS)[number]['id'];
 
 export interface WidthOption {
   id: string;
@@ -100,5 +103,5 @@ export const FABRIC_STEPS: Record<Units, { value: number; label: string }[]> = {
 };
 
 /** The chosen option, falling back to the first when the stored id isn't offered. */
-export const pick = <T extends { id: string }>(list: T[], id: string) =>
+export const pick = <T extends { id: string }>(list: readonly T[], id: string) =>
   list.find((x) => x.id === id) ?? list[0]!;
