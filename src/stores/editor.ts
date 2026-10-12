@@ -4,11 +4,11 @@ import { reactive, ref } from 'vue';
 import type { Scope } from '@/editor/scope';
 import type { View } from '@/render/draw';
 
-export type Mode = 'layout' | 'borders' | 'design' | 'print';
+export type Mode = 'layout' | 'borders' | 'design' | 'print' | 'details';
 export type Tool =
   'set' | 'rotate' | 'flip' | 'erase' | 'find' | 'paint' | 'spray' | 'swap' | 'eyedropper' | 'pan';
 
-export type BlockMode = 'draw' | 'color' | 'print';
+export type BlockMode = 'draw' | 'color' | 'print' | 'details';
 export type BlockTool =
   'select' | 'node' | 'line' | 'arc' | 'grid' | 'pan' | 'paint' | 'spray' | 'eyedropper';
 

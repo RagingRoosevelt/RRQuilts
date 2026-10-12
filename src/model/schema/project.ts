@@ -13,6 +13,10 @@ export const Project = Type.Object({
   /** Stable identity across renames and file copies (drafts, tab locks, recent list). */
   id: Id,
   name: Type.String(),
+  notes: Type.Optional(Type.String()),
+  author: Type.Optional(Type.String()),
+  /** Covers the file; default for items without their own license (spec 009). */
+  license: Type.Optional(Type.String()),
   palette: Palette,
   blocks: Type.Array(Block),
   photos: Type.Array(Photo),

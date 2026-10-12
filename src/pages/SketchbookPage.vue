@@ -18,6 +18,7 @@
       <q-tab name="colors" :label="`Fabrics & Colors (${colorGroups[0]!.items.length})`" />
       <q-tab name="photos" label="Photos" />
       <q-tab name="threads" label="Threads" />
+      <q-tab name="details" label="Details" />
     </q-tabs>
     <q-separator class="q-mb-md" />
 
@@ -53,7 +54,7 @@
                   <q-item v-close-popup clickable @click="duplicate(q.id)"
                     ><q-item-section>Duplicate as variation</q-item-section></q-item
                   >
-                  <q-item v-close-popup clickable @click="editCard('quilts', q.id)"
+                  <q-item v-close-popup clickable @click="quiltDetails(q.id)"
                     ><q-item-section>Notecard…</q-item-section></q-item
                   >
                   <q-item
@@ -134,7 +135,7 @@
                     <q-item-section>Export (.rrqb)</q-item-section>
                   </q-item>
                   <template v-if="!project.readOnly">
-                    <q-item v-close-popup clickable @click="editCard('blocks', b.id)"
+                    <q-item v-close-popup clickable @click="blockDetails(b.id)"
                       ><q-item-section>Notecard…</q-item-section></q-item
                     >
                     <q-item
@@ -208,6 +209,8 @@
       />
     </template>
 
+    <DetailsPanel v-else-if="tab === 'details'" kind="project" />
+
     <template v-else-if="tab === 'colors'">
       <template v-for="group in colorGroups" :key="group.label">
         <div class="text-subtitle2 q-mb-sm">{{ group.label }}</div>
@@ -278,7 +281,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <NotecardDialog ref="notecard" @save="saveCard" />
     <QuiltWizard ref="wizard" :units="project.doc.units" @create="startQuilt" />
   </q-page>
 </template>
@@ -287,11 +289,12 @@
 import { useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import NotecardDialog from '@/components/NotecardDialog.vue';
+import DetailsPanel from '@/components/DetailsPanel.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
 import { useStartQuilt } from '@/composables/start-quilt';
 import { allPatches } from '@/model/blocks/patches';
 import { attribution, copyBlock, newBlock } from '@/editor/block-ops';
+import { effectiveLicense } from '@/model/credits';
 import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
 import { describeSlot } from '@/model/plain';
@@ -324,9 +327,7 @@ const inUseDialog = ref<{
 const tab = ref('quilts');
 const preview = ref<string | null>(null);
 const dragFrom = ref<number | null>(null);
-const notecard = ref<InstanceType<typeof NotecardDialog>>();
 const wizard = ref<InstanceType<typeof QuiltWizard>>();
-let editing: { list: 'quilts' | 'blocks'; id: string } | null = null;
 
 const quilts = computed(() => project.doc!.project.quilts);
 const split = computed(() =>
@@ -399,6 +400,7 @@ async function editCopy(id: string) {
     b,
     blocks.value.map((x) => x.notecard.name),
     await askAuthor(),
+    project.doc!.project.license,
   );
   const at = project.doc!.project.blocks.indexOf(b) + 1;
   project.change((d) => void d.project.blocks.splice(at, 0, copy));
@@ -431,6 +433,7 @@ async function editLibrary(lib: Block) {
     toUnits(lib, project.doc!.units),
     blocks.value.map((x) => x.notecard.name),
     await askAuthor(),
+    project.doc!.project.license,
   );
   const users = quiltsUsing(lib.id);
   const go = (replace: boolean) => {
@@ -453,7 +456,8 @@ async function editLibrary(lib: Block) {
 function exportBlock(b: Block) {
   const palette = [...project.doc!.project.palette.colors, ...library.items.colors];
   const author = settings.settings.author;
-  download(b.notecard.name, serializeBlock(b, project.doc!.units, palette, author), 'rrqb');
+  const stamped = { ...b, license: effectiveLicense(b, project.doc!) };
+  download(b.notecard.name, serializeBlock(stamped, project.doc!.units, palette, author), 'rrqb');
 }
 
 async function importBlockFile(e: Event) {
@@ -492,19 +496,13 @@ function duplicate(id: string) {
   openQuilt(copy.id);
 }
 
-function editCard(list: 'quilts' | 'blocks', id: string) {
-  const item = project.doc!.project[list].find((x) => x.id === id);
-  if (!item) return;
-  editing = { list, id };
-  notecard.value?.show(item.notecard);
+function quiltDetails(id: string) {
+  editor.mode = 'details';
+  void router.push(`/project/quilt/${id}`);
 }
-function saveCard({ name, notes }: { name: string; notes: string }) {
-  const e = editing;
-  if (!e) return;
-  project.change((d) => {
-    const item = d.project[e.list].find((x) => x.id === e.id);
-    if (item) item.notecard = { ...item.notecard, name, notes };
-  });
+function blockDetails(id: string) {
+  editor.blockMode = 'details';
+  void router.push(`/project/block/${id}`);
 }
 
 /** Reorder within the visible list (system blocks keep their place at the end). */

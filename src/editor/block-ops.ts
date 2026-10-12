@@ -1,5 +1,6 @@
 // Block-level operations for the block editor (pure; results go through project.change).
 import { produce } from 'immer';
+import { creditCopy, licenseName, needsCredit, priorCredits } from '@/model/credits';
 import { deriveSeamPatches } from '@/model/blocks/derive';
 import { newId } from '@/model/ids';
 import { itemId } from '@/model/identity';
@@ -43,39 +44,41 @@ export function newBlock(
     patches: deriveSeamPatches(drawing, size).patches.map((p) => ({ id: newId(), path: p.path })),
     colorings: [{ id: newId(), name: 'Coloring 1', fills: {} }],
     editor: { snap: defaultSnap(units) },
+    ...(author ? { author } : {}),
   };
 }
 
-/** Copy for "Edit a copy": the author's own id, "(2)" name, attribution kept and marked derived. */
-export function copyBlock(block: Block, takenNames: string[], author = ''): Block {
+/** Copy for "Edit a copy": the author's own id, "(2)" name, everyone before credited. */
+export function copyBlock(
+  block: Block,
+  takenNames: string[],
+  author = '',
+  projectLicense?: string,
+): Block {
   return produce(block, (b) => {
+    creditCopy(b, author, projectLicense);
     b.id = itemId(author);
     b.notecard.name = variationName(block.notecard.name, takenNames);
     delete b.version; // stamped on save; revisions restart for the new item
     delete b.revision;
-    if (b.source) b.source.derived = true;
   });
 }
 
-/** After a drawing edit, library items become derived works (constitution Principle VI). */
-export const markDerived = (block: Block): Block =>
-  block.source && !block.source.derived
-    ? produce(block, (b) => void (b.source!.derived = true))
-    : block;
+/** After a drawing edit, others' work becomes a derived work credited to them (Principle VI). */
+export const markDerived = (block: Block, me = '', projectLicense?: string): Block =>
+  needsCredit(block, me) ? produce(block, (b) => creditCopy(b, me, projectLicense)) : block;
 
-/** "Based on Ohio Star by RRQuilts contributors (CC-BY-4.0)" or null. */
+/** "From Ohio Star by …" for library items, "Based on Ohio Star by A, B" for derived work, or null. */
 export function attribution(block: Block): string | null {
   const s = block.source;
-  if (!s) return null;
-  const what = s.derived ? 'Based on' : 'From';
-  const name = s.name ?? s.itemId;
-  const by = s.author ? ` by ${s.author}` : '';
-  const lib = s.library
-    ? ` (${s.library}${s.license ? `, ${s.license}` : ''})`
-    : s.license
-      ? ` (${s.license})`
-      : '';
-  return `${what} ${name}${by}${lib}`;
+  if (s && !s.derived) {
+    const lib = [s.library, s.license && licenseName(s.license)].filter(Boolean).join(', ');
+    return `From ${s.name ?? s.itemId}${s.author ? ` by ${s.author}` : ''}${lib ? ` (${lib})` : ''}`;
+  }
+  const credits = priorCredits(block);
+  if (!credits.length) return null;
+  const authors = [...new Set(credits.map((c) => c.author ?? 'anonymous'))].join(', ');
+  return `Based on ${credits[0]!.name ?? 'earlier work'} by ${authors}`;
 }
 
 export function saveColoringAs(block: Block, fromId: string): { block: Block; id: string } {

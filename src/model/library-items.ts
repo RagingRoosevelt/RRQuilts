@@ -25,7 +25,7 @@ export const toUnits = (b: Block, units: RrqDoc['units']): Block =>
 const colorsIn = (colorings: ColoringBody[]) =>
   colorings.flatMap((c) => Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])));
 
-const blocksUsed = (p: RrqDoc['project']) =>
+export const blocksUsed = (p: RrqDoc['project']) =>
   new Set(
     p.quilts.flatMap((q) => [
       ...Object.values(q.layers[0].slots).map((s) => s.block),

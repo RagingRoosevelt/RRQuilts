@@ -36,6 +36,15 @@ export const Source = Type.Object({
   derived: Type.Optional(Type.Boolean()),
 });
 
+/** An earlier contributor to an item (spec 009), origin first. */
+export const Credit = Type.Object({
+  author: Type.Optional(Type.String()),
+  /** The item's name at that point. */
+  name: Type.Optional(Type.String()),
+  license: Type.Optional(Type.String()),
+  library: Type.Optional(Type.String()),
+});
+
 /** Embedded binary (packed form). Library repositories may use `path` instead (spec 002). */
 export const Asset = Type.Object({
   data: Type.String({ pattern: '^data:[a-z]+/[a-z0-9.+-]+;base64,' }),
@@ -80,8 +89,14 @@ export const itemBase = {
   version: Type.Optional(Type.String({ pattern: '^[a-f0-9]{12}$' })),
   /** Human-friendly counter, incremented whenever `version` changes. */
   revision: Type.Optional(Type.Integer({ minimum: 1 })),
+  /** Who made this version (display name). */
+  author: Type.Optional(Type.String()),
+  /** License id; absent → the project license. */
+  license: Type.Optional(Type.String()),
+  credits: Type.Optional(Type.Array(Credit)),
 };
 
+export type Credit = Type.Static<typeof Credit>;
 export type Path = Type.Static<typeof Path>;
 export type PathCommand = Type.Static<typeof PathCommand>;
 export type Asset = Type.Static<typeof Asset>;

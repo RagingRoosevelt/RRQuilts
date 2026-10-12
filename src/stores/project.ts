@@ -115,11 +115,12 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /** New, empty project in the units chosen in Settings (library items embed when used). */
-  const newProject = (name?: string) =>
-    load(createProject(name, useSettingsStore().settings.units, APP), {
-      saved: false,
-      dirty: false,
-    });
+  function newProject(name?: string) {
+    const { units, author } = useSettingsStore().settings;
+    const doc = createProject(name, units, APP);
+    if (author) doc.project.author = author;
+    return load(doc, { saved: false, dirty: false });
+  }
 
   /** Open a file; returns problems found while loading (shown to the user). */
   async function openFile(picked: Picked): Promise<string[]> {

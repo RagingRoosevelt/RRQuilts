@@ -7,6 +7,7 @@
         <q-tab name="borders" icon="crop_square" label="Borders" />
         <q-tab name="design" icon="palette" label="Design" />
         <q-tab name="print" icon="print" label="Print" />
+        <q-tab name="details" icon="info" label="Details" />
       </q-tabs>
       <q-btn
         flat
@@ -112,6 +113,7 @@
           :readonly="project.readOnly"
           @change="(b, k) => changeLayout(quilt!.layout, b, k)"
         />
+        <DetailsPanel v-else-if="editor.mode === 'details'" kind="quilt" :id="quilt.id" />
         <div v-else-if="editor.mode === 'print'" class="text-grey-7">
           Printing patterns, templates, and yardage is coming in a later version.
         </div>
@@ -144,6 +146,7 @@ import { useQuasar } from 'quasar';
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BordersInspector from '@/components/BordersInspector.vue';
+import DetailsPanel from '@/components/DetailsPanel.vue';
 import LayoutInspector from '@/components/LayoutInspector.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';

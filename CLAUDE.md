@@ -116,6 +116,9 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - Identity (`src/model/identity.ts`): shareable ids `<author-slug>.<random>`; `version` = 12-hex
   content hash (sizes hashed in inches), `revision` display counter; stamped on save
 - `.rrqb` single-block files: `src/model/block-file.ts`
+- Credits/licenses (spec 009, `src/model/credits.ts`): items carry `author`, `license`, `credits`
+  (origin first); copying/editing others' work (`creditCopy`) appends the previous author. Chain
+  locks the license (ARR > NC > SA). `components/DetailsPanel.vue` = Details tab (project/quilt/block)
 
 ## Block editor (spec 007)
 

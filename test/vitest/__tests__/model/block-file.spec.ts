@@ -22,6 +22,7 @@ describe('.rrqb block files', () => {
     const b = doc.project.blocks.find((x) => x.id === blockId)!;
     expect(b.size).toEqual([25.4, 25.4]);
     expect(b.source?.derived).toBe(true); // editable, still credited
+    expect(b.author).toBe('RRQuilts contributors');
     expect(doc.project.palette.colors).toHaveLength(3);
   });
 
@@ -34,7 +35,7 @@ describe('.rrqb block files', () => {
     if (!parsed.ok) throw new Error(parsed.error);
     const once = importBlock(createProject(), parsed.file, 'Sam');
     expect(once.blockId).toBe(mine.id);
-    expect(once.doc.project.blocks[0]!.source?.author).toBe('Jane Doe');
+    expect(once.doc.project.blocks[0]!.author).toBe('Jane Doe');
     const twice = importBlock(once.doc, parsed.file, 'Sam');
     expect(twice.blockId).toMatch(/^sam\./);
     expect(twice.doc.project.blocks.map((b) => b.notecard.name)).toEqual(['Mine', 'Mine (2)']);

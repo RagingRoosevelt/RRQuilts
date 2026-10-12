@@ -51,6 +51,15 @@
         "name": {
           "type": "string"
         },
+        "notes": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "license": {
+          "type": "string"
+        },
         "palette": {
           "type": "object",
           "required": [
@@ -146,6 +155,32 @@
                   "revision": {
                     "type": "integer",
                     "minimum": 1
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  },
+                  "credits": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "author": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "license": {
+                          "type": "string"
+                        },
+                        "library": {
+                          "type": "string"
+                        }
+                      }
+                    }
                   },
                   "image": {
                     "type": "object",
@@ -308,6 +343,32 @@
                     "type": "integer",
                     "minimum": 1
                   },
+                  "author": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  },
+                  "credits": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "author": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "license": {
+                          "type": "string"
+                        },
+                        "library": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
                   "rgb": {
                     "type": "array",
                     "additionalItems": false,
@@ -418,6 +479,32 @@
                   "revision": {
                     "type": "integer",
                     "minimum": 1
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  },
+                  "credits": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "author": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "license": {
+                          "type": "string"
+                        },
+                        "library": {
+                          "type": "string"
+                        }
+                      }
+                    }
                   },
                   "rgb": {
                     "type": "array",
@@ -543,6 +630,32 @@
                   "revision": {
                     "type": "integer",
                     "minimum": 1
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  },
+                  "credits": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "author": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "license": {
+                          "type": "string"
+                        },
+                        "library": {
+                          "type": "string"
+                        }
+                      }
+                    }
                   },
                   "size": {
                     "type": "array",
@@ -1119,6 +1232,32 @@
                     "type": "integer",
                     "minimum": 1
                   },
+                  "author": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  },
+                  "credits": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "author": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "license": {
+                          "type": "string"
+                        },
+                        "library": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
                   "size": {
                     "type": "array",
                     "additionalItems": false,
@@ -1555,6 +1694,32 @@
                   "revision": {
                     "type": "integer",
                     "minimum": 1
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  },
+                  "credits": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "author": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "license": {
+                          "type": "string"
+                        },
+                        "library": {
+                          "type": "string"
+                        }
+                      }
+                    }
                   },
                   "size": {
                     "type": "array",
@@ -2196,6 +2361,32 @@
                     "type": "integer",
                     "minimum": 1
                   },
+                  "author": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  },
+                  "credits": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "author": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "license": {
+                          "type": "string"
+                        },
+                        "library": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
                   "size": {
                     "type": "array",
                     "additionalItems": false,
@@ -2721,6 +2912,32 @@
                   "revision": {
                     "type": "integer",
                     "minimum": 1
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  },
+                  "credits": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "author": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "license": {
+                          "type": "string"
+                        },
+                        "library": {
+                          "type": "string"
+                        }
+                      }
+                    }
                   },
                   "size": {
                     "type": "array",
@@ -3891,6 +4108,32 @@
                 "type": "integer",
                 "minimum": 1
               },
+              "author": {
+                "type": "string"
+              },
+              "license": {
+                "type": "string"
+              },
+              "credits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "author": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "license": {
+                      "type": "string"
+                    },
+                    "library": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
               "image": {
                 "type": "object",
                 "required": [
@@ -4009,6 +4252,32 @@
               "revision": {
                 "type": "integer",
                 "minimum": 1
+              },
+              "author": {
+                "type": "string"
+              },
+              "license": {
+                "type": "string"
+              },
+              "credits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "author": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "license": {
+                      "type": "string"
+                    },
+                    "library": {
+                      "type": "string"
+                    }
+                  }
+                }
               },
               "file": {
                 "type": "object",
@@ -4137,6 +4406,32 @@
               "revision": {
                 "type": "integer",
                 "minimum": 1
+              },
+              "author": {
+                "type": "string"
+              },
+              "license": {
+                "type": "string"
+              },
+              "credits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "author": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "license": {
+                      "type": "string"
+                    },
+                    "library": {
+                      "type": "string"
+                    }
+                  }
+                }
               },
               "layout": {
                 "anyOf": [

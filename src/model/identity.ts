@@ -39,7 +39,18 @@ export function stableStringify(v: unknown): string {
  * Sizes are expressed in inches (rounded to 1e-6) so unit conversion doesn't change the version.
  */
 export function canonicalContent(item: object, units: Units = 'in'): unknown {
-  const EXCLUDED = ['id', 'notecard', 'source', 'version', 'revision', 'editor', 'unconnected'];
+  const EXCLUDED = [
+    'id',
+    'notecard',
+    'source',
+    'version',
+    'revision',
+    'editor',
+    'unconnected',
+    'author',
+    'license',
+    'credits',
+  ];
   const rest = Object.fromEntries(
     Object.entries(item as Record<string, unknown>).filter(([k]) => !EXCLUDED.includes(k)),
   );

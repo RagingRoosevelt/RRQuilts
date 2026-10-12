@@ -80,20 +80,32 @@ describe('block operations', () => {
     expect(editorSettings(newBlock('cm', [25, 25], 'cm'), 'cm').snap.step).toBe(0.5);
   });
 
-  it('copies keep attribution and are marked derived', () => {
-    const c = copyBlock(star, ['Ohio Star']);
+  it('copies credit everyone before; the copier becomes the author', () => {
+    const c = copyBlock(star, ['Ohio Star'], 'Jane');
     expect(c.id).not.toBe(star.id);
     expect(c.notecard.name).toBe('Ohio Star (2)');
-    expect(c.source).toMatchObject({
-      license: 'CC-BY-4.0',
-      author: 'RRQuilts contributors',
-      derived: true,
-    });
-    expect(attribution(c)).toBe(
-      'Based on Ohio Star by RRQuilts contributors (RRQuilts starter, CC-BY-4.0)',
-    );
-    expect(attribution(star)).toMatch(/^From Ohio Star/);
-    expect(markDerived(star).source?.derived).toBe(true);
+    expect(c.source?.derived).toBe(true);
+    expect(c.author).toBe('Jane');
+    expect(c.license).toBeUndefined();
+    expect(c.credits).toEqual([
+      {
+        author: 'RRQuilts contributors',
+        name: 'Ohio Star',
+        license: 'CC-BY-4.0',
+        library: 'RRQuilts starter',
+      },
+    ]);
+    expect(attribution(star)).toMatch(/^From Ohio Star by RRQuilts contributors \(.*CC BY 4\.0\)/);
+    // Sam edits Jane's copy: Jane joins the chain; Sam's own copies don't repeat him.
+    const sam = markDerived(c, 'Sam', 'CC-BY-SA-4.0');
+    expect(sam.author).toBe('Sam');
+    expect(sam.credits?.map((x) => [x.author, x.license])).toEqual([
+      ['RRQuilts contributors', 'CC-BY-4.0'],
+      ['Jane', 'CC-BY-SA-4.0'],
+    ]);
+    expect(attribution(sam)).toBe('Based on Ohio Star by RRQuilts contributors, Jane');
+    expect(markDerived(sam, 'Sam')).toBe(sam);
+    expect(copyBlock(sam, [], 'Sam').credits).toHaveLength(2);
   });
 
   it('colorings: save as new copies the fills; the last one cannot be deleted', () => {

@@ -5,6 +5,7 @@
         <q-tab name="draw" icon="draw" label="Draw" />
         <q-tab name="color" icon="palette" label="Color" />
         <q-tab name="print" icon="print" label="Print" />
+        <q-tab name="details" icon="info" label="Details" />
       </q-tabs>
       <q-btn
         flat
@@ -73,6 +74,7 @@
         <div v-if="editor.blockMode === 'print'" class="text-grey-7">
           Printing templates is coming in a later version.
         </div>
+        <DetailsPanel v-else-if="editor.blockMode === 'details'" kind="block" :id="block.id" />
         <BlockInspector
           v-else-if="editor.blockMode === 'draw'"
           :block="block"
@@ -148,6 +150,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BlockCanvas from '@/components/BlockCanvas.vue';
 import BlockInspector from '@/components/BlockInspector.vue';
+import DetailsPanel from '@/components/DetailsPanel.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import {
   deleteColoring,
@@ -177,8 +180,10 @@ import type { View } from '@/render/draw';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useEditorStore, type BlockTool } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
+import { useSettingsStore } from '@/stores/settings';
 
 const $q = useQuasar();
+const appSettings = useSettingsStore();
 const route = useRoute();
 const router = useRouter();
 const project = useProjectStore();
@@ -259,7 +264,13 @@ function applyDrawing(drawing: Drawing, editorPatch?: Partial<BlockEditorSetting
   const nextEditor = editorPatch && { ...settings.value, ...editorPatch };
   project.change(() => {
     const r = applySeamEdit(project.doc!, id, drawing);
-    return withBlock(r.doc, (b) => markDerived(nextEditor ? { ...b, editor: nextEditor } : b));
+    return withBlock(r.doc, (b) =>
+      markDerived(
+        nextEditor ? { ...b, editor: nextEditor } : b,
+        appSettings.settings.author,
+        project.doc!.project.license,
+      ),
+    );
   });
   const live = new Set(drawing.segments.map((s) => s.id));
   selection.value = new Set([...selection.value].filter((s) => live.has(s)));

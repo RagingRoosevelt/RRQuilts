@@ -4,6 +4,7 @@ import type { Border, Layout } from '@/model/schema/quilt';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
+import { useSettingsStore } from '@/stores/settings';
 
 /** Add a quilt (to a new project when `fresh` or none is open) and open it in Design mode. */
 export function useStartQuilt() {
@@ -13,7 +14,8 @@ export function useStartQuilt() {
   return async (layout: Layout, borders: Border[], fresh = false) => {
     if (fresh || !project.isOpen) await project.newProject();
     const n = project.doc!.project.quilts.length + 1;
-    const quilt = createQuilt(`Quilt ${n}`, layout, borders);
+    const author = useSettingsStore().settings.author;
+    const quilt = { ...createQuilt(`Quilt ${n}`, layout, borders), ...(author ? { author } : {}) };
     project.change((d) => void d.project.quilts.push(quilt));
     editor.mode = 'design';
     editor.tool = 'set';
