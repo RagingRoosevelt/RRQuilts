@@ -55,7 +55,7 @@
                     ><q-item-section>Duplicate as variation</q-item-section></q-item
                   >
                   <q-item v-close-popup clickable @click="quiltDetails(q.id)"
-                    ><q-item-section>Notecard…</q-item-section></q-item
+                    ><q-item-section>Details</q-item-section></q-item
                   >
                   <q-item
                     v-close-popup
@@ -129,15 +129,15 @@
                     </q-item>
                   </template>
                   <q-item v-close-popup clickable @click="preview = b.id">
+                    <q-item-section>Preview</q-item-section>
+                  </q-item>
+                  <q-item v-close-popup clickable @click="blockDetails(b.id)">
                     <q-item-section>Details</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="exportBlock(b)">
                     <q-item-section>Export (.rrqb)</q-item-section>
                   </q-item>
                   <template v-if="!project.readOnly">
-                    <q-item v-close-popup clickable @click="blockDetails(b.id)"
-                      ><q-item-section>Notecard…</q-item-section></q-item
-                    >
                     <q-item
                       v-close-popup
                       clickable
@@ -189,7 +189,7 @@
                     <q-item-section>Edit (makes your copy)</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="preview = b.id">
-                    <q-item-section>Details</q-item-section>
+                    <q-item-section>Preview</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="exportBlock(b)">
                     <q-item-section>Export (.rrqb)</q-item-section>
@@ -224,7 +224,7 @@
     <div v-else class="text-grey-7">Coming in a later version.</div>
 
     <q-dialog :model-value="!!preview" @update:model-value="preview = null">
-      <q-card v-if="previewBlock" style="width: 360px">
+      <q-card v-if="previewBlock" style="width: 560px; max-width: 95vw">
         <q-card-section>
           <div class="text-h6">{{ previewBlock.notecard.name }}</div>
           <div class="text-caption text-grey-7">
@@ -235,10 +235,40 @@
             >
           </div>
         </q-card-section>
-        <img :src="thumb(previewBlock, 320)" style="width: 100%" alt="" />
-        <q-card-section v-if="attribution(previewBlock)" class="text-caption text-grey-7">
-          {{ attribution(previewBlock) }}
+        <img :src="thumb(previewBlock, 560)" style="width: 100%; display: block" alt="" />
+        <q-card-section class="column" style="gap: 4px">
+          <div v-if="previewBlock.notecard.notes" style="white-space: pre-wrap">
+            {{ previewBlock.notecard.notes }}
+          </div>
+          <div>
+            <span class="text-grey-7">Author:</span> {{ authorOf(previewBlock) ?? 'anonymous' }}
+          </div>
+          <div>
+            <span class="text-grey-7">License:</span>
+            {{ licenseName(effectiveLicense(previewBlock, project.doc)) }}
+          </div>
+          <div v-if="priorCredits(previewBlock).length">
+            <span class="text-grey-7">Based on:</span>
+            {{
+              priorCredits(previewBlock)
+                .map((c) => `${c.name ?? 'earlier work'} by ${c.author ?? 'anonymous'}`)
+                .join('; ')
+            }}
+          </div>
+          <div v-else-if="isLibraryItem(previewBlock)" class="text-caption text-grey-7">
+            {{ attribution(previewBlock) }}
+          </div>
         </q-card-section>
+        <q-card-actions v-if="!isLibraryItem(previewBlock)" align="right">
+          <q-btn
+            v-close-popup
+            flat
+            no-caps
+            icon="info"
+            label="Details"
+            @click="blockDetails(previewBlock.id)"
+          />
+        </q-card-actions>
       </q-card>
     </q-dialog>
     <q-dialog :model-value="!!inUseDialog" @update:model-value="inUseDialog = null">
@@ -288,7 +318,7 @@ import QuiltWizard from '@/components/QuiltWizard.vue';
 import { useStartQuilt } from '@/composables/start-quilt';
 import { allPatches } from '@/model/blocks/patches';
 import { attribution, copyBlock, newBlock } from '@/editor/block-ops';
-import { effectiveLicense } from '@/model/credits';
+import { authorOf, effectiveLicense, licenseName, priorCredits } from '@/model/credits';
 import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
 import { describeSlot } from '@/model/plain';
@@ -300,7 +330,7 @@ import { useLibraryStore } from '@/stores/library';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthor } from '@/composables/author';
 import { importBlock, parseBlockFile, serializeBlock } from '@/model/block-file';
-import { splitItems, toUnits, useMyCopy } from '@/model/library-items';
+import { isLibraryItem, splitItems, toUnits, useMyCopy } from '@/model/library-items';
 import { download } from '@/storage/files';
 
 const $q = useQuasar();
