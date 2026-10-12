@@ -9,7 +9,7 @@
 **Input**: User description: "let's do the library feature"
 
 > Implements the Libraries page (header button, a placeholder until now) on top of spec 002 (the
-> `.rrq_lib` format), spec 001 US10 (find and reuse), spec 008 (library items, `id@version`, switch
+> `.rrqlib` format), spec 001 US10 (find and reuse), spec 008 (library items, `id@version`, switch
 > version), and spec 009 (credits, licenses). Item types: blocks and color collections (the types
 > the app has); fabrics, threads, layouts, … join when those features exist. Repositories (spec 002
 > US3–5) are spec 012.
@@ -37,7 +37,7 @@
 - Q: Colors? → A: My library holds color collections, not single colors. In scope.
 - Q: Search by color? → A: Later.
 - Q: Can a color collection travel on its own? → A: Yes: export/import as a standalone `.rrqcc`
-  file (like `.rrqb` for one block).
+  file (like `.rrqbl` for one block).
 - Q: What can be shared besides the whole library? → A: Later: single categories, and single types
   of things (color collections, blocks, fabrics, …), each as a pack.
 
@@ -123,11 +123,11 @@ Sunset's colors.
 6. **Given** a collection, **When** the user chooses Export, **Then** a `.rrqcc` file downloads with
    the collection, its colors, author, license, and credits.
 7. **Given** a `.rrqcc` file, **When** imported on the Libraries page, **Then** the collection joins
-   My library keeping its author and credits (as `.rrqb` blocks do); **When** imported in the
+   My library keeping its author and credits (as `.rrqbl` blocks do); **When** imported in the
    project's Fabrics & Colors tab, **Then** its colors join the project as the user's own colors.
    Same collection id already there: same version → "already there"; another version → replace it
    or keep both.
-8. **Given** the Libraries page Import button, **Then** it accepts `.rrq_lib` and `.rrqcc` (and
+8. **Given** the Libraries page Import button, **Then** it accepts `.rrqlib` and `.rrqcc` (and
    `.json`), choosing the flow from the file's `format`.
 
 ### User Story 5 - Back up and restore (Priority: P1, spec 002 US1)
@@ -140,11 +140,11 @@ offline → My library and the pack are back with the same `id@version`s.
 **Acceptance Scenarios**:
 
 1. **Given** the Libraries page, **When** the user chooses Back up, **Then** they tick what to include
-   (all on by default): My library, Packs, Repositories (links, once spec 012 exists); a `.rrq_lib`
+   (all on by default): My library, Packs, Repositories (links, once spec 012 exists); a `.rrqlib`
    of kind `personal` downloads.
 2. **Given** My library, **Then** the backup holds every item and category, including copies of pack
    items (they are the user's own, with credits, and don't need the pack).
-3. **Given** imported packs, **Then** each is embedded whole (its own `.rrq_lib` document), so restoring
+3. **Given** imported packs, **Then** each is embedded whole (its own `.rrqlib` document), so restoring
    needs neither the original file nor the network.
 4. **Given** connected repositories (spec 012), **Then** each is stored by reference: URL, branch or
    tag, pinned revision, and declined revision — never its downloaded content; restoring reconnects
@@ -166,7 +166,7 @@ Packs with author and license; its blocks are read-only until copied.
    shared (single categories or single item types — only blocks, only color collections, … — come
    later); they confirm name,
    description, author, license (default CC BY-SA; locked by item licenses per spec 009), and a
-   `.rrq_lib` of kind `pack` downloads with a credits list. Items the user may not redistribute (All
+   `.rrqlib` of kind `pack` downloads with a credits list. Items the user may not redistribute (All
    rights reserved by someone else) are left out, with a list.
 2. **Given** a pack file, **When** imported, **Then** it appears under Packs, read-only, with author
    and license shown.
@@ -192,7 +192,7 @@ Packs with author and license; its blocks are read-only until copied.
 ## Requirements *(mandatory)*
 
 - **FR-001**: My library and imported packs live in IndexedDB; built-in stays bundled.
-- **FR-002**: `.rrq_lib` import/export per spec 002 (validation, migration, credits, licenses).
+- **FR-002**: `.rrqlib` import/export per spec 002 (validation, migration, credits, licenses).
 - **FR-003**: The library store exposes one lookup over all libraries (`id` → current version), used
   by `syncDraft`, version checks, and thumbnails, so projects work with any library as with built-in.
 - **FR-004**: Library items are read-only everywhere; changes go through a linked copy (spec 008/009).
@@ -211,7 +211,7 @@ Packs with author and license; its blocks are read-only until copied.
   version differs from that item's.
 - **FR-010**: `.rrqcc` files: UTF-8 JSON `{ format: "rrqcc", version, units?, app, collection }`
   where `collection` is a library item of type `colors` (FR-008) with its author, license, and
-  credits; validated as untrusted like `.rrqb` (spec 008 FR-040). File pickers filter by
+  credits; validated as untrusted like `.rrqbl` (spec 008 FR-040). File pickers filter by
   `.rrqcc,.json`.
 
 ## Success Criteria *(mandatory)*

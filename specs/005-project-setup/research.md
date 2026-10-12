@@ -75,7 +75,7 @@ Versions checked against npm and Docker Hub on 2026-10-11.
   Run on the host (git + credentials live there).
 - **Alternatives**: Git hooks (per-clone setup, easy to bypass, not visible in the Makefile).
 
-## R8. Settings storage and `.rrq_conf`
+## R8. Settings storage and `.rrqconf`
 
 - **Decision**: `src/settings/` module: typed defaults, guarded `localStorage` get/set (try/catch,
   JSON parse guarded), `exportConf()` → Blob download, `importConf(file)` with hand-written

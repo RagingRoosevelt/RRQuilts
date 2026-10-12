@@ -68,11 +68,11 @@ description: "Tasks for 005 Project Setup & Delivery Pipeline"
 
 - [x] T023 [P] [US5] Write `test/vitest/__tests__/settings.spec.ts`: defaults when empty/corrupt/throwing storage, save/load round-trip, unknown keys preserved, export document shape, import valid, reject wrong `format`, reject newer `version`, invalid known value → default with report
 - [x] T024 [P] [US5] Write `test/vitest/__tests__/router-guard.spec.ts`: project routes redirect to `/` without an open project; allowed with one
-- [x] T025 [US5] Implement `src/settings/` (defaults, guarded storage, validate, migrate table, export Blob, import File) per data-model.md and `contracts/rrq_conf.schema.json`
+- [x] T025 [US5] Implement `src/settings/` (defaults, guarded storage, validate, migrate table, export Blob, import File) per data-model.md and `contracts/rrqconf.schema.json`
 - [x] T026 [US5] Implement `src/stores/settings.ts` (Pinia, persists on change, applies theme) and `src/stores/project.ts` stub `{ isOpen }`
 - [x] T027 [US5] Implement `src/router/routes.ts` + guard in `src/router/index.ts` per `contracts/routes.md`, notice "Open a project first"
 - [x] T028 [US5] Create `src/layouts/MainLayout.vue` and placeholder pages in `src/pages/` (Home with Start a quilt / Open file / Samples / Libraries / Settings entries as placeholders; Sketchbook; Quilt/Block/Image editors; Libraries; Settings; NotFound)
-- [x] T029 [US5] Implement Settings page: theme Auto/Light/Dark, Export `.rrq_conf`, Import with error reporting
+- [x] T029 [US5] Implement Settings page: theme Auto/Light/Dark, Export `.rrqconf`, Import with error reporting
 - [x] T030 [US5] Run tests until T023/T024 pass
 
 ## Phase 8: Polish

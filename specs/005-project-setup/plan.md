@@ -10,7 +10,7 @@ Scaffold the RRQuilts app with the official Quasar tooling (app-vite 3, TypeScri
 Vitest), wrap every developer action in a Makefile that runs inside a pinned Node 24 container,
 build straight into `docs/` with Pages fallbacks, preview with a pinned nginx container, guard
 `docs/` drift in CI and `make push`, and ship a placeholder shell (spec 004 routes, settings with
-`.rrq_conf` export/import, update prompt) that installs and works offline. See
+`.rrqconf` export/import, update prompt) that installs and works offline. See
 [research.md](./research.md).
 
 ## Technical Context
@@ -45,7 +45,7 @@ host needs only Docker, make, git; repo path may contain spaces
 |---|---|---|
 | I. Static & Serverless | ✅ | Static build only; history routing with 404.html / try_files / navigateFallback |
 | II. Offline-First PWA | ✅ | Quasar PWA (Workbox precache), update prompt, manifest |
-| III. Open File Formats | ✅ | `.rrq_conf` with `format`/`version`, validated import, migrations table |
+| III. Open File Formats | ✅ | `.rrqconf` with `format`/`version`, validated import, migrations table |
 | IV. User Owns Their Data | ✅ | Settings on-device, guarded storage, export/import |
 | V. Simplicity | ✅ | Only Quasar-stack deps; hand-written settings validation; no extra libs |
 | Tech stack table | ✅ | Matches (Node 24 pinned, nginx pinned, npm, Vitest, ESLint/Prettier) |
@@ -68,7 +68,7 @@ specs/005-project-setup/
 ├── contracts/
 │   ├── makefile.md
 │   ├── routes.md
-│   └── rrq_conf.schema.json
+│   └── rrqconf.schema.json
 └── tasks.md             # /speckit-tasks
 ```
 
@@ -93,7 +93,7 @@ src/
 ├── pages/                    # HomePage, SketchbookPage, QuiltEditorPage, BlockEditorPage,
 │                             # ImageEditorPage, LibrariesPage, SettingsPage, NotFoundPage
 ├── stores/ (settings.ts, project.ts)
-└── settings/                 # defaults, storage guard, rrq_conf export/import/validate/migrate
+└── settings/                 # defaults, storage guard, rrqconf export/import/validate/migrate
 src-pwa/
 ├── register-service-worker.ts   # update prompt
 ├── manifest.json

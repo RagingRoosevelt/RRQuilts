@@ -2,13 +2,13 @@
 
 Only one persisted entity in this feature.
 
-## Settings (on-device; exported as `.rrq_conf`)
+## Settings (on-device; exported as `.rrqconf`)
 
 Stored in `localStorage` under key `rrq.settings` as the full document below.
 
 | Field | Type | Rules |
 |---|---|---|
-| `format` | `"rrq_conf"` | required, exact |
+| `format` | `"rrqconf"` | required, exact |
 | `version` | integer | required; `1` for this feature; newer → reject "update the app" |
 | `app` | string | app version that wrote it; informational |
 | `settings.theme` | `"auto"` \| `"light"` \| `"dark"` | default `"auto"` |
@@ -22,7 +22,7 @@ Stored in `localStorage` under key `rrq.settings` as the full document below.
 ### Lifecycle
 
 `load()` → (missing|corrupt → defaults) → reactive store → every change `save()` →
-`export()` produces the document as a `.rrq_conf` download → `import(file)` validates →
+`export()` produces the document as a `.rrqconf` download → `import(file)` validates →
 merges into current settings → `save()`.
 
 ## Project store (stub)

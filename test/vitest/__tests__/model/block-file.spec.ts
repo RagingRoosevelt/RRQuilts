@@ -11,7 +11,7 @@ import { createProject } from '@/model/new-project';
 import { newBlock } from '@/editor/block-ops';
 import { produce } from 'immer';
 
-describe('.rrqb block files', () => {
+describe('.rrqbl block files', () => {
   it('round-trips a block with just the colors it uses, into a cm project as my own block', () => {
     const src = addStarterContent(createProject());
     const star = src.project.blocks.find((b) => b.id === 'rrquilts.ohio-star')!;
@@ -75,7 +75,7 @@ describe('.rrqb block files', () => {
     expect(parseBlockFile('nope').ok).toBe(false);
     expect(parseBlockFile('{"format":"rrq"}').ok).toBe(false);
     expect(
-      parseBlockFile('{"format":"rrqb","version":1,"units":"in","block":{},"colors":[]}').ok,
+      parseBlockFile('{"format":"rrqbl","version":1,"units":"in","block":{},"colors":[]}').ok,
     ).toBe(false);
   });
 });

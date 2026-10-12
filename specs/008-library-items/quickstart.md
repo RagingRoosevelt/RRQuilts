@@ -8,6 +8,6 @@
 4. New block → id starts `jane-doe.`; appears under My blocks / tray "Mine".
 5. Library › Ohio Star (used in a quilt) → Edit (makes your copy) → "Use my copy there" → quilt
    shows your copy with its colors; Ohio Star no longer in the file.
-6. Export a block (.rrqb) → Import it in another project (cm) → My blocks, 25.4 cm, credited.
+6. Export a block (.rrqbl) → Import it in another project (cm) → My blocks, 25.4 cm, credited.
 7. Version dialog: edit a saved file's embedded `rrquilts.four-patch` version/size by hand → open →
    dialog shows both; "Use library version" swaps, quilt colors kept; undo reverts.

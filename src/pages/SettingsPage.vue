@@ -52,10 +52,10 @@
       <div class="text-caption text-grey-7">RRQuilts {{ version }} · build {{ build }}</div>
 
       <div class="q-gutter-sm">
-        <div class="text-subtitle1">Settings file (.rrq_conf)</div>
+        <div class="text-subtitle1">Settings file (.rrqconf)</div>
         <q-btn outline icon="download" label="Export" @click="exportConf" />
         <q-btn outline icon="upload" label="Import" @click="fileInput?.click()" />
-        <input ref="fileInput" type="file" accept=".rrq_conf,.json" hidden @change="importConf" />
+        <input ref="fileInput" type="file" accept=".rrqconf,.json" hidden @change="importConf" />
       </div>
     </div>
   </q-page>
@@ -86,7 +86,7 @@ function exportConf() {
   );
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'settings.rrq_conf';
+  a.download = 'settings.rrqconf';
   a.click();
   URL.revokeObjectURL(url);
 }

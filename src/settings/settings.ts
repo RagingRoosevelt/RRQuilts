@@ -1,4 +1,4 @@
-// App settings: on-device persistence and .rrq_conf export/import.
+// App settings: on-device persistence and .rrqconf export/import.
 // Storage is untrusted and may be missing or throw (private mode, blocked site data).
 
 export type Theme = 'auto' | 'light' | 'dark';
@@ -21,7 +21,7 @@ export interface Settings {
 }
 
 export interface ConfDoc {
-  format: 'rrq_conf';
+  format: 'rrqconf';
   version: number;
   app: string;
   settings: Settings;
@@ -33,7 +33,7 @@ export type ParseResult =
 export type KeyValueStore = Pick<Storage, 'getItem' | 'setItem'>;
 
 export const STORAGE_KEY = 'rrq.settings';
-export const FORMAT = 'rrq_conf';
+export const FORMAT = 'rrqconf';
 // ponytail: single version so far; add a migrations table keyed by version when v2 exists.
 export const VERSION = 1;
 

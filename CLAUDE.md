@@ -26,11 +26,11 @@ like sketchbook/worktable are fine).
 
 - **Projects**: `.rrq` files — JSON, saved/opened on the user's filesystem.
   File System Access API where supported; download + `<input type="file">` fallback.
-- **Settings**: `localStorage`; export/import as `.rrq_conf` (JSON).
+- **Settings**: `localStorage`; export/import as `.rrqconf` (JSON).
 - **Project drafts / personal libraries / repo cache**: IndexedDB (drafts = crash recovery, not a save).
 - **Resource repositories**: git repos of extra library content, fetched on user request (the only
   network use). Cached for offline. Untrusted: validate, never execute. Projects embed used items.
-- **Library files**: `.rrq_lib` (JSON) — one format for personal-library backup and shareable
+- **Library files**: `.rrqlib` (JSON) — one format for personal-library backup and shareable
   resource packs, told apart by required `kind: "personal" | "pack"` (packs carry author + license).
   UI keeps own work separate from packs/repos; pack items are read-only, copy to own library to edit.
   Same content structure as a resource repository.
@@ -69,7 +69,7 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 
 - `quasar.config.ts` — base path (`RRQ_BASE`), `docs/` output, 404/.nojekyll hook, PWA options
 - `src/router/routes.ts` — routes + open-project guard; `src/pages/` screens
-- `src/settings/` — settings persistence + `.rrq_conf`; `src/stores/` Pinia stores
+- `src/settings/` — settings persistence + `.rrqconf`; `src/stores/` Pinia stores
 - `src/stores/project.ts` — the open project; **all edits go through `change(fn)`** (bumps
   revision, schedules the draft). Status, save/save-as/copy, open file/recent/draft, tab takeover
 - `src/storage/` — IndexedDB (`idb.ts` wrapper; `drafts`, `recent`) and `.rrq` file I/O
@@ -115,7 +115,7 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   blocks/colors, prunes unused ones (same undo step). `splitItems` = Mine vs Library for display
 - Identity (`src/model/identity.ts`): shareable ids `<author-slug>.<random>`; `version` = 12-hex
   content hash (sizes hashed in inches), `revision` display counter; stamped on save
-- `.rrqb` single-block files: `src/model/block-file.ts`; `.rrqcc` single color-collection files (spec 011)
+- `.rrqbl` single-block files: `src/model/block-file.ts`; `.rrqcc` single color-collection files (spec 011)
 - Credits/licenses (spec 009, `src/model/credits.ts`): items carry `author`, `license`, `credits`
   (origin first); copying/editing others' work (`creditCopy`) appends the previous author. Chain
   locks the license (ARR > NC > SA). `components/DetailsPanel.vue` = Details tab (project/quilt/block)

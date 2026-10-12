@@ -32,7 +32,7 @@
 ## Notes
 
 - Resolved 2026-10-11: FR-080 starter library (~100–200 original blocks); FR-082 on-device storage
-  + `.rrq_lib` export. Added FR-084–086 resource repositories (structure spec pending).
-- File extensions (.rrq/.rrq_conf), PDF, and "system share sheet" are product-level requirements
+  + `.rrqlib` export. Added FR-084–086 resource repositories (structure spec pending).
+- File extensions (.rrq/.rrqconf), PDF, and "system share sheet" are product-level requirements
   from the constitution, not implementation choices.
 - Spec is a product baseline; split each user story into its own feature spec before /speckit-plan.

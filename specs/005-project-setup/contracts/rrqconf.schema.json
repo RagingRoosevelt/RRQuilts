@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq_conf.v1.json",
-  "title": "RRQuilts settings (.rrq_conf) v1",
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrqconf.v1.json",
+  "title": "RRQuilts settings (.rrqconf) v1",
   "type": "object",
   "required": ["format", "version", "settings"],
   "properties": {
-    "format": { "const": "rrq_conf" },
+    "format": { "const": "rrqconf" },
     "version": { "const": 1 },
     "app": { "type": "string" },
     "settings": {

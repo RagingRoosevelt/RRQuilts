@@ -1,4 +1,4 @@
-// Shared building blocks for the .rrq / .rrq_lib schemas (JSON Schema via TypeBox).
+// Shared building blocks for the .rrq / .rrqlib schemas (JSON Schema via TypeBox).
 import Type from 'typebox';
 
 export const Id = Type.String({ pattern: '^[a-z0-9]{1,32}$' });

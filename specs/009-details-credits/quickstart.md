@@ -14,7 +14,7 @@ Settings: set your author name (e.g. "Jane").
    All rights reserved (lock icon, "Required by …"). Switch the block back to CC BY-SA → quilt unlocks.
 6. Project Details: change the license to CC BY-NC-SA → existing blocks/quilts keep their licenses;
    a new block gets CC BY-NC-SA.
-7. Import a `.rrqb` from another author with CC BY-NC-SA, edit it → you become author, they appear
+7. Import a `.rrqbl` from another author with CC BY-NC-SA, edit it → you become author, they appear
    under "Based on", and the license is locked to CC BY-NC-SA (can't pick CC BY-SA or CC0).
 8. Quilt using that block › Details › "Blocks by others" lists it with its author and license;
    the quilt's license is locked at least to CC BY-NC-SA.

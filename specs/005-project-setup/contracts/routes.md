@@ -8,7 +8,7 @@
 | `/project/block/:id` | Block editor (placeholder) | yes |
 | `/project/image/:id` | Image editor (placeholder) | yes |
 | `/libraries` | Library manager (placeholder) | no |
-| `/settings` | Settings (theme, export/import `.rrq_conf`) | no |
+| `/settings` | Settings (theme, export/import `.rrqconf`) | no |
 | anything else | Not found, link to Home | no |
 
 Guard: navigating to a "yes" route without an open project redirects to `/` and shows "Open a

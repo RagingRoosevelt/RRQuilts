@@ -6,7 +6,7 @@
 
 **Status**: Draft
 
-**Input**: User description: "Define the shared structure of resource repositories (git) and `.rrq_lib`
+**Input**: User description: "Define the shared structure of resource repositories (git) and `.rrqlib`
 files. One document, packed (single file) or exploded (repo with image files). `kind` personal vs
 pack. Default pack license CC-BY-4.0. Repositories are pinned; updates come with a changelog the
 user reads before choosing to move their pin."
@@ -30,7 +30,7 @@ everything returns as the user's own work.
 **Acceptance Scenarios**:
 
 1. **Given** a personal library, **When** the user chooses "back up my library", **Then** one
-   `.rrq_lib` file of kind `personal` is saved with all items and embedded images.
+   `.rrqlib` file of kind `personal` is saved with all items and embedded images.
 2. **Given** that file on another device, **When** imported, **Then** it appears under the user's
    own libraries, fully editable.
 3. **Given** a personal library with the same id already exists, **When** importing, **Then** the user
@@ -51,7 +51,7 @@ confirm author/license show and the item is read-only until copied.
 **Acceptance Scenarios**:
 
 1. **Given** a personal library, **When** the user chooses "share as pack", **Then** they confirm
-   name, description, author, and license (default CC-BY-SA-4.0) and a `.rrq_lib` of kind `pack` is saved.
+   name, description, author, and license (default CC-BY-SA-4.0) and a `.rrqlib` of kind `pack` is saved.
 2. **Given** a pack file, **When** imported, **Then** it appears under packs, separate from the user's
    own libraries, with author and license visible.
 3. **Given** a pack item, **When** the user wants to change it, **Then** they copy it into their own
@@ -121,7 +121,7 @@ changelog note, commit, and see the update offered with that note.
 
 1. **Given** a personal library, **When** the user chooses "export as repository", **Then** they
    confirm name, description, author, license (default CC-BY-SA-4.0), and a zip downloads containing
-   `rrq_lib.json` (kind `pack`, images as separate files), `assets/`, `LICENSE`, and `README.md`.
+   `rrqlib.json` (kind `pack`, images as separate files), `assets/`, `LICENSE`, and `README.md`.
 2. **Given** that zip unzipped at a repository root and pushed, **When** anyone connects to it,
    **Then** it loads with no edits.
 3. **Given** a library already exported before, **When** the user exports again, **Then** the same pack
@@ -129,7 +129,7 @@ changelog note, commit, and see the update offered with that note.
    and earlier changelog entries are preserved.
 4. **Given** the export, **Then** `README.md` explains how to create the repository, commit, tag the
    revision (`rrq-rev-<revision>`), and how others connect to it.
-5. **Given** an exported single-file pack, **When** committed as `rrq_lib.json` at a repository root,
+5. **Given** an exported single-file pack, **When** committed as `rrqlib.json` at a repository root,
    **Then** it is also a valid repository.
 
 ---
@@ -153,7 +153,7 @@ changelog note, commit, and see the update offered with that note.
 - Pack without author or license → rejected with an explanation.
 - Two packs/repositories with the same `id` → second is refused with "already installed".
 - Re-export after browser data loss (publishing history gone) → user can import the repository's
-  current `rrq_lib.json` (or zip) to recover the pack `id`, `revision`, and changelog before exporting.
+  current `rrqlib.json` (or zip) to recover the pack `id`, `revision`, and changelog before exporting.
 - User removes items before a re-export → they appear as "removed" in the computed changes others
   see; the export warns the publisher.
 
@@ -163,7 +163,7 @@ changelog note, commit, and see the update offered with that note.
 
 **Document**
 
-- **FR-001**: A library document MUST be UTF-8 JSON with top-level fields: `format` (`"rrq_lib"`),
+- **FR-001**: A library document MUST be UTF-8 JSON with top-level fields: `format` (`"rrqlib"`),
   `version` (schema version, integer), `units` (`"in"` | `"cm"`, as in spec 003), `kind` (`"personal"` | `"pack"`), `id` (stable unique id),
   `revision` (integer, increases with each published change), `name`, `description`, `categories`,
   `items`; packs additionally require `author` (`name`, optional `url`) and `license`.
@@ -196,7 +196,7 @@ changelog note, commit, and see the update offered with that note.
 - **FR-010**: Binary assets (images, embroidery files) MUST be referenced as either `{ data }`
   (embedded data URI — packed) or `{ path }` (relative file in the repository — exploded), each with
   `sha256`, `type`, and for images `width`/`height`; both forms are valid in either location, except
-  `.rrq_lib` files imported from disk MUST be fully packed.
+  `.rrqlib` files imported from disk MUST be fully packed.
 - **FR-011**: Allowed asset types: PNG, JPEG, WebP images and `.EXP` embroidery. No SVG, HTML, or
   scripts anywhere; all text fields are plain text.
 - **FR-012**: Every asset MUST be verified against its `sha256` before use.
@@ -216,7 +216,7 @@ changelog note, commit, and see the update offered with that note.
   app".
 
 - **FR-024**: Users MUST be able to export any of their own libraries as a repository zip containing
-  `rrq_lib.json` (kind `pack`, exploded: assets as files under `assets/`, referenced by `path`),
+  `rrqlib.json` (kind `pack`, exploded: assets as files under `assets/`, referenced by `path`),
   `LICENSE` (full license text for the chosen license, or its SPDX id and canonical URL when the text
   is not bundled), and a generated `README.md` (name, description, author, license, item counts,
   setup/tag/connect instructions).
@@ -224,14 +224,14 @@ changelog note, commit, and see the update offered with that note.
   changelog). Each repository export MUST keep the `id`, increment `revision`, require a changelog
   note, and append it to the changelog.
 - **FR-026**: Users MUST be able to recover publishing history by importing the published
-  `rrq_lib.json` or zip of their own pack.
+  `rrqlib.json` or zip of their own pack.
 
 **Repositories**
 
-- **FR-030**: A repository MUST be a git repository with `rrq_lib.json` at its root, `kind: "pack"`;
+- **FR-030**: A repository MUST be a git repository with `rrqlib.json` at its root, `kind: "pack"`;
   it SHOULD include `LICENSE` and `README.md`.
 - **FR-031**: Users MUST be able to connect by repository web URL (GitHub URLs translated to raw file
-  URLs) or by any HTTPS base URL serving `rrq_lib.json` with cross-origin access; optionally
+  URLs) or by any HTTPS base URL serving `rrqlib.json` with cross-origin access; optionally
   specifying a branch or tag (default: default branch).
 - **FR-032**: On connect the app MUST download and cache the document and assets, then pin the current
   `revision`. Content used by the app MUST always be the pinned revision.
@@ -268,7 +268,7 @@ changelog note, commit, and see the update offered with that note.
 
 ```json
 {
-  "format": "rrq_lib",
+  "format": "rrqlib",
   "version": 1,
   "kind": "pack",
   "id": "5d2b9c1e-…",
@@ -314,7 +314,7 @@ changelog note, commit, and see the update offered with that note.
 
 - **SC-001**: A backup → clear data → restore round trip reproduces every item and image exactly
   (byte-identical assets).
-- **SC-002**: An exported pack committed as `rrq_lib.json` connects successfully with zero changes.
+- **SC-002**: An exported pack committed as `rrqlib.json` connects successfully with zero changes.
 - **SC-003**: A pinned repository's content never changes without explicit user acceptance (0
   silent changes across update checks).
 - **SC-004**: An update between revisions shows 100% of intervening changelog entries and item
@@ -329,6 +329,6 @@ changelog note, commit, and see the update offered with that note.
 - No central registry of repositories in v1; users share URLs. A curated list could later be a static
   file in the RRQuilts repository.
 - Item `data` schemas are defined with the `.rrq` project format; this spec does not redefine them.
-- Items stay inline in `rrq_lib.json`; per-item files are unnecessary unless documents approach the
+- Items stay inline in `rrqlib.json`; per-item files are unnecessary unless documents approach the
   size limit.
 - `revision` is author-maintained; the app does not derive it from git history.

@@ -92,7 +92,7 @@
           </button>
           <button class="card add" @click="blockInput?.click()">
             <q-icon name="upload_file" size="md" />
-            <div>Import blocks<br /><span class="text-caption">.rrqb or a project</span></div>
+            <div>Import blocks<br /><span class="text-caption">.rrqbl or a project</span></div>
           </button>
         </div>
         <div
@@ -142,7 +142,7 @@
                     <q-item-section>Details</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="exportBlock(b)">
-                    <q-item-section>Export (.rrqb)</q-item-section>
+                    <q-item-section>Export (.rrqbl)</q-item-section>
                   </q-item>
                   <template v-if="!project.readOnly">
                     <q-item
@@ -213,7 +213,7 @@
                     <q-item-section>Preview</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="exportBlock(b)">
-                    <q-item-section>Export (.rrqb)</q-item-section>
+                    <q-item-section>Export (.rrqbl)</q-item-section>
                   </q-item>
                 </q-list>
               </q-menu>
@@ -224,7 +224,7 @@
       <input
         ref="blockInput"
         type="file"
-        accept=".rrqb,.rrq,.json"
+        accept=".rrqbl,.rrq,.json"
         hidden
         @change="importBlocksFile"
       />
@@ -584,10 +584,10 @@ function exportBlock(b: Block) {
   const palette = [...project.doc!.project.palette.colors, ...library.items.colors];
   const author = settings.settings.author;
   const stamped = { ...b, license: effectiveLicense(b, project.doc!) };
-  download(b.notecard.name, serializeBlock(stamped, project.doc!.units, palette, author), 'rrqb');
+  download(b.notecard.name, serializeBlock(stamped, project.doc!.units, palette, author), 'rrqbl');
 }
 
-/** One picker for both: a project file (.rrq) offers its blocks; anything else is read as .rrqb. */
+/** One picker for both: a project file (.rrq) offers its blocks; anything else is read as .rrqbl. */
 async function importBlocksFile(e: Event) {
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];

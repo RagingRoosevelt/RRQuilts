@@ -1,13 +1,15 @@
 <!--
 Sync Impact Report
-- Version change: 1.7.0 → 1.8.0 (MINOR: added Principle VI — Respect Content Licenses)
+- Version change: 1.8.0 → 1.8.1 (PATCH: file extensions without separators — .rrqconf, .rrqlib;
+  browser file dialogs reject `_`/`-` in extensions)
+- Prior: 1.7.0 → 1.8.0 (MINOR: added Principle VI — Respect Content Licenses)
 - Prior: 1.6.0 → 1.7.0 (MINOR: TypeBox as the schema/validation library — Technology Stack)
 - Prior: 1.5.0 → 1.6.0 (MINOR: CI gate, Node 24 LTS, container file ownership/polling,
   README requirement, make commit/push — Technology Stack, Build/Hosting, Development Workflow)
 - Prior: 1.4.0 → 1.5.0 (MINOR: autosaved project drafts in IndexedDB — Principle IV)
-- Prior: 1.3.0 → 1.4.0 (MINOR: .rrq_lib widened to also serve as resource pack — Principle III;
+- Prior: 1.3.0 → 1.4.0 (MINOR: .rrqlib widened to also serve as resource pack — Principle III;
   free/no-sign-up/MIT licensing — Principle I)
-- Prior: 1.2.2 → 1.3.0 (MINOR: on-device library storage (IndexedDB) + .rrq_lib format;
+- Prior: 1.2.2 → 1.3.0 (MINOR: on-device library storage (IndexedDB) + .rrqlib format;
   user-initiated resource-repository fetches allowed as the sole network exception —
   Principles II, III, IV, Technology Stack)
 - Prior: 1.2.1 → 1.2.2 (PATCH: concrete repo URL + Pages base path)
@@ -66,8 +68,8 @@ Rationale: quilters work in sewing rooms, at retreats, and at shows with poor co
 Projects and settings are plain JSON with documented, versioned schemas.
 
 - Project file: `.rrq` — UTF-8 JSON, one project per file.
-- Settings file: `.rrq_conf` — UTF-8 JSON export/import of app settings.
-- Library file: `.rrq_lib` — UTF-8 JSON bundle of library resources. One format for both
+- Settings file: `.rrqconf` — UTF-8 JSON export/import of app settings.
+- Library file: `.rrqlib` — UTF-8 JSON bundle of library resources. One format for both
   personal-library backup and shareable resource packs, distinguished by a required top-level
   `kind` (`personal` | `pack`; packs carry author and license); same content
   structure a resource repository provides, imported from disk (works offline).
@@ -87,17 +89,17 @@ All data stays on the user's device unless the user explicitly exports it.
 - Projects are saved/opened as `.rrq` files on the user's filesystem. Use the File System
   Access API where available; fall back to download (`<a download>`) + `<input type="file">`
   elsewhere (Firefox, Safari, iOS).
-- Settings persist in `localStorage` and can be exported to / imported from `.rrq_conf`.
+- Settings persist in `localStorage` and can be exported to / imported from `.rrqconf`.
 - The open project is autosaved as a draft in IndexedDB for crash recovery; the `.rrq` file
   remains the user's saved copy, and the draft is never a substitute for saving to file.
 - Personal libraries and downloaded repository content persist in IndexedDB (too large for
-  `localStorage`); personal libraries export to / import from `.rrq_lib`. The app SHOULD request
+  `localStorage`); personal libraries export to / import from `.rrqlib`. The app SHOULD request
   persistent storage and MUST warn when storage is full or was cleared.
 - Browser storage access MUST be wrapped (it can throw or be empty); the app runs on defaults
   when it is unavailable.
 - Projects MUST embed every library/repository item they use, so a `.rrq` file is
   self-contained.
-- Repository and `.rrq_lib` content is untrusted: validate every item, never execute it, enforce size limits.
+- Repository and `.rrqlib` content is untrusted: validate every item, never execute it, enforce size limits.
 - Unsaved-work protection: warn before closing/navigating away with unsaved changes.
 
 Rationale: no lock-in, no privacy exposure, nothing lost to a cleared cache that the user
@@ -212,8 +214,8 @@ Minimum envelope (details defined per feature in `specs/`):
 // .rrq
 { "format": "rrq", "version": 1, "app": "<app version>", "project": { } }
 
-// .rrq_conf
-{ "format": "rrq_conf", "version": 1, "app": "<app version>", "settings": { } }
+// .rrqconf
+{ "format": "rrqconf", "version": 1, "app": "<app version>", "settings": { } }
 ```
 
 - Schema + migrations live in one module per format; covered by unit tests
@@ -243,4 +245,4 @@ This constitution supersedes other practices. Amendments are made via
 (MAJOR: principle removed/redefined; MINOR: principle/section added; PATCH: wording).
 Runtime development guidance lives in `CLAUDE.md`.
 
-**Version**: 1.8.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-11
+**Version**: 1.8.1 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-12

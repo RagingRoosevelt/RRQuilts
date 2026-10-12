@@ -130,18 +130,18 @@ The user sets the name they want to be known by; items they create carry it in t
 
 ### User Story 6 - Share a single block as a file (Priority: P2)
 
-A quilter exports one block to a `.rrqb` file (JSON) and anyone can import it as their own block.
+A quilter exports one block to a `.rrqbl` file (JSON) and anyone can import it as their own block.
 
 **Why this priority**: Lightweight sharing without building a pack.
 
-**Independent Test**: Export Ohio Star from the sketchbook → `ohio-star.rrqb`; import it in a cm
+**Independent Test**: Export Ohio Star from the sketchbook → `ohio-star.rrqbl`; import it in a cm
 project → it appears under My blocks at 25.4 cm with its colors, credited to its library.
 
 **Acceptance Scenarios**:
 
-1. **Given** a block, **When** the user chooses Export block, **Then** a `.rrqb` file holds the block,
+1. **Given** a block, **When** the user chooses Export block, **Then** a `.rrqbl` file holds the block,
    the colors its own colorings use, the units, and the exporter's name.
-2. **Given** a `.rrqb`, **When** imported, **Then** the block is added under My blocks (editable),
+2. **Given** a `.rrqbl`, **When** imported, **Then** the block is added under My blocks (editable),
    converted to the project's units; existing attribution is kept, or the exporter is credited.
 3. **Given** the same id at the same version already in the project, **Then** nothing is added; same
    id with a different design → added as a copy with the importer's new id and a "(2)" name.
@@ -172,7 +172,7 @@ project → it appears under My blocks at 25.4 cm with its colors, credited to i
   attribution, and editor settings — and an integer `revision` that increments whenever `version`
   changes. Matching uses `id@version`; `revision` is for display.
 - **FR-003**: Settings MUST have "Your name" (display name; slug derived: lowercase, non-alphanumeric →
-  `-`); asked once on first creation; `anonymous` if skipped; included in `.rrq_conf`.
+  `-`); asked once on first creation; `anonymous` if skipped; included in `.rrqconf`.
 
 **Libraries in the app**
 
@@ -201,7 +201,7 @@ project → it appears under My blocks at 25.4 cm with its colors, credited to i
 
 **Block files**
 
-- **FR-040**: Users MUST be able to export one block as `.rrqb` (`format: "rrqb"`, `version`, `units`,
+- **FR-040**: Users MUST be able to export one block as `.rrqbl` (`format: "rrqbl"`, `version`, `units`,
   `author`, `block`, `colors`) and import it as their own block (FR-030 attribution rules; untrusted
   input validated like `.rrq`; fills referencing missing colors dropped).
 - **FR-041**: Users MUST be able to import every block of another `.rrq` (nothing else) the same way;

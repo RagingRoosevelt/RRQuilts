@@ -1,4 +1,4 @@
-// Single-block files (.rrqb): one block plus the colors its own colorings use. Imported blocks are
+// Single-block files (.rrqbl): one block plus the colors its own colorings use. Imported blocks are
 // the user's own (editable); the original author stays credited (constitution Principle VI).
 import { produce } from 'immer';
 import Type from 'typebox';
@@ -13,7 +13,7 @@ import { Block } from './schema/block';
 import { Color } from './schema/palette';
 import { Units, type RrqDoc } from './schema/project';
 
-export const BLOCK_FORMAT = 'rrqb';
+export const BLOCK_FORMAT = 'rrqbl';
 export const BLOCK_VERSION = 1;
 
 export const BlockFile = Type.Object({
@@ -125,7 +125,7 @@ export function importBlock(
     for (const c of b.colorings) {
       for (const [pid, f] of Object.entries(c.fills))
         if ('color' in f && !known.has(f.color)) delete c.fills[pid];
-      for (const [pid, f] of Object.entries(c.fills)) if ('fabric' in f) delete c.fills[pid]; // ponytail: fabrics aren't in .rrqb yet
+      for (const [pid, f] of Object.entries(c.fills)) if ('fabric' in f) delete c.fills[pid]; // ponytail: fabrics aren't in .rrqbl yet
     }
   });
   const next = produce(doc, (d) => {
@@ -152,7 +152,7 @@ export function projectBlockChoices(
     .map((block) => ({ block, here: importBlock(doc, fileFor(block, from), '').doc === doc }));
 }
 
-/** Import the chosen blocks (`ids`) of another project, nothing else, as if each were a `.rrqb`. */
+/** Import the chosen blocks (`ids`) of another project, nothing else, as if each were a `.rrqbl`. */
 export function importProjectBlocks(
   doc: RrqDoc,
   from: RrqDoc,

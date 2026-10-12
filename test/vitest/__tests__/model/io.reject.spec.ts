@@ -7,7 +7,7 @@ const parse = (doc: unknown) => parseProject(JSON.stringify(doc));
 describe('rejections', () => {
   it('rejects non-JSON, other formats, bad and newer versions', async () => {
     expect((await parseProject('{oops')).ok).toBe(false);
-    expect((await parse({ ...fixture(), format: 'rrq_conf' })).ok).toBe(false);
+    expect((await parse({ ...fixture(), format: 'rrqconf' })).ok).toBe(false);
     expect((await parse({ ...fixture(), version: 0 })).ok).toBe(false);
     const newer = await parse({ ...fixture(), version: 2 });
     expect(newer).toMatchObject({ ok: false, error: expect.stringMatching(/newer/) });

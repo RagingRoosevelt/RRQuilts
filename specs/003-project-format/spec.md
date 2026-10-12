@@ -10,7 +10,7 @@
 for inches and cm. Store patches derived from seam lines (with stable ids). Keep circular arcs and
 Béziers distinct. Colorings and layers per proposal."
 
-> Defines the data shared by `.rrq` (spec 001) and `.rrq_lib` items (spec 002). Item schemas here are
+> Defines the data shared by `.rrq` (spec 001) and `.rrqlib` items (spec 002). Item schemas here are
 > used unchanged in libraries. Requirement IDs are local to this spec.
 
 ## User Scenarios & Testing *(mandatory)*

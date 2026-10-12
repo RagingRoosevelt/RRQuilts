@@ -44,7 +44,7 @@
 - **Decision**: `src/content/starter.ts` defines the 12 blocks as seam drawings in normalized
   coordinates plus default colorings given as sample points (`[x, y, colorIndex]` → the patch
   containing the point gets that color), and the 36 colors. `createProject` derives patches with
-  the 003 model and assigns ids. The bundled `.rrq_lib` pack form arrives with the libraries
+  the 003 model and assigns ids. The bundled `.rrqlib` pack form arrives with the libraries
   feature (spec 002), generated from this same data.
 - **Rationale**: Patch ids are random, so colorings by sample point are robust to derivation order.
 

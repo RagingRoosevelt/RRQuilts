@@ -243,7 +243,7 @@ zoom, drag-pan, and Fit.
 
 ### Key Entities
 
-- Uses spec 003 entities. New: **Starter pack** (bundled `.rrq_lib`), **Undo history** (session only),
+- Uses spec 003 entities. New: **Starter pack** (bundled `.rrqlib`), **Undo history** (session only),
   **Tool state** (current tool, scope, selected block/color; remembered per session).
 
 ## Success Criteria *(mandatory)*

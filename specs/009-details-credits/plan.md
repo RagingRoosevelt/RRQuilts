@@ -13,7 +13,7 @@
   `blockCredits(doc, quilt, me)`.
 - **Wiring**: `copyBlock` and drawing edits (`markDerived(block, me)`) call `creditCopy`;
   `newBlock`/`createQuilt`/new project set `author`; `importBlock` keeps the file's author (legacy:
-  `file.author`) instead of a synthetic `source`; `.rrqb` export stamps the effective license.
+  `file.author`) instead of a synthetic `source`; `.rrqbl` export stamps the effective license.
 - **UI**: `DetailsPanel.vue` (title, notes, author, license select with two-line options or locked
   chip + reason, Based on, Blocks by) used in the quilt editor (`mode: 'details'`), block editor
   (`blockMode: 'details'`), and sketchbook (`tab: 'details'`). `NotecardDialog` removed; Notecard

@@ -573,10 +573,10 @@ and its Files-app integration (phones) work by hand.
 - Fonts used in a text label must be available offline on every device that opens the file.
 - Resource repository unreachable, offline, renamed, or deleted → last downloaded copy keeps working;
   projects using its items are unaffected (FR-086).
-- `.rrq_lib` file or repository contains malformed, oversized, or unsupported items → those items are skipped and
+- `.rrqlib` file or repository contains malformed, oversized, or unsupported items → those items are skipped and
   reported; the rest load.
 - Device storage full or cleared by the browser → user is warned; personal libraries restorable
-  from `.rrq_lib` exports and repositories re-downloadable.
+  from `.rrqlib` exports and repositories re-downloadable.
 
 ## Requirements *(mandatory)*
 
@@ -737,7 +737,7 @@ and its Files-app integration (phones) work by hand.
   by nearest color, and thread by name/number.
 - **FR-082**: Users MUST have personal libraries (categories with styles; add, copy/paste, sort,
   rename, delete) available across projects on the same device. They are stored on the device by the
-  app (not in settings) and MUST be exportable/importable as `.rrq_lib` files for backup and moving
+  app (not in settings) and MUST be exportable/importable as `.rrqlib` files for backup and moving
   between devices.
 - **FR-083**: Users MUST be able to import items from another project file and add custom threads
   (name, number, manufacturer, RGB).
@@ -745,10 +745,10 @@ and its Files-app integration (phones) work by hand.
   blocks, fabrics, layouts, threads, etc.) by URL, browse and search them like built-in libraries,
   and disconnect them. Repositories are pinned: content changes only when the user reviews the
   changelog of an available update and chooses to move the pin (see spec 002).
-- **FR-084a**: Users MUST be able to add resources from a `.rrq_lib` file (the same format used for
+- **FR-084a**: Users MUST be able to add resources from a `.rrqlib` file (the same format used for
   personal-library export, FR-082), fully offline, and remove them later. Repository content and
-  `.rrq_lib` files share one structure, defined in its own spec.
-- **FR-084b**: Every `.rrq_lib` file MUST declare its kind: **personal** (the user's own work — a
+  `.rrqlib` files share one structure, defined in its own spec.
+- **FR-084b**: Every `.rrqlib` file MUST declare its kind: **personal** (the user's own work — a
   backup) or **pack** (resources from someone else, with author and license). Exporting offers
   "back up my library" (personal) or "share as pack" (pack, author/license filled in; license defaults to CC-BY-4.0), or export as a
   repository zip ready to commit to git (spec 002).
@@ -805,7 +805,7 @@ and its Files-app integration (phones) work by hand.
 - **FR-120**: Settings MUST include units, default border style, max blocks per row/column, drop size
   behavior, keep rotation when replacing blocks, snap defaults, freehand smoothing, ruler origin,
   print line minimum, and display preferences.
-- **FR-121**: Settings MUST be exportable/importable as `.rrq_conf` and restorable to defaults.
+- **FR-121**: Settings MUST be exportable/importable as `.rrqconf` and restorable to defaults.
 
 ### Key Entities
 
@@ -828,10 +828,10 @@ and its Files-app integration (phones) work by hand.
 - **Library**: Built-in, personal, or repository-backed; categories → styles → items.
 - **Resource repository**: A connected git repository of shareable library content; URL, name,
   license, last-updated version, cached items.
-- **Library file**: A `.rrq_lib` file carrying the same content as a repository, with a declared
+- **Library file**: A `.rrqlib` file carrying the same content as a repository, with a declared
   kind: personal (backup of the user's own work) or pack (shared resources with author/license);
   imported from disk instead of fetched.
-- **Settings**: User preferences and default starter content (exportable as `.rrq_conf`).
+- **Settings**: User preferences and default starter content (exportable as `.rrqconf`).
 
 ## Success Criteria *(mandatory)*
 
@@ -882,9 +882,9 @@ and its Files-app integration (phones) work by hand.
   with a small adapter per service. Proton Drive (US21) waits on a public third-party API: its files
   are end-to-end encrypted and it has no third-party sign-in; its sync folder and Files-app
   integration work by hand.
-  Repository and `.rrq_lib` structure, manifest, and versioning are specified separately
+  Repository and `.rrqlib` structure, manifest, and versioning are specified separately
   (follow-up spec).
-- **File formats**: RRQuilts uses only its own JSON formats (`.rrq`, `.rrq_conf`, `.rrq_lib`). Other quilt software's file formats are deliberately unsupported.
+- **File formats**: RRQuilts uses only its own JSON formats (`.rrq`, `.rrqconf`, `.rrqlib`). Other quilt software's file formats are deliberately unsupported.
 - **Access**: free service, no sign-up or accounts, open source under MIT. Built-in library content
   is original and MIT-licensed; repository/resource-pack content carries its own stated license.
 - **Users**: hobby and professional quilters, beginner to advanced, on desktop browsers and tablets.

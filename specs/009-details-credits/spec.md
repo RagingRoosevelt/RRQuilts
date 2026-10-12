@@ -12,7 +12,7 @@ Layout/Borders/Design/Print), blocks (next to Draw/Color/Print), and the project
 Quilts/Blocks/Fabrics & Colors/Photos/Threads) to edit title, notes, authorship (only your own
 field when it's a copy of someone else's), and license (if not inherited)."
 
-> Amends specs 007 (attribution) and 008 (copies, `.rrqb`). Constitution Principle VI applies.
+> Amends specs 007 (attribution) and 008 (copies, `.rrqbl`). Constitution Principle VI applies.
 
 ## Clarifications
 
@@ -46,7 +46,7 @@ seam → Sam is the author; credits list RRQuilts contributors, then Jane.
    drawing, **Then** the previous author (with the name and license at that point) is appended to
    the credits, and the user becomes the author.
 2. **Given** the user's own block, **When** copied, **Then** credits are unchanged.
-3. **Given** an imported `.rrqb`, **Then** its author and credits come with it; the importer becomes
+3. **Given** an imported `.rrqbl`, **Then** its author and credits come with it; the importer becomes
    the author only once they change it.
 
 ### User Story 2 - Details tabs (Priority: P1)
@@ -88,7 +88,7 @@ Items and projects carry a license; earlier work in the chain limits the choice.
 - No name set → copies add the previous author to credits; the new author stays blank ("anonymous").
 - Older files (credits only in `source`) → `source` is shown as the first credit.
 - Share-alike and non-commercial share-alike both in the chain → CC BY-NC-SA (the stricter).
-- Exported `.rrqb` carries the block's effective license.
+- Exported `.rrqbl` carries the block's effective license.
 
 ## Requirements *(mandatory)*
 

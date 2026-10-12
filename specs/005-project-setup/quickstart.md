@@ -34,7 +34,7 @@ make serve      # http://localhost:8080/RRQuilts/
 ## 4. Shell behavior (US5)
 
 - Visit `/project/quilt/x` with no project open → redirected to `/` with "Open a project first".
-- Settings: switch theme → persists across reload; Export → `.rrq_conf` downloads; Import that file
+- Settings: switch theme → persists across reload; Export → `.rrqconf` downloads; Import that file
   → succeeds; import a file with `"format": "nope"` → rejected, settings unchanged.
 - DevTools: block storage (or private window) → app still loads with defaults.
 

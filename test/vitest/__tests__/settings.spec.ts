@@ -48,10 +48,10 @@ describe('settings storage', () => {
   });
 });
 
-describe('.rrq_conf export/import', () => {
+describe('.rrqconf export/import', () => {
   it('exports the documented envelope', () => {
     const doc = toConf(defaults(), '1.2.3');
-    expect(doc).toEqual({ format: 'rrq_conf', version: 1, app: '1.2.3', settings: defaults() });
+    expect(doc).toEqual({ format: 'rrqconf', version: 1, app: '1.2.3', settings: defaults() });
   });
 
   it('imports its own export', () => {
@@ -63,13 +63,13 @@ describe('.rrq_conf export/import', () => {
   it('rejects non-JSON, wrong format, and newer versions', () => {
     expect(parseConf('nope').ok).toBe(false);
     expect(parseConf(JSON.stringify({ format: 'nope', version: 1, settings: {} })).ok).toBe(false);
-    const newer = parseConf(JSON.stringify({ format: 'rrq_conf', version: 2, settings: {} }));
+    const newer = parseConf(JSON.stringify({ format: 'rrqconf', version: 2, settings: {} }));
     expect(newer).toMatchObject({ ok: false, error: expect.stringMatching(/update/i) });
   });
 
   it('falls back to defaults for invalid known values and reports them', () => {
     const r = parseConf(
-      JSON.stringify({ format: 'rrq_conf', version: 1, settings: { theme: 'neon', units: 'cm' } }),
+      JSON.stringify({ format: 'rrqconf', version: 1, settings: { theme: 'neon', units: 'cm' } }),
     );
     expect(r).toEqual({
       ok: true,

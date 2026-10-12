@@ -6,7 +6,7 @@
 - [x] T003 `src/library/builtin.ts` + tests: deterministic built-in blocks/colors with `rrquilts.` ids and stable versions across builds
 - [x] T004 `src/model/library-items.ts` + tests: isLibraryItem, embedItems, pruneLibraryItems, swapToLibraryVersion (fill remap by overlap), useMyCopy
 
-- [x] T004b `src/model/block-file.ts` + tests: `.rrqb` serialize/parse/import (US6)
+- [x] T004b `src/model/block-file.ts` + tests: `.rrqbl` serialize/parse/import (US6)
 
 ## Phase 2: App wiring
 - [x] T005 Settings: author + authorAsked (validated, exported); Settings page field with privacy note; first-creation prompt composable
@@ -16,6 +16,6 @@
 ## Phase 3: UI
 - [x] T008 Tray: My blocks / Library; My colors / Library colors
 - [x] T009 Sketchbook: My blocks / Library sections; Edit on library block → copy + "use my copy in quilts"; colors tab sections
-- [x] T009b Sketchbook: Export block (.rrqb) / Import block; file picker accepts .rrqb
+- [x] T009b Sketchbook: Export block (.rrqbl) / Import block; file picker accepts .rrqbl
 - [x] T010 VersionDialog on open (per item / all; default keep)
 - [x] T011 Update tests that relied on starter content inside projects; quickstart; CLAUDE.md; `make commit`

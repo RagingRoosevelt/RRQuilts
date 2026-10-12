@@ -108,13 +108,13 @@ work starts from the real structure.
 **Why this priority**: Avoids reshaping routing and layout later.
 
 **Independent Test**: Navigate Home → Project sketchbook → each editor placeholder → back; settings
-can be exported as `.rrq_conf` and re-imported.
+can be exported as `.rrqconf` and re-imported.
 
 **Acceptance Scenarios**:
 
 1. **Given** the shell, **Then** routes exist for Home, Project sketchbook, Quilt/Block/Image editors,
    Library manager, and Settings, using clean URLs; an editor URL with no project open redirects Home.
-2. **Given** Settings, **Then** settings persist on-device, survive reload, export as `.rrq_conf`,
+2. **Given** Settings, **Then** settings persist on-device, survive reload, export as `.rrqconf`,
    import with validation, and fall back to defaults when storage is unavailable.
 3. **Given** the shell, **Then** light/dark theme follows the system with a manual override.
 
@@ -132,7 +132,7 @@ can be exported as `.rrq_conf` and re-imported.
 - Container user vs host file ownership → files written to `docs/` and `node_modules` are owned by
   the host user, not root.
 - Dev server file watching inside Docker on some hosts → falls back to polling so live reload works.
-- Malformed `.rrq_conf` import → rejected with a message, current settings unchanged.
+- Malformed `.rrqconf` import → rejected with a message, current settings unchanged.
 
 ## Requirements *(mandatory)*
 
@@ -164,7 +164,7 @@ can be exported as `.rrq_conf` and re-imported.
   focus and hourly while open (not only on page load).
 - **FR-012**: The shell MUST include the spec 004 routes as placeholders and the redirect for editor
   URLs without an open project.
-- **FR-013**: Settings MUST persist via a guarded local storage wrapper and export/import `.rrq_conf`
+- **FR-013**: Settings MUST persist via a guarded local storage wrapper and export/import `.rrqconf`
   (`format`, `version`, validated on import).
 - **FR-014**: No runtime network requests other than the app's own origin.
 
@@ -181,7 +181,7 @@ can be exported as `.rrq_conf` and re-imported.
 
 ### Key Entities
 
-- **Settings document**: `.rrq_conf` envelope with `format`, `version`, `app`, `settings`.
+- **Settings document**: `.rrqconf` envelope with `format`, `version`, `app`, `settings`.
 
 ## Success Criteria *(mandatory)*
 
