@@ -85,11 +85,11 @@
     <template v-else-if="tab === 'blocks'">
       <div class="text-subtitle2 q-mb-sm">My blocks</div>
       <div class="cards">
-        <button v-if="!project.readOnly" class="card add" @click="newBlockDialog">
-          <q-icon name="add" size="lg" />
-          <div>New block</div>
-        </button>
         <div v-if="!project.readOnly" class="stack">
+          <button class="card add" @click="newBlockDialog">
+            <q-icon name="add" size="md" />
+            <div>New block</div>
+          </button>
           <button class="card add" @click="blockInput?.click()">
             <q-icon name="upload_file" size="md" />
             <div>Import block (.rrqb)</div>
@@ -808,7 +808,7 @@ function showPlacements() {
   min-height: 200px;
   cursor: pointer;
 }
-/* Two half-height cards in one grid cell. */
+/* Stacked actions sharing one grid cell, icon beside the label. */
 .stack {
   display: flex;
   flex-direction: column;
@@ -816,7 +816,12 @@ function showPlacements() {
 }
 .stack .card.add {
   flex: 1;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 8px;
   min-height: 0;
+  padding: 8px 12px;
+  text-align: left;
 }
 .thumb {
   display: block;
