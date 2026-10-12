@@ -35,7 +35,12 @@
     </q-banner>
 
     <div class="row no-wrap-md" style="gap: 16px">
-      <div v-show="filtersOpen" class="libs column" style="gap: 8px">
+      <div
+        v-show="filtersOpen"
+        class="libs column"
+        :class="{ left: settings.settings.sidesSwapped }"
+        style="gap: 8px"
+      >
         <q-input v-model="search" dense outlined clearable placeholder="Search names, notes">
           <template #prepend><q-icon name="search" /></template>
         </q-input>
@@ -1000,6 +1005,9 @@ function downloadPack() {
   overflow-y: auto;
   padding-top: 2px;
   order: 1;
+}
+.libs.left {
+  order: -1;
 }
 .lib-picker {
   border: 1px solid rgba(128, 128, 128, 0.4);

@@ -12,6 +12,8 @@ export interface Settings {
   author: string;
   /** The author name has been asked for once. */
   authorAsked: boolean;
+  /** Editors: toolbar on the right and sidebar on the left (default: the reverse). */
+  sidesSwapped: boolean;
   /** Labels of inspector sections the user collapsed. */
   collapsedSections: string[];
   /** Print preferences (spec 010), merged with defaults where used (`printPrefs`). */
@@ -44,6 +46,7 @@ export const defaults = (): Settings => ({
   author: '',
   authorAsked: false,
   collapsedSections: [],
+  sidesSwapped: false,
   print: {},
 });
 
@@ -53,6 +56,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   hintsDismissed: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   author: (v) => typeof v === 'string' && v.length <= 100,
   authorAsked: (v) => typeof v === 'boolean',
+  sidesSwapped: (v) => typeof v === 'boolean',
   print: (v) => isObject(v),
   collapsedSections: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
 };

@@ -1,6 +1,9 @@
 <template>
   <q-page v-if="project.doc && block" class="editor column no-wrap" :style-fn="fill">
-    <div class="row items-center no-wrap q-px-sm bar">
+    <div
+      class="row items-center no-wrap q-px-sm bar"
+      :class="{ reverse: appSettings.settings.sidesSwapped }"
+    >
       <q-tabs v-model="editor.blockMode" dense no-caps inline-label class="col">
         <q-tab name="details" icon="info" label="Details" />
         <q-tab name="draw" icon="draw" label="Draw" />
@@ -19,7 +22,11 @@
       </q-btn>
     </div>
 
-    <div class="row col no-wrap" style="min-height: 0">
+    <div
+      class="row col no-wrap"
+      :class="{ reverse: appSettings.settings.sidesSwapped }"
+      style="min-height: 0"
+    >
       <!-- Toolbar: undo, and (Draw/Color) tools -->
       <div class="rail column no-wrap q-pa-xs" style="gap: 4px">
         <q-btn
@@ -483,6 +490,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
   width: 340px;
   flex: none;
   border-left: 1px solid rgba(128, 128, 128, 0.25);
+}
+.reverse > .rail {
+  border-right: none;
+  border-left: 1px solid rgba(128, 128, 128, 0.25);
+}
+.reverse > .inspector {
+  border-left: none;
+  border-right: 1px solid rgba(128, 128, 128, 0.25);
 }
 .readout {
   position: absolute;

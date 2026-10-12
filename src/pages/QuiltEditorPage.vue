@@ -1,7 +1,10 @@
 <template>
   <q-page v-if="project.doc && quilt" class="editor column no-wrap" :style-fn="fill">
     <!-- Mode tabs + undo -->
-    <div class="row items-center no-wrap q-px-sm bar">
+    <div
+      class="row items-center no-wrap q-px-sm bar"
+      :class="{ reverse: appSettings.settings.sidesSwapped }"
+    >
       <q-tabs v-model="editor.mode" dense no-caps inline-label class="col">
         <q-tab name="details" icon="info" label="Details" />
         <q-tab name="layout" icon="grid_on" label="Layout" />
@@ -22,7 +25,11 @@
       </q-btn>
     </div>
 
-    <div class="row col no-wrap" style="min-height: 0">
+    <div
+      class="row col no-wrap"
+      :class="{ reverse: appSettings.settings.sidesSwapped }"
+      style="min-height: 0"
+    >
       <!-- Toolbar: undo, view toggles, and (Design) tools -->
       <div class="rail column no-wrap q-pa-xs" style="gap: 4px">
         <q-btn
@@ -179,6 +186,7 @@ import type { Hit } from '@/render/hit';
 import { useEditorStore, type Tool } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
+import { useSettingsStore } from '@/stores/settings';
 
 const $q = useQuasar();
 // Fill exactly the space under the header (which grows with the read-only banner): no page scroll.
@@ -190,6 +198,7 @@ const editor = useEditorStore();
 // Sidebar opens with each editor (hiding it isn't remembered).
 editor.sidebar = true;
 const library = useLibraryStore();
+const appSettings = useSettingsStore();
 
 const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === route.params.id));
 watch(
@@ -329,6 +338,14 @@ function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
   width: 320px;
   flex: none;
   border-left: 1px solid rgba(128, 128, 128, 0.25);
+}
+.reverse > .rail {
+  border-right: none;
+  border-left: 1px solid rgba(128, 128, 128, 0.25);
+}
+.reverse > .inspector {
+  border-left: none;
+  border-right: 1px solid rgba(128, 128, 128, 0.25);
 }
 .sizes {
   position: absolute;

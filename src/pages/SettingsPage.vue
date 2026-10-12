@@ -8,55 +8,78 @@
         copy.
       </q-banner>
 
-      <div>
-        <div class="text-subtitle1">Theme</div>
-        <q-btn-toggle
-          v-model="store.settings.theme"
-          no-caps
-          :options="[
-            { label: 'Auto', value: 'auto' },
-            { label: 'Light', value: 'light' },
-            { label: 'Dark', value: 'dark' },
-          ]"
-        />
-      </div>
+      <q-list bordered separator class="rounded-borders">
+        <q-expansion-item default-opened label="You" icon="person">
+          <div class="q-pa-md">
+            <div>
+              <div class="text-subtitle1">Your name</div>
+              <q-input
+                v-model.trim="store.settings.author"
+                outlined
+                dense
+                maxlength="100"
+                placeholder="anonymous"
+                :hint="`Shown in projects, blocks, and packs you share. Ids of items you create start with “${slug}.” (existing items keep theirs).`"
+                @update:model-value="store.settings.authorAsked = true"
+              />
+            </div>
+          </div>
+        </q-expansion-item>
+        <q-expansion-item default-opened label="Interface" icon="tune">
+          <div class="q-pa-md column" style="gap: 16px">
+            <div>
+              <div class="text-subtitle1">Theme</div>
+              <q-btn-toggle
+                v-model="store.settings.theme"
+                no-caps
+                :options="[
+                  { label: 'Auto', value: 'auto' },
+                  { label: 'Light', value: 'light' },
+                  { label: 'Dark', value: 'dark' },
+                ]"
+              />
+            </div>
 
-      <div>
-        <div class="text-subtitle1">Units for new projects</div>
-        <q-btn-toggle
-          v-model="store.settings.units"
-          no-caps
-          :options="[
-            { label: 'Inches', value: 'in' },
-            { label: 'Centimeters', value: 'cm' },
-          ]"
-        />
-        <div class="text-caption text-grey-7 q-mt-xs">
-          An open project's units are in its Details tab.
-        </div>
-      </div>
-
-      <div>
-        <div class="text-subtitle1">Your name</div>
-        <q-input
-          v-model.trim="store.settings.author"
-          outlined
-          dense
-          maxlength="100"
-          placeholder="anonymous"
-          :hint="`Shown in projects, blocks, and packs you share. Ids of items you create start with “${slug}.” (existing items keep theirs).`"
-          @update:model-value="store.settings.authorAsked = true"
-        />
-      </div>
-
-      <div class="text-caption text-grey-7">RRQuilts {{ version }} · build {{ build }}</div>
+            <div>
+              <div class="text-subtitle1">Units for new projects</div>
+              <q-btn-toggle
+                v-model="store.settings.units"
+                no-caps
+                :options="[
+                  { label: 'Inches', value: 'in' },
+                  { label: 'Centimeters', value: 'cm' },
+                ]"
+              />
+              <div class="text-caption text-grey-7 q-mt-xs">
+                An open project's units are in its Details tab.
+              </div>
+            </div>
+            <div>
+              <div class="text-subtitle1">Editor layout</div>
+              <q-btn-toggle
+                v-model="store.settings.sidesSwapped"
+                no-caps
+                :options="[
+                  { label: 'Toolbar left, sidebar right', value: false },
+                  { label: 'Sidebar left, toolbar right', value: true },
+                ]"
+              />
+              <div class="text-caption text-grey-7 q-mt-xs">
+                The quilt and block editors; the Libraries filters follow the sidebar.
+              </div>
+            </div>
+          </div>
+        </q-expansion-item>
+      </q-list>
 
       <div class="q-gutter-sm">
         <div class="text-subtitle1">Settings file (.rrqconf)</div>
-        <q-btn outline icon="download" label="Export" @click="exportConf" />
-        <q-btn outline icon="upload" label="Import" @click="fileInput?.click()" />
+        <q-btn outline no-caps icon="download" label="Export" @click="exportConf" />
+        <q-btn outline no-caps icon="upload" label="Import" @click="fileInput?.click()" />
         <input ref="fileInput" type="file" accept=".rrqconf,.json" hidden @change="importConf" />
       </div>
+
+      <div class="text-caption text-grey-7">RRQuilts {{ version }} · build {{ build }}</div>
     </div>
   </q-page>
 </template>
