@@ -188,7 +188,7 @@ const vp = useViewport({
   },
 
   onTap(p, e) {
-    if (props.readonly && editor.blockMode === 'draw') return;
+    if (editor.blockMode === 'details' || (props.readonly && editor.blockMode === 'draw')) return;
     if (editor.blockMode === 'color') {
       const patch = patchAt(p);
       if (patch) emit('patch', patch);

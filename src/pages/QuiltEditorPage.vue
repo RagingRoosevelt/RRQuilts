@@ -10,67 +10,81 @@
         <q-tab name="print" icon="print" label="Print" />
       </q-tabs>
       <q-btn
+        v-if="editor.mode !== 'design'"
         flat
         round
         dense
-        icon="undo"
-        aria-label="Undo"
-        :disable="!project.canUndo"
-        @click="project.undo()"
+        icon="menu"
+        :aria-label="sidebarLabel"
+        @click="editor.sidebar = !editor.sidebar"
       >
-        <q-tooltip>Undo (Ctrl+Z)</q-tooltip>
-      </q-btn>
-      <q-btn
-        flat
-        round
-        dense
-        icon="redo"
-        aria-label="Redo"
-        :disable="!project.canRedo"
-        @click="project.redo()"
-      >
-        <q-tooltip>Redo (Ctrl+Shift+Z)</q-tooltip>
-      </q-btn>
-      <q-btn
-        flat
-        round
-        dense
-        :icon="editor.outlines ? 'border_all' : 'border_clear'"
-        :aria-label="outlinesLabel"
-        @click="editor.outlines = !editor.outlines"
-      >
-        <q-tooltip>{{ outlinesLabel }}</q-tooltip>
-      </q-btn>
-      <q-btn
-        flat
-        round
-        dense
-        :icon="editor.labels ? 'label' : 'label_off'"
-        :aria-label="labelsLabel"
-        @click="editor.labels = !editor.labels"
-      >
-        <q-tooltip>{{ labelsLabel }}</q-tooltip>
+        <q-tooltip>{{ sidebarLabel }}</q-tooltip>
       </q-btn>
     </div>
 
     <div class="row col no-wrap" style="min-height: 0">
-      <!-- Tool rail (Design) -->
-      <div v-if="editor.mode === 'design'" class="rail column no-wrap q-pa-xs" style="gap: 4px">
+      <!-- Toolbar: undo, view toggles, and (Design) tools -->
+      <div class="rail column no-wrap q-pa-xs" style="gap: 4px">
         <q-btn
-          v-for="t in tools"
-          :key="t.id"
-          :flat="editor.tool !== t.id"
-          :unelevated="editor.tool === t.id"
-          :color="editor.tool === t.id ? 'primary' : undefined"
+          flat
           dense
-          :icon="t.icon"
-          :class="{ 'flip-v': t.id === 'flip' && editor.flipAxis === 'v' }"
-          :aria-label="labelOf(t)"
-          :disable="project.readOnly && t.id !== 'pan' && t.id !== 'find' && t.id !== 'eyedropper'"
-          @click="selectTool(t.id)"
+          icon="undo"
+          aria-label="Undo"
+          :disable="!project.canUndo"
+          @click="project.undo()"
         >
-          <q-tooltip anchor="center right" self="center left">{{ labelOf(t) }}</q-tooltip>
+          <q-tooltip anchor="center right" self="center left">Undo (Ctrl+Z)</q-tooltip>
         </q-btn>
+        <q-btn
+          flat
+          dense
+          icon="redo"
+          aria-label="Redo"
+          :disable="!project.canRedo"
+          @click="project.redo()"
+        >
+          <q-tooltip anchor="center right" self="center left">Redo (Ctrl+Shift+Z)</q-tooltip>
+        </q-btn>
+        <template v-if="editor.mode !== 'print'">
+          <q-btn
+            flat
+            dense
+            :icon="editor.outlines ? 'border_all' : 'border_clear'"
+            :aria-label="outlinesLabel"
+            @click="editor.outlines = !editor.outlines"
+          >
+            <q-tooltip anchor="center right" self="center left">{{ outlinesLabel }}</q-tooltip>
+          </q-btn>
+          <q-btn
+            flat
+            dense
+            :icon="editor.labels ? 'label' : 'label_off'"
+            :aria-label="labelsLabel"
+            @click="editor.labels = !editor.labels"
+          >
+            <q-tooltip anchor="center right" self="center left">{{ labelsLabel }}</q-tooltip>
+          </q-btn>
+        </template>
+        <template v-if="editor.mode === 'design'">
+          <q-separator />
+          <q-btn
+            v-for="t in tools"
+            :key="t.id"
+            :flat="editor.tool !== t.id"
+            :unelevated="editor.tool === t.id"
+            :color="editor.tool === t.id ? 'primary' : undefined"
+            dense
+            :icon="t.icon"
+            :class="{ 'flip-v': t.id === 'flip' && editor.flipAxis === 'v' }"
+            :aria-label="labelOf(t)"
+            :disable="
+              project.readOnly && t.id !== 'pan' && t.id !== 'find' && t.id !== 'eyedropper'
+            "
+            @click="selectTool(t.id)"
+          >
+            <q-tooltip anchor="center right" self="center left">{{ labelOf(t) }}</q-tooltip>
+          </q-btn>
+        </template>
       </div>
 
       <PrintPreview v-if="editor.mode === 'print'" kind="quilt" :id="quilt.id" />
@@ -97,7 +111,7 @@
       </div>
 
       <!-- Inspector -->
-      <div v-if="editor.mode !== 'design'" class="inspector q-pa-md scroll">
+      <div v-if="editor.mode !== 'design'" v-show="editor.sidebar" class="inspector q-pa-md scroll">
         <LayoutInspector
           v-if="editor.mode === 'layout' && quilt.layout.style === 'horizontal'"
           :key="quilt.id"
@@ -231,6 +245,7 @@ const found = computed(() => {
   const slots = quilt.value.layers[0].slots;
   return new Set(Object.keys(slots).filter((id) => slots[id]!.block === editor.block));
 });
+const sidebarLabel = computed(() => (editor.sidebar ? 'Hide sidebar' : 'Show sidebar'));
 const labelsLabel = computed(() => (editor.labels ? 'Hide block names' : 'Show block names'));
 
 const fmt = (n: number) => `${Number(n.toFixed(3))}`;

@@ -11,42 +11,54 @@
         flat
         round
         dense
-        icon="undo"
-        aria-label="Undo"
-        :disable="!project.canUndo"
-        @click="project.undo()"
+        icon="menu"
+        :aria-label="sidebarLabel"
+        @click="editor.sidebar = !editor.sidebar"
       >
-        <q-tooltip>Undo (Ctrl+Z)</q-tooltip>
-      </q-btn>
-      <q-btn
-        flat
-        round
-        dense
-        icon="redo"
-        aria-label="Redo"
-        :disable="!project.canRedo"
-        @click="project.redo()"
-      >
-        <q-tooltip>Redo (Ctrl+Shift+Z)</q-tooltip>
+        <q-tooltip>{{ sidebarLabel }}</q-tooltip>
       </q-btn>
     </div>
 
     <div class="row col no-wrap" style="min-height: 0">
-      <div v-if="editor.blockMode !== 'print'" class="rail column no-wrap q-pa-xs" style="gap: 4px">
+      <!-- Toolbar: undo, and (Draw/Color) tools -->
+      <div class="rail column no-wrap q-pa-xs" style="gap: 4px">
         <q-btn
-          v-for="t in tools"
-          :key="t.id"
-          :flat="editor.blockTool !== t.id"
-          :unelevated="editor.blockTool === t.id"
-          :color="editor.blockTool === t.id ? 'primary' : undefined"
+          flat
           dense
-          :icon="t.icon"
-          :aria-label="t.label"
-          :disable="project.readOnly && !['pan', 'select', 'eyedropper'].includes(t.id)"
-          @click="editor.blockTool = t.id"
+          icon="undo"
+          aria-label="Undo"
+          :disable="!project.canUndo"
+          @click="project.undo()"
         >
-          <q-tooltip anchor="center right" self="center left">{{ t.label }}</q-tooltip>
+          <q-tooltip anchor="center right" self="center left">Undo (Ctrl+Z)</q-tooltip>
         </q-btn>
+        <q-btn
+          flat
+          dense
+          icon="redo"
+          aria-label="Redo"
+          :disable="!project.canRedo"
+          @click="project.redo()"
+        >
+          <q-tooltip anchor="center right" self="center left">Redo (Ctrl+Shift+Z)</q-tooltip>
+        </q-btn>
+        <template v-if="editor.blockMode === 'draw' || editor.blockMode === 'color'">
+          <q-separator />
+          <q-btn
+            v-for="t in tools"
+            :key="t.id"
+            :flat="editor.blockTool !== t.id"
+            :unelevated="editor.blockTool === t.id"
+            :color="editor.blockTool === t.id ? 'primary' : undefined"
+            dense
+            :icon="t.icon"
+            :aria-label="t.label"
+            :disable="project.readOnly && !['pan', 'select', 'eyedropper'].includes(t.id)"
+            @click="editor.blockTool = t.id"
+          >
+            <q-tooltip anchor="center right" self="center left">{{ t.label }}</q-tooltip>
+          </q-btn>
+        </template>
       </div>
 
       <PrintPreview
@@ -76,7 +88,7 @@
         </div>
       </div>
 
-      <div class="inspector q-pa-md scroll">
+      <div v-show="editor.sidebar" class="inspector q-pa-md scroll">
         <PrintOptions
           v-if="editor.blockMode === 'print'"
           kind="block"
@@ -263,6 +275,7 @@ watch(
   { immediate: true },
 );
 
+const sidebarLabel = computed(() => (editor.sidebar ? 'Hide sidebar' : 'Show sidebar'));
 const fmt = (n: number) => `${Number(n.toFixed(3))}`;
 
 /** Replace this block in a document copy. */
