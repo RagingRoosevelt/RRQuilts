@@ -38,6 +38,7 @@
           <div class="content">
             <!-- Templates: pieces packed at true size -->
             <svg
+              class="bleed"
               v-if="s.kind === 'templates'"
               :width="`${area[0]}${units}`"
               :height="`${area[1]}${units}`"
@@ -192,6 +193,7 @@
             <div v-else-if="s.kind === 'block'" class="column" style="gap: 8px">
               <div class="row no-wrap" style="gap: 16px">
                 <svg
+                  class="bleed"
                   :width="`${s.w * s.scale}${units}`"
                   :height="`${s.h * s.scale}${units}`"
                   :viewBox="`0 0 ${s.w} ${s.h}`"
@@ -310,6 +312,7 @@
             <!-- Pictures -->
             <div v-else-if="s.kind === 'picture'" class="column items-center" style="gap: 6px">
               <svg
+                class="bleed"
                 :width="`${s.w * s.scale}${units}`"
                 :height="`${s.h * s.scale}${units}`"
                 :viewBox="`${s.x0} ${s.y0} ${s.w} ${s.h}`"
@@ -1157,6 +1160,10 @@ const fit = computed(() =>
 .notes {
   white-space: pre-wrap;
   text-align: left;
+}
+/* Outlines are centred on the shape's edge: let the outer half show instead of clipping it. */
+.bleed {
+  overflow: visible;
 }
 .pill {
   border: 0.2mm solid #666;
