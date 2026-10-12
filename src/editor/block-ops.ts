@@ -1,6 +1,12 @@
 // Block-level operations for the block editor (pure; results go through project.change).
 import { produce } from 'immer';
-import { creditCopy, licenseName, needsCredit, priorCredits } from '@/model/credits';
+import {
+  DEFAULT_LICENSE,
+  creditCopy,
+  licenseName,
+  needsCredit,
+  priorCredits,
+} from '@/model/credits';
 import { deriveSeamPatches } from '@/model/blocks/derive';
 import { newId } from '@/model/ids';
 import { itemId } from '@/model/identity';
@@ -33,6 +39,7 @@ export function newBlock(
   size: [number, number],
   units: Units,
   author = '',
+  license = DEFAULT_LICENSE,
 ): SeamBlock {
   const drawing = { nodes: [], segments: [] };
   return {
@@ -45,6 +52,7 @@ export function newBlock(
     colorings: [{ id: newId(), name: 'Coloring 1', fills: {} }],
     editor: { snap: defaultSnap(units) },
     ...(author ? { author } : {}),
+    license,
   };
 }
 

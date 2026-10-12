@@ -36,7 +36,7 @@
       @update:model-value="(v) => set('author', v)"
     />
     <q-select
-      :model-value="lock?.license ?? item.license ?? ''"
+      :model-value="current"
       :options="options"
       label="License"
       dense
@@ -108,6 +108,7 @@ import {
   priorCredits,
   quiltLock,
 } from '@/model/credits';
+import { isLibraryItem } from '@/model/library-items';
 import type { Credit } from '@/model/schema/shared';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
@@ -156,26 +157,18 @@ const lock = computed(() => {
 });
 
 const projectLicense = computed(() => project.doc?.project.license ?? DEFAULT_LICENSE);
+/** Items without their own license (older files) show the project's. */
+const current = computed(
+  () => lock.value?.license ?? (item.value?.license || projectLicense.value),
+);
 const options = computed(() => [
-  ...(props.kind === 'project'
-    ? []
-    : [
-        {
-          value: '',
-          label: `Project license (${licenseName(projectLicense.value)})`,
-          terms: "Follows the project's license",
-        },
-      ]),
   ...LICENSES.map((l) => ({ value: l.id, label: l.name, terms: l.terms })),
   // A license from a library we don't offer stays visible as-is.
-  ...(lock.value && !LICENSES.some((l) => l.id === lock.value!.license)
-    ? [{ value: lock.value.license, label: licenseName(lock.value.license), terms: '' }]
+  ...(current.value && !LICENSES.some((l) => l.id === current.value)
+    ? [{ value: current.value, label: licenseName(current.value), terms: '' }]
     : []),
 ]);
-const selectedTerms = computed(() => {
-  const id = item.value?.license || projectLicense.value;
-  return LICENSES.find((l) => l.id === id)?.terms;
-});
+const selectedTerms = computed(() => LICENSES.find((l) => l.id === current.value)?.terms);
 
 const creditCaption = (c: Credit) =>
   [c.library, c.license && licenseName(c.license)].filter(Boolean).join(' · ');
@@ -194,6 +187,13 @@ function set(field: Field, raw: string | number | null) {
             ? p.blocks.find((b) => b.id === props.id)
             : undefined;
       if (props.kind !== 'project' && !t) return;
+      // Items keep the license they had: pin those still following the old project license.
+      if (field === 'license' && !t) {
+        const old = p.license ?? DEFAULT_LICENSE;
+        for (const x of [...p.blocks, ...p.quilts])
+          if (!x.license && !isLibraryItem(x) && !x.notecard.tags?.includes('system'))
+            x.license = old;
+      }
       if (field === 'name') {
         if (t) t.notecard.name = value;
         else p.name = value;

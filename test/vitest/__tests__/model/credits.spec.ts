@@ -46,6 +46,7 @@ describe('credits and licenses', () => {
       license: 'CC-BY-SA-4.0',
       because: 'Ohio Star (2)',
     });
-    expect(effectiveLicense(mine, doc)).toBe('CC0-1.0'); // project license is the default
+    expect(effectiveLicense(mine, doc)).toBe('CC-BY-SA-4.0'); // its own, set when created
+    expect(effectiveLicense({ ...mine, license: undefined }, doc)).toBe('CC0-1.0'); // older files
   });
 });

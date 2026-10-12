@@ -82,7 +82,7 @@ export function settleCredits(d: Creditable) {
 
 /**
  * The user copies or changes someone else's item (call on a draft): the previous author joins the
- * credits and the user becomes the author; the license follows the chain or the project again.
+ * credits and the user becomes the author; the license resets to the project's (the chain may lock it).
  */
 export function creditCopy(d: Creditable, me: string, projectLicense?: string) {
   const library = src(d) && !src(d)!.derived ? src(d)!.library : undefined;
@@ -95,7 +95,7 @@ export function creditCopy(d: Creditable, me: string, projectLicense?: string) {
   );
   if (me) d.author = me;
   else delete d.author;
-  delete d.license;
+  d.license = projectLicense ?? DEFAULT_LICENSE;
 }
 
 /** Whether `creditCopy` would change anything (avoid new objects for no-op edits). */

@@ -4,7 +4,7 @@ import { produce } from 'immer';
 import Type from 'typebox';
 import Value from 'typebox/value';
 import { findDuplicateIds } from './ids';
-import { settleCredits } from './credits';
+import { DEFAULT_LICENSE, settleCredits } from './credits';
 import { itemId } from './identity';
 import { createProject } from './new-project';
 import { variationName } from './new-quilt';
@@ -115,6 +115,7 @@ export function importBlock(
     settleCredits(b);
     if (b.source) b.source.derived = true;
     if (!b.author && file.author && !b.credits?.length) b.author = file.author;
+    b.license ??= doc.project.license ?? DEFAULT_LICENSE;
     for (const c of b.colorings) {
       for (const [pid, f] of Object.entries(c.fills))
         if ('color' in f && !known.has(f.color)) delete c.fills[pid];

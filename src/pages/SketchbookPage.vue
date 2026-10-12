@@ -414,7 +414,13 @@ function newBlockDialog() {
 }
 
 async function createBlock(name: string, s: number) {
-  const b = newBlock(name, [s, s], project.doc!.units, await askAuthor());
+  const b = newBlock(
+    name,
+    [s, s],
+    project.doc!.units,
+    await askAuthor(),
+    project.doc!.project.license,
+  );
   project.change((d) => void d.project.blocks.push(b));
   editor.blockMode = 'draw';
   editor.blockTool = 'line';

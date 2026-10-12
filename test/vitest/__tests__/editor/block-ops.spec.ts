@@ -86,7 +86,7 @@ describe('block operations', () => {
     expect(c.notecard.name).toBe('Ohio Star (2)');
     expect(c.source?.derived).toBe(true);
     expect(c.author).toBe('Jane');
-    expect(c.license).toBeUndefined();
+    expect(c.license).toBe('CC-BY-SA-4.0'); // its own from now on, not linked to the project
     expect(c.credits).toEqual([
       {
         author: 'RRQuilts contributors',
