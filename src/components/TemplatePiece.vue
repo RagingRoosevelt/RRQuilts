@@ -77,6 +77,29 @@
     >
       {{ caption }}
     </text>
+    <!-- Color key off: a pill per fabric under the template -->
+    <g v-for="p in pills" :key="p.n" :transform="`translate(${p.x} ${pillY})`">
+      <rect
+        :width="p.w"
+        :height="look.font * 1.2"
+        :rx="look.font * 0.6"
+        fill="none"
+        stroke="#666"
+        :stroke-width="look.stroke * 0.7"
+      />
+      <rect
+        :x="look.font * 0.35"
+        :y="look.font * 0.3"
+        :width="look.font * 0.6"
+        :height="look.font * 0.6"
+        :fill="p.css"
+        stroke="#000"
+        :stroke-width="look.stroke * 0.5"
+      />
+      <text :x="look.font * 1.15" :y="look.font * 0.85" :font-size="look.font * 0.75">
+        {{ p.n }} · {{ p.name }}
+      </text>
+    </g>
   </g>
 </template>
 
@@ -96,7 +119,7 @@ const props = defineProps<{
     shade: boolean;
     marks: boolean;
     markLength: number;
-    labels: { letter: boolean; counts: boolean; size: boolean };
+    labels: { letter: boolean; counts: boolean; size: boolean; color: boolean };
     tint: boolean;
   };
 }>();
@@ -118,6 +141,19 @@ const caption = computed(() => {
   ]
     .filter(Boolean)
     .join(' · ');
+});
+/** Fabric pills (color key unchecked), laid left to right under the caption. */
+const pillY = computed(() => bounds.value[3] + props.look.font * (caption.value ? 1.9 : 0.4));
+const pills = computed(() => {
+  if (props.look.labels.color) return [];
+  const f = props.look.font;
+  let x = bounds.value[0];
+  return props.piece.fabrics.map((p) => {
+    const w = f * (1.5 + `${p.n} · ${p.name}`.length * 0.42);
+    const pill = { ...p, x, w };
+    x += w + f * 0.3;
+    return pill;
+  });
 });
 /** Checked notes, printed on the template: finished size, then what to cut. */
 const insideLines = computed(() => {
@@ -146,17 +182,21 @@ const stack = computed(() => {
     y += x.em * 1.15 * f * k;
     return { text: x.text, size: x.em * f * k, bold: x.bold, y: y - x.em * 0.25 * f * k };
   });
-  return { lines, top: props.piece.center[1] - (height * k) / 2, k };
+  return { lines, top: props.piece.center[1] - (height * k) / 2, k, width: width * k };
 });
 
 /** Arrow ends along the grain, through the label's center (offset below the letter). */
 const end = (s: 1 | -1): Pt => {
   const c = props.piece.center;
+  const [gx, gy] = props.piece.grain;
   const L = props.piece.grainLength / 2;
-  return [
-    c[0] + s * props.piece.grain[0] * L,
-    stack.value.top + props.look.font * 0.5 * stack.value.k + s * props.piece.grain[1] * L,
-  ];
+  const { top, k, width } = stack.value;
+  // Across the piece: above the labels; up and down: beside them.
+  const at: Pt =
+    Math.abs(gy) > Math.abs(gx)
+      ? [c[0] - width / 2 - props.look.font * 0.8 * k, c[1]]
+      : [c[0], top + props.look.font * 0.5 * k];
+  return [at[0] + s * gx * L, at[1] + s * gy * L];
 };
 function head(s: 1 | -1) {
   const [x, y] = end(s);

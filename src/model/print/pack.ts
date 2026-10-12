@@ -14,14 +14,15 @@ export interface Placed {
 }
 
 /** Pages of placements for boxes that fit; `oversize` lists indexes that don't fit any page. */
-export function pack(boxes: Box[], pageW: number, pageH: number, gap: number) {
+/** `flat`: turn tall boxes to lie flat when they fit (off when boxes are already oriented). */
+export function pack(boxes: Box[], pageW: number, pageH: number, gap: number, flat = true) {
   const fits = (w: number, h: number) => w <= pageW + 1e-9 && h <= pageH + 1e-9;
   const oversize: number[] = [];
   const items = boxes
     .map((b, index) => {
       // Lie flat (wider than tall) when that fits, lower shelves waste less paper; stand up when
       // only that fits.
-      const turned = (b.h > b.w && fits(b.h, b.w)) || !fits(b.w, b.h);
+      const turned = (flat && b.h > b.w && fits(b.h, b.w)) || !fits(b.w, b.h);
       return turned ? { index, w: b.h, h: b.w, turned } : { index, w: b.w, h: b.h, turned: false };
     })
     .filter((b) => {

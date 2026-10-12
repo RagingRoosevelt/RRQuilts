@@ -226,9 +226,8 @@
           @update:model-value="(v: boolean) => set('onePerPage', v)"
         />
         <div>
-          <div class="text-caption text-grey-7">
-            Labels on each template (unchecked ones print under it)
-          </div>
+          <div class="text-caption text-grey-7">Labels on each template</div>
+          <div class="text-caption text-grey-7">(unchecked ones print under it)</div>
           <div class="label-grid">
             <q-checkbox
               v-for="l in LABELS"

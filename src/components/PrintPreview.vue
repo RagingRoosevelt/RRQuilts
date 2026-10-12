@@ -635,7 +635,7 @@ function templateItems(pieces: Piece[], prefix: string) {
     let c = turn(cut);
     let [x0, y0, x1, y1] = bounds(c);
     // Prefer lying flat.
-    if (y1 - y0 > x1 - x0) {
+    if (y1 - y0 > (x1 - x0) * (1 + 1e-6)) {
       rad += Math.PI / 2;
       c = turn(cut);
       [x0, y0, x1, y1] = bounds(c);
@@ -659,6 +659,9 @@ function templateItems(pieces: Piece[], prefix: string) {
       size: finishedLabel(cutFor({ poly: t.poly, curved: t.curved, fill: '', marks: [] }, 0, 0)),
       tint: fills.length === 1 && fills[0] !== 'none' ? fillInfo(fills[0]!).css : undefined,
       marks: t.marks.map((m) => ({ p: shift(turnVec(m.p)), n: turnVec(m.n) })),
+      fabrics: fills
+        .filter((f) => fabricNos.value.has(f))
+        .map((f) => ({ n: fabricNos.value.get(f)!, ...fillInfo(f) })),
       x: 0,
       y: 0,
       w: x1 - x0,
@@ -960,6 +963,7 @@ function templateSheets(src: {
     note: '',
     size: '',
     marks: [],
+    fabrics: [],
     x: 0,
     y: 0,
     w: src.size[0] * keyScale,
@@ -977,19 +981,19 @@ function templateSheets(src: {
   const all: (PlacedPiece & { h: number; keyBlock?: KeyBlock })[] = src.noKey
     ? items
     : [keyItem, ...items];
-  const boxes = all.map((it) => ({ w: it.w, h: it.h + font.value * 2.4 }));
+  const boxes = all.map((it) => ({ w: it.w, h: it.h + font.value * 4 }));
   // One per page: pack each on its own (still turned to fit, still tiled when too big).
   const { pages, oversize } = prefs.value.onePerPage
     ? boxes.reduce(
         (acc, box, i) => {
-          const r = pack([box], aw, ah, gap);
+          const r = pack([box], aw, ah, gap, false);
           acc.pages.push(...r.pages.map((pg) => pg.map((pl) => ({ ...pl, index: i }))));
           if (r.oversize.length) acc.oversize.push(i);
           return acc;
         },
         { pages: [] as ReturnType<typeof pack>['pages'], oversize: [] as number[] },
       )
-    : pack(boxes, aw, ah, gap);
+    : pack(boxes, aw, ah, gap, false);
   for (const page of pages) {
     out.push({
       kind: 'templates',
