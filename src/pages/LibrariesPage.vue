@@ -316,13 +316,22 @@
       <q-card v-if="tagging" style="width: 400px; max-width: 95vw">
         <q-card-section class="text-h6">Tags & styles</q-card-section>
         <q-card-section class="column" style="gap: 8px">
-          <q-input v-model="tagging.tags" dense outlined label="Tags" hint="Comma-separated" />
-          <q-input
-            v-model="tagging.styles"
+          <q-select
+            v-for="f in ['tags', 'styles'] as const"
+            :key="f"
+            v-model="tagging[f]"
+            :label="f === 'tags' ? 'Tags' : 'Styles'"
+            :hint="f === 'styles' ? 'e.g. eight-point, log cabin' : undefined"
+            :options="tagOptions"
             dense
             outlined
-            label="Styles"
-            hint="Comma-separated, e.g. eight-point, log cabin"
+            multiple
+            use-chips
+            use-input
+            hide-dropdown-icon
+            input-debounce="0"
+            new-value-mode="add-unique"
+            @filter="(v: string, done: (fn: () => void) => void) => filterTags(f, v, done)"
           />
         </q-card-section>
         <q-card-actions align="right">
@@ -673,23 +682,25 @@ function pickCategory(id: string) {
   }).onOk((v: string) => void update((l) => setCategory(l, id, v || undefined)));
 }
 
-const tagging = ref<{ id: string; tags: string; styles: string } | null>(null);
-const list = (s: string) => [
-  ...new Set(
-    s
-      .split(',')
-      .map((x) => x.trim())
-      .filter(Boolean),
-  ),
-];
+const tagging = ref<{ id: string; tags: string[]; styles: string[] } | null>(null);
+const tagOptions = ref<string[]>([]);
+// Existing tags/styles from every library, matched as you type; Enter adds a new one.
+function filterTags(f: 'tags' | 'styles', typed: string, done: (fn: () => void) => void) {
+  const q = typed.trim().toLowerCase();
+  const all = new Set(
+    lists.value.flatMap((v) => v.doc.items.flatMap((i) => i.data.notecard[f] ?? [])),
+  );
+  done(() => (tagOptions.value = [...all].filter((t) => t.toLowerCase().includes(q)).sort()));
+}
 function startTagging(id: string) {
   const n = library.mine!.items.find((i) => i.data.id === id)!.data.notecard;
-  tagging.value = { id, tags: (n.tags ?? []).join(', '), styles: (n.styles ?? []).join(', ') };
+  tagging.value = { id, tags: [...(n.tags ?? [])], styles: [...(n.styles ?? [])] };
 }
 function saveTags() {
-  const t = tagging.value!;
+  const { id, tags, styles } = tagging.value!;
   tagging.value = null;
-  void update((l) => setNotecard(l, t.id, { tags: list(t.tags), styles: list(t.styles) }));
+  const clean = (l: string[]) => [...new Set(l.map((x) => x.trim()).filter(Boolean))];
+  void update((l) => setNotecard(l, id, { tags: clean(tags), styles: clean(styles) }));
 }
 
 const managing = ref(false);
