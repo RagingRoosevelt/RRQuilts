@@ -89,14 +89,16 @@
           <q-icon name="add" size="lg" />
           <div>New block</div>
         </button>
-        <button v-if="!project.readOnly" class="card add" @click="blockInput?.click()">
-          <q-icon name="upload_file" size="lg" />
-          <div>Import block (.rrqb)</div>
-        </button>
-        <button v-if="!project.readOnly" class="card add" @click="projectBlocksInput?.click()">
-          <q-icon name="drive_folder_upload" size="lg" />
-          <div>Import blocks from project</div>
-        </button>
+        <div v-if="!project.readOnly" class="stack">
+          <button class="card add" @click="blockInput?.click()">
+            <q-icon name="upload_file" size="md" />
+            <div>Import block (.rrqb)</div>
+          </button>
+          <button class="card add" @click="projectBlocksInput?.click()">
+            <q-icon name="drive_folder_upload" size="md" />
+            <div>Import blocks from project</div>
+          </button>
+        </div>
         <div
           v-for="(b, i) in blocks"
           :key="b.id"
@@ -805,6 +807,16 @@ function showPlacements() {
   justify-content: center;
   min-height: 200px;
   cursor: pointer;
+}
+/* Two half-height cards in one grid cell. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.stack .card.add {
+  flex: 1;
+  min-height: 0;
 }
 .thumb {
   display: block;
