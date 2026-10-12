@@ -106,7 +106,12 @@
             <img :src="thumb(b, 200)" :alt="b.notecard.name" />
           </button>
           <div class="row items-center no-wrap">
-            <div class="col ellipsis">{{ b.notecard.name }}</div>
+            <div class="col ellipsis">
+              {{ b.notecard.name }}
+              <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
+                <q-tooltip>Placed in a quilt</q-tooltip>
+              </q-icon>
+            </div>
             <q-btn flat round dense icon="more_vert" aria-label="Actions">
               <q-menu>
                 <q-list dense style="min-width: 160px">
@@ -173,7 +178,7 @@
             <div class="col ellipsis">
               {{ b.notecard.name }}
               <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
-                <q-tooltip>Used in this project</q-tooltip>
+                <q-tooltip>Placed in a quilt</q-tooltip>
               </q-icon>
             </div>
             <q-btn flat round dense icon="more_vert" aria-label="Actions">
