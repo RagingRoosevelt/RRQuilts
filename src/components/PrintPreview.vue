@@ -10,7 +10,9 @@
       <div v-if="!printOnly" class="row items-center q-pa-sm toolbar" style="gap: 8px">
         <div class="col text-caption text-grey-7">
           {{ sheets.length }} page{{ sheets.length === 1 ? '' : 's' }} · {{ paperLabel }} · print at
-          100% scale, then check the scale square.
+          100% scale<template v-if="sheets.some((x) => x.kind === 'templates' || x.kind === 'tile')"
+            >, then check the scale square on the template pages</template
+          >.
         </div>
         <q-btn color="primary" no-caps icon="print" label="Print" @click="print" />
       </div>
@@ -304,7 +306,8 @@
 
           <footer class="row items-end no-wrap" style="gap: 12px">
             <div class="col credits">{{ view.title }} · {{ view.byline }}</div>
-            <div class="column items-center">
+            <!-- Only pages with true-size cutting lines need a scale check. -->
+            <div v-if="s.kind === 'templates' || s.kind === 'tile'" class="column items-center">
               <div
                 class="scale-square"
                 :style="{ width: `${scaleSquare}${units}`, height: `${scaleSquare}${units}` }"
