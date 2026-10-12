@@ -34,6 +34,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { roundLen } from '@/model/units';
 
 const props = withDefaults(
   defineProps<{
@@ -48,8 +49,10 @@ const props = withDefaults(
 const emit = defineEmits<{ 'update:modelValue': [v: number] }>();
 
 const step = computed(() => (props.units === 'cm' ? 0.5 : 0.25));
-const display = computed(() => Number(props.modelValue.toFixed(4)));
-const clamp = (v: number) => Math.max(props.min, Math.round(v * 10000) / 10000);
+const u = computed(() => (props.units === 'cm' ? 'cm' : 'in'));
+// Shown and stored rounded, which also cleans up float noise in older values.
+const display = computed(() => roundLen(props.modelValue, u.value));
+const clamp = (v: number) => Math.max(props.min, roundLen(v, u.value));
 function set(v: string | number | null) {
   const n = Number(v);
   if (Number.isFinite(n) && v !== '' && v !== null) emit('update:modelValue', clamp(n));

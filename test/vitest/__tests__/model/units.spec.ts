@@ -36,4 +36,10 @@ describe('units', () => {
     const doc = fixture();
     expect(closeTo(convertUnits(convertUnits(doc, 'cm'), 'in'), doc)).toBe(true);
   });
+
+  it('rounds converted lengths (3 decimals in, 2 cm): 5.08 cm → exactly 2″', () => {
+    const cm = convertUnits(fixture(), 'cm');
+    const back = convertUnits(cm, 'in');
+    expect(back.project.quilts[0]!.borders[0]!.sides[0]).toBe(2);
+  });
 });

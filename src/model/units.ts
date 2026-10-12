@@ -9,25 +9,33 @@ const CM_PER_IN = 2.54;
 export const unitFactor = (from: Units, to: Units) =>
   from === to ? 1 : to === 'cm' ? CM_PER_IN : 1 / CM_PER_IN;
 
-type Pair = [number, number];
-const scalePair = (p: Pair, k: number): Pair => [p[0] * k, p[1] * k];
+/** Lengths as precise as a quilter works: 3 decimals of an inch, 2 of a centimeter. */
+export const roundLen = (v: number, units: Units) => {
+  const f = units === 'cm' ? 100 : 1000;
+  return Math.round(v * f) / f;
+};
 
-function scaleColoring(c: ColoringBody, k: number) {
+type Pair = [number, number];
+
+function scaleColoring(c: ColoringBody, scalePair: (p: Pair) => Pair) {
   for (const fill of Object.values(c.fills))
-    if ('fabric' in fill) fill.offset = scalePair(fill.offset, k);
+    if ('fabric' in fill) fill.offset = scalePair(fill.offset);
 }
 
 /** Returns a converted copy; the input is not modified. */
 export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
   const k = unitFactor(doc.units, to);
+  // Float noise is dropped (5.08 cm → 2″, not 1.9999999999999998″); 1/16″ stays exact.
+  const len = (v: number) => Math.round(v * k * 1e6) / 1e6;
+  const scalePair = (p: Pair): Pair => [len(p[0]), len(p[1])];
   return produce(doc, (out) => {
     out.units = to;
     if (k === 1) return;
     const p = out.project;
-    for (const f of p.palette.fabrics) f.size = scalePair(f.size, k);
+    for (const f of p.palette.fabrics) f.size = scalePair(f.size);
     for (const b of p.blocks) {
-      b.size = scalePair(b.size, k);
-      for (const c of b.colorings) scaleColoring(c, k);
+      b.size = scalePair(b.size);
+      for (const c of b.colorings) scaleColoring(c, scalePair);
       // Snap and graph-paper steps restart at the new units' defaults (¼" vs 5 mm, not 6.35 mm).
       const e = b.editor as { snap?: { step?: number }; graph?: { step?: number } } | undefined;
       delete e?.snap?.step;
@@ -35,17 +43,17 @@ export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
     }
     for (const q of p.quilts) {
       if (q.layout.style === 'horizontal') {
-        q.layout.block = scalePair(q.layout.block, k);
-        q.layout.sash = scalePair(q.layout.sash, k);
+        q.layout.block = scalePair(q.layout.block);
+        q.layout.sash = scalePair(q.layout.sash);
       }
-      for (const b of q.borders) b.sides = b.sides.map((s) => s * k) as typeof b.sides;
-      for (const c of Object.values(q.colorings)) scaleColoring(c, k);
+      for (const b of q.borders) b.sides = b.sides.map(len) as typeof b.sides;
+      for (const c of Object.values(q.colorings)) scaleColoring(c, scalePair);
       for (const item of q.layers.flatMap((l) => l.items)) {
-        item.x *= k;
-        item.y *= k;
-        item.w *= k;
-        item.h *= k;
-        if (item.text) item.text.size *= k;
+        item.x = len(item.x);
+        item.y = len(item.y);
+        item.w = len(item.w);
+        item.h = len(item.h);
+        if (item.text) item.text.size = len(item.text.size);
       }
     }
   });

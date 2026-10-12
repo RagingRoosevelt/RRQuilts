@@ -109,6 +109,7 @@
 import { computed, ref } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import type { Border } from '@/model/schema/quilt';
+import { roundLen } from '@/model/units';
 
 const props = defineProps<{
   borders: Border[];
@@ -134,7 +135,10 @@ const styleOptions = [
 
 const lock = ref<'all' | 'pairs' | 'each'>('all');
 const current = computed(() => props.borders[props.selected]);
-const fmt = (s: number[]) => (new Set(s).size === 1 ? `${s[0]} ${props.units}` : s.join(' / '));
+const fmt = (sides: number[]) => {
+  const s = sides.map((v) => roundLen(v, props.units === 'cm' ? 'cm' : 'in'));
+  return new Set(s).size === 1 ? `${s[0]} ${props.units}` : s.join(' / ');
+};
 
 function update(b: Border, coalesce: string) {
   emit(
