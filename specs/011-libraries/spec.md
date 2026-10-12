@@ -36,6 +36,10 @@
   change back to the library.
 - Q: Colors? → A: My library holds color collections, not single colors. In scope.
 - Q: Search by color? → A: Later.
+- Q: Can a color collection travel on its own? → A: Yes: export/import as a standalone `.rrqcc`
+  file (like `.rrqb` for one block).
+- Q: What can be shared besides the whole library? → A: Later: single categories, and single types
+  of things (color collections, blocks, fabrics, …), each as a pack.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -116,6 +120,15 @@ Sunset's colors.
 4. **Given** the built-in colors, **Then** they appear as one collection, "Basic colors".
 5. **Given** a collection on the Libraries page, **Then** the user can rename it, reorder, rename,
    or remove its colors.
+6. **Given** a collection, **When** the user chooses Export, **Then** a `.rrqcc` file downloads with
+   the collection, its colors, author, license, and credits.
+7. **Given** a `.rrqcc` file, **When** imported on the Libraries page, **Then** the collection joins
+   My library keeping its author and credits (as `.rrqb` blocks do); **When** imported in the
+   project's Fabrics & Colors tab, **Then** its colors join the project as the user's own colors.
+   Same collection id already there: same version → "already there"; another version → replace it
+   or keep both.
+8. **Given** the Libraries page Import button, **Then** it accepts `.rrq_lib` and `.rrqcc` (and
+   `.json`), choosing the flow from the file's `format`.
 
 ### User Story 5 - Back up and restore (Priority: P1, spec 002 US1)
 
@@ -149,7 +162,9 @@ Packs with author and license; its blocks are read-only until copied.
 
 **Acceptance Scenarios**:
 
-1. **Given** My library, **When** the user chooses Share as pack, **Then** they confirm name,
+1. **Given** My library, **When** the user chooses Share as pack, **Then** the whole library is
+   shared (single categories or single item types — only blocks, only color collections, … — come
+   later); they confirm name,
    description, author, license (default CC BY-SA; locked by item licenses per spec 009), and a
    `.rrq_lib` of kind `pack` downloads with a credits list. Items the user may not redistribute (All
    rights reserved by someone else) are left out, with a list.
@@ -194,6 +209,10 @@ Packs with author and license; its blocks are read-only until copied.
 - **FR-009**: A linked copy records the library item it came from (`source.libraryId`,
   `source.itemId`, `source.version`); "Sync to my library" is offered when the copy's content
   version differs from that item's.
+- **FR-010**: `.rrqcc` files: UTF-8 JSON `{ format: "rrqcc", version, units?, app, collection }`
+  where `collection` is a library item of type `colors` (FR-008) with its author, license, and
+  credits; validated as untrusted like `.rrqb` (spec 008 FR-040). File pickers filter by
+  `.rrqcc,.json`.
 
 ## Success Criteria *(mandatory)*
 
