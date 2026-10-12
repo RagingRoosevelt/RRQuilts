@@ -246,6 +246,10 @@
                 {{ widthOption.label }}; seam allowance {{ fmt(seam) }}; rounded up to the next
                 {{ fabricStepLabel }}.
               </div>
+              <template v-if="s.notes">
+                <div class="text-weight-medium">Notes</div>
+                <div class="notes">{{ s.notes }}</div>
+              </template>
               <div class="text-weight-medium">Credits</div>
               <div>{{ s.byline }}</div>
               <ul v-if="s.basedOn.length">
@@ -301,6 +305,7 @@
               <div v-if="!isBlockKind && view.basedOn.length" class="text-caption">
                 Based on {{ view.basedOn.map(creditLine).join('; ') }}
               </div>
+              <div v-if="view.notes" class="notes self-stretch">{{ view.notes }}</div>
             </div>
           </div>
 
@@ -484,6 +489,7 @@ interface View {
   size: string;
   /** "By Jane · CC BY-SA 4.0" */
   byline: string;
+  notes?: string | undefined;
   /** Earlier work this is based on (origin first). */
   basedOn: Credit[];
   /** Quilts: blocks made by others (or based on others' work), with their chains. */
@@ -516,6 +522,7 @@ const view = computed<View | undefined>(() => {
       size: sizeLabel(x1 - x0, y1 - y0),
       byline: `By ${quilt.author ?? 'anonymous'} · ${licenseName(effectiveLicense(quilt, dd, quiltLock(dd, quilt)))}`,
       basedOn: priorCredits(quilt),
+      notes: quilt.notecard.notes,
       blocks: blocksByOthers(dd, quilt, app.settings.author).map((u) => ({
         name: u.block.notecard.name,
         author: u.own ? undefined : u.author,
@@ -562,6 +569,7 @@ const view = computed<View | undefined>(() => {
     size: sizeLabel(...size) + (quilt ? ` · counts for “${quilt.notecard.name}”` : ''),
     byline: `By ${authorOf(block) ?? 'anonymous'} · ${licenseName(effectiveLicense(block, dd, blockLock(block)))}`,
     basedOn: priorCredits(block),
+    notes: block.notecard.notes,
     blocks: [],
     pieces,
     picture: one.map((p) => ({ d: d(p.poly), css: fillInfo(p.fill).css })),
@@ -665,6 +673,7 @@ type Sheet =
       pieces: Map<string, number>;
       byline: string;
       basedOn: Credit[];
+      notes?: string | undefined;
     }
   | {
       kind: 'picture';
@@ -728,7 +737,9 @@ const sheets = computed<Sheet[]>(() => {
       const [x0, y0, x1, y1] = v.pictureBox;
       const w = x1 - x0;
       const h = y1 - y0 + 0.0001;
-      const scale = Math.min(1, aw / w, (ah - 2 * font.value) / h);
+      // Leave room for the notes under the picture.
+      const room = v.notes ? ah * 0.7 : ah - 2 * font.value;
+      const scale = Math.min(1, aw / w, room / h);
       out.push({
         kind: 'picture',
         heading: isBlock ? 'Block' : 'Quilt',
@@ -960,6 +971,7 @@ function blockPage(
     pieces,
     byline: `By ${authorOf(block) ?? 'anonymous'} · ${licenseName(effectiveLicense(block, dd, blockLock(block)))}`,
     basedOn: priorCredits(block),
+    notes: block.notecard.notes,
   };
 }
 const creditLine = (c: Credit) =>
@@ -1047,6 +1059,10 @@ const fit = computed(() =>
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
+}
+.notes {
+  white-space: pre-wrap;
+  text-align: left;
 }
 .byline {
   font-size: 9pt;
