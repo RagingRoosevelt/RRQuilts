@@ -59,6 +59,13 @@
           :title="c.notecard.name"
           @click="pickColor(c.id)"
         >
+          <q-menu v-if="!project.readOnly && !group.mine" touch-position context-menu>
+            <q-list dense style="min-width: 140px">
+              <q-item v-close-popup clickable @click="editCopy(c)">
+                <q-item-section>Edit a copy…</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
           <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
             <q-list dense style="min-width: 140px">
               <q-item v-close-popup clickable @click="edit(c.id)">
@@ -88,6 +95,10 @@ import { blockThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { splitItems } from '@/model/library-items';
+import { libraryGroups } from '@/model/library';
+import { creditCopy } from '@/model/credits';
+import type { Color } from '@/model/schema/palette';
+import { produce } from 'immer';
 import type { Block } from '@/model/schema/block';
 import { useProjectStore } from '@/stores/project';
 
@@ -111,10 +122,7 @@ const doc = computed(() => project.doc!);
 const blockGroups = computed(() => {
   const own = doc.value.project.blocks.filter((b) => !b.notecard.tags?.includes('system'));
   const { mine, library: lib } = splitItems(own, library.items.blocks);
-  return [
-    { label: 'Mine', items: mine },
-    { label: 'Library', items: lib },
-  ];
+  return [{ label: 'Mine', items: mine }, ...libraryGroups(lib, library.views, 'blocks')];
 });
 /** Recently used colors first within each section. */
 const recentFirst = <T extends { id: string }>(all: T[]) => [
@@ -125,7 +133,11 @@ const colorGroups = computed(() => {
   const { mine, library: lib } = splitItems(doc.value.project.palette.colors, library.items.colors);
   return [
     { label: 'Mine', items: recentFirst(mine), mine: true },
-    { label: 'Library', items: recentFirst(lib), mine: false },
+    ...libraryGroups(lib, library.views, 'colors').map((g) => ({
+      label: g.label,
+      items: recentFirst(g.items),
+      mine: false,
+    })),
   ];
 });
 const thumb = (b: Block, coloringId?: string) =>
@@ -149,6 +161,20 @@ function edit(id: string) {
   if (!c) return;
   editing.value = id;
   editorDialog.value?.show({ name: c.notecard.name, rgb: [...c.rgb] as RGB });
+}
+
+/** Library colors are read-only: edit your copy (linked to My-library colors, so it can sync back). */
+function editCopy(c: Color) {
+  const me = useSettingsStore().settings.author;
+  const copy = produce(c, (d) => {
+    creditCopy(d, me, doc.value.project.license);
+    d.id = itemId(me);
+    delete d.version;
+    delete d.revision;
+  });
+  project.change((d) => void d.project.palette.colors.push(copy));
+  editor.useColor(copy.id);
+  edit(copy.id);
 }
 
 function saveColor({ name, rgb }: { name: string; rgb: RGB }) {

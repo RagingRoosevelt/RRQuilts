@@ -12,8 +12,8 @@
 - [x] T007 Import (`.rrqlib`/`.rrqcc`), Back up, Restore dialogs
 - [x] T008 Share as pack dialog (`packDoc`: license lock, exclusions, credits) + pack import/update
       /remove
-- [ ] T009 Sketchbook: Library grouped by library; Add / Sync / Copy to my library; `splitItems`
+- [x] T009 Sketchbook: Library grouped by library; Add / Sync / Copy to my library; `splitItems`
       linked copies
-- [ ] T010 Colors: Save as collection / Add to collection; `.rrqcc` import in Fabrics & Colors;
+- [x] T010 Colors: Save as collection / Add to collection; `.rrqcc` import in Fabrics & Colors;
       tray groups by collection; Edit a copy of library colors
 - [ ] T011 Playwright smoke; `quickstart.md`; CLAUDE.md; `make commit`

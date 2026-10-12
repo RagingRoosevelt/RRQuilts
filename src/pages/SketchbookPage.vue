@@ -113,10 +113,32 @@
               <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
                 <q-tooltip>Placed in a quilt</q-tooltip>
               </q-icon>
+              <q-icon v-if="linkOf(b) === 'synced'" name="bookmark" color="primary" size="xs">
+                <q-tooltip>In {{ MY_LIBRARY }}</q-tooltip>
+              </q-icon>
+              <q-icon v-if="linkOf(b) === 'changed'" name="sync" color="warning" size="xs">
+                <q-tooltip>Changed since {{ MY_LIBRARY }} — Sync to my library</q-tooltip>
+              </q-icon>
             </div>
             <q-btn flat round dense icon="more_vert" aria-label="Actions">
               <q-menu>
                 <q-list dense style="min-width: 160px">
+                  <q-item
+                    v-if="linkOf(b) === 'changed'"
+                    v-close-popup
+                    clickable
+                    @click="syncToMine(b)"
+                  >
+                    <q-item-section>Sync to my library</q-item-section>
+                  </q-item>
+                  <q-item
+                    v-else-if="!linkOf(b) || linkOf(b) === 'gone'"
+                    v-close-popup
+                    clickable
+                    @click="addToMine(b)"
+                  >
+                    <q-item-section>Add to my library…</q-item-section>
+                  </q-item>
                   <template v-if="!project.readOnly">
                     <q-item
                       v-close-popup
@@ -170,57 +192,67 @@
         </div>
       </div>
 
-      <div class="text-subtitle2 q-mt-lg q-mb-sm">Library</div>
-      <div class="cards">
-        <div v-for="b in libBlocks" :key="b.id" class="card">
-          <button class="thumb" @click="preview = b.id">
-            <img :src="thumb(b, 200)" :alt="b.notecard.name" />
-          </button>
-          <div class="row items-center no-wrap">
-            <div class="col ellipsis">
-              {{ b.notecard.name }}
-              <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
-                <q-tooltip>Placed in a quilt</q-tooltip>
-              </q-icon>
-              <q-icon v-if="otherVersions.has(b.id)" name="update" color="warning" size="xs">
-                <q-tooltip
-                  >Your library has revision {{ otherVersions.get(b.id)!.library.revision }} — see
-                  Switch version…</q-tooltip
-                >
-              </q-icon>
+      <template v-for="group in libGroups" :key="group.label">
+        <div class="text-subtitle2 q-mt-lg q-mb-sm">{{ group.label }}</div>
+        <div class="cards">
+          <div v-for="b in group.items" :key="b.id" class="card">
+            <button class="thumb" @click="preview = b.id">
+              <img :src="thumb(b, 200)" :alt="b.notecard.name" />
+            </button>
+            <div class="row items-center no-wrap">
+              <div class="col ellipsis">
+                {{ b.notecard.name }}
+                <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
+                  <q-tooltip>Placed in a quilt</q-tooltip>
+                </q-icon>
+                <q-icon v-if="otherVersions.has(b.id)" name="update" color="warning" size="xs">
+                  <q-tooltip
+                    >Your library has revision {{ otherVersions.get(b.id)!.library.revision }} — see
+                    Switch version…</q-tooltip
+                  >
+                </q-icon>
+              </div>
+              <q-btn flat round dense icon="more_vert" aria-label="Actions">
+                <q-menu>
+                  <q-list dense style="min-width: 160px">
+                    <q-item
+                      v-if="!project.readOnly"
+                      v-close-popup
+                      clickable
+                      :disable="b.kind !== 'seam'"
+                      @click="editLibrary(b)"
+                    >
+                      <q-item-section>Edit (makes your copy)</q-item-section>
+                    </q-item>
+                    <q-item
+                      v-if="otherVersions.has(b.id) && !project.readOnly"
+                      v-close-popup
+                      clickable
+                      @click="project.mismatches = [otherVersions.get(b.id)!]"
+                    >
+                      <q-item-section>Switch version…</q-item-section>
+                    </q-item>
+                    <q-item v-close-popup clickable @click="preview = b.id">
+                      <q-item-section>Preview</q-item-section>
+                    </q-item>
+                    <q-item
+                      v-if="b.source?.libraryId !== library.mine?.id"
+                      v-close-popup
+                      clickable
+                      @click="copyLibToMine(b)"
+                    >
+                      <q-item-section>Copy to my library</q-item-section>
+                    </q-item>
+                    <q-item v-close-popup clickable @click="exportBlock(b)">
+                      <q-item-section>Export (.rrqbl)</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
             </div>
-            <q-btn flat round dense icon="more_vert" aria-label="Actions">
-              <q-menu>
-                <q-list dense style="min-width: 160px">
-                  <q-item
-                    v-if="!project.readOnly"
-                    v-close-popup
-                    clickable
-                    :disable="b.kind !== 'seam'"
-                    @click="editLibrary(b)"
-                  >
-                    <q-item-section>Edit (makes your copy)</q-item-section>
-                  </q-item>
-                  <q-item
-                    v-if="otherVersions.has(b.id) && !project.readOnly"
-                    v-close-popup
-                    clickable
-                    @click="project.mismatches = [otherVersions.get(b.id)!]"
-                  >
-                    <q-item-section>Switch version…</q-item-section>
-                  </q-item>
-                  <q-item v-close-popup clickable @click="preview = b.id">
-                    <q-item-section>Preview</q-item-section>
-                  </q-item>
-                  <q-item v-close-popup clickable @click="exportBlock(b)">
-                    <q-item-section>Export (.rrqbl)</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-btn>
           </div>
         </div>
-      </div>
+      </template>
       <input
         ref="blockInput"
         type="file"
@@ -233,13 +265,82 @@
     <DetailsPanel v-else-if="tab === 'details'" kind="project" />
 
     <template v-else-if="tab === 'colors'">
+      <div v-if="!project.readOnly" class="row items-center q-mb-sm" style="gap: 8px">
+        <q-btn
+          outline
+          dense
+          no-caps
+          icon="collections_bookmark"
+          label="Save as collection…"
+          :disable="!pickedColors.length"
+          @click="saveAsCollection"
+        />
+        <q-btn
+          outline
+          dense
+          no-caps
+          icon="playlist_add"
+          label="Add to collection…"
+          :disable="!pickedColors.length || !myCollections.length"
+          @click="addToCollectionDialog"
+        />
+        <q-btn
+          v-if="changedColors.length"
+          outline
+          dense
+          no-caps
+          color="warning"
+          icon="sync"
+          :label="`Sync to my library (${changedColors.length})`"
+          @click="syncColors"
+        />
+        <q-btn
+          flat
+          dense
+          no-caps
+          icon="upload_file"
+          label="Import collection (.rrqcc)"
+          @click="collectionInput?.click()"
+        />
+        <input
+          ref="collectionInput"
+          type="file"
+          accept=".rrqcc,.json"
+          hidden
+          @change="importCollectionFile"
+        />
+      </div>
+      <div v-if="!project.readOnly" class="text-caption text-grey-7 q-mb-sm">
+        Tap your colors to pick them for a collection in {{ MY_LIBRARY }}.
+      </div>
       <template v-for="group in colorGroups" :key="group.label">
         <div class="text-subtitle2 q-mb-sm">{{ group.label }}</div>
         <div class="swatches q-mb-lg">
-          <div v-for="c in group.items" :key="c.id" class="column items-center" style="width: 72px">
-            <div class="swatch" :style="{ background: `rgb(${c.rgb.join(',')})` }" />
+          <component
+            :is="group.mine && !project.readOnly ? 'button' : 'div'"
+            v-for="c in group.items"
+            :key="c.id"
+            class="column items-center color-pick"
+            :class="{ active: group.mine && pickedColors.includes(c.id) }"
+            style="width: 72px"
+            @click="group.mine && !project.readOnly && togglePickColor(c.id)"
+          >
+            <div
+              class="swatch relative-position"
+              :style="{ background: `rgb(${c.rgb.join(',')})` }"
+            >
+              <q-icon
+                v-if="group.mine && changedColors.includes(c.id)"
+                name="sync"
+                color="warning"
+                size="xs"
+                class="absolute-top-right"
+              >
+                <q-tooltip>Changed since {{ MY_LIBRARY }}</q-tooltip>
+              </q-icon>
+            </div>
             <div class="text-caption ellipsis full-width text-center">{{ c.notecard.name }}</div>
-          </div>
+          </component>
           <div v-if="!group.items.length" class="text-caption text-grey-7">None yet.</div>
         </div>
       </template>
@@ -425,6 +526,22 @@ import {
   useMyCopy,
 } from '@/model/library-items';
 import { download } from '@/storage/files';
+import { importCollectionColors, parseCollectionFile } from '@/model/collection-file';
+import { DEFAULT_LICENSE } from '@/model/credits';
+import {
+  MY_LIBRARY,
+  addBlock,
+  addToCollection,
+  colorChanged,
+  copyToMine,
+  libraryGroups,
+  linkState,
+  saveCollection,
+  syncBlock,
+  syncColor,
+  syncConflict,
+} from '@/model/library';
+import type { Color } from '@/model/schema/palette';
 
 const $q = useQuasar();
 const router = useRouter();
@@ -459,11 +576,12 @@ const split = computed(() =>
 );
 const blocks = computed(() => split.value.mine);
 const libBlocks = computed(() => split.value.library);
+const libGroups = computed(() => libraryGroups(libBlocks.value, library.views, 'blocks'));
 const colorGroups = computed(() => {
   const c = splitItems(project.doc!.project.palette.colors, library.items.colors);
   return [
-    { label: 'My colors', items: c.mine },
-    { label: 'Library colors', items: c.library },
+    { label: 'My colors', items: c.mine, mine: true },
+    ...libraryGroups(c.library, library.views, 'colors').map((g) => ({ ...g, mine: false })),
   ];
 });
 const previewBlock = computed(() =>
@@ -578,6 +696,184 @@ async function editLibrary(lib: Block) {
   })
     .onOk(() => go(true))
     .onCancel(() => go(false));
+}
+
+// --- My library (spec 011) ---
+const linkOf = (b: Block) => linkState(library.mine ?? undefined, b, project.doc!.units);
+
+/** Category for a new My-library item (asked only when there are categories). */
+function askCategory(): Promise<string | undefined | null> {
+  const cats = library.mine?.categories ?? [];
+  if (!cats.length) return Promise.resolve(undefined);
+  return new Promise((resolve) =>
+    $q
+      .dialog({
+        title: `Add to ${MY_LIBRARY}`,
+        message: 'Category',
+        options: {
+          type: 'radio',
+          model: '',
+          items: [
+            { label: 'Uncategorized', value: '' },
+            ...cats.map((c) => ({ label: c.name, value: c.id })),
+          ],
+        },
+        cancel: true,
+      })
+      .onOk((v: string) => resolve(v || undefined))
+      .onCancel(() => resolve(null)),
+  );
+}
+
+/** Take the library links a My-library operation set on blocks/colors into the open project. */
+function applyLinks(next: RrqDoc) {
+  const blocks = new Map(next.project.blocks.map((b) => [b.id, b]));
+  const colors = new Map(next.project.palette.colors.map((c) => [c.id, c]));
+  project.change((d) => {
+    for (const x of [...d.project.blocks, ...d.project.palette.colors]) {
+      const n = blocks.get(x.id) ?? colors.get(x.id);
+      if (!n?.source || n.source === x.source) continue;
+      x.source = n.source;
+      x.credits ??= [];
+    }
+  });
+}
+
+async function addToMine(b: Block) {
+  const category = await askCategory();
+  if (category === null) return;
+  const r = await addBlock(library.ensureMine(await askAuthor()), project.doc!, b.id, category);
+  await library.saveMine(r.lib);
+  applyLinks(r.doc);
+  $q.notify({ type: 'positive', message: `Added “${b.notecard.name}” to ${MY_LIBRARY}.` });
+}
+
+function syncToMine(b: Block) {
+  const lib = library.mine!;
+  const go = async (asNew = false) => {
+    const r = asNew
+      ? await addBlock(lib, project.doc!, b.id)
+      : await syncBlock(lib, project.doc!, b.id);
+    await library.saveMine(r.lib);
+    applyLinks(r.doc);
+    $q.notify({ type: 'positive', message: `Synced “${b.notecard.name}” to ${MY_LIBRARY}.` });
+  };
+  if (!syncConflict(lib, b)) return void go();
+  // Keeping both needs a different id (a copy made with Edit has one).
+  const canKeepBoth = b.source?.itemId !== b.id;
+  $q.dialog({
+    title: `${MY_LIBRARY} has a newer version`,
+    message: `“${b.notecard.name}” was synced from another project after this copy was made. Replace that version with this one?`,
+    cancel: canKeepBoth
+      ? { label: 'Keep both', flat: true, noCaps: true }
+      : { label: 'Cancel', flat: true, noCaps: true },
+    ok: { label: 'Replace', flat: true, noCaps: true },
+    persistent: true,
+  })
+    .onOk(() => void go())
+    .onCancel(() => canKeepBoth && void go(true));
+}
+
+async function copyLibToMine(b: Block) {
+  const view = library.views.find((v) => v.doc.id === b.source?.libraryId);
+  const item = view?.doc.items.find((i) => i.data.id === b.id);
+  const author = await askAuthor();
+  const lib = library.ensureMine(author);
+  await library.saveMine(
+    await copyToMine(
+      lib,
+      item?.type === 'block' ? { ...item, data: b } : { type: 'block' as const, data: b },
+      author,
+      DEFAULT_LICENSE,
+    ),
+  );
+  $q.notify({ type: 'positive', message: `Copied “${b.notecard.name}” to ${MY_LIBRARY}.` });
+}
+
+// Colors: pick own colors, save them as a collection or add them to one; sync changed ones.
+const pickedColors = ref<string[]>([]);
+const togglePickColor = (id: string) =>
+  (pickedColors.value = pickedColors.value.includes(id)
+    ? pickedColors.value.filter((x) => x !== id)
+    : [...pickedColors.value, id]);
+const myCollections = computed(
+  () => library.views.find((v) => v.doc.kind === 'personal')?.collections ?? [],
+);
+const changedColors = computed(() =>
+  project
+    .doc!.project.palette.colors.filter((c: Color) => colorChanged(library.mine ?? undefined, c))
+    .map((c) => c.id),
+);
+const collectionInput = ref<HTMLInputElement>();
+
+function saveAsCollection() {
+  $q.dialog({
+    title: 'Save as collection',
+    message: `${pickedColors.value.length} color(s) → a new collection in ${MY_LIBRARY}`,
+    prompt: { model: '', type: 'text', isValid: (v: string) => !!v.trim() },
+    cancel: true,
+  }).onOk((name: string) => void saveCollectionNamed(name));
+}
+async function saveCollectionNamed(name: string) {
+  const category = await askCategory();
+  if (category === null) return;
+  const author = await askAuthor();
+  const r = await saveCollection(
+    library.ensureMine(author),
+    project.doc!,
+    name.trim(),
+    pickedColors.value,
+    author,
+    category,
+  );
+  await library.saveMine(r.lib);
+  applyLinks(r.doc);
+  pickedColors.value = [];
+  $q.notify({ type: 'positive', message: `Saved “${name.trim()}” to ${MY_LIBRARY}.` });
+}
+
+function addToCollectionDialog() {
+  $q.dialog({
+    title: 'Add to collection',
+    options: {
+      type: 'radio',
+      model: myCollections.value[0]!.id,
+      items: myCollections.value.map((c) => ({ label: c.notecard.name, value: c.id })),
+    },
+    cancel: true,
+  }).onOk((id: string) => void addPickedTo(id));
+}
+async function addPickedTo(id: string) {
+  const r = await addToCollection(library.mine!, project.doc!, id, pickedColors.value);
+  await library.saveMine(r.lib);
+  applyLinks(r.doc);
+  pickedColors.value = [];
+  $q.notify({ type: 'positive', message: 'Added to the collection.' });
+}
+
+async function syncColors() {
+  let lib = library.mine!;
+  let doc = project.doc!;
+  for (const id of changedColors.value) ({ lib, doc } = await syncColor(lib, doc, id));
+  await library.saveMine(lib);
+  applyLinks(doc);
+  $q.notify({ type: 'positive', message: `Synced colors to ${MY_LIBRARY}.` });
+}
+
+async function importCollectionFile(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+  if (!file) return;
+  const r = parseCollectionFile(await file.text());
+  if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
+  const res = importCollectionColors(project.doc!, r.file);
+  if (!res.added)
+    return void $q.notify({
+      message: `“${r.file.collection.notecard.name}”'s colors are already here.`,
+    });
+  project.change(() => res.doc);
+  $q.notify({ type: 'positive', message: `Added ${res.added} color(s) (undo removes them).` });
 }
 
 function exportBlock(b: Block) {
@@ -848,6 +1144,20 @@ function showPlacements() {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+.color-pick {
+  padding: 2px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+div.color-pick {
+  cursor: default;
+}
+.color-pick.active {
+  border-color: var(--q-primary);
 }
 .swatch {
   width: 56px;

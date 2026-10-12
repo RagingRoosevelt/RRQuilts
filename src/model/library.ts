@@ -60,8 +60,11 @@ const link = (lib: LibraryDoc, data: { id: string; version?: string; revision?: 
   derived: true,
 });
 
-/** The project's own colors a block uses (library colors are found through their library). */
-async function ownColors(doc: RrqDoc, block: Block) {
+/**
+ * The project's own colors a block uses (library colors are found through their library), plus
+ * colors it carried before (`kept`) that it still uses.
+ */
+async function ownColors(doc: RrqDoc, block: Block, kept: readonly Color[] = []) {
   const used = new Set(
     block.colorings.flatMap((c) =>
       Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])),
@@ -71,6 +74,7 @@ async function ownColors(doc: RrqDoc, block: Block) {
     (c) => used.has(c.id) && !(c.source && !c.source.derived),
   );
   const colors = await Promise.all(own.map((c) => asLibraryData(c, c.revision ?? 1)));
+  colors.push(...kept.filter((c) => used.has(c.id) && !colors.some((x) => x.id === c.id)));
   return colors.length ? { colors } : {};
 }
 
@@ -104,6 +108,7 @@ export async function addBlock(
     lib: { ...lib, items: [...lib.items.filter((i) => i.data.id !== data.id), item] },
     doc: produce(doc, (d) => {
       const b = d.project.blocks.find((x) => x.id === blockId)!;
+      b.credits ??= []; // credits live in `credits`; a linked `source` isn't an earlier author
       b.source = link(lib, data);
     }),
   };
@@ -151,12 +156,14 @@ export async function syncBlock(
     type: 'block',
     ...(item.category ? { category: item.category } : {}),
     data,
-    ...(await ownColors(doc, block)),
+    ...(await ownColors(doc, block, item.colors)),
   };
   return {
     lib: { ...lib, items: lib.items.map((i) => (i === item ? next : i)) },
     doc: produce(doc, (d) => {
-      d.project.blocks.find((x) => x.id === blockId)!.source = link(lib, data);
+      const b = d.project.blocks.find((x) => x.id === blockId)!;
+      b.credits ??= [];
+      b.source = link(lib, data);
     }),
   };
 }
@@ -173,7 +180,9 @@ const linkColors = (doc: RrqDoc, lib: LibraryDoc, colors: readonly Color[]) =>
   produce(doc, (d) => {
     for (const c of colors) {
       const x = d.project.palette.colors.find((y) => y.id === c.id);
-      if (x) x.source = link(lib, c);
+      if (!x) continue;
+      x.credits ??= [];
+      x.source = link(lib, c);
     }
   });
 
@@ -399,6 +408,32 @@ export function lookupOf(views: readonly LibraryView[]): LibraryLookup {
     for (const c of [...v.colors].reverse()) colors.set(c.id, c);
   }
   return { block: (id) => blocks.get(id), color: (id) => colors.get(id) };
+}
+
+/**
+ * Library entries in a project's lists, grouped by where they come from: blocks by library, colors
+ * by collection (block-only colors by library), in library order.
+ */
+export function libraryGroups<
+  T extends { id: string; source?: { library?: string | undefined } | undefined },
+>(items: readonly T[], views: readonly LibraryView[], kind: 'blocks' | 'colors') {
+  const label = new Map<string, string>();
+  const groups = new Map<string, T[]>();
+  for (const v of views) {
+    if (kind === 'blocks') {
+      groups.set(v.doc.name, []);
+      for (const b of v.blocks) if (!label.has(b.id)) label.set(b.id, v.doc.name);
+    } else
+      for (const c of v.collections) {
+        groups.set(c.notecard.name, []);
+        for (const x of c.colors) if (!label.has(x.id)) label.set(x.id, c.notecard.name);
+      }
+  }
+  for (const x of items) {
+    const l = label.get(x.id) ?? x.source?.library ?? 'Other libraries';
+    groups.set(l, [...(groups.get(l) ?? []), x]);
+  }
+  return [...groups].filter(([, xs]) => xs.length).map(([label, items]) => ({ label, items }));
 }
 
 /** Search names, notes, tags, and styles (all words must match), optionally in one category. */
