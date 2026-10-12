@@ -146,6 +146,26 @@
       @update:model-value="(v) => setOpen('Templates', v)"
     >
       <div class="column q-pa-sm" style="gap: 8px">
+        <q-toggle
+          :model-value="prefs.seamAllowance"
+          dense
+          label="Include seam allowance"
+          @update:model-value="(v: boolean) => set('seamAllowance', v)"
+        />
+        <q-toggle
+          :model-value="prefs.trimPoints"
+          dense
+          :disable="!prefs.seamAllowance"
+          label="Trimmed points"
+          @update:model-value="(v: boolean) => set('trimPoints', v)"
+        />
+        <q-toggle
+          :model-value="prefs.shadeSeam"
+          dense
+          :disable="!prefs.seamAllowance"
+          label="Shaded seam allowance"
+          @update:model-value="(v: boolean) => set('shadeSeam', v)"
+        />
         <q-select
           :model-value="prefs.cutLine"
           :options="['solid', 'dashed']"
@@ -174,6 +194,36 @@
           label="Mirror templates"
           @update:model-value="(v: boolean) => set('mirror', v)"
         />
+        <q-toggle
+          :model-value="prefs.curveMarks"
+          dense
+          label="Curve alignment marks"
+          @update:model-value="(v: boolean) => set('curveMarks', v)"
+        />
+        <q-toggle
+          :model-value="prefs.tint"
+          dense
+          label="Tint by fabric"
+          @update:model-value="(v: boolean) => set('tint', v)"
+        />
+        <q-toggle
+          :model-value="prefs.onePerPage"
+          dense
+          label="One template per page"
+          @update:model-value="(v: boolean) => set('onePerPage', v)"
+        />
+        <div>
+          <div class="text-caption text-grey-7">Labels on each piece</div>
+          <q-checkbox
+            v-for="l in LABELS"
+            :key="l.key"
+            :model-value="prefs.labels[l.key]"
+            dense
+            :label="l.label"
+            class="q-mr-md"
+            @update:model-value="(v: boolean) => set('labels', { ...prefs.labels, [l.key]: v })"
+          />
+        </div>
       </div>
     </q-expansion-item>
 
@@ -308,6 +358,12 @@ const sizeOptions = computed(() => [
 ]);
 const sizeSource = ref(sizeOptions.value[0]!.value);
 const custom = ref<[number, number]>(block.value ? [...block.value.size] : [10, 10]);
+
+const LABELS = [
+  { key: 'letter', label: 'Letter' },
+  { key: 'counts', label: 'Cut counts' },
+  { key: 'size', label: 'Finished size' },
+] as const;
 
 // What the preview prints (sent up whenever it changes).
 const target = computed<PrintTarget>(() => {

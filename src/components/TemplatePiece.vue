@@ -2,6 +2,20 @@
   <!-- One template in its own coordinates (project units): cutting line, sewing line, grain, label. -->
   <g>
     <path
+      v-if="look.tint && piece.tint"
+      :d="path(piece.sew)"
+      :fill="piece.tint"
+      fill-opacity="0.25"
+      stroke="none"
+    />
+    <path
+      v-if="look.shade"
+      :d="`${path(piece.cut)} ${path(piece.sew)}`"
+      fill="rgba(0,0,0,0.1)"
+      fill-rule="evenodd"
+      stroke="none"
+    />
+    <path
       :d="path(piece.cut)"
       fill="none"
       stroke="#000"
@@ -18,6 +32,18 @@
         look.sewLine === 'dashed' ? dash(3) : look.sewLine === 'dotted' ? dash(0.8) : undefined
       "
     />
+    <template v-if="look.marks">
+      <line
+        v-for="(m, i) in piece.marks"
+        :key="i"
+        :x1="m.p[0] - m.n[0] * look.markLength * 0.4"
+        :y1="m.p[1] - m.n[1] * look.markLength * 0.4"
+        :x2="m.p[0] + m.n[0] * look.markLength"
+        :y2="m.p[1] + m.n[1] * look.markLength"
+        stroke="#000"
+        :stroke-width="look.stroke * 1.4"
+      />
+    </template>
     <g v-if="look.grain && piece.grainLength > 0">
       <line
         :x1="end(-1)[0]"
@@ -31,6 +57,7 @@
       <path :d="head(-1)" fill="#000" />
     </g>
     <text
+      v-if="look.labels.letter"
       :x="piece.center[0]"
       :y="piece.center[1] - look.font * 0.9"
       :font-size="look.font * 1.6"
@@ -39,8 +66,13 @@
     >
       {{ piece.letter }}
     </text>
-    <text :x="bounds[0]" :y="bounds[3] + look.font * 1.3" :font-size="look.font * 0.85">
-      {{ piece.letter }} · {{ piece.note }}
+    <text
+      v-if="caption"
+      :x="bounds[0]"
+      :y="bounds[3] + look.font * 1.3"
+      :font-size="look.font * 0.85"
+    >
+      {{ caption }}
     </text>
   </g>
 </template>
@@ -52,7 +84,18 @@ import type { PlacedPiece } from '@/model/print/pieces';
 
 const props = defineProps<{
   piece: PlacedPiece;
-  look: { stroke: number; font: number; cutLine: string; sewLine: string; grain: boolean };
+  look: {
+    stroke: number;
+    font: number;
+    cutLine: string;
+    sewLine: string;
+    grain: boolean;
+    shade: boolean;
+    marks: boolean;
+    markLength: number;
+    labels: { letter: boolean; counts: boolean; size: boolean };
+    tint: boolean;
+  };
 }>();
 
 const path = (poly: Pt[]) => (poly.length ? `M${poly.map((p) => p.join(' ')).join('L')}Z` : '');
@@ -61,6 +104,16 @@ const bounds = computed(() => {
   const xs = props.piece.cut.map((p) => p[0]);
   const ys = props.piece.cut.map((p) => p[1]);
   return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] as const;
+});
+/** "B · 3″ legs · Cut 72 Cream" from the chosen labels (the letter always names the piece). */
+const caption = computed(() => {
+  const l = props.look.labels;
+  const parts = [
+    props.piece.letter,
+    l.size ? props.piece.size : '',
+    l.counts ? props.piece.note : '',
+  ].filter(Boolean);
+  return parts.length > 1 ? parts.join(' · ') : '';
 });
 /** Arrow ends along the grain, through the label's center (offset below the letter). */
 const end = (s: 1 | -1): Pt => {

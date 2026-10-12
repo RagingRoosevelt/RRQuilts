@@ -206,11 +206,7 @@
                     <template v-if="s.quilt">planned in “{{ s.quilt }}”</template>
                   </div>
                   <div class="text-caption">
-                    {{
-                      s.scale >= 0.999
-                        ? 'Picture at true size'
-                        : `Picture at ${Math.round(s.scale * 100)}%`
-                    }}
+                    {{ s.scale >= 0.999 ? 'True size' : `Scaled to ${Math.round(s.scale * 100)}%` }}
                   </div>
                 </div>
               </div>
@@ -362,7 +358,7 @@ import {
   printPrefs,
   type PrintTarget,
 } from '@/model/print/prefs';
-import { cutPlan, type Cut, type CutKind, type CutLine } from '@/model/print/rotary';
+import { cutFor, cutPlan, type Cut, type CutKind, type CutLine } from '@/model/print/rotary';
 import { backing, binding, fabricNeeds } from '@/model/print/yardage';
 import type { Block } from '@/model/schema/block';
 import type { Quilt } from '@/model/schema/quilt';
@@ -434,8 +430,15 @@ const look = computed(() => ({
   stroke: stroke.value,
   font: font.value,
   cutLine: prefs.value.cutLine,
-  sewLine: prefs.value.sewLine,
+  // Without seam allowance the cutting line is the sewing line.
+  sewLine: prefs.value.seamAllowance ? prefs.value.sewLine : 'none',
   grain: prefs.value.grain,
+  shade: prefs.value.shadeSeam && prefs.value.seamAllowance,
+  marks: prefs.value.curveMarks,
+  /** Mark length: across the seam allowance (or a short tick without one). */
+  markLength: prefs.value.seamAllowance ? seam.value : seam.value / 2,
+  labels: prefs.value.labels,
+  tint: prefs.value.tint,
 }));
 
 // Colors by fill key.
@@ -583,14 +586,15 @@ const view = computed<View | undefined>(() => {
 // Templates: each distinct shape, cut line around it, rotated snug, packed on pages.
 function templateItems(pieces: Piece[], prefix: string) {
   const list = templates(pieces, prefix);
-  const mirror = prefs.value.mirror;
+  const { mirror, seamAllowance, trimPoints } = prefs.value;
   const items: (PlacedPiece & { w: number; h: number })[] = list.map((t) => {
-    const cut = offset(t.poly, seam.value);
+    const cut = seamAllowance ? offset(t.poly, seam.value, trimPoints) : t.poly;
     let rad = snugRotation(cut);
-    const turn = (poly: Pt[]) => {
-      const r = rotate(poly, rad);
-      return mirror ? r.map(([x, y]): Pt => [-x, y]) : r;
+    const turnVec = ([x, y]: Pt): Pt => {
+      const [rx, ry] = rotate([[x, y]], rad)[0]!;
+      return mirror ? [-rx, ry] : [rx, ry];
     };
+    const turn = (poly: Pt[]) => poly.map(turnVec);
     let c = turn(cut);
     let [x0, y0, x1, y1] = bounds(c);
     // Prefer lying flat.
@@ -604,6 +608,7 @@ function templateItems(pieces: Piece[], prefix: string) {
     const grainDir: Pt = [Math.cos(rad) * (mirror ? -1 : 1), Math.sin(rad)];
     const cx = sew.reduce((a, p) => a + p[0], 0) / sew.length;
     const cy = sew.reduce((a, p) => a + p[1], 0) / sew.length;
+    const fills = [...t.counts.keys()];
     const counts = [...t.counts.entries()].map(([fill, n]) => `${n} ${fillInfo(fill).name}`);
     return {
       key: t.letter,
@@ -614,6 +619,9 @@ function templateItems(pieces: Piece[], prefix: string) {
       grain: grainDir,
       grainLength: Math.min(x1 - x0, y1 - y0) * 0.5,
       note: `Cut ${counts.join(', ')}`,
+      size: finishedLabel(cutFor({ poly: t.poly, curved: t.curved, fill: '', marks: [] }, 0, 0)),
+      tint: fills.length === 1 && fills[0] !== 'none' ? fillInfo(fills[0]!).css : undefined,
+      marks: t.marks.map((m) => ({ p: shift(turnVec(m.p)), n: turnVec(m.n) })),
       x: 0,
       y: 0,
       w: x1 - x0,
@@ -869,6 +877,8 @@ function templateSheets(src: {
     grain: [1, 0] as Pt,
     grainLength: 0,
     note: '',
+    size: '',
+    marks: [],
     x: 0,
     y: 0,
     w: src.size[0] * keyScale,
@@ -887,12 +897,19 @@ function templateSheets(src: {
     },
   };
   const all: (PlacedPiece & { h: number; keyBlock?: KeyBlock })[] = [keyItem, ...items];
-  const { pages, oversize } = pack(
-    all.map((it) => ({ w: it.w, h: it.h + font.value * 2.4 })),
-    aw,
-    ah,
-    gap,
-  );
+  const boxes = all.map((it) => ({ w: it.w, h: it.h + font.value * 2.4 }));
+  // One per page: pack each on its own (still turned to fit, still tiled when too big).
+  const { pages, oversize } = prefs.value.onePerPage
+    ? boxes.reduce(
+        (acc, box, i) => {
+          const r = pack([box], aw, ah, gap);
+          acc.pages.push(...r.pages.map((pg) => pg.map((pl) => ({ ...pl, index: i }))));
+          if (r.oversize.length) acc.oversize.push(i);
+          return acc;
+        },
+        { pages: [] as ReturnType<typeof pack>['pages'], oversize: [] as number[] },
+      )
+    : pack(boxes, aw, ah, gap);
   for (const page of pages) {
     out.push({
       kind: 'templates',
@@ -908,6 +925,7 @@ function templateSheets(src: {
           sew: it.sew.map(t),
           center: t(it.center),
           grain: [-it.grain[1], it.grain[0]] as Pt,
+          marks: it.marks.map((m) => ({ p: t(m.p), n: [-m.n[1], m.n[0]] as Pt })),
           x: pl.x,
           y: pl.y,
           w: it.h,

@@ -14,7 +14,7 @@ const sq = (s: number, x = 0, y = 0): Pt[] => [
   [x + s, y + s],
   [x, y + s],
 ];
-const piece = (poly: Pt[], fill = 'color:a'): Piece => ({ poly, curved: false, fill });
+const piece = (poly: Pt[], fill = 'color:a'): Piece => ({ poly, curved: false, fill, marks: [] });
 const star = () => builtinItems().blocks.find((b) => b.id === 'rrquilts.ohio-star')!;
 
 describe('print geometry', () => {
@@ -50,6 +50,18 @@ describe('print geometry', () => {
         [0, 2],
       ]),
     ).toHaveLength(4);
+    // Trimmed points: the two 45° tips are cut off; the square corner stays.
+    const trimmed = offset(tri, 0.25, true);
+    expect(trimmed).toHaveLength(5);
+    expect(area(trimmed)).toBeLessThan(area(offset(tri, 0.25)));
+    expect(area(offset(sq(3), 0.25, true))).toBeCloseTo(3.5 * 3.5); // nothing sharp to trim
+  });
+
+  it('marks the middle of curved edges, pointing out of the piece', () => {
+    const path = builtinItems().blocks.find((b) => b.id === 'rrquilts.drunkard-s-path')!;
+    const marks = blockPieces(path, [10, 10]).flatMap((p) => p.marks);
+    expect(marks).toHaveLength(2); // the arc, seen from each side
+    expect(marks[0]!.n[0] * marks[1]!.n[0] + marks[0]!.n[1] * marks[1]!.n[1]).toBeCloseTo(-1);
   });
 });
 

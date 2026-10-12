@@ -30,6 +30,10 @@ picture, block picture — from the existing Print tabs."
 - Q: Paper? → A: Letter, Legal, or A4 in any project; default Letter (inches) or A4 (cm). A0
   dropped. Portrait
   (default) or landscape.
+- Q: More template options? → A: Include seam allowance (off: finished shapes for paper piecing),
+  trimmed points (tips under 90° cut ¼″ past the sewing corner), shaded seam allowance, curve
+  alignment marks (notch mid-curve), labels (letter / cut counts / finished size), tint by fabric
+  (one fabric only), one template per page.
 - Q: Look? → A: User settings, defaulting to a solid cutting line, dashed sewing line, grain arrow,
   thin lines, mirror off.
 

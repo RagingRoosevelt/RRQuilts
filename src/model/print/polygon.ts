@@ -34,9 +34,10 @@ export const ccw = (poly: Pt[]) => (raw2(poly) < 0 ? [...poly].reverse() : poly)
 
 /**
  * Outline grown outward by `d` (seam allowance): mitred corners, bevelled where a mitre would
- * reach past 4×d (sharp points).
+ * reach past 4×d. `trim`: points sharper than 90° are cut off square to the corner, `d` past the
+ * sewing corner (trimmed points line up when sewing).
  */
-export function offset(poly: Pt[], d: number): Pt[] {
+export function offset(poly: Pt[], d: number, trim = false): Pt[] {
   const p = ccw(poly);
   const n = p.length;
   const edges = p.map((a, i) => {
@@ -54,6 +55,22 @@ export function offset(poly: Pt[], d: number): Pt[] {
     const den = prev.dir[0] * cur.dir[1] - prev.dir[1] * cur.dir[0];
     if (Math.abs(den) < 1e-9) {
       out.push(cur.start);
+      continue;
+    }
+    const turn = Math.atan2(den, prev.dir[0] * cur.dir[0] + prev.dir[1] * cur.dir[1]);
+    if (trim && turn > Math.PI / 2 + 1e-6) {
+      // Cut across the bisector at distance d from the sewing corner.
+      const bx = prev.nrm[0] + cur.nrm[0];
+      const by = prev.nrm[1] + cur.nrm[1];
+      const bl = Math.hypot(bx, by);
+      const b: Pt = [bx / bl, by / bl];
+      const at = (e: (typeof edges)[number]): Pt => {
+        const t =
+          (d - ((e.start[0] - v[0]) * b[0] + (e.start[1] - v[1]) * b[1])) /
+          (e.dir[0] * b[0] + e.dir[1] * b[1]);
+        return [e.start[0] + e.dir[0] * t, e.start[1] + e.dir[1] * t];
+      };
+      out.push(at(prev), at(cur));
       continue;
     }
     const w: Pt = [cur.start[0] - prev.start[0], cur.start[1] - prev.start[1]];
