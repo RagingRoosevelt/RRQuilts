@@ -39,21 +39,57 @@
         <q-input v-model="search" dense outlined clearable placeholder="Search names, notes">
           <template #prepend><q-icon name="search" /></template>
         </q-input>
+        <q-expansion-item
+          default-opened
+          dense
+          label="Libraries"
+          :caption="`${library.views.length - hiddenLibs.length} of ${library.views.length}`"
+          class="lib-picker rounded-borders"
+        >
+          <div class="lib-checks column no-wrap q-px-sm">
+            <q-checkbox
+              v-for="v in library.views"
+              :key="v.doc.id"
+              dense
+              class="q-py-xs"
+              :model-value="!hiddenLibs.includes(v.doc.id)"
+              @update:model-value="toggleLib(v.doc.id)"
+            >
+              {{ v.doc.name }}
+              <div class="text-caption text-grey-7">{{ kindLabel(v) }} · {{ counts(v) }}</div>
+            </q-checkbox>
+          </div>
+        </q-expansion-item>
         <template v-for="f in filterFields" :key="f.key">
           <q-select
             v-if="f.options.length"
             v-model="filters[f.key]"
-            :options="f.options"
+            :options="f.options.filter((o) => o.label.toLowerCase().includes(needle[f.key]))"
             :label="f.label"
             dense
             outlined
             multiple
             use-chips
+            use-input
+            input-debounce="0"
             emit-value
             map-options
             clearable
             @clear="filters[f.key] = []"
-          />
+            @filter="
+              (v: string, done: (fn: () => void) => void) =>
+                done(() => (needle[f.key] = v.toLowerCase()))
+            "
+          >
+            <template #option="{ itemProps, opt, selected }">
+              <q-item v-bind="itemProps" dense>
+                <q-item-section side>
+                  <q-checkbox :model-value="selected" dense class="no-pointer-events" />
+                </q-item-section>
+                <q-item-section>{{ opt.label }}</q-item-section>
+              </q-item>
+            </template>
+          </q-select>
         </template>
       </div>
 
@@ -572,8 +608,15 @@ const filtersOpen = ref($q.screen.gt.sm);
 const select = (id: string) => {
   for (const k of Object.keys(filters) as (keyof typeof filters)[]) filters[k] = [];
   search.value = '';
-  if (id !== 'mine') filters.libs = [id];
+  hiddenLibs.value =
+    id === 'mine' ? [] : library.views.map((v) => v.doc.id).filter((x) => x !== id);
 };
+/** Unchecked libraries; libraries installed later start checked. */
+const hiddenLibs = ref<string[]>([]);
+const toggleLib = (id: string) =>
+  (hiddenLibs.value = hiddenLibs.value.includes(id)
+    ? hiddenLibs.value.filter((x) => x !== id)
+    : [...hiddenLibs.value, id]);
 const isPack = (v: LibraryView) => library.packs.some((p) => p.id === v.doc.id);
 const kindLabel = (v: LibraryView) =>
   v.doc.kind === 'personal' ? 'Yours' : v.doc === library.builtin ? 'Built-in' : 'Pack';
@@ -590,16 +633,17 @@ const mineCount = computed(() => library.mine?.items.length ?? 0);
 const search = ref('');
 /** Selected values per filter; empty = any. Category '' = uncategorized. */
 const filters = reactive({
-  libs: [] as string[],
   types: [] as string[],
   cats: [] as string[],
   tags: [] as string[],
   styles: [] as string[],
 });
-const filtering = computed(() => !!search.value || Object.values(filters).some((f) => f.length));
-const inScope = computed(() =>
-  library.views.filter((v) => !filters.libs.length || filters.libs.includes(v.doc.id)),
+/** What's typed in each dropdown to narrow its options. */
+const needle = reactive({ types: '', cats: '', tags: '', styles: '' });
+const filtering = computed(
+  () => !!search.value || !!hiddenLibs.value.length || Object.values(filters).some((f) => f.length),
 );
+const inScope = computed(() => library.views.filter((v) => !hiddenLibs.value.includes(v.doc.id)));
 const values = (f: 'tags' | 'styles') =>
   [...new Set(inScope.value.flatMap((v) => v.doc.items.flatMap((i) => i.data.notecard[f] ?? [])))]
     .sort()
@@ -609,14 +653,6 @@ const filterFields = computed(() => {
     ...new Map(inScope.value.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
   ];
   return [
-    {
-      key: 'libs' as const,
-      label: 'Library',
-      options: library.views.map((v) => ({
-        label: `${v.doc.name} (${kindLabel(v)} · ${counts(v)})`,
-        value: v.doc.id,
-      })),
-    },
     {
       key: 'types' as const,
       label: 'Type',
@@ -963,6 +999,18 @@ function downloadPack() {
   max-height: calc(100vh - 83px);
   overflow-y: auto;
   padding-top: 2px;
+  order: 1;
+}
+.lib-picker {
+  border: 1px solid rgba(128, 128, 128, 0.4);
+}
+/* At most five libraries show; more scroll. */
+.lib-checks {
+  max-height: calc(5 * 50px);
+  overflow-y: auto;
+}
+.lib-checks .q-checkbox {
+  min-height: 50px;
 }
 .lib-group + .lib-group {
   border-top: 1px solid rgba(128, 128, 128, 0.3);
@@ -976,6 +1024,7 @@ function downloadPack() {
     width: 100%;
     position: static;
     max-height: none;
+    order: 0;
   }
 }
 .cards {

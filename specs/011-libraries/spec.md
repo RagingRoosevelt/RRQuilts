@@ -48,7 +48,7 @@
 The Libraries page lists every library on this device — My library, imported packs, built-in — and
 lets the user browse and search their items.
 
-**Independent Test**: Open Libraries → Library: RRQuilts starter → search "star" → Ohio Star shows; filter by
+**Independent Test**: Open Libraries → uncheck all but RRQuilts starter → search "star" → Ohio Star shows; filter by
 category; preview it (larger picture, author, license, notes).
 
 **Acceptance Scenarios**:
@@ -56,10 +56,11 @@ category; preview it (larger picture, author, license, notes).
 1. **Given** the Libraries page, **Then** it shows My library, Packs, and Built-in; each library shows
    name, author, license, revision, and item counts.
 2. **Given** the Libraries page, **Then** items from every library show grouped by library (blocks as
-   thumbnails, color collections as swatch strips). A filter sidebar (hidden behind a menu button on
-   phones) has a text search (name, notes, tags, styles) and multi-select dropdowns for Library,
-   Type, Category, Tags, and Styles: any selected value matches within a dropdown, all dropdowns
-   must match.
+   thumbnails, color collections as swatch strips). A filter sidebar on the right (above the results
+   and hidden behind a menu button on phones) has a text search (name, notes, tags, styles), a
+   Libraries section of checkboxes (all checked by default; expanded; scrolls past five), and
+   searchable checkbox dropdowns for Type, Category, Tags, and Styles showing the picks as pills:
+   any picked value matches within a dropdown, all dropdowns must match.
 3. **Given** an item, **When** previewed, **Then** it shows the larger picture (or the collection's
    swatches), author, license, notes, and credits (as the sketchbook Preview does).
 
