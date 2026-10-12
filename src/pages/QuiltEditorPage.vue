@@ -45,6 +45,10 @@
         >
           <q-tooltip anchor="center right" self="center left">Redo (Ctrl+Shift+Z)</q-tooltip>
         </q-btn>
+        <template v-if="editor.mode === 'print'">
+          <q-separator />
+          <PrintZoom />
+        </template>
         <template v-if="editor.mode !== 'print'">
           <q-btn
             flat
@@ -164,6 +168,7 @@ import LayoutInspector from '@/components/LayoutInspector.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
+import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
 import { applyLayout, generateSlots, reconcile } from '@/model/layout/slots';

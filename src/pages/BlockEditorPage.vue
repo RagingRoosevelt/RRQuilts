@@ -42,6 +42,10 @@
         >
           <q-tooltip anchor="center right" self="center left">Redo (Ctrl+Shift+Z)</q-tooltip>
         </q-btn>
+        <template v-if="editor.blockMode === 'print'">
+          <q-separator />
+          <PrintZoom />
+        </template>
         <template v-if="editor.blockMode === 'draw' || editor.blockMode === 'color'">
           <q-separator />
           <q-btn
@@ -176,6 +180,7 @@ import DetailsPanel from '@/components/DetailsPanel.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
+import PrintZoom from '@/components/PrintZoom.vue';
 import type { PrintTarget } from '@/model/print/prefs';
 import {
   deleteColoring,

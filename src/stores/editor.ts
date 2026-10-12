@@ -1,6 +1,6 @@
 // Session-only editor state: mode, tool, scope, selections, view per quilt/block.
 import { defineStore } from 'pinia';
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import type { Scope } from '@/editor/scope';
 import type { View } from '@/render/draw';
 
@@ -26,6 +26,12 @@ export const useEditorStore = defineStore('editor', () => {
   const labels = ref(false);
   /** Editor sidebar (inspector) shown; the hamburger button toggles it. */
   const sidebar = ref(true);
+  /** Print preview scale (1 = true size); null = fit the page width. `printFit` is that fit. */
+  const printZoom = ref<number | null>(null);
+  const printFit = ref(1);
+  const printScale = computed(() => printZoom.value ?? printFit.value);
+  const zoomPrint = (k: number) =>
+    (printZoom.value = Math.min(4, Math.max(0.1, printScale.value * k)));
   const views = reactive(new Map<string, View>());
   /** Flip direction; tapping the Flip tool while it's active switches it. */
   const flipAxis = ref<'h' | 'v'>('h');
@@ -54,6 +60,10 @@ export const useEditorStore = defineStore('editor', () => {
     outlines,
     labels,
     sidebar,
+    printZoom,
+    printFit,
+    printScale,
+    zoomPrint,
     views,
     flipAxis,
     blockMode,

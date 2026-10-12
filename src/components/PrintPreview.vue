@@ -17,7 +17,7 @@
         <q-btn color="primary" no-caps icon="print" label="Print" @click="print" />
       </div>
 
-      <div class="sheets" :style="printOnly ? undefined : { zoom: fit }">
+      <div class="sheets" :style="printOnly ? undefined : { zoom: scale }">
         <section
           v-for="(s, i) in sheets"
           :key="i"
@@ -357,7 +357,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
 import TemplatePiece from '@/components/TemplatePiece.vue';
 import { resolveColoring } from '@/model/coloring';
 import {
@@ -395,6 +395,7 @@ import { backing, binding, fabricNeeds } from '@/model/print/yardage';
 import type { Block } from '@/model/schema/block';
 import type { Quilt } from '@/model/schema/quilt';
 import type { Credit } from '@/model/schema/shared';
+import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
@@ -1101,7 +1102,8 @@ onMounted(() => {
 onBeforeUnmount(() => pageStyle?.remove());
 const print = () => window.print();
 
-// On screen, sheets shrink to fit the space (CSS px are 96 per inch).
+// On screen, sheets shrink to fit the space (CSS px are 96 per inch), or follow the zoom.
+const editor = useEditorStore();
 const root = ref<HTMLElement>();
 const width = ref(0);
 const observer = new ResizeObserver(([e]) => (width.value = e?.contentRect.width ?? 0));
@@ -1110,6 +1112,60 @@ onBeforeUnmount(() => observer.disconnect());
 const fit = computed(() =>
   width.value ? Math.min(1, (width.value - 32) / ((paperMm.value[0]! * 96) / 25.4)) : 1,
 );
+const scale = computed(() => (props.printOnly ? 1 : editor.printScale));
+if (!props.printOnly) {
+  editor.printZoom = null;
+  watchEffect(() => (editor.printFit = fit.value));
+}
+
+// Zooming keeps the point under the cursor / between the fingers (else the middle) in place.
+let anchor: [number, number] | null = null;
+watch(scale, async (s, old) => {
+  const el = root.value;
+  if (!el || props.printOnly) return;
+  const r = el.getBoundingClientRect();
+  const [ax, ay] = anchor ?? [r.width / 2, r.height / 2];
+  anchor = null;
+  const top = el.querySelector<HTMLElement>('.toolbar')?.offsetHeight ?? 0;
+  const x = el.scrollLeft + ax;
+  const y = el.scrollTop + ay - top;
+  await nextTick();
+  el.scrollLeft = (x * s) / old - ax;
+  el.scrollTop = (y * s) / old - ay + top;
+});
+const at = (x: number, y: number): [number, number] => {
+  const r = root.value!.getBoundingClientRect();
+  return [x - r.left, y - r.top];
+};
+function onWheel(e: WheelEvent) {
+  if (!e.ctrlKey) return;
+  e.preventDefault();
+  anchor = at(e.clientX, e.clientY);
+  // Mouse wheels step by lines (Firefox) or ~100 px; trackpad pinches send small deltas.
+  const dy = e.deltaMode ? e.deltaY * 33 : e.deltaY;
+  editor.zoomPrint(Math.exp(-Math.max(-100, Math.min(100, dy)) * 0.002));
+}
+// Two fingers pinch; one finger scrolls as usual.
+let pinch: { d: number; s: number } | null = null;
+const spread = (t: TouchList) =>
+  Math.hypot(t[0]!.clientX - t[1]!.clientX, t[0]!.clientY - t[1]!.clientY);
+function onTouch(e: TouchEvent) {
+  if (e.touches.length !== 2) return void (pinch = null);
+  e.preventDefault();
+  const d = spread(e.touches);
+  if (!pinch || e.type === 'touchstart') pinch = { d, s: editor.printScale };
+  anchor = at(
+    (e.touches[0]!.clientX + e.touches[1]!.clientX) / 2,
+    (e.touches[0]!.clientY + e.touches[1]!.clientY) / 2,
+  );
+  editor.zoomPrint((pinch.s * d) / pinch.d / editor.printScale);
+}
+const events = ['touchstart', 'touchmove', 'touchend'] as const;
+onMounted(() => {
+  if (props.printOnly) return;
+  root.value?.addEventListener('wheel', onWheel, { passive: false });
+  for (const t of events) root.value?.addEventListener(t, onTouch, { passive: false });
+});
 </script>
 
 <style scoped>
@@ -1120,6 +1176,7 @@ const fit = computed(() =>
 .toolbar {
   position: sticky;
   top: 0;
+  left: 0;
   z-index: 1;
   background: #fff;
   border-bottom: 1px solid rgba(128, 128, 128, 0.25);
@@ -1132,9 +1189,10 @@ const fit = computed(() =>
   padding: 16px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  /* Zoomed-in sheets scroll the preview sideways (plain `center` would cut off their left side). */
+  align-items: safe center;
+  min-width: fit-content;
   gap: 16px;
-  overflow-x: auto;
 }
 .sheet {
   background: #fff;
