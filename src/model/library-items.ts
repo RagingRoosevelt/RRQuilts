@@ -4,6 +4,7 @@ import { produce, type Draft } from 'immer';
 import { allPatches } from './blocks/patches';
 import { assignIds, remapColoring } from './blocks/remap';
 import { pathPolygon } from './geometry/path';
+import { variationName } from './new-quilt';
 import type { Block } from './schema/block';
 import type { ColoringBody } from './schema/coloring';
 import type { Color } from './schema/palette';
@@ -116,6 +117,29 @@ export function swapToLibraryVersion(doc: RrqDoc, libBlock: Block, lib: LibraryL
     }
   });
   return syncLibraryItems(swapped, lib);
+}
+
+/**
+ * Before replacing an embedded library item with another version, keep it as the user's own item:
+ * new id, "(rev N)" name, still credited (derived).
+ */
+export function keepAsMine(doc: RrqDoc, kind: 'block' | 'color', id: string, newItemId: string) {
+  const list = kind === 'block' ? doc.project.blocks : doc.project.palette.colors;
+  const old = list.find((x) => x.id === id);
+  if (!old) return doc;
+  const taken = list.map((x) => x.notecard.name);
+  const base = `${old.notecard.name} (rev ${old.revision ?? 1})`;
+  const copy = produce(old, (c) => {
+    c.id = newItemId;
+    c.notecard.name = taken.includes(base) ? variationName(base, taken) : base;
+    delete c.version; // stamped on save; revisions restart for the new item
+    delete c.revision;
+    if (c.source) c.source.derived = true;
+  });
+  return produce(doc, (d) => {
+    if (kind === 'block') d.project.blocks.push(copy as Block);
+    else d.project.palette.colors.push(copy as Color);
+  });
 }
 
 /** Add the user's copy of a library block and use it wherever the library block was used. */

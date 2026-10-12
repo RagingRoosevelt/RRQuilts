@@ -38,9 +38,19 @@
           </button>
         </div>
       </q-card-section>
+      <q-card-section v-if="anyLibrary" class="q-pt-none">
+        <q-checkbox
+          v-model="deleteCopies"
+          dense
+          label="Delete the project's copy of what switches to the library version"
+        />
+        <div v-if="!deleteCopies" class="text-caption text-grey-7 q-mt-xs">
+          Otherwise it's kept under My blocks / My colors, named with its revision.
+        </div>
+      </q-card-section>
       <q-card-actions align="right">
         <q-btn flat no-caps label="Keep all project copies" @click="all('project')" />
-        <q-btn flat no-caps label="Use all library versions" @click="all('library')" />
+        <q-btn flat no-caps label="Pick all library versions" @click="all('library')" />
         <q-btn color="primary" no-caps label="Done" @click="done" />
       </q-card-actions>
     </q-card>
@@ -49,7 +59,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, reactive, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { toUnits } from '@/model/library-items';
 import type { Block } from '@/model/schema/block';
 import type { Color } from '@/model/schema/palette';
@@ -75,7 +85,16 @@ function size(b: Block, side: Side) {
 }
 const open = computed(() => items.value.length > 0 && !!project.doc);
 const choice = reactive<Record<string, Side>>({});
-watch(items, (ms) => ms.forEach((m) => (choice[m.project.id] = 'project')), { immediate: true });
+const deleteCopies = ref(false);
+watch(
+  items,
+  (ms) => {
+    ms.forEach((m) => (choice[m.project.id] = 'project'));
+    deleteCopies.value = false;
+  },
+  { immediate: true },
+);
+const anyLibrary = computed(() => items.value.some((m) => choice[m.project.id] === 'library'));
 
 const rgb = (c: Color) => `rgb(${c.rgb.join(',')})`;
 const thumb = (b: Block) =>
@@ -83,11 +102,12 @@ const thumb = (b: Block) =>
 
 function all(side: Side) {
   items.value.forEach((m) => (choice[m.project.id] = side));
-  done();
+  if (side === 'project') done();
 }
 function done() {
   project.useLibraryVersions(
     items.value.filter((m) => choice[m.project.id] === 'library').map((m) => m.project.id),
+    deleteCopies.value,
   );
 }
 </script>

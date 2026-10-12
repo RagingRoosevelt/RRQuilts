@@ -9,8 +9,9 @@ import { createProject } from '@/model/new-project';
 import type { Block } from '@/model/schema/block';
 import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
-import { stampVersions } from '@/model/identity';
+import { itemId, stampVersions } from '@/model/identity';
 import {
+  keepAsMine,
   swapToLibraryVersion,
   syncDraft,
   syncLibraryItems,
@@ -319,12 +320,17 @@ export const useProjectStore = defineStore('project', () => {
     });
   }
 
-  /** Switch the chosen items to their library version (one undo step). */
-  function useLibraryVersions(ids: string[]) {
+  /**
+   * Switch the chosen items to their library version (one undo step). The project's copies are
+   * kept as the user's own items unless `deleteCopies`.
+   */
+  function useLibraryVersions(ids: string[], deleteCopies = false) {
     const lib = useLibraryStore().lookup;
     if (!doc.value || !ids.length) return void (mismatches.value = []);
+    const me = useSettingsStore().settings.author;
     let next = doc.value;
     for (const m of mismatches.value.filter((x) => ids.includes(x.project.id))) {
+      if (!deleteCopies) next = keepAsMine(next, m.kind, m.project.id, itemId(me));
       next =
         m.kind === 'block'
           ? swapToLibraryVersion(next, m.library as Block, lib)

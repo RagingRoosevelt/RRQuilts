@@ -8,6 +8,7 @@ import {
   isLibraryItem,
   splitItems,
   syncLibraryItems,
+  keepAsMine,
   swapToLibraryVersion,
   useMyCopy,
   versionMismatches,
@@ -103,6 +104,16 @@ describe('library items in projects', () => {
     expect(
       Object.values(q.colorings.k!.fills).every((f) => 'color' in f && f.color === 'rrquilts.gold'),
     ).toBe(true);
+    // The project's copy can be kept as my own block first.
+    const kept = swapToLibraryVersion(
+      keepAsMine(d, 'block', fp.id, 'jane.old1'),
+      lib.blocks.find((b) => b.id === fp.id)!,
+      lookup,
+    );
+    const mine = kept.project.blocks.find((b) => b.id === 'jane.old1')!;
+    expect(mine.size).toEqual([10, 12]);
+    expect(mine.notecard.name).toBe('Four Patch (rev 1)');
+    expect(mine.source?.derived).toBe(true);
   });
 
   it('editing makes my copy, used in quilts instead of the library block', async () => {
