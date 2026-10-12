@@ -32,9 +32,7 @@
             <div class="text-caption">
               {{ side.label
               }}<template v-if="m[side.key].revision"> · rev {{ m[side.key].revision }}</template>
-              <template v-if="m.kind === 'block'">
-                · {{ size(m[side.key] as Block, side.key) }}</template
-              >
+              <div v-if="m.kind === 'block'">{{ size(m[side.key] as Block, side.key) }}</div>
               <q-tooltip>{{ m[side.key].id }}@{{ m[side.key].version }}</q-tooltip>
             </div>
           </button>
