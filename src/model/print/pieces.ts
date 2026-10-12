@@ -83,14 +83,22 @@ export interface Template {
 const letterOf = (i: number): string =>
   i < 26 ? String.fromCharCode(65 + i) : letterOf(Math.floor(i / 26) - 1) + letterOf(i % 26);
 
-/** Distinct shapes, lettered in order of first appearance, with counts per fill. */
-export function templates(pieces: Piece[]): Template[] {
+/**
+ * Distinct shapes, lettered in order of first appearance (after `prefix`, e.g. the block's number
+ * in a quilt: 2A, 2B…), with counts per fill.
+ */
+export function templates(pieces: Piece[], prefix = ''): Template[] {
   const byKey = new Map<string, Template>();
   for (const p of pieces) {
     const key = shapeKey(p.poly);
     let t = byKey.get(key);
     if (!t) {
-      t = { letter: letterOf(byKey.size), poly: p.poly, curved: p.curved, counts: new Map() };
+      t = {
+        letter: prefix + letterOf(byKey.size),
+        poly: p.poly,
+        curved: p.curved,
+        counts: new Map(),
+      };
       byKey.set(key, t);
     }
     t.counts.set(p.fill, (t.counts.get(p.fill) ?? 0) + 1);

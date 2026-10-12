@@ -91,6 +91,7 @@ describe('rotary cutting', () => {
       ['A', 5],
       ['B', 16],
     ]);
+    expect(templates(blockPieces(star(), [9, 9]), '2').map((x) => x.letter)).toEqual(['2A', '2B']);
   });
 });
 

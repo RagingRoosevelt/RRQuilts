@@ -573,8 +573,8 @@ const view = computed<View | undefined>(() => {
 });
 
 // Templates: each distinct shape, cut line around it, rotated snug, packed on pages.
-function templateItems(pieces: Piece[]) {
-  const list = templates(pieces);
+function templateItems(pieces: Piece[], prefix: string) {
+  const list = templates(pieces, prefix);
   const mirror = prefs.value.mirror;
   const items: (PlacedPiece & { w: number; h: number })[] = list.map((t) => {
     const cut = offset(t.poly, seam.value);
@@ -718,6 +718,7 @@ const sheets = computed<Sheet[]>(() => {
             quiltPieces(doc.value!, u.quilt, u.block.id),
             count(u.quilt, u.block.id),
             undefined,
+            u.number,
           ),
         );
       }
@@ -756,7 +757,8 @@ const sheets = computed<Sheet[]>(() => {
             pieces: quiltPieces(doc.value!, u.quilt, u.block.id),
             size: u.size,
             keyPieces: blockPieces(u.block, u.size, u.coloring),
-            heading: `Templates: ${u.block.notecard.name}`,
+            heading: `Templates: ${u.number} · ${u.block.notecard.name}`,
+            prefix: String(u.number),
           }),
         );
       }
@@ -817,7 +819,13 @@ function quiltBlocks() {
     seen.add(block.id);
     const size: [number, number] = [slot.transform[0], slot.transform[3]];
     return [
-      { quilt, block, size, coloring: resolveColoring(quilt.colorings[content.coloring], block) },
+      {
+        quilt,
+        block,
+        size,
+        coloring: resolveColoring(quilt.colorings[content.coloring], block),
+        number: seen.size,
+      },
     ];
   });
 }
@@ -828,14 +836,19 @@ function templateSheets(src: {
   size: [number, number];
   keyPieces: Piece[];
   heading: string;
+  /** Letter prefix: the block's number in a quilt printout. */
+  prefix?: string;
 }): Sheet[] {
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
   const gap = units.value === 'in' ? 0.25 : 0.6;
-  const items = templateItems(src.pieces);
+  const prefix = src.prefix ?? '';
+  const items = templateItems(src.pieces, prefix);
   // Key: the block with each patch's letter, about a quarter of the page wide.
   const keyScale = Math.min(aw, ah) / 4 / Math.max(...src.size);
-  const letters = new Map(templates(src.keyPieces).map((t) => [shapeKey(t.poly), t.letter]));
+  const letters = new Map(
+    templates(src.keyPieces, prefix).map((t) => [shapeKey(t.poly), t.letter]),
+  );
   const keyItem = {
     key: 'key',
     letter: '',
@@ -923,6 +936,8 @@ function blockPage(
   all: Piece[],
   n: number,
   quiltName: string | undefined,
+  /** Its number in a quilt printout (template letters 1A, 1B… use it). */
+  number?: number,
 ): Sheet {
   const [aw, ah] = area.value;
   const fabric = widthOption.value;
@@ -932,7 +947,7 @@ function blockPage(
   const dd = doc.value!;
   return {
     kind: 'block',
-    heading: `Block: ${block.notecard.name}`,
+    heading: number ? `Block ${number} · ${block.notecard.name}` : `Block: ${block.notecard.name}`,
     name: block.notecard.name,
     size: sizeLabel(...size),
     count: n,
