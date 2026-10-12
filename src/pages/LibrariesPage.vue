@@ -1,7 +1,15 @@
 <template>
   <q-page padding>
     <div class="row items-center q-mb-md" style="gap: 8px">
-      <div class="text-h6 col">Libraries</div>
+      <q-btn
+        v-if="$q.screen.lt.md"
+        flat
+        round
+        icon="menu"
+        aria-label="Filters"
+        @click="filtersOpen = !filtersOpen"
+      />
+      <div class="text-h6 col" style="min-width: 120px">Libraries</div>
       <q-btn outline no-caps icon="upload_file" label="Import" @click="fileInput?.click()">
         <q-tooltip>A backup or pack (.rrqlib), or a color collection (.rrqcc)</q-tooltip>
       </q-btn>
@@ -27,125 +35,158 @@
     </q-banner>
 
     <div class="row no-wrap-md" style="gap: 16px">
-      <q-list bordered separator class="rounded-borders libs">
-        <q-item
-          v-for="v in lists"
-          :key="v.doc.id"
-          clickable
-          :active="v.doc.id === current?.doc.id"
-          @click="select(v.doc.id)"
-        >
-          <q-item-section>
-            <q-item-label>{{ v.doc.name }}</q-item-label>
-            <q-item-label caption>{{ kindLabel(v) }} · {{ counts(v) }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item
-          v-if="!library.mine"
-          clickable
-          :active="selected === 'mine'"
-          @click="select('mine')"
-        >
-          <q-item-section>
-            <q-item-label>{{ MY_LIBRARY }}</q-item-label>
-            <q-item-label caption>Empty</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-
-      <div class="col" style="min-width: 0">
-        <template v-if="current">
-          <div class="row items-start q-mb-sm" style="gap: 8px">
-            <div class="col">
-              <div class="text-subtitle1">{{ current.doc.name }}</div>
-              <div class="text-caption text-grey-7">
-                <template v-if="current.doc.author">by {{ current.doc.author.name }} · </template>
-                <template v-if="current.doc.license"
-                  >{{ licenseName(current.doc.license) }} ·
-                </template>
-                revision {{ current.doc.revision }}
-              </div>
-              <div v-if="current.doc.description" class="text-body2 q-mt-xs">
-                {{ current.doc.description }}
-              </div>
-            </div>
-            <q-btn
-              v-if="mineSelected"
-              flat
-              dense
-              no-caps
-              icon="label"
-              label="Categories…"
-              @click="managing = true"
-            />
-            <q-btn
-              v-if="isPack(current)"
-              flat
-              dense
-              no-caps
-              color="negative"
-              icon="delete"
-              label="Remove pack"
-              @click="removePack(current.doc)"
-            />
-          </div>
-
-          <q-input
-            v-model="search"
+      <div v-show="filtersOpen" class="libs column" style="gap: 8px">
+        <q-input v-model="search" dense outlined clearable placeholder="Search names, notes">
+          <template #prepend><q-icon name="search" /></template>
+        </q-input>
+        <template v-for="f in filterFields" :key="f.key">
+          <q-select
+            v-if="f.options.length"
+            v-model="filters[f.key]"
+            :options="f.options"
+            :label="f.label"
             dense
             outlined
+            multiple
+            use-chips
+            emit-value
+            map-options
             clearable
-            placeholder="Search names, notes, tags, styles"
-            class="q-mb-sm"
-          >
-            <template #prepend><q-icon name="search" /></template>
-          </q-input>
-          <div v-if="current.doc.categories.length" class="row q-mb-sm" style="gap: 4px">
-            <q-chip
-              v-for="c in categoryChips"
-              :key="c.id ?? 'all'"
-              clickable
-              dense
-              :outline="category !== c.id"
-              color="primary"
-              :text-color="category === c.id ? 'white' : 'primary'"
-              @click="category = c.id"
-              >{{ c.name }}</q-chip
-            >
-          </div>
+            @clear="filters[f.key] = []"
+          />
+        </template>
+      </div>
 
-          <div v-if="shownBlocks.length" class="text-subtitle2 q-mb-sm">Blocks</div>
-          <div class="cards q-mb-lg">
-            <div v-for="b in shownBlocks" :key="b.id" class="card">
-              <button class="thumb" @click="previewing = b.id">
-                <img :src="thumb(b, 200)" :alt="b.notecard.name" />
-              </button>
-              <div class="row items-center no-wrap">
-                <div class="col ellipsis">{{ b.notecard.name }}</div>
+      <div class="col" style="min-width: 0">
+        <div v-if="!mineCount && !filtering" class="text-grey-7 q-pa-md" style="max-width: 560px">
+          Your own blocks and color collections, available in every project on this device. Add a
+          block from a project's Blocks tab (<b>Add to my library</b>), save colors from its Fabrics
+          & Colors tab (<b>Save to my library</b>), or import a backup.
+        </div>
+        <template v-for="g in groups" :key="g.v.doc.id">
+          <div class="lib-group q-mb-md">
+            <div class="row items-start q-mb-sm" style="gap: 8px">
+              <div class="col">
+                <div class="text-subtitle1">{{ g.v.doc.name }}</div>
+                <div class="text-caption text-grey-7">
+                  <template v-if="g.v.doc.author">by {{ g.v.doc.author.name }} · </template>
+                  <template v-if="g.v.doc.license">{{ licenseName(g.v.doc.license) }} · </template>
+                  revision {{ g.v.doc.revision }}
+                </div>
+                <div v-if="g.v.doc.description" class="text-body2 q-mt-xs">
+                  {{ g.v.doc.description }}
+                </div>
+              </div>
+              <q-btn
+                v-if="g.mine"
+                flat
+                dense
+                no-caps
+                icon="label"
+                label="Categories…"
+                @click="managing = true"
+              />
+              <q-btn
+                v-if="isPack(g.v)"
+                flat
+                dense
+                no-caps
+                color="negative"
+                icon="delete"
+                label="Remove pack"
+                @click="removePack(g.v.doc)"
+              />
+            </div>
+
+            <div v-if="g.blocks.length" class="text-subtitle2 q-mb-sm">Blocks</div>
+            <div class="cards q-mb-lg">
+              <div v-for="b in g.blocks" :key="b.id" class="card">
+                <button class="thumb" @click="previewing = { lib: g.v.doc.id, id: b.id }">
+                  <img :src="thumb(b, 200)" :alt="b.notecard.name" />
+                </button>
+                <div class="row items-center no-wrap">
+                  <div class="col ellipsis">{{ b.notecard.name }}</div>
+                  <q-btn flat round dense icon="more_vert" aria-label="Actions">
+                    <q-menu>
+                      <q-list dense style="min-width: 170px">
+                        <q-item
+                          v-close-popup
+                          clickable
+                          @click="previewing = { lib: g.v.doc.id, id: b.id }"
+                        >
+                          <q-item-section>Preview</q-item-section>
+                        </q-item>
+                        <template v-if="g.mine">
+                          <q-item v-close-popup clickable @click="rename(b.id, b.notecard.name)">
+                            <q-item-section>Rename…</q-item-section>
+                          </q-item>
+                          <q-item v-close-popup clickable @click="pickCategory(b.id)">
+                            <q-item-section>Category…</q-item-section>
+                          </q-item>
+                          <q-item v-close-popup clickable @click="startTagging(b.id)">
+                            <q-item-section>Tags & styles…</q-item-section>
+                          </q-item>
+                        </template>
+                        <q-item v-else v-close-popup clickable @click="copyMine(g.v, b.id)">
+                          <q-item-section>Copy to my library</q-item-section>
+                        </q-item>
+                        <q-item v-close-popup clickable @click="exportBlock(b)">
+                          <q-item-section>Export (.rrqbl)</q-item-section>
+                        </q-item>
+                        <q-item v-if="g.mine" v-close-popup clickable @click="remove(b.id)">
+                          <q-item-section class="text-negative">Delete</q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </q-btn>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="g.collections.length" class="text-subtitle2 q-mb-sm">Color collections</div>
+            <div class="column q-mb-lg" style="gap: 8px">
+              <div v-for="c in g.collections" :key="c.id" class="collection row items-center">
+                <button class="strip" @click="previewing = { lib: g.v.doc.id, id: c.id }">
+                  <span
+                    v-for="x in c.colors"
+                    :key="x.id"
+                    class="chip"
+                    :style="{ background: css(x) }"
+                    :title="x.notecard.name"
+                  />
+                </button>
+                <div class="col ellipsis q-px-sm">
+                  {{ c.notecard.name }}
+                  <span class="text-caption text-grey-7">· {{ c.colors.length }}</span>
+                </div>
                 <q-btn flat round dense icon="more_vert" aria-label="Actions">
                   <q-menu>
                     <q-list dense style="min-width: 170px">
-                      <q-item v-close-popup clickable @click="previewing = b.id">
-                        <q-item-section>Preview</q-item-section>
+                      <q-item
+                        v-close-popup
+                        clickable
+                        @click="previewing = { lib: g.v.doc.id, id: c.id }"
+                      >
+                        <q-item-section>{{ g.mine ? 'Edit colors…' : 'Preview' }}</q-item-section>
                       </q-item>
-                      <template v-if="mineSelected">
-                        <q-item v-close-popup clickable @click="rename(b.id, b.notecard.name)">
+                      <template v-if="g.mine">
+                        <q-item v-close-popup clickable @click="rename(c.id, c.notecard.name)">
                           <q-item-section>Rename…</q-item-section>
                         </q-item>
-                        <q-item v-close-popup clickable @click="pickCategory(b.id)">
+                        <q-item v-close-popup clickable @click="pickCategory(c.id)">
                           <q-item-section>Category…</q-item-section>
                         </q-item>
-                        <q-item v-close-popup clickable @click="startTagging(b.id)">
+                        <q-item v-close-popup clickable @click="startTagging(c.id)">
                           <q-item-section>Tags & styles…</q-item-section>
                         </q-item>
                       </template>
-                      <q-item v-else v-close-popup clickable @click="copyMine(b.id)">
+                      <q-item v-else v-close-popup clickable @click="copyMine(g.v, c.id)">
                         <q-item-section>Copy to my library</q-item-section>
                       </q-item>
-                      <q-item v-close-popup clickable @click="exportBlock(b)">
-                        <q-item-section>Export (.rrqbl)</q-item-section>
+                      <q-item v-close-popup clickable @click="exportCollection(c)">
+                        <q-item-section>Export (.rrqcc)</q-item-section>
                       </q-item>
-                      <q-item v-if="mineSelected" v-close-popup clickable @click="remove(b.id)">
+                      <q-item v-if="g.mine" v-close-popup clickable @click="remove(c.id)">
                         <q-item-section class="text-negative">Delete</q-item-section>
                       </q-item>
                     </q-list>
@@ -154,66 +195,8 @@
               </div>
             </div>
           </div>
-
-          <div v-if="shownCollections.length" class="text-subtitle2 q-mb-sm">Color collections</div>
-          <div class="column q-mb-lg" style="gap: 8px">
-            <div v-for="c in shownCollections" :key="c.id" class="collection row items-center">
-              <button class="strip" @click="previewing = c.id">
-                <span
-                  v-for="x in c.colors"
-                  :key="x.id"
-                  class="chip"
-                  :style="{ background: css(x) }"
-                  :title="x.notecard.name"
-                />
-              </button>
-              <div class="col ellipsis q-px-sm">
-                {{ c.notecard.name }}
-                <span class="text-caption text-grey-7">· {{ c.colors.length }}</span>
-              </div>
-              <q-btn flat round dense icon="more_vert" aria-label="Actions">
-                <q-menu>
-                  <q-list dense style="min-width: 170px">
-                    <q-item v-close-popup clickable @click="previewing = c.id">
-                      <q-item-section>{{
-                        mineSelected ? 'Edit colors…' : 'Preview'
-                      }}</q-item-section>
-                    </q-item>
-                    <template v-if="mineSelected">
-                      <q-item v-close-popup clickable @click="rename(c.id, c.notecard.name)">
-                        <q-item-section>Rename…</q-item-section>
-                      </q-item>
-                      <q-item v-close-popup clickable @click="pickCategory(c.id)">
-                        <q-item-section>Category…</q-item-section>
-                      </q-item>
-                      <q-item v-close-popup clickable @click="startTagging(c.id)">
-                        <q-item-section>Tags & styles…</q-item-section>
-                      </q-item>
-                    </template>
-                    <q-item v-else v-close-popup clickable @click="copyMine(c.id)">
-                      <q-item-section>Copy to my library</q-item-section>
-                    </q-item>
-                    <q-item v-close-popup clickable @click="exportCollection(c)">
-                      <q-item-section>Export (.rrqcc)</q-item-section>
-                    </q-item>
-                    <q-item v-if="mineSelected" v-close-popup clickable @click="remove(c.id)">
-                      <q-item-section class="text-negative">Delete</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </div>
-          </div>
-
-          <div v-if="!shownBlocks.length && !shownCollections.length" class="text-grey-7 q-pa-md">
-            {{ search || category !== undefined ? 'Nothing matches.' : 'Nothing here yet.' }}
-          </div>
         </template>
-        <div v-else class="text-grey-7 q-pa-md" style="max-width: 560px">
-          Your own blocks and color collections, available in every project on this device. Add a
-          block from a project's Blocks tab (<b>Add to my library</b>), save colors from its Fabrics
-          & Colors tab (<b>Save to my library</b>), or import a backup.
-        </div>
+        <div v-if="!groups.length && filtering" class="text-grey-7 q-pa-md">Nothing matches.</div>
       </div>
     </div>
 
@@ -265,7 +248,7 @@
             </q-item-section>
             <q-item-section>
               <q-input
-                v-if="mineSelected"
+                v-if="previewMine"
                 :model-value="x.notecard.name"
                 dense
                 borderless
@@ -273,7 +256,7 @@
               />
               <span v-else>{{ x.notecard.name }}</span>
             </q-item-section>
-            <q-item-section v-if="mineSelected" side>
+            <q-item-section v-if="previewMine" side>
               <div class="row no-wrap">
                 <q-btn
                   flat
@@ -524,7 +507,7 @@
 import { useAskCategory } from '@/composables/category';
 // Libraries (spec 011): browse every library; manage My library; back up, restore, share, import.
 import { useQuasar } from 'quasar';
-import { computed, defineComponent, h, ref } from 'vue';
+import { computed, defineComponent, h, reactive, ref } from 'vue';
 import { useAuthor } from '@/composables/author';
 import { serializeBlock } from '@/model/block-file';
 import { collectionFile, parseCollectionFile } from '@/model/collection-file';
@@ -546,7 +529,12 @@ import {
 import { backupDoc, packDoc, parseLibrary, restore, serializeLibrary } from '@/model/library-file';
 import { createProject } from '@/model/new-project';
 import type { Block } from '@/model/schema/block';
-import type { ColorCollection, LibraryBackup, LibraryDoc } from '@/model/schema/library';
+import type {
+  ColorCollection,
+  LibraryBackup,
+  LibraryDoc,
+  LibraryItem,
+} from '@/model/schema/library';
 import type { Color } from '@/model/schema/palette';
 import { blockThumbnail } from '@/render/thumbnail';
 import { download } from '@/storage/files';
@@ -579,19 +567,13 @@ const SkippedList = defineComponent({
       : null,
 });
 
-// --- Which library ---
-const lists = computed(() => library.views);
-const selected = ref<string>('mine');
+// --- Browsing: filters over every library ---
+const filtersOpen = ref($q.screen.gt.sm);
 const select = (id: string) => {
-  selected.value = id;
-  category.value = undefined;
+  for (const k of Object.keys(filters) as (keyof typeof filters)[]) filters[k] = [];
+  search.value = '';
+  if (id !== 'mine') filters.libs = [id];
 };
-const current = computed<LibraryView | undefined>(() =>
-  selected.value === 'mine'
-    ? library.views.find((v) => v.doc.kind === 'personal')
-    : library.views.find((v) => v.doc.id === selected.value),
-);
-const mineSelected = computed(() => current.value?.doc.kind === 'personal');
 const isPack = (v: LibraryView) => library.packs.some((p) => p.id === v.doc.id);
 const kindLabel = (v: LibraryView) =>
   v.doc.kind === 'personal' ? 'Yours' : v.doc === library.builtin ? 'Built-in' : 'Pack';
@@ -605,28 +587,81 @@ const counts = (v: LibraryView) =>
     .join(', ') || 'empty';
 const mineCount = computed(() => library.mine?.items.length ?? 0);
 
-// --- Browsing ---
 const search = ref('');
-/** undefined = all; '' = uncategorized. */
-const category = ref<string | undefined>(undefined);
-const categoryChips = computed(() => [
-  { id: undefined, name: 'All' },
-  ...(current.value?.doc.categories ?? []),
-  { id: '', name: 'Uncategorized' },
-]);
-const shownIds = computed(
-  () =>
-    new Set(
-      searchItems(current.value?.doc.items ?? [], search.value ?? '', category.value).map(
-        (i) => i.data.id,
-      ),
-    ),
+/** Selected values per filter; empty = any. Category '' = uncategorized. */
+const filters = reactive({
+  libs: [] as string[],
+  types: [] as string[],
+  cats: [] as string[],
+  tags: [] as string[],
+  styles: [] as string[],
+});
+const filtering = computed(() => !!search.value || Object.values(filters).some((f) => f.length));
+const inScope = computed(() =>
+  library.views.filter((v) => !filters.libs.length || filters.libs.includes(v.doc.id)),
 );
-const shownBlocks = computed(
-  () => current.value?.blocks.filter((b) => shownIds.value.has(b.id)) ?? [],
-);
-const shownCollections = computed(
-  () => current.value?.collections.filter((c) => shownIds.value.has(c.id)) ?? [],
+const values = (f: 'tags' | 'styles') =>
+  [...new Set(inScope.value.flatMap((v) => v.doc.items.flatMap((i) => i.data.notecard[f] ?? [])))]
+    .sort()
+    .map((t) => ({ label: t, value: t }));
+const filterFields = computed(() => {
+  const cats = [
+    ...new Map(inScope.value.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
+  ];
+  return [
+    {
+      key: 'libs' as const,
+      label: 'Library',
+      options: library.views.map((v) => ({
+        label: `${v.doc.name} (${kindLabel(v)} · ${counts(v)})`,
+        value: v.doc.id,
+      })),
+    },
+    {
+      key: 'types' as const,
+      label: 'Type',
+      options: [
+        { label: 'Blocks', value: 'block' },
+        { label: 'Color collections', value: 'colors' },
+      ],
+    },
+    {
+      key: 'cats' as const,
+      label: 'Category',
+      options: cats.length
+        ? [
+            ...cats.map((c) => ({ label: c.name, value: c.id })),
+            { label: 'Uncategorized', value: '' },
+          ]
+        : [],
+    },
+    { key: 'tags' as const, label: 'Tags', options: values('tags') },
+    { key: 'styles' as const, label: 'Styles', options: values('styles') },
+  ];
+});
+const anyOf = (picked: string[], have: string[]) =>
+  !picked.length || picked.some((x) => have.includes(x));
+const matches = (i: LibraryItem) =>
+  anyOf(filters.types, [i.type]) &&
+  anyOf(filters.cats, [i.category ?? '']) &&
+  anyOf(filters.tags, i.data.notecard.tags ?? []) &&
+  anyOf(filters.styles, i.data.notecard.styles ?? []);
+const groups = computed(() =>
+  inScope.value
+    .map((v) => {
+      const ids = new Set(
+        searchItems(v.doc.items, search.value ?? '')
+          .filter(matches)
+          .map((i) => i.data.id),
+      );
+      return {
+        v,
+        mine: v.doc.kind === 'personal',
+        blocks: v.blocks.filter((b) => ids.has(b.id)),
+        collections: v.collections.filter((c) => ids.has(c.id)),
+      };
+    })
+    .filter((g) => g.blocks.length || g.collections.length),
 );
 
 const emptyDoc = createProject();
@@ -634,7 +669,7 @@ const thumb = (b: Block, px: number) =>
   blockThumbnail(emptyDoc, b, px, $q.dark.isActive, undefined, library.items.colors);
 const css = (c: Color) => `rgb(${c.rgb.join(',')})`;
 const itemLicense = (x: Block | ColorCollection) =>
-  x.license ?? current.value?.doc.license ?? (mineSelected.value ? undefined : DEFAULT_LICENSE);
+  x.license ?? previewLib.value?.doc.license ?? (previewMine.value ? undefined : DEFAULT_LICENSE);
 const creditLine = (x: Block) =>
   priorCredits(x)
     .map((c) => `${c.name ?? 'earlier work'} by ${c.author ?? 'anonymous'}`)
@@ -642,10 +677,14 @@ const creditLine = (x: Block) =>
 const tagLine = (x: Block) =>
   [...(x.notecard.styles ?? []).map((s) => `style: ${s}`), ...(x.notecard.tags ?? [])].join(' · ');
 
-const previewing = ref<string | null>(null);
-const previewBlock = computed(() => current.value?.blocks.find((b) => b.id === previewing.value));
+const previewing = ref<{ lib: string; id: string } | null>(null);
+const previewLib = computed(() => library.views.find((v) => v.doc.id === previewing.value?.lib));
+const previewMine = computed(() => previewLib.value?.doc.kind === 'personal');
+const previewBlock = computed(() =>
+  previewLib.value?.blocks.find((b) => b.id === previewing.value?.id),
+);
 const previewCollection = computed(() =>
-  current.value?.collections.find((c) => c.id === previewing.value),
+  previewLib.value?.collections.find((c) => c.id === previewing.value?.id),
 );
 
 // --- Editing My library ---
@@ -679,7 +718,7 @@ const tagOptions = ref<string[]>([]);
 function filterTags(f: 'tags' | 'styles', typed: string, done: (fn: () => void) => void) {
   const q = typed.trim().toLowerCase();
   const all = new Set(
-    lists.value.flatMap((v) => v.doc.items.flatMap((i) => i.data.notecard[f] ?? [])),
+    library.views.flatMap((v) => v.doc.items.flatMap((i) => i.data.notecard[f] ?? [])),
   );
   done(() => (tagOptions.value = [...all].filter((t) => t.toLowerCase().includes(q)).sort()));
 }
@@ -714,7 +753,7 @@ function deleteCat(id: string, name: string) {
     cancel: true,
     ok: { label: 'Delete', color: 'negative', flat: true },
   }).onOk(() => {
-    if (category.value === id) category.value = undefined;
+    filters.cats = filters.cats.filter((c) => c !== id);
     void update((l) => deleteCategory(l, id));
   });
 }
@@ -738,14 +777,14 @@ const moveColor = (id: string, i: number, d: number) =>
   });
 const removeColor = (id: string, i: number) => editColors(id, (cs) => cs.filter((_, j) => j !== i));
 
-async function copyMine(id: string) {
-  const item = current.value?.doc.items.find((i) => i.data.id === id);
+async function copyMine(v: LibraryView, id: string) {
+  const item = v.doc.items.find((i) => i.data.id === id);
   if (!item) return;
   // Copy what projects see (with its library attribution), so credits name the source.
   const stamped =
     item.type === 'block'
-      ? { ...item, data: current.value!.blocks.find((b) => b.id === id)! }
-      : { ...item, data: current.value!.collections.find((c) => c.id === id)! };
+      ? { ...item, data: v.blocks.find((b) => b.id === id)! }
+      : { ...item, data: v.collections.find((c) => c.id === id)! };
   const author = await askAuthor();
   await update((l) => copyToMine(l, stamped, author, DEFAULT_LICENSE));
   $q.notify({ type: 'positive', message: `Copied “${item.data.notecard.name}” to ${MY_LIBRARY}.` });
@@ -919,6 +958,15 @@ function downloadPack() {
   width: 260px;
   flex: none;
   align-self: flex-start;
+  position: sticky;
+  top: 67px;
+  max-height: calc(100vh - 83px);
+  overflow-y: auto;
+  padding-top: 2px;
+}
+.lib-group + .lib-group {
+  border-top: 1px solid rgba(128, 128, 128, 0.3);
+  padding-top: 12px;
 }
 @media (max-width: 1023px) {
   .row.no-wrap-md {
@@ -926,6 +974,8 @@ function downloadPack() {
   }
   .libs {
     width: 100%;
+    position: static;
+    max-height: none;
   }
 }
 .cards {

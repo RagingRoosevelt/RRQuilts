@@ -64,9 +64,9 @@
 ## UI
 
 - `src/pages/LibrariesPage.vue` (route `/libraries`, replaces the placeholder):
-  - Left: library list (My library, Packs, Built-in) with name, author, license, revision, counts;
-    toolbar Import (`.rrqlib,.rrqcc,.json`, dispatch by `format`), Back up…, Share as pack….
-  - Right: search box, category chips, cards (block thumbnails, collection swatch strips); card menu:
+  - Left: filter sidebar (menu button toggles it on phones): search, multi-select Library (with
+    kind and counts), Type, Category, Tags, Styles; toolbar Import (`.rrqlib,.rrqcc,.json`, dispatch by `format`), Back up…, Share as pack….
+  - Right: one group per library with matches (header: name, author, license, revision), cards (block thumbnails, collection swatch strips); card menu:
     Preview, Rename, Category…, Tags & styles…, Export (`.rrqbl` / `.rrqcc`), Copy to my library
     (packs/built-in), Delete (mine), Remove pack (pack header).
   - Categories dialog (add/rename/delete). Collection dialog (rename, reorder/rename/remove colors).

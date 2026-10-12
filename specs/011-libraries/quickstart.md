@@ -16,7 +16,7 @@ Settings: author "Jane".
 6. Back in project A (reopen) → Jane Star's card shows sync (A's copy is older) › Sync → "has a
    newer version" → Cancel/Keep both/Replace as offered.
 7. Libraries › My library › Categories… add "Stars"; Jane Star › Category… Stars; Tags & styles…
-   style "eight-point" → chip filter and search "eight-point" find it. Delete the category → item
+   style "eight-point" → Category/Styles filters and search "eight-point" find it. Delete the category → item
    uncategorized.
 8. Jewel › Edit colors… rename/reorder/remove a color; Export (.rrqcc); import it in another
    project's Fabrics & Colors → colors added as own.
