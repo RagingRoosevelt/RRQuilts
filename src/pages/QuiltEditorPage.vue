@@ -182,6 +182,8 @@ const route = useRoute();
 const router = useRouter();
 const project = useProjectStore();
 const editor = useEditorStore();
+// Sidebar opens with each editor (hiding it isn't remembered).
+editor.sidebar = true;
 const library = useLibraryStore();
 
 const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === route.params.id));

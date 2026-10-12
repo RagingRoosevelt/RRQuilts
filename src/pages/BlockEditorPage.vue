@@ -214,6 +214,8 @@ const route = useRoute();
 const router = useRouter();
 const project = useProjectStore();
 const editor = useEditorStore();
+// Sidebar opens with each editor (hiding it isn't remembered).
+editor.sidebar = true;
 const fill = (offset: number) => ({ height: `calc(100vh - ${offset}px)` });
 
 const anyBlock = computed(() => project.doc?.project.blocks.find((b) => b.id === route.params.id));
