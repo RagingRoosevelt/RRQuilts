@@ -13,7 +13,6 @@
         <q-tab name="print" icon="print" label="Print" />
       </q-tabs>
       <q-btn
-        v-if="editor.mode !== 'design'"
         flat
         round
         dense
@@ -122,9 +121,26 @@
       </div>
 
       <!-- Inspector -->
-      <div v-if="editor.mode !== 'design'" v-show="editor.sidebar" class="inspector q-pa-md scroll">
+      <div v-show="editor.sidebar" class="inspector q-pa-md scroll">
+        <template v-if="editor.mode === 'design'">
+          <div class="row items-center q-mb-xs" style="gap: 8px">
+            <span class="text-caption">Apply to</span>
+            <q-btn-toggle
+              v-model="editor.scope"
+              dense
+              no-caps
+              :options="[
+                { label: 'This', value: 'this' },
+                { label: 'All', value: 'all' },
+                { label: 'Alternate', value: 'alternate' },
+              ]"
+            />
+          </div>
+          <div class="text-caption text-grey-7 q-mb-sm">{{ toolHint }}</div>
+          <PaletteTray sidebar />
+        </template>
         <LayoutInspector
-          v-if="editor.mode === 'layout' && quilt.layout.style === 'horizontal'"
+          v-else-if="editor.mode === 'layout' && quilt.layout.style === 'horizontal'"
           :key="quilt.id"
           :layout="quilt.layout"
           :units="units"
@@ -142,25 +158,6 @@
         <DetailsPanel v-else-if="editor.mode === 'details'" kind="quilt" :id="quilt.id" />
         <PrintOptions v-else-if="editor.mode === 'print'" kind="quilt" :id="quilt.id" />
       </div>
-    </div>
-
-    <!-- Bottom bar (Design) -->
-    <div v-if="editor.mode === 'design'" class="bar column">
-      <div class="row items-center no-wrap q-px-sm" style="gap: 8px">
-        <span class="text-caption">Apply to</span>
-        <q-btn-toggle
-          v-model="editor.scope"
-          dense
-          no-caps
-          :options="[
-            { label: 'This', value: 'this' },
-            { label: 'All', value: 'all' },
-            { label: 'Alternate', value: 'alternate' },
-          ]"
-        />
-        <span class="text-caption text-grey-7 gt-sm">{{ toolHint }}</span>
-      </div>
-      <PaletteTray />
     </div>
   </q-page>
 </template>
@@ -221,11 +218,15 @@ const view = computed<View | undefined>({
   },
 });
 
+// Eraser glyph ("ink_eraser", Material Symbols, Apache 2.0) — the bundled icon font has none.
+const ERASER =
+  'M690-240h190v80H610l80-80Zm-500 80-85-85q-23-23-23.5-57t22.5-58l440-456q23-24 56.5-24t56.5 23l199 199q23 23 23 57t-23 57L520-160H190Zm296-80 314-322-198-198-442 456 64 64h262Zm-6-240Z|0 -960 960 960';
+
 const tools: { id: Tool; icon: string; label: string }[] = [
   { id: 'set', icon: 'add_box', label: 'Set block' },
   { id: 'rotate', icon: 'rotate_right', label: 'Rotate' },
   { id: 'flip', icon: 'flip', label: 'Flip' },
-  { id: 'erase', icon: 'backspace', label: 'Erase block' },
+  { id: 'erase', icon: ERASER, label: 'Erase block' },
   { id: 'find', icon: 'search', label: 'Find block' },
   { id: 'paint', icon: 'brush', label: 'Paint' },
   { id: 'spray', icon: 'format_color_fill', label: 'Spray (same color)' },

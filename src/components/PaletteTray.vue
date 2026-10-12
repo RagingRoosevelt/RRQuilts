@@ -1,40 +1,48 @@
 <template>
-  <div class="palette-tray column no-wrap">
-    <q-tabs v-if="!colorsOnly" v-model="tab" dense no-caps align="left" class="col-auto">
+  <div class="palette-tray column no-wrap" :class="{ sidebar }">
+    <q-tabs
+      v-if="!colorsOnly"
+      v-model="tab"
+      dense
+      no-caps
+      :align="sidebar ? 'justify' : 'left'"
+      class="col-auto"
+    >
       <q-tab name="blocks" label="Blocks" />
       <q-tab name="colors" label="Colors" />
     </q-tabs>
 
     <div v-if="tab === 'blocks'" class="strip q-pa-sm" style="gap: 8px">
       <template v-for="group in blockGroups" :key="group.label">
-        <span v-if="group.items.length" class="section">{{ group.label }}</span>
-        <button
-          v-for="b in group.items"
-          :key="b.id"
-          class="tile"
-          :class="{ active: editor.block === b.id }"
-          :title="b.notecard.name"
-          @click="pickBlock(b.id)"
-        >
-          <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
-          <span v-if="b.colorings.length > 1" class="count">{{ b.colorings.length }}</span>
-          <!-- Blocks with several colorings: right-click / long-press to choose which one to set. -->
-          <q-menu v-if="b.colorings.length > 1" touch-position context-menu>
-            <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
-              <button
-                v-for="(c, i) in b.colorings"
-                :key="c.id"
-                v-close-popup
-                class="tile"
-                :class="{ active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id }"
-                :title="c.name ?? `Coloring ${i + 1}`"
-                @click="chooseColoring(b.id, c.id)"
-              >
-                <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
-              </button>
-            </div>
-          </q-menu>
-        </button>
+        <TraySection v-if="group.items.length" :label="group.label" kind="blocks">
+          <button
+            v-for="b in group.items"
+            :key="b.id"
+            class="tile"
+            :class="{ active: editor.block === b.id }"
+            :title="b.notecard.name"
+            @click="pickBlock(b.id)"
+          >
+            <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
+            <span v-if="b.colorings.length > 1" class="count">{{ b.colorings.length }}</span>
+            <!-- Blocks with several colorings: right-click / long-press to choose which one to set. -->
+            <q-menu v-if="b.colorings.length > 1" touch-position context-menu>
+              <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+                <button
+                  v-for="(c, i) in b.colorings"
+                  :key="c.id"
+                  v-close-popup
+                  class="tile"
+                  :class="{ active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id }"
+                  :title="c.name ?? `Coloring ${i + 1}`"
+                  @click="chooseColoring(b.id, c.id)"
+                >
+                  <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
+                </button>
+              </div>
+            </q-menu>
+          </button>
+        </TraySection>
       </template>
     </div>
 
@@ -49,34 +57,35 @@
         @click="editorDialog?.show()"
       />
       <template v-for="group in colorGroups" :key="group.label">
-        <span v-if="group.items.length" class="section">{{ group.label }}</span>
-        <button
-          v-for="c in group.items"
-          :key="c.id"
-          class="swatch"
-          :class="{ active: editor.color === c.id }"
-          :style="{ background: `rgb(${c.rgb.join(',')})` }"
-          :title="c.notecard.name"
-          @click="pickColor(c.id)"
-        >
-          <q-menu v-if="!project.readOnly && !group.mine" touch-position context-menu>
-            <q-list dense style="min-width: 140px">
-              <q-item v-close-popup clickable @click="editCopy(c)">
-                <q-item-section>Edit a copy…</q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-          <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
-            <q-list dense style="min-width: 140px">
-              <q-item v-close-popup clickable @click="edit(c.id)">
-                <q-item-section>Edit…</q-item-section>
-              </q-item>
-              <q-item v-close-popup clickable @click="remove(c.id)">
-                <q-item-section class="text-negative">Delete</q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </button>
+        <TraySection v-if="group.items.length" :label="group.label" kind="colors">
+          <button
+            v-for="c in group.items"
+            :key="c.id"
+            class="swatch"
+            :class="{ active: editor.color === c.id }"
+            :style="{ background: `rgb(${c.rgb.join(',')})` }"
+            :title="c.notecard.name"
+            @click="pickColor(c.id)"
+          >
+            <q-menu v-if="!project.readOnly && !group.mine" touch-position context-menu>
+              <q-list dense style="min-width: 140px">
+                <q-item v-close-popup clickable @click="editCopy(c)">
+                  <q-item-section>Edit a copy…</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+            <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
+              <q-list dense style="min-width: 140px">
+                <q-item v-close-popup clickable @click="edit(c.id)">
+                  <q-item-section>Edit…</q-item-section>
+                </q-item>
+                <q-item v-close-popup clickable @click="remove(c.id)">
+                  <q-item-section class="text-negative">Delete</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </button>
+        </TraySection>
       </template>
     </div>
     <ColorEditor ref="editorDialog" @done="saveColor" />
@@ -85,7 +94,8 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, ref } from 'vue';
+import { QExpansionItem } from 'quasar';
+import { computed, defineComponent, h, onMounted, ref } from 'vue';
 import ColorEditor from '@/components/ColorEditor.vue';
 import { colorInUse, deleteColor } from '@/editor/colors';
 import type { RGB } from '@/editor/color';
@@ -109,14 +119,54 @@ const library = useLibraryStore();
 const editorDialog = ref<InstanceType<typeof ColorEditor>>();
 const editing = ref<string | null>(null);
 
-/** Block editor: colors only, and picking a color doesn't touch the quilt editor's tool. */
-const props = withDefaults(defineProps<{ colorsOnly?: boolean }>(), { colorsOnly: false });
+/**
+ * Block editor: colors only, and picking a color doesn't touch the quilt editor's tool.
+ * `sidebar`: quilt editor Design sidebar — sources are accordion sections; open sections and the
+ * tab are remembered app-wide.
+ */
+const props = withDefaults(defineProps<{ colorsOnly?: boolean; sidebar?: boolean }>(), {
+  colorsOnly: false,
+  sidebar: false,
+});
+const app = useSettingsStore();
 const tab = computed({
   get: () =>
     props.colorsOnly || ['paint', 'spray', 'swap', 'eyedropper'].includes(editor.tool)
       ? 'colors'
       : 'blocks',
-  set: (t) => (editor.tool = t === 'colors' ? 'paint' : 'set'),
+  set: (t: 'blocks' | 'colors') => {
+    editor.tool = t === 'colors' ? 'paint' : 'set';
+    if (props.sidebar) app.settings.trayTab = t;
+  },
+});
+onMounted(() => {
+  if (props.sidebar && !props.colorsOnly && tab.value !== app.settings.trayTab)
+    tab.value = app.settings.trayTab;
+});
+
+/** A source of blocks or colors: a labelled run in the strip, an accordion in the sidebar. */
+const TraySection = defineComponent({
+  props: { label: { type: String, required: true }, kind: { type: String, required: true } },
+  setup: (p, { slots }) => {
+    const key = () => `tray:${p.kind}:${p.label}`;
+    return () =>
+      props.sidebar
+        ? h(
+            QExpansionItem,
+            {
+              dense: true,
+              label: p.label,
+              headerClass: 'text-subtitle2',
+              modelValue: !app.settings.collapsedSections.includes(key()),
+              'onUpdate:modelValue': (open: boolean) => {
+                const rest = app.settings.collapsedSections.filter((l) => l !== key());
+                app.settings.collapsedSections = open ? rest : [...rest, key()];
+              },
+            },
+            () => h('div', { class: 'items' }, slots.default?.()),
+          )
+        : [h('span', { class: 'section' }, p.label), slots.default?.()];
+  },
 });
 const doc = computed(() => project.doc!);
 const blockGroups = computed(() => {
@@ -206,6 +256,17 @@ function remove(id: string) {
 </script>
 
 <style scoped>
+.sidebar .strip {
+  display: block;
+  overflow: visible;
+  padding: 0;
+}
+.sidebar :deep(.items) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 4px 12px;
+}
 .palette-tray {
   min-width: 0; /* let the strip scroll instead of widening the page */
   width: 100%;

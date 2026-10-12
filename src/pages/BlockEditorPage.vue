@@ -121,54 +121,75 @@
           @settings="saveSettings"
           @op="onOp"
         />
-        <div v-else class="column" style="gap: 8px">
-          <div class="text-subtitle2">Colorings</div>
-          <div class="row" style="gap: 8px">
-            <button
-              v-for="(c, i) in block.colorings"
-              :key="c.id"
-              class="coloring"
-              :class="{ active: c.id === coloringId }"
-              @click="editor.coloringOf.set(block.id, c.id)"
-            >
-              <img
-                :src="blockThumbnail(project.doc, block, 72, $q.dark.isActive, c.id)"
-                :alt="c.name ?? `Coloring ${i + 1}`"
-              />
-              <div class="text-caption ellipsis">{{ c.name ?? `Coloring ${i + 1}` }}</div>
-            </button>
-          </div>
-          <div v-if="!project.readOnly" class="row" style="gap: 6px">
-            <q-btn
-              dense
-              outline
-              no-caps
-              icon="add"
-              label="Save as new coloring"
-              @click="saveAsNew"
-            />
-            <q-btn dense flat no-caps icon="edit" label="Rename" @click="renameColoringPrompt" />
-            <q-btn
-              dense
-              flat
-              no-caps
-              color="negative"
-              icon="delete"
-              label="Delete"
-              :disable="block.colorings.length < 2"
-              @click="removeColoring"
-            />
-          </div>
+        <div v-else class="column">
+          <q-expansion-item
+            :model-value="open('Colorings')"
+            dense
+            label="Colorings"
+            header-class="text-subtitle2"
+            @update:model-value="(v) => setOpen('Colorings', v)"
+          >
+            <div class="column q-pb-md" style="gap: 8px">
+              <div class="row" style="gap: 8px">
+                <button
+                  v-for="(c, i) in block.colorings"
+                  :key="c.id"
+                  class="coloring"
+                  :class="{ active: c.id === coloringId }"
+                  @click="editor.coloringOf.set(block.id, c.id)"
+                >
+                  <img
+                    :src="blockThumbnail(project.doc, block, 72, $q.dark.isActive, c.id)"
+                    :alt="c.name ?? `Coloring ${i + 1}`"
+                  />
+                  <div class="text-caption ellipsis">{{ c.name ?? `Coloring ${i + 1}` }}</div>
+                </button>
+              </div>
+              <div v-if="!project.readOnly" class="row" style="gap: 6px">
+                <q-btn
+                  dense
+                  outline
+                  no-caps
+                  icon="add"
+                  label="Save as new coloring"
+                  @click="saveAsNew"
+                />
+                <q-btn
+                  dense
+                  flat
+                  no-caps
+                  icon="edit"
+                  label="Rename"
+                  @click="renameColoringPrompt"
+                />
+                <q-btn
+                  dense
+                  flat
+                  no-caps
+                  color="negative"
+                  icon="delete"
+                  label="Delete"
+                  :disable="block.colorings.length < 2"
+                  @click="removeColoring"
+                />
+              </div>
+            </div>
+          </q-expansion-item>
+          <q-expansion-item
+            :model-value="open('Colors')"
+            dense
+            label="Colors"
+            header-class="text-subtitle2"
+            @update:model-value="(v) => setOpen('Colors', v)"
+          >
+            <PaletteTray colors-only sidebar />
+          </q-expansion-item>
           <div class="text-caption text-grey-7">
             Paint taps a patch; Spray recolors every patch of the same color; Eyedropper picks one
             up.
           </div>
         </div>
       </div>
-    </div>
-
-    <div v-if="editor.blockMode === 'color'" class="bar">
-      <PaletteTray colors-only />
     </div>
   </q-page>
   <q-page v-else-if="project.doc && notSeam" padding class="text-grey-7"
@@ -221,6 +242,13 @@ import { useSettingsStore } from '@/stores/settings';
 
 const $q = useQuasar();
 const appSettings = useSettingsStore();
+// Color tab sections: open/closed remembered app-wide.
+const open = (label: string) => !appSettings.settings.collapsedSections.includes(`color:${label}`);
+function setOpen(label: string, value: boolean) {
+  const key = `color:${label}`;
+  const rest = appSettings.settings.collapsedSections.filter((l) => l !== key);
+  appSettings.settings.collapsedSections = value ? rest : [...rest, key];
+}
 const printTarget = ref<PrintTarget>({});
 const route = useRoute();
 const router = useRouter();

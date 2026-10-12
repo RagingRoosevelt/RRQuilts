@@ -14,6 +14,8 @@ export interface Settings {
   authorAsked: boolean;
   /** Editors: toolbar on the right and sidebar on the left (default: the reverse). */
   sidesSwapped: boolean;
+  /** Quilt editor Design sidebar: last tab. */
+  trayTab: 'blocks' | 'colors';
   /** Labels of inspector sections the user collapsed. */
   collapsedSections: string[];
   /** Print preferences (spec 010), merged with defaults where used (`printPrefs`). */
@@ -47,6 +49,7 @@ export const defaults = (): Settings => ({
   authorAsked: false,
   collapsedSections: [],
   sidesSwapped: false,
+  trayTab: 'blocks',
   print: {},
 });
 
@@ -57,6 +60,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   author: (v) => typeof v === 'string' && v.length <= 100,
   authorAsked: (v) => typeof v === 'boolean',
   sidesSwapped: (v) => typeof v === 'boolean',
+  trayTab: (v) => v === 'blocks' || v === 'colors',
   print: (v) => isObject(v),
   collapsedSections: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
 };
