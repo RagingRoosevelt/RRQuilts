@@ -214,6 +214,10 @@ Packs with author and license; its blocks are read-only until copied.
   credits; validated as untrusted like `.rrqbl` (spec 008 FR-040). File pickers filter by
   `.rrqcc,.json`.
 
+- **FR-011**: A block item MAY carry `colors`: the project's own colors its colorings use (as
+  `.rrqbl` does), so it draws the same in every project; library colors are found through their
+  library.
+
 ## Success Criteria *(mandatory)*
 
 - **SC-001**: A block added to My library in one project can be used in another without files.
