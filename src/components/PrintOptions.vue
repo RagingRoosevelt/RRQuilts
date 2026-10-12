@@ -226,27 +226,28 @@
           @update:model-value="(v: boolean) => set('onePerPage', v)"
         />
         <div>
-          <div class="text-caption text-grey-7">Labels on each piece</div>
+          <div class="text-caption text-grey-7">Labels on each template</div>
           <q-btn-toggle
             :model-value="prefs.labelsInside"
             no-caps
             dense
-            class="q-mb-xs"
+            class="q-my-xs"
             :options="[
-              { label: 'Inside the template', value: true },
-              { label: 'Under it', value: false },
+              { label: 'On template', value: true },
+              { label: 'Under template', value: false },
             ]"
             @update:model-value="(v: boolean) => set('labelsInside', v)"
           />
-          <q-checkbox
-            v-for="l in LABELS"
-            :key="l.key"
-            :model-value="prefs.labels[l.key]"
-            dense
-            :label="l.label"
-            class="q-mr-md"
-            @update:model-value="(v: boolean) => set('labels', { ...prefs.labels, [l.key]: v })"
-          />
+          <div class="label-grid">
+            <q-checkbox
+              v-for="l in LABELS"
+              :key="l.key"
+              :model-value="prefs.labels[l.key]"
+              dense
+              :label="l.label"
+              @update:model-value="(v: boolean) => set('labels', { ...prefs.labels, [l.key]: v })"
+            />
+          </div>
         </div>
       </div>
     </q-expansion-item>
@@ -410,6 +411,11 @@ function setOpen(label: string, value: boolean) {
 </script>
 
 <style scoped>
+.label-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 4px 8px;
+}
 .op-section {
   border: 1px solid rgba(128, 128, 128, 0.35);
   border-radius: 8px;
