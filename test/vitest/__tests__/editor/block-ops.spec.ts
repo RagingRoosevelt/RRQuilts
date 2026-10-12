@@ -91,16 +91,18 @@ describe('block operations', () => {
       {
         author: 'RRQuilts contributors',
         name: 'Ohio Star',
-        license: 'CC-BY-4.0',
+        license: 'PDM-1.0',
         library: 'RRQuilts starter',
       },
     ]);
-    expect(attribution(star)).toMatch(/^From Ohio Star by RRQuilts contributors \(.*CC BY 4\.0\)/);
+    expect(attribution(star)).toMatch(
+      /^From Ohio Star by RRQuilts contributors \(.*Public domain\)/,
+    );
     // Sam edits Jane's copy: Jane joins the chain; Sam's own copies don't repeat him.
     const sam = markDerived(c, 'Sam', 'CC-BY-SA-4.0');
     expect(sam.author).toBe('Sam');
     expect(sam.credits?.map((x) => [x.author, x.license])).toEqual([
-      ['RRQuilts contributors', 'CC-BY-4.0'],
+      ['RRQuilts contributors', 'PDM-1.0'],
       ['Jane', 'CC-BY-SA-4.0'],
     ]);
     expect(attribution(sam)).toBe('Based on Ohio Star by RRQuilts contributors, Jane');

@@ -26,6 +26,8 @@ field when it's a copy of someone else's), and license (if not inherited)."
 - Q: What does the project license do? → A: It's the default license for new items in the project
   and covers the whole `.rrq` file.
 - Q: What happens to "Notecard…"? → A: It opens the new Details tab.
+- Q: License of the built-in blocks? → A: Public Domain Mark (they're traditional designs); built-in
+  colors stay CC-BY-4.0.
 
 ## User Scenarios & Testing *(mandatory)*
 

@@ -176,7 +176,7 @@ project → it appears under My blocks at 25.4 cm with its colors, credited to i
 
 **Libraries in the app**
 
-- **FR-010**: The starter content MUST be a built-in library (pack, spec 002 format, CC-BY-4.0) loaded
+- **FR-010**: The starter content MUST be a built-in library (pack, spec 002 format; blocks Public Domain Mark per spec 009, colors CC-BY-4.0) loaded
   by the app, not copied into projects. New projects start empty (amends spec 006 FR-002).
 - **FR-011**: Sketchbook Blocks and the quilt tray MUST show **My blocks** above **Library** (built-in +
   packs + repositories combined); the tray's colors MUST show **My colors** above **Library colors**.
