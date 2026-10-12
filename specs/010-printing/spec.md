@@ -1,0 +1,97 @@
+# Feature Specification: Printing
+
+**Feature Branch**: `010-printing`
+
+**Created**: 2026-10-12
+
+**Status**: Draft
+
+**Input**: User description: "Printing: templates, rotary cutting chart, yardage estimate, quilt
+picture, block picture — from the existing Print tabs."
+
+> First slice of spec 001 US7 (FR-090…FR-096). Foundation piecing, photo sheets, appliqué and
+> embroidery printouts, and dragging pieces by hand come later.
+
+## Clarifications
+
+### Session 2026-10-12
+
+- Q: First slice? → A: Templates, rotary cutting chart, yardage estimate, quilt picture, block picture.
+- Q: Where? → A: The existing Print tabs (block editor: templates, rotary chart, block picture;
+  quilt editor: quilt picture, yardage, rotary chart for the whole quilt).
+- Q: Template layout? → A: Automatic packing (rotate to fit; oversize pieces tiled across pages with
+  alignment marks). Dragging by hand later.
+- Q: Rotary chart? → A: Squares, rectangles, half-square triangles (+⅞″), quarter-square triangles
+  and geese (+1¼″); anything else "needs a template". Rounding ⅛″ (default), 1/16″, none; metric
+  5 mm (default), 1 mm, none; warning when rounding distorts. Seam allowance ¼″ / 7.5 mm, adjustable.
+- Q: Yardage? → A: By color. Fabric width 42″ (40″ usable) default; 44″, 60″, fat quarters; metric
+  110 cm, 150 cm, fat quarters. Rounded up to ⅛ yd (default), ¼ yd, ½ yd; metric 10 cm (default),
+  20 cm, 45 cm. Borders from strips. Backing and binding included.
+- Q: Paper? → A: Inch projects Letter (default) or A0; cm projects A4 (default) or A0. Portrait
+  (default) or landscape.
+- Q: Look? → A: User settings, defaulting to a solid cutting line, dashed sewing line, grain arrow,
+  thin lines, mirror off.
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - Templates (Priority: P1)
+
+A quilter prints each distinct patch of a block at true size with seam allowance.
+
+**Independent Test**: Ohio Star at 9″: preview shows patches A (3½″ square), B (QST); a measured
+printout matches; the scale square measures 1″.
+
+**Acceptance Scenarios**:
+
+1. **Given** a block, **Then** each distinct patch shape gets a letter, prints once with its cutting
+   line (finished + seam allowance), sewing line, grain arrow, letter, and how many to cut of each
+   color; a small key picture of the block shows the letters.
+2. **Given** a size source (the block's own size, a quilt using it, or custom), **Then** templates are
+   at that finished size.
+3. **Given** many pieces, **Then** they're packed onto as few pages as practical; a piece larger than
+   the printable area is split across pages with alignment marks.
+4. **Given** mirror on, **Then** pieces print reversed.
+
+### User Story 2 - Rotary cutting chart (Priority: P1)
+
+**Acceptance Scenarios**:
+
+1. **Given** a block (or a whole quilt), **Then** per color: strips to cut across the fabric width,
+   subcuts, and the resulting pieces with counts, for squares, rectangles, half- and quarter-square
+   triangles; other shapes listed as needing templates.
+2. **Given** a finished size off the rounding grid, **Then** a warning says rounding distorts it and
+   suggests templates.
+
+### User Story 3 - Yardage (Priority: P1)
+
+1. **Given** a quilt, **Then** an estimate per color (blocks, sashing, borders from strips), plus
+   backing (4″ / 10 cm overhang per side, pieced from fabric widths) and binding (2½″ / 6 cm
+   straight-grain strips), never under-estimating, rounded up to the chosen increment.
+
+### User Story 4 - Pictures (Priority: P2)
+
+1. **Given** a quilt or block, **Then** a picture in color or outlines only, with name and finished
+   size; blocks at true size when they fit the page, otherwise scaled with the scale stated.
+
+### Every printout
+
+- Header: name, finished size, project. Footer: author, license, everyone credited (spec 009).
+  A 1″ (2 cm) scale-check square. True scale at 100%; Save as PDF via the browser's print dialog.
+
+## Requirements *(mandatory)*
+
+- **FR-001**: Print tabs MUST offer the printouts above with options; Preview opens page views at
+  true size; Print uses the browser print dialog (which also saves PDF). No new dependencies.
+- **FR-002**: Print preferences (paper, orientation, seam allowance, rounding, fabric width,
+  yardage increment, backing overhang, binding width, line styles, line weight, grain arrow, mirror)
+  MUST be app settings, per unit system where they differ.
+- **FR-003**: Distinct patches are found by shape (same outline up to rotation; mirror images
+  differ).
+- **FR-004**: Rotary math: squares/rectangles +2×seam; HST square = leg + (2+√2)×seam, 2 per square;
+  QST square = hypotenuse + 2(1+√2)×seam, 4 per square; rounded up to the rounding step.
+- **FR-005**: Yardage never under-estimates: whole strips across the usable width, rounded up.
+
+## Success Criteria *(mandatory)*
+
+- **SC-001**: Printed templates and the scale square measure within 0.5 mm of size at 100% scale.
+- **SC-002**: Rotary cut sizes match standard quilting charts (e.g. 3″ finished HST → 3⅞″ squares).
