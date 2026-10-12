@@ -57,7 +57,7 @@
       <path :d="head(-1)" fill="#000" />
     </g>
     <text
-      v-if="look.labels.letter"
+      v-if="look.labels.letter && !look.inside"
       :x="piece.center[0]"
       :y="piece.center[1] - look.font * 0.9"
       :font-size="look.font * 1.6"
@@ -68,14 +68,15 @@
     </text>
     <template v-if="look.inside">
       <text
-        v-for="(line, i) in insideLines"
+        v-for="(line, i) in stack.lines"
         :key="i"
         :x="piece.center[0]"
-        :y="piece.center[1] + look.font * (2.2 + i * 1.2)"
-        :font-size="look.font * 0.9"
+        :y="line.y"
+        :font-size="line.size"
+        :font-weight="line.bold ? 'bold' : undefined"
         text-anchor="middle"
       >
-        {{ line }}
+        {{ line.text }}
       </text>
     </template>
     <text
@@ -136,13 +137,39 @@ const insideLines = computed(() => {
     Boolean,
   );
 });
+/**
+ * Letter and notes stacked at the roomiest spot inside the sewing line, shrunk to fit when the piece
+ * is small (width estimated at 0.55 em per character).
+ */
+const stack = computed(() => {
+  const f = props.look.font;
+  const rows = [
+    ...(props.look.labels.letter ? [{ text: props.piece.letter, em: 1.6, bold: true }] : []),
+    ...insideLines.value.map((text) => ({ text, em: 0.9, bold: false })),
+  ];
+  const arrow = props.look.grain && props.piece.grainLength > 0 ? 1.2 : 0;
+  const height = (rows.reduce((a, x) => a + x.em * 1.15, 0) + arrow) * f;
+  const width = Math.max(0, ...rows.map((x) => x.text.length * 0.55 * x.em)) * f;
+  const room = props.piece.room * 1.9;
+  const k = Math.min(1, room / (height || 1), room / (width || 1));
+  let y = props.piece.center[1] - (height * k) / 2 + arrow * f * k;
+  const lines = rows.map((x) => {
+    y += x.em * 1.15 * f * k;
+    return { text: x.text, size: x.em * f * k, bold: x.bold, y: y - x.em * 0.25 * f * k };
+  });
+  return { lines, top: props.piece.center[1] - (height * k) / 2, k };
+});
+
 /** Arrow ends along the grain, through the label's center (offset below the letter). */
 const end = (s: 1 | -1): Pt => {
   const c = props.piece.center;
   const L = props.piece.grainLength / 2;
   return [
     c[0] + s * props.piece.grain[0] * L,
-    c[1] + props.look.font * (props.look.inside ? -2.6 : 0.6) + s * props.piece.grain[1] * L,
+    (props.look.inside
+      ? stack.value.top + props.look.font * 0.5 * stack.value.k
+      : c[1] + props.look.font * 0.6) +
+      s * props.piece.grain[1] * L,
   ];
 };
 function head(s: 1 | -1) {

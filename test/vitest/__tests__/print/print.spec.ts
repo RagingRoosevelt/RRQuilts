@@ -4,7 +4,7 @@ import type { Pt } from '@/model/geometry/path';
 import { fmtFabric, fmtLen, roundUp } from '@/model/print/format';
 import { pack, tiles } from '@/model/print/pack';
 import { blockPieces, templates, type Piece } from '@/model/print/pieces';
-import { area, offset, shapeKey, simplify } from '@/model/print/polygon';
+import { area, offset, roomiest, shapeKey, simplify } from '@/model/print/polygon';
 import { cutFor, cutPlan } from '@/model/print/rotary';
 import { backing, binding, fabricNeeds } from '@/model/print/yardage';
 
@@ -55,6 +55,18 @@ describe('print geometry', () => {
     expect(trimmed).toHaveLength(5);
     expect(area(trimmed)).toBeLessThan(area(offset(tri, 0.25)));
     expect(area(offset(sq(3), 0.25, true))).toBeCloseTo(3.5 * 3.5); // nothing sharp to trim
+  });
+
+  it('finds room for labels inside a piece', () => {
+    expect(roomiest(sq(4)).r).toBeCloseTo(2, 1);
+    // A triangle's roomiest spot is its incenter, not its bounding-box middle.
+    const { p, r } = roomiest([
+      [0, 0],
+      [6, 0],
+      [3, 3],
+    ]);
+    expect(r).toBeCloseTo(3 * (Math.SQRT2 - 1), 1);
+    expect(p[1]).toBeCloseTo(r, 1);
   });
 
   it('marks the middle of curved edges, pointing out of the piece', () => {

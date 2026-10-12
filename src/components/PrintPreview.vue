@@ -380,7 +380,7 @@ import {
   type Piece,
   type PlacedPiece,
 } from '@/model/print/pieces';
-import { bounds, offset, rotate, shapeKey, snugRotation } from '@/model/print/polygon';
+import { bounds, offset, roomiest, rotate, shapeKey, snugRotation } from '@/model/print/polygon';
 import {
   FABRIC_STEPS,
   PAPERS,
@@ -645,8 +645,7 @@ function templateItems(pieces: Piece[], prefix: string) {
     const shift = ([x, y]: Pt): Pt => [x - x0, y - y0];
     const sew = turn(t.poly).map(shift);
     const grainDir: Pt = [Math.cos(rad) * (mirror ? -1 : 1), Math.sin(rad)];
-    const cx = sew.reduce((a, p) => a + p[0], 0) / sew.length;
-    const cy = sew.reduce((a, p) => a + p[1], 0) / sew.length;
+    const spot = roomiest(sew);
     const fills = [...t.counts.keys()];
     const counts = [...t.counts.entries()].map(([fill, n]) => `${n} ${fillInfo(fill).name}`);
     return {
@@ -654,7 +653,8 @@ function templateItems(pieces: Piece[], prefix: string) {
       letter: fills.length === 1 ? code(t.letter, fills[0]!) : t.letter,
       cut: c.map(shift),
       sew,
-      center: [cx, cy] as Pt,
+      center: spot.p,
+      room: spot.r,
       grain: grainDir,
       grainLength: Math.min(x1 - x0, y1 - y0) * 0.5,
       note: `Cut ${counts.join(', ')}`,
@@ -952,6 +952,7 @@ function templateSheets(src: {
     cut: [],
     sew: [],
     center: [0, 0] as Pt,
+    room: 0,
     grain: [1, 0] as Pt,
     grainLength: 0,
     note: '',

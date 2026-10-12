@@ -156,3 +156,48 @@ export function snugRotation(poly: Pt[]): number {
   }
   return best;
 }
+
+const segDist = (p: Pt, a: Pt, b: Pt) => {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const t = Math.max(
+    0,
+    Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy || 1)),
+  );
+  return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
+};
+const inside = (p: Pt, poly: Pt[]) => {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i]!;
+    const [xj, yj] = poly[j]!;
+    if (yi > p[1] !== yj > p[1] && p[0] < ((xj - xi) * (p[1] - yi)) / (yj - yi) + xi) c = !c;
+  }
+  return c;
+};
+
+/**
+ * The roomiest point inside a polygon (center of the largest circle that fits, `r` its radius):
+ * where labels go. ponytail: grid search refined twice; polylabel if this ever shows up in profiles.
+ */
+export function roomiest(poly: Pt[]): { p: Pt; r: number } {
+  const room = (p: Pt) =>
+    inside(p, poly)
+      ? Math.min(...poly.map((a, i) => segDist(p, a, poly[(i + 1) % poly.length]!)))
+      : -1;
+  let [x0, y0, x1, y1] = bounds(poly);
+  let best = { p: [(x0 + x1) / 2, (y0 + y1) / 2] as Pt, r: -1 };
+  for (let pass = 0; pass < 3; pass++) {
+    const n = 16;
+    for (let i = 0; i <= n; i++)
+      for (let j = 0; j <= n; j++) {
+        const p: Pt = [x0 + ((x1 - x0) * i) / n, y0 + ((y1 - y0) * j) / n];
+        const r = room(p);
+        if (r > best.r) best = { p, r };
+      }
+    const w = (x1 - x0) / 8;
+    const h = (y1 - y0) / 8;
+    [x0, y0, x1, y1] = [best.p[0] - w, best.p[1] - h, best.p[0] + w, best.p[1] + h];
+  }
+  return { p: best.p, r: Math.max(0, best.r) };
+}

@@ -87,6 +87,8 @@ export interface PlacedPiece {
   cut: Pt[];
   sew: Pt[];
   center: Pt;
+  /** Room for labels: radius of the largest circle around `center` inside the sewing line. */
+  room: number;
   /** Grain direction (unit vector) and arrow length. */
   grain: Pt;
   grainLength: number;
