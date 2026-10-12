@@ -90,7 +90,7 @@
             <q-icon name="add" size="md" />
             <div>New block</div>
           </button>
-          <button class="card add" @click="blockInput?.click()">
+          <button class="card add" @click="importBlocksFile">
             <q-icon name="upload_file" size="md" />
             <div>Import blocks<br /><span class="text-caption">.rrqbl or a project</span></div>
           </button>
@@ -253,13 +253,6 @@
           </div>
         </div>
       </template>
-      <input
-        ref="blockInput"
-        type="file"
-        accept=".rrqbl,.rrq,.json"
-        hidden
-        @change="importBlocksFile"
-      />
     </template>
 
     <DetailsPanel v-else-if="tab === 'details'" kind="project" />
@@ -299,14 +292,7 @@
           no-caps
           icon="upload_file"
           label="Import collection (.rrqcc)"
-          @click="collectionInput?.click()"
-        />
-        <input
-          ref="collectionInput"
-          type="file"
-          accept=".rrqcc,.json"
-          hidden
-          @change="importCollectionFile"
+          @click="importCollectionFile"
         />
       </div>
       <div v-if="!project.readOnly" class="text-caption text-grey-7 q-mb-sm">
@@ -599,7 +585,7 @@ import {
   toUnits,
   useMyCopy,
 } from '@/model/library-items';
-import { download } from '@/storage/files';
+import { exportFile, pickFile } from '@/storage/files';
 import { importCollectionColors, parseCollectionFile } from '@/model/collection-file';
 import { DEFAULT_LICENSE } from '@/model/credits';
 import {
@@ -629,7 +615,6 @@ const otherVersions = computed(
 );
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
-const blockInput = ref<HTMLInputElement>();
 const inUseDialog = ref<{
   id: string;
   quilt: string;
@@ -857,7 +842,6 @@ const changedColors = computed(() =>
     .doc!.project.palette.colors.filter((c: Color) => colorChanged(library.mine ?? undefined, c))
     .map((c) => c.id),
 );
-const collectionInput = ref<HTMLInputElement>();
 
 const saveColors = ref<{ to: string; name: string } | null>(null);
 async function savePickedColors({ to, name }: { to: string; name: string }) {
@@ -914,10 +898,8 @@ function importFromLibrary({ from, mode }: { from: string; mode: 'append' | 'ove
   });
 }
 
-async function importCollectionFile(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  input.value = '';
+async function importCollectionFile() {
+  const file = await pickFile(['rrqcc']);
   if (!file) return;
   const r = parseCollectionFile(await file.text());
   if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
@@ -934,14 +916,16 @@ function exportBlock(b: Block) {
   const palette = [...project.doc!.project.palette.colors, ...library.items.colors];
   const author = settings.settings.author;
   const stamped = { ...b, license: effectiveLicense(b, project.doc!) };
-  download(b.notecard.name, serializeBlock(stamped, project.doc!.units, palette, author), 'rrqbl');
+  void exportFile(
+    b.notecard.name,
+    serializeBlock(stamped, project.doc!.units, palette, author),
+    'rrqbl',
+  );
 }
 
 /** One picker for both: a project file (.rrq) offers its blocks; anything else is read as .rrqbl. */
-async function importBlocksFile(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  input.value = '';
+async function importBlocksFile() {
+  const file = await pickFile(['rrqbl', 'rrq']);
   if (!file) return;
   const text = await file.text();
   if (file.name.toLowerCase().endsWith('.rrq') || formatOf(text) === 'rrq')

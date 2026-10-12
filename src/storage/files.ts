@@ -1,5 +1,5 @@
-// Opening and saving .rrq files. Uses the File System Access API where available (save overwrites
-// the same file); elsewhere falls back to a file input and a download.
+// Opening and saving our files. Uses the File System Access API where available (named file types
+// in the dialogs; project save overwrites the same file); elsewhere a file input and a download.
 
 interface PickerType {
   description: string;
@@ -21,9 +21,34 @@ declare global {
   }
 }
 
-const TYPES: PickerType[] = [
-  { description: 'RRQuilts project', accept: { 'application/json': ['.rrq', '.json'] } },
+/** Names shown for our file types in the browser's file dialogs. */
+export const FILE_TYPES = {
+  rrq: 'RRQuilts project file',
+  rrqbl: 'RRQuilts block file',
+  rrqcc: 'RRQuilts color collection file',
+  rrqlib: 'RRQuilts library file',
+  rrqconf: 'RRQuilts settings file',
+} as const;
+export type FileExt = keyof typeof FILE_TYPES;
+
+const pickerType = (ext: FileExt): PickerType => ({
+  description: FILE_TYPES[ext],
+  accept: { 'application/json': [`.${ext}`] },
+});
+/** Several types: all of them first (so every file shows), then each on its own, then JSON. */
+const pickerTypes = (exts: FileExt[]): PickerType[] => [
+  ...(exts.length > 1
+    ? [
+        {
+          description: 'All RRQuilts files here',
+          accept: { 'application/json': exts.map((e) => `.${e}`) },
+        },
+      ]
+    : []),
+  ...exts.map(pickerType),
+  { description: 'JSON', accept: { 'application/json': ['.json'] } },
 ];
+const TYPES = pickerTypes(['rrq']);
 
 export const supportsFileAccess = () =>
   typeof window.showOpenFilePicker === 'function' &&
@@ -60,6 +85,27 @@ export async function pickProject(): Promise<Picked | null> {
   });
 }
 
+/** Ask the user for one of our files (named types where the browser shows them). */
+export async function pickFile(exts: FileExt[]): Promise<File | null> {
+  if (supportsFileAccess()) {
+    try {
+      const [handle] = await window.showOpenFilePicker!({ types: pickerTypes(exts), id: exts[0]! });
+      return handle ? await handle.getFile() : null;
+    } catch (e) {
+      if (isAbort(e)) return null;
+      throw e;
+    }
+  }
+  return new Promise((resolve) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = [...exts.map((e) => `.${e}`), '.json'].join(',');
+    input.onchange = () => resolve(input.files?.[0] ?? null);
+    input.oncancel = () => resolve(null);
+    input.click();
+  });
+}
+
 /** Make sure we may read/write a remembered handle (prompts the user if needed). */
 export async function ensurePermission(handle: FileSystemFileHandle, mode: 'read' | 'readwrite') {
   if ((await handle.queryPermission?.({ mode })) === 'granted') return true;
@@ -88,6 +134,21 @@ export async function saveWithPicker(
   } catch (e) {
     if (isAbort(e)) return null;
     throw e;
+  }
+}
+
+/** Export a file: a save dialog with the named type where supported, else a download. */
+export async function exportFile(name: string, text: string, ext: FileExt) {
+  if (!supportsFileAccess()) return download(name, text, ext);
+  try {
+    const handle = await window.showSaveFilePicker!({
+      suggestedName: fileNameFor(name, ext),
+      types: [pickerType(ext)],
+      id: ext,
+    });
+    await writeToHandle(handle, text);
+  } catch (e) {
+    if (!isAbort(e)) throw e;
   }
 }
 

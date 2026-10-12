@@ -10,7 +10,7 @@
         @click="filtersOpen = !filtersOpen"
       />
       <div class="text-h6 col" style="min-width: 120px">Libraries</div>
-      <q-btn outline no-caps icon="upload_file" label="Import" @click="fileInput?.click()">
+      <q-btn outline no-caps icon="upload_file" label="Import" @click="importFile">
         <q-tooltip>A backup or pack (.rrqlib), or a color collection (.rrqcc)</q-tooltip>
       </q-btn>
       <q-btn outline no-caps icon="save" label="Back up…" @click="backingUp = { ...ALL }" />
@@ -21,13 +21,6 @@
         label="Share as pack…"
         :disable="!library.mine?.items.length"
         @click="startShare"
-      />
-      <input
-        ref="fileInput"
-        type="file"
-        accept=".rrqlib,.rrqcc,.json"
-        hidden
-        @change="importFile"
       />
     </div>
     <q-banner v-if="!library.stored" dense class="bg-warning text-dark q-mb-md">
@@ -578,7 +571,7 @@ import type {
 } from '@/model/schema/library';
 import type { Color } from '@/model/schema/palette';
 import { blockThumbnail } from '@/render/thumbnail';
-import { download } from '@/storage/files';
+import { exportFile, pickFile } from '@/storage/files';
 import { useLibraryStore } from '@/stores/library';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -590,7 +583,6 @@ const library = useLibraryStore();
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
 const me = computed(() => settings.settings.author);
-const fileInput = ref<HTMLInputElement>();
 
 /** Problems found while reading a file, listed in dialogs. */
 const SkippedList = defineComponent({
@@ -833,10 +825,14 @@ async function copyMine(v: LibraryView, id: string) {
 
 // --- Files ---
 function exportBlock(b: Block) {
-  download(b.notecard.name, serializeBlock(b, 'in', library.items.colors, me.value), 'rrqbl');
+  void exportFile(
+    b.notecard.name,
+    serializeBlock(b, 'in', library.items.colors, me.value),
+    'rrqbl',
+  );
 }
 function exportCollection(c: ColorCollection) {
-  download(c.notecard.name, JSON.stringify(collectionFile(c, APP)), 'rrqcc');
+  void exportFile(c.notecard.name, JSON.stringify(collectionFile(c, APP)), 'rrqcc');
 }
 
 const formatOf = (text: string): unknown => {
@@ -847,10 +843,8 @@ const formatOf = (text: string): unknown => {
   }
 };
 
-async function importFile(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  input.value = '';
+async function importFile() {
+  const file = await pickFile(['rrqlib', 'rrqcc']);
   if (!file) return;
   const text = await file.text();
   if (formatOf(text) === 'rrqcc') return importCollection(text);
@@ -938,7 +932,7 @@ function backUp() {
   const b = backingUp.value!;
   backingUp.value = null;
   const doc = backupDoc(library.ensureMine(me.value), library.packs, b);
-  download('RRQuilts library backup', serializeLibrary(doc, APP), 'rrqlib');
+  void exportFile('RRQuilts library backup', serializeLibrary(doc, APP), 'rrqlib');
 }
 
 const restoring = ref<{
@@ -990,7 +984,7 @@ const shared = computed(() =>
 function downloadPack() {
   const doc = shared.value!.doc;
   sharing.value = null;
-  download(doc.name, serializeLibrary(doc, APP), 'rrqlib');
+  void exportFile(doc.name, serializeLibrary(doc, APP), 'rrqlib');
 }
 </script>
 

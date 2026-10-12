@@ -75,8 +75,7 @@
       <div class="q-gutter-sm">
         <div class="text-subtitle1">Settings file (.rrqconf)</div>
         <q-btn outline no-caps icon="download" label="Export" @click="exportConf" />
-        <q-btn outline no-caps icon="upload" label="Import" @click="fileInput?.click()" />
-        <input ref="fileInput" type="file" accept=".rrqconf,.json" hidden @change="importConf" />
+        <q-btn outline no-caps icon="upload" label="Import" @click="importConf" />
       </div>
 
       <div class="text-caption text-grey-7">RRQuilts {{ version }} · build {{ build }}</div>
@@ -86,14 +85,14 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { authorSlug } from '@/model/identity';
 import { parseConf, toConf } from '@/settings/settings';
+import { exportFile, pickFile } from '@/storage/files';
 import { useSettingsStore } from '@/stores/settings';
 
 const $q = useQuasar();
 const store = useSettingsStore();
-const fileInput = ref<HTMLInputElement>();
 const slug = computed(() => authorSlug(store.settings.author));
 const version = import.meta.env.APP_VERSION;
 // The main bundle's hashed file name changes with every build (dev server shows "dev").
@@ -104,20 +103,11 @@ const build = /index-([\w-]+)\.js$/.exec(mainScript?.src ?? '')?.[1] ?? 'dev';
 
 function exportConf() {
   const doc = toConf(store.settings, import.meta.env.APP_VERSION);
-  const url = URL.createObjectURL(
-    new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' }),
-  );
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'settings.rrqconf';
-  a.click();
-  URL.revokeObjectURL(url);
+  void exportFile('settings', JSON.stringify(doc, null, 2), 'rrqconf');
 }
 
-async function importConf(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  input.value = '';
+async function importConf() {
+  const file = await pickFile(['rrqconf']);
   if (!file) return;
   const result = parseConf(await file.text());
   if (!result.ok) {
