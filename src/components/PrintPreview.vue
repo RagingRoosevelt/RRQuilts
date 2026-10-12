@@ -573,8 +573,8 @@ const view = computed<View | undefined>(() => {
 });
 
 // Templates: each distinct shape, cut line around it, rotated snug, packed on pages.
-function templateItems(v: View) {
-  const list = templates(v.pieces);
+function templateItems(pieces: Piece[]) {
+  const list = templates(pieces);
   const mirror = prefs.value.mirror;
   const items: (PlacedPiece & { w: number; h: number })[] = list.map((t) => {
     const cut = offset(t.poly, seam.value);
@@ -688,12 +688,11 @@ const sheets = computed<Sheet[]>(() => {
   const wanted: string[] = isBlock ? prefs.value.blockSections : prefs.value.quiltSections;
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
-  const gap = units.value === 'in' ? 0.25 : 0.6;
 
   // Always in the same order, whatever order the boxes were ticked in.
   const ORDER = isBlock
     ? ['templates', 'rotary', 'picture']
-    : ['picture', 'blocks', 'yardage', 'rotary'];
+    : ['picture', 'blocks', 'yardage', 'rotary', 'templates'];
   for (const section of ORDER.filter((x) => wanted.includes(x))) {
     if (section === 'picture' && isBlock && v.block) {
       const quilt = doc.value!.project.quilts.find((q) => q.id === props.target?.quilt);
@@ -710,25 +709,14 @@ const sheets = computed<Sheet[]>(() => {
       continue;
     }
     if (section === 'blocks' && !isBlock) {
-      const dd = doc.value!;
-      const quilt = dd.project.quilts.find((q) => q.id === props.id)!;
-      const slots = generateSlots(quilt.layout, quilt.borders).slots;
-      const seen = new Set<string>();
-      for (const slot of slots) {
-        const content = quilt.layers[0].slots[slot.id];
-        const block = content && dd.project.blocks.find((b) => b.id === content.block);
-        if (!content || !block || seen.has(block.id) || block.notecard.tags?.includes('system'))
-          continue;
-        seen.add(block.id);
-        const size: [number, number] = [slot.transform[0], slot.transform[3]];
-        const coloring = resolveColoring(quilt.colorings[content.coloring], block);
+      for (const u of quiltBlocks()) {
         out.push(
           blockPage(
-            block,
-            size,
-            blockPieces(block, size, coloring),
-            quiltPieces(dd, quilt, block.id),
-            count(quilt, block.id),
+            u.block,
+            u.size,
+            blockPieces(u.block, u.size, u.coloring),
+            quiltPieces(doc.value!, u.quilt, u.block.id),
+            count(u.quilt, u.block.id),
             undefined,
           ),
         );
@@ -751,84 +739,26 @@ const sheets = computed<Sheet[]>(() => {
         scale,
       });
     }
-    if (section === 'templates' && v.block && v.keyPieces) {
-      const items = templateItems(v);
-      // Key: the block with each patch's letter, about a quarter of the page wide.
-      const keyScale = Math.min(aw, ah) / 4 / Math.max(...v.blockSize!);
-      const letters = new Map(templates(v.keyPieces).map((t) => [shapeKey(t.poly), t.letter]));
-      const keyItem = {
-        key: 'key',
-        letter: '',
-        cut: [],
-        sew: [],
-        center: [0, 0] as Pt,
-        grain: [1, 0] as Pt,
-        grainLength: 0,
-        note: '',
-        x: 0,
-        y: 0,
-        w: v.blockSize![0] * keyScale,
-        h: v.blockSize![1] * keyScale + font.value * 1.5,
-        keyBlock: {
-          paths: v.keyPieces.map((p) =>
-            d(p.poly.map(([x, y]): Pt => [x * keyScale, y * keyScale])),
-          ),
-          labels: v.keyPieces.map((p) => {
-            const c = p.poly.reduce((a, q) => [a[0] + q[0], a[1] + q[1]], [0, 0]);
-            const t = templates([p])[0]!;
-            return {
-              x: (c[0] / p.poly.length) * keyScale,
-              y: (c[1] / p.poly.length) * keyScale,
-              text: letters.get(shapeKey(t.poly)) ?? '',
-            };
-          }),
-        },
-      };
-      const all: (PlacedPiece & { h: number; keyBlock?: KeyBlock })[] = [keyItem, ...items];
-      const { pages, oversize } = pack(
-        all.map((it) => ({ w: it.w, h: it.h + font.value * 2.4 })),
-        aw,
-        ah,
-        gap,
-      );
-      for (const page of pages) {
-        out.push({
-          kind: 'templates',
+    if (section === 'templates' && isBlock && v.block && v.keyPieces) {
+      out.push(
+        ...templateSheets({
+          pieces: v.pieces,
+          size: v.blockSize!,
+          keyPieces: v.keyPieces,
           heading: 'Templates',
-          items: page.map((pl) => {
-            const it = all[pl.index]!;
-            // Packing may stand a piece up: turn it 90° about its box.
-            if (!pl.turned || it.keyBlock) return { ...it, x: pl.x, y: pl.y };
-            const t = ([x, y]: Pt): Pt => [it.h - y, x];
-            return {
-              ...it,
-              cut: it.cut.map(t),
-              sew: it.sew.map(t),
-              center: t(it.center),
-              grain: [-it.grain[1], it.grain[0]] as Pt,
-              x: pl.x,
-              y: pl.y,
-              w: it.h,
-              h: it.w,
-            };
+        }),
+      );
+    }
+    if (section === 'templates' && !isBlock) {
+      for (const u of quiltBlocks()) {
+        out.push(
+          ...templateSheets({
+            pieces: quiltPieces(doc.value!, u.quilt, u.block.id),
+            size: u.size,
+            keyPieces: blockPieces(u.block, u.size, u.coloring),
+            heading: `Templates: ${u.block.notecard.name}`,
           }),
-        });
-      }
-      const overlap = units.value === 'in' ? 0.5 : 1.25;
-      for (const i of oversize) {
-        const it = all[i]!;
-        const t = tiles(it.w, it.h, aw, ah, overlap);
-        for (const tile of t.tiles) {
-          const overlaps: [number, number, number, number][] = [];
-          if (tile.col > 0) overlaps.push([tile.x, tile.y, overlap, ah]);
-          if (tile.row > 0) overlaps.push([tile.x, tile.y, aw, overlap]);
-          out.push({
-            kind: 'tile',
-            heading: `Template ${it.letter}, part ${tile.row * t.cols + tile.col + 1} of ${t.cols * t.rows} (row ${tile.row + 1}, column ${tile.col + 1}; shaded strips overlap the previous part)`,
-            piece: it,
-            tile: { x: tile.x, y: tile.y, w: aw, h: ah, overlaps },
-          });
-        }
+        );
       }
     }
     if (section === 'rotary') {
@@ -872,6 +802,114 @@ const sheets = computed<Sheet[]>(() => {
     out.push({ kind: 'credits', heading: 'Credits' });
   return out;
 });
+
+/** Blocks placed in the quilt being printed, in layout order: size and coloring of the first. */
+function quiltBlocks() {
+  const dd = doc.value!;
+  const quilt = dd.project.quilts.find((q) => q.id === props.id);
+  if (!quilt) return [];
+  const seen = new Set<string>();
+  return generateSlots(quilt.layout, quilt.borders).slots.flatMap((slot) => {
+    const content = quilt.layers[0].slots[slot.id];
+    const block = content && dd.project.blocks.find((b) => b.id === content.block);
+    if (!content || !block || seen.has(block.id) || block.notecard.tags?.includes('system'))
+      return [];
+    seen.add(block.id);
+    const size: [number, number] = [slot.transform[0], slot.transform[3]];
+    return [
+      { quilt, block, size, coloring: resolveColoring(quilt.colorings[content.coloring], block) },
+    ];
+  });
+}
+
+/** Template pages for one block: a lettered key, then each distinct piece packed at true size. */
+function templateSheets(src: {
+  pieces: Piece[];
+  size: [number, number];
+  keyPieces: Piece[];
+  heading: string;
+}): Sheet[] {
+  const out: Sheet[] = [];
+  const [aw, ah] = area.value;
+  const gap = units.value === 'in' ? 0.25 : 0.6;
+  const items = templateItems(src.pieces);
+  // Key: the block with each patch's letter, about a quarter of the page wide.
+  const keyScale = Math.min(aw, ah) / 4 / Math.max(...src.size);
+  const letters = new Map(templates(src.keyPieces).map((t) => [shapeKey(t.poly), t.letter]));
+  const keyItem = {
+    key: 'key',
+    letter: '',
+    cut: [],
+    sew: [],
+    center: [0, 0] as Pt,
+    grain: [1, 0] as Pt,
+    grainLength: 0,
+    note: '',
+    x: 0,
+    y: 0,
+    w: src.size[0] * keyScale,
+    h: src.size[1] * keyScale + font.value * 1.5,
+    keyBlock: {
+      paths: src.keyPieces.map((p) => d(p.poly.map(([x, y]): Pt => [x * keyScale, y * keyScale]))),
+      labels: src.keyPieces.map((p) => {
+        const c = p.poly.reduce((a, q) => [a[0] + q[0], a[1] + q[1]], [0, 0]);
+        const t = templates([p])[0]!;
+        return {
+          x: (c[0] / p.poly.length) * keyScale,
+          y: (c[1] / p.poly.length) * keyScale,
+          text: letters.get(shapeKey(t.poly)) ?? '',
+        };
+      }),
+    },
+  };
+  const all: (PlacedPiece & { h: number; keyBlock?: KeyBlock })[] = [keyItem, ...items];
+  const { pages, oversize } = pack(
+    all.map((it) => ({ w: it.w, h: it.h + font.value * 2.4 })),
+    aw,
+    ah,
+    gap,
+  );
+  for (const page of pages) {
+    out.push({
+      kind: 'templates',
+      heading: src.heading,
+      items: page.map((pl) => {
+        const it = all[pl.index]!;
+        // Packing may stand a piece up: turn it 90° about its box.
+        if (!pl.turned || it.keyBlock) return { ...it, x: pl.x, y: pl.y };
+        const t = ([x, y]: Pt): Pt => [it.h - y, x];
+        return {
+          ...it,
+          cut: it.cut.map(t),
+          sew: it.sew.map(t),
+          center: t(it.center),
+          grain: [-it.grain[1], it.grain[0]] as Pt,
+          x: pl.x,
+          y: pl.y,
+          w: it.h,
+          h: it.w,
+        };
+      }),
+    });
+  }
+  const overlap = units.value === 'in' ? 0.5 : 1.25;
+  for (const i of oversize) {
+    const it = all[i]!;
+    const t = tiles(it.w, it.h, aw, ah, overlap);
+    for (const tile of t.tiles) {
+      const overlaps: [number, number, number, number][] = [];
+      if (tile.col > 0) overlaps.push([tile.x, tile.y, overlap, ah]);
+      if (tile.row > 0) overlaps.push([tile.x, tile.y, aw, overlap]);
+      out.push({
+        kind: 'tile',
+        heading: `Template ${it.letter}, part ${tile.row * t.cols + tile.col + 1} of ${t.cols * t.rows} (row ${tile.row + 1}, column ${tile.col + 1}; shaded strips overlap the previous part)`,
+        piece: it,
+        tile: { x: tile.x, y: tile.y, w: aw, h: ah, overlaps },
+      });
+    }
+  }
+  return out;
+}
 
 const isBlockKind = computed(() => props.kind === 'block');
 const count = (quilt: Quilt, blockId: string) =>

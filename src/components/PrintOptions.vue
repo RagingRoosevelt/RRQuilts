@@ -263,6 +263,7 @@ const sectionOptions = computed(() =>
         { value: 'blocks', label: 'Block pages (picture, fabric, credits)' },
         { value: 'yardage', label: 'Yardage estimate' },
         { value: 'rotary', label: 'Rotary cutting chart' },
+        { value: 'templates', label: 'Templates (each block)' },
       ],
 );
 const sections = computed<string[]>(() =>
