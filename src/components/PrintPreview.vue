@@ -192,6 +192,12 @@
             <!-- A block: picture, size, how many, fabric for all of them, credits -->
             <div v-else-if="s.kind === 'block'" class="column" style="gap: 8px">
               <div class="row no-wrap" style="gap: 16px">
+                <!-- Fabrics this block uses -->
+                <div v-if="s.fabrics.length" class="column" style="gap: 4px; flex: none">
+                  <span v-for="f in s.fabrics" :key="f.n" class="pill text-caption">
+                    <span class="chip" :style="{ background: f.css }" /> {{ f.n }} · {{ f.name }}
+                  </span>
+                </div>
                 <svg
                   class="bleed"
                   :width="`${s.w * s.scale}${units}`"
@@ -225,12 +231,6 @@
                   <div>Finished size {{ s.size }}</div>
                   <div v-if="s.labels.length" class="text-caption">
                     Letters are the template codes.
-                    <div v-if="s.fabrics.length" class="row q-mt-xs" style="gap: 4px">
-                      <span v-for="f in s.fabrics" :key="f.n" class="pill">
-                        <span class="chip" :style="{ background: f.css }" /> {{ f.n }} ·
-                        {{ f.name }}
-                      </span>
-                    </div>
                   </div>
                   <div>
                     {{ s.count }} block{{ s.count === 1 ? '' : 's' }}
@@ -886,11 +886,12 @@ const code = (letter: string, fill: string) =>
     ? `${letter}-${fabricNos.value.get(fill)}`
     : letter;
 const fabricItems = computed(() =>
-  prefs.value.labels.color
-    ? [...fabricNos.value].map(([f, n]) => ({ fill: f, n, ...fillInfo(f) }))
-    : [],
+  [...fabricNos.value].map(([f, n]) => ({ fill: f, n, ...fillInfo(f) })),
 );
-const fabricLegend = computed(() => fabricItems.value.map((x) => `${x.n} ${x.name}`).join(' · '));
+/** Legend on the key: only when codes carry fabric numbers. */
+const fabricLegend = computed(() =>
+  prefs.value.labels.color ? fabricItems.value.map((x) => `${x.n} ${x.name}`).join(' · ') : '',
+);
 
 /** Each patch's template code at its center (block coordinates), for keys. */
 function keyLabels(keyPieces: Piece[], prefix: string) {
@@ -1068,7 +1069,7 @@ function blockPage(
     polys: one.map((p) => ({ d: d(p.poly), css: fillInfo(p.fill).css })),
     w: size[0],
     h: size[1],
-    scale: Math.min(1, (aw * 0.6) / size[0], (ah * 0.5) / size[1]),
+    scale: Math.min(1, (aw * 0.45) / size[0], (ah * 0.5) / size[1]),
     needs: fabricNeeds(lines, fabric, prefs.value.fabricStep[units.value]),
     pieces,
     byline: `By ${authorOf(block) ?? 'anonymous'} · ${licenseName(effectiveLicense(block, dd, blockLock(block)))}`,
