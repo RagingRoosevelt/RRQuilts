@@ -9,6 +9,8 @@ SERVE_IMG  := rrquilts-serve
 RRQ_BASE  ?= /RRQuilts/
 PORT      ?= 9000
 SERVE_PORT ?= 8080
+# First host address, for opening the servers from other computers on the network (Linux).
+LAN_IP    := $(shell hostname -I 2>/dev/null | cut -d' ' -f1)
 # npm cache lives outside the repo so dev-server file watching never sees it.
 NPM_CACHE ?= $(HOME)/.cache/rrquilts-npm
 POLL      ?=
@@ -41,6 +43,7 @@ install: image ## Install dependencies (npm ci)
 	$(RUN) sh -c 'npm ci && npm ci --prefix src-pwa'
 
 dev: node_modules/.package-lock.json ## Dev server on :9000 with live reload (POLL=1 for polling)
+	@echo "Dev server: http://localhost:$(PORT)$(RRQ_BASE)$(if $(LAN_IP), · http://$(LAN_IP):$(PORT)$(RRQ_BASE))"
 	$(call RUN,-p $(PORT):9000) npx quasar dev -m pwa --hostname 0.0.0.0 --port 9000
 
 build: node_modules/.package-lock.json ## Production build into docs/
@@ -60,7 +63,7 @@ check: lint test build ## lint -> test -> build (stops at first failure)
 
 serve: ## Serve docs/ with nginx on :8080 under RRQ_BASE
 	docker build -q --target serve -t $(SERVE_IMG) . >/dev/null
-	@echo "Serving http://localhost:$(SERVE_PORT)$(RRQ_BASE)"
+	@echo "Serving http://localhost:$(SERVE_PORT)$(RRQ_BASE)$(if $(LAN_IP), · http://$(LAN_IP):$(SERVE_PORT)$(RRQ_BASE))"
 	docker run --rm $(TTY) -p $(SERVE_PORT):80 -e RRQ_BASE="$(RRQ_BASE)" $(SERVE_IMG)
 
 clean: image ## Remove node_modules, caches, and docs/
