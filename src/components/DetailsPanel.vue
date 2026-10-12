@@ -10,17 +10,6 @@
       @update:model-value="(v) => set('name', v)"
     />
     <q-input
-      :model-value="item.notes ?? ''"
-      label="Notes"
-      type="textarea"
-      autogrow
-      dense
-      outlined
-      :readonly="ro"
-      debounce="300"
-      @update:model-value="(v) => set('notes', v)"
-    />
-    <q-input
       :model-value="item.author ?? ''"
       label="Author"
       placeholder="anonymous"
@@ -57,6 +46,18 @@
         </q-item>
       </template>
     </q-select>
+    <q-input
+      :model-value="item.notes ?? ''"
+      label="Notes"
+      type="textarea"
+      autogrow
+      :input-style="{ minHeight: '8em' }"
+      dense
+      outlined
+      :readonly="ro"
+      debounce="300"
+      @update:model-value="(v) => set('notes', v)"
+    />
 
     <template v-if="credits.length">
       <div class="text-subtitle2 q-mt-sm">Based on</div>
