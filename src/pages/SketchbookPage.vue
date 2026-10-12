@@ -92,11 +92,7 @@
           </button>
           <button class="card add" @click="blockInput?.click()">
             <q-icon name="upload_file" size="md" />
-            <div>Import block (.rrqb)</div>
-          </button>
-          <button class="card add" @click="projectBlocksInput?.click()">
-            <q-icon name="drive_folder_upload" size="md" />
-            <div>Import blocks from project</div>
+            <div>Import blocks<br /><span class="text-caption">.rrqb or a project</span></div>
           </button>
         </div>
         <div
@@ -225,13 +221,12 @@
           </div>
         </div>
       </div>
-      <input ref="blockInput" type="file" accept=".rrqb,.json" hidden @change="importBlockFile" />
       <input
-        ref="projectBlocksInput"
+        ref="blockInput"
         type="file"
-        accept=".rrq,.json"
+        accept=".rrqb,.rrq,.json"
         hidden
-        @change="importProjectBlocksFile"
+        @change="importBlocksFile"
       />
     </template>
 
@@ -444,7 +439,6 @@ const otherVersions = computed(
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
 const blockInput = ref<HTMLInputElement>();
-const projectBlocksInput = ref<HTMLInputElement>();
 const inUseDialog = ref<{
   id: string;
   quilt: string;
@@ -593,12 +587,28 @@ function exportBlock(b: Block) {
   download(b.notecard.name, serializeBlock(stamped, project.doc!.units, palette, author), 'rrqb');
 }
 
-async function importBlockFile(e: Event) {
+/** One picker for both: a project file (.rrq) offers its blocks; anything else is read as .rrqb. */
+async function importBlocksFile(e: Event) {
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
   input.value = '';
   if (!file) return;
-  const r = parseBlockFile(await file.text());
+  const text = await file.text();
+  if (file.name.toLowerCase().endsWith('.rrq') || formatOf(text) === 'rrq')
+    await importProjectBlocksText(text);
+  else importBlockText(text);
+}
+
+function formatOf(text: string): unknown {
+  try {
+    return (JSON.parse(text) as { format?: unknown } | null)?.format;
+  } catch {
+    return undefined;
+  }
+}
+
+function importBlockText(text: string) {
+  const r = parseBlockFile(text);
   if (!r.ok) {
     $q.notify({ type: 'negative', message: r.error });
     return;
@@ -619,12 +629,8 @@ const picking = ref<{
   picked: string[];
 } | null>(null);
 
-async function importProjectBlocksFile(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  input.value = '';
-  if (!file) return;
-  const r = await parseProject(await file.text());
+async function importProjectBlocksText(text: string) {
+  const r = await parseProject(text);
   if (!r.ok) {
     $q.notify({ type: 'negative', message: r.error });
     return;
