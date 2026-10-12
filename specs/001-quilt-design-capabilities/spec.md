@@ -429,6 +429,104 @@ thread, and prints a picture.
 
 ---
 
+### User Story 18 - Sync with Dropbox (Priority: P5)
+
+The quilter connects Dropbox so their projects follow them between devices, with the app limited to
+its own folder.
+
+**Why this priority**: Future. Files already reach Dropbox by hand (desktop sync folder, the phone's
+Files app); in-app sync is convenience, and it adds a second opt-in network use beside resource
+repositories (amend the constitution first). Least setup of the cloud services (App Console registration; production review past the
+development-mode user cap).
+
+**Independent Test**: Connect Dropbox on two devices; save on one, open on the other; edit both
+offline, reconnect, and find both versions kept.
+
+**Acceptance Scenarios**:
+
+1. **Given** the user connects Dropbox in Settings, **When** they sign in on Dropbox's own page,
+   **Then** the app gets access to its own folder only (`Apps/RRQuilts/`, app-folder access), never the rest of their files,
+   and no secret or server of ours is involved (public client id, PKCE, long-lived refresh token).
+2. **Given** a connected account, **When** the user saves, **Then** the project is written to that
+   folder too; on another device with the same account, it appears in Open and opens.
+3. **Given** the same project changed on two devices, **When** both sync, **Then** nothing is
+   overwritten: a write only succeeds if the file is unchanged since it was read (Dropbox `rev`); otherwise
+   both copies are kept ("Project (conflict from …)").
+4. **Given** no network, **When** the user edits and saves, **Then** work stays local and syncs when
+   the network returns; the save status shows what hasn't synced.
+5. **Given** a connected account, **When** the user disconnects, **Then** the stored sign-in is
+   removed from the device and local projects are untouched.
+6. **Given** a sign-in older than a session, **When** the app syncs in the background, **Then** it
+   keeps working without asking again (refresh token).
+
+---
+
+### User Story 19 - Sync with OneDrive (Priority: P5)
+
+The quilter connects OneDrive so their projects follow them between devices, with the app limited to
+its own folder.
+
+**Why this priority**: Future. Files already reach OneDrive by hand (desktop sync folder, the phone's
+Files app); in-app sync is convenience, and it adds a second opt-in network use beside resource
+repositories (amend the constitution first). Many users already have OneDrive (Windows, Microsoft 365); Entra app registration, publisher
+verification recommended.
+
+**Independent Test**: Connect OneDrive on two devices; save on one, open on the other; edit both
+offline, reconnect, and find both versions kept.
+
+**Acceptance Scenarios**:
+
+1. **Given** the user connects OneDrive in Settings, **When** they sign in on Microsoft's own page,
+   **Then** the app gets access to its own folder only (`Apps/RRQuilts/`, `Files.ReadWrite.AppFolder`), never the rest of their files,
+   and no secret or server of ours is involved (public client id, PKCE, single-page-app registration).
+2. **Given** a connected account, **When** the user saves, **Then** the project is written to that
+   folder too; on another device with the same account, it appears in Open and opens.
+3. **Given** the same project changed on two devices, **When** both sync, **Then** nothing is
+   overwritten: a write only succeeds if the file is unchanged since it was read (Graph `eTag`); otherwise
+   both copies are kept ("Project (conflict from …)").
+4. **Given** no network, **When** the user edits and saves, **Then** work stays local and syncs when
+   the network returns; the save status shows what hasn't synced.
+5. **Given** a connected account, **When** the user disconnects, **Then** the stored sign-in is
+   removed from the device and local projects are untouched.
+6. **Given** a sign-in older than 24 hours, **When** the app syncs, **Then** it renews silently while
+   the Microsoft session lasts, else asks once (single-page-app refresh tokens don't extend).
+7. **Given** a work or school account whose organization requires admin approval, **When** the user
+   connects, **Then** the app explains that and personal projects keep working locally.
+
+---
+
+### User Story 20 - Sync with Google Drive (Priority: P5)
+
+The quilter connects Google Drive so their projects follow them between devices, with the app limited to
+its own folder.
+
+**Why this priority**: Future. Files already reach Google Drive by hand (desktop sync folder, the phone's
+Files app); in-app sync is convenience, and it adds a second opt-in network use beside resource
+repositories (amend the constitution first). Most paperwork: OAuth consent screen verification, a privacy policy page, and domain ownership.
+Only non-sensitive scopes (never full Drive access, which needs a paid security assessment).
+
+**Independent Test**: Connect Google Drive on two devices; save on one, open on the other; edit both
+offline, reconnect, and find both versions kept.
+
+**Acceptance Scenarios**:
+
+1. **Given** the user connects Google Drive in Settings, **When** they sign in on Google's own page,
+   **Then** the app gets access to its own folder only (hidden app data folder, `drive.appdata`, or app-created files, `drive.file`), never the rest of their files,
+   and no secret or server of ours is involved (public client id, PKCE; token flow).
+2. **Given** a connected account, **When** the user saves, **Then** the project is written to that
+   folder too; on another device with the same account, it appears in Open and opens.
+3. **Given** the same project changed on two devices, **When** both sync, **Then** nothing is
+   overwritten: a write only succeeds if the file is unchanged since it was read (Drive file version / etag); otherwise
+   both copies are kept ("Project (conflict from …)").
+4. **Given** no network, **When** the user edits and saves, **Then** work stays local and syncs when
+   the network returns; the save status shows what hasn't synced.
+5. **Given** a connected account, **When** the user disconnects, **Then** the stored sign-in is
+   removed from the device and local projects are untouched.
+6. **Given** an access token that lasts about an hour, **When** it expires mid-session, **Then** the
+   app renews it (silently while the Google session lasts) and never loses unsynced work.
+
+---
+
 ### Edge Cases
 
 - Seam-line block with floating/unconnected segments → show which segments are unconnected; never
@@ -756,6 +854,9 @@ thread, and prints a picture.
   them.
 - **Embroidery**: visualization only; designs are not stitch-editable or exportable to machines.
 - **Resource repositories**: connecting/refreshing needs the network; everything else works offline.
+- **Cloud sync (US18–20)**: one sync engine (sign in, list, read, conditional write, conflict copies)
+  with a small adapter per service. Proton Drive is left out: end-to-end encryption and no public
+  third-party sign-in; its sync folder and Files-app integration work by hand.
   Repository and `.rrq_lib` structure, manifest, and versioning are specified separately
   (follow-up spec).
 - **File formats**: RRQuilts uses only its own JSON formats (`.rrq`, `.rrq_conf`, `.rrq_lib`). Other quilt software's file formats are deliberately unsupported.
