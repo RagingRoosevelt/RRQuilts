@@ -2,7 +2,11 @@
   <!-- On screen: toolbar + sheets scaled to fit. A second, print-only copy lives at the body level so
        printing shows nothing but the sheets. -->
   <Teleport to="body" :disabled="!printOnly">
-    <div v-if="doc && view" ref="root" :class="printOnly ? 'print-root' : 'print-preview'">
+    <div
+      v-if="doc && view"
+      ref="root"
+      :class="printOnly ? 'print-root' : 'print-preview col scroll'"
+    >
       <div v-if="!printOnly" class="row items-center q-pa-sm toolbar" style="gap: 8px">
         <div class="col text-caption text-grey-7">
           {{ sheets.length }} page{{ sheets.length === 1 ? '' : 's' }} · {{ paperLabel }} · print at
@@ -762,6 +766,10 @@ const fit = computed(() =>
 </script>
 
 <style scoped>
+/* Sheets never push on the panels around the preview; it scrolls instead. */
+.print-preview {
+  min-width: 0;
+}
 .toolbar {
   position: sticky;
   top: 0;

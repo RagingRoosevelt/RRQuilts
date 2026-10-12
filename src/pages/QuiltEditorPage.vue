@@ -73,7 +73,7 @@
         </q-btn>
       </div>
 
-      <PrintPreview v-if="editor.mode === 'print'" class="col scroll" kind="quilt" :id="quilt.id" />
+      <PrintPreview v-if="editor.mode === 'print'" kind="quilt" :id="quilt.id" />
       <!-- Canvas -->
       <div v-else class="col relative-position">
         <QuiltCanvas
@@ -305,6 +305,7 @@ function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
 }
 .inspector {
   width: 320px;
+  flex: none;
   border-left: 1px solid rgba(128, 128, 128, 0.25);
 }
 .sizes {

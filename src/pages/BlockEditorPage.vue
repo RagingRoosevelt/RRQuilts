@@ -51,7 +51,6 @@
 
       <PrintPreview
         v-if="editor.blockMode === 'print'"
-        class="col scroll"
         kind="block"
         :id="block.id"
         :target="printTarget"
@@ -462,6 +461,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 }
 .inspector {
   width: 340px;
+  flex: none;
   border-left: 1px solid rgba(128, 128, 128, 0.25);
 }
 .readout {
