@@ -31,8 +31,9 @@ export const FILE_TYPES = {
 } as const;
 export type FileExt = keyof typeof FILE_TYPES;
 
+// Some platforms show only the description, so it carries the extension too.
 const pickerType = (ext: FileExt): PickerType => ({
-  description: FILE_TYPES[ext],
+  description: `*.${ext} - ${FILE_TYPES[ext]}`,
   accept: { 'application/json': [`.${ext}`] },
 });
 /** Several types: all of them first (so every file shows), then each on its own, then JSON. */
@@ -40,13 +41,13 @@ const pickerTypes = (exts: FileExt[]): PickerType[] => [
   ...(exts.length > 1
     ? [
         {
-          description: 'All RRQuilts files here',
+          description: `All RRQuilts files here (${exts.map((e) => `*.${e}`).join(', ')})`,
           accept: { 'application/json': exts.map((e) => `.${e}`) },
         },
       ]
     : []),
   ...exts.map(pickerType),
-  { description: 'JSON', accept: { 'application/json': ['.json'] } },
+  { description: '*.json - JSON', accept: { 'application/json': ['.json'] } },
 ];
 const TYPES = pickerTypes(['rrq']);
 
