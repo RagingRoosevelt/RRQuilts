@@ -100,8 +100,8 @@ Items and projects carry a license; earlier work in the chain limits the choice.
   project license (the lock may override it).
 - **FR-003**: The effective license is: chain lock (FR-004) → the item's license (set on creation,
   copy, and import) → the project license (older items only) → CC BY-SA.
-- **FR-004**: Lock = strictest of the credits' licenses (blocks), plus others' blocks' effective
-  licenses and their credits (quilts): All rights reserved > non-commercial > share-alike > free.
+- **FR-004**: Lock = strictest of the credits' licenses (blocks), plus every used block's effective
+  license (the user's own too) and its credits (quilts): All rights reserved > non-commercial > share-alike > free.
 - **FR-005**: Details tabs per US2; edits are one undo step each (typing coalesced).
 - **FR-006**: The picker offers Public Domain Mark, CC0 1.0, CC BY-SA 4.0, CC BY-NC-SA 4.0, All
   rights reserved, each with spelled-out terms; unknown licenses from libraries display as-is.

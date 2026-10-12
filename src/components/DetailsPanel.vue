@@ -154,7 +154,7 @@ const others = computed(() =>
 const lock = computed(() => {
   const t = target.value;
   if (!t || !project.doc) return undefined;
-  return 'layout' in t ? quiltLock(project.doc, t, me.value) : blockLock(t);
+  return 'layout' in t ? quiltLock(project.doc, t) : blockLock(t);
 });
 
 const projectLicense = computed(() => project.doc?.project.license ?? DEFAULT_LICENSE);

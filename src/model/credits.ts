@@ -133,26 +133,28 @@ export const effectiveLicense = (x: Creditable, doc: RrqDoc, lock = blockLock(x)
   doc.project.license ??
   DEFAULT_LICENSE;
 
-/** Blocks in the quilt made by someone else, with what the quilt must credit. */
-export function blocksByOthers(doc: RrqDoc, quilt: Quilt, me: string) {
+const blocksIn = (doc: RrqDoc, quilt: Quilt) => {
   const used = blocksUsed({ ...doc.project, quilts: [quilt] });
-  return doc.project.blocks
-    .filter((b) => used.has(b.id) && !b.notecard.tags?.includes('system'))
-    .flatMap((b) => {
-      const author = authorOf(b);
-      const credits = priorCredits(b);
-      if ((!author || author === me) && !credits.length) return [];
-      const own = !author || author === me;
-      return [{ block: b, author, license: effectiveLicense(b, doc), own, credits }];
-    });
+  return doc.project.blocks.filter((b) => used.has(b.id) && !b.notecard.tags?.includes('system'));
+};
+
+/** Blocks in the quilt made by someone else (or based on others' work): what the quilt credits. */
+export function blocksByOthers(doc: RrqDoc, quilt: Quilt, me: string) {
+  return blocksIn(doc, quilt).flatMap((b) => {
+    const author = authorOf(b);
+    const credits = priorCredits(b);
+    const own = !author || author === me;
+    if (own && !credits.length) return [];
+    return [{ block: b, author, license: effectiveLicense(b, doc), own, credits }];
+  });
 }
 
-/** A quilt is locked by its own credits, others' blocks, and every block's credits. */
-export const quiltLock = (doc: RrqDoc, quilt: Quilt, me: string) =>
+/** A quilt is locked by its own credits and every block it uses (yours too) and their credits. */
+export const quiltLock = (doc: RrqDoc, quilt: Quilt) =>
   requiredLicense([
     ...priorCredits(quilt),
-    ...blocksByOthers(doc, quilt, me).flatMap((u) => [
-      ...(u.own ? [] : [{ license: u.license, name: u.block.notecard.name }]),
-      ...u.credits,
+    ...blocksIn(doc, quilt).flatMap((b) => [
+      { license: effectiveLicense(b, doc), name: b.notecard.name },
+      ...priorCredits(b),
     ]),
   ]);

@@ -42,10 +42,10 @@ describe('credits and licenses', () => {
       d.project.license = 'CC0-1.0';
     });
     expect(blocksByOthers(doc, quilt, 'Sam').map((u) => u.author)).toEqual(['Jane']);
-    expect(quiltLock(doc, quilt, 'Sam')).toEqual({
-      license: 'CC-BY-SA-4.0',
-      because: 'Ohio Star (2)',
-    });
+    expect(quiltLock(doc, quilt)).toEqual({ license: 'CC-BY-SA-4.0', because: 'Ohio Star (2)' });
+    // My own block counts too.
+    const arr = produce(doc, (d) => void (d.project.blocks[1]!.license = ALL_RIGHTS));
+    expect(quiltLock(arr, quilt)).toEqual({ license: ALL_RIGHTS, because: 'Mine' });
     expect(effectiveLicense(mine, doc)).toBe('CC-BY-SA-4.0'); // its own, set when created
     expect(effectiveLicense({ ...mine, license: undefined }, doc)).toBe('CC0-1.0'); // older files
   });
