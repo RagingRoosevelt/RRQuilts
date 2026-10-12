@@ -66,8 +66,20 @@
     >
       {{ piece.letter }}
     </text>
+    <template v-if="look.inside">
+      <text
+        v-for="(line, i) in insideLines"
+        :key="i"
+        :x="piece.center[0]"
+        :y="piece.center[1] + look.font * (2.2 + i * 1.2)"
+        :font-size="look.font * 0.9"
+        text-anchor="middle"
+      >
+        {{ line }}
+      </text>
+    </template>
     <text
-      v-if="caption"
+      v-else-if="caption"
       :x="bounds[0]"
       :y="bounds[3] + look.font * 1.3"
       :font-size="look.font * 0.85"
@@ -95,6 +107,7 @@ const props = defineProps<{
     markLength: number;
     labels: { letter: boolean; counts: boolean; size: boolean };
     tint: boolean;
+    inside: boolean;
   };
 }>();
 
@@ -105,15 +118,23 @@ const bounds = computed(() => {
   const ys = props.piece.cut.map((p) => p[1]);
   return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] as const;
 });
-/** "B · 3″ legs · Cut 72 Cream" from the chosen labels (the letter always names the piece). */
+/** "B · 3″ legs · Cut 72 Cream" from the chosen labels. */
 const caption = computed(() => {
   const l = props.look.labels;
   const parts = [
-    props.piece.letter,
+    l.letter ? props.piece.letter : '',
     l.size ? props.piece.size : '',
     l.counts ? props.piece.note : '',
   ].filter(Boolean);
-  return parts.length > 1 ? parts.join(' · ') : '';
+  // A lone letter is already printed big in the middle.
+  return parts.length === 1 && l.letter ? '' : parts.join(' · ');
+});
+/** Notes printed inside the template (one per page): finished size, then what to cut. */
+const insideLines = computed(() => {
+  const l = props.look.labels;
+  return [l.size ? `Finished ${props.piece.size}` : '', l.counts ? props.piece.note : ''].filter(
+    Boolean,
+  );
 });
 /** Arrow ends along the grain, through the label's center (offset below the letter). */
 const end = (s: 1 | -1): Pt => {
@@ -121,7 +142,7 @@ const end = (s: 1 | -1): Pt => {
   const L = props.piece.grainLength / 2;
   return [
     c[0] + s * props.piece.grain[0] * L,
-    c[1] + props.look.font * 0.6 + s * props.piece.grain[1] * L,
+    c[1] + props.look.font * (props.look.inside ? -2.6 : 0.6) + s * props.piece.grain[1] * L,
   ];
 };
 function head(s: 1 | -1) {

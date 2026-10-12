@@ -403,7 +403,7 @@ const fabricStepLabel = computed(
 const fabricLabel = (x: number) => fmtFabric(x, units.value);
 
 // Paper and the area left for content (project units).
-const MARGIN_MM = 12.7;
+const marginMm = computed(() => prefs.value.margin[units.value] * mm.value);
 const HEADER_MM = 14;
 const FOOTER_MM = 34;
 const paperMm = computed(() => {
@@ -414,13 +414,13 @@ const paperLabel = computed(
   () => `${paper.value.label}, ${prefs.value.landscape ? 'landscape' : 'portrait'}`,
 );
 const area = computed<[number, number]>(() => [
-  (paperMm.value[0]! - 2 * MARGIN_MM) / mm.value,
-  (paperMm.value[1]! - 2 * MARGIN_MM - HEADER_MM - FOOTER_MM) / mm.value,
+  (paperMm.value[0]! - 2 * marginMm.value) / mm.value,
+  (paperMm.value[1]! - 2 * marginMm.value - HEADER_MM - FOOTER_MM) / mm.value,
 ]);
 const sheetStyle = computed(() => ({
   width: `${paperMm.value[0]}mm`,
   minHeight: `${paperMm.value[1]}mm`,
-  padding: `${MARGIN_MM}mm`,
+  padding: `${marginMm.value}mm`,
 }));
 const LINE_MM = { thin: 0.25, medium: 0.5, thick: 0.8 } as const;
 const stroke = computed(() => LINE_MM[prefs.value.lineWeight] / mm.value);
@@ -439,6 +439,8 @@ const look = computed(() => ({
   markLength: prefs.value.seamAllowance ? seam.value : seam.value / 2,
   labels: prefs.value.labels,
   tint: prefs.value.tint,
+  /** One per page: the notes go inside the template. */
+  inside: prefs.value.onePerPage,
 }));
 
 // Colors by fill key.
@@ -585,8 +587,13 @@ const view = computed<View | undefined>(() => {
 
 // Templates: each distinct shape, cut line around it, rotated snug, packed on pages.
 function templateItems(pieces: Piece[], prefix: string) {
-  const list = templates(pieces, prefix);
-  const { mirror, seamAllowance, trimPoints } = prefs.value;
+  const { mirror, seamAllowance, trimPoints, tint } = prefs.value;
+  // Tinted: one template per fabric, so each prints in its own color.
+  const list = templates(pieces, prefix).flatMap((t) =>
+    tint && t.counts.size > 1
+      ? [...t.counts].map(([fill, n]) => ({ ...t, counts: new Map([[fill, n]]) }))
+      : [t],
+  );
   const items: (PlacedPiece & { w: number; h: number })[] = list.map((t) => {
     const cut = seamAllowance ? offset(t.poly, seam.value, trimPoints) : t.poly;
     let rad = snugRotation(cut);
@@ -611,7 +618,7 @@ function templateItems(pieces: Piece[], prefix: string) {
     const fills = [...t.counts.keys()];
     const counts = [...t.counts.entries()].map(([fill, n]) => `${n} ${fillInfo(fill).name}`);
     return {
-      key: t.letter,
+      key: `${t.letter}|${fills.join()}`,
       letter: t.letter,
       cut: c.map(shift),
       sew,

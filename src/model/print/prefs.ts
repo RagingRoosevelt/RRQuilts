@@ -18,6 +18,8 @@ export const PRINT_DEFAULTS = {
   /** Any paper in any project; the default follows the units (Letter for inches, A4 for cm). */
   paper: perUnits<PaperId>('letter', 'a4'),
   landscape: false,
+  /** Page margins on every side (most printers can't print the outer ¼″). */
+  margin: perUnits(0.5, 1.25),
   seam: perUnits(0.25, 0.75),
   /** Rounding step for cut sizes; 0 = exact. */
   rounding: perUnits(0.125, 0.5),

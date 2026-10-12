@@ -57,6 +57,13 @@
           ]"
           @update:model-value="(v: boolean) => set('landscape', v)"
         />
+        <LengthInput
+          :model-value="prefs.margin[units]"
+          label="Margins"
+          :units="units"
+          :min="units === 'in' ? 0.125 : 0.3"
+          @update:model-value="(v: number) => setUnit('margin', v)"
+        />
       </div>
     </q-expansion-item>
 
@@ -295,7 +302,8 @@ const paper = computed(() => pick(PAPERS, prefs.value.paper[units.value]));
 function set<K extends keyof PrintPrefs>(key: K, value: PrintPrefs[K]) {
   app.settings.print = { ...app.settings.print, [key]: value };
 }
-type PerUnit = 'paper' | 'seam' | 'rounding' | 'width' | 'fabricStep' | 'overhang' | 'bindingWidth';
+type PerUnit =
+  'paper' | 'margin' | 'seam' | 'rounding' | 'width' | 'fabricStep' | 'overhang' | 'bindingWidth';
 function setUnit<K extends PerUnit>(key: K, value: PrintPrefs[K]['in']) {
   set(key, { ...prefs.value[key], [units.value]: value });
 }
