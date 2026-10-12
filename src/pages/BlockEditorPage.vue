@@ -32,7 +32,7 @@
     </div>
 
     <div class="row col no-wrap" style="min-height: 0">
-      <div class="rail column no-wrap q-pa-xs" style="gap: 4px">
+      <div v-if="editor.blockMode !== 'print'" class="rail column no-wrap q-pa-xs" style="gap: 4px">
         <q-btn
           v-for="t in tools"
           :key="t.id"
@@ -49,7 +49,14 @@
         </q-btn>
       </div>
 
-      <div class="col relative-position">
+      <PrintPreview
+        v-if="editor.blockMode === 'print'"
+        class="col scroll"
+        kind="block"
+        :id="block.id"
+        :target="printTarget"
+      />
+      <div v-else class="col relative-position">
         <BlockCanvas
           v-model:view="view"
           v-model:selection="selection"
@@ -76,6 +83,7 @@
           kind="block"
           :id="block.id"
           :coloring-id="coloringId"
+          @target="(t) => (printTarget = t)"
         />
         <DetailsPanel v-else-if="editor.blockMode === 'details'" kind="block" :id="block.id" />
         <BlockInspector
@@ -156,6 +164,8 @@ import BlockInspector from '@/components/BlockInspector.vue';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import PrintOptions from '@/components/PrintOptions.vue';
+import PrintPreview from '@/components/PrintPreview.vue';
+import type { PrintTarget } from '@/model/print/prefs';
 import {
   deleteColoring,
   editorSettings,
@@ -188,6 +198,7 @@ import { useSettingsStore } from '@/stores/settings';
 
 const $q = useQuasar();
 const appSettings = useSettingsStore();
+const printTarget = ref<PrintTarget>({});
 const route = useRoute();
 const router = useRouter();
 const project = useProjectStore();

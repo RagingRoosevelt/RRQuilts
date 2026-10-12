@@ -27,7 +27,14 @@
       </div>
     </template>
 
-    <q-expansion-item dense label="Paper" header-class="text-subtitle2" class="op-section">
+    <q-expansion-item
+      :model-value="open('Paper')"
+      dense
+      label="Paper"
+      header-class="text-subtitle2"
+      class="op-section"
+      @update:model-value="(v) => setOpen('Paper', v)"
+    >
       <div class="column q-pa-sm" style="gap: 8px">
         <q-select
           :model-value="paper.id"
@@ -53,7 +60,14 @@
       </div>
     </q-expansion-item>
 
-    <q-expansion-item dense label="Cutting" header-class="text-subtitle2" class="op-section">
+    <q-expansion-item
+      :model-value="open('Cutting')"
+      dense
+      label="Cutting"
+      header-class="text-subtitle2"
+      class="op-section"
+      @update:model-value="(v) => setOpen('Cutting', v)"
+    >
       <div class="column q-pa-sm" style="gap: 8px">
         <LengthInput
           :model-value="prefs.seam[units]"
@@ -77,10 +91,12 @@
 
     <q-expansion-item
       v-if="kind === 'quilt'"
+      :model-value="open('Fabric')"
       dense
       label="Fabric"
       header-class="text-subtitle2"
       class="op-section"
+      @update:model-value="(v) => setOpen('Fabric', v)"
     >
       <div class="column q-pa-sm" style="gap: 8px">
         <q-select
@@ -121,7 +137,14 @@
       </div>
     </q-expansion-item>
 
-    <q-expansion-item dense label="Look" header-class="text-subtitle2" class="op-section">
+    <q-expansion-item
+      :model-value="open('Look')"
+      dense
+      label="Look"
+      header-class="text-subtitle2"
+      class="op-section"
+      @update:model-value="(v) => setOpen('Look', v)"
+    >
       <div class="column q-pa-sm" style="gap: 8px">
         <q-select
           :model-value="prefs.lineWeight"
@@ -170,14 +193,6 @@
       </div>
     </q-expansion-item>
 
-    <q-btn
-      color="primary"
-      no-caps
-      icon="print"
-      label="Preview & print"
-      :disable="!sections.length"
-      @click="preview"
-    />
     <div class="text-caption text-grey-7">
       Print at 100% scale (no "fit to page"); check the scale square with a ruler. To save a PDF,
       pick "Save as PDF" in the print dialog.
@@ -186,8 +201,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, ref, watch } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import { generateSlots } from '@/model/layout/slots';
 import { fmtLen } from '@/model/print/format';
@@ -199,6 +213,7 @@ import {
   WIDTHS,
   pick,
   printPrefs,
+  type PrintTarget,
   type PrintPrefs,
 } from '@/model/print/prefs';
 import { useProjectStore } from '@/stores/project';
@@ -209,10 +224,10 @@ const props = defineProps<{
   id: string;
   coloringId?: string | undefined;
 }>();
+const emit = defineEmits<{ target: [target: PrintTarget] }>();
 
 const project = useProjectStore();
 const app = useSettingsStore();
-const router = useRouter();
 const units = computed(() => project.doc!.units);
 const prefs = computed(() => printPrefs(app.settings.print));
 const paper = computed(() => pick(PAPERS, prefs.value.paper[units.value]));
@@ -282,18 +297,22 @@ const sizeOptions = computed(() => [
 const sizeSource = ref(sizeOptions.value[0]!.value);
 const custom = ref<[number, number]>(block.value ? [...block.value.size] : [10, 10]);
 
-function preview() {
-  const query: Record<string, string> = {};
-  if (props.kind === 'block') {
-    const fromQuilt = quiltSizes.value.find((u) => `quilt:${u.quilt.id}` === sizeSource.value);
-    if (fromQuilt) query.quilt = fromQuilt.quilt.id;
-    else {
-      const s = sizeSource.value === 'custom' ? custom.value : block.value!.size;
-      query.size = `${s[0]},${s[1]}`;
-      if (props.coloringId) query.coloring = props.coloringId;
-    }
-  }
-  void router.push({ path: `/project/print/${props.kind}/${props.id}`, query });
+// What the preview prints (sent up whenever it changes).
+const target = computed<PrintTarget>(() => {
+  if (props.kind !== 'block') return {};
+  const fromQuilt = quiltSizes.value.find((u) => `quilt:${u.quilt.id}` === sizeSource.value);
+  if (fromQuilt) return { quilt: fromQuilt.quilt.id };
+  const size = sizeSource.value === 'custom' ? custom.value : block.value!.size;
+  return { size: [size[0], size[1]], coloring: props.coloringId };
+});
+watch(target, (t) => emit('target', t), { immediate: true, deep: true });
+
+// Open/closed sections are remembered app-wide (spec 007 BlockInspector does the same).
+const open = (label: string) => !app.settings.collapsedSections.includes(`print:${label}`);
+function setOpen(label: string, value: boolean) {
+  const key = `print:${label}`;
+  const rest = app.settings.collapsedSections.filter((l) => l !== key);
+  app.settings.collapsedSections = value ? rest : [...rest, key];
 }
 </script>
 

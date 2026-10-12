@@ -125,8 +125,9 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - `src/model/print/` (framework-free): `pieces.ts` (block/quilt pieces, lettered templates),
   `rotary.ts` (cut sizes, strip plans), `yardage.ts`, `pack.ts`, `polygon.ts`, `format.ts`,
   `prefs.ts` (print prefs in app settings `print`, merged with defaults)
-- `components/PrintOptions.vue` (Print tabs) → `/project/print/:kind/:id` → `pages/PrintPage.vue`
-  (sheets at true size in SVG, `@page` injected, browser print / Save as PDF)
+- Print tabs: `components/PrintOptions.vue` (inspector) + `components/PrintPreview.vue` in place of
+  the canvas (sheets at true size in SVG, zoomed to fit on screen). A second `printOnly` copy is
+  teleported to `<body>`; `@media print` hides `#q-app`, so only sheets print. `@page` injected
 
 ## Block editor (spec 007)
 

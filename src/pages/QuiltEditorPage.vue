@@ -73,8 +73,9 @@
         </q-btn>
       </div>
 
+      <PrintPreview v-if="editor.mode === 'print'" class="col scroll" kind="quilt" :id="quilt.id" />
       <!-- Canvas -->
-      <div class="col relative-position">
+      <div v-else class="col relative-position">
         <QuiltCanvas
           ref="canvas"
           v-model:view="view"
@@ -148,6 +149,7 @@ import DetailsPanel from '@/components/DetailsPanel.vue';
 import LayoutInspector from '@/components/LayoutInspector.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import PrintOptions from '@/components/PrintOptions.vue';
+import PrintPreview from '@/components/PrintPreview.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
 import { applyLayout, generateSlots, reconcile } from '@/model/layout/slots';

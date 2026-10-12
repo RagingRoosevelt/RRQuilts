@@ -15,6 +15,6 @@
   - `pack.ts` — shelf packing with 90° turns; tiling oversize pieces.
   - `format.ts` — lengths as fractions (⅛, 1/16) or mm.
 - **Settings**: `print` object in app settings, merged with defaults (`printPrefs`).
-- **UI**: `PrintOptions.vue` in the Print tabs; route `/project/print/:kind/:id` → `PrintPage.vue`
+- **UI**: `PrintOptions.vue` in the Print tabs; `PrintPreview.vue` replaces the canvas there and
   renders sheets (SVG in real units; pictures via canvas) and calls `window.print()`; `@page` size
   injected; app chrome hidden in print.

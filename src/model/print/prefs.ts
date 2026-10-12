@@ -7,6 +7,13 @@ export type QuiltSection = 'picture' | 'yardage' | 'rotary';
 
 const perUnits = <T>(inches: T, cm: T) => ({ in: inches, cm });
 
+/** What to print: for blocks, counts from a quilt (at its size), or a size and coloring. */
+export interface PrintTarget {
+  quilt?: string | undefined;
+  size?: [number, number] | undefined;
+  coloring?: string | undefined;
+}
+
 export const PRINT_DEFAULTS = {
   /** Any paper in any project; the default follows the units (Letter for inches, A4 for cm). */
   paper: perUnits<PaperId>('letter', 'a4'),

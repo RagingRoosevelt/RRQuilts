@@ -29,11 +29,6 @@ const routes: RouteRecordRaw[] = [
     meta: project,
   },
   {
-    path: '/project/print/:kind(quilt|block)/:id',
-    component: () => import('@/pages/PrintPage.vue'),
-    meta: project,
-  },
-  {
     path: '/project/image/:id',
     component: placeholder,
     props: { title: 'Image editor' },
