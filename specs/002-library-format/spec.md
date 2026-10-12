@@ -167,6 +167,8 @@ changelog note, commit, and see the update offered with that note.
   `version` (schema version, integer), `units` (`"in"` | `"cm"`, as in spec 003), `kind` (`"personal"` | `"pack"`), `id` (stable unique id),
   `revision` (integer, increases with each published change), `name`, `description`, `categories`,
   `items`; packs additionally require `author` (`name`, optional `url`) and `license`.
+  `personal` documents MAY also carry `packs` (embedded pack documents) and `repositories`
+  (connections by reference) so one backup restores everything (spec 011).
 - **FR-002**: `license` MUST be an SPDX identifier; "share as pack" MUST default it to
   `CC-BY-SA-4.0` (share-alike by default, constitution Principle VI), changeable by the author
   unless an item's license requires share-alike.
@@ -176,13 +178,15 @@ changelog note, commit, and see the update offered with that note.
   share-alike pack license; items whose license forbids redistribution or derivatives are excluded
   with an explanation.
   An item MAY carry its own `license`, which overrides the document's.
-- **FR-003**: `categories` MUST be a list of `{ id, name, styles: [{ id, name }] }`; every item MUST
-  reference an existing category and style.
-- **FR-004**: Each item MUST have `id` (unique within the document), `type`, `category`, `style`,
-  `notecard` (`name`, `notes`, `reference`, `tags`), optional `license`, optional `source`
-  (`libraryId`, `itemId`, `revision` — for items copied from elsewhere), and `data`.
-- **FR-005**: Item `type` MUST be one of: block, motif, stencil, frame, fabric, color, thread, layout,
-  border, quilt, photo, embroidery. `data` MUST use the same schema the `.rrq` project file uses for
+- **FR-003**: `categories` MUST be a list of user-defined `{ id, name }`; an item's `category`, when
+  present, MUST reference one (absent = Uncategorized). (Amended by spec 011: styles are no longer a
+  category level.)
+- **FR-004**: Each item MUST have `id` (unique within the document), `type`, optional `category`,
+  `notecard` (`name`, `notes`, `reference`, `tags`, optional `styles` — a user-managed kind of tag),
+  optional `license`, optional `source` (`libraryId`, `itemId`, `revision` — for items copied from
+  elsewhere), and `data`.
+- **FR-005**: Item `type` MUST be one of: block, motif, stencil, frame, fabric, color, colors (a color
+  collection, spec 011), thread, layout, border, quilt, photo, embroidery. `data` MUST use the same schema the `.rrq` project file uses for
   that item type (spec 003), so items copy into projects unchanged apart from unit conversion.
 - **FR-006**: Packs MUST include `changelog`: a list of `{ revision, date, notes }` (plain text),
   with an entry for every revision after the first.
@@ -278,22 +282,21 @@ changelog note, commit, and see the update offered with that note.
     { "revision": 3, "date": "2026-12-10", "notes": "Fixed Ohio Star proportions; new indigo fabric." }
   ],
   "categories": [
-    { "id": "stars", "name": "Stars", "styles": [{ "id": "eight-point", "name": "Eight Point" }] }
+    { "id": "stars", "name": "Stars" }
   ],
   "items": [
     {
       "id": "ohio-star",
       "type": "block",
       "category": "stars",
-      "style": "eight-point",
-      "notecard": { "name": "Ohio Star", "notes": "", "reference": "", "tags": ["3x3"] },
+      "notecard": { "name": "Ohio Star", "notes": "", "reference": "", "tags": ["3x3"],
+                    "styles": ["eight-point"] },
       "data": { "…": "same schema as .rrq block" }
     },
     {
       "id": "indigo-dot",
       "type": "fabric",
       "category": "stars",
-      "style": "eight-point",
       "notecard": { "name": "Indigo Dot", "notes": "", "reference": "", "tags": [] },
       "data": {
         "image": { "path": "assets/fabrics/indigo-dot.jpg", "type": "image/jpeg",
