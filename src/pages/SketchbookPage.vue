@@ -200,13 +200,7 @@
           </div>
         </div>
       </div>
-      <input
-        ref="blockInput"
-        type="file"
-        accept=".rrqb,application/json"
-        hidden
-        @change="importBlockFile"
-      />
+      <input ref="blockInput" type="file" accept=".rrqb,.json" hidden @change="importBlockFile" />
     </template>
 
     <DetailsPanel v-else-if="tab === 'details'" kind="project" />
