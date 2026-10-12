@@ -18,6 +18,8 @@ export const Notecard = Type.Object({
   notes: Type.Optional(Type.String()),
   reference: Type.Optional(Type.String()),
   tags: Type.Optional(Type.Array(Type.String())),
+  /** A user-managed kind of tag ("eight-point"), shown and searched apart from plain tags. */
+  styles: Type.Optional(Type.Array(Type.String())),
   categories: Type.Optional(Type.Array(Type.String())),
 });
 
@@ -26,6 +28,8 @@ export const Source = Type.Object({
   libraryId: Type.String(),
   itemId: Type.String(),
   revision: Type.Integer({ minimum: 1 }),
+  /** The library item's content version this came from (linked copies: sync and conflicts). */
+  version: Type.Optional(Type.String({ pattern: '^[a-f0-9]{12}$' })),
   /** Attribution carried with the item (constitution Principle VI). */
   name: Type.Optional(Type.String()),
   library: Type.Optional(Type.String()),

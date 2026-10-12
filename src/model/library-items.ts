@@ -164,6 +164,7 @@ export function useMyCopy(
 /**
  * My items vs library items for display. A library entry shows the project's embedded copy when
  * there is one (it's what the project uses); embedded items whose library isn't installed follow.
+ * Entries the project holds as its own (linked copies with the same id, spec 011) show only there.
  */
 export function splitItems<T extends { id: string } & Sourced>(
   project: readonly T[],
@@ -171,10 +172,12 @@ export function splitItems<T extends { id: string } & Sourced>(
 ) {
   const embedded = new Map(project.filter(isLibraryItem).map((x) => [x.id, x]));
   const libIds = new Set(library.map((x) => x.id));
+  const mine = project.filter((x) => !isLibraryItem(x));
+  const own = new Set(mine.map((x) => x.id));
   return {
-    mine: project.filter((x) => !isLibraryItem(x)),
+    mine,
     library: [
-      ...library.map((x) => embedded.get(x.id) ?? x),
+      ...library.filter((x) => !own.has(x.id)).map((x) => embedded.get(x.id) ?? x),
       ...[...embedded.values()].filter((x) => !libIds.has(x.id)),
     ],
   };

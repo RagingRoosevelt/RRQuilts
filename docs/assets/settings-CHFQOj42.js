@@ -1,1 +1,0 @@
-import{t as e}from"./settings-DqTbsx-I.js";import{G as t,a as n}from"./index-CBkQwPkj.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

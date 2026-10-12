@@ -6,6 +6,7 @@ import { deriveSeamPatches } from '@/model/blocks/derive';
 import { pathPolygon, pointInPolygon } from '@/model/geometry/path';
 import { contentVersion } from '@/model/identity';
 import type { SeamBlock, Segment } from '@/model/schema/block';
+import { LIBRARY_FORMAT, LIBRARY_VERSION, type LibraryDoc } from '@/model/schema/library';
 import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 
@@ -487,6 +488,35 @@ export async function builtinLibrary(): Promise<BuiltinItems> {
   const items = builtinItems();
   for (const x of [...items.colors, ...items.blocks]) x.version = await contentVersion(x, 'in');
   return items;
+}
+
+/** The built-in library as a library document (its colors as one collection, "Basic colors"). */
+export function builtinDoc(items: BuiltinItems): LibraryDoc {
+  return {
+    format: LIBRARY_FORMAT,
+    version: LIBRARY_VERSION,
+    units: 'in',
+    kind: 'pack',
+    id: LIBRARY_ID,
+    revision: 1,
+    name: STARTER_LIBRARY.name,
+    author: { name: STARTER_LIBRARY.author },
+    license: STARTER_LIBRARY.license,
+    categories: [],
+    items: [
+      ...items.blocks.map((data) => ({ type: 'block' as const, data })),
+      {
+        type: 'colors' as const,
+        data: {
+          id: 'rrquilts.basic-colors',
+          notecard: { name: 'Basic colors' },
+          author: STARTER_LIBRARY.author,
+          license: STARTER_LIBRARY.license,
+          colors: items.colors,
+        },
+      },
+    ],
+  };
 }
 
 /** Embed the whole built-in library into a project, converted to its units (tests, samples). */

@@ -1,0 +1,1 @@
+import{t as e}from"./settings-_QU3nvgA.js";import{G as t,a as n}from"./index-ClSBl-Sr.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

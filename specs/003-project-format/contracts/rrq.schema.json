@@ -105,6 +105,12 @@
                           "type": "string"
                         }
                       },
+                      "styles": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
                       "categories": {
                         "type": "array",
                         "items": {
@@ -130,6 +136,10 @@
                       "revision": {
                         "type": "integer",
                         "minimum": 1
+                      },
+                      "version": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{12}$"
                       },
                       "name": {
                         "type": "string"
@@ -292,6 +302,12 @@
                           "type": "string"
                         }
                       },
+                      "styles": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
                       "categories": {
                         "type": "array",
                         "items": {
@@ -317,6 +333,10 @@
                       "revision": {
                         "type": "integer",
                         "minimum": 1
+                      },
+                      "version": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{12}$"
                       },
                       "name": {
                         "type": "string"
@@ -429,6 +449,12 @@
                           "type": "string"
                         }
                       },
+                      "styles": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
                       "categories": {
                         "type": "array",
                         "items": {
@@ -454,6 +480,10 @@
                       "revision": {
                         "type": "integer",
                         "minimum": 1
+                      },
+                      "version": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{12}$"
                       },
                       "name": {
                         "type": "string"
@@ -580,6 +610,12 @@
                           "type": "string"
                         }
                       },
+                      "styles": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
                       "categories": {
                         "type": "array",
                         "items": {
@@ -605,6 +641,10 @@
                       "revision": {
                         "type": "integer",
                         "minimum": 1
+                      },
+                      "version": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{12}$"
                       },
                       "name": {
                         "type": "string"
@@ -1181,6 +1221,12 @@
                           "type": "string"
                         }
                       },
+                      "styles": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
                       "categories": {
                         "type": "array",
                         "items": {
@@ -1206,6 +1252,10 @@
                       "revision": {
                         "type": "integer",
                         "minimum": 1
+                      },
+                      "version": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{12}$"
                       },
                       "name": {
                         "type": "string"
@@ -1644,6 +1694,12 @@
                           "type": "string"
                         }
                       },
+                      "styles": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
                       "categories": {
                         "type": "array",
                         "items": {
@@ -1669,6 +1725,10 @@
                       "revision": {
                         "type": "integer",
                         "minimum": 1
+                      },
+                      "version": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{12}$"
                       },
                       "name": {
                         "type": "string"
@@ -2310,6 +2370,12 @@
                           "type": "string"
                         }
                       },
+                      "styles": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
                       "categories": {
                         "type": "array",
                         "items": {
@@ -2335,6 +2401,10 @@
                       "revision": {
                         "type": "integer",
                         "minimum": 1
+                      },
+                      "version": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{12}$"
                       },
                       "name": {
                         "type": "string"
@@ -2862,6 +2932,12 @@
                           "type": "string"
                         }
                       },
+                      "styles": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
                       "categories": {
                         "type": "array",
                         "items": {
@@ -2887,6 +2963,10 @@
                       "revision": {
                         "type": "integer",
                         "minimum": 1
+                      },
+                      "version": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{12}$"
                       },
                       "name": {
                         "type": "string"
@@ -4057,6 +4137,12 @@
                       "type": "string"
                     }
                   },
+                  "styles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
                   "categories": {
                     "type": "array",
                     "items": {
@@ -4082,6 +4168,10 @@
                   "revision": {
                     "type": "integer",
                     "minimum": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
                   },
                   "name": {
                     "type": "string"
@@ -4202,6 +4292,12 @@
                       "type": "string"
                     }
                   },
+                  "styles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
                   "categories": {
                     "type": "array",
                     "items": {
@@ -4227,6 +4323,10 @@
                   "revision": {
                     "type": "integer",
                     "minimum": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
                   },
                   "name": {
                     "type": "string"
@@ -4356,6 +4456,12 @@
                       "type": "string"
                     }
                   },
+                  "styles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
                   "categories": {
                     "type": "array",
                     "items": {
@@ -4381,6 +4487,10 @@
                   "revision": {
                     "type": "integer",
                     "minimum": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
                   },
                   "name": {
                     "type": "string"

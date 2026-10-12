@@ -1,12 +1,12 @@
 # Tasks: Libraries
 
-- [ ] T001 Schema: `schema/library.ts` (document, items, collection, categories, changelog),
+- [x] T001 Schema: `schema/library.ts` (document, items, collection, categories, changelog),
       `notecard.styles`, `Source.version`; `npm run schema`
-- [ ] T002 `model/library-file.ts` (+ tests): parse/serialize, per-item skip, units → inches,
+- [x] T002 `model/library-file.ts` (+ tests): parse/serialize, per-item skip, units → inches,
       embedded packs, backup doc, restore
-- [ ] T003 `model/library.ts` (+ tests): add/sync/conflict/remove/rename, categories, collections,
+- [x] T003 `model/library.ts` (+ tests): add/sync/conflict/remove/rename, categories, collections,
       copy to mine, lookup, search (+ speed test)
-- [ ] T004 `model/collection-file.ts` (+ tests): `.rrqcc` export/parse/import
+- [x] T004 `model/collection-file.ts` (+ tests): `.rrqcc` export/parse/import
 - [ ] T005 Storage: idb v2 `libraries` store; `stores/library.ts` over all libraries, persist()
 - [ ] T006 `LibrariesPage.vue`: list, browse, search, categories, preview, item menus, route
 - [ ] T007 Import (`.rrqlib`/`.rrqcc`), Back up, Restore dialogs
