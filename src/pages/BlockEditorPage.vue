@@ -2,10 +2,10 @@
   <q-page v-if="project.doc && block" class="editor column no-wrap" :style-fn="fill">
     <div class="row items-center no-wrap q-px-sm bar">
       <q-tabs v-model="editor.blockMode" dense no-caps inline-label class="col">
+        <q-tab name="details" icon="info" label="Details" />
         <q-tab name="draw" icon="draw" label="Draw" />
         <q-tab name="color" icon="palette" label="Color" />
         <q-tab name="print" icon="print" label="Print" />
-        <q-tab name="details" icon="info" label="Details" />
       </q-tabs>
       <q-btn
         flat

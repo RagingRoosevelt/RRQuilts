@@ -3,11 +3,11 @@
     <!-- Mode tabs + undo -->
     <div class="row items-center no-wrap q-px-sm bar">
       <q-tabs v-model="editor.mode" dense no-caps inline-label class="col">
+        <q-tab name="details" icon="info" label="Details" />
         <q-tab name="layout" icon="grid_on" label="Layout" />
         <q-tab name="borders" icon="crop_square" label="Borders" />
         <q-tab name="design" icon="palette" label="Design" />
         <q-tab name="print" icon="print" label="Print" />
-        <q-tab name="details" icon="info" label="Details" />
       </q-tabs>
       <q-btn
         flat
