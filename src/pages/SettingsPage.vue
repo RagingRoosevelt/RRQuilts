@@ -22,6 +22,21 @@
       </div>
 
       <div>
+        <div class="text-subtitle1">Units for new projects</div>
+        <q-btn-toggle
+          v-model="store.settings.units"
+          no-caps
+          :options="[
+            { label: 'Inches', value: 'in' },
+            { label: 'Centimeters', value: 'cm' },
+          ]"
+        />
+        <div class="text-caption text-grey-7 q-mt-xs">
+          An open project's units are in its Details tab.
+        </div>
+      </div>
+
+      <div>
         <div class="text-subtitle1">Your name</div>
         <q-input
           v-model.trim="store.settings.author"

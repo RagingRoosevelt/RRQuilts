@@ -46,6 +46,22 @@
         </q-item>
       </template>
     </q-select>
+    <div v-if="kind === 'project'">
+      <div class="text-caption text-grey-7">Units</div>
+      <q-btn-toggle
+        :model-value="project.doc!.units"
+        no-caps
+        :disable="ro"
+        :options="[
+          { label: 'Inches', value: 'in' },
+          { label: 'Centimeters', value: 'cm' },
+        ]"
+        @update:model-value="setUnits"
+      />
+      <div class="text-caption text-grey-7 q-mt-xs">
+        Converts every size in the project (10 in → 25.4 cm). Undo reverts.
+      </div>
+    </div>
     <q-input
       :model-value="item.notes ?? ''"
       label="Notes"
@@ -110,7 +126,9 @@ import {
   quiltLock,
 } from '@/model/credits';
 import { isLibraryItem } from '@/model/library-items';
+import type { Units } from '@/model/schema/project';
 import type { Credit } from '@/model/schema/shared';
+import { convertUnits } from '@/model/units';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -173,6 +191,10 @@ const selectedTerms = computed(() => LICENSES.find((l) => l.id === current.value
 
 const creditCaption = (c: Credit) =>
   [c.library, c.license && licenseName(c.license)].filter(Boolean).join(' · ');
+
+function setUnits(units: Units) {
+  project.change(() => convertUnits(project.doc!, units));
+}
 
 type Field = 'name' | 'notes' | 'author' | 'license';
 function set(field: Field, raw: string | number | null) {

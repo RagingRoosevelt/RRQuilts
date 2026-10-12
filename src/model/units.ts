@@ -28,6 +28,10 @@ export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
     for (const b of p.blocks) {
       b.size = scalePair(b.size, k);
       for (const c of b.colorings) scaleColoring(c, k);
+      // Snap and graph-paper steps restart at the new units' defaults (¼" vs 5 mm, not 6.35 mm).
+      const e = b.editor as { snap?: { step?: number }; graph?: { step?: number } } | undefined;
+      delete e?.snap?.step;
+      delete e?.graph?.step;
     }
     for (const q of p.quilts) {
       if (q.layout.style === 'horizontal') {
