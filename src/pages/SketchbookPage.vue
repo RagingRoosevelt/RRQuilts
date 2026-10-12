@@ -180,6 +180,12 @@
               <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
                 <q-tooltip>Placed in a quilt</q-tooltip>
               </q-icon>
+              <q-icon v-if="otherVersions.has(b.id)" name="update" color="warning" size="xs">
+                <q-tooltip
+                  >Your library has revision {{ otherVersions.get(b.id)!.library.revision }} — see
+                  Switch version…</q-tooltip
+                >
+              </q-icon>
             </div>
             <q-btn flat round dense icon="more_vert" aria-label="Actions">
               <q-menu>
@@ -192,6 +198,14 @@
                     @click="editLibrary(b)"
                   >
                     <q-item-section>Edit (makes your copy)</q-item-section>
+                  </q-item>
+                  <q-item
+                    v-if="otherVersions.has(b.id) && !project.readOnly"
+                    v-close-popup
+                    clickable
+                    @click="project.mismatches = [otherVersions.get(b.id)!]"
+                  >
+                    <q-item-section>Switch version…</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="preview = b.id">
                     <q-item-section>Preview</q-item-section>
@@ -339,7 +353,13 @@ import { useLibraryStore } from '@/stores/library';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthor } from '@/composables/author';
 import { importBlock, parseBlockFile, serializeBlock } from '@/model/block-file';
-import { isLibraryItem, splitItems, toUnits, useMyCopy } from '@/model/library-items';
+import {
+  isLibraryItem,
+  splitItems,
+  versionMismatches,
+  toUnits,
+  useMyCopy,
+} from '@/model/library-items';
 import { download } from '@/storage/files';
 
 const $q = useQuasar();
@@ -348,6 +368,10 @@ const project = useProjectStore();
 const editor = useEditorStore();
 const startQuilt = useStartQuilt();
 const library = useLibraryStore();
+/** Library blocks whose project copy differs from the installed library version. */
+const otherVersions = computed(
+  () => new Map(versionMismatches(project.doc!, library.lookup).map((m) => [m.project.id, m])),
+);
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
 const blockInput = ref<HTMLInputElement>();

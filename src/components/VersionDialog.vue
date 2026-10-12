@@ -32,6 +32,10 @@
             <div class="text-caption">
               {{ side.label
               }}<template v-if="m[side.key].revision"> · rev {{ m[side.key].revision }}</template>
+              <template v-if="m.kind === 'block'">
+                · {{ size(m[side.key] as Block, side.key) }}</template
+              >
+              <q-tooltip>{{ m[side.key].id }}@{{ m[side.key].version }}</q-tooltip>
             </div>
           </button>
         </div>
@@ -48,6 +52,7 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
 import { computed, reactive, watch } from 'vue';
+import { toUnits } from '@/model/library-items';
 import type { Block } from '@/model/schema/block';
 import type { Color } from '@/model/schema/palette';
 import { blockThumbnail } from '@/render/thumbnail';
@@ -64,6 +69,12 @@ const $q = useQuasar();
 const project = useProjectStore();
 const library = useLibraryStore();
 const items = computed(() => project.mismatches);
+/** Finished size in project units (library blocks are stored in inches). */
+function size(b: Block, side: Side) {
+  const units = project.doc?.units ?? 'in';
+  const s = side === 'library' ? toUnits(b, units).size : b.size;
+  return `${s.map((n) => Number(n.toFixed(2))).join(' × ')} ${units}`;
+}
 const open = computed(() => items.value.length > 0 && !!project.doc);
 const choice = reactive<Record<string, Side>>({});
 watch(items, (ms) => ms.forEach((m) => (choice[m.project.id] = 'project')), { immediate: true });
