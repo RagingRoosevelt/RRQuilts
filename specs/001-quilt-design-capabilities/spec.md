@@ -527,6 +527,30 @@ offline, reconnect, and find both versions kept.
 
 ---
 
+### User Story 21 - Sync with Proton Drive (Priority: P5, may not be feasible)
+
+The quilter connects Proton Drive so their projects follow them between devices, keeping Proton's
+end-to-end encryption.
+
+**Why this priority**: Future, and blocked today: Proton Drive offers no public sign-in for other
+apps, and its files are end-to-end encrypted with keys unlocked by the user's Proton password, so an
+access token alone can't read or write them. Revisit if Proton publishes a stable third-party API or
+SDK (an early SDK preview may exist for partners). Until then, the Proton Drive sync folder (desktop)
+and its Files-app integration (phones) work by hand.
+
+**Independent Test**: Same as US18, with Proton Drive.
+
+**Acceptance Scenarios**:
+
+1. **Given** Proton offers third-party access, **When** the user connects Proton Drive, **Then** they
+   sign in on Proton's own page and the app never sees their Proton password.
+2. **Given** a connected account, **When** projects sync, **Then** they stay end-to-end encrypted:
+   encryption happens on the device, and nothing readable leaves it.
+3. **Given** Proton's access rules allow it, **When** the app stores files, **Then** it is limited to
+   its own folder, as in US18–20.
+4. Saving, opening on another device, conflicts, offline work, and disconnecting behave as in
+   US18 scenarios 2–5.
+
 ### Edge Cases
 
 - Seam-line block with floating/unconnected segments → show which segments are unconnected; never
@@ -854,9 +878,10 @@ offline, reconnect, and find both versions kept.
   them.
 - **Embroidery**: visualization only; designs are not stitch-editable or exportable to machines.
 - **Resource repositories**: connecting/refreshing needs the network; everything else works offline.
-- **Cloud sync (US18–20)**: one sync engine (sign in, list, read, conditional write, conflict copies)
-  with a small adapter per service. Proton Drive is left out: end-to-end encryption and no public
-  third-party sign-in; its sync folder and Files-app integration work by hand.
+- **Cloud sync (US18–21)**: one sync engine (sign in, list, read, conditional write, conflict copies)
+  with a small adapter per service. Proton Drive (US21) waits on a public third-party API: its files
+  are end-to-end encrypted and it has no third-party sign-in; its sync folder and Files-app
+  integration work by hand.
   Repository and `.rrq_lib` structure, manifest, and versioning are specified separately
   (follow-up spec).
 - **File formats**: RRQuilts uses only its own JSON formats (`.rrq`, `.rrq_conf`, `.rrq_lib`). Other quilt software's file formats are deliberately unsupported.
