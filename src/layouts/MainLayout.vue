@@ -1,6 +1,6 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-header bordered>
+    <q-header ref="header" bordered>
       <q-toolbar>
         <q-btn-dropdown
           v-if="$q.screen.xs"
@@ -66,9 +66,19 @@
       </q-banner>
     </q-header>
 
-    <q-drawer v-model="settingsOpen" side="right" overlay bordered behavior="desktop" :width="420">
-      <SettingsPanel />
-    </q-drawer>
+    <!-- Settings fly-over: under the header (its gear closes it), over a darkened, blurred app. -->
+    <Transition name="fly">
+      <div
+        v-if="settingsOpen"
+        class="settings-fly"
+        :style="{ top: `${headerHeight}px` }"
+        @click.self="settingsOpen = false"
+      >
+        <div class="settings-sheet" role="dialog" aria-label="Settings">
+          <SettingsPanel />
+        </div>
+      </div>
+    </Transition>
 
     <q-page-container>
       <router-view />
@@ -89,6 +99,14 @@ const $q = useQuasar();
 const project = useProjectStore();
 const taking = ref(false);
 const route = useRoute();
+const header = ref<{ $el: HTMLElement }>();
+const headerHeight = ref(0);
+const measure = () => (headerHeight.value = header.value?.$el.offsetHeight ?? 0);
+watch(settingsOpen, measure, { flush: 'post' });
+onMounted(measure);
+const closeOnEsc = (e: KeyboardEvent) => e.key === 'Escape' && (settingsOpen.value = false);
+onMounted(() => window.addEventListener('keydown', closeOnEsc));
+onBeforeUnmount(() => window.removeEventListener('keydown', closeOnEsc));
 watch(
   () => route.redirectedFrom?.path,
   (from) => from === '/settings' && (settingsOpen.value = true),
@@ -137,6 +155,49 @@ async function continueHere() {
 </script>
 
 <style scoped>
+.settings-fly {
+  position: fixed;
+  inset: 0;
+  z-index: 1999; /* under the header (2000), so the gear stays clickable */
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+}
+.settings-sheet {
+  width: 100%; /* phones and tablets: the whole page */
+  height: 100%;
+  overflow-y: auto;
+  background: #fff;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.25);
+}
+@media (min-width: 1024px) {
+  .settings-sheet {
+    width: 50%;
+  }
+}
+.body--dark .settings-sheet {
+  background: var(--q-dark-page);
+}
+.fly-enter-active,
+.fly-leave-active {
+  transition:
+    background-color 0.25s,
+    backdrop-filter 0.25s;
+}
+.fly-enter-active .settings-sheet,
+.fly-leave-active .settings-sheet {
+  transition: transform 0.25s ease-out;
+}
+.fly-enter-from,
+.fly-leave-to {
+  background-color: transparent;
+  backdrop-filter: blur(0);
+}
+.fly-enter-from .settings-sheet,
+.fly-leave-to .settings-sheet {
+  transform: translateX(100%);
+}
 .nav-active {
   background: rgba(255, 255, 255, 0.15);
 }
