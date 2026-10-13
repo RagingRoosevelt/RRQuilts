@@ -1,6 +1,7 @@
 // Project color operations (framework-free, used inside project.change recipes).
 import type { Draft } from 'immer';
 import type { ColoringBody } from '@/model/schema/coloring';
+import { isLibraryItem } from '@/model/library-items';
 import type { RrqDoc } from '@/model/schema/project';
 
 function allColorings(d: RrqDoc | Draft<RrqDoc>): ColoringBody[] {
@@ -20,4 +21,29 @@ export function deleteColor(d: Draft<RrqDoc>, id: string) {
     for (const [patch, f] of Object.entries(c.fills))
       if ('color' in f && f.color === id) delete c.fills[patch];
   }
+}
+
+/** Colorings the project owns: its own blocks' and its quilts' (library blocks bring their colors). */
+function ownColorings(d: RrqDoc | Draft<RrqDoc>): ColoringBody[] {
+  return [
+    ...d.project.blocks.filter((b) => !isLibraryItem(b)).flatMap((b) => b.colorings),
+    ...d.project.quilts.flatMap((q) => Object.values(q.colorings)),
+  ] as ColoringBody[];
+}
+
+/** Colors the project's own colorings use. */
+export const colorsUsed = (doc: RrqDoc) =>
+  new Set(
+    ownColorings(doc).flatMap((c) =>
+      Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])),
+    ),
+  );
+
+/** Recolor the project's own colorings: every fill of an old color takes its new one. */
+export function replaceColors(d: Draft<RrqDoc>, map: ReadonlyMap<string, string>) {
+  for (const c of ownColorings(d))
+    for (const f of Object.values(c.fills)) {
+      const to = 'color' in f ? map.get(f.color) : undefined;
+      if (to && 'color' in f) f.color = to;
+    }
 }

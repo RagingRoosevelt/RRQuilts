@@ -34,6 +34,11 @@
   the project (`libraryBlocks`, `libraryPalettes`); blocks already placed stay available. Tray
   palettes are labelled "Palette · Library"; library colors in use outside picked palettes show
   under "In use". Block previews show a button per coloring to switch between them.
+- Q: Unpicking a palette whose colors are in use? → A: A "N colors in use" dialog lists each color
+  the project's own blocks and quilts use that would be left without a palette, with a picker of
+  the colors still available (own colors and other picked palettes), pre-set to the nearest match.
+  Swap and remove recolors and unpicks in one undo step; Cancel changes nothing. New projects start
+  with Basic colors picked.
 - Q: Built-in palettes? → A: Basic colors (36) plus Pastels, Darks, Gems, Neon, and Traditional (8
   each).
 - Q: Does a backup include the packs and repositories I've added? → A: Yes. One backup covers

@@ -30,3 +30,21 @@ export function fromHsl([h, s, l]: RGB): RGB {
   const f = (n: number) => L - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
   return [f(0), f(8), f(4)].map((v) => Math.round(v * 255)) as RGB;
 }
+
+/** Perceived distance between two colors ("redmean" weighting of RGB). */
+export function colorDistance([r1, g1, b1]: RGB, [r2, g2, b2]: RGB) {
+  const rm = (r1 + r2) / 2;
+  const [dr, dg, db] = [r1 - r2, g1 - g2, b1 - b2];
+  return Math.sqrt((2 + rm / 256) * dr * dr + 4 * dg * dg + (2 + (255 - rm) / 256) * db * db);
+}
+
+/** The candidate closest to `rgb` (undefined when there are none). */
+export const nearestColor = <T extends { rgb: readonly number[] }>(
+  rgb: RGB,
+  candidates: readonly T[],
+) =>
+  candidates.reduce<T | undefined>(
+    (best, c) =>
+      !best || colorDistance(rgb, c.rgb as RGB) < colorDistance(rgb, best.rgb as RGB) ? c : best,
+    undefined,
+  );

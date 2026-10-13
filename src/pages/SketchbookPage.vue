@@ -544,6 +544,80 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <!-- Unpicking a palette whose colors are in use: swap them for colors that stay available. -->
+    <q-dialog :model-value="!!unpicking" @update:model-value="unpicking = null">
+      <q-card v-if="unpicking" style="width: 520px; max-width: 95vw">
+        <q-card-section>
+          <div class="text-h6">
+            {{ unpicking.used.length }} color{{ unpicking.used.length === 1 ? '' : 's' }} in use
+          </div>
+          <div class="text-caption text-grey-7">
+            {{ unpicking.name }} has colors used in this project's blocks and quilts. Choose what
+            each one becomes; the nearest match is suggested.
+          </div>
+        </q-card-section>
+        <q-card-section v-if="!unpicking.options.length" class="text-negative">
+          No other colors would be left. Pick another palette or add your own colors first.
+        </q-card-section>
+        <q-card-section v-else class="column q-pt-none" style="gap: 8px">
+          <div
+            v-for="c in unpicking.used"
+            :key="c.id"
+            class="row items-center no-wrap"
+            style="gap: 8px"
+          >
+            <div class="mini-swatch big" :style="{ background: rgbCss(c.rgb) }" />
+            <div class="ellipsis" style="width: 110px">{{ c.notecard.name }}</div>
+            <q-icon name="arrow_forward" />
+            <q-select
+              v-model="unpicking.map[c.id]"
+              :options="unpicking.options"
+              option-value="id"
+              :option-label="(o) => o.notecard.name"
+              emit-value
+              map-options
+              dense
+              outlined
+              class="col"
+            >
+              <template #prepend>
+                <div
+                  class="mini-swatch"
+                  :style="{
+                    background: rgbCss(
+                      unpicking.options.find((o) => o.id === unpicking!.map[c.id])?.rgb,
+                    ),
+                  }"
+                />
+              </template>
+              <template #option="{ itemProps, opt }">
+                <q-item v-bind="itemProps" dense>
+                  <q-item-section side>
+                    <div class="mini-swatch" :style="{ background: rgbCss(opt.rgb) }" />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ opt.notecard.name }}
+                    <span class="text-caption text-grey-7">{{ opt.from }}</span>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn v-close-popup flat no-caps label="Cancel" />
+          <q-btn
+            flat
+            no-caps
+            color="primary"
+            label="Swap and remove"
+            :disable="!unpicking.options.length"
+            @click="finishUnpick"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-dialog :model-value="!!saveColors" @update:model-value="saveColors = null">
       <q-card v-if="saveColors" style="width: 380px; max-width: 95vw">
         <q-card-section class="q-gutter-sm">
@@ -631,6 +705,8 @@ import QuiltWizard from '@/components/QuiltWizard.vue';
 import { useStartQuilt } from '@/composables/start-quilt';
 import { allPatches } from '@/model/blocks/patches';
 import { attribution, copyBlock, newBlock } from '@/editor/block-ops';
+import { nearestColor } from '@/editor/color';
+import { colorsUsed, replaceColors } from '@/editor/colors';
 import { authorOf, effectiveLicense, licenseName, priorCredits } from '@/model/credits';
 import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
@@ -738,7 +814,59 @@ const libGroups = computed(() => {
     : out;
 });
 const paletteLibs = computed(() => library.views.filter((v) => v.collections.length));
+type Opt = Color & { from: string };
+const unpicking = ref<{
+  id: string;
+  name: string;
+  used: Color[];
+  options: Opt[];
+  map: Record<string, string>;
+} | null>(null);
+const rgbCss = (rgb?: readonly number[]) => (rgb ? `rgb(${rgb.join(',')})` : 'transparent');
+/**
+ * Unpicking a palette whose colors this project uses (and no other picked palette or own color
+ * provides): ask what each becomes, nearest available color suggested. Cancel changes nothing.
+ */
 function pickPalette(id: string, on: boolean) {
+  if (!on) {
+    const doc = project.doc!;
+    const picked = (doc.project.libraryPalettes ?? []).filter((x) => x !== id);
+    const all = library.views.flatMap((v) => v.collections.map((c) => ({ v, c })));
+    const removed = all.find((x) => x.c.id === id);
+    const own = doc.project.palette.colors.filter((c) => !isLibraryItem(c));
+    const options: Opt[] = [
+      ...own.map((c) => ({ ...c, from: 'My colors' })),
+      ...all
+        .filter((x) => picked.includes(x.c.id))
+        .flatMap((x) =>
+          x.c.colors.map((c) => ({ ...c, from: `${x.c.notecard.name} · ${x.v.doc.name}` })),
+        ),
+    ].filter((c, i, a) => a.findIndex((o) => o.id === c.id) === i);
+    const keep = new Set(options.map((o) => o.id));
+    const inUse = colorsUsed(doc);
+    const used = (removed?.c.colors ?? []).filter((c) => inUse.has(c.id) && !keep.has(c.id));
+    if (used.length) {
+      const map: Record<string, string> = {};
+      for (const c of used) {
+        const n = nearestColor(c.rgb, options);
+        if (n) map[c.id] = n.id;
+      }
+      unpicking.value = { id, name: removed!.c.notecard.name, used, options, map };
+      return;
+    }
+  }
+  setPalettePick(id, on);
+}
+function finishUnpick() {
+  const u = unpicking.value!;
+  unpicking.value = null;
+  project.change((d) => {
+    replaceColors(d, new Map(Object.entries(u.map)));
+    d.project.libraryPalettes = (d.project.libraryPalettes ?? []).filter((x) => x !== u.id);
+    if (!d.project.libraryPalettes.length) delete d.project.libraryPalettes;
+  });
+}
+function setPalettePick(id: string, on: boolean) {
   project.change((d) => {
     const rest = (d.project.libraryPalettes ?? []).filter((x) => x !== id);
     const next = on ? [...rest, id] : rest;
@@ -1271,6 +1399,10 @@ function showPlacements() {
   padding: 8px;
   background: transparent;
   color: inherit;
+}
+.mini-swatch.big {
+  width: 28px;
+  height: 28px;
 }
 .mini-swatch {
   width: 18px;
