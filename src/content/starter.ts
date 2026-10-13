@@ -13,6 +13,7 @@ import { FIVE_PATCH_BLOCKS } from './five-patch';
 import { FOUR_PATCH_BLOCKS } from './four-patch';
 import { LETTER_BLOCKS, NUMBER_BLOCKS } from './letters';
 import { NINE_PATCH_BLOCKS } from './nine-patch';
+import { LOG_CABIN_BLOCKS, STRIP_BLOCKS } from './strips';
 import { SEVEN_PATCH_BLOCKS } from './seven-patch';
 
 type P = [number, number];
@@ -348,7 +349,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: 'Rail Fence',
-    category: 'Strips',
+    category: 'Strips/Strips',
     seams: [
       [
         [t, 0],
@@ -366,8 +367,8 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     ],
   },
   {
-    name: 'Log Cabin',
-    category: 'Strips',
+    name: 'Basic Log Cabin',
+    category: 'Strips/Log Cabin',
     seams: [...rect(3, 3, 5, 5), ...logs.flatMap(([a, b, c, d]) => rect(a, b, c, d))],
     base: C.Cream!,
     points: [
@@ -460,6 +461,8 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     ...NINE_PATCH_BLOCKS,
     ...LETTER_BLOCKS,
     ...NUMBER_BLOCKS,
+    ...LOG_CABIN_BLOCKS,
+    ...STRIP_BLOCKS,
   ].map((b) => ({
     name: b.name,
     size: b.size,
@@ -562,6 +565,8 @@ export async function builtinLibrary(): Promise<BuiltinItems> {
 const STARTER_CATEGORIES = [
   'Medallions',
   'Strips',
+  'Strips/Log Cabin',
+  'Strips/Strips',
   'N-Patch',
   'N-Patch/Four-patch',
   'N-Patch/Five-patch',

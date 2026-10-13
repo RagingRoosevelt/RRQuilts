@@ -9,6 +9,7 @@ import { FOUR_PATCH_BLOCKS } from '@/content/four-patch';
 import { LETTER_BLOCKS, NUMBER_BLOCKS } from '@/content/letters';
 import { NINE_PATCH_BLOCKS } from '@/content/nine-patch';
 import { SEVEN_PATCH_BLOCKS } from '@/content/seven-patch';
+import { LOG_CABIN_BLOCKS, STRIP_BLOCKS } from '@/content/strips';
 
 const expected: Record<string, number> = {
   'Four Patch': 4,
@@ -19,7 +20,7 @@ const expected: Record<string, number> = {
   'Flying Geese': 6,
   'Square in a Square': 5,
   'Rail Fence': 3,
-  'Log Cabin': 13,
+  'Basic Log Cabin': 13,
   'Churn Dash': 17,
   'Ohio Star': 21,
   "Drunkard's Path": 2,
@@ -36,6 +37,8 @@ describe('starter content', () => {
       ...NINE_PATCH_BLOCKS,
       ...LETTER_BLOCKS,
       ...NUMBER_BLOCKS,
+      ...LOG_CABIN_BLOCKS,
+      ...STRIP_BLOCKS,
     ].map((b) => [b.name, b]),
   )('grid block %s: one patch per piece, colored as drawn', (name, fp) => {
     const b = doc.project.blocks.find((x) => x.notecard.name === name)!;
