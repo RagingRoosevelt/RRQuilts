@@ -41,6 +41,19 @@ const place = (doc: RrqDoc, blockId: string, fills: Record<string, { color: stri
   });
 
 describe('library items in projects', () => {
+  it("color variants keep their library block's name", async () => {
+    const { doc, lookup } = await setup();
+    const star = lookup.block('rrquilts.ohio-star')!;
+    const v = produce(copyBlock(star, [star.notecard.name]), (b) => {
+      b.colorVariant = true;
+    });
+    expect(v.notecard.name).toBe('Ohio Star (2)');
+    const d = syncLibraryItems(
+      produce(doc, (x) => void x.project.blocks.push(v)),
+      lookup,
+    );
+    expect(d.project.blocks[0]!.notecard.name).toBe('Ohio Star');
+  });
   it('new projects contain no library items; using one embeds it and the colors it needs', async () => {
     const { doc, lookup } = await setup();
     expect(doc.project.blocks).toHaveLength(0);

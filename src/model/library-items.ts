@@ -47,6 +47,12 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
       if (b) p.blocks.push(toUnits(b, d.units));
     }
   }
+  // Color variants carry their library block's name.
+  for (const b of p.blocks) {
+    const name =
+      b.colorVariant && b.source && (lib?.block(b.source.itemId)?.notecard.name ?? b.source.name);
+    if (name && b.notecard.name !== name) b.notecard.name = name;
+  }
   const usedBlocks = blocksUsed(p);
   const keptBlocks = p.blocks.filter((b) => !isLibraryItem(b) || usedBlocks.has(b.id));
   if (keptBlocks.length !== p.blocks.length) p.blocks = keptBlocks;

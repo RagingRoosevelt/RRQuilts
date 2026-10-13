@@ -1,0 +1,1 @@
+import{t as e}from"./settings-CaGGHoLF.js";import{j as t,o as n}from"./index-Ct7Y-4lT.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};
