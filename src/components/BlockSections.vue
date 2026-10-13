@@ -19,44 +19,33 @@
         · {{ sections.reduce((n, x) => n + (x.parent ? 0 : x.count), 0) }}</span
       >
     </button>
-    <template v-if="sections.some((x) => x.label)">
-      <q-btn
-        flat
-        dense
-        round
-        size="sm"
-        icon="unfold_more"
-        aria-label="Expand all"
-        @click="setAll(true)"
-      >
-        <q-tooltip>Expand all</q-tooltip>
-      </q-btn>
-      <q-btn
-        flat
-        dense
-        round
-        size="sm"
-        icon="unfold_less"
-        aria-label="Collapse all"
-        @click="setAll(false)"
-      >
-        <q-tooltip>Collapse all</q-tooltip>
-      </q-btn>
-    </template>
+    <q-btn
+      v-if="sections.some((x) => x.label)"
+      v-bind="allButton(sections.filter((x) => x.label))"
+    />
   </div>
   <template v-for="sec in title && !isOpen(ROOT) ? [] : sections" :key="sec.key">
-    <button
+    <div
       v-if="sec.label"
       v-show="!sec.parent || isOpen(sec.parent)"
-      class="sec-head text-body2 text-weight-medium text-grey-8 q-mb-xs"
+      class="row items-center no-wrap q-mb-xs"
       :style="indent(sec)"
-      :aria-expanded="isOpen(sec.key)"
-      @click="toggle(sec.key)"
+      style="gap: 4px"
     >
-      <q-icon :name="isOpen(sec.key) ? 'expand_more' : 'chevron_right'" size="20px" />
-      {{ sec.label }} <span class="text-grey-6">· {{ sec.count }}</span>
-      <slot name="header" :section="sec" />
-    </button>
+      <button
+        class="sec-head text-body2 text-weight-medium text-grey-8"
+        :aria-expanded="isOpen(sec.key)"
+        @click="toggle(sec.key)"
+      >
+        <q-icon :name="isOpen(sec.key) ? 'expand_more' : 'chevron_right'" size="20px" />
+        {{ sec.label }} <span class="text-grey-6">· {{ sec.count }}</span>
+        <slot name="header" :section="sec" />
+      </button>
+      <q-btn
+        v-if="!sec.parent && sections.some((x) => x.parent === sec.key)"
+        v-bind="allButton(sections.filter((x) => x.parent === sec.key))"
+      />
+    </div>
     <div
       v-if="sec.blocks.length"
       v-show="!sec.label || (isOpen(sec.key) && (!sec.parent || isOpen(sec.parent)))"
@@ -84,14 +73,27 @@ const indent = (sec: BlockSection) => ({
 const settings = useSettingsStore();
 const key = (k: string) => `libsec:${props.lib}:${k}`;
 const isOpen = (k: string) => !settings.settings.collapsedSections.includes(key(k));
-/** Every section of this library (and the library itself when it has a header) open or closed. */
-function setAll(open: boolean) {
-  const keys = new Set([
-    ...props.sections.map((x) => key(x.key)),
-    ...(props.title ? [key(ROOT)] : []),
-  ]);
-  const rest = settings.settings.collapsedSections.filter((k) => !keys.has(k));
-  settings.settings.collapsedSections = open ? rest : [...rest, ...keys];
+/**
+ * One button for a level's children (never the level itself): expands them all when any is
+ * closed, else collapses them all.
+ */
+function allButton(children: BlockSection[]) {
+  const keys = children.map((x) => key(x.key));
+  const anyClosed = keys.some((k) => settings.settings.collapsedSections.includes(k));
+  const label = anyClosed ? 'Expand all' : 'Collapse all';
+  return {
+    flat: true,
+    dense: true,
+    round: true,
+    size: 'sm',
+    icon: anyClosed ? 'unfold_more' : 'unfold_less',
+    title: label,
+    'aria-label': label,
+    onClick: () => {
+      const rest = settings.settings.collapsedSections.filter((k) => !keys.includes(k));
+      settings.settings.collapsedSections = anyClosed ? rest : [...rest, ...keys];
+    },
+  };
 }
 function toggle(k: string) {
   const all = settings.settings.collapsedSections;

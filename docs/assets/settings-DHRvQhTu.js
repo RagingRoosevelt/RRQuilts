@@ -1,1 +1,0 @@
-import{t as e}from"./settings-CqquguKT.js";import{i as t,k as n}from"./index-BuPduI_c.js";var r=t(async()=>{e().applyTheme(),await n().loaded});export{r as default};
