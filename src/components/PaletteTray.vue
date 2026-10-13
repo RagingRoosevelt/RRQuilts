@@ -133,7 +133,7 @@
         @click="editorDialog?.show()"
       />
       <div v-if="sidebar" class="text-caption text-grey-7 q-px-xs" style="width: 100%">
-        Add library palettes: tick their palette in the project's Palettes tab.
+        Add library palettes: tick their checkbox in the project's Palettes tab.
       </div>
       <!-- Project colors, In use, then each library with its picked palettes (nested sections). -->
       <template v-for="node in colorTree" :key="node.label">
@@ -197,6 +197,7 @@ import { useSettingsStore } from '@/stores/settings';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
+import { usePaletteOffer } from '@/composables/palette-offer';
 import { isLibraryItem, splitItems } from '@/model/library-items';
 import { blockSections, libraryGroups } from '@/model/library';
 import BlockSections from '@/components/BlockSections.vue';
@@ -263,6 +264,7 @@ const TraySection = defineComponent({
   },
 });
 const doc = computed(() => project.doc!);
+const offerPalette = usePaletteOffer();
 const blockGroups = computed(() => {
   const own = doc.value.project.blocks.filter((b) => !b.notecard.tags?.includes('system'));
   const { mine, library: lib } = splitItems(own, library.items.blocks);
@@ -362,6 +364,8 @@ function pickBlock(id: string) {
 }
 function chooseColoring(blockId: string, coloringId: string) {
   editor.coloringOf.set(blockId, coloringId);
+  const b = doc.value.project.blocks.find((x) => x.id === blockId) ?? library.lookup.block(blockId);
+  if (b) offerPalette(b, coloringId);
   pickBlock(blockId);
 }
 function pickColor(id: string) {

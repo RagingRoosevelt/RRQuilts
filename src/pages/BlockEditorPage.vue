@@ -136,7 +136,7 @@
                   :key="c.id"
                   class="coloring"
                   :class="{ active: c.id === coloringId }"
-                  @click="editor.coloringOf.set(block.id, c.id)"
+                  @click="pickColoring(c.id)"
                 >
                   <img
                     :src="blockThumbnail(project.doc, block, 72, $q.dark.isActive, c.id)"
@@ -230,6 +230,7 @@ import {
   transforms,
 } from '@/editor/draw-ops';
 import { applySeamEdit } from '@/model/blocks/edit';
+import { usePaletteOffer } from '@/composables/palette-offer';
 import { isLibraryItem } from '@/model/library-items';
 import type { Pt } from '@/model/geometry/path';
 import type { Block, Drawing } from '@/model/schema/block';
@@ -287,6 +288,11 @@ watch(
 watchEffect(() => {
   if (anyBlock.value?.colorVariant && editor.blockMode === 'draw') editor.blockMode = 'color';
 });
+const offerPalette = usePaletteOffer();
+function pickColoring(id: string) {
+  editor.coloringOf.set(block.value!.id, id);
+  offerPalette(block.value!, id);
+}
 const units = computed(() => project.doc?.units ?? 'in');
 const settings = computed(() => editorSettings(block.value!, units.value));
 const unconnected = computed(() => new Set(block.value?.unconnected ?? []));
