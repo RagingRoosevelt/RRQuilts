@@ -193,8 +193,8 @@ const router = useRouter();
 const project = useProjectStore();
 const editor = useEditorStore();
 // Sidebar opens with each editor (hiding it isn't remembered).
-// Open on arrival, except on phones, where it slides over the canvas.
-editor.sidebar = !$q.screen.xs;
+// Open on arrival, except on phones/portrait tablets, where it slides over the canvas.
+editor.sidebar = !$q.screen.lt.md;
 // Details lives in the sidebar, so it opens whenever that tab is shown.
 watch(
   () => editor.mode,
@@ -355,8 +355,8 @@ function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
   border-left: none;
   border-right: 1px solid rgba(128, 128, 128, 0.25);
 }
-/* Phones: the sidebar slides over the canvas, so opening it doesn't change the view. */
-@media (max-width: 599px) {
+/* Phones and portrait tablets: the sidebar slides over the canvas (opening it keeps the view). */
+@media (max-width: 1023px) {
   .inspector {
     position: absolute;
     top: 0;

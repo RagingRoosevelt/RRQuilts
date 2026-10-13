@@ -34,26 +34,26 @@ export function parseCollectionFile(
   try {
     raw = JSON.parse(text);
   } catch {
-    return { ok: false, error: 'Not a color collection file (not valid JSON).' };
+    return { ok: false, error: 'Not a palette file (not valid JSON).' };
   }
   const r = raw as Record<string, unknown> | null;
   if (!r || r.format !== COLLECTION_FORMAT)
-    return { ok: false, error: 'Not an RRQuilts color collection file.' };
+    return { ok: false, error: 'Not an RRQuilts palette file.' };
   if (typeof r.version === 'number' && r.version > COLLECTION_VERSION)
     return {
       ok: false,
-      error: 'This collection is from a newer RRQuilts. Update the app to open it.',
+      error: 'This palette is from a newer RRQuilts. Update the app to open it.',
     };
   if (!Value.Check(CollectionFile, raw)) {
     const e = [...Value.Errors(CollectionFile, raw)][0];
     return {
       ok: false,
-      error: `Color collection file is damaged: ${e ? `${e.instancePath || '/'}: ${e.message}` : ''}`,
+      error: `Palette file is damaged: ${e ? `${e.instancePath || '/'}: ${e.message}` : ''}`,
     };
   }
   const ids = raw.collection.colors.map((c) => c.id);
   if (new Set(ids).size !== ids.length)
-    return { ok: false, error: 'Color collection file is damaged: duplicate color ids.' };
+    return { ok: false, error: 'Palette file is damaged: duplicate color ids.' };
   return { ok: true, file: raw };
 }
 

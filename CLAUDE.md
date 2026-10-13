@@ -115,7 +115,8 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   blocks/colors, prunes unused ones (same undo step). `splitItems` = Mine vs Library for display
 - Identity (`src/model/identity.ts`): shareable ids `<author-slug>.<random>`; `version` = 12-hex
   content hash (sizes hashed in inches), `revision` display counter; stamped on save
-- `.rrqbl` single-block files: `src/model/block-file.ts`; `.rrqcc` single color-collection files (spec 011)
+- `.rrqbl` single-block files: `src/model/block-file.ts`; `.rrqcc` single color-collection files (spec 011;
+  the UI calls color collections **palettes**)
 - Credits/licenses (spec 009, `src/model/credits.ts`): items carry `author`, `license`, `credits`
   (origin first); copying/editing others' work (`creditCopy`) appends the previous author. Chain
   locks the license (ARR > NC > SA). `components/DetailsPanel.vue` = Details tab (project/quilt/block)
@@ -162,3 +163,6 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - Dev-server file watching must not see big folders: npm cache lives in `~/.cache/rrquilts-npm`
   (outside the repo); Vite ignores `docs/`, `specs/`, `reference/`.
 - Workbox `skipWaiting` is forced off — updates apply only via the in-app prompt.
+- `make dev` / `make serve` are plain HTTP. Over the LAN (not localhost) browsers treat that as
+  insecure: no service worker, no install, no File System Access — so PWA install/offline can't be
+  tested on a phone that way. Deferred: an HTTPS dev option (e.g. Vite `basicSsl` / mkcert).

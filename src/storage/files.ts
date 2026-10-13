@@ -25,7 +25,7 @@ declare global {
 export const FILE_TYPES = {
   rrq: 'RRQuilts project file',
   rrqbl: 'RRQuilts block file',
-  rrqcc: 'RRQuilts color collection file',
+  rrqcc: 'RRQuilts palette file',
   rrqlib: 'RRQuilts library file',
   rrqconf: 'RRQuilts settings file',
 } as const;

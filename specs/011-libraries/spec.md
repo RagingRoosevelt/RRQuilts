@@ -36,6 +36,8 @@
   change back to the library.
 - Q: Colors? → A: My library holds color collections, not single colors. In scope.
 - Q: Search by color? → A: Later.
+- Naming (later decision): the interface calls color collections **palettes**; the format keeps
+  `type: "colors"` and, for now, `.rrqcc`.
 - Q: Can a color collection travel on its own? → A: Yes: export/import as a standalone `.rrqcc`
   file (like `.rrqbl` for one block).
 - Q: What can be shared besides the whole library? → A: Later: single categories, and single types

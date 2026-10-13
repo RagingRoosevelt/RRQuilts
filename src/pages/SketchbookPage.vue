@@ -291,12 +291,12 @@
           dense
           no-caps
           icon="upload_file"
-          label="Import collection (.rrqcc)"
+          label="Import palette (.rrqcc)"
           @click="importCollectionFile"
         />
       </div>
       <div v-if="!project.readOnly" class="text-caption text-grey-7 q-mb-sm">
-        Tap your colors to pick them for a collection in {{ MY_LIBRARY }}.
+        Tap your colors to pick them for a palette in {{ MY_LIBRARY }}.
       </div>
       <template v-for="group in colorGroups" :key="group.label">
         <div class="text-subtitle2 q-mb-sm">{{ group.label }}</div>
@@ -478,12 +478,12 @@
           <q-select
             v-model="saveColors.to"
             :options="[
-              { label: 'New collection', value: '' },
+              { label: 'New palette', value: '' },
               ...myCollections.map((c) => ({ label: c.notecard.name, value: c.id })),
             ]"
             emit-value
             map-options
-            label="Collection"
+            label="Palette"
           />
           <q-input v-if="!saveColors.to" v-model="saveColors.name" autofocus label="Name" />
         </q-card-section>
@@ -510,7 +510,7 @@
             :options="allCollections"
             emit-value
             map-options
-            label="Collection"
+            label="Palette"
           />
           <q-btn-toggle
             v-model="importing.mode"
@@ -850,7 +850,7 @@ async function savePickedColors({ to, name }: { to: string; name: string }) {
     await library.saveMine(r.lib);
     applyLinks(r.doc);
     pickedColors.value = [];
-    return void $q.notify({ type: 'positive', message: 'Added to the collection.' });
+    return void $q.notify({ type: 'positive', message: 'Added to the palette.' });
   }
   const category = await askCategory();
   if (category === null) return;
