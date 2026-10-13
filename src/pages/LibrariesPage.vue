@@ -371,7 +371,7 @@
           />
           <ColorEditor ref="colorEditor" @done="saveColorEdit" />
         </q-card-section>
-        <q-list v-else dense separator style="max-height: 60vh; overflow: auto">
+        <q-list v-else dense separator class="q-pb-md" style="max-height: 60vh; overflow: auto">
           <q-item v-for="x in previewCollection.colors" :key="x.id">
             <q-item-section avatar>
               <span class="chip big" :style="{ background: css(x) }" />
