@@ -34,25 +34,31 @@
               @click="pickBlock(b.id)"
             >
               <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
-              <span v-if="b.colorings.length > 1" class="count">{{ b.colorings.length }}</span>
-              <!-- Blocks with several colorings: right-click / long-press to choose which one to set. -->
-              <q-menu v-if="b.colorings.length > 1" touch-position context-menu>
-                <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
-                  <button
-                    v-for="(c, i) in b.colorings"
-                    :key="c.id"
-                    v-close-popup
-                    class="tile"
-                    :class="{
-                      active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id,
-                    }"
-                    :title="c.name ?? `Coloring ${i + 1}`"
-                    @click="chooseColoring(b.id, c.id)"
-                  >
-                    <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
-                  </button>
-                </div>
-              </q-menu>
+              <!-- Blocks with several colorings: click the count to choose which one to set. -->
+              <span
+                v-if="b.colorings.length > 1"
+                class="count"
+                role="button"
+                title="Choose coloring"
+                @click.stop
+                >{{ b.colorings.length }}
+                <q-menu>
+                  <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+                    <button
+                      v-for="(c, i) in b.colorings"
+                      :key="c.id"
+                      v-close-popup
+                      class="tile"
+                      :class="{
+                        active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id,
+                      }"
+                      :title="c.name ?? `Coloring ${i + 1}`"
+                      @click="chooseColoring(b.id, c.id)"
+                    >
+                      <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
+                    </button>
+                  </div> </q-menu
+              ></span>
             </button>
           </template>
         </BlockSections>
@@ -69,25 +75,31 @@
               @click="pickBlock(b.id)"
             >
               <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
-              <span v-if="b.colorings.length > 1" class="count">{{ b.colorings.length }}</span>
-              <!-- Blocks with several colorings: right-click / long-press to choose which one to set. -->
-              <q-menu v-if="b.colorings.length > 1" touch-position context-menu>
-                <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
-                  <button
-                    v-for="(c, i) in b.colorings"
-                    :key="c.id"
-                    v-close-popup
-                    class="tile"
-                    :class="{
-                      active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id,
-                    }"
-                    :title="c.name ?? `Coloring ${i + 1}`"
-                    @click="chooseColoring(b.id, c.id)"
-                  >
-                    <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
-                  </button>
-                </div>
-              </q-menu>
+              <!-- Blocks with several colorings: click the count to choose which one to set. -->
+              <span
+                v-if="b.colorings.length > 1"
+                class="count"
+                role="button"
+                title="Choose coloring"
+                @click.stop
+                >{{ b.colorings.length }}
+                <q-menu>
+                  <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+                    <button
+                      v-for="(c, i) in b.colorings"
+                      :key="c.id"
+                      v-close-popup
+                      class="tile"
+                      :class="{
+                        active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id,
+                      }"
+                      :title="c.name ?? `Coloring ${i + 1}`"
+                      @click="chooseColoring(b.id, c.id)"
+                    >
+                      <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
+                    </button>
+                  </div> </q-menu
+              ></span>
             </button>
           </TraySection>
         </template>
@@ -422,6 +434,7 @@ function remove(id: string) {
   line-height: 16px;
   background: var(--q-primary);
   color: white;
+  cursor: pointer;
 }
 .tile img {
   display: block;
