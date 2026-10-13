@@ -1,4 +1,4 @@
-// Built-in starter content: 13 traditional blocks (plus the four-patch family in four-patch.ts) drawn originally as seam lines, 36 basic solid
+// Built-in starter content: 13 traditional blocks (plus the four- and five-patch families in four-patch.ts, five-patch.ts) drawn originally as seam lines, 36 basic solid
 // colors, and five themed palettes, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
 import { produce } from 'immer';
@@ -9,6 +9,7 @@ import type { SeamBlock, Segment } from '@/model/schema/block';
 import { LIBRARY_FORMAT, LIBRARY_VERSION, type LibraryDoc } from '@/model/schema/library';
 import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
+import { FIVE_PATCH_BLOCKS } from './five-patch';
 import { FOUR_PATCH_BLOCKS } from './four-patch';
 
 type P = [number, number];
@@ -463,7 +464,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
       [0.38, 0.7, C.Gold!], // lower hook
     ],
   },
-  ...FOUR_PATCH_BLOCKS.map((b) => ({
+  ...[...FOUR_PATCH_BLOCKS, ...FIVE_PATCH_BLOCKS].map((b) => ({
     name: b.name,
     size: b.size,
     category: b.category,

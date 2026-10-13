@@ -4,6 +4,7 @@ import { contentVersion } from '@/model/identity';
 import { parseProject, serializeProject } from '@/model/io';
 import { allPatches } from '@/model/blocks/patches';
 import { createProject } from '@/model/new-project';
+import { FIVE_PATCH_BLOCKS } from '@/content/five-patch';
 import { FOUR_PATCH_BLOCKS } from '@/content/four-patch';
 
 const expected: Record<string, number> = {
@@ -25,8 +26,8 @@ const expected: Record<string, number> = {
 describe('starter content', () => {
   const doc = addStarterContent(createProject());
 
-  it.each(FOUR_PATCH_BLOCKS.map((b) => [b.name, b]))(
-    'four-patch %s: one patch per piece, colored as drawn',
+  it.each([...FOUR_PATCH_BLOCKS, ...FIVE_PATCH_BLOCKS].map((b) => [b.name, b]))(
+    'grid block %s: one patch per piece, colored as drawn',
     (name, fp) => {
       const b = doc.project.blocks.find((x) => x.notecard.name === name)!;
       expect(b.kind === 'seam' && b.unconnected).toBeFalsy();
