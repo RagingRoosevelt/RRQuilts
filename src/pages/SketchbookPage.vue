@@ -262,6 +262,7 @@
                         :disable="b.kind !== 'seam'"
                         @click="editLibrary(b)"
                       >
+                        <q-item-section avatar><q-icon name="content_copy" /></q-item-section>
                         <q-item-section>Edit (make a copy)</q-item-section>
                       </q-item>
                       <q-item
@@ -271,6 +272,7 @@
                         :disable="b.kind !== 'seam'"
                         @click="colorVariant(b)"
                       >
+                        <q-item-section avatar><q-icon name="palette" /></q-item-section>
                         <q-item-section>Create a coloration variant</q-item-section>
                       </q-item>
                       <q-item
