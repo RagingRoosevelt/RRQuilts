@@ -6,6 +6,8 @@ import { allPatches } from '@/model/blocks/patches';
 import { createProject } from '@/model/new-project';
 import { FIVE_PATCH_BLOCKS } from '@/content/five-patch';
 import { FOUR_PATCH_BLOCKS } from '@/content/four-patch';
+import { NINE_PATCH_BLOCKS } from '@/content/nine-patch';
+import { SEVEN_PATCH_BLOCKS } from '@/content/seven-patch';
 
 const expected: Record<string, number> = {
   'Four Patch': 4,
@@ -26,24 +28,30 @@ const expected: Record<string, number> = {
 describe('starter content', () => {
   const doc = addStarterContent(createProject());
 
-  it.each([...FOUR_PATCH_BLOCKS, ...FIVE_PATCH_BLOCKS].map((b) => [b.name, b]))(
-    'grid block %s: one patch per piece, colored as drawn',
-    (name, fp) => {
-      const b = doc.project.blocks.find((x) => x.notecard.name === name)!;
-      expect(b.kind === 'seam' && b.unconnected).toBeFalsy();
-      expect(b.size).toEqual([fp.size, fp.size]);
-      const ids = new Map(doc.project.palette.colors.map((c) => [c.id, c.notecard.name]));
-      const fills = Object.values(b.colorings[0]!.fills).map((f) =>
-        'color' in f ? ids.get(f.color) : '',
-      );
-      expect(allPatches(b)).toHaveLength(fp.points.length);
-      expect(fills.sort()).toEqual(fp.points.map((p) => p[2]).sort());
-    },
-  );
+  it.each(
+    [...FOUR_PATCH_BLOCKS, ...FIVE_PATCH_BLOCKS, ...SEVEN_PATCH_BLOCKS, ...NINE_PATCH_BLOCKS].map(
+      (b) => [b.name, b],
+    ),
+  )('grid block %s: one patch per piece, colored as drawn', (name, fp) => {
+    const b = doc.project.blocks.find((x) => x.notecard.name === name)!;
+    expect(b.kind === 'seam' && b.unconnected).toBeFalsy();
+    expect(b.size).toEqual([fp.size, fp.size]);
+    const ids = new Map(doc.project.palette.colors.map((c) => [c.id, c.notecard.name]));
+    const fills = Object.values(b.colorings[0]!.fills).map((f) =>
+      'color' in f ? ids.get(f.color) : '',
+    );
+    expect(allPatches(b)).toHaveLength(fp.points.length);
+    expect(fills.sort()).toEqual(fp.points.map((p) => p[2]).sort());
+  });
 
   it('Latticed Irish Chain matches its cutting list', () => {
     const lic = FOUR_PATCH_BLOCKS.find((b) => b.name === 'Latticed Irish Chain')!;
     expect(lic.counts).toEqual({ L: 26, K: 11, D: 11, M: 22, S: 24, Q: 24, P: 22 });
+  });
+
+  it('gives every starter block a unique name', () => {
+    const names = STARTER_BLOCKS.map((b) => b.name.toLowerCase());
+    expect(names.filter((n, i) => names.indexOf(n) !== i)).toEqual([]);
   });
 
   it('adds 76 colors (36 basic + 5 palettes of 8) and every starter block', () => {
