@@ -107,6 +107,16 @@
           <button class="thumb" @click="openBlock(b.id)">
             <img :src="thumb(b, 200)" :alt="b.notecard.name" />
           </button>
+          <q-badge
+            v-if="b.colorVariant"
+            class="variant cursor-pointer"
+            color="secondary"
+            role="button"
+            @click="showOriginal(b)"
+          >
+            <q-icon name="link" size="14px" class="q-mr-xs" />Color variant
+            <q-tooltip>Your coloring of a library block — show the original</q-tooltip>
+          </q-badge>
           <div class="row items-center no-wrap">
             <FullName class="col" :name="b.notecard.name">
               <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
@@ -211,7 +221,11 @@
             </q-checkbox>
           </template>
           <template #default="{ block: b }">
-            <div class="card" :class="{ picked: isPicked(b.id) }">
+            <div
+              :id="`lib-block-${b.id}`"
+              class="card"
+              :class="{ picked: isPicked(b.id), flash: flashed === b.id }"
+            >
               <q-checkbox
                 class="pick"
                 dense
@@ -249,7 +263,16 @@
                         :disable="b.kind !== 'seam'"
                         @click="editLibrary(b)"
                       >
-                        <q-item-section>Edit (makes your copy)</q-item-section>
+                        <q-item-section>Edit (make a copy)</q-item-section>
+                      </q-item>
+                      <q-item
+                        v-if="!project.readOnly"
+                        v-close-popup
+                        clickable
+                        :disable="b.kind !== 'seam'"
+                        @click="colorVariant(b)"
+                      >
+                        <q-item-section>Create a coloration variant</q-item-section>
                       </q-item>
                       <q-item
                         v-if="otherVersions.has(b.id) && !project.readOnly"
@@ -261,14 +284,6 @@
                       </q-item>
                       <q-item v-close-popup clickable @click="preview = b.id">
                         <q-item-section>Preview</q-item-section>
-                      </q-item>
-                      <q-item
-                        v-if="b.source?.libraryId !== library.mine?.id"
-                        v-close-popup
-                        clickable
-                        @click="copyLibToMine(b)"
-                      >
-                        <q-item-section>Copy to my library</q-item-section>
                       </q-item>
                       <q-item v-close-popup clickable @click="exportBlock(b)">
                         <q-item-section>Export (.rrqbl)</q-item-section>
@@ -718,7 +733,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
@@ -765,13 +780,11 @@ import {
 } from '@/model/library-items';
 import { exportFile, pickFile } from '@/storage/files';
 import { importCollectionColors, parseCollectionFile } from '@/model/collection-file';
-import { DEFAULT_LICENSE } from '@/model/credits';
 import {
   MY_LIBRARY,
   addBlock,
   addToCollection,
   colorChanged,
-  copyToMine,
   blockSections,
   libraryGroups,
   linkState,
@@ -1099,7 +1112,7 @@ function openBlock(id: string) {
   }
   const users = quiltsUsing(id);
   const go = () => {
-    editor.blockMode = 'draw';
+    editor.blockMode = b.colorVariant ? 'color' : 'draw';
     void router.push(`/project/block/${id}`);
   };
   if (!users.length || warnedBlocks.has(id) || project.readOnly) return go();
@@ -1117,11 +1130,14 @@ function openBlock(id: string) {
 async function editCopy(id: string) {
   const b = blocks.value.find((x) => x.id === id);
   if (!b) return;
-  const copy = copyBlock(
-    b,
-    blocks.value.map((x) => x.notecard.name),
-    await askAuthor(),
-    project.doc!.project.license,
+  const copy = produce(
+    copyBlock(
+      b,
+      blocks.value.map((x) => x.notecard.name),
+      await askAuthor(),
+      project.doc!.project.license,
+    ),
+    (c) => void delete c.colorVariant, // a copy is a full block of your own
   );
   const at = project.doc!.project.blocks.indexOf(b) + 1;
   project.change((d) => void d.project.blocks.splice(at, 0, copy));
@@ -1180,6 +1196,49 @@ async function editLibrary(lib: Block) {
     .onCancel(() => go(false));
 }
 
+/** Scroll to a color variant's library block, opening the sections it's in. */
+const flashed = ref<string>();
+function showOriginal(v: Block) {
+  const id = v.source?.itemId;
+  const g = libGroups.value.find((x) => x.sections.some((s) => s.blocks.some((b) => b.id === id)));
+  const sec = g?.sections.find((s) => s.blocks.some((b) => b.id === id));
+  if (!g || !sec) {
+    $q.notify({ message: 'The original block is no longer in your libraries.' });
+    return;
+  }
+  // BlockSections' keys: the library header ('\u0000library'), the section, its category.
+  const open = ['\u0000library', sec.key, sec.parent].map((k) => `libsec:${g.lib}:${k}`);
+  settings.settings.collapsedSections = settings.settings.collapsedSections.filter(
+    (k) => !open.includes(k),
+  );
+  void nextTick(() => {
+    document
+      .getElementById(`lib-block-${id}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    flashed.value = id;
+    setTimeout(() => (flashed.value = undefined), 1500);
+  });
+}
+
+/** Your own coloring of a library block, in My blocks: same drawing, locked. */
+async function colorVariant(lib: Block) {
+  const v = produce(
+    copyBlock(
+      toUnits(lib, project.doc!.units),
+      blocks.value.map((x) => x.notecard.name),
+      await askAuthor(),
+      project.doc!.project.license,
+    ),
+    (c) => {
+      c.colorVariant = true;
+      c.notecard.name = lib.notecard.name; // same name as its original; the badge tells them apart
+    },
+  );
+  project.change((d) => void d.project.blocks.push(v));
+  editor.blockMode = 'color';
+  void router.push(`/project/block/${v.id}`);
+}
+
 // --- My library (spec 011) ---
 const linkOf = (b: Block) => linkState(library.mine ?? undefined, b, project.doc!.units);
 
@@ -1233,22 +1292,6 @@ function syncToMine(b: Block) {
   })
     .onOk(() => void go())
     .onCancel(() => canKeepBoth && void go(true));
-}
-
-async function copyLibToMine(b: Block) {
-  const view = library.views.find((v) => v.doc.id === b.source?.libraryId);
-  const item = view?.doc.items.find((i) => i.data.id === b.id);
-  const author = await askAuthor();
-  const lib = library.ensureMine(author);
-  await library.saveMine(
-    await copyToMine(
-      lib,
-      item?.type === 'block' ? { ...item, data: b } : { type: 'block' as const, data: b },
-      author,
-      DEFAULT_LICENSE,
-    ),
-  );
-  $q.notify({ type: 'positive', message: `Copied “${b.notecard.name}” to ${MY_LIBRARY}.` });
 }
 
 // Colors: pick own colors, save them as a collection or add them to one; sync changed ones.
@@ -1561,6 +1604,15 @@ function showPlacements() {
   border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.15);
   flex: none;
+}
+.card.flash {
+  outline: 3px solid var(--q-primary);
+  transition: outline-color 1.5s;
+}
+.card .variant {
+  position: absolute;
+  top: 12px;
+  left: 12px;
 }
 .card .pick {
   position: absolute;

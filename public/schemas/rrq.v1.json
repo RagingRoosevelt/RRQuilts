@@ -865,6 +865,9 @@
                     "type": "object",
                     "properties": {}
                   },
+                  "colorVariant": {
+                    "type": "boolean"
+                  },
                   "kind": {
                     "type": "string",
                     "const": "seam"
@@ -1476,6 +1479,9 @@
                     "type": "object",
                     "properties": {}
                   },
+                  "colorVariant": {
+                    "type": "boolean"
+                  },
                   "kind": {
                     "type": "string",
                     "const": "grid"
@@ -1948,6 +1954,9 @@
                   "editor": {
                     "type": "object",
                     "properties": {}
+                  },
+                  "colorVariant": {
+                    "type": "boolean"
                   },
                   "kind": {
                     "type": "string",
@@ -2625,6 +2634,9 @@
                     "type": "object",
                     "properties": {}
                   },
+                  "colorVariant": {
+                    "type": "boolean"
+                  },
                   "kind": {
                     "anyOf": [
                       {
@@ -3186,6 +3198,9 @@
                   "editor": {
                     "type": "object",
                     "properties": {}
+                  },
+                  "colorVariant": {
+                    "type": "boolean"
                   },
                   "kind": {
                     "type": "string",

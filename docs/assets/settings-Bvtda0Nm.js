@@ -1,1 +1,0 @@
-import{t as e}from"./settings-Czc_me9-.js";import{j as t,o as n}from"./index-CMQ8V9wT.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

@@ -68,6 +68,8 @@ const blockBase = {
   colorings: Type.Array(Coloring),
   foundation: Type.Optional(Foundation),
   editor: Type.Optional(Editor),
+  /** A recoloring of a library block: the drawing is locked, only colorings change. */
+  colorVariant: Type.Optional(Type.Boolean()),
 };
 
 const seamPart = {

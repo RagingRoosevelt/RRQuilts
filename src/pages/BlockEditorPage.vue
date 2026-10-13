@@ -6,7 +6,7 @@
     >
       <q-tabs v-model="editor.blockMode" dense no-caps inline-label class="col">
         <q-tab name="details" icon="info" label="Details" />
-        <q-tab name="draw" icon="draw" label="Draw" />
+        <q-tab v-if="!anyBlock?.colorVariant" name="draw" icon="draw" label="Draw" />
         <q-tab name="color" icon="palette" label="Color" />
         <q-tab name="print" icon="print" label="Print" />
       </q-tabs>
@@ -200,7 +200,7 @@
 <script setup lang="ts">
 import { produce } from 'immer';
 import { useQuasar } from 'quasar';
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BlockCanvas from '@/components/BlockCanvas.vue';
 import BlockInspector from '@/components/BlockInspector.vue';
@@ -283,6 +283,10 @@ watch(
   { immediate: true },
 );
 
+// Color variants keep their library block's drawing.
+watchEffect(() => {
+  if (anyBlock.value?.colorVariant && editor.blockMode === 'draw') editor.blockMode = 'color';
+});
 const units = computed(() => project.doc?.units ?? 'in');
 const settings = computed(() => editorSettings(block.value!, units.value));
 const unconnected = computed(() => new Set(block.value?.unconnected ?? []));
