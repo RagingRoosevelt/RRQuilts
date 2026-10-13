@@ -167,12 +167,14 @@
                     </q-item>
                   </template>
                   <q-item v-close-popup clickable @click="preview = b.id">
+                    <q-item-section avatar><q-icon name="visibility" /></q-item-section>
                     <q-item-section>Preview</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="blockDetails(b.id)">
                     <q-item-section>Details</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="exportBlock(b)">
+                    <q-item-section avatar><q-icon name="file_download" /></q-item-section>
                     <q-item-section>Export (.rrqbl)</q-item-section>
                   </q-item>
                   <template v-if="!project.readOnly">
@@ -284,9 +286,11 @@
                         <q-item-section>Switch version…</q-item-section>
                       </q-item>
                       <q-item v-close-popup clickable @click="preview = b.id">
+                        <q-item-section avatar><q-icon name="visibility" /></q-item-section>
                         <q-item-section>Preview</q-item-section>
                       </q-item>
                       <q-item v-close-popup clickable @click="exportBlock(b)">
+                        <q-item-section avatar><q-icon name="file_download" /></q-item-section>
                         <q-item-section>Export (.rrqbl)</q-item-section>
                       </q-item>
                     </q-list>
