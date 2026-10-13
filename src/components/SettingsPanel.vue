@@ -27,6 +27,12 @@
             <div class="q-mt-md">
               <div class="text-subtitle1">Socials</div>
               <div
+                v-if="store.settings.socials.length && !editing.size"
+                class="text-caption text-grey-7 credits-label"
+              >
+                In credits
+              </div>
+              <div
                 v-for="(link, n) in store.settings.socials"
                 :key="n"
                 class="row items-center no-wrap q-mb-sm social"
@@ -47,6 +53,15 @@
                 />
                 <!-- Shown: icon · handle (linked to the profile); edited: type and handle fields. -->
                 <template v-if="!editing.has(n)">
+                  <q-radio
+                    v-if="!editing.size"
+                    :model-value="creditIndex"
+                    :val="n"
+                    dense
+                    class="credit-radio"
+                    :aria-label="`Show ${link.type} in printed credits`"
+                    @update:model-value="setCredit"
+                  />
                   <q-icon :name="socialIcon(link.type)" size="20px">
                     <q-tooltip>{{ link.type || 'No type' }}</q-tooltip>
                   </q-icon>
@@ -244,6 +259,19 @@ function drop(to: number) {
   editing.clear();
   order.forEach((i, at) => was.has(i) && editing.add(at));
 }
+/** Which social printed credits show: the flagged one, else the first. */
+const creditIndex = computed(() =>
+  Math.max(
+    0,
+    store.settings.socials.findIndex((s) => s.credit),
+  ),
+);
+function setCredit(i: number) {
+  store.settings.socials.forEach((s, j) => {
+    if (j === i) s.credit = true;
+    else delete s.credit;
+  });
+}
 /** Entries being edited (by index); everything shows as a link when Settings opens. */
 const editing = reactive(new Set<number>());
 function addSocial() {
@@ -299,6 +327,15 @@ async function importConf() {
 </script>
 
 <style scoped>
+.credit-radio {
+  width: 28px;
+  flex: none;
+}
+/* Above the radio column (after the drag handle). */
+.credits-label {
+  padding-left: 22px;
+  margin-bottom: 2px;
+}
 .social .drag {
   cursor: grab;
   opacity: 0;

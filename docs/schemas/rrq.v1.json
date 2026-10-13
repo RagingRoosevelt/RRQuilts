@@ -73,6 +73,9 @@
               "handle": {
                 "type": "string",
                 "maxLength": 500
+              },
+              "credit": {
+                "type": "boolean"
               }
             }
           },

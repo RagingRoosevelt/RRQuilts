@@ -21,6 +21,8 @@ const thingiverseIcon =
 export interface Social {
   type: string;
   handle: string;
+  /** The one shown in printed credits (else the first). */
+  credit?: boolean;
 }
 
 /**
@@ -57,6 +59,9 @@ export const SOCIAL_TYPES = [
   'Website',
   ...[...Object.keys(SITES), 'Mastodon'].sort((a, b) => a.localeCompare(b)),
 ];
+
+/** A known site (shown as icon/handle); Website and custom types are shown as typed. */
+export const isKnownSite = (type: string) => type in SITES || type === 'Mastodon';
 
 /** The icon for a type (custom types: a link). */
 export const socialIcon = (type: string) =>
@@ -101,8 +106,18 @@ export function toHandle(type: string, value: string): string {
   return v;
 }
 
-/** Socials as written into files: filled-in entries only. */
+/** Socials as written into files: filled-in entries, in order, with the credits pick flagged. */
 export const socialsOut = (list: Social[]) =>
   list
     .filter((s) => s.type.trim() && s.handle.trim())
-    .map((s) => ({ type: s.type.trim(), handle: s.handle.trim() }));
+    .map((s) => ({
+      type: s.type.trim(),
+      handle: s.handle.trim(),
+      ...(s.credit ? { credit: true } : {}),
+    }));
+
+/** The social printed credits show: the flagged one, else the first. */
+export const creditSocial = (list: readonly Social[] | undefined) => {
+  const ok = (list ?? []).filter((s) => s.type && s.handle);
+  return ok.find((s) => s.credit) ?? ok[0];
+};

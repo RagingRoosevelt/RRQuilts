@@ -351,9 +351,11 @@
               </div>
               <div v-if="on(s, 'credits')" data-m="credits" class="column" style="gap: 8px">
                 <div class="text-weight-medium">Credits</div>
-                <div>{{ s.byline }}</div>
+                <div>{{ s.byline }} <AuthorSocial :name="s.author" /></div>
                 <ul v-if="s.basedOn.length">
-                  <li v-for="(c, j) in s.basedOn" :key="j">Based on {{ creditLine(c) }}</li>
+                  <li v-for="(c, j) in s.basedOn" :key="j">
+                    Based on {{ creditLine(c) }} <AuthorSocial :name="c.author" />
+                  </li>
                 </ul>
               </div>
             </div>
@@ -361,13 +363,15 @@
             <!-- Credits: everyone whose work this builds on (when no block pages carry them) -->
             <div v-else-if="s.kind === 'credits'" class="column" style="gap: 8px">
               <div v-if="on(s, 'title')" data-m="title">
-                <b>{{ view.title }}</b> — {{ view.byline }}
+                <b>{{ view.title }}</b> — {{ view.byline }} <AuthorSocial :name="view.author" />
               </div>
               <template v-if="view.basedOn.length && on(s, 'bo>')">
                 <div class="text-weight-medium" data-m="bo>">Based on</div>
                 <ul>
                   <template v-for="(c, j) in view.basedOn" :key="j">
-                    <li v-if="on(s, `bo>${j}`)" :data-m="`bo>${j}`">{{ creditLine(c) }}</li>
+                    <li v-if="on(s, `bo>${j}`)" :data-m="`bo>${j}`">
+                      {{ creditLine(c) }} <AuthorSocial :name="c.author" />
+                    </li>
                   </template>
                 </ul>
               </template>
@@ -376,10 +380,15 @@
                 <ul>
                   <template v-for="(b, j) in view.blocks" :key="j">
                     <li v-if="on(s, `bl>${j}`)" :data-m="`bl>${j}`">
-                      {{ b.name }}<template v-if="b.author"> by {{ b.author }}</template> ·
-                      {{ b.license }}
+                      {{ b.name
+                      }}<template v-if="b.author">
+                        by {{ b.author }} <AuthorSocial :name="b.author"
+                      /></template>
+                      · {{ b.license }}
                       <ul v-if="b.basedOn.length">
-                        <li v-for="(c, k) in b.basedOn" :key="k">based on {{ creditLine(c) }}</li>
+                        <li v-for="(c, k) in b.basedOn" :key="k">
+                          based on {{ creditLine(c) }} <AuthorSocial :name="c.author" />
+                        </li>
                       </ul>
                     </li>
                   </template>
@@ -445,7 +454,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
+import { QIcon } from 'quasar';
+import {
+  computed,
+  defineComponent,
+  h,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+  watchEffect,
+  type PropType,
+} from 'vue';
 import TemplatePiece from '@/components/TemplatePiece.vue';
 import { resolveColoring } from '@/model/coloring';
 import {
@@ -487,6 +508,7 @@ import type { Credit } from '@/model/schema/shared';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
+import { creditSocial, isKnownSite, socialIcon, type Social } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
@@ -649,6 +671,8 @@ interface View {
   size: string;
   /** "By Jane · CC BY-SA 4.0" */
   byline: string;
+  /** The byline's author (for their social in the credits). */
+  author?: string | undefined;
   notes?: string | undefined;
   /** Earlier work this is based on (origin first). */
   basedOn: Credit[];
@@ -681,6 +705,7 @@ const view = computed<View | undefined>(() => {
       title: quilt.notecard.name,
       size: sizeLabel(x1 - x0, y1 - y0),
       byline: `By ${quilt.author ?? 'anonymous'} · ${licenseName(effectiveLicense(quilt, dd, quiltLock(dd, quilt)))}`,
+      author: quilt.author,
       basedOn: priorCredits(quilt),
       notes: quilt.notecard.notes,
       blocks: blocksByOthers(dd, quilt, app.settings.author).map((u) => ({
@@ -728,6 +753,7 @@ const view = computed<View | undefined>(() => {
     title: block.notecard.name,
     size: sizeLabel(...size) + (quilt ? ` · counts for “${quilt.notecard.name}”` : ''),
     byline: `By ${authorOf(block) ?? 'anonymous'} · ${licenseName(effectiveLicense(block, dd, blockLock(block)))}`,
+    author: authorOf(block),
     basedOn: priorCredits(block),
     notes: block.notecard.notes,
     blocks: [],
@@ -857,6 +883,7 @@ type Sheet = (
       /** Pieces to cut, by fill. */
       pieces: Map<string, number>;
       byline: string;
+      author?: string | undefined;
       basedOn: Credit[];
       notes?: string | undefined;
       /** Template codes on the picture (the template key). */
@@ -1305,12 +1332,42 @@ function blockPage(
     ...needCols(all),
     pieces,
     byline: `By ${authorOf(block) ?? 'anonymous'} · ${licenseName(effectiveLicense(block, dd, blockLock(block)))}`,
+    author: authorOf(block),
     basedOn: priorCredits(block),
     notes: block.notecard.notes,
     labels: prefs.value.keyOnBlockPage ? keyLabels(one, number ? String(number) : '') : [],
     fabrics: fabricItems.value.filter((f) => pieces.has(f.fill)),
   };
 }
+/** Each author's credits social (their pick, else the first): you (Settings), the project's author, and library/pack authors. */
+const firstSocial = computed(() => {
+  const m = new Map<string, Social>();
+  const add = (name: string | undefined, list: Social[] | undefined) => {
+    const s = creditSocial(list);
+    if (name && s && !m.has(name)) m.set(name, s);
+  };
+  add(app.settings.author, app.settings.socials);
+  add(doc.value?.project.author, doc.value?.project.authorSocials);
+  for (const v of library.views) add(v.doc.author?.name, v.doc.author?.socials);
+  return m;
+});
+/** Credits: an author's first social — icon/handle for known sites, else the text (shortened). */
+const AuthorSocial = defineComponent({
+  props: { name: { type: String as PropType<string | undefined>, default: undefined } },
+  setup: (p) => () => {
+    const s = p.name ? firstSocial.value.get(p.name) : undefined;
+    if (!s) return null;
+    if (!isKnownSite(s.type)) {
+      const t = s.handle.length > 48 ? `${s.handle.slice(0, 47)}…` : s.handle;
+      return h('span', { class: 'social' }, `(${t})`);
+    }
+    return h('span', { class: 'social' }, [
+      '(',
+      h(QIcon, { name: socialIcon(s.type), size: '1em', class: 'social-icon' }),
+      `/${s.handle})`,
+    ]);
+  },
+});
 const creditLine = (c: Credit) =>
   [
     `${c.name ?? 'Earlier work'} by ${c.author ?? 'anonymous'}`,
@@ -1522,6 +1579,13 @@ onMounted(() => {
   border-radius: 999px;
   padding: 0.3mm 2mm;
   white-space: nowrap;
+}
+.social {
+  white-space: nowrap;
+  opacity: 0.8;
+}
+.social-icon {
+  vertical-align: -0.12em;
 }
 .byline {
   font-size: 9pt;

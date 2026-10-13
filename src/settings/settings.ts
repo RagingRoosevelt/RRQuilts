@@ -94,7 +94,8 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
         typeof x.type === 'string' &&
         x.type.length <= 60 &&
         typeof x.handle === 'string' &&
-        x.handle.length <= 500,
+        x.handle.length <= 500 &&
+        (x.credit === undefined || typeof x.credit === 'boolean'),
     ),
   hideLibraryBlocks: (v) => typeof v === 'boolean',
   hideLibraryPalettes: (v) => typeof v === 'boolean',

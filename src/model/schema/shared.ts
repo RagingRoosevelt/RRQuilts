@@ -28,6 +28,8 @@ export const Socials = Type.Array(
   Type.Object({
     type: Type.String({ maxLength: 60 }),
     handle: Type.String({ maxLength: 500 }),
+    /** The one shown in printed credits (else the first). */
+    credit: Type.Optional(Type.Boolean()),
   }),
   { maxItems: 50 },
 );
