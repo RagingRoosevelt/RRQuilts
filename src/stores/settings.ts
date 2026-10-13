@@ -8,8 +8,10 @@ export const useSettingsStore = defineStore('settings', () => {
   // False when this browser won't keep settings (private mode, blocked storage).
   const persisted = ref(true);
 
-  const applyTheme = () =>
+  const applyTheme = () => {
     Dark.set(settings.value.theme === 'auto' ? 'auto' : settings.value.theme === 'dark');
+    document.documentElement.classList.toggle('os-accent', settings.value.osAccent);
+  };
 
   watch(
     settings,

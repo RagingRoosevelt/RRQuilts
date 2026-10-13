@@ -14,6 +14,8 @@ export interface Settings {
   author: string;
   /** The author name has been asked for once. */
   authorAsked: boolean;
+  /** Use the OS accent color for the app's primary color (where the browser exposes it). */
+  osAccent: boolean;
   /** Editors: toolbar on the right and sidebar on the left (default: the reverse). */
   sidesSwapped: boolean;
   /** Quilt editor Design sidebar: last tab. */
@@ -64,6 +66,7 @@ export const defaults = (): Settings => ({
   authorAsked: false,
   collapsedSections: [],
   sidesSwapped: false,
+  osAccent: true,
   trayTab: 'blocks',
   libraryGroupBy: 'none',
   libraryType: 'block',
@@ -82,6 +85,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   author: (v) => typeof v === 'string' && v.length <= 100,
   authorAsked: (v) => typeof v === 'boolean',
   sidesSwapped: (v) => typeof v === 'boolean',
+  osAccent: (v) => typeof v === 'boolean',
   trayTab: (v) => v === 'blocks' || v === 'colors',
   libraryGroupBy: (v) => v === 'none' || v === 'category' || v === 'tags' || v === 'styles',
   libraryType: (v) => v === 'block' || v === 'colors' || v === '',

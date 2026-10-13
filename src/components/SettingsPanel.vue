@@ -166,6 +166,10 @@
               />
             </div>
 
+            <q-checkbox v-model="store.settings.osAccent" label="Use the system accent color">
+              <q-tooltip>Where the browser shares it (Firefox, Safari); otherwise blue.</q-tooltip>
+            </q-checkbox>
+
             <div>
               <div class="text-subtitle1">Units for new projects</div>
               <q-btn-toggle

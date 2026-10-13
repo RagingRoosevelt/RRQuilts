@@ -11,3 +11,10 @@
 html {
   scrollbar-gutter: stable;
 }
+
+/* The OS accent color as the app's primary color (Settings › Interface), where supported. */
+@supports (color: AccentColor) {
+  :root.os-accent {
+    --q-primary: AccentColor;
+  }
+}
