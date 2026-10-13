@@ -1,11 +1,28 @@
 ---
 title: Useful resources
 order: 10
-summary: The RRQuilts project, Creative Commons licenses, and places to learn quilting.
+summary: Calculators, the RRQuilts project, Creative Commons licenses, and places to learn quilting.
 ---
 
-These links lead off the app and need an internet connection. Each opens in a new tab. Nothing is
-fetched until you follow it.
+## Calculators
+
+Each of these Quilt math topics has a calculator that uses your seam allowance and rounding from the
+Print settings. They work offline.
+
+- [Squares and rectangles](/help/math/squares-and-rectangles)
+- [Half-square triangles](/help/math/half-square-triangles)
+- [Quarter-square triangles](/help/math/quarter-square-triangles)
+- [Flying geese](/help/math/flying-geese)
+- [Square in a square](/help/math/square-in-a-square)
+- [On-point settings](/help/math/on-point-settings)
+- [Borders](/help/math/borders)
+- [Binding](/help/math/binding)
+- [Backing](/help/math/backing)
+- [Yardage and fat quarters](/help/math/yardage-and-fat-quarters)
+- [Rounding](/help/math/rounding)
+
+The rest of the links on this page lead off the app and need an internet connection. Each opens in a
+new tab. Nothing is fetched until you follow it.
 
 ## RRQuilts
 
