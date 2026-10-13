@@ -1,51 +1,43 @@
 <template>
   <q-dialog v-model="open" @show="nameInput?.select()">
     <q-card style="width: 340px; max-width: 95vw">
-      <q-card-section class="column" style="gap: 8px">
+      <q-card-section class="column no-wrap" style="gap: 8px">
         <div class="text-h6">{{ title }}</div>
         <div class="swatch" :style="{ background: hex }" />
         <q-input ref="nameInput" v-model="name" dense label="Name" />
         <q-tabs v-model="tab" dense no-caps align="left">
           <q-tab name="picker" label="Picker" />
-          <q-tab name="hsl" label="HSL" />
+          <q-tab name="rgb" label="RGB" />
         </q-tabs>
+        <!-- no-wrap above: in a wrapping column Firefox sizes QColor too short and clips the hue slider. -->
         <q-color
           v-if="tab === 'picker'"
           :model-value="hex"
           no-header-tabs
+          no-footer
           default-view="spectrum"
           format-model="hex"
           @update:model-value="(v) => setHex(String(v ?? ''))"
         />
-        <div v-else>
-          <div v-for="(label, i) in ['Hue', 'Saturation', 'Lightness']" :key="label">
-            <div class="text-caption">{{ label }} {{ hsl[i] }}</div>
-            <q-slider
-              :model-value="hsl[i]"
-              :min="0"
-              :max="i === 0 ? 360 : 100"
-              @update:model-value="(v) => setHsl(i, v ?? 0)"
-            />
-          </div>
-        </div>
-        <div class="row no-wrap" style="gap: 6px">
+        <div v-else class="column" style="gap: 6px">
           <q-input
             :model-value="hex"
             dense
             label="Hex"
-            style="flex: 2; min-width: 0"
             @update:model-value="(v) => setHex(String(v ?? ''))"
           />
-          <q-input
-            v-for="(c, i) in ['R', 'G', 'B']"
-            :key="c"
-            :model-value="rgb[i]"
-            dense
-            type="number"
-            :label="c"
-            style="flex: 1; min-width: 0"
-            @update:model-value="(v) => setChannel(i, Number(v))"
-          />
+          <div class="row no-wrap" style="gap: 6px">
+            <q-input
+              v-for="(c, i) in ['R', 'G', 'B']"
+              :key="c"
+              :model-value="rgb[i]"
+              dense
+              type="number"
+              :label="c"
+              style="flex: 1; min-width: 0"
+              @update:model-value="(v) => setChannel(i, Number(v))"
+            />
+          </div>
         </div>
       </q-card-section>
       <q-card-actions align="right">
@@ -59,7 +51,7 @@
 <script setup lang="ts">
 import type { QInput } from 'quasar';
 import { computed, ref } from 'vue';
-import { fromHex, fromHsl, toHex, toHsl, type RGB } from '@/editor/color';
+import { fromHex, toHex, type RGB } from '@/editor/color';
 
 const emit = defineEmits<{ done: [color: { name: string; rgb: RGB }] }>();
 const open = ref(false);
@@ -72,16 +64,10 @@ const okLabel = ref('Add');
 const nameInput = ref<QInput>();
 
 const hex = computed(() => toHex(rgb.value));
-const hsl = computed(() => toHsl(rgb.value));
 
 function setHex(v: string) {
   const c = fromHex(v);
   if (c) rgb.value = c;
-}
-function setHsl(i: number, v: number) {
-  const next = [...hsl.value] as RGB;
-  next[i] = v;
-  rgb.value = fromHsl(next);
 }
 function setChannel(i: number, v: number) {
   const next = [...rgb.value] as RGB;

@@ -381,34 +381,34 @@
               >
                 <q-tooltip>Select for Save to my library</q-tooltip>
               </q-checkbox>
-              <q-btn
-                v-if="!project.readOnly"
-                round
-                dense
-                size="xs"
-                icon="edit"
-                color="primary"
-                class="edit-color"
-                :aria-label="`Rename ${c.notecard.name}`"
-                @click.stop="editProjectColor(c)"
-              >
-                <q-tooltip>Rename / edit</q-tooltip>
-              </q-btn>
-              <q-btn
-                v-if="!project.readOnly"
-                round
-                dense
-                size="xs"
-                icon="close"
-                color="negative"
-                class="remove-color"
-                :aria-label="`Delete ${c.notecard.name}`"
-                @click.stop="deleteProjectColor(c)"
-              >
-                <q-tooltip>Delete</q-tooltip>
-              </q-btn>
             </div>
             <div class="text-caption ellipsis full-width text-center">{{ c.notecard.name }}</div>
+            <q-btn
+              v-if="!project.readOnly"
+              round
+              dense
+              size="xs"
+              icon="edit"
+              color="primary"
+              class="edit-color"
+              :aria-label="`Rename ${c.notecard.name}`"
+              @click.stop="editProjectColor(c)"
+            >
+              <q-tooltip>Rename / edit</q-tooltip>
+            </q-btn>
+            <q-btn
+              v-if="!project.readOnly"
+              round
+              dense
+              size="xs"
+              icon="close"
+              color="negative"
+              class="remove-color"
+              :aria-label="`Delete ${c.notecard.name}`"
+              @click.stop="deleteProjectColor(c)"
+            >
+              <q-tooltip>Delete</q-tooltip>
+            </q-btn>
           </component>
         </div>
       </template>
@@ -1586,7 +1586,7 @@ function showPlacements() {
 }
 .remove-color {
   position: absolute;
-  top: -6px;
+  bottom: -6px;
   right: -6px;
   opacity: 0;
   transition: opacity 0.15s;
@@ -1607,7 +1607,7 @@ function showPlacements() {
 .edit-color {
   position: absolute;
   bottom: -6px;
-  right: -6px;
+  left: -6px;
   opacity: 0;
   transition: opacity 0.15s;
 }
@@ -1686,6 +1686,7 @@ function showPlacements() {
   gap: 8px;
 }
 .color-pick {
+  position: relative;
   padding: 2px;
   border: 2px solid transparent;
   border-radius: 8px;
