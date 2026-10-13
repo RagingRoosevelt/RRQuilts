@@ -297,14 +297,6 @@
           @click="saveColors = { to: '', name: '' }"
         />
         <q-btn
-          outline
-          dense
-          no-caps
-          icon="download"
-          label="Import from library…"
-          @click="importing = { from: allCollections[0]?.value ?? '', mode: 'append' }"
-        />
-        <q-btn
           v-if="changedColors.length"
           outline
           dense
@@ -324,7 +316,7 @@
         />
       </div>
       <div v-if="!project.readOnly" class="text-caption text-grey-7 q-mb-sm">
-        Tap your colors to pick them for a palette in {{ MY_LIBRARY }}.
+        Tick project colors to save them as a palette in {{ MY_LIBRARY }}.
       </div>
       <template v-for="group in colorGroups.slice(0, 1)" :key="group.label">
         <div class="row items-center q-mb-sm" style="gap: 8px">
@@ -376,6 +368,18 @@
               >
                 <q-tooltip>Changed since {{ MY_LIBRARY }}</q-tooltip>
               </q-icon>
+              <q-checkbox
+                v-if="!project.readOnly"
+                dense
+                size="xs"
+                class="save-pick"
+                :model-value="pickedColors.includes(c.id)"
+                :aria-label="`Select ${c.notecard.name} for saving to ${MY_LIBRARY}`"
+                @click.stop
+                @update:model-value="togglePickColor(c.id)"
+              >
+                <q-tooltip>Select for Save to my library</q-tooltip>
+              </q-checkbox>
               <q-btn
                 v-if="!project.readOnly"
                 round
@@ -741,49 +745,6 @@
             label="Save"
             :disable="!saveColors.to && !saveColors.name.trim()"
             @click="void savePickedColors(saveColors!)"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog :model-value="!!importing" @update:model-value="importing = null">
-      <q-card v-if="importing" style="width: 380px; max-width: 95vw">
-        <q-card-section class="q-gutter-sm">
-          <div class="text-h6">Import from library</div>
-          <q-select
-            v-model="importing.from"
-            :options="allCollections"
-            emit-value
-            map-options
-            label="Palette"
-          />
-          <q-btn-toggle
-            v-model="importing.mode"
-            no-caps
-            spread
-            :options="[
-              { label: 'Append', value: 'append' },
-              { label: 'Overwrite', value: 'overwrite' },
-            ]"
-          />
-          <div class="text-caption text-grey-7">
-            {{
-              importing.mode === 'append'
-                ? 'Adds its colors to yours.'
-                : 'Replaces your colors with its colors. Colors used in a block or quilt stay.'
-            }}
-            Undo reverts it.
-          </div>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn v-close-popup flat no-caps label="Cancel" />
-          <q-btn
-            v-close-popup
-            flat
-            no-caps
-            color="primary"
-            label="Import"
-            :disable="!importing.from"
-            @click="importFromLibrary(importing!)"
           />
         </q-card-actions>
       </q-card>
@@ -1373,26 +1334,6 @@ async function syncColors() {
   $q.notify({ type: 'positive', message: `Synced colors to ${MY_LIBRARY}.` });
 }
 
-const importing = ref<{ from: string; mode: 'append' | 'overwrite' } | null>(null);
-const allCollections = computed(() =>
-  library.views.flatMap((v) =>
-    v.collections.map((c) => ({ label: `${c.notecard.name} · ${v.doc.name}`, value: c.id, c })),
-  ),
-);
-function importFromLibrary({ from, mode }: { from: string; mode: 'append' | 'overwrite' }) {
-  const c = allCollections.value.find((x) => x.value === from)?.c;
-  if (!c) return;
-  const r = importCollectionColors(project.doc!, c, mode);
-  if (!r.added && !r.removed)
-    return void $q.notify({ message: `“${c.notecard.name}”'s colors are already here.` });
-  project.change(() => r.doc);
-  const parts = [`added ${r.added}`, ...(r.removed ? [`removed ${r.removed}`] : [])];
-  $q.notify({
-    type: 'positive',
-    message: `Imported “${c.notecard.name}”: ${parts.join(', ')} (undo reverts).`,
-  });
-}
-
 async function importCollectionFile() {
   const file = await pickFile(['rrqplt']);
   if (!file) return;
@@ -1648,6 +1589,13 @@ function showPlacements() {
   right: -6px;
   opacity: 0;
   transition: opacity 0.15s;
+}
+.save-pick {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 4px;
 }
 .edit-color {
   position: absolute;

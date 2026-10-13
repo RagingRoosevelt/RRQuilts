@@ -90,7 +90,8 @@ function setChannel(i: number, v: number) {
 }
 function ok() {
   open.value = false;
-  emit('done', { name: name.value.trim() || hex.value, rgb: rgb.value });
+  // A plain copy: a reactive array in the project would break the draft (IndexedDB can't clone it).
+  emit('done', { name: name.value.trim() || hex.value, rgb: [...rgb.value] as RGB });
 }
 
 /** Open for adding (no args) or editing an existing color. */

@@ -52,6 +52,8 @@
   untouched) and the quilt joins the carousel, as do the project's own blocks using a mapped color.
 - Q: Project colors? → A: "My colors" in Fabrics & Colors is "Project colors": an Add tile opens the
   color editor; hovering a color shows a delete button that goes through the same swap dialog.
+  Each project color has a checkbox selecting it for Save to my library. "Import from library"
+  is gone: picking library palettes replaces it (palette files still import).
 - Q: Built-in palettes? → A: Basic colors (36) plus Pastels, Darks, Gems, Neon, and Traditional (8
   each).
 - Q: Does a backup include the packs and repositories I've added? → A: Yes. One backup covers
