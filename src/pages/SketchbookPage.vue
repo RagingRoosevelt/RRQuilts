@@ -13,7 +13,7 @@
       />
     </div>
     <div class="row items-center no-wrap">
-      <q-tabs v-model="tab" dense no-caps align="left" class="col">
+      <q-tabs v-model="tab" dense no-caps align="left" class="col proj-tabs">
         <q-tab name="quilts" :label="`Quilts (${quilts.length})`" />
         <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
         <q-tab name="colors" :label="`Palettes (${colorGroups[0]!.items.length})`" />
@@ -1713,6 +1713,10 @@ function showPlacements() {
 }
 .card .pick-box :deep(.q-checkbox__inner--falsy .q-checkbox__bg) {
   background: rgba(255, 255, 255, 0.45);
+}
+/* Tabs that don't fit fade out before undo/redo while there's more to scroll to. */
+.proj-tabs:has(.q-tabs__arrow--right:not(.q-tabs__arrow--faded)) :deep(.q-tabs__content) {
+  mask-image: linear-gradient(to right, black calc(100% - 3rem), transparent);
 }
 .menu-icon {
   min-width: 0;
