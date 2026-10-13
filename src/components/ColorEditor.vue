@@ -1,10 +1,10 @@
 <template>
-  <q-dialog v-model="open">
+  <q-dialog v-model="open" @show="nameInput?.select()">
     <q-card style="width: 340px; max-width: 95vw">
       <q-card-section class="column" style="gap: 8px">
         <div class="text-h6">{{ title }}</div>
         <div class="swatch" :style="{ background: hex }" />
-        <q-input v-model="name" dense label="Name" />
+        <q-input ref="nameInput" v-model="name" dense label="Name" />
         <q-tabs v-model="tab" dense no-caps align="left">
           <q-tab name="picker" label="Picker" />
           <q-tab name="hsl" label="HSL" />
@@ -57,6 +57,7 @@
 </template>
 
 <script setup lang="ts">
+import type { QInput } from 'quasar';
 import { computed, ref } from 'vue';
 import { fromHex, fromHsl, toHex, toHsl, type RGB } from '@/editor/color';
 
@@ -67,6 +68,8 @@ const name = ref('');
 const rgb = ref<RGB>([200, 40, 44]);
 const title = ref('Add a color');
 const okLabel = ref('Add');
+/** Opening the editor focuses and selects the name, ready to retype. */
+const nameInput = ref<QInput>();
 
 const hex = computed(() => toHex(rgb.value));
 const hsl = computed(() => toHsl(rgb.value));
