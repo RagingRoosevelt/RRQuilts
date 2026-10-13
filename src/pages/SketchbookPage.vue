@@ -635,20 +635,18 @@
           >
             <q-carousel-slide
               v-for="q in affected"
-              :key="q.id"
-              :name="q.id"
+              :key="q.key"
+              :name="q.key"
               class="column no-wrap q-pt-sm"
               style="padding-bottom: 40px"
             >
-              <div class="text-caption text-center ellipsis">{{ q.notecard.name }}</div>
+              <div class="text-caption text-center ellipsis">
+                {{ q.kind === 'quilt' ? 'Quilt' : 'Block' }}: {{ q.name }}
+              </div>
               <div class="row no-wrap justify-center col" style="gap: 12px">
                 <div v-for="side in ['Before', 'After']" :key="side" class="column items-center">
                   <img
-                    :src="
-                      side === 'Before'
-                        ? quiltThumbnail(project.doc, q, 160, $q.dark.isActive)
-                        : afterThumb(q.id)
-                    "
+                    :src="side === 'Before' ? beforeThumb(q) : afterThumb(q)"
                     style="width: 160px; height: 160px"
                     alt=""
                   />
@@ -944,14 +942,41 @@ const applyRemoval = (u: NonNullable<typeof unpicking.value>) =>
   project.change((d) => removal(d, u));
 /** The dialog's carousel: which quilt, and the project as it would be after the swap. */
 const previewQuilt = ref('');
-/** Quilts showing a color being swapped. */
-const affected = computed(() => {
+type Affected = {
+  key: string;
+  kind: 'quilt' | 'block';
+  id: string;
+  name: string;
+  coloring?: string;
+};
+/** Quilts, then the project's own blocks (their first coloring using it), showing a color being swapped. */
+const affected = computed((): Affected[] => {
   const going = new Set(unpicking.value?.used.map((c) => c.id) ?? []);
-  return quilts.value.filter((q) => [...quiltColors(project.doc!, q)].some((id) => going.has(id)));
+  const hits = (fills: Record<string, unknown>) =>
+    Object.values(fills).some((f) => going.has((f as { color?: string }).color ?? ''));
+  return [
+    ...quilts.value
+      .filter((q) => [...quiltColors(project.doc!, q)].some((id) => going.has(id)))
+      .map((q) => ({ key: `q:${q.id}`, kind: 'quilt' as const, id: q.id, name: q.notecard.name })),
+    ...blocks.value.flatMap((b) => {
+      const k = b.colorings.find((c) => hits(c.fills));
+      return k
+        ? [
+            {
+              key: `b:${b.id}`,
+              kind: 'block' as const,
+              id: b.id,
+              name: b.notecard.name,
+              coloring: k.id,
+            },
+          ]
+        : [];
+    }),
+  ];
 });
 watch(unpicking, () => {
-  if (!affected.value.some((q) => q.id === previewQuilt.value))
-    previewQuilt.value = affected.value[0]?.id ?? '';
+  if (!affected.value.some((q) => q.key === previewQuilt.value))
+    previewQuilt.value = affected.value[0]?.key ?? '';
 });
 const afterDoc = computed(() =>
   unpicking.value
@@ -961,11 +986,26 @@ const afterDoc = computed(() =>
       )
     : undefined,
 );
-// A fresh quilt object so the thumbnail cache (per quilt object) can't serve the "before" picture.
-const afterThumb = (id: string) => {
-  const q = afterDoc.value?.project.quilts.find((x) => x.id === id);
-  return q ? quiltThumbnail(afterDoc.value!, { ...q }, 160, $q.dark.isActive) : '';
-};
+function slideThumb(doc: RrqDoc, a: Affected, fresh: boolean) {
+  // A fresh object for "after", so the thumbnail cache (per object) can't serve the "before" one.
+  if (a.kind === 'quilt') {
+    const q = doc.project.quilts.find((x) => x.id === a.id);
+    return q ? quiltThumbnail(doc, fresh ? { ...q } : q, 160, $q.dark.isActive) : '';
+  }
+  const b = doc.project.blocks.find((x) => x.id === a.id);
+  return b
+    ? blockThumbnail(
+        doc,
+        fresh ? { ...b } : b,
+        160,
+        $q.dark.isActive,
+        a.coloring,
+        library.items.colors,
+      )
+    : '';
+}
+const beforeThumb = (a: Affected) => slideThumb(project.doc!, a, false);
+const afterThumb = (a: Affected) => (afterDoc.value ? slideThumb(afterDoc.value, a, true) : '');
 function setPalettePick(id: string, on: boolean) {
   project.change((d) => {
     const rest = (d.project.libraryPalettes ?? []).filter((x) => x !== id);
