@@ -22,7 +22,9 @@ picture, block picture — from the existing Print tabs."
 - Q: Template layout? → A: Automatic packing (rotate to fit; oversize pieces tiled across pages with
   alignment marks). Dragging by hand later.
 - Q: Rotary chart? → A: Squares, rectangles, half-square triangles (+⅞″), quarter-square triangles
-  and geese (+1¼″); anything else "needs a template". Rounding ⅛″ (default), 1/16″, none; metric
+  and geese (+1¼″); mitered border sides cut as strips (long edge + 2·seam·(1+√2)) with both ends trimmed
+  at 45°, plus a true-size corner guide page per strip width (left and right end: cut line, sewing
+  lines, a dot where stitching stops); anything else "needs a template". Rounding ⅛″ (default), 1/16″, none; metric
   5 mm (default), 1 mm, none; warning when rounding distorts. Seam allowance ¼″ / 7.5 mm, adjustable.
 - Q: Yardage? → A: By color. Fabric width 42″ (40″ usable) default; 44″, 60″, fat quarters; metric
   110 cm, 150 cm, fat quarters. Rounded up to ⅛ yd (default), ¼ yd, ½ yd; metric 10 cm (default),

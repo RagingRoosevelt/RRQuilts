@@ -3,9 +3,12 @@ import { builtinItems } from '@/content/starter';
 import type { Pt } from '@/model/geometry/path';
 import { fmtFabric, fmtLen, roundUp } from '@/model/print/format';
 import { pack, tiles } from '@/model/print/pack';
-import { blockPieces, templates, type Piece } from '@/model/print/pieces';
+import { generateSlots } from '@/model/layout/slots';
+import { ensurePlainBlock, ensureSlotContent } from '@/model/plain';
+import { blockPieces, quiltPieces, templates, type Piece } from '@/model/print/pieces';
 import { area, offset, roomiest, shapeKey, simplify } from '@/model/print/polygon';
 import { cutFor, cutPlan } from '@/model/print/rotary';
+import { fixture } from '../model/helpers';
 import { backing, binding, fabricNeeds } from '@/model/print/yardage';
 
 const sq = (s: number, x = 0, y = 0): Pt[] => [
@@ -105,6 +108,37 @@ describe('rotary cutting', () => {
     });
     expect(cutFor(piece(sq(10 / 3)), 0.25, 0.125).distorted).toBe(true);
     expect(cutFor({ ...piece(sq(3)), curved: true }, 0.25, 0.125).kind).toBe('template');
+  });
+
+  it('mitered border sides: trapezoids cut from strips with 45° ends', () => {
+    const side: Pt[] = [
+      [0, 0],
+      [60, 0],
+      [57, 3],
+      [3, 3],
+    ];
+    // Long edge + 2·¼″·(1 + √2) = 61.207 → 61¼″.
+    expect(cutFor(piece(side), 0.25, 0.125)).toMatchObject({
+      kind: 'miter',
+      finished: [60, 3],
+      cut: [61.25, 3.5],
+    });
+    // One 45° end only: not a miter.
+    const half: Pt[] = [
+      [0, 0],
+      [60, 0],
+      [60, 3],
+      [3, 3],
+    ];
+    expect(cutFor(piece(half), 0.25, 0.125).kind).toBe('template');
+
+    const doc = ensurePlainBlock(structuredClone(fixture()));
+    const q = structuredClone(doc.project.quilts[0]!);
+    q.borders = [{ style: 'mitered', sides: [3, 3, 3, 3] }];
+    const ids = generateSlots(q.layout, q.borders).slots.map((s) => s.id);
+    const quilt = ensureSlotContent(q, ids);
+    const border = quiltPieces(doc, quilt).filter((p) => p.poly.length === 4);
+    expect(border.filter((p) => cutFor(p, 0.25, 0.125).kind === 'miter')).toHaveLength(4);
   });
 
   it('Ohio Star: 4 squares + center, 8 QSTs; strips across the fabric', () => {

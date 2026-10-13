@@ -5,11 +5,14 @@ import { roundUp } from './format';
 import { bounds, rotate, simplify, snugRotation } from './polygon';
 import type { Piece } from './pieces';
 
-export type CutKind = 'square' | 'rect' | 'hst' | 'qst' | 'template';
+export type CutKind = 'square' | 'rect' | 'hst' | 'qst' | 'miter' | 'template';
 
 export interface Cut {
   kind: CutKind;
-  /** Finished size: sides (square/rect), leg (hst), long side (qst); template: bounding box. */
+  /**
+   * Finished size: sides (square/rect), leg (hst), long side (qst), long edge × width (miter: a
+   * strip with both ends trimmed at 45°, as a mitered border side); template: bounding box.
+   */
   finished: [number, number];
   /** Size to cut: the square for triangles, cut once (hst) or twice (qst); template: box + seams. */
   cut: [number, number];
@@ -76,6 +79,27 @@ export function cutFor(piece: Piece, seam: number, step: number): Cut {
           distorted: !onGrid(leg, step),
         };
       }
+    }
+  }
+  if (!piece.curved && p.length === 4) {
+    // Isosceles trapezoid with 45° ends: opposite sides k, k+2 parallel, long − short = 2 × width.
+    for (const k of [0, 1]) {
+      const [a, b] = [e[k]!, e[k + 2]!];
+      const cross = a[0] * b[1] - a[1] * b[0];
+      if (Math.abs(cross) > tol * L[k]! * L[k + 2]! || !near(L[k + 1]!, L[(k + 3) % 4]!, tol))
+        continue;
+      const long = Math.max(L[k]!, L[k + 2]!);
+      const w =
+        Math.abs((p[k + 2]![0] - p[k]![0]) * a[1] - (p[k + 2]![1] - p[k]![1]) * a[0]) / L[k]!;
+      if (!near(long - Math.min(L[k]!, L[k + 2]!), 2 * w, tol * long)) continue;
+      return {
+        kind: 'miter',
+        finished: [long, w],
+        // The cut piece's long edge reaches s(1 + √2) past each finished corner.
+        cut: [roundUp(long + 2 * (1 + Math.SQRT2) * seam, step), roundUp(w + 2 * seam, step)],
+        yields: 1,
+        distorted: !onGrid(w, step),
+      };
     }
   }
   const [x0, y0, x1, y1] = bounds(rotate(p, snugRotation(p)));

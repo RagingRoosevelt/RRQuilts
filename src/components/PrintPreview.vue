@@ -10,7 +10,8 @@
       <div v-if="!printOnly" class="row items-center q-pa-sm toolbar" style="gap: 8px">
         <div class="col text-caption text-grey-7">
           {{ sheets.length }} page{{ sheets.length === 1 ? '' : 's' }} · {{ paperLabel }} · print at
-          100% scale<template v-if="sheets.some((x) => x.kind === 'templates' || x.kind === 'tile')"
+          100% scale<template
+            v-if="sheets.some((x) => ['templates', 'tile', 'miter'].includes(x.kind))"
             >, then check the scale square on the template pages</template
           >.
         </div>
@@ -98,6 +99,64 @@
                 :stroke-width="stroke"
                 :stroke-dasharray="`${stroke * 4} ${stroke * 4}`"
               />
+            </svg>
+
+            <!-- Mitered strip ends at true size: cut line, sewing lines, where stitching stops -->
+            <svg
+              v-else-if="s.kind === 'miter'"
+              :width="`${area[0]}${units}`"
+              :height="`${area[1]}${units}`"
+              :viewBox="`0 0 ${area[0]} ${area[1]}`"
+            >
+              <g v-for="(g, j) in s.guides" :key="j" :transform="`translate(${g.x} ${g.y})`">
+                <g :transform="g.right ? `translate(${g.len} 0) scale(-1 1)` : undefined">
+                  <path
+                    :d="`M${g.len} 0H0L${g.cut} ${g.cut}H${g.len}`"
+                    fill="none"
+                    stroke="#000"
+                    :stroke-width="stroke"
+                  />
+                  <path
+                    :d="`M${g.len} ${seam}H${miterA}L${miterA + g.w} ${seam + g.w}H${g.len}`"
+                    fill="none"
+                    stroke="#000"
+                    :stroke-width="stroke * 0.7"
+                    :stroke-dasharray="`${stroke * 3} ${stroke * 3}`"
+                  />
+                  <circle :cx="miterA + g.w" :cy="seam + g.w" :r="stroke * 4" fill="#000" />
+                  <path
+                    :d="`M${g.len} 0V${g.cut}`"
+                    stroke="#999"
+                    :stroke-width="stroke"
+                    :stroke-dasharray="`${stroke * 4} ${stroke * 4}`"
+                  />
+                </g>
+                <text
+                  :x="g.right ? (g.len - g.cut) / 2 : (g.len + g.cut) / 2"
+                  :y="seam + font * 0.9"
+                  :font-size="font * 0.7"
+                  text-anchor="middle"
+                >
+                  outer edge
+                </text>
+                <text
+                  :x="g.right ? (g.len - g.cut) / 2 : (g.len + g.cut) / 2"
+                  :y="seam + g.w - font * 0.4"
+                  :font-size="font * 0.7"
+                  text-anchor="middle"
+                >
+                  inner edge (sewn to the quilt)
+                </text>
+                <text :x="0" :y="g.cut + font * 1.2" :font-size="font * 0.8">
+                  {{ g.right ? 'Right' : 'Left' }} end · strips cut {{ fmt(g.cut) }} wide ({{
+                    fmt(g.w)
+                  }}
+                  finished)
+                </text>
+                <text :x="0" :y="g.cut + font * 2.2" :font-size="font * 0.7">
+                  Outer edges together; cut on the solid 45° line. Stop stitching at the dot.
+                </text>
+              </g>
             </svg>
 
             <!-- Rotary cutting chart -->
@@ -340,7 +399,10 @@
           <footer class="row items-end no-wrap" style="gap: 12px">
             <div class="col credits">{{ view.title }} · {{ view.byline }}</div>
             <!-- Only pages with true-size cutting lines need a scale check. -->
-            <div v-if="s.kind === 'templates' || s.kind === 'tile'" class="column items-center">
+            <div
+              v-if="s.kind === 'templates' || s.kind === 'tile' || s.kind === 'miter'"
+              class="column items-center"
+            >
               <div
                 class="scale-square"
                 :style="{ width: `${scaleSquare}${units}`, height: `${scaleSquare}${units}` }"
@@ -419,6 +481,8 @@ const paper = computed(() => pick(PAPERS, prefs.value.paper[units.value]));
 const mm = computed(() => (units.value === 'in' ? 25.4 : 10));
 const fmt = (x: number) => fmtLen(x, units.value);
 const seam = computed(() => prefs.value.seam[units.value]);
+/** A mitered strip's cut edge reaches this far past the finished corner. */
+const miterA = computed(() => seam.value * (1 + Math.SQRT2));
 const step = computed(() => prefs.value.rounding[units.value]);
 const roundingLabel = computed(
   () => ROUNDINGS[units.value].find((r) => r.value === step.value)?.label.toLowerCase() ?? '',
@@ -494,6 +558,7 @@ const KIND_LABEL: Record<CutKind, string> = {
   rect: 'Rectangle',
   hst: 'Half-square triangle',
   qst: 'Quarter-square triangle',
+  miter: 'Mitered strip',
   template: 'Other shape',
 };
 const finishedLabel = (c: Cut) =>
@@ -501,7 +566,9 @@ const finishedLabel = (c: Cut) =>
     ? `${fmt(c.finished[0])} legs`
     : c.kind === 'qst'
       ? `${fmt(c.finished[0])} long side`
-      : `${fmt(c.finished[0])} × ${fmt(c.finished[1])}`;
+      : c.kind === 'miter'
+        ? `${fmt(c.finished[0])} long edge × ${fmt(c.finished[1])}`
+        : `${fmt(c.finished[0])} × ${fmt(c.finished[1])}`;
 const cutLabel = (c: Cut) =>
   c.kind === 'square' || c.kind === 'hst' || c.kind === 'qst'
     ? `${fmt(c.cut[0])} squares`
@@ -516,7 +583,9 @@ function howLabel(l: CutLine) {
       ? ', each cut once diagonally'
       : l.cut.kind === 'qst'
         ? ', each cut twice diagonally'
-        : '';
+        : l.cut.kind === 'miter'
+          ? ', both ends trimmed at 45° (see the corner guide)'
+          : '';
   return strips + cutUp;
 }
 
@@ -707,6 +776,11 @@ type Sheet =
       heading: string;
     }
   | {
+      kind: 'miter';
+      heading: string;
+      guides: MiterGuide[];
+    }
+  | {
       kind: 'block';
       heading: string;
       name: string;
@@ -738,6 +812,17 @@ type Sheet =
       h: number;
       scale: number;
     };
+/** True-size end of a mitered strip: finished width `w`, cut width `cut`, drawn `len` long. */
+interface MiterGuide {
+  x: number;
+  y: number;
+  w: number;
+  cut: number;
+  len: number;
+  /** The strip's other end. */
+  right: boolean;
+}
+
 interface KeyBlock {
   height: number;
   paths: string[];
@@ -843,6 +928,7 @@ const sheets = computed<Sheet[]>(() => {
           lines: lines.filter((l) => l.fill === fill),
         })),
       });
+      out.push(...miterSheets(lines));
     }
     if (section === 'yardage' && !isBlock) {
       const fabric = widthOption.value;
@@ -1038,6 +1124,42 @@ function templateSheets(src: {
     }
   }
   return out;
+}
+
+/** One true-size corner guide per mitered strip width, packed on pages. */
+function miterSheets(lines: CutLine[]): Sheet[] {
+  const s = seam.value;
+  const widths = [
+    ...new Set(lines.filter((l) => l.cut.kind === 'miter').map((l) => l.cut.finished[1])),
+  ].sort((a, b) => a - b);
+  const [aw, ah] = area.value;
+  // ponytail: a strip wider than the printable width gets no guide (the chart still says 45°).
+  const guides = widths
+    .flatMap((w) =>
+      [false, true].map((right) => ({
+        x: 0,
+        y: 0,
+        w,
+        cut: w + 2 * s,
+        len: Math.min(aw, 2 * (w + 2 * s) + 2 * s),
+        right,
+      })),
+    )
+    .filter((g) => g.cut <= aw);
+  if (!guides.length) return [];
+  const gap = units.value === 'in' ? 0.25 : 0.6;
+  const { pages } = pack(
+    guides.map((g) => ({ w: g.len, h: g.cut + font.value * 2.5 })),
+    aw,
+    ah,
+    gap,
+    false,
+  );
+  return pages.map((page) => ({
+    kind: 'miter',
+    heading: 'Mitered corner guide',
+    guides: page.map((pl) => ({ ...guides[pl.index]!, x: pl.x, y: pl.y })),
+  }));
 }
 
 const isBlockKind = computed(() => props.kind === 'block');

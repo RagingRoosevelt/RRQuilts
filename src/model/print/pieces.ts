@@ -11,6 +11,7 @@ import {
   type Pt,
 } from '../geometry/path';
 import { generateSlots } from '../layout/slots';
+import { PLAIN_BLOCK } from '../plain';
 import type { Block } from '../schema/block';
 import type { ColoringBody } from '../schema/coloring';
 import type { RrqDoc } from '../schema/project';
@@ -71,9 +72,13 @@ export function quiltPieces(doc: RrqDoc, quilt: Quilt, blockId?: string): Piece[
       const l = Math.hypot(...v) || 1;
       return [v[0] / l, v[1] / l];
     };
+    // A plain piece is its slot's shape (mitered border sides are trapezoids, not stretched squares).
+    const slotPoly =
+      block.id === PLAIN_BLOCK &&
+      simplify(flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3), 1e-4);
     return blockPieces(block, block.size, coloring).map((piece) => ({
       ...piece,
-      poly: piece.poly.map(at),
+      poly: slotPoly || piece.poly.map(at),
       marks: piece.marks.map((m) => ({ p: at(m.p), n: dir(m.n) })),
     }));
   });
