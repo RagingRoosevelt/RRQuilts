@@ -30,6 +30,10 @@ picture, block picture — from the existing Print tabs."
   metric 110 cm, 150 cm, fat quarters (no width setting; rotary strips use the first). Mitered border strips get extra length
   (default 2″ / 5 cm, 0 = exact), trimmed at 45° after sewing. Rounded up to ⅛ yd (default), ¼ yd, ½ yd; metric 10 cm (default),
   20 cm, 45 cm. Borders from strips. Backing and binding included.
+- Q: Long pages? → A: The rotary chart, yardage, credits, and block pages are measured and split into
+  sheets: a color's chart stays whole, table and list headings repeat, continued sheets say
+  "(continued)"; every footer shows "X of Y". Block fabric pills move under the picture when they
+  don't fit beside it.
 - Q: Paper? → A: Letter, Legal, or A4 in any project; default Letter (inches) or A4 (cm). A0
   dropped. Portrait
   (default) or landscape.

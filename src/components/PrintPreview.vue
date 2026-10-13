@@ -23,14 +23,16 @@
       </div>
 
       <div class="sheets" :style="printOnly ? undefined : { zoom: scale }">
+        <!-- Measuring copies (hidden) of the flowing pages give the heights for splitting them. -->
         <section
-          v-for="(s, i) in sheets"
-          :key="i"
+          v-for="{ s, i, measure } in entries"
+          :key="measure ? `m${i}` : i"
           class="sheet"
-          :class="{ flow: s.kind === 'rotary' || s.kind === 'yardage' || s.kind === 'credits' }"
-          :style="sheetStyle"
+          :class="{ flow: !measure && !s.show && FLOW.has(s.kind), measure }"
+          :style="measure ? measureStyle : sheetStyle"
+          :data-i="measure ? i : undefined"
         >
-          <header class="row items-baseline no-wrap">
+          <header v-if="!measure" class="row items-baseline no-wrap">
             <div class="col" style="min-width: 0">
               <div class="ellipsis">
                 <b>{{ view.title }}</b> · {{ view.size }} · {{ s.heading }}
@@ -160,7 +162,7 @@
 
             <!-- Rotary cutting chart -->
             <div v-else-if="s.kind === 'rotary'" class="column" style="gap: 10px">
-              <div class="text-caption">
+              <div v-if="on(s, 'cap')" data-m="cap" class="text-caption">
                 Seam allowance {{ fmt(seam) }} included;
                 {{
                   step
@@ -168,61 +170,67 @@
                     : 'cut sizes exact (not rounded)'
                 }}. Strips are cut across the usable fabric width ({{ fmt(usableForCuts) }}).
               </div>
-              <div v-for="g in s.groups" :key="g.fill" class="avoid-break">
-                <div class="row items-center" style="gap: 6px">
-                  <span class="chip" :style="{ background: g.css }" />
-                  <b>{{ g.name }}</b>
+              <template v-for="g in s.groups" :key="g.fill">
+                <div v-if="on(s, `g:${g.fill}`)" :data-m="`g:${g.fill}`">
+                  <div class="row items-center" style="gap: 6px">
+                    <span class="chip" :style="{ background: g.css }" />
+                    <b>{{ g.name }}</b>
+                  </div>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Piece</th>
+                        <th>Finished</th>
+                        <th>Cut</th>
+                        <th>How</th>
+                        <th>Pieces</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(l, j) in g.lines" :key="j">
+                        <td>{{ KIND_LABEL[l.cut.kind] }}</td>
+                        <td>{{ finishedLabel(l.cut) }}</td>
+                        <td>{{ l.cut.kind === 'template' ? 'Use template' : cutLabel(l.cut) }}</td>
+                        <td>{{ howLabel(l) }}</td>
+                        <td>
+                          {{ l.count }}
+                          <span v-if="l.cut.distorted" class="warn">
+                            · size is off the {{ roundingLabel }} grid; rounding distorts it — use
+                            templates for accuracy</span
+                          >
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Piece</th>
-                      <th>Finished</th>
-                      <th>Cut</th>
-                      <th>How</th>
-                      <th>Pieces</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(l, j) in g.lines" :key="j">
-                      <td>{{ KIND_LABEL[l.cut.kind] }}</td>
-                      <td>{{ finishedLabel(l.cut) }}</td>
-                      <td>{{ l.cut.kind === 'template' ? 'Use template' : cutLabel(l.cut) }}</td>
-                      <td>{{ howLabel(l) }}</td>
-                      <td>
-                        {{ l.count }}
-                        <span v-if="l.cut.distorted" class="warn">
-                          · size is off the {{ roundingLabel }} grid; rounding distorts it — use
-                          templates for accuracy</span
-                        >
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              </template>
             </div>
 
             <!-- Yardage -->
             <div v-else-if="s.kind === 'yardage'" class="column" style="gap: 10px">
-              <div class="text-caption">
+              <div v-if="on(s, 'cap')" data-m="cap" class="text-caption">
                 {{ widthsLabel }}; rounded up to the next {{ fabricStepLabel }}. Borders are cut
                 from strips across the fabric; estimates never come out short.
               </div>
-              <table>
-                <thead>
+              <table v-if="on(s, 'y>')">
+                <thead data-m="y>">
                   <tr>
                     <th>Fabric</th>
                     <th v-for="c in s.cols" :key="c.opt.id">{{ shortWidth(c.opt) }}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="fill in s.fills" :key="fill">
-                    <td>
-                      <span class="chip" :style="{ background: fillInfo(fill).css }" />
-                      {{ fillInfo(fill).name }}
-                    </td>
-                    <td v-for="c in s.cols" :key="c.opt.id">{{ amount(c.needs.get(fill)) }}</td>
-                  </tr>
+                  <template v-for="fill in s.fills" :key="fill">
+                    <tr v-if="on(s, `y>${fill}`)" :data-m="`y>${fill}`">
+                      <td>
+                        <span class="chip" :style="{ background: fillInfo(fill).css }" />
+                        {{ fillInfo(fill).name }}
+                      </td>
+                      <td v-for="c in s.cols" :key="c.opt.id">{{ amount(c.needs.get(fill)) }}</td>
+                    </tr>
+                  </template>
+                </tbody>
+                <tbody v-if="on(s, 'y>extra')" data-m="y>extra">
                   <tr>
                     <td>Backing ({{ fmt(prefs.overhang[units]) }} extra each side, pieced)</td>
                     <td v-for="c in s.cols" :key="c.opt.id">
@@ -245,61 +253,75 @@
 
             <!-- A block: picture, size, how many, fabric for all of them, credits -->
             <div v-else-if="s.kind === 'block'" class="column" style="gap: 8px">
-              <div class="row no-wrap" style="gap: 16px">
-                <!-- Fabrics this block uses -->
-                <div v-if="s.fabrics.length" class="column" style="gap: 4px; flex: none">
-                  <span v-for="f in s.fabrics" :key="f.n" class="pill text-caption">
-                    <span class="chip" :style="{ background: f.css }" /> {{ f.n }} · {{ f.name }}
-                  </span>
-                </div>
-                <svg
-                  class="bleed"
-                  :width="`${s.w * s.scale}${units}`"
-                  :height="`${s.h * s.scale}${units}`"
-                  :viewBox="`0 0 ${s.w} ${s.h}`"
-                  style="flex: none"
-                >
-                  <path
-                    v-for="(p, j) in s.polys"
-                    :key="j"
-                    :d="p.d"
-                    :fill="prefs.outline ? 'none' : p.css"
-                    stroke="#000"
-                    :stroke-width="(stroke / s.scale) * 0.6"
-                  />
-                  <!-- Template key -->
-                  <text
-                    v-for="(l, j) in s.labels"
-                    :key="`k${j}`"
-                    :x="l.x"
-                    :y="l.y + (font / s.scale) * 0.3"
-                    :font-size="(font / s.scale) * 0.8"
-                    text-anchor="middle"
-                    :fill="l.light ? '#fff' : '#000'"
+              <div v-if="on(s, 'top')" data-m="top" class="column" style="gap: 8px">
+                <div class="row no-wrap" style="gap: 16px">
+                  <!-- Fabrics this block uses -->
+                  <div v-if="pillsBeside(s)" class="column" style="gap: 4px; flex: none">
+                    <span v-for="f in s.fabrics" :key="f.n" class="pill text-caption">
+                      <span class="chip" :style="{ background: f.css }" /> {{ f.n }} · {{ f.name }}
+                    </span>
+                  </div>
+                  <svg
+                    class="bleed"
+                    :width="`${s.w * s.scale}${units}`"
+                    :height="`${s.h * s.scale}${units}`"
+                    :viewBox="`0 0 ${s.w} ${s.h}`"
+                    style="flex: none"
                   >
-                    {{ l.text }}
-                  </text>
-                </svg>
-                <div class="column" style="gap: 4px">
-                  <div class="text-h6">{{ s.name }}</div>
-                  <div>Finished size {{ s.size }}</div>
-                  <div v-if="s.labels.length" class="text-caption">
-                    Letters are the template codes.
-                  </div>
-                  <div>
-                    {{ s.count }} block{{ s.count === 1 ? '' : 's' }}
-                    <template v-if="s.quilt">planned in “{{ s.quilt }}”</template>
-                  </div>
-                  <div class="text-caption">
-                    {{ s.scale >= 0.999 ? 'True size' : `Scaled to ${Math.round(s.scale * 100)}%` }}
+                    <path
+                      v-for="(p, j) in s.polys"
+                      :key="j"
+                      :d="p.d"
+                      :fill="prefs.outline ? 'none' : p.css"
+                      stroke="#000"
+                      :stroke-width="(stroke / s.scale) * 0.6"
+                    />
+                    <!-- Template key -->
+                    <text
+                      v-for="(l, j) in s.labels"
+                      :key="`k${j}`"
+                      :x="l.x"
+                      :y="l.y + (font / s.scale) * 0.3"
+                      :font-size="(font / s.scale) * 0.8"
+                      text-anchor="middle"
+                      :fill="l.light ? '#fff' : '#000'"
+                    >
+                      {{ l.text }}
+                    </text>
+                  </svg>
+                  <div class="column" style="gap: 4px">
+                    <div class="text-h6">{{ s.name }}</div>
+                    <div>Finished size {{ s.size }}</div>
+                    <div v-if="s.labels.length" class="text-caption">
+                      Letters are the template codes.
+                    </div>
+                    <div>
+                      {{ s.count }} block{{ s.count === 1 ? '' : 's' }}
+                      <template v-if="s.quilt">planned in “{{ s.quilt }}”</template>
+                    </div>
+                    <div class="text-caption">
+                      {{
+                        s.scale >= 0.999 ? 'True size' : `Scaled to ${Math.round(s.scale * 100)}%`
+                      }}
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="text-weight-medium">
+              <div
+                v-if="s.fabrics.length && !pillsBeside(s) && on(s, 'pills')"
+                data-m="pills"
+                class="row"
+                style="gap: 4px"
+              >
+                <span v-for="f in s.fabrics" :key="f.n" class="pill text-caption">
+                  <span class="chip" :style="{ background: f.css }" /> {{ f.n }} · {{ f.name }}
+                </span>
+              </div>
+              <div v-if="on(s, 'fab')" data-m="fab" class="text-weight-medium">
                 Fabric for {{ s.count === 1 ? 'this block' : `all ${s.count} blocks` }}
               </div>
-              <table>
-                <thead>
+              <table v-if="on(s, 'f>')">
+                <thead data-m="f>">
                   <tr>
                     <th>Fabric</th>
                     <th>Pieces</th>
@@ -307,52 +329,60 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="fill in s.fills" :key="fill">
-                    <td>
-                      <span class="chip" :style="{ background: fillInfo(fill).css }" />
-                      {{ fillInfo(fill).name }}
-                    </td>
-                    <td>{{ s.pieces.get(fill) ?? 0 }}</td>
-                    <td v-for="c in s.cols" :key="c.opt.id">{{ amount(c.needs.get(fill)) }}</td>
-                  </tr>
+                  <template v-for="fill in s.fills" :key="fill">
+                    <tr v-if="on(s, `f>${fill}`)" :data-m="`f>${fill}`">
+                      <td>
+                        <span class="chip" :style="{ background: fillInfo(fill).css }" />
+                        {{ fillInfo(fill).name }}
+                      </td>
+                      <td>{{ s.pieces.get(fill) ?? 0 }}</td>
+                      <td v-for="c in s.cols" :key="c.opt.id">{{ amount(c.needs.get(fill)) }}</td>
+                    </tr>
+                  </template>
                 </tbody>
               </table>
-              <div class="text-caption">
+              <div v-if="on(s, 'cap')" data-m="cap" class="text-caption">
                 {{ widthsLabel }}; seam allowance {{ fmt(seam) }}; rounded up to the next
                 {{ fabricStepLabel }}.
               </div>
-              <template v-if="s.notes">
+              <div v-if="s.notes && on(s, 'notes')" data-m="notes" class="column" style="gap: 8px">
                 <div class="text-weight-medium">Notes</div>
                 <div class="notes">{{ s.notes }}</div>
-              </template>
-              <div class="text-weight-medium">Credits</div>
-              <div>{{ s.byline }}</div>
-              <ul v-if="s.basedOn.length">
-                <li v-for="(c, j) in s.basedOn" :key="j">Based on {{ creditLine(c) }}</li>
-              </ul>
+              </div>
+              <div v-if="on(s, 'credits')" data-m="credits" class="column" style="gap: 8px">
+                <div class="text-weight-medium">Credits</div>
+                <div>{{ s.byline }}</div>
+                <ul v-if="s.basedOn.length">
+                  <li v-for="(c, j) in s.basedOn" :key="j">Based on {{ creditLine(c) }}</li>
+                </ul>
+              </div>
             </div>
 
             <!-- Credits: everyone whose work this builds on (when no block pages carry them) -->
             <div v-else-if="s.kind === 'credits'" class="column" style="gap: 8px">
-              <div>
+              <div v-if="on(s, 'title')" data-m="title">
                 <b>{{ view.title }}</b> — {{ view.byline }}
               </div>
-              <template v-if="view.basedOn.length">
-                <div class="text-weight-medium">Based on</div>
+              <template v-if="view.basedOn.length && on(s, 'bo>')">
+                <div class="text-weight-medium" data-m="bo>">Based on</div>
                 <ul>
-                  <li v-for="(c, j) in view.basedOn" :key="j">{{ creditLine(c) }}</li>
+                  <template v-for="(c, j) in view.basedOn" :key="j">
+                    <li v-if="on(s, `bo>${j}`)" :data-m="`bo>${j}`">{{ creditLine(c) }}</li>
+                  </template>
                 </ul>
               </template>
-              <template v-if="view.blocks.length">
-                <div class="text-weight-medium">Blocks</div>
+              <template v-if="view.blocks.length && on(s, 'bl>')">
+                <div class="text-weight-medium" data-m="bl>">Blocks</div>
                 <ul>
-                  <li v-for="(b, j) in view.blocks" :key="j">
-                    {{ b.name }}<template v-if="b.author"> by {{ b.author }}</template> ·
-                    {{ b.license }}
-                    <ul v-if="b.basedOn.length">
-                      <li v-for="(c, k) in b.basedOn" :key="k">based on {{ creditLine(c) }}</li>
-                    </ul>
-                  </li>
+                  <template v-for="(b, j) in view.blocks" :key="j">
+                    <li v-if="on(s, `bl>${j}`)" :data-m="`bl>${j}`">
+                      {{ b.name }}<template v-if="b.author"> by {{ b.author }}</template> ·
+                      {{ b.license }}
+                      <ul v-if="b.basedOn.length">
+                        <li v-for="(c, k) in b.basedOn" :key="k">based on {{ creditLine(c) }}</li>
+                      </ul>
+                    </li>
+                  </template>
                 </ul>
               </template>
             </div>
@@ -394,13 +424,21 @@
             <div class="scale-label">{{ fmt(scaleSquare) }} square</div>
           </div>
 
-          <footer class="row no-wrap" style="gap: 12px">
+          <div v-if="measure" class="ruler" :style="{ height: `${area[1]}${units}` }" />
+          <footer v-else class="row no-wrap" style="gap: 12px">
             <div class="col ellipsis">{{ view.title }} · {{ view.byline }}</div>
             <div>{{ i + 1 }} of {{ sheets.length }}</div>
           </footer>
         </section>
       </div>
-      <PrintPreview v-if="!printOnly" :kind="kind" :id="id" :target="target" print-only />
+      <PrintPreview
+        v-if="!printOnly"
+        :kind="kind"
+        :id="id"
+        :target="target"
+        :measured="measuredHere"
+        print-only
+      />
     </div>
     <div v-else-if="!printOnly" class="q-pa-md text-grey-7">Nothing to print here.</div>
   </Teleport>
@@ -422,7 +460,7 @@ import {
 import { pathToSegs, flattenLoop, type Pt } from '@/model/geometry/path';
 import { generateSlots } from '@/model/layout/slots';
 import { fmtFabric, fmtLen } from '@/model/print/format';
-import { pack, pillWidth, tiles, wrapPills } from '@/model/print/pack';
+import { pack, pillWidth, splitFlow, tiles, wrapPills } from '@/model/print/pack';
 import {
   blockPieces,
   quiltPieces,
@@ -457,6 +495,8 @@ const props = defineProps<{
   target?: PrintTarget | undefined;
   /** The copy that prints (hidden on screen). */
   printOnly?: boolean;
+  /** Measured heights of the flowing pages (the print copy takes the screen copy's). */
+  measured?: Record<number, { key: string; cost: number }[]> | undefined;
 }>();
 const project = useProjectStore();
 const library = useLibraryStore();
@@ -761,7 +801,7 @@ function templateItems(pieces: Piece[], prefix: string) {
   return items;
 }
 
-type Sheet =
+type Sheet = (
   | {
       kind: 'templates';
       heading: string;
@@ -831,7 +871,11 @@ type Sheet =
       w: number;
       h: number;
       scale: number;
-    };
+    }
+) & {
+  /** A part of a split page: the pieces on it. */
+  show?: Set<string>;
+};
 interface NeedCol {
   opt: WidthOption;
   needs: Map<string, FabricNeed>;
@@ -856,7 +900,7 @@ interface KeyBlock {
   labels: { x: number; y: number; text: string }[];
 }
 
-const sheets = computed<Sheet[]>(() => {
+const logical = computed<Sheet[]>(() => {
   const v = view.value;
   if (!v) return [];
   const isBlock = props.kind === 'block';
@@ -1287,6 +1331,57 @@ onMounted(() => {
 onBeforeUnmount(() => pageStyle?.remove());
 const print = () => window.print();
 
+// Flowing pages (charts, tables, lists) are split into sheets at measured heights: a hidden copy of
+// each is drawn at the printable width next to a ruler one printable height tall, so the browser's
+// zoom doesn't matter. Until measured they show whole (and print as one long page).
+const FLOW = new Set(['rotary', 'yardage', 'credits', 'block']);
+type Costs = Record<number, { key: string; cost: number }[]>;
+const measuredHere = ref<Costs>({});
+const costs = computed(() => props.measured ?? measuredHere.value);
+const sheets = computed<Sheet[]>(() =>
+  logical.value.flatMap((s, i) => {
+    const items = costs.value[i];
+    if (!FLOW.has(s.kind) || !items?.length) return [s];
+    return splitFlow(items).map((keys, j) => ({
+      ...s,
+      heading: j ? `${s.heading} (continued)` : s.heading,
+      show: new Set(keys),
+    }));
+  }),
+);
+const entries = computed(() => [
+  ...sheets.value.map((s, i) => ({ s, i, measure: false })),
+  ...(props.printOnly
+    ? []
+    : logical.value.flatMap((s, i) => (FLOW.has(s.kind) ? [{ s, i, measure: true }] : []))),
+]);
+/** Fabric pills beside the block picture when they fit its height (about 6.6 mm each). */
+const pillsBeside = (s: Sheet) =>
+  s.kind === 'block' && s.fabrics.length * 6.6 <= s.h * s.scale * mm.value;
+/** Part of a split page: is this piece on it? */
+const on = (s: Sheet, key: string) => !s.show || s.show.has(key);
+const measureStyle = computed(() => ({ width: `${area.value[0]}${units.value}` }));
+function measure() {
+  const out: Costs = {};
+  for (const el of root.value?.querySelectorAll<HTMLElement>('section.measure') ?? []) {
+    const page = el.querySelector('.ruler')!.getBoundingClientRect().height;
+    const parts = [...el.querySelectorAll<HTMLElement>('[data-m]')];
+    const end = el.querySelector('.content')!.getBoundingClientRect().bottom;
+    const tops = parts.map((p) => p.getBoundingClientRect().top);
+    if (!page) continue;
+    out[Number(el.dataset.i)] = parts.map((p, k) => ({
+      key: p.dataset.m!,
+      cost: ((tops[k + 1] ?? end) - tops[k]!) / page,
+    }));
+  }
+  measuredHere.value = out;
+}
+watch([logical, area], () => void nextTick(measure), { flush: 'post' });
+onMounted(() => {
+  void nextTick(measure);
+  void document.fonts?.ready.then(measure);
+});
+
 // On screen, sheets shrink to fit the space (CSS px are 96 per inch), or follow the zoom.
 const editor = useEditorStore();
 const root = ref<HTMLElement>();
@@ -1395,6 +1490,16 @@ onMounted(() => {
 }
 .content {
   flex: 1;
+}
+.sheet.measure {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  visibility: hidden;
+  box-shadow: none;
+}
+.measure .content {
+  flex: none;
 }
 .sheet footer {
   height: 6mm;

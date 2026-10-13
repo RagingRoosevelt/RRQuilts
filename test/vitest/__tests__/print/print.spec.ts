@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { builtinItems } from '@/content/starter';
 import type { Pt } from '@/model/geometry/path';
 import { fmtFabric, fmtLen, roundUp } from '@/model/print/format';
-import { pack, tiles } from '@/model/print/pack';
+import { pack, splitFlow, tiles } from '@/model/print/pack';
 import { generateSlots } from '@/model/layout/slots';
 import { ensurePlainBlock, ensureSlotContent } from '@/model/plain';
 import { blockPieces, quiltPieces, templates, type Piece } from '@/model/print/pieces';
@@ -154,6 +154,24 @@ describe('rotary cutting', () => {
       ['B', 16],
     ]);
     expect(templates(blockPieces(star(), [9, 9]), '2').map((x) => x.letter)).toEqual(['2A', '2B']);
+  });
+});
+
+describe('page splitting', () => {
+  it('fills pages, repeats table headings, gives oversize items their own page', () => {
+    const items = [
+      { key: 'cap', cost: 0.2 },
+      { key: 't>', cost: 0.1 },
+      ...[1, 2, 3, 4, 5].map((i) => ({ key: `t>${i}`, cost: 0.2 })),
+      { key: 'big', cost: 1.5 },
+      { key: 'end', cost: 0.1 },
+    ];
+    expect(splitFlow(items)).toEqual([
+      ['cap', 't>', 't>1', 't>2', 't>3'],
+      ['t>', 't>4', 't>5'],
+      ['big'],
+      ['end'],
+    ]);
   });
 });
 

@@ -84,3 +84,33 @@ export function wrapPills(widths: number[], max: number, gap: number) {
     return at;
   });
 }
+
+/**
+ * Flowing content (charts, tables, lists) split into pages. `items` in reading order with their
+ * heights as a fraction of the page; a key `"t>"` is the heading of group `t` (a table's column
+ * headings, a list's title) and `"t>…"` its rows: the heading repeats on every page holding rows.
+ * An item taller than a page gets a page of its own.
+ */
+export function splitFlow(items: { key: string; cost: number }[]): string[][] {
+  const heads = new Map(items.filter((x) => x.key.endsWith('>')).map((x) => [x.key, x.cost]));
+  const pages: string[][] = [];
+  let page: string[] = [];
+  let used = 0;
+  for (const { key, cost } of items) {
+    if (heads.has(key)) continue;
+    const head = key.includes('>') ? `${key.split('>')[0]}>` : '';
+    const extra = () => (head && heads.has(head) && !page.includes(head) ? heads.get(head)! : 0);
+    if (page.length && used + extra() + cost > 1 + 1e-9) {
+      pages.push(page);
+      [page, used] = [[], 0];
+    }
+    if (extra()) {
+      used += extra();
+      page.push(head);
+    }
+    page.push(key);
+    used += cost;
+  }
+  if (page.length) pages.push(page);
+  return pages;
+}
