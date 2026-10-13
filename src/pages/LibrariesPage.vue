@@ -9,7 +9,9 @@
         aria-label="Filters"
         @click="filtersOpen = !filtersOpen"
       />
-      <h1 class="page-title col" style="min-width: 120px">Libraries</h1>
+      <h1 class="page-title col row items-center no-wrap" style="min-width: 120px">
+        Libraries <HelpLink topic="guides/libraries" label="Libraries" />
+      </h1>
       <q-btn outline no-caps icon="upload_file" label="Import" @click="importFile">
         <q-tooltip>A backup or pack (.rrqlib), or a palette (.rrqplt)</q-tooltip>
       </q-btn>
@@ -646,6 +648,7 @@ import BlockSections from '@/components/BlockSections.vue';
 import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
 import ColorPill from '@/components/ColorPill.vue';
+import HelpLink from '@/components/HelpLink.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import FullName from '@/components/FullName.vue';
 import { useAskCategory } from '@/composables/category';

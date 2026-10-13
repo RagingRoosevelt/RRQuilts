@@ -118,6 +118,7 @@ const nav = computed(() => [
   HOME,
   ...(project.isOpen ? [{ to: '/project', icon: 'grid_view', label: 'Project' }] : []),
   { to: '/libraries', icon: 'collections_bookmark', label: 'Libraries' },
+  { to: '/help', icon: 'help_outline', label: 'Help' },
 ]);
 // Settings and unknown pages show Home in the compact menu.
 const current = computed(

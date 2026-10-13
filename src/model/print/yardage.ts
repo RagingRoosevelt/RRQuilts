@@ -55,6 +55,9 @@ export function backing(w: number, h: number, overhang: number, usable: number, 
   return roundUp(Math.min(across, down), step);
 }
 
+/** Binding: extra length for the joins, the mitered corners, and the final join (10″ / 25 cm). */
+export const BINDING_EXTRA = { in: 10, cm: 25 } as const;
+
 /** Straight-grain binding strips around a `w`×`h` quilt, with `extra` for joins and corners. */
 export function binding(
   w: number,

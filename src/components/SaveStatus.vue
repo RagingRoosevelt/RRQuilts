@@ -21,10 +21,12 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
 import { computed, onBeforeUnmount, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useProjectStore, type SaveStatus } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 
 const $q = useQuasar();
+const router = useRouter();
 const project = useProjectStore();
 const settings = useSettingsStore();
 
@@ -51,7 +53,9 @@ async function save(as: boolean) {
         message:
           "This browser doesn't let web apps write to files, so each save downloads a new copy of " +
           'your .rrq file. Chrome or Edge save straight back to the same file.',
-      });
+        cancel: { label: 'Learn more', flat: true },
+        ok: { label: 'OK', flat: true },
+      }).onCancel(() => void router.push('/help/guides/getting-started'));
     }
   } catch (e) {
     $q.notify({ type: 'negative', message: `Couldn't save: ${(e as Error).message}` });

@@ -36,6 +36,7 @@
             <div class="col" style="min-width: 0">
               <div class="ellipsis">
                 <b>{{ view.title }}</b> · {{ view.size }} · {{ s.heading }}
+                <HelpLink v-if="SHEET_HELP[s.kind]" v-bind="SHEET_HELP[s.kind]!" />
               </div>
               <div v-if="i === 0" class="ellipsis byline">{{ view.byline }}</div>
             </div>
@@ -467,6 +468,7 @@ import {
   watchEffect,
   type PropType,
 } from 'vue';
+import HelpLink from '@/components/HelpLink.vue';
 import TemplatePiece from '@/components/TemplatePiece.vue';
 import { resolveColoring } from '@/model/coloring';
 import {
@@ -501,7 +503,13 @@ import {
   type PrintTarget,
 } from '@/model/print/prefs';
 import { cutFor, cutPlan, type Cut, type CutKind, type CutLine } from '@/model/print/rotary';
-import { backing, binding, fabricNeeds, type FabricNeed } from '@/model/print/yardage';
+import {
+  BINDING_EXTRA,
+  backing,
+  binding,
+  fabricNeeds,
+  type FabricNeed,
+} from '@/model/print/yardage';
 import type { Block } from '@/model/schema/block';
 import type { Quilt } from '@/model/schema/quilt';
 import type { Credit } from '@/model/schema/shared';
@@ -1056,7 +1064,7 @@ const logical = computed<Sheet[]>(() => {
                   x1 - x0,
                   y1 - y0,
                   prefs.value.bindingWidth[units.value],
-                  units.value === 'in' ? 10 : 25,
+                  BINDING_EXTRA[units.value],
                   c.opt.usable,
                   fstep,
                 ),
@@ -1393,6 +1401,12 @@ const print = () => window.print();
 // Flowing pages (charts, tables, lists) are split into sheets at measured heights: a hidden copy of
 // each is drawn at the printable width next to a ruler one printable height tall, so the browser's
 // zoom doesn't matter. Until measured they show whole (and print as one long page).
+/** On screen only: the Help topic behind a page (hidden when printing). */
+const SHEET_HELP: Record<string, { topic: string; label: string }> = {
+  rotary: { topic: 'math/seam-allowance', label: 'How cut sizes are worked out' },
+  miter: { topic: 'math/borders', label: 'Mitered borders' },
+  yardage: { topic: 'math/yardage-and-fat-quarters', label: 'Yardage, binding, and backing' },
+};
 const FLOW = new Set(['rotary', 'yardage', 'credits', 'block']);
 type Costs = Record<number, { key: string; cost: number }[]>;
 const measuredHere = ref<Costs>({});

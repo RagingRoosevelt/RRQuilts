@@ -35,6 +35,12 @@ const routes: RouteRecordRaw[] = [
     meta: project,
   },
   { path: '/libraries', component: () => import('@/pages/LibrariesPage.vue') },
+  // Help (spec 013): /help/<section>[/<topic>]; /help opens Guides.
+  { path: '/help', redirect: '/help/guides' },
+  {
+    path: '/help/:section(guides|math|techniques|resources)/:topic?',
+    component: () => import('@/pages/HelpPage.vue'),
+  },
   // Settings is a fly-over (MainLayout); old links open it over Home.
   { path: '/settings', redirect: '/' },
   { path: '/:catchAll(.*)*', component: () => import('@/pages/NotFoundPage.vue') },

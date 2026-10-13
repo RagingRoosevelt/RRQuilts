@@ -76,6 +76,12 @@
       @update:model-value="(v) => setOpen('Cutting', v)"
     >
       <div class="column q-pa-sm" style="gap: 8px">
+        <div class="row items-center text-caption text-grey-7">
+          How cut sizes are worked out<HelpLink
+            topic="math/seam-allowance"
+            label="How cut sizes are worked out"
+          />
+        </div>
         <LengthInput
           :model-value="prefs.seam[units]"
           label="Seam allowance"
@@ -115,6 +121,12 @@
       @update:model-value="(v) => setOpen('Fabric', v)"
     >
       <div class="column q-pa-sm" style="gap: 8px">
+        <div class="row items-center text-caption text-grey-7">
+          Yardage and fat quarters<HelpLink
+            topic="math/yardage-and-fat-quarters"
+            label="Yardage and fat quarters"
+          />
+        </div>
         <q-select
           :model-value="prefs.fabricStep[units]"
           :options="fabricStepOptions"
@@ -151,6 +163,9 @@
       @update:model-value="(v) => setOpen('Templates', v)"
     >
       <div class="column q-pa-sm" style="gap: 8px">
+        <div class="row items-center text-caption text-grey-7">
+          Printing templates<HelpLink topic="guides/printing" label="Printing templates" />
+        </div>
         <q-toggle
           :model-value="prefs.seamAllowance"
           dense
@@ -288,6 +303,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import HelpLink from '@/components/HelpLink.vue';
 import LengthInput from '@/components/LengthInput.vue';
 import { generateSlots } from '@/model/layout/slots';
 import { fmtLen } from '@/model/print/format';

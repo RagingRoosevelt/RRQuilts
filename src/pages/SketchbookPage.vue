@@ -21,6 +21,10 @@
         <q-tab name="threads" label="Threads" />
         <q-tab name="details" label="Details" />
       </q-tabs>
+      <HelpLink
+        :topic="tab === 'colors' ? 'guides/colors-and-palettes' : 'guides/sketchbook'"
+        :label="tab === 'colors' ? 'Colors and palettes' : 'The project sketchbook'"
+      />
       <template v-if="!project.readOnly">
         <q-btn
           flat
@@ -828,6 +832,7 @@ import ColorEditor from '@/components/ColorEditor.vue';
 import ColorPill from '@/components/ColorPill.vue';
 import { itemId } from '@/model/identity';
 import FullName from '@/components/FullName.vue';
+import HelpLink from '@/components/HelpLink.vue';
 import { useLibraryStore } from '@/stores/library';
 import { revealSection } from '@/composables/block-sections';
 import { socialsOut } from '@/settings/socials';

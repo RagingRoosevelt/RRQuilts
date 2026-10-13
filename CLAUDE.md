@@ -133,6 +133,14 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - `stores/library.ts`: built-in + My library + packs (IndexedDB `libraries`, `storage/libraries.ts`);
   `items`/`lookup` cover every library. `pages/LibrariesPage.vue`; sketchbook Add/Sync/Copy
 
+## Help (spec 013)
+
+- `src/help/<section>/<id>.md` (guides, math, techniques, resources): front matter (title, order,
+  summary) + Markdown (`marked`); `::calc <name>` places a calculator; inline `<svg>` diagrams.
+  `topics.ts` loads them (bundled, offline); `calc.ts` calculators run the print code (`cutFor`,
+  `yardage.ts`) so help math matches printouts. `pages/HelpPage.vue` at `/help/<section>/<topic>`;
+  `components/HelpLink.vue` = "?" links from editors/print. A test checks calc names and topic links
+
 ## Printing (spec 010)
 
 - `src/model/print/` (framework-free): `pieces.ts` (block/quilt pieces, lettered templates),

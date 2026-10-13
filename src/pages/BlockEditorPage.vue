@@ -10,6 +10,7 @@
         <q-tab name="color" icon="palette" label="Color" />
         <q-tab name="print" icon="print" label="Print" />
       </q-tabs>
+      <HelpLink v-bind="BLOCK_HELP[editor.blockMode] ?? BLOCK_HELP.draw!" />
       <q-btn
         flat
         round
@@ -199,6 +200,7 @@
 
 <script setup lang="ts">
 import { produce } from 'immer';
+import HelpLink from '@/components/HelpLink.vue';
 import { useQuasar } from 'quasar';
 import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -289,6 +291,13 @@ watchEffect(() => {
   if (anyBlock.value?.colorVariant && editor.blockMode === 'draw') editor.blockMode = 'color';
 });
 const offerPalette = usePaletteOffer();
+/** The Help topic for each editor tab. */
+const BLOCK_HELP: Record<string, { topic: string; label: string }> = {
+  details: { topic: 'guides/drawing-blocks', label: 'Drawing blocks' },
+  draw: { topic: 'guides/drawing-blocks', label: 'Drawing blocks' },
+  color: { topic: 'guides/block-colorings', label: 'Block colorings' },
+  print: { topic: 'guides/printing', label: 'Printing' },
+};
 function pickColoring(id: string) {
   editor.coloringOf.set(block.value!.id, id);
   offerPalette(block.value!, id);

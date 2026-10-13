@@ -12,6 +12,7 @@
         <q-tab name="design" icon="palette" label="Design" />
         <q-tab name="print" icon="print" label="Print" />
       </q-tabs>
+      <HelpLink v-bind="QUILT_HELP[editor.mode] ?? QUILT_HELP.design!" />
       <q-btn
         flat
         round
@@ -164,6 +165,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
+import HelpLink from '@/components/HelpLink.vue';
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BordersInspector from '@/components/BordersInspector.vue';
@@ -254,6 +256,14 @@ const HINTS: Record<Tool, string> = {
   pan: 'Drag to move around.',
 };
 const toolHint = computed(() => HINTS[editor.tool]);
+/** The Help topic for each editor tab. */
+const QUILT_HELP: Record<string, { topic: string; label: string }> = {
+  details: { topic: 'guides/designing-a-quilt', label: 'Designing a quilt' },
+  layout: { topic: 'guides/designing-a-quilt', label: 'Designing a quilt' },
+  borders: { topic: 'math/borders', label: 'Borders' },
+  design: { topic: 'guides/designing-a-quilt', label: 'Designing a quilt' },
+  print: { topic: 'guides/printing', label: 'Printing' },
+};
 const labelOf = (t: { id: Tool; label: string }) =>
   t.id === 'flip' ? (editor.flipAxis === 'v' ? 'Flip top↕bottom' : 'Flip left↔right') : t.label;
 /** Choosing Flip while it's already active switches its direction. */
