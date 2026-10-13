@@ -32,7 +32,7 @@ picture, block picture — from the existing Print tabs."
   (default) or landscape.
 - Q: More template options? → A: Include seam allowance (off: finished shapes for paper piecing),
   trimmed points (tips under 90° cut ¼″ past the sewing corner), shaded seam allowance, curve
-  alignment marks (notch mid-curve), labels (letter / cut counts / finished size), tint by fabric
+  alignment marks (notch mid-curve), labels (letter / cut counts / finished size; separate Small/Normal/Large text sizes for the finished size and for the cut count / color note), tint by fabric
   (one fabric only), one template per page.
 - Q: Tinted templates? → A: One per fabric. A separate "Color key" label codes them by fabric number
   (A-2 = A from fabric 2; legend on the key). The template key is on the block page by default (option); template pages then skip

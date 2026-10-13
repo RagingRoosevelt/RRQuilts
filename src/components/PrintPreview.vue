@@ -471,6 +471,7 @@ const look = computed(() => ({
   /** Mark length: across the seam allowance (or a short tick without one). */
   markLength: prefs.value.seamAllowance ? seam.value : seam.value / 2,
   labels: prefs.value.labels,
+  textSize: prefs.value.textSize,
   tint: prefs.value.tint,
 }));
 

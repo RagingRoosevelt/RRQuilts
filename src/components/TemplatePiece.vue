@@ -70,12 +70,14 @@
       </text>
     </template>
     <text
-      v-if="caption"
+      v-if="caption.length"
       :x="bounds[0]"
-      :y="bounds[3] + look.font * 1.3"
+      :y="bounds[3] + look.font * 1.3 * captionK"
       :font-size="look.font * 0.85"
     >
-      {{ caption }}
+      <tspan v-for="(c, i) in caption" :key="i" :font-size="look.font * 0.85 * c.k">{{
+        c.text
+      }}</tspan>
     </text>
     <!-- Color key off: a pill per fabric under the template -->
     <g v-for="p in pills" :key="p.n" :transform="`translate(${p.x} ${pillY})`">
@@ -104,6 +106,7 @@
 </template>
 
 <script setup lang="ts">
+import { textScale } from '@/model/print/prefs';
 import { computed } from 'vue';
 import type { Pt } from '@/model/geometry/path';
 import type { PlacedPiece } from '@/model/print/pieces';
@@ -120,6 +123,7 @@ const props = defineProps<{
     marks: boolean;
     markLength: number;
     labels: { letter: boolean; counts: boolean; size: boolean; color: boolean };
+    textSize: { size: string; note: string };
     tint: boolean;
   };
 }>();
@@ -131,19 +135,25 @@ const bounds = computed(() => {
   const ys = props.piece.cut.map((p) => p[1]);
   return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] as const;
 });
-/** Unchecked labels print under the template: "B · 3″ legs · Cut 72 Cream". */
+const sizeK = computed(() => textScale(props.look.textSize.size));
+const noteK = computed(() => textScale(props.look.textSize.note));
+/** Unchecked labels print under the template: "B · 3″ legs · Cut 72 Cream", each at its size. */
 const caption = computed(() => {
   const l = props.look.labels;
   return [
-    l.letter ? '' : props.piece.letter,
-    l.size ? '' : props.piece.size,
-    l.counts ? '' : props.piece.note,
+    l.letter ? null : { text: props.piece.letter, k: 1 },
+    l.size ? null : { text: props.piece.size, k: sizeK.value },
+    l.counts ? null : { text: props.piece.note, k: noteK.value },
   ]
-    .filter(Boolean)
-    .join(' · ');
+    .filter((x) => !!x?.text)
+    .map((x, i) => ({ ...x!, text: i ? ` · ${x!.text}` : x!.text }));
 });
+const captionK = computed(() => Math.max(1, ...caption.value.map((x) => x.k)));
 /** Fabric pills (color key unchecked), laid left to right under the caption. */
-const pillY = computed(() => bounds.value[3] + props.look.font * (caption.value ? 1.9 : 0.4));
+const pillY = computed(
+  () =>
+    bounds.value[3] + props.look.font * (caption.value.length ? 0.6 + 1.3 * captionK.value : 0.4),
+);
 const pills = computed(() => {
   if (props.look.labels.color) return [];
   const f = props.look.font;
@@ -158,9 +168,10 @@ const pills = computed(() => {
 /** Checked notes, printed on the template: finished size, then what to cut. */
 const insideLines = computed(() => {
   const l = props.look.labels;
-  return [l.size ? `Finished ${props.piece.size}` : '', l.counts ? props.piece.note : ''].filter(
-    Boolean,
-  );
+  return [
+    l.size ? { text: `Finished ${props.piece.size}`, em: 0.9 * sizeK.value } : null,
+    l.counts ? { text: props.piece.note, em: 0.9 * noteK.value } : null,
+  ].filter((x) => !!x?.text) as { text: string; em: number }[];
 });
 /**
  * Letter and notes stacked at the roomiest spot inside the sewing line, shrunk to fit when the piece
@@ -170,7 +181,7 @@ const stack = computed(() => {
   const f = props.look.font;
   const rows = [
     ...(props.look.labels.letter ? [{ text: props.piece.letter, em: 1.6, bold: true }] : []),
-    ...insideLines.value.map((text) => ({ text, em: 0.9, bold: false })),
+    ...insideLines.value.map((x) => ({ ...x, bold: false })),
   ];
   const arrow = props.look.grain && props.piece.grainLength > 0 ? 1.2 : 0;
   const height = (rows.reduce((a, x) => a + x.em * 1.15, 0) + arrow) * f;

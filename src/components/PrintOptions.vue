@@ -238,6 +238,27 @@
               @update:model-value="(v: boolean) => set('labels', { ...prefs.labels, [l.key]: v })"
             />
           </div>
+          <div
+            v-for="t in TEXT_SIZES"
+            :key="t.key"
+            class="row items-center q-mt-sm"
+            style="gap: 8px"
+          >
+            <span class="text-caption col">{{ t.label }}</span>
+            <q-btn-toggle
+              :model-value="prefs.textSize[t.key]"
+              dense
+              no-caps
+              :options="[
+                { label: 'Small', value: 'small' },
+                { label: 'Normal', value: 'normal' },
+                { label: 'Large', value: 'large' },
+              ]"
+              @update:model-value="
+                (v: TextSize) => set('textSize', { ...prefs.textSize, [t.key]: v })
+              "
+            />
+          </div>
         </div>
       </div>
     </q-expansion-item>
@@ -290,6 +311,7 @@ import {
   printPrefs,
   type PrintTarget,
   type PrintPrefs,
+  type TextSize,
 } from '@/model/print/prefs';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
@@ -374,6 +396,11 @@ const sizeOptions = computed(() => [
 ]);
 const sizeSource = ref(sizeOptions.value[0]!.value);
 const custom = ref<[number, number]>(block.value ? [...block.value.size] : [10, 10]);
+
+const TEXT_SIZES = [
+  { key: 'size', label: 'Finished size text' },
+  { key: 'note', label: 'Cut count / color text' },
+] as const;
 
 const LABELS = [
   { key: 'letter', label: 'Letter' },
