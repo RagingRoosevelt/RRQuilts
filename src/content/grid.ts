@@ -218,6 +218,24 @@ export const cells = (rows: string[], dx = 0, dy = 0): Piece[] =>
       }),
   );
 
+/**
+ * Coarse cells drawn on a grid `k` times finer (pass `n: rows.length * k`), so cells can be cut in
+ * half: tokens as in `cells` (scaled by `k`), plus `=XY` a cell cut across (X top, Y bottom) and
+ * `|XY` cut down (X left, Y right). `.` = covered by a piece added separately (fine-grid units).
+ */
+export const halves = (rows: string[], k = 2): Piece[] =>
+  rows.flatMap((row, r) =>
+    row
+      .trim()
+      .split(/\s+/)
+      .flatMap((tok, c) => {
+        const [x, y, h] = [c * k, r * k, k / 2];
+        if (tok[0] === '=') return [rect(x, y, k, h, tok[1]!), rect(x, y + h, k, h, tok[2]!)];
+        if (tok[0] === '|') return [rect(x, y, h, k, tok[1]!), rect(x + h, y, h, k, tok[2]!)];
+        return tok === '.' ? [] : cells([`${k}${tok}`], x, y);
+      }),
+  );
+
 /** Four copies of a quadrant's pieces (built at 0,0), shifted to each quadrant of a 2h × 2h grid. */
 export const quads = (h: number, pieces: Piece[]) =>
   [

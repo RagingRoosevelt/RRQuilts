@@ -11,6 +11,7 @@ import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 import { FIVE_PATCH_BLOCKS } from './five-patch';
 import { FOUR_PATCH_BLOCKS } from './four-patch';
+import { LETTER_BLOCKS, NUMBER_BLOCKS } from './letters';
 import { NINE_PATCH_BLOCKS } from './nine-patch';
 import { SEVEN_PATCH_BLOCKS } from './seven-patch';
 
@@ -452,16 +453,21 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     base: C.Cream!,
     points: [[0.2, 0.2, C.Denim!]],
   },
-  ...[...FOUR_PATCH_BLOCKS, ...FIVE_PATCH_BLOCKS, ...SEVEN_PATCH_BLOCKS, ...NINE_PATCH_BLOCKS].map(
-    (b) => ({
-      name: b.name,
-      size: b.size,
-      category: b.category,
-      seams: b.seams,
-      base: C.Cream!,
-      points: b.points.map(([x, y, color]): [number, number, number] => [x, y, C[color]!]),
-    }),
-  ),
+  ...[
+    ...FOUR_PATCH_BLOCKS,
+    ...FIVE_PATCH_BLOCKS,
+    ...SEVEN_PATCH_BLOCKS,
+    ...NINE_PATCH_BLOCKS,
+    ...LETTER_BLOCKS,
+    ...NUMBER_BLOCKS,
+  ].map((b) => ({
+    name: b.name,
+    size: b.size,
+    category: b.category,
+    seams: b.seams,
+    base: C.Cream!,
+    points: b.points.map(([x, y, color]): [number, number, number] => [x, y, C[color]!]),
+  })),
 ];
 
 // --- Built-in library (spec 008) ---------------------------------------------------------------
