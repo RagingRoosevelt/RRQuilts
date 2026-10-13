@@ -11,7 +11,7 @@
       />
       <div class="text-h6 col" style="min-width: 120px">Libraries</div>
       <q-btn outline no-caps icon="upload_file" label="Import" @click="importFile">
-        <q-tooltip>A backup or pack (.rrqlib), or a palette (.rrqcc)</q-tooltip>
+        <q-tooltip>A backup or pack (.rrqlib), or a palette (.rrqplt)</q-tooltip>
       </q-btn>
       <q-btn outline no-caps icon="save" label="Back up…" @click="backingUp = { ...ALL }" />
       <q-btn
@@ -218,7 +218,7 @@
                         <q-item-section>Copy to my library</q-item-section>
                       </q-item>
                       <q-item v-close-popup clickable @click="exportCollection(c)">
-                        <q-item-section>Export (.rrqcc)</q-item-section>
+                        <q-item-section>Export (.rrqplt)</q-item-section>
                       </q-item>
                       <q-item v-if="g.mine" v-close-popup clickable @click="remove(c.id)">
                         <q-item-section class="text-negative">Delete</q-item-section>
@@ -831,7 +831,7 @@ function exportBlock(b: Block) {
   );
 }
 function exportCollection(c: ColorCollection) {
-  void exportFile(c.notecard.name, JSON.stringify(collectionFile(c, APP)), 'rrqcc');
+  void exportFile(c.notecard.name, JSON.stringify(collectionFile(c, APP)), 'rrqplt');
 }
 
 const formatOf = (text: string): unknown => {
@@ -843,10 +843,10 @@ const formatOf = (text: string): unknown => {
 };
 
 async function importFile() {
-  const file = await pickFile(['rrqlib', 'rrqcc']);
+  const file = await pickFile(['rrqlib', 'rrqplt']);
   if (!file) return;
   const text = await file.text();
-  if (formatOf(text) === 'rrqcc') return importCollection(text);
+  if (formatOf(text) === 'rrqplt') return importCollection(text);
   const r = parseLibrary(text);
   if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
   if (r.doc.kind === 'personal') {

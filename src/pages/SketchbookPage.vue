@@ -291,7 +291,7 @@
           dense
           no-caps
           icon="upload_file"
-          label="Import palette (.rrqcc)"
+          label="Import palette (.rrqplt)"
           @click="importCollectionFile"
         />
       </div>
@@ -899,7 +899,7 @@ function importFromLibrary({ from, mode }: { from: string; mode: 'append' | 'ove
 }
 
 async function importCollectionFile() {
-  const file = await pickFile(['rrqcc']);
+  const file = await pickFile(['rrqplt']);
   if (!file) return;
   const r = parseCollectionFile(await file.text());
   if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });

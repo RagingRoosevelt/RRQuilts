@@ -25,15 +25,15 @@ declare global {
 export const FILE_TYPES = {
   rrq: 'RRQuilts project file',
   rrqbl: 'RRQuilts block file',
-  rrqcc: 'RRQuilts palette file',
+  rrqplt: 'RRQuilts palette file',
   rrqlib: 'RRQuilts library file',
   rrqconf: 'RRQuilts settings file',
 } as const;
 export type FileExt = keyof typeof FILE_TYPES;
 
-// Some platforms show only the description, so it carries the extension too.
+// Names only: dialogs add the extension themselves where they show it.
 const pickerType = (ext: FileExt): PickerType => ({
-  description: `*.${ext} - ${FILE_TYPES[ext]}`,
+  description: FILE_TYPES[ext],
   accept: { 'application/json': [`.${ext}`] },
 });
 /** Several types: all of them first (so every file shows), then each on its own, then JSON. */
@@ -41,20 +41,15 @@ const pickerTypes = (exts: FileExt[]): PickerType[] => [
   ...(exts.length > 1
     ? [
         {
-          description: `All RRQuilts files here (${exts.map((e) => `*.${e}`).join(', ')})`,
+          description: 'All RRQuilts files here',
           accept: { 'application/json': exts.map((e) => `.${e}`) },
         },
       ]
     : []),
   ...exts.map(pickerType),
-  { description: '*.json - JSON', accept: { 'application/json': ['.json'] } },
+  { description: 'JSON', accept: { 'application/json': ['.json'] } },
 ];
 const TYPES = pickerTypes(['rrq']);
-/** Save dialogs add the extension themselves, so their labels are names only. */
-const saveType = (ext: FileExt): PickerType => ({
-  description: FILE_TYPES[ext],
-  accept: { 'application/json': [`.${ext}`] },
-});
 
 export const supportsFileAccess = () =>
   typeof window.showOpenFilePicker === 'function' &&
@@ -129,7 +124,7 @@ export async function pickSaveHandle(name: string): Promise<FileSystemFileHandle
   try {
     return await window.showSaveFilePicker!({
       suggestedName: fileNameFor(name),
-      types: [saveType('rrq')],
+      types: [pickerType('rrq')],
       id: 'rrq',
     });
   } catch (e) {
@@ -144,7 +139,7 @@ export async function exportFile(name: string, text: string, ext: FileExt) {
   try {
     const handle = await window.showSaveFilePicker!({
       suggestedName: fileNameFor(name, ext),
-      types: [saveType(ext)],
+      types: [pickerType(ext)],
       id: ext,
     });
     await writeToHandle(handle, text);

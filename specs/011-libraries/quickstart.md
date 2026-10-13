@@ -18,7 +18,7 @@ Settings: author "Jane".
 7. Libraries › My library › Categories… add "Stars"; Jane Star › Category… Stars; Tags & styles…
    style "eight-point" → Category/Styles filters and search "eight-point" find it. Delete the category → item
    uncategorized.
-8. Jewel › Edit colors… rename/reorder/remove a color; Export (.rrqcc); import it in another
+8. Jewel › Edit colors… rename/reorder/remove a color; Export (.rrqplt); import it in another
    project's Fabrics & Colors → colors added as own.
 9. Back up… (My library + packs) → file `RRQuilts library backup.rrqlib`. Browser devtools: clear
    site data (or another profile) › Libraries › Import the backup → Restore → everything back.

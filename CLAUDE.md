@@ -115,7 +115,7 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   blocks/colors, prunes unused ones (same undo step). `splitItems` = Mine vs Library for display
 - Identity (`src/model/identity.ts`): shareable ids `<author-slug>.<random>`; `version` = 12-hex
   content hash (sizes hashed in inches), `revision` display counter; stamped on save
-- `.rrqbl` single-block files: `src/model/block-file.ts`; `.rrqcc` single color-collection files (spec 011;
+- `.rrqbl` single-block files: `src/model/block-file.ts`; `.rrqplt` single palette (color-collection) files (spec 011;
   the UI calls color collections **palettes**)
 - Credits/licenses (spec 009, `src/model/credits.ts`): items carry `author`, `license`, `credits`
   (origin first); copying/editing others' work (`creditCopy`) appends the previous author. Chain
@@ -128,7 +128,7 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   `model/library-file.ts` (parse with per-item skips, backup, restore, license-checked `packDoc`),
   `model/library.ts` (add/sync with **linked copies** — own project items whose `source.derived`
   points at a My-library item; conflicts via `source.version`; collections; `withSources`/`lookupOf`
-  over all libraries), `model/collection-file.ts` (`.rrqcc`)
+  over all libraries), `model/collection-file.ts` (`.rrqplt`)
 - `stores/library.ts`: built-in + My library + packs (IndexedDB `libraries`, `storage/libraries.ts`);
   `items`/`lookup` cover every library. `pages/LibrariesPage.vue`; sketchbook Add/Sync/Copy
 

@@ -153,7 +153,7 @@ describe('My library: color collections', () => {
     expect(synced.lib.items[0]!.data.revision).toBe(3);
   });
 
-  it('.rrqcc round trip; import adds the colors as own', async () => {
+  it('.rrqplt round trip; import adds the colors as own', async () => {
     const doc = withColors(createProject());
     const s = await saveCollection(emptyPersonal(ME), doc, 'Brights', ['jane.red'], ME);
     const coll = s.lib.items[0]!.data;
@@ -164,7 +164,7 @@ describe('My library: color collections', () => {
     expect(imp.added).toBe(1);
     expect(isLibraryItem(imp.doc.project.palette.colors[0]!)).toBe(false);
     expect(importCollectionColors(imp.doc, r.file.collection).added).toBe(0);
-    expect(parseCollectionFile('{"format":"rrqcc","version":9}').ok).toBe(false);
+    expect(parseCollectionFile('{"format":"rrqplt","version":9}').ok).toBe(false);
   });
 
   it('overwrite import drops unused own colors, keeps used ones', () => {

@@ -1,4 +1,4 @@
-// Single color-collection files (.rrqcc, spec 011): like .rrqbl for one block.
+// Single color-collection files (.rrqplt, spec 011): like .rrqbl for one block.
 import { produce } from 'immer';
 import Type from 'typebox';
 import Value from 'typebox/value';
@@ -8,7 +8,7 @@ import { colorsIn, isLibraryItem } from './library-items';
 import type { Color } from './schema/palette';
 import { Units, type RrqDoc } from './schema/project';
 
-export const COLLECTION_FORMAT = 'rrqcc';
+export const COLLECTION_FORMAT = 'rrqplt';
 export const COLLECTION_VERSION = 1;
 
 export const CollectionFile = Type.Object({
@@ -58,7 +58,7 @@ export function parseCollectionFile(
 }
 
 /**
- * A collection's colors (from a .rrqcc file or a library) join a project as the user's own colors,
+ * A collection's colors (from a .rrqplt file or a library) join a project as the user's own colors,
  * credits kept and library links kept (Sync works for My library); colors already there (same id)
  * are skipped. `overwrite` first removes the user's own colors that no patch uses (used ones stay).
  */

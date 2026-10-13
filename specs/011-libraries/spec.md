@@ -37,8 +37,8 @@
 - Q: Colors? → A: My library holds color collections, not single colors. In scope.
 - Q: Search by color? → A: Later.
 - Naming (later decision): the interface calls color collections **palettes**; the format keeps
-  `type: "colors"` and, for now, `.rrqcc`.
-- Q: Can a color collection travel on its own? → A: Yes: export/import as a standalone `.rrqcc`
+  `type: "colors"`; single palettes are `.rrqplt` files.
+- Q: Can a color collection travel on its own? → A: Yes: export/import as a standalone `.rrqplt`
   file (like `.rrqbl` for one block).
 - Q: What can be shared besides the whole library? → A: Later: single categories, and single types
   of things (color collections, blocks, fabrics, …), each as a pack.
@@ -129,14 +129,14 @@ Sunset's colors.
    also removes the user's own colors no patch uses. One undo step reverts it.
 5. **Given** a collection on the Libraries page, **Then** the user can rename it, reorder, rename,
    or remove its colors.
-6. **Given** a collection, **When** the user chooses Export, **Then** a `.rrqcc` file downloads with
+6. **Given** a collection, **When** the user chooses Export, **Then** a `.rrqplt` file downloads with
    the collection, its colors, author, license, and credits.
-7. **Given** a `.rrqcc` file, **When** imported on the Libraries page, **Then** the collection joins
+7. **Given** a `.rrqplt` file, **When** imported on the Libraries page, **Then** the collection joins
    My library keeping its author and credits (as `.rrqbl` blocks do); **When** imported in the
    project's Fabrics & Colors tab, **Then** its colors join the project as the user's own colors.
    Same collection id already there: same version → "already there"; another version → replace it
    or keep both.
-8. **Given** the Libraries page Import button, **Then** it accepts `.rrqlib` and `.rrqcc` (and
+8. **Given** the Libraries page Import button, **Then** it accepts `.rrqlib` and `.rrqplt` (and
    `.json`), choosing the flow from the file's `format`.
 
 ### User Story 5 - Back up and restore (Priority: P1, spec 002 US1)
@@ -218,10 +218,10 @@ Packs with author and license; its blocks are read-only until copied.
 - **FR-009**: A linked copy records the library item it came from (`source.libraryId`,
   `source.itemId`, `source.version`); "Sync to my library" is offered when the copy's content
   version differs from that item's.
-- **FR-010**: `.rrqcc` files: UTF-8 JSON `{ format: "rrqcc", version, units?, app, collection }`
+- **FR-010**: `.rrqplt` files: UTF-8 JSON `{ format: "rrqplt", version, units?, app, collection }`
   where `collection` is a library item of type `colors` (FR-008) with its author, license, and
   credits; validated as untrusted like `.rrqbl` (spec 008 FR-040). File pickers filter by
-  `.rrqcc,.json`.
+  `.rrqplt,.json`.
 
 - **FR-011**: A block item MAY carry `colors`: the project's own colors its colorings use (as
   `.rrqbl` does), so it draws the same in every project; library colors are found through their

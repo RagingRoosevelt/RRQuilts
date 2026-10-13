@@ -5,7 +5,7 @@
 ## Constitution check
 
 - Static/offline: libraries live in IndexedDB; no network (repositories are spec 012). ✅
-- Open formats: `.rrqlib` (spec 002, amended) and `.rrqcc`, versioned, validated as untrusted. ✅
+- Open formats: `.rrqlib` (spec 002, amended) and `.rrqplt`, versioned, validated as untrusted. ✅
 - User owns data: backup/restore of everything in Libraries; `navigator.storage.persist()` asked on
   the first library write. ✅
 - Licenses (Principle VI): credits kept on every copy; packs lock their license and leave out items
@@ -52,7 +52,7 @@
   recursively; newer version → "update the app"; units → inches), `serializeLibrary`,
   `backupDoc(mine, packs, opts)`, `packDoc(mine, me, meta) → { doc, excluded[] }` (license lock via
   `requiredLicense`, ARR-by-others excluded, credits list), `restore(current, backup, choices)`.
-- `src/model/collection-file.ts`: `.rrqcc` `{ format: 'rrqcc', version: 1, units, app, collection }`
+- `src/model/collection-file.ts`: `.rrqplt` `{ format: 'rrqplt', version: 1, units, app, collection }`
   — `collectionFile`, `parseCollectionFile`, `importCollection(doc, file, me)` (project: colors as
   own) — mirrors `block-file.ts`.
 - `src/storage/libraries.ts`: IndexedDB store `libraries` (idb `VERSION` 2 adds it): `getAll`,
@@ -65,15 +65,15 @@
 
 - `src/pages/LibrariesPage.vue` (route `/libraries`, replaces the placeholder):
   - Right: filter sidebar (menu button toggles it on phones): search, Libraries checkboxes (kind and
-    counts; all checked), searchable checkbox dropdowns Type, Category, Tags, Styles; toolbar Import (`.rrqlib,.rrqcc,.json`, dispatch by `format`), Back up…, Share as pack….
+    counts; all checked), searchable checkbox dropdowns Type, Category, Tags, Styles; toolbar Import (`.rrqlib,.rrqplt,.json`, dispatch by `format`), Back up…, Share as pack….
   - Main: one group per library with matches (header: name, author, license, revision), cards (block thumbnails, collection swatch strips); card menu:
-    Preview, Rename, Category…, Tags & styles…, Export (`.rrqbl` / `.rrqcc`), Copy to my library
+    Preview, Rename, Category…, Tags & styles…, Export (`.rrqbl` / `.rrqplt`), Copy to my library
     (packs/built-in), Delete (mine), Remove pack (pack header).
   - Categories dialog (add/rename/delete). Collection dialog (rename, reorder/rename/remove colors).
   - Thumbnails via `blockThumbnail(emptyDoc, …)` with all library colors.
 - `SketchbookPage.vue`: Library section grouped by library; block menu "Add to my library…"
   (category) / "Sync to my library" (+ icon) / "Copy to my library" on pack items; Fabrics & Colors:
-  select own colors → "Save to my library…" (one dialog: pick a collection or New collection + name); Import `.rrqcc` there.
+  select own colors → "Save to my library…" (one dialog: pick a collection or New collection + name); Import `.rrqplt` there.
 - `PaletteTray.vue`: library colors grouped by collection; library colors get "Edit a copy…" (linked
   copy) so color changes can sync back.
 - Dialogs: Backup (checkboxes), Restore (merge/replace My library; keep/replace each same-id pack),
