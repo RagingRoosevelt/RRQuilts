@@ -60,7 +60,7 @@
     <div
       v-if="sec.blocks.length"
       v-show="!sec.label || (isOpen(sec.key) && (!sec.parent || isOpen(sec.parent)))"
-      class="cards q-mb-lg"
+      :class="compact ? 'tiles q-mb-sm' : 'cards q-mb-lg'"
       :style="indent(sec)"
     >
       <template v-for="b in sec.blocks" :key="b.id">
@@ -75,7 +75,13 @@ import type { BlockSection } from '@/model/library';
 import { useSettingsStore } from '@/stores/settings';
 
 /** `title`: the library's own collapsible header around all its sections. */
-const props = defineProps<{ sections: BlockSection[]; lib: string; title?: string }>();
+/** `compact`: small tiles that wrap (the quilt editor's sidebar). */
+const props = defineProps<{
+  sections: BlockSection[];
+  lib: string;
+  title?: string;
+  compact?: boolean;
+}>();
 const ROOT = '\u0000library';
 /** Sections sit under the library header, subcategories under their category. */
 const indent = (sec: BlockSection) => ({
@@ -130,6 +136,11 @@ function toggle(k: string) {
   padding: 0;
   cursor: pointer;
   font: inherit;
+}
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 .cards {
   display: grid;

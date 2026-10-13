@@ -16,36 +16,81 @@
       <div v-if="blockGroups.length === 1" class="text-caption text-grey-7 q-pa-xs">
         Pick library blocks in the project's Blocks tab.
       </div>
-      <template v-for="group in blockGroups" :key="group.label">
-        <TraySection v-if="group.items.length" :label="group.label" kind="blocks">
-          <button
-            v-for="b in group.items"
-            :key="b.id"
-            class="tile"
-            :class="{ active: editor.block === b.id }"
-            :title="b.notecard.name"
-            @click="pickBlock(b.id)"
-          >
-            <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
-            <span v-if="b.colorings.length > 1" class="count">{{ b.colorings.length }}</span>
-            <!-- Blocks with several colorings: right-click / long-press to choose which one to set. -->
-            <q-menu v-if="b.colorings.length > 1" touch-position context-menu>
-              <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
-                <button
-                  v-for="(c, i) in b.colorings"
-                  :key="c.id"
-                  v-close-popup
-                  class="tile"
-                  :class="{ active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id }"
-                  :title="c.name ?? `Coloring ${i + 1}`"
-                  @click="chooseColoring(b.id, c.id)"
-                >
-                  <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
-                </button>
-              </div>
-            </q-menu>
-          </button>
-        </TraySection>
+      <!-- Sidebar: each library in collapsible category sections; strip: one run per source. -->
+      <template v-if="sidebar">
+        <BlockSections
+          v-for="g in blockSectionGroups"
+          :key="g.lib"
+          :sections="g.sections"
+          :lib="g.lib"
+          :title="g.label"
+          compact
+        >
+          <template #default="{ block: b }">
+            <button
+              class="tile"
+              :class="{ active: editor.block === b.id }"
+              :title="b.notecard.name"
+              @click="pickBlock(b.id)"
+            >
+              <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
+              <span v-if="b.colorings.length > 1" class="count">{{ b.colorings.length }}</span>
+              <!-- Blocks with several colorings: right-click / long-press to choose which one to set. -->
+              <q-menu v-if="b.colorings.length > 1" touch-position context-menu>
+                <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+                  <button
+                    v-for="(c, i) in b.colorings"
+                    :key="c.id"
+                    v-close-popup
+                    class="tile"
+                    :class="{
+                      active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id,
+                    }"
+                    :title="c.name ?? `Coloring ${i + 1}`"
+                    @click="chooseColoring(b.id, c.id)"
+                  >
+                    <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
+                  </button>
+                </div>
+              </q-menu>
+            </button>
+          </template>
+        </BlockSections>
+      </template>
+      <template v-else>
+        <template v-for="group in blockGroups" :key="group.label">
+          <TraySection v-if="group.items.length" :label="group.label" kind="blocks">
+            <button
+              v-for="b in group.items"
+              :key="b.id"
+              class="tile"
+              :class="{ active: editor.block === b.id }"
+              :title="b.notecard.name"
+              @click="pickBlock(b.id)"
+            >
+              <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
+              <span v-if="b.colorings.length > 1" class="count">{{ b.colorings.length }}</span>
+              <!-- Blocks with several colorings: right-click / long-press to choose which one to set. -->
+              <q-menu v-if="b.colorings.length > 1" touch-position context-menu>
+                <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+                  <button
+                    v-for="(c, i) in b.colorings"
+                    :key="c.id"
+                    v-close-popup
+                    class="tile"
+                    :class="{
+                      active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id,
+                    }"
+                    :title="c.name ?? `Coloring ${i + 1}`"
+                    @click="chooseColoring(b.id, c.id)"
+                  >
+                    <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
+                  </button>
+                </div>
+              </q-menu>
+            </button>
+          </TraySection>
+        </template>
       </template>
     </div>
 
@@ -108,7 +153,8 @@ import { blockThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { isLibraryItem, splitItems } from '@/model/library-items';
-import { libraryGroups } from '@/model/library';
+import { blockSections, libraryGroups } from '@/model/library';
+import BlockSections from '@/components/BlockSections.vue';
 import { creditCopy } from '@/model/credits';
 import type { Color } from '@/model/schema/palette';
 import { produce } from 'immer';
@@ -180,6 +226,38 @@ const blockGroups = computed(() => {
   const embedded = new Set(own.filter(isLibraryItem).map((b) => b.id));
   const avail = lib.filter((b) => picked.has(b.id) || embedded.has(b.id));
   return [{ label: 'Mine', items: mine }, ...libraryGroups(avail, library.views, 'blocks')];
+});
+/** Sidebar: Mine, then each library's available blocks in category sections. */
+const blockSectionGroups = computed(() => {
+  const [mine, ...libs] = blockGroups.value;
+  const avail = new Map(libs.flatMap((g) => g.items).map((b) => [b.id, b]));
+  const seen = new Set<string>();
+  const out = library.views.flatMap((v) => {
+    const bs = v.blocks
+      .filter((b) => avail.has(b.id) && !seen.has(b.id))
+      .map((b) => avail.get(b.id)!);
+    bs.forEach((b) => seen.add(b.id));
+    return bs.length
+      ? [
+          {
+            lib: `tray:${v.doc.id}`,
+            label: v.doc.name,
+            sections: blockSections(v.doc, bs, 'category'),
+          },
+        ]
+      : [];
+  });
+  const flat = (lib: string, label: string, bs: Block[]) => ({
+    lib,
+    label,
+    sections: [{ key: '', label: '', blocks: bs, count: bs.length }],
+  });
+  const other = [...avail.values()].filter((b) => !seen.has(b.id));
+  return [
+    ...(mine!.items.length ? [flat('tray:mine', 'Mine', mine!.items)] : []),
+    ...out,
+    ...(other.length ? [flat('tray:other', 'Other libraries', other)] : []),
+  ];
 });
 /** Recently used colors first within each section. */
 const recentFirst = <T extends { id: string }>(all: T[]) => [
