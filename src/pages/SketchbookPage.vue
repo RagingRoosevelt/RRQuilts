@@ -882,12 +882,19 @@ const dragFrom = ref<number | null>(null);
 const wizard = ref<InstanceType<typeof QuiltWizard>>();
 
 const quilts = computed(() => project.doc!.project.quilts);
-const split = computed(() =>
-  splitItems(
-    project.doc!.project.blocks.filter((b) => !b.notecard.tags?.includes('system')),
-    library.items.blocks,
-  ),
-);
+const split = computed(() => {
+  const own = project.doc!.project.blocks.filter((b) => !b.notecard.tags?.includes('system'));
+  // My-library items this project has a linked copy of show once, as that copy in My blocks.
+  const linked = new Set(
+    own
+      .filter((b) => b.source?.derived && b.source.libraryId === library.mine?.id)
+      .map((b) => b.source!.itemId),
+  );
+  return splitItems(
+    own,
+    library.items.blocks.filter((b) => !linked.has(b.id)),
+  );
+});
 const blocks = computed(() => split.value.mine);
 const libBlocks = computed(() => split.value.library);
 /** Library blocks per library, in category sections (blocks no installed library has: Other). */
