@@ -250,111 +250,116 @@
         </div>
       </div>
 
-      <div class="text-subtitle2 q-mt-lg">Library blocks</div>
-      <div class="text-caption text-grey-7 q-mb-sm">
-        Tick the ones to use in this project's quilts; your own blocks are always available.
+      <div v-if="settings.settings.hideLibraryBlocks" class="text-caption text-grey-7 q-mt-lg">
+        Library blocks are turned off in Settings › Libraries.
       </div>
-      <template v-for="group in libGroups" :key="group.lib">
-        <BlockSections :sections="group.sections" :lib="group.lib" :title="group.label">
-          <template #actions="{ blocks: bs }">
-            <q-checkbox
-              v-if="!project.readOnly"
-              dense
-              size="sm"
-              :model-value="pickState(bs)"
-              :toggle-indeterminate="false"
-              :aria-label="pickState(bs) === true ? 'Deselect all' : 'Select all'"
-              @update:model-value="pickAll(bs, pickState(bs) !== true)"
-            >
-              <q-tooltip>{{ pickState(bs) === true ? 'Deselect all' : 'Select all' }}</q-tooltip>
-            </q-checkbox>
-          </template>
-          <template #default="{ block: b }">
-            <div
-              :id="`lib-block-${b.id}`"
-              class="card"
-              :class="{ picked: isPicked(b.id), flash: flashed === b.id }"
-            >
+      <template v-else>
+        <div class="text-subtitle2 q-mt-lg">Library blocks</div>
+        <div class="text-caption text-grey-7 q-mb-sm">
+          Tick the ones to use in this project's quilts; your own blocks are always available.
+        </div>
+        <template v-for="group in libGroups" :key="group.lib">
+          <BlockSections :sections="group.sections" :lib="group.lib" :title="group.label">
+            <template #actions="{ blocks: bs }">
               <q-checkbox
-                class="pick-box"
-                :model-value="isPicked(b.id)"
-                :disable="project.readOnly || inUse(b.id)"
-                :aria-label="`Use ${b.notecard.name} in this project`"
-                @update:model-value="(v: boolean) => pick(b.id, v)"
+                v-if="!project.readOnly"
+                dense
+                size="sm"
+                :model-value="pickState(bs)"
+                :toggle-indeterminate="false"
+                :aria-label="pickState(bs) === true ? 'Deselect all' : 'Select all'"
+                @update:model-value="pickAll(bs, pickState(bs) !== true)"
               >
-                <q-tooltip>{{
-                  inUse(b.id) ? 'Placed in a quilt' : 'Use in this project'
-                }}</q-tooltip>
+                <q-tooltip>{{ pickState(bs) === true ? 'Deselect all' : 'Select all' }}</q-tooltip>
               </q-checkbox>
-              <button class="thumb" @click="preview = b.id">
-                <img :src="thumb(b, 200)" :alt="b.notecard.name" />
-              </button>
-              <div class="row items-center no-wrap">
-                <FullName class="col" :name="b.notecard.name">
-                  <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
-                    <q-tooltip>Placed in a quilt</q-tooltip>
-                  </q-icon>
-                  <q-icon v-if="otherVersions.has(b.id)" name="update" color="warning" size="xs">
-                    <q-tooltip
-                      >Your library has revision {{ otherVersions.get(b.id)!.library.revision }} —
-                      see Switch version…</q-tooltip
-                    >
-                  </q-icon>
-                </FullName>
-                <q-btn flat round dense icon="more_vert" aria-label="Actions">
-                  <q-menu>
-                    <q-list dense style="min-width: 160px">
-                      <q-item
-                        v-if="!project.readOnly"
-                        v-close-popup
-                        clickable
-                        :disable="b.kind !== 'seam'"
-                        @click="editLibrary(b)"
+            </template>
+            <template #default="{ block: b }">
+              <div
+                :id="`lib-block-${b.id}`"
+                class="card"
+                :class="{ picked: isPicked(b.id), flash: flashed === b.id }"
+              >
+                <q-checkbox
+                  class="pick-box"
+                  :model-value="isPicked(b.id)"
+                  :disable="project.readOnly || inUse(b.id)"
+                  :aria-label="`Use ${b.notecard.name} in this project`"
+                  @update:model-value="(v: boolean) => pick(b.id, v)"
+                >
+                  <q-tooltip>{{
+                    inUse(b.id) ? 'Placed in a quilt' : 'Use in this project'
+                  }}</q-tooltip>
+                </q-checkbox>
+                <button class="thumb" @click="preview = b.id">
+                  <img :src="thumb(b, 200)" :alt="b.notecard.name" />
+                </button>
+                <div class="row items-center no-wrap">
+                  <FullName class="col" :name="b.notecard.name">
+                    <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
+                      <q-tooltip>Placed in a quilt</q-tooltip>
+                    </q-icon>
+                    <q-icon v-if="otherVersions.has(b.id)" name="update" color="warning" size="xs">
+                      <q-tooltip
+                        >Your library has revision {{ otherVersions.get(b.id)!.library.revision }} —
+                        see Switch version…</q-tooltip
                       >
-                        <q-item-section avatar class="menu-icon"
-                          ><q-icon name="content_copy"
-                        /></q-item-section>
-                        <q-item-section>Edit (make a copy)</q-item-section>
-                      </q-item>
-                      <q-item
-                        v-if="!project.readOnly"
-                        v-close-popup
-                        clickable
-                        :disable="b.kind !== 'seam'"
-                        @click="colorVariant(b)"
-                      >
-                        <q-item-section avatar class="menu-icon"
-                          ><q-icon name="palette"
-                        /></q-item-section>
-                        <q-item-section>Create a coloration variant</q-item-section>
-                      </q-item>
-                      <q-item
-                        v-if="otherVersions.has(b.id) && !project.readOnly"
-                        v-close-popup
-                        clickable
-                        @click="project.mismatches = [otherVersions.get(b.id)!]"
-                      >
-                        <q-item-section>Switch version…</q-item-section>
-                      </q-item>
-                      <q-item v-close-popup clickable @click="preview = b.id">
-                        <q-item-section avatar class="menu-icon"
-                          ><q-icon name="visibility"
-                        /></q-item-section>
-                        <q-item-section>Preview</q-item-section>
-                      </q-item>
-                      <q-item v-close-popup clickable @click="exportBlock(b)">
-                        <q-item-section avatar class="menu-icon"
-                          ><q-icon name="file_download"
-                        /></q-item-section>
-                        <q-item-section>Export (.rrqbl)</q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-btn>
+                    </q-icon>
+                  </FullName>
+                  <q-btn flat round dense icon="more_vert" aria-label="Actions">
+                    <q-menu>
+                      <q-list dense style="min-width: 160px">
+                        <q-item
+                          v-if="!project.readOnly"
+                          v-close-popup
+                          clickable
+                          :disable="b.kind !== 'seam'"
+                          @click="editLibrary(b)"
+                        >
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="content_copy"
+                          /></q-item-section>
+                          <q-item-section>Edit (make a copy)</q-item-section>
+                        </q-item>
+                        <q-item
+                          v-if="!project.readOnly"
+                          v-close-popup
+                          clickable
+                          :disable="b.kind !== 'seam'"
+                          @click="colorVariant(b)"
+                        >
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="palette"
+                          /></q-item-section>
+                          <q-item-section>Create a coloration variant</q-item-section>
+                        </q-item>
+                        <q-item
+                          v-if="otherVersions.has(b.id) && !project.readOnly"
+                          v-close-popup
+                          clickable
+                          @click="project.mismatches = [otherVersions.get(b.id)!]"
+                        >
+                          <q-item-section>Switch version…</q-item-section>
+                        </q-item>
+                        <q-item v-close-popup clickable @click="preview = b.id">
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="visibility"
+                          /></q-item-section>
+                          <q-item-section>Preview</q-item-section>
+                        </q-item>
+                        <q-item v-close-popup clickable @click="exportBlock(b)">
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="file_download"
+                          /></q-item-section>
+                          <q-item-section>Export (.rrqbl)</q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </q-btn>
+                </div>
               </div>
-            </div>
-          </template>
-        </BlockSections>
+            </template>
+          </BlockSections>
+        </template>
       </template>
     </template>
 
@@ -449,39 +454,44 @@
         </div>
       </template>
       <ColorEditor ref="colorEditor" @done="addProjectColor" />
-      <div class="text-subtitle2 q-mt-lg">Library palettes</div>
-      <div class="text-caption text-grey-7 q-mb-sm">
-        Tick the palettes to use in this project's quilts; project colors are always available.
+      <div v-if="settings.settings.hideLibraryPalettes" class="text-caption text-grey-7 q-mt-lg">
+        Library palettes are turned off in Settings › Libraries.
       </div>
-      <template v-for="v in paletteLibs" :key="v.doc.id">
-        <!-- A fieldset, so the library's name sits in the top-left of its border. -->
-        <fieldset class="lib-box column q-mt-md q-mb-md" style="gap: 6px">
-          <legend class="text-subtitle2">{{ v.doc.name }}</legend>
-          <div v-for="c in v.collections" :key="c.id" class="row items-center no-wrap">
-            <q-checkbox
-              dense
-              :model-value="!!project.doc.project.libraryPalettes?.includes(c.id)"
-              :disable="project.readOnly || lastSource(c.id)"
-              @update:model-value="(on: boolean) => pickPalette(c.id, on)"
-            />
-            <q-tooltip v-if="lastSource(c.id)">
-              The last palette stays picked until you have colors of your own
-            </q-tooltip>
-            <div class="q-px-sm" style="width: 160px">
-              {{ c.notecard.name }}
-              <span class="text-caption text-grey-7">· {{ c.colors.length }}</span>
-            </div>
-            <div class="row col" style="gap: 3px">
-              <div
-                v-for="x in c.colors"
-                :key="x.id"
-                class="mini-swatch lib-swatch"
-                :style="{ background: `rgb(${x.rgb.join(',')})` }"
-                :title="x.notecard.name"
+      <template v-else>
+        <div class="text-subtitle2 q-mt-lg">Library palettes</div>
+        <div class="text-caption text-grey-7 q-mb-sm">
+          Tick the palettes to use in this project's quilts; project colors are always available.
+        </div>
+        <template v-for="v in paletteLibs" :key="v.doc.id">
+          <!-- A fieldset, so the library's name sits in the top-left of its border. -->
+          <fieldset class="lib-box column q-mt-md q-mb-md" style="gap: 6px">
+            <legend class="text-subtitle2">{{ v.doc.name }}</legend>
+            <div v-for="c in v.collections" :key="c.id" class="row items-center no-wrap">
+              <q-checkbox
+                dense
+                :model-value="!!project.doc.project.libraryPalettes?.includes(c.id)"
+                :disable="project.readOnly || lastSource(c.id)"
+                @update:model-value="(on: boolean) => pickPalette(c.id, on)"
               />
+              <q-tooltip v-if="lastSource(c.id)">
+                The last palette stays picked until you have colors of your own
+              </q-tooltip>
+              <div class="q-px-sm" style="width: 160px">
+                {{ c.notecard.name }}
+                <span class="text-caption text-grey-7">· {{ c.colors.length }}</span>
+              </div>
+              <div class="row col" style="gap: 3px">
+                <div
+                  v-for="x in c.colors"
+                  :key="x.id"
+                  class="mini-swatch lib-swatch"
+                  :style="{ background: `rgb(${x.rgb.join(',')})` }"
+                  :title="x.notecard.name"
+                />
+              </div>
             </div>
-          </div>
-        </fieldset>
+          </fieldset>
+        </template>
       </template>
       <div class="text-caption text-grey-7 q-mt-md">
         Edit a project color from the tray in the quilt editor. Fabrics arrive in a later version.
@@ -889,7 +899,12 @@ const split = computed(() => {
   // My-library items this project has a linked copy of show once, as that copy in My blocks.
   const linked = new Set(
     own
-      .filter((b) => b.source?.derived && b.source.libraryId === library.mine?.id)
+      .filter(
+        (b) =>
+          settings.settings.hideSyncedMine &&
+          b.source?.derived &&
+          b.source.libraryId === library.mine?.id,
+      )
       .map((b) => b.source!.itemId),
   );
   return splitItems(
@@ -1269,6 +1284,10 @@ async function editLibrary(lib: Block) {
 const flashed = ref<string>();
 function showOriginal(v: Block) {
   const id = v.source?.itemId;
+  if (settings.settings.hideLibraryBlocks) {
+    $q.notify({ message: 'Library blocks are turned off in Settings › Libraries.' });
+    return;
+  }
   const g = libGroups.value.find((x) => x.sections.some((s) => s.blocks.some((b) => b.id === id)));
   const sec = g?.sections.find((s) => s.blocks.some((b) => b.id === id));
   if (!g || !sec) {

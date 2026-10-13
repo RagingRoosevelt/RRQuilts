@@ -20,6 +20,11 @@ export interface Settings {
   libraryGroupBy: 'none' | 'category' | 'tags' | 'styles';
   /** Project (sketchbook) page: last tab. */
   projectTab: 'quilts' | 'blocks' | 'colors' | 'photos' | 'threads' | 'details';
+  /** Project Blocks / Palettes tabs leave out the library lists (Settings › Libraries). */
+  hideLibraryBlocks: boolean;
+  hideLibraryPalettes: boolean;
+  /** Project Blocks tab: a My-library block shows once, as its synced project copy. */
+  hideSyncedMine: boolean;
   /** Libraries page: Type picker — blocks, palettes ('colors'), or all (''). */
   libraryType: 'block' | 'colors' | '';
   /** Labels of inspector sections the user collapsed. */
@@ -58,6 +63,9 @@ export const defaults = (): Settings => ({
   trayTab: 'blocks',
   libraryGroupBy: 'none',
   libraryType: 'block',
+  hideLibraryBlocks: true,
+  hideLibraryPalettes: true,
+  hideSyncedMine: true,
   projectTab: 'quilts',
   print: {},
 });
@@ -72,6 +80,9 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   trayTab: (v) => v === 'blocks' || v === 'colors',
   libraryGroupBy: (v) => v === 'none' || v === 'category' || v === 'tags' || v === 'styles',
   libraryType: (v) => v === 'block' || v === 'colors' || v === '',
+  hideLibraryBlocks: (v) => typeof v === 'boolean',
+  hideLibraryPalettes: (v) => typeof v === 'boolean',
+  hideSyncedMine: (v) => typeof v === 'boolean',
   projectTab: (v) =>
     typeof v === 'string' &&
     ['quilts', 'blocks', 'colors', 'photos', 'threads', 'details'].includes(v),

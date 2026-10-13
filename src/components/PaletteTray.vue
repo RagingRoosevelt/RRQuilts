@@ -133,7 +133,9 @@
         @click="editorDialog?.show()"
       />
       <div v-if="sidebar" class="text-caption text-grey-7 q-px-xs" style="width: 100%">
-        Add library palettes: tick their checkbox in the project's Palettes tab.
+        Add library palettes: tick their checkbox in the project's Palettes tab{{
+          app.settings.hideLibraryPalettes ? ' (show them via Settings › Libraries)' : ''
+        }}.
       </div>
       <!-- Project colors, In use, then each library with its picked palettes (nested sections). -->
       <template v-for="node in colorTree" :key="node.label">

@@ -71,6 +71,30 @@
             </div>
           </div>
         </q-expansion-item>
+        <q-expansion-item default-opened label="Libraries" icon="collections_bookmark">
+          <div class="q-pa-md column" style="gap: 4px">
+            <q-checkbox
+              v-model="store.settings.hideLibraryBlocks"
+              label="Hide library blocks from projects"
+            />
+            <q-checkbox
+              v-model="store.settings.hideLibraryPalettes"
+              label="Hide library palettes from projects"
+            />
+            <div class="text-caption text-grey-7">
+              The project's Blocks and Palettes tabs then leave out the libraries' lists. Blocks and
+              palettes already in use stay available.
+            </div>
+          </div>
+        </q-expansion-item>
+        <q-expansion-item default-opened label="Project" icon="grid_view">
+          <div class="q-pa-md">
+            <q-checkbox
+              v-model="store.settings.hideSyncedMine"
+              label="Hide “My Library” blocks when they are synced with project blocks"
+            />
+          </div>
+        </q-expansion-item>
       </q-list>
 
       <div class="q-gutter-sm">
