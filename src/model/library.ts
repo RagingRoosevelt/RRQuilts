@@ -370,6 +370,27 @@ export async function setCollectionColors(lib: LibraryDoc, id: string, colors: C
   return mapItem(lib, id, () => ({ ...item, data }));
 }
 
+/** A new color, made by the user, at the end of one of their collections. */
+export async function addNewColor(
+  lib: LibraryDoc,
+  id: string,
+  color: { name: string; rgb: [number, number, number] },
+  me: string,
+) {
+  const item = lib.items.find((i) => i.type === 'colors' && i.data.id === id);
+  if (item?.type !== 'colors') return lib;
+  const c = await asLibraryData<Color>(
+    {
+      id: itemId(me),
+      notecard: { name: color.name },
+      rgb: color.rgb,
+      ...(me ? { author: me } : {}),
+    },
+    1,
+  );
+  return setCollectionColors(lib, id, [...item.data.colors, c]);
+}
+
 /** Add or replace (same id) an imported color collection, kept as the file has it (credits too). */
 export async function putCollection(lib: LibraryDoc, c: ColorCollection): Promise<LibraryDoc> {
   const colors = await Promise.all(c.colors.map((x) => asLibraryData(x, x.revision ?? 1)));

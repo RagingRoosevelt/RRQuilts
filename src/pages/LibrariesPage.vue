@@ -15,6 +15,14 @@
       </q-btn>
       <q-btn outline no-caps icon="save" label="Back up…" @click="backingUp = { ...ALL }" />
       <q-btn
+        v-if="!library.mine"
+        outline
+        no-caps
+        icon="palette"
+        label="New palette…"
+        @click="newPalette()"
+      />
+      <q-btn
         outline
         no-caps
         icon="share"
@@ -141,8 +149,12 @@
               />
             </div>
 
-            <div v-if="g.blocks.length" class="text-subtitle2 q-mb-sm">Blocks</div>
-            <BlockSections :sections="g.sections" :lib="g.v.doc.id">
+            <BlockSections
+              v-if="g.blocks.length"
+              :sections="g.sections"
+              :lib="g.v.doc.id"
+              title="Blocks"
+            >
               <template #default="{ block: b }">
                 <div class="card">
                   <button class="thumb" @click="previewing = { lib: g.v.doc.id, id: b.id }">
@@ -188,7 +200,23 @@
               </template>
             </BlockSections>
 
-            <div v-if="g.collections.length" class="text-subtitle2 q-mb-sm">Palettes</div>
+            <div
+              v-if="g.collections.length || g.mine"
+              class="row items-center q-mb-sm"
+              style="gap: 8px"
+            >
+              <div class="text-subtitle2">Palettes</div>
+              <q-btn
+                v-if="g.mine"
+                flat
+                dense
+                no-caps
+                size="sm"
+                icon="add"
+                label="New palette"
+                @click="newPalette()"
+              />
+            </div>
             <div class="column q-mb-lg" style="gap: 8px">
               <div v-for="c in g.collections" :key="c.id" class="collection row items-center">
                 <button class="strip" @click="previewing = { lib: g.v.doc.id, id: c.id }">
@@ -302,7 +330,23 @@
             >
           </div>
         </q-card-section>
-        <q-list dense separator style="max-height: 60vh; overflow: auto">
+        <q-card-section v-if="previewMine" class="row q-pt-none" style="gap: 6px">
+          <q-chip
+            v-for="(x, i) in previewCollection.colors"
+            :key="x.id"
+            removable
+            clickable
+            :title="`${x.notecard.name} — click to rename`"
+            @click="askRenameColor(previewCollection!.id, i, x.notecard.name)"
+            @remove="removeColor(previewCollection!.id, i)"
+          >
+            <q-avatar :style="{ background: css(x) }" />
+            {{ x.notecard.name }}
+          </q-chip>
+          <q-chip clickable icon="add" @click="colorEditor?.show()">Add color</q-chip>
+          <ColorEditor ref="colorEditor" @done="(c) => addColorTo(previewCollection!.id, c)" />
+        </q-card-section>
+        <q-list v-else dense separator style="max-height: 60vh; overflow: auto">
           <q-item v-for="(x, i) in previewCollection.colors" :key="x.id">
             <q-item-section avatar>
               <span class="chip big" :style="{ background: css(x) }" />
@@ -567,6 +611,7 @@
 
 <script setup lang="ts">
 import BlockSections from '@/components/BlockSections.vue';
+import ColorEditor from '@/components/ColorEditor.vue';
 import FullName from '@/components/FullName.vue';
 import { useAskCategory } from '@/composables/category';
 // Libraries (spec 011): browse every library; manage My library; back up, restore, share, import.
@@ -590,6 +635,8 @@ import {
   setCategory,
   withSubcategories,
   setCollectionColors,
+  addNewColor,
+  saveCollection,
   setNotecard,
   type LibraryView,
 } from '@/model/library';
@@ -735,7 +782,8 @@ const groups = computed(() =>
         collections: v.collections.filter((c) => ids.has(c.id)),
       };
     })
-    .filter((g) => g.blocks.length || g.collections.length),
+    // My library shows even when empty (it holds the New palette button), unless filtering.
+    .filter((g) => g.blocks.length || g.collections.length || (g.mine && !filtering.value)),
 );
 
 const emptyDoc = createProject();
@@ -847,6 +895,34 @@ const renameColor = (id: string, i: number, name: string) =>
   editColors(id, (cs) =>
     cs.map((c, j) => (j === i ? { ...c, notecard: { ...c.notecard, name: name.trim() } } : c)),
   );
+function askRenameColor(id: string, i: number, name: string) {
+  $q.dialog({ title: 'Rename color', prompt: { model: name, type: 'text' }, cancel: true }).onOk(
+    (v: string) => renameColor(id, i, v),
+  );
+}
+const colorEditor = ref<InstanceType<typeof ColorEditor>>();
+async function addColorTo(id: string, c: { name: string; rgb: [number, number, number] }) {
+  const me = await askAuthor();
+  await update((l) => addNewColor(l, id, c, me));
+}
+/** A new, empty palette in My library, opened for adding colors. */
+function newPalette() {
+  $q.dialog({
+    title: 'New palette',
+    prompt: { model: '', type: 'text', isValid: (v: string) => !!v.trim() },
+    cancel: true,
+  }).onOk((name: string) => void createPalette(name.trim()));
+}
+async function createPalette(name: string) {
+  const me = await askAuthor();
+  let made = '';
+  await update(async (l) => {
+    const r = await saveCollection(l, emptyDoc, name, [], me);
+    made = r.lib.items.at(-1)!.data.id;
+    return r.lib;
+  });
+  previewing.value = { lib: library.mine!.id, id: made };
+}
 const moveColor = (id: string, i: number, d: number) =>
   editColors(id, (cs) => {
     const [c] = cs.splice(i, 1);
