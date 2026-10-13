@@ -146,7 +146,12 @@
               <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
                 <q-tooltip>Placed in a quilt</q-tooltip>
               </q-icon>
-              <q-icon v-if="linkOf(b) === 'synced'" name="bookmark" color="primary" size="xs">
+              <q-icon
+                v-if="linkOf(b) === 'synced'"
+                name="collections_bookmark"
+                color="primary"
+                size="xs"
+              >
                 <q-tooltip>In {{ MY_LIBRARY }}</q-tooltip>
               </q-icon>
               <q-icon v-if="linkOf(b) === 'changed'" name="sync" color="warning" size="xs">
@@ -172,7 +177,7 @@
                     @click="addToMine(b)"
                   >
                     <q-item-section avatar class="menu-icon"
-                      ><q-icon name="bookmark_add" /></q-item-section
+                      ><q-icon name="library_add" /></q-item-section
                     ><q-item-section>Add to my library…</q-item-section>
                   </q-item>
                   <template v-if="!project.readOnly">
