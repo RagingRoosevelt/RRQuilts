@@ -75,7 +75,7 @@
                     Fabrics: {{ fabricLegend }}
                   </text>
                 </template>
-                <TemplatePiece v-else :piece="p" :look="look" />
+                <TemplatePiece v-else :piece="p" :look="look" :fmt="fmt" />
               </g>
             </svg>
 
@@ -86,7 +86,7 @@
               :height="`${s.tile.h}${units}`"
               :viewBox="`${s.tile.x} ${s.tile.y} ${s.tile.w} ${s.tile.h}`"
             >
-              <TemplatePiece :piece="s.piece" :look="look" />
+              <TemplatePiece :piece="s.piece" :look="look" :fmt="fmt" />
               <rect
                 v-for="(o, j) in s.tile.overlaps"
                 :key="j"
@@ -110,12 +110,7 @@
             >
               <g v-for="(g, j) in s.guides" :key="j" :transform="`translate(${g.x} ${g.y})`">
                 <g :transform="g.right ? `translate(${g.len} 0) scale(-1 1)` : undefined">
-                  <path
-                    :d="`M${g.len} 0H0L${g.cut} ${g.cut}H${g.len}`"
-                    fill="none"
-                    stroke="#000"
-                    :stroke-width="stroke"
-                  />
+                  <path :d="g.edge" fill="none" stroke="#000" :stroke-width="stroke" />
                   <path
                     :d="`M${g.len} ${seam}H${miterA}L${miterA + g.w} ${seam + g.w}H${g.len}`"
                     fill="none"
@@ -390,7 +385,11 @@
             <div class="col credits">{{ view.title }} · {{ view.byline }}</div>
             <!-- Only pages with true-size cutting lines need a scale check. -->
             <div
-              v-if="s.kind === 'templates' || s.kind === 'tile' || s.kind === 'miter'"
+              v-if="
+                (s.kind === 'templates' && !prefs.squareOnTemplate) ||
+                s.kind === 'tile' ||
+                s.kind === 'miter'
+              "
               class="column items-center"
             >
               <div
@@ -543,7 +542,13 @@ const look = computed(() => ({
   markLength: prefs.value.seamAllowance ? seam.value : seam.value / 2,
   labels: prefs.value.labels,
   tint: prefs.value.tint,
+  square: prefs.value.squareOnTemplate ? SQUARES[units.value] : undefined,
 }));
+/** Scale squares on templates: the largest that fits, `big` on pieces at least `bigAt` a side. */
+const SQUARES = {
+  in: { sizes: [1, 0.5, 0.25], big: 2, bigAt: 6 },
+  cm: { sizes: [2, 1, 0.5], big: 5, bigAt: 15 },
+};
 
 // Colors by fill key.
 const fillInfo = (key: string) => {
@@ -835,6 +840,8 @@ interface MiterGuide {
   len: number;
   /** The strip's other end. */
   right: boolean;
+  /** Cutting line (open at the far end); the outer tip is cut off with trimmed points. */
+  edge: string;
 }
 
 interface KeyBlock {
@@ -1162,14 +1169,26 @@ function miterSheets(lines: CutLine[]): Sheet[] {
   // ponytail: a strip wider than the printable width gets no guide (the chart still says 45°).
   const guides = widths
     .flatMap((w) =>
-      [false, true].map((right) => ({
-        x: 0,
-        y: 0,
-        w,
-        cut: w + 2 * s,
-        len: Math.min(aw, 2 * (w + 2 * s) + 2 * s),
-        right,
-      })),
+      [false, true].map((right) => {
+        const len = Math.min(aw, 2 * (w + 2 * s) + 2 * s);
+        const a = miterA.value;
+        const far = len + w + 4 * s;
+        // The finished end, grown by the seam allowance like a template, cut off at `len`.
+        const pts = offset(
+          [
+            [a, s],
+            [far, s],
+            [far, s + w],
+            [a + w, s + w],
+          ],
+          s,
+          prefs.value.trimPoints,
+        ).map(([x, y]): Pt => [Math.min(x, len), y]);
+        const i = pts.findIndex((p, k) => p[0] === len && pts[(k + 1) % pts.length]![0] === len);
+        const open = [...pts.slice(i + 1), ...pts.slice(0, i + 1)];
+        const edge = `M${open.map((p) => p.join(' ')).join('L')}`;
+        return { x: 0, y: 0, w, cut: w + 2 * s, len, right, edge };
+      }),
     )
     .filter((g) => g.cut <= aw);
   if (!guides.length) return [];

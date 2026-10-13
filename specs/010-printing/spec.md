@@ -24,7 +24,7 @@ picture, block picture — from the existing Print tabs."
 - Q: Rotary chart? → A: Squares, rectangles, half-square triangles (+⅞″), quarter-square triangles
   and geese (+1¼″); mitered border sides cut as strips (long edge + 2·seam·(1+√2)) with both ends trimmed
   at 45°, plus a true-size corner guide page per strip width (left and right end: cut line, sewing
-  lines, a dot where stitching stops); anything else "needs a template". Rounding ⅛″ (default), 1/16″, none; metric
+  lines, a dot where stitching stops; the outer tip trimmed when trimmed points is on); anything else "needs a template". Rounding ⅛″ (default), 1/16″, none; metric
   5 mm (default), 1 mm, none; warning when rounding distorts. Seam allowance ¼″ / 7.5 mm, adjustable.
 - Q: Yardage? → A: By color, one column per fabric width: 42″ (40″ usable), 44″, 60″, fat quarters;
   metric 110 cm, 150 cm, fat quarters (no width setting; rotary strips use the first). Mitered border strips get extra length
@@ -36,7 +36,9 @@ picture, block picture — from the existing Print tabs."
 - Q: More template options? → A: Include seam allowance (off: finished shapes for paper piecing),
   trimmed points (tips under 90° cut ¼″ past the sewing corner), shaded seam allowance, curve
   alignment marks (notch mid-curve), labels (letter / cut counts / finished size; a finished size with an approximate fraction prints small and the cut count large), tint by fabric
-  (one fabric only), one template per page.
+  (one fabric only), one template per page, scale square on each template (default on: 1″ / 2 cm under
+  the labels, smaller if it doesn't fit, 2″ / 5 cm on pieces at least 6″ / 15 cm a side; off: one in
+  the footer).
 - Q: Tinted templates? → A: One per fabric. A separate "Color key" label codes them by fabric number
   (A-2 = A from fabric 2; legend on the key). The template key is on the block page by default (option); template pages then skip
   it. Block pages show fabric pills only for fabrics that block uses.

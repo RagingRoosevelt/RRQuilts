@@ -237,6 +237,12 @@
             />
           </div>
         </div>
+        <q-checkbox
+          :model-value="prefs.squareOnTemplate"
+          dense
+          label="Scale square on each template"
+          @update:model-value="(v: boolean) => set('squareOnTemplate', v)"
+        />
       </div>
     </q-expansion-item>
 

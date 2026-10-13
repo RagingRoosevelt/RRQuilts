@@ -56,6 +56,25 @@
       <path :d="head(1)" fill="#000" />
       <path :d="head(-1)" fill="#000" />
     </g>
+    <g v-if="scaleSquare">
+      <rect
+        :x="piece.center[0] - scaleSquare / 2"
+        :y="stack.squareY"
+        :width="scaleSquare"
+        :height="scaleSquare"
+        fill="none"
+        stroke="#000"
+        :stroke-width="look.stroke"
+      />
+      <text
+        :x="piece.center[0]"
+        :y="stack.squareY + scaleSquare / 2 + squareFont * 0.35"
+        :font-size="squareFont"
+        text-anchor="middle"
+      >
+        {{ fmt?.(scaleSquare) }}
+      </text>
+    </g>
     <template v-if="stack.lines.length">
       <text
         v-for="(line, i) in stack.lines"
@@ -123,7 +142,10 @@ const props = defineProps<{
     markLength: number;
     labels: { letter: boolean; counts: boolean; size: boolean; color: boolean };
     tint: boolean;
+    square?: { sizes: number[]; big: number; bigAt: number } | undefined;
   };
+  /** Formats a length for the scale square's label. */
+  fmt?: (x: number) => string;
 }>();
 
 const path = (poly: Pt[]) => (poly.length ? `M${poly.map((p) => p.join(' ')).join('L')}Z` : '');
@@ -180,6 +202,7 @@ const insideLines = computed(() => {
  */
 const stack = computed(() => {
   const f = props.look.font;
+  const sq = scaleSquare.value;
   const rows = [
     ...(props.look.labels.letter ? [{ text: props.piece.letter, em: 1.6, bold: true }] : []),
     ...insideLines.value.map((x) => ({ ...x, bold: false })),
@@ -188,14 +211,32 @@ const stack = computed(() => {
   const height = (rows.reduce((a, x) => a + x.em * 1.15, 0) + arrow) * f;
   const width = Math.max(0, ...rows.map((x) => x.text.length * 0.55 * x.em)) * f;
   const room = props.piece.room * 1.9;
-  const k = Math.min(1, room / (height || 1), room / (width || 1));
-  let y = props.piece.center[1] - (height * k) / 2 + arrow * f * k;
+  // The scale square keeps its size; the text shrinks around it.
+  const below = sq ? sq + f * 0.4 : 0;
+  const k = Math.max(0, Math.min(1, (room - below) / (height || 1), room / (width || 1)));
+  let y = props.piece.center[1] - (height * k + below) / 2 + arrow * f * k;
   const lines = rows.map((x) => {
     y += x.em * 1.15 * f * k;
     return { text: x.text, size: x.em * f * k, bold: x.bold, y: y - x.em * 0.25 * f * k };
   });
-  return { lines, top: props.piece.center[1] - (height * k) / 2, k, width: width * k };
+  const top = props.piece.center[1] - (height * k + below) / 2;
+  return { lines, top, k, width: width * k, squareY: top + height * k + (below - sq) };
 });
+
+/** The scale square's side: the largest offered that fits the label room (big on big pieces). */
+const scaleSquare = computed(() => {
+  const s = props.look.square;
+  if (!s) return 0;
+  const xs = props.piece.sew.map((p) => p[0]);
+  const ys = props.piece.sew.map((p) => p[1]);
+  const side = Math.min(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
+  const fits = (q: number) => q <= props.piece.room * 0.9;
+  if (side >= s.bigAt - 1e-6 && fits(s.big)) return s.big;
+  // ponytail: a piece too small for the smallest square gets none.
+  return s.sizes.find(fits) ?? 0;
+});
+
+const squareFont = computed(() => Math.min(props.look.font * 0.7, scaleSquare.value * 0.4));
 
 /** Arrow ends along the grain, through the label's center (offset below the letter). */
 const end = (s: 1 | -1): Pt => {
