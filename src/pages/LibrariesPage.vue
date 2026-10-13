@@ -224,8 +224,17 @@
               />
             </div>
             <div class="column q-mb-lg" style="gap: 8px">
-              <div v-for="c in g.collections" :key="c.id" class="collection row items-center">
-                <button class="strip" @click="previewing = { lib: g.v.doc.id, id: c.id }">
+              <!-- A fieldset, so the name sits in the top-left border like a legend. -->
+              <fieldset
+                v-for="c in g.collections"
+                :key="c.id"
+                class="collection row items-center no-wrap"
+              >
+                <legend class="ellipsis">
+                  {{ c.notecard.name }}
+                  <span class="text-caption text-grey-7">· {{ c.colors.length }}</span>
+                </legend>
+                <button class="strip col" @click="previewing = { lib: g.v.doc.id, id: c.id }">
                   <span
                     v-for="x in c.colors"
                     :key="x.id"
@@ -234,10 +243,6 @@
                     :title="x.notecard.name"
                   />
                 </button>
-                <div class="col ellipsis q-px-sm">
-                  {{ c.notecard.name }}
-                  <span class="text-caption text-grey-7">· {{ c.colors.length }}</span>
-                </div>
                 <q-btn flat round dense icon="more_vert" aria-label="Actions">
                   <q-menu>
                     <q-list dense style="min-width: 170px">
@@ -271,7 +276,7 @@
                     </q-list>
                   </q-menu>
                 </q-btn>
-              </div>
+              </fieldset>
             </div>
           </div>
         </template>
@@ -1165,14 +1170,18 @@ function downloadPack() {
 .collection {
   border: 1px solid rgba(128, 128, 128, 0.3);
   border-radius: 8px;
-  padding: 6px;
+  padding: 2px 6px 6px;
+  margin: 0;
   min-width: 0;
+}
+.collection legend {
+  padding: 0 4px;
+  max-width: 80%;
 }
 .strip {
   display: flex;
   flex-wrap: wrap;
   gap: 2px;
-  max-width: 60%;
   padding: 0;
   border: none;
   background: none;
