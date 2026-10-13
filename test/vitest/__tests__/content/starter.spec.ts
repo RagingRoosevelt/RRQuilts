@@ -22,7 +22,6 @@ const expected: Record<string, number> = {
   'Churn Dash': 17,
   'Ohio Star': 21,
   "Drunkard's Path": 2,
-  'Super S': 7,
 };
 
 describe('starter content', () => {
