@@ -9,7 +9,7 @@
   >
     <button
       v-if="title"
-      class="sec-head text-subtitle2"
+      class="sec-head root-head"
       :aria-expanded="isOpen(ROOT)"
       @click="toggle(ROOT)"
     >
@@ -34,11 +34,13 @@
       v-if="sec.label"
       v-show="!sec.parent || isOpen(sec.parent)"
       class="row items-center no-wrap q-mb-xs"
+      :class="{ 'cat-row': !sec.parent, compact }"
       :style="indent(sec)"
       style="gap: 4px"
     >
       <button
-        class="sec-head text-body2 text-weight-medium text-grey-8"
+        class="sec-head"
+        :class="sec.parent ? 'sub-head' : 'cat-head'"
         :aria-expanded="isOpen(sec.key)"
         @click="toggle(sec.key)"
       >
@@ -135,6 +137,31 @@ function toggle(k: string) {
   padding: 0;
   cursor: pointer;
   font: inherit;
+}
+/* Category headings: top level bold with a rule under it, subcategories a step smaller. */
+.cat-row {
+  margin-top: 12px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+}
+.cat-row.compact {
+  margin-top: 6px;
+}
+.root-head {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.cat-head {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.compact .cat-head {
+  font-size: 0.95rem;
+}
+.sub-head {
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0.8;
 }
 .tiles {
   display: flex;
