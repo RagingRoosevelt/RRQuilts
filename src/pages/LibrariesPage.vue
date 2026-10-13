@@ -66,6 +66,12 @@
             </q-checkbox>
           </div>
         </q-expansion-item>
+        <SlidePicker
+          :model-value="filters.types[0] ?? ''"
+          :options="TYPE_OPTIONS"
+          label="Type"
+          @update:model-value="(v: string) => (filters.types = v ? [v] : [])"
+        />
         <template v-for="f in filterFields" :key="f.key">
           <q-select
             v-if="f.options.length"
@@ -586,6 +592,7 @@ import BlockSections from '@/components/BlockSections.vue';
 import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
 import ColorPill from '@/components/ColorPill.vue';
+import SlidePicker from '@/components/SlidePicker.vue';
 import FullName from '@/components/FullName.vue';
 import { useAskCategory } from '@/composables/category';
 // Libraries (spec 011): browse every library; manage My library; back up, restore, share, import.
@@ -701,17 +708,14 @@ const values = (f: 'tags' | 'styles') =>
 const allCats = computed(() => [
   ...new Map(inScope.value.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
 ]);
+const TYPE_OPTIONS = [
+  { label: 'All', value: '' },
+  { label: 'Blocks', value: 'block' },
+  { label: 'Palettes', value: 'colors' },
+];
 const filterFields = computed(() => {
   const cats = allCats.value;
   return [
-    {
-      key: 'types' as const,
-      label: 'Type',
-      options: [
-        { label: 'Blocks', value: 'block' },
-        { label: 'Palettes', value: 'colors' },
-      ],
-    },
     {
       key: 'cats' as const,
       label: 'Category',

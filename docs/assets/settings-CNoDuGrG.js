@@ -1,1 +1,0 @@
-import{t as e}from"./settings-CtXklwMI.js";import{j as t,o as n}from"./index-B_88B-Tb.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};
