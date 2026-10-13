@@ -18,7 +18,8 @@ Cut the strips across the fabric (selvage to selvage). The total length is the q
 | 48″ × 48″       | 202″         | 6 strips, 2½″ wide        | ½ yd (18″) |
 | 120 cm × 120 cm | 505 cm       | 5 strips, 6 cm wide       | 30 cm      |
 
-Strips are counted using 40″ (105 cm) of usable fabric width.
+The table counts strips from 40″ (105 cm) of usable fabric width. Pick another fabric width in the
+calculator below.
 
 ::calc binding
 

@@ -12,6 +12,17 @@
       </div>
     </q-card-section>
     <q-card-section class="row q-pt-none" style="gap: 12px">
+      <q-select
+        v-if="calc.widths"
+        v-model="width"
+        :options="boltWidths(units).map((w) => ({ label: w.label, value: w.id }))"
+        emit-value
+        map-options
+        outlined
+        dense
+        label="Fabric width"
+        style="width: 200px"
+      />
       <template v-for="i in calc.inputs" :key="i.key">
         <q-input
           v-if="i.count || i.raw"
@@ -49,9 +60,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
-import { CALCULATORS, calcContext } from '@/help/calc';
+import { boltWidths, CALCULATORS, calcContext } from '@/help/calc';
 import { fmtLen } from '@/model/print/format';
 import { printPrefs } from '@/model/print/prefs';
 import { useProjectStore } from '@/stores/project';
@@ -63,7 +74,9 @@ const app = useSettingsStore();
 const calc = computed(() => CALCULATORS[props.name]);
 /** The open project's units, else the units for new projects. */
 const units = computed(() => project.doc?.units ?? app.settings.units);
-const ctx = computed(() => calcContext(units.value, printPrefs(app.settings.print)));
+const width = ref(boltWidths(units.value)[0]!.id);
+watch(units, (u) => (width.value = boltWidths(u)[0]!.id));
+const ctx = computed(() => calcContext(units.value, printPrefs(app.settings.print), width.value));
 const values = reactive<Record<string, number>>(
   Object.fromEntries((calc.value?.inputs ?? []).map((i) => [i.key, i.start[units.value]])),
 );

@@ -35,16 +35,22 @@ export interface CalcContext {
 }
 export interface Calculator {
   title: string;
+  /** Uses the fabric width: the calculator offers a choice of bolt widths (as on the yardage page). */
+  widths?: boolean;
   inputs: CalcInput[];
   rows: (v: Record<string, number>, c: CalcContext) => CalcRow[];
 }
 
-export const calcContext = (units: Units, p: PrintPrefs): CalcContext => ({
+/** Bolt widths a calculator can use (fat quarters are counted separately). */
+export const boltWidths = (units: Units) => WIDTHS[units].filter((w) => !w.fatQuarter);
+
+/** `width`: a bolt width id (WIDTHS); the first by default. */
+export const calcContext = (units: Units, p: PrintPrefs, width?: string): CalcContext => ({
   units,
   seam: p.seam[units],
   step: p.rounding[units],
   slack: p.miterSlack[units],
-  usable: WIDTHS[units][0]!.usable,
+  usable: (boltWidths(units).find((w) => w.id === width) ?? boltWidths(units)[0]!).usable,
   fabricStep: p.fabricStep[units],
   overhang: p.overhang[units],
   bindingWidth: p.bindingWidth[units],
@@ -214,6 +220,7 @@ export const CALCULATORS: Record<string, Calculator> = {
   },
   binding: {
     title: 'Binding',
+    widths: true,
     inputs: [
       { key: 'w', label: 'Quilt width', start: start(48, 120) },
       { key: 'h', label: 'Quilt height', start: start(48, 120) },
@@ -229,6 +236,7 @@ export const CALCULATORS: Record<string, Calculator> = {
   },
   backing: {
     title: 'Backing',
+    widths: true,
     inputs: [
       { key: 'w', label: 'Quilt width', start: start(60, 150) },
       { key: 'h', label: 'Quilt height', start: start(72, 180) },
@@ -243,6 +251,7 @@ export const CALCULATORS: Record<string, Calculator> = {
   },
   yardage: {
     title: 'Yardage for squares',
+    widths: true,
     inputs: [
       { key: 'n', label: 'How many', start: start(40, 40), count: true },
       { key: 'f', label: 'Finished size', start: start(3, 8) },
