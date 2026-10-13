@@ -143,10 +143,19 @@
 
             <div v-if="g.blocks.length" class="text-subtitle2 q-mb-sm">Blocks</div>
             <template v-for="sec in g.sections" :key="sec.label">
-              <div v-if="sec.label" class="text-body2 text-weight-medium text-grey-8 q-mb-xs">
+              <button
+                v-if="sec.label"
+                class="sec-head text-body2 text-weight-medium text-grey-8 q-mb-xs"
+                :aria-expanded="secOpen(g.v.doc.id, sec.label)"
+                @click="toggleSec(g.v.doc.id, sec.label)"
+              >
+                <q-icon
+                  :name="secOpen(g.v.doc.id, sec.label) ? 'expand_more' : 'chevron_right'"
+                  size="20px"
+                />
                 {{ sec.label }} <span class="text-grey-6">· {{ sec.blocks.length }}</span>
-              </div>
-              <div class="cards q-mb-lg">
+              </button>
+              <div v-show="!sec.label || secOpen(g.v.doc.id, sec.label)" class="cards q-mb-lg">
                 <div v-for="b in sec.blocks" :key="b.id" class="card">
                   <button class="thumb" @click="previewing = { lib: g.v.doc.id, id: b.id }">
                     <img :src="thumb(b, 200)" :alt="b.notecard.name" />
@@ -696,6 +705,17 @@ const matches = (i: LibraryItem) =>
   anyOf(withSubcategories(allCats.value, filters.cats), [i.category ?? '']) &&
   anyOf(filters.tags, i.data.notecard.tags ?? []) &&
   anyOf(filters.styles, i.data.notecard.styles ?? []);
+/** Group-by sections the user collapsed are remembered per library and section. */
+const secKey = (lib: string, label: string) => `libsec:${lib}:${label}`;
+const secOpen = (lib: string, label: string) =>
+  !settings.settings.collapsedSections.includes(secKey(lib, label));
+function toggleSec(lib: string, label: string) {
+  const key = secKey(lib, label);
+  const all = settings.settings.collapsedSections;
+  settings.settings.collapsedSections = all.includes(key)
+    ? all.filter((k) => k !== key)
+    : [...all, key];
+}
 const GROUP_BY = [
   { label: 'Nothing', value: 'none' },
   { label: 'Category', value: 'category' },
@@ -1135,5 +1155,15 @@ function downloadPack() {
 .chip.big {
   width: 32px;
   height: 32px;
+}
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
 }
 </style>
