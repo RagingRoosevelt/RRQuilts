@@ -39,6 +39,9 @@
   the colors still available (own colors and other picked palettes), pre-set to the nearest match.
   Swap and remove recolors and unpicks in one undo step; Cancel changes nothing. New projects start
   with Basic colors picked.
+  The same dialog clears My colors (a Clear button, available while a palette is picked). The
+  last picked palette can't be unpicked while there are no colors of your own. The dialog shows a
+  carousel with one page per quilt: before and after side by side, updating as the mapping changes.
 - Q: Built-in palettes? → A: Basic colors (36) plus Pastels, Darks, Gems, Neon, and Traditional (8
   each).
 - Q: Does a backup include the packs and repositories I've added? → A: Yes. One backup covers

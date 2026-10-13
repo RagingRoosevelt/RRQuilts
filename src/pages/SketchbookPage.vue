@@ -327,7 +327,22 @@
         Tap your colors to pick them for a palette in {{ MY_LIBRARY }}.
       </div>
       <template v-for="group in colorGroups.slice(0, 1)" :key="group.label">
-        <div class="text-subtitle2 q-mb-sm">{{ group.label }}</div>
+        <div class="row items-center q-mb-sm" style="gap: 8px">
+          <div class="text-subtitle2">{{ group.label }}</div>
+          <q-btn
+            v-if="!project.readOnly && group.items.length"
+            flat
+            dense
+            no-caps
+            size="sm"
+            icon="clear_all"
+            label="Clear"
+            :disable="!pickedPalettes.length"
+            @click="clearMine"
+          >
+            <q-tooltip v-if="!pickedPalettes.length">Pick a library palette first</q-tooltip>
+          </q-btn>
+        </div>
         <div class="swatches q-mb-lg">
           <component
             :is="group.mine && !project.readOnly ? 'button' : 'div'"
@@ -368,9 +383,12 @@
             <q-checkbox
               dense
               :model-value="!!project.doc.project.libraryPalettes?.includes(c.id)"
-              :disable="project.readOnly"
+              :disable="project.readOnly || lastSource(c.id)"
               @update:model-value="(on: boolean) => pickPalette(c.id, on)"
             />
+            <q-tooltip v-if="lastSource(c.id)">
+              The last palette stays picked until you have colors of your own
+            </q-tooltip>
             <div class="q-px-sm" style="width: 160px">
               {{ c.notecard.name }}
               <span class="text-caption text-grey-7">· {{ c.colors.length }}</span>
@@ -552,7 +570,7 @@
             {{ unpicking.used.length }} color{{ unpicking.used.length === 1 ? '' : 's' }} in use
           </div>
           <div class="text-caption text-grey-7">
-            {{ unpicking.name }} has colors used in this project's blocks and quilts. Choose what
+            {{ unpicking.title }} has colors used in this project's blocks and quilts. Choose what
             each one becomes; the nearest match is suggested.
           </div>
         </q-card-section>
@@ -604,13 +622,49 @@
             </q-select>
           </div>
         </q-card-section>
+        <q-card-section v-if="unpicking.options.length && quilts.length" class="q-pt-none">
+          <q-carousel
+            v-model="previewQuilt"
+            animated
+            swipeable
+            arrows
+            :navigation="quilts.length > 1"
+            height="270px"
+            control-color="primary"
+            class="rounded-borders"
+          >
+            <q-carousel-slide
+              v-for="q in quilts"
+              :key="q.id"
+              :name="q.id"
+              class="column no-wrap q-pt-sm"
+              style="padding-bottom: 40px"
+            >
+              <div class="text-caption text-center ellipsis">{{ q.notecard.name }}</div>
+              <div class="row no-wrap justify-center col" style="gap: 12px">
+                <div v-for="side in ['Before', 'After']" :key="side" class="column items-center">
+                  <img
+                    :src="
+                      side === 'Before'
+                        ? quiltThumbnail(project.doc, q, 160, $q.dark.isActive)
+                        : afterThumb(q.id)
+                    "
+                    style="width: 160px; height: 160px"
+                    alt=""
+                  />
+                  <div class="text-caption">{{ side }}</div>
+                </div>
+              </div>
+            </q-carousel-slide>
+          </q-carousel>
+        </q-card-section>
         <q-card-actions align="right">
           <q-btn v-close-popup flat no-caps label="Cancel" />
           <q-btn
             flat
             no-caps
             color="primary"
-            label="Swap and remove"
+            :label="unpicking.palette ? 'Swap and remove' : 'Swap and clear'"
             :disable="!unpicking.options.length"
             @click="finishUnpick"
           />
@@ -730,9 +784,11 @@ import {
 } from '@/model/block-file';
 import { parseProject } from '@/model/io';
 import type { RrqDoc } from '@/model/schema/project';
+import { produce, type Draft } from 'immer';
 import {
   isLibraryItem,
   splitItems,
+  syncLibraryItems,
   versionMismatches,
   toUnits,
   useMyCopy,
@@ -815,57 +871,96 @@ const libGroups = computed(() => {
 });
 const paletteLibs = computed(() => library.views.filter((v) => v.collections.length));
 type Opt = Color & { from: string };
+/** The swap dialog: colors in use that are going away, each mapped to one that stays. */
 const unpicking = ref<{
-  id: string;
-  name: string;
+  title: string;
+  /** What is going away: a palette (its id) or all of My colors. */
+  palette?: string;
   used: Color[];
   options: Opt[];
   map: Record<string, string>;
 } | null>(null);
 const rgbCss = (rgb?: readonly number[]) => (rgb ? `rgb(${rgb.join(',')})` : 'transparent');
+const pickedPalettes = computed(() => project.doc!.project.libraryPalettes ?? []);
+const ownColors = computed(() =>
+  project.doc!.project.palette.colors.filter((c) => !isLibraryItem(c)),
+);
+/** The only picked palette while there are no colors of your own: it can't be unpicked. */
+const lastSource = (id: string) =>
+  !ownColors.value.length && pickedPalettes.value.length === 1 && pickedPalettes.value[0] === id;
+
+/** Colors available after removing a palette (`palette`) or My colors (`mine`). */
+function remaining(drop: { palette?: string; mine?: boolean }): Opt[] {
+  const all = library.views.flatMap((v) => v.collections.map((c) => ({ v, c })));
+  return [
+    ...(drop.mine ? [] : ownColors.value.map((c) => ({ ...c, from: 'My colors' }))),
+    ...all
+      .filter((x) => pickedPalettes.value.includes(x.c.id) && x.c.id !== drop.palette)
+      .flatMap((x) =>
+        x.c.colors.map((c) => ({ ...c, from: `${x.c.notecard.name} · ${x.v.doc.name}` })),
+      ),
+  ].filter((c, i, a) => a.findIndex((o) => o.id === c.id) === i);
+}
 /**
- * Unpicking a palette whose colors this project uses (and no other picked palette or own color
- * provides): ask what each becomes, nearest available color suggested. Cancel changes nothing.
+ * Removing colors: those the project's own blocks and quilts use and nothing remaining provides
+ * get a dialog mapping each to the nearest remaining color; Cancel changes nothing.
  */
-function pickPalette(id: string, on: boolean) {
-  if (!on) {
-    const doc = project.doc!;
-    const picked = (doc.project.libraryPalettes ?? []).filter((x) => x !== id);
-    const all = library.views.flatMap((v) => v.collections.map((c) => ({ v, c })));
-    const removed = all.find((x) => x.c.id === id);
-    const own = doc.project.palette.colors.filter((c) => !isLibraryItem(c));
-    const options: Opt[] = [
-      ...own.map((c) => ({ ...c, from: 'My colors' })),
-      ...all
-        .filter((x) => picked.includes(x.c.id))
-        .flatMap((x) =>
-          x.c.colors.map((c) => ({ ...c, from: `${x.c.notecard.name} · ${x.v.doc.name}` })),
-        ),
-    ].filter((c, i, a) => a.findIndex((o) => o.id === c.id) === i);
-    const keep = new Set(options.map((o) => o.id));
-    const inUse = colorsUsed(doc);
-    const used = (removed?.c.colors ?? []).filter((c) => inUse.has(c.id) && !keep.has(c.id));
-    if (used.length) {
-      const map: Record<string, string> = {};
-      for (const c of used) {
-        const n = nearestColor(c.rgb, options);
-        if (n) map[c.id] = n.id;
-      }
-      unpicking.value = { id, name: removed!.c.notecard.name, used, options, map };
-      return;
-    }
+function confirmRemoval(going: Color[], drop: { palette?: string; mine?: boolean }, title: string) {
+  const options = remaining(drop);
+  const keep = new Set(options.map((o) => o.id));
+  const inUse = colorsUsed(project.doc!);
+  const used = going.filter((c) => inUse.has(c.id) && !keep.has(c.id));
+  const map: Record<string, string> = {};
+  for (const c of used) {
+    const n = nearestColor(c.rgb, options);
+    if (n) map[c.id] = n.id;
   }
-  setPalettePick(id, on);
+  const u = { title, ...(drop.palette ? { palette: drop.palette } : {}), used, options, map };
+  if (used.length) unpicking.value = u;
+  else applyRemoval(u);
+}
+function pickPalette(id: string, on: boolean) {
+  if (on) return setPalettePick(id, true);
+  const c = library.views.flatMap((v) => v.collections).find((x) => x.id === id);
+  confirmRemoval(c?.colors ?? [], { palette: id }, c?.notecard.name ?? 'This palette');
+}
+function clearMine() {
+  confirmRemoval(ownColors.value, { mine: true }, 'My colors');
 }
 function finishUnpick() {
   const u = unpicking.value!;
   unpicking.value = null;
-  project.change((d) => {
-    replaceColors(d, new Map(Object.entries(u.map)));
-    d.project.libraryPalettes = (d.project.libraryPalettes ?? []).filter((x) => x !== u.id);
-    if (!d.project.libraryPalettes.length) delete d.project.libraryPalettes;
-  });
+  applyRemoval(u);
 }
+/** Recolor, then unpick the palette or clear My colors (inside a project.change recipe). */
+function removal(d: Draft<RrqDoc>, u: NonNullable<typeof unpicking.value>) {
+  replaceColors(d, new Map(Object.entries(u.map)));
+  if (u.palette) {
+    d.project.libraryPalettes = (d.project.libraryPalettes ?? []).filter((x) => x !== u.palette);
+    if (!d.project.libraryPalettes.length) delete d.project.libraryPalettes;
+  } else d.project.palette.colors = d.project.palette.colors.filter((c) => isLibraryItem(c));
+}
+const applyRemoval = (u: NonNullable<typeof unpicking.value>) =>
+  project.change((d) => removal(d, u));
+/** The dialog's carousel: which quilt, and the project as it would be after the swap. */
+const previewQuilt = ref('');
+watch(unpicking, (u) => {
+  if (u && !quilts.value.some((q) => q.id === previewQuilt.value))
+    previewQuilt.value = quilts.value[0]?.id ?? '';
+});
+const afterDoc = computed(() =>
+  unpicking.value
+    ? syncLibraryItems(
+        produce(project.doc!, (d) => removal(d, unpicking.value!)),
+        library.lookup,
+      )
+    : undefined,
+);
+// A fresh quilt object so the thumbnail cache (per quilt object) can't serve the "before" picture.
+const afterThumb = (id: string) => {
+  const q = afterDoc.value?.project.quilts.find((x) => x.id === id);
+  return q ? quiltThumbnail(afterDoc.value!, { ...q }, 160, $q.dark.isActive) : '';
+};
 function setPalettePick(id: string, on: boolean) {
   project.change((d) => {
     const rest = (d.project.libraryPalettes ?? []).filter((x) => x !== id);
