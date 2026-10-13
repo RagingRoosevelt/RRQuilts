@@ -37,4 +37,4 @@ Blocks, palettes, and packs carry a license that says what others may do with th
 - [The Quilt Alliance](https://quiltalliance.org/) documents and shares quilts and their makers'
   stories.
 - [Quilt Index](https://quiltindex.org/) is a searchable database of documented quilts and patterns.
-- Your local quilt guild or quilt shop is the best place to learn hands-on.
+- Your local quilt guild or [quilt shop](https://www.prunusdomestic.com/pdx_local_retail.html?category=sewing) is the best place to learn hands-on.
