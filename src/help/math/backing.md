@@ -4,8 +4,12 @@ order: 100
 summary: Fabric for the back, with an overhang, pieced the cheaper way.
 ---
 
-The backing is bigger than the quilt top so the quilt can be loaded for quilting. Its size is the
-quilt plus the **overhang** on each side (default 4″ / 10 cm).
+The backing is cut bigger than the quilt top. Quilting draws the layers in a little and they can
+shift, so the extra keeps the back from coming up short. For hand or home-machine quilting, 2″ to 4″
+(5 to 10 cm) on each side is common. A longarm needs more, because the backing is clamped to the
+frame. Ask your longarm quilter, who often wants 4″ to 6″ (10 to 15 cm). The backing size is the
+quilt plus this **overhang** on each side (default 4″ / 10 cm, set as **Backing extra per side** in
+the Print tab's **Fabric** options).
 
 ## The formula
 
