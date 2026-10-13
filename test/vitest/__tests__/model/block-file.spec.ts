@@ -19,17 +19,20 @@ describe('.rrqbl block files', () => {
     const parsed = parseBlockFile(text);
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
-    expect(parsed.file.colors.map((c) => c.id).sort()).toEqual([
-      'rrquilts.cream',
-      'rrquilts.navy',
-      'rrquilts.red',
-    ]);
+    // Every coloring's colors (the default and one per themed palette).
+    const used = new Set(
+      star.colorings.flatMap((k) =>
+        Object.values(k.fills).flatMap((f) => ('color' in f ? [f.color] : [])),
+      ),
+    );
+    expect(parsed.file.colors.map((c) => c.id).sort()).toEqual([...used].sort());
+    expect(used.has('rrquilts.navy')).toBe(true);
     const { doc, blockId } = importBlock(createProject('x', 'cm'), parsed.file, 'Sam');
     const b = doc.project.blocks.find((x) => x.id === blockId)!;
     expect(b.size).toEqual([25.4, 25.4]);
     expect(b.source?.derived).toBe(true); // editable, still credited
     expect(b.author).toBe('RRQuilts contributors');
-    expect(doc.project.palette.colors).toHaveLength(3);
+    expect(doc.project.palette.colors).toHaveLength(used.size);
   });
 
   it('credits the exporter of an own block; a clashing id with a different design becomes a copy', () => {

@@ -63,12 +63,15 @@ describe('library items in projects', () => {
     );
     expect(d.project.blocks.map((b) => b.id)).toEqual(['rrquilts.ohio-star']);
     expect(isLibraryItem(d.project.blocks[0]!)).toBe(true);
-    expect(d.project.palette.colors.map((c) => c.id).sort()).toEqual([
-      'rrquilts.cream',
-      'rrquilts.gold',
-      'rrquilts.navy',
-      'rrquilts.red',
-    ]);
+    // The quilt's gold, plus every color of the block's colorings (default + one per palette).
+    const used = lookup
+      .block('rrquilts.ohio-star')!
+      .colorings.flatMap((k) =>
+        Object.values(k.fills).flatMap((f) => ('color' in f ? [f.color] : [])),
+      );
+    expect(d.project.palette.colors.map((c) => c.id).sort()).toEqual(
+      [...new Set(['rrquilts.gold', ...used])].sort(),
+    );
     expect(syncLibraryItems(d, lookup)).toBe(d); // nothing to do
   });
 

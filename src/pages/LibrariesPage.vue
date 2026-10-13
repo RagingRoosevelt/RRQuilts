@@ -159,9 +159,39 @@
             >
               <template #default="{ block: b }">
                 <div class="card">
-                  <button class="thumb" @click="previewing = { lib: g.v.doc.id, id: b.id }">
-                    <img :src="thumb(b, 200)" :alt="b.notecard.name" />
-                  </button>
+                  <div class="relative-position">
+                    <button class="thumb" @click="previewing = { lib: g.v.doc.id, id: b.id }">
+                      <img
+                        :src="thumb(b, 200, shown.get(`${g.v.doc.id}:${b.id}`))"
+                        :alt="b.notecard.name"
+                      />
+                    </button>
+                    <!-- Several colorings: click the count to choose which one the card shows. -->
+                    <span
+                      v-if="b.colorings.length > 1"
+                      class="count"
+                      role="button"
+                      title="Choose coloring"
+                      >{{ b.colorings.length }}
+                      <q-menu>
+                        <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+                          <button
+                            v-for="(c, i) in b.colorings"
+                            :key="c.id"
+                            v-close-popup
+                            class="pick-coloring"
+                            :class="{
+                              active:
+                                (shown.get(`${g.v.doc.id}:${b.id}`) ?? b.colorings[0]?.id) === c.id,
+                            }"
+                            :title="c.name ?? `Coloring ${i + 1}`"
+                            @click="shown.set(`${g.v.doc.id}:${b.id}`, c.id)"
+                          >
+                            <img :src="thumb(b, 64, c.id)" :alt="c.name ?? ''" />
+                          </button>
+                        </div> </q-menu
+                    ></span>
+                  </div>
                   <div class="row items-center no-wrap">
                     <FullName class="col" :name="b.notecard.name" />
                     <q-btn flat round dense icon="more_vert" aria-label="Actions">
@@ -769,6 +799,8 @@ const groups = computed(() =>
 );
 
 const emptyDoc = createProject();
+/** The coloring each card shows ("<library>:<block>" → coloring id); default the first. */
+const shown = reactive(new Map<string, string>());
 const thumb = (b: Block, px: number, coloring?: string) =>
   blockThumbnail(emptyDoc, b, px, $q.dark.isActive, coloring, library.items.colors);
 const css = (c: Color) => `rgb(${c.rgb.join(',')})`;
@@ -1154,6 +1186,41 @@ function downloadPack() {
   background: #9e9e9e;
   border-radius: 4px;
   cursor: pointer;
+}
+.count {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  min-width: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  background: var(--q-primary);
+  color: white;
+  cursor: pointer;
+}
+/* Bigger tap target than the badge itself. */
+.count::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+.pick-coloring {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+.pick-coloring.active {
+  border-color: var(--q-primary);
+}
+.pick-coloring img {
+  display: block;
+  width: 56px;
+  height: 56px;
 }
 .thumb img {
   display: block;

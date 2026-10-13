@@ -1,0 +1,1 @@
+import{i as e,t}from"./settings-CldUyAo-.js";import{a as n}from"./index-CCMY662w.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

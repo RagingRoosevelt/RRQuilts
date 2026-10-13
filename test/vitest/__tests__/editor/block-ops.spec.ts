@@ -112,13 +112,13 @@ describe('block operations', () => {
 
   it('colorings: save as new copies the fills; the last one cannot be deleted', () => {
     const { block, id } = saveColoringAs(star, star.colorings[0]!.id);
-    expect(block.colorings).toHaveLength(2);
-    expect(block.colorings[1]).toMatchObject({
+    expect(block.colorings).toHaveLength(star.colorings.length + 1);
+    expect(block.colorings.at(-1)).toMatchObject({
       id,
-      name: 'Coloring 2',
+      name: `Coloring ${block.colorings.length}`,
       fills: star.colorings[0]!.fills,
     });
-    const one = deleteColoring(deleteColoring(block, id), block.colorings[0]!.id);
+    const one = block.colorings.reduce((b, k) => deleteColoring(b, k.id), block);
     expect(one.colorings).toHaveLength(1);
   });
 });

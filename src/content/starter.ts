@@ -14,6 +14,7 @@ import { FOUR_PATCH_BLOCKS } from './four-patch';
 import { LETTER_BLOCKS, NUMBER_BLOCKS } from './letters';
 import { MEDALLION_BLOCKS } from './medallions';
 import { NINE_PATCH_BLOCKS } from './nine-patch';
+import { PALETTE_COLORINGS } from './palette-colorings';
 import { LOG_CABIN_BLOCKS, STRIP_BLOCKS } from './strips';
 import { SEVEN_PATCH_BLOCKS } from './seven-patch';
 
@@ -550,7 +551,32 @@ function buildItems(): BuiltinItems {
       revision: 1,
       drawing,
       patches,
-      colorings: [{ id: 'k1', fills }],
+      colorings: [
+        { id: 'k1', name: 'Basic colors', fills },
+        // One coloring per themed palette: the basic colors swapped for that palette's.
+        ...STARTER_PALETTES.flatMap((pal, i) => {
+          const swap = new Map(
+            (PALETTE_COLORINGS[b.name]?.[i] ?? '')
+              .split(',')
+              .filter(Boolean)
+              .map((kv) => kv.split('=').map(libId) as [string, string]),
+          );
+          return swap.size
+            ? [
+                {
+                  id: `k${i + 2}`,
+                  name: pal.name,
+                  fills: Object.fromEntries(
+                    Object.entries(fills).map(([p, f]) => [
+                      p,
+                      { color: swap.get(f.color) ?? f.color },
+                    ]),
+                  ),
+                },
+              ]
+            : [];
+        }),
+      ],
     };
   });
   return { colors, blocks };
