@@ -2,7 +2,7 @@ import Type from 'typebox';
 import { Block } from './block';
 import { Embroidery, Font, Palette, Photo } from './palette';
 import { Quilt } from './quilt';
-import { Id } from './shared';
+import { Id, ItemId } from './shared';
 
 export const FORMAT = 'rrq';
 export const VERSION = 1;
@@ -24,9 +24,9 @@ export const Project = Type.Object({
   quilts: Type.Array(Quilt),
   fonts: Type.Array(Font),
   /** Library blocks picked for this project's design tray (spec 011); its own blocks always show. */
-  libraryBlocks: Type.Optional(Type.Array(Id)),
+  libraryBlocks: Type.Optional(Type.Array(ItemId)),
   /** Library palettes (color collections) picked for this project's design tray. */
-  libraryPalettes: Type.Optional(Type.Array(Id)),
+  libraryPalettes: Type.Optional(Type.Array(ItemId)),
 });
 
 export const RrqDoc = Type.Object(

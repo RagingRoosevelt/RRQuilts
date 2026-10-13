@@ -81,6 +81,14 @@ describe('starter content', () => {
     }
   });
 
+  it('keeps picked library blocks and palettes through save and open', async () => {
+    const d = structuredClone(doc);
+    d.project.libraryBlocks = ['rrquilts.ohio-star'];
+    const r = await parseProject(serializeProject(d));
+    expect(r.ok && r.doc.project.libraryBlocks).toEqual(['rrquilts.ohio-star']);
+    expect(r.ok && r.doc.project.libraryPalettes).toEqual(['rrquilts.basic-colors']);
+  });
+
   it('is a valid project that round-trips', async () => {
     const r = await parseProject(serializeProject(doc));
     expect(r.ok && r.report).toEqual([]);

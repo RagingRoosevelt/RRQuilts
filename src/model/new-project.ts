@@ -16,6 +16,8 @@ export function createProject(name = 'Untitled', units: Units = 'in', app = 'dev
       embroidery: [],
       quilts: [],
       fonts: [],
+      // The built-in Basic colors palette starts picked (src/content/starter.ts).
+      libraryPalettes: ['rrquilts.basic-colors'],
     },
   };
 }
