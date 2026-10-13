@@ -44,7 +44,7 @@ export const PRINT_DEFAULTS = {
   labels: { letter: true, counts: true, size: false, color: false },
   tint: false,
   onePerPage: false,
-  /** A scale square on each template (else one per page, in the footer). */
+  /** A scale square on each template (the quilt picture page always has one). */
   squareOnTemplate: true,
   /** Label the block page's picture with template codes (then template pages skip their key). */
   keyOnBlockPage: true,

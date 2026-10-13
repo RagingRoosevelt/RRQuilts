@@ -11,8 +11,12 @@
         <div class="col text-caption text-grey-7">
           {{ sheets.length }} page{{ sheets.length === 1 ? '' : 's' }} · {{ paperLabel }} · print at
           100% scale<template
-            v-if="sheets.some((x) => ['templates', 'tile', 'miter'].includes(x.kind))"
-            >, then check the scale square on the template pages</template
+            v-if="
+              sheets.some(
+                (x) => x.kind === 'picture' || (x.kind === 'templates' && prefs.squareOnTemplate),
+              )
+            "
+            >, then check a scale square with a ruler</template
           >.
         </div>
         <q-btn color="primary" no-caps icon="print" label="Print" @click="print" />
@@ -381,23 +385,17 @@
             </div>
           </div>
 
-          <footer class="row items-end no-wrap" style="gap: 12px">
-            <div class="col credits">{{ view.title }} · {{ view.byline }}</div>
-            <!-- Only pages with true-size cutting lines need a scale check. -->
+          <!-- The quilt picture page checks the printer's scale once for the whole printout. -->
+          <div v-if="s.kind === 'picture'" class="column items-end">
             <div
-              v-if="
-                (s.kind === 'templates' && !prefs.squareOnTemplate) ||
-                s.kind === 'tile' ||
-                s.kind === 'miter'
-              "
-              class="column items-center"
-            >
-              <div
-                class="scale-square"
-                :style="{ width: `${scaleSquare}${units}`, height: `${scaleSquare}${units}` }"
-              />
-              <div class="scale-label">{{ fmt(scaleSquare) }} square</div>
-            </div>
+              class="scale-square"
+              :style="{ width: `${scaleSquare}${units}`, height: `${scaleSquare}${units}` }"
+            />
+            <div class="scale-label">{{ fmt(scaleSquare) }} square</div>
+          </div>
+
+          <footer>
+            <div class="credits">{{ view.title }} · {{ view.byline }}</div>
           </footer>
         </section>
       </div>
@@ -508,7 +506,7 @@ const fabricLabel = (x: number) => fmtFabric(x, units.value);
 // Paper and the area left for content (project units).
 const marginMm = computed(() => prefs.value.margin[units.value] * mm.value);
 const HEADER_MM = 14;
-const FOOTER_MM = 34;
+const FOOTER_MM = 18;
 const paperMm = computed(() => {
   const [w, h] = paper.value.mm;
   return prefs.value.landscape ? [h, w] : [w, h];
@@ -898,8 +896,9 @@ const sheets = computed<Sheet[]>(() => {
       const [x0, y0, x1, y1] = v.pictureBox;
       const w = x1 - x0;
       const h = y1 - y0 + 0.0001;
-      // Leave room for the notes under the picture.
-      const room = v.notes ? ah * 0.7 : ah - 2 * font.value;
+      // Leave room for the notes under the picture and the scale square above the footer.
+      const room =
+        (v.notes ? ah * 0.7 : ah - 2 * font.value) - scaleSquare.value - font.value * 1.5;
       const scale = Math.min(1, aw / w, room / h);
       out.push({
         kind: 'picture',
@@ -1378,7 +1377,7 @@ onMounted(() => {
   flex: 1;
 }
 .sheet footer {
-  height: 32mm;
+  height: 16mm;
   border-top: 0.3mm solid #000;
   padding-top: 2mm;
   font-size: 8pt;
