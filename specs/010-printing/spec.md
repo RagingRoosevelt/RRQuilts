@@ -91,6 +91,8 @@ printout matches; the scale square measures 1″.
 ### Every printout
 
 - Header: name, finished size, project. Footer: author, license, everyone credited (spec 009).
+- Page order (both printouts, for the pages each has): quilt picture → yardage → rotary chart →
+  blocks (a block printout's block page) → templates → credits.
   A 1″ (2 cm) scale-check square. True scale at 100%; Save as PDF via the browser's print dialog.
 
 ## Requirements *(mandatory)*
