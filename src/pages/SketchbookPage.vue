@@ -43,7 +43,7 @@
           />
         </button>
         <div class="row items-center no-wrap">
-          <div class="col ellipsis">{{ q.notecard.name }}</div>
+          <FullName class="col" :name="q.notecard.name" />
           <q-btn flat round dense icon="more_vert" aria-label="Actions">
             <q-menu>
               <q-list dense style="min-width: 180px">
@@ -108,8 +108,7 @@
             <img :src="thumb(b, 200)" :alt="b.notecard.name" />
           </button>
           <div class="row items-center no-wrap">
-            <div class="col ellipsis">
-              {{ b.notecard.name }}
+            <FullName class="col" :name="b.notecard.name">
               <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
                 <q-tooltip>Placed in a quilt</q-tooltip>
               </q-icon>
@@ -119,7 +118,7 @@
               <q-icon v-if="linkOf(b) === 'changed'" name="sync" color="warning" size="xs">
                 <q-tooltip>Changed since {{ MY_LIBRARY }} — Sync to my library</q-tooltip>
               </q-icon>
-            </div>
+            </FullName>
             <q-btn flat round dense icon="more_vert" aria-label="Actions">
               <q-menu>
                 <q-list dense style="min-width: 160px">
@@ -198,6 +197,19 @@
       </div>
       <template v-for="group in libGroups" :key="group.lib">
         <BlockSections :sections="group.sections" :lib="group.lib" :title="group.label">
+          <template #actions="{ blocks: bs }">
+            <q-checkbox
+              v-if="!project.readOnly"
+              dense
+              size="sm"
+              :model-value="pickState(bs)"
+              :toggle-indeterminate="false"
+              :aria-label="pickState(bs) === true ? 'Deselect all' : 'Select all'"
+              @update:model-value="pickAll(bs, pickState(bs) !== true)"
+            >
+              <q-tooltip>{{ pickState(bs) === true ? 'Deselect all' : 'Select all' }}</q-tooltip>
+            </q-checkbox>
+          </template>
           <template #default="{ block: b }">
             <div class="card" :class="{ picked: isPicked(b.id) }">
               <q-checkbox
@@ -216,8 +228,7 @@
                 <img :src="thumb(b, 200)" :alt="b.notecard.name" />
               </button>
               <div class="row items-center no-wrap">
-                <div class="col ellipsis">
-                  {{ b.notecard.name }}
+                <FullName class="col" :name="b.notecard.name">
                   <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
                     <q-tooltip>Placed in a quilt</q-tooltip>
                   </q-icon>
@@ -227,7 +238,7 @@
                       see Switch version…</q-tooltip
                     >
                   </q-icon>
-                </div>
+                </FullName>
                 <q-btn flat round dense icon="more_vert" aria-label="Actions">
                   <q-menu>
                     <q-list dense style="min-width: 160px">
@@ -629,6 +640,7 @@ import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
+import FullName from '@/components/FullName.vue';
 import { useLibraryStore } from '@/stores/library';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthor } from '@/composables/author';
@@ -736,10 +748,18 @@ function pickPalette(id: string, on: boolean) {
 }
 /** Library blocks picked for the design tray; ones placed in a quilt always count. */
 const isPicked = (id: string) => inUse(id) || !!project.doc!.project.libraryBlocks?.includes(id);
-function pick(id: string, on: boolean) {
+const pick = (id: string, on: boolean) => pickAll([{ id }], on);
+/** A category's checkbox: all picked, none, or some (null). */
+function pickState(bs: { id: string }[]) {
+  const n = bs.filter((b) => isPicked(b.id)).length;
+  return n === bs.length ? true : n ? null : false;
+}
+/** Pick or unpick blocks in one undo step (blocks placed in a quilt stay picked). */
+function pickAll(bs: { id: string }[], on: boolean) {
+  const ids = new Set(bs.map((b) => b.id));
   project.change((d) => {
-    const rest = (d.project.libraryBlocks ?? []).filter((x) => x !== id);
-    const next = on ? [...rest, id] : rest;
+    const rest = (d.project.libraryBlocks ?? []).filter((x) => !ids.has(x));
+    const next = on ? [...rest, ...ids] : rest;
     if (next.length) d.project.libraryBlocks = next;
     else delete d.project.libraryBlocks;
   });

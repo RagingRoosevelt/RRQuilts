@@ -149,7 +149,7 @@
                     <img :src="thumb(b, 200)" :alt="b.notecard.name" />
                   </button>
                   <div class="row items-center no-wrap">
-                    <div class="col ellipsis">{{ b.notecard.name }}</div>
+                    <FullName class="col" :name="b.notecard.name" />
                     <q-btn flat round dense icon="more_vert" aria-label="Actions">
                       <q-menu>
                         <q-list dense style="min-width: 170px">
@@ -567,6 +567,7 @@
 
 <script setup lang="ts">
 import BlockSections from '@/components/BlockSections.vue';
+import FullName from '@/components/FullName.vue';
 import { useAskCategory } from '@/composables/category';
 // Libraries (spec 011): browse every library; manage My library; back up, restore, share, import.
 import { useQuasar } from 'quasar';

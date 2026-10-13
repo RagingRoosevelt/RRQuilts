@@ -21,7 +21,12 @@
     </button>
     <q-btn
       v-if="sections.some((x) => x.label)"
-      v-bind="allButton(sections.filter((x) => x.label))"
+      v-bind="
+        allButton(
+          sections.filter((x) => x.label),
+          title ? ROOT : undefined,
+        )
+      "
     />
   </div>
   <template v-for="sec in title && !isOpen(ROOT) ? [] : sections" :key="sec.key">
@@ -41,9 +46,15 @@
         {{ sec.label }} <span class="text-grey-6">· {{ sec.count }}</span>
         <slot name="header" :section="sec" />
       </button>
+      <slot name="actions" :section="sec" :blocks="blocksIn(sec)" />
       <q-btn
         v-if="!sec.parent && sections.some((x) => x.parent === sec.key)"
-        v-bind="allButton(sections.filter((x) => x.parent === sec.key))"
+        v-bind="
+          allButton(
+            sections.filter((x) => x.parent === sec.key),
+            sec.key,
+          )
+        "
       />
     </div>
     <div
@@ -74,12 +85,13 @@ const settings = useSettingsStore();
 const key = (k: string) => `libsec:${props.lib}:${k}`;
 const isOpen = (k: string) => !settings.settings.collapsedSections.includes(key(k));
 /**
- * One button for a level's children (never the level itself): expands them all when any is
- * closed, else collapses them all.
+ * One button for a level's children: when the level or any child is closed it expands them all
+ * (the level too); otherwise it collapses the children, leaving the level open.
  */
-function allButton(children: BlockSection[]) {
+function allButton(children: BlockSection[], self?: string) {
   const keys = children.map((x) => key(x.key));
-  const anyClosed = keys.some((k) => settings.settings.collapsedSections.includes(k));
+  const all = self ? [...keys, key(self)] : keys;
+  const anyClosed = all.some((k) => settings.settings.collapsedSections.includes(k));
   const label = anyClosed ? 'Expand all' : 'Collapse all';
   return {
     flat: true,
@@ -90,11 +102,16 @@ function allButton(children: BlockSection[]) {
     title: label,
     'aria-label': label,
     onClick: () => {
-      const rest = settings.settings.collapsedSections.filter((k) => !keys.includes(k));
+      const rest = settings.settings.collapsedSections.filter((k) => !all.includes(k));
       settings.settings.collapsedSections = anyClosed ? rest : [...rest, ...keys];
     },
   };
 }
+/** A section's blocks, its subcategories' included. */
+const blocksIn = (sec: BlockSection) => [
+  ...sec.blocks,
+  ...props.sections.filter((x) => x.parent === sec.key).flatMap((x) => x.blocks),
+];
 function toggle(k: string) {
   const all = settings.settings.collapsedSections;
   settings.settings.collapsedSections = all.includes(key(k))
