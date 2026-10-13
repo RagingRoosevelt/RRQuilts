@@ -61,7 +61,6 @@
       v-if="sec.blocks.length"
       v-show="!sec.label || (isOpen(sec.key) && (!sec.parent || isOpen(sec.parent)))"
       :class="compact ? 'tiles q-mb-sm' : 'cards q-mb-lg'"
-      :style="indent(sec)"
     >
       <template v-for="b in sec.blocks" :key="b.id">
         <slot :block="b" />
@@ -83,7 +82,7 @@ const props = defineProps<{
   compact?: boolean;
 }>();
 const ROOT = '\u0000library';
-/** Sections sit under the library header, subcategories under their category. */
+/** Section headers sit under the library header, subcategories under their category (blocks don't indent). */
 const indent = (sec: BlockSection) => ({
   marginLeft: `${((props.title ? 1 : 0) + (sec.parent ? 1 : 0)) * 20}px`,
 });
