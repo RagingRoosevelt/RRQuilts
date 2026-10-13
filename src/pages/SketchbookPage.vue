@@ -373,6 +373,7 @@
                 dense
                 size="xs"
                 class="save-pick"
+                :class="{ checked: pickedColors.includes(c.id) }"
                 :model-value="pickedColors.includes(c.id)"
                 :aria-label="`Select ${c.notecard.name} for saving to ${MY_LIBRARY}`"
                 @click.stop
@@ -1594,8 +1595,14 @@ function showPlacements() {
   position: absolute;
   bottom: 2px;
   left: 2px;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+/* Unchecked boxes appear on hover; checked ones always show. */
+.save-pick.checked,
+.color-pick:hover .save-pick,
+.color-pick:focus-within .save-pick {
+  opacity: 1;
 }
 .edit-color {
   position: absolute;
@@ -1609,6 +1616,7 @@ function showPlacements() {
   opacity: 1;
 }
 @media (hover: none) {
+  .save-pick,
   .remove-color,
   .edit-color {
     opacity: 1;

@@ -1,0 +1,1 @@
+import{t as e}from"./settings-CtXklwMI.js";import{M as t,s as n}from"./index-KARE_Hxl.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};
