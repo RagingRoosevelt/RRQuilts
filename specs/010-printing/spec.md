@@ -98,6 +98,21 @@ printout matches; the scale square measures 1″.
    page is then left out (each block page carries its own). Without block pages, a Credits page
    lists everyone. A block printout's "Block page" is the same page.
 
+### User Story 6 - Suggest unit methods (Priority: P4, deferred — not planned soon)
+
+Quilters often make common units whole instead of cutting each patch: flying geese by stitch and
+flip (one rectangle + two squares) or four at a time (one big square + four small ones), half-square
+triangles two or eight at a time, square-in-a-square, and so on. The rotary chart could recognize
+these units from neighboring patches and offer the method alongside the per-patch cuts.
+
+1. **Given** a block with a flying geese unit (one quarter-square triangle with two half-square
+   triangles on its long side, filling a 2:1 rectangle), **Then** the rotary chart offers "Flying
+   geese, stitch and flip: cut a W+½ × H+½ rectangle and two H+½ squares" and "four at a time: one
+   W+1¼ square and four H+⅞ squares → 4 units", with the patches it replaces.
+2. **Given** a suggested method, **When** the user picks it, **Then** the chart and yardage use it
+   instead of the per-patch cuts for those units; per-patch stays the default.
+3. **Given** a printout, **Then** each chosen method has a short how-to (sew lines, cut order).
+
 ### Every printout
 
 - Header: name, finished size, project. Footer: author, license, everyone credited (spec 009).
