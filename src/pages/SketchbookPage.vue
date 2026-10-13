@@ -471,11 +471,11 @@
               {{ c.notecard.name }}
               <span class="text-caption text-grey-7">· {{ c.colors.length }}</span>
             </div>
-            <div class="row no-wrap" style="gap: 2px; overflow: hidden">
+            <div class="row col" style="gap: 3px">
               <div
                 v-for="x in c.colors"
                 :key="x.id"
-                class="mini-swatch"
+                class="mini-swatch lib-swatch"
                 :style="{ background: `rgb(${x.rgb.join(',')})` }"
                 :title="x.notecard.name"
               />
@@ -1662,6 +1662,10 @@ function showPlacements() {
   left: 2px;
   opacity: 0;
   transition: opacity 0.15s;
+}
+.mini-swatch.lib-swatch {
+  width: 26px;
+  height: 26px;
 }
 .mini-swatch.big {
   width: 28px;

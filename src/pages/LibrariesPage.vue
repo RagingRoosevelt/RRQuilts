@@ -1316,8 +1316,8 @@ function downloadPack() {
 }
 .chip {
   display: inline-block;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.2);
 }
