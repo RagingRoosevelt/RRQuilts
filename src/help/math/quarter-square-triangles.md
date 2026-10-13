@@ -1,7 +1,7 @@
 ---
 title: Quarter-square triangles
 order: 40
-summary: Cut a square, cut both diagonals — four triangles, long side on the straight grain.
+summary: Cut a square, cut both diagonals for four triangles, long side on the straight grain.
 ---
 
 A quarter-square triangle (QST) is a square cut into quarters with both diagonals. Its **long side**

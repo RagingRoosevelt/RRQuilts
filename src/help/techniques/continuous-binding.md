@@ -5,7 +5,7 @@ summary: Join binding strips into one long strip, sew it on with mitered corners
 ---
 
 Continuous binding is one long folded strip sewn around the whole quilt, with a neat 45° miter at
-each corner. The calculator gives the number of strips to cut; the binding width and the fabric
+each corner. The calculator gives the number of strips to cut. The binding width and the fabric
 rounding come from your print settings.
 
 ## What to cut

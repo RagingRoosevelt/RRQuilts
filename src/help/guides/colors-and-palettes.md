@@ -5,7 +5,7 @@ summary: Make project colors, group them into palettes, and paint with them.
 ---
 
 A **color** is one swatch. A **palette** is a named group of colors. A project always has its own
-colors (listed first in the project's **Palettes** tab); you can also tick palettes from your
+colors (listed first in the project's **Palettes** tab). You can also tick palettes from your
 libraries to use in the project's quilts.
 
 ## Add a project color
@@ -36,7 +36,7 @@ Library colors are read-only. Right-click one in the tray and choose **Edit a co
 1. In the **Palettes** tab, tick the checkbox on each project color you want to keep.
 2. Click **Save to my library…**, pick **New palette** (or an existing palette) in the **Palette** field, type a **Name**, and click **Save**.
 
-After you change a saved color, a **Sync to my library** button appears; it updates the library copy. See [Libraries](/help/guides/libraries).
+After you change a saved color, a **Sync to my library** button appears. It updates the library copy. See [Libraries](/help/guides/libraries).
 
 ## Share a palette
 

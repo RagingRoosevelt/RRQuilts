@@ -11,7 +11,7 @@ grows by two of them.
 
 > **cut = finished size + 2 × seam allowance**
 
-Do it once for each side of a rectangle. With a ¼″ seam allowance that is the familiar "add ½″"; with
+Do it once for each side of a rectangle. With a ¼″ seam allowance that is the familiar "add ½″". With
 7.5 mm it is "add 1.5 cm".
 
 <svg viewBox="0 0 220 110" width="330" role="img" aria-label="A rectangle with the finished area dashed inside it, a seam allowance on every side">
@@ -30,7 +30,7 @@ Do it once for each side of a rectangle. With a ¼″ seam allowance that is the
 | 8 cm square  | 9.5 cm        | 9.5 cm square    |
 | 15 cm × 8 cm | 16.5 × 9.5 cm | 16.5 × 9.5 cm    |
 
-These already land on a ruler mark. When they don't, the cut is rounded up; see
+These already land on a ruler mark. When they don't, the cut is rounded up. See
 [Rounding](/help/math/rounding).
 
 ## Calculators

@@ -40,9 +40,9 @@ The cut length then adds **s × (1 + √2) at each end**, a total of **2(1 + √
 </svg>
 
 The **Extra length on mitered strips** setting (default 2″ / 5 cm) adds more, so you can trim after
-sewing the miter; set it to 0 to cut exact.
+sewing the miter. Set it to 0 to cut exact.
 
-## Worked examples (quilt 48″ × 60″, 4″ border; 120 × 150 cm, 10 cm border)
+## Worked examples (quilt 48″ × 60″, 4″ border, 120 × 150 cm, 10 cm border)
 
 | Strip               | Inches (s = ¼″, extra 2″)                 | Centimeters (s = 7.5 mm, extra 5 cm)        |
 | ------------------- | ----------------------------------------- | ------------------------------------------- |

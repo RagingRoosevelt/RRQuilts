@@ -1,4 +1,4 @@
-import{t as e}from"./settings-cLrrNpzD.js";import{Dt as t,J as n,R as r,T as i,U as a,V as o,X as s,at as c,b as l,f as u,ft as d,g as f,h as p,jt as m,m as h,ot as g,p as _,s as v,t as y,x as b,y as ee}from"./create-CXFiK9Ge.js";import{t as te,v as ne}from"./QBtn-D67DqTct.js";import{H as x,V as S,n as C,r as re,t as w}from"./QCard-BviQ4XyX.js";import{a as ie,r as ae}from"./render-CRP6lwgu.js";import{N as T,P as oe,R as se,V as ce,z as le}from"./index-Ba5GQ1Xf.js";import{n as ue,t as de}from"./QTabs-flRVKxmY.js";import{t as fe}from"./QPage-D5_MJ09N.js";import{t as pe}from"./LengthInput-nbYx0JpU.js";import{S as me,_ as he,a as E,b as ge,i as _e,n as ve,o as ye,r as be,t as xe,x as Se,y as Ce}from"./yardage-D5dwrINA.js";var we=[`horizontal`,`vertical`,`cell`,`none`],Te=y({name:`QMarkupTable`,props:{...x,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>we.includes(e)}},setup(e,{slots:t}){let n=ie(),r=S(e,n),a=u(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>i(`div`,{class:a.value,tabindex:0},[i(`table`,{class:`q-table`},ae(t.default))])}}),Ee=(e,t)=>({units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:he[e][0].usable,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}),D=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),O=(e,t)=>D([[0,0],[e,0],[e,t],[0,t]]),k=e=>D([[0,0],[e,0],[0,e]]),De=e=>D([[0,0],[e,0],[e/2,e/2]]),Oe=(e,t)=>D([[0,0],[e,0],[e-t,t],[t,t]]),A=(e,t)=>Se(e,t.units),j=(e,t)=>e.cut[0]===e.cut[1]?`${A(e.cut[0],t)} square`:`${A(e.cut[0],t)} × ${A(e.cut[1],t)}`,M=(e,t)=>({in:e,cm:t}),ke={square:{title:`Square`,inputs:[{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:j(E(O(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:M(6,15)},{key:`h`,label:`Finished width`,start:M(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:j(E(O(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished size (leg)`,start:M(3,8)}],rows:({f:e},t)=>{let n=E(k(e),t.seam,t.step),r=me((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${j(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${A(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${A(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:M(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${j(E(De(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:M(4,10)},{key:`h`,label:`Finished height`,start:M(2,5)}],rows:({w:e,h:t},n)=>{let r=E(De(e),n.seam,n.step),i=E(k(t),n.seam,n.step);return[{label:`Stitch and flip (1)`,value:`${j(E(O(e,t),n.seam,n.step),n)} rectangle + 2 × ${j(E(O(t,t),n.seam,n.step),n)}`},{label:`Four at a time (4)`,value:`1 × ${j(r,n)} + 4 × ${j(i,n)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${j(r,n)}; sky: 2 halves of a ${j(i,n)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit`,start:M(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:j(E(O(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${j(E(k(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block`,start:M(10,25)}],rows:({f:e},t)=>[{label:`Block diagonal`,value:A(e*Math.SQRT2,t)},{label:`Side setting triangles`,value:`${j(E(De(e*Math.SQRT2),t.seam,t.step),t)}, cut both diagonals (4)`},{label:`Corner setting triangles`,value:`${j(E(k(e/Math.SQRT2),t.seam,t.step),t)}, cut once (2)`}]},border:{title:`Borders`,inputs:[{key:`w`,label:`Quilt width (before the border)`,start:M(48,120)},{key:`h`,label:`Quilt height (before the border)`,start:M(60,150)},{key:`b`,label:`Border width`,start:M(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${j(E(O(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${j(E(O(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${j(E(Oe(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${j(E(Oe(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,inputs:[{key:`w`,label:`Quilt width`,start:M(48,120)},{key:`h`,label:`Quilt height`,start:M(48,120)}],rows:({w:e,h:t},n)=>{let r=be(e,t,n.bindingWidth,xe[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${A(n.bindingWidth,n)} wide`},{label:`Total length`,value:A(2*(e+t)+xe[n.units],n)},{label:`Fabric`,value:ge(r.length,n.units)}]}},backing:{title:`Backing`,inputs:[{key:`w`,label:`Quilt width`,start:M(60,150)},{key:`h`,label:`Quilt height`,start:M(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:ge(ve(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${A(n.overhang,n)} each side`}]},yardage:{title:`Yardage for squares`,inputs:[{key:`n`,label:`How many`,start:M(40,40),count:!0},{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({n:e,f:t},n)=>{let r=Array.from({length:Math.max(1,Math.round(e))},()=>O(t,t)),i=ye(r,n.seam,n.step,n.usable),a=_e(i,{usable:n.usable},n.fabricStep)[0],o=he[n.units].find(e=>e.fatQuarter),s=ye(r,n.seam,n.step,o.usable),c=_e(s,o,n.fabricStep)[0];return[{label:`Strips`,value:`${i[0].strips} × ${A(i[0].stripWidth,n)} (${i[0].perStrip} per strip)`},{label:`Fabric (${A(n.usable,n)} usable)`,value:ge(a.length,n.units)},{label:`Or fat quarters`,value:String(c.fatQuarters)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:M(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:A(e,t)},{label:`Cut (rounded up)`,value:A(me(e,t.step),t)}]}},Ae={class:`text-subtitle2`},je={class:`text-caption text-grey-7`},Me={class:`text-grey-8`},Ne={class:`text-weight-medium`},Pe=T(b({__name:`HelpCalc`,props:{name:{}},setup(t){let n=t,i=oe(),a=e(),p=u(()=>ke[n.name]),g=u(()=>i.doc?.units??a.settings.units),y=u(()=>Ee(g.value,Ce(a.settings.print))),b=c(Object.fromEntries((p.value?.inputs??[]).map(e=>[e.key,e.start[g.value]]))),te=u(()=>{let e=p.value;return!e||e.inputs.some(e=>!(b[e.key]>0))?[]:e.rows(b,y.value)});return(e,n)=>p.value?(r(),h(w,{key:0,flat:``,bordered:``,class:`help-calc q-my-md`},{default:s(()=>[l(C,{class:`q-pb-sm`},{default:s(()=>[_(`div`,Ae,[l(ne,{name:`calculate`,class:`q-mr-xs`}),ee(m(p.value.title)+` calculator `,1)]),_(`div`,je,` Seam allowance `+m(d(Se)(y.value.seam,g.value))+` · cut sizes rounded up to `+m(y.value.step?d(Se)(y.value.step,g.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),l(C,{class:`row q-pt-none`,style:{gap:`12px`}},{default:s(()=>[(r(!0),f(v,null,o(p.value.inputs,e=>(r(),f(v,{key:e.key},[e.count||e.raw?(r(),h(re,{key:0,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(r(),h(pe,{key:1,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,units:g.value,min:.25,label:e.label,style:{width:`200px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),l(Te,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:s(()=>[_(`tbody`,null,[(r(!0),f(v,null,o(te.value,e=>(r(),f(`tr`,{key:e.label},[_(`td`,Me,m(e.label),1),_(`td`,Ne,m(e.value),1)]))),128))])]),_:1})]),_:1})):(r(),h(ce,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:s(()=>[ee(`Unknown calculator “`+m(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-d2cee685`]]),Fe=`---
+import{t as e}from"./settings-cLrrNpzD.js";import{Dt as t,J as n,R as r,T as i,U as a,V as o,X as s,at as c,b as l,f as u,ft as d,g as f,h as p,jt as m,m as h,ot as g,p as _,s as v,t as y,x as b,y as ee}from"./create-CXFiK9Ge.js";import{t as te,v as ne}from"./QBtn-D67DqTct.js";import{H as x,V as S,n as C,r as re,t as w}from"./QCard-BviQ4XyX.js";import{a as ie,r as ae}from"./render-CRP6lwgu.js";import{N as T,P as oe,R as se,V as ce,z as le}from"./index-snoUJ2Os.js";import{n as ue,t as de}from"./QTabs-flRVKxmY.js";import{t as fe}from"./QPage-D5_MJ09N.js";import{t as pe}from"./LengthInput-nbYx0JpU.js";import{S as me,_ as he,a as E,b as ge,i as _e,n as ve,o as ye,r as be,t as xe,x as Se,y as Ce}from"./yardage-D5dwrINA.js";var we=[`horizontal`,`vertical`,`cell`,`none`],Te=y({name:`QMarkupTable`,props:{...x,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>we.includes(e)}},setup(e,{slots:t}){let n=ie(),r=S(e,n),a=u(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>i(`div`,{class:a.value,tabindex:0},[i(`table`,{class:`q-table`},ae(t.default))])}}),Ee=(e,t)=>({units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:he[e][0].usable,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}),D=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),O=(e,t)=>D([[0,0],[e,0],[e,t],[0,t]]),k=e=>D([[0,0],[e,0],[0,e]]),De=e=>D([[0,0],[e,0],[e/2,e/2]]),Oe=(e,t)=>D([[0,0],[e,0],[e-t,t],[t,t]]),A=(e,t)=>Se(e,t.units),j=(e,t)=>e.cut[0]===e.cut[1]?`${A(e.cut[0],t)} square`:`${A(e.cut[0],t)} × ${A(e.cut[1],t)}`,M=(e,t)=>({in:e,cm:t}),ke={square:{title:`Square`,inputs:[{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:j(E(O(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:M(6,15)},{key:`h`,label:`Finished width`,start:M(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:j(E(O(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished size (leg)`,start:M(3,8)}],rows:({f:e},t)=>{let n=E(k(e),t.seam,t.step),r=me((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${j(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${A(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${A(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:M(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${j(E(De(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:M(4,10)},{key:`h`,label:`Finished height`,start:M(2,5)}],rows:({w:e,h:t},n)=>{let r=E(De(e),n.seam,n.step),i=E(k(t),n.seam,n.step);return[{label:`Stitch and flip (1)`,value:`${j(E(O(e,t),n.seam,n.step),n)} rectangle + 2 × ${j(E(O(t,t),n.seam,n.step),n)}`},{label:`Four at a time (4)`,value:`1 × ${j(r,n)} + 4 × ${j(i,n)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${j(r,n)}; sky: 2 halves of a ${j(i,n)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit`,start:M(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:j(E(O(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${j(E(k(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block`,start:M(10,25)}],rows:({f:e},t)=>[{label:`Block diagonal`,value:A(e*Math.SQRT2,t)},{label:`Side setting triangles`,value:`${j(E(De(e*Math.SQRT2),t.seam,t.step),t)}, cut both diagonals (4)`},{label:`Corner setting triangles`,value:`${j(E(k(e/Math.SQRT2),t.seam,t.step),t)}, cut once (2)`}]},border:{title:`Borders`,inputs:[{key:`w`,label:`Quilt width (before the border)`,start:M(48,120)},{key:`h`,label:`Quilt height (before the border)`,start:M(60,150)},{key:`b`,label:`Border width`,start:M(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${j(E(O(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${j(E(O(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${j(E(Oe(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${j(E(Oe(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,inputs:[{key:`w`,label:`Quilt width`,start:M(48,120)},{key:`h`,label:`Quilt height`,start:M(48,120)}],rows:({w:e,h:t},n)=>{let r=be(e,t,n.bindingWidth,xe[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${A(n.bindingWidth,n)} wide`},{label:`Total length`,value:A(2*(e+t)+xe[n.units],n)},{label:`Fabric`,value:ge(r.length,n.units)}]}},backing:{title:`Backing`,inputs:[{key:`w`,label:`Quilt width`,start:M(60,150)},{key:`h`,label:`Quilt height`,start:M(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:ge(ve(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${A(n.overhang,n)} each side`}]},yardage:{title:`Yardage for squares`,inputs:[{key:`n`,label:`How many`,start:M(40,40),count:!0},{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({n:e,f:t},n)=>{let r=Array.from({length:Math.max(1,Math.round(e))},()=>O(t,t)),i=ye(r,n.seam,n.step,n.usable),a=_e(i,{usable:n.usable},n.fabricStep)[0],o=he[n.units].find(e=>e.fatQuarter),s=ye(r,n.seam,n.step,o.usable),c=_e(s,o,n.fabricStep)[0];return[{label:`Strips`,value:`${i[0].strips} × ${A(i[0].stripWidth,n)} (${i[0].perStrip} per strip)`},{label:`Fabric (${A(n.usable,n)} usable)`,value:ge(a.length,n.units)},{label:`Or fat quarters`,value:String(c.fatQuarters)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:M(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:A(e,t)},{label:`Cut (rounded up)`,value:A(me(e,t.step),t)}]}},Ae={class:`text-subtitle2`},je={class:`text-caption text-grey-7`},Me={class:`text-grey-8`},Ne={class:`text-weight-medium`},Pe=T(b({__name:`HelpCalc`,props:{name:{}},setup(t){let n=t,i=oe(),a=e(),p=u(()=>ke[n.name]),g=u(()=>i.doc?.units??a.settings.units),y=u(()=>Ee(g.value,Ce(a.settings.print))),b=c(Object.fromEntries((p.value?.inputs??[]).map(e=>[e.key,e.start[g.value]]))),te=u(()=>{let e=p.value;return!e||e.inputs.some(e=>!(b[e.key]>0))?[]:e.rows(b,y.value)});return(e,n)=>p.value?(r(),h(w,{key:0,flat:``,bordered:``,class:`help-calc q-my-md`},{default:s(()=>[l(C,{class:`q-pb-sm`},{default:s(()=>[_(`div`,Ae,[l(ne,{name:`calculate`,class:`q-mr-xs`}),ee(m(p.value.title)+` calculator `,1)]),_(`div`,je,` Seam allowance `+m(d(Se)(y.value.seam,g.value))+` · cut sizes rounded up to `+m(y.value.step?d(Se)(y.value.step,g.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),l(C,{class:`row q-pt-none`,style:{gap:`12px`}},{default:s(()=>[(r(!0),f(v,null,o(p.value.inputs,e=>(r(),f(v,{key:e.key},[e.count||e.raw?(r(),h(re,{key:0,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(r(),h(pe,{key:1,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,units:g.value,min:.25,label:e.label,style:{width:`200px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),l(Te,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:s(()=>[_(`tbody`,null,[(r(!0),f(v,null,o(te.value,e=>(r(),f(`tr`,{key:e.label},[_(`td`,Me,m(e.label),1),_(`td`,Ne,m(e.value),1)]))),128))])]),_:1})]),_:1})):(r(),h(ce,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:s(()=>[ee(`Unknown calculator “`+m(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-d2cee685`]]),Fe=`---
 title: Block colorings
 order: 50
 summary: Color a block's patches and keep several colorings of the same drawing.
@@ -12,12 +12,12 @@ which one each placed block starts from.
 1. Open the block in the block editor and choose the **Color** tab.
 2. In the sidebar, open **Colors** and click a swatch. (Use **+** to add one.)
 3. Pick **Paint** on the left rail and tap a patch. **Spray (same color)** recolors every patch
-   with the same color; **Eyedropper** picks up a patch's color; **Pan** moves the view.
+   with the same color, **Eyedropper** picks up a patch's color, and **Pan** moves the view.
 4. Undo with Ctrl+Z.
 
 ## Several colorings
 
-Under **Colorings** in the sidebar, each coloring is a thumbnail; click one to work on it.
+Under **Colorings** in the sidebar, each coloring is a thumbnail. Click one to work on it.
 
 - **Save as new coloring** copies the current one so you can change it freely.
 - **Rename** names it.
@@ -44,7 +44,7 @@ summary: Make project colors, group them into palettes, and paint with them.
 ---
 
 A **color** is one swatch. A **palette** is a named group of colors. A project always has its own
-colors (listed first in the project's **Palettes** tab); you can also tick palettes from your
+colors (listed first in the project's **Palettes** tab). You can also tick palettes from your
 libraries to use in the project's quilts.
 
 ## Add a project color
@@ -75,7 +75,7 @@ Library colors are read-only. Right-click one in the tray and choose **Edit a co
 1. In the **Palettes** tab, tick the checkbox on each project color you want to keep.
 2. Click **Save to my library…**, pick **New palette** (or an existing palette) in the **Palette** field, type a **Name**, and click **Save**.
 
-After you change a saved color, a **Sync to my library** button appears; it updates the library copy. See [Libraries](/help/guides/libraries).
+After you change a saved color, a **Sync to my library** button appears. It updates the library copy. See [Libraries](/help/guides/libraries).
 
 ## Share a palette
 
@@ -91,7 +91,7 @@ Every project, quilt and block has an author and a license, and copies remember 
 ## Edit the details
 
 1. Open the item: the project's **Details** tab, a quilt's **Details** tab, or a block's **Details** tab in the block editor.
-2. Edit **Title**, **Author** and **Notes**. Leave **Author** empty to show "anonymous"; your default name comes from **Settings › You**.
+2. Edit **Title**, **Author** and **Notes**. Leave **Author** empty to show "anonymous". Your default name comes from **Settings › You**.
 3. Choose a **License**. Each option explains its terms underneath.
 
 A new project starts as **CC BY-SA 4.0**. New items copy the project's license at that moment and keep it if the project license changes later.
@@ -100,10 +100,10 @@ A new project starts as **CC BY-SA 4.0**. New items copy the project's license a
 
 | License             | Meaning                                                  |
 | ------------------- | -------------------------------------------------------- |
-| Public domain       | Traditional or out-of-copyright design; free for any use |
-| CC0 1.0             | No rights reserved; no credit needed                     |
-| CC BY-SA 4.0        | Credit required; changes keep this license               |
-| CC BY-NC-SA 4.0     | Credit required; no selling; changes keep this license   |
+| Public domain       | Traditional or out-of-copyright design, free for any use |
+| CC0 1.0             | No rights reserved, no credit needed                     |
+| CC BY-SA 4.0        | Credit required, changes keep this license               |
+| CC BY-NC-SA 4.0     | Credit required, no selling, changes keep this license   |
 | All rights reserved | Only the author may copy, change or share it             |
 
 ## How credit builds up
@@ -132,18 +132,18 @@ hide the seam lines and the block names, and the bar under the quilt reports its
 
 ## Layout
 
-1. Open the **Layout** tab. **Style** is **Horizontal** (blocks in rows); other styles are listed as
+1. Open the **Layout** tab. **Style** is **Horizontal** (blocks in rows). Other styles are listed as
    coming soon.
-2. Set **Columns** and **Rows** (1–100).
+2. Set **Columns** and **Rows** (1 to 100).
 3. Set the **Finished block size** (**Width** and **Height**). Switch on **Keep width and height
    equal** to keep blocks square.
-4. Set the **Sashing** (the strips between blocks) the same way; 0 means none. **Sashing around the
+4. Set the **Sashing** (the strips between blocks) the same way. 0 means none. **Sashing around the
    outside** adds strips around the edge too. Where sashes cross are cornerstones.
 
 ## Borders
 
 1. Open the **Borders** tab. Borders are numbered from the inside out (1 is innermost).
-2. **Add outside** adds a border; **Insert inside** adds one just inside the selected border;
+2. **Add outside** adds a border, **Insert inside** adds one just inside the selected border,
    **Clone** copies it. The arrow buttons **Move inward / outward**, and the trash button deletes.
 3. Choose a **Style**: **Long horizontal** or **Long vertical** (the long strips run the full length
    on that side) or **Mitered** (diagonal corners). Pieced borders are coming soon.
@@ -162,13 +162,13 @@ For cutting lengths, see [Borders](/help/math/borders).
 
 ## Tools
 
-The left rail holds the tools; tooltips and a hint line above the tray say what each does.
+The left rail holds the tools. Tooltips and a hint line above the tray say what each does.
 
 | Tool                      | What a tap does                                                            |
 | ------------------------- | -------------------------------------------------------------------------- |
 | **Set block**             | Places the selected block                                                  |
 | **Rotate**                | Turns a block 90°                                                          |
-| **Flip**                  | Mirrors a block; tap the tool again to switch left↔right and top↕bottom    |
+| **Flip**                  | Mirrors a block, tap the tool again to switch left↔right and top↕bottom    |
 | **Erase block**           | Removes a block                                                            |
 | **Find block**            | Selects that block in the tray and outlines every place it's used          |
 | **Paint**                 | Colors one patch                                                           |
@@ -181,16 +181,16 @@ The left rail holds the tools; tooltips and a hint line above the tray say what 
 
 1. Click the **Colors** tab in the tray and click a swatch. **+** adds a new color.
 2. Choose **Paint** and tap a patch. Sashes, cornerstones, and borders can be painted too.
-3. A placed block follows its block's coloring until you recolor a patch in the quilt; the change
+3. A placed block follows its block's coloring until you recolor a patch in the quilt. The change
    then applies only to the quilt.
 
 ## Apply to
 
 Above the tray, **Apply to** controls how many spaces a tap affects:
 
-- **This** — only the space you tap.
-- **All** — every space of the same kind (all blocks of that block, all sashes, one border…).
-- **Alternate** — every other one of those spaces, in a checkerboard.
+- **This**: only the space you tap.
+- **All**: every space of the same kind (all blocks of that block, all sashes, one border…).
+- **Alternate**: every other one of those spaces, in a checkerboard.
 
 ## Details and Print
 
@@ -200,13 +200,13 @@ rail (Ctrl+Z, Ctrl+Shift+Z).
 `,ze=`---
 title: Drawing blocks
 order: 40
-summary: Draw a block from seams — lines and arcs — and let the app find the patches.
+summary: Draw a block from seams (lines and arcs) and let the app find the patches.
 ---
 
 A block is a square or rectangle drawn with **seams**. Wherever seams close a shape, the app
 finds a **patch** that you can color. Start from **New block** in the sketchbook's **Blocks** tab,
 or **Edit** one of your blocks. The block editor has four tabs: **Details**, **Draw**, **Color**, and
-**Print**. Library blocks are read-only; use **Edit (make a copy)** in the sketchbook.
+**Print**. Library blocks are read-only. Use **Edit (make a copy)** in the sketchbook.
 
 ## Set the size
 
@@ -218,24 +218,24 @@ shape too.
 
 Pick a tool on the left rail and drag on the block:
 
-1. **Line** — drag from one point to another.
-2. **Arc** — drag the same way; the seam curves. **Flip arc direction** (or Space while drawing) bends
+1. **Line**: drag from one point to another.
+2. **Arc**: drag the same way. The seam curves. **Flip arc direction** (or Space while drawing) bends
    it the other way. After drawing, select the arc and drag its handle to change the curve.
-3. **Grid** — drag a rectangle to divide it into **Columns** × **Rows** cells in one move.
-4. Seams that don't join at both ends are shown in red; join them so the shapes close.
+3. **Grid**: drag a rectangle to divide it into **Columns** × **Rows** cells in one move.
+4. Seams that don't join at both ends are shown in red. Join them so the shapes close.
 
 Points snap to guides so seams stay tidy. Open **Snapping & graph paper** in the sidebar to choose
-**Step** (**Snap every**) or **Divisions** (**Across** / **Down**); turn **Snap to grid points**, **Snap to nodes**, and
-**Snap to seams** on or off; and show **Graph paper**.
+**Step** (**Snap every**) or **Divisions** (**Across** / **Down**). Turn **Snap to grid points**, **Snap to nodes**, and
+**Snap to seams** on or off, and show **Graph paper**.
 
 ## Select and edit
 
 1. Choose **Select seams**. Tap a seam (Shift adds), drag a box, or press Ctrl+A for all.
-2. **Edit nodes** moves an end point (connected seams follow); double-tap a seam to add a node.
+2. **Edit nodes** moves an end point (connected seams follow). Double-tap a seam to add a node.
 3. With seams selected, the sidebar offers **Delete**, **Clone**, **To guides** (turn them into
    dashed guides that snap), **Rotate**, **Flip**, **Scale**, and **Add nodes** (**Midpoint**,
    **Thirds**, **Equal parts**, **At crossings**). Rotate, flip, and scale work around the **Block center** or **Selection center**.
-4. The Delete key removes selected seams; Escape clears the selection. Undo with Ctrl+Z.
+4. The Delete key removes selected seams. Escape clears the selection. Undo with Ctrl+Z.
 
 ## Then color it
 
@@ -254,31 +254,31 @@ summary: Start a quilt, save it to a file, open it again, recover unsaved work, 
 ---
 
 RRQuilts runs entirely in your browser: there is no account, and nothing is sent to a server. Your
-work lives in a **project** — one file (ending in \`.rrq\`) that holds your quilts, blocks, and colors.
+work lives in a **project**: one file (ending in \`.rrq\`) that holds your quilts, blocks, and colors.
 
 ## Start a quilt
 
 1. On the home page (the **RRQuilts** button in the header), choose **Start a quilt**.
-2. The wizard has three steps; use **Next** to move on, or click a step's title.
+2. The wizard has three steps. Use **Next** to move on, or click a step's title.
    - **Blocks**: **Columns**, **Rows**, and **Finished block size**.
    - **Sashing**: **Sashing width (0 for none)**, and **Sashing around the outside**.
    - **Borders**: **Number of borders** and the **Width of each**.
 3. Choose **Create quilt**. The quilt opens in the Design tab, ready for you to place blocks. See
    [Designing a quilt](/help/guides/designing-a-quilt).
 
-Prefer an empty project? Choose **New project** instead; it opens the project's sketchbook (see
+Prefer an empty project? Choose **New project** instead. It opens the project's sketchbook (see
 [The project sketchbook](/help/guides/sketchbook)).
 
 ## Save your project
 
 The round save button in the header has a small colored dot:
 
-| Dot    | Meaning                           |
-| ------ | --------------------------------- |
-| Grey   | **Not saved yet**                 |
-| Green  | **Saved to file**                 |
-| Orange | **Unsaved changes (draft kept)**  |
-| Red    | **Draft not kept — save to file** |
+| Dot    | Meaning                          |
+| ------ | -------------------------------- |
+| Grey   | **Not saved yet**                |
+| Green  | **Saved to file**                |
+| Orange | **Unsaved changes (draft kept)** |
+| Red    | **Draft not kept: save to file** |
 
 1. Press the save button, or **Ctrl+S**. Use **Ctrl+Shift+S** for Save as, to choose a new file.
 2. In Chrome and Edge, the app writes straight to the file you choose, and later saves update it.
@@ -287,9 +287,9 @@ The round save button in the header has a small colored dot:
 
 ## Open a project
 
-- On the home page choose **Open a project file** and pick a \`.rrq\` file — or drag a \`.rrq\` file
+- On the home page choose **Open a project file** and pick a \`.rrq\` file, or drag a \`.rrq\` file
   onto the window.
-- In browsers that can reopen files, **Recent projects** lists your latest ones; click one to open it.
+- In browsers that can reopen files, **Recent projects** lists your latest ones. Click one to open it.
 
 If you start or open something else while the current project has unsaved changes, the app asks
 first. Closing the tab with unsaved changes also asks you to confirm.
@@ -309,7 +309,7 @@ is crash insurance, not a save: it can be lost if you clear site data.
 
 After the first visit, the whole app is stored in your browser, so it works without a connection.
 You can also install it as an app from the browser's menu. When a new version is ready, the app
-shows **Update available** with a **Reload** button; it never reloads on its own, so you won't lose
+shows **Update available** with a **Reload** button. It never reloads on its own, so you won't lose
 work.
 
 ## One tab at a time
@@ -340,7 +340,7 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
 3. Use **Group blocks by** to arrange blocks by **Nothing**, **Category**, **Tags** or **Styles**.
 4. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)** (palettes: **Export (.rrqplt)**).
 
-Pack items cannot be renamed or changed; use **Copy to my library** and edit the copy. The copy keeps credit for the original author ([Credits and licenses](/help/guides/credits-and-licenses)).
+Pack items cannot be renamed or changed. Use **Copy to my library** and edit the copy. The copy keeps credit for the original author ([Credits and licenses](/help/guides/credits-and-licenses)).
 
 ## Put a project block or palette in My library
 
@@ -356,7 +356,7 @@ Tick **Use ... in this project** on a block in the project's **Blocks** tab. A p
 
 1. On **Libraries**, click **Back up…**.
 2. Choose **My library** and/or **Installed packs**, then click **Back up**. You get one \`.rrqlib\` file.
-3. To restore, click **Import** and pick the file. If you already have items, choose **Merge into my library (keep what's here)** or **Replace my library with the backup's**; for packs already installed choose **Keep** or **Replace**. Then click **Restore**.
+3. To restore, click **Import** and pick the file. If you already have items, choose **Merge into my library (keep what's here)** or **Replace my library with the backup's**. For packs already installed, choose **Keep** or **Replace**. Then click **Restore**.
 
 Libraries live in browser storage. If the page warns that storage is blocked, back up before closing.
 
@@ -367,10 +367,10 @@ Click **Import** and choose a \`.rrqlib\` pack (or a \`.rrqplt\` palette). To re
 ## Share your own pack
 
 1. Click **Share as pack…** (needs at least one item in My library).
-2. Fill in **Name**, **Description**, **Author** and **License**. Items others have locked to a license can raise the minimum; items marked all rights reserved by someone else are left out and listed.
+2. Fill in **Name**, **Description**, **Author** and **License**. Items others have locked to a license can raise the minimum. Items marked all rights reserved by someone else are left out and listed.
 3. Click **Download pack** and send the \`.rrqlib\` file.
 
-Packs contain only what you chose; a pack never includes your projects.
+Packs contain only what you chose. A pack never includes your projects.
 `,He=`---
 title: Printing
 order: 90
@@ -397,7 +397,7 @@ The browser print dialog opens. Print at 100% scale, not "fit to page", and chec
 ## Set the options
 
 - **Paper**: paper size, **Portrait** or **Landscape**, and **Margins**.
-- **Cutting**: **Seam allowance**, **Cut size rounding** (up to the next 1/8 in or 5 mm, or none), and for quilts **Extra length on mitered strips** (trimmed after sewing; 0 to cut exact).
+- **Cutting**: **Seam allowance**, **Cut size rounding** (up to the next 1/8 in or 5 mm, or none), and for quilts **Extra length on mitered strips** (trimmed after sewing, 0 to cut exact).
 - **Fabric** (quilts): **Fabric rounding**, **Backing extra per side**, **Binding strip width**.
 - **Templates**: **Include seam allowance**, **Trimmed points**, **Shaded seam allowance**, **Cutting line**, **Sewing line**, **Grain lines**, **Mirror templates**, **Curve alignment marks**, **Tint by fabric**, **One template per page**, which labels to print on each template, and a **Scale square on each template**.
 - **Look**: **Line weight** and **Pictures as outlines only**.
@@ -427,7 +427,7 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 ## Interface
 
 - **Theme**: **Auto**, **Light** or **Dark**.
-- **Use the system accent color**: where the browser shares it; otherwise blue.
+- **Use the system accent color**: where the browser shares it, otherwise blue.
 - **Units for new projects**: **Inches** or **Centimeters**. An open project's units are in its **Details** tab.
 - **Editor layout**: **Toolbar left, sidebar right** or **Sidebar left, toolbar right**.
 
@@ -445,12 +445,12 @@ Anything in the file that isn't valid is reset to its default, and the message s
 `,We=`---
 title: The project sketchbook
 order: 20
-summary: Your project's home screen — its quilts, blocks, palettes, and details.
+summary: Your project's home screen: its quilts, blocks, palettes, and details.
 ---
 
 Choose **Project** in the header (it appears once a project is open) to see the sketchbook. Rename
 the project by editing its name at the top. The tabs are **Quilts**, **Blocks**, **Palettes**,
-**Photos**, **Threads**, and **Details**; the number in brackets counts what's there. **Photos** and
+**Photos**, **Threads**, and **Details**. The number in brackets counts what's there. **Photos** and
 **Threads** are not available yet. The undo and redo buttons at the right of the tabs (Ctrl+Z, Ctrl+Shift+Z) work
 across the whole project.
 
@@ -467,17 +467,17 @@ across the whole project.
 **My blocks** are the blocks stored in this project.
 
 1. **New block** asks for a name and opens the block editor ([Drawing blocks](/help/guides/drawing-blocks)).
-2. **Import blocks** reads blocks from a \`.rrqbl\` file or from another project; tick the ones to add.
+2. **Import blocks** reads blocks from a \`.rrqbl\` file or from another project. Tick the ones to add.
 3. On a block's **Actions** menu: **Edit**, **Edit a copy**, **Preview**, **Details**,
-   **Export (.rrqbl)**, **Move earlier / later**, **Delete**, and — for the My library links —
-   **Add to my library…** or **Sync to my library**. Small icons on a card show that the block is
+   **Export (.rrqbl)**, **Move earlier / later**, **Delete**, plus **Add to my library…** or **Sync to my library** for the My library
+   links. Small icons on a card show that the block is
    placed in a quilt, is in My library, or has changed since it was saved there.
 4. **Library blocks** lists blocks from the built-in set and your libraries, grouped by library and
-   category. Tick the ones to use in this project's quilts; you can't edit them directly. **Edit
+   category. Tick the ones to use in this project's quilts. You can't edit them directly. **Edit
    (make a copy)** makes your own copy, and **Create a coloration variant** keeps the drawing but
    lets you recolor it ([Block colorings](/help/guides/block-colorings)).
 
-Deleting a block that is placed in a quilt asks first; it can also remove it from those quilts.
+Deleting a block that is placed in a quilt asks first. It can also remove it from those quilts.
 Libraries themselves are covered in [Libraries](/help/guides/libraries).
 
 ## Palettes
@@ -487,12 +487,12 @@ palette tray in the quilt editor ([Colors and palettes](/help/guides/colors-and-
 
 - Tick project colors, then **Save to my library…** to keep them as a palette.
 - **Import palette (.rrqplt)** adds a palette file.
-- **Library palettes** lists palettes you can turn on; ticked ones appear in the color trays.
+- **Library palettes** lists palettes you can turn on. Ticked ones appear in the color trays.
 
 ## Details
 
 The **Details** tab holds the project's title, author, license, units (**Inches** or
-**Centimeters**), and notes; see [Credits and licenses](/help/guides/credits-and-licenses).
+**Centimeters**), and notes. See [Credits and licenses](/help/guides/credits-and-licenses).
 `,Ge=`---
 title: Backing
 order: 100
@@ -607,9 +607,9 @@ The cut length then adds **s × (1 + √2) at each end**, a total of **2(1 + √
 </svg>
 
 The **Extra length on mitered strips** setting (default 2″ / 5 cm) adds more, so you can trim after
-sewing the miter; set it to 0 to cut exact.
+sewing the miter. Set it to 0 to cut exact.
 
-## Worked examples (quilt 48″ × 60″, 4″ border; 120 × 150 cm, 10 cm border)
+## Worked examples (quilt 48″ × 60″, 4″ border, 120 × 150 cm, 10 cm border)
 
 | Strip               | Inches (s = ¼″, extra 2″)                 | Centimeters (s = 7.5 mm, extra 5 cm)        |
 | ------------------- | ----------------------------------------- | ------------------------------------------- |
@@ -637,7 +637,7 @@ on each end of the rectangle, sew diagonally, and flip. The cut sizes are the us
 ## Four at a time (4 units)
 
 Cut one large square for the geese and four small squares for the sky. The large square is the
-[quarter-square](/help/math/quarter-square-triangles) size for the finished width; the small ones
+[quarter-square](/help/math/quarter-square-triangles) size for the finished width. The small ones
 are the [half-square](/help/math/half-square-triangles) size for the finished height. See
 [Flying-geese units](/help/techniques/flying-geese-units) for the steps.
 
@@ -655,15 +655,15 @@ are the same as for four at a time, but nothing is sewn before cutting.
 
 ## Worked examples
 
-For a 4″ × 2″ finished unit: the stitch-and-flip rectangle is 4½″ × 2½″ with two 2½″ squares; four at
+For a 4″ × 2″ finished unit: the stitch-and-flip rectangle is 4½″ × 2½″ with two 2½″ squares. Four at
 a time uses one 5¼″ square for the geese and four 2⅞″ squares for the sky. For 10 × 5 cm: 11.5 × 6.5 cm
-rectangle with two 6.5 cm squares; or one 14 cm square and four 8 cm squares.
+rectangle with two 6.5 cm squares. Or one 14 cm square and four 8 cm squares.
 
 ::calc geese
 `,Ye=`---
 title: Half-square triangles
 order: 30
-summary: Cut a square, cut it once diagonally — two triangles, legs on the straight grain.
+summary: Cut a square once diagonally for two triangles with their legs on the straight grain.
 ---
 
 A half-square triangle (HST) is half of a square cut corner to corner. Its two short sides (the
@@ -677,7 +677,7 @@ Cut a square of
 > **cut = finished leg + (2 + √2) × seam allowance**
 
 and cut it once diagonally. With a ¼″ seam allowance, (2 + √2) × ¼″ ≈ 0.854″, which quilters round up
-to **⅞″** — the familiar "add ⅞″" rule. With 7.5 mm, it is ≈ 2.56 cm.
+to **⅞″**, the familiar "add ⅞″" rule. With 7.5 mm, it is ≈ 2.56 cm.
 
 Why not just add 2 × the seam allowance? The seam along the diagonal eats into the corner: the point
 of the triangle has to extend √2 × the seam allowance past the finished corner for the seams to meet.
@@ -731,7 +731,7 @@ For a finished block of side f, the block's diagonal (corner to corner) is **f �
 <svg viewBox="0 0 220 130" width="330" role="img" aria-label="Four blocks turned on point, with triangles filling the edges and corners">
   <rect x="10" y="10" width="140" height="110" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
   <polygon points="80,20 120,60 80,100 40,60" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
-  <text x="160" y="50" font-size="11" fill="currentColor">block on point;</text>
+  <text x="160" y="50" font-size="11" fill="currentColor">block on point,</text>
   <text x="160" y="67" font-size="11" fill="currentColor">triangles fill</text>
   <text x="160" y="84" font-size="11" fill="currentColor">edges and corners</text>
 </svg>
@@ -744,13 +744,13 @@ For a finished block of side f, the block's diagonal (corner to corner) is **f �
 | 25 cm          | 35.36 cm       | 39 cm square (38.98 cm)             | 20.5 cm square (20.24 cm)   |
 
 The calculator gives sizes for one side triangle square (it makes 4 triangles) and one corner square
-(2 triangles); the number you need depends on the layout.
+(2 triangles). The number you need depends on the layout.
 
 ::calc onpoint
 `,Ze=`---
 title: Quarter-square triangles
 order: 40
-summary: Cut a square, cut both diagonals — four triangles, long side on the straight grain.
+summary: Cut a square, cut both diagonals for four triangles, long side on the straight grain.
 ---
 
 A quarter-square triangle (QST) is a square cut into quarters with both diagonals. Its **long side**
@@ -828,13 +828,13 @@ summary: The strip of fabric inside every seam, and why every cut size adds it.
 ---
 
 The seam allowance (s) is the strip of fabric between the cut edge and the stitching line. Quilt
-patterns list **finished** sizes (what a piece measures once sewn into the quilt); to cut a piece you
+patterns list **finished** sizes (what a piece measures once sewn into the quilt). To cut a piece you
 add a seam allowance on every edge that will be sewn.
 
 ## The standard
 
 Quilters use **¼″** in inches, and **7.5 mm** (a little more than ¼″) in metric. The app uses these
-by default. Change the seam allowance in the Print tab's options; every cut size, template, and
+by default. Change the seam allowance in the Print tab's options. Every cut size, template, and
 calculator in Help follows it.
 
 ## Why it matters
@@ -844,7 +844,7 @@ measure: three strips cut 2″ wide (5 cm) and sewn together should measure exac
 needle position or presser foot until they do. Accuracy matters more than the exact value, so use the
 same allowance throughout a project.
 
-<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A cut square with a dashed stitching line inside it; the gap is the seam allowance">
+<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A cut square with a dashed stitching line inside it. The gap is the seam allowance">
   <rect x="10" y="10" width="100" height="90" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
   <rect x="25" y="25" width="70" height="60" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
   <text x="125" y="40" font-size="11" fill="currentColor">solid: cut edge</text>
@@ -856,10 +856,10 @@ same allowance throughout a project.
 
 - A square or rectangle adds **2 × s** to each dimension (one seam on each side). See
   [Squares and rectangles](/help/math/squares-and-rectangles).
-- Triangles add more than 2 × s, because their points and angled seams need extra; see
+- Triangles add more than 2 × s, because their points and angled seams need extra. See
   [Half-square triangles](/help/math/half-square-triangles) and
   [Quarter-square triangles](/help/math/quarter-square-triangles).
-- The final size is rounded up to a mark on the ruler; see [Rounding](/help/math/rounding).
+- The final size is rounded up to a mark on the ruler. See [Rounding](/help/math/rounding).
 `,et=`---
 title: Square in a square
 order: 60
@@ -895,7 +895,7 @@ cut once diagonally to make 2 triangles.
 | 4″            | 3.328″ → 3⅜″ square   | 2 × 2⅞″ square            |
 | 10 cm         | 8.57 cm → 9 cm square | 2 × 8 cm square           |
 
-The calculator rounds up to your ruler; see [Rounding](/help/math/rounding). For several units at
+The calculator rounds up to your ruler. See [Rounding](/help/math/rounding). For several units at
 once, see [Square-in-a-square units](/help/techniques/square-in-a-square-units).
 
 ::calc sqinsq
@@ -912,7 +912,7 @@ grows by two of them.
 
 > **cut = finished size + 2 × seam allowance**
 
-Do it once for each side of a rectangle. With a ¼″ seam allowance that is the familiar "add ½″"; with
+Do it once for each side of a rectangle. With a ¼″ seam allowance that is the familiar "add ½″". With
 7.5 mm it is "add 1.5 cm".
 
 <svg viewBox="0 0 220 110" width="330" role="img" aria-label="A rectangle with the finished area dashed inside it, a seam allowance on every side">
@@ -931,7 +931,7 @@ Do it once for each side of a rectangle. With a ¼″ seam allowance that is the
 | 8 cm square  | 9.5 cm        | 9.5 cm square    |
 | 15 cm × 8 cm | 16.5 × 9.5 cm | 16.5 × 9.5 cm    |
 
-These already land on a ruler mark. When they don't, the cut is rounded up; see
+These already land on a ruler mark. When they don't, the cut is rounded up. See
 [Rounding](/help/math/rounding).
 
 ## Calculators
@@ -989,15 +989,15 @@ order: 10
 summary: The RRQuilts project, Creative Commons licenses, and places to learn quilting.
 ---
 
-These links lead off the app and need an internet connection. Each opens in a new tab; nothing is
+These links lead off the app and need an internet connection. Each opens in a new tab. Nothing is
 fetched until you follow it.
 
 ## RRQuilts
 
-- [RRQuilts on GitHub](https://github.com/RagingRoosevelt/RRQuilts) — the source code (MIT licensed).
-- [Report a problem or suggest an idea](https://github.com/RagingRoosevelt/RRQuilts/issues) — GitHub
+- [RRQuilts on GitHub](https://github.com/RagingRoosevelt/RRQuilts): the source code (MIT licensed).
+- [Report a problem or suggest an idea](https://github.com/RagingRoosevelt/RRQuilts/issues): GitHub
   issues.
-- [The project file format](https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v1.json) — the JSON
+- [The project file format](https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v1.json): the JSON
   Schema for \`.rrq\` files, for anyone writing tools that read them.
 
 ## Licenses
@@ -1005,24 +1005,24 @@ fetched until you follow it.
 Blocks, palettes, and packs carry a license that says what others may do with them (see
 [Credits and licenses](/help/guides/credits-and-licenses)).
 
-- [About the Creative Commons licenses](https://creativecommons.org/share-your-work/cclicenses/) —
+- [About the Creative Commons licenses](https://creativecommons.org/share-your-work/cclicenses/):
   what BY, SA, NC, and ND mean.
-- [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — share and adapt, with credit.
-- [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) — the same, and adaptations keep
+- [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): share and adapt, with credit.
+- [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): the same, and adaptations keep
   the license.
-- [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) — as BY-SA, non-commercial
+- [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): as BY-SA, non-commercial
   only.
-- [CC0 / Public Domain](https://creativecommons.org/public-domain/cc0/) — no conditions.
+- [CC0 / Public Domain](https://creativecommons.org/public-domain/cc0/): no conditions.
 
 ## Learning to quilt
 
-- [Quilting on Wikipedia](https://en.wikipedia.org/wiki/Quilting) — history, terms, and techniques.
-- [The International Quilt Museum](https://www.internationalquiltmuseum.org/) — collections and
+- [Quilting on Wikipedia](https://en.wikipedia.org/wiki/Quilting): history, terms, and techniques.
+- [The International Quilt Museum](https://www.internationalquiltmuseum.org/): collections and
   exhibitions of historic and contemporary quilts.
-- [The Quilt Alliance](https://quiltalliance.org/) — documenting and sharing quilts and their makers'
+- [The Quilt Alliance](https://quiltalliance.org/): documenting and sharing quilts and their makers'
   stories.
-- [Quilt Index](https://quiltindex.org/) — a searchable database of documented quilts and patterns.
-- Your local quilt guild or quilt shop — the best place to learn hands-on.
+- [Quilt Index](https://quiltindex.org/): a searchable database of documented quilts and patterns.
+- Your local quilt guild or quilt shop: the best place to learn hands-on.
 `,it=`---
 title: Continuous mitered binding
 order: 10
@@ -1030,7 +1030,7 @@ summary: Join binding strips into one long strip, sew it on with mitered corners
 ---
 
 Continuous binding is one long folded strip sewn around the whole quilt, with a neat 45° miter at
-each corner. The calculator gives the number of strips to cut; the binding width and the fabric
+each corner. The calculator gives the number of strips to cut. The binding width and the fabric
 rounding come from your print settings.
 
 ## What to cut
@@ -1131,8 +1131,8 @@ summary: Make flying geese with stitch and flip, or four at a time from one larg
 ---
 
 A flying geese unit is a rectangle twice as wide as it is tall: a large triangle (the goose) with a
-small triangle (sky) on each side. The formulas are in [flying geese](/help/math/flying-geese);
-the calculator gives the cut sizes for each method.
+small triangle (sky) on each side. The formulas are in [flying geese](/help/math/flying-geese).
+The calculator gives the cut sizes for each method.
 
 ## What to cut
 
@@ -1161,7 +1161,7 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
    open toward the corner.
 4. Repeat on the other end with the second square, so the two lines make a point at the center.
 
-<svg viewBox="0 0 220 90" width="330" role="img" aria-label="Both small squares sewn on; the two diagonals meet to form the point of the goose">
+<svg viewBox="0 0 220 90" width="330" role="img" aria-label="Both small squares sewn on. The two diagonals meet to form the point of the goose">
   <rect x="20" y="20" width="160" height="60" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="20,80 80,20 20,20" fill="currentColor" fill-opacity="0.3" stroke="currentColor"/>
   <polygon points="180,80 120,20 180,20" fill="currentColor" fill-opacity="0.3" stroke="currentColor"/>
@@ -1204,7 +1204,7 @@ summary: Make two, four, or eight half-square triangle units at a time, then tri
 
 A half-square triangle unit is a square made of two triangles of different fabrics. Making several at
 once is faster and more accurate than cutting and sewing single triangles. The math is in
-[half-square triangles](/help/math/half-square-triangles); the calculator gives the squares to
+[half-square triangles](/help/math/half-square-triangles). The calculator gives the squares to
 cut for each method.
 
 ## What to cut

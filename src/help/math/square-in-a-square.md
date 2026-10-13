@@ -33,7 +33,7 @@ cut once diagonally to make 2 triangles.
 | 4″            | 3.328″ → 3⅜″ square   | 2 × 2⅞″ square            |
 | 10 cm         | 8.57 cm → 9 cm square | 2 × 8 cm square           |
 
-The calculator rounds up to your ruler; see [Rounding](/help/math/rounding). For several units at
+The calculator rounds up to your ruler. See [Rounding](/help/math/rounding). For several units at
 once, see [Square-in-a-square units](/help/techniques/square-in-a-square-units).
 
 ::calc sqinsq

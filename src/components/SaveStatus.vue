@@ -35,7 +35,7 @@ const LOOKS: Record<SaveStatus, { color: string; label: string }> = {
   new: { color: 'grey', label: 'Not saved yet' },
   saved: { color: 'positive', label: 'Saved to file' },
   unsaved: { color: 'warning', label: 'Unsaved changes (draft kept)' },
-  'unsaved-no-draft': { color: 'negative', label: 'Draft not kept — save to file' },
+  'unsaved-no-draft': { color: 'negative', label: 'Draft not kept: save to file' },
   'read-only': { color: 'grey', label: 'Read-only' },
 };
 const look = computed(() => LOOKS[project.status]);

@@ -9,7 +9,7 @@ Every project, quilt and block has an author and a license, and copies remember 
 ## Edit the details
 
 1. Open the item: the project's **Details** tab, a quilt's **Details** tab, or a block's **Details** tab in the block editor.
-2. Edit **Title**, **Author** and **Notes**. Leave **Author** empty to show "anonymous"; your default name comes from **Settings › You**.
+2. Edit **Title**, **Author** and **Notes**. Leave **Author** empty to show "anonymous". Your default name comes from **Settings › You**.
 3. Choose a **License**. Each option explains its terms underneath.
 
 A new project starts as **CC BY-SA 4.0**. New items copy the project's license at that moment and keep it if the project license changes later.
@@ -18,10 +18,10 @@ A new project starts as **CC BY-SA 4.0**. New items copy the project's license a
 
 | License             | Meaning                                                  |
 | ------------------- | -------------------------------------------------------- |
-| Public domain       | Traditional or out-of-copyright design; free for any use |
-| CC0 1.0             | No rights reserved; no credit needed                     |
-| CC BY-SA 4.0        | Credit required; changes keep this license               |
-| CC BY-NC-SA 4.0     | Credit required; no selling; changes keep this license   |
+| Public domain       | Traditional or out-of-copyright design, free for any use |
+| CC0 1.0             | No rights reserved, no credit needed                     |
+| CC BY-SA 4.0        | Credit required, changes keep this license               |
+| CC BY-NC-SA 4.0     | Credit required, no selling, changes keep this license   |
 | All rights reserved | Only the author may copy, change or share it             |
 
 ## How credit builds up

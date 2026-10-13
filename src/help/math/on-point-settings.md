@@ -22,7 +22,7 @@ For a finished block of side f, the block's diagonal (corner to corner) is **f Ã
 <svg viewBox="0 0 220 130" width="330" role="img" aria-label="Four blocks turned on point, with triangles filling the edges and corners">
   <rect x="10" y="10" width="140" height="110" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
   <polygon points="80,20 120,60 80,100 40,60" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
-  <text x="160" y="50" font-size="11" fill="currentColor">block on point;</text>
+  <text x="160" y="50" font-size="11" fill="currentColor">block on point,</text>
   <text x="160" y="67" font-size="11" fill="currentColor">triangles fill</text>
   <text x="160" y="84" font-size="11" fill="currentColor">edges and corners</text>
 </svg>
@@ -35,6 +35,6 @@ For a finished block of side f, the block's diagonal (corner to corner) is **f Ã
 | 25 cm          | 35.36 cm       | 39 cm square (38.98 cm)             | 20.5 cm square (20.24 cm)   |
 
 The calculator gives sizes for one side triangle square (it makes 4 triangles) and one corner square
-(2 triangles); the number you need depends on the layout.
+(2 triangles). The number you need depends on the layout.
 
 ::calc onpoint

@@ -6,7 +6,7 @@ summary: Make two, four, or eight half-square triangle units at a time, then tri
 
 A half-square triangle unit is a square made of two triangles of different fabrics. Making several at
 once is faster and more accurate than cutting and sewing single triangles. The math is in
-[half-square triangles](/help/math/half-square-triangles); the calculator gives the squares to
+[half-square triangles](/help/math/half-square-triangles). The calculator gives the squares to
 cut for each method.
 
 ## What to cut

@@ -14,7 +14,7 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 ## Interface
 
 - **Theme**: **Auto**, **Light** or **Dark**.
-- **Use the system accent color**: where the browser shares it; otherwise blue.
+- **Use the system accent color**: where the browser shares it, otherwise blue.
 - **Units for new projects**: **Inches** or **Centimeters**. An open project's units are in its **Details** tab.
 - **Editor layout**: **Toolbar left, sidebar right** or **Sidebar left, toolbar right**.
 

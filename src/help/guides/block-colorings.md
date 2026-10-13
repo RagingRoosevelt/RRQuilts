@@ -12,12 +12,12 @@ which one each placed block starts from.
 1. Open the block in the block editor and choose the **Color** tab.
 2. In the sidebar, open **Colors** and click a swatch. (Use **+** to add one.)
 3. Pick **Paint** on the left rail and tap a patch. **Spray (same color)** recolors every patch
-   with the same color; **Eyedropper** picks up a patch's color; **Pan** moves the view.
+   with the same color, **Eyedropper** picks up a patch's color, and **Pan** moves the view.
 4. Undo with Ctrl+Z.
 
 ## Several colorings
 
-Under **Colorings** in the sidebar, each coloring is a thumbnail; click one to work on it.
+Under **Colorings** in the sidebar, each coloring is a thumbnail. Click one to work on it.
 
 - **Save as new coloring** copies the current one so you can change it freely.
 - **Rename** names it.

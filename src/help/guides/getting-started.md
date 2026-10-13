@@ -5,31 +5,31 @@ summary: Start a quilt, save it to a file, open it again, recover unsaved work, 
 ---
 
 RRQuilts runs entirely in your browser: there is no account, and nothing is sent to a server. Your
-work lives in a **project** — one file (ending in `.rrq`) that holds your quilts, blocks, and colors.
+work lives in a **project**: one file (ending in `.rrq`) that holds your quilts, blocks, and colors.
 
 ## Start a quilt
 
 1. On the home page (the **RRQuilts** button in the header), choose **Start a quilt**.
-2. The wizard has three steps; use **Next** to move on, or click a step's title.
+2. The wizard has three steps. Use **Next** to move on, or click a step's title.
    - **Blocks**: **Columns**, **Rows**, and **Finished block size**.
    - **Sashing**: **Sashing width (0 for none)**, and **Sashing around the outside**.
    - **Borders**: **Number of borders** and the **Width of each**.
 3. Choose **Create quilt**. The quilt opens in the Design tab, ready for you to place blocks. See
    [Designing a quilt](/help/guides/designing-a-quilt).
 
-Prefer an empty project? Choose **New project** instead; it opens the project's sketchbook (see
+Prefer an empty project? Choose **New project** instead. It opens the project's sketchbook (see
 [The project sketchbook](/help/guides/sketchbook)).
 
 ## Save your project
 
 The round save button in the header has a small colored dot:
 
-| Dot    | Meaning                           |
-| ------ | --------------------------------- |
-| Grey   | **Not saved yet**                 |
-| Green  | **Saved to file**                 |
-| Orange | **Unsaved changes (draft kept)**  |
-| Red    | **Draft not kept — save to file** |
+| Dot    | Meaning                          |
+| ------ | -------------------------------- |
+| Grey   | **Not saved yet**                |
+| Green  | **Saved to file**                |
+| Orange | **Unsaved changes (draft kept)** |
+| Red    | **Draft not kept: save to file** |
 
 1. Press the save button, or **Ctrl+S**. Use **Ctrl+Shift+S** for Save as, to choose a new file.
 2. In Chrome and Edge, the app writes straight to the file you choose, and later saves update it.
@@ -38,9 +38,9 @@ The round save button in the header has a small colored dot:
 
 ## Open a project
 
-- On the home page choose **Open a project file** and pick a `.rrq` file — or drag a `.rrq` file
+- On the home page choose **Open a project file** and pick a `.rrq` file, or drag a `.rrq` file
   onto the window.
-- In browsers that can reopen files, **Recent projects** lists your latest ones; click one to open it.
+- In browsers that can reopen files, **Recent projects** lists your latest ones. Click one to open it.
 
 If you start or open something else while the current project has unsaved changes, the app asks
 first. Closing the tab with unsaved changes also asks you to confirm.
@@ -60,7 +60,7 @@ is crash insurance, not a save: it can be lost if you clear site data.
 
 After the first visit, the whole app is stored in your browser, so it works without a connection.
 You can also install it as an app from the browser's menu. When a new version is ready, the app
-shows **Update available** with a **Reload** button; it never reloads on its own, so you won't lose
+shows **Update available** with a **Reload** button. It never reloads on its own, so you won't lose
 work.
 
 ## One tab at a time

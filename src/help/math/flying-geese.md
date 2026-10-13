@@ -16,7 +16,7 @@ on each end of the rectangle, sew diagonally, and flip. The cut sizes are the us
 ## Four at a time (4 units)
 
 Cut one large square for the geese and four small squares for the sky. The large square is the
-[quarter-square](/help/math/quarter-square-triangles) size for the finished width; the small ones
+[quarter-square](/help/math/quarter-square-triangles) size for the finished width. The small ones
 are the [half-square](/help/math/half-square-triangles) size for the finished height. See
 [Flying-geese units](/help/techniques/flying-geese-units) for the steps.
 
@@ -34,8 +34,8 @@ are the same as for four at a time, but nothing is sewn before cutting.
 
 ## Worked examples
 
-For a 4″ × 2″ finished unit: the stitch-and-flip rectangle is 4½″ × 2½″ with two 2½″ squares; four at
+For a 4″ × 2″ finished unit: the stitch-and-flip rectangle is 4½″ × 2½″ with two 2½″ squares. Four at
 a time uses one 5¼″ square for the geese and four 2⅞″ squares for the sky. For 10 × 5 cm: 11.5 × 6.5 cm
-rectangle with two 6.5 cm squares; or one 14 cm square and four 8 cm squares.
+rectangle with two 6.5 cm squares. Or one 14 cm square and four 8 cm squares.
 
 ::calc geese

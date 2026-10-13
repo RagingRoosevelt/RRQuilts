@@ -24,7 +24,7 @@ The browser print dialog opens. Print at 100% scale, not "fit to page", and chec
 ## Set the options
 
 - **Paper**: paper size, **Portrait** or **Landscape**, and **Margins**.
-- **Cutting**: **Seam allowance**, **Cut size rounding** (up to the next 1/8 in or 5 mm, or none), and for quilts **Extra length on mitered strips** (trimmed after sewing; 0 to cut exact).
+- **Cutting**: **Seam allowance**, **Cut size rounding** (up to the next 1/8 in or 5 mm, or none), and for quilts **Extra length on mitered strips** (trimmed after sewing, 0 to cut exact).
 - **Fabric** (quilts): **Fabric rounding**, **Backing extra per side**, **Binding strip width**.
 - **Templates**: **Include seam allowance**, **Trimmed points**, **Shaded seam allowance**, **Cutting line**, **Sewing line**, **Grain lines**, **Mirror templates**, **Curve alignment marks**, **Tint by fabric**, **One template per page**, which labels to print on each template, and a **Scale square on each template**.
 - **Look**: **Line weight** and **Pictures as outlines only**.

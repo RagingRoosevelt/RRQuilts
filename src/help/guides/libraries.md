@@ -17,7 +17,7 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
 3. Use **Group blocks by** to arrange blocks by **Nothing**, **Category**, **Tags** or **Styles**.
 4. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)** (palettes: **Export (.rrqplt)**).
 
-Pack items cannot be renamed or changed; use **Copy to my library** and edit the copy. The copy keeps credit for the original author ([Credits and licenses](/help/guides/credits-and-licenses)).
+Pack items cannot be renamed or changed. Use **Copy to my library** and edit the copy. The copy keeps credit for the original author ([Credits and licenses](/help/guides/credits-and-licenses)).
 
 ## Put a project block or palette in My library
 
@@ -33,7 +33,7 @@ Tick **Use ... in this project** on a block in the project's **Blocks** tab. A p
 
 1. On **Libraries**, click **Back up…**.
 2. Choose **My library** and/or **Installed packs**, then click **Back up**. You get one `.rrqlib` file.
-3. To restore, click **Import** and pick the file. If you already have items, choose **Merge into my library (keep what's here)** or **Replace my library with the backup's**; for packs already installed choose **Keep** or **Replace**. Then click **Restore**.
+3. To restore, click **Import** and pick the file. If you already have items, choose **Merge into my library (keep what's here)** or **Replace my library with the backup's**. For packs already installed, choose **Keep** or **Replace**. Then click **Restore**.
 
 Libraries live in browser storage. If the page warns that storage is blocked, back up before closing.
 
@@ -44,7 +44,7 @@ Click **Import** and choose a `.rrqlib` pack (or a `.rrqplt` palette). To remove
 ## Share your own pack
 
 1. Click **Share as pack…** (needs at least one item in My library).
-2. Fill in **Name**, **Description**, **Author** and **License**. Items others have locked to a license can raise the minimum; items marked all rights reserved by someone else are left out and listed.
+2. Fill in **Name**, **Description**, **Author** and **License**. Items others have locked to a license can raise the minimum. Items marked all rights reserved by someone else are left out and listed.
 3. Click **Download pack** and send the `.rrqlib` file.
 
-Packs contain only what you chose; a pack never includes your projects.
+Packs contain only what you chose. A pack never includes your projects.
