@@ -132,6 +132,9 @@
         aria-label="Add color"
         @click="editorDialog?.show()"
       />
+      <div v-if="sidebar" class="text-caption text-grey-7 q-px-xs" style="width: 100%">
+        More library colors: tick their palettes in the project's Palettes tab.
+      </div>
       <!-- Project colors, In use, then each library with its picked palettes (nested sections). -->
       <template v-for="node in colorTree" :key="node.label">
         <TraySection
