@@ -622,19 +622,19 @@
             </q-select>
           </div>
         </q-card-section>
-        <q-card-section v-if="unpicking.options.length && quilts.length" class="q-pt-none">
+        <q-card-section v-if="unpicking.options.length && affected.length" class="q-pt-none">
           <q-carousel
             v-model="previewQuilt"
             animated
             swipeable
             arrows
-            :navigation="quilts.length > 1"
+            :navigation="affected.length > 1"
             height="270px"
             control-color="primary"
             class="rounded-borders"
           >
             <q-carousel-slide
-              v-for="q in quilts"
+              v-for="q in affected"
               :key="q.id"
               :name="q.id"
               class="column no-wrap q-pt-sm"
@@ -760,7 +760,7 @@ import { useStartQuilt } from '@/composables/start-quilt';
 import { allPatches } from '@/model/blocks/patches';
 import { attribution, copyBlock, newBlock } from '@/editor/block-ops';
 import { nearestColor } from '@/editor/color';
-import { colorsUsed, replaceColors } from '@/editor/colors';
+import { colorsUsed, quiltColors, replaceColors } from '@/editor/colors';
 import { authorOf, effectiveLicense, licenseName, priorCredits } from '@/model/credits';
 import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
@@ -944,9 +944,14 @@ const applyRemoval = (u: NonNullable<typeof unpicking.value>) =>
   project.change((d) => removal(d, u));
 /** The dialog's carousel: which quilt, and the project as it would be after the swap. */
 const previewQuilt = ref('');
-watch(unpicking, (u) => {
-  if (u && !quilts.value.some((q) => q.id === previewQuilt.value))
-    previewQuilt.value = quilts.value[0]?.id ?? '';
+/** Quilts showing a color being swapped. */
+const affected = computed(() => {
+  const going = new Set(unpicking.value?.used.map((c) => c.id) ?? []);
+  return quilts.value.filter((q) => [...quiltColors(project.doc!, q)].some((id) => going.has(id)));
+});
+watch(unpicking, () => {
+  if (!affected.value.some((q) => q.id === previewQuilt.value))
+    previewQuilt.value = affected.value[0]?.id ?? '';
 });
 const afterDoc = computed(() =>
   unpicking.value

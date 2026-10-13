@@ -47,3 +47,14 @@ export function replaceColors(d: Draft<RrqDoc>, map: ReadonlyMap<string, string>
       if (to && 'color' in f) f.color = to;
     }
 }
+
+/** Colors a quilt shows: its own colorings' and those of the blocks placed in it. */
+export function quiltColors(doc: RrqDoc, quilt: RrqDoc['project']['quilts'][number]) {
+  const placed = new Set(Object.values(quilt.layers[0].slots).map((c) => c.block));
+  return new Set(
+    [
+      ...Object.values(quilt.colorings),
+      ...doc.project.blocks.filter((b) => placed.has(b.id)).flatMap((b) => b.colorings),
+    ].flatMap((c) => Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : []))),
+  );
+}
