@@ -1593,7 +1593,7 @@ function showPlacements() {
 }
 .save-pick {
   position: absolute;
-  bottom: 2px;
+  top: 2px;
   left: 2px;
   opacity: 0;
   transition: opacity 0.15s;
@@ -1606,8 +1606,8 @@ function showPlacements() {
 }
 .edit-color {
   position: absolute;
-  top: -6px;
-  left: -6px;
+  bottom: -6px;
+  right: -6px;
   opacity: 0;
   transition: opacity 0.15s;
 }
