@@ -257,6 +257,12 @@ const editor = useEditorStore();
 // Sidebar opens with each editor (hiding it isn't remembered).
 // Open on arrival, except on phones, where it slides over the canvas.
 editor.sidebar = !$q.screen.xs;
+// Details lives in the sidebar, so it opens whenever that tab is shown.
+watch(
+  () => editor.blockMode,
+  (m) => m === 'details' && (editor.sidebar = true),
+  { immediate: true },
+);
 const fill = (offset: number) => ({ height: `calc(100vh - ${offset}px)` });
 
 const anyBlock = computed(() => project.doc?.project.blocks.find((b) => b.id === route.params.id));

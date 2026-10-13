@@ -195,6 +195,12 @@ const editor = useEditorStore();
 // Sidebar opens with each editor (hiding it isn't remembered).
 // Open on arrival, except on phones, where it slides over the canvas.
 editor.sidebar = !$q.screen.xs;
+// Details lives in the sidebar, so it opens whenever that tab is shown.
+watch(
+  () => editor.mode,
+  (m) => m === 'details' && (editor.sidebar = true),
+  { immediate: true },
+);
 const library = useLibraryStore();
 const appSettings = useSettingsStore();
 
