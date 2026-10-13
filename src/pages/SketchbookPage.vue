@@ -1586,8 +1586,8 @@ function showPlacements() {
 }
 .remove-color {
   position: absolute;
-  bottom: 0;
-  right: 0;
+  bottom: 4px;
+  right: 4px;
   opacity: 0;
   transition: opacity 0.15s;
 }
@@ -1606,8 +1606,8 @@ function showPlacements() {
 }
 .edit-color {
   position: absolute;
-  bottom: 0;
-  left: 0;
+  bottom: 4px;
+  left: 4px;
   opacity: 0;
   transition: opacity 0.15s;
 }
