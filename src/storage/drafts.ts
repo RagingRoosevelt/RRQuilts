@@ -29,9 +29,9 @@ export async function markDraftClean(id: string) {
 
 export const removeDraft = (id: string) => idb.delete('drafts', id);
 
-/** Every project's latest draft, newest first (the home page's backed-up projects). */
-export const allDrafts = async (): Promise<Draft[]> =>
-  (await idb.getAll<Draft>('drafts')).sort((a, b) => b.savedAt - a.savedAt);
-
 /** Drafts with unsaved work, newest first (what the restore prompt offers). */
-export const unsavedDrafts = async () => (await allDrafts()).filter((d) => d.dirty);
+export async function unsavedDrafts(): Promise<Draft[]> {
+  return (await idb.getAll<Draft>('drafts'))
+    .filter((d) => d.dirty)
+    .sort((a, b) => b.savedAt - a.savedAt);
+}

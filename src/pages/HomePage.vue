@@ -24,7 +24,7 @@
           outline
           class="col"
           icon="restore"
-          label="Open backed-up project"
+          label="Restore unsaved project"
           no-caps
           @click="backups?.show()"
         />
@@ -45,7 +45,7 @@
       <q-btn flat icon="collections_bookmark" label="Libraries" no-caps to="/libraries" />
       <q-btn flat icon="settings" label="Settings" no-caps @click="settingsOpen = true" />
     </div>
-    <RestoreDrafts ref="backups" all />
+    <RestoreDrafts ref="backups" manual />
     <QuiltWizard
       ref="wizard"
       :units="settings.settings.units"

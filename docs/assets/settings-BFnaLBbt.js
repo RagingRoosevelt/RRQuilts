@@ -1,1 +1,0 @@
-import{i as e,t}from"./settings-BTqiULML.js";import{i as n}from"./index-CcsCIuFU.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};
