@@ -12,7 +12,8 @@ as a second section. and we'll have useful resources as another section."
 
 > A fourth header destination next to Home, Project, and Libraries. Spec 012 is reserved for
 > resource repositories. Help content ships with the app (works offline, constitution: no server
-> calls); only links in Resources lead off the app, and only when the user follows them.
+> calls); only links in Resources lead off the app, and only when the user follows them. All five
+> stories, calculators included, are v1.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -69,10 +70,10 @@ Formulas quilters use, explained, with the same numbers the printouts use.
    allowance), a worked example in inches and in centimeters, and a small diagram.
 3. **Given** a formula the app uses in printing, **Then** the result matches the printout for the
    same input (one source of truth for the math).
-4. **Given** a topic with a calculator (P2), **When** the user enters a finished size, **Then** it
+4. **Given** a topic with a calculator, **When** the user enters a finished size, **Then** it
    shows the cut size in the user's units and rounding.
 
-### User Story 4 - Useful resources (Priority: P2)
+### User Story 4 - Useful resources (Priority: P1)
 
 A curated list of places to learn more and get help.
 
@@ -88,7 +89,7 @@ and says the links need a connection.
    until the user follows it.
 3. **Given** Resources, **Then** other quilt software is not promoted or named.
 
-### User Story 5 - Help from where you are (Priority: P3)
+### User Story 5 - Help from where you are (Priority: P1)
 
 Screens link to the help that explains them.
 
