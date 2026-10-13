@@ -6,7 +6,7 @@ summary: Calculators, the RRQuilts project, Creative Commons licenses, and place
 
 ## Calculators
 
-Each of these Quilt math topics has a calculator that uses your seam allowance and rounding from the
+Each of these Quilt Math topics has a calculator that uses your seam allowance and rounding from the
 Print settings. They work offline.
 
 - [Squares and rectangles](/help/math/squares-and-rectangles)

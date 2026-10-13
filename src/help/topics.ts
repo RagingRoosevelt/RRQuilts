@@ -9,8 +9,8 @@
 import { marked } from 'marked';
 
 export const SECTIONS = [
-  { id: 'guides', label: 'App guides', icon: 'menu_book' },
-  { id: 'math', label: 'Quilt math', icon: 'calculate' },
+  { id: 'guides', label: 'App Guides', icon: 'menu_book' },
+  { id: 'math', label: 'Quilt Math', icon: 'calculate' },
   { id: 'techniques', label: 'Techniques', icon: 'content_cut' },
   { id: 'resources', label: 'Resources', icon: 'link' },
 ] as const;
