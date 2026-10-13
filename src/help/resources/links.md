@@ -46,6 +46,13 @@ Blocks, palettes, and packs carry a license that says what others may do with th
   non-commercial use only.
 - [CC0 / Public Domain](https://creativecommons.org/public-domain/cc0/) places no conditions on use.
 
+## Techniques we drew on
+
+- [Continuous mitered binding](https://arbeedesigns.com/pages/continuous-mitered-binding) by Arbee
+  Designs walks through sewing the binding on with mitered corners and joining the ends.
+- [Continuous binding](https://www.eobquiltdesign.com/continuous-binding) by EOB Quilt Design shows
+  the diagonal join for adding length to the binding strip, with photos of each step.
+
 ## Learning to quilt
 
 - [Quilting on Wikipedia](https://en.wikipedia.org/wiki/Quilting) covers history, terms, and techniques.
