@@ -25,7 +25,7 @@
     <div
       class="row col no-wrap"
       :class="{ reverse: appSettings.settings.sidesSwapped }"
-      style="min-height: 0"
+      style="min-height: 0; position: relative"
     >
       <!-- Toolbar: undo, and (Draw/Color) tools -->
       <div class="rail column no-wrap q-pa-xs" style="gap: 4px">
@@ -255,7 +255,8 @@ const router = useRouter();
 const project = useProjectStore();
 const editor = useEditorStore();
 // Sidebar opens with each editor (hiding it isn't remembered).
-editor.sidebar = true;
+// Open on arrival, except on phones, where it slides over the canvas.
+editor.sidebar = !$q.screen.xs;
 const fill = (offset: number) => ({ height: `calc(100vh - ${offset}px)` });
 
 const anyBlock = computed(() => project.doc?.project.blocks.find((b) => b.id === route.params.id));
@@ -526,6 +527,27 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 .reverse > .inspector {
   border-left: none;
   border-right: 1px solid rgba(128, 128, 128, 0.25);
+}
+/* Phones: the sidebar slides over the canvas, so opening it doesn't change the view. */
+@media (max-width: 599px) {
+  .inspector {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: min(320px, 85vw);
+    z-index: 5;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.25);
+  }
+  .reverse > .inspector {
+    right: auto;
+    left: 0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.25);
+  }
+  :global(.body--dark) .inspector {
+    background: var(--q-dark-page);
+  }
 }
 .readout {
   position: absolute;
