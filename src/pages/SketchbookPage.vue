@@ -228,7 +228,6 @@
             >
               <q-checkbox
                 class="pick-box"
-                dense
                 :model-value="isPicked(b.id)"
                 :disable="project.readOnly || inUse(b.id)"
                 :aria-label="`Use ${b.notecard.name} in this project`"
@@ -1637,8 +1636,8 @@ function showPlacements() {
 }
 .card .pick-box {
   position: absolute;
-  top: 4px;
-  left: 4px;
+  top: 0;
+  left: 0;
   z-index: 1;
 }
 .card.picked {
