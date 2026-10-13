@@ -16,7 +16,8 @@ like sketchbook/worktable are fine).
 - Vue 3 + Quasar (app-vite), TypeScript strict, Pinia
 - Quasar PWA mode (Workbox) — app must work fully offline after first load
 - Vitest for unit tests
-- Docker: multi-stage `Dockerfile` — `build` target (Node, builds/tests) and `serve`
+- Docker: multi-stage `Dockerfile` — `build` target (Node on Debian slim — not Alpine: Node on musl
+  segfaulted intermittently; changing it reinstalls `node_modules`) and `serve`
   target (nginx, hosts the built site)
 - Hosting: GitHub Pages from `main` → `/docs`. Build output goes to `docs/` (committed;
   never hand-edit, never put documentation there). Base path configurable, default

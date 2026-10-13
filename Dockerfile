@@ -1,5 +1,6 @@
 # Build tooling: Node only. Source is bind-mounted at /app by the Makefile.
-FROM node:24.21.0-alpine3.24 AS build
+# Debian (glibc), not Alpine: Node on musl's small thread stacks segfaulted intermittently (dev, lint).
+FROM node:24.21.0-bookworm-slim AS build
 WORKDIR /app
 
 # Static host for the built site in docs/ (self-hosting or local preview).

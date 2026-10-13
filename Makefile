@@ -36,7 +36,8 @@ image:
 	@mkdir -p "$(NPM_CACHE)"
 	@docker build -q --target build -t $(IMAGE) . >/dev/null
 
-node_modules/.package-lock.json: package-lock.json src-pwa/package-lock.json | image
+# Dockerfile: a new base image needs its own native packages (esbuild, rollup), so reinstall.
+node_modules/.package-lock.json: package-lock.json src-pwa/package-lock.json Dockerfile | image
 	$(RUN) sh -c 'npm ci && npm ci --prefix src-pwa'
 
 install: image ## Install dependencies (npm ci)
