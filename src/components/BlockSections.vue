@@ -3,22 +3,20 @@
        default slot renders each block's card. Open/closed state is remembered per library. -->
   <div
     v-if="title || sections.some((x) => x.label)"
-    class="row items-center no-wrap q-mb-sm"
+    :id="sectionAnchor(lib, ROOT)"
+    class="row items-center no-wrap q-mb-sm anchor"
     :class="{ 'q-mt-md': title }"
     style="gap: 4px"
   >
-    <button
-      v-if="title"
-      class="sec-head root-head"
-      :aria-expanded="isOpen(ROOT)"
-      @click="toggle(ROOT)"
-    >
-      <q-icon :name="isOpen(ROOT) ? 'expand_more' : 'chevron_right'" size="20px" />
-      {{ title }}
-      <span class="text-grey-6 text-weight-regular">
-        · {{ sections.reduce((n, x) => n + (x.parent ? 0 : x.count), 0) }}</span
-      >
-    </button>
+    <h3 v-if="title" class="sec-h">
+      <button class="sec-head root-head" :aria-expanded="isOpen(ROOT)" @click="toggle(ROOT)">
+        <q-icon :name="isOpen(ROOT) ? 'expand_more' : 'chevron_right'" size="20px" />
+        {{ title }}
+        <span class="text-grey-6 text-weight-regular">
+          · {{ sections.reduce((n, x) => n + (x.parent ? 0 : x.count), 0) }}</span
+        >
+      </button>
+    </h3>
     <q-btn
       v-if="sections.some((x) => x.label)"
       v-bind="
@@ -33,21 +31,19 @@
     <div
       v-if="sec.label"
       v-show="!sec.parent || isOpen(sec.parent)"
-      class="row items-center no-wrap q-mb-xs"
+      :id="sectionAnchor(lib, sec.key)"
+      class="row items-center no-wrap q-mb-xs anchor"
       :class="{ 'cat-row': !sec.parent, compact }"
       :style="indent(sec)"
       style="gap: 4px"
     >
-      <button
-        class="sec-head"
-        :class="sec.parent ? 'sub-head' : 'cat-head'"
-        :aria-expanded="isOpen(sec.key)"
-        @click="toggle(sec.key)"
-      >
-        <q-icon :name="isOpen(sec.key) ? 'expand_more' : 'chevron_right'" size="20px" />
-        {{ sec.label }} <span class="text-grey-6">· {{ sec.count }}</span>
-        <slot name="header" :section="sec" />
-      </button>
+      <h3 class="sec-h">
+        <button class="sec-head cat-head" :aria-expanded="isOpen(sec.key)" @click="toggle(sec.key)">
+          <q-icon :name="isOpen(sec.key) ? 'expand_more' : 'chevron_right'" size="20px" />
+          {{ sec.label }} <span class="text-grey-6">· {{ sec.count }}</span>
+          <slot name="header" :section="sec" />
+        </button>
+      </h3>
       <slot name="actions" :section="sec" :blocks="blocksIn(sec)" />
       <q-btn
         v-if="!sec.parent && sections.some((x) => x.parent === sec.key)"
@@ -72,6 +68,7 @@
 </template>
 
 <script setup lang="ts">
+import { ROOT, sectionAnchor, sectionKey } from '@/composables/block-sections';
 import type { BlockSection } from '@/model/library';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -83,13 +80,13 @@ const props = defineProps<{
   title?: string;
   compact?: boolean;
 }>();
-const ROOT = '\u0000library';
+
 /** Section headers sit under the library header, subcategories under their category (blocks don't indent). */
 const indent = (sec: BlockSection) => ({
   marginLeft: `${((props.title ? 1 : 0) + (sec.parent ? 1 : 0)) * 20}px`,
 });
 const settings = useSettingsStore();
-const key = (k: string) => `libsec:${props.lib}:${k}`;
+const key = (k: string) => sectionKey(props.lib, k);
 const isOpen = (k: string) => !settings.settings.collapsedSections.includes(key(k));
 /**
  * One button for a level's children: when the level or any child is closed it expands them all
@@ -138,7 +135,11 @@ function toggle(k: string) {
   cursor: pointer;
   font: inherit;
 }
-/* Category headings: top level bold with a rule under it, subcategories a step smaller. */
+/* Category headings: all one style (indent shows the level); top level ruled. */
+/* Headings scrolled to (table of contents) clear the app header. */
+.anchor {
+  scroll-margin-top: 64px;
+}
 .cat-row {
   margin-top: 12px;
   padding-bottom: 2px;
@@ -146,6 +147,14 @@ function toggle(k: string) {
 }
 .cat-row.compact {
   margin-top: 6px;
+}
+/* Headings: library title h2 (page); "Blocks" and every category h3 (indent shows the level). */
+.sec-h {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: normal;
 }
 .root-head {
   font-size: 1.25rem;
@@ -157,11 +166,6 @@ function toggle(k: string) {
 }
 .compact .cat-head {
   font-size: 0.95rem;
-}
-.sub-head {
-  font-size: 0.95rem;
-  font-weight: 600;
-  opacity: 0.8;
 }
 .tiles {
   display: flex;

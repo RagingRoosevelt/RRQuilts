@@ -793,7 +793,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
@@ -817,6 +817,7 @@ import ColorPill from '@/components/ColorPill.vue';
 import { itemId } from '@/model/identity';
 import FullName from '@/components/FullName.vue';
 import { useLibraryStore } from '@/stores/library';
+import { revealSection } from '@/composables/block-sections';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthor } from '@/composables/author';
 import { useAskCategory } from '@/composables/category';
@@ -1273,27 +1274,18 @@ function showOriginal(v: Block) {
     $q.notify({ message: 'The original block is no longer in your libraries.' });
     return;
   }
-  // BlockSections' keys: the library header ('\u0000library'), the section, its category.
-  const open = ['\u0000library', sec.key, sec.parent].map((k) => `libsec:${g.lib}:${k}`);
-  settings.settings.collapsedSections = settings.settings.collapsedSections.filter(
-    (k) => !open.includes(k),
-  );
-  void nextTick(() => {
-    // Glow once the scroll stops, so it catches the eye (timer: already in view / no scrollend).
-    let done = false;
-    const glow = () => {
-      if (done) return;
-      done = true;
-      document.removeEventListener('scrollend', glow, true);
-      flashed.value = id;
-      setTimeout(() => (flashed.value = undefined), 1600);
-    };
-    document.addEventListener('scrollend', glow, true);
-    setTimeout(glow, 1000);
-    document
-      .getElementById(`lib-block-${id}`)
-      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  });
+  // Glow once the scroll stops, so it catches the eye (timer: already in view / no scrollend).
+  let done = false;
+  const glow = () => {
+    if (done) return;
+    done = true;
+    document.removeEventListener('scrollend', glow, true);
+    flashed.value = id;
+    setTimeout(() => (flashed.value = undefined), 1600);
+  };
+  document.addEventListener('scrollend', glow, true);
+  setTimeout(glow, 1000);
+  void revealSection(g.lib, sec, `lib-block-${id}`);
 }
 
 /** Your own coloring of a library block, in My blocks: same drawing, locked. */

@@ -9,7 +9,7 @@
         aria-label="Filters"
         @click="filtersOpen = !filtersOpen"
       />
-      <div class="text-h6 col" style="min-width: 120px">Libraries</div>
+      <h1 class="page-title col" style="min-width: 120px">Libraries</h1>
       <q-btn outline no-caps icon="upload_file" label="Import" @click="importFile">
         <q-tooltip>A backup or pack (.rrqlib), or a palette (.rrqplt)</q-tooltip>
       </q-btn>
@@ -107,6 +107,28 @@
           outlined
           label="Group blocks by"
         />
+        <!-- Table of contents (Blocks view): each library and its sections; click to jump. -->
+        <template
+          v-if="settings.settings.libraryType === 'block' && groups.some((g) => g.blocks.length)"
+        >
+          <q-separator />
+          <nav class="toc column" aria-label="Contents">
+            <template v-for="g in groups.filter((x) => x.blocks.length)" :key="g.v.doc.id">
+              <a href="#" class="toc-lib" @click.prevent="revealSection(g.v.doc.id)">{{
+                g.v.doc.name
+              }}</a>
+              <a
+                v-for="s in g.sections.filter((x) => x.label)"
+                :key="s.key"
+                href="#"
+                class="toc-sec"
+                :class="{ sub: s.parent }"
+                @click.prevent="revealSection(g.v.doc.id, s)"
+                >{{ s.label }} <span class="text-grey-6">{{ s.count }}</span></a
+              >
+            </template>
+          </nav>
+        </template>
       </div>
 
       <div class="col" style="min-width: 0">
@@ -120,7 +142,7 @@
           <div class="lib-group q-mb-md">
             <div class="row items-start q-mb-sm" style="gap: 8px">
               <div class="col">
-                <div class="text-subtitle1">{{ g.v.doc.name }}</div>
+                <h2 class="lib-name">{{ g.v.doc.name }}</h2>
                 <div class="text-caption text-grey-7">
                   <template v-if="g.v.doc.author">by {{ g.v.doc.author.name }} · </template>
                   <template v-if="g.v.doc.license">{{ licenseName(g.v.doc.license) }} · </template>
@@ -237,7 +259,7 @@
               class="row items-center q-mb-sm"
               style="gap: 8px"
             >
-              <div class="text-subtitle2">Palettes</div>
+              <h3 class="sub-title">Palettes</h3>
               <q-btn
                 v-if="g.mine"
                 flat
@@ -665,6 +687,7 @@ import type { Color } from '@/model/schema/palette';
 import { blockThumbnail } from '@/render/thumbnail';
 import { exportFile, pickFile } from '@/storage/files';
 import { useLibraryStore } from '@/stores/library';
+import { revealSection } from '@/composables/block-sections';
 import { useSettingsStore } from '@/stores/settings';
 
 const APP = import.meta.env.APP_VERSION;
@@ -1177,6 +1200,48 @@ function downloadPack() {
   border-radius: 8px;
   padding: 8px;
   min-width: 0;
+}
+/* Headings: page h1, library h2, Blocks/Palettes and categories h3. */
+.toc {
+  gap: 2px;
+}
+.toc a {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.toc a:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+.toc-lib {
+  font-weight: 600;
+  margin-top: 6px;
+}
+.toc-sec {
+  padding-left: 18px !important;
+}
+.toc-sec.sub {
+  padding-left: 34px !important;
+}
+.page-title,
+.lib-name,
+.sub-title {
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: normal;
+}
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+.lib-name {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+.sub-title {
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 .thumb {
   display: block;
