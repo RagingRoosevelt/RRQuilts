@@ -910,10 +910,10 @@ const logical = computed<Sheet[]>(() => {
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
 
-  // One order for both printouts, whatever order the boxes were ticked in: quilt picture, yardage,
-  // rotary, blocks, templates (credits last). A block printout's "picture" is its block page.
+  // One order whatever order the boxes were ticked in — quilt: picture, yardage, rotary, blocks,
+  // templates (credits last); block: block page ("picture"), rotary, templates.
   const ORDER = isBlock
-    ? ['rotary', 'picture', 'templates']
+    ? ['picture', 'rotary', 'templates']
     : ['picture', 'yardage', 'rotary', 'blocks', 'templates'];
   for (const section of ORDER.filter((x) => wanted.includes(x))) {
     if (section === 'picture' && isBlock && v.block) {

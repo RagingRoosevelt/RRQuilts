@@ -347,9 +347,9 @@ const fabricStepOptions = computed(() =>
 const sectionOptions = computed(() =>
   props.kind === 'block'
     ? [
-        { value: 'templates', label: 'Templates' },
-        { value: 'rotary', label: 'Rotary cutting chart' },
         { value: 'picture', label: 'Block page (picture, fabric, credits)' },
+        { value: 'rotary', label: 'Rotary cutting chart' },
+        { value: 'templates', label: 'Templates' },
       ]
     : [
         { value: 'picture', label: 'Quilt picture' },
