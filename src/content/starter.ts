@@ -12,6 +12,7 @@ import type { RrqDoc } from '@/model/schema/project';
 import { FIVE_PATCH_BLOCKS } from './five-patch';
 import { FOUR_PATCH_BLOCKS } from './four-patch';
 import { LETTER_BLOCKS, NUMBER_BLOCKS } from './letters';
+import { MEDALLION_BLOCKS } from './medallions';
 import { NINE_PATCH_BLOCKS } from './nine-patch';
 import { LOG_CABIN_BLOCKS, STRIP_BLOCKS } from './strips';
 import { SEVEN_PATCH_BLOCKS } from './seven-patch';
@@ -449,7 +450,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: "Drunkard's Path",
-    category: 'N-Patch',
+    category: 'Curves',
     seams: [[[0.6, 0], [0, 0.6], -90]],
     base: C.Cream!,
     points: [[0.2, 0.2, C.Denim!]],
@@ -463,6 +464,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     ...NUMBER_BLOCKS,
     ...LOG_CABIN_BLOCKS,
     ...STRIP_BLOCKS,
+    ...MEDALLION_BLOCKS,
   ].map((b) => ({
     name: b.name,
     size: b.size,
@@ -580,6 +582,7 @@ const STARTER_CATEGORIES = [
   'Stars',
   'Stars/Four-point stars',
   'Stars/Eight-point stars',
+  'Curves',
   'Symbols',
   'Symbols/Letters',
   'Symbols/Numbers',

@@ -10,6 +10,7 @@ import { LETTER_BLOCKS, NUMBER_BLOCKS } from '@/content/letters';
 import { NINE_PATCH_BLOCKS } from '@/content/nine-patch';
 import { SEVEN_PATCH_BLOCKS } from '@/content/seven-patch';
 import { LOG_CABIN_BLOCKS, STRIP_BLOCKS } from '@/content/strips';
+import { MEDALLION_BLOCKS } from '@/content/medallions';
 
 const expected: Record<string, number> = {
   'Four Patch': 4,
@@ -39,6 +40,7 @@ describe('starter content', () => {
       ...NUMBER_BLOCKS,
       ...LOG_CABIN_BLOCKS,
       ...STRIP_BLOCKS,
+      ...MEDALLION_BLOCKS,
     ].map((b) => [b.name, b]),
   )('grid block %s: one patch per piece, colored as drawn', (name, fp) => {
     const b = doc.project.blocks.find((x) => x.notecard.name === name)!;
