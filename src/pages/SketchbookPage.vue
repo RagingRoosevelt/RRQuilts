@@ -1212,11 +1212,20 @@ function showOriginal(v: Block) {
     (k) => !open.includes(k),
   );
   void nextTick(() => {
+    // Glow once the scroll stops, so it catches the eye (timer: already in view / no scrollend).
+    let done = false;
+    const glow = () => {
+      if (done) return;
+      done = true;
+      document.removeEventListener('scrollend', glow, true);
+      flashed.value = id;
+      setTimeout(() => (flashed.value = undefined), 1600);
+    };
+    document.addEventListener('scrollend', glow, true);
+    setTimeout(glow, 1000);
     document
       .getElementById(`lib-block-${id}`)
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    flashed.value = id;
-    setTimeout(() => (flashed.value = undefined), 1500);
   });
 }
 
@@ -1606,8 +1615,20 @@ function showPlacements() {
   flex: none;
 }
 .card.flash {
-  outline: 3px solid var(--q-primary);
-  transition: outline-color 1.5s;
+  animation: glow 1.6s ease-out;
+}
+@keyframes glow {
+  0%,
+  40% {
+    box-shadow:
+      0 0 0 3px var(--q-accent),
+      0 0 16px 4px var(--q-accent);
+  }
+  100% {
+    box-shadow:
+      0 0 0 3px transparent,
+      0 0 16px 4px transparent;
+  }
 }
 .card .variant {
   position: absolute;
