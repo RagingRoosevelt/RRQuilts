@@ -277,9 +277,18 @@
     <q-dialog :model-value="!!previewing" @update:model-value="previewing = null">
       <q-card v-if="previewBlock" style="width: 560px; max-width: 95vw">
         <q-card-section>
+          <q-btn
+            v-close-popup
+            flat
+            round
+            dense
+            icon="close"
+            aria-label="Close"
+            class="float-right"
+          />
           <div class="text-h6">{{ previewBlock.notecard.name }}</div>
           <div class="text-caption text-grey-7">
-            {{ previewBlock.size.map((n) => +n.toFixed(2)).join(' × ') }} in
+            {{ previewBlock.size.map((n) => roundLen(n, 'in')).join(' × ') }} in
             <template v-if="previewBlock.revision">
               · revision {{ previewBlock.revision }}</template
             >
@@ -322,6 +331,15 @@
       </q-card>
       <q-card v-else-if="previewCollection" style="width: 480px; max-width: 95vw">
         <q-card-section>
+          <q-btn
+            v-close-popup
+            flat
+            round
+            dense
+            icon="close"
+            aria-label="Close"
+            class="float-right"
+          />
           <div class="text-h6">{{ previewCollection.notecard.name }}</div>
           <div class="text-caption text-grey-7">
             {{ authorOf(previewCollection) ?? 'anonymous' }}
@@ -611,6 +629,7 @@
 
 <script setup lang="ts">
 import BlockSections from '@/components/BlockSections.vue';
+import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
 import FullName from '@/components/FullName.vue';
 import { useAskCategory } from '@/composables/category';

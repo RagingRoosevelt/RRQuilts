@@ -437,10 +437,19 @@
     <q-dialog :model-value="!!preview" @update:model-value="preview = null">
       <q-card v-if="previewBlock" style="width: 560px; max-width: 95vw">
         <q-card-section>
+          <q-btn
+            v-close-popup
+            flat
+            round
+            dense
+            icon="close"
+            aria-label="Close"
+            class="float-right"
+          />
           <div class="text-h6">{{ previewBlock.notecard.name }}</div>
           <div class="text-caption text-grey-7">
-            {{ previewBlock.size.join(' × ') }} {{ project.doc.units }} ·
-            {{ patchCount(previewBlock) }} patches
+            {{ previewBlock.size.map((n) => roundLen(n, project.doc!.units)).join(' × ') }}
+            {{ project.doc.units }} · {{ patchCount(previewBlock) }} patches
             <template v-if="previewBlock.revision">
               ·
               <span class="revision"
@@ -790,6 +799,7 @@ import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
+import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
 import { itemId } from '@/model/identity';
 import FullName from '@/components/FullName.vue';

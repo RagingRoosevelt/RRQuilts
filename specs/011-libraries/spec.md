@@ -24,6 +24,10 @@
   subcategories (their items become uncategorized). The built-in library ships Medallions, Strips,
   N-Patch (Four-, Five-, Seven-, Nine-patch), Mosaics, Images (Flowers, Plants, Animals), Stars
   (Four-point, Eight-point), and Symbols (Letters, Numbers).
+- Q: Which categories can My library items use? → A: Its own (listed first, subcategories
+  indented), then — below a rule, "From other libraries" — every category the other libraries use
+  that My library lacks, A–Z with subcategories indented (not grouped by library); picking one adds
+  it to My library. New category… makes one of your own.
 - Q: Group blocks? → A: The sidebar's "Group blocks by" (Nothing, Category, Tags, Styles; remembered)
   splits each library's blocks into sections: categories in the library's order then Uncategorized,
   tags or styles A–Z then "No tags"/"No styles" (a block with several shows under each).
