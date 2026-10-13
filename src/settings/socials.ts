@@ -53,7 +53,10 @@ const SITES: Record<string, { hosts: string[]; paths: string[]; icon: string }> 
 };
 
 /** Suggested types; any other can be typed in. */
-export const SOCIAL_TYPES = ['Website', ...Object.keys(SITES), 'Mastodon'];
+export const SOCIAL_TYPES = [
+  'Website',
+  ...[...Object.keys(SITES), 'Mastodon'].sort((a, b) => a.localeCompare(b)),
+];
 
 /** The icon for a type (custom types: a link). */
 export const socialIcon = (type: string) =>
