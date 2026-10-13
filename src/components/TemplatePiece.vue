@@ -106,7 +106,6 @@
 </template>
 
 <script setup lang="ts">
-import { textScale } from '@/model/print/prefs';
 import { computed } from 'vue';
 import type { Pt } from '@/model/geometry/path';
 import type { PlacedPiece } from '@/model/print/pieces';
@@ -123,7 +122,6 @@ const props = defineProps<{
     marks: boolean;
     markLength: number;
     labels: { letter: boolean; counts: boolean; size: boolean; color: boolean };
-    textSize: { size: string; note: string };
     tint: boolean;
   };
 }>();
@@ -135,8 +133,11 @@ const bounds = computed(() => {
   const ys = props.piece.cut.map((p) => p[1]);
   return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] as const;
 });
-const sizeK = computed(() => textScale(props.look.textSize.size));
-const noteK = computed(() => textScale(props.look.textSize.note));
+// A finished size with an approximation ("3.333″ (~ 3 5/16″)") is long: it goes small and the cut
+// count large, so what to cut stays easy to read.
+const approx = computed(() => props.piece.size.includes('(~'));
+const sizeK = computed(() => (approx.value ? 0.75 : 1));
+const noteK = computed(() => (approx.value ? 1.35 : 1));
 /** Unchecked labels print under the template: "B · 3″ legs · Cut 72 Cream", each at its size. */
 const caption = computed(() => {
   const l = props.look.labels;

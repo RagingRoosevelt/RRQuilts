@@ -5,10 +5,6 @@ import type { Units } from '../schema/project';
 export type BlockSection = 'templates' | 'rotary' | 'picture';
 export type QuiltSection = 'picture' | 'blocks' | 'yardage' | 'rotary' | 'templates';
 
-export type TextSize = 'small' | 'normal' | 'large';
-/** Text size → scale (unknown values from old settings read as normal). */
-export const textScale = (s: string) => ({ small: 0.75, large: 1.35 })[s as 'small'] ?? 1;
-
 const perUnits = <T>(inches: T, cm: T) => ({ in: inches, cm });
 
 /** What to print: for blocks, counts from a quilt (at its size), or a size and coloring. */
@@ -45,8 +41,6 @@ export const PRINT_DEFAULTS = {
    * (A-2), one template per fabric, with a legend.
    */
   labels: { letter: true, counts: true, size: false, color: false },
-  /** Template text sizes: the finished size, and the cut count / color note. */
-  textSize: { size: 'normal' as TextSize, note: 'normal' as TextSize },
   tint: false,
   onePerPage: false,
   /** Label the block page's picture with template codes (then template pages skip their key). */
