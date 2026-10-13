@@ -1,18 +1,49 @@
 <template>
   <!-- A library's blocks in collapsible sections (subcategories nested in their category); the
        default slot renders each block's card. Open/closed state is remembered per library. -->
-  <button
-    v-if="title"
-    class="sec-head text-subtitle2 q-mt-md q-mb-sm"
-    :aria-expanded="isOpen(ROOT)"
-    @click="toggle(ROOT)"
+  <div
+    v-if="title || sections.some((x) => x.label)"
+    class="row items-center no-wrap q-mb-sm"
+    :class="{ 'q-mt-md': title }"
+    style="gap: 4px"
   >
-    <q-icon :name="isOpen(ROOT) ? 'expand_more' : 'chevron_right'" size="20px" />
-    {{ title }}
-    <span class="text-grey-6 text-weight-regular">
-      · {{ sections.reduce((n, x) => n + (x.parent ? 0 : x.count), 0) }}</span
+    <button
+      v-if="title"
+      class="sec-head text-subtitle2"
+      :aria-expanded="isOpen(ROOT)"
+      @click="toggle(ROOT)"
     >
-  </button>
+      <q-icon :name="isOpen(ROOT) ? 'expand_more' : 'chevron_right'" size="20px" />
+      {{ title }}
+      <span class="text-grey-6 text-weight-regular">
+        · {{ sections.reduce((n, x) => n + (x.parent ? 0 : x.count), 0) }}</span
+      >
+    </button>
+    <template v-if="sections.some((x) => x.label)">
+      <q-btn
+        flat
+        dense
+        round
+        size="sm"
+        icon="unfold_more"
+        aria-label="Expand all"
+        @click="setAll(true)"
+      >
+        <q-tooltip>Expand all</q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        dense
+        round
+        size="sm"
+        icon="unfold_less"
+        aria-label="Collapse all"
+        @click="setAll(false)"
+      >
+        <q-tooltip>Collapse all</q-tooltip>
+      </q-btn>
+    </template>
+  </div>
   <template v-for="sec in title && !isOpen(ROOT) ? [] : sections" :key="sec.key">
     <button
       v-if="sec.label"
@@ -53,6 +84,15 @@ const indent = (sec: BlockSection) => ({
 const settings = useSettingsStore();
 const key = (k: string) => `libsec:${props.lib}:${k}`;
 const isOpen = (k: string) => !settings.settings.collapsedSections.includes(key(k));
+/** Every section of this library (and the library itself when it has a header) open or closed. */
+function setAll(open: boolean) {
+  const keys = new Set([
+    ...props.sections.map((x) => key(x.key)),
+    ...(props.title ? [key(ROOT)] : []),
+  ]);
+  const rest = settings.settings.collapsedSections.filter((k) => !keys.has(k));
+  settings.settings.collapsedSections = open ? rest : [...rest, ...keys];
+}
 function toggle(k: string) {
   const all = settings.settings.collapsedSections;
   settings.settings.collapsedSections = all.includes(key(k))
