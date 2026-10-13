@@ -13,10 +13,12 @@ import {
   addBlock,
   addCategory,
   addToCollection,
+  categoryTree,
   colorChanged,
   copyToMine,
   deleteCategory,
   emptyPersonal,
+  ensureCategory,
   linkState,
   lookupOf,
   saveCollection,
@@ -26,6 +28,7 @@ import {
   syncColor,
   syncConflict,
   withSources,
+  withSubcategories,
 } from '@/model/library';
 import { backupDoc, packDoc, parseLibrary, restore, serializeLibrary } from '@/model/library-file';
 import { isLibraryItem, splitItems } from '@/model/library-items';
@@ -122,6 +125,45 @@ describe('My library: blocks', () => {
     lib = deleteCategory(lib, c.category.id);
     expect(lib.items[0]!.category).toBeUndefined();
     expect(searchItems(lib.items, '', '')).toHaveLength(1);
+  });
+
+  it('categories: two levels by path; a parent matches and deletes its subcategories', async () => {
+    const { doc, id } = projectWithBlock();
+    let { lib } = await addBlock(emptyPersonal(ME), doc, id);
+    const star8 = ensureCategory(lib, 'Stars/Eight-point stars');
+    const again = ensureCategory(star8.lib, 'stars / eight-point STARS');
+    expect(again.id).toBe(star8.id);
+    expect(again.lib.categories).toHaveLength(2);
+    lib = setCategory(star8.lib, id, star8.id);
+    const stars = lib.categories.find((c) => !c.parent)!;
+    expect(categoryTree(lib.categories).map((c) => c.label)).toEqual([
+      'Stars',
+      'Stars / Eight-point stars',
+    ]);
+    expect(withSubcategories(lib.categories, [stars.id])).toContain(star8.id);
+    lib = deleteCategory(lib, stars.id);
+    expect(lib.categories).toEqual([]);
+    expect(lib.items[0]!.category).toBeUndefined();
+  });
+
+  it('a file subcategory whose parent is missing or nested becomes top-level', () => {
+    const base = JSON.parse(serializeLibrary(emptyPersonal(ME), 'test'));
+    base.categories = [
+      { id: 'a', name: 'A' },
+      { id: 'b', name: 'B', parent: 'a' },
+      { id: 'c', name: 'C', parent: 'b' },
+      { id: 'd', name: 'D', parent: 'zz' },
+    ];
+    const r = parseLibrary(JSON.stringify(base));
+    expect(r.ok && r.doc.categories.map((c) => c.parent ?? '-')).toEqual(['-', 'a', '-', '-']);
+  });
+
+  it('built-in blocks are filed in two-level categories', async () => {
+    const builtin = builtinDoc(await builtinLibrary());
+    const ohio = builtin.items.find((i) => i.data.notecard.name === 'Ohio Star')!;
+    const label = categoryTree(builtin.categories).find((c) => c.id === ohio.category)?.label;
+    expect(label).toBe('Stars / Eight-point stars');
+    expect(builtin.items.filter((i) => i.type === 'block').every((i) => i.category)).toBe(true);
   });
 
   it('copy to mine credits the original and gets a new id', async () => {

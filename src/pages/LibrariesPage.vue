@@ -363,8 +363,8 @@
       <q-card style="width: 400px; max-width: 95vw">
         <q-card-section class="text-h6">Categories</q-card-section>
         <q-list dense separator>
-          <q-item v-for="c in library.mine?.categories ?? []" :key="c.id">
-            <q-item-section>{{ c.name }}</q-item-section>
+          <q-item v-for="c in categoryTree(library.mine?.categories ?? [])" :key="c.id">
+            <q-item-section :class="{ 'q-pl-lg': c.depth }">{{ c.name }}</q-item-section>
             <q-item-section side>
               <div class="row no-wrap">
                 <q-btn
@@ -396,7 +396,8 @@
             </template>
           </q-input>
           <div class="text-caption text-grey-7 q-mt-sm">
-            Deleting a category leaves its items uncategorized.
+            For a subcategory, write its category first: Stars/Eight-point stars. Deleting a
+            category deletes its subcategories; their items become uncategorized.
           </div>
         </q-card-section>
         <q-card-actions align="right"
@@ -548,14 +549,16 @@ import { collectionFile, parseCollectionFile } from '@/model/collection-file';
 import { DEFAULT_LICENSE, LICENSES, authorOf, licenseName, priorCredits } from '@/model/credits';
 import {
   MY_LIBRARY,
-  addCategory,
+  categoryTree,
   copyToMine,
   deleteCategory,
+  ensureCategory,
   putCollection,
   removeItem,
   renameCategory,
   searchItems,
   setCategory,
+  withSubcategories,
   setCollectionColors,
   setNotecard,
   type LibraryView,
@@ -644,10 +647,11 @@ const values = (f: 'tags' | 'styles') =>
   [...new Set(inScope.value.flatMap((v) => v.doc.items.flatMap((i) => i.data.notecard[f] ?? [])))]
     .sort()
     .map((t) => ({ label: t, value: t }));
+const allCats = computed(() => [
+  ...new Map(inScope.value.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
+]);
 const filterFields = computed(() => {
-  const cats = [
-    ...new Map(inScope.value.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
-  ];
+  const cats = allCats.value;
   return [
     {
       key: 'types' as const,
@@ -662,7 +666,7 @@ const filterFields = computed(() => {
       label: 'Category',
       options: cats.length
         ? [
-            ...cats.map((c) => ({ label: c.name, value: c.id })),
+            ...categoryTree(cats).map((c) => ({ label: c.label, value: c.id })),
             { label: 'Uncategorized', value: '' },
           ]
         : [],
@@ -675,7 +679,7 @@ const anyOf = (picked: string[], have: string[]) =>
   !picked.length || picked.some((x) => have.includes(x));
 const matches = (i: LibraryItem) =>
   anyOf(filters.types, [i.type]) &&
-  anyOf(filters.cats, [i.category ?? '']) &&
+  anyOf(withSubcategories(allCats.value, filters.cats), [i.category ?? '']) &&
   anyOf(filters.tags, i.data.notecard.tags ?? []) &&
   anyOf(filters.styles, i.data.notecard.styles ?? []);
 const groups = computed(() =>
@@ -771,7 +775,7 @@ function addCat() {
   const name = newCategory.value.trim();
   if (!name) return;
   newCategory.value = '';
-  void update((l) => addCategory(l, name).lib);
+  void update((l) => ensureCategory(l, name).lib);
 }
 function renameCat(id: string, name: string) {
   $q.dialog({ title: 'Rename category', prompt: { model: name, type: 'text' }, cancel: true }).onOk(
@@ -781,11 +785,12 @@ function renameCat(id: string, name: string) {
 function deleteCat(id: string, name: string) {
   $q.dialog({
     title: `Delete “${name}”?`,
-    message: 'Its items become uncategorized.',
+    message: 'Its subcategories go too; their items become uncategorized.',
     cancel: true,
     ok: { label: 'Delete', color: 'negative', flat: true },
   }).onOk(() => {
-    filters.cats = filters.cats.filter((c) => c !== id);
+    const gone = withSubcategories(library.mine?.categories ?? [], [id]);
+    filters.cats = filters.cats.filter((c) => !gone.includes(c));
     void update((l) => deleteCategory(l, id));
   });
 }

@@ -1,5 +1,5 @@
 import { Dialog } from 'quasar';
-import { addCategory } from '@/model/library';
+import { categoryTree, ensureCategory } from '@/model/library';
 import { useLibraryStore } from '@/stores/library';
 import { useAuthor } from './author';
 
@@ -12,13 +12,11 @@ const NEW = '\u0000new';
 export function useAskCategory() {
   const library = useLibraryStore();
   const askAuthor = useAuthor();
-  async function create(name: string) {
+  async function create(path: string) {
     const lib = library.ensureMine(await askAuthor());
-    const same = lib.categories.find((c) => c.name.toLowerCase() === name.toLowerCase());
-    if (same) return same.id;
-    const r = addCategory(lib, name);
-    await library.saveMine(r.lib);
-    return r.category.id;
+    const r = ensureCategory(lib, path);
+    if (r.lib !== lib) await library.saveMine(r.lib);
+    return r.id;
   }
   return (title: string, current = ''): Promise<string | undefined | null> =>
     new Promise((resolve) => {
@@ -31,7 +29,7 @@ export function useAskCategory() {
           model: current,
           items: [
             { label: 'Uncategorized', value: '' },
-            ...cats.map((c) => ({ label: c.name, value: c.id })),
+            ...categoryTree(cats).map((c) => ({ label: c.label, value: c.id })),
             { label: 'New category…', value: NEW },
           ],
         },
@@ -41,6 +39,7 @@ export function useAskCategory() {
           if (v !== NEW) return resolve(v || undefined);
           Dialog.create({
             title: 'New category',
+            message: 'For a subcategory, write its category first: Stars/Eight-point stars',
             prompt: { model: '', type: 'text', isValid: (s: string) => !!s.trim() },
             cancel: true,
           })

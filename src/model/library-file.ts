@@ -54,7 +54,12 @@ export function parseLibraryValue(raw: unknown, nested = false): LibraryParse {
 
   const { items: rawItems, packs: rawPacks = [], ...head } = raw;
   const k = raw.units === 'cm' ? 1 / 2.54 : 1;
-  const categories = new Set(raw.categories.map((c) => c.id));
+  // Two levels: a parent that's missing or itself a subcategory is dropped.
+  const tops = new Set(raw.categories.filter((c) => !c.parent).map((c) => c.id));
+  const cats = raw.categories.map(({ parent, ...c }) =>
+    parent && parent !== c.id && tops.has(parent) ? { ...c, parent } : c,
+  );
+  const categories = new Set(cats.map((c) => c.id));
   const skipped: string[] = [];
   const items: LibraryItem[] = [];
   const ids = new Set<string>();
@@ -86,7 +91,13 @@ export function parseLibraryValue(raw: unknown, nested = false): LibraryParse {
     }
   });
 
-  const doc: LibraryBackup = { ...head, units: 'in', items, ...(packs.length ? { packs } : {}) };
+  const doc: LibraryBackup = {
+    ...head,
+    categories: cats,
+    units: 'in',
+    items,
+    ...(packs.length ? { packs } : {}),
+  };
   return { ok: true, doc, skipped };
 }
 
@@ -170,7 +181,14 @@ export function packDoc(mine: LibraryDoc, me: string, meta: PackMeta) {
     license: lock && lock.license !== meta.license ? lock.license : meta.license,
     changelog: [],
     ...(credits.length ? { credits } : {}),
-    categories: mine.categories.filter((c) => items.some((i) => i.category === c.id)),
+    // Used categories, and the parents of used subcategories.
+    categories: mine.categories.filter((c) =>
+      items.some(
+        (i) =>
+          i.category === c.id ||
+          mine.categories.some((s) => s.id === i.category && s.parent === c.id),
+      ),
+    ),
     items,
   };
   return { doc, excluded, lock: lock?.license === meta.license ? undefined : lock };

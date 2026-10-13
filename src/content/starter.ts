@@ -62,6 +62,8 @@ const C = Object.fromEntries(STARTER_COLORS.map(([name], i) => [name, i]));
 
 interface StarterBlock {
   name: string;
+  /** Category path in the built-in library ("Stars/Eight-point stars"). */
+  category: string;
   seams: Seam[];
   base: number;
   points: [number, number, number][];
@@ -158,6 +160,7 @@ const logColors = [C.Cream, C.Linen, C.Indigo, C.Navy];
 export const STARTER_BLOCKS: StarterBlock[] = [
   {
     name: 'Four Patch',
+    category: 'N-Patch/Four-patch',
     seams: cross,
     base: C.Cream!,
     points: [
@@ -167,6 +170,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: 'Nine Patch',
+    category: 'N-Patch/Nine-patch',
     seams: grid3,
     base: C.Cream!,
     points: [
@@ -179,6 +183,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: 'Half-Square Triangle',
+    category: 'N-Patch',
     seams: [
       [
         [0, 0],
@@ -190,6 +195,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: 'Pinwheel',
+    category: 'N-Patch/Four-patch',
     seams: [...cross, ...diagonals],
     base: C.White!,
     points: [
@@ -201,6 +207,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: 'Hourglass',
+    category: 'N-Patch/Four-patch',
     seams: diagonals,
     base: C.Cream!,
     points: [
@@ -210,6 +217,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: 'Flying Geese',
+    category: 'N-Patch',
     seams: [
       [
         [0, 0.5],
@@ -240,6 +248,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: 'Square in a Square',
+    category: 'Medallions',
     seams: [
       [
         [0.5, 0],
@@ -263,6 +272,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: 'Rail Fence',
+    category: 'Strips',
     seams: [
       [
         [t, 0],
@@ -281,6 +291,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: 'Log Cabin',
+    category: 'Strips',
     seams: [...rect(3, 3, 5, 5), ...logs.flatMap(([a, b, c, d]) => rect(a, b, c, d))],
     base: C.Cream!,
     points: [
@@ -294,6 +305,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: 'Churn Dash',
+    category: 'N-Patch/Nine-patch',
     seams: [
       ...grid3,
       [
@@ -343,6 +355,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: 'Ohio Star',
+    category: 'Stars/Eight-point stars',
     seams: [...grid3, ...x(t, 0), ...x(0, t), ...x(2 * t, t), ...x(t, 2 * t)],
     base: C.Cream!,
     points: [
@@ -359,6 +372,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   },
   {
     name: "Drunkard's Path",
+    category: 'N-Patch',
     seams: [[[0.6, 0], [0, 0.6], -90]],
     base: C.Cream!,
     points: [[0.2, 0.2, C.Denim!]],
@@ -366,6 +380,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
   {
     // The "Super S" / "Cool S": drawn on a 2 × 5 grid (u, v), 2" units, centered in the block.
     name: 'Super S',
+    category: 'Symbols/Letters',
     seams: superS(),
     base: C.Cream!,
     points: [
@@ -490,6 +505,33 @@ export async function builtinLibrary(): Promise<BuiltinItems> {
   return items;
 }
 
+/** Built-in categories, two levels ("Parent/Child"); parents listed before their children. */
+const STARTER_CATEGORIES = [
+  'Medallions',
+  'Strips',
+  'N-Patch',
+  'N-Patch/Four-patch',
+  'N-Patch/Five-patch',
+  'N-Patch/Seven-patch',
+  'N-Patch/Nine-patch',
+  'Mosaics',
+  'Images',
+  'Images/Flowers',
+  'Images/Plants',
+  'Images/Animals',
+  'Stars',
+  'Stars/Four-point stars',
+  'Stars/Eight-point stars',
+  'Symbols',
+  'Symbols/Letters',
+  'Symbols/Numbers',
+];
+const catId = (path: string) =>
+  `rrquilts.category.${path
+    .toLowerCase()
+    .replace(/[^a-z0-9/]+/g, '-')
+    .replace('/', '.')}`;
+
 /** The built-in library as a library document (its colors as one collection, "Basic colors"). */
 export function builtinDoc(items: BuiltinItems): LibraryDoc {
   return {
@@ -502,9 +544,18 @@ export function builtinDoc(items: BuiltinItems): LibraryDoc {
     name: STARTER_LIBRARY.name,
     author: { name: STARTER_LIBRARY.author },
     license: STARTER_LIBRARY.license,
-    categories: [],
+    categories: STARTER_CATEGORIES.map((path) => {
+      const [top, sub] = path.split('/');
+      return sub
+        ? { id: catId(path), name: sub, parent: catId(top!) }
+        : { id: catId(path), name: top! };
+    }),
     items: [
-      ...items.blocks.map((data) => ({ type: 'block' as const, data })),
+      ...items.blocks.map((data, i) => ({
+        type: 'block' as const,
+        category: catId(STARTER_BLOCKS[i]!.category),
+        data,
+      })),
       {
         type: 'colors' as const,
         data: {

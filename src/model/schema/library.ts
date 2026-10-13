@@ -24,7 +24,12 @@ export const LibraryItem = Type.Union([
   Type.Object({ type: Type.Literal('colors'), ...category, data: ColorCollection }),
 ]);
 
-export const Category = Type.Object({ id: Type.String(), name: Type.String() });
+/** Two levels: a category with a `parent` is a subcategory of that top-level category. */
+export const Category = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+  parent: Type.Optional(Type.String()),
+});
 export const ChangelogEntry = Type.Object({
   revision: Type.Integer({ minimum: 1 }),
   date: Type.String(),

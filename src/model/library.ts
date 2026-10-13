@@ -304,22 +304,63 @@ export const setCategory = (lib: LibraryDoc, id: string, category: string | unde
 export function addCategory(
   lib: LibraryDoc,
   name: string,
+  parent?: string,
 ): { lib: LibraryDoc; category: Category } {
-  const category = { id: itemId(''), name };
+  const category = { id: itemId(''), name, ...(parent ? { parent } : {}) };
   return { lib: { ...lib, categories: [...lib.categories, category] }, category };
 }
+
+/**
+ * The category at `path` ("Stars" or "Stars/Eight-point stars"), created when missing (names match
+ * case-insensitively; levels past the second are kept in the subcategory's name).
+ */
+export function ensureCategory(lib: LibraryDoc, path: string): { lib: LibraryDoc; id: string } {
+  const [top, ...rest] = path.split('/').map((s) => s.trim());
+  const sub = rest.join('/').trim();
+  const find = (name: string, parent?: string) =>
+    lib.categories.find(
+      (c) => c.name.toLowerCase() === name.toLowerCase() && (c.parent ?? '') === (parent ?? ''),
+    );
+  let parent = find(top!);
+  if (!parent) ({ lib, category: parent } = addCategory(lib, top!));
+  if (!sub) return { lib, id: parent.id };
+  let child = find(sub, parent.id);
+  if (!child) ({ lib, category: child } = addCategory(lib, sub, parent.id));
+  return { lib, id: child.id };
+}
+
+/** Top-level categories, each followed by its subcategories (in the library's order). */
+export function categoryTree(cats: readonly Category[]) {
+  return cats
+    .filter((c) => !c.parent)
+    .flatMap((t) => [
+      { ...t, depth: 0, label: t.name },
+      ...cats
+        .filter((c) => c.parent === t.id)
+        .map((c) => ({ ...c, depth: 1, label: `${t.name} / ${c.name}` })),
+    ]);
+}
+
+/** A category and its subcategories (picking a top-level category matches both levels). */
+export const withSubcategories = (cats: readonly Category[], ids: readonly string[]) => [
+  ...ids,
+  ...cats.filter((c) => c.parent && ids.includes(c.parent)).map((c) => c.id),
+];
 export const renameCategory = (lib: LibraryDoc, id: string, name: string): LibraryDoc => ({
   ...lib,
   categories: lib.categories.map((c) => (c.id === id ? { ...c, name } : c)),
 });
-/** Its items become uncategorized. */
-export const deleteCategory = (lib: LibraryDoc, id: string): LibraryDoc => ({
-  ...lib,
-  categories: lib.categories.filter((c) => c.id !== id),
-  items: lib.items.map(({ category, ...rest }) =>
-    category && category !== id ? { ...rest, category } : rest,
-  ),
-});
+/** Its subcategories go too; their items become uncategorized. */
+export function deleteCategory(lib: LibraryDoc, id: string): LibraryDoc {
+  const gone = withSubcategories(lib.categories, [id]);
+  return {
+    ...lib,
+    categories: lib.categories.filter((c) => !gone.includes(c.id)),
+    items: lib.items.map(({ category, ...rest }) =>
+      category && !gone.includes(category) ? { ...rest, category } : rest,
+    ),
+  };
+}
 
 /** Collection edits on the Libraries page (rename / reorder / remove colors) → next version. */
 export async function setCollectionColors(lib: LibraryDoc, id: string, colors: Color[]) {

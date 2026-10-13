@@ -18,6 +18,12 @@
 
 ### Session 2026-10-12
 
+- Q: Category levels? → A: Two. A category may have a parent (a top-level category); items belong
+  to either level. Picking a top-level category in the filter matches its subcategories too. New
+  categories can be typed as a path ("Stars/Eight-point stars"); deleting a category deletes its
+  subcategories (their items become uncategorized). The built-in library ships Medallions, Strips,
+  N-Patch (Four-, Five-, Seven-, Nine-patch), Mosaics, Images (Flowers, Plants, Animals), Stars
+  (Four-point, Eight-point), and Symbols (Letters, Numbers).
 - Q: Does a backup include the packs and repositories I've added? → A: Yes. One backup covers
   everything in Libraries: own items (incl. copies of pack items), imported packs embedded whole,
   and repository connections by reference (URL, ref, pinned revision, declined revision). Amends
