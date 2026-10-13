@@ -142,20 +142,30 @@
             </div>
 
             <div v-if="g.blocks.length" class="text-subtitle2 q-mb-sm">Blocks</div>
-            <template v-for="sec in g.sections" :key="sec.label">
+            <template v-for="sec in g.sections" :key="sec.key">
               <button
                 v-if="sec.label"
+                v-show="!sec.parent || secOpen(g.v.doc.id, sec.parent)"
                 class="sec-head text-body2 text-weight-medium text-grey-8 q-mb-xs"
-                :aria-expanded="secOpen(g.v.doc.id, sec.label)"
-                @click="toggleSec(g.v.doc.id, sec.label)"
+                :class="{ 'sec-sub': sec.parent }"
+                :aria-expanded="secOpen(g.v.doc.id, sec.key)"
+                @click="toggleSec(g.v.doc.id, sec.key)"
               >
                 <q-icon
-                  :name="secOpen(g.v.doc.id, sec.label) ? 'expand_more' : 'chevron_right'"
+                  :name="secOpen(g.v.doc.id, sec.key) ? 'expand_more' : 'chevron_right'"
                   size="20px"
                 />
-                {{ sec.label }} <span class="text-grey-6">· {{ sec.blocks.length }}</span>
+                {{ sec.label }} <span class="text-grey-6">· {{ sec.count }}</span>
               </button>
-              <div v-show="!sec.label || secOpen(g.v.doc.id, sec.label)" class="cards q-mb-lg">
+              <div
+                v-if="sec.blocks.length"
+                v-show="
+                  !sec.label ||
+                  (secOpen(g.v.doc.id, sec.key) && (!sec.parent || secOpen(g.v.doc.id, sec.parent)))
+                "
+                class="cards q-mb-lg"
+                :class="{ 'sec-sub': sec.parent }"
+              >
                 <div v-for="b in sec.blocks" :key="b.id" class="card">
                   <button class="thumb" @click="previewing = { lib: g.v.doc.id, id: b.id }">
                     <img :src="thumb(b, 200)" :alt="b.notecard.name" />
@@ -723,32 +733,57 @@ const GROUP_BY = [
   { label: 'Styles', value: 'styles' },
 ];
 /**
- * A library's blocks in sections by the chosen grouping: categories in the library's order (then
- * Uncategorized), tags or styles A–Z (then None). A block with several tags shows under each.
+ * A library's blocks in sections by the chosen grouping: categories in the library's order, each
+ * top-level one holding its subcategories (then Uncategorized); tags or styles A–Z (then None). A
+ * block with several tags shows under each.
  */
 function sections(doc: LibraryDoc, blocks: Block[]) {
   const by = settings.settings.libraryGroupBy;
-  if (by === 'none' || !blocks.length) return [{ label: '', blocks }];
-  const keysOf = (b: Block): string[] => {
-    if (by !== 'category') return b.notecard[by] ?? [];
-    const c = doc.items.find((i) => i.data.id === b.id)?.category;
-    return c ? [c] : [];
-  };
-  const labels =
-    by === 'category'
-      ? categoryTree(doc.categories).map((c) => [c.id, c.label] as const)
-      : [...new Set(blocks.flatMap(keysOf))].sort().map((t) => [t, t] as const);
-  const none = by === 'category' ? 'Uncategorized' : `No ${by}`;
+  type Sec = { key: string; label: string; blocks: Block[]; count: number; parent?: string };
+  const sec = (key: string, label: string, bs: Block[], parent?: string): Sec => ({
+    key,
+    label,
+    blocks: bs,
+    count: bs.length,
+    ...(parent ? { parent } : {}),
+  });
+  if (by === 'none' || !blocks.length) return [sec('', '', blocks)];
+  if (by === 'category') {
+    // Top-level categories are accordions holding their own blocks, then their subcategories'.
+    const catOf = new Map(doc.items.map((i) => [i.data.id, i.category]));
+    const inCat = (id: string) => blocks.filter((b) => catOf.get(b.id) === id);
+    const known = new Set(doc.categories.map((c) => c.id));
+    const out: Sec[] = doc.categories
+      .filter((t) => !t.parent)
+      .flatMap((t) => {
+        const subs = doc.categories
+          .filter((c) => c.parent === t.id)
+          .map((c) => sec(`${t.name} / ${c.name}`, c.name, inCat(c.id), t.name))
+          .filter((x) => x.count);
+        const top = sec(t.name, t.name, inCat(t.id));
+        top.count += subs.reduce((n, x) => n + x.count, 0);
+        return top.count ? [top, ...subs] : [];
+      });
+    const none = blocks.filter((b) => !known.has(catOf.get(b.id) ?? ''));
+    return none.length ? [...out, sec('Uncategorized', 'Uncategorized', none)] : out;
+  }
+  const keysOf = (b: Block) => b.notecard[by] ?? [];
+  const keys = [...new Set(blocks.flatMap(keysOf))].sort();
+  const none = `No ${by}`;
   return [
-    ...labels.map(([key, label]) => ({
-      label,
-      blocks: blocks.filter((b) => keysOf(b).includes(key)),
-    })),
-    {
-      label: none,
-      blocks: blocks.filter((b) => !keysOf(b).some((k) => labels.some(([x]) => x === k))),
-    },
-  ].filter((sec) => sec.blocks.length);
+    ...keys.map((k) =>
+      sec(
+        k,
+        k,
+        blocks.filter((b) => keysOf(b).includes(k)),
+      ),
+    ),
+    sec(
+      none,
+      none,
+      blocks.filter((b) => !keysOf(b).length),
+    ),
+  ].filter((x) => x.count);
 }
 const groups = computed(() =>
   inScope.value
@@ -1155,6 +1190,9 @@ function downloadPack() {
 .chip.big {
   width: 32px;
   height: 32px;
+}
+.sec-sub {
+  margin-left: 20px;
 }
 .sec-head {
   display: flex;
