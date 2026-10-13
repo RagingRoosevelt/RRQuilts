@@ -40,7 +40,7 @@
                 color="secondary"
                 title="Color variant"
               >
-                <q-icon name="link" size="12px" />
+                <q-icon name="palette" size="12px" />
               </q-badge>
               <!-- Blocks with several colorings: click the count to choose which one to set. -->
               <span
@@ -89,7 +89,7 @@
                 color="secondary"
                 title="Color variant"
               >
-                <q-icon name="link" size="12px" />
+                <q-icon name="palette" size="12px" />
               </q-badge>
               <!-- Blocks with several colorings: click the count to choose which one to set. -->
               <span
