@@ -26,7 +26,7 @@
       </q-list>
 
       <q-btn flat icon="collections_bookmark" label="Libraries" no-caps to="/libraries" />
-      <q-btn flat icon="settings" label="Settings" no-caps to="/settings" />
+      <q-btn flat icon="settings" label="Settings" no-caps @click="settingsOpen = true" />
     </div>
     <QuiltWizard
       ref="wizard"
@@ -46,6 +46,7 @@ import { useProjectStore } from '@/stores/project';
 import { useOpenProject } from '@/composables/open-project';
 import { useStartQuilt } from '@/composables/start-quilt';
 import QuiltWizard from '@/components/QuiltWizard.vue';
+import { settingsOpen } from '@/composables/settings-open';
 import { useSettingsStore } from '@/stores/settings';
 
 const $q = useQuasar();

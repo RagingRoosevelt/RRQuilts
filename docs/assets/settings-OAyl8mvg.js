@@ -1,0 +1,1 @@
+import{i as e,t}from"./settings-cd2woYhM.js";import{a as n}from"./index-U-WaXx0l.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

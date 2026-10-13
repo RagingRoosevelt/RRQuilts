@@ -1,6 +1,7 @@
 <template>
-  <q-page padding>
-    <div class="q-gutter-lg" style="max-width: 520px">
+  <!-- Settings, shown in the layout's fly-over (the header's gear toggles it). -->
+  <div class="q-pa-md">
+    <div class="q-gutter-lg">
       <h1 class="text-h5">Settings</h1>
 
       <q-banner v-if="!store.persisted" class="bg-warning text-dark" rounded>
@@ -80,7 +81,7 @@
 
       <div class="text-caption text-grey-7">RRQuilts {{ version }} · build {{ build }}</div>
     </div>
-  </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">

@@ -38,7 +38,14 @@
         </template>
         <q-space />
         <SaveStatus />
-        <q-btn flat round icon="settings" to="/settings" aria-label="Settings" />
+        <q-btn
+          flat
+          round
+          icon="settings"
+          aria-label="Settings"
+          :class="{ 'nav-active': settingsOpen }"
+          @click="settingsOpen = !settingsOpen"
+        />
       </q-toolbar>
       <q-banner v-if="project.readOnly" dense class="bg-grey-3 text-dark">
         <template #avatar><q-icon name="lock" /></template>
@@ -59,6 +66,10 @@
       </q-banner>
     </q-header>
 
+    <q-drawer v-model="settingsOpen" side="right" overlay bordered behavior="desktop" :width="420">
+      <SettingsPanel />
+    </q-drawer>
+
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -67,15 +78,22 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import SaveStatus from '@/components/SaveStatus.vue';
+import SettingsPanel from '@/components/SettingsPanel.vue';
+import { settingsOpen } from '@/composables/settings-open';
 import { useProjectStore } from '@/stores/project';
 
 const $q = useQuasar();
 const project = useProjectStore();
 const taking = ref(false);
 const route = useRoute();
+watch(
+  () => route.redirectedFrom?.path,
+  (from) => from === '/settings' && (settingsOpen.value = true),
+  { immediate: true },
+);
 
 const HOME = { to: '/', icon: 'home', label: 'RRQuilts' };
 const nav = computed(() => [

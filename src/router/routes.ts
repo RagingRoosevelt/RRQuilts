@@ -35,7 +35,8 @@ const routes: RouteRecordRaw[] = [
     meta: project,
   },
   { path: '/libraries', component: () => import('@/pages/LibrariesPage.vue') },
-  { path: '/settings', component: () => import('@/pages/SettingsPage.vue') },
+  // Settings is a fly-over (MainLayout); old links open it over Home.
+  { path: '/settings', redirect: '/' },
   { path: '/:catchAll(.*)*', component: () => import('@/pages/NotFoundPage.vue') },
 ];
 
