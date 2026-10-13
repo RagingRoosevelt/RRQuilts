@@ -42,6 +42,12 @@
   The same dialog clears My colors (a Clear button, available while a palette is picked). The
   last picked palette can't be unpicked while there are no colors of your own. The dialog shows a
   carousel with one page per quilt: before and after side by side, updating as the mapping changes.
+- Q: Library blocks' colors? → A: They keep their designer's colors but don't join the available
+  colors; use the eyedropper (or paint) to make one available. Unpicking a palette whose colors a
+  placed library block shows maps them too: the quilt recolors those patches (the library block is
+  untouched) and the quilt joins the carousel, as do the project's own blocks using a mapped color.
+- Q: Project colors? → A: "My colors" in Fabrics & Colors is "Project colors": an Add tile opens the
+  color editor; hovering a color shows a delete button that goes through the same swap dialog.
 - Q: Built-in palettes? → A: Basic colors (36) plus Pastels, Darks, Gems, Neon, and Traditional (8
   each).
 - Q: Does a backup include the packs and repositories I've added? → A: Yes. One backup covers

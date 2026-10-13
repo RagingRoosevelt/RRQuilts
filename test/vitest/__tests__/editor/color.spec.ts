@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { produce } from 'immer';
 import { fromHex, fromHsl, nearestColor, toHex, toHsl } from '@/editor/color';
-import { colorsUsed, replaceColors } from '@/editor/colors';
+import { colorsPainted, colorsUsed, quiltColors, replaceColors } from '@/editor/colors';
+import { addStarterContent } from '@/content/starter';
+import { createProject } from '@/model/new-project';
+import { createQuilt } from '@/model/new-quilt';
 import { fixture } from '../model/helpers';
 
 describe('color conversions', () => {
@@ -50,5 +53,40 @@ describe('swapping colors when a palette is unpicked', () => {
     const next = produce(doc, (d) => replaceColors(d, new Map([[old, 'rrquilts.red']])));
     expect(colorsUsed(next).has(old)).toBe(false);
     expect(colorsUsed(next).has('rrquilts.red')).toBe(true);
+  });
+
+  it("remaps a library block's designer colors in the quilt, leaving the block unchanged", () => {
+    const doc = addStarterContent(createProject());
+    const star = doc.project.blocks.find((b) => b.id === 'rrquilts.ohio-star')!;
+    const red = Object.values(star.colorings[0]!.fills)
+      .map((f) => ('color' in f ? f.color : ''))
+      .find((c) => c === 'rrquilts.red')!;
+    const withQuilt = produce(doc, (d) => {
+      const q = structuredClone(
+        createQuilt(
+          'Q',
+          {
+            style: 'horizontal',
+            cols: 1,
+            rows: 1,
+            block: [10, 10],
+            sash: [0, 0],
+            sashBorder: false,
+          },
+          [],
+        ),
+      );
+      q.colorings = { c: { base: star.colorings[0]!.id, fills: {} } };
+      q.layers[0].slots['b:r1c1'] = { block: star.id, coloring: 'c', rotation: 0, flip: false };
+      d.project.quilts.push(q);
+    });
+    const q0 = withQuilt.project.quilts[0]!;
+    expect(colorsUsed(withQuilt).has(red)).toBe(true);
+    expect(colorsPainted(withQuilt).has(red)).toBe(false);
+    const next = produce(withQuilt, (d) => replaceColors(d, new Map([[red, 'rrquilts.navy']])));
+    expect(quiltColors(next, next.project.quilts[0]!).has(red)).toBe(false);
+    expect(next.project.blocks.find((b) => b.id === star.id)).toEqual(star);
+    expect(Object.keys(next.project.quilts[0]!.colorings.c!.fills).length).toBeGreaterThan(0);
+    expect(q0.colorings.c!.fills).toEqual({});
   });
 });

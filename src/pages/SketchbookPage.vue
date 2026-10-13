@@ -344,6 +344,16 @@
           </q-btn>
         </div>
         <div class="swatches q-mb-lg">
+          <button
+            v-if="!project.readOnly"
+            class="column items-center color-pick"
+            style="width: 72px"
+            aria-label="Add a color"
+            @click="colorEditor?.show()"
+          >
+            <div class="swatch add-swatch"><q-icon name="add" size="sm" /></div>
+            <div class="text-caption">Add</div>
+          </button>
           <component
             :is="group.mine && !project.readOnly ? 'button' : 'div'"
             v-for="c in group.items"
@@ -366,15 +376,28 @@
               >
                 <q-tooltip>Changed since {{ MY_LIBRARY }}</q-tooltip>
               </q-icon>
+              <q-btn
+                v-if="!project.readOnly"
+                round
+                dense
+                size="xs"
+                icon="close"
+                color="negative"
+                class="remove-color"
+                :aria-label="`Delete ${c.notecard.name}`"
+                @click.stop="deleteProjectColor(c)"
+              >
+                <q-tooltip>Delete</q-tooltip>
+              </q-btn>
             </div>
             <div class="text-caption ellipsis full-width text-center">{{ c.notecard.name }}</div>
           </component>
-          <div v-if="!group.items.length" class="text-caption text-grey-7">None yet.</div>
         </div>
       </template>
+      <ColorEditor ref="colorEditor" @done="addProjectColor" />
       <div class="text-subtitle2 q-mt-lg">Library palettes</div>
       <div class="text-caption text-grey-7 q-mb-sm">
-        Tick the palettes to use in this project's quilts; your own colors are always available.
+        Tick the palettes to use in this project's quilts; project colors are always available.
       </div>
       <template v-for="v in paletteLibs" :key="v.doc.id">
         <div class="text-subtitle2 q-mt-md q-mb-sm">{{ v.doc.name }}</div>
@@ -406,8 +429,7 @@
         </div>
       </template>
       <div class="text-caption text-grey-7 q-mt-md">
-        Add and edit your colors from the tray in the quilt editor. Fabrics arrive in a later
-        version.
+        Edit a project color from the tray in the quilt editor. Fabrics arrive in a later version.
       </div>
     </template>
     <div v-else class="text-grey-7">Coming in a later version.</div>
@@ -662,7 +684,7 @@
             flat
             no-caps
             color="primary"
-            :label="unpicking.palette ? 'Swap and remove' : 'Swap and clear'"
+            :label="unpicking.palette || unpicking.color ? 'Swap and remove' : 'Swap and clear'"
             :disable="!unpicking.options.length"
             @click="finishUnpick"
           />
@@ -768,6 +790,8 @@ import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
+import ColorEditor from '@/components/ColorEditor.vue';
+import { itemId } from '@/model/identity';
 import FullName from '@/components/FullName.vue';
 import { useLibraryStore } from '@/stores/library';
 import { useSettingsStore } from '@/stores/settings';
@@ -872,8 +896,9 @@ type Opt = Color & { from: string };
 /** The swap dialog: colors in use that are going away, each mapped to one that stays. */
 const unpicking = ref<{
   title: string;
-  /** What is going away: a palette (its id) or all of My colors. */
+  /** What is going away: a palette (its id), one project color, or (neither) all project colors. */
   palette?: string;
+  color?: string;
   used: Color[];
   options: Opt[];
   map: Record<string, string>;
@@ -888,10 +913,14 @@ const lastSource = (id: string) =>
   !ownColors.value.length && pickedPalettes.value.length === 1 && pickedPalettes.value[0] === id;
 
 /** Colors available after removing a palette (`palette`) or My colors (`mine`). */
-function remaining(drop: { palette?: string; mine?: boolean }): Opt[] {
+function remaining(drop: { palette?: string; mine?: boolean; color?: string }): Opt[] {
   const all = library.views.flatMap((v) => v.collections.map((c) => ({ v, c })));
   return [
-    ...(drop.mine ? [] : ownColors.value.map((c) => ({ ...c, from: 'My colors' }))),
+    ...(drop.mine
+      ? []
+      : ownColors.value
+          .filter((c) => c.id !== drop.color)
+          .map((c) => ({ ...c, from: 'Project colors' }))),
     ...all
       .filter((x) => pickedPalettes.value.includes(x.c.id) && x.c.id !== drop.palette)
       .flatMap((x) =>
@@ -903,7 +932,11 @@ function remaining(drop: { palette?: string; mine?: boolean }): Opt[] {
  * Removing colors: those the project's own blocks and quilts use and nothing remaining provides
  * get a dialog mapping each to the nearest remaining color; Cancel changes nothing.
  */
-function confirmRemoval(going: Color[], drop: { palette?: string; mine?: boolean }, title: string) {
+function confirmRemoval(
+  going: Color[],
+  drop: { palette?: string; mine?: boolean; color?: string },
+  title: string,
+) {
   const options = remaining(drop);
   const keep = new Set(options.map((o) => o.id));
   const inUse = colorsUsed(project.doc!);
@@ -913,7 +946,14 @@ function confirmRemoval(going: Color[], drop: { palette?: string; mine?: boolean
     const n = nearestColor(c.rgb, options);
     if (n) map[c.id] = n.id;
   }
-  const u = { title, ...(drop.palette ? { palette: drop.palette } : {}), used, options, map };
+  const u = {
+    title,
+    ...(drop.palette ? { palette: drop.palette } : {}),
+    ...(drop.color ? { color: drop.color } : {}),
+    used,
+    options,
+    map,
+  };
   if (used.length) unpicking.value = u;
   else applyRemoval(u);
 }
@@ -923,7 +963,20 @@ function pickPalette(id: string, on: boolean) {
   confirmRemoval(c?.colors ?? [], { palette: id }, c?.notecard.name ?? 'This palette');
 }
 function clearMine() {
-  confirmRemoval(ownColors.value, { mine: true }, 'My colors');
+  confirmRemoval(ownColors.value, { mine: true }, 'Project colors');
+}
+function deleteProjectColor(c: Color) {
+  confirmRemoval([c], { color: c.id }, c.notecard.name);
+}
+const colorEditor = ref<InstanceType<typeof ColorEditor>>();
+function addProjectColor({ name, rgb }: { name: string; rgb: [number, number, number] }) {
+  project.change((d) => {
+    d.project.palette.colors.push({
+      id: itemId(settings.settings.author),
+      notecard: { name },
+      rgb,
+    });
+  });
 }
 function finishUnpick() {
   const u = unpicking.value!;
@@ -936,7 +989,10 @@ function removal(d: Draft<RrqDoc>, u: NonNullable<typeof unpicking.value>) {
   if (u.palette) {
     d.project.libraryPalettes = (d.project.libraryPalettes ?? []).filter((x) => x !== u.palette);
     if (!d.project.libraryPalettes.length) delete d.project.libraryPalettes;
-  } else d.project.palette.colors = d.project.palette.colors.filter((c) => isLibraryItem(c));
+  } else
+    d.project.palette.colors = d.project.palette.colors.filter((c) =>
+      u.color ? c.id !== u.color : isLibraryItem(c),
+    );
 }
 const applyRemoval = (u: NonNullable<typeof unpicking.value>) =>
   project.change((d) => removal(d, u));
@@ -1035,7 +1091,7 @@ function pickAll(bs: { id: string }[], on: boolean) {
 const colorGroups = computed(() => {
   const c = splitItems(project.doc!.project.palette.colors, library.items.colors);
   return [
-    { label: 'My colors', items: c.mine, mine: true },
+    { label: 'Project colors', items: c.mine, mine: true },
     ...libraryGroups(c.library, library.views, 'colors').map((g) => ({ ...g, mine: false })),
   ];
 });
@@ -1539,6 +1595,28 @@ function showPlacements() {
   padding: 8px;
   background: transparent;
   color: inherit;
+}
+.add-swatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(128, 128, 128, 0.6);
+}
+.remove-color {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.color-pick:hover .remove-color,
+.color-pick:focus-within .remove-color {
+  opacity: 1;
+}
+@media (hover: none) {
+  .remove-color {
+    opacity: 1;
+  }
 }
 .mini-swatch.big {
   width: 28px;

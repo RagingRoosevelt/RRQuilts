@@ -1,6 +1,7 @@
 // Project color operations (framework-free, used inside project.change recipes).
 import type { Draft } from 'immer';
 import type { ColoringBody } from '@/model/schema/coloring';
+import { resolveColoring } from '@/model/coloring';
 import { isLibraryItem } from '@/model/library-items';
 import type { RrqDoc } from '@/model/schema/project';
 
@@ -31,30 +32,49 @@ function ownColorings(d: RrqDoc | Draft<RrqDoc>): ColoringBody[] {
   ] as ColoringBody[];
 }
 
-/** Colors the project's own colorings use. */
-export const colorsUsed = (doc: RrqDoc) =>
-  new Set(
-    ownColorings(doc).flatMap((c) =>
-      Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])),
-    ),
-  );
+const colorsOf = (cs: readonly ColoringBody[]) =>
+  cs.flatMap((c) => Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])));
 
-/** Recolor the project's own colorings: every fill of an old color takes its new one. */
+/** Colors the user painted: in the project's own blocks and in quilt colorings. */
+export const colorsPainted = (doc: RrqDoc) => new Set(colorsOf(ownColorings(doc)));
+
+/** What each placed slot shows: its quilt coloring over its block's (library blocks included). */
+function shown(doc: RrqDoc | Draft<RrqDoc>, quilt: RrqDoc['project']['quilts'][number]) {
+  const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
+  return Object.values(quilt.layers[0].slots).flatMap((s) => {
+    const r = resolveColoring(quilt.colorings[s.coloring], blocks.get(s.block));
+    return r ? [r] : [];
+  });
+}
+
+/** Colors a quilt shows, its library blocks' designer colors included. */
+export const quiltColors = (doc: RrqDoc, quilt: RrqDoc['project']['quilts'][number]) =>
+  new Set(colorsOf(shown(doc, quilt)));
+
+/** Colors the project depends on: painted ones, and those its quilts show. */
+export const colorsUsed = (doc: RrqDoc) =>
+  new Set([...colorsPainted(doc), ...doc.project.quilts.flatMap((q) => [...quiltColors(doc, q)])]);
+
+/**
+ * Recolor: every painted fill of an old color takes its new one; where a quilt shows an old color
+ * from a block's own coloring (a library block's designer colors), the quilt recolors that patch,
+ * leaving the block unchanged.
+ */
 export function replaceColors(d: Draft<RrqDoc>, map: ReadonlyMap<string, string>) {
   for (const c of ownColorings(d))
     for (const f of Object.values(c.fills)) {
       const to = 'color' in f ? map.get(f.color) : undefined;
       if (to && 'color' in f) f.color = to;
     }
-}
-
-/** Colors a quilt shows: its own colorings' and those of the blocks placed in it. */
-export function quiltColors(doc: RrqDoc, quilt: RrqDoc['project']['quilts'][number]) {
-  const placed = new Set(Object.values(quilt.layers[0].slots).map((c) => c.block));
-  return new Set(
-    [
-      ...Object.values(quilt.colorings),
-      ...doc.project.blocks.filter((b) => placed.has(b.id)).flatMap((b) => b.colorings),
-    ].flatMap((c) => Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : []))),
-  );
+  const blocks = new Map(d.project.blocks.map((b) => [b.id, b]));
+  for (const q of d.project.quilts)
+    for (const s of Object.values(q.layers[0].slots)) {
+      const c = q.colorings[s.coloring];
+      const base = c?.base && blocks.get(s.block)?.colorings.find((x) => x.id === c.base);
+      if (!c || !base) continue;
+      for (const [patch, f] of Object.entries(base.fills)) {
+        const to = 'color' in f ? map.get(f.color) : undefined;
+        if (to && !c.fills[patch] && !c.cleared?.includes(patch)) c.fills[patch] = { color: to };
+      }
+    }
 }

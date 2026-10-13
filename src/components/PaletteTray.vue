@@ -145,7 +145,7 @@ import { useQuasar } from 'quasar';
 import { QExpansionItem } from 'quasar';
 import { computed, defineComponent, h, onMounted, ref } from 'vue';
 import ColorEditor from '@/components/ColorEditor.vue';
-import { colorInUse, deleteColor } from '@/editor/colors';
+import { colorInUse, colorsPainted, deleteColor } from '@/editor/colors';
 import type { RGB } from '@/editor/color';
 import { itemId } from '@/model/identity';
 import { useSettingsStore } from '@/stores/settings';
@@ -269,7 +269,7 @@ const colorGroups = computed(() => {
   const { mine, library: lib } = splitItems(colors, library.items.colors);
   const byId = new Map(lib.map((c) => [c.id, c]));
   // Library colors: the palettes picked in the project's Fabrics & Colors tab (labelled with their
-  // library), then any other library colors already in use.
+  // library), then other library colors in use.
   const picked = new Set(doc.value.project.libraryPalettes ?? []);
   const shown = new Set<string>();
   const palettes = library.views.flatMap((v) =>
@@ -285,7 +285,13 @@ const colorGroups = computed(() => {
         };
       }),
   );
-  const used = colors.filter((c) => isLibraryItem(c) && !shown.has(c.id));
+  // Library colors outside the picked palettes are offered once painted or picked up with the
+  // eyedropper; library blocks' own designer colors aren't offered by themselves.
+  const painted = colorsPainted(doc.value);
+  const used = [...new Set([...painted, ...editor.recentColors])]
+    .filter((id) => !shown.has(id) && !mine.some((c) => c.id === id))
+    .map((id) => colors.find((c) => c.id === id) ?? library.lookup.color(id))
+    .filter((c): c is Color => !!c);
   return [
     { label: 'Mine', items: recentFirst(mine), mine: true },
     ...palettes,
