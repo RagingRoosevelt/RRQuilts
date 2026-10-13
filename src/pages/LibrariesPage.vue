@@ -207,7 +207,7 @@
             </BlockSections>
 
             <div
-              v-if="g.collections.length || g.mine"
+              v-if="(g.collections.length || g.mine) && filters.types[0] !== 'block'"
               class="row items-center q-mb-sm"
               style="gap: 8px"
             >
@@ -664,7 +664,7 @@ const SkippedList = defineComponent({
 // --- Browsing: filters over every library ---
 const filtersOpen = ref($q.screen.gt.sm);
 const select = (id: string) => {
-  for (const k of Object.keys(filters) as (keyof typeof filters)[]) filters[k] = [];
+  for (const k of ['cats', 'tags', 'styles'] as const) filters[k] = [];
   search.value = '';
   hiddenLibs.value =
     id === 'mine' ? [] : library.views.map((v) => v.doc.id).filter((x) => x !== id);
@@ -690,7 +690,8 @@ const mineCount = computed(() => library.mine?.items.length ?? 0);
 const search = ref('');
 /** Selected values per filter; empty = any. Category '' = uncategorized. */
 const filters = reactive({
-  types: [] as string[],
+  /** The Type picker: one type, or none for all. */
+  types: ['block'] as string[],
   cats: [] as string[],
   tags: [] as string[],
   styles: [] as string[],
@@ -698,7 +699,11 @@ const filters = reactive({
 /** What's typed in each dropdown to narrow its options. */
 const needle = reactive({ types: '', cats: '', tags: '', styles: '' });
 const filtering = computed(
-  () => !!search.value || !!hiddenLibs.value.length || Object.values(filters).some((f) => f.length),
+  // The Type picker is a view choice, not a filter (it always has a value).
+  () =>
+    !!search.value ||
+    !!hiddenLibs.value.length ||
+    [filters.cats, filters.tags, filters.styles].some((f) => f.length),
 );
 const inScope = computed(() => library.views.filter((v) => !hiddenLibs.value.includes(v.doc.id)));
 const values = (f: 'tags' | 'styles') =>
@@ -709,9 +714,9 @@ const allCats = computed(() => [
   ...new Map(inScope.value.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
 ]);
 const TYPE_OPTIONS = [
-  { label: 'All', value: '' },
   { label: 'Blocks', value: 'block' },
   { label: 'Palettes', value: 'colors' },
+  { label: 'All', value: '' },
 ];
 const filterFields = computed(() => {
   const cats = allCats.value;

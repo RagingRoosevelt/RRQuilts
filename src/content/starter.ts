@@ -537,6 +537,11 @@ export interface BuiltinItems {
  * blocks) so its content versions are stable across app loads.
  */
 export function builtinItems(): BuiltinItems {
+  // Deriving hundreds of blocks' patches is slow: build once, hand out copies (callers mutate).
+  return structuredClone((built ??= buildItems()));
+}
+let built: BuiltinItems | undefined;
+function buildItems(): BuiltinItems {
   const colors: Color[] = [...STARTER_COLORS, ...STARTER_PALETTES.flatMap((p) => p.colors)].map(
     ([name, rgb]) => ({
       id: libId(name),
