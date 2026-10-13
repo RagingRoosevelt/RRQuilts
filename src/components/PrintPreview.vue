@@ -582,6 +582,8 @@ const look = computed(() => ({
   labels: prefs.value.labels,
   tint: prefs.value.tint,
   square: prefs.value.squareOnTemplate ? SQUARES[units.value] : undefined,
+  seam: prefs.value.seamAllowance && prefs.value.seamLabel ? seam.value : 0,
+  seamText: `SA = ${fmt(seam.value)}`,
 }));
 /** Scale squares on templates: the largest that fits, `big` on pieces at least `bigAt` a side. */
 const SQUARES = {

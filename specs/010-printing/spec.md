@@ -42,7 +42,8 @@ picture, block picture — from the existing Print tabs."
   alignment marks (notch mid-curve), labels (letter / cut counts / finished size; a finished size with an approximate fraction prints small and the cut count large), tint by fabric
   (one fabric only), one template per page, scale square on each template (default on: 1″ / 2 cm under
   the labels, smaller if it doesn't fit, 2″ / 5 cm on pieces at least 6″ / 15 cm a side). The quilt picture page always has a
-  scale square above the footer; footers hold only the title and byline.
+  scale square above the footer; footers hold only the title and byline. "SA = ¼″" printed in the seam allowance
+  along each template's longest edge (option, default on).
 - Q: Tinted templates? → A: One per fabric. A separate "Color key" label codes them by fabric number
   (A-2 = A from fabric 2; legend on the key). The template key is on the block page by default (option); template pages then skip
   it. Block pages show fabric pills only for fabrics that block uses.

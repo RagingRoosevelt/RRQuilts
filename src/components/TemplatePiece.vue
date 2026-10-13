@@ -56,6 +56,15 @@
       <path :d="head(1)" fill="#000" />
       <path :d="head(-1)" fill="#000" />
     </g>
+    <text
+      v-if="seamSpot"
+      :transform="`translate(${seamSpot.x} ${seamSpot.y}) rotate(${seamSpot.deg})`"
+      :font-size="seamSpot.size"
+      text-anchor="middle"
+      dominant-baseline="central"
+    >
+      {{ look.seamText }}
+    </text>
     <g v-if="scaleSquare">
       <rect
         :x="piece.center[0] - scaleSquare / 2"
@@ -126,7 +135,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { Pt } from '@/model/geometry/path';
+import { pointInPolygon, type Pt } from '@/model/geometry/path';
 import { pillWidth, wrapPills } from '@/model/print/pack';
 import type { PlacedPiece } from '@/model/print/pieces';
 
@@ -144,6 +153,9 @@ const props = defineProps<{
     labels: { letter: boolean; counts: boolean; size: boolean; color: boolean };
     tint: boolean;
     square?: { sizes: number[]; big: number; bigAt: number } | undefined;
+    /** Seam allowance to label in the band between the lines (0 = no label), and the label. */
+    seam?: number;
+    seamText?: string;
   };
   /** Formats a length for the scale square's label. */
   fmt?: (x: number) => string;
@@ -236,6 +248,32 @@ const scaleSquare = computed(() => {
   if (side >= s.bigAt - 1e-6 && fits(s.big)) return s.big;
   // ponytail: a piece too small for the smallest square gets none.
   return s.sizes.find(fits) ?? 0;
+});
+
+/** "SA = ¼″" along the longest sewing edge, centered in the seam allowance and reading upright. */
+const seamSpot = computed(() => {
+  const s = props.look.seam ?? 0;
+  const text = props.look.seamText ?? '';
+  const sew = props.piece.sew;
+  if (!s || sew.length < 3) return undefined;
+  const size = Math.min(props.look.font * 0.7, s * 0.7);
+  // Longest edge; between equal ones, the most level (reads without turning the page).
+  let best: { a: Pt; b: Pt; L: number; score: number } | undefined;
+  sew.forEach((a, i) => {
+    const b = sew[(i + 1) % sew.length]!;
+    const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const score = L * (1 + (0.01 * Math.abs(b[0] - a[0])) / (L || 1));
+    if (!best || score > best.score) best = { a, b, L, score };
+  });
+  if (!best || best.L < text.length * 0.55 * size * 1.3) return undefined;
+  const { a, b, L } = best;
+  const mid: Pt = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  let n: Pt = [(b[1] - a[1]) / L, -(b[0] - a[0]) / L];
+  if (pointInPolygon([mid[0] + n[0] * s * 0.1, mid[1] + n[1] * s * 0.1], sew)) n = [-n[0], -n[1]];
+  let deg = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
+  if (deg > 90) deg -= 180;
+  else if (deg <= -90) deg += 180;
+  return { x: mid[0] + (n[0] * s) / 2, y: mid[1] + (n[1] * s) / 2, deg, size };
 });
 
 const squareFont = computed(() => Math.min(props.look.font * 0.7, scaleSquare.value * 0.4));

@@ -243,6 +243,13 @@
           label="Scale square on each template"
           @update:model-value="(v: boolean) => set('squareOnTemplate', v)"
         />
+        <q-checkbox
+          :model-value="prefs.seamLabel"
+          dense
+          label="Seam allowance size on each template"
+          :disable="!prefs.seamAllowance"
+          @update:model-value="(v: boolean) => set('seamLabel', v)"
+        />
       </div>
     </q-expansion-item>
 

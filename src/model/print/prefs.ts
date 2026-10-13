@@ -46,6 +46,8 @@ export const PRINT_DEFAULTS = {
   onePerPage: false,
   /** A scale square on each template (the quilt picture page always has one). */
   squareOnTemplate: true,
+  /** "SA = ¼″" in each template's seam allowance. */
+  seamLabel: true,
   /** Label the block page's picture with template codes (then template pages skip their key). */
   keyOnBlockPage: true,
   lineWeight: 'thin' as 'thin' | 'medium' | 'thick',
