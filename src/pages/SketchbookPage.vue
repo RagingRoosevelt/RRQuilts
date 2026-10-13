@@ -1640,6 +1640,9 @@ function showPlacements() {
   left: 0;
   z-index: 1;
 }
+.card .pick-box :deep(.q-checkbox__bg) {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
 .card.picked {
   border-color: var(--q-primary);
 }
