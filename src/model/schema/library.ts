@@ -3,7 +3,7 @@ import Type from 'typebox';
 import { Block } from './block';
 import { Color } from './palette';
 import { Units } from './project';
-import { itemBase } from './shared';
+import { itemBase, Socials } from './shared';
 
 export const LIBRARY_FORMAT = 'rrqlib';
 export const LIBRARY_VERSION = 1;
@@ -58,7 +58,13 @@ const head = {
   revision: Type.Integer({ minimum: 1 }),
   name: Type.String(),
   description: Type.Optional(Type.String()),
-  author: Type.Optional(Type.Object({ name: Type.String(), url: Type.Optional(Type.String()) })),
+  author: Type.Optional(
+    Type.Object({
+      name: Type.String(),
+      url: Type.Optional(Type.String()),
+      socials: Type.Optional(Socials),
+    }),
+  ),
   license: Type.Optional(Type.String()),
   changelog: Type.Optional(Type.Array(ChangelogEntry)),
   credits: Type.Optional(Type.Array(LibraryCredit)),

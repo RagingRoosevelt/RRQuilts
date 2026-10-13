@@ -12,6 +12,7 @@ import {
   type LibraryBackup,
   type LibraryDoc,
 } from './schema/library';
+import type { Socials } from './schema/shared';
 
 export type LibraryParse =
   { ok: true; doc: LibraryBackup; skipped: string[] } | { ok: false; error: string };
@@ -129,6 +130,7 @@ export interface PackMeta {
   name: string;
   description?: string;
   author: string;
+  socials?: Socials;
   license: string;
 }
 
@@ -177,7 +179,10 @@ export function packDoc(mine: LibraryDoc, me: string, meta: PackMeta) {
     revision: 1,
     name: meta.name,
     ...(meta.description ? { description: meta.description } : {}),
-    author: { name: meta.author || 'anonymous' },
+    author: {
+      name: meta.author || 'anonymous',
+      ...(meta.socials?.length ? { socials: meta.socials } : {}),
+    },
     license: lock && lock.license !== meta.license ? lock.license : meta.license,
     changelog: [],
     ...(credits.length ? { credits } : {}),

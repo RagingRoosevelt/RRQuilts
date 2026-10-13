@@ -23,6 +23,15 @@ export const Notecard = Type.Object({
   categories: Type.Optional(Type.Array(Type.String())),
 });
 
+/** The author's socials: a site (or free-text type) and a handle (or, for Website/custom, a link). */
+export const Socials = Type.Array(
+  Type.Object({
+    type: Type.String({ maxLength: 60 }),
+    handle: Type.String({ maxLength: 500 }),
+  }),
+  { maxItems: 50 },
+);
+
 /** Where an item copied from a library or repository came from. */
 export const Source = Type.Object({
   libraryId: Type.String(),
@@ -101,6 +110,7 @@ export const itemBase = {
 };
 
 export type Credit = Type.Static<typeof Credit>;
+export type Socials = Type.Static<typeof Socials>;
 export type Path = Type.Static<typeof Path>;
 export type PathCommand = Type.Static<typeof PathCommand>;
 export type Asset = Type.Static<typeof Asset>;

@@ -283,6 +283,7 @@
                   class="pick-box"
                   :model-value="isPicked(b.id)"
                   :disable="project.readOnly || inUse(b.id)"
+                  :color="inUse(b.id) ? 'grey-8' : 'primary'"
                   :aria-label="`Use ${b.notecard.name} in this project`"
                   @update:model-value="(v: boolean) => pick(b.id, v)"
                 >
@@ -829,6 +830,7 @@ import { itemId } from '@/model/identity';
 import FullName from '@/components/FullName.vue';
 import { useLibraryStore } from '@/stores/library';
 import { revealSection } from '@/composables/block-sections';
+import { socialsOut } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthor } from '@/composables/author';
 import { useAskCategory } from '@/composables/category';
@@ -1452,7 +1454,13 @@ function exportBlock(b: Block) {
   const stamped = { ...b, license: effectiveLicense(b, project.doc!) };
   void exportFile(
     b.notecard.name,
-    serializeBlock(stamped, project.doc!.units, palette, author),
+    serializeBlock(
+      stamped,
+      project.doc!.units,
+      palette,
+      author,
+      socialsOut(settings.settings.socials),
+    ),
     'rrqbl',
   );
 }

@@ -12,6 +12,7 @@ import { variationName } from './new-quilt';
 import { Block } from './schema/block';
 import { Color } from './schema/palette';
 import { Units, type RrqDoc } from './schema/project';
+import { Socials } from './schema/shared';
 
 export const BLOCK_FORMAT = 'rrqbl';
 export const BLOCK_VERSION = 1;
@@ -22,6 +23,7 @@ export const BlockFile = Type.Object({
   units: Units,
   /** Display name of whoever exported it. */
   author: Type.Optional(Type.String()),
+  authorSocials: Type.Optional(Socials),
   block: Block,
   colors: Type.Array(Color),
 });
@@ -40,6 +42,7 @@ export function blockFile(
   units: Units,
   palette: readonly Color[],
   author: string,
+  socials: Socials = [],
 ): BlockFile {
   const used = colorIdsOf(block);
   const colors = [...new Map(palette.filter((c) => used.has(c.id)).map((c) => [c.id, c])).values()];
@@ -48,6 +51,7 @@ export function blockFile(
     version: BLOCK_VERSION,
     units,
     ...(author ? { author } : {}),
+    ...(author && socials.length ? { authorSocials: socials } : {}),
     block,
     colors,
   };

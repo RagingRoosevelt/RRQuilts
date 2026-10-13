@@ -2,7 +2,7 @@ import Type from 'typebox';
 import { Block } from './block';
 import { Embroidery, Font, Palette, Photo } from './palette';
 import { Quilt } from './quilt';
-import { Id, ItemId } from './shared';
+import { Id, ItemId, Socials } from './shared';
 
 export const FORMAT = 'rrq';
 export const VERSION = 1;
@@ -15,6 +15,7 @@ export const Project = Type.Object({
   name: Type.String(),
   notes: Type.Optional(Type.String()),
   author: Type.Optional(Type.String()),
+  authorSocials: Type.Optional(Socials),
   /** Covers the file; default for items without their own license (spec 009). */
   license: Type.Optional(Type.String()),
   palette: Palette,

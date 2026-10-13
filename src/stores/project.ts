@@ -20,6 +20,7 @@ import {
 import { useLibraryStore } from './library';
 import { createHistory } from '@/editor/undo';
 import { createAutosave } from '@/session/autosave';
+import { socialsOut } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
 import {
   acquireEditLock,
@@ -117,9 +118,11 @@ export const useProjectStore = defineStore('project', () => {
 
   /** New, empty project in the units chosen in Settings (library items embed when used). */
   function newProject(name?: string) {
-    const { units, author } = useSettingsStore().settings;
+    const { units, author, socials } = useSettingsStore().settings;
     const doc = createProject(name, units, APP);
     if (author) doc.project.author = author;
+    const out = socialsOut(socials);
+    if (author && out.length) doc.project.authorSocials = out;
     return load(doc, { saved: false, dirty: false });
   }
 

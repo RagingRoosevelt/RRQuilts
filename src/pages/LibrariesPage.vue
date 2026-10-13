@@ -689,6 +689,7 @@ import { blockThumbnail } from '@/render/thumbnail';
 import { exportFile, pickFile } from '@/storage/files';
 import { useLibraryStore } from '@/stores/library';
 import { revealSection } from '@/composables/block-sections';
+import { socialsOut } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
 
 const APP = import.meta.env.APP_VERSION;
@@ -989,7 +990,7 @@ async function copyMine(v: LibraryView, id: string) {
 function exportBlock(b: Block) {
   void exportFile(
     b.notecard.name,
-    serializeBlock(b, 'in', library.items.colors, me.value),
+    serializeBlock(b, 'in', library.items.colors, me.value, socialsOut(settings.settings.socials)),
     'rrqbl',
   );
 }
@@ -1139,6 +1140,7 @@ const shared = computed(() =>
         name: sharing.value.name.trim(),
         description: sharing.value.description.trim(),
         author: sharing.value.author.trim(),
+        socials: socialsOut(settings.settings.socials),
         license: sharing.value.license,
       })
     : null,

@@ -57,6 +57,27 @@
         "author": {
           "type": "string"
         },
+        "authorSocials": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type",
+              "handle"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "maxLength": 60
+              },
+              "handle": {
+                "type": "string",
+                "maxLength": 500
+              }
+            }
+          },
+          "maxItems": 50
+        },
         "license": {
           "type": "string"
         },

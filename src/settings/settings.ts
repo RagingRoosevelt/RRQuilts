@@ -4,6 +4,8 @@
 export type Theme = 'auto' | 'light' | 'dark';
 export type Units = 'in' | 'cm';
 
+import type { Social } from './socials';
+
 export interface Settings {
   theme: Theme;
   units: Units;
@@ -20,6 +22,8 @@ export interface Settings {
   libraryGroupBy: 'none' | 'category' | 'tags' | 'styles';
   /** Project (sketchbook) page: last tab. */
   projectTab: 'quilts' | 'blocks' | 'colors' | 'photos' | 'threads' | 'details';
+  /** Your socials (GitHub, a pattern shop, …): a known or free-text type and a handle (or link). */
+  socials: Social[];
   /** Project Blocks / Palettes tabs leave out the library lists (Settings › Libraries). */
   hideLibraryBlocks: boolean;
   hideLibraryPalettes: boolean;
@@ -63,6 +67,7 @@ export const defaults = (): Settings => ({
   trayTab: 'blocks',
   libraryGroupBy: 'none',
   libraryType: 'block',
+  socials: [],
   hideLibraryBlocks: false,
   hideLibraryPalettes: false,
   hideSyncedMine: true,
@@ -80,6 +85,17 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   trayTab: (v) => v === 'blocks' || v === 'colors',
   libraryGroupBy: (v) => v === 'none' || v === 'category' || v === 'tags' || v === 'styles',
   libraryType: (v) => v === 'block' || v === 'colors' || v === '',
+  socials: (v) =>
+    Array.isArray(v) &&
+    v.length <= 50 &&
+    v.every(
+      (x) =>
+        isObject(x) &&
+        typeof x.type === 'string' &&
+        x.type.length <= 60 &&
+        typeof x.handle === 'string' &&
+        x.handle.length <= 500,
+    ),
   hideLibraryBlocks: (v) => typeof v === 'boolean',
   hideLibraryPalettes: (v) => typeof v === 'boolean',
   hideSyncedMine: (v) => typeof v === 'boolean',
