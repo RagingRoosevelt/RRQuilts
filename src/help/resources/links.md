@@ -9,32 +9,32 @@ fetched until you follow it.
 
 ## RRQuilts
 
-- [RRQuilts on GitHub](https://github.com/RagingRoosevelt/RRQuilts): the source code (MIT licensed).
-- [Report a problem or suggest an idea](https://github.com/RagingRoosevelt/RRQuilts/issues): GitHub
-  issues.
-- [The project file format](https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v1.json): the JSON
-  Schema for `.rrq` files, for anyone writing tools that read them.
+- The source code (MIT licensed) is on [RRQuilts on GitHub](https://github.com/RagingRoosevelt/RRQuilts).
+- To [report a problem or suggest an idea](https://github.com/RagingRoosevelt/RRQuilts/issues), open a GitHub
+  issue.
+- Anyone writing tools that read `.rrq` files can use the JSON Schema for
+  [the project file format](https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v1.json).
 
 ## Licenses
 
 Blocks, palettes, and packs carry a license that says what others may do with them (see
 [Credits and licenses](/help/guides/credits-and-licenses)).
 
-- [About the Creative Commons licenses](https://creativecommons.org/share-your-work/cclicenses/):
-  what BY, SA, NC, and ND mean.
-- [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): share and adapt, with credit.
-- [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): the same, and adaptations keep
+- [About the Creative Commons licenses](https://creativecommons.org/share-your-work/cclicenses/)
+  explains what BY, SA, NC, and ND mean.
+- [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) lets others share and adapt, with credit.
+- [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) is the same, and adaptations keep
   the license.
-- [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): as BY-SA, non-commercial
-  only.
-- [CC0 / Public Domain](https://creativecommons.org/public-domain/cc0/): no conditions.
+- [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) works like BY-SA but allows
+  non-commercial use only.
+- [CC0 / Public Domain](https://creativecommons.org/public-domain/cc0/) places no conditions on use.
 
 ## Learning to quilt
 
-- [Quilting on Wikipedia](https://en.wikipedia.org/wiki/Quilting): history, terms, and techniques.
-- [The International Quilt Museum](https://www.internationalquiltmuseum.org/): collections and
+- [Quilting on Wikipedia](https://en.wikipedia.org/wiki/Quilting) covers history, terms, and techniques.
+- [The International Quilt Museum](https://www.internationalquiltmuseum.org/) shows collections and
   exhibitions of historic and contemporary quilts.
-- [The Quilt Alliance](https://quiltalliance.org/): documenting and sharing quilts and their makers'
+- [The Quilt Alliance](https://quiltalliance.org/) documents and shares quilts and their makers'
   stories.
-- [Quilt Index](https://quiltindex.org/): a searchable database of documented quilts and patterns.
-- Your local quilt guild or quilt shop: the best place to learn hands-on.
+- [Quilt Index](https://quiltindex.org/) is a searchable database of documented quilts and patterns.
+- Your local quilt guild or quilt shop is the best place to learn hands-on.

@@ -4,7 +4,7 @@ order: 70
 summary: My library, installed packs, backup and restore, and sharing your own pack.
 ---
 
-The **Libraries** screen (header, next to **Project**) holds reusable blocks and palettes. There are three kinds of library:
+The **Libraries** screen (header, next to **Project**) holds reusable blocks and palettes. It has three kinds of library.
 
 - **Built-in** blocks and palettes that come with the app.
 - **My library** is your own work, kept in this browser.
@@ -15,14 +15,14 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
 1. Choose **Libraries** in the header.
 2. Tick the libraries to show in the **Libraries** list on the side. Use **Type** to show **Blocks**, **Palettes** or **All**, the search box, and the **Category**, **Tags** and **Styles** filters.
 3. Use **Group blocks by** to arrange blocks by **Nothing**, **Category**, **Tags** or **Styles**.
-4. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)** (palettes: **Export (.rrqplt)**).
+4. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)**. Palettes use **Export (.rrqplt)** instead.
 
 Pack items cannot be renamed or changed. Use **Copy to my library** and edit the copy. The copy keeps credit for the original author ([Credits and licenses](/help/guides/credits-and-licenses)).
 
 ## Put a project block or palette in My library
 
-1. For a block: in the project's **Blocks** tab, open the block's **Actions** menu and choose **Add to my library…**.
-2. For colors: in the **Palettes** tab, tick the colors and click **Save to my library…**.
+1. For a block, open its **Actions** menu in the project's **Blocks** tab and choose **Add to my library…**.
+2. For colors, tick them in the **Palettes** tab and click **Save to my library…**.
 3. If you later change the project's version, **Sync to my library** (in the same menu, or the button in the **Palettes** tab) updates the library copy.
 
 ## Use library blocks in a project

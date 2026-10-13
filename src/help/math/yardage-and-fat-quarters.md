@@ -20,7 +20,7 @@ Usable width is a little less than the printed width, since selvages are trimmed
 ## Fat quarters
 
 A fat quarter is 18″ × 21″ (50 × 55 cm), with 20″ (53 cm) usable. Strips are packed into the 18″ (50
-cm) depth: the calculator counts how many fat quarters the strips fit into.
+cm) depth. The calculator counts how many fat quarters the strips fit into.
 
 <svg viewBox="0 0 220 110" width="330" role="img" aria-label="A fat quarter with strips laid across its width">
   <rect x="10" y="10" width="140" height="90" fill="none" stroke="currentColor" stroke-width="1.5"/>

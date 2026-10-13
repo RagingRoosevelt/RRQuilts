@@ -6,7 +6,7 @@ summary: Draw a block from seams (lines and arcs) and let the app find the patch
 
 A block is a square or rectangle drawn with **seams**. Wherever seams close a shape, the app
 finds a **patch** that you can color. Start from **New block** in the sketchbook's **Blocks** tab,
-or **Edit** one of your blocks. The block editor has four tabs: **Details**, **Draw**, **Color**, and
+or **Edit** one of your blocks. The block editor has four tabs named **Details**, **Draw**, **Color**, and
 **Print**. Library blocks are read-only. Use **Edit (make a copy)** in the sketchbook.
 
 ## Set the size
@@ -19,10 +19,10 @@ shape too.
 
 Pick a tool on the left rail and drag on the block:
 
-1. **Line**: drag from one point to another.
-2. **Arc**: drag the same way. The seam curves. **Flip arc direction** (or Space while drawing) bends
+1. **Line** draws a straight seam. Drag from one point to another.
+2. **Arc** works the same way, but the seam curves. **Flip arc direction** (or Space while drawing) bends
    it the other way. After drawing, select the arc and drag its handle to change the curve.
-3. **Grid**: drag a rectangle to divide it into **Columns** × **Rows** cells in one move.
+3. **Grid** divides a rectangle you drag into **Columns** × **Rows** cells in one move.
 4. Seams that don't join at both ends are shown in red. Join them so the shapes close.
 
 Points snap to guides so seams stay tidy. Open **Snapping & graph paper** in the sidebar to choose
@@ -40,8 +40,8 @@ Points snap to guides so seams stay tidy. Open **Snapping & graph paper** in the
 
 ## Then color it
 
-Switch to the **Color** tab ([Block colorings](/help/guides/block-colorings)). Piecing math for the
-shapes you draw: [Half-square triangles](/help/math/half-square-triangles).
+Switch to the **Color** tab ([Block colorings](/help/guides/block-colorings)). For the piecing math of
+the shapes you draw, see [Half-square triangles](/help/math/half-square-triangles).
 
 ## Details and Print
 

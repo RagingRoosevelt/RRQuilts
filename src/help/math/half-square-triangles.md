@@ -25,7 +25,7 @@ of the triangle has to extend √2 × the seam allowance past the finished corne
   <line x1="10" y1="110" x2="110" y2="10" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="20,100 20,32 88,100" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-dasharray="4 3"/>
   <text x="125" y="40" font-size="11" fill="currentColor">cut square</text>
-  <text x="125" y="58" font-size="11" fill="currentColor">dashed: finished</text>
+  <text x="125" y="58" font-size="11" fill="currentColor">finished (dashed)</text>
   <text x="125" y="76" font-size="11" fill="currentColor">triangle</text>
 </svg>
 

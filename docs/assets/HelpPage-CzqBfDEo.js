@@ -1,4 +1,4 @@
-import{t as e}from"./settings-cLrrNpzD.js";import{Dt as t,J as n,R as r,T as i,U as a,V as o,X as s,at as c,b as l,f as u,ft as d,g as f,h as p,jt as m,m as h,ot as g,p as _,s as v,t as y,x as b,y as ee}from"./create-CXFiK9Ge.js";import{t as te,v as ne}from"./QBtn-D67DqTct.js";import{H as x,V as S,n as C,r as re,t as w}from"./QCard-BviQ4XyX.js";import{a as ie,r as ae}from"./render-CRP6lwgu.js";import{N as T,P as oe,R as se,V as ce,z as le}from"./index-CrTPu0L8.js";import{n as ue,t as de}from"./QTabs-flRVKxmY.js";import{t as fe}from"./QPage-D5_MJ09N.js";import{t as pe}from"./LengthInput-nbYx0JpU.js";import{S as me,_ as he,a as E,b as ge,i as _e,n as ve,o as ye,r as be,t as xe,x as Se,y as Ce}from"./yardage-D5dwrINA.js";var we=[`horizontal`,`vertical`,`cell`,`none`],Te=y({name:`QMarkupTable`,props:{...x,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>we.includes(e)}},setup(e,{slots:t}){let n=ie(),r=S(e,n),a=u(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>i(`div`,{class:a.value,tabindex:0},[i(`table`,{class:`q-table`},ae(t.default))])}}),Ee=(e,t)=>({units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:he[e][0].usable,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}),D=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),O=(e,t)=>D([[0,0],[e,0],[e,t],[0,t]]),k=e=>D([[0,0],[e,0],[0,e]]),De=e=>D([[0,0],[e,0],[e/2,e/2]]),Oe=(e,t)=>D([[0,0],[e,0],[e-t,t],[t,t]]),A=(e,t)=>Se(e,t.units),j=(e,t)=>e.cut[0]===e.cut[1]?`${A(e.cut[0],t)} square`:`${A(e.cut[0],t)} × ${A(e.cut[1],t)}`,M=(e,t)=>({in:e,cm:t}),ke={square:{title:`Square`,inputs:[{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:j(E(O(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:M(6,15)},{key:`h`,label:`Finished width`,start:M(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:j(E(O(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished size (leg)`,start:M(3,8)}],rows:({f:e},t)=>{let n=E(k(e),t.seam,t.step),r=me((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${j(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${A(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${A(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:M(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${j(E(De(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:M(4,10)},{key:`h`,label:`Finished height`,start:M(2,5)}],rows:({w:e,h:t},n)=>{let r=E(De(e),n.seam,n.step),i=E(k(t),n.seam,n.step);return[{label:`Stitch and flip (1)`,value:`${j(E(O(e,t),n.seam,n.step),n)} rectangle + 2 × ${j(E(O(t,t),n.seam,n.step),n)}`},{label:`Four at a time (4)`,value:`1 × ${j(r,n)} + 4 × ${j(i,n)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${j(r,n)}; sky: 2 halves of a ${j(i,n)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit`,start:M(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:j(E(O(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${j(E(k(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block`,start:M(10,25)}],rows:({f:e},t)=>[{label:`Block diagonal`,value:A(e*Math.SQRT2,t)},{label:`Side setting triangles`,value:`${j(E(De(e*Math.SQRT2),t.seam,t.step),t)}, cut both diagonals (4)`},{label:`Corner setting triangles`,value:`${j(E(k(e/Math.SQRT2),t.seam,t.step),t)}, cut once (2)`}]},border:{title:`Borders`,inputs:[{key:`w`,label:`Quilt width (before the border)`,start:M(48,120)},{key:`h`,label:`Quilt height (before the border)`,start:M(60,150)},{key:`b`,label:`Border width`,start:M(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${j(E(O(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${j(E(O(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${j(E(Oe(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${j(E(Oe(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,inputs:[{key:`w`,label:`Quilt width`,start:M(48,120)},{key:`h`,label:`Quilt height`,start:M(48,120)}],rows:({w:e,h:t},n)=>{let r=be(e,t,n.bindingWidth,xe[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${A(n.bindingWidth,n)} wide`},{label:`Total length`,value:A(2*(e+t)+xe[n.units],n)},{label:`Fabric`,value:ge(r.length,n.units)}]}},backing:{title:`Backing`,inputs:[{key:`w`,label:`Quilt width`,start:M(60,150)},{key:`h`,label:`Quilt height`,start:M(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:ge(ve(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${A(n.overhang,n)} each side`}]},yardage:{title:`Yardage for squares`,inputs:[{key:`n`,label:`How many`,start:M(40,40),count:!0},{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({n:e,f:t},n)=>{let r=Array.from({length:Math.max(1,Math.round(e))},()=>O(t,t)),i=ye(r,n.seam,n.step,n.usable),a=_e(i,{usable:n.usable},n.fabricStep)[0],o=he[n.units].find(e=>e.fatQuarter),s=ye(r,n.seam,n.step,o.usable),c=_e(s,o,n.fabricStep)[0];return[{label:`Strips`,value:`${i[0].strips} × ${A(i[0].stripWidth,n)} (${i[0].perStrip} per strip)`},{label:`Fabric (${A(n.usable,n)} usable)`,value:ge(a.length,n.units)},{label:`Or fat quarters`,value:String(c.fatQuarters)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:M(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:A(e,t)},{label:`Cut (rounded up)`,value:A(me(e,t.step),t)}]}},Ae={class:`text-subtitle2`},je={class:`text-caption text-grey-7`},Me={class:`text-grey-8`},Ne={class:`text-weight-medium`},Pe=T(b({__name:`HelpCalc`,props:{name:{}},setup(t){let n=t,i=oe(),a=e(),p=u(()=>ke[n.name]),g=u(()=>i.doc?.units??a.settings.units),y=u(()=>Ee(g.value,Ce(a.settings.print))),b=c(Object.fromEntries((p.value?.inputs??[]).map(e=>[e.key,e.start[g.value]]))),te=u(()=>{let e=p.value;return!e||e.inputs.some(e=>!(b[e.key]>0))?[]:e.rows(b,y.value)});return(e,n)=>p.value?(r(),h(w,{key:0,flat:``,bordered:``,class:`help-calc q-my-md`},{default:s(()=>[l(C,{class:`q-pb-sm`},{default:s(()=>[_(`div`,Ae,[l(ne,{name:`calculate`,class:`q-mr-xs`}),ee(m(p.value.title)+` calculator `,1)]),_(`div`,je,` Seam allowance `+m(d(Se)(y.value.seam,g.value))+` · cut sizes rounded up to `+m(y.value.step?d(Se)(y.value.step,g.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),l(C,{class:`row q-pt-none`,style:{gap:`12px`}},{default:s(()=>[(r(!0),f(v,null,o(p.value.inputs,e=>(r(),f(v,{key:e.key},[e.count||e.raw?(r(),h(re,{key:0,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(r(),h(pe,{key:1,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,units:g.value,min:.25,label:e.label,style:{width:`200px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),l(Te,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:s(()=>[_(`tbody`,null,[(r(!0),f(v,null,o(te.value,e=>(r(),f(`tr`,{key:e.label},[_(`td`,Me,m(e.label),1),_(`td`,Ne,m(e.value),1)]))),128))])]),_:1})]),_:1})):(r(),h(ce,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:s(()=>[ee(`Unknown calculator “`+m(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-d2cee685`]]),Fe=`---
+import{t as e}from"./settings-cLrrNpzD.js";import{Dt as t,J as n,R as r,T as i,U as a,V as o,X as s,at as c,b as l,f as u,ft as d,g as f,h as p,jt as m,m as h,ot as g,p as _,s as v,t as y,x as b,y as ee}from"./create-CXFiK9Ge.js";import{t as te,v as ne}from"./QBtn-D67DqTct.js";import{H as x,V as S,n as C,r as re,t as w}from"./QCard-BviQ4XyX.js";import{a as ie,r as ae}from"./render-CRP6lwgu.js";import{N as T,P as oe,R as se,V as ce,z as le}from"./index-BbVyzjcA.js";import{n as ue,t as de}from"./QTabs-flRVKxmY.js";import{t as fe}from"./QPage-D5_MJ09N.js";import{t as pe}from"./LengthInput-nbYx0JpU.js";import{S as me,_ as he,a as E,b as ge,i as _e,n as ve,o as ye,r as be,t as xe,x as Se,y as Ce}from"./yardage-D5dwrINA.js";var we=[`horizontal`,`vertical`,`cell`,`none`],Te=y({name:`QMarkupTable`,props:{...x,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>we.includes(e)}},setup(e,{slots:t}){let n=ie(),r=S(e,n),a=u(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>i(`div`,{class:a.value,tabindex:0},[i(`table`,{class:`q-table`},ae(t.default))])}}),Ee=(e,t)=>({units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:he[e][0].usable,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}),D=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),O=(e,t)=>D([[0,0],[e,0],[e,t],[0,t]]),k=e=>D([[0,0],[e,0],[0,e]]),De=e=>D([[0,0],[e,0],[e/2,e/2]]),Oe=(e,t)=>D([[0,0],[e,0],[e-t,t],[t,t]]),A=(e,t)=>Se(e,t.units),j=(e,t)=>e.cut[0]===e.cut[1]?`${A(e.cut[0],t)} square`:`${A(e.cut[0],t)} × ${A(e.cut[1],t)}`,M=(e,t)=>({in:e,cm:t}),ke={square:{title:`Square`,inputs:[{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:j(E(O(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:M(6,15)},{key:`h`,label:`Finished width`,start:M(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:j(E(O(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished size (leg)`,start:M(3,8)}],rows:({f:e},t)=>{let n=E(k(e),t.seam,t.step),r=me((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${j(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${A(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${A(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:M(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${j(E(De(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:M(4,10)},{key:`h`,label:`Finished height`,start:M(2,5)}],rows:({w:e,h:t},n)=>{let r=E(De(e),n.seam,n.step),i=E(k(t),n.seam,n.step);return[{label:`Stitch and flip (1)`,value:`${j(E(O(e,t),n.seam,n.step),n)} rectangle + 2 × ${j(E(O(t,t),n.seam,n.step),n)}`},{label:`Four at a time (4)`,value:`1 × ${j(r,n)} + 4 × ${j(i,n)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${j(r,n)}; sky: 2 halves of a ${j(i,n)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit`,start:M(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:j(E(O(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${j(E(k(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block`,start:M(10,25)}],rows:({f:e},t)=>[{label:`Block diagonal`,value:A(e*Math.SQRT2,t)},{label:`Side setting triangles`,value:`${j(E(De(e*Math.SQRT2),t.seam,t.step),t)}, cut both diagonals (4)`},{label:`Corner setting triangles`,value:`${j(E(k(e/Math.SQRT2),t.seam,t.step),t)}, cut once (2)`}]},border:{title:`Borders`,inputs:[{key:`w`,label:`Quilt width (before the border)`,start:M(48,120)},{key:`h`,label:`Quilt height (before the border)`,start:M(60,150)},{key:`b`,label:`Border width`,start:M(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${j(E(O(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${j(E(O(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${j(E(Oe(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${j(E(Oe(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,inputs:[{key:`w`,label:`Quilt width`,start:M(48,120)},{key:`h`,label:`Quilt height`,start:M(48,120)}],rows:({w:e,h:t},n)=>{let r=be(e,t,n.bindingWidth,xe[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${A(n.bindingWidth,n)} wide`},{label:`Total length`,value:A(2*(e+t)+xe[n.units],n)},{label:`Fabric`,value:ge(r.length,n.units)}]}},backing:{title:`Backing`,inputs:[{key:`w`,label:`Quilt width`,start:M(60,150)},{key:`h`,label:`Quilt height`,start:M(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:ge(ve(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${A(n.overhang,n)} each side`}]},yardage:{title:`Yardage for squares`,inputs:[{key:`n`,label:`How many`,start:M(40,40),count:!0},{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({n:e,f:t},n)=>{let r=Array.from({length:Math.max(1,Math.round(e))},()=>O(t,t)),i=ye(r,n.seam,n.step,n.usable),a=_e(i,{usable:n.usable},n.fabricStep)[0],o=he[n.units].find(e=>e.fatQuarter),s=ye(r,n.seam,n.step,o.usable),c=_e(s,o,n.fabricStep)[0];return[{label:`Strips`,value:`${i[0].strips} × ${A(i[0].stripWidth,n)} (${i[0].perStrip} per strip)`},{label:`Fabric (${A(n.usable,n)} usable)`,value:ge(a.length,n.units)},{label:`Or fat quarters`,value:String(c.fatQuarters)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:M(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:A(e,t)},{label:`Cut (rounded up)`,value:A(me(e,t.step),t)}]}},Ae={class:`text-subtitle2`},je={class:`text-caption text-grey-7`},Me={class:`text-grey-8`},Ne={class:`text-weight-medium`},Pe=T(b({__name:`HelpCalc`,props:{name:{}},setup(t){let n=t,i=oe(),a=e(),p=u(()=>ke[n.name]),g=u(()=>i.doc?.units??a.settings.units),y=u(()=>Ee(g.value,Ce(a.settings.print))),b=c(Object.fromEntries((p.value?.inputs??[]).map(e=>[e.key,e.start[g.value]]))),te=u(()=>{let e=p.value;return!e||e.inputs.some(e=>!(b[e.key]>0))?[]:e.rows(b,y.value)});return(e,n)=>p.value?(r(),h(w,{key:0,flat:``,bordered:``,class:`help-calc q-my-md`},{default:s(()=>[l(C,{class:`q-pb-sm`},{default:s(()=>[_(`div`,Ae,[l(ne,{name:`calculate`,class:`q-mr-xs`}),ee(m(p.value.title)+` calculator `,1)]),_(`div`,je,` Seam allowance `+m(d(Se)(y.value.seam,g.value))+` · cut sizes rounded up to `+m(y.value.step?d(Se)(y.value.step,g.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),l(C,{class:`row q-pt-none`,style:{gap:`12px`}},{default:s(()=>[(r(!0),f(v,null,o(p.value.inputs,e=>(r(),f(v,{key:e.key},[e.count||e.raw?(r(),h(re,{key:0,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(r(),h(pe,{key:1,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,units:g.value,min:.25,label:e.label,style:{width:`200px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),l(Te,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:s(()=>[_(`tbody`,null,[(r(!0),f(v,null,o(te.value,e=>(r(),f(`tr`,{key:e.label},[_(`td`,Me,m(e.label),1),_(`td`,Ne,m(e.value),1)]))),128))])]),_:1})]),_:1})):(r(),h(ce,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:s(()=>[ee(`Unknown calculator “`+m(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-d2cee685`]]),Fe=`---
 title: Block colorings
 order: 50
 summary: Color a block's patches and keep several colorings of the same drawing.
@@ -61,14 +61,14 @@ To change a project color later, right-click (or long-press) it in the tray and 
 1. In the project's **Palettes** tab, scroll to **Library palettes**.
 2. Tick the checkbox beside each palette you want. Its colors then appear in the quilt editor's **Colors** tray, under the library's name.
 
-Library colors are read-only. Right-click one in the tray and choose **Edit a copy…** to make your own version. If the list is empty, check **Settings › Libraries**: **Hide library palettes from projects** hides it.
+Library colors are read-only. Right-click one in the tray and choose **Edit a copy…** to make your own version. If the list is empty, check **Settings › Libraries**, where **Hide library palettes from projects** hides it.
 
 ## Paint a quilt
 
 1. Open a quilt and choose its **Design** tab.
 2. In the tray, open the **Colors** tab and click a color.
 3. Pick the **Paint** tool and tap a patch. **Spray (same color)**, **Swap color everywhere** and **Eyedropper** are in the same toolbar.
-4. Set the scope first: **This** paints one block, **All** every identical block, **Alternate** every other one.
+4. Set the scope first. **This** paints one block, **All** paints every identical block, and **Alternate** paints every other one.
 
 ## Save colors as a palette
 
@@ -90,7 +90,7 @@ Every project, quilt and block has an author and a license, and copies remember 
 
 ## Edit the details
 
-1. Open the item: the project's **Details** tab, a quilt's **Details** tab, or a block's **Details** tab in the block editor.
+1. Open the **Details** tab of the project, of a quilt, or of a block in the block editor.
 2. Edit **Title**, **Author** and **Notes**. Leave **Author** empty to show "anonymous". Your default name comes from **Settings › You**.
 3. Choose a **License**. Each option explains its terms underneath.
 
@@ -114,7 +114,7 @@ A quilt also lists **Blocks by others**, with their credits.
 
 ## Licenses lock
 
-Earlier work limits your choice: share-alike and non-commercial licenses carry forward, and all rights reserved is the strictest. When the choice is limited the **License** field is locked (padlock) and says what requires it. A quilt using a locked block inherits that lock.
+Earlier work limits your choice. Share-alike and non-commercial licenses carry forward, and all rights reserved is the strictest. When the choice is limited the **License** field is locked (padlock) and says what requires it. A quilt using a locked block inherits that lock.
 
 ## In print
 
@@ -126,7 +126,7 @@ summary: Set the layout and borders, place blocks, color patches, and use Apply 
 ---
 
 Open a quilt from the sketchbook's **Quilts** tab (or create one from **Start a quilt**). The quilt
-editor has five tabs along the top: **Details**, **Layout**, **Borders**, **Design**, and **Print**.
+editor has five tabs along the top named **Details**, **Layout**, **Borders**, **Design**, and **Print**.
 The **menu** button at the right hides or shows the sidebar. Two toggles on the left rail show or
 hide the seam lines and the block names, and the bar under the quilt reports its finished size.
 
@@ -145,7 +145,7 @@ hide the seam lines and the block names, and the bar under the quilt reports its
 1. Open the **Borders** tab. Borders are numbered from the inside out (1 is innermost).
 2. **Add outside** adds a border, **Insert inside** adds one just inside the selected border,
    **Clone** copies it. The arrow buttons **Move inward / outward**, and the trash button deletes.
-3. Choose a **Style**: **Long horizontal** or **Long vertical** (the long strips run the full length
+3. Choose a **Style** of **Long horizontal** or **Long vertical** (the long strips run the full length
    on that side) or **Mitered** (diagonal corners). Pieced borders are coming soon.
 4. Set the width of each side with **Left**, **Top**, **Right**, **Bottom**. **All sides**,
    **L+R / T+B**, and **Each** choose how many sides move together.
@@ -186,11 +186,11 @@ The left rail holds the tools. Tooltips and a hint line above the tray say what 
 
 ## Apply to
 
-Above the tray, **Apply to** controls how many spaces a tap affects:
+Above the tray, **Apply to** controls how many spaces a tap affects.
 
-- **This**: only the space you tap.
-- **All**: every space of the same kind (all blocks of that block, all sashes, one border…).
-- **Alternate**: every other one of those spaces, in a checkerboard.
+- **This** colors only the space you tap.
+- **All** covers every space of the same kind (all blocks of that block, all sashes, one border…).
+- **Alternate** takes every other one of those spaces, in a checkerboard.
 
 ## Details and Print
 
@@ -205,7 +205,7 @@ summary: Draw a block from seams (lines and arcs) and let the app find the patch
 
 A block is a square or rectangle drawn with **seams**. Wherever seams close a shape, the app
 finds a **patch** that you can color. Start from **New block** in the sketchbook's **Blocks** tab,
-or **Edit** one of your blocks. The block editor has four tabs: **Details**, **Draw**, **Color**, and
+or **Edit** one of your blocks. The block editor has four tabs named **Details**, **Draw**, **Color**, and
 **Print**. Library blocks are read-only. Use **Edit (make a copy)** in the sketchbook.
 
 ## Set the size
@@ -218,10 +218,10 @@ shape too.
 
 Pick a tool on the left rail and drag on the block:
 
-1. **Line**: drag from one point to another.
-2. **Arc**: drag the same way. The seam curves. **Flip arc direction** (or Space while drawing) bends
+1. **Line** draws a straight seam. Drag from one point to another.
+2. **Arc** works the same way, but the seam curves. **Flip arc direction** (or Space while drawing) bends
    it the other way. After drawing, select the arc and drag its handle to change the curve.
-3. **Grid**: drag a rectangle to divide it into **Columns** × **Rows** cells in one move.
+3. **Grid** divides a rectangle you drag into **Columns** × **Rows** cells in one move.
 4. Seams that don't join at both ends are shown in red. Join them so the shapes close.
 
 Points snap to guides so seams stay tidy. Open **Snapping & graph paper** in the sidebar to choose
@@ -239,8 +239,8 @@ Points snap to guides so seams stay tidy. Open **Snapping & graph paper** in the
 
 ## Then color it
 
-Switch to the **Color** tab ([Block colorings](/help/guides/block-colorings)). Piecing math for the
-shapes you draw: [Half-square triangles](/help/math/half-square-triangles).
+Switch to the **Color** tab ([Block colorings](/help/guides/block-colorings)). For the piecing math of
+the shapes you draw, see [Half-square triangles](/help/math/half-square-triangles).
 
 ## Details and Print
 
@@ -253,16 +253,16 @@ order: 10
 summary: Start a quilt, save it to a file, open it again, recover unsaved work, and use the app offline.
 ---
 
-RRQuilts runs entirely in your browser: there is no account, and nothing is sent to a server. Your
-work lives in a **project**: one file (ending in \`.rrq\`) that holds your quilts, blocks, and colors.
+RRQuilts runs entirely in your browser. There is no account, and nothing is sent to a server. Your
+work lives in a **project**, one file (ending in \`.rrq\`) that holds your quilts, blocks, and colors.
 
 ## Start a quilt
 
 1. On the home page (the **RRQuilts** button in the header), choose **Start a quilt**.
 2. The wizard has three steps. Use **Next** to move on, or click a step's title.
-   - **Blocks**: **Columns**, **Rows**, and **Finished block size**.
-   - **Sashing**: **Sashing width (0 for none)**, and **Sashing around the outside**.
-   - **Borders**: **Number of borders** and the **Width of each**.
+   - **Blocks** sets **Columns**, **Rows**, and **Finished block size**.
+   - **Sashing** has **Sashing width (0 for none)** and **Sashing around the outside**.
+   - **Borders** takes the **Number of borders** and the **Width of each**.
 3. Choose **Create quilt**. The quilt opens in the Design tab, ready for you to place blocks. See
    [Designing a quilt](/help/guides/designing-a-quilt).
 
@@ -297,7 +297,7 @@ first. Closing the tab with unsaved changes also asks you to confirm.
 ## Recover unsaved work
 
 While you edit, the app keeps a **draft** of your project in the browser (within about 15 seconds of each change). A draft
-is crash insurance, not a save: it can be lost if you clear site data.
+is crash insurance and not a save, because clearing site data can erase it.
 
 1. If the browser closed or crashed, the app offers **Restore unsaved work?** the next time it opens.
 2. Choose **Restore** on the project you want, or **Discard** to delete its draft. **Decide later**
@@ -327,7 +327,7 @@ order: 70
 summary: My library, installed packs, backup and restore, and sharing your own pack.
 ---
 
-The **Libraries** screen (header, next to **Project**) holds reusable blocks and palettes. There are three kinds of library:
+The **Libraries** screen (header, next to **Project**) holds reusable blocks and palettes. It has three kinds of library.
 
 - **Built-in** blocks and palettes that come with the app.
 - **My library** is your own work, kept in this browser.
@@ -338,14 +338,14 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
 1. Choose **Libraries** in the header.
 2. Tick the libraries to show in the **Libraries** list on the side. Use **Type** to show **Blocks**, **Palettes** or **All**, the search box, and the **Category**, **Tags** and **Styles** filters.
 3. Use **Group blocks by** to arrange blocks by **Nothing**, **Category**, **Tags** or **Styles**.
-4. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)** (palettes: **Export (.rrqplt)**).
+4. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)**. Palettes use **Export (.rrqplt)** instead.
 
 Pack items cannot be renamed or changed. Use **Copy to my library** and edit the copy. The copy keeps credit for the original author ([Credits and licenses](/help/guides/credits-and-licenses)).
 
 ## Put a project block or palette in My library
 
-1. For a block: in the project's **Blocks** tab, open the block's **Actions** menu and choose **Add to my library…**.
-2. For colors: in the **Palettes** tab, tick the colors and click **Save to my library…**.
+1. For a block, open its **Actions** menu in the project's **Blocks** tab and choose **Add to my library…**.
+2. For colors, tick them in the **Palettes** tab and click **Save to my library…**.
 3. If you later change the project's version, **Sync to my library** (in the same menu, or the button in the **Palettes** tab) updates the library copy.
 
 ## Use library blocks in a project
@@ -382,8 +382,8 @@ Both editors have a **Print** tab. It replaces the canvas with a preview of the 
 ## Print a block
 
 1. Open a block in the block editor and choose its **Print** tab.
-2. Under **Print**, tick what you want: **Block page (picture, fabric, credits)**, **Rotary cutting chart**, **Templates**.
-3. Choose a **Size**: the finished size, or **Custom size** with **Width** and **Height**.
+2. Under **Print**, tick what you want, from **Block page (picture, fabric, credits)**, **Rotary cutting chart**, and **Templates**.
+3. Choose a **Size**, either the finished size or **Custom size** with **Width** and **Height**.
 4. Check the page count above the preview, then click **Print**.
 
 ## Print a quilt
@@ -396,21 +396,21 @@ The browser print dialog opens. Print at 100% scale, not "fit to page", and chec
 
 ## Set the options
 
-- **Paper**: paper size, **Portrait** or **Landscape**, and **Margins**.
-- **Cutting**: **Seam allowance**, **Cut size rounding** (up to the next 1/8 in or 5 mm, or none), and for quilts **Extra length on mitered strips** (trimmed after sewing, 0 to cut exact).
-- **Fabric** (quilts): **Fabric rounding**, **Backing extra per side**, **Binding strip width**.
-- **Templates**: **Include seam allowance**, **Trimmed points**, **Shaded seam allowance**, **Cutting line**, **Sewing line**, **Grain lines**, **Mirror templates**, **Curve alignment marks**, **Tint by fabric**, **One template per page**, which labels to print on each template, and a **Scale square on each template**.
-- **Look**: **Line weight** and **Pictures as outlines only**.
+- **Paper** covers the paper size, **Portrait** or **Landscape**, and **Margins**.
+- **Cutting** has **Seam allowance**, **Cut size rounding** (up to the next 1/8 in or 5 mm, or none), and for quilts **Extra length on mitered strips** (trimmed after sewing, 0 to cut exact).
+- **Fabric** (quilts) has **Fabric rounding**, **Backing extra per side**, and **Binding strip width**.
+- **Templates** offers **Include seam allowance**, **Trimmed points**, **Shaded seam allowance**, **Cutting line**, **Sewing line**, **Grain lines**, **Mirror templates**, **Curve alignment marks**, **Tint by fabric**, **One template per page**, which labels to print on each template, and a **Scale square on each template**.
+- **Look** holds **Line weight** and **Pictures as outlines only**.
 
 Options are remembered in your settings. The numbers use the same formulas as the [rounding](/help/math/rounding) and [seam allowance](/help/math/seam-allowance) topics.
 
 ## What the pages contain
 
-- **Rotary cutting chart**: each patch's cut size and how many to cut. Triangle sizes follow [half-square triangles](/help/math/half-square-triangles) and [quarter-square triangles](/help/math/quarter-square-triangles).
-- **Templates**: lettered, true-size pieces to cut around. Pieces bigger than a sheet are split into numbered parts with shaded overlaps.
-- **Yardage estimate**: fabric per color, plus backing and binding. See [yardage and fat quarters](/help/math/yardage-and-fat-quarters), [backing](/help/math/backing) and [binding](/help/math/binding).
-- **Mitered corner guide**: if the quilt has mitered borders, a true-size guide shows each strip's 45 degree ends and where stitching stops. See [borders](/help/math/borders).
-- **Credits**: author, license and earlier contributors ([Credits and licenses](/help/guides/credits-and-licenses)).
+- The **Rotary cutting chart** gives each patch's cut size and how many to cut. Triangle sizes follow [half-square triangles](/help/math/half-square-triangles) and [quarter-square triangles](/help/math/quarter-square-triangles).
+- **Templates** are lettered, true-size pieces to cut around. Pieces bigger than a sheet are split into numbered parts with shaded overlaps.
+- The **Yardage estimate** lists fabric per color, plus backing and binding. See [yardage and fat quarters](/help/math/yardage-and-fat-quarters), [backing](/help/math/backing) and [binding](/help/math/binding).
+- The **Mitered corner guide** appears if the quilt has mitered borders. This true-size guide shows each strip's 45 degree ends and where stitching stops. See [borders](/help/math/borders).
+- **Credits** list the author, license and earlier contributors ([Credits and licenses](/help/guides/credits-and-licenses)).
 `,Ue=`---
 title: Settings
 order: 100
@@ -422,14 +422,14 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 ## You
 
 - **Your name** goes into projects, blocks and packs you make. The ids of new items start with a short form of it.
-- **Socials**: click **Add a social**, pick a **Type** (Website, or a site, or type your own) and a **Handle or link**. Drag the handle at the left to reorder. The selected radio button is the one shown in printed credits.
+- **Socials** are added with **Add a social**. Pick a **Type** (Website, a site, or one you type) and a **Handle or link**. Drag the handle at the left to reorder. The selected radio button is the one shown in printed credits.
 
 ## Interface
 
-- **Theme**: **Auto**, **Light** or **Dark**.
-- **Use the system accent color**: where the browser shares it, otherwise blue.
-- **Units for new projects**: **Inches** or **Centimeters**. An open project's units are in its **Details** tab.
-- **Editor layout**: **Toolbar left, sidebar right** or **Sidebar left, toolbar right**.
+- **Theme** can be **Auto**, **Light** or **Dark**.
+- **Use the system accent color** applies where the browser shares it, and the app is blue otherwise.
+- **Units for new projects** can be **Inches** or **Centimeters**. An open project's units are in its **Details** tab.
+- **Editor layout** puts the panels either as **Toolbar left, sidebar right** or as **Sidebar left, toolbar right**.
 
 ## Libraries and Project
 
@@ -445,7 +445,7 @@ Anything in the file that isn't valid is reset to its default, and the message s
 `,We=`---
 title: The project sketchbook
 order: 20
-summary: Your project's home screen: its quilts, blocks, palettes, and details.
+summary: Your project's home screen, with its quilts, blocks, palettes, and details.
 ---
 
 Choose **Project** in the header (it appears once a project is open) to see the sketchbook. Rename
@@ -468,7 +468,7 @@ across the whole project.
 
 1. **New block** asks for a name and opens the block editor ([Drawing blocks](/help/guides/drawing-blocks)).
 2. **Import blocks** reads blocks from a \`.rrqbl\` file or from another project. Tick the ones to add.
-3. On a block's **Actions** menu: **Edit**, **Edit a copy**, **Preview**, **Details**,
+3. A block's **Actions** menu offers **Edit**, **Edit a copy**, **Preview**, **Details**,
    **Export (.rrqbl)**, **Move earlier / later**, **Delete**, plus **Add to my library…** or **Sync to my library** for the My library
    links. Small icons on a card show that the block is
    placed in a quilt, is in My library, or has changed since it was saved there.
@@ -517,16 +517,16 @@ The result is rounded up to your fabric step (⅛ yd or 10 cm by default).
 <svg viewBox="0 0 220 120" width="330" role="img" aria-label="A quilt top centered on a larger backing, with overhang on every side">
   <rect x="10" y="10" width="120" height="100" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.5"/>
   <rect x="25" y="25" width="90" height="70" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
-  <text x="142" y="50" font-size="11" fill="currentColor">dashed: quilt</text>
-  <text x="142" y="67" font-size="11" fill="currentColor">solid: backing</text>
+  <text x="142" y="50" font-size="11" fill="currentColor">quilt (dashed)</text>
+  <text x="142" y="67" font-size="11" fill="currentColor">backing (solid)</text>
 </svg>
 
 ## Worked examples
 
 | Quilt        | Backing      | Panels (40″ / 105 cm usable)              | Fabric        |
 | ------------ | ------------ | ----------------------------------------- | ------------- |
-| 60″ × 72″    | 68″ × 80″    | 2 side to side: 2 × 68 = 136″ (vs 160″)   | 139½″ = 3⅞ yd |
-| 150 × 180 cm | 170 × 200 cm | 2 side to side: 2 × 170 = 340 cm (vs 400) | 340 cm        |
+| 60″ × 72″    | 68″ × 80″    | 2 side to side, 2 × 68 = 136″ (vs 160″)   | 139½″ = 3⅞ yd |
+| 150 × 180 cm | 170 × 200 cm | 2 side to side, 2 × 170 = 340 cm (vs 400) | 340 cm        |
 
 ::calc backing
 `,Ke=`---
@@ -576,13 +576,13 @@ border) and border width.
 
 ## Straight borders
 
-Sew the **sides** first: each is as long as the quilt is tall. Then sew the **top and bottom**, which
+Sew the **sides** first, each as long as the quilt is tall. Then sew the **top and bottom**, which
 are as long as the quilt is wide _plus both side borders_.
 
 > **sides = quilt height × border width**
 > **top and bottom = (quilt width + 2 × border width) × border width**
 
-Each is then cut with a seam allowance added on every edge: finished + 2s, like any
+Each is then cut with a seam allowance added on every edge, so finished + 2s, like any
 [rectangle](/help/math/squares-and-rectangles).
 
 ## Mitered borders
@@ -599,11 +599,11 @@ The cut length then adds **s × (1 + √2) at each end**, a total of **2(1 + √
 - **s** for the seam allowance on the border's outer edge, which pushes the strip's edge out, and so the
   diagonal's end point along the edge, by one more s.
 
-<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A mitered border strip: a trapezoid with 45 degree ends, its seam allowance beyond the finished corner">
+<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A mitered border strip shaped like a trapezoid with 45 degree ends, its seam allowance beyond the finished corner">
   <polygon points="10,10 150,10 130,40 30,40" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="20,10 140,10 124,34 36,34" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
-  <text x="160" y="25" font-size="11" fill="currentColor">dashed: finished</text>
-  <text x="160" y="42" font-size="11" fill="currentColor">solid: cut, longer</text>
+  <text x="160" y="25" font-size="11" fill="currentColor">finished (dashed)</text>
+  <text x="160" y="42" font-size="11" fill="currentColor">cut, longer (solid)</text>
 </svg>
 
 The **Extra length on mitered strips** setting (default 2″ / 5 cm) adds more, so you can trim after
@@ -625,14 +625,14 @@ order: 50
 summary: A tall triangle with a smaller triangle on each side, built three ways.
 ---
 
-A flying-geese unit is a rectangle twice as wide as it is tall: one large triangle (the goose) with a
-smaller triangle (the sky) at each side. Three common ways to make one, each with its own cut sizes:
+A flying-geese unit is a rectangle twice as wide as it is tall, with one large triangle (the goose) and a
+smaller triangle (the sky) at each side. There are three common ways to make one, each with its own cut sizes.
 
 ## Stitch and flip (1 unit)
 
 Cut one **rectangle** (finished width × height) and **two squares** (finished height). Place a square
 on each end of the rectangle, sew diagonally, and flip. The cut sizes are the usual
-[rectangle and square](/help/math/squares-and-rectangles) sizes: finished + 2s.
+[rectangle and square](/help/math/squares-and-rectangles) sizes, finished + 2s.
 
 ## Four at a time (4 units)
 
@@ -646,18 +646,18 @@ are the [half-square](/help/math/half-square-triangles) size for the finished he
 Cut the goose from a quarter of the large square, and each sky from half of a small one. The cut sizes
 are the same as for four at a time, but nothing is sewn before cutting.
 
-<svg viewBox="0 0 220 90" width="330" role="img" aria-label="A flying-geese unit: a large triangle with a smaller triangle on each side">
+<svg viewBox="0 0 220 90" width="330" role="img" aria-label="A flying-geese unit with a large triangle and a smaller triangle on each side">
   <rect x="10" y="10" width="140" height="70" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="10,80 80,10 150,80" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
-  <text x="160" y="40" font-size="11" fill="currentColor">goose: large</text>
-  <text x="160" y="56" font-size="11" fill="currentColor">sky: two small</text>
+  <text x="160" y="40" font-size="11" fill="currentColor">goose from the large square</text>
+  <text x="160" y="56" font-size="11" fill="currentColor">sky from two small ones</text>
 </svg>
 
 ## Worked examples
 
-For a 4″ × 2″ finished unit: the stitch-and-flip rectangle is 4½″ × 2½″ with two 2½″ squares. Four at
-a time uses one 5¼″ square for the geese and four 2⅞″ squares for the sky. For 10 × 5 cm: 11.5 × 6.5 cm
-rectangle with two 6.5 cm squares. Or one 14 cm square and four 8 cm squares.
+A 4″ × 2″ finished unit made by stitch and flip needs a 4½″ × 2½″ rectangle and two 2½″ squares. Four at
+a time uses one 5¼″ square for the geese and four 2⅞″ squares for the sky. For 10 × 5 cm, stitch and flip
+needs an 11.5 × 6.5 cm rectangle with two 6.5 cm squares, and four at a time needs one 14 cm square and four 8 cm squares.
 
 ::calc geese
 `,Ye=`---
@@ -687,7 +687,7 @@ of the triangle has to extend √2 × the seam allowance past the finished corne
   <line x1="10" y1="110" x2="110" y2="10" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="20,100 20,32 88,100" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-dasharray="4 3"/>
   <text x="125" y="40" font-size="11" fill="currentColor">cut square</text>
-  <text x="125" y="58" font-size="11" fill="currentColor">dashed: finished</text>
+  <text x="125" y="58" font-size="11" fill="currentColor">finished (dashed)</text>
   <text x="125" y="76" font-size="11" fill="currentColor">triangle</text>
 </svg>
 
@@ -721,11 +721,11 @@ then filled with triangles.
 For a finished block of side f, the block's diagonal (corner to corner) is **f × √2**.
 
 - **Side setting triangles** have their long side along the quilt's edge, so they are
-  [quarter-square triangles](/help/math/quarter-square-triangles) with a long side of f × √2: cut a
+  [quarter-square triangles](/help/math/quarter-square-triangles) with a long side of f × √2. Cut a
   square of f × √2 + 2(1 + √2)s and cut both diagonals. Keeping the long side on the straight grain
   stops the quilt's edge from stretching.
 - **Corner setting triangles** are [half-square triangles](/help/math/half-square-triangles) whose
-  legs are f ÷ √2: cut a square of f ÷ √2 + (2 + √2)s once diagonally. You need 2 squares (4
+  legs are f ÷ √2. Cut a square of f ÷ √2 + (2 + √2)s once diagonally. You need 2 squares (4
   corners).
 
 <svg viewBox="0 0 220 130" width="330" role="img" aria-label="Four blocks turned on point, with triangles filling the edges and corners">
@@ -794,7 +794,7 @@ order: 120
 summary: Why cut sizes round up to a ruler mark, and what that does to your piece.
 ---
 
-Exact cut sizes often don't fall on a ruler mark. The triangle formulas especially: a ¼″ seam
+Exact cut sizes often don't fall on a ruler mark. The triangle formulas are the clearest case, since a ¼″ seam
 allowance gives 3.854″, which sits between 3¾″ and 3⅞″. The app rounds **up** to the next mark so the
 piece is never too small, then you can trim it down after sewing.
 
@@ -802,7 +802,7 @@ piece is never too small, then you can trim it down after sewing.
 
 > **cut = ⌈exact ÷ step⌉ × step**
 
-The step is the **Rounding** setting in the Print tab: ⅛″ or 1/16″ (inches), 5 mm or 1 mm (metric), or
+The step is the **Rounding** setting in the Print tab. It offers ⅛″ or 1/16″ (inches), 5 mm or 1 mm (metric), or
 none for exact numbers. Fabric amounts use their own step (⅛ yd, ¼ yd, ½ yd, or 10, 20, 45 cm).
 
 ## Worked examples
@@ -839,17 +839,17 @@ calculator in Help follows it.
 
 ## Why it matters
 
-A seam allowance that is a hair too wide or narrow adds up over a block. Sew a test, and
-measure: three strips cut 2″ wide (5 cm) and sewn together should measure exactly 5″ across (with 5 cm strips and 7.5 mm seams, 12 cm). If not, adjust your
+A seam allowance that is a hair too wide or narrow adds up over a block. Sew a test and
+measure. Three strips cut 2″ wide (5 cm) and sewn together should measure exactly 5″ across (with 5 cm strips and 7.5 mm seams, 12 cm). If not, adjust your
 needle position or presser foot until they do. Accuracy matters more than the exact value, so use the
 same allowance throughout a project.
 
 <svg viewBox="0 0 220 110" width="330" role="img" aria-label="A cut square with a dashed stitching line inside it. The gap is the seam allowance">
   <rect x="10" y="10" width="100" height="90" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
   <rect x="25" y="25" width="70" height="60" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
-  <text x="125" y="40" font-size="11" fill="currentColor">solid: cut edge</text>
-  <text x="125" y="58" font-size="11" fill="currentColor">dashed: sewing line</text>
-  <text x="125" y="76" font-size="11" fill="currentColor">shaded: seam allowance</text>
+  <text x="125" y="40" font-size="11" fill="currentColor">cut edge (solid)</text>
+  <text x="125" y="58" font-size="11" fill="currentColor">sewing line (dashed)</text>
+  <text x="125" y="76" font-size="11" fill="currentColor">seam allowance (shaded)</text>
 </svg>
 
 ## Where it shows up
@@ -875,7 +875,7 @@ For a finished unit of side f:
 
 > **center square (finished) = f ÷ √2**
 > **center cut = f ÷ √2 + 2 × seam allowance**
-> **corner triangles: two squares of the half-square size for f ÷ 2, each cut once diagonally**
+> **corner triangles = two squares of the half-square size for f ÷ 2, each cut once diagonally**
 
 The center's diagonal is the unit's side, so its side is f ÷ √2 (about 0.707 × f). The corners are
 half-square triangles whose legs are f ÷ 2, so the cut is f ÷ 2 + (2 + √2) × s, and each square is
@@ -884,7 +884,7 @@ cut once diagonally to make 2 triangles.
 <svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square with a tilted square inside it, touching the middle of each side">
   <rect x="10" y="10" width="100" height="100" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="60,10 110,60 60,110 10,60" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
-  <text x="125" y="55" font-size="11" fill="currentColor">center: tilted</text>
+  <text x="125" y="55" font-size="11" fill="currentColor">tilted center</text>
   <text x="125" y="72" font-size="11" fill="currentColor">4 corner triangles</text>
 </svg>
 
@@ -905,7 +905,7 @@ order: 20
 summary: Cut size is the finished size plus a seam allowance on each side.
 ---
 
-Squares and rectangles are the simplest pieces: each edge gets a seam allowance, so each dimension
+Squares and rectangles are the simplest pieces. Each edge gets a seam allowance, so each dimension
 grows by two of them.
 
 ## The formula
@@ -964,7 +964,7 @@ Usable width is a little less than the printed width, since selvages are trimmed
 ## Fat quarters
 
 A fat quarter is 18″ × 21″ (50 × 55 cm), with 20″ (53 cm) usable. Strips are packed into the 18″ (50
-cm) depth: the calculator counts how many fat quarters the strips fit into.
+cm) depth. The calculator counts how many fat quarters the strips fit into.
 
 <svg viewBox="0 0 220 110" width="330" role="img" aria-label="A fat quarter with strips laid across its width">
   <rect x="10" y="10" width="140" height="90" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -994,35 +994,35 @@ fetched until you follow it.
 
 ## RRQuilts
 
-- [RRQuilts on GitHub](https://github.com/RagingRoosevelt/RRQuilts): the source code (MIT licensed).
-- [Report a problem or suggest an idea](https://github.com/RagingRoosevelt/RRQuilts/issues): GitHub
-  issues.
-- [The project file format](https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v1.json): the JSON
-  Schema for \`.rrq\` files, for anyone writing tools that read them.
+- The source code (MIT licensed) is on [RRQuilts on GitHub](https://github.com/RagingRoosevelt/RRQuilts).
+- To [report a problem or suggest an idea](https://github.com/RagingRoosevelt/RRQuilts/issues), open a GitHub
+  issue.
+- Anyone writing tools that read \`.rrq\` files can use the JSON Schema for
+  [the project file format](https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v1.json).
 
 ## Licenses
 
 Blocks, palettes, and packs carry a license that says what others may do with them (see
 [Credits and licenses](/help/guides/credits-and-licenses)).
 
-- [About the Creative Commons licenses](https://creativecommons.org/share-your-work/cclicenses/):
-  what BY, SA, NC, and ND mean.
-- [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): share and adapt, with credit.
-- [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): the same, and adaptations keep
+- [About the Creative Commons licenses](https://creativecommons.org/share-your-work/cclicenses/)
+  explains what BY, SA, NC, and ND mean.
+- [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) lets others share and adapt, with credit.
+- [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) is the same, and adaptations keep
   the license.
-- [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): as BY-SA, non-commercial
-  only.
-- [CC0 / Public Domain](https://creativecommons.org/public-domain/cc0/): no conditions.
+- [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) works like BY-SA but allows
+  non-commercial use only.
+- [CC0 / Public Domain](https://creativecommons.org/public-domain/cc0/) places no conditions on use.
 
 ## Learning to quilt
 
-- [Quilting on Wikipedia](https://en.wikipedia.org/wiki/Quilting): history, terms, and techniques.
-- [The International Quilt Museum](https://www.internationalquiltmuseum.org/): collections and
+- [Quilting on Wikipedia](https://en.wikipedia.org/wiki/Quilting) covers history, terms, and techniques.
+- [The International Quilt Museum](https://www.internationalquiltmuseum.org/) shows collections and
   exhibitions of historic and contemporary quilts.
-- [The Quilt Alliance](https://quiltalliance.org/): documenting and sharing quilts and their makers'
+- [The Quilt Alliance](https://quiltalliance.org/) documents and shares quilts and their makers'
   stories.
-- [Quilt Index](https://quiltindex.org/): a searchable database of documented quilts and patterns.
-- Your local quilt guild or quilt shop: the best place to learn hands-on.
+- [Quilt Index](https://quiltindex.org/) is a searchable database of documented quilts and patterns.
+- Your local quilt guild or quilt shop is the best place to learn hands-on.
 `,it=`---
 title: Continuous mitered binding
 order: 10
@@ -1130,7 +1130,7 @@ order: 20
 summary: Make flying geese with stitch and flip, or four at a time from one large and four small squares.
 ---
 
-A flying geese unit is a rectangle twice as wide as it is tall: a large triangle (the goose) with a
+A flying geese unit is a rectangle twice as wide as it is tall, with a large triangle (the goose) and a
 small triangle (sky) on each side. The formulas are in [flying geese](/help/math/flying-geese).
 The calculator gives the cut sizes for each method.
 
@@ -1194,7 +1194,7 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
   <line x1="100" y1="80" x2="150" y2="30" stroke="currentColor"/>
 </svg>
 
-6. Trim each unit to 4½″ × 2½″ (11.5 × 6.5 cm): the finished size plus a seam allowance on every
+6. Trim each unit to 4½″ × 2½″ (11.5 × 6.5 cm), which is the finished size plus a seam allowance on every
    side, leaving ¼″ beyond the point.
 `,ot=`---
 title: Half-square triangle units
@@ -1219,8 +1219,8 @@ For a finished unit with a 3″ (8 cm) leg, ¼″ (7.5 mm) seams, and rounding t
 
 ::calc hst
 
-The units come out slightly oversize. Trim them to the finished size plus two seam allowances:
-3½″ (9.5 cm) in this example.
+The units come out slightly oversize. Trim them to the finished size plus two seam allowances,
+which is 3½″ (9.5 cm) in this example.
 
 ## Two at a time
 
@@ -1332,8 +1332,8 @@ corners.
   <polygon points="100,10 145,55 100,100 55,55" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
 </svg>
 
-5. Trim the unit to the finished size plus a seam allowance on each side: 4½″ (11.5 cm) square in
-   this example. The points of the center square sit ¼″ (7.5 mm) in from each edge.
+5. Trim the unit to the finished size plus a seam allowance on each side. In
+   this example that is a 4½″ (11.5 cm) square. The points of the center square sit ¼″ (7.5 mm) in from each edge.
 `;function ct(){return{async:!1,breaks:!1,extensions:null,gfm:!0,hooks:null,pedantic:!1,renderer:null,silent:!1,tokenizer:null,walkTokens:null}}var N=ct();function lt(e){N=e}var P={exec:()=>null};function F(e){let t=[];return n=>{let r=Math.max(0,Math.min(3,n-1)),i=t[r];return i||(i=e(r),t[r]=i),i}}function I(e,t=``){let n=typeof e==`string`?e:e.source,r={replace:(e,t)=>{let i=typeof t==`string`?t:t.source;return i=i.replace(L.caret,`$1`),n=n.replace(e,i),r},getRegex:()=>new RegExp(n,t)};return r}var ut=((e=``)=>{try{return!!RegExp(`(?<=1)(?<!1)`+e)}catch{return!1}})(),L={codeRemoveIndent:/^(?: {0,3}\t| {1,4})/gm,outputLinkReplace:/\\([\[\]])/g,indentCodeCompensation:/^(\s+)(?:```)/,beginningSpace:/^\s+/,endingHash:/#$/,startingSpaceChar:/^ /,endingSpaceChar:/ $/,endingSpaceTabChar:/[ \t]$/,nonSpaceChar:/[^ ]/,newLineCharGlobal:/\n/g,tabCharGlobal:/\t/g,leadingSpaceTab:/^[ \t]+/,multipleSpaceGlobal:/\s+/g,blankLine:/^[ \t]*$/,doubleBlankLine:/\n[ \t]*\n[ \t]*$/,blockquoteStart:/^ {0,3}>/,blockquoteSetextReplace:/\n {0,3}((?:=+|-+) *)(?=\n|$)/g,blockquoteSetextReplace2:/^ {0,3}>[ \t]?/gm,listReplaceNesting:/^ {1,4}(?=( {4})*[^ ])/g,listIsTask:/^\[[ xX]\] +\S/,listReplaceTask:/^\[[ xX]\] +/,listTaskCheckbox:/\[[ xX]\]/,anyLine:/\n.*\n/,hrefBrackets:/^<(.*)>$/,tableDelimiter:/[:|]/,tableAlignChars:/^\||\| *$/g,tableRowBlankLine:/\n[ \t]*$/,tableAlignRight:/^ *-+: *$/,tableAlignCenter:/^ *:-+: *$/,tableAlignLeft:/^ *:-+ *$/,startATag:/^<a /i,endATag:/^<\/a>/i,startPreScriptTag:/^<(pre|code|kbd|script)(\s|>)/i,endPreScriptTag:/^<\/(pre|code|kbd|script)(\s|>)/i,startAngleBracket:/^</,endAngleBracket:/>$/,pedanticHrefTitle:/^([^'"]*[^\s])\s+(['"])(.*)\2/,unicodeAlphaNumeric:/[\p{L}\p{N}]/u,numericCharacterReference:/&#(?:(\d{1,7})|[Xx]([A-Fa-f0-9]{1,6}));/,numericCharacterReferenceOrAmpersand:/&#(?:(\d{1,7})|[Xx]([A-Fa-f0-9]{1,6}));|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g,escapeTest:/[&<>"']/,escapeReplace:/[&<>"']/g,escapeTestNoEncode:/[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/,escapeReplaceNoEncode:/[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g,caret:/(^|[^\[])\^/g,percentDecode:/%25/g,findPipe:/\|/g,splitPipe:/ \|/,slashPipe:/\\\|/g,carriageReturn:/\r\n|\r/g,spaceLine:/^ +$/gm,notSpaceStart:/^\S*/,endingNewline:/\n$/,listItemRegex:e=>RegExp(`^( {0,3}${e})((?:[	 ][^\\n]*)?(?:\\n|$))`),nextBulletRegex:F(e=>RegExp(`^ {0,${e}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`)),hrRegex:F(e=>RegExp(`^ {0,${e}}((?:-[ 	]*){3,}|(?:_[ 	]*){3,}|(?:\\*[ 	]*){3,})(?:\\n+|$)`)),fencesBeginRegex:F(e=>RegExp(`^ {0,${e}}(?:\`\`\`|~~~)`)),headingBeginRegex:F(e=>RegExp(`^ {0,${e}}#`)),htmlBeginRegex:F(e=>RegExp(`^ {0,${e}}(?:</?(?:${z})(?: +|$|/?>)|<(?:(?:script|pre|style|textarea)(?:[\\s>]|$)|!--)|<\\?|<![A-Za-z]|<!\\[CDATA\\[)`,`i`)),blockquoteBeginRegex:F(e=>RegExp(`^ {0,${e}}>`))},dt=/^(?:[ \t]*(?:\n|$))+/,ft=/^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/,pt=/^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/,R=/^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/,mt=/^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,ht=/ {0,3}(?:[*+-]|\d{1,9}[.)])/,gt=/^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |fences|blockquote|heading|hr|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/,_t=I(gt).replace(/bull/g,ht).replace(/blockCode/g,/(?: {4}| {0,3}\t)/).replace(/fences/g,/ {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g,/ {0,3}>/).replace(/heading/g,/ {0,3}#{1,6}(?:\s|$)/).replace(/hr/g,/ {0,3}(?:(?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/).replace(/html/g,/ {0,3}<[^\n>]+>\n/).replace(/\|table/g,``).getRegex(),vt=I(gt).replace(/bull/g,ht).replace(/blockCode/g,/(?: {4}| {0,3}\t)/).replace(/fences/g,/ {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g,/ {0,3}>/).replace(/heading/g,/ {0,3}#{1,6}(?:\s|$)/).replace(/hr/g,/ {0,3}(?:(?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/).replace(/html/g,/ {0,3}<[^\n>]+>\n/).replace(/table/g,/ {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(),yt=/^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table|[ \t]+\n)[^\n]+)*)/,bt=/^[^\n]+/,xt=/(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/,St=I(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace(`label`,xt).replace(`title`,/(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(),Ct=I(/^(bull)([ \t][^\n]*?)?(?:\n|$)/).replace(/bull/g,ht).getRegex(),z=`address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul`,wt=/<!--(?:-?>|[\s\S]*?(?:-->|$))/,Tt=I(`^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n*|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>[^\\n]*\\n*|$)|<![A-Z][\\s\\S]*?(?:>[^\\n]*\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>[^\\n]*\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!(?:script|pre|style|textarea)(?![a-z0-9-]))([a-z][a-z0-9-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</[a-z][a-z0-9-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))`,`i`).replace(`comment`,wt).replace(`tag`,z).replace(`attribute`,/ +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(),Et=e=>I(yt).replace(`hr`,R).replace(`heading`,` {0,3}#{1,6}(?:\\s|$)`).replace(`|lheading`,``).replace(`|table`,``).replace(`blockquote`,` {0,3}>`).replace(`fences`," {0,3}(?:`{3,}(?=[^`\\n]*(?:\\n|$))|~~~)[^\\n]*(?:\\n|$)").replace(`list`,e).replace(`html`,` {0,3}(?:</?(?:tag)(?: +|\\n|/?>)|<(?:(?:script|pre|style|textarea)(?:[\\s>]|$)|!--)|<\\?|<![A-Za-z]|<!\\[CDATA\\[)`).replace(`tag`,z).getRegex(),Dt=Et(/ {0,3}(?:[*+-]|1[.)])[ \t]+[^ \t\n]/),Ot=Et(/ {0,3}(?:[*+-]|\d{1,9}[.)])(?:[ \t]|\n|$)/),kt={blockquote:I(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace(`paragraph`,Ot).getRegex(),code:ft,def:St,fences:pt,heading:mt,hr:R,html:Tt,lheading:_t,list:Ct,newline:dt,paragraph:Dt,table:P,text:bt},At=I(`^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)`).replace(`hr`,R).replace(`heading`,` {0,3}#{1,6}(?:\\s|$)`).replace(`blockquote`,` {0,3}>`).replace(`code`,`(?: {4}| {0,3}	)[^\\n]`).replace(`fences`," {0,3}(?:`{3,}(?=[^`\\n]*(?:\\n|$))|~~~)[^\\n]*(?:\\n|$)").replace(`list`,` {0,3}(?:[*+-]|1[.)])[ \\t]`).replace(`html`,` {0,3}(?:</?(?:tag)(?: +|\\n|/?>)|<(?:(?:script|pre|style|textarea)(?:[\\s>]|$)|!--)|<\\?|<![A-Za-z]|<!\\[CDATA\\[)`).replace(`tag`,z).getRegex(),jt={...kt,lheading:vt,table:At,paragraph:I(yt).replace(`hr`,R).replace(`heading`,` {0,3}#{1,6}(?:\\s|$)`).replace(`|lheading`,``).replace(`table`,At).replace(`blockquote`,` {0,3}>`).replace(`fences`," {0,3}(?:`{3,}(?=[^`\\n]*(?:\\n|$))|~~~)[^\\n]*(?:\\n|$)").replace(`list`,` {0,3}(?:[*+-]|1[.)])[ \\t]+[^ \\t\\n]`).replace(`html`,` {0,3}(?:</?(?:tag)(?: +|\\n|/?>)|<(?:(?:script|pre|style|textarea)(?:[\\s>]|$)|!--)|<\\?|<![A-Za-z]|<!\\[CDATA\\[)`).replace(`tag`,z).getRegex()},Mt={...kt,html:I(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace(`comment`,wt).replace(/tag/g,`(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b`).getRegex(),def:/^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,heading:/^(#{1,6})(.*)(?:\n+|$)/,fences:P,lheading:/^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/,paragraph:I(yt).replace(`hr`,R).replace(`heading`,` *#{1,6} *[^
 ]`).replace(`lheading`,_t).replace(`|table`,``).replace(`blockquote`,` {0,3}>`).replace(`|fences`,``).replace(`|list`,``).replace(`|html`,``).replace(`|tag`,``).getRegex()},Nt=/^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/,Pt=/^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,Ft=/^( {2,}|\\)\n(?!\s*$)[ \t]*/,It=/^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/,B=/[\p{P}\p{S}]/u,V=/[\s\p{P}\p{S}]/u,H=/[^\s\p{P}\p{S}]/u,Lt=I(/^((?![*_])punctSpace)/,`u`).replace(/punctSpace/g,V).getRegex(),Rt=/[\p{Pi}\p{Ps}"']/u,zt=/(?!~)[\p{P}\p{S}]/u,Bt=/(?!~)[\s\p{P}\p{S}]/u,Vt=/(?:[^\s\p{P}\p{S}]|~)/u,Ht=I(/link|precode-code|html/,`g`).replace(`link`,/\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/).replace(`precode-`,ut?"(?<!`)()":"(^^|[^`])").replace(`code`,/(?<b>`+)[^`]+\k<b>(?!`)/).replace(`html`,/<(?! )[^<>]*?>/).getRegex(),Ut=/^(?:\*+(?:((?!\*)punct)|([^\s*]))?)|^_+(?:((?!_)punct)|([^\s_]))?/,Wt=I(Ut,`u`).replace(/punct/g,B).getRegex(),Gt=I(Ut,`u`).replace(/punct/g,zt).getRegex(),Kt=I(/^(?:\*+(?:((?!\*)(?!openQuote)punct)|([^\s*]))?)|^_+(?:((?!_)(?!openQuote)punct)|([^\s_]))?/,`u`).replace(/openQuote/g,Rt).replace(/punct/g,B).getRegex(),qt=`^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)`,Jt=I(qt,`gu`).replace(/notPunctSpace/g,H).replace(/punctSpace/g,V).replace(/punct/g,B).getRegex(),Yt=I(qt,`gu`).replace(/notPunctSpace/g,Vt).replace(/punctSpace/g,Bt).replace(/punct/g,zt).getRegex(),Xt=I(`^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)[\\s](\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|(?:(?!\\*)punct|notPunctSpace)(\\*+)(?!\\*)(?=notPunctSpace)`,`gu`).replace(/notPunctSpace/g,H).replace(/punctSpace/g,V).replace(/punct/g,B).getRegex(),Zt=I(`^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)`,`gu`).replace(/notPunctSpace/g,H).replace(/punctSpace/g,V).replace(/punct/g,B).getRegex(),Qt=I(`^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)[\\s](_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)|(?:(?!_)punct|notPunctSpace)(_+)(?!_)(?=notPunctSpace)`,`gu`).replace(/notPunctSpace/g,H).replace(/punctSpace/g,V).replace(/punct/g,B).getRegex(),$t=I(/^~~?(?:((?!~)punct)|[^\s~])/,`u`).replace(/punct/g,B).getRegex(),en=I(`^[^~]+(?=[^~])|(?!~)punct(~~?)(?=[\\s]|$)|notPunctSpace(~~?)(?!~)(?=punctSpace|$)|(?!~)punctSpace(~~?)(?=notPunctSpace)|[\\s](~~?)(?!~)(?=punct)|(?!~)punct(~~?)(?!~)(?=punct)|notPunctSpace(~~?)(?=notPunctSpace)`,`gu`).replace(/notPunctSpace/g,H).replace(/punctSpace/g,V).replace(/punct/g,B).getRegex(),tn=I(/\\(punct)/,`gu`).replace(/punct/g,B).getRegex(),nn=I(/(`+)(?:[^`]|[^`][\s\S]*?[^`])\1(?!`)|`+|\\(punct)/,`gu`).replace(/punct/g,B).getRegex(),rn=I(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace(`scheme`,/[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace(`email`,/[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(),an=I(wt).replace(`(?:-->|$)`,`-->`).getRegex(),on=I(`^comment|^</[a-zA-Z][a-zA-Z0-9-]*\\s*>|^<[a-zA-Z][a-zA-Z0-9-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>`).replace(`comment`,an).replace(`attribute`,/\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(),sn=/\[(?:\\[\s\S]|[^\[\]\\])*\]/,U=I(/(?:\[(?:brackets|\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+(?!`)[^`]*?`+(?!`)|``+(?=\])|[^\[\]\\`])*?/).replace(`brackets`,sn).getRegex(),cn=I(/^!?\[(label)\]\([ \t\n]*(href)(?:(?:[ \t]+(?:\n[ \t]*)?|\n[ \t]*)(title))?[ \t\n]*\)/).replace(`label`,U).replace(`href`,/<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]+|(?=\))/).replace(`title`,/"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(),ln=I(/^!?\[(label)\]\[(ref)\]/).replace(`label`,U).replace(`ref`,xt).getRegex(),un=I(/^!?\[(ref)\](?:\[\])?/).replace(`ref`,xt).getRegex(),dn=/(?!\s*\])(?:\\[\s\S]|[^\[\]\\]){1,999}/,fn=I(/(?:[^\[\]\\`]*(?:\[(?:brackets|\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+(?!`)[^`]*?`+(?!`)|``+(?=\]))){0,999}?[^\[\]\\`]*?/).replace(`brackets`,sn).getRegex(),pn=I(`reflink|nolink(?!\\()`,`g`).replace(`reflink`,I(/^!?\[(label)\]\[(ref)\]/).replace(`label`,fn).replace(`ref`,dn).getRegex()).replace(`nolink`,I(/^!?\[(ref)\](?:\[\])?/).replace(`ref`,dn).getRegex()).getRegex(),mn=/[hH][tT][tT][pP][sS]?|[fF][tT][pP]/,hn=I(/(?:mailto:email|xmpp:email(?:\/[A-Za-z0-9@.]+)?)/).replace(/email/g,/[A-Za-z0-9._+-]+@[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![\w-])/).getRegex(),gn={_backpedal:P,anyPunctuation:tn,anyPunctuationOutsideCode:nn,autolink:rn,blockSkip:Ht,br:Ft,code:Pt,del:P,delLDelim:P,delRDelim:P,emStrongLDelim:Wt,emStrongRDelimAst:Jt,emStrongRDelimUnd:Zt,escape:Nt,link:cn,nolink:un,punctuation:Lt,reflink:ln,reflinkSearch:pn,tag:on,text:It,url:P},_n={...gn,emStrongLDelim:Kt,emStrongRDelimAst:Xt,emStrongRDelimUnd:Qt,link:I(/^!?\[(label)\]\((.*?)\)/).replace(`label`,U).getRegex(),reflink:I(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace(`label`,U).getRegex()},vn={...gn,emStrongRDelimAst:Yt,emStrongLDelim:Gt,delLDelim:$t,delRDelim:en,url:I(/^emailProtocol|^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/).replace(`emailProtocol`,hn).replace(`protocol`,mn).replace(`email`,/[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![\w-])/).getRegex(),_backpedal:/(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/,del:/^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/,text:I(/^(?:[^a-zA-Z0-9](?=emailProtocol)|(`+|~+|[^`~])(?:(?=[`~])|(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9](?=emailProtocol)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))))/).replace(`protocol`,mn).replace(/emailProtocol/g,/(?:mailto|xmpp):/).getRegex()},yn={...vn,br:I(Ft).replace(`{2,}`,`*`).getRegex(),text:I(vn.text).replace(`\\b_`,`\\b_| {2,}\\n`).replace(/\{2,\}/g,`*`).getRegex()},W={normal:kt,gfm:jt,pedantic:Mt},G={normal:gn,gfm:vn,breaks:yn,pedantic:_n},bn={"&":`&amp;`,"<":`&lt;`,">":`&gt;`,'"':`&quot;`,"'":`&#39;`},xn=e=>bn[e];function K(e,t){if(t){if(L.escapeTest.test(e))return e.replace(L.escapeReplace,xn)}else if(L.escapeTestNoEncode.test(e))return e.replace(L.escapeReplaceNoEncode,xn);return e}function Sn(e){return L.numericCharacterReference.test(e)?e.replace(L.numericCharacterReferenceOrAmpersand,(e,t,n)=>{if(t===void 0&&n===void 0)return`&amp;`;let r=t===void 0?Number.parseInt(n,16):Number.parseInt(t,10);return r===0||r>1114111||r>=55296&&r<=57343?`�`:r===38?`&amp;`:String.fromCodePoint(r)}):e}function Cn(e){try{e=encodeURI(e).replace(L.percentDecode,`%`)}catch{return null}return e}function wn(e,t){let n=e.replace(L.findPipe,(e,t,n)=>{let r=!1,i=t;for(;--i>=0&&n[i]===`\\`;)r=!r;return r?`|`:` |`}).split(L.splitPipe),r=0;if(n[0].trim()||n.shift(),n.length>0&&!n.at(-1)?.trim()&&n.pop(),t){if(n.length>t)n.splice(t);else for(;n.length<t;)n.push(``)}for(;r<n.length;r++)n[r]=n[r].trim().replace(L.slashPipe,`|`);return n}function q(e,t,n){let r=e.length;if(r===0)return``;let i=0;for(;i<r;){let a=e.charAt(r-i-1);if(a===t&&!n)i++;else if(a!==t&&n)i++;else break}return e.slice(0,r-i)}function Tn(e){let t=e.split(`
 `),n=t.length-1;for(;n>=0&&L.blankLine.test(t[n]);)n--;return t.length-n<=2?e:t.slice(0,n+1).join(`

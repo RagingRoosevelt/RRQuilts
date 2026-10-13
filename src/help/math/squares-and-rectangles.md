@@ -4,7 +4,7 @@ order: 20
 summary: Cut size is the finished size plus a seam allowance on each side.
 ---
 
-Squares and rectangles are the simplest pieces: each edge gets a seam allowance, so each dimension
+Squares and rectangles are the simplest pieces. Each edge gets a seam allowance, so each dimension
 grows by two of them.
 
 ## The formula

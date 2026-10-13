@@ -22,14 +22,14 @@ To change a project color later, right-click (or long-press) it in the tray and 
 1. In the project's **Palettes** tab, scroll to **Library palettes**.
 2. Tick the checkbox beside each palette you want. Its colors then appear in the quilt editor's **Colors** tray, under the library's name.
 
-Library colors are read-only. Right-click one in the tray and choose **Edit a copy…** to make your own version. If the list is empty, check **Settings › Libraries**: **Hide library palettes from projects** hides it.
+Library colors are read-only. Right-click one in the tray and choose **Edit a copy…** to make your own version. If the list is empty, check **Settings › Libraries**, where **Hide library palettes from projects** hides it.
 
 ## Paint a quilt
 
 1. Open a quilt and choose its **Design** tab.
 2. In the tray, open the **Colors** tab and click a color.
 3. Pick the **Paint** tool and tap a patch. **Spray (same color)**, **Swap color everywhere** and **Eyedropper** are in the same toolbar.
-4. Set the scope first: **This** paints one block, **All** every identical block, **Alternate** every other one.
+4. Set the scope first. **This** paints one block, **All** paints every identical block, and **Alternate** paints every other one.
 
 ## Save colors as a palette
 

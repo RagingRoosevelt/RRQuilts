@@ -9,13 +9,13 @@ border) and border width.
 
 ## Straight borders
 
-Sew the **sides** first: each is as long as the quilt is tall. Then sew the **top and bottom**, which
+Sew the **sides** first, each as long as the quilt is tall. Then sew the **top and bottom**, which
 are as long as the quilt is wide _plus both side borders_.
 
 > **sides = quilt height × border width**
 > **top and bottom = (quilt width + 2 × border width) × border width**
 
-Each is then cut with a seam allowance added on every edge: finished + 2s, like any
+Each is then cut with a seam allowance added on every edge, so finished + 2s, like any
 [rectangle](/help/math/squares-and-rectangles).
 
 ## Mitered borders
@@ -32,11 +32,11 @@ The cut length then adds **s × (1 + √2) at each end**, a total of **2(1 + √
 - **s** for the seam allowance on the border's outer edge, which pushes the strip's edge out, and so the
   diagonal's end point along the edge, by one more s.
 
-<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A mitered border strip: a trapezoid with 45 degree ends, its seam allowance beyond the finished corner">
+<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A mitered border strip shaped like a trapezoid with 45 degree ends, its seam allowance beyond the finished corner">
   <polygon points="10,10 150,10 130,40 30,40" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="20,10 140,10 124,34 36,34" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
-  <text x="160" y="25" font-size="11" fill="currentColor">dashed: finished</text>
-  <text x="160" y="42" font-size="11" fill="currentColor">solid: cut, longer</text>
+  <text x="160" y="25" font-size="11" fill="currentColor">finished (dashed)</text>
+  <text x="160" y="42" font-size="11" fill="currentColor">cut, longer (solid)</text>
 </svg>
 
 The **Extra length on mitered strips** setting (default 2″ / 5 cm) adds more, so you can trim after

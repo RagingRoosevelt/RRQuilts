@@ -4,7 +4,7 @@ order: 20
 summary: Make flying geese with stitch and flip, or four at a time from one large and four small squares.
 ---
 
-A flying geese unit is a rectangle twice as wide as it is tall: a large triangle (the goose) with a
+A flying geese unit is a rectangle twice as wide as it is tall, with a large triangle (the goose) and a
 small triangle (sky) on each side. The formulas are in [flying geese](/help/math/flying-geese).
 The calculator gives the cut sizes for each method.
 
@@ -68,5 +68,5 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
   <line x1="100" y1="80" x2="150" y2="30" stroke="currentColor"/>
 </svg>
 
-6. Trim each unit to 4½″ × 2½″ (11.5 × 6.5 cm): the finished size plus a seam allowance on every
+6. Trim each unit to 4½″ × 2½″ (11.5 × 6.5 cm), which is the finished size plus a seam allowance on every
    side, leaving ¼″ beyond the point.

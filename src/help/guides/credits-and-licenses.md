@@ -8,7 +8,7 @@ Every project, quilt and block has an author and a license, and copies remember 
 
 ## Edit the details
 
-1. Open the item: the project's **Details** tab, a quilt's **Details** tab, or a block's **Details** tab in the block editor.
+1. Open the **Details** tab of the project, of a quilt, or of a block in the block editor.
 2. Edit **Title**, **Author** and **Notes**. Leave **Author** empty to show "anonymous". Your default name comes from **Settings › You**.
 3. Choose a **License**. Each option explains its terms underneath.
 
@@ -32,7 +32,7 @@ A quilt also lists **Blocks by others**, with their credits.
 
 ## Licenses lock
 
-Earlier work limits your choice: share-alike and non-commercial licenses carry forward, and all rights reserved is the strictest. When the choice is limited the **License** field is locked (padlock) and says what requires it. A quilt using a locked block inherits that lock.
+Earlier work limits your choice. Share-alike and non-commercial licenses carry forward, and all rights reserved is the strictest. When the choice is limited the **License** field is locked (padlock) and says what requires it. A quilt using a locked block inherits that lock.
 
 ## In print
 

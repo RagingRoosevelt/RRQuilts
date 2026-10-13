@@ -53,5 +53,5 @@ corners.
   <polygon points="100,10 145,55 100,100 55,55" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
 </svg>
 
-5. Trim the unit to the finished size plus a seam allowance on each side: 4½″ (11.5 cm) square in
-   this example. The points of the center square sit ¼″ (7.5 mm) in from each edge.
+5. Trim the unit to the finished size plus a seam allowance on each side. In
+   this example that is a 4½″ (11.5 cm) square. The points of the center square sit ¼″ (7.5 mm) in from each edge.

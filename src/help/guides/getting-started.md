@@ -4,16 +4,16 @@ order: 10
 summary: Start a quilt, save it to a file, open it again, recover unsaved work, and use the app offline.
 ---
 
-RRQuilts runs entirely in your browser: there is no account, and nothing is sent to a server. Your
-work lives in a **project**: one file (ending in `.rrq`) that holds your quilts, blocks, and colors.
+RRQuilts runs entirely in your browser. There is no account, and nothing is sent to a server. Your
+work lives in a **project**, one file (ending in `.rrq`) that holds your quilts, blocks, and colors.
 
 ## Start a quilt
 
 1. On the home page (the **RRQuilts** button in the header), choose **Start a quilt**.
 2. The wizard has three steps. Use **Next** to move on, or click a step's title.
-   - **Blocks**: **Columns**, **Rows**, and **Finished block size**.
-   - **Sashing**: **Sashing width (0 for none)**, and **Sashing around the outside**.
-   - **Borders**: **Number of borders** and the **Width of each**.
+   - **Blocks** sets **Columns**, **Rows**, and **Finished block size**.
+   - **Sashing** has **Sashing width (0 for none)** and **Sashing around the outside**.
+   - **Borders** takes the **Number of borders** and the **Width of each**.
 3. Choose **Create quilt**. The quilt opens in the Design tab, ready for you to place blocks. See
    [Designing a quilt](/help/guides/designing-a-quilt).
 
@@ -48,7 +48,7 @@ first. Closing the tab with unsaved changes also asks you to confirm.
 ## Recover unsaved work
 
 While you edit, the app keeps a **draft** of your project in the browser (within about 15 seconds of each change). A draft
-is crash insurance, not a save: it can be lost if you clear site data.
+is crash insurance and not a save, because clearing site data can erase it.
 
 1. If the browser closed or crashed, the app offers **Restore unsaved work?** the next time it opens.
 2. Choose **Restore** on the project you want, or **Discard** to delete its draft. **Decide later**

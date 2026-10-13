@@ -4,7 +4,7 @@ order: 120
 summary: Why cut sizes round up to a ruler mark, and what that does to your piece.
 ---
 
-Exact cut sizes often don't fall on a ruler mark. The triangle formulas especially: a ¼″ seam
+Exact cut sizes often don't fall on a ruler mark. The triangle formulas are the clearest case, since a ¼″ seam
 allowance gives 3.854″, which sits between 3¾″ and 3⅞″. The app rounds **up** to the next mark so the
 piece is never too small, then you can trim it down after sewing.
 
@@ -12,7 +12,7 @@ piece is never too small, then you can trim it down after sewing.
 
 > **cut = ⌈exact ÷ step⌉ × step**
 
-The step is the **Rounding** setting in the Print tab: ⅛″ or 1/16″ (inches), 5 mm or 1 mm (metric), or
+The step is the **Rounding** setting in the Print tab. It offers ⅛″ or 1/16″ (inches), 5 mm or 1 mm (metric), or
 none for exact numbers. Fabric amounts use their own step (⅛ yd, ¼ yd, ½ yd, or 10, 20, 45 cm).
 
 ## Worked examples

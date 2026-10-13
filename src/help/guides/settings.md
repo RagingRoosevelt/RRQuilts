@@ -9,14 +9,14 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 ## You
 
 - **Your name** goes into projects, blocks and packs you make. The ids of new items start with a short form of it.
-- **Socials**: click **Add a social**, pick a **Type** (Website, or a site, or type your own) and a **Handle or link**. Drag the handle at the left to reorder. The selected radio button is the one shown in printed credits.
+- **Socials** are added with **Add a social**. Pick a **Type** (Website, a site, or one you type) and a **Handle or link**. Drag the handle at the left to reorder. The selected radio button is the one shown in printed credits.
 
 ## Interface
 
-- **Theme**: **Auto**, **Light** or **Dark**.
-- **Use the system accent color**: where the browser shares it, otherwise blue.
-- **Units for new projects**: **Inches** or **Centimeters**. An open project's units are in its **Details** tab.
-- **Editor layout**: **Toolbar left, sidebar right** or **Sidebar left, toolbar right**.
+- **Theme** can be **Auto**, **Light** or **Dark**.
+- **Use the system accent color** applies where the browser shares it, and the app is blue otherwise.
+- **Units for new projects** can be **Inches** or **Centimeters**. An open project's units are in its **Details** tab.
+- **Editor layout** puts the panels either as **Toolbar left, sidebar right** or as **Sidebar left, toolbar right**.
 
 ## Libraries and Project
 

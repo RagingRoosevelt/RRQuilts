@@ -21,8 +21,8 @@ For a finished unit with a 3″ (8 cm) leg, ¼″ (7.5 mm) seams, and rounding t
 
 ::calc hst
 
-The units come out slightly oversize. Trim them to the finished size plus two seam allowances:
-3½″ (9.5 cm) in this example.
+The units come out slightly oversize. Trim them to the finished size plus two seam allowances,
+which is 3½″ (9.5 cm) in this example.
 
 ## Two at a time
 

@@ -5,7 +5,7 @@ summary: Set the layout and borders, place blocks, color patches, and use Apply 
 ---
 
 Open a quilt from the sketchbook's **Quilts** tab (or create one from **Start a quilt**). The quilt
-editor has five tabs along the top: **Details**, **Layout**, **Borders**, **Design**, and **Print**.
+editor has five tabs along the top named **Details**, **Layout**, **Borders**, **Design**, and **Print**.
 The **menu** button at the right hides or shows the sidebar. Two toggles on the left rail show or
 hide the seam lines and the block names, and the bar under the quilt reports its finished size.
 
@@ -24,7 +24,7 @@ hide the seam lines and the block names, and the bar under the quilt reports its
 1. Open the **Borders** tab. Borders are numbered from the inside out (1 is innermost).
 2. **Add outside** adds a border, **Insert inside** adds one just inside the selected border,
    **Clone** copies it. The arrow buttons **Move inward / outward**, and the trash button deletes.
-3. Choose a **Style**: **Long horizontal** or **Long vertical** (the long strips run the full length
+3. Choose a **Style** of **Long horizontal** or **Long vertical** (the long strips run the full length
    on that side) or **Mitered** (diagonal corners). Pieced borders are coming soon.
 4. Set the width of each side with **Left**, **Top**, **Right**, **Bottom**. **All sides**,
    **L+R / T+B**, and **Each** choose how many sides move together.
@@ -65,11 +65,11 @@ The left rail holds the tools. Tooltips and a hint line above the tray say what 
 
 ## Apply to
 
-Above the tray, **Apply to** controls how many spaces a tap affects:
+Above the tray, **Apply to** controls how many spaces a tap affects.
 
-- **This**: only the space you tap.
-- **All**: every space of the same kind (all blocks of that block, all sashes, one border…).
-- **Alternate**: every other one of those spaces, in a checkerboard.
+- **This** colors only the space you tap.
+- **All** covers every space of the same kind (all blocks of that block, all sashes, one border…).
+- **Alternate** takes every other one of those spaces, in a checkerboard.
 
 ## Details and Print
 

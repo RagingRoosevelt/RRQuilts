@@ -1,7 +1,7 @@
 ---
 title: The project sketchbook
 order: 20
-summary: Your project's home screen: its quilts, blocks, palettes, and details.
+summary: Your project's home screen, with its quilts, blocks, palettes, and details.
 ---
 
 Choose **Project** in the header (it appears once a project is open) to see the sketchbook. Rename
@@ -24,7 +24,7 @@ across the whole project.
 
 1. **New block** asks for a name and opens the block editor ([Drawing blocks](/help/guides/drawing-blocks)).
 2. **Import blocks** reads blocks from a `.rrqbl` file or from another project. Tick the ones to add.
-3. On a block's **Actions** menu: **Edit**, **Edit a copy**, **Preview**, **Details**,
+3. A block's **Actions** menu offers **Edit**, **Edit a copy**, **Preview**, **Details**,
    **Export (.rrqbl)**, **Move earlier / later**, **Delete**, plus **Add to my library…** or **Sync to my library** for the My library
    links. Small icons on a card show that the block is
    placed in a quilt, is in My library, or has changed since it was saved there.
