@@ -227,7 +227,7 @@
               :class="{ picked: isPicked(b.id), flash: flashed === b.id }"
             >
               <q-checkbox
-                class="pick"
+                class="pick-box"
                 dense
                 :model-value="isPicked(b.id)"
                 :disable="project.readOnly || inUse(b.id)"
@@ -1635,7 +1635,7 @@ function showPlacements() {
   top: 12px;
   left: 12px;
 }
-.card .pick {
+.card .pick-box {
   position: absolute;
   top: 4px;
   left: 4px;
