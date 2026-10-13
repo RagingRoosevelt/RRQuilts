@@ -336,80 +336,41 @@
           </q-btn>
         </div>
         <div class="swatches q-mb-lg">
-          <button
-            v-if="!project.readOnly"
-            class="column items-center color-pick"
-            style="width: 72px"
-            aria-label="Add a color"
-            @click="newProjectColor"
-          >
-            <div class="swatch add-swatch"><q-icon name="add" size="sm" /></div>
-            <div class="text-caption">Add</div>
-          </button>
-          <component
-            :is="group.mine && !project.readOnly ? 'button' : 'div'"
+          <ColorPill v-if="!project.readOnly" clickable @click="newProjectColor" />
+          <ColorPill
             v-for="c in group.items"
             :key="c.id"
-            class="column items-center color-pick"
-            :class="{ active: group.mine && pickedColors.includes(c.id) }"
-            style="width: 72px"
-            @click="group.mine && !project.readOnly && togglePickColor(c.id)"
+            :color="c"
+            :editable="!project.readOnly"
+            :clickable="group.mine && !project.readOnly"
+            :active="group.mine && pickedColors.includes(c.id)"
+            @click="togglePickColor(c.id)"
+            @edit="editProjectColor(c)"
+            @remove="deleteProjectColor(c)"
           >
-            <div
-              class="swatch relative-position"
-              :style="{ background: `rgb(${c.rgb.join(',')})` }"
+            <q-icon
+              v-if="group.mine && changedColors.includes(c.id)"
+              name="sync"
+              color="warning"
+              size="xs"
+              class="absolute-top-right"
             >
-              <q-icon
-                v-if="group.mine && changedColors.includes(c.id)"
-                name="sync"
-                color="warning"
-                size="xs"
-                class="absolute-top-right"
-              >
-                <q-tooltip>Changed since {{ MY_LIBRARY }}</q-tooltip>
-              </q-icon>
-              <q-checkbox
-                v-if="!project.readOnly"
-                dense
-                size="xs"
-                class="save-pick"
-                :class="{ checked: pickedColors.includes(c.id) }"
-                :model-value="pickedColors.includes(c.id)"
-                :aria-label="`Select ${c.notecard.name} for saving to ${MY_LIBRARY}`"
-                @click.stop
-                @update:model-value="togglePickColor(c.id)"
-              >
-                <q-tooltip>Select for Save to my library</q-tooltip>
-              </q-checkbox>
-            </div>
-            <div class="text-caption ellipsis full-width text-center">{{ c.notecard.name }}</div>
-            <q-btn
+              <q-tooltip>Changed since {{ MY_LIBRARY }}</q-tooltip>
+            </q-icon>
+            <q-checkbox
               v-if="!project.readOnly"
-              round
               dense
               size="xs"
-              icon="edit"
-              color="primary"
-              class="edit-color"
-              :aria-label="`Rename ${c.notecard.name}`"
-              @click.stop="editProjectColor(c)"
+              class="save-pick on-hover"
+              :class="{ checked: pickedColors.includes(c.id) }"
+              :model-value="pickedColors.includes(c.id)"
+              :aria-label="`Select ${c.notecard.name} for saving to ${MY_LIBRARY}`"
+              @click.stop
+              @update:model-value="togglePickColor(c.id)"
             >
-              <q-tooltip>Rename / edit</q-tooltip>
-            </q-btn>
-            <q-btn
-              v-if="!project.readOnly"
-              round
-              dense
-              size="xs"
-              icon="close"
-              color="negative"
-              class="remove-color"
-              :aria-label="`Delete ${c.notecard.name}`"
-              @click.stop="deleteProjectColor(c)"
-            >
-              <q-tooltip>Delete</q-tooltip>
-            </q-btn>
-          </component>
+              <q-tooltip>Select for Save to my library</q-tooltip>
+            </q-checkbox>
+          </ColorPill>
         </div>
       </template>
       <ColorEditor ref="colorEditor" @done="addProjectColor" />
@@ -776,6 +737,7 @@ import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
 import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
+import ColorPill from '@/components/ColorPill.vue';
 import { itemId } from '@/model/identity';
 import FullName from '@/components/FullName.vue';
 import { useLibraryStore } from '@/stores/library';
@@ -1578,49 +1540,12 @@ function showPlacements() {
   background: transparent;
   color: inherit;
 }
-.add-swatch {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed rgba(128, 128, 128, 0.6);
-}
-.remove-color {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
 .save-pick {
   position: absolute;
   top: 2px;
   left: 2px;
   opacity: 0;
   transition: opacity 0.15s;
-}
-/* Unchecked boxes appear on hover; checked ones always show. */
-.save-pick.checked,
-.color-pick:hover .save-pick,
-.color-pick:focus-within .save-pick {
-  opacity: 1;
-}
-.edit-color {
-  position: absolute;
-  bottom: 4px;
-  left: 4px;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-.color-pick:hover :is(.remove-color, .edit-color),
-.color-pick:focus-within :is(.remove-color, .edit-color) {
-  opacity: 1;
-}
-@media (hover: none) {
-  .save-pick,
-  .remove-color,
-  .edit-color {
-    opacity: 1;
-  }
 }
 .mini-swatch.big {
   width: 28px;
@@ -1684,27 +1609,6 @@ function showPlacements() {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-}
-.color-pick {
-  position: relative;
-  padding: 2px;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  background: none;
-  color: inherit;
-  cursor: pointer;
-}
-div.color-pick {
-  cursor: default;
-}
-.color-pick.active {
-  border-color: var(--q-primary);
-}
-.swatch {
-  width: 56px;
-  height: 56px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
 }
 .skin {
   padding: 0;

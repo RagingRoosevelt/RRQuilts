@@ -1,1 +1,0 @@
-import{t as e}from"./settings-CtXklwMI.js";import{M as t,s as n}from"./index-f8tmga7b.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

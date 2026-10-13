@@ -348,70 +348,24 @@
             >
           </div>
         </q-card-section>
-        <q-card-section v-if="previewMine" class="row q-pt-none" style="gap: 6px">
-          <q-chip
+        <q-card-section v-if="previewMine" class="row q-pt-none" style="gap: 8px">
+          <ColorPill clickable @click="startColor(previewCollection!.id)" />
+          <ColorPill
             v-for="(x, i) in previewCollection.colors"
             :key="x.id"
-            removable
-            clickable
-            :title="`${x.notecard.name} — click to rename`"
-            @click="askRenameColor(previewCollection!.id, i, x.notecard.name)"
+            :color="x"
+            editable
+            @edit="startColor(previewCollection!.id, i)"
             @remove="removeColor(previewCollection!.id, i)"
-          >
-            <q-avatar :style="{ background: css(x) }" />
-            {{ x.notecard.name }}
-          </q-chip>
-          <q-chip clickable icon="add" @click="colorEditor?.show()">Add color</q-chip>
-          <ColorEditor ref="colorEditor" @done="(c) => addColorTo(previewCollection!.id, c)" />
+          />
+          <ColorEditor ref="colorEditor" @done="saveColorEdit" />
         </q-card-section>
         <q-list v-else dense separator style="max-height: 60vh; overflow: auto">
-          <q-item v-for="(x, i) in previewCollection.colors" :key="x.id">
+          <q-item v-for="x in previewCollection.colors" :key="x.id">
             <q-item-section avatar>
               <span class="chip big" :style="{ background: css(x) }" />
             </q-item-section>
-            <q-item-section>
-              <q-input
-                v-if="previewMine"
-                :model-value="x.notecard.name"
-                dense
-                borderless
-                @change="(v: string) => renameColor(previewCollection!.id, i, v)"
-              />
-              <span v-else>{{ x.notecard.name }}</span>
-            </q-item-section>
-            <q-item-section v-if="previewMine" side>
-              <div class="row no-wrap">
-                <q-btn
-                  flat
-                  round
-                  dense
-                  size="sm"
-                  icon="arrow_upward"
-                  aria-label="Move up"
-                  :disable="i === 0"
-                  @click="moveColor(previewCollection!.id, i, -1)"
-                />
-                <q-btn
-                  flat
-                  round
-                  dense
-                  size="sm"
-                  icon="arrow_downward"
-                  aria-label="Move down"
-                  :disable="i === previewCollection.colors.length - 1"
-                  @click="moveColor(previewCollection!.id, i, 1)"
-                />
-                <q-btn
-                  flat
-                  round
-                  dense
-                  size="sm"
-                  icon="close"
-                  aria-label="Remove"
-                  @click="removeColor(previewCollection!.id, i)"
-                />
-              </div>
-            </q-item-section>
+            <q-item-section>{{ x.notecard.name }}</q-item-section>
           </q-item>
         </q-list>
       </q-card>
@@ -631,6 +585,7 @@
 import BlockSections from '@/components/BlockSections.vue';
 import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
+import ColorPill from '@/components/ColorPill.vue';
 import FullName from '@/components/FullName.vue';
 import { useAskCategory } from '@/composables/category';
 // Libraries (spec 011): browse every library; manage My library; back up, restore, share, import.
@@ -909,20 +864,29 @@ function editColors(id: string, fn: (colors: Color[]) => Color[]) {
     return item?.type === 'colors' ? setCollectionColors(l, id, fn([...item.data.colors])) : l;
   });
 }
-const renameColor = (id: string, i: number, name: string) =>
-  name.trim() &&
-  editColors(id, (cs) =>
-    cs.map((c, j) => (j === i ? { ...c, notecard: { ...c.notecard, name: name.trim() } } : c)),
-  );
-function askRenameColor(id: string, i: number, name: string) {
-  $q.dialog({ title: 'Rename color', prompt: { model: name, type: 'text' }, cancel: true }).onOk(
-    (v: string) => renameColor(id, i, v),
+const colorEditor = ref<InstanceType<typeof ColorEditor>>();
+/** The palette color being edited (index), or a new one (no index). */
+const colorTarget = ref<{ palette: string; index?: number } | null>(null);
+function startColor(palette: string, index?: number) {
+  colorTarget.value = { palette, ...(index === undefined ? {} : { index }) };
+  const c = index === undefined ? undefined : previewCollection.value?.colors[index];
+  colorEditor.value?.show(
+    c && { name: c.notecard.name, rgb: [...c.rgb] as [number, number, number] },
   );
 }
-const colorEditor = ref<InstanceType<typeof ColorEditor>>();
-async function addColorTo(id: string, c: { name: string; rgb: [number, number, number] }) {
-  const me = await askAuthor();
-  await update((l) => addNewColor(l, id, c, me));
+async function saveColorEdit(c: { name: string; rgb: [number, number, number] }) {
+  const t = colorTarget.value;
+  colorTarget.value = null;
+  if (!t) return;
+  if (t.index === undefined) {
+    const me = await askAuthor();
+    await update((l) => addNewColor(l, t.palette, c, me));
+  } else
+    editColors(t.palette, (cs) =>
+      cs.map((x, j) =>
+        j === t.index ? { ...x, rgb: c.rgb, notecard: { ...x.notecard, name: c.name } } : x,
+      ),
+    );
 }
 /** A new, empty palette in My library, opened for adding colors. */
 function newPalette() {
@@ -942,12 +906,6 @@ async function createPalette(name: string) {
   });
   previewing.value = { lib: library.mine!.id, id: made };
 }
-const moveColor = (id: string, i: number, d: number) =>
-  editColors(id, (cs) => {
-    const [c] = cs.splice(i, 1);
-    cs.splice(i + d, 0, c!);
-    return cs;
-  });
 const removeColor = (id: string, i: number) => editColors(id, (cs) => cs.filter((_, j) => j !== i));
 
 async function copyMine(v: LibraryView, id: string) {
