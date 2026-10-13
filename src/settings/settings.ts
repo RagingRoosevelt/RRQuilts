@@ -18,6 +18,8 @@ export interface Settings {
   trayTab: 'blocks' | 'colors';
   /** Libraries page: blocks in sections by category, tag, or style. */
   libraryGroupBy: 'none' | 'category' | 'tags' | 'styles';
+  /** Libraries page: Type picker — blocks, palettes ('colors'), or all (''). */
+  libraryType: 'block' | 'colors' | '';
   /** Labels of inspector sections the user collapsed. */
   collapsedSections: string[];
   /** Print preferences (spec 010), merged with defaults where used (`printPrefs`). */
@@ -53,6 +55,7 @@ export const defaults = (): Settings => ({
   sidesSwapped: false,
   trayTab: 'blocks',
   libraryGroupBy: 'none',
+  libraryType: 'block',
   print: {},
 });
 
@@ -65,6 +68,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   sidesSwapped: (v) => typeof v === 'boolean',
   trayTab: (v) => v === 'blocks' || v === 'colors',
   libraryGroupBy: (v) => v === 'none' || v === 'category' || v === 'tags' || v === 'styles',
+  libraryType: (v) => v === 'block' || v === 'colors' || v === '',
   print: (v) => isObject(v),
   collapsedSections: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
 };

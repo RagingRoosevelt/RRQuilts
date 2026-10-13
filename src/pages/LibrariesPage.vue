@@ -66,12 +66,7 @@
             </q-checkbox>
           </div>
         </q-expansion-item>
-        <SlidePicker
-          :model-value="filters.types[0] ?? ''"
-          :options="TYPE_OPTIONS"
-          label="Type"
-          @update:model-value="(v: string) => (filters.types = v ? [v] : [])"
-        />
+        <SlidePicker v-model="settings.settings.libraryType" :options="TYPE_OPTIONS" label="Type" />
         <template v-for="f in filterFields" :key="f.key">
           <q-select
             v-if="f.options.length"
@@ -207,7 +202,7 @@
             </BlockSections>
 
             <div
-              v-if="(g.collections.length || g.mine) && filters.types[0] !== 'block'"
+              v-if="(g.collections.length || g.mine) && settings.settings.libraryType !== 'block'"
               class="row items-center q-mb-sm"
               style="gap: 8px"
             >
@@ -695,14 +690,12 @@ const mineCount = computed(() => library.mine?.items.length ?? 0);
 const search = ref('');
 /** Selected values per filter; empty = any. Category '' = uncategorized. */
 const filters = reactive({
-  /** The Type picker: one type, or none for all. */
-  types: ['block'] as string[],
   cats: [] as string[],
   tags: [] as string[],
   styles: [] as string[],
 });
 /** What's typed in each dropdown to narrow its options. */
-const needle = reactive({ types: '', cats: '', tags: '', styles: '' });
+const needle = reactive({ cats: '', tags: '', styles: '' });
 const filtering = computed(
   // The Type picker is a view choice, not a filter (it always has a value).
   () =>
@@ -743,7 +736,7 @@ const filterFields = computed(() => {
 const anyOf = (picked: string[], have: string[]) =>
   !picked.length || picked.some((x) => have.includes(x));
 const matches = (i: LibraryItem) =>
-  anyOf(filters.types, [i.type]) &&
+  (!settings.settings.libraryType || i.type === settings.settings.libraryType) &&
   anyOf(withSubcategories(allCats.value, filters.cats), [i.category ?? '']) &&
   anyOf(filters.tags, i.data.notecard.tags ?? []) &&
   anyOf(filters.styles, i.data.notecard.styles ?? []);
