@@ -5,3 +5,9 @@
 .no-decoration {
   text-decoration: none;
 }
+
+/* Keep the scrollbar's space when a page gets short (e.g. Libraries: Blocks ↔ Palettes), so the
+   layout doesn't jump sideways. */
+html {
+  scrollbar-gutter: stable;
+}
