@@ -445,6 +445,12 @@ function remove(id: string) {
   top: 2px;
   padding: 1px 3px;
 }
+/* Bigger tap target than the badge itself. */
+.count::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
 .count {
   position: absolute;
   right: 2px;
