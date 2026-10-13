@@ -349,7 +349,7 @@
             class="column items-center color-pick"
             style="width: 72px"
             aria-label="Add a color"
-            @click="colorEditor?.show()"
+            @click="newProjectColor"
           >
             <div class="swatch add-swatch"><q-icon name="add" size="sm" /></div>
             <div class="text-caption">Add</div>
@@ -376,6 +376,19 @@
               >
                 <q-tooltip>Changed since {{ MY_LIBRARY }}</q-tooltip>
               </q-icon>
+              <q-btn
+                v-if="!project.readOnly"
+                round
+                dense
+                size="xs"
+                icon="edit"
+                color="primary"
+                class="edit-color"
+                :aria-label="`Rename ${c.notecard.name}`"
+                @click.stop="editProjectColor(c)"
+              >
+                <q-tooltip>Rename / edit</q-tooltip>
+              </q-btn>
               <q-btn
                 v-if="!project.readOnly"
                 round
@@ -979,13 +992,30 @@ function deleteProjectColor(c: Color) {
   confirmRemoval([c], { color: c.id }, c.notecard.name);
 }
 const colorEditor = ref<InstanceType<typeof ColorEditor>>();
+/** The project color the editor is changing (null: adding a new one). */
+const editingColor = ref<string | null>(null);
+function editProjectColor(c: Color) {
+  editingColor.value = c.id;
+  colorEditor.value?.show({ name: c.notecard.name, rgb: [...c.rgb] as [number, number, number] });
+}
+function newProjectColor() {
+  editingColor.value = null;
+  colorEditor.value?.show();
+}
 function addProjectColor({ name, rgb }: { name: string; rgb: [number, number, number] }) {
+  const id = editingColor.value;
+  editingColor.value = null;
   project.change((d) => {
-    d.project.palette.colors.push({
-      id: itemId(settings.settings.author),
-      notecard: { name },
-      rgb,
-    });
+    const c = id && d.project.palette.colors.find((x) => x.id === id);
+    if (c) {
+      c.notecard.name = name;
+      c.rgb = rgb;
+    } else
+      d.project.palette.colors.push({
+        id: itemId(settings.settings.author),
+        notecard: { name },
+        rgb,
+      });
   });
 }
 function finishUnpick() {
@@ -1619,12 +1649,20 @@ function showPlacements() {
   opacity: 0;
   transition: opacity 0.15s;
 }
-.color-pick:hover .remove-color,
-.color-pick:focus-within .remove-color {
+.edit-color {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.color-pick:hover :is(.remove-color, .edit-color),
+.color-pick:focus-within :is(.remove-color, .edit-color) {
   opacity: 1;
 }
 @media (hover: none) {
-  .remove-color {
+  .remove-color,
+  .edit-color {
     opacity: 1;
   }
 }
