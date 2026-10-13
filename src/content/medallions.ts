@@ -74,6 +74,30 @@ function diamondRing(o: number, s: number, col: string): Piece[] {
   ];
 }
 
+/** A two-unit border of an n × n grid; `corner(c, r)` draws each 2 × 2 cornerstone. */
+function wideBorder(n: number, c: string, corner: (x: number, y: number) => Piece[]): Piece[] {
+  const [s, z] = [n - 4, n - 2];
+  return [
+    rect(2, 0, s, 2, c),
+    rect(2, z, s, 2, c),
+    rect(0, 2, 2, s, c),
+    rect(z, 2, 2, s, c),
+    ...[0, z].flatMap((x) => [...corner(x, 0), ...corner(x, z)]),
+  ];
+}
+
+/** A 2 × 2 pinwheel of half-square triangles. */
+const pinwheel = (x: number, y: number, a: string, b: string) => [
+  ...hst(x, y, '\\', a, b),
+  ...hst(x + 1, y, '/', b, a),
+  ...hst(x, y + 1, '/', a, b),
+  ...hst(x + 1, y + 1, '\\', b, a),
+];
+
+/** Sawtooth teeth for `ring`, all turning the same way: a outside, b inside on the top. */
+const saw = (a: string, b: string) => (c: number, r: number, side: number) =>
+  hst(c, r, side % 2 ? '\\' : '/', side < 2 ? a : b, side < 2 ? b : a);
+
 export const MEDALLION_DEFS: GridDef[] = [
   {
     name: 'Amish Center Diamond',
@@ -179,6 +203,187 @@ export const MEDALLION_DEFS: GridDef[] = [
       ...corners(2, 4, 'L'),
       ...diamondRing(2, 4, 'K'),
       sq(3, 3, 'P', 2),
+    ],
+  },
+  {
+    name: 'Diamond in the Square',
+    size: 24,
+    n: 12,
+    pieces: [...border(12, 0, 'D', 'K'), ...border(12, 1, 'S', 'P'), ...sqInSq(2, 2, 8, 'N', 'K')],
+  },
+  {
+    name: 'Checkerboard Medallion',
+    size: 20,
+    n: 10,
+    pieces: [
+      ...border(10, 0, 'D', 'K'),
+      ...ring(10, 1, 'K', (c, r) => [sq(c, r, (c + r) % 2 ? 'L' : 'K')]),
+      ...sqInSq(2, 2, 6, 'M', 'P'),
+    ],
+  },
+  {
+    name: 'Framed Diamond',
+    size: 16,
+    n: 16,
+    pieces: [
+      ...border(16, 0, 'D', 'K'),
+      ...corners(1, 14, 'L'),
+      // A narrow diamond frame, mitered at its points.
+      {
+        poly: [
+          [8, 1],
+          [15, 8],
+          [14, 8],
+          [8, 2],
+        ],
+        c: 'S',
+      },
+      {
+        poly: [
+          [15, 8],
+          [8, 15],
+          [8, 14],
+          [14, 8],
+        ],
+        c: 'S',
+      },
+      {
+        poly: [
+          [8, 15],
+          [1, 8],
+          [2, 8],
+          [8, 14],
+        ],
+        c: 'S',
+      },
+      {
+        poly: [
+          [1, 8],
+          [8, 1],
+          [8, 2],
+          [2, 8],
+        ],
+        c: 'S',
+      },
+      ...diamondRing(2, 12, 'M'),
+      sq(5, 5, 'K', 6),
+    ],
+  },
+  {
+    name: 'Economy Border Medallion',
+    size: 24,
+    n: 12,
+    pieces: [
+      ...border(12, 0, 'D', 'K'),
+      ...[1, 3, 5, 7, 9].flatMap((p) => [
+        ...sqInSq(p, 1, 2, 'L', 'S'),
+        ...sqInSq(p, 9, 2, 'L', 'S'),
+        ...(p === 1 || p === 9 ? [] : [...sqInSq(1, p, 2, 'L', 'S'), ...sqInSq(9, p, 2, 'L', 'S')]),
+      ]),
+      sq(3, 3, 'N', 6),
+    ],
+  },
+  {
+    name: 'Pinwheel Corners Medallion',
+    size: 20,
+    n: 10,
+    pieces: [
+      ...wideBorder(10, 'D', (x, y) => pinwheel(x, y, 'L', 'K')),
+      ...sqInSq(2, 2, 6, 'L', 'S'),
+    ],
+  },
+  {
+    name: 'Framed Cross',
+    size: 20,
+    n: 10,
+    pieces: [
+      ...border(10, 0, 'D', 'K'),
+      ...border(10, 1, 'L', 'S'),
+      ...[2, 6].flatMap((x) => [sq(x, 2, 'M', 2), sq(x, 6, 'M', 2)]),
+      rect(4, 2, 2, 6, 'K'),
+      rect(2, 4, 2, 2, 'K'),
+      rect(6, 4, 2, 2, 'K'),
+    ],
+  },
+  {
+    name: 'Double Sawtooth Medallion',
+    size: 20,
+    n: 10,
+    pieces: [
+      ...border(10, 0, 'D', 'K'),
+      ...ring(10, 1, 'K', saw('L', 'K')),
+      ...ring(10, 2, 'L', saw('K', 'L')),
+      sq(3, 3, 'P', 4),
+    ],
+  },
+  {
+    name: 'Hourglass Corners Medallion',
+    size: 20,
+    n: 10,
+    pieces: [
+      ...wideBorder(10, 'D', (x, y) => qst(x, y, 2, 'K', 'L', 'K', 'L')),
+      ...corners(2, 6, 'L'),
+      ...diamondRing(2, 6, 'K'),
+      sq(3.5, 3.5, 'P', 3),
+    ],
+  },
+  {
+    name: 'Window Pane Medallion',
+    size: 18,
+    n: 9,
+    pieces: [
+      ...border(9, 0, 'D', 'K'),
+      ...border(9, 1, 'S', 'P'),
+      ...[2, 5].flatMap((x) => [sq(x, 2, 'M', 2), sq(x, 5, 'M', 2)]),
+      rect(4, 2, 1, 5, 'L'),
+      rect(2, 4, 2, 1, 'L'),
+      rect(5, 4, 2, 1, 'L'),
+    ],
+  },
+  {
+    name: 'Mitered Frame Medallion',
+    size: 20,
+    n: 10,
+    pieces: [
+      ...border(10, 0, 'D', 'K'),
+      // Light top and left, shadow bottom and right.
+      {
+        poly: [
+          [1, 1],
+          [9, 1],
+          [8, 2],
+          [2, 2],
+        ],
+        c: 'L',
+      },
+      {
+        poly: [
+          [1, 1],
+          [2, 2],
+          [2, 8],
+          [1, 9],
+        ],
+        c: 'L',
+      },
+      {
+        poly: [
+          [1, 9],
+          [2, 8],
+          [8, 8],
+          [9, 9],
+        ],
+        c: 'N',
+      },
+      {
+        poly: [
+          [9, 1],
+          [9, 9],
+          [8, 8],
+          [8, 2],
+        ],
+        c: 'N',
+      },
+      ...sqInSq(2, 2, 6, 'M', 'K'),
     ],
   },
 ];
