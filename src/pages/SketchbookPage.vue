@@ -1643,7 +1643,17 @@ function showPlacements() {
   z-index: 1;
 }
 .card .pick-box :deep(.q-checkbox__bg) {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.6),
+    0 0 10px 3px rgba(0, 0, 0, 0.3);
+}
+/* A soft blurred spot behind the box calms a busy block. */
+.card .pick-box :deep(.q-checkbox__inner) {
+  border-radius: 50%;
+  backdrop-filter: blur(3px);
+}
+.card .pick-box :deep(.q-checkbox__inner--falsy .q-checkbox__bg) {
+  background: rgba(255, 255, 255, 0.45);
 }
 .card.picked {
   border-color: var(--q-primary);
