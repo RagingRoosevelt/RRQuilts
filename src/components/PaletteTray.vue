@@ -13,6 +13,9 @@
     </q-tabs>
 
     <div v-if="tab === 'blocks'" class="strip q-pa-sm" style="gap: 8px">
+      <div v-if="blockGroups.length === 1" class="text-caption text-grey-7 q-pa-xs">
+        Pick library blocks in the project's Blocks tab.
+      </div>
       <template v-for="group in blockGroups" :key="group.label">
         <TraySection v-if="group.items.length" :label="group.label" kind="blocks">
           <button
@@ -104,7 +107,7 @@ import { useSettingsStore } from '@/stores/settings';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
-import { splitItems } from '@/model/library-items';
+import { isLibraryItem, splitItems } from '@/model/library-items';
 import { libraryGroups } from '@/model/library';
 import { creditCopy } from '@/model/credits';
 import type { Color } from '@/model/schema/palette';
@@ -172,7 +175,11 @@ const doc = computed(() => project.doc!);
 const blockGroups = computed(() => {
   const own = doc.value.project.blocks.filter((b) => !b.notecard.tags?.includes('system'));
   const { mine, library: lib } = splitItems(own, library.items.blocks);
-  return [{ label: 'Mine', items: mine }, ...libraryGroups(lib, library.views, 'blocks')];
+  // Library blocks: the ones picked in the project's Blocks tab, and any already placed (embedded).
+  const picked = new Set(doc.value.project.libraryBlocks ?? []);
+  const embedded = new Set(own.filter(isLibraryItem).map((b) => b.id));
+  const avail = lib.filter((b) => picked.has(b.id) || embedded.has(b.id));
+  return [{ label: 'Mine', items: mine }, ...libraryGroups(avail, library.views, 'blocks')];
 });
 /** Recently used colors first within each section. */
 const recentFirst = <T extends { id: string }>(all: T[]) => [
@@ -180,14 +187,31 @@ const recentFirst = <T extends { id: string }>(all: T[]) => [
   ...all.filter((c) => !editor.recentColors.includes(c.id)),
 ];
 const colorGroups = computed(() => {
-  const { mine, library: lib } = splitItems(doc.value.project.palette.colors, library.items.colors);
+  const colors = doc.value.project.palette.colors;
+  const { mine, library: lib } = splitItems(colors, library.items.colors);
+  const byId = new Map(lib.map((c) => [c.id, c]));
+  // Library colors: the palettes picked in the project's Fabrics & Colors tab (labelled with their
+  // library), then any other library colors already in use.
+  const picked = new Set(doc.value.project.libraryPalettes ?? []);
+  const shown = new Set<string>();
+  const palettes = library.views.flatMap((v) =>
+    v.collections
+      .filter((c) => picked.has(c.id))
+      .map((c) => {
+        const items = c.colors.map((x) => byId.get(x.id) ?? x);
+        items.forEach((x) => shown.add(x.id));
+        return {
+          label: `${c.notecard.name} · ${v.doc.name}`,
+          items: recentFirst(items),
+          mine: false,
+        };
+      }),
+  );
+  const used = colors.filter((c) => isLibraryItem(c) && !shown.has(c.id));
   return [
     { label: 'Mine', items: recentFirst(mine), mine: true },
-    ...libraryGroups(lib, library.views, 'colors').map((g) => ({
-      label: g.label,
-      items: recentFirst(g.items),
-      mine: false,
-    })),
+    ...palettes,
+    ...(used.length ? [{ label: 'In use', items: recentFirst(used), mine: false }] : []),
   ];
 });
 const thumb = (b: Block, coloringId?: string) =>

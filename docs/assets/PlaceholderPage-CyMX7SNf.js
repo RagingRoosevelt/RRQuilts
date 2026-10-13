@@ -1,1 +1,0 @@
-import{At as e,R as t,Y as n,m as r,p as i,x as a}from"./create-WGpP2C9l.js";import{t as o}from"./QPage-NcXREJ2t.js";var s={class:`text-h5`},c=a({__name:`PlaceholderPage`,props:{title:{}},setup(a){return(c,l)=>(t(),r(o,{padding:``},{default:n(()=>[i(`h1`,s,e(a.title),1),l[0]||=i(`p`,{class:`text-grey-7`},`Coming soon.`,-1)]),_:1}))}});export{c as default};

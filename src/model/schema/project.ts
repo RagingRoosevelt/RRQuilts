@@ -23,6 +23,10 @@ export const Project = Type.Object({
   embroidery: Type.Array(Embroidery),
   quilts: Type.Array(Quilt),
   fonts: Type.Array(Font),
+  /** Library blocks picked for this project's design tray (spec 011); its own blocks always show. */
+  libraryBlocks: Type.Optional(Type.Array(Id)),
+  /** Library palettes (color collections) picked for this project's design tray. */
+  libraryPalettes: Type.Optional(Type.Array(Id)),
 });
 
 export const RrqDoc = Type.Object(

@@ -5369,6 +5369,20 @@
               }
             }
           }
+        },
+        "libraryBlocks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]{1,32}$"
+          }
+        },
+        "libraryPalettes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]{1,32}$"
+          }
         }
       }
     }

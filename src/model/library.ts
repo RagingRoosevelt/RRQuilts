@@ -477,6 +477,69 @@ export function libraryGroups<
   return [...groups].filter(([, xs]) => xs.length).map(([label, items]) => ({ label, items }));
 }
 
+export type GroupBy = 'none' | 'category' | 'tags' | 'styles';
+export interface BlockSection {
+  /** Unique within the library; a subcategory's is "Parent / Child". */
+  key: string;
+  label: string;
+  blocks: Block[];
+  /** Blocks in it, its subcategories' included. */
+  count: number;
+  /** A subcategory: its top-level category's key. */
+  parent?: string;
+}
+
+/**
+ * A library's blocks in sections: categories in the library's order, each top-level one holding
+ * its own blocks then its subcategories (then Uncategorized); or tags/styles A–Z (then None; a
+ * block with several shows under each). `none`: one unlabelled section.
+ */
+export function blockSections(doc: LibraryDoc, blocks: Block[], by: GroupBy): BlockSection[] {
+  const sec = (key: string, label: string, bs: Block[], parent?: string): BlockSection => ({
+    key,
+    label,
+    blocks: bs,
+    count: bs.length,
+    ...(parent ? { parent } : {}),
+  });
+  if (by === 'none' || !blocks.length) return [sec('', '', blocks)];
+  if (by === 'category') {
+    const catOf = new Map(doc.items.map((i) => [i.data.id, i.category]));
+    const inCat = (id: string) => blocks.filter((b) => catOf.get(b.id) === id);
+    const known = new Set(doc.categories.map((c) => c.id));
+    const out = doc.categories
+      .filter((t) => !t.parent)
+      .flatMap((t) => {
+        const subs = doc.categories
+          .filter((c) => c.parent === t.id)
+          .map((c) => sec(`${t.name} / ${c.name}`, c.name, inCat(c.id), t.name))
+          .filter((x) => x.count);
+        const top = sec(t.name, t.name, inCat(t.id));
+        top.count += subs.reduce((n, x) => n + x.count, 0);
+        return top.count ? [top, ...subs] : [];
+      });
+    const none = blocks.filter((b) => !known.has(catOf.get(b.id) ?? ''));
+    return none.length ? [...out, sec('Uncategorized', 'Uncategorized', none)] : out;
+  }
+  const keysOf = (b: Block) => b.notecard[by] ?? [];
+  const keys = [...new Set(blocks.flatMap(keysOf))].sort();
+  const none = `No ${by}`;
+  return [
+    ...keys.map((k) =>
+      sec(
+        k,
+        k,
+        blocks.filter((b) => keysOf(b).includes(k)),
+      ),
+    ),
+    sec(
+      none,
+      none,
+      blocks.filter((b) => !keysOf(b).length),
+    ),
+  ].filter((x) => x.count);
+}
+
 /** Search names, notes, tags, and styles (all words must match), optionally in one category. */
 export function searchItems(items: readonly LibraryItem[], text: string, category?: string) {
   const words = text.toLowerCase().split(/\s+/).filter(Boolean);

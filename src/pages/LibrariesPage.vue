@@ -142,31 +142,9 @@
             </div>
 
             <div v-if="g.blocks.length" class="text-subtitle2 q-mb-sm">Blocks</div>
-            <template v-for="sec in g.sections" :key="sec.key">
-              <button
-                v-if="sec.label"
-                v-show="!sec.parent || secOpen(g.v.doc.id, sec.parent)"
-                class="sec-head text-body2 text-weight-medium text-grey-8 q-mb-xs"
-                :class="{ 'sec-sub': sec.parent }"
-                :aria-expanded="secOpen(g.v.doc.id, sec.key)"
-                @click="toggleSec(g.v.doc.id, sec.key)"
-              >
-                <q-icon
-                  :name="secOpen(g.v.doc.id, sec.key) ? 'expand_more' : 'chevron_right'"
-                  size="20px"
-                />
-                {{ sec.label }} <span class="text-grey-6">· {{ sec.count }}</span>
-              </button>
-              <div
-                v-if="sec.blocks.length"
-                v-show="
-                  !sec.label ||
-                  (secOpen(g.v.doc.id, sec.key) && (!sec.parent || secOpen(g.v.doc.id, sec.parent)))
-                "
-                class="cards q-mb-lg"
-                :class="{ 'sec-sub': sec.parent }"
-              >
-                <div v-for="b in sec.blocks" :key="b.id" class="card">
+            <BlockSections :sections="g.sections" :lib="g.v.doc.id">
+              <template #default="{ block: b }">
+                <div class="card">
                   <button class="thumb" @click="previewing = { lib: g.v.doc.id, id: b.id }">
                     <img :src="thumb(b, 200)" :alt="b.notecard.name" />
                   </button>
@@ -207,8 +185,8 @@
                     </q-btn>
                   </div>
                 </div>
-              </div>
-            </template>
+              </template>
+            </BlockSections>
 
             <div v-if="g.collections.length" class="text-subtitle2 q-mb-sm">Palettes</div>
             <div class="column q-mb-lg" style="gap: 8px">
@@ -279,7 +257,23 @@
             >
           </div>
         </q-card-section>
-        <img :src="thumb(previewBlock, 560)" style="width: 100%; display: block" alt="" />
+        <img
+          :src="thumb(previewBlock, 560, previewColoring)"
+          style="width: 100%; display: block"
+          alt=""
+        />
+        <div v-if="previewBlock.colorings.length > 1" class="row q-px-md q-pt-sm" style="gap: 6px">
+          <button
+            v-for="(k, i) in previewBlock.colorings"
+            :key="k.id"
+            class="skin"
+            :class="{ active: (previewColoring ?? previewBlock.colorings[0]!.id) === k.id }"
+            :title="k.name ?? `Coloring ${i + 1}`"
+            @click="previewColoring = k.id"
+          >
+            <img :src="thumb(previewBlock, 64, k.id)" :alt="k.name ?? `Coloring ${i + 1}`" />
+          </button>
+        </div>
         <q-card-section class="column" style="gap: 4px">
           <div v-if="previewBlock.notecard.notes" style="white-space: pre-wrap">
             {{ previewBlock.notecard.notes }}
@@ -572,16 +566,18 @@
 </template>
 
 <script setup lang="ts">
+import BlockSections from '@/components/BlockSections.vue';
 import { useAskCategory } from '@/composables/category';
 // Libraries (spec 011): browse every library; manage My library; back up, restore, share, import.
 import { useQuasar } from 'quasar';
-import { computed, defineComponent, h, reactive, ref } from 'vue';
+import { computed, defineComponent, h, reactive, ref, watch } from 'vue';
 import { useAuthor } from '@/composables/author';
 import { serializeBlock } from '@/model/block-file';
 import { collectionFile, parseCollectionFile } from '@/model/collection-file';
 import { DEFAULT_LICENSE, LICENSES, authorOf, licenseName, priorCredits } from '@/model/credits';
 import {
   MY_LIBRARY,
+  blockSections,
   categoryTree,
   copyToMine,
   deleteCategory,
@@ -715,76 +711,12 @@ const matches = (i: LibraryItem) =>
   anyOf(withSubcategories(allCats.value, filters.cats), [i.category ?? '']) &&
   anyOf(filters.tags, i.data.notecard.tags ?? []) &&
   anyOf(filters.styles, i.data.notecard.styles ?? []);
-/** Group-by sections the user collapsed are remembered per library and section. */
-const secKey = (lib: string, label: string) => `libsec:${lib}:${label}`;
-const secOpen = (lib: string, label: string) =>
-  !settings.settings.collapsedSections.includes(secKey(lib, label));
-function toggleSec(lib: string, label: string) {
-  const key = secKey(lib, label);
-  const all = settings.settings.collapsedSections;
-  settings.settings.collapsedSections = all.includes(key)
-    ? all.filter((k) => k !== key)
-    : [...all, key];
-}
 const GROUP_BY = [
   { label: 'Nothing', value: 'none' },
   { label: 'Category', value: 'category' },
   { label: 'Tags', value: 'tags' },
   { label: 'Styles', value: 'styles' },
 ];
-/**
- * A library's blocks in sections by the chosen grouping: categories in the library's order, each
- * top-level one holding its subcategories (then Uncategorized); tags or styles A–Z (then None). A
- * block with several tags shows under each.
- */
-function sections(doc: LibraryDoc, blocks: Block[]) {
-  const by = settings.settings.libraryGroupBy;
-  type Sec = { key: string; label: string; blocks: Block[]; count: number; parent?: string };
-  const sec = (key: string, label: string, bs: Block[], parent?: string): Sec => ({
-    key,
-    label,
-    blocks: bs,
-    count: bs.length,
-    ...(parent ? { parent } : {}),
-  });
-  if (by === 'none' || !blocks.length) return [sec('', '', blocks)];
-  if (by === 'category') {
-    // Top-level categories are accordions holding their own blocks, then their subcategories'.
-    const catOf = new Map(doc.items.map((i) => [i.data.id, i.category]));
-    const inCat = (id: string) => blocks.filter((b) => catOf.get(b.id) === id);
-    const known = new Set(doc.categories.map((c) => c.id));
-    const out: Sec[] = doc.categories
-      .filter((t) => !t.parent)
-      .flatMap((t) => {
-        const subs = doc.categories
-          .filter((c) => c.parent === t.id)
-          .map((c) => sec(`${t.name} / ${c.name}`, c.name, inCat(c.id), t.name))
-          .filter((x) => x.count);
-        const top = sec(t.name, t.name, inCat(t.id));
-        top.count += subs.reduce((n, x) => n + x.count, 0);
-        return top.count ? [top, ...subs] : [];
-      });
-    const none = blocks.filter((b) => !known.has(catOf.get(b.id) ?? ''));
-    return none.length ? [...out, sec('Uncategorized', 'Uncategorized', none)] : out;
-  }
-  const keysOf = (b: Block) => b.notecard[by] ?? [];
-  const keys = [...new Set(blocks.flatMap(keysOf))].sort();
-  const none = `No ${by}`;
-  return [
-    ...keys.map((k) =>
-      sec(
-        k,
-        k,
-        blocks.filter((b) => keysOf(b).includes(k)),
-      ),
-    ),
-    sec(
-      none,
-      none,
-      blocks.filter((b) => !keysOf(b).length),
-    ),
-  ].filter((x) => x.count);
-}
 const groups = computed(() =>
   inScope.value
     .map((v) => {
@@ -798,7 +730,7 @@ const groups = computed(() =>
         v,
         mine: v.doc.kind === 'personal',
         blocks,
-        sections: sections(v.doc, blocks),
+        sections: blockSections(v.doc, blocks, settings.settings.libraryGroupBy),
         collections: v.collections.filter((c) => ids.has(c.id)),
       };
     })
@@ -806,8 +738,8 @@ const groups = computed(() =>
 );
 
 const emptyDoc = createProject();
-const thumb = (b: Block, px: number) =>
-  blockThumbnail(emptyDoc, b, px, $q.dark.isActive, undefined, library.items.colors);
+const thumb = (b: Block, px: number, coloring?: string) =>
+  blockThumbnail(emptyDoc, b, px, $q.dark.isActive, coloring, library.items.colors);
 const css = (c: Color) => `rgb(${c.rgb.join(',')})`;
 const itemLicense = (x: Block | ColorCollection) =>
   x.license ?? previewLib.value?.doc.license ?? (previewMine.value ? undefined : DEFAULT_LICENSE);
@@ -819,6 +751,9 @@ const tagLine = (x: Block) =>
   [...(x.notecard.styles ?? []).map((s) => `style: ${s}`), ...(x.notecard.tags ?? [])].join(' · ');
 
 const previewing = ref<{ lib: string; id: string } | null>(null);
+/** The preview's coloring (undefined: the block's first); reset when the preview changes. */
+const previewColoring = ref<string>();
+watch(previewing, () => (previewColoring.value = undefined));
 const previewLib = computed(() => library.views.find((v) => v.doc.id === previewing.value?.lib));
 const previewMine = computed(() => previewLib.value?.doc.kind === 'personal');
 const previewBlock = computed(() =>
@@ -1191,17 +1126,19 @@ function downloadPack() {
   width: 32px;
   height: 32px;
 }
-.sec-sub {
-  margin-left: 20px;
-}
-.sec-head {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  background: none;
-  border: 0;
+.skin {
   padding: 0;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: none;
   cursor: pointer;
-  font: inherit;
+}
+.skin img {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+.skin.active {
+  border-color: var(--q-primary);
 }
 </style>

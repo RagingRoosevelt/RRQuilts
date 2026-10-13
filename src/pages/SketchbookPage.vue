@@ -192,66 +192,83 @@
         </div>
       </div>
 
-      <template v-for="group in libGroups" :key="group.label">
-        <div class="text-subtitle2 q-mt-lg q-mb-sm">{{ group.label }}</div>
-        <div class="cards">
-          <div v-for="b in group.items" :key="b.id" class="card">
-            <button class="thumb" @click="preview = b.id">
-              <img :src="thumb(b, 200)" :alt="b.notecard.name" />
-            </button>
-            <div class="row items-center no-wrap">
-              <div class="col ellipsis">
-                {{ b.notecard.name }}
-                <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
-                  <q-tooltip>Placed in a quilt</q-tooltip>
-                </q-icon>
-                <q-icon v-if="otherVersions.has(b.id)" name="update" color="warning" size="xs">
-                  <q-tooltip
-                    >Your library has revision {{ otherVersions.get(b.id)!.library.revision }} — see
-                    Switch version…</q-tooltip
-                  >
-                </q-icon>
+      <div class="text-subtitle2 q-mt-lg">Library blocks</div>
+      <div class="text-caption text-grey-7 q-mb-sm">
+        Tick the ones to use in this project's quilts; your own blocks are always available.
+      </div>
+      <template v-for="group in libGroups" :key="group.lib">
+        <BlockSections :sections="group.sections" :lib="group.lib" :title="group.label">
+          <template #default="{ block: b }">
+            <div class="card" :class="{ picked: isPicked(b.id) }">
+              <q-checkbox
+                class="pick"
+                dense
+                :model-value="isPicked(b.id)"
+                :disable="project.readOnly || inUse(b.id)"
+                :aria-label="`Use ${b.notecard.name} in this project`"
+                @update:model-value="(v: boolean) => pick(b.id, v)"
+              >
+                <q-tooltip>{{
+                  inUse(b.id) ? 'Placed in a quilt' : 'Use in this project'
+                }}</q-tooltip>
+              </q-checkbox>
+              <button class="thumb" @click="preview = b.id">
+                <img :src="thumb(b, 200)" :alt="b.notecard.name" />
+              </button>
+              <div class="row items-center no-wrap">
+                <div class="col ellipsis">
+                  {{ b.notecard.name }}
+                  <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
+                    <q-tooltip>Placed in a quilt</q-tooltip>
+                  </q-icon>
+                  <q-icon v-if="otherVersions.has(b.id)" name="update" color="warning" size="xs">
+                    <q-tooltip
+                      >Your library has revision {{ otherVersions.get(b.id)!.library.revision }} —
+                      see Switch version…</q-tooltip
+                    >
+                  </q-icon>
+                </div>
+                <q-btn flat round dense icon="more_vert" aria-label="Actions">
+                  <q-menu>
+                    <q-list dense style="min-width: 160px">
+                      <q-item
+                        v-if="!project.readOnly"
+                        v-close-popup
+                        clickable
+                        :disable="b.kind !== 'seam'"
+                        @click="editLibrary(b)"
+                      >
+                        <q-item-section>Edit (makes your copy)</q-item-section>
+                      </q-item>
+                      <q-item
+                        v-if="otherVersions.has(b.id) && !project.readOnly"
+                        v-close-popup
+                        clickable
+                        @click="project.mismatches = [otherVersions.get(b.id)!]"
+                      >
+                        <q-item-section>Switch version…</q-item-section>
+                      </q-item>
+                      <q-item v-close-popup clickable @click="preview = b.id">
+                        <q-item-section>Preview</q-item-section>
+                      </q-item>
+                      <q-item
+                        v-if="b.source?.libraryId !== library.mine?.id"
+                        v-close-popup
+                        clickable
+                        @click="copyLibToMine(b)"
+                      >
+                        <q-item-section>Copy to my library</q-item-section>
+                      </q-item>
+                      <q-item v-close-popup clickable @click="exportBlock(b)">
+                        <q-item-section>Export (.rrqbl)</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-btn>
               </div>
-              <q-btn flat round dense icon="more_vert" aria-label="Actions">
-                <q-menu>
-                  <q-list dense style="min-width: 160px">
-                    <q-item
-                      v-if="!project.readOnly"
-                      v-close-popup
-                      clickable
-                      :disable="b.kind !== 'seam'"
-                      @click="editLibrary(b)"
-                    >
-                      <q-item-section>Edit (makes your copy)</q-item-section>
-                    </q-item>
-                    <q-item
-                      v-if="otherVersions.has(b.id) && !project.readOnly"
-                      v-close-popup
-                      clickable
-                      @click="project.mismatches = [otherVersions.get(b.id)!]"
-                    >
-                      <q-item-section>Switch version…</q-item-section>
-                    </q-item>
-                    <q-item v-close-popup clickable @click="preview = b.id">
-                      <q-item-section>Preview</q-item-section>
-                    </q-item>
-                    <q-item
-                      v-if="b.source?.libraryId !== library.mine?.id"
-                      v-close-popup
-                      clickable
-                      @click="copyLibToMine(b)"
-                    >
-                      <q-item-section>Copy to my library</q-item-section>
-                    </q-item>
-                    <q-item v-close-popup clickable @click="exportBlock(b)">
-                      <q-item-section>Export (.rrqbl)</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
             </div>
-          </div>
-        </div>
+          </template>
+        </BlockSections>
       </template>
     </template>
 
@@ -298,7 +315,7 @@
       <div v-if="!project.readOnly" class="text-caption text-grey-7 q-mb-sm">
         Tap your colors to pick them for a palette in {{ MY_LIBRARY }}.
       </div>
-      <template v-for="group in colorGroups" :key="group.label">
+      <template v-for="group in colorGroups.slice(0, 1)" :key="group.label">
         <div class="text-subtitle2 q-mb-sm">{{ group.label }}</div>
         <div class="swatches q-mb-lg">
           <component
@@ -329,7 +346,37 @@
           <div v-if="!group.items.length" class="text-caption text-grey-7">None yet.</div>
         </div>
       </template>
-      <div class="text-caption text-grey-7">
+      <div class="text-subtitle2 q-mt-lg">Library palettes</div>
+      <div class="text-caption text-grey-7 q-mb-sm">
+        Tick the palettes to use in this project's quilts; your own colors are always available.
+      </div>
+      <template v-for="v in paletteLibs" :key="v.doc.id">
+        <div class="text-subtitle2 q-mt-md q-mb-sm">{{ v.doc.name }}</div>
+        <div class="column q-mb-md" style="gap: 6px">
+          <div v-for="c in v.collections" :key="c.id" class="row items-center no-wrap">
+            <q-checkbox
+              dense
+              :model-value="!!project.doc.project.libraryPalettes?.includes(c.id)"
+              :disable="project.readOnly"
+              @update:model-value="(on: boolean) => pickPalette(c.id, on)"
+            />
+            <div class="q-px-sm" style="width: 160px">
+              {{ c.notecard.name }}
+              <span class="text-caption text-grey-7">· {{ c.colors.length }}</span>
+            </div>
+            <div class="row no-wrap" style="gap: 2px; overflow: hidden">
+              <div
+                v-for="x in c.colors"
+                :key="x.id"
+                class="mini-swatch"
+                :style="{ background: `rgb(${x.rgb.join(',')})` }"
+                :title="x.notecard.name"
+              />
+            </div>
+          </div>
+        </div>
+      </template>
+      <div class="text-caption text-grey-7 q-mt-md">
         Add and edit your colors from the tray in the quilt editor. Fabrics arrive in a later
         version.
       </div>
@@ -352,7 +399,23 @@
             </template>
           </div>
         </q-card-section>
-        <img :src="thumb(previewBlock, 560)" style="width: 100%; display: block" alt="" />
+        <img
+          :src="thumb(previewBlock, 560, previewColoring)"
+          style="width: 100%; display: block"
+          alt=""
+        />
+        <div v-if="previewBlock.colorings.length > 1" class="row q-px-md q-pt-sm" style="gap: 6px">
+          <button
+            v-for="(k, i) in previewBlock.colorings"
+            :key="k.id"
+            class="skin"
+            :class="{ active: (previewColoring ?? previewBlock.colorings[0]!.id) === k.id }"
+            :title="k.name ?? `Coloring ${i + 1}`"
+            @click="previewColoring = k.id"
+          >
+            <img :src="thumb(previewBlock, 64, k.id)" :alt="k.name ?? `Coloring ${i + 1}`" />
+          </button>
+        </div>
         <q-card-section class="column" style="gap: 4px">
           <div v-if="previewBlock.notecard.notes" style="white-space: pre-wrap">
             {{ previewBlock.notecard.notes }}
@@ -550,7 +613,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
@@ -565,6 +628,7 @@ import type { Block } from '@/model/schema/block';
 import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
+import BlockSections from '@/components/BlockSections.vue';
 import { useLibraryStore } from '@/stores/library';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthor } from '@/composables/author';
@@ -594,6 +658,7 @@ import {
   addToCollection,
   colorChanged,
   copyToMine,
+  blockSections,
   libraryGroups,
   linkState,
   saveCollection,
@@ -635,7 +700,50 @@ const split = computed(() =>
 );
 const blocks = computed(() => split.value.mine);
 const libBlocks = computed(() => split.value.library);
-const libGroups = computed(() => libraryGroups(libBlocks.value, library.views, 'blocks'));
+/** Library blocks per library, in category sections (blocks no installed library has: Other). */
+const libGroups = computed(() => {
+  const byId = new Map(libBlocks.value.map((b) => [b.id, b]));
+  const seen = new Set<string>();
+  const out = library.views.flatMap((v) => {
+    const bs = v.blocks
+      .filter((b) => byId.has(b.id) && !seen.has(b.id))
+      .map((b) => byId.get(b.id)!);
+    bs.forEach((b) => seen.add(b.id));
+    return bs.length
+      ? [{ lib: v.doc.id, label: v.doc.name, sections: blockSections(v.doc, bs, 'category') }]
+      : [];
+  });
+  const other = libBlocks.value.filter((b) => !seen.has(b.id));
+  return other.length
+    ? [
+        ...out,
+        {
+          lib: 'other',
+          label: 'Other libraries',
+          sections: [{ key: '', label: '', blocks: other, count: other.length }],
+        },
+      ]
+    : out;
+});
+const paletteLibs = computed(() => library.views.filter((v) => v.collections.length));
+function pickPalette(id: string, on: boolean) {
+  project.change((d) => {
+    const rest = (d.project.libraryPalettes ?? []).filter((x) => x !== id);
+    const next = on ? [...rest, id] : rest;
+    if (next.length) d.project.libraryPalettes = next;
+    else delete d.project.libraryPalettes;
+  });
+}
+/** Library blocks picked for the design tray; ones placed in a quilt always count. */
+const isPicked = (id: string) => inUse(id) || !!project.doc!.project.libraryBlocks?.includes(id);
+function pick(id: string, on: boolean) {
+  project.change((d) => {
+    const rest = (d.project.libraryBlocks ?? []).filter((x) => x !== id);
+    const next = on ? [...rest, id] : rest;
+    if (next.length) d.project.libraryBlocks = next;
+    else delete d.project.libraryBlocks;
+  });
+}
 const colorGroups = computed(() => {
   const c = splitItems(project.doc!.project.palette.colors, library.items.colors);
   return [
@@ -646,8 +754,11 @@ const colorGroups = computed(() => {
 const previewBlock = computed(() =>
   [...blocks.value, ...libBlocks.value].find((b) => b.id === preview.value),
 );
-const thumb = (b: Block, px: number) =>
-  blockThumbnail(project.doc!, b, px, $q.dark.isActive, undefined, library.items.colors);
+const thumb = (b: Block, px: number, coloring?: string) =>
+  blockThumbnail(project.doc!, b, px, $q.dark.isActive, coloring, library.items.colors);
+/** The preview's coloring (undefined: the block's first); reset when the preview changes. */
+const previewColoring = ref<string>();
+watch(preview, () => (previewColoring.value = undefined));
 const inUse = (id: string) => quiltsUsing(id).length > 0;
 const patchCount = (b: Block) => allPatches(b).length;
 
@@ -1134,11 +1245,28 @@ function showPlacements() {
   gap: 16px;
 }
 .card {
+  position: relative;
   border: 1px solid rgba(128, 128, 128, 0.3);
   border-radius: 8px;
   padding: 8px;
   background: transparent;
   color: inherit;
+}
+.mini-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  flex: none;
+}
+.card .pick {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 1;
+}
+.card.picked {
+  border-color: var(--q-primary);
 }
 .card.add {
   display: flex;
@@ -1202,5 +1330,20 @@ div.color-pick {
   height: 56px;
   border-radius: 6px;
   border: 1px solid rgba(0, 0, 0, 0.2);
+}
+.skin {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+.skin img {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+.skin.active {
+  border-color: var(--q-primary);
 }
 </style>

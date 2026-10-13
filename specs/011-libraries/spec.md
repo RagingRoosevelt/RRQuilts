@@ -27,6 +27,13 @@
 - Q: Group blocks? → A: The sidebar's "Group blocks by" (Nothing, Category, Tags, Styles; remembered)
   splits each library's blocks into sections: categories in the library's order then Uncategorized,
   tags or styles A–Z then "No tags"/"No styles" (a block with several shows under each).
+- Q: Which library items does a project's quilt editor offer? → A: The project's own blocks and
+  colors always; library blocks and palettes only once picked (checkboxes in the project's Blocks
+  tab, library blocks grouped by library then category with collapsible library/category/
+  subcategory sections; and in Fabrics & Colors, palettes listed per library). Picks are saved in
+  the project (`libraryBlocks`, `libraryPalettes`); blocks already placed stay available. Tray
+  palettes are labelled "Palette · Library"; library colors in use outside picked palettes show
+  under "In use". Block previews show a button per coloring to switch between them.
 - Q: Built-in palettes? → A: Basic colors (36) plus Pastels, Darks, Gems, Neon, and Traditional (8
   each).
 - Q: Does a backup include the packs and repositories I've added? → A: Yes. One backup covers
