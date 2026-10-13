@@ -138,7 +138,7 @@
                     clickable
                     @click="syncToMine(b)"
                   >
-                    <q-item-section avatar><q-icon name="sync" /></q-item-section
+                    <q-item-section avatar class="menu-icon"><q-icon name="sync" /></q-item-section
                     ><q-item-section>Sync to my library</q-item-section>
                   </q-item>
                   <q-item
@@ -147,7 +147,8 @@
                     clickable
                     @click="addToMine(b)"
                   >
-                    <q-item-section avatar><q-icon name="bookmark_add" /></q-item-section
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="bookmark_add" /></q-item-section
                     ><q-item-section>Add to my library…</q-item-section>
                   </q-item>
                   <template v-if="!project.readOnly">
@@ -157,7 +158,8 @@
                       :disable="b.kind !== 'seam'"
                       @click="openBlock(b.id)"
                     >
-                      <q-item-section avatar><q-icon name="edit" /></q-item-section
+                      <q-item-section avatar class="menu-icon"
+                        ><q-icon name="edit" /></q-item-section
                       ><q-item-section>Edit</q-item-section>
                     </q-item>
                     <q-item
@@ -166,20 +168,25 @@
                       :disable="b.kind !== 'seam'"
                       @click="editCopy(b.id)"
                     >
-                      <q-item-section avatar><q-icon name="content_copy" /></q-item-section
+                      <q-item-section avatar class="menu-icon"
+                        ><q-icon name="content_copy" /></q-item-section
                       ><q-item-section>Edit a copy</q-item-section>
                     </q-item>
                   </template>
                   <q-item v-close-popup clickable @click="preview = b.id">
-                    <q-item-section avatar><q-icon name="visibility" /></q-item-section>
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="visibility"
+                    /></q-item-section>
                     <q-item-section>Preview</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="blockDetails(b.id)">
-                    <q-item-section avatar><q-icon name="info" /></q-item-section
+                    <q-item-section avatar class="menu-icon"><q-icon name="info" /></q-item-section
                     ><q-item-section>Details</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="exportBlock(b)">
-                    <q-item-section avatar><q-icon name="file_download" /></q-item-section>
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="file_download"
+                    /></q-item-section>
                     <q-item-section>Export (.rrqbl)</q-item-section>
                   </q-item>
                   <template v-if="!project.readOnly">
@@ -188,7 +195,8 @@
                       clickable
                       :disable="i === 0"
                       @click="moveItem('blocks', i, -1)"
-                      ><q-item-section avatar><q-icon name="arrow_back" /></q-item-section
+                      ><q-item-section avatar class="menu-icon"
+                        ><q-icon name="arrow_back" /></q-item-section
                       ><q-item-section>Move earlier</q-item-section></q-item
                     >
                     <q-item
@@ -196,7 +204,8 @@
                       clickable
                       :disable="i === blocks.length - 1"
                       @click="moveItem('blocks', i, 1)"
-                      ><q-item-section avatar><q-icon name="arrow_forward" /></q-item-section
+                      ><q-item-section avatar class="menu-icon"
+                        ><q-icon name="arrow_forward" /></q-item-section
                       ><q-item-section>Move later</q-item-section></q-item
                     >
                     <q-item v-close-popup clickable @click="deleteBlock(b.id)"
@@ -273,7 +282,9 @@
                         :disable="b.kind !== 'seam'"
                         @click="editLibrary(b)"
                       >
-                        <q-item-section avatar><q-icon name="content_copy" /></q-item-section>
+                        <q-item-section avatar class="menu-icon"
+                          ><q-icon name="content_copy"
+                        /></q-item-section>
                         <q-item-section>Edit (make a copy)</q-item-section>
                       </q-item>
                       <q-item
@@ -283,7 +294,9 @@
                         :disable="b.kind !== 'seam'"
                         @click="colorVariant(b)"
                       >
-                        <q-item-section avatar><q-icon name="palette" /></q-item-section>
+                        <q-item-section avatar class="menu-icon"
+                          ><q-icon name="palette"
+                        /></q-item-section>
                         <q-item-section>Create a coloration variant</q-item-section>
                       </q-item>
                       <q-item
@@ -295,11 +308,15 @@
                         <q-item-section>Switch version…</q-item-section>
                       </q-item>
                       <q-item v-close-popup clickable @click="preview = b.id">
-                        <q-item-section avatar><q-icon name="visibility" /></q-item-section>
+                        <q-item-section avatar class="menu-icon"
+                          ><q-icon name="visibility"
+                        /></q-item-section>
                         <q-item-section>Preview</q-item-section>
                       </q-item>
                       <q-item v-close-popup clickable @click="exportBlock(b)">
-                        <q-item-section avatar><q-icon name="file_download" /></q-item-section>
+                        <q-item-section avatar class="menu-icon"
+                          ><q-icon name="file_download"
+                        /></q-item-section>
                         <q-item-section>Export (.rrqbl)</q-item-section>
                       </q-item>
                     </q-list>
@@ -1667,6 +1684,10 @@ function showPlacements() {
 }
 .card .pick-box :deep(.q-checkbox__inner--falsy .q-checkbox__bg) {
   background: rgba(255, 255, 255, 0.45);
+}
+.menu-icon {
+  min-width: 0;
+  padding-right: 12px;
 }
 .card.picked {
   border-color: var(--q-primary);
