@@ -18,6 +18,8 @@ export interface Settings {
   trayTab: 'blocks' | 'colors';
   /** Libraries page: blocks in sections by category, tag, or style. */
   libraryGroupBy: 'none' | 'category' | 'tags' | 'styles';
+  /** Project (sketchbook) page: last tab. */
+  projectTab: 'quilts' | 'blocks' | 'colors' | 'photos' | 'threads' | 'details';
   /** Libraries page: Type picker — blocks, palettes ('colors'), or all (''). */
   libraryType: 'block' | 'colors' | '';
   /** Labels of inspector sections the user collapsed. */
@@ -56,6 +58,7 @@ export const defaults = (): Settings => ({
   trayTab: 'blocks',
   libraryGroupBy: 'none',
   libraryType: 'block',
+  projectTab: 'quilts',
   print: {},
 });
 
@@ -69,6 +72,9 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   trayTab: (v) => v === 'blocks' || v === 'colors',
   libraryGroupBy: (v) => v === 'none' || v === 'category' || v === 'tags' || v === 'styles',
   libraryType: (v) => v === 'block' || v === 'colors' || v === '',
+  projectTab: (v) =>
+    typeof v === 'string' &&
+    ['quilts', 'blocks', 'colors', 'photos', 'threads', 'details'].includes(v),
   print: (v) => isObject(v),
   collapsedSections: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
 };

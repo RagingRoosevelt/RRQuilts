@@ -800,7 +800,10 @@ const inUseDialog = ref<{
   where: { quilt: string; spots: string[] }[];
   remove: () => void;
 } | null>(null);
-const tab = ref('quilts');
+const tab = computed({
+  get: () => settings.settings.projectTab,
+  set: (v) => (settings.settings.projectTab = v),
+});
 const preview = ref<string | null>(null);
 const dragFrom = ref<number | null>(null);
 const wizard = ref<InstanceType<typeof QuiltWizard>>();
