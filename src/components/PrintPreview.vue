@@ -396,7 +396,7 @@
 
           <footer class="row no-wrap" style="gap: 12px">
             <div class="col ellipsis">{{ view.title }} · {{ view.byline }}</div>
-            <div>({{ i + 1 }} of {{ sheets.length }})</div>
+            <div>{{ i + 1 }} of {{ sheets.length }}</div>
           </footer>
         </section>
       </div>
