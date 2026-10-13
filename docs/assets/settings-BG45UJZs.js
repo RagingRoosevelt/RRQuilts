@@ -1,1 +1,0 @@
-import{i as e,t}from"./settings-SmbqWU4s.js";import{a as n}from"./index-D3nlsPa5.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};
