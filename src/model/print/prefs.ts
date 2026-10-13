@@ -23,7 +23,6 @@ export const PRINT_DEFAULTS = {
   seam: perUnits(0.25, 0.75),
   /** Rounding step for cut sizes; 0 = exact. */
   rounding: perUnits(0.125, 0.5),
-  width: perUnits('42', '110'),
   /** Fabric rounding step: ⅛ yd = 4.5″; 10 cm. */
   fabricStep: perUnits(4.5, 10),
   overhang: perUnits(4, 10),

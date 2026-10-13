@@ -107,17 +107,6 @@
     >
       <div class="column q-pa-sm" style="gap: 8px">
         <q-select
-          :model-value="prefs.width[units]"
-          :options="WIDTHS[units]"
-          option-value="id"
-          emit-value
-          map-options
-          dense
-          outlined
-          label="Fabric width"
-          @update:model-value="(v: string) => setUnit('width', v)"
-        />
-        <q-select
           :model-value="prefs.fabricStep[units]"
           :options="fabricStepOptions"
           emit-value
@@ -285,7 +274,6 @@ import {
   PAPERS,
   type PaperId,
   ROUNDINGS,
-  WIDTHS,
   pick,
   printPrefs,
   type PrintTarget,
@@ -311,7 +299,7 @@ function set<K extends keyof PrintPrefs>(key: K, value: PrintPrefs[K]) {
   app.settings.print = { ...app.settings.print, [key]: value };
 }
 type PerUnit =
-  'paper' | 'margin' | 'seam' | 'rounding' | 'width' | 'fabricStep' | 'overhang' | 'bindingWidth';
+  'paper' | 'margin' | 'seam' | 'rounding' | 'fabricStep' | 'overhang' | 'bindingWidth';
 function setUnit<K extends PerUnit>(key: K, value: PrintPrefs[K]['in']) {
   set(key, { ...prefs.value[key], [units.value]: value });
 }

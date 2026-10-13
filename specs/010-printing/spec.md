@@ -26,8 +26,8 @@ picture, block picture — from the existing Print tabs."
   at 45°, plus a true-size corner guide page per strip width (left and right end: cut line, sewing
   lines, a dot where stitching stops); anything else "needs a template". Rounding ⅛″ (default), 1/16″, none; metric
   5 mm (default), 1 mm, none; warning when rounding distorts. Seam allowance ¼″ / 7.5 mm, adjustable.
-- Q: Yardage? → A: By color. Fabric width 42″ (40″ usable) default; 44″, 60″, fat quarters; metric
-  110 cm, 150 cm, fat quarters. Rounded up to ⅛ yd (default), ¼ yd, ½ yd; metric 10 cm (default),
+- Q: Yardage? → A: By color, one column per fabric width: 42″ (40″ usable), 44″, 60″, fat quarters;
+  metric 110 cm, 150 cm, fat quarters (no width setting; rotary strips use the first). Rounded up to ⅛ yd (default), ¼ yd, ½ yd; metric 10 cm (default),
   20 cm, 45 cm. Borders from strips. Backing and binding included.
 - Q: Paper? → A: Letter, Legal, or A4 in any project; default Letter (inches) or A4 (cm). A0
   dropped. Portrait

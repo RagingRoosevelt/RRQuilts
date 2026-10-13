@@ -206,46 +206,42 @@
             <!-- Yardage -->
             <div v-else-if="s.kind === 'yardage'" class="column" style="gap: 10px">
               <div class="text-caption">
-                {{ widthOption.label }}; rounded up to the next {{ fabricStepLabel }}. Borders are
-                cut from strips across the fabric; estimates never come out short.
+                {{ widthsLabel }}; rounded up to the next {{ fabricStepLabel }}. Borders are cut
+                from strips across the fabric; estimates never come out short.
               </div>
               <table>
                 <thead>
                   <tr>
                     <th>Fabric</th>
-                    <th>Amount</th>
+                    <th v-for="c in s.cols" :key="c.opt.id">{{ shortWidth(c.opt) }}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="n in s.needs" :key="n.fill">
+                  <tr v-for="fill in s.fills" :key="fill">
                     <td>
-                      <span class="chip" :style="{ background: fillInfo(n.fill).css }" />
-                      {{ fillInfo(n.fill).name }}
+                      <span class="chip" :style="{ background: fillInfo(fill).css }" />
+                      {{ fillInfo(fill).name }}
                     </td>
-                    <td>
-                      {{
-                        n.fatQuarters !== undefined
-                          ? `${n.fatQuarters} fat quarter${n.fatQuarters === 1 ? '' : 's'}`
-                          : fabricLabel(n.length)
-                      }}
-                    </td>
+                    <td v-for="c in s.cols" :key="c.opt.id">{{ amount(c.needs.get(fill)) }}</td>
                   </tr>
                   <tr>
                     <td>Backing ({{ fmt(prefs.overhang[units]) }} extra each side, pieced)</td>
-                    <td>{{ fabricLabel(s.backing) }}</td>
+                    <td v-for="c in s.cols" :key="c.opt.id">
+                      {{ c.backing === undefined ? '—' : fabricLabel(c.backing) }}
+                    </td>
                   </tr>
                   <tr>
-                    <td>
-                      Binding ({{ s.binding.strips }} strips × {{ fmt(prefs.bindingWidth[units]) }},
-                      straight grain)
+                    <td>Binding ({{ fmt(prefs.bindingWidth[units]) }} strips, straight grain)</td>
+                    <td v-for="c in s.cols" :key="c.opt.id">
+                      {{
+                        c.binding
+                          ? `${fabricLabel(c.binding.length)} (${c.binding.strips} strips)`
+                          : '—'
+                      }}
                     </td>
-                    <td>{{ fabricLabel(s.binding.length) }}</td>
                   </tr>
                 </tbody>
               </table>
-              <div v-if="widthOption.fatQuarter" class="text-caption">
-                Backing and binding use {{ standardWidth.label }} fabric.
-              </div>
             </div>
 
             <!-- A block: picture, size, how many, fabric for all of them, credits -->
@@ -308,28 +304,22 @@
                   <tr>
                     <th>Fabric</th>
                     <th>Pieces</th>
-                    <th>Amount</th>
+                    <th v-for="c in s.cols" :key="c.opt.id">{{ shortWidth(c.opt) }}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="n in s.needs" :key="n.fill">
+                  <tr v-for="fill in s.fills" :key="fill">
                     <td>
-                      <span class="chip" :style="{ background: fillInfo(n.fill).css }" />
-                      {{ fillInfo(n.fill).name }}
+                      <span class="chip" :style="{ background: fillInfo(fill).css }" />
+                      {{ fillInfo(fill).name }}
                     </td>
-                    <td>{{ s.pieces.get(n.fill) ?? 0 }}</td>
-                    <td>
-                      {{
-                        n.fatQuarters !== undefined
-                          ? `${n.fatQuarters} fat quarter${n.fatQuarters === 1 ? '' : 's'}`
-                          : fabricLabel(n.length)
-                      }}
-                    </td>
+                    <td>{{ s.pieces.get(fill) ?? 0 }}</td>
+                    <td v-for="c in s.cols" :key="c.opt.id">{{ amount(c.needs.get(fill)) }}</td>
                   </tr>
                 </tbody>
               </table>
               <div class="text-caption">
-                {{ widthOption.label }}; seam allowance {{ fmt(seam) }}; rounded up to the next
+                {{ widthsLabel }}; seam allowance {{ fmt(seam) }}; rounded up to the next
                 {{ fabricStepLabel }}.
               </div>
               <template v-if="s.notes">
@@ -448,12 +438,13 @@ import {
   PAPERS,
   ROUNDINGS,
   WIDTHS,
+  type WidthOption,
   pick,
   printPrefs,
   type PrintTarget,
 } from '@/model/print/prefs';
 import { cutFor, cutPlan, type Cut, type CutKind, type CutLine } from '@/model/print/rotary';
-import { backing, binding, fabricNeeds } from '@/model/print/yardage';
+import { backing, binding, fabricNeeds, type FabricNeed } from '@/model/print/yardage';
 import type { Block } from '@/model/schema/block';
 import type { Quilt } from '@/model/schema/quilt';
 import type { Credit } from '@/model/schema/shared';
@@ -487,11 +478,26 @@ const step = computed(() => prefs.value.rounding[units.value]);
 const roundingLabel = computed(
   () => ROUNDINGS[units.value].find((r) => r.value === step.value)?.label.toLowerCase() ?? '',
 );
-const widthOption = computed(() => pick(WIDTHS[units.value], prefs.value.width[units.value]));
-const standardWidth = computed(() => WIDTHS[units.value][0]!);
-const usableForCuts = computed(() =>
-  widthOption.value.fatQuarter ? standardWidth.value.usable : widthOption.value.usable,
-);
+/** Every fabric width gets a yardage column; rotary strips are cut across the standard one. */
+const widths = computed(() => WIDTHS[units.value]);
+const usableForCuts = computed(() => widths.value[0]!.usable);
+const shortWidth = (w: WidthOption) => w.label.split(' (')[0];
+const widthsLabel = computed(() => widths.value.map((w) => w.label).join(', '));
+const amount = (n?: FabricNeed) =>
+  !n
+    ? '—'
+    : n.fatQuarters !== undefined
+      ? `${n.fatQuarters} fat quarter${n.fatQuarters === 1 ? '' : 's'}`
+      : fabricLabel(n.length);
+/** Fabric needs per width, by fill. */
+function needCols(pieces: Piece[]) {
+  const fstep = prefs.value.fabricStep[units.value];
+  const cols = widths.value.map((opt) => {
+    const lines = cutPlan(pieces, seam.value, step.value, opt.usable);
+    return { opt, needs: new Map(fabricNeeds(lines, opt, fstep).map((n) => [n.fill, n])) };
+  });
+  return { cols, fills: [...cols[0]!.needs.keys()] };
+}
 const fabricStepLabel = computed(
   () =>
     FABRIC_STEPS[units.value].find((f) => f.value === prefs.value.fabricStep[units.value])?.label ??
@@ -767,9 +773,8 @@ type Sheet =
   | {
       kind: 'yardage';
       heading: string;
-      needs: ReturnType<typeof fabricNeeds>;
-      backing: number;
-      binding: { strips: number; length: number };
+      fills: string[];
+      cols: (NeedCol & { backing?: number; binding?: { strips: number; length: number } })[];
     }
   | {
       kind: 'credits';
@@ -791,7 +796,8 @@ type Sheet =
       w: number;
       h: number;
       scale: number;
-      needs: ReturnType<typeof fabricNeeds>;
+      fills: string[];
+      cols: NeedCol[];
       /** Pieces to cut, by fill. */
       pieces: Map<string, number>;
       byline: string;
@@ -812,6 +818,11 @@ type Sheet =
       h: number;
       scale: number;
     };
+interface NeedCol {
+  opt: WidthOption;
+  needs: Map<string, FabricNeed>;
+}
+
 /** True-size end of a mitered strip: finished width `w`, cut width `cut`, drawn `len` long. */
 interface MiterGuide {
   x: number;
@@ -931,23 +942,35 @@ const sheets = computed<Sheet[]>(() => {
       out.push(...miterSheets(lines));
     }
     if (section === 'yardage' && !isBlock) {
-      const fabric = widthOption.value;
-      const lines = cutPlan(v.pieces, seam.value, step.value, fabric.usable);
       const fstep = prefs.value.fabricStep[units.value];
       const [x0, y0, x1, y1] = v.pictureBox;
-      const plain = standardWidth.value.usable;
+      const { cols, fills } = needCols(v.pieces);
       out.push({
         kind: 'yardage',
         heading: 'Yardage estimate',
-        needs: fabricNeeds(lines, fabric, fstep),
-        backing: backing(x1 - x0, y1 - y0, prefs.value.overhang[units.value], plain, fstep),
-        binding: binding(
-          x1 - x0,
-          y1 - y0,
-          prefs.value.bindingWidth[units.value],
-          units.value === 'in' ? 10 : 25,
-          plain,
-          fstep,
+        fills,
+        // Backing and binding aren't pieced from fat quarters.
+        cols: cols.map((c) =>
+          c.opt.fatQuarter
+            ? c
+            : {
+                ...c,
+                backing: backing(
+                  x1 - x0,
+                  y1 - y0,
+                  prefs.value.overhang[units.value],
+                  c.opt.usable,
+                  fstep,
+                ),
+                binding: binding(
+                  x1 - x0,
+                  y1 - y0,
+                  prefs.value.bindingWidth[units.value],
+                  units.value === 'in' ? 10 : 25,
+                  c.opt.usable,
+                  fstep,
+                ),
+              },
         ),
       });
     }
@@ -1178,8 +1201,6 @@ function blockPage(
   number?: number,
 ): Sheet {
   const [aw, ah] = area.value;
-  const fabric = widthOption.value;
-  const lines = cutPlan(all, seam.value, step.value, fabric.usable);
   const pieces = new Map<string, number>();
   for (const p of all) pieces.set(p.fill, (pieces.get(p.fill) ?? 0) + 1);
   const dd = doc.value!;
@@ -1194,7 +1215,7 @@ function blockPage(
     w: size[0],
     h: size[1],
     scale: Math.min(1, (aw * 0.45) / size[0], (ah * 0.5) / size[1]),
-    needs: fabricNeeds(lines, fabric, prefs.value.fabricStep[units.value]),
+    ...needCols(all),
     pieces,
     byline: `By ${authorOf(block) ?? 'anonymous'} · ${licenseName(effectiveLicense(block, dd, blockLock(block)))}`,
     basedOn: priorCredits(block),
