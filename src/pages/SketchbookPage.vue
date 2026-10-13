@@ -379,8 +379,9 @@
         Tick the palettes to use in this project's quilts; project colors are always available.
       </div>
       <template v-for="v in paletteLibs" :key="v.doc.id">
-        <div class="text-subtitle2 q-mt-md q-mb-sm">{{ v.doc.name }}</div>
-        <div class="column q-mb-md" style="gap: 6px">
+        <!-- A fieldset, so the library's name sits in the top-left of its border. -->
+        <fieldset class="lib-box column q-mt-md q-mb-md" style="gap: 6px">
+          <legend class="text-subtitle2">{{ v.doc.name }}</legend>
           <div v-for="c in v.collections" :key="c.id" class="row items-center no-wrap">
             <q-checkbox
               dense
@@ -405,7 +406,7 @@
               />
             </div>
           </div>
-        </div>
+        </fieldset>
       </template>
       <div class="text-caption text-grey-7 q-mt-md">
         Edit a project color from the tray in the quilt editor. Fabrics arrive in a later version.
@@ -1624,5 +1625,16 @@ function showPlacements() {
 }
 .skin.active {
   border-color: var(--q-primary);
+}
+.lib-box {
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 8px;
+  padding: 4px 12px 10px;
+  margin-left: 0;
+  margin-right: 0;
+  min-width: 0;
+}
+.lib-box legend {
+  padding: 0 4px;
 }
 </style>
