@@ -395,7 +395,7 @@
           </div>
 
           <footer>
-            <div class="credits">{{ view.title }} · {{ view.byline }}</div>
+            <div class="ellipsis">{{ view.title }} · {{ view.byline }}</div>
           </footer>
         </section>
       </div>
@@ -421,7 +421,7 @@ import {
 import { pathToSegs, flattenLoop, type Pt } from '@/model/geometry/path';
 import { generateSlots } from '@/model/layout/slots';
 import { fmtFabric, fmtLen } from '@/model/print/format';
-import { pack, tiles } from '@/model/print/pack';
+import { pack, pillWidth, tiles, wrapPills } from '@/model/print/pack';
 import {
   blockPieces,
   quiltPieces,
@@ -506,7 +506,7 @@ const fabricLabel = (x: number) => fmtFabric(x, units.value);
 // Paper and the area left for content (project units).
 const marginMm = computed(() => prefs.value.margin[units.value] * mm.value);
 const HEADER_MM = 14;
-const FOOTER_MM = 18;
+const FOOTER_MM = 8;
 const paperMm = computed(() => {
   const [w, h] = paper.value.mm;
   return prefs.value.landscape ? [h, w] : [w, h];
@@ -737,13 +737,20 @@ function templateItems(pieces: Piece[], prefix: string) {
       room: spot.r,
       grain: grainDir,
       grainLength: Math.min(x1 - x0, y1 - y0) * 0.5,
-      note: `Cut ${counts.join(', ')}`,
+      // Fabric pills (color key off) carry the per-fabric counts; the note keeps the total.
+      note: prefs.value.labels.color
+        ? `Cut ${counts.join(', ')}`
+        : `Cut ${[...t.counts.values()].reduce((a, b) => a + b, 0)}`,
       size: finishedLabel(cutFor({ poly: t.poly, curved: t.curved, fill: '', marks: [] }, 0, 0)),
       tint: fills.length === 1 && fills[0] !== 'none' ? fillInfo(fills[0]!).css : undefined,
       marks: t.marks.map((m) => ({ p: shift(turnVec(m.p)), n: turnVec(m.n) })),
       fabrics: fills
         .filter((f) => fabricNos.value.has(f))
-        .map((f) => ({ n: fabricNos.value.get(f)!, ...fillInfo(f) })),
+        .map((f) => {
+          const n = fabricNos.value.get(f)!;
+          const info = fillInfo(f);
+          return { n, ...info, pill: `${n} · ${info.name} ×${t.counts.get(f)}` };
+        }),
       x: 0,
       y: 0,
       w: x1 - x0,
@@ -1102,7 +1109,19 @@ function templateSheets(src: {
   const all: (PlacedPiece & { h: number; keyBlock?: KeyBlock })[] = src.noKey
     ? items
     : [keyItem, ...items];
-  const boxes = all.map((it) => ({ w: it.w, h: it.h + font.value * 4 }));
+  // Room under each template for its caption and wrapped fabric pills.
+  const f = font.value;
+  const pillRows = (it: PlacedPiece) =>
+    prefs.value.labels.color || !it.fabrics.length
+      ? 0
+      : Math.max(
+          ...wrapPills(
+            it.fabrics.map((p) => pillWidth(p.pill ?? '', f)),
+            it.w,
+            f * 0.3,
+          ).map((p) => p.row),
+        );
+  const boxes = all.map((it) => ({ w: it.w, h: it.h + f * 4 + pillRows(it) * f * 1.5 }));
   // One per page: pack each on its own (still turned to fit, still tiled when too big).
   const { pages, oversize } = prefs.value.onePerPage
     ? boxes.reduce(
@@ -1377,16 +1396,10 @@ onMounted(() => {
   flex: 1;
 }
 .sheet footer {
-  height: 16mm;
+  height: 6mm;
   border-top: 0.3mm solid #000;
   padding-top: 2mm;
   font-size: 8pt;
-}
-.credits {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
 }
 .notes {
   white-space: pre-wrap;

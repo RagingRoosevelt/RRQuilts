@@ -105,7 +105,7 @@ export interface PlacedPiece {
   tint?: string | undefined;
   marks: { p: Pt; n: Pt }[];
   /** Fabrics it's cut from: number, name, color (pills under it when the color key is off). */
-  fabrics: { n: number; name: string; css: string }[];
+  fabrics: { n: number; name: string; css: string; pill?: string }[];
   x: number;
   y: number;
   w: number;

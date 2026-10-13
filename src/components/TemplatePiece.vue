@@ -99,7 +99,7 @@
       }}</tspan>
     </text>
     <!-- Color key off: a pill per fabric under the template -->
-    <g v-for="p in pills" :key="p.n" :transform="`translate(${p.x} ${pillY})`">
+    <g v-for="p in pills" :key="p.n" :transform="`translate(${p.x} ${pillY + p.y})`">
       <rect
         :width="p.w"
         :height="look.font * 1.2"
@@ -118,7 +118,7 @@
         :stroke-width="look.stroke * 0.5"
       />
       <text :x="look.font * 1.15" :y="look.font * 0.85" :font-size="look.font * 0.75">
-        {{ p.n }} · {{ p.name }}
+        {{ p.pill }}
       </text>
     </g>
   </g>
@@ -127,6 +127,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { Pt } from '@/model/geometry/path';
+import { pillWidth, wrapPills } from '@/model/print/pack';
 import type { PlacedPiece } from '@/model/print/pieces';
 
 const props = defineProps<{
@@ -180,13 +181,14 @@ const pillY = computed(
 const pills = computed(() => {
   if (props.look.labels.color) return [];
   const f = props.look.font;
-  let x = bounds.value[0];
-  return props.piece.fabrics.map((p) => {
-    const w = f * (1.5 + `${p.n} · ${p.name}`.length * 0.42);
-    const pill = { ...p, x, w };
-    x += w + f * 0.3;
-    return pill;
-  });
+  const widths = props.piece.fabrics.map((p) => pillWidth(p.pill ?? '', f));
+  const at = wrapPills(widths, bounds.value[2] - bounds.value[0], f * 0.3);
+  return props.piece.fabrics.map((p, i) => ({
+    ...p,
+    x: bounds.value[0] + at[i]!.x,
+    y: at[i]!.row * f * 1.5,
+    w: widths[i]!,
+  }));
 });
 /** Checked notes, printed on the template: finished size, then what to cut. */
 const insideLines = computed(() => {
@@ -203,6 +205,7 @@ const insideLines = computed(() => {
 const stack = computed(() => {
   const f = props.look.font;
   const sq = scaleSquare.value;
+  const room = props.piece.room * 1.9;
   const rows = [
     ...(props.look.labels.letter ? [{ text: props.piece.letter, em: 1.6, bold: true }] : []),
     ...insideLines.value.map((x) => ({ ...x, bold: false })),
@@ -210,7 +213,6 @@ const stack = computed(() => {
   const arrow = props.look.grain && props.piece.grainLength > 0 ? 1.2 : 0;
   const height = (rows.reduce((a, x) => a + x.em * 1.15, 0) + arrow) * f;
   const width = Math.max(0, ...rows.map((x) => x.text.length * 0.55 * x.em)) * f;
-  const room = props.piece.room * 1.9;
   // The scale square keeps its size; the text shrinks around it.
   const below = sq ? sq + f * 0.4 : 0;
   const k = Math.max(0, Math.min(1, (room - below) / (height || 1), room / (width || 1)));

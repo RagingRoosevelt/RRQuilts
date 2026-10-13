@@ -69,3 +69,18 @@ export function tiles(w: number, h: number, pageW: number, pageH: number, overla
     for (let col = 0; col < cols; col++) out.push({ x: col * stepX, y: row * stepY, row, col });
   return { cols, rows, tiles: out };
 }
+
+/** A fabric pill's width at font size `f`: swatch + "2 · Cream" (0.42 em per character). */
+export const pillWidth = (label: string, f: number) => f * (1.5 + label.length * 0.42);
+
+/** Pills left to right, wrapping at `max` (a pill wider than `max` gets its own row). */
+export function wrapPills(widths: number[], max: number, gap: number) {
+  let x = 0;
+  let row = 0;
+  return widths.map((w) => {
+    if (x > 0 && x + w > max) [x, row] = [0, row + 1];
+    const at = { x, row };
+    x += w + gap;
+    return at;
+  });
+}
