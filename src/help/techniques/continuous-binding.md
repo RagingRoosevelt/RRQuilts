@@ -68,8 +68,9 @@ calculator below.
 </svg>
 
 5. **Fold up at 45°.** Turn the quilt so the next side runs away from you. Fold the loose binding
-   straight up and away from the quilt. The fold makes a 45° crease at the corner, and the binding's
-   raw edge now runs in line with the next side.
+   straight up and away from the quilt. The fold makes a 45° crease at the corner that lines up with
+   the diagonal stitch you sewed to the corner, and the binding's raw edge now runs in line with the
+   next side.
 
 <svg viewBox="0 0 280 150" width="420" role="img" aria-label="The loose binding folded up and away from the quilt along a 45 degree crease, its raw edge in line with the next side">
   <defs><pattern id="cb-b" patternUnits="userSpaceOnUse" x="10" y="40" width="130" height="130"><polygon points="37.42,65.0 46.62,74.19 55.81,65.0 46.62,55.81" fill="#c4282c"/><polygon points="46.62,55.81 55.81,65.0 65.0,55.81 55.81,46.62" fill="#5a78a0"/><polygon points="55.81,46.62 65.0,55.81 74.19,46.62 65.0,37.42" fill="#c4282c"/><polygon points="46.62,74.19 55.81,83.38 65.0,74.19 55.81,65.0" fill="#5a78a0"/><polygon points="55.81,65.0 65.0,74.19 74.19,65.0 65.0,55.81" fill="#c4282c"/><polygon points="65.0,55.81 74.19,65.0 83.38,55.81 74.19,46.62" fill="#5a78a0"/><polygon points="55.81,83.38 65.0,92.58 74.19,83.38 65.0,74.19" fill="#c4282c"/><polygon points="65.0,74.19 74.19,83.38 83.38,74.19 74.19,65.0" fill="#5a78a0"/><polygon points="74.19,65.0 83.38,74.19 92.58,65.0 83.38,55.81" fill="#c4282c"/><polygon points="83.38,74.19 130.0,120.81 130.0,130.0 120.81,130.0 74.19,83.38" fill="#f4ecd8"/><polygon points="55.81,83.38 9.19,130.0 0.0,130.0 0.0,120.81 46.62,74.19" fill="#f4ecd8"/><polygon points="46.62,55.81 0.0,9.19 0.0,0.0 9.19,0.0 55.81,46.62" fill="#f4ecd8"/><polygon points="74.19,46.62 120.81,0.0 130.0,0.0 130.0,9.19 83.38,55.81" fill="#f4ecd8"/><polygon points="102.42,130.0 65.0,92.58 74.19,83.38 102.42,111.62" fill="#5a78a0"/><polygon points="0.0,102.42 37.42,65.0 46.62,74.19 18.38,102.42" fill="#5a78a0"/><polygon points="27.58,0.0 65.0,37.42 55.81,46.62 27.58,18.38" fill="#5a78a0"/><polygon points="130.0,27.58 92.58,65.0 83.38,55.81 111.62,27.58" fill="#5a78a0"/><polygon points="92.58,65.0 130.0,102.42 111.62,102.42 83.38,74.19" fill="#5a78a0"/><polygon points="65.0,92.58 27.58,130.0 27.58,111.62 55.81,83.38" fill="#5a78a0"/><polygon points="37.42,65.0 0.0,27.58 18.38,27.58 46.62,55.81" fill="#5a78a0"/><polygon points="65.0,37.42 102.42,0.0 102.42,18.38 74.19,46.62" fill="#5a78a0"/><polygon points="120.81,130.0 102.42,130.0 102.42,111.62" fill="#c4282c"/><polygon points="0.0,120.81 0.0,102.42 18.38,102.42" fill="#c4282c"/><polygon points="9.19,0.0 27.58,0.0 27.58,18.38" fill="#c4282c"/><polygon points="130.0,9.19 130.0,27.58 111.62,27.58" fill="#c4282c"/><polygon points="130.0,102.42 130.0,120.81 111.62,102.42" fill="#c4282c"/><polygon points="27.58,130.0 9.19,130.0 27.58,111.62" fill="#c4282c"/><polygon points="0.0,27.58 0.0,9.19 18.38,27.58" fill="#c4282c"/><polygon points="102.42,0.0 120.81,0.0 102.42,18.38" fill="#c4282c"/><polygon points="102.42,130.0 27.58,130.0 65.0,92.58" fill="#96c4e8"/><polygon points="0.0,102.42 0.0,27.58 37.42,65.0" fill="#96c4e8"/><polygon points="27.58,0.0 102.42,0.0 65.0,37.42" fill="#96c4e8"/><polygon points="130.0,27.58 130.0,102.42 92.58,65.0" fill="#96c4e8"/></pattern></defs>
@@ -78,9 +79,11 @@ calculator below.
   <polygon points="124,56 140,40 140,4 124,4" style="fill: var(--q-primary); filter: brightness(0.75)" stroke="currentColor"/>
   <line x1="124" y1="56" x2="140" y2="40" stroke="#fff" stroke-width="1.5"/>
   <line x1="10" y1="46" x2="134" y2="46" stroke="#fff" stroke-dasharray="4 3"/>
+  <line x1="134" y1="46" x2="140" y2="40" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
   <text x="165" y="22" font-size="11" fill="currentColor">fold up along a</text>
-  <text x="165" y="38" font-size="11" fill="currentColor">45° crease, raw edge</text>
-  <text x="165" y="54" font-size="11" fill="currentColor">in line with the side</text>
+  <text x="165" y="38" font-size="11" fill="currentColor">45° crease on the stitch</text>
+  <text x="165" y="54" font-size="11" fill="currentColor">to the corner, raw edge</text>
+  <text x="165" y="70" font-size="11" fill="currentColor">in line with the side</text>
 </svg>
 
 6. **Fold back down.** Fold the binding down over itself along the next side, with the new fold flush
