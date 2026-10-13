@@ -96,7 +96,8 @@ const shown = computed(() => searchTopics(all.value, query.value ?? ''));
 
 /** In-app links in topics (/help/…, /project…) go through the router (base path, no reload). */
 function follow(e: MouseEvent) {
-  const a = (e.target as HTMLElement).closest('a');
+  // Only links written in the topics (router links like Back handle themselves).
+  const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('.help-md a');
   const href = a?.getAttribute('href');
   if (!href?.startsWith('/') || a?.target) return;
   e.preventDefault();
