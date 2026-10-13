@@ -114,7 +114,7 @@
             role="button"
             @click="showOriginal(b)"
           >
-            <q-icon name="link" size="14px" class="q-mr-xs" />Color variant
+            <q-icon name="palette" size="14px" class="q-mr-xs" />Color variant
             <q-tooltip>Your coloring of a library block — show the original</q-tooltip>
           </q-badge>
           <div class="row items-center no-wrap">
