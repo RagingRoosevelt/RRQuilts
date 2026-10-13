@@ -132,35 +132,49 @@
         aria-label="Add color"
         @click="editorDialog?.show()"
       />
-      <template v-for="group in colorGroups" :key="group.label">
-        <TraySection v-if="group.items.length" :label="group.label" kind="colors">
-          <button
-            v-for="c in group.items"
-            :key="c.id"
-            class="swatch"
-            :class="{ active: editor.color === c.id }"
-            :style="{ background: `rgb(${c.rgb.join(',')})` }"
-            :title="c.notecard.name"
-            @click="pickColor(c.id)"
+      <!-- Project colors, In use, then each library with its picked palettes (nested sections). -->
+      <template v-for="node in colorTree" :key="node.label">
+        <TraySection
+          v-if="node.groups.some((g) => g.items.length)"
+          :label="node.label"
+          :kind="node.lib ? 'colorlib' : 'colors'"
+        >
+          <component
+            :is="node.lib ? TraySection : 'span'"
+            v-for="group in node.groups.filter((g) => g.items.length)"
+            :key="group.label"
+            v-bind="
+              node.lib ? { label: group.label, kind: `colors:${node.lib}` } : { class: 'contents' }
+            "
           >
-            <q-menu v-if="!project.readOnly && !group.mine" touch-position context-menu>
-              <q-list dense style="min-width: 140px">
-                <q-item v-close-popup clickable @click="editCopy(c)">
-                  <q-item-section>Edit a copy…</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-            <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
-              <q-list dense style="min-width: 140px">
-                <q-item v-close-popup clickable @click="edit(c.id)">
-                  <q-item-section>Edit…</q-item-section>
-                </q-item>
-                <q-item v-close-popup clickable @click="remove(c.id)">
-                  <q-item-section class="text-negative">Delete</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </button>
+            <button
+              v-for="c in group.items"
+              :key="c.id"
+              class="swatch"
+              :class="{ active: editor.color === c.id }"
+              :style="{ background: `rgb(${c.rgb.join(',')})` }"
+              :title="c.notecard.name"
+              @click="pickColor(c.id)"
+            >
+              <q-menu v-if="!project.readOnly && !group.mine" touch-position context-menu>
+                <q-list dense style="min-width: 140px">
+                  <q-item v-close-popup clickable @click="editCopy(c)">
+                    <q-item-section>Edit a copy…</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+              <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
+                <q-list dense style="min-width: 140px">
+                  <q-item v-close-popup clickable @click="edit(c.id)">
+                    <q-item-section>Edit…</q-item-section>
+                  </q-item>
+                  <q-item v-close-popup clickable @click="remove(c.id)">
+                    <q-item-section class="text-negative">Delete</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </button>
+          </component>
         </TraySection>
       </template>
     </div>
@@ -292,7 +306,7 @@ const recentFirst = <T extends { id: string }>(all: T[]) => [
   ...editor.recentColors.map((id) => all.find((c) => c.id === id)).filter((c) => !!c),
   ...all.filter((c) => !editor.recentColors.includes(c.id)),
 ];
-const colorGroups = computed(() => {
+const colorTree = computed(() => {
   const colors = doc.value.project.palette.colors;
   const { mine, library: lib } = splitItems(colors, library.items.colors);
   const byId = new Map(lib.map((c) => [c.id, c]));
@@ -307,7 +321,9 @@ const colorGroups = computed(() => {
         const items = c.colors.map((x) => byId.get(x.id) ?? x);
         items.forEach((x) => shown.add(x.id));
         return {
-          label: `${c.notecard.name} · ${v.doc.name}`,
+          lib: v.doc.id,
+          libName: v.doc.name,
+          label: c.notecard.name,
           items: recentFirst(items),
           mine: false,
         };
@@ -320,10 +336,18 @@ const colorGroups = computed(() => {
     .filter((id) => !shown.has(id) && !mine.some((c) => c.id === id))
     .map((id) => colors.find((c) => c.id === id) ?? library.lookup.color(id))
     .filter((c): c is Color => !!c);
+  const libs = [...new Set(palettes.map((p) => p.lib))].map((lib) => {
+    const groups = palettes.filter((p) => p.lib === lib);
+    return { lib, label: groups[0]!.libName, groups };
+  });
   return [
-    { label: 'Mine', items: recentFirst(mine), mine: true },
-    ...palettes,
-    ...(used.length ? [{ label: 'In use', items: recentFirst(used), mine: false }] : []),
+    {
+      lib: '',
+      label: 'Project colors',
+      groups: [{ label: '', items: recentFirst(mine), mine: true }],
+    },
+    { lib: '', label: 'In use', groups: [{ label: '', items: recentFirst(used), mine: false }] },
+    ...libs,
   ];
 });
 const thumb = (b: Block, coloringId?: string) =>
@@ -396,6 +420,19 @@ function remove(id: string) {
   display: block;
   overflow: visible;
   padding: 0;
+}
+.contents {
+  display: contents;
+}
+/* Palettes nested in their library's section: full rows; only their labels indent. */
+.sidebar :deep(.items:has(> .q-expansion-item)) {
+  padding: 0;
+}
+.sidebar :deep(.items > .q-expansion-item) {
+  width: 100%;
+}
+.sidebar :deep(.items > .q-expansion-item > .q-expansion-item__container > .q-item) {
+  padding-left: 28px;
 }
 .sidebar :deep(.items) {
   display: flex;
