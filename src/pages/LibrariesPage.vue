@@ -367,7 +367,8 @@
             :title="k.name ?? `Coloring ${i + 1}`"
             @click="previewColoring = k.id"
           >
-            <img :src="thumb(previewBlock, 64, k.id)" :alt="k.name ?? `Coloring ${i + 1}`" />
+            <img :src="thumb(previewBlock, 64, k.id)" alt="" />
+            <span class="skin-name">{{ k.name ?? `Coloring ${i + 1}` }}</span>
           </button>
         </div>
         <q-card-section class="column" style="gap: 4px">
@@ -1335,6 +1336,17 @@ function downloadPack() {
   display: block;
   width: 48px;
   height: 48px;
+  margin: 0 auto;
+}
+.skin-name {
+  display: block;
+  width: 56px;
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .skin.active {
   border-color: var(--q-primary);
