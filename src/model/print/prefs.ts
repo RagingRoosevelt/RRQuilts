@@ -23,6 +23,8 @@ export const PRINT_DEFAULTS = {
   seam: perUnits(0.25, 0.75),
   /** Rounding step for cut sizes; 0 = exact. */
   rounding: perUnits(0.125, 0.5),
+  /** Extra length on mitered border strips, trimmed after sewing (0 = cut exact). */
+  miterSlack: perUnits(2, 5),
   /** Fabric rounding step: ⅛ yd = 4.5″; 10 cm. */
   fabricStep: perUnits(4.5, 10),
   overhang: perUnits(4, 10),

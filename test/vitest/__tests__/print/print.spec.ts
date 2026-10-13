@@ -123,6 +123,7 @@ describe('rotary cutting', () => {
       finished: [60, 3],
       cut: [61.25, 3.5],
     });
+    expect(cutFor(piece(side), 0.25, 0.125, 2).cut).toEqual([63.25, 3.5]);
     // One 45° end only: not a miter.
     const half: Pt[] = [
       [0, 0],

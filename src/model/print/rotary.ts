@@ -33,8 +33,11 @@ const isRight = (u: Pt, v: Pt, tol: number) =>
   Math.abs(u[0] * v[0] + u[1] * v[1]) <= tol * Math.hypot(...u) * Math.hypot(...v);
 const axisAligned = (v: Pt) => Math.min(Math.abs(v[0]), Math.abs(v[1])) <= 1e-6 * Math.hypot(...v);
 
-/** How to cut one piece; `seam` and `step` (0 = exact) in project units. */
-export function cutFor(piece: Piece, seam: number, step: number): Cut {
+/**
+ * How to cut one piece; `seam`, `step` (0 = exact), and `slack` (extra length on mitered strips) in
+ * project units.
+ */
+export function cutFor(piece: Piece, seam: number, step: number, slack = 0): Cut {
   const p = simplify(piece.poly, 1e-4);
   const e = sides(p);
   const L = e.map((v) => Math.hypot(...v));
@@ -96,7 +99,10 @@ export function cutFor(piece: Piece, seam: number, step: number): Cut {
         kind: 'miter',
         finished: [long, w],
         // The cut piece's long edge reaches s(1 + √2) past each finished corner.
-        cut: [roundUp(long + 2 * (1 + Math.SQRT2) * seam, step), roundUp(w + 2 * seam, step)],
+        cut: [
+          roundUp(long + 2 * (1 + Math.SQRT2) * seam + slack, step),
+          roundUp(w + 2 * seam, step),
+        ],
         yields: 1,
         distorted: !onGrid(w, step),
       };
@@ -132,10 +138,16 @@ const groupKey = (fill: string, c: Cut) =>
   `${fill}|${c.kind}|${c.cut.map((n) => n.toFixed(4)).join('x')}`;
 
 /** Cutting plan per fill: whole strips across `usable` (the usable fabric width). */
-export function cutPlan(pieces: Piece[], seam: number, step: number, usable: number): CutLine[] {
+export function cutPlan(
+  pieces: Piece[],
+  seam: number,
+  step: number,
+  usable: number,
+  slack = 0,
+): CutLine[] {
   const groups = new Map<string, { fill: string; cut: Cut; count: number }>();
   for (const piece of pieces) {
-    const cut = cutFor(piece, seam, step);
+    const cut = cutFor(piece, seam, step, slack);
     const key = groupKey(piece.fill, cut);
     const g = groups.get(key) ?? { fill: piece.fill, cut, count: 0 };
     g.count++;

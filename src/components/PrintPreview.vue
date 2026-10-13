@@ -154,7 +154,7 @@
                   finished)
                 </text>
                 <text :x="0" :y="g.cut + font * 2.2" :font-size="font * 0.7">
-                  Outer edges together; cut on the solid 45° line. Stop stitching at the dot.
+                  Outer edges together; cut on the solid 45° line. Stitching ends at the dot.
                 </text>
               </g>
             </svg>
@@ -475,6 +475,7 @@ const seam = computed(() => prefs.value.seam[units.value]);
 /** A mitered strip's cut edge reaches this far past the finished corner. */
 const miterA = computed(() => seam.value * (1 + Math.SQRT2));
 const step = computed(() => prefs.value.rounding[units.value]);
+const slack = computed(() => prefs.value.miterSlack[units.value]);
 const roundingLabel = computed(
   () => ROUNDINGS[units.value].find((r) => r.value === step.value)?.label.toLowerCase() ?? '',
 );
@@ -493,7 +494,7 @@ const amount = (n?: FabricNeed) =>
 function needCols(pieces: Piece[]) {
   const fstep = prefs.value.fabricStep[units.value];
   const cols = widths.value.map((opt) => {
-    const lines = cutPlan(pieces, seam.value, step.value, opt.usable);
+    const lines = cutPlan(pieces, seam.value, step.value, opt.usable, slack.value);
     return { opt, needs: new Map(fabricNeeds(lines, opt, fstep).map((n) => [n.fill, n])) };
   });
   return { cols, fills: [...cols[0]!.needs.keys()] };
@@ -590,7 +591,9 @@ function howLabel(l: CutLine) {
       : l.cut.kind === 'qst'
         ? ', each cut twice diagonally'
         : l.cut.kind === 'miter'
-          ? ', both ends trimmed at 45° (see the corner guide)'
+          ? slack.value
+            ? `, ${fmt(slack.value)} extra; sew on, then trim both ends at 45° (see the corner guide)`
+            : ', both ends trimmed at 45° (see the corner guide)'
           : '';
   return strips + cutUp;
 }
@@ -928,7 +931,7 @@ const sheets = computed<Sheet[]>(() => {
       }
     }
     if (section === 'rotary') {
-      const lines = cutPlan(v.pieces, seam.value, step.value, usableForCuts.value);
+      const lines = cutPlan(v.pieces, seam.value, step.value, usableForCuts.value, slack.value);
       const fills = [...new Set(lines.map((l) => l.fill))];
       out.push({
         kind: 'rotary',

@@ -93,6 +93,15 @@
           label="Cut size rounding"
           @update:model-value="(v: number) => setUnit('rounding', v)"
         />
+        <LengthInput
+          v-if="kind === 'quilt'"
+          :model-value="prefs.miterSlack[units]"
+          label="Extra length on mitered strips"
+          hint="Trimmed after sewing; 0 to cut exact"
+          :units="units"
+          :min="0"
+          @update:model-value="(v: number) => setUnit('miterSlack', v)"
+        />
       </div>
     </q-expansion-item>
 
@@ -299,7 +308,14 @@ function set<K extends keyof PrintPrefs>(key: K, value: PrintPrefs[K]) {
   app.settings.print = { ...app.settings.print, [key]: value };
 }
 type PerUnit =
-  'paper' | 'margin' | 'seam' | 'rounding' | 'fabricStep' | 'overhang' | 'bindingWidth';
+  | 'paper'
+  | 'margin'
+  | 'seam'
+  | 'rounding'
+  | 'miterSlack'
+  | 'fabricStep'
+  | 'overhang'
+  | 'bindingWidth';
 function setUnit<K extends PerUnit>(key: K, value: PrintPrefs[K]['in']) {
   set(key, { ...prefs.value[key], [units.value]: value });
 }
