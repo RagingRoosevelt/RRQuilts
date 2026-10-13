@@ -53,7 +53,7 @@
         <template v-for="(seg, i) in topic.segments" :key="i">
           <!-- Bundled, trusted content (src/help/*.md), never user input. -->
           <!-- eslint-disable-next-line vue/no-v-html -->
-          <div v-if="seg.kind === 'html'" class="md" v-html="seg.html" />
+          <div v-if="seg.kind === 'html'" class="help-md" v-html="seg.html" />
           <HelpCalc v-else :name="seg.name" />
         </template>
       </article>
@@ -147,51 +147,51 @@ function follow(e: MouseEvent) {
   margin: 0 0 12px;
   letter-spacing: normal;
 }
-.md :deep(h2) {
+.help-md :deep(h2) {
   font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.3;
   margin: 20px 0 8px;
   letter-spacing: normal;
 }
-.md :deep(h3) {
+.help-md :deep(h3) {
   font-size: 1.05rem;
   font-weight: 600;
   line-height: 1.3;
   margin: 16px 0 6px;
   letter-spacing: normal;
 }
-.md :deep(p),
-.md :deep(li) {
+.help-md :deep(p),
+.help-md :deep(li) {
   line-height: 1.55;
 }
-.md :deep(ol),
-.md :deep(ul) {
+.help-md :deep(ol),
+.help-md :deep(ul) {
   padding-left: 1.4em;
 }
-.md :deep(code) {
+.help-md :deep(code) {
   background: rgba(128, 128, 128, 0.15);
   padding: 0 4px;
   border-radius: 3px;
 }
-.md :deep(svg) {
+.help-md :deep(svg) {
   display: block;
   overflow: visible; /* diagram labels may run past the drawing */
   max-width: 100%;
   height: auto;
   margin: 8px 0;
 }
-.md :deep(table) {
+.help-md :deep(table) {
   border-collapse: collapse;
   margin: 8px 0 16px;
 }
-.md :deep(blockquote) {
+.help-md :deep(blockquote) {
   margin: 8px 0;
   padding: 4px 12px;
   border-left: 3px solid var(--q-primary);
 }
-.md :deep(th),
-.md :deep(td) {
+.help-md :deep(th),
+.help-md :deep(td) {
   border: 1px solid rgba(128, 128, 128, 0.3);
   padding: 4px 8px;
 }
