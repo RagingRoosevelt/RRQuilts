@@ -42,8 +42,8 @@ corners.
 
 <svg viewBox="0 0 220 110" width="330" role="img" aria-label="The center square with a triangle sewn to the left and right sides">
   <rect x="75" y="25" width="60" height="60" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="75,25 75,85 15,55" fill="currentColor" fill-opacity="0.35" stroke="currentColor"/>
-  <polygon points="135,25 135,85 195,55" fill="currentColor" fill-opacity="0.35" stroke="currentColor"/>
+  <polygon points="75,25 75,85 45,55" fill="currentColor" fill-opacity="0.35" stroke="currentColor"/>
+  <polygon points="135,25 135,85 165,55" fill="currentColor" fill-opacity="0.35" stroke="currentColor"/>
 </svg>
 
 4. Sew the other two triangles to the remaining sides in the same way, and press toward them.
