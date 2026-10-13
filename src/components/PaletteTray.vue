@@ -296,7 +296,7 @@ const colorGroups = computed(() => {
   const colors = doc.value.project.palette.colors;
   const { mine, library: lib } = splitItems(colors, library.items.colors);
   const byId = new Map(lib.map((c) => [c.id, c]));
-  // Library colors: the palettes picked in the project's Fabrics & Colors tab (labelled with their
+  // Library colors: the palettes picked in the project's Palettes tab (labelled with their
   // library), then other library colors in use.
   const picked = new Set(doc.value.project.libraryPalettes ?? []);
   const shown = new Set<string>();

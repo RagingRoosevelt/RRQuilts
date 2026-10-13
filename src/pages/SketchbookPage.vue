@@ -12,14 +12,38 @@
         @blur="(e: Event) => rename((e.target as HTMLInputElement).value.trim())"
       />
     </div>
-    <q-tabs v-model="tab" dense no-caps align="left">
-      <q-tab name="quilts" :label="`Quilts (${quilts.length})`" />
-      <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
-      <q-tab name="colors" :label="`Fabrics & Colors (${colorGroups[0]!.items.length})`" />
-      <q-tab name="photos" label="Photos" />
-      <q-tab name="threads" label="Threads" />
-      <q-tab name="details" label="Details" />
-    </q-tabs>
+    <div class="row items-center no-wrap">
+      <q-tabs v-model="tab" dense no-caps align="left" class="col">
+        <q-tab name="quilts" :label="`Quilts (${quilts.length})`" />
+        <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
+        <q-tab name="colors" :label="`Palettes (${colorGroups[0]!.items.length})`" />
+        <q-tab name="photos" label="Photos" />
+        <q-tab name="threads" label="Threads" />
+        <q-tab name="details" label="Details" />
+      </q-tabs>
+      <template v-if="!project.readOnly">
+        <q-btn
+          flat
+          dense
+          icon="undo"
+          aria-label="Undo"
+          :disable="!project.canUndo"
+          @click="project.undo()"
+        >
+          <q-tooltip>Undo (Ctrl+Z)</q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          dense
+          icon="redo"
+          aria-label="Redo"
+          :disable="!project.canRedo"
+          @click="project.redo()"
+        >
+          <q-tooltip>Redo (Ctrl+Shift+Z)</q-tooltip>
+        </q-btn>
+      </template>
+    </div>
     <q-separator class="q-mb-md" />
 
     <div v-if="tab === 'quilts'" class="cards">

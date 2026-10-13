@@ -112,8 +112,9 @@
       <div class="col" style="min-width: 0">
         <div v-if="!mineCount && !filtering" class="text-grey-7 q-pa-md" style="max-width: 560px">
           Your own blocks and palettes, available in every project on this device. Add a block from
-          a project's Blocks tab (<b>Add to my library</b>), save colors from its Fabrics & Colors
-          tab (<b>Save to my library</b>), or import a backup.
+          a project's Blocks tab (<b>Add to my library</b>), save colors from its Palettes tab (<b
+            >Save to my library</b
+          >), or import a backup.
         </div>
         <template v-for="g in groups" :key="g.v.doc.id">
           <div class="lib-group q-mb-md">
