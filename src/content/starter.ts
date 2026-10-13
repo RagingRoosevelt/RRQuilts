@@ -1,4 +1,4 @@
-// Built-in starter content: 13 traditional blocks drawn originally as seam lines, 36 basic solid
+// Built-in starter content: 13 traditional blocks (plus the four-patch family in four-patch.ts) drawn originally as seam lines, 36 basic solid
 // colors, and five themed palettes, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
 import { produce } from 'immer';
@@ -9,6 +9,7 @@ import type { SeamBlock, Segment } from '@/model/schema/block';
 import { LIBRARY_FORMAT, LIBRARY_VERSION, type LibraryDoc } from '@/model/schema/library';
 import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
+import { FOUR_PATCH_BLOCKS } from './four-patch';
 
 type P = [number, number];
 
@@ -131,6 +132,8 @@ export const STARTER_PALETTES: { name: string; colors: [string, [number, number,
 
 interface StarterBlock {
   name: string;
+  /** Finished size in inches (default 10). */
+  size?: number;
   /** Category path in the built-in library ("Stars/Eight-point stars"). */
   category: string;
   seams: Seam[];
@@ -460,6 +463,14 @@ export const STARTER_BLOCKS: StarterBlock[] = [
       [0.38, 0.7, C.Gold!], // lower hook
     ],
   },
+  ...FOUR_PATCH_BLOCKS.map((b) => ({
+    name: b.name,
+    size: b.size,
+    category: b.category,
+    seams: b.seams,
+    base: C.Cream!,
+    points: b.points.map(([x, y, color]): [number, number, number] => [x, y, C[color]!]),
+  })),
 ];
 
 function superS(): Seam[] {
@@ -521,7 +532,6 @@ export interface BuiltinItems {
  * blocks) so its content versions are stable across app loads.
  */
 export function builtinItems(): BuiltinItems {
-  const size: [number, number] = [10, 10];
   const colors: Color[] = [...STARTER_COLORS, ...STARTER_PALETTES.flatMap((p) => p.colors)].map(
     ([name, rgb]) => ({
       id: libId(name),
@@ -532,6 +542,7 @@ export function builtinItems(): BuiltinItems {
     }),
   );
   const blocks = STARTER_BLOCKS.map((b): SeamBlock => {
+    const size: [number, number] = [b.size ?? 10, b.size ?? 10];
     const nodes: { id: string; x: number; y: number }[] = [];
     const node = ([x, y]: P) => {
       const id = `n${nodes.length + 1}`;
