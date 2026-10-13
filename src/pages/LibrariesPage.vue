@@ -89,6 +89,15 @@
             </template>
           </q-select>
         </template>
+        <q-select
+          v-model="settings.settings.libraryGroupBy"
+          :options="GROUP_BY"
+          emit-value
+          map-options
+          dense
+          outlined
+          label="Group blocks by"
+        />
       </div>
 
       <div class="col" style="min-width: 0">
@@ -133,49 +142,54 @@
             </div>
 
             <div v-if="g.blocks.length" class="text-subtitle2 q-mb-sm">Blocks</div>
-            <div class="cards q-mb-lg">
-              <div v-for="b in g.blocks" :key="b.id" class="card">
-                <button class="thumb" @click="previewing = { lib: g.v.doc.id, id: b.id }">
-                  <img :src="thumb(b, 200)" :alt="b.notecard.name" />
-                </button>
-                <div class="row items-center no-wrap">
-                  <div class="col ellipsis">{{ b.notecard.name }}</div>
-                  <q-btn flat round dense icon="more_vert" aria-label="Actions">
-                    <q-menu>
-                      <q-list dense style="min-width: 170px">
-                        <q-item
-                          v-close-popup
-                          clickable
-                          @click="previewing = { lib: g.v.doc.id, id: b.id }"
-                        >
-                          <q-item-section>Preview</q-item-section>
-                        </q-item>
-                        <template v-if="g.mine">
-                          <q-item v-close-popup clickable @click="rename(b.id, b.notecard.name)">
-                            <q-item-section>Rename…</q-item-section>
+            <template v-for="sec in g.sections" :key="sec.label">
+              <div v-if="sec.label" class="text-body2 text-weight-medium text-grey-8 q-mb-xs">
+                {{ sec.label }} <span class="text-grey-6">· {{ sec.blocks.length }}</span>
+              </div>
+              <div class="cards q-mb-lg">
+                <div v-for="b in sec.blocks" :key="b.id" class="card">
+                  <button class="thumb" @click="previewing = { lib: g.v.doc.id, id: b.id }">
+                    <img :src="thumb(b, 200)" :alt="b.notecard.name" />
+                  </button>
+                  <div class="row items-center no-wrap">
+                    <div class="col ellipsis">{{ b.notecard.name }}</div>
+                    <q-btn flat round dense icon="more_vert" aria-label="Actions">
+                      <q-menu>
+                        <q-list dense style="min-width: 170px">
+                          <q-item
+                            v-close-popup
+                            clickable
+                            @click="previewing = { lib: g.v.doc.id, id: b.id }"
+                          >
+                            <q-item-section>Preview</q-item-section>
                           </q-item>
-                          <q-item v-close-popup clickable @click="pickCategory(b.id)">
-                            <q-item-section>Category…</q-item-section>
+                          <template v-if="g.mine">
+                            <q-item v-close-popup clickable @click="rename(b.id, b.notecard.name)">
+                              <q-item-section>Rename…</q-item-section>
+                            </q-item>
+                            <q-item v-close-popup clickable @click="pickCategory(b.id)">
+                              <q-item-section>Category…</q-item-section>
+                            </q-item>
+                            <q-item v-close-popup clickable @click="startTagging(b.id)">
+                              <q-item-section>Tags & styles…</q-item-section>
+                            </q-item>
+                          </template>
+                          <q-item v-else v-close-popup clickable @click="copyMine(g.v, b.id)">
+                            <q-item-section>Copy to my library</q-item-section>
                           </q-item>
-                          <q-item v-close-popup clickable @click="startTagging(b.id)">
-                            <q-item-section>Tags & styles…</q-item-section>
+                          <q-item v-close-popup clickable @click="exportBlock(b)">
+                            <q-item-section>Export (.rrqbl)</q-item-section>
                           </q-item>
-                        </template>
-                        <q-item v-else v-close-popup clickable @click="copyMine(g.v, b.id)">
-                          <q-item-section>Copy to my library</q-item-section>
-                        </q-item>
-                        <q-item v-close-popup clickable @click="exportBlock(b)">
-                          <q-item-section>Export (.rrqbl)</q-item-section>
-                        </q-item>
-                        <q-item v-if="g.mine" v-close-popup clickable @click="remove(b.id)">
-                          <q-item-section class="text-negative">Delete</q-item-section>
-                        </q-item>
-                      </q-list>
-                    </q-menu>
-                  </q-btn>
+                          <q-item v-if="g.mine" v-close-popup clickable @click="remove(b.id)">
+                            <q-item-section class="text-negative">Delete</q-item-section>
+                          </q-item>
+                        </q-list>
+                      </q-menu>
+                    </q-btn>
+                  </div>
                 </div>
               </div>
-            </div>
+            </template>
 
             <div v-if="g.collections.length" class="text-subtitle2 q-mb-sm">Palettes</div>
             <div class="column q-mb-lg" style="gap: 8px">
@@ -682,6 +696,40 @@ const matches = (i: LibraryItem) =>
   anyOf(withSubcategories(allCats.value, filters.cats), [i.category ?? '']) &&
   anyOf(filters.tags, i.data.notecard.tags ?? []) &&
   anyOf(filters.styles, i.data.notecard.styles ?? []);
+const GROUP_BY = [
+  { label: 'Nothing', value: 'none' },
+  { label: 'Category', value: 'category' },
+  { label: 'Tags', value: 'tags' },
+  { label: 'Styles', value: 'styles' },
+];
+/**
+ * A library's blocks in sections by the chosen grouping: categories in the library's order (then
+ * Uncategorized), tags or styles A–Z (then None). A block with several tags shows under each.
+ */
+function sections(doc: LibraryDoc, blocks: Block[]) {
+  const by = settings.settings.libraryGroupBy;
+  if (by === 'none' || !blocks.length) return [{ label: '', blocks }];
+  const keysOf = (b: Block): string[] => {
+    if (by !== 'category') return b.notecard[by] ?? [];
+    const c = doc.items.find((i) => i.data.id === b.id)?.category;
+    return c ? [c] : [];
+  };
+  const labels =
+    by === 'category'
+      ? categoryTree(doc.categories).map((c) => [c.id, c.label] as const)
+      : [...new Set(blocks.flatMap(keysOf))].sort().map((t) => [t, t] as const);
+  const none = by === 'category' ? 'Uncategorized' : `No ${by}`;
+  return [
+    ...labels.map(([key, label]) => ({
+      label,
+      blocks: blocks.filter((b) => keysOf(b).includes(key)),
+    })),
+    {
+      label: none,
+      blocks: blocks.filter((b) => !keysOf(b).some((k) => labels.some(([x]) => x === k))),
+    },
+  ].filter((sec) => sec.blocks.length);
+}
 const groups = computed(() =>
   inScope.value
     .map((v) => {
@@ -690,10 +738,12 @@ const groups = computed(() =>
           .filter(matches)
           .map((i) => i.data.id),
       );
+      const blocks = v.blocks.filter((b) => ids.has(b.id));
       return {
         v,
         mine: v.doc.kind === 'personal',
-        blocks: v.blocks.filter((b) => ids.has(b.id)),
+        blocks,
+        sections: sections(v.doc, blocks),
         collections: v.collections.filter((c) => ids.has(c.id)),
       };
     })

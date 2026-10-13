@@ -24,6 +24,11 @@
   subcategories (their items become uncategorized). The built-in library ships Medallions, Strips,
   N-Patch (Four-, Five-, Seven-, Nine-patch), Mosaics, Images (Flowers, Plants, Animals), Stars
   (Four-point, Eight-point), and Symbols (Letters, Numbers).
+- Q: Group blocks? → A: The sidebar's "Group blocks by" (Nothing, Category, Tags, Styles; remembered)
+  splits each library's blocks into sections: categories in the library's order then Uncategorized,
+  tags or styles A–Z then "No tags"/"No styles" (a block with several shows under each).
+- Q: Built-in palettes? → A: Basic colors (36) plus Pastels, Darks, Gems, Neon, and Traditional (8
+  each).
 - Q: Does a backup include the packs and repositories I've added? → A: Yes. One backup covers
   everything in Libraries: own items (incl. copies of pack items), imported packs embedded whole,
   and repository connections by reference (URL, ref, pinned revision, declined revision). Amends

@@ -24,8 +24,8 @@ const expected: Record<string, number> = {
 describe('starter content', () => {
   const doc = addStarterContent(createProject());
 
-  it('adds 36 colors and 13 blocks', () => {
-    expect(doc.project.palette.colors).toHaveLength(36);
+  it('adds 76 colors (36 basic + 5 palettes of 8) and 13 blocks', () => {
+    expect(doc.project.palette.colors).toHaveLength(76);
     expect(doc.project.blocks.map((b) => b.notecard.name)).toEqual(
       STARTER_BLOCKS.map((b) => b.name),
     );

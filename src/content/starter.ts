@@ -1,5 +1,5 @@
-// Built-in starter content: 13 traditional blocks drawn originally as seam lines and 36 solid
-// colors, by RRQuilts contributors. Public Domain Mark.
+// Built-in starter content: 13 traditional blocks drawn originally as seam lines, 36 basic solid
+// colors, and five themed palettes, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
 import { produce } from 'immer';
 import { deriveSeamPatches } from '@/model/blocks/derive';
@@ -59,6 +59,75 @@ export const STARTER_COLORS: [string, [number, number, number]][] = [
   ['Denim', [90, 120, 160]],
 ];
 const C = Object.fromEntries(STARTER_COLORS.map(([name], i) => [name, i]));
+
+/** Themed palettes; color names are unique across the library (they're the colors' ids). */
+export const STARTER_PALETTES: { name: string; colors: [string, [number, number, number]][] }[] = [
+  {
+    name: 'Pastels',
+    colors: [
+      ['Blush', [248, 204, 210]],
+      ['Peach', [250, 214, 184]],
+      ['Lemon Chiffon', [252, 240, 186]],
+      ['Pistachio', [204, 232, 196]],
+      ['Seafoam', [190, 230, 220]],
+      ['Powder Blue', [190, 214, 238]],
+      ['Periwinkle', [196, 200, 240]],
+      ['Lilac', [214, 198, 232]],
+    ],
+  },
+  {
+    name: 'Darks',
+    colors: [
+      ['Midnight', [20, 24, 48]],
+      ['Espresso', [60, 40, 30]],
+      ['Oxblood', [90, 20, 28]],
+      ['Hunter', [30, 60, 40]],
+      ['Slate', [60, 70, 84]],
+      ['Aubergine', [60, 28, 60]],
+      ['Deep Teal', [16, 72, 80]],
+      ['Graphite', [44, 44, 48]],
+    ],
+  },
+  {
+    name: 'Gems',
+    colors: [
+      ['Ruby', [155, 17, 30]],
+      ['Garnet', [115, 54, 53]],
+      ['Citrine', [228, 200, 30]],
+      ['Topaz', [230, 150, 50]],
+      ['Emerald', [0, 128, 80]],
+      ['Aquamarine', [110, 200, 190]],
+      ['Sapphire', [15, 82, 186]],
+      ['Amethyst', [153, 102, 204]],
+    ],
+  },
+  {
+    name: 'Neon',
+    colors: [
+      ['Neon Pink', [255, 40, 160]],
+      ['Hot Coral', [255, 80, 90]],
+      ['Neon Orange', [255, 110, 20]],
+      ['Neon Yellow', [240, 255, 30]],
+      ['Neon Green', [60, 255, 60]],
+      ['Electric Cyan', [0, 240, 255]],
+      ['Neon Blue', [30, 140, 255]],
+      ['Neon Purple', [180, 40, 255]],
+    ],
+  },
+  {
+    name: 'Traditional',
+    colors: [
+      ['Muslin', [238, 228, 205]],
+      ['Shirting', [244, 240, 228]],
+      ['Turkey Red', [178, 34, 34]],
+      ['Double Pink', [220, 120, 150]],
+      ['Cheddar', [232, 150, 40]],
+      ['Poison Green', [60, 140, 60]],
+      ['Prussian Blue', [30, 50, 90]],
+      ['Madder Brown', [110, 50, 30]],
+    ],
+  },
+];
 
 interface StarterBlock {
   name: string;
@@ -453,13 +522,15 @@ export interface BuiltinItems {
  */
 export function builtinItems(): BuiltinItems {
   const size: [number, number] = [10, 10];
-  const colors: Color[] = STARTER_COLORS.map(([name, rgb]) => ({
-    id: libId(name),
-    notecard: { name },
-    rgb,
-    source: credit(name),
-    revision: 1,
-  }));
+  const colors: Color[] = [...STARTER_COLORS, ...STARTER_PALETTES.flatMap((p) => p.colors)].map(
+    ([name, rgb]) => ({
+      id: libId(name),
+      notecard: { name },
+      rgb,
+      source: credit(name),
+      revision: 1,
+    }),
+  );
   const blocks = STARTER_BLOCKS.map((b): SeamBlock => {
     const nodes: { id: string; x: number; y: number }[] = [];
     const node = ([x, y]: P) => {
@@ -556,16 +627,16 @@ export function builtinDoc(items: BuiltinItems): LibraryDoc {
         category: catId(STARTER_BLOCKS[i]!.category),
         data,
       })),
-      {
+      ...[{ name: 'Basic colors', colors: STARTER_COLORS }, ...STARTER_PALETTES].map((p) => ({
         type: 'colors' as const,
         data: {
-          id: 'rrquilts.basic-colors',
-          notecard: { name: 'Basic colors' },
+          id: `rrquilts.${p.name.toLowerCase().replace(/ /g, '-')}`,
+          notecard: { name: p.name },
           author: STARTER_LIBRARY.author,
           license: STARTER_LIBRARY.license,
-          colors: items.colors,
+          colors: p.colors.map(([name]) => items.colors.find((c) => c.notecard.name === name)!),
         },
-      },
+      })),
     ],
   };
 }
