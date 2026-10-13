@@ -131,6 +131,19 @@ export function drawBlockEditor(
         ctx.fillRect(n.x * w - r, n.y * h - r, 2 * r, 2 * r);
         ctx.strokeRect(n.x * w - r, n.y * h - r, 2 * r, 2 * r);
       }
+    } else {
+      // Other tools: seam ends stay visible as small, quieter rings (unlike grid dots).
+      ctx.globalAlpha = 0.6;
+      ctx.fillStyle = o.dark ? '#111' : '#fff';
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = px;
+      for (const n of d.nodes) {
+        ctx.beginPath();
+        ctx.arc(n.x * w, n.y * h, 2.5 * px, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
     }
   }
 
