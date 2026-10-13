@@ -34,6 +34,14 @@
               @click="pickBlock(b.id)"
             >
               <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
+              <q-badge
+                v-if="b.colorVariant"
+                class="variant"
+                color="secondary"
+                title="Color variant"
+              >
+                <q-icon name="link" size="12px" />
+              </q-badge>
               <!-- Blocks with several colorings: click the count to choose which one to set. -->
               <span
                 v-if="b.colorings.length > 1"
@@ -75,6 +83,14 @@
               @click="pickBlock(b.id)"
             >
               <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
+              <q-badge
+                v-if="b.colorVariant"
+                class="variant"
+                color="secondary"
+                title="Color variant"
+              >
+                <q-icon name="link" size="12px" />
+              </q-badge>
               <!-- Blocks with several colorings: click the count to choose which one to set. -->
               <span
                 v-if="b.colorings.length > 1"
@@ -422,6 +438,12 @@ function remove(id: string) {
 }
 .tile {
   position: relative;
+}
+.variant {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  padding: 1px 3px;
 }
 .count {
   position: absolute;
