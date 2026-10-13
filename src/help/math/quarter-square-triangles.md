@@ -13,14 +13,16 @@ for the hourglass shape, flying-geese centers, and the side triangles of an
 
 Let the finished long side be f. Cut a square of
 
-> **cut = f + 2 × (1 + √2) × seam allowance**
+> **cut = f + 2 × (1 + √2) × SA**
+
+SA is the [seam allowance](/help/math/seam-allowance).
 
 then cut both diagonals to make **4 triangles**. With a ¼″ seam allowance, 2(1 + √2) × ¼″ ≈ 1.207″,
 and with 7.5 mm it is ≈ 3.62 cm.
 
 This is more than a half-square triangle needs. The long side is the diagonal of the cut square, but the
 triangle needs a seam allowance along that side _and_ a seam allowance on the two short sides, which
-sit at 45° to the long side. Each short seam moves the points out by (1 + √2)s along the long side.
+sit at 45° to the long side. Each short seam moves the points out by (1 + √2) × SA along the long side.
 
 <svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square cut along both diagonals into four triangles">
   <rect x="10" y="10" width="100" height="100" fill="none" stroke="currentColor" stroke-width="1.5"/>

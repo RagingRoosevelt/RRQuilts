@@ -1,4 +1,4 @@
-import{t as e}from"./settings-cLrrNpzD.js";import{Dt as t,J as n,R as r,T as i,U as a,V as o,X as s,at as c,b as l,f as u,ft as d,g as f,h as p,jt as m,m as h,ot as g,p as _,s as v,t as y,x as b,y as ee}from"./create-CXFiK9Ge.js";import{t as te,v as ne}from"./QBtn-D67DqTct.js";import{H as x,V as S,n as C,r as re,t as w}from"./QCard-BviQ4XyX.js";import{a as ie,r as ae}from"./render-CRP6lwgu.js";import{N as T,P as oe,R as se,V as ce,z as le}from"./index-BK5-LcH5.js";import{n as ue,t as de}from"./QTabs-flRVKxmY.js";import{t as fe}from"./QPage-D5_MJ09N.js";import{t as pe}from"./LengthInput-nbYx0JpU.js";import{S as me,_ as he,a as E,b as ge,i as _e,n as ve,o as ye,r as be,t as xe,x as Se,y as Ce}from"./yardage-D5dwrINA.js";var we=[`horizontal`,`vertical`,`cell`,`none`],Te=y({name:`QMarkupTable`,props:{...x,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>we.includes(e)}},setup(e,{slots:t}){let n=ie(),r=S(e,n),a=u(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>i(`div`,{class:a.value,tabindex:0},[i(`table`,{class:`q-table`},ae(t.default))])}}),Ee=(e,t)=>({units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:he[e][0].usable,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}),D=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),O=(e,t)=>D([[0,0],[e,0],[e,t],[0,t]]),k=e=>D([[0,0],[e,0],[0,e]]),De=e=>D([[0,0],[e,0],[e/2,e/2]]),Oe=(e,t)=>D([[0,0],[e,0],[e-t,t],[t,t]]),A=(e,t)=>Se(e,t.units),j=(e,t)=>e.cut[0]===e.cut[1]?`${A(e.cut[0],t)} square`:`${A(e.cut[0],t)} × ${A(e.cut[1],t)}`,M=(e,t)=>({in:e,cm:t}),ke={square:{title:`Square`,inputs:[{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:j(E(O(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:M(6,15)},{key:`h`,label:`Finished width`,start:M(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:j(E(O(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished size (leg)`,start:M(3,8)}],rows:({f:e},t)=>{let n=E(k(e),t.seam,t.step),r=me((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${j(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${A(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${A(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:M(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${j(E(De(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:M(4,10)},{key:`h`,label:`Finished height`,start:M(2,5)}],rows:({w:e,h:t},n)=>{let r=E(De(e),n.seam,n.step),i=E(k(t),n.seam,n.step);return[{label:`Stitch and flip (1)`,value:`${j(E(O(e,t),n.seam,n.step),n)} rectangle + 2 × ${j(E(O(t,t),n.seam,n.step),n)}`},{label:`Four at a time (4)`,value:`1 × ${j(r,n)} + 4 × ${j(i,n)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${j(r,n)}; sky: 2 halves of a ${j(i,n)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit`,start:M(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:j(E(O(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${j(E(k(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block`,start:M(10,25)}],rows:({f:e},t)=>[{label:`Block diagonal`,value:A(e*Math.SQRT2,t)},{label:`Side setting triangles`,value:`${j(E(De(e*Math.SQRT2),t.seam,t.step),t)}, cut both diagonals (4)`},{label:`Corner setting triangles`,value:`${j(E(k(e/Math.SQRT2),t.seam,t.step),t)}, cut once (2)`}]},border:{title:`Borders`,inputs:[{key:`w`,label:`Quilt width (before the border)`,start:M(48,120)},{key:`h`,label:`Quilt height (before the border)`,start:M(60,150)},{key:`b`,label:`Border width`,start:M(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${j(E(O(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${j(E(O(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${j(E(Oe(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${j(E(Oe(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,inputs:[{key:`w`,label:`Quilt width`,start:M(48,120)},{key:`h`,label:`Quilt height`,start:M(48,120)}],rows:({w:e,h:t},n)=>{let r=be(e,t,n.bindingWidth,xe[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${A(n.bindingWidth,n)} wide`},{label:`Total length`,value:A(2*(e+t)+xe[n.units],n)},{label:`Fabric`,value:ge(r.length,n.units)}]}},backing:{title:`Backing`,inputs:[{key:`w`,label:`Quilt width`,start:M(60,150)},{key:`h`,label:`Quilt height`,start:M(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:ge(ve(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${A(n.overhang,n)} each side`}]},yardage:{title:`Yardage for squares`,inputs:[{key:`n`,label:`How many`,start:M(40,40),count:!0},{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({n:e,f:t},n)=>{let r=Array.from({length:Math.max(1,Math.round(e))},()=>O(t,t)),i=ye(r,n.seam,n.step,n.usable),a=_e(i,{usable:n.usable},n.fabricStep)[0],o=he[n.units].find(e=>e.fatQuarter),s=ye(r,n.seam,n.step,o.usable),c=_e(s,o,n.fabricStep)[0];return[{label:`Strips`,value:`${i[0].strips} × ${A(i[0].stripWidth,n)} (${i[0].perStrip} per strip)`},{label:`Fabric (${A(n.usable,n)} usable)`,value:ge(a.length,n.units)},{label:`Or fat quarters`,value:String(c.fatQuarters)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:M(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:A(e,t)},{label:`Cut (rounded up)`,value:A(me(e,t.step),t)}]}},Ae={class:`text-subtitle2`},je={class:`text-caption text-grey-7`},Me={class:`text-grey-8`},Ne={class:`text-weight-medium`},Pe=T(b({__name:`HelpCalc`,props:{name:{}},setup(t){let n=t,i=oe(),a=e(),p=u(()=>ke[n.name]),g=u(()=>i.doc?.units??a.settings.units),y=u(()=>Ee(g.value,Ce(a.settings.print))),b=c(Object.fromEntries((p.value?.inputs??[]).map(e=>[e.key,e.start[g.value]]))),te=u(()=>{let e=p.value;return!e||e.inputs.some(e=>!(b[e.key]>0))?[]:e.rows(b,y.value)});return(e,n)=>p.value?(r(),h(w,{key:0,flat:``,bordered:``,class:`help-calc q-my-md`},{default:s(()=>[l(C,{class:`q-pb-sm`},{default:s(()=>[_(`div`,Ae,[l(ne,{name:`calculate`,class:`q-mr-xs`}),ee(m(p.value.title)+` calculator `,1)]),_(`div`,je,` Seam allowance `+m(d(Se)(y.value.seam,g.value))+` · cut sizes rounded up to `+m(y.value.step?d(Se)(y.value.step,g.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),l(C,{class:`row q-pt-none`,style:{gap:`12px`}},{default:s(()=>[(r(!0),f(v,null,o(p.value.inputs,e=>(r(),f(v,{key:e.key},[e.count||e.raw?(r(),h(re,{key:0,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(r(),h(pe,{key:1,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,units:g.value,min:.25,label:e.label,style:{width:`200px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),l(Te,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:s(()=>[_(`tbody`,null,[(r(!0),f(v,null,o(te.value,e=>(r(),f(`tr`,{key:e.label},[_(`td`,Me,m(e.label),1),_(`td`,Ne,m(e.value),1)]))),128))])]),_:1})]),_:1})):(r(),h(ce,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:s(()=>[ee(`Unknown calculator “`+m(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-d2cee685`]]),Fe=`---
+import{t as e}from"./settings-cLrrNpzD.js";import{Dt as t,J as n,R as r,T as i,U as a,V as o,X as s,at as c,b as l,f as u,ft as d,g as f,h as p,jt as m,m as h,ot as g,p as _,s as v,t as y,x as b,y as ee}from"./create-CXFiK9Ge.js";import{t as te,v as ne}from"./QBtn-D67DqTct.js";import{H as x,V as S,n as C,r as re,t as w}from"./QCard-BviQ4XyX.js";import{a as ie,r as ae}from"./render-CRP6lwgu.js";import{N as T,P as oe,R as se,V as ce,z as le}from"./index-aHsXATXo.js";import{n as ue,t as de}from"./QTabs-flRVKxmY.js";import{t as fe}from"./QPage-D5_MJ09N.js";import{t as pe}from"./LengthInput-nbYx0JpU.js";import{S as me,_ as he,a as E,b as ge,i as _e,n as ve,o as ye,r as be,t as xe,x as Se,y as Ce}from"./yardage-D5dwrINA.js";var we=[`horizontal`,`vertical`,`cell`,`none`],Te=y({name:`QMarkupTable`,props:{...x,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>we.includes(e)}},setup(e,{slots:t}){let n=ie(),r=S(e,n),a=u(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>i(`div`,{class:a.value,tabindex:0},[i(`table`,{class:`q-table`},ae(t.default))])}}),Ee=(e,t)=>({units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:he[e][0].usable,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}),D=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),O=(e,t)=>D([[0,0],[e,0],[e,t],[0,t]]),k=e=>D([[0,0],[e,0],[0,e]]),De=e=>D([[0,0],[e,0],[e/2,e/2]]),Oe=(e,t)=>D([[0,0],[e,0],[e-t,t],[t,t]]),A=(e,t)=>Se(e,t.units),j=(e,t)=>e.cut[0]===e.cut[1]?`${A(e.cut[0],t)} square`:`${A(e.cut[0],t)} × ${A(e.cut[1],t)}`,M=(e,t)=>({in:e,cm:t}),ke={square:{title:`Square`,inputs:[{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:j(E(O(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:M(6,15)},{key:`h`,label:`Finished width`,start:M(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:j(E(O(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished size (leg)`,start:M(3,8)}],rows:({f:e},t)=>{let n=E(k(e),t.seam,t.step),r=me((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${j(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${A(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${A(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:M(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${j(E(De(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:M(4,10)},{key:`h`,label:`Finished height`,start:M(2,5)}],rows:({w:e,h:t},n)=>{let r=E(De(e),n.seam,n.step),i=E(k(t),n.seam,n.step);return[{label:`Stitch and flip (1)`,value:`${j(E(O(e,t),n.seam,n.step),n)} rectangle + 2 × ${j(E(O(t,t),n.seam,n.step),n)}`},{label:`Four at a time (4)`,value:`1 × ${j(r,n)} + 4 × ${j(i,n)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${j(r,n)}; sky: 2 halves of a ${j(i,n)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit`,start:M(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:j(E(O(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${j(E(k(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block`,start:M(10,25)}],rows:({f:e},t)=>[{label:`Block diagonal`,value:A(e*Math.SQRT2,t)},{label:`Side setting triangles`,value:`${j(E(De(e*Math.SQRT2),t.seam,t.step),t)}, cut both diagonals (4)`},{label:`Corner setting triangles`,value:`${j(E(k(e/Math.SQRT2),t.seam,t.step),t)}, cut once (2)`}]},border:{title:`Borders`,inputs:[{key:`w`,label:`Quilt width (before the border)`,start:M(48,120)},{key:`h`,label:`Quilt height (before the border)`,start:M(60,150)},{key:`b`,label:`Border width`,start:M(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${j(E(O(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${j(E(O(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${j(E(Oe(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${j(E(Oe(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,inputs:[{key:`w`,label:`Quilt width`,start:M(48,120)},{key:`h`,label:`Quilt height`,start:M(48,120)}],rows:({w:e,h:t},n)=>{let r=be(e,t,n.bindingWidth,xe[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${A(n.bindingWidth,n)} wide`},{label:`Total length`,value:A(2*(e+t)+xe[n.units],n)},{label:`Fabric`,value:ge(r.length,n.units)}]}},backing:{title:`Backing`,inputs:[{key:`w`,label:`Quilt width`,start:M(60,150)},{key:`h`,label:`Quilt height`,start:M(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:ge(ve(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${A(n.overhang,n)} each side`}]},yardage:{title:`Yardage for squares`,inputs:[{key:`n`,label:`How many`,start:M(40,40),count:!0},{key:`f`,label:`Finished size`,start:M(3,8)}],rows:({n:e,f:t},n)=>{let r=Array.from({length:Math.max(1,Math.round(e))},()=>O(t,t)),i=ye(r,n.seam,n.step,n.usable),a=_e(i,{usable:n.usable},n.fabricStep)[0],o=he[n.units].find(e=>e.fatQuarter),s=ye(r,n.seam,n.step,o.usable),c=_e(s,o,n.fabricStep)[0];return[{label:`Strips`,value:`${i[0].strips} × ${A(i[0].stripWidth,n)} (${i[0].perStrip} per strip)`},{label:`Fabric (${A(n.usable,n)} usable)`,value:ge(a.length,n.units)},{label:`Or fat quarters`,value:String(c.fatQuarters)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:M(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:A(e,t)},{label:`Cut (rounded up)`,value:A(me(e,t.step),t)}]}},Ae={class:`text-subtitle2`},je={class:`text-caption text-grey-7`},Me={class:`text-grey-8`},Ne={class:`text-weight-medium`},Pe=T(b({__name:`HelpCalc`,props:{name:{}},setup(t){let n=t,i=oe(),a=e(),p=u(()=>ke[n.name]),g=u(()=>i.doc?.units??a.settings.units),y=u(()=>Ee(g.value,Ce(a.settings.print))),b=c(Object.fromEntries((p.value?.inputs??[]).map(e=>[e.key,e.start[g.value]]))),te=u(()=>{let e=p.value;return!e||e.inputs.some(e=>!(b[e.key]>0))?[]:e.rows(b,y.value)});return(e,n)=>p.value?(r(),h(w,{key:0,flat:``,bordered:``,class:`help-calc q-my-md`},{default:s(()=>[l(C,{class:`q-pb-sm`},{default:s(()=>[_(`div`,Ae,[l(ne,{name:`calculate`,class:`q-mr-xs`}),ee(m(p.value.title)+` calculator `,1)]),_(`div`,je,` Seam allowance `+m(d(Se)(y.value.seam,g.value))+` · cut sizes rounded up to `+m(y.value.step?d(Se)(y.value.step,g.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),l(C,{class:`row q-pt-none`,style:{gap:`12px`}},{default:s(()=>[(r(!0),f(v,null,o(p.value.inputs,e=>(r(),f(v,{key:e.key},[e.count||e.raw?(r(),h(re,{key:0,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(r(),h(pe,{key:1,modelValue:b[e.key],"onUpdate:modelValue":t=>b[e.key]=t,units:g.value,min:.25,label:e.label,style:{width:`200px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),l(Te,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:s(()=>[_(`tbody`,null,[(r(!0),f(v,null,o(te.value,e=>(r(),f(`tr`,{key:e.label},[_(`td`,Me,m(e.label),1),_(`td`,Ne,m(e.value),1)]))),128))])]),_:1})]),_:1})):(r(),h(ce,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:s(()=>[ee(`Unknown calculator “`+m(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-d2cee685`]]),Fe=`---
 title: Block colorings
 order: 50
 summary: Color a block's patches and keep several colorings of the same drawing.
@@ -590,8 +590,8 @@ are as long as the quilt is wide _plus both side borders_.
 > **sides = quilt height × border width**
 > **top and bottom = (quilt width + 2 × border width) × border width**
 
-Each is then cut with a seam allowance added on every edge, so finished + 2s, like any
-[rectangle](/help/math/squares-and-rectangles).
+Each is then cut with a seam allowance added on every edge, so finished + 2 × SA, like any
+[rectangle](/help/math/squares-and-rectangles). SA is the [seam allowance](/help/math/seam-allowance).
 
 ## Mitered borders
 
@@ -600,12 +600,12 @@ outer corner:
 
 > **long edge = quilt side + 2 × border width**
 
-The cut length then adds **s × (1 + √2) at each end**, a total of **2(1 + √2)s**:
+The cut length then adds **SA × (1 + √2) at each end**, a total of **2(1 + √2) × SA**:
 
-- **s × √2** for the seam allowance on the 45° seam. The seam allowance is measured at right angles
+- **SA × √2** for the seam allowance on the 45° seam. The seam allowance is measured at right angles
   to the diagonal, but the strip's edge meets it at 45°, so it stretches by 1 ÷ sin 45° = √2.
 - **s** for the seam allowance on the border's outer edge, which pushes the strip's edge out, and so the
-  diagonal's end point along the edge, by one more s.
+  diagonal's end point along the edge, by one more SA.
 
 <svg viewBox="0 0 220 110" width="330" role="img" aria-label="A mitered border strip shaped like a trapezoid with 45 degree ends, its seam allowance beyond the finished corner">
   <polygon points="10,10 150,10 130,40 30,40" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
@@ -619,7 +619,7 @@ sewing the miter. Set it to 0 to cut exact.
 
 ## Worked examples (quilt 48″ × 60″, 4″ border, 120 × 150 cm, 10 cm border)
 
-| Strip               | Inches (s = ¼″, extra 2″)                 | Centimeters (s = 7.5 mm, extra 5 cm)        |
+| Strip               | Inches (SA = ¼″, extra 2″)                | Centimeters (SA = 7.5 mm, extra 5 cm)       |
 | ------------------- | ----------------------------------------- | ------------------------------------------- |
 | Straight sides      | 2 × 60½″ × 4½″                            | 2 × 151.5 × 11.5 cm                         |
 | Straight top/bottom | 2 × 56½″ × 4½″                            | 2 × 141.5 × 11.5 cm                         |
@@ -640,7 +640,8 @@ smaller triangle (the sky) at each side. There are three common ways to make one
 
 Cut one **rectangle** (finished width × height) and **two squares** (finished height). Place a square
 on each end of the rectangle, sew diagonally, and flip. The cut sizes are the usual
-[rectangle and square](/help/math/squares-and-rectangles) sizes, finished + 2s.
+[rectangle and square](/help/math/squares-and-rectangles) sizes, finished + 2 × SA (SA is the
+[seam allowance](/help/math/seam-allowance)).
 
 ## Four at a time (4 units)
 
@@ -682,7 +683,9 @@ the long side make an HST unit.
 
 Cut a square of
 
-> **cut = finished leg + (2 + √2) × seam allowance**
+> **cut = finished leg + (2 + √2) × SA**
+
+SA is the [seam allowance](/help/math/seam-allowance).
 
 and cut it once diagonally. With a ¼″ seam allowance, (2 + √2) × ¼″ ≈ 0.854″, which quilters round up
 to **⅞″**, the familiar "add ⅞″" rule. With 7.5 mm, it is ≈ 2.56 cm.
@@ -726,14 +729,15 @@ then filled with triangles.
 
 ## The formulas
 
-For a finished block of side f, the block's diagonal (corner to corner) is **f × √2**.
+For a finished block of side f, the block's diagonal (corner to corner) is **f × √2**. SA is the
+[seam allowance](/help/math/seam-allowance).
 
 - **Side setting triangles** have their long side along the quilt's edge, so they are
   [quarter-square triangles](/help/math/quarter-square-triangles) with a long side of f × √2. Cut a
-  square of f × √2 + 2(1 + √2)s and cut both diagonals. Keeping the long side on the straight grain
+  square of f × √2 + 2(1 + √2) × SA and cut both diagonals. Keeping the long side on the straight grain
   stops the quilt's edge from stretching.
 - **Corner setting triangles** are [half-square triangles](/help/math/half-square-triangles) whose
-  legs are f ÷ √2. Cut a square of f ÷ √2 + (2 + √2)s once diagonally. You need 2 squares (4
+  legs are f ÷ √2. Cut a square of f ÷ √2 + (2 + √2) × SA once diagonally. You need 2 squares (4
   corners).
 
 <svg viewBox="0 0 220 130" width="330" role="img" aria-label="Four blocks turned on point, with triangles filling the edges and corners">
@@ -770,14 +774,16 @@ for the hourglass shape, flying-geese centers, and the side triangles of an
 
 Let the finished long side be f. Cut a square of
 
-> **cut = f + 2 × (1 + √2) × seam allowance**
+> **cut = f + 2 × (1 + √2) × SA**
+
+SA is the [seam allowance](/help/math/seam-allowance).
 
 then cut both diagonals to make **4 triangles**. With a ¼″ seam allowance, 2(1 + √2) × ¼″ ≈ 1.207″,
 and with 7.5 mm it is ≈ 3.62 cm.
 
 This is more than a half-square triangle needs. The long side is the diagonal of the cut square, but the
 triangle needs a seam allowance along that side _and_ a seam allowance on the two short sides, which
-sit at 45° to the long side. Each short seam moves the points out by (1 + √2)s along the long side.
+sit at 45° to the long side. Each short seam moves the points out by (1 + √2) × SA along the long side.
 
 <svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square cut along both diagonals into four triangles">
   <rect x="10" y="10" width="100" height="100" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -835,7 +841,7 @@ order: 10
 summary: The strip of fabric inside every seam, and why every cut size adds it.
 ---
 
-The seam allowance (s) is the strip of fabric between the cut edge and the stitching line. Quilt
+The seam allowance (SA) is the strip of fabric between the cut edge and the stitching line. Quilt
 patterns list **finished** sizes (what a piece measures once sewn into the quilt). To cut a piece you
 add a seam allowance on every edge that will be sewn.
 
@@ -862,9 +868,9 @@ same allowance throughout a project.
 
 ## Where it shows up
 
-- A square or rectangle adds **2 × s** to each dimension (one seam on each side). See
+- A square or rectangle adds **2 × SA** to each dimension (one seam on each side). See
   [Squares and rectangles](/help/math/squares-and-rectangles).
-- Triangles add more than 2 × s, because their points and angled seams need extra. See
+- Triangles add more than 2 × SA, because their points and angled seams need extra. See
   [Half-square triangles](/help/math/half-square-triangles) and
   [Quarter-square triangles](/help/math/quarter-square-triangles).
 - The final size is rounded up to a mark on the ruler. See [Rounding](/help/math/rounding).
@@ -882,11 +888,14 @@ touch the middle of the unit's sides.
 For a finished unit of side f:
 
 > **center square (finished) = f ÷ √2**
-> **center cut = f ÷ √2 + 2 × seam allowance**
+> **center cut = f ÷ √2 + 2 × SA**
+
+SA is the [seam allowance](/help/math/seam-allowance).
+
 > **corner triangles = two squares of the half-square size for f ÷ 2, each cut once diagonally**
 
 The center's diagonal is the unit's side, so its side is f ÷ √2 (about 0.707 × f). The corners are
-half-square triangles whose legs are f ÷ 2, so the cut is f ÷ 2 + (2 + √2) × s, and each square is
+half-square triangles whose legs are f ÷ 2, so the cut is f ÷ 2 + (2 + √2) × SA, and each square is
 cut once diagonally to make 2 triangles.
 
 <svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square with a tilted square inside it, touching the middle of each side">
@@ -918,7 +927,9 @@ grows by two of them.
 
 ## The formula
 
-> **cut = finished size + 2 × seam allowance**
+> **cut = finished size + 2 × SA**
+
+SA is the [seam allowance](/help/math/seam-allowance).
 
 Do it once for each side of a rectangle. With a ¼″ seam allowance that is the familiar "add ½″". With
 7.5 mm it is "add 1.5 cm".

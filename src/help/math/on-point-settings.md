@@ -9,14 +9,15 @@ then filled with triangles.
 
 ## The formulas
 
-For a finished block of side f, the block's diagonal (corner to corner) is **f × √2**.
+For a finished block of side f, the block's diagonal (corner to corner) is **f × √2**. SA is the
+[seam allowance](/help/math/seam-allowance).
 
 - **Side setting triangles** have their long side along the quilt's edge, so they are
   [quarter-square triangles](/help/math/quarter-square-triangles) with a long side of f × √2. Cut a
-  square of f × √2 + 2(1 + √2)s and cut both diagonals. Keeping the long side on the straight grain
+  square of f × √2 + 2(1 + √2) × SA and cut both diagonals. Keeping the long side on the straight grain
   stops the quilt's edge from stretching.
 - **Corner setting triangles** are [half-square triangles](/help/math/half-square-triangles) whose
-  legs are f ÷ √2. Cut a square of f ÷ √2 + (2 + √2)s once diagonally. You need 2 squares (4
+  legs are f ÷ √2. Cut a square of f ÷ √2 + (2 + √2) × SA once diagonally. You need 2 squares (4
   corners).
 
 <svg viewBox="0 0 220 130" width="330" role="img" aria-label="Four blocks turned on point, with triangles filling the edges and corners">

@@ -15,8 +15,8 @@ are as long as the quilt is wide _plus both side borders_.
 > **sides = quilt height × border width**
 > **top and bottom = (quilt width + 2 × border width) × border width**
 
-Each is then cut with a seam allowance added on every edge, so finished + 2s, like any
-[rectangle](/help/math/squares-and-rectangles).
+Each is then cut with a seam allowance added on every edge, so finished + 2 × SA, like any
+[rectangle](/help/math/squares-and-rectangles). SA is the [seam allowance](/help/math/seam-allowance).
 
 ## Mitered borders
 
@@ -25,12 +25,12 @@ outer corner:
 
 > **long edge = quilt side + 2 × border width**
 
-The cut length then adds **s × (1 + √2) at each end**, a total of **2(1 + √2)s**:
+The cut length then adds **SA × (1 + √2) at each end**, a total of **2(1 + √2) × SA**:
 
-- **s × √2** for the seam allowance on the 45° seam. The seam allowance is measured at right angles
+- **SA × √2** for the seam allowance on the 45° seam. The seam allowance is measured at right angles
   to the diagonal, but the strip's edge meets it at 45°, so it stretches by 1 ÷ sin 45° = √2.
 - **s** for the seam allowance on the border's outer edge, which pushes the strip's edge out, and so the
-  diagonal's end point along the edge, by one more s.
+  diagonal's end point along the edge, by one more SA.
 
 <svg viewBox="0 0 220 110" width="330" role="img" aria-label="A mitered border strip shaped like a trapezoid with 45 degree ends, its seam allowance beyond the finished corner">
   <polygon points="10,10 150,10 130,40 30,40" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
@@ -44,7 +44,7 @@ sewing the miter. Set it to 0 to cut exact.
 
 ## Worked examples (quilt 48″ × 60″, 4″ border, 120 × 150 cm, 10 cm border)
 
-| Strip               | Inches (s = ¼″, extra 2″)                 | Centimeters (s = 7.5 mm, extra 5 cm)        |
+| Strip               | Inches (SA = ¼″, extra 2″)                | Centimeters (SA = 7.5 mm, extra 5 cm)       |
 | ------------------- | ----------------------------------------- | ------------------------------------------- |
 | Straight sides      | 2 × 60½″ × 4½″                            | 2 × 151.5 × 11.5 cm                         |
 | Straight top/bottom | 2 × 56½″ × 4½″                            | 2 × 141.5 × 11.5 cm                         |

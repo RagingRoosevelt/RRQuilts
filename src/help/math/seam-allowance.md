@@ -4,7 +4,7 @@ order: 10
 summary: The strip of fabric inside every seam, and why every cut size adds it.
 ---
 
-The seam allowance (s) is the strip of fabric between the cut edge and the stitching line. Quilt
+The seam allowance (SA) is the strip of fabric between the cut edge and the stitching line. Quilt
 patterns list **finished** sizes (what a piece measures once sewn into the quilt). To cut a piece you
 add a seam allowance on every edge that will be sewn.
 
@@ -31,9 +31,9 @@ same allowance throughout a project.
 
 ## Where it shows up
 
-- A square or rectangle adds **2 × s** to each dimension (one seam on each side). See
+- A square or rectangle adds **2 × SA** to each dimension (one seam on each side). See
   [Squares and rectangles](/help/math/squares-and-rectangles).
-- Triangles add more than 2 × s, because their points and angled seams need extra. See
+- Triangles add more than 2 × SA, because their points and angled seams need extra. See
   [Half-square triangles](/help/math/half-square-triangles) and
   [Quarter-square triangles](/help/math/quarter-square-triangles).
 - The final size is rounded up to a mark on the ruler. See [Rounding](/help/math/rounding).

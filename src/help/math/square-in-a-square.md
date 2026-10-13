@@ -12,11 +12,14 @@ touch the middle of the unit's sides.
 For a finished unit of side f:
 
 > **center square (finished) = f ÷ √2**
-> **center cut = f ÷ √2 + 2 × seam allowance**
+> **center cut = f ÷ √2 + 2 × SA**
+
+SA is the [seam allowance](/help/math/seam-allowance).
+
 > **corner triangles = two squares of the half-square size for f ÷ 2, each cut once diagonally**
 
 The center's diagonal is the unit's side, so its side is f ÷ √2 (about 0.707 × f). The corners are
-half-square triangles whose legs are f ÷ 2, so the cut is f ÷ 2 + (2 + √2) × s, and each square is
+half-square triangles whose legs are f ÷ 2, so the cut is f ÷ 2 + (2 + √2) × SA, and each square is
 cut once diagonally to make 2 triangles.
 
 <svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square with a tilted square inside it, touching the middle of each side">

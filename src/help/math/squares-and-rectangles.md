@@ -9,7 +9,9 @@ grows by two of them.
 
 ## The formula
 
-> **cut = finished size + 2 × seam allowance**
+> **cut = finished size + 2 × SA**
+
+SA is the [seam allowance](/help/math/seam-allowance).
 
 Do it once for each side of a rectangle. With a ¼″ seam allowance that is the familiar "add ½″". With
 7.5 mm it is "add 1.5 cm".

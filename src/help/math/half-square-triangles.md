@@ -12,7 +12,9 @@ the long side make an HST unit.
 
 Cut a square of
 
-> **cut = finished leg + (2 + √2) × seam allowance**
+> **cut = finished leg + (2 + √2) × SA**
+
+SA is the [seam allowance](/help/math/seam-allowance).
 
 and cut it once diagonally. With a ¼″ seam allowance, (2 + √2) × ¼″ ≈ 0.854″, which quilters round up
 to **⅞″**, the familiar "add ⅞″" rule. With 7.5 mm, it is ≈ 2.56 cm.

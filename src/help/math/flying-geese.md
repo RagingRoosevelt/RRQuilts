@@ -11,7 +11,8 @@ smaller triangle (the sky) at each side. There are three common ways to make one
 
 Cut one **rectangle** (finished width × height) and **two squares** (finished height). Place a square
 on each end of the rectangle, sew diagonally, and flip. The cut sizes are the usual
-[rectangle and square](/help/math/squares-and-rectangles) sizes, finished + 2s.
+[rectangle and square](/help/math/squares-and-rectangles) sizes, finished + 2 × SA (SA is the
+[seam allowance](/help/math/seam-allowance)).
 
 ## Four at a time (4 units)
 
