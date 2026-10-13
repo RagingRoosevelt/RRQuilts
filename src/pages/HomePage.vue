@@ -11,7 +11,24 @@
         @click="confirmLeave(() => wizard?.show())"
       />
       <q-btn flat icon="note_add" label="New project" no-caps @click="confirmLeave(newProject)" />
-      <q-btn outline icon="folder_open" label="Open a project file" no-caps @click="openPicked" />
+      <div class="row no-wrap" style="gap: 8px">
+        <q-btn
+          outline
+          class="col"
+          icon="folder_open"
+          label="Open a project file"
+          no-caps
+          @click="openPicked"
+        />
+        <q-btn
+          outline
+          class="col"
+          icon="restore"
+          label="Open backed-up project"
+          no-caps
+          @click="backups?.show()"
+        />
+      </div>
       <div class="text-caption text-grey-7">…or drop a .rrq file anywhere on this window.</div>
 
       <q-list v-if="recent.length" bordered separator class="rounded-borders">
@@ -28,6 +45,7 @@
       <q-btn flat icon="collections_bookmark" label="Libraries" no-caps to="/libraries" />
       <q-btn flat icon="settings" label="Settings" no-caps @click="settingsOpen = true" />
     </div>
+    <RestoreDrafts ref="backups" all />
     <QuiltWizard
       ref="wizard"
       :units="settings.settings.units"
@@ -46,6 +64,7 @@ import { useProjectStore } from '@/stores/project';
 import { useOpenProject } from '@/composables/open-project';
 import { useStartQuilt } from '@/composables/start-quilt';
 import QuiltWizard from '@/components/QuiltWizard.vue';
+import RestoreDrafts from '@/components/RestoreDrafts.vue';
 import { settingsOpen } from '@/composables/settings-open';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -57,6 +76,7 @@ const { openWith } = useOpenProject();
 const recent = ref<RecentEntry[]>([]);
 const settings = useSettingsStore();
 const wizard = ref<InstanceType<typeof QuiltWizard>>();
+const backups = ref<InstanceType<typeof RestoreDrafts>>();
 const startQuilt = useStartQuilt();
 
 onMounted(async () => {

@@ -158,7 +158,7 @@ export const useProjectStore = defineStore('project', () => {
   async function restoreDraft(draft: Draft) {
     // If this project was saved to a file before, keep saving to that file.
     const recent = await getRecent(draft.id).catch(() => undefined);
-    await load(draft.doc, { handle: recent?.handle ?? null, saved: !!recent, dirty: true });
+    await load(draft.doc, { handle: recent?.handle ?? null, saved: !!recent, dirty: draft.dirty });
   }
 
   async function discardDraft(draft: Draft) {
