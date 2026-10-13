@@ -23,11 +23,13 @@ directions and picks the one that needs less fabric:
 
 The result is rounded up to your fabric step (⅛ yd or 10 cm by default).
 
-<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A quilt top centered on a larger backing, with overhang on every side">
-  <rect x="10" y="10" width="120" height="100" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="25" y="25" width="90" height="70" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
-  <text x="142" y="50" font-size="11" fill="currentColor">quilt (dashed)</text>
-  <text x="142" y="67" font-size="11" fill="currentColor">backing (solid)</text>
+<svg viewBox="0 0 230 120" width="345" role="img" aria-label="A quilt top (orange) centered on a larger backing (blue), with overhang on every side">
+  <rect x="10" y="10" width="120" height="100" fill="#4a90c2" fill-opacity="0.45" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="25" y="25" width="90" height="70" fill="#d9822b" fill-opacity="0.85" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="142" y="41" width="12" height="12" fill="#d9822b" fill-opacity="0.85" stroke="currentColor"/>
+  <text x="160" y="51" font-size="11" fill="currentColor">quilt top</text>
+  <rect x="142" y="61" width="12" height="12" fill="#4a90c2" fill-opacity="0.45" stroke="currentColor"/>
+  <text x="160" y="71" font-size="11" fill="currentColor">backing</text>
 </svg>
 
 ## Worked examples
