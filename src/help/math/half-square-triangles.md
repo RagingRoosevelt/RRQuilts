@@ -17,7 +17,7 @@ Cut a square of
 and cut it once diagonally. With a ¼″ seam allowance, (2 + √2) × ¼″ ≈ 0.854″, which quilters round up
 to **⅞″**, the familiar "add ⅞″" rule. With 7.5 mm, it is ≈ 2.56 cm.
 
-Why not just add 2 × the seam allowance? The seam along the diagonal eats into the corner: the point
+Adding 2 × the seam allowance isn't enough, because the seam along the diagonal eats into the corner. The point
 of the triangle has to extend √2 × the seam allowance past the finished corner for the seams to meet.
 
 <svg viewBox="0 0 220 120" width="330" role="img" aria-label="A cut square with its finished HST inside, the seam allowance shaded">

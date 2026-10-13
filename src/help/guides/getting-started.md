@@ -17,7 +17,7 @@ work lives in a **project**: one file (ending in `.rrq`) that holds your quilts,
 3. Choose **Create quilt**. The quilt opens in the Design tab, ready for you to place blocks. See
    [Designing a quilt](/help/guides/designing-a-quilt).
 
-Prefer an empty project? Choose **New project** instead. It opens the project's sketchbook (see
+For an empty project, choose **New project** instead. It opens the project's sketchbook (see
 [The project sketchbook](/help/guides/sketchbook)).
 
 ## Save your project
@@ -68,7 +68,7 @@ work.
 A project can be edited in only one browser tab. A second tab shows a read-only banner with
 **Continue here anyway** to take over editing.
 
-## Where next
+## See also
 
 [The project sketchbook](/help/guides/sketchbook) · [Designing a quilt](/help/guides/designing-a-quilt)
 · [Settings](/help/guides/settings)

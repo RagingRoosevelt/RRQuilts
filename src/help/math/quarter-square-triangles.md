@@ -18,7 +18,7 @@ Let the finished long side be f. Cut a square of
 then cut both diagonals to make **4 triangles**. With a ¼″ seam allowance, 2(1 + √2) × ¼″ ≈ 1.207″,
 and with 7.5 mm it is ≈ 3.62 cm.
 
-Why more than a half-square triangle? The long side is the diagonal of the cut square, but the
+This is more than a half-square triangle needs. The long side is the diagonal of the cut square, but the
 triangle needs a seam allowance along that side _and_ a seam allowance on the two short sides, which
 sit at 45° to the long side. Each short seam moves the points out by (1 + √2)s along the long side.
 
