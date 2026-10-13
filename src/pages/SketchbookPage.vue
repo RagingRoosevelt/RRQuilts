@@ -138,7 +138,8 @@
                     clickable
                     @click="syncToMine(b)"
                   >
-                    <q-item-section>Sync to my library</q-item-section>
+                    <q-item-section avatar><q-icon name="sync" /></q-item-section
+                    ><q-item-section>Sync to my library</q-item-section>
                   </q-item>
                   <q-item
                     v-else-if="!linkOf(b) || linkOf(b) === 'gone'"
@@ -146,7 +147,8 @@
                     clickable
                     @click="addToMine(b)"
                   >
-                    <q-item-section>Add to my library…</q-item-section>
+                    <q-item-section avatar><q-icon name="bookmark_add" /></q-item-section
+                    ><q-item-section>Add to my library…</q-item-section>
                   </q-item>
                   <template v-if="!project.readOnly">
                     <q-item
@@ -155,7 +157,8 @@
                       :disable="b.kind !== 'seam'"
                       @click="openBlock(b.id)"
                     >
-                      <q-item-section>Edit</q-item-section>
+                      <q-item-section avatar><q-icon name="edit" /></q-item-section
+                      ><q-item-section>Edit</q-item-section>
                     </q-item>
                     <q-item
                       v-close-popup
@@ -163,7 +166,8 @@
                       :disable="b.kind !== 'seam'"
                       @click="editCopy(b.id)"
                     >
-                      <q-item-section>Edit a copy</q-item-section>
+                      <q-item-section avatar><q-icon name="content_copy" /></q-item-section
+                      ><q-item-section>Edit a copy</q-item-section>
                     </q-item>
                   </template>
                   <q-item v-close-popup clickable @click="preview = b.id">
@@ -171,7 +175,8 @@
                     <q-item-section>Preview</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="blockDetails(b.id)">
-                    <q-item-section>Details</q-item-section>
+                    <q-item-section avatar><q-icon name="info" /></q-item-section
+                    ><q-item-section>Details</q-item-section>
                   </q-item>
                   <q-item v-close-popup clickable @click="exportBlock(b)">
                     <q-item-section avatar><q-icon name="file_download" /></q-item-section>
@@ -183,6 +188,7 @@
                       clickable
                       :disable="i === 0"
                       @click="moveItem('blocks', i, -1)"
+                      ><q-item-section avatar><q-icon name="arrow_back" /></q-item-section
                       ><q-item-section>Move earlier</q-item-section></q-item
                     >
                     <q-item
@@ -190,9 +196,12 @@
                       clickable
                       :disable="i === blocks.length - 1"
                       @click="moveItem('blocks', i, 1)"
+                      ><q-item-section avatar><q-icon name="arrow_forward" /></q-item-section
                       ><q-item-section>Move later</q-item-section></q-item
                     >
                     <q-item v-close-popup clickable @click="deleteBlock(b.id)"
+                      ><q-item-section avatar
+                        ><q-icon name="delete" color="negative" /></q-item-section
                       ><q-item-section class="text-negative">Delete</q-item-section></q-item
                     >
                   </template>
