@@ -131,21 +131,24 @@
             @update:model-value="(v) => setOpen('Colorings', v)"
           >
             <div class="column q-pb-md" style="gap: 8px">
-              <div class="row" style="gap: 8px">
-                <button
-                  v-for="(c, i) in block.colorings"
-                  :key="c.id"
-                  class="coloring"
-                  :class="{ active: c.id === coloringId }"
-                  @click="pickColoring(c.id)"
-                >
-                  <img
-                    :src="blockThumbnail(project.doc, block, 72, $q.dark.isActive, c.id)"
-                    :alt="c.name ?? `Coloring ${i + 1}`"
-                  />
-                  <div class="text-caption ellipsis">{{ c.name ?? `Coloring ${i + 1}` }}</div>
-                </button>
-              </div>
+              <template v-for="g in coloringGroups" :key="g.label">
+                <div v-if="g.label" class="text-caption text-grey-7">{{ g.label }}</div>
+                <div class="row" style="gap: 8px">
+                  <button
+                    v-for="{ c, i } in g.items"
+                    :key="c.id"
+                    class="coloring"
+                    :class="{ active: c.id === coloringId }"
+                    @click="pickColoring(c.id)"
+                  >
+                    <img
+                      :src="blockThumbnail(project.doc, block, 72, $q.dark.isActive, c.id)"
+                      :alt="c.name ?? `Coloring ${i + 1}`"
+                    />
+                    <div class="text-caption ellipsis">{{ c.name ?? `Coloring ${i + 1}` }}</div>
+                  </button>
+                </div>
+              </template>
               <div v-if="!project.readOnly" class="row" style="gap: 6px">
                 <q-btn
                   dense
@@ -240,6 +243,7 @@ import type { RrqDoc } from '@/model/schema/project';
 import type { View } from '@/render/draw';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useEditorStore, type BlockTool } from '@/stores/editor';
+import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -256,6 +260,7 @@ const printTarget = ref<PrintTarget>({});
 const route = useRoute();
 const router = useRouter();
 const project = useProjectStore();
+const library = useLibraryStore();
 const editor = useEditorStore();
 // Sidebar opens with each editor (hiding it isn't remembered).
 // Open on arrival, except on phones/portrait tablets, where it slides over the canvas.
@@ -307,6 +312,24 @@ const settings = computed(() => editorSettings(block.value!, units.value));
 const unconnected = computed(() => new Set(block.value?.unconnected ?? []));
 const selection = ref(new Set<string>());
 const pointer = ref<{ p: Pt; length: number | null } | null>(null);
+/** A color variant's colorings: the project's own (new or changed) above the ones still as the
+ *  library block has them. */
+const coloringGroups = computed(() => {
+  const b = block.value;
+  if (!b) return [];
+  const items = b.colorings.map((c, i) => ({ c, i }));
+  const origin = b.colorVariant && b.source ? library.lookup.block(b.source.itemId) : undefined;
+  if (!origin) return [{ label: '', items }];
+  const theirs = new Set(origin.colorings.map((c) => JSON.stringify(c)));
+  const asTheirs = (c: (typeof items)[number]) => theirs.has(JSON.stringify(c.c));
+  return [
+    {
+      label: 'Project colorings',
+      items: items.filter((x) => !asTheirs(x)),
+    },
+    { label: 'Library colorings', items: items.filter(asTheirs) },
+  ].filter((g) => g.items.length);
+});
 const coloringId = computed(() => {
   const b = block.value;
   const chosen = b && editor.coloringOf.get(b.id);
