@@ -155,20 +155,21 @@ which is 3½″ (9.5 cm) in this example.
 
 4. Press each unit open toward the darker fabric, then trim to size.
 
-<svg viewBox="0 0 330 100" width="495" role="img" aria-label="One unit as cut, light fabric wrong side up with the seam along the long side, and the same unit pressed open: a square with dog ears at two corners and the trim line dashed">
-  <polygon points="20,14 20,84 90,84" fill="#f6e7bd" stroke="currentColor" stroke-width="1.5"/>
-  <line x1="28" y1="34" x2="70" y2="76" stroke="#333" stroke-dasharray="4 3"/>
-  <text x="55" y="98" font-size="11" fill="currentColor" text-anchor="middle">as cut</text>
-  <polygon points="130,18 130,80 192,80" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <polygon points="130,18 192,18 192,80" fill="#daa828" stroke="currentColor"/>
-  <polygon points="130,18 124,12 136,12" fill="#daa828" stroke="currentColor"/>
-  <polygon points="192,80 198,86 198,74" fill="#daa828" stroke="currentColor"/>
-  <rect x="133" y="21" width="56" height="56" fill="none" stroke="#333" stroke-dasharray="4 3"/>
-  <text x="161" y="98" font-size="11" fill="currentColor" text-anchor="middle">pressed, trim to the dashes</text>
-  <rect x="225" y="14" width="12" height="12" fill="#f6e7bd" stroke="currentColor"/>
-  <text x="243" y="24" font-size="11" fill="currentColor">light fabric, wrong side</text>
-  <rect x="225" y="30" width="12" height="12" fill="#daa828" stroke="currentColor"/>
-  <text x="243" y="40" font-size="11" fill="currentColor">light fabric, right side</text>
-  <rect x="225" y="46" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <text x="243" y="56" font-size="11" fill="currentColor">dark fabric, right side</text>
+<svg viewBox="0 0 370 103.3" width="555" role="img" aria-label="One unit as cut, light fabric wrong side up with the seam a quarter inch in from the long side, and the same unit pressed open toward the dark fabric: a square with a small dog ear at each end of the seam">
+  <polygon points="76.0,70.0 14.0,70.0 76.0,8.0" fill="#f6e7bd" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="19.7" y1="70.0" x2="76.0" y2="13.7" stroke="#333" stroke-dasharray="4 3"/>
+  <text x="45.0" y="86.0" font-size="11" fill="currentColor" text-anchor="middle">as cut</text>
+  <polygon points="155.7,75.7 155.7,81.3 161.3,75.7" fill="#daa828" stroke="currentColor"/>
+  <polygon points="212.0,19.3 217.7,19.3 212.0,25.0" fill="#daa828" stroke="currentColor"/>
+  <polygon points="212.0,75.7 155.7,75.7 212.0,19.3" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <polygon points="155.7,19.3 155.7,75.7 212.0,19.3" fill="#daa828" stroke="currentColor"/>
+  <text x="183.8" y="97.3" font-size="11" fill="currentColor" text-anchor="middle">pressed</text>
+  <rect x="240" y="14" width="12" height="12" fill="#f6e7bd" stroke="currentColor"/>
+  <text x="258" y="24" font-size="11" fill="currentColor">light fabric, wrong side</text>
+  <rect x="240" y="30" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="258" y="40" font-size="11" fill="currentColor">light fabric, right side</text>
+  <rect x="240" y="46" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="258" y="56" font-size="11" fill="currentColor">dark fabric, right side</text>
+  <text x="240" y="80" font-size="11" fill="currentColor">trim off the dog ears</text>
+  <text x="240" y="96" font-size="11" fill="currentColor">at the seam's ends</text>
 </svg>
