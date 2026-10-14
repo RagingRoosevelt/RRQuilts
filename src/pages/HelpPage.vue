@@ -69,12 +69,19 @@
           </q-btn>
         </div>
         <h2 class="topic-title">{{ topic.title }}</h2>
-        <template v-for="(seg, i) in topic.segments" :key="`${topic.section}/${topic.id}/${i}`">
-          <!-- Bundled, trusted content (src/help/*.md), never user input. -->
-          <!-- eslint-disable-next-line vue/no-v-html -->
-          <div v-if="seg.kind === 'html'" class="help-md" v-html="fill(seg.html)" />
-          <HelpCalc v-else :name="seg.name" />
-        </template>
+        <component
+          :is="topic.cards && g.card ? 'section' : 'div'"
+          v-for="(g, gi) in groups"
+          :key="`${topic.section}/${topic.id}/${gi}`"
+          :class="{ 'section-card': topic.cards && g.card }"
+        >
+          <template v-for="(seg, i) in g.segs" :key="i">
+            <!-- Bundled, trusted content (src/help/*.md), never user input. -->
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <div v-if="seg.kind === 'html'" class="help-md" v-html="fill(seg.html)" />
+            <HelpCalc v-else :name="seg.name" />
+          </template>
+        </component>
       </article>
       <nav v-if="topic?.toc && $q.screen.gt.sm" class="toc" aria-label="On this page">
         <div class="text-caption text-grey-7 q-mb-xs">On this page</div>
@@ -105,7 +112,14 @@ import { useRoute, useRouter } from 'vue-router';
 import HelpCalc from '@/components/HelpCalc.vue';
 import { supportsFileAccess } from '@/storage/files';
 import { useSettingsStore } from '@/stores/settings';
-import { findTopic, searchTopics, SECTIONS, topicsIn, type SectionId } from '@/help/topics';
+import {
+  findTopic,
+  searchTopics,
+  SECTIONS,
+  topicsIn,
+  type Segment,
+  type SectionId,
+} from '@/help/topics';
 
 const $q = useQuasar();
 const app = useSettingsStore();
@@ -134,6 +148,22 @@ const fill = (html: string) =>
   html.replace(/\{\{yours:([\w-]+)\}\}/g, (m, f: string) =>
     FEATURES[f] ? (FEATURES[f]() ? 'yours does' : "yours doesn't") : m,
   );
+
+/** The topic's segments, split at each ## heading (a card each when the topic asks for cards). */
+const groups = computed(() => {
+  const out: { card: boolean; segs: Segment[] }[] = [{ card: false, segs: [] }];
+  for (const seg of topic.value?.segments ?? []) {
+    if (seg.kind !== 'html') {
+      out.at(-1)!.segs.push(seg);
+      continue;
+    }
+    for (const html of seg.html.split(/(?=<h2[ >])/)) {
+      if (html.startsWith('<h2')) out.push({ card: true, segs: [] });
+      if (html.trim()) out.at(-1)!.segs.push({ kind: 'html', html });
+    }
+  }
+  return out.filter((g) => g.segs.length);
+});
 
 /** Scroll to a heading of the open topic. */
 const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -199,6 +229,12 @@ function follow(e: MouseEvent) {
   z-index: 2;
   margin: 0 -16px;
   padding: 4px 16px;
+}
+.section-card {
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  border-radius: 8px;
+  padding: 0 16px 4px;
+  margin: 16px 0;
 }
 .toc {
   width: 220px;

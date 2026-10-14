@@ -2,6 +2,7 @@
 title: Calculators
 order: 10
 summary: Every Quilt Math calculator on one page, for cut sizes, borders, binding, backing, and yardage.
+cards: true
 ---
 
 Each calculator uses your seam allowance and rounding from the Print settings, and works offline.

@@ -5,6 +5,7 @@
 //   order: 30
 //   summary: One line shown in the topic list.
 // Topics with two or more ## headings get an "On this page" table of contents.
+// `cards: true` in the front matter shows each ## section in its own card.
 //   ---
 // A line `::calc <name>` places a calculator (calc.ts); raw <svg> blocks are diagrams.
 // A line `::diagram <section>/<id>` repeats the first diagram of that topic (no copies to drift).
@@ -32,6 +33,8 @@ export interface Topic {
   segments: Segment[];
   /** The ## headings, when there are two or more (the table of contents). */
   toc?: { id: string; title: string }[] | undefined;
+  /** Show each ## section in a card. */
+  cards: boolean;
 }
 
 const slug = (s: string) =>
@@ -113,6 +116,7 @@ export const TOPICS: Topic[] = Object.entries(files)
       text: `${meta.title ?? ''} ${meta.summary ?? ''} ${body}`.toLowerCase(),
       segments: segmentsOf(body),
       toc: tocOf(body),
+      cards: meta.cards === 'true',
     };
   })
   .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
