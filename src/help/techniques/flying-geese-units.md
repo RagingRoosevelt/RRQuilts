@@ -72,9 +72,11 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
 ## Four at a time
 
 1. Draw a diagonal line on the back of each small square.
-2. Put two small squares on opposite corners of the large square, right sides together. The
-   squares overlap a little in the middle, with the lines running corner to corner.
-3. Sew ¼″ (7.5 mm) on both sides of the line, then cut on the line. Press the small triangles out.
+2. Put two small squares on opposite corners of the large square, right sides together, flush with
+   its edges. For a more exact fit, nudge them in by 3 or 4 threads. The squares overlap a little in
+   the middle, and their lines join into one line from corner to corner.
+3. Sew a scant ¼″ (7.5 mm), one thread narrower than a true ¼″, on both sides of the line. Cut on
+   the line and press the seams open. You have two pieces.
 
 <svg viewBox="0 0 330 140" width="495" role="img" aria-label="Two sky squares, wrong side up, on opposite corners of the large goose square, overlapping in the middle, with a sewing line on each side of the diagonal and the cutting line on it">
   <rect x="20" y="10" width="120" height="120" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
@@ -91,10 +93,11 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
   <text x="160" y="96" font-size="11" fill="currentColor">cut on the solid line</text>
 </svg>
 
-4. Put a small square on the corner of each of the two pieces, right sides together, with the line
-   crossing the open corner toward the unit's center.
-5. Sew ¼″ (7.5 mm) on both sides of the line again and cut on the line. Press open. You have four
-   units.
+4. Put a small square on the open corner of each piece (the corner of the large square),
+   right sides together, with its line running from that corner to the point between the two small
+   triangles.
+5. Sew a scant ¼″ on both sides of the line again, cut on the line, and press the seams open. You
+   have four units.
 
 <svg viewBox="0 0 330 140" width="495" role="img" aria-label="One of the two pieces, pressed: the goose triangle with two sky triangles, and a third sky square, wrong side up, on its open goose corner, with sewing lines on each side of its diagonal">
   <polygon points="20,130 140,10 140,130" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
@@ -112,5 +115,12 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
   <text x="178" y="62" font-size="11" fill="currentColor">sky, wrong side</text>
 </svg>
 
-6. Trim each unit to 4½″ × 2½″ (11.5 × 6.5 cm), which is the finished size plus a seam allowance on every
-   side, leaving ¼″ beyond the point.
+6. Trim each unit to 4½″ × 2½″ (11.5 × 6.5 cm), the finished size plus a seam allowance on every
+   side. Line up the 45° line of your ruler with the goose's point and keep ¼″ (7.5 mm) above the
+   point.
+
+To keep the small squares' points out of the seams, you can draw a line across each point and trim
+it off before sewing.
+
+Source: [the four-at-a-time flying geese tutorial and sizing tables](https://quiltingjetgirl.com/2022/09/30/updated-four-at-a-time-flying-geese-tutorial-and-sizing-tables/)
+by Quilting Jetgirl, also listed in [Resources](/help/resources/links).
