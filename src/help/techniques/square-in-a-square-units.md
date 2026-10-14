@@ -58,6 +58,8 @@ corners.
 </svg>
 
 <svg viewBox="0 0 330 110" width="495" role="img" aria-label="The center square with a corner triangle sewn to the left and right sides and pressed out. The triangles run a little past the center's corners">
+  <polygon points="76.2,19.3 71.2,14.3 71.2,95.7 76.2,90.7" fill="#f6e7bd" stroke="currentColor"/>
+  <polygon points="133.8,19.3 138.8,14.3 138.8,95.7 133.8,90.7" fill="#f6e7bd" stroke="currentColor"/>
   <rect x="76.2" y="21.2" width="57.5" height="67.5" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="76.2,19.3 76.2,90.7 40.6,55" fill="#daa828" stroke="currentColor"/>
   <polygon points="133.8,19.3 133.8,90.7 169.4,55" fill="#daa828" stroke="currentColor"/>
@@ -65,6 +67,8 @@ corners.
   <text x="218" y="30" font-size="11" fill="currentColor">center, right side</text>
   <rect x="200" y="36" width="12" height="12" fill="#daa828" stroke="currentColor"/>
   <text x="218" y="46" font-size="11" fill="currentColor">corners, right side</text>
+  <rect x="200" y="52" width="12" height="12" fill="#f6e7bd" stroke="currentColor"/>
+  <text x="218" y="62" font-size="11" fill="currentColor">corners, wrong side (seam allowance)</text>
 </svg>
 
 4. Sew the other two triangles to the remaining sides in the same way, and press toward them.
