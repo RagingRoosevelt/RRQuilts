@@ -7,6 +7,7 @@
 // Topics with two or more ## headings get an "On this page" table of contents.
 //   ---
 // A line `::calc <name>` places a calculator (calc.ts); raw <svg> blocks are diagrams.
+// `{{yours:<feature>}}` becomes "yours does" / "yours doesn't" (HelpPage checks the browser).
 import { marked } from 'marked';
 
 export const SECTIONS = [

@@ -71,7 +71,7 @@
         <template v-for="(seg, i) in topic.segments" :key="`${topic.section}/${topic.id}/${i}`">
           <!-- Bundled, trusted content (src/help/*.md), never user input. -->
           <!-- eslint-disable-next-line vue/no-v-html -->
-          <div v-if="seg.kind === 'html'" class="help-md" v-html="seg.html" />
+          <div v-if="seg.kind === 'html'" class="help-md" v-html="fill(seg.html)" />
           <HelpCalc v-else :name="seg.name" />
         </template>
       </article>
@@ -102,6 +102,7 @@ import { useQuasar } from 'quasar';
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import HelpCalc from '@/components/HelpCalc.vue';
+import { supportsFileAccess } from '@/storage/files';
 import { findTopic, searchTopics, SECTIONS, topicsIn, type SectionId } from '@/help/topics';
 
 const $q = useQuasar();
@@ -123,6 +124,13 @@ const missing = computed(() => (wanted.value && !topic.value ? wanted.value : ''
 const query = ref('');
 watch(section, () => (query.value = ''));
 const shown = computed(() => searchTopics(all.value, query.value ?? ''));
+
+/** `{{yours:<feature>}}` in a topic → whether this browser has it. */
+const FEATURES: Record<string, () => boolean> = { 'file-access': supportsFileAccess };
+const fill = (html: string) =>
+  html.replace(/\{\{yours:([\w-]+)\}\}/g, (m, f: string) =>
+    FEATURES[f] ? (FEATURES[f]() ? 'yours does' : "yours doesn't") : m,
+  );
 
 /** Scroll to a heading of the open topic. */
 const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
