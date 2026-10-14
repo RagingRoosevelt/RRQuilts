@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Download Art Gallery Fabrics collections as zips of their fabric images, named
 "YY-MM | <collection name> | <designer>.zip". The Pure Solids collections instead become one RRQuilts
-palette, "Pure Solids | Art Gallery Fabrics.rrqplt", with one color per solid (tagged with its
-collection).
+palette and collection, "Pure Solids" ("Pure Solids | Art Gallery Fabrics.rrqplt"), with one color
+per solid.
 
     python3 download_artgalleryfabrics.py                  # every collection
     python3 download_artgalleryfabrics.py --only sgraffito # collections whose name contains this
@@ -138,6 +138,7 @@ def main():
     rows = []  # for collections.json
     pal = out / PALETTE
     colors = json.loads(pal.read_text(encoding='utf-8'))['collection']['colors'] if pal.exists() else []
+    solid_pages = []  # the site's Pure Solids collections, all one "Pure Solids" collection here
     for cat, name, by, when in collections():
         if a.only and a.only.lower() not in name.lower():
             continue
@@ -155,8 +156,7 @@ def main():
             if solids:  # into the one Pure Solids palette: only colors it doesn't have yet
                 known = {c['id'] for c in colors}
                 new = [x for x in items if f'agf.{slug(x[1] or x[0])}' not in known]
-                rows.append({'name': name, 'date': when, 'designer': by, 'url': url, 'kind': 'palette',
-                             'items': len(items), 'file': PALETTE, 'downloaded': 'no' if new else 'yes'})
+                solid_pages.append(url)
                 print(f'  {"+" if new else "="} {PALETTE} ← {name} ({len(new)} new colors)')
                 if a.dry_run or not new:
                     continue
@@ -165,12 +165,10 @@ def main():
                     print(f'\r    {i}/{len(new)}', end='', flush=True)
                     _, data = image(cat, thumb, tile)
                     colors.append({'id': f'agf.{slug(sku or fname)}',
-                                   'notecard': {'name': fname, 'reference': f'Art Gallery Fabrics {sku}'.strip(),
-                                                'tags': [name]},
+                                   'notecard': {'name': fname, 'reference': f'Art Gallery Fabrics {sku}'.strip()},
                                    'author': by, 'rgb': swatch_rgb(data)})
                 print()
                 save_palette(pal, colors)  # saved per collection, so an interruption loses little
-                rows[-1]['downloaded'] = 'yes'
                 continue
             dest = out / f'{prefix}{safe(by)}.zip'
             have = next((f for f in out.iterdir() if f.name.startswith(prefix) and f.suffix == '.zip'), None)
@@ -201,6 +199,10 @@ def main():
         except Exception as e:
             print(f'\n  ! {name}: {e}')
             failed.append(name)
+    if solid_pages:
+        rows.append({'name': 'Pure Solids', 'date': '??-??', 'designer': 'Art Gallery Fabrics',
+                     'url': f'{GALLERY}#pure-solids', 'pages': solid_pages, 'kind': 'palette',
+                     'items': len(colors), 'file': PALETTE, 'downloaded': 'yes' if pal.exists() else 'no'})
     collections_index.update(out / 'collections.json', rows)
     if failed:
         print('\nFailed:\n' + '\n'.join(failed))
