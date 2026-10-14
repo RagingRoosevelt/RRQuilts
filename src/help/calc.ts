@@ -140,17 +140,17 @@ export const CALCULATORS: Record<string, Calculator> = {
   },
   geese: {
     title: 'Flying geese',
-    inputs: [
-      { key: 'w', label: 'Finished width', start: start(4, 10) },
-      { key: 'h', label: 'Finished height', start: start(2, 5) },
-    ],
-    rows: ({ w, h }, c) => {
+    // These methods make the classic 2:1 goose (right isosceles triangles): height = width ÷ 2.
+    inputs: [{ key: 'w', label: 'Finished width', start: start(4, 10) }],
+    rows: ({ w }, c) => {
+      const h = w! / 2;
       const goose = cutFor(qst(w!), c.seam, c.step);
-      const sky = cutFor(hst(h!), c.seam, c.step);
+      const sky = cutFor(hst(h), c.seam, c.step);
       return [
+        { label: 'Finished size', value: `${len(w!, c)} × ${len(h, c)}` },
         {
           label: 'Stitch and flip (1)',
-          value: `${size(cutFor(rect(w!, h!), c.seam, c.step), c)} rectangle + 2 × ${size(cutFor(rect(h!, h!), c.seam, c.step), c)}`,
+          value: `${size(cutFor(rect(w!, h), c.seam, c.step), c)} rectangle + 2 × ${size(cutFor(rect(h, h), c.seam, c.step), c)}`,
         },
         {
           label: 'Four at a time (4)',

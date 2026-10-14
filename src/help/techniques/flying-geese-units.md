@@ -128,10 +128,10 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
     <line x1="94.0" y1="59.5" x2="94.0" y2="140.9" stroke="#333" stroke-dasharray="4 3"/>
   </g>
   <g transform="translate(60 0)">
-    <polygon points="106.0,140.9 184.9,62.0 106.0,62.0" style="fill: var(--q-primary)" stroke="currentColor"/>
-    <polygon points="106.0,59.5 108.5,62.0 106.0,62.0" fill="#daa828" stroke="currentColor"/>
-    <polygon points="106.0,47.5 138.2,15.3 184.9,62.0 106.0,62.0" fill="#daa828" stroke="currentColor"/>
-    <polygon points="106.0,59.5 65.3,100.2 106.0,140.9" fill="#daa828" stroke="currentColor"/>
+    <polygon points="100.0,146.9 184.9,62.0 100.0,62.0" style="fill: var(--q-primary)" stroke="currentColor"/>
+    <polygon points="100.0,53.5 108.5,62.0 100.0,62.0" fill="#daa828" stroke="currentColor"/>
+    <polygon points="100.0,53.5 138.2,15.3 184.9,62.0 100.0,62.0" fill="#daa828" stroke="currentColor"/>
+    <polygon points="100.0,53.5 53.3,100.2 100.0,146.9" fill="#daa828" stroke="currentColor"/>
   </g>
   <text x="60.0" y="160" font-size="11" fill="currentColor" text-anchor="middle">not pressed yet</text>
   <text x="210.0" y="160" font-size="11" fill="currentColor" text-anchor="middle">pressed open</text>
