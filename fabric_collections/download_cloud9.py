@@ -2,7 +2,8 @@
 """Download each Cloud9 Fabrics collection's Dropbox folder as a zip named
 "<collection name> | YY-MM | <designer>.zip".
 
-    python3 download_cloud9.py                 # collections on listing page 1
+    python3 download_cloud9.py                 # asks which listing page(s)
+    python3 download_cloud9.py --pages 1       # collections on listing page 1
     python3 download_cloud9.py --pages 1-3     # pages 1 to 3 ("all" = every page)
     python3 download_cloud9.py --dry-run       # list what would be downloaded
     python3 download_cloud9.py --out ~/zips    # where zips go (default: ./cloud9 beside this script)
@@ -85,13 +86,15 @@ def download(url, dest):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--pages', default='1', help='"1", "1-3", or "all" (default 1)')
+    ap.add_argument('--pages', help='"1", "1-3", or "all" (asked for when left out)')
     ap.add_argument('--out', default=str(Path(__file__).resolve().parent / 'cloud9'))
     ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--delay', type=float, default=2.0, help='seconds between requests')
     a = ap.parse_args()
     out = Path(a.out).expanduser()
     out.mkdir(parents=True, exist_ok=True)
+    while not a.pages or not re.fullmatch(r'all|\d+(-\d+)?', a.pages):
+        a.pages = input('Listing page(s) to download: a number, a range like 1-3, or "all": ').strip().lower()
     if a.pages == 'all':
         pages = range(1, 1000)
     elif '-' in a.pages:
