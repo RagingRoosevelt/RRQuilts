@@ -134,6 +134,7 @@ function toggle(k: string) {
   padding: 0;
   cursor: pointer;
   font: inherit;
+  color: inherit;
 }
 /* Category headings: all one style (indent shows the level); top level ruled. */
 /* Headings scrolled to (table of contents) clear the app header. */
