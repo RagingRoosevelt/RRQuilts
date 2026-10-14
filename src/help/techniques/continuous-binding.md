@@ -149,17 +149,18 @@ calculator below.
 Unfold both tails completely along the loose stretch, so each is a single layer at its full cut
 width. Lay them right sides together at right angles, as in step 1, and sew on the diagonal.
 
-<svg viewBox="0 0 320 150" width="480" role="img" aria-label="The two tails opened and laid right sides together at right angles, sewn on the diagonal">
+<svg viewBox="0 0 350 150" width="525" role="img" aria-label="The two tails opened and laid right sides together at right angles, sewn on the diagonal">
   <rect x="20" y="60" width="140" height="30" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
   <rect x="120" y="50" width="30" height="95" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor" stroke-width="1.5"/>
   <line x1="120" y1="60" x2="150" y2="90" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
-  <text x="165" y="50" font-size="11" fill="currentColor">sew on the diagonal,</text>
-  <text x="165" y="66" font-size="11" fill="currentColor">with both tails</text>
-  <text x="165" y="82" font-size="11" fill="currentColor">unfolded</text>
-  <rect x="165" y="96" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <text x="183" y="106" font-size="11" fill="currentColor">right side</text>
-  <rect x="165" y="114" width="12" height="12" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor"/>
-  <text x="183" y="124" font-size="11" fill="currentColor">wrong side</text>
+  <text x="195" y="50" font-size="11" fill="currentColor">sew on the diagonal,</text>
+  <text x="195" y="66" font-size="11" fill="currentColor">with both tails</text>
+  <text x="195" y="82" font-size="11" fill="currentColor">unfolded</text>
+  <rect x="195" y="96" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="213" y="106" font-size="11" fill="currentColor">right side</text>
+  <rect x="195" y="114" width="12" height="12" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor"/>
+  <text x="213" y="124" font-size="11" fill="currentColor">wrong side</text>
+  <line x1="190" y1="46" x2="137" y2="76" stroke="currentColor"/>
 </svg>
 
 Turn the top tail down. If the binding now lies flat along the quilt without slack or pull, trim
