@@ -1,0 +1,1 @@
+import{i as e,t}from"./settings-CaWjmaPk.js";import{a as n}from"./index-BajlC4N6.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

@@ -132,7 +132,10 @@
           >
             <div class="column q-pb-md" style="gap: 8px">
               <template v-for="g in coloringGroups" :key="g.label">
-                <div v-if="g.label" class="text-caption text-grey-7">{{ g.label }}</div>
+                <div v-if="g.label" class="text-caption text-grey-7">
+                  {{ g.label }}
+                  <div v-if="'note' in g" class="text-italic">{{ g.note }}</div>
+                </div>
                 <div class="row" style="gap: 8px">
                   <button
                     v-for="{ c, i } in g.items"
@@ -164,6 +167,7 @@
                   no-caps
                   icon="edit"
                   label="Rename"
+                  :disable="libraryColoring"
                   @click="renameColoringPrompt"
                 />
                 <q-btn
@@ -173,7 +177,7 @@
                   color="negative"
                   icon="delete"
                   label="Delete"
-                  :disable="block.colorings.length < 2"
+                  :disable="block.colorings.length < 2 || libraryColoring"
                   @click="removeColoring"
                 />
               </div>
@@ -324,8 +328,17 @@ const coloringGroups = computed(() => {
   const name = v.origin.notecard.name;
   return [
     { label: `Project colorings of ${name}`, items: items.filter(own) },
-    { label: `Library colorings of ${name}`, items: items.filter((x) => !own(x)) },
+    {
+      label: `Library colorings of ${name}`,
+      note: 'Read-only: painting one starts a project copy.',
+      items: items.filter((x) => !own(x)),
+    },
   ].filter((g) => g.items.length);
+});
+/** The selected coloring is a color variant's untouched library coloring (read-only). */
+const libraryColoring = computed(() => {
+  const v = block.value && projectColorings(block.value, library.lookup);
+  return !!v && !v.own.some((c) => c.id === coloringId.value);
 });
 const coloringId = computed(() => {
   const b = block.value;
@@ -486,15 +499,29 @@ function onPatch(patchId: string) {
     return;
   }
   const fill = { color: editor.color };
-  project.change((d) => {
-    const c = d.project.blocks.find((x) => x.id === b.id)!.colorings.find((x) => x.id === cid)!;
-    if (editor.blockTool === 'paint') c.fills[patchId] = fill;
-    else {
-      const key = fillKey(current);
-      for (const p of b.patches.map((x) => x.id))
-        if (fillKey(c.fills[p]) === key) c.fills[p] = fill;
-    }
-  });
+  // A library coloring is read-only: painting it starts a project copy (same undo step).
+  let base: Block = b;
+  let target = cid;
+  if (libraryColoring.value) {
+    const r = saveColoringAs(b, cid);
+    const name = b.colorings.find((c) => c.id === cid)?.name;
+    base = renameColoring(r.block, r.id, `${name ?? 'Coloring'} (project)`);
+    target = r.id;
+  }
+  project.change(() =>
+    withBlock(project.doc!, () =>
+      produce(base, (x) => {
+        const c = x.colorings.find((k) => k.id === target)!;
+        if (editor.blockTool === 'paint') c.fills[patchId] = fill;
+        else {
+          const key = fillKey(current);
+          for (const p of b.patches.map((y) => y.id))
+            if (fillKey(c.fills[p]) === key) c.fills[p] = fill;
+        }
+      }),
+    ),
+  );
+  editor.coloringOf.set(b.id, target);
 }
 
 function saveAsNew() {
