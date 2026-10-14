@@ -450,7 +450,7 @@ const setSnap = (patch: Partial<SnapSettings>) =>
 .inline-op {
   color: #000; /* same as the other op buttons, not the field's muted adornment color */
 }
-:global(.body--dark) .inline-op {
+:global(.body--dark .inline-op) {
   color: #fff;
 }
 </style>

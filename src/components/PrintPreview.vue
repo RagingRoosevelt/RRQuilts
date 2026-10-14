@@ -1534,7 +1534,7 @@ onMounted(() => {
   background: #fff;
   border-bottom: 1px solid rgba(128, 128, 128, 0.25);
 }
-:global(.body--dark) .toolbar {
+:global(.body--dark .toolbar) {
   background: #1d1d1d;
 }
 .sheets {

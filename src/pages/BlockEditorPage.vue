@@ -570,7 +570,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
     left: 0;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.25);
   }
-  :global(.body--dark) .inspector {
+  :global(.body--dark .inspector) {
     background: var(--q-dark-page);
   }
 }

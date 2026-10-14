@@ -1335,6 +1335,7 @@ function downloadPack() {
   border: 2px solid transparent;
   border-radius: 6px;
   background: none;
+  color: inherit;
   cursor: pointer;
 }
 .skin img {
