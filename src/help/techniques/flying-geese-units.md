@@ -75,8 +75,8 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
 2. Put two small squares on opposite corners of the large square, right sides together, flush with
    its edges. For a more exact fit, nudge them in by 3 or 4 threads. The squares overlap a little in
    the middle, and their lines join into one line from corner to corner.
-3. Sew a scant ¼″ (7.5 mm), one thread narrower than a true ¼″, on both sides of the line. Cut on
-   the line and press the seams open. You have two pieces.
+3. Sew a scant ¼″ (7.5 mm) on both sides of the line. Cut on the line and press the seams open.
+   You have two pieces.
 
 <svg viewBox="0 0 330 140" width="495" role="img" aria-label="Two sky squares, wrong side up, on opposite corners of the large goose square, overlapping in the middle, with a sewing line on each side of the diagonal and the cutting line on it">
   <rect x="20" y="10" width="120" height="120" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
