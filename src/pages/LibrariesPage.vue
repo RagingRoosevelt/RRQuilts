@@ -1260,23 +1260,31 @@ function downloadPack() {
 }
 .count {
   position: absolute;
-  right: 4px;
-  bottom: 4px;
-  min-width: 18px;
-  padding: 0 4px;
-  border-radius: 9px;
+  right: -4px;
+  bottom: -4px;
+  isolation: isolate;
+  min-width: 34px;
+  padding: 8px 12px;
+  border-radius: 17px;
   font-size: 11px;
   line-height: 18px;
   text-align: center;
-  background: var(--q-primary);
   color: white;
   cursor: pointer;
+  /* The tap zone (bigger than the badge) softly blurs the block behind it, fading out to its edge
+     (the badge sits well inside the opaque middle of the mask). */
+  backdrop-filter: blur(3px);
+  mask-image: radial-gradient(farthest-side, #000 70%, transparent);
 }
-/* Bigger tap target than the badge itself. */
-.count::after {
+/* The badge itself, inside the tap zone. */
+.count::before {
   content: '';
   position: absolute;
-  inset: -8px;
+  inset: 8px;
+  z-index: -1;
+  border-radius: 9px;
+  background: var(--q-primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 .pick-coloring {
   padding: 0;

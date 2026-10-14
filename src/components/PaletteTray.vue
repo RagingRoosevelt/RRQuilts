@@ -491,24 +491,33 @@ function remove(id: string) {
   top: 2px;
   padding: 1px 3px;
 }
-/* Bigger tap target than the badge itself. */
-.count::after {
-  content: '';
-  position: absolute;
-  inset: -8px;
-}
 .count {
   position: absolute;
-  right: 2px;
-  bottom: 2px;
-  min-width: 16px;
-  padding: 0 3px;
-  border-radius: 8px;
+  right: -6px;
+  bottom: -6px;
+  isolation: isolate;
+  min-width: 32px;
+  padding: 8px 11px;
+  border-radius: 16px;
   font-size: 10px;
   line-height: 16px;
-  background: var(--q-primary);
+  text-align: center;
   color: white;
   cursor: pointer;
+  /* The tap zone (bigger than the badge) softly blurs the block behind it, fading out to its edge
+     (the badge sits well inside the opaque middle of the mask). */
+  backdrop-filter: blur(3px);
+  mask-image: radial-gradient(farthest-side, #000 70%, transparent);
+}
+/* The badge itself, inside the tap zone. */
+.count::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  z-index: -1;
+  border-radius: 8px;
+  background: var(--q-primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 .tile img {
   display: block;
