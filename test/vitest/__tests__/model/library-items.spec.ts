@@ -9,6 +9,7 @@ import {
   splitItems,
   syncLibraryItems,
   keepAsMine,
+  projectColorings,
   swapToLibraryVersion,
   useMyCopy,
   versionMismatches,
@@ -163,5 +164,21 @@ describe('splitItems', () => {
     expect(r.mine).toEqual([mine]);
     expect(r.library.map((x) => x.id)).toEqual(['lib.a2', 'lib.b', 'gone.c']);
     expect(r.library[1]).toBe(embedded);
+  });
+});
+
+describe('projectColorings', () => {
+  it("a color variant's own colorings are the ones changed or added since the copy", async () => {
+    const { lib, lookup } = await setup();
+    const orig = lib.blocks.find((b) => b.colorings.length > 1)!;
+    const v0 = produce(copyBlock(orig, []), (c) => void (c.colorVariant = true));
+    expect(projectColorings(v0, lookup)!.own).toEqual([]);
+    const v1 = produce(v0, (c) => {
+      const k = c.colorings[1]!;
+      const patch = Object.keys(k.fills ?? {})[0] ?? 'p';
+      k.fills = { ...k.fills, [patch]: { color: 'mine' } };
+    });
+    expect(projectColorings(v1, lookup)!.own.map((c) => c.id)).toEqual([v1.colorings[1]!.id]);
+    expect(projectColorings(orig, lookup)).toBeUndefined();
   });
 });

@@ -236,7 +236,7 @@ import {
 } from '@/editor/draw-ops';
 import { applySeamEdit } from '@/model/blocks/edit';
 import { usePaletteOffer } from '@/composables/palette-offer';
-import { isLibraryItem } from '@/model/library-items';
+import { isLibraryItem, projectColorings } from '@/model/library-items';
 import type { Pt } from '@/model/geometry/path';
 import type { Block, Drawing } from '@/model/schema/block';
 import type { RrqDoc } from '@/model/schema/project';
@@ -318,16 +318,13 @@ const coloringGroups = computed(() => {
   const b = block.value;
   if (!b) return [];
   const items = b.colorings.map((c, i) => ({ c, i }));
-  const origin = b.colorVariant && b.source ? library.lookup.block(b.source.itemId) : undefined;
-  if (!origin) return [{ label: '', items }];
-  const theirs = new Set(origin.colorings.map((c) => JSON.stringify(c)));
-  const asTheirs = (c: (typeof items)[number]) => theirs.has(JSON.stringify(c.c));
+  const v = projectColorings(b, library.lookup);
+  if (!v) return [{ label: '', items }];
+  const own = (x: (typeof items)[number]) => v.own.includes(x.c);
+  const name = v.origin.notecard.name;
   return [
-    {
-      label: 'Project colorings',
-      items: items.filter((x) => !asTheirs(x)),
-    },
-    { label: 'Library colorings', items: items.filter(asTheirs) },
+    { label: `Project colorings of ${name}`, items: items.filter(own) },
+    { label: `Library colorings of ${name}`, items: items.filter((x) => !own(x)) },
   ].filter((g) => g.items.length);
 });
 const coloringId = computed(() => {

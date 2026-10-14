@@ -188,3 +188,15 @@ export function splitItems<T extends { id: string } & Sourced>(
     ],
   };
 }
+
+/** A color variant's own colorings: those new or changed since it was copied from its library
+ *  block (`lib` finds that block). Undefined for other blocks, or when the original isn't found. */
+export function projectColorings(
+  b: Block,
+  lib: { block(id: string): Block | undefined } | undefined,
+) {
+  const origin = b.colorVariant && b.source ? lib?.block(b.source.itemId) : undefined;
+  if (!origin) return undefined;
+  const theirs = new Set(origin.colorings.map((c) => JSON.stringify(c)));
+  return { origin, own: b.colorings.filter((c) => !theirs.has(JSON.stringify(c))) };
+}

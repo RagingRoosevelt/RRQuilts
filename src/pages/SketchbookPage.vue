@@ -133,7 +133,10 @@
           @drop="drop('blocks', i)"
         >
           <button class="thumb" @click="openBlock(b.id)">
-            <img :src="thumb(b, 200)" :alt="b.notecard.name" />
+            <img
+              :src="thumb(b, 200, projectColorings(b, library.lookup)?.own[0]?.id)"
+              :alt="b.notecard.name"
+            />
           </button>
           <q-badge
             v-if="b.colorVariant"
@@ -854,6 +857,7 @@ import {
   splitItems,
   syncLibraryItems,
   versionMismatches,
+  projectColorings,
   toUnits,
   useMyCopy,
 } from '@/model/library-items';
