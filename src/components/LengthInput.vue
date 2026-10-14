@@ -58,3 +58,16 @@ function set(v: string | number | null) {
   if (Number.isFinite(n) && v !== '' && v !== null) emit('update:modelValue', clamp(n));
 }
 </script>
+
+<style scoped>
+/* The −/+ buttons replace the browser's number spinner. */
+.q-field :deep(input) {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.q-field :deep(input::-webkit-inner-spin-button),
+.q-field :deep(input::-webkit-outer-spin-button) {
+  -webkit-appearance: none;
+  margin: 0;
+}
+</style>
