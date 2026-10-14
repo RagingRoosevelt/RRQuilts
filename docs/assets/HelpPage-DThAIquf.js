@@ -1,4 +1,4 @@
-import{t as e}from"./settings-cLrrNpzD.js";import{At as t,Dt as n,J as r,R as i,T as a,U as o,V as s,X as c,Z as l,at as u,b as d,f,ft as p,g as m,h,jt as g,m as _,ot as ee,p as v,s as y,t as b,x,y as S}from"./create-CXFiK9Ge.js";import{H as C,n as w,t as T,y as te}from"./_plugin-vue_export-helper-BO0JJGYa.js";import{St as ne,a as re,bt as E,i as ie,n as ae,t as oe,vt as se,w as ce,xt as le,yt as ue}from"./QCard-DTOYg52V.js";import{a as de,r as D}from"./render-CRP6lwgu.js";import{a as fe,r as pe,t as me}from"./QSelect-BTRbIQgE.js";import{B as he,P as O,R as ge,z as _e}from"./index-Ce7MvEg5.js";import{n as ve,t as ye}from"./QTabs-gQVTBoGB.js";import{t as be}from"./QPage-D5_MJ09N.js";import{t as xe}from"./LengthInput-9H90ol8b.js";import{S as Se,_ as Ce,a as k,b as we,i as Te,n as Ee,o as De,r as Oe,t as ke,x as Ae,y as je}from"./yardage-D5dwrINA.js";var Me=[`horizontal`,`vertical`,`cell`,`none`],Ne=b({name:`QMarkupTable`,props:{...le,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>Me.includes(e)}},setup(e,{slots:t}){let n=de(),r=E(e,n),i=f(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>a(`div`,{class:i.value,tabindex:0},[a(`table`,{class:`q-table`},D(t.default))])}}),A=e=>Ce[e].filter(e=>!e.fatQuarter),Pe=(e,t,n)=>({units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:(A(e).find(e=>e.id===n)??A(e)[0]).usable,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}),Fe=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),j=(e,t)=>Fe([[0,0],[e,0],[e,t],[0,t]]),Ie=e=>Fe([[0,0],[e,0],[0,e]]),Le=e=>Fe([[0,0],[e,0],[e/2,e/2]]),Re=(e,t)=>Fe([[0,0],[e,0],[e-t,t],[t,t]]),M=(e,t)=>Ae(e,t.units),N=(e,t)=>e.cut[0]===e.cut[1]?`${M(e.cut[0],t)} square`:`${M(e.cut[0],t)} × ${M(e.cut[1],t)}`,P=(e,t)=>({in:e,cm:t}),ze={square:{title:`Square`,inputs:[{key:`f`,label:`Finished size`,start:P(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:N(k(j(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:P(6,15)},{key:`h`,label:`Finished width`,start:P(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:N(k(j(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished size (leg)`,start:P(3,8)}],rows:({f:e},t)=>{let n=k(Ie(e),t.seam,t.step),r=Se((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${N(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${M(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${M(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:P(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${N(k(Le(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:P(4,10),link:{key:`h`,factor:.5}},{key:`h`,label:`Finished height`,start:P(2,5),link:{key:`w`,factor:2}}],rows:({w:e},t)=>{let n=e/2,r=k(Le(e),t.seam,t.step),i=k(Ie(n),t.seam,t.step);return[{label:`Stitch and flip (1)`,value:`${N(k(j(e,n),t.seam,t.step),t)} rectangle + 2 × ${N(k(j(n,n),t.seam,t.step),t)}`},{label:`Four at a time (4)`,value:`1 × ${N(r,t)} + 4 × ${N(i,t)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${N(r,t)}; sky: 2 halves of a ${N(i,t)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit`,start:P(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:N(k(j(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${N(k(Ie(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block`,start:P(10,25)}],rows:({f:e},t)=>[{label:`Block diagonal`,value:M(e*Math.SQRT2,t)},{label:`Side setting triangles`,value:`${N(k(Le(e*Math.SQRT2),t.seam,t.step),t)}, cut both diagonals (4)`},{label:`Corner setting triangles`,value:`${N(k(Ie(e/Math.SQRT2),t.seam,t.step),t)}, cut once (2)`}]},border:{title:`Borders`,inputs:[{key:`w`,label:`Width before border`,start:P(48,120)},{key:`h`,label:`Height before border`,start:P(60,150)},{key:`b`,label:`Border width`,start:P(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${N(k(j(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${N(k(j(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${N(k(Re(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${N(k(Re(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:P(48,120)},{key:`h`,label:`Quilt height`,start:P(48,120)}],rows:({w:e,h:t},n)=>{let r=Oe(e,t,n.bindingWidth,ke[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${M(n.bindingWidth,n)} wide`},{label:`Total length`,value:M(2*(e+t)+ke[n.units],n)},{label:`Fabric`,value:we(r.length,n.units)}]}},backing:{title:`Backing`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:P(60,150)},{key:`h`,label:`Quilt height`,start:P(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:we(Ee(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${M(n.overhang,n)} each side`}]},yardage:{title:`Yardage for squares`,widths:!0,inputs:[{key:`n`,label:`How many`,start:P(40,40),count:!0},{key:`f`,label:`Finished size`,start:P(3,8)}],rows:({n:e,f:t},n)=>{let r=Array.from({length:Math.max(1,Math.round(e))},()=>j(t,t)),i=De(r,n.seam,n.step,n.usable),a=Te(i,{usable:n.usable},n.fabricStep)[0],o=Ce[n.units].find(e=>e.fatQuarter),s=De(r,n.seam,n.step,o.usable),c=Te(s,o,n.fabricStep)[0];return[{label:`Strips`,value:`${i[0].strips} × ${M(i[0].stripWidth,n)} (${i[0].perStrip} per strip)`},{label:`Fabric (${M(n.usable,n)} usable)`,value:we(a.length,n.units)},{label:`Or fat quarters`,value:String(c.fatQuarters)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:P(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:M(e,t)},{label:`Cut (rounded up)`,value:M(Se(e,t.step),t)}]}},Be={class:`text-subtitle2`},Ve={class:`text-caption text-grey-7`},He={class:`text-grey-8`},Ue={class:`text-weight-medium`},We=T(x({__name:`HelpCalc`,props:{name:{}},setup(t){let n=t,a=O(),o=e(),l=f(()=>ze[n.name]),b=f(()=>a.doc?.units??o.settings.units),x=ee(A(b.value)[0].id);r(b,e=>x.value=A(e)[0].id);let C=f(()=>Pe(b.value,je(o.settings.print),x.value)),w=u(Object.fromEntries((l.value?.inputs??[]).map(e=>[e.key,e.start[b.value]])));function T(e,t){w[e.key]=t,e.link&&(w[e.link.key]=t*e.link.factor)}let ne=f(()=>{let e=l.value;return!e||e.inputs.some(e=>!(w[e.key]>0))?[]:e.rows(w,C.value)});return(e,n)=>l.value?(i(),_(oe,{key:0,flat:``,bordered:``,class:`help-calc q-my-md`},{default:c(()=>[d(ae,{class:`q-pb-sm`},{default:c(()=>[v(`div`,Be,[d(te,{name:`calculate`,class:`q-mr-xs`}),S(g(l.value.title)+` calculator `,1)]),v(`div`,Ve,` Seam allowance `+g(p(Ae)(C.value.seam,b.value))+` · cut sizes rounded up to `+g(C.value.step?p(Ae)(C.value.step,b.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),d(ae,{class:`row q-pt-none`,style:{gap:`12px`}},{default:c(()=>[l.value.widths?(i(),_(me,{key:0,modelValue:x.value,"onUpdate:modelValue":n[0]||=e=>x.value=e,options:p(A)(b.value).map(e=>({label:e.label,value:e.id})),"emit-value":``,"map-options":``,outlined:``,dense:``,label:`Fabric width`,style:{width:`200px`}},null,8,[`modelValue`,`options`])):h(``,!0),(i(!0),m(y,null,s(l.value.inputs,e=>(i(),m(y,{key:e.key},[e.count||e.raw?(i(),_(re,{key:0,modelValue:w[e.key],"onUpdate:modelValue":t=>w[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(i(),_(xe,{key:1,"model-value":w[e.key],"onUpdate:modelValue":t=>T(e,t),units:b.value,min:.25,label:e.label,style:{width:`240px`}},null,8,[`model-value`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),d(Ne,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:c(()=>[v(`tbody`,null,[(i(!0),m(y,null,s(ne.value,e=>(i(),m(`tr`,{key:e.label},[v(`td`,He,g(e.label),1),v(`td`,Ue,g(e.value),1)]))),128))])]),_:1})]),_:1})):(i(),_(he,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:c(()=>[S(`Unknown calculator “`+g(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-1d50e0e9`]]),Ge=`---
+import{t as e}from"./settings-cLrrNpzD.js";import{At as t,Dt as n,J as r,R as i,T as a,U as o,V as s,X as c,Z as l,at as u,b as d,f,ft as p,g as m,h,jt as g,m as _,ot as ee,p as v,s as y,t as b,x,y as S}from"./create-CXFiK9Ge.js";import{H as C,n as w,t as T,y as te}from"./_plugin-vue_export-helper-BO0JJGYa.js";import{St as ne,a as re,bt as E,i as ie,n as ae,t as oe,vt as se,w as ce,xt as le,yt as ue}from"./QCard-DTOYg52V.js";import{a as de,r as D}from"./render-CRP6lwgu.js";import{a as fe,r as pe,t as me}from"./QSelect-BTRbIQgE.js";import{B as he,P as O,R as ge,z as _e}from"./index-W2GafEaQ.js";import{n as ve,t as ye}from"./QTabs-gQVTBoGB.js";import{t as be}from"./QPage-D5_MJ09N.js";import{t as xe}from"./LengthInput-9H90ol8b.js";import{S as Se,_ as Ce,a as k,b as we,i as Te,n as Ee,o as De,r as Oe,t as ke,x as Ae,y as je}from"./yardage-D5dwrINA.js";var Me=[`horizontal`,`vertical`,`cell`,`none`],Ne=b({name:`QMarkupTable`,props:{...le,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>Me.includes(e)}},setup(e,{slots:t}){let n=de(),r=E(e,n),i=f(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>a(`div`,{class:i.value,tabindex:0},[a(`table`,{class:`q-table`},D(t.default))])}}),A=e=>Ce[e].filter(e=>!e.fatQuarter),Pe=(e,t,n)=>({units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:(A(e).find(e=>e.id===n)??A(e)[0]).usable,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}),Fe=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),j=(e,t)=>Fe([[0,0],[e,0],[e,t],[0,t]]),Ie=e=>Fe([[0,0],[e,0],[0,e]]),Le=e=>Fe([[0,0],[e,0],[e/2,e/2]]),Re=(e,t)=>Fe([[0,0],[e,0],[e-t,t],[t,t]]),M=(e,t)=>Ae(e,t.units),N=(e,t)=>e.cut[0]===e.cut[1]?`${M(e.cut[0],t)} square`:`${M(e.cut[0],t)} × ${M(e.cut[1],t)}`,P=(e,t)=>({in:e,cm:t}),ze={square:{title:`Square`,inputs:[{key:`f`,label:`Finished side`,start:P(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:N(k(j(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:P(6,15)},{key:`h`,label:`Finished width`,start:P(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:N(k(j(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished leg`,start:P(3,8)}],rows:({f:e},t)=>{let n=k(Ie(e),t.seam,t.step),r=Se((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${N(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${M(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${M(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:P(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${N(k(Le(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:P(4,10),link:{key:`h`,factor:.5}},{key:`h`,label:`Finished height`,start:P(2,5),link:{key:`w`,factor:2}}],rows:({w:e},t)=>{let n=e/2,r=k(Le(e),t.seam,t.step),i=k(Ie(n),t.seam,t.step);return[{label:`Stitch and flip (1)`,value:`${N(k(j(e,n),t.seam,t.step),t)} rectangle + 2 × ${N(k(j(n,n),t.seam,t.step),t)}`},{label:`Four at a time (4)`,value:`1 × ${N(r,t)} + 4 × ${N(i,t)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${N(r,t)}; sky: 2 halves of a ${N(i,t)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit side`,start:P(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:N(k(j(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${N(k(Ie(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block side`,start:P(10,25)}],rows:({f:e},t)=>[{label:`Block diagonal`,value:M(e*Math.SQRT2,t)},{label:`Side setting triangles`,value:`${N(k(Le(e*Math.SQRT2),t.seam,t.step),t)}, cut both diagonals (4)`},{label:`Corner setting triangles`,value:`${N(k(Ie(e/Math.SQRT2),t.seam,t.step),t)}, cut once (2)`}]},border:{title:`Borders`,inputs:[{key:`w`,label:`Width before border`,start:P(48,120)},{key:`h`,label:`Height before border`,start:P(60,150)},{key:`b`,label:`Border width`,start:P(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${N(k(j(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${N(k(j(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${N(k(Re(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${N(k(Re(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:P(48,120)},{key:`h`,label:`Quilt height`,start:P(48,120)}],rows:({w:e,h:t},n)=>{let r=Oe(e,t,n.bindingWidth,ke[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${M(n.bindingWidth,n)} wide`},{label:`Total length`,value:M(2*(e+t)+ke[n.units],n)},{label:`Fabric`,value:we(r.length,n.units)}]}},backing:{title:`Backing`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:P(60,150)},{key:`h`,label:`Quilt height`,start:P(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:we(Ee(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${M(n.overhang,n)} each side`}]},yardage:{title:`Squares from strips`,widths:!0,inputs:[{key:`n`,label:`How many squares`,start:P(40,40),count:!0},{key:`f`,label:`Finished square side`,start:P(3,8)}],rows:({n:e,f:t},n)=>{let r=Array.from({length:Math.max(1,Math.round(e))},()=>j(t,t)),i=De(r,n.seam,n.step,n.usable),a=Te(i,{usable:n.usable},n.fabricStep)[0],o=Ce[n.units].find(e=>e.fatQuarter),s=De(r,n.seam,n.step,o.usable),c=Te(s,o,n.fabricStep)[0];return[{label:`Strips`,value:`${i[0].strips} × ${M(i[0].stripWidth,n)} (${i[0].perStrip} per strip)`},{label:`Fabric (${M(n.usable,n)} usable)`,value:we(a.length,n.units)},{label:`Or fat quarters`,value:String(c.fatQuarters)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:P(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:M(e,t)},{label:`Cut (rounded up)`,value:M(Se(e,t.step),t)}]}},Be={class:`text-subtitle2`},Ve={class:`text-caption text-grey-7`},He={class:`text-grey-8`},Ue={class:`text-weight-medium`},We=T(x({__name:`HelpCalc`,props:{name:{}},setup(t){let n=t,a=O(),o=e(),l=f(()=>ze[n.name]),b=f(()=>a.doc?.units??o.settings.units),x=ee(A(b.value)[0].id);r(b,e=>x.value=A(e)[0].id);let C=f(()=>Pe(b.value,je(o.settings.print),x.value)),w=u(Object.fromEntries((l.value?.inputs??[]).map(e=>[e.key,e.start[b.value]])));function T(e,t){w[e.key]=t,e.link&&(w[e.link.key]=t*e.link.factor)}let ne=f(()=>{let e=l.value;return!e||e.inputs.some(e=>!(w[e.key]>0))?[]:e.rows(w,C.value)});return(e,n)=>l.value?(i(),_(oe,{key:0,flat:``,bordered:``,class:`help-calc q-my-md`},{default:c(()=>[d(ae,{class:`q-pb-sm`},{default:c(()=>[v(`div`,Be,[d(te,{name:`calculate`,class:`q-mr-xs`}),S(g(l.value.title)+` calculator `,1)]),v(`div`,Ve,` Seam allowance `+g(p(Ae)(C.value.seam,b.value))+` · cut sizes rounded up to `+g(C.value.step?p(Ae)(C.value.step,b.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),d(ae,{class:`row q-pt-none`,style:{gap:`12px`}},{default:c(()=>[l.value.widths?(i(),_(me,{key:0,modelValue:x.value,"onUpdate:modelValue":n[0]||=e=>x.value=e,options:p(A)(b.value).map(e=>({label:e.label,value:e.id})),"emit-value":``,"map-options":``,outlined:``,dense:``,label:`Fabric width`,style:{width:`200px`}},null,8,[`modelValue`,`options`])):h(``,!0),(i(!0),m(y,null,s(l.value.inputs,e=>(i(),m(y,{key:e.key},[e.count||e.raw?(i(),_(re,{key:0,modelValue:w[e.key],"onUpdate:modelValue":t=>w[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(i(),_(xe,{key:1,"model-value":w[e.key],"onUpdate:modelValue":t=>T(e,t),units:b.value,min:.25,label:e.label,style:{width:`240px`}},null,8,[`model-value`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),d(Ne,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:c(()=>[v(`tbody`,null,[(i(!0),m(y,null,s(ne.value,e=>(i(),m(`tr`,{key:e.label},[v(`td`,He,g(e.label),1),v(`td`,Ue,g(e.value),1)]))),128))])]),_:1})]),_:1})):(i(),_(he,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:c(()=>[S(`Unknown calculator “`+g(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-1d50e0e9`]]),Ge=`---
 title: Block colorings
 order: 50
 summary: Color a block's patches and keep several colorings of the same drawing.
@@ -519,15 +519,27 @@ directions and picks the one that needs less fabric:
 
 The result is rounded up to your fabric step (⅛ yd or 10 cm by default).
 
-<svg viewBox="0 0 230 90" width="345" role="img" aria-label="A quilt top of two Mexican Cross II blocks centered on a larger gold backing, with overhang on every side">
+<svg viewBox="0 0 250 120" width="375" role="img" aria-label="A quilt top of two Mexican Cross II blocks centered on a larger gold backing, with overhang on every side. Brackets mark the quilt width and height">
   <defs><pattern id="mx-backing" patternUnits="userSpaceOnUse" x="25" y="25" width="40" height="40"><polygon points="11.51,20.0 14.34,22.83 17.17,20.0 14.34,17.17" fill="#c4282c"/><polygon points="14.34,17.17 17.17,20.0 20.0,17.17 17.17,14.34" fill="#5a78a0"/><polygon points="17.17,14.34 20.0,17.17 22.83,14.34 20.0,11.51" fill="#c4282c"/><polygon points="14.34,22.83 17.17,25.66 20.0,22.83 17.17,20.0" fill="#5a78a0"/><polygon points="17.17,20.0 20.0,22.83 22.83,20.0 20.0,17.17" fill="#c4282c"/><polygon points="20.0,17.17 22.83,20.0 25.66,17.17 22.83,14.34" fill="#5a78a0"/><polygon points="17.17,25.66 20.0,28.49 22.83,25.66 20.0,22.83" fill="#c4282c"/><polygon points="20.0,22.83 22.83,25.66 25.66,22.83 22.83,20.0" fill="#5a78a0"/><polygon points="22.83,20.0 25.66,22.83 28.49,20.0 25.66,17.17" fill="#c4282c"/><polygon points="25.66,22.83 40.0,37.17 40.0,40.0 37.17,40.0 22.83,25.66" fill="#f4ecd8"/><polygon points="17.17,25.66 2.83,40.0 0.0,40.0 0.0,37.17 14.34,22.83" fill="#f4ecd8"/><polygon points="14.34,17.17 0.0,2.83 0.0,0.0 2.83,0.0 17.17,14.34" fill="#f4ecd8"/><polygon points="22.83,14.34 37.17,0.0 40.0,0.0 40.0,2.83 25.66,17.17" fill="#f4ecd8"/><polygon points="31.51,40.0 20.0,28.49 22.83,25.66 31.51,34.34" fill="#5a78a0"/><polygon points="0.0,31.51 11.51,20.0 14.34,22.83 5.66,31.51" fill="#5a78a0"/><polygon points="8.49,0.0 20.0,11.51 17.17,14.34 8.49,5.66" fill="#5a78a0"/><polygon points="40.0,8.49 28.49,20.0 25.66,17.17 34.34,8.49" fill="#5a78a0"/><polygon points="28.49,20.0 40.0,31.51 34.34,31.51 25.66,22.83" fill="#5a78a0"/><polygon points="20.0,28.49 8.49,40.0 8.49,34.34 17.17,25.66" fill="#5a78a0"/><polygon points="11.51,20.0 0.0,8.49 5.66,8.49 14.34,17.17" fill="#5a78a0"/><polygon points="20.0,11.51 31.51,0.0 31.51,5.66 22.83,14.34" fill="#5a78a0"/><polygon points="37.17,40.0 31.51,40.0 31.51,34.34" fill="#c4282c"/><polygon points="0.0,37.17 0.0,31.51 5.66,31.51" fill="#c4282c"/><polygon points="2.83,0.0 8.49,0.0 8.49,5.66" fill="#c4282c"/><polygon points="40.0,2.83 40.0,8.49 34.34,8.49" fill="#c4282c"/><polygon points="40.0,31.51 40.0,37.17 34.34,31.51" fill="#c4282c"/><polygon points="8.49,40.0 2.83,40.0 8.49,34.34" fill="#c4282c"/><polygon points="0.0,8.49 0.0,2.83 5.66,8.49" fill="#c4282c"/><polygon points="31.51,0.0 37.17,0.0 31.51,5.66" fill="#c4282c"/><polygon points="31.51,40.0 8.49,40.0 20.0,28.49" fill="#96c4e8"/><polygon points="0.0,31.51 0.0,8.49 11.51,20.0" fill="#96c4e8"/><polygon points="8.49,0.0 31.51,0.0 20.0,11.51" fill="#96c4e8"/><polygon points="40.0,8.49 40.0,31.51 28.49,20.0" fill="#96c4e8"/></pattern></defs>
   <rect x="10" y="10" width="110" height="70" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
   <rect x="25" y="25" width="80" height="40" fill="url(#mx-backing)" stroke="currentColor" stroke-width="1.5"/>
-  <defs><pattern id="mx-backing-key" patternUnits="userSpaceOnUse" x="132" y="27" width="12" height="12"><polygon points="3.45,6.0 4.3,6.85 5.15,6.0 4.3,5.15" fill="#c4282c"/><polygon points="4.3,5.15 5.15,6.0 6.0,5.15 5.15,4.3" fill="#5a78a0"/><polygon points="5.15,4.3 6.0,5.15 6.85,4.3 6.0,3.45" fill="#c4282c"/><polygon points="4.3,6.85 5.15,7.7 6.0,6.85 5.15,6.0" fill="#5a78a0"/><polygon points="5.15,6.0 6.0,6.85 6.85,6.0 6.0,5.15" fill="#c4282c"/><polygon points="6.0,5.15 6.85,6.0 7.7,5.15 6.85,4.3" fill="#5a78a0"/><polygon points="5.15,7.7 6.0,8.55 6.85,7.7 6.0,6.85" fill="#c4282c"/><polygon points="6.0,6.85 6.85,7.7 7.7,6.85 6.85,6.0" fill="#5a78a0"/><polygon points="6.85,6.0 7.7,6.85 8.55,6.0 7.7,5.15" fill="#c4282c"/><polygon points="7.7,6.85 12.0,11.15 12.0,12.0 11.15,12.0 6.85,7.7" fill="#f4ecd8"/><polygon points="5.15,7.7 0.85,12.0 0.0,12.0 0.0,11.15 4.3,6.85" fill="#f4ecd8"/><polygon points="4.3,5.15 0.0,0.85 0.0,0.0 0.85,0.0 5.15,4.3" fill="#f4ecd8"/><polygon points="6.85,4.3 11.15,0.0 12.0,0.0 12.0,0.85 7.7,5.15" fill="#f4ecd8"/><polygon points="9.45,12.0 6.0,8.55 6.85,7.7 9.45,10.3" fill="#5a78a0"/><polygon points="0.0,9.45 3.45,6.0 4.3,6.85 1.7,9.45" fill="#5a78a0"/><polygon points="2.55,0.0 6.0,3.45 5.15,4.3 2.55,1.7" fill="#5a78a0"/><polygon points="12.0,2.55 8.55,6.0 7.7,5.15 10.3,2.55" fill="#5a78a0"/><polygon points="8.55,6.0 12.0,9.45 10.3,9.45 7.7,6.85" fill="#5a78a0"/><polygon points="6.0,8.55 2.55,12.0 2.55,10.3 5.15,7.7" fill="#5a78a0"/><polygon points="3.45,6.0 0.0,2.55 1.7,2.55 4.3,5.15" fill="#5a78a0"/><polygon points="6.0,3.45 9.45,0.0 9.45,1.7 6.85,4.3" fill="#5a78a0"/><polygon points="11.15,12.0 9.45,12.0 9.45,10.3" fill="#c4282c"/><polygon points="0.0,11.15 0.0,9.45 1.7,9.45" fill="#c4282c"/><polygon points="0.85,0.0 2.55,0.0 2.55,1.7" fill="#c4282c"/><polygon points="12.0,0.85 12.0,2.55 10.3,2.55" fill="#c4282c"/><polygon points="12.0,9.45 12.0,11.15 10.3,9.45" fill="#c4282c"/><polygon points="2.55,12.0 0.85,12.0 2.55,10.3" fill="#c4282c"/><polygon points="0.0,2.55 0.0,0.85 1.7,2.55" fill="#c4282c"/><polygon points="9.45,0.0 11.15,0.0 9.45,1.7" fill="#c4282c"/><polygon points="9.45,12.0 2.55,12.0 6.0,8.55" fill="#96c4e8"/><polygon points="0.0,9.45 0.0,2.55 3.45,6.0" fill="#96c4e8"/><polygon points="2.55,0.0 9.45,0.0 6.0,3.45" fill="#96c4e8"/><polygon points="12.0,2.55 12.0,9.45 8.55,6.0" fill="#96c4e8"/></pattern></defs>
-  <rect x="132" y="27" width="12" height="12" fill="url(#mx-backing-key)" stroke="currentColor"/>
-  <text x="150" y="37" font-size="11" fill="currentColor">quilt top</text>
-  <rect x="132" y="47" width="12" height="12" fill="#daa828" stroke="currentColor"/>
-  <text x="150" y="57" font-size="11" fill="currentColor">backing</text>
+  <defs><pattern id="mx-backing-key" patternUnits="userSpaceOnUse" x="140" y="72" width="12" height="12"><polygon points="3.45,6.0 4.3,6.85 5.15,6.0 4.3,5.15" fill="#c4282c"/><polygon points="4.3,5.15 5.15,6.0 6.0,5.15 5.15,4.3" fill="#5a78a0"/><polygon points="5.15,4.3 6.0,5.15 6.85,4.3 6.0,3.45" fill="#c4282c"/><polygon points="4.3,6.85 5.15,7.7 6.0,6.85 5.15,6.0" fill="#5a78a0"/><polygon points="5.15,6.0 6.0,6.85 6.85,6.0 6.0,5.15" fill="#c4282c"/><polygon points="6.0,5.15 6.85,6.0 7.7,5.15 6.85,4.3" fill="#5a78a0"/><polygon points="5.15,7.7 6.0,8.55 6.85,7.7 6.0,6.85" fill="#c4282c"/><polygon points="6.0,6.85 6.85,7.7 7.7,6.85 6.85,6.0" fill="#5a78a0"/><polygon points="6.85,6.0 7.7,6.85 8.55,6.0 7.7,5.15" fill="#c4282c"/><polygon points="7.7,6.85 12.0,11.15 12.0,12.0 11.15,12.0 6.85,7.7" fill="#f4ecd8"/><polygon points="5.15,7.7 0.85,12.0 0.0,12.0 0.0,11.15 4.3,6.85" fill="#f4ecd8"/><polygon points="4.3,5.15 0.0,0.85 0.0,0.0 0.85,0.0 5.15,4.3" fill="#f4ecd8"/><polygon points="6.85,4.3 11.15,0.0 12.0,0.0 12.0,0.85 7.7,5.15" fill="#f4ecd8"/><polygon points="9.45,12.0 6.0,8.55 6.85,7.7 9.45,10.3" fill="#5a78a0"/><polygon points="0.0,9.45 3.45,6.0 4.3,6.85 1.7,9.45" fill="#5a78a0"/><polygon points="2.55,0.0 6.0,3.45 5.15,4.3 2.55,1.7" fill="#5a78a0"/><polygon points="12.0,2.55 8.55,6.0 7.7,5.15 10.3,2.55" fill="#5a78a0"/><polygon points="8.55,6.0 12.0,9.45 10.3,9.45 7.7,6.85" fill="#5a78a0"/><polygon points="6.0,8.55 2.55,12.0 2.55,10.3 5.15,7.7" fill="#5a78a0"/><polygon points="3.45,6.0 0.0,2.55 1.7,2.55 4.3,5.15" fill="#5a78a0"/><polygon points="6.0,3.45 9.45,0.0 9.45,1.7 6.85,4.3" fill="#5a78a0"/><polygon points="11.15,12.0 9.45,12.0 9.45,10.3" fill="#c4282c"/><polygon points="0.0,11.15 0.0,9.45 1.7,9.45" fill="#c4282c"/><polygon points="0.85,0.0 2.55,0.0 2.55,1.7" fill="#c4282c"/><polygon points="12.0,0.85 12.0,2.55 10.3,2.55" fill="#c4282c"/><polygon points="12.0,9.45 12.0,11.15 10.3,9.45" fill="#c4282c"/><polygon points="2.55,12.0 0.85,12.0 2.55,10.3" fill="#c4282c"/><polygon points="0.0,2.55 0.0,0.85 1.7,2.55" fill="#c4282c"/><polygon points="9.45,0.0 11.15,0.0 9.45,1.7" fill="#c4282c"/><polygon points="9.45,12.0 2.55,12.0 6.0,8.55" fill="#96c4e8"/><polygon points="0.0,9.45 0.0,2.55 3.45,6.0" fill="#96c4e8"/><polygon points="2.55,0.0 9.45,0.0 6.0,3.45" fill="#96c4e8"/><polygon points="12.0,2.55 12.0,9.45 8.55,6.0" fill="#96c4e8"/></pattern></defs>
+  <rect x="140" y="72" width="12" height="12" fill="url(#mx-backing-key)" stroke="currentColor"/>
+  <text x="158" y="82" font-size="11" fill="currentColor">quilt top</text>
+  <rect x="140" y="90" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="158" y="100" font-size="11" fill="currentColor">backing</text>
+  <line x1="25.0" y1="67.0" x2="25.0" y2="77.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="105.0" y1="67.0" x2="105.0" y2="77.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="25.0" y1="73.0" x2="105.0" y2="73.0" stroke="currentColor"/>
+  <line x1="25.0" y1="77.0" x2="25.0" y2="69.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="105.0" y1="77.0" x2="105.0" y2="69.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="65.0" y="98.0" font-size="11" fill="currentColor" text-anchor="middle">quilt width</text>
+  <line x1="107.0" y1="25.0" x2="117.0" y2="25.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="107.0" y1="65.0" x2="117.0" y2="65.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="113.0" y1="25.0" x2="113.0" y2="65.0" stroke="currentColor"/>
+  <line x1="109.0" y1="25.0" x2="117.0" y2="25.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="109.0" y1="65.0" x2="117.0" y2="65.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="127.0" y="49.0" font-size="11" fill="currentColor">quilt height</text>
 </svg>
 
 ## Worked examples
@@ -610,11 +622,35 @@ The cut length then adds **SA × (1 + √2) at each end**, a total of **2(1 + �
 - **s** for the seam allowance on the border's outer edge, which pushes the strip's edge out, and so the
   diagonal's end point along the edge, by one more SA.
 
-<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A mitered border strip shaped like a trapezoid with 45 degree ends, its seam allowance beyond the finished corner">
-  <polygon points="10,10 150,10 130,40 30,40" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="20,10 140,10 124,34 36,34" fill="none" stroke="#333" stroke-dasharray="4 3"/>
-  <text x="160" y="25" font-size="11" fill="currentColor">finished (dashed)</text>
-  <text x="160" y="42" font-size="11" fill="currentColor">cut, longer (solid)</text>
+<svg viewBox="0 0 345 170" width="517" role="img" aria-label="A quilt center with a mitered border all around. Brackets mark the width and height before the border and the border width">
+  <rect x="22" y="26" width="156" height="104" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="40" y="44" width="120" height="68" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="22" y1="26" x2="40" y2="44" stroke="currentColor"/>
+  <line x1="178" y1="26" x2="160" y2="44" stroke="currentColor"/>
+  <line x1="22" y1="130" x2="40" y2="112" stroke="currentColor"/>
+  <line x1="178" y1="130" x2="160" y2="112" stroke="currentColor"/>
+  <line x1="40.0" y1="114.0" x2="40.0" y2="148.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="160.0" y1="114.0" x2="160.0" y2="148.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="40.0" y1="144.0" x2="160.0" y2="144.0" stroke="currentColor"/>
+  <line x1="40.0" y1="148.0" x2="40.0" y2="140.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="160.0" y1="148.0" x2="160.0" y2="140.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="100.0" y="158.0" font-size="11" fill="currentColor" text-anchor="middle">width before border</text>
+  <line x1="162.0" y1="44.0" x2="196.0" y2="44.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="162.0" y1="112.0" x2="196.0" y2="112.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="192.0" y1="44.0" x2="192.0" y2="112.0" stroke="currentColor"/>
+  <line x1="188.0" y1="44.0" x2="196.0" y2="44.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="188.0" y1="112.0" x2="196.0" y2="112.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="198.0" y="82.0" font-size="11" fill="currentColor">height before border</text>
+  <line x1="102.0" y1="26.0" x2="104.0" y2="26.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="102.0" y1="44.0" x2="104.0" y2="44.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="100.0" y1="26.0" x2="100.0" y2="44.0" stroke="currentColor"/>
+  <line x1="96.0" y1="26.0" x2="104.0" y2="26.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="96.0" y1="44.0" x2="104.0" y2="44.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="100.0" y="20" font-size="11" fill="currentColor" text-anchor="middle">border width</text>
+  <rect x="222" y="104" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="240" y="114" font-size="11" fill="currentColor">quilt center</text>
+  <rect x="222" y="122" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="240" y="132" font-size="11" fill="currentColor">border, mitered</text>
 </svg>
 
 The **Extra length on mitered strips** setting (default 2″ / 5 cm) adds more, so you can trim after
@@ -658,14 +694,26 @@ are the [half-square](/help/math/half-square-triangles) size for the finished he
 Cut the goose from a quarter of the large square, and each sky from half of a small one. The cut sizes
 are the same as for four at a time, but nothing is sewn before cutting.
 
-<svg viewBox="0 0 330 100" width="495" role="img" aria-label="A flying-geese unit: the goose triangle pointing up, a sky triangle in each top corner">
+<svg viewBox="0 0 345 130" width="517" role="img" aria-label="A flying-geese unit: the goose triangle pointing up, a sky triangle in each top corner. Brackets mark the finished width and height">
   <rect x="10" y="10" width="160" height="80" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="10,10 90,10 10,90" fill="#daa828" stroke="currentColor"/>
   <polygon points="170,10 90,10 170,90" fill="#daa828" stroke="currentColor"/>
-  <rect x="190" y="30" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <text x="208" y="40" font-size="11" fill="currentColor">goose (large square)</text>
-  <rect x="190" y="46" width="12" height="12" fill="#daa828" stroke="currentColor"/>
-  <text x="208" y="56" font-size="11" fill="currentColor">sky (small squares)</text>
+  <line x1="10.0" y1="92.0" x2="10.0" y2="108.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="170.0" y1="92.0" x2="170.0" y2="108.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="10.0" y1="104.0" x2="170.0" y2="104.0" stroke="currentColor"/>
+  <line x1="10.0" y1="108.0" x2="10.0" y2="100.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="170.0" y1="108.0" x2="170.0" y2="100.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="90.0" y="118.0" font-size="11" fill="currentColor" text-anchor="middle">finished width</text>
+  <line x1="172.0" y1="10.0" x2="188.0" y2="10.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="172.0" y1="90.0" x2="188.0" y2="90.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="184.0" y1="10.0" x2="184.0" y2="90.0" stroke="currentColor"/>
+  <line x1="180.0" y1="10.0" x2="188.0" y2="10.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="180.0" y1="90.0" x2="188.0" y2="90.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="190.0" y="54.0" font-size="11" fill="currentColor">finished height</text>
+  <rect x="210" y="76" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="228" y="86" font-size="11" fill="currentColor">goose (large square)</text>
+  <rect x="210" y="92" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="228" y="102" font-size="11" fill="currentColor">sky (small squares)</text>
 </svg>
 
 ## Worked examples
@@ -699,13 +747,23 @@ to **⅞″**, the familiar "add ⅞″" rule. With 7.5 mm, it is ≈ 2.56 cm.
 Adding 2 × the seam allowance isn't enough, because the seam along the diagonal eats into the corner. The point
 of the triangle has to extend √2 × the seam allowance past the finished corner for the seams to meet.
 
-<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A cut square of fabric, halved on the diagonal, with the finished triangle dashed inside one half">
-  <rect x="10" y="10" width="100" height="100" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
-  <line x1="10" y1="110" x2="110" y2="10" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="20,20 86,20 20,86" fill="none" stroke="#333" stroke-dasharray="4 3"/>
-  <text x="125" y="40" font-size="11" fill="currentColor">cut square</text>
-  <text x="125" y="58" font-size="11" fill="currentColor">finished triangle</text>
-  <text x="125" y="76" font-size="11" fill="currentColor">(dashed)</text>
+<svg viewBox="0 0 360 145" width="540" role="img" aria-label="A cut square halved on the diagonal, and one of its triangles with the finished triangle dashed inside it, a seam allowance from every side. A bracket marks the finished leg">
+  <rect x="10" y="62" width="50" height="50" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="10" y1="112" x2="60" y2="62" stroke="currentColor" stroke-width="1.5"/>
+  <text x="35" y="128" font-size="11" fill="currentColor" text-anchor="middle">cut square</text>
+  <defs><marker id="dim-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
+  <line x1="68" y1="87" x2="96" y2="87" stroke="currentColor" marker-end="url(#dim-arrow)"/>
+  <polygon points="110,40 202.5,40 110,132.5" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="116.0,46.0 188.0,46.0 116.0,118.0" fill="none" stroke="#333" stroke-dasharray="4 3"/>
+  <line x1="116.0" y1="44.0" x2="116.0" y2="20.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="188.0" y1="44.0" x2="188.0" y2="20.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="116.0" y1="24.0" x2="188.0" y2="24.0" stroke="currentColor"/>
+  <line x1="116.0" y1="28.0" x2="116.0" y2="20.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="188.0" y1="28.0" x2="188.0" y2="20.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="152.0" y="22.0" font-size="11" fill="currentColor" text-anchor="middle">finished leg</text>
+  <text x="215" y="80" font-size="11" fill="currentColor">one triangle at its cut</text>
+  <text x="215" y="96" font-size="11" fill="currentColor">size (solid), finished</text>
+  <text x="215" y="112" font-size="11" fill="currentColor">triangle (dashed)</text>
 </svg>
 
 ## Worked examples
@@ -746,20 +804,28 @@ For a finished block of side f, the block's diagonal (corner to corner) is **f �
   legs are f ÷ √2. Cut a square of f ÷ √2 + (2 + √2) × SA once diagonally. You need 2 squares (4
   corners).
 
-<svg viewBox="0 0 300 100" width="450" role="img" aria-label="Eight blocks turned on point, with side triangles along the edges and corner triangles at the corners">
-  <rect x="10" y="12" width="108" height="72" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="28,12 46,30 28,48 10,30" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <polygon points="28,48 46,66 28,84 10,66" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <polygon points="46,30 64,48 46,66 28,48" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <polygon points="64,12 82,30 64,48 46,30" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <polygon points="64,48 82,66 64,84 46,66" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <polygon points="82,30 100,48 82,66 64,48" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <polygon points="100,12 118,30 100,48 82,30" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <polygon points="100,48 118,66 100,84 82,66" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <rect x="140" y="30" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <text x="158" y="40" font-size="11" fill="currentColor">blocks on point</text>
-  <rect x="140" y="48" width="12" height="12" fill="#daa828" stroke="currentColor"/>
-  <text x="158" y="58" font-size="11" fill="currentColor">side and corner triangles</text>
+<svg viewBox="0 0 320 135" width="480" role="img" aria-label="Eight blocks turned on point, with side triangles along the edges and corner triangles at the corners. A bracket marks the side of one block">
+  <rect x="10" y="30" width="144" height="96" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="34,30 58,54 34,78 10,54" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <polygon points="34,78 58,102 34,126 10,102" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <polygon points="58,54 82,78 58,102 34,78" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <polygon points="82,30 106,54 82,78 58,54" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <polygon points="82,78 106,102 82,126 58,102" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <polygon points="106,54 130,78 106,102 82,78" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <polygon points="130,30 154,54 130,78 106,54" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <polygon points="130,78 154,102 130,126 106,102" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <line x1="56.6" y1="52.6" x2="50.2" y2="46.2" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="80.6" y1="28.6" x2="74.2" y2="22.2" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="53.1" y1="49.1" x2="77.1" y2="25.1" stroke="currentColor"/>
+  <line x1="55.9" y1="51.9" x2="50.2" y2="46.2" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="79.9" y1="27.9" x2="74.2" y2="22.2" stroke="currentColor" stroke-width="1.5"/>
+  <text x="10" y="18" font-size="11" fill="currentColor">finished block side</text>
+  <defs><marker id="dim-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
+  <line x1="50.8" y1="22" x2="64.0" y2="36.0" stroke="currentColor" marker-end="url(#dim-arrow)"/>
+  <rect x="170" y="50" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="188" y="60" font-size="11" fill="currentColor">blocks on point</text>
+  <rect x="170" y="68" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="188" y="78" font-size="11" fill="currentColor">side and corner triangles</text>
 </svg>
 
 ## Worked examples
@@ -799,12 +865,24 @@ This is more than a half-square triangle needs. The long side is the diagonal of
 triangle needs a seam allowance along that side _and_ a seam allowance on the two short sides, which
 sit at 45° to the long side. Each short seam moves the points out by (1 + √2) × SA along the long side.
 
-<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square of fabric cut along both diagonals into four triangles">
-  <rect x="10" y="10" width="100" height="100" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
-  <line x1="10" y1="10" x2="110" y2="110" stroke="currentColor" stroke-width="1.5"/>
-  <line x1="110" y1="10" x2="10" y2="110" stroke="currentColor" stroke-width="1.5"/>
-  <text x="125" y="58" font-size="11" fill="currentColor">cut on both diagonals</text>
-  <text x="125" y="76" font-size="11" fill="currentColor">for 4 triangles</text>
+<svg viewBox="0 0 360 150" width="540" role="img" aria-label="A cut square quartered on both diagonals, and one of its triangles with the finished triangle dashed inside it. A bracket marks the finished long side">
+  <rect x="10" y="62" width="50" height="50" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="10" y1="62" x2="60" y2="112" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="60" y1="62" x2="10" y2="112" stroke="currentColor" stroke-width="1.5"/>
+  <text x="35" y="128" font-size="11" fill="currentColor" text-anchor="middle">cut square</text>
+  <defs><marker id="dim-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
+  <line x1="68" y1="87" x2="96" y2="87" stroke="currentColor" marker-end="url(#dim-arrow)"/>
+  <polygon points="110,112 203.7,112 156.9,65.1" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="120.9,107.5 192.9,107.5 156.9,71.5" fill="none" stroke="#333" stroke-dasharray="4 3"/>
+  <line x1="120.9" y1="109.5" x2="120.9" y2="130.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="192.9" y1="109.5" x2="192.9" y2="130.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="120.9" y1="126.0" x2="192.9" y2="126.0" stroke="currentColor"/>
+  <line x1="120.9" y1="130.0" x2="120.9" y2="122.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="192.9" y1="130.0" x2="192.9" y2="122.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="156.9" y="140.0" font-size="11" fill="currentColor" text-anchor="middle">finished long side</text>
+  <text x="215" y="64" font-size="11" fill="currentColor">one of the 4 triangles at</text>
+  <text x="215" y="80" font-size="11" fill="currentColor">its cut size (solid),</text>
+  <text x="215" y="96" font-size="11" fill="currentColor">finished triangle (dashed)</text>
 </svg>
 
 ## Worked examples
@@ -911,13 +989,19 @@ The center's diagonal is the unit's side, so its side is f ÷ √2 (about 0.707 
 half-square triangles whose legs are f ÷ 2, so the cut is f ÷ 2 + (2 + √2) × SA, and each square is
 cut once diagonally to make 2 triangles.
 
-<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square with a tilted center square inside it, touching the middle of each side, and a triangle in each corner">
+<svg viewBox="0 0 260 150" width="390" role="img" aria-label="A square with a tilted center square inside it, touching the middle of each side, and a triangle in each corner. A bracket marks the finished unit side">
   <rect x="10" y="10" width="100" height="100" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="60,10 110,60 60,110 10,60" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <rect x="125" y="40" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <text x="143" y="50" font-size="11" fill="currentColor">tilted center</text>
-  <rect x="125" y="58" width="12" height="12" fill="#daa828" stroke="currentColor"/>
-  <text x="143" y="68" font-size="11" fill="currentColor">4 corner triangles</text>
+  <line x1="10.0" y1="112.0" x2="10.0" y2="128.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="110.0" y1="112.0" x2="110.0" y2="128.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="10.0" y1="124.0" x2="110.0" y2="124.0" stroke="currentColor"/>
+  <line x1="10.0" y1="128.0" x2="10.0" y2="120.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="110.0" y1="128.0" x2="110.0" y2="120.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="60.0" y="138.0" font-size="11" fill="currentColor" text-anchor="middle">finished unit side</text>
+  <rect x="130" y="40" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="148" y="50" font-size="11" fill="currentColor">tilted center</text>
+  <rect x="130" y="58" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="148" y="68" font-size="11" fill="currentColor">4 corner triangles</text>
 </svg>
 
 ## Worked examples
@@ -949,11 +1033,23 @@ SA is the [seam allowance](/help/math/seam-allowance).
 Do it once for each side of a rectangle. With a ¼″ seam allowance that is the familiar "add ½″". With
 7.5 mm it is "add 1.5 cm".
 
-<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A rectangle of fabric with the finished area dashed inside it, a seam allowance on every side">
+<svg viewBox="0 0 345 130" width="517" role="img" aria-label="A rectangle of fabric with the finished area dashed inside it and a seam allowance on every side. Brackets mark the finished length and width">
   <rect x="10" y="10" width="120" height="80" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
   <rect x="25" y="25" width="90" height="50" fill="none" stroke="#333" stroke-dasharray="4 3"/>
-  <text x="142" y="45" font-size="11" fill="currentColor">cut = finished</text>
-  <text x="142" y="62" font-size="11" fill="currentColor">+ SA on each side</text>
+  <line x1="25.0" y1="77.0" x2="25.0" y2="110.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="115.0" y1="77.0" x2="115.0" y2="110.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="25.0" y1="106.0" x2="115.0" y2="106.0" stroke="currentColor"/>
+  <line x1="25.0" y1="110.0" x2="25.0" y2="102.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="115.0" y1="110.0" x2="115.0" y2="102.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="70.0" y="120.0" font-size="11" fill="currentColor" text-anchor="middle">finished length</text>
+  <line x1="117.0" y1="25.0" x2="150.0" y2="25.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="117.0" y1="75.0" x2="150.0" y2="75.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="146.0" y1="25.0" x2="146.0" y2="75.0" stroke="currentColor"/>
+  <line x1="142.0" y1="25.0" x2="150.0" y2="25.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="142.0" y1="75.0" x2="150.0" y2="75.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="152.0" y="54.0" font-size="11" fill="currentColor">finished width</text>
+  <text x="190" y="20" font-size="11" fill="currentColor">cut (solid) = finished</text>
+  <text x="190" y="36" font-size="11" fill="currentColor">(dashed) + SA on each side</text>
 </svg>
 
 ## Worked examples
@@ -1000,14 +1096,49 @@ Usable width is a little less than the printed width, since selvages are trimmed
 A fat quarter is 18″ × 21″ (50 × 55 cm), with 20″ (53 cm) usable. Strips are packed into the 18″ (50
 cm) depth. The calculator counts how many fat quarters the strips fit into.
 
-<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A fat quarter with strips laid across its width, and the leftover fabric below them">
-  <rect x="10" y="10" width="140" height="90" fill="#daa828" fill-opacity="0.35" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="10" y="10" width="140" height="18" fill="#daa828" stroke="currentColor"/>
-  <rect x="10" y="28" width="140" height="18" fill="#daa828" stroke="currentColor"/>
-  <rect x="10" y="46" width="140" height="18" fill="#daa828" stroke="currentColor"/>
-  <text x="80" y="88" font-size="11" fill="#333" text-anchor="middle">leftover</text>
-  <text x="160" y="40" font-size="11" fill="currentColor">strips across</text>
-  <text x="160" y="56" font-size="11" fill="currentColor">the 21″ width</text>
+<svg viewBox="0 0 330 130" width="495" role="img" aria-label="Fabric cut into strips across its usable width, each strip cut into squares, with leftover fabric below. One square is shown on its own with its finished size dashed and bracketed">
+  <rect x="10" y="14" width="150" height="74" fill="#daa828" fill-opacity="0.35" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="10" y="14" width="144" height="18" fill="#daa828" stroke="currentColor"/>
+  <line x1="28" y1="14" x2="28" y2="32" stroke="currentColor"/>
+  <line x1="46" y1="14" x2="46" y2="32" stroke="currentColor"/>
+  <line x1="64" y1="14" x2="64" y2="32" stroke="currentColor"/>
+  <line x1="82" y1="14" x2="82" y2="32" stroke="currentColor"/>
+  <line x1="100" y1="14" x2="100" y2="32" stroke="currentColor"/>
+  <line x1="118" y1="14" x2="118" y2="32" stroke="currentColor"/>
+  <line x1="136" y1="14" x2="136" y2="32" stroke="currentColor"/>
+  <rect x="10" y="32" width="144" height="18" fill="#daa828" stroke="currentColor"/>
+  <line x1="28" y1="32" x2="28" y2="50" stroke="currentColor"/>
+  <line x1="46" y1="32" x2="46" y2="50" stroke="currentColor"/>
+  <line x1="64" y1="32" x2="64" y2="50" stroke="currentColor"/>
+  <line x1="82" y1="32" x2="82" y2="50" stroke="currentColor"/>
+  <line x1="100" y1="32" x2="100" y2="50" stroke="currentColor"/>
+  <line x1="118" y1="32" x2="118" y2="50" stroke="currentColor"/>
+  <line x1="136" y1="32" x2="136" y2="50" stroke="currentColor"/>
+  <rect x="10" y="50" width="144" height="18" fill="#daa828" stroke="currentColor"/>
+  <line x1="28" y1="50" x2="28" y2="68" stroke="currentColor"/>
+  <line x1="46" y1="50" x2="46" y2="68" stroke="currentColor"/>
+  <line x1="64" y1="50" x2="64" y2="68" stroke="currentColor"/>
+  <line x1="82" y1="50" x2="82" y2="68" stroke="currentColor"/>
+  <line x1="100" y1="50" x2="100" y2="68" stroke="currentColor"/>
+  <line x1="118" y1="50" x2="118" y2="68" stroke="currentColor"/>
+  <line x1="136" y1="50" x2="136" y2="68" stroke="currentColor"/>
+  <text x="85.0" y="82" font-size="11" fill="#333" text-anchor="middle">leftover</text>
+  <line x1="10.0" y1="90.0" x2="10.0" y2="104.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="160.0" y1="90.0" x2="160.0" y2="104.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="10.0" y1="100.0" x2="160.0" y2="100.0" stroke="currentColor"/>
+  <line x1="10.0" y1="104.0" x2="10.0" y2="96.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="160.0" y1="104.0" x2="160.0" y2="96.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="85.0" y="114.0" font-size="11" fill="currentColor" text-anchor="middle">usable width</text>
+  <defs><marker id="dim-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
+  <line x1="158" y1="23" x2="196" y2="40" stroke="currentColor" marker-end="url(#dim-arrow)"/>
+  <rect x="205" y="20" width="60" height="60" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="211" y="26" width="48" height="48" fill="none" stroke="#333" stroke-dasharray="4 3"/>
+  <line x1="211.0" y1="76.0" x2="211.0" y2="96.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="259.0" y1="76.0" x2="259.0" y2="96.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="211.0" y1="92.0" x2="259.0" y2="92.0" stroke="currentColor"/>
+  <line x1="211.0" y1="96.0" x2="211.0" y2="88.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="259.0" y1="96.0" x2="259.0" y2="88.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="235.0" y="106.0" font-size="11" fill="currentColor" text-anchor="middle">finished square side</text>
 </svg>
 
 ## Worked examples (40 squares)
@@ -1101,7 +1232,7 @@ The formula is in [backing](/help/math/backing).
 
 ::calc backing
 
-## Yardage and fat quarters
+## Squares from strips
 
 ::diagram math/yardage-and-fat-quarters
 

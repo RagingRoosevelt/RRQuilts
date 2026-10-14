@@ -100,7 +100,7 @@ const start = (inches: number, cm: number) => ({ in: inches, cm });
 export const CALCULATORS: Record<string, Calculator> = {
   square: {
     title: 'Square',
-    inputs: [{ key: 'f', label: 'Finished size', start: start(3, 8) }],
+    inputs: [{ key: 'f', label: 'Finished side', start: start(3, 8) }],
     rows: ({ f }, c) => [{ label: 'Cut', value: size(cutFor(rect(f!, f!), c.seam, c.step), c) }],
   },
   rect: {
@@ -113,7 +113,7 @@ export const CALCULATORS: Record<string, Calculator> = {
   },
   hst: {
     title: 'Half-square triangles',
-    inputs: [{ key: 'f', label: 'Finished size (leg)', start: start(3, 8) }],
+    inputs: [{ key: 'f', label: 'Finished leg', start: start(3, 8) }],
     rows: ({ f }, c) => {
       const two = cutFor(hst(f!), c.seam, c.step);
       const four = roundUp((f! + (2 + Math.SQRT2) * c.seam) * Math.SQRT2, c.step);
@@ -170,7 +170,7 @@ export const CALCULATORS: Record<string, Calculator> = {
   },
   sqinsq: {
     title: 'Square in a square',
-    inputs: [{ key: 'f', label: 'Finished unit', start: start(4, 10) }],
+    inputs: [{ key: 'f', label: 'Finished unit side', start: start(4, 10) }],
     rows: ({ f }, c) => {
       const center = f! / Math.SQRT2;
       return [
@@ -184,7 +184,7 @@ export const CALCULATORS: Record<string, Calculator> = {
   },
   onpoint: {
     title: 'On-point setting',
-    inputs: [{ key: 'f', label: 'Finished block', start: start(10, 25) }],
+    inputs: [{ key: 'f', label: 'Finished block side', start: start(10, 25) }],
     rows: ({ f }, c) => [
       { label: 'Block diagonal', value: len(f! * Math.SQRT2, c) },
       {
@@ -255,11 +255,11 @@ export const CALCULATORS: Record<string, Calculator> = {
     ],
   },
   yardage: {
-    title: 'Yardage for squares',
+    title: 'Squares from strips',
     widths: true,
     inputs: [
-      { key: 'n', label: 'How many', start: start(40, 40), count: true },
-      { key: 'f', label: 'Finished size', start: start(3, 8) },
+      { key: 'n', label: 'How many squares', start: start(40, 40), count: true },
+      { key: 'f', label: 'Finished square side', start: start(3, 8) },
     ],
     rows: ({ n, f }, c) => {
       const pieces = Array.from({ length: Math.max(1, Math.round(n!)) }, () => rect(f!, f!));
