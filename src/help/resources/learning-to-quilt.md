@@ -1,7 +1,7 @@
 ---
 title: Learning to quilt
 order: 10
-summary: Places to learn quilting, and video tutorials.
+summary: Places to learn quilting, video tutorials, and efficiency techniques.
 ---
 
 - [Quilting on Wikipedia](https://en.wikipedia.org/wiki/Quilting) covers history, terms, and techniques.
