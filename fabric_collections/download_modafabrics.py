@@ -142,8 +142,14 @@ def main():
     by_zip = {c['zip']: c for c in cols}
     for folder in [HERE, Path.home() / 'Downloads', *map(Path, a.src)]:
         for z in Path(folder).expanduser().glob('jpg_*.zip'):
-            c = by_zip.get(z.name)
-            if c and not (HERE / c['file']).exists():
+            # The browser renames a repeat download "jpg_x(1).zip" / "jpg_x (1).zip".
+            c = by_zip.get(re.sub(r'\s*\(\d+\)(?=\.zip$)', '', z.name))
+            if not c:
+                continue
+            if (HERE / c['file']).exists():
+                if z.parent != HERE or z.name != c['zip']:
+                    print(f'  {z} is a second copy of {c["file"]} (left where it is)')
+            else:
                 shutil.move(str(z), HERE / c['file'])
                 print(f'  filed {z.name} → {c["file"]}')
 
