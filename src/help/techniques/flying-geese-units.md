@@ -147,8 +147,9 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
    side. Line up the 45° line of your ruler with the goose's point and keep ¼″ (7.5 mm) above the
    point.
 
-To keep the small squares' points out of the seams, you can draw a line across each point and trim
-it off before sewing.
+To reduce bulk at the goose points, trim off the overlap where the two small squares cross in
+step 2, so they meet edge to edge, before sewing.
 
-Source: [the four-at-a-time flying geese tutorial and sizing tables](https://quiltingjetgirl.com/2022/09/30/updated-four-at-a-time-flying-geese-tutorial-and-sizing-tables/)
-by Quilting Jetgirl, also listed in [Resources](/help/resources/links).
+Sources: [the four-at-a-time flying geese tutorial and sizing tables](https://quiltingjetgirl.com/2022/09/30/updated-four-at-a-time-flying-geese-tutorial-and-sizing-tables/)
+by Quilting Jetgirl and [how to reduce bulk in four-at-a-time flying geese](https://thecraftyquilter.com/2022/05/how-to-reduce-bulk-in-4-at-a-time-flying-geese/) by The Crafty
+Quilter, also listed in [Resources](/help/resources/links).
