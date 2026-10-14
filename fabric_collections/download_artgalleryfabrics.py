@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Download Art Gallery Fabrics collections as zips of their fabric images, named
-"YY-MM | <collection name> | <designer>.zip". The Pure Solids collections become RRQuilts palettes
-("YY-MM | <collection name> | <designer>.rrqplt") with one color per solid instead.
+"YY-MM | <collection name> | <designer>.zip". The Pure Solids collections instead become one RRQuilts
+palette, "Pure Solids | Art Gallery Fabrics.rrqplt", with one color per solid (tagged with its
+collection).
 
     python3 download_artgalleryfabrics.py                  # every collection
     python3 download_artgalleryfabrics.py --only sgraffito # collections whose name contains this
@@ -10,8 +11,8 @@
 
 The site has no bulk download, so each fabric image (500px, the largest it serves) is fetched one by
 one. collections.json lists every collection seen (kept across runs). A collection is skipped when
-a file with the same name and date is already there, so it can be re-run to pick up new collections; the Pure Solids palettes are re-checked each run and gain any
-new colors (colors no longer listed stay). Collections the site gives no date get "??-??". Palettes need
+a file with the same name and date is already there, so it can be re-run to pick up new collections; the Pure Solids palette is re-checked each run and gains any new
+colors (colors no longer listed stay). Collections the site gives no date get "??-??". Palettes need
 Pillow (to average each swatch's color).
 """
 import argparse, html, io, json, re, sys, time, urllib.error, urllib.request, zipfile
@@ -108,6 +109,21 @@ def swatch_rgb(data):
     return [round(c) for c in mean]
 
 
+PALETTE = 'Pure Solids | Art Gallery Fabrics.rrqplt'
+
+
+def save_palette(path, colors):
+    palette = {'format': 'rrqplt', 'version': 1, 'app': 'download_artgalleryfabrics.py',
+               'collection': {'id': 'agf.pure-solids', 'author': 'Art Gallery Fabrics',
+                              'notecard': {'name': 'Pure Solids', 'reference': GALLERY,
+                                           'notes': 'Art Gallery Fabrics Pure Solids, every collection. '
+                                                    'Colors averaged from the swatch photos.'},
+                              'colors': colors}}
+    part = path.with_name(path.name + '.part')
+    part.write_text(json.dumps(palette, indent=2, ensure_ascii=False))
+    part.replace(path)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--only', help='only collections whose name contains this (case-insensitive)')
@@ -120,6 +136,8 @@ def main():
 
     failed = []
     rows = []  # for collections.json
+    pal = out / PALETTE
+    colors = json.loads(pal.read_text(encoding='utf-8'))['collection']['colors'] if pal.exists() else []
     for cat, name, by, when in collections():
         if a.only and a.only.lower() not in name.lower():
             continue
@@ -133,60 +151,51 @@ def main():
             when = when or '??-??'
             solids = 'pure solids' in name.lower()
             prefix = f'{when} | {safe(name)} | '
-            dest = out / f'{prefix}{safe(by)}.{"rrqplt" if solids else "zip"}'
-            have = next((f for f in out.iterdir() if f.name.startswith(prefix) and f.suffix == dest.suffix), None)
             items = fabrics(cat, s)
-            row = {'name': name, 'date': when, 'designer': by, 'url': url,
-                   'kind': 'palette' if solids else 'images', 'items': len(items),
-                   'file': (have or dest).name, 'downloaded': 'yes' if have else 'no'}
-            rows.append(row)
-            # A palette is re-checked for new colors; anything else already there is done.
-            old = json.loads(have.read_text(encoding='utf-8'))['collection']['colors'] if have and solids else []
-            known = {c['id'] for c in old}
-            new = [x for x in items if f'agf.{slug(x[1] or x[0])}' not in known] if solids else items
-            if have and not new:
-                print(f'  = {have.name} (already there)')
-                continue
-            if have:
-                dest = have
-                print(f'  + {dest.name} ({len(new)} new colors)')
-            else:
-                print(f'  + {dest.name} ({len(items)} {"colors" if solids else "fabrics"})')
-            if a.dry_run or not new:
-                continue
-            part = dest.with_name(dest.name + '.part')
-            if solids:
-                colors = list(old)  # colors the site no longer lists stay in the palette
+            if solids:  # into the one Pure Solids palette: only colors it doesn't have yet
+                known = {c['id'] for c in colors}
+                new = [x for x in items if f'agf.{slug(x[1] or x[0])}' not in known]
+                rows.append({'name': name, 'date': when, 'designer': by, 'url': url, 'kind': 'palette',
+                             'items': len(items), 'file': PALETTE, 'downloaded': 'no' if new else 'yes'})
+                print(f'  {"+" if new else "="} {PALETTE} ← {name} ({len(new)} new colors)')
+                if a.dry_run or not new:
+                    continue
                 for i, (fname, sku, thumb, tile) in enumerate(new, 1):
                     time.sleep(a.delay)
                     print(f'\r    {i}/{len(new)}', end='', flush=True)
                     _, data = image(cat, thumb, tile)
                     colors.append({'id': f'agf.{slug(sku or fname)}',
-                                   'notecard': {'name': fname, 'reference': f'Art Gallery Fabrics {sku}'.strip()},
+                                   'notecard': {'name': fname, 'reference': f'Art Gallery Fabrics {sku}'.strip(),
+                                                'tags': [name]},
                                    'author': by, 'rgb': swatch_rgb(data)})
                 print()
-                seen = set()
-                colors = [c for c in colors if not (c['id'] in seen or seen.add(c['id']))]
-                palette = {'format': 'rrqplt', 'version': 1, 'app': 'download_artgalleryfabrics.py',
-                           'collection': {'id': f'agf.{slug(name)}',
-                                          'notecard': {'name': name, 'reference': url,
-                                                       'notes': f'{name} by {by}, Art Gallery Fabrics. '
-                                                                'Colors averaged from the swatch photos.'},
-                                          'author': by, 'colors': colors}}
-                part.write_text(json.dumps(palette, indent=2, ensure_ascii=False))
-            else:
-                with zipfile.ZipFile(part, 'w', zipfile.ZIP_STORED) as z:  # JPEGs don't compress
-                    names = set()
-                    for i, (fname, sku, thumb, tile) in enumerate(items, 1):
-                        time.sleep(a.delay)
-                        print(f'\r    {i}/{len(items)}', end='', flush=True)
-                        img, data = image(cat, thumb, tile)
-                        arc = img.rsplit('/', 1)[-1]
-                        while arc in names:
-                            arc = f'{tile}-{arc}'
-                        names.add(arc)
-                        z.writestr(arc, data)
-                print()
+                save_palette(pal, colors)  # saved per collection, so an interruption loses little
+                rows[-1]['downloaded'] = 'yes'
+                continue
+            dest = out / f'{prefix}{safe(by)}.zip'
+            have = next((f for f in out.iterdir() if f.name.startswith(prefix) and f.suffix == '.zip'), None)
+            row = {'name': name, 'date': when, 'designer': by, 'url': url, 'kind': 'images',
+                   'items': len(items), 'file': (have or dest).name, 'downloaded': 'yes' if have else 'no'}
+            rows.append(row)
+            if have:
+                print(f'  = {have.name} (already there)')
+                continue
+            print(f'  + {dest.name} ({len(items)} fabrics)')
+            if a.dry_run or not items:
+                continue
+            part = dest.with_name(dest.name + '.part')
+            with zipfile.ZipFile(part, 'w', zipfile.ZIP_STORED) as z:  # JPEGs don't compress
+                names = set()
+                for i, (fname, sku, thumb, tile) in enumerate(items, 1):
+                    time.sleep(a.delay)
+                    print(f'\r    {i}/{len(items)}', end='', flush=True)
+                    img, data = image(cat, thumb, tile)
+                    arc = img.rsplit('/', 1)[-1]
+                    while arc in names:
+                        arc = f'{tile}-{arc}'
+                    names.add(arc)
+                    z.writestr(arc, data)
+            print()
             part.replace(dest)
             row['downloaded'] = 'yes'
         except Exception as e:
