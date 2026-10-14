@@ -39,7 +39,11 @@
       </nav>
 
       <article v-if="topic" class="col content" @click="follow">
-        <div v-if="!$q.screen.gt.sm" class="row items-center justify-between q-mb-sm">
+        <div
+          v-if="!$q.screen.gt.sm"
+          class="mobile-bar row items-center justify-between q-mb-sm"
+          :style="{ background: $q.dark.isActive ? 'var(--q-dark-page)' : '#fff' }"
+        >
           <q-btn flat dense no-caps icon="arrow_back" :label="label" :to="`/help/${section}`" />
           <q-btn v-if="topic.toc" flat dense round icon="menu" aria-label="On this page">
             <q-menu>
@@ -171,6 +175,14 @@ function follow(e: MouseEvent) {
   line-height: 1.3;
   margin: 0 0 12px;
   letter-spacing: normal;
+}
+/* Phones: Back and the table-of-contents menu stay under the header while scrolling. */
+.mobile-bar {
+  position: sticky;
+  top: 51px;
+  z-index: 2;
+  margin: 0 -16px;
+  padding: 4px 16px;
 }
 .toc {
   width: 220px;
