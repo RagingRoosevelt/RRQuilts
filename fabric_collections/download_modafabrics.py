@@ -87,7 +87,7 @@ def browser_download(todo, delay):
         page.goto(f'{SITE}/downloads')
         input('In the browser window: get past the check and log in, then press Enter here… ')
         for i, c in enumerate(todo, 1):
-            print(f'  ↓ downloading [{i}/{len(todo)}]: {c["file"]}')
+            print(f'  + [{i}/{len(todo)}] {c["file"]}')
             for attempt in (1, 2):
                 try:
                     with page.expect_download(timeout=120_000) as dl:
@@ -160,8 +160,7 @@ def main():
     todo = [c for c in cols if not have(c)]
     for c in cols:
         if c not in todo:
-            print(f'  ✓ already downloaded: {c["file"]}')
-    print(f'  ↓ not downloaded yet: {len(todo)} collections')
+            print(f'  = {c["file"]} (already there)')
     if len(sys.argv) == 1 and todo:  # no options: ask
         a.browser = input(f'{len(todo)} of {len(cols)} collections still to download. '
                           'Download them in a browser now? [y/N] ').strip().lower() in ('y', 'yes')

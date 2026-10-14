@@ -130,16 +130,16 @@ def main():
                    'file': dest.name, 'downloaded': 'no'}
             rows.append(row)
             if not link:
-                print(f'  – no Dropbox link, skipped: {dest.name}')
+                print(f'  - {dest.name}: no Dropbox link, skipped')
                 continue
             # Already downloaded: same collection name and date (the designer's spelling may change).
             prefix = f'{when} | {safe(name)} | '
             have = next((f for f in out.iterdir() if f.name.startswith(prefix) and f.suffix == '.zip'), None)
             if have:
-                print(f'  ✓ already downloaded: {have.name}')
+                print(f'  = {have.name} (already there)')
                 row.update(file=have.name, downloaded='yes')
                 continue
-            print(f'  ↓ {"would download" if a.dry_run else "downloading"}: {dest.name}')
+            print(f'  + {dest.name}')
             if a.dry_run:
                 continue
             try:

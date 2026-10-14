@@ -177,8 +177,7 @@ def main():
                 known = {c['id'] for c in colors}
                 new = [x for x in items if f'agf.{slug(x[2] or x[1])}' not in known]
                 solid_pages += pages
-                print(f'  ✓ already downloaded: {PALETTE} ← {name}' if not new else
-                      f'  ↓ {"would add" if a.dry_run else "adding"} {len(new)} new colors: {PALETTE} ← {name}')
+                print(f'  {"+" if new else "="} {PALETTE} ← {name} ({len(new)} new colors)')
                 if a.dry_run or not new:
                     continue
                 for i, (cat, fname, sku, thumb, tile) in enumerate(new, 1):
@@ -202,14 +201,20 @@ def main():
                 todo = [x for x in items if (x[2] or slug(x[1])).lower() not in inside]
             elif have:
                 todo = []
+            if merged and have and not todo and not a.dry_run:
+                parts = {safe(n) for _, n, _, _ in members} - {safe(name)}
+                for f in out.glob('*.zip'):
+                    if f != have and f.name.split(' | ')[1:2] and f.name.split(' | ')[1] in parts:
+                        f.unlink()
+                        print(f'  - {f.name} (merged into {have.name})')
             row = {'name': name, 'date': when, 'designer': by, 'url': pages[0], 'pages': pages,
                    'kind': 'images', 'items': len(items), 'file': (have or dest).name,
                    'downloaded': 'yes' if have and not todo else 'no'}
             rows.append(row)
             if have and not todo:
-                print(f'  ✓ already downloaded: {have.name}')
+                print(f'  = {have.name} (already there)')
                 continue
-            print(f'  ↓ {"would download" if a.dry_run else "downloading"}: {dest.name} ({len(todo)} {"new " if have else ""}fabrics'
+            print(f'  + {dest.name} ({len(todo)} {"new " if have else ""}fabrics'
                   f'{f", from {len(members)} pages" if merged else ""})')
             if a.dry_run or not todo:
                 continue
