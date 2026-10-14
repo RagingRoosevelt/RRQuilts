@@ -190,31 +190,12 @@
                         :alt="b.notecard.name"
                       />
                     </button>
-                    <!-- Several colorings: click the count to choose which one the card shows. -->
-                    <span
-                      v-if="b.colorings.length > 1"
-                      class="count"
-                      role="button"
-                      title="Choose coloring"
-                      >{{ b.colorings.length }}
-                      <q-menu>
-                        <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
-                          <button
-                            v-for="(c, i) in b.colorings"
-                            :key="c.id"
-                            v-close-popup
-                            class="pick-coloring"
-                            :class="{
-                              active:
-                                (shown.get(`${g.v.doc.id}:${b.id}`) ?? b.colorings[0]?.id) === c.id,
-                            }"
-                            :title="c.name ?? `Coloring ${i + 1}`"
-                            @click="shown.set(`${g.v.doc.id}:${b.id}`, c.id)"
-                          >
-                            <img :src="thumb(b, 64, c.id)" :alt="c.name ?? ''" />
-                          </button>
-                        </div> </q-menu
-                    ></span>
+                    <ColoringCount
+                      :block="b"
+                      :model-value="shown.get(`${g.v.doc.id}:${b.id}`)"
+                      :thumb="(id) => thumb(b, 64, id)"
+                      @update:model-value="(id) => shown.set(`${g.v.doc.id}:${b.id}`, id)"
+                    />
                   </div>
                   <div class="row items-center no-wrap">
                     <FullName class="col" :name="b.notecard.name" />
@@ -644,6 +625,7 @@
 </template>
 
 <script setup lang="ts">
+import ColoringCount from '@/components/ColoringCount.vue';
 import BlockSections from '@/components/BlockSections.vue';
 import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
@@ -1257,49 +1239,6 @@ function downloadPack() {
   background: #9e9e9e;
   border-radius: 4px;
   cursor: pointer;
-}
-.count {
-  position: absolute;
-  right: -4px;
-  bottom: -4px;
-  isolation: isolate;
-  min-width: 34px;
-  padding: 8px 12px;
-  border-radius: 17px;
-  font-size: 11px;
-  line-height: 18px;
-  text-align: center;
-  color: white;
-  cursor: pointer;
-  /* The tap zone (bigger than the badge) softly blurs the block behind it, fading out to its edge
-     (the badge sits well inside the opaque middle of the mask). */
-  backdrop-filter: blur(3px);
-  mask-image: radial-gradient(farthest-side, #000 70%, transparent);
-}
-/* The badge itself, inside the tap zone. */
-.count::before {
-  content: '';
-  position: absolute;
-  inset: 8px;
-  z-index: -1;
-  border-radius: 9px;
-  background: var(--q-primary);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
-}
-.pick-coloring {
-  padding: 0;
-  border: 2px solid transparent;
-  border-radius: 6px;
-  background: none;
-  cursor: pointer;
-}
-.pick-coloring.active {
-  border-color: var(--q-primary);
-}
-.pick-coloring img {
-  display: block;
-  width: 56px;
-  height: 56px;
 }
 .thumb img {
   display: block;

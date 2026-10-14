@@ -343,7 +343,10 @@ const libraryColoring = computed(() => {
 const coloringId = computed(() => {
   const b = block.value;
   const chosen = b && editor.coloringOf.get(b.id);
-  return b?.colorings.some((c) => c.id === chosen) ? chosen! : b?.colorings[0]?.id;
+  if (!b) return undefined;
+  if (b.colorings.some((c) => c.id === chosen)) return chosen!;
+  // A color variant opens on its first project coloring, as its card shows it.
+  return projectColorings(b, library.lookup)?.own[0]?.id ?? b.colorings[0]?.id;
 });
 const view = computed<View | undefined>({
   get: () => (block.value ? editor.views.get(`block:${block.value.id}`) : undefined),

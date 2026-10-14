@@ -132,12 +132,18 @@
           @dragover.prevent
           @drop="drop('blocks', i)"
         >
-          <button class="thumb" @click="openBlock(b.id)">
-            <img
-              :src="thumb(b, 200, projectColorings(b, library.lookup)?.own[0]?.id)"
-              :alt="b.notecard.name"
+          <div class="relative-position">
+            <button class="thumb" @click="openBlock(b.id)">
+              <img :src="thumb(b, 200, shownColoring(b))" :alt="b.notecard.name" />
+            </button>
+            <ColoringCount
+              :block="b"
+              :colorings="projectColorings(b, library.lookup)?.own"
+              :model-value="shownColoring(b)"
+              :thumb="(id) => thumb(b, 64, id)"
+              @update:model-value="(id) => editor.coloringOf.set(b.id, id)"
             />
-          </button>
+          </div>
           <q-badge
             v-if="b.colorVariant"
             class="variant cursor-pointer"
@@ -298,9 +304,17 @@
                     inUse(b.id) ? 'Placed in a quilt' : 'Use in this project'
                   }}</q-tooltip>
                 </q-checkbox>
-                <button class="thumb" @click="preview = b.id">
-                  <img :src="thumb(b, 200)" :alt="b.notecard.name" />
-                </button>
+                <div class="relative-position">
+                  <button class="thumb" @click="preview = b.id">
+                    <img :src="thumb(b, 200, shownColoring(b))" :alt="b.notecard.name" />
+                  </button>
+                  <ColoringCount
+                    :block="b"
+                    :model-value="shownColoring(b)"
+                    :thumb="(id) => thumb(b, 64, id)"
+                    @update:model-value="(id) => editor.coloringOf.set(b.id, id)"
+                  />
+                </div>
                 <div class="row items-center no-wrap">
                   <FullName class="col" :name="b.notecard.name">
                     <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
@@ -834,6 +848,7 @@ import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
 import ColorPill from '@/components/ColorPill.vue';
 import { itemId } from '@/model/identity';
+import ColoringCount from '@/components/ColoringCount.vue';
 import FullName from '@/components/FullName.vue';
 import HelpLink from '@/components/HelpLink.vue';
 import { useLibraryStore } from '@/stores/library';
@@ -1176,6 +1191,13 @@ const previewBlock = computed(() =>
 );
 const thumb = (b: Block, px: number, coloring?: string) =>
   blockThumbnail(project.doc!, b, px, $q.dark.isActive, coloring, library.items.colors);
+/** The coloring a card shows: the one last chosen (its count badge or the block editor), else a color
+ *  variant's first project coloring, else the block's first. */
+function shownColoring(b: Block) {
+  const chosen = editor.coloringOf.get(b.id);
+  if (b.colorings.some((c) => c.id === chosen)) return chosen;
+  return projectColorings(b, library.lookup)?.own[0]?.id;
+}
 /** The preview's coloring (undefined: the block's first); reset when the preview changes. */
 const previewColoring = ref<string>();
 watch(preview, () => (previewColoring.value = undefined));
