@@ -1405,7 +1405,7 @@ const print = () => window.print();
 const SHEET_HELP: Record<string, { topic: string; label: string }> = {
   rotary: { topic: 'math/seam-allowance', label: 'How cut sizes are worked out' },
   miter: { topic: 'math/borders', label: 'Mitered borders' },
-  yardage: { topic: 'math/yardage-and-fat-quarters', label: 'Yardage, binding, and backing' },
+  yardage: { topic: 'math/patches-from-yardage', label: 'Yardage, binding, and backing' },
 };
 const FLOW = new Set(['rotary', 'yardage', 'credits', 'block']);
 type Costs = Record<number, { key: string; cost: number }[]>;

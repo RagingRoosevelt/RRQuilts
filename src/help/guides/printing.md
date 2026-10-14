@@ -35,6 +35,6 @@ Options are remembered in your settings. The numbers use the same formulas as th
 
 - The **Rotary cutting chart** gives each patch's cut size and how many to cut. Triangle sizes follow [half-square triangles](/help/math/half-square-triangles) and [quarter-square triangles](/help/math/quarter-square-triangles).
 - **Templates** are lettered, true-size pieces to cut around. Pieces bigger than a sheet are split into numbered parts with shaded overlaps.
-- The **Yardage estimate** lists fabric per color, plus backing and binding. See [yardage and fat quarters](/help/math/yardage-and-fat-quarters), [backing](/help/math/backing) and [binding](/help/math/binding).
+- The **Yardage estimate** lists fabric per color, plus backing and binding. See [patches from yardage and fat quarters](/help/math/patches-from-yardage), [backing](/help/math/backing) and [binding](/help/math/binding).
 - The **Mitered corner guide** appears if the quilt has mitered borders. This true-size guide shows each strip's 45 degree ends and where stitching stops. See [borders](/help/math/borders).
 - **Credits** list the author, license and earlier contributors ([Credits and licenses](/help/guides/credits-and-licenses)).

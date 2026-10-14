@@ -20,6 +20,17 @@ describe('help', () => {
     }
   });
 
+  it('on-point: 3 across × 2 down is 8 blocks and 6 side triangles, n × m diagonals', () => {
+    const rows = CALCULATORS.onpoint!.rows(
+      { f: 10, n: 3, m: 2 },
+      calcContext('in', printPrefs({})),
+    );
+    const v = (l: string) => rows.find((r) => r.label === l)!.value;
+    expect(v('Blocks')).toBe('8');
+    expect(v('Side setting triangles')).toContain('(6 needed)');
+    expect(v('Finished quilt')).toMatch(/^42\.426″.*× 28\.284″/);
+  });
+
   it('::diagram repeats another topic’s diagram, and every one resolves', () => {
     const segs = segmentsOf('::diagram math/half-square-triangles');
     expect(segs[0]!.kind === 'html' && segs[0]!.html).toContain('<svg');

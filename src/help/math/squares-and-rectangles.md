@@ -54,4 +54,4 @@ These already land on a ruler mark. When they don't, the cut is rounded up. See
 ::calc rect
 
 To work out how much fabric a pile of squares needs, see
-[Yardage and fat quarters](/help/math/yardage-and-fat-quarters).
+[Patches from yardage and fat quarters](/help/math/patches-from-yardage).

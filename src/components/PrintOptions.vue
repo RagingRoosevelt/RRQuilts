@@ -123,8 +123,8 @@
       <div class="column q-pa-sm" style="gap: 8px">
         <div class="row items-center text-caption text-grey-7">
           Yardage and fat quarters<HelpLink
-            topic="math/yardage-and-fat-quarters"
-            label="Yardage and fat quarters"
+            topic="math/patches-from-yardage"
+            label="Patches from yardage and fat quarters"
           />
         </div>
         <q-select

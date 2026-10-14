@@ -81,11 +81,11 @@ The formula is in [backing](/help/math/backing).
 
 ::calc backing
 
-## Yardage for patches
+## Patches from yardage
 
-::diagram math/yardage-and-fat-quarters
+::diagram math/patches-from-yardage
 
-The formula is in [yardage and fat quarters](/help/math/yardage-and-fat-quarters).
+The formula is in [patches from yardage and fat quarters](/help/math/patches-from-yardage).
 
 ::calc yardage
 

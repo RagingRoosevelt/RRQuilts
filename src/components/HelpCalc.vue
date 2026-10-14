@@ -11,7 +11,7 @@
         {{ ctx.step ? fmtLen(ctx.step, units) : 'exact sizes' }} (change in Print settings)
       </div>
     </q-card-section>
-    <q-card-section class="row q-pt-none" style="gap: 12px">
+    <q-card-section class="inputs row q-pt-none">
       <q-select
         v-if="calc.widths"
         v-model="width"
@@ -29,6 +29,7 @@
         style="width: 200px"
       />
       <template v-for="i in calc.inputs" :key="i.key">
+        <div v-if="i.newLine" class="full-width" />
         <q-input
           v-if="i.count || i.raw"
           v-model.number="values[i.key]"
@@ -101,5 +102,12 @@ const rows = computed(() => {
 <style scoped>
 .help-calc {
   max-width: 640px;
+}
+/* Row gaps as margins, so a line break (`newLine`) adds no gap of its own. */
+.inputs {
+  column-gap: 12px;
+}
+.inputs > :not(.full-width) {
+  margin-bottom: 12px;
 }
 </style>

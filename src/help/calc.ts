@@ -19,6 +19,8 @@ export interface CalcInput {
   raw?: boolean;
   /** Changing this input sets `key` to this value × `factor` (e.g. a goose's height = width ÷ 2). */
   link?: { key: string; factor: number };
+  /** Start a new line of inputs here (keeps a pair like length × width together). */
+  newLine?: boolean;
 }
 export interface CalcRow {
   label: string;
@@ -191,18 +193,32 @@ export const CALCULATORS: Record<string, Calculator> = {
   },
   onpoint: {
     title: 'On-point setting',
-    inputs: [{ key: 'f', label: 'Finished block side', start: start(10, 25) }],
-    rows: ({ f }, c) => [
-      { label: 'Block diagonal', value: len(f! * Math.SQRT2, c) },
-      {
-        label: 'Side setting triangles',
-        value: `${size(cutFor(qst(f! * Math.SQRT2), c.seam, c.step), c)}, cut both diagonals (4)`,
-      },
-      {
-        label: 'Corner setting triangles',
-        value: `${size(cutFor(hst(f! / Math.SQRT2), c.seam, c.step), c)}, cut once (2)`,
-      },
+    inputs: [
+      { key: 'f', label: 'Finished block side', start: start(10, 25) },
+      { key: 'n', label: 'Blocks across', start: start(3, 3), count: true },
+      { key: 'm', label: 'Blocks down', start: start(2, 2), count: true },
     ],
+    // `n` full blocks across the top row and `m` down the side; the rows between are offset by half a
+    // block, so the quilt is n × m block diagonals.
+    rows: ({ f, n, m }, c) => {
+      const d = f! * Math.SQRT2;
+      const across = Math.max(1, Math.round(n!));
+      const down = Math.max(1, Math.round(m!));
+      const sides = 2 * (across - 1) + 2 * (down - 1);
+      return [
+        { label: 'Finished quilt', value: `${len(across * d, c)} × ${len(down * d, c)}` },
+        { label: 'Block diagonal', value: len(d, c) },
+        { label: 'Blocks', value: String(across * down + (across - 1) * (down - 1)) },
+        {
+          label: 'Side setting triangles',
+          value: `${Math.ceil(sides / 4)} × ${size(cutFor(qst(d), c.seam, c.step), c)}, cut both diagonals (${sides} needed)`,
+        },
+        {
+          label: 'Corner setting triangles',
+          value: `2 × ${size(cutFor(hst(f! / Math.SQRT2), c.seam, c.step), c)}, cut once (4 corners)`,
+        },
+      ];
+    },
   },
   border: {
     title: 'Borders',
@@ -262,11 +278,11 @@ export const CALCULATORS: Record<string, Calculator> = {
     ],
   },
   yardage: {
-    title: 'Yardage for patches',
+    title: 'Patches from yardage',
     widths: 'any',
     inputs: [
       { key: 'n', label: 'How many patches', start: start(40, 40), count: true },
-      { key: 'w', label: 'Finished length', start: start(3, 8) },
+      { key: 'w', label: 'Finished length', start: start(3, 8), newLine: true },
       { key: 'h', label: 'Finished width', start: start(3, 8) },
     ],
     rows: ({ n, w, h }, c) => {
