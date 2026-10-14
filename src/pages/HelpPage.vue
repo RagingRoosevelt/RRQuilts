@@ -50,7 +50,7 @@
           :to="`/help/${section}`"
         />
         <h2 class="topic-title">{{ topic.title }}</h2>
-        <template v-for="(seg, i) in topic.segments" :key="i">
+        <template v-for="(seg, i) in topic.segments" :key="`${topic.section}/${topic.id}/${i}`">
           <!-- Bundled, trusted content (src/help/*.md), never user input. -->
           <!-- eslint-disable-next-line vue/no-v-html -->
           <div v-if="seg.kind === 'html'" class="help-md" v-html="seg.html" />
