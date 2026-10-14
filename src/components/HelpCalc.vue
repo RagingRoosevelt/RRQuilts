@@ -42,7 +42,7 @@
           :units="units"
           :min="0.25"
           :label="i.label"
-          style="width: 200px"
+          style="width: 240px"
         />
       </template>
     </q-card-section>
