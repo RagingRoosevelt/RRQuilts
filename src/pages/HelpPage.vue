@@ -47,6 +47,7 @@
         <div
           v-if="!$q.screen.gt.sm"
           class="mobile-bar row items-center justify-between q-mb-sm"
+          :class="{ reverse: app.settings.sidesSwapped }"
           :style="{ background: $q.dark.isActive ? 'var(--q-dark-page)' : '#fff' }"
         >
           <q-btn flat dense no-caps icon="arrow_back" :label="label" :to="`/help/${section}`" />
@@ -103,9 +104,11 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import HelpCalc from '@/components/HelpCalc.vue';
 import { supportsFileAccess } from '@/storage/files';
+import { useSettingsStore } from '@/stores/settings';
 import { findTopic, searchTopics, SECTIONS, topicsIn, type SectionId } from '@/help/topics';
 
 const $q = useQuasar();
+const app = useSettingsStore();
 const route = useRoute();
 const router = useRouter();
 const section = computed(() => route.params.section as SectionId);
