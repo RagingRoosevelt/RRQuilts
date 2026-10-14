@@ -163,7 +163,7 @@ bulkier join.
     from the front by machine.
 
 <svg viewBox="60 12 210 84" width="500" role="img" aria-label="Close-up cross section of the quilt edge: the folded binding's raw edges line up with the quilt's raw edge on top, the binding runs in to the stitching, folds back over itself (four layers on top), wraps around the outside of the edge, and its fold covers the stitching on the back">
-  <rect x="20" y="40" width="140" height="7" fill="#c4282c"/>
+  <rect x="20" y="40" width="140" height="7" fill="#96c4e8"/>
   <rect x="20" y="47" width="140" height="16" fill="#f4ecd8" stroke="currentColor" stroke-width="0.5"/>
   <rect x="20" y="63" width="140" height="7" fill="#daa828"/>
   <path d="M160 38 H130 A5.25 5.25 0 0 1 130 27.5 H160 Q167 27.5 167 34.5 V69.5 Q167 76.5 160 76.5 H122" fill="none" style="stroke: var(--q-primary)" stroke-width="3"/>
@@ -179,7 +179,9 @@ bulkier join.
   <text x="178" y="64" font-size="6" fill="currentColor">wraps the outside edge</text>
   <text x="178" y="80" font-size="6" fill="currentColor">the fold covers the</text>
   <text x="178" y="88" font-size="6" fill="currentColor">stitching on the back</text>
-  <text x="64" y="90" font-size="6" fill="currentColor">top, batting, backing</text>
+  <text x="66" y="45.6" font-size="5" fill="#333">quilt top</text>
+  <text x="66" y="57" font-size="5" fill="#333">batting</text>
+  <text x="66" y="68.6" font-size="5" fill="#333">backing</text>
 </svg>
 
 <svg viewBox="0 0 280 150" width="420" role="img" aria-label="A corner from the back: the binding folded over with a diagonal miter at the corner">
