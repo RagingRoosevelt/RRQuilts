@@ -146,8 +146,48 @@ project → it appears under My blocks at 25.4 cm with its colors, credited to i
 3. **Given** the same id at the same version already in the project, **Then** nothing is added; same
    id with a different design → added as a copy with the importer's new id and a "(2)" name.
 
+---
+
+### User Story 7 - Color variants: your colorings of a library block (Priority: P2)
+
+A quilter recolors a library block without redrawing it. The block keeps its drawing, credit, and
+name; the colorings the quilter makes are theirs, and the library's colorings stay as they were.
+
+**Why this priority**: Recoloring is the most common change to a library block, and it shouldn't
+cost the link to the original or mix the user's colorings in with the library's.
+
+**Independent Test**: In a project's Blocks tab, choose "Create a coloration variant" on the library
+block Sawtooth Medallion → the block editor opens on Color with the Draw tab hidden → pick its Neon
+coloring and paint a patch → "Neon (project)" appears under Project colorings with the change, and
+Neon is unchanged under Library colorings → back in the Blocks tab, the variant shows "Neon (project)"
+and the quilt design picker offers only its project colorings.
+
+**Acceptance Scenarios**:
+
+1. **Given** a library block (built-in or pack), **When** the user chooses "Create a coloration
+   variant", **Then** My blocks gets a copy flagged as a color variant with the library block's name
+   (kept in sync with it), its credit, and all its colorings; the block editor opens on Color and the
+   drawing can't be edited.
+2. **Given** a color variant in the block editor, **Then** its colorings show in two groups, "Project
+   colorings of ⟨block⟩" (new or changed since the copy) above "Library colorings of ⟨block⟩" (still
+   as the library block has them, noted as read-only).
+3. **Given** a library coloring selected, **When** the user paints, **Then** the editor first copies it
+   into Project colorings as "⟨name⟩ (project)" and applies the paint to the copy, in one undo step;
+   Rename and Delete are unavailable for library colorings.
+4. **Given** a color variant, **Then** wherever the project shows it (My blocks, the quilt design
+   block picker, the block editor on open) it shows a project coloring: the one last chosen, else its
+   first; its coloring count badge counts and offers only its project colorings, and placing it in a
+   quilt uses one of them.
+5. **Given** a color variant with no project coloring yet, **Then** it offers all its colorings so it
+   can still be placed.
+6. **Given** a color variant, **Then** a "Color variant" badge marks it; clicking it scrolls to and
+   briefly highlights the library block it came from.
+
 ### Edge Cases
 
+- A color variant whose library block isn't installed → all its colorings count as its own.
+- A library coloring edited before read-only colorings existed → it stays under Project colorings;
+  the variant no longer has an untouched copy of it.
 - Two people with the same display name → the random part keeps ids unique.
 - An embedded item whose library is uninstalled → keeps working from the embedded copy; shown under
   Library as "from <library> (not installed)".
@@ -199,6 +239,25 @@ project → it appears under My blocks at 25.4 cm with its colors, credited to i
   revision 1, `source` derived) and offer to use it in quilts that use the library item (default on).
 - **FR-031**: Quilt colorings MUST NOT change a block's id, version, or revision.
 
+**Color variants (US7)**
+
+- **FR-032**: "Create a coloration variant" on a library block MUST make a My blocks copy flagged
+  `colorVariant`, with the library block's name, credit (FR-030 rules), and colorings; its drawing
+  MUST NOT be editable.
+- **FR-033**: A variant's coloring is a **project coloring** when it differs from every coloring of
+  the library block it came from (compared as stored), else a **library coloring**. Library colorings
+  MUST be read-only: painting one MUST first copy it as "⟨name⟩ (project)" (same undo step); rename
+  and delete MUST be unavailable for them.
+- **FR-034**: The block editor MUST show a variant's colorings in two groups, project colorings above
+  library colorings.
+- **FR-035**: My blocks, the quilt design picker, and the block editor MUST show a variant in a project
+  coloring (last chosen, else first); its count badge and coloring menu MUST cover only its project
+  colorings, and placing it MUST use one. With no project coloring yet, all its colorings apply.
+- **FR-036**: Blocks with several colorings MUST show a coloring count badge (Libraries, the project's
+  My blocks and library blocks, the quilt design picker); clicking it chooses the coloring the card
+  shows (and, in the picker, the one placed). The badge's tap target is larger than the badge and
+  softly blurs the block behind it, fading out at its edge.
+
 **Block files**
 
 - **FR-040**: Users MUST be able to export one block as `.rrqbl` (`format: "rrqbl"`, `version`, `units`,
@@ -220,6 +279,7 @@ project → it appears under My blocks at 25.4 cm with its colors, credited to i
   items, with no duplicates and no prompt.
 - **SC-003**: Version mismatches are never resolved silently.
 - **SC-004**: Recoloring in quilts never changes a block's version.
+- **SC-005**: Painting a color variant's library coloring never changes that coloring.
 
 ## Assumptions
 
