@@ -182,6 +182,11 @@ function follow(e: MouseEvent) {
   height: auto;
   margin: 8px 0;
 }
+/* Diagram labels and their arrows lift slightly off the drawing. */
+.help-md :deep(svg text),
+.help-md :deep(svg line[marker-end]) {
+  filter: drop-shadow(0 0.6px 0.6px rgba(0, 0, 0, 0.3));
+}
 .help-md :deep(table) {
   border-collapse: collapse;
   margin: 8px 0 16px;

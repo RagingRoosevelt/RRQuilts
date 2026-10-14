@@ -149,10 +149,16 @@ calculator below.
 Unfold both tails completely along the loose stretch, so each is a single layer at its full cut
 width. Lay them right sides together at right angles, as in step 1, and sew on the diagonal.
 
-<svg viewBox="0 0 350 172" width="525" role="img" aria-label="The two tails opened and laid right sides together at right angles, sewn on the diagonal">
-  <rect x="20" y="60" width="140" height="30" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="120" y="50" width="30" height="95" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor" stroke-width="1.5"/>
+<svg viewBox="-110 30 460 220" width="575" role="img" aria-label="The two tails opened and laid right sides together at right angles, sewn on the diagonal; each tail leads to the rest of the strip">
+  <rect x="-100" y="60" width="260" height="30" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="120" y="50" width="30" height="190" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor" stroke-width="1.5"/>
   <line x1="120" y1="60" x2="150" y2="90" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="-92" y="72" font-size="10" fill="#fff">← to the rest</text>
+  <text x="-80" y="84" font-size="10" fill="#fff">of the strip</text>
+  <g transform="translate(132 232) rotate(-90)">
+    <text x="0" y="0" font-size="9" fill="#333">← to the rest</text>
+    <text x="10" y="11" font-size="9" fill="#333">of the strip</text>
+  </g>
   <text x="195" y="50" font-size="11" fill="currentColor">sew on the diagonal,</text>
   <text x="195" y="66" font-size="11" fill="currentColor">with both tails</text>
   <text x="195" y="82" font-size="11" fill="currentColor">unfolded</text>
@@ -162,9 +168,6 @@ width. Lay them right sides together at right angles, as in step 1, and sew on t
   <text x="213" y="124" font-size="11" fill="currentColor">wrong side</text>
   <defs><marker id="join-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
   <line x1="190" y1="46" x2="146" y2="70" stroke="currentColor" marker-end="url(#join-arrow)"/>
-  <text x="20" y="108" font-size="11" fill="currentColor">← to the start</text>
-  <text x="34" y="122" font-size="11" fill="currentColor">of the strip</text>
-  <text x="135" y="164" font-size="11" fill="currentColor" text-anchor="middle">↑ from the end of the strip</text>
 </svg>
 
 Turn the top tail down. If the binding now lies flat along the quilt without slack or pull, trim
