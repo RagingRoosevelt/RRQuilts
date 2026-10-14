@@ -155,9 +155,9 @@ width. Lay them right sides together at right angles, as in step 1, and sew on t
   <line x1="120" y1="60" x2="150" y2="90" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
   <text x="-92" y="72" font-size="10" fill="#fff">← to the rest</text>
   <text x="-80" y="84" font-size="10" fill="#fff">of the strip</text>
-  <g transform="translate(132 232) rotate(-90)">
-    <text x="0" y="0" font-size="9" fill="#333">← to the rest</text>
-    <text x="10" y="11" font-size="9" fill="#333">of the strip</text>
+  <g transform="translate(143 100) rotate(90)">
+    <text x="0" y="0" font-size="9" fill="#333">to the rest →</text>
+    <text x="0" y="11" font-size="9" fill="#333">of the strip</text>
   </g>
   <text x="195" y="50" font-size="11" fill="currentColor">sew on the diagonal,</text>
   <text x="195" y="66" font-size="11" fill="currentColor">with both tails</text>
@@ -173,12 +173,18 @@ width. Lay them right sides together at right angles, as in step 1, and sew on t
 Turn the top tail down. If the binding now lies flat along the quilt without slack or pull, trim
 the seam to ¼″ and press it open. Fold the strip in half again and sew the gap closed.
 
-<svg viewBox="0 0 300 120" width="450" role="img" aria-label="The top tail turned down: the two tails now make one straight strip, joined by a diagonal seam">
+<svg viewBox="0 0 300 130" width="450" role="img" aria-label="The top tail turned down: the two tails now make one straight strip, joined by a diagonal seam; each end leads to the rest of the strip">
   <polygon points="20,45 135,45 165,75 20,75" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="135,45 280,45 280,75 165,75" style="fill: var(--q-primary); filter: brightness(0.75)" stroke="currentColor" stroke-width="1.5"/>
   <line x1="135" y1="45" x2="165" y2="75" stroke="#fff" stroke-width="1.5" stroke-dasharray="4 3"/>
-  <text x="150" y="98" font-size="11" fill="currentColor" text-anchor="middle">turned down: one straight strip again,</text>
-  <text x="150" y="114" font-size="11" fill="currentColor" text-anchor="middle">joined on the diagonal</text>
+  <text x="28" y="57" font-size="10" fill="#fff">← to the rest</text>
+  <text x="40" y="69" font-size="10" fill="#fff">of the strip</text>
+  <text x="272" y="57" font-size="10" fill="#fff" text-anchor="end">to the rest →</text>
+  <text x="260" y="69" font-size="10" fill="#fff" text-anchor="end">of the strip</text>
+  <defs><marker id="turn-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
+  <line x1="150" y1="96" x2="152" y2="68" stroke="currentColor" marker-end="url(#turn-arrow)"/>
+  <text x="150" y="110" font-size="11" fill="currentColor" text-anchor="middle">turned down: one straight strip again,</text>
+  <text x="150" y="124" font-size="11" fill="currentColor" text-anchor="middle">joined on the diagonal</text>
 </svg>
 
 Another way to join the ends is the tucked end. Before you start, cut the starting end at 45° and
