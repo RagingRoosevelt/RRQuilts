@@ -162,14 +162,18 @@ bulkier join.
     miter on the front and on the back. Slip stitch the fold down by hand, or stitch in the ditch
     from the front by machine.
 
-<svg viewBox="60 12 210 84" width="500" role="img" aria-label="Close-up cross section of the quilt edge: the folded binding's raw edges line up with the quilt's raw edge on top, the binding runs in to the stitching, folds back over itself (four layers on top), wraps around the outside of the edge, and its fold covers the stitching on the back">
+<svg viewBox="60 12 210 86" width="500" role="img" aria-label="Close-up cross section of the quilt edge: the folded binding's raw edges line up with the quilt's raw edge on top, the binding runs in to the stitching, folds back over itself (four layers on top), wraps around the outside of the edge, and its fold covers the stitching on the back, where a stitch in the ditch from the front catches it">
   <rect x="20" y="40" width="140" height="7" fill="#96c4e8"/>
   <rect x="20" y="47" width="140" height="16" fill="#f4ecd8" stroke="currentColor" stroke-width="0.5"/>
   <rect x="20" y="63" width="140" height="7" fill="#daa828"/>
   <path d="M160 38 H130 A5.25 5.25 0 0 1 130 27.5 H160 Q167 27.5 167 34.5 V69.5 Q167 76.5 160 76.5 H122" fill="none" style="stroke: var(--q-primary)" stroke-width="3"/>
   <path d="M160 34.5 H130 A1.75 1.75 0 0 1 130 31 H160 Q163.5 31 163.5 34.5 V69.5 Q163.5 73 160 73 H122" fill="none" style="stroke: var(--q-primary)" stroke-width="3"/>
   <path d="M122 76.5 A1.75 1.75 0 0 1 122 73" fill="none" style="stroke: var(--q-primary)" stroke-width="3"/>
-  <line x1="133" y1="33" x2="133" y2="50" stroke="currentColor" stroke-width="1" stroke-dasharray="2 1.5"/>
+  <line x1="133" y1="33" x2="133" y2="70" stroke="currentColor" stroke-width="1" stroke-dasharray="2 1.5"/>
+  <line x1="121.5" y1="39" x2="121.5" y2="78" stroke="#c4282c" stroke-width="1" stroke-dasharray="1 1.2"/>
+  <text x="66" y="87" font-size="6" fill="currentColor">stitch in the ditch from the front, catching</text>
+  <text x="66" y="93" font-size="6" fill="currentColor">the binding on the back</text>
+  <line x1="112" y1="84" x2="120.5" y2="78.5" stroke="currentColor" stroke-width="0.6"/>
   <text x="112" y="19" font-size="6" fill="currentColor" text-anchor="middle">stitching, hidden</text>
   <text x="112" y="25" font-size="6" fill="currentColor" text-anchor="middle">under the fold</text>
   <line x1="120" y1="26" x2="132" y2="34" stroke="currentColor" stroke-width="0.6"/>
