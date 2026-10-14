@@ -53,7 +53,7 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
 
 4. Repeat on the other end with the second square, so the two lines make a point at the center.
 
-<svg viewBox="0 0 345 120" width="518" role="img" aria-label="Both sky squares sewn, trimmed, and pressed open: sky triangles in the top corners overlap above the goose tip, where the seams cross a seam allowance below the top edge">
+<svg viewBox="0 -24 330 128" width="495" role="img" aria-label="Both sky squares sewn, trimmed, and pressed open: sky triangles in the top corners overlap above the goose tip, where the seams cross a seam allowance below the top edge">
   <rect x="20" y="20" width="148" height="80" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="20,20 100,20 20,100" fill="#daa828" stroke="currentColor"/>
   <polygon points="168,20 88,20 168,100" fill="#daa828" stroke="currentColor"/>
@@ -64,10 +64,9 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
   <rect x="200" y="40" width="12" height="12" fill="#daa828" stroke="currentColor"/>
   <text x="218" y="50" font-size="11" fill="currentColor">sky, right side</text>
   <defs><marker id="geese-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
-  <line x1="195" y1="70" x2="100" y2="28" stroke="currentColor" marker-end="url(#geese-arrow)"/>
-  <text x="200" y="76" font-size="11" fill="currentColor">the seams cross ¼″ below</text>
-  <text x="200" y="92" font-size="11" fill="currentColor">the top, leaving room</text>
-  <text x="200" y="108" font-size="11" fill="currentColor">for the seam</text>
+  <line x1="94" y1="8" x2="94" y2="21" stroke="currentColor" marker-end="url(#geese-arrow)"/>
+  <text x="94" y="-12" font-size="11" fill="currentColor" text-anchor="middle">the seams cross ¼″ below the top,</text>
+  <text x="94" y="3" font-size="11" fill="currentColor" text-anchor="middle">leaving room for the seam</text>
 </svg>
 
 ## Four at a time
