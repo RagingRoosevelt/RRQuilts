@@ -99,20 +99,24 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
 5. Sew a scant ¼″ on both sides of the line again, cut on the line, and press the seams open. You
    have four units.
 
-<svg viewBox="0 0 330 140" width="495" role="img" aria-label="One of the two pieces, pressed: the goose triangle with two sky triangles, and a third sky square, wrong side up, on its open goose corner, with sewing lines on each side of its diagonal">
-  <polygon points="20,130 140,10 140,130" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="20,130 20,10 80,70" fill="#daa828" stroke="currentColor"/>
-  <polygon points="20,10 140,10 80,70" fill="#daa828" stroke="currentColor"/>
-  <rect x="80" y="70" width="60" height="60" fill="#f6e7bd" stroke="currentColor" stroke-width="1.5"/>
-  <line x1="80" y1="70" x2="140" y2="130" stroke="#333" stroke-width="1.5"/>
-  <line x1="86" y1="64" x2="146" y2="124" stroke="#333" stroke-dasharray="4 3"/>
-  <line x1="74" y1="76" x2="134" y2="136" stroke="#333" stroke-dasharray="4 3"/>
-  <rect x="160" y="20" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <text x="178" y="30" font-size="11" fill="currentColor">goose, right side</text>
-  <rect x="160" y="36" width="12" height="12" fill="#daa828" stroke="currentColor"/>
-  <text x="178" y="46" font-size="11" fill="currentColor">sky, right side</text>
-  <rect x="160" y="52" width="12" height="12" fill="#f6e7bd" stroke="currentColor"/>
-  <text x="178" y="62" font-size="11" fill="currentColor">sky, wrong side</text>
+<svg viewBox="0 0 370 160" width="555" role="img" aria-label="One of the two pieces after pressing: the goose triangle with a sky triangle pressed out from each end of its long side, overlapping a little in the middle, and a third sky square, wrong side up, on the open corner, with its line running toward the point between the sky triangles">
+  <g transform="translate(20 -8) rotate(-45 80 70)">
+    <polygon points="20,10 20,130 140,130" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+    <polygon points="20,10 86,10 86,76" fill="#daa828" stroke="currentColor"/>
+    <polygon points="74,64 140,64 140,130" fill="#daa828" stroke="currentColor"/>
+    <rect x="20" y="64" width="66" height="66" fill="#f6e7bd" stroke="currentColor" stroke-width="1.5"/>
+    <line x1="20" y1="130" x2="86" y2="64" stroke="#333" stroke-width="1.5"/>
+    <line x1="24.2" y1="134.2" x2="90.2" y2="68.2" stroke="#333" stroke-dasharray="4 3"/>
+    <line x1="15.8" y1="125.8" x2="81.8" y2="59.8" stroke="#333" stroke-dasharray="4 3"/>
+  </g>
+  <rect x="205" y="20" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="223" y="30" font-size="11" fill="currentColor">goose, right side</text>
+  <rect x="205" y="36" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="223" y="46" font-size="11" fill="currentColor">sky, right side</text>
+  <rect x="205" y="52" width="12" height="12" fill="#f6e7bd" stroke="currentColor"/>
+  <text x="223" y="62" font-size="11" fill="currentColor">sky, wrong side</text>
+  <text x="205" y="96" font-size="11" fill="currentColor">sew both dashed lines,</text>
+  <text x="205" y="112" font-size="11" fill="currentColor">cut on the solid line</text>
 </svg>
 
 6. Trim each unit to 4½″ × 2½″ (11.5 × 6.5 cm), the finished size plus a seam allowance on every
