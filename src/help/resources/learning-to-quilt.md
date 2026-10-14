@@ -5,8 +5,6 @@ summary: Places to learn quilting and see quilts.
 ---
 
 - [Quilting on Wikipedia](https://en.wikipedia.org/wiki/Quilting) covers history, terms, and techniques.
-- [The International Quilt Museum](https://www.internationalquiltmuseum.org/) shows collections and
-  exhibitions of historic and contemporary quilts.
 - [The Quilt Alliance](https://quiltalliance.org/) documents and shares quilts and their makers'
   stories.
 - [Quilt Index](https://quiltindex.org/) is a searchable database of documented quilts and patterns.
