@@ -150,8 +150,12 @@ Unfold both tails completely along the loose stretch, so each is a single layer 
 width. Lay them right sides together at right angles, as in step 1, and sew on the diagonal.
 
 <svg viewBox="-110 30 460 220" width="575" role="img" aria-label="The two tails opened and laid right sides together at right angles, sewn on the diagonal; each tail leads to the rest of the strip">
-  <rect x="-100" y="60" width="260" height="30" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="120" y="50" width="30" height="190" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="-100,60 160,60 160,90 -100,90 -100.0,90.0 -95.0,85.0 -100.0,80.0 -95.0,75.0 -100.0,70.0 -95.0,65.0 -100.0,60.0" style="fill: var(--q-primary)" stroke="none"/>
+  <polyline points="-100,60 160,60 160,90 -100,90" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <polyline points="-100.0,90.0 -95.0,85.0 -100.0,80.0 -95.0,75.0 -100.0,70.0 -95.0,65.0 -100.0,60.0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
+  <polygon points="150,240 150,50 120,50 120,240 120.0,240.0 125.0,245.0 130.0,240.0 135.0,245.0 140.0,240.0 145.0,245.0 150.0,240.0" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="none"/>
+  <polyline points="150,240 150,50 120,50 120,240" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <polyline points="120.0,240.0 125.0,245.0 130.0,240.0 135.0,245.0 140.0,240.0 145.0,245.0 150.0,240.0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
   <line x1="120" y1="60" x2="150" y2="90" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
   <text x="-92" y="72" font-size="10" fill="#fff">← to the rest</text>
   <text x="-80" y="84" font-size="10" fill="#fff">of the strip</text>
@@ -173,22 +177,22 @@ width. Lay them right sides together at right angles, as in step 1, and sew on t
 Turn the top tail down. If the binding now lies flat along the quilt without slack or pull, trim
 the seam to ¼″ and press it open. Fold the strip in half again and sew the gap closed.
 
-<svg viewBox="0 0 300 130" width="450" role="img" aria-label="The top tail turned down: the two tails now make one straight strip, joined by a diagonal seam; at each end, the stitching that stopped short of the gap leads to the rest of the strip">
-  <polygon points="20,45 135,45 165,75 20,75" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="135,45 280,45 280,75 165,75" style="fill: var(--q-primary); filter: brightness(0.75)" stroke="currentColor" stroke-width="1.5"/>
-  <line x1="135" y1="45" x2="165" y2="75" stroke="#fff" stroke-width="1.5" stroke-dasharray="4 3"/>
-  <line x1="52" y1="60" x2="20" y2="60" stroke="#fff" stroke-dasharray="4 3"/>
-  <circle cx="52" cy="60" r="3" fill="#fff" stroke="currentColor"/>
-  <line x1="248" y1="60" x2="280" y2="60" stroke="#fff" stroke-dasharray="4 3"/>
-  <circle cx="248" cy="60" r="3" fill="#fff" stroke="currentColor"/>
-  <text x="62" y="57" font-size="10" fill="#fff">← to the rest</text>
-  <text x="74" y="69" font-size="10" fill="#fff">of the strip</text>
-  <text x="238" y="57" font-size="10" fill="#fff" text-anchor="end">to the rest →</text>
-  <text x="226" y="69" font-size="10" fill="#fff" text-anchor="end">of the strip</text>
+<svg viewBox="0 0 300 140" width="450" role="img" aria-label="On the quilt edge nearest you: the sewn start and end of the binding, their stitching stopping short of the gap, and in the gap the joined strip turned down, one straight strip with a diagonal seam">
+  <defs><pattern id="cb-e2" patternUnits="userSpaceOnUse" x="10" y="-56" width="140" height="140"><polygon points="40.3,70.0 50.2,79.9 60.1,70.0 50.2,60.1" fill="#c4282c"/><polygon points="50.2,60.1 60.1,70.0 70.0,60.1 60.1,50.2" fill="#5a78a0"/><polygon points="60.1,50.2 70.0,60.1 79.9,50.2 70.0,40.3" fill="#c4282c"/><polygon points="50.2,79.9 60.1,89.8 70.0,79.9 60.1,70.0" fill="#5a78a0"/><polygon points="60.1,70.0 70.0,79.9 79.9,70.0 70.0,60.1" fill="#c4282c"/><polygon points="70.0,60.1 79.9,70.0 89.8,60.1 79.9,50.2" fill="#5a78a0"/><polygon points="60.1,89.8 70.0,99.7 79.9,89.8 70.0,79.9" fill="#c4282c"/><polygon points="70.0,79.9 79.9,89.8 89.8,79.9 79.9,70.0" fill="#5a78a0"/><polygon points="79.9,70.0 89.8,79.9 99.7,70.0 89.8,60.1" fill="#c4282c"/><polygon points="89.8,79.9 140.0,130.1 140.0,140.0 130.1,140.0 79.9,89.8" fill="#f4ecd8"/><polygon points="60.1,89.8 9.9,140.0 0.0,140.0 0.0,130.1 50.2,79.9" fill="#f4ecd8"/><polygon points="50.2,60.1 0.0,9.9 0.0,0.0 9.9,0.0 60.1,50.2" fill="#f4ecd8"/><polygon points="79.9,50.2 130.1,0.0 140.0,0.0 140.0,9.9 89.8,60.1" fill="#f4ecd8"/><polygon points="110.3,140.0 70.0,99.7 79.9,89.8 110.3,120.2" fill="#5a78a0"/><polygon points="0.0,110.3 40.3,70.0 50.2,79.9 19.8,110.3" fill="#5a78a0"/><polygon points="29.7,0.0 70.0,40.3 60.1,50.2 29.7,19.8" fill="#5a78a0"/><polygon points="140.0,29.7 99.7,70.0 89.8,60.1 120.2,29.7" fill="#5a78a0"/><polygon points="99.7,70.0 140.0,110.3 120.2,110.3 89.8,79.9" fill="#5a78a0"/><polygon points="70.0,99.7 29.7,140.0 29.7,120.2 60.1,89.8" fill="#5a78a0"/><polygon points="40.3,70.0 0.0,29.7 19.8,29.7 50.2,60.1" fill="#5a78a0"/><polygon points="70.0,40.3 110.3,0.0 110.3,19.8 79.9,50.2" fill="#5a78a0"/><polygon points="130.1,140.0 110.3,140.0 110.3,120.2" fill="#c4282c"/><polygon points="0.0,130.1 0.0,110.3 19.8,110.3" fill="#c4282c"/><polygon points="9.9,0.0 29.7,0.0 29.7,19.8" fill="#c4282c"/><polygon points="140.0,9.9 140.0,29.7 120.2,29.7" fill="#c4282c"/><polygon points="140.0,110.3 140.0,130.1 120.2,110.3" fill="#c4282c"/><polygon points="29.7,140.0 9.9,140.0 29.7,120.2" fill="#c4282c"/><polygon points="0.0,29.7 0.0,9.9 19.8,29.7" fill="#c4282c"/><polygon points="110.3,0.0 130.1,0.0 110.3,19.8" fill="#c4282c"/><polygon points="110.3,140.0 29.7,140.0 70.0,99.7" fill="#96c4e8"/><polygon points="0.0,110.3 0.0,29.7 40.3,70.0" fill="#96c4e8"/><polygon points="29.7,0.0 110.3,0.0 70.0,40.3" fill="#96c4e8"/><polygon points="140.0,29.7 140.0,110.3 99.7,70.0" fill="#96c4e8"/></pattern></defs>
+  <rect x="10" y="24" width="280" height="60" fill="url(#cb-e2)" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="10" y="68" width="90" height="16" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <rect x="200" y="68" width="90" height="16" style="fill: var(--q-primary); filter: brightness(0.75)" stroke="currentColor"/>
+  <polygon points="100,68 135,68 165,98 100,98" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="135,68 200,68 200,98 165,98" style="fill: var(--q-primary); filter: brightness(0.75)" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="135" y1="68" x2="165" y2="98" stroke="#fff" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <line x1="10" y1="78" x2="100" y2="78" stroke="#fff" stroke-dasharray="4 3"/>
+  <line x1="200" y1="78" x2="290" y2="78" stroke="#fff" stroke-dasharray="4 3"/>
+  <circle cx="100" cy="78" r="3" fill="#fff" stroke="currentColor"/>
+  <circle cx="200" cy="78" r="3" fill="#fff" stroke="currentColor"/>
   <defs><marker id="turn-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
-  <line x1="150" y1="96" x2="152" y2="68" stroke="currentColor" marker-end="url(#turn-arrow)"/>
-  <text x="150" y="110" font-size="11" fill="currentColor" text-anchor="middle">turned down: one straight strip again,</text>
-  <text x="150" y="124" font-size="11" fill="currentColor" text-anchor="middle">joined on the diagonal</text>
+  <line x1="150" y1="114" x2="154" y2="96" stroke="currentColor" marker-end="url(#turn-arrow)"/>
+  <text x="150" y="126" font-size="11" fill="currentColor" text-anchor="middle">turned down: one straight strip again,</text>
+  <text x="150" y="139" font-size="11" fill="currentColor" text-anchor="middle">joined on the diagonal</text>
 </svg>
 
 Another way to join the ends is the tucked end. Before you start, cut the starting end at 45° and
