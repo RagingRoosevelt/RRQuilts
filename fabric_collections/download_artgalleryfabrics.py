@@ -11,11 +11,13 @@ per solid.
 
 The site has no bulk download, so each fabric image (500px, the largest it serves) is fetched one by
 one. collections.json lists every collection seen (kept across runs). A collection is skipped when
-a file with the same name and date is already there, so it can be re-run to pick up new collections; the Pure Solids palette is re-checked each run and gains any new
+a file with the same name and date is already there, so it can be re-run to pick up new collections. The site lists later colors of a collection as collections of
+their own ("Linen Blend Solids NEW", "Les Petits / new colors"); those are merged into one zip under
+the base name, which gains any fabrics a newer page adds. The Pure Solids palette is re-checked each run and gains any new
 colors (colors no longer listed stay). Collections the site gives no date get "??-??". Palettes need
 Pillow (installed by uv).
 """
-import argparse, html, io, json, re, sys, time, urllib.error, urllib.request, zipfile
+import argparse, html, io, json, re, shutil, sys, time, urllib.error, urllib.request, zipfile
 from pathlib import Path
 
 import collections_index
@@ -92,6 +94,12 @@ def image(cat, thumb, file):
     return url, fetch(url)
 
 
+def base_name(name):
+    """'Linen Blend Solids NEW', 'Les Petits / new colors', 'Flannel Solids - NEW COLORS' → the
+    collection they add to."""
+    return re.sub(r'\s*[-/]?\s*new(\s+colou?rs?)?\s*$', '', name.strip(), flags=re.I).strip() or name.strip()
+
+
 def slug(s):
     return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')[:64] or 'x'
 
@@ -139,28 +147,41 @@ def main():
     pal = out / PALETTE
     colors = json.loads(pal.read_text(encoding='utf-8'))['collection']['colors'] if pal.exists() else []
     solid_pages = []  # the site's Pure Solids collections, all one "Pure Solids" collection here
+    # The site lists a collection's later colors as their own collections ("Linen Blend Solids NEW",
+    # "Les Petits / new colors"): group them under the base name and make one zip per group.
+    groups = {}
     for cat, name, by, when in collections():
-        if a.only and a.only.lower() not in name.lower():
+        groups.setdefault(base_name(name).lower(), []).append((cat, name, by, when))
+    for members in groups.values():
+        name = base_name(members[0][1])
+        if a.only and not any(a.only.lower() in n.lower() for _, n, _, _ in members):
             continue
-        url = f'{SITE}/cgi-bin/fabricshop/gallery.cgi?Category={cat}'
         try:
-            time.sleep(a.delay)
-            s = page(url)
-            if not when:
-                m = re.search(r'Available:\s*(\d{1,2})-\d{1,2}-(\d{4})', s)
-                when = m and yy_mm(m.group(1), m.group(2))
-            when = when or '??-??'
+            pages, items, dates = [], [], []
+            for cat, mname, by, when in members:
+                url = f'{SITE}/cgi-bin/fabricshop/gallery.cgi?Category={cat}'
+                time.sleep(a.delay)
+                s = page(url)
+                if not when:
+                    m = re.search(r'Available:\s*(\d{1,2})-\d{1,2}-(\d{4})', s)
+                    when = m and yy_mm(m.group(1), m.group(2))
+                dates += [when] if when else []
+                pages.append(url)
+                items += [(cat, *x) for x in fabrics(cat, s)]
+            by = next((b for _, _, b, _ in members if b != 'unknown'), 'unknown')
+            when = max(dates) if dates else '??-??'  # the newest page's date
+            seen = set()  # the same fabric listed on two pages
+            items = [x for x in items if not ((x[2] or x[1]) in seen or seen.add(x[2] or x[1]))]
             solids = 'pure solids' in name.lower()
-            prefix = f'{when} | {safe(name)} | '
-            items = fabrics(cat, s)
             if solids:  # into the one Pure Solids palette: only colors it doesn't have yet
                 known = {c['id'] for c in colors}
-                new = [x for x in items if f'agf.{slug(x[1] or x[0])}' not in known]
-                solid_pages.append(url)
-                print(f'  {"+" if new else "="} {PALETTE} ← {name} ({len(new)} new colors)')
+                new = [x for x in items if f'agf.{slug(x[2] or x[1])}' not in known]
+                solid_pages += pages
+                print(f'  ✓ already downloaded: {PALETTE} ← {name}' if not new else
+                      f'  ↓ {"would add" if a.dry_run else "adding"} {len(new)} new colors: {PALETTE} ← {name}')
                 if a.dry_run or not new:
                     continue
-                for i, (fname, sku, thumb, tile) in enumerate(new, 1):
+                for i, (cat, fname, sku, thumb, tile) in enumerate(new, 1):
                     time.sleep(a.delay)
                     print(f'\r    {i}/{len(new)}', end='', flush=True)
                     _, data = image(cat, thumb, tile)
@@ -170,32 +191,47 @@ def main():
                 print()
                 save_palette(pal, colors)  # saved per collection, so an interruption loses little
                 continue
-            dest = out / f'{prefix}{safe(by)}.zip'
-            have = next((f for f in out.iterdir() if f.name.startswith(prefix) and f.suffix == '.zip'), None)
-            row = {'name': name, 'date': when, 'designer': by, 'url': url, 'kind': 'images',
-                   'items': len(items), 'file': (have or dest).name, 'downloaded': 'yes' if have else 'no'}
+            merged = len(members) > 1
+            dest = out / f'{when} | {safe(name)} | {safe(by)}.zip'
+            # A merged collection matches on its name alone (its date follows its newest page).
+            have = next((f for f in out.glob('*.zip') if (f.name.split(' | ')[1:2] == [safe(name)]
+                         if merged else f.name.startswith(f'{when} | {safe(name)} | '))), None)
+            todo = items
+            if have and merged:  # add fabrics a newer page brought (matched by SKU in the file name)
+                inside = ' '.join(zipfile.ZipFile(have).namelist()).lower()
+                todo = [x for x in items if (x[2] or slug(x[1])).lower() not in inside]
+            elif have:
+                todo = []
+            row = {'name': name, 'date': when, 'designer': by, 'url': pages[0], 'pages': pages,
+                   'kind': 'images', 'items': len(items), 'file': (have or dest).name,
+                   'downloaded': 'yes' if have and not todo else 'no'}
             rows.append(row)
-            if have:
-                print(f'  = {have.name} (already there)')
+            if have and not todo:
+                print(f'  ✓ already downloaded: {have.name}')
                 continue
-            print(f'  + {dest.name} ({len(items)} fabrics)')
-            if a.dry_run or not items:
+            print(f'  ↓ {"would download" if a.dry_run else "downloading"}: {dest.name} ({len(todo)} {"new " if have else ""}fabrics'
+                  f'{f", from {len(members)} pages" if merged else ""})')
+            if a.dry_run or not todo:
                 continue
             part = dest.with_name(dest.name + '.part')
-            with zipfile.ZipFile(part, 'w', zipfile.ZIP_STORED) as z:  # JPEGs don't compress
-                names = set()
-                for i, (fname, sku, thumb, tile) in enumerate(items, 1):
+            if have:
+                shutil.copy(have, part)
+            with zipfile.ZipFile(part, 'a' if have else 'w', zipfile.ZIP_STORED) as z:  # JPEGs don't compress
+                names = set(z.namelist())
+                for i, (cat, fname, sku, thumb, tile) in enumerate(todo, 1):
                     time.sleep(a.delay)
-                    print(f'\r    {i}/{len(items)}', end='', flush=True)
+                    print(f'\r    {i}/{len(todo)}', end='', flush=True)
                     img, data = image(cat, thumb, tile)
                     arc = img.rsplit('/', 1)[-1]
-                    while arc in names:
-                        arc = f'{tile}-{arc}'
+                    if arc in names:
+                        continue
                     names.add(arc)
                     z.writestr(arc, data)
             print()
             part.replace(dest)
-            row['downloaded'] = 'yes'
+            if have and have != dest:
+                have.unlink()  # the date moved on: the zip takes the newest page's date
+            row.update(file=dest.name, downloaded='yes')
         except Exception as e:
             print(f'\n  ! {name}: {e}')
             failed.append(name)
