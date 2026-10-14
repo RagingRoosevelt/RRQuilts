@@ -119,6 +119,30 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
   <text x="205" y="112" font-size="11" fill="currentColor">cut on the solid line</text>
 </svg>
 
+<svg viewBox="0 0 400 165" width="600" role="img" aria-label="The heart cut apart into two flying geese: on the left one not yet pressed, its sky piece still wrong side up; on the right one pressed open, its sky triangle flipped over to the right side">
+  <g>
+    <polygon points="15.1,62.0 100.0,146.9 100.0,62.0" style="fill: var(--q-primary)" stroke="currentColor"/>
+    <polygon points="15.1,62.0 61.8,15.3 100.0,53.5 100.0,62.0" fill="#daa828" stroke="currentColor"/>
+    <polygon points="91.5,62.0 100.0,53.5 100.0,62.0" fill="#daa828" stroke="currentColor"/>
+    <polygon points="53.3,100.2 100.0,53.5 100.0,146.9" fill="#f6e7bd" stroke="currentColor"/>
+    <line x1="94.0" y1="59.5" x2="94.0" y2="140.9" stroke="#333" stroke-dasharray="4 3"/>
+  </g>
+  <g transform="translate(60 0)">
+    <polygon points="106.0,140.9 184.9,62.0 106.0,62.0" style="fill: var(--q-primary)" stroke="currentColor"/>
+    <polygon points="106.0,59.5 108.5,62.0 106.0,62.0" fill="#daa828" stroke="currentColor"/>
+    <polygon points="106.0,47.5 138.2,15.3 184.9,62.0 106.0,62.0" fill="#daa828" stroke="currentColor"/>
+    <polygon points="106.0,59.5 65.3,100.2 106.0,140.9" fill="#daa828" stroke="currentColor"/>
+  </g>
+  <text x="60.0" y="160" font-size="11" fill="currentColor" text-anchor="middle">not pressed yet</text>
+  <text x="210.0" y="160" font-size="11" fill="currentColor" text-anchor="middle">pressed open</text>
+  <rect x="290" y="30" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="308" y="40" font-size="11" fill="currentColor">goose</text>
+  <rect x="290" y="46" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="308" y="56" font-size="11" fill="currentColor">sky, right side</text>
+  <rect x="290" y="62" width="12" height="12" fill="#f6e7bd" stroke="currentColor"/>
+  <text x="308" y="72" font-size="11" fill="currentColor">sky, wrong side</text>
+</svg>
+
 6. Trim each unit to 4½″ × 2½″ (11.5 × 6.5 cm), the finished size plus a seam allowance on every
    side. Line up the 45° line of your ruler with the goose's point and keep ¼″ (7.5 mm) above the
    point.
