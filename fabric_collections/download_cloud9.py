@@ -53,7 +53,11 @@ def details(url):
     h1 = text(re.search(r'<h1[^>]*>(.*?)</h1>', infos[0], re.S).group(1))
     name = h1.split('|')[0].strip()
     by = re.search(r'class="designer">(.*?)</p>', infos[0], re.S)
-    by = re.sub(r'^by\s+', '', text(by.group(1)), flags=re.I) if by else 'unknown'
+    by = by and text(by.group(1))
+    if not by:  # some pages leave .designer empty; the gallery heading's subtitle names them
+        by = re.search(r'class="subtitle">(.*?)</span>', s, re.S)
+        by = by and text(by.group(1))
+    by = re.sub(r'^by\s+', '', by, flags=re.I) if by else 'unknown'
     when = '??-??'
     m = len(infos) > 1 and re.search(r'([A-Za-z]{3})[a-z]*\s+\d{2}(\d{2})', text(infos[1]))
     if not m and '|' in h1:  # fall back to the h1's "Mar' 27"
