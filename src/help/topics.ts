@@ -7,6 +7,7 @@
 // Topics with two or more ## headings get an "On this page" table of contents.
 //   ---
 // A line `::calc <name>` places a calculator (calc.ts); raw <svg> blocks are diagrams.
+// A line `::diagram <section>/<id>` repeats the first diagram of that topic (no copies to drift).
 // `{{yours:<feature>}}` becomes "yours does" / "yours doesn't" (HelpPage checks the browser).
 import { marked } from 'marked';
 
@@ -73,6 +74,12 @@ export function segmentsOf(body: string): Segment[] {
   };
   for (const line of body.split(/\r?\n/)) {
     const calc = /^::calc\s+(\S+)\s*$/.exec(line);
+    const diagram = /^::diagram\s+(\S+)\s*$/.exec(line);
+    if (diagram) {
+      const svg = /<svg[\s\S]*?<\/svg>/.exec(files[`./${diagram[1]}.md`] ?? '')?.[0];
+      md.push(svg ?? `<p>Missing diagram ${diagram[1]}</p>`);
+      continue;
+    }
     if (calc) {
       flush();
       out.push({ kind: 'calc', name: calc[1]! });

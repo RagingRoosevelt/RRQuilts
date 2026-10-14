@@ -20,6 +20,14 @@ describe('help', () => {
     }
   });
 
+  it('::diagram repeats another topic’s diagram, and every one resolves', () => {
+    const segs = segmentsOf('::diagram math/half-square-triangles');
+    expect(segs[0]!.kind === 'html' && segs[0]!.html).toContain('<svg');
+    for (const t of TOPICS)
+      for (const seg of t.segments)
+        if (seg.kind === 'html') expect(seg.html, t.id).not.toContain('Missing diagram');
+  });
+
   it('splits ::calc lines out of the Markdown and opens off-app links in a new tab', () => {
     const segs = segmentsOf('Hi [x](https://example.com)\n\n::calc hst\n\nBye');
     expect(segs.map((s) => s.kind)).toEqual(['html', 'calc', 'html']);
