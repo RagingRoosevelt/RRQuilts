@@ -26,7 +26,7 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
    corner on the rectangle's long edge toward the middle of the other end.
 
 <svg viewBox="0 0 330 120" width="495" role="img" aria-label="A sky square, wrong side up, on the left end of the goose rectangle, right sides together, with the sewing line drawn corner to corner">
-  <rect x="20" y="20" width="160" height="80" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="20" y="20" width="148" height="80" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
   <rect x="20" y="20" width="80" height="80" fill="#f6e7bd" stroke="currentColor" stroke-width="1.5"/>
   <line x1="20" y1="100" x2="100" y2="20" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
   <rect x="200" y="24" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
@@ -40,7 +40,7 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
    open toward the corner.
 
 <svg viewBox="0 0 330 120" width="495" role="img" aria-label="The same corner after sewing and trimming: both layers cut away ¼ inch beyond the seam, the sky square still wrong side up">
-  <polygon points="91.5,20 180,20 180,100 20,100 20,91.5" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="91.5,20 168,20 168,100 20,100 20,91.5" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="20,91.5 91.5,20 100,20 100,100 20,100" fill="#f6e7bd" stroke="currentColor" stroke-width="1.5"/>
   <line x1="20" y1="100" x2="100" y2="20" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
   <rect x="200" y="24" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
@@ -53,14 +53,21 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
 
 4. Repeat on the other end with the second square, so the two lines make a point at the center.
 
-<svg viewBox="0 0 330 120" width="495" role="img" aria-label="Both sky squares sewn, trimmed, and flipped: sky triangles in the top corners, the goose triangle pointing up between them">
-  <rect x="20" y="20" width="160" height="80" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+<svg viewBox="0 0 345 120" width="518" role="img" aria-label="Both sky squares sewn, trimmed, and pressed open: sky triangles in the top corners overlap above the goose tip, where the seams cross a seam allowance below the top edge">
+  <rect x="20" y="20" width="148" height="80" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="20,20 100,20 20,100" fill="#daa828" stroke="currentColor"/>
-  <polygon points="180,20 100,20 180,100" fill="#daa828" stroke="currentColor"/>
-  <rect x="200" y="40" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <text x="218" y="50" font-size="11" fill="currentColor">goose, right side</text>
-  <rect x="200" y="56" width="12" height="12" fill="#daa828" stroke="currentColor"/>
-  <text x="218" y="66" font-size="11" fill="currentColor">sky, right side</text>
+  <polygon points="168,20 88,20 168,100" fill="#daa828" stroke="currentColor"/>
+  <line x1="20" y1="100" x2="100" y2="20" stroke="#333" stroke-dasharray="4 3"/>
+  <line x1="168" y1="100" x2="88" y2="20" stroke="#333" stroke-dasharray="4 3"/>
+  <rect x="200" y="24" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="218" y="34" font-size="11" fill="currentColor">goose, right side</text>
+  <rect x="200" y="40" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="218" y="50" font-size="11" fill="currentColor">sky, right side</text>
+  <defs><marker id="geese-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
+  <line x1="195" y1="70" x2="100" y2="28" stroke="currentColor" marker-end="url(#geese-arrow)"/>
+  <text x="200" y="76" font-size="11" fill="currentColor">the seams cross ¼″ below</text>
+  <text x="200" y="92" font-size="11" fill="currentColor">the top, leaving room</text>
+  <text x="200" y="108" font-size="11" fill="currentColor">for the seam</text>
 </svg>
 
 ## Four at a time
