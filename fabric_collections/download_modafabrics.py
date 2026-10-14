@@ -19,13 +19,13 @@ my.modafabrics.com sits behind a browser check, so this script doesn't fetch any
 
 A collection counts as downloaded when a zip with its name and date is there.
 
-    uv run download_modafabrics.py
+    uv run download_modafabrics.py                    # asks whether to download in a browser
     uv run download_modafabrics.py --browser          # download the missing zips in a browser
     uv run download_modafabrics.py --from ~/Desktop   # also look for downloaded zips here
 
 --browser needs the browser once:  uv run playwright install firefox
 """
-import argparse, html, re, shutil, time
+import argparse, html, re, shutil, sys, time
 from pathlib import Path
 
 import collections_index
@@ -130,6 +130,9 @@ def main():
         return any(f.name.startswith(prefix) for f in HERE.glob('*.zip'))
 
     todo = [c for c in cols if not have(c)]
+    if len(sys.argv) == 1 and todo:  # no options: ask
+        a.browser = input(f'{len(todo)} of {len(cols)} collections still to download. '
+                          'Download them in a browser now? [y/N] ').strip().lower() in ('y', 'yes')
     if a.browser and todo:
         got = browser_download(todo, a.delay)
         todo = [c for c in todo if c not in got]
