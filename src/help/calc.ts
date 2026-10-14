@@ -200,9 +200,9 @@ export const CALCULATORS: Record<string, Calculator> = {
   border: {
     title: 'Borders',
     inputs: [
-      { key: 'w', label: 'Width before border', start: start(48, 120) },
-      { key: 'h', label: 'Height before border', start: start(60, 150) },
-      { key: 'b', label: 'Border width', start: start(4, 10) },
+      { key: 'w', label: 'Finished width, no border', start: start(48, 120) },
+      { key: 'h', label: 'Finished height, no border', start: start(60, 150) },
+      { key: 'b', label: 'Finished border width', start: start(4, 10) },
     ],
     rows: ({ w, h, b }, c) => [
       {

@@ -20,7 +20,7 @@ For a finished block of side f, the block's diagonal (corner to corner) is **f �
   legs are f ÷ √2. Cut a square of f ÷ √2 + (2 + √2) × SA once diagonally. You need 2 squares (4
   corners).
 
-<svg viewBox="0 0 320 135" width="480" role="img" aria-label="Eight blocks turned on point, with side triangles along the edges and corner triangles at the corners. A bracket marks the side of one block">
+<svg viewBox="0 0 420 150" width="630" role="img" aria-label="Eight blocks turned on point, with side triangles along the edges and corner triangles at the corners. A bracket marks the side of one block">
   <rect x="10" y="30" width="144" height="96" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="34,30 58,54 34,78 10,54" style="fill: var(--q-primary)" stroke="currentColor"/>
   <polygon points="34,78 58,102 34,126 10,102" style="fill: var(--q-primary)" stroke="currentColor"/>
@@ -30,18 +30,18 @@ For a finished block of side f, the block's diagonal (corner to corner) is **f �
   <polygon points="106,54 130,78 106,102 82,78" style="fill: var(--q-primary)" stroke="currentColor"/>
   <polygon points="130,30 154,54 130,78 106,54" style="fill: var(--q-primary)" stroke="currentColor"/>
   <polygon points="130,78 154,102 130,126 106,102" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <line x1="56.6" y1="52.6" x2="50.2" y2="46.2" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
-  <line x1="80.6" y1="28.6" x2="74.2" y2="22.2" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
-  <line x1="53.1" y1="49.1" x2="77.1" y2="25.1" stroke="currentColor"/>
-  <line x1="55.9" y1="51.9" x2="50.2" y2="46.2" stroke="currentColor" stroke-width="1.5"/>
-  <line x1="79.9" y1="27.9" x2="74.2" y2="22.2" stroke="currentColor" stroke-width="1.5"/>
-  <text x="10" y="18" font-size="11" fill="currentColor">finished block side</text>
-  <defs><marker id="dim-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
-  <line x1="50.8" y1="22" x2="64.0" y2="36.0" stroke="currentColor" marker-end="url(#dim-arrow)"/>
-  <rect x="170" y="50" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
-  <text x="188" y="60" font-size="11" fill="currentColor">blocks on point</text>
-  <rect x="170" y="68" width="12" height="12" fill="#daa828" stroke="currentColor"/>
-  <text x="188" y="78" font-size="11" fill="currentColor">side and corner triangles</text>
+  <polygon points="212,54 236,78 212,102 188,78" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="213.4" y1="52.6" x2="221.9" y2="44.1" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="237.4" y1="76.6" x2="245.9" y2="68.1" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="219.1" y1="46.9" x2="243.1" y2="70.9" stroke="currentColor"/>
+  <line x1="216.2" y1="49.8" x2="221.9" y2="44.1" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="240.2" y1="73.8" x2="245.9" y2="68.1" stroke="currentColor" stroke-width="1.5"/>
+  <text x="232" y="46" font-size="11" fill="currentColor">finished block side</text>
+  <text x="212" y="118" font-size="11" fill="currentColor" text-anchor="middle">one block</text>
+  <rect x="270" y="74" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="288" y="84" font-size="11" fill="currentColor">blocks on point</text>
+  <rect x="270" y="92" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="288" y="102" font-size="11" fill="currentColor">side and corner triangles</text>
 </svg>
 
 ## Worked examples
