@@ -9,12 +9,14 @@
     python3 download_artgalleryfabrics.py --out ~/zips     # default: ./artgalleryfabrics beside this
 
 The site has no bulk download, so each fabric image (500px, the largest it serves) is fetched one by
-one. A collection is skipped when a file with the same name and date is already there, so it can be
-re-run to pick up new collections. Collections the site gives no date get "??-??". Palettes need
+one. collections.json lists every collection seen (kept across runs). A collection is skipped when
+a file with the same name and date is already there, so it can be re-run to pick up new collections. Collections the site gives no date get "??-??". Palettes need
 Pillow (to average each swatch's color).
 """
 import argparse, html, io, json, re, sys, time, urllib.error, urllib.request, zipfile
 from pathlib import Path
+
+import collections_index
 
 SITE = 'https://www.artgalleryfabrics.com'
 GALLERY = f'{SITE}/cgi-bin/fabricshop/gallery.cgi?Category=13'
@@ -116,6 +118,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
 
     failed = []
+    rows = []  # for collections.json
     for cat, name, by, when in collections():
         if a.only and a.only.lower() not in name.lower():
             continue
@@ -131,10 +134,14 @@ def main():
             prefix = f'{safe(name)} | {when} | '
             dest = out / f'{prefix}{safe(by)}.{"rrqplt" if solids else "zip"}'
             have = next((f for f in out.iterdir() if f.name.startswith(prefix) and f.suffix == dest.suffix), None)
+            items = fabrics(cat, s)
+            row = {'name': name, 'date': when, 'designer': by, 'url': url,
+                   'kind': 'palette' if solids else 'images', 'items': len(items),
+                   'file': (have or dest).name, 'downloaded': 'yes' if have else 'no'}
+            rows.append(row)
             if have:
                 print(f'  = {have.name} (already there)')
                 continue
-            items = fabrics(cat, s)
             print(f'  + {dest.name} ({len(items)} {"colors" if solids else "fabrics"})')
             if a.dry_run or not items:
                 continue
@@ -172,9 +179,11 @@ def main():
                         z.writestr(arc, data)
                 print()
             part.rename(dest)
+            row['downloaded'] = 'yes'
         except Exception as e:
             print(f'\n  ! {name}: {e}')
             failed.append(name)
+    collections_index.update(out / 'collections.json', rows)
     if failed:
         print('\nFailed:\n' + '\n'.join(failed))
         sys.exit(1)

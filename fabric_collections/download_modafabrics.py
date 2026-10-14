@@ -5,7 +5,8 @@ my.modafabrics.com sits behind a browser check, so this script doesn't fetch any
 
 1. Save each page of https://my.modafabrics.com/downloads (Ctrl+S) into ./modafabrics/.
 2. Run this script. It reads the saved pages and writes, in ./modafabrics/:
-     collections.json     name, designer, in-stores date, styles (Moda's tags), JPG zip, file name
+     collections.json     every collection seen (kept across runs): name, in-stores date, designer,
+                          styles (Moda's tags), JPG zip link, file name, downloaded
      download_links.html  the "JPG Images" links not downloaded yet; open it in the same browser
                           and click them
 3. Run it again after downloading. It finds the jpg_*.zip files (in ./modafabrics/ or ~/Downloads)
@@ -16,8 +17,10 @@ A collection counts as downloaded when a zip with its name and date is there.
     python3 download_modafabrics.py
     python3 download_modafabrics.py --from ~/Desktop   # also look for downloaded zips here
 """
-import argparse, html, json, re, shutil
+import argparse, html, re, shutil
 from pathlib import Path
+
+import collections_index
 
 SITE = 'https://my.modafabrics.com'
 HERE = Path(__file__).resolve().parent / 'modafabrics'
@@ -67,7 +70,6 @@ def main():
         print(f'No saved Downloads pages in {HERE}. Save them there first (see --help).')
         return
     cols = collections(pages)
-    (HERE / 'collections.json').write_text(json.dumps(cols, indent=2, ensure_ascii=False))
 
     # File the zips already downloaded under their collection names.
     by_zip = {c['zip']: c for c in cols}
@@ -83,6 +85,10 @@ def main():
         return any(f.name.startswith(prefix) for f in HERE.glob('*.zip'))
 
     todo = [c for c in cols if not have(c)]
+    collections_index.update(HERE / 'collections.json', [
+        {'name': c['name'], 'date': c['in_stores'], 'designer': c['designer'],
+         'styles': c['styles'], 'url': c['jpg'], 'file': c['file'],
+         'downloaded': 'no' if c in todo else 'yes'} for c in cols])
     links = '\n'.join(
         f'<li><a href="{html.escape(c["jpg"])}">{html.escape(c["name"])}</a> · {html.escape(c["designer"])} · '
         f'{c["in_stores"]} · {html.escape(", ".join(c["styles"]))}</li>' for c in todo)

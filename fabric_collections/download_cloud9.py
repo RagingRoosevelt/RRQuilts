@@ -8,11 +8,13 @@
     python3 download_cloud9.py --dry-run       # list what would be downloaded
     python3 download_cloud9.py --out ~/zips    # where zips go (default: ./cloud9 beside this script)
 
-A collection is skipped when a zip with the same name and date is already there, so it can be
-re-run to pick up new collections.
+collections.json lists every collection seen (kept across runs). A collection is skipped when
+a zip with the same name and date is already there, so it can be re-run to pick up new collections.
 """
 import argparse, html, re, sys, time, urllib.request
 from pathlib import Path
+
+import collections_index
 
 BASE = 'https://cloud9fabrics.com/fabrics/'
 UA = {'User-Agent': 'Mozilla/5.0 (personal collection downloader)'}
@@ -109,6 +111,7 @@ def main():
         pages = [int(a.pages)]
 
     failed = []
+    rows = []  # for collections.json
     for page in pages:
         urls = collections(page)
         if not urls:
@@ -123,6 +126,9 @@ def main():
                 failed.append(url)
                 continue
             dest = out / f'{safe(name)} | {when} | {safe(by)}.zip'
+            row = {'name': name, 'date': when, 'designer': by, 'url': url, 'dropbox': link or '',
+                   'file': dest.name, 'downloaded': 'no'}
+            rows.append(row)
             if not link:
                 print(f'  - {dest.name}: no Dropbox link, skipped')
                 continue
@@ -131,15 +137,18 @@ def main():
             have = next((f for f in out.iterdir() if f.name.startswith(prefix) and f.suffix == '.zip'), None)
             if have:
                 print(f'  = {have.name} (already there)')
+                row.update(file=have.name, downloaded='yes')
                 continue
             print(f'  + {dest.name}')
             if a.dry_run:
                 continue
             try:
                 download(link, dest)
+                row['downloaded'] = 'yes'
             except Exception as e:
                 print(f'  ! {dest.name}: {e}')
                 failed.append(url)
+    collections_index.update(out / 'collections.json', rows)
     if failed:
         print('\nFailed:\n' + '\n'.join(failed))
         sys.exit(1)
