@@ -24,24 +24,24 @@ This is more than a half-square triangle needs. The long side is the diagonal of
 triangle needs a seam allowance along that side _and_ a seam allowance on the two short sides, which
 sit at 45° to the long side. Each short seam moves the points out by (1 + √2) × SA along the long side.
 
-<svg viewBox="0 0 360 150" width="540" role="img" aria-label="A cut square quartered on both diagonals, and one of its triangles with the finished triangle dashed inside it. A bracket marks the finished long side">
-  <rect x="10" y="62" width="50" height="50" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
-  <line x1="10" y1="62" x2="60" y2="112" stroke="currentColor" stroke-width="1.5"/>
-  <line x1="60" y1="62" x2="10" y2="112" stroke="currentColor" stroke-width="1.5"/>
-  <text x="35" y="128" font-size="11" fill="currentColor" text-anchor="middle">cut square</text>
+<svg viewBox="0 0 395 150" width="592" role="img" aria-label="A cut square quartered on both diagonals, and one of its triangles with the finished triangle dashed inside it. A bracket marks the finished long side">
+  <rect x="10" y="18.3" width="93.7" height="93.7" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="10" y1="18.3" x2="103.7" y2="112" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="103.7" y1="18.3" x2="10" y2="112" stroke="currentColor" stroke-width="1.5"/>
+  <text x="56.9" y="128" font-size="11" fill="currentColor" text-anchor="middle">cut square</text>
   <defs><marker id="dim-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
-  <line x1="68" y1="87" x2="96" y2="87" stroke="currentColor" marker-end="url(#dim-arrow)"/>
-  <polygon points="110,112 203.7,112 156.9,65.1" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="120.9,107.5 192.9,107.5 156.9,71.5" fill="none" stroke="#333" stroke-dasharray="4 3"/>
-  <line x1="120.9" y1="109.5" x2="120.9" y2="130.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
-  <line x1="192.9" y1="109.5" x2="192.9" y2="130.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
-  <line x1="120.9" y1="126.0" x2="192.9" y2="126.0" stroke="currentColor"/>
-  <line x1="120.9" y1="130.0" x2="120.9" y2="122.0" stroke="currentColor" stroke-width="1.5"/>
-  <line x1="192.9" y1="130.0" x2="192.9" y2="122.0" stroke="currentColor" stroke-width="1.5"/>
-  <text x="156.9" y="140.0" font-size="11" fill="currentColor" text-anchor="middle">finished long side</text>
-  <text x="215" y="64" font-size="11" fill="currentColor">one of the 4 triangles at</text>
-  <text x="215" y="80" font-size="11" fill="currentColor">its cut size (solid),</text>
-  <text x="215" y="96" font-size="11" fill="currentColor">finished triangle (dashed)</text>
+  <line x1="111.7" y1="88.6" x2="140" y2="88.6" stroke="currentColor" marker-end="url(#dim-arrow)"/>
+  <polygon points="150,112 243.7,112 196.9,65.1" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="160.9,107.5 232.9,107.5 196.9,71.5" fill="none" stroke="#333" stroke-dasharray="4 3"/>
+  <line x1="160.9" y1="109.5" x2="160.9" y2="130.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="232.9" y1="109.5" x2="232.9" y2="130.0" stroke="currentColor" stroke-width="0.75" opacity="0.7"/>
+  <line x1="160.9" y1="126.0" x2="232.9" y2="126.0" stroke="currentColor"/>
+  <line x1="160.9" y1="130.0" x2="160.9" y2="122.0" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="232.9" y1="130.0" x2="232.9" y2="122.0" stroke="currentColor" stroke-width="1.5"/>
+  <text x="196.9" y="140.0" font-size="11" fill="currentColor" text-anchor="middle">finished long side</text>
+  <text x="255" y="64" font-size="11" fill="currentColor">one of the 4 triangles at</text>
+  <text x="255" y="80" font-size="11" fill="currentColor">its cut size (solid),</text>
+  <text x="255" y="96" font-size="11" fill="currentColor">finished triangle (dashed)</text>
 </svg>
 
 ## Worked examples

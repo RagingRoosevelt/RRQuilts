@@ -30,7 +30,7 @@ Do it once for each side of a rectangle. With a ¼″ seam allowance that is the
   <line x1="146.0" y1="25.0" x2="146.0" y2="75.0" stroke="currentColor"/>
   <line x1="142.0" y1="25.0" x2="150.0" y2="25.0" stroke="currentColor" stroke-width="1.5"/>
   <line x1="142.0" y1="75.0" x2="150.0" y2="75.0" stroke="currentColor" stroke-width="1.5"/>
-  <text x="152.0" y="66" font-size="11" fill="currentColor">finished width</text>
+  <text x="152" y="66" font-size="11" fill="currentColor">finished width</text>
   <text x="190" y="20" font-size="11" fill="currentColor">cut (solid) = finished</text>
   <text x="190" y="36" font-size="11" fill="currentColor">(dashed) + SA on each side</text>
 </svg>
