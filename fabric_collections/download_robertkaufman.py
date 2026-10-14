@@ -96,7 +96,7 @@ def main():
     ap.add_argument('--only', help='only collections whose name contains this (case-insensitive)')
     ap.add_argument('--out', default=str(Path(__file__).resolve().parent / 'robertkaufman'))
     ap.add_argument('--dry-run', action='store_true')
-    ap.add_argument('--delay', type=float, default=0.5, help='seconds between requests')
+    ap.add_argument('--delay', type=float, default=0.2, help='seconds between requests')
     a = ap.parse_args()
     out = Path(a.out).expanduser()
     out.mkdir(parents=True, exist_ok=True)
