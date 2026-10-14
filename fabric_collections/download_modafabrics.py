@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 """Moda Fabrics collections, from Downloads pages saved out of the browser.
 
 my.modafabrics.com sits behind a browser check, so this script doesn't fetch anything. Instead:
@@ -19,11 +19,11 @@ my.modafabrics.com sits behind a browser check, so this script doesn't fetch any
 
 A collection counts as downloaded when a zip with its name and date is there.
 
-    python3 download_modafabrics.py
-    python3 download_modafabrics.py --browser          # download the missing zips in a browser
-    python3 download_modafabrics.py --from ~/Desktop   # also look for downloaded zips here
+    uv run download_modafabrics.py
+    uv run download_modafabrics.py --browser          # download the missing zips in a browser
+    uv run download_modafabrics.py --from ~/Desktop   # also look for downloaded zips here
 
---browser needs Playwright:  pip install playwright && playwright install firefox
+--browser needs the browser once:  uv run playwright install firefox
 """
 import argparse, html, re, shutil, time
 from pathlib import Path
@@ -72,7 +72,7 @@ def browser_download(todo, delay):
     try:
         from playwright.sync_api import TimeoutError as Timeout, sync_playwright
     except ImportError:
-        raise SystemExit('--browser needs Playwright: pip install playwright && playwright install firefox')
+        raise SystemExit('Run with uv (uv run download_modafabrics.py), and once: uv run playwright install firefox')
     done = []
     with sync_playwright() as p:
         ctx = p.firefox.launch_persistent_context(str(HERE / '.browser-profile'), headless=False,

@@ -1,12 +1,12 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 """Download each Cloud9 Fabrics collection's Dropbox folder as a zip named
 "YY-MM | <collection name> | <designer>.zip".
 
-    python3 download_cloud9.py                 # asks which listing page(s)
-    python3 download_cloud9.py --pages 1       # collections on listing page 1
-    python3 download_cloud9.py --pages 1-3     # pages 1 to 3 ("all" = every page)
-    python3 download_cloud9.py --dry-run       # list what would be downloaded
-    python3 download_cloud9.py --out ~/zips    # where zips go (default: ./cloud9 beside this script)
+    uv run download_cloud9.py                 # asks which listing page(s)
+    uv run download_cloud9.py --pages 1       # collections on listing page 1
+    uv run download_cloud9.py --pages 1-3     # pages 1 to 3 ("all" = every page)
+    uv run download_cloud9.py --dry-run       # list what would be downloaded
+    uv run download_cloud9.py --out ~/zips    # where zips go (default: ./cloud9 beside this script)
 
 collections.json lists every collection seen (kept across runs). A collection is skipped when
 a zip with the same name and date is already there, so it can be re-run to pick up new collections.

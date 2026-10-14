@@ -1,19 +1,19 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 """Download Art Gallery Fabrics collections as zips of their fabric images, named
 "YY-MM | <collection name> | <designer>.zip". The Pure Solids collections instead become one RRQuilts
 palette and collection, "Pure Solids" ("Pure Solids | Art Gallery Fabrics.rrqplt"), with one color
 per solid.
 
-    python3 download_artgalleryfabrics.py                  # every collection
-    python3 download_artgalleryfabrics.py --only sgraffito # collections whose name contains this
-    python3 download_artgalleryfabrics.py --dry-run        # list what would be made
-    python3 download_artgalleryfabrics.py --out ~/zips     # default: ./artgalleryfabrics beside this
+    uv run download_artgalleryfabrics.py                  # every collection
+    uv run download_artgalleryfabrics.py --only sgraffito # collections whose name contains this
+    uv run download_artgalleryfabrics.py --dry-run        # list what would be made
+    uv run download_artgalleryfabrics.py --out ~/zips     # default: ./artgalleryfabrics beside this
 
 The site has no bulk download, so each fabric image (500px, the largest it serves) is fetched one by
 one. collections.json lists every collection seen (kept across runs). A collection is skipped when
 a file with the same name and date is already there, so it can be re-run to pick up new collections; the Pure Solids palette is re-checked each run and gains any new
 colors (colors no longer listed stay). Collections the site gives no date get "??-??". Palettes need
-Pillow (to average each swatch's color).
+Pillow (installed by uv).
 """
 import argparse, html, io, json, re, sys, time, urllib.error, urllib.request, zipfile
 from pathlib import Path

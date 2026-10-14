@@ -1,0 +1,12 @@
+[project]
+name = "fabric-collections"
+version = "0.1.0"
+description = "Download manufacturers' fabric collections (images, palettes) for local reference."
+requires-python = ">=3.12"
+dependencies = [
+    "pillow>=10",      # Art Gallery Fabrics: average each solid's swatch color
+    "playwright>=1.45", # Moda: --browser downloads in a visible browser
+]
+
+[tool.uv]
+package = false  # plain scripts, run with `uv run download_<maker>.py`
