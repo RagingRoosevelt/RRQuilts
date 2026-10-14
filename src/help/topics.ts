@@ -4,7 +4,7 @@
 //   title: Half-square triangles
 //   order: 30
 //   summary: One line shown in the topic list.
-//   toc: true            (optional: list the ## headings in an "On this page" sidebar)
+// Topics with two or more ## headings get an "On this page" table of contents.
 //   ---
 // A line `::calc <name>` places a calculator (calc.ts); raw <svg> blocks are diagrams.
 import { marked } from 'marked';
@@ -28,8 +28,8 @@ export interface Topic {
   /** Lowercased title + text, for search. */
   text: string;
   segments: Segment[];
-  /** The ## headings, when the topic asks for a table of contents. */
-  toc?: { id: string; title: string }[];
+  /** The ## headings, when there are two or more (the table of contents). */
+  toc?: { id: string; title: string }[] | undefined;
 }
 
 const slug = (s: string) =>
@@ -81,6 +81,11 @@ export function segmentsOf(body: string): Segment[] {
   return out;
 }
 
+function tocOf(body: string) {
+  const toc = [...body.matchAll(/^## (.+)$/gm)].map((m) => ({ id: slug(m[1]!), title: m[1]! }));
+  return toc.length > 1 ? toc : undefined;
+}
+
 const files = import.meta.glob<string>('./*/*.md', {
   query: '?raw',
   import: 'default',
@@ -99,9 +104,7 @@ export const TOPICS: Topic[] = Object.entries(files)
       summary: meta.summary ?? '',
       text: `${meta.title ?? ''} ${meta.summary ?? ''} ${body}`.toLowerCase(),
       segments: segmentsOf(body),
-      ...(meta.toc === 'true' && {
-        toc: [...body.matchAll(/^## (.+)$/gm)].map((m) => ({ id: slug(m[1]!), title: m[1]! })),
-      }),
+      toc: tocOf(body),
     };
   })
   .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
