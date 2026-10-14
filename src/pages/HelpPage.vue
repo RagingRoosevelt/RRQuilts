@@ -39,16 +39,25 @@
       </nav>
 
       <article v-if="topic" class="col content" @click="follow">
-        <q-btn
-          v-if="!$q.screen.gt.sm"
-          flat
-          dense
-          no-caps
-          icon="arrow_back"
-          :label="label"
-          class="q-mb-sm"
-          :to="`/help/${section}`"
-        />
+        <div v-if="!$q.screen.gt.sm" class="row items-center justify-between q-mb-sm">
+          <q-btn flat dense no-caps icon="arrow_back" :label="label" :to="`/help/${section}`" />
+          <q-btn v-if="topic.toc" flat dense round icon="menu" aria-label="On this page">
+            <q-menu>
+              <q-list dense style="min-width: 220px">
+                <q-item-label header>On this page</q-item-label>
+                <q-item
+                  v-for="h in topic.toc"
+                  :key="h.id"
+                  v-close-popup
+                  clickable
+                  @click="jump(h.id)"
+                >
+                  <q-item-section>{{ h.title }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
+        </div>
         <h2 class="topic-title">{{ topic.title }}</h2>
         <template v-for="(seg, i) in topic.segments" :key="`${topic.section}/${topic.id}/${i}`">
           <!-- Bundled, trusted content (src/help/*.md), never user input. -->
@@ -57,6 +66,18 @@
           <HelpCalc v-else :name="seg.name" />
         </template>
       </article>
+      <nav v-if="topic?.toc && $q.screen.gt.sm" class="toc" aria-label="On this page">
+        <div class="text-caption text-grey-7 q-mb-xs">On this page</div>
+        <a
+          v-for="h in topic.toc"
+          :key="h.id"
+          :href="`#${h.id}`"
+          class="topic-link"
+          @click.prevent="jump(h.id)"
+        >
+          {{ h.title }}
+        </a>
+      </nav>
       <div v-else-if="$q.screen.gt.sm" class="col text-grey-7 q-pt-sm">
         <q-banner v-if="missing" dense class="bg-warning text-dark q-mb-md">
           There's no topic “{{ missing }}” in {{ label }}.
@@ -93,6 +114,9 @@ const missing = computed(() => (wanted.value && !topic.value ? wanted.value : ''
 const query = ref('');
 watch(section, () => (query.value = ''));
 const shown = computed(() => searchTopics(all.value, query.value ?? ''));
+
+/** Scroll to a heading of the open topic. */
+const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
 /** In-app links in topics (/help/…, /project…) go through the router (base path, no reload). */
 function follow(e: MouseEvent) {
@@ -148,7 +172,17 @@ function follow(e: MouseEvent) {
   margin: 0 0 12px;
   letter-spacing: normal;
 }
+.toc {
+  width: 220px;
+  flex: none;
+  position: sticky;
+  top: 66px; /* below the header */
+  align-self: flex-start;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+}
 .help-md :deep(h2) {
+  scroll-margin-top: 66px;
   font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.3;

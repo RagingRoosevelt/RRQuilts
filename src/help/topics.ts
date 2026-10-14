@@ -4,6 +4,7 @@
 //   title: Half-square triangles
 //   order: 30
 //   summary: One line shown in the topic list.
+//   toc: true            (optional: list the ## headings in an "On this page" sidebar)
 //   ---
 // A line `::calc <name>` places a calculator (calc.ts); raw <svg> blocks are diagrams.
 import { marked } from 'marked';
@@ -27,7 +28,15 @@ export interface Topic {
   /** Lowercased title + text, for search. */
   text: string;
   segments: Segment[];
+  /** The ## headings, when the topic asks for a table of contents. */
+  toc?: { id: string; title: string }[];
 }
+
+const slug = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 
 /** Front matter (`key: value` lines between `---`) and the body. */
 export function parseTopic(raw: string): { meta: Record<string, string>; body: string } {
@@ -47,7 +56,10 @@ export function segmentsOf(body: string): Segment[] {
   const flush = () => {
     const text = md.join('\n').trim();
     if (!text) return;
-    const html = marked.parse(text, { async: false, gfm: true });
+    const html = marked
+      .parse(text, { async: false, gfm: true })
+      // ## headings get ids for the table of contents.
+      .replace(/<h2>(.*?)<\/h2>/g, (_, t: string) => `<h2 id="${slug(t)}">${t}</h2>`);
     // Links off the app open in a new tab (Resources); /help/… links are routed by the page.
     out.push({
       kind: 'html',
@@ -87,6 +99,9 @@ export const TOPICS: Topic[] = Object.entries(files)
       summary: meta.summary ?? '',
       text: `${meta.title ?? ''} ${meta.summary ?? ''} ${body}`.toLowerCase(),
       segments: segmentsOf(body),
+      ...(meta.toc === 'true' && {
+        toc: [...body.matchAll(/^## (.+)$/gm)].map((m) => ({ id: slug(m[1]!), title: m[1]! })),
+      }),
     };
   })
   .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
