@@ -1,7 +1,7 @@
 <template>
   <!-- A Quilt math calculator (help/calc.ts): finished sizes in, cut sizes out, in the user's units
        and print settings (seam allowance, rounding) so it matches the printouts. -->
-  <q-card v-if="calc" flat bordered class="help-calc q-my-md">
+  <q-card v-if="calc" bordered class="help-calc q-my-md shadow-2">
     <q-card-section class="q-pb-sm">
       <div class="text-subtitle2">
         <q-icon name="calculate" class="q-mr-xs" />{{ calc.title }} calculator
