@@ -10,7 +10,9 @@ lines become RRQuilts palettes instead, "<line> | Robert Kaufman.rrqplt", one na
 
 Collections come from the site's Product Images list. A collection is skipped when a zip with the
 same name and date is already there; the Kona palettes are re-checked each run and gain any new
-colors (colors no longer listed stay). Collections the site gives no date get "??-??".
+colors (colors no longer listed stay). Dates come from "Available in stores starting …" (upcoming collections) or the New Releases
+season list (which names only a few per season); others get "??-??", and are renamed if a date
+turns up later.
 collections.json lists every collection seen (kept across runs).
 """
 import argparse, html, io, json, re, sys, time, urllib.error, urllib.parse, urllib.request, zipfile
@@ -50,6 +52,18 @@ def collections():
     sel = re.search(r'<select[^>]*>(.*?)</select>', s, re.S)
     return [(v, text(n).replace('®', '').strip())
             for v, n in re.findall(r'<option[^>]*value="([^"]+)"[^>]*>([^<]*)<', sel.group(1))]
+
+
+def releases():
+    """{collection slug: 'YY-MM'} from the New Releases season filter. It only lists a few
+    collections per season (those still offered), but it's the only date for released ones."""
+    page = fetch(f'{SITE}/manufacturers/new_releases/').decode('utf-8', 'replace')
+    out = {}
+    for yyyy_mm in re.findall(r'<option value="(\d{4}-\d{2})"', page):
+        s = fetch(f'{SITE}/manufacturers/new_releases/?release={yyyy_mm}&page=All').decode('utf-8', 'replace')
+        for key in re.findall(r'href="/fabrics/([a-z0-9_]+)/#products', s):
+            out.setdefault(key, yyyy_mm[2:])
+    return out
 
 
 def details(key):
@@ -102,6 +116,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
 
     failed, rows = [], []
+    released = releases()
     for key, name in collections():
         if a.only and a.only.lower() not in name.lower():
             continue
@@ -109,7 +124,7 @@ def main():
         try:
             time.sleep(a.delay)
             by, when, items = details(key)
-            when = when or '??-??'
+            when = when or released.get(key) or '??-??'
             if key in SOLIDS:  # a palette: only colors it doesn't have yet
                 pal = out / f'{safe(name)} | Robert Kaufman.rrqplt'
                 colors = json.loads(pal.read_text(encoding='utf-8'))['collection']['colors'] if pal.exists() else []
@@ -136,6 +151,11 @@ def main():
             prefix = f'{when} | {safe(name)} | '
             dest = out / f'{prefix}{safe(by)}.zip'
             have = next((f for f in out.glob('*.zip') if f.name.startswith(prefix)), None)
+            undated = None if have or when == '??-??' else next(
+                (f for f in out.glob('*.zip') if f.name.startswith(f'??-?? | {safe(name)} | ')), None)
+            if undated:  # it has a date now: rename rather than download again
+                have = undated.rename(dest)
+                print(f'  ~ {undated.name} → {dest.name}')
             row = {'name': name, 'date': when, 'designer': by, 'url': url, 'kind': 'images',
                    'items': len(items), 'file': (have or dest).name, 'downloaded': 'yes' if have else 'no'}
             rows.append(row)
