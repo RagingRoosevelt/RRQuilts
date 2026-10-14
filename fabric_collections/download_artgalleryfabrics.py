@@ -17,7 +17,7 @@ the base name, which gains any fabrics a newer page adds. The Pure Solids palett
 colors (colors no longer listed stay). Collections the site gives no date get "??-??". Palettes need
 Pillow (installed by uv).
 """
-import argparse, html, io, json, re, shutil, sys, time, urllib.error, urllib.request, zipfile
+import argparse, html, io, json, re, shutil, sys, time, urllib.error, urllib.parse, urllib.request, zipfile
 from pathlib import Path
 
 import collections_index
@@ -31,6 +31,7 @@ BUNDLE = re.compile(r'full collection|\bFULL\d|bundle|pack\)|bolts|squares|fat q
 
 
 def fetch(url):
+    url = urllib.parse.quote(url, safe=':/?&=#%+')  # some image names have spaces
     with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=60) as r:
         return r.read()
 
