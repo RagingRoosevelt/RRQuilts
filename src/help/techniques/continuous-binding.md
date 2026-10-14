@@ -258,4 +258,4 @@ See [binding math](/help/math/binding) for the formula behind the strip count.
 
 Sources: [Continuous mitered binding](https://arbeedesigns.com/pages/continuous-mitered-binding) by Arbee
 Designs, and [Continuous binding](https://www.eobquiltdesign.com/continuous-binding) by EOB Quilt
-Design (joining the strips). Both are also listed in [Techniques we drew from](/help/resources/techniques-we-drew-from).
+Design (joining the strips). Both are also listed in [Learning to quilt](/help/resources/learning-to-quilt).

@@ -152,4 +152,4 @@ step 2, so they meet edge to edge, before sewing.
 
 Sources: [the four-at-a-time flying geese tutorial and sizing tables](https://quiltingjetgirl.com/2022/09/30/updated-four-at-a-time-flying-geese-tutorial-and-sizing-tables/)
 by Quilting Jetgirl and [how to reduce bulk in four-at-a-time flying geese](https://thecraftyquilter.com/2022/05/how-to-reduce-bulk-in-4-at-a-time-flying-geese/) by The Crafty
-Quilter, also listed in [Techniques we drew from](/help/resources/techniques-we-drew-from).
+Quilter, also listed in [Learning to quilt](/help/resources/learning-to-quilt).
