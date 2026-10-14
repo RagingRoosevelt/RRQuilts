@@ -8,7 +8,8 @@
     python3 download_cloud9.py --dry-run       # list what would be downloaded
     python3 download_cloud9.py --out ~/zips    # where zips go (default: ./cloud9 beside this script)
 
-Zips already present are skipped, so it can be re-run to pick up new collections.
+A collection is skipped when a zip with the same name and date is already there, so it can be
+re-run to pick up new collections.
 """
 import argparse, html, re, sys, time, urllib.request
 from pathlib import Path
@@ -121,8 +122,11 @@ def main():
             if not link:
                 print(f'  - {dest.name}: no Dropbox link, skipped')
                 continue
-            if dest.exists():
-                print(f'  = {dest.name} (already there)')
+            # Already downloaded: same collection name and date (the designer's spelling may change).
+            prefix = f'{safe(name)} | {when} | '
+            have = next((f for f in out.iterdir() if f.name.startswith(prefix) and f.suffix == '.zip'), None)
+            if have:
+                print(f'  = {have.name} (already there)')
                 continue
             print(f'  + {dest.name}')
             if a.dry_run:
