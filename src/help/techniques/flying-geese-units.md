@@ -38,6 +38,19 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
 
 3. Sew on the line. Trim the corner beyond the seam to ¼″ (7.5 mm), and press the triangle
    open toward the corner.
+
+<svg viewBox="0 0 330 120" width="495" role="img" aria-label="The same corner after sewing and trimming: both layers cut away ¼ inch beyond the seam, the sky square still wrong side up">
+  <polygon points="91.5,20 180,20 180,100 20,100 20,91.5" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="20,91.5 91.5,20 100,20 100,100 20,100" fill="#f6e7bd" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="20" y1="100" x2="100" y2="20" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <rect x="200" y="24" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="218" y="34" font-size="11" fill="currentColor">goose, right side</text>
+  <rect x="200" y="40" width="12" height="12" fill="#f6e7bd" stroke="currentColor"/>
+  <text x="218" y="50" font-size="11" fill="currentColor">sky, wrong side</text>
+  <text x="200" y="76" font-size="11" fill="currentColor">sewn, then trimmed ¼″</text>
+  <text x="200" y="92" font-size="11" fill="currentColor">beyond the seam</text>
+</svg>
+
 4. Repeat on the other end with the second square, so the two lines make a point at the center.
 
 <svg viewBox="0 0 330 120" width="495" role="img" aria-label="Both sky squares sewn, trimmed, and flipped: sky triangles in the top corners, the goose triangle pointing up between them">
