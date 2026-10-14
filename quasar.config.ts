@@ -47,6 +47,7 @@ export default defineConfig(() => ({
             '**/.cache/**',
             '**/docs/**',
             '**/reference/**',
+            '**/fabric_collections/**',
             '**/specs/**',
             '**/.specify/**',
           ],
