@@ -1,6 +1,6 @@
 ---
 title: Licenses
-order: 30
+order: 10
 summary: What the Creative Commons licenses on blocks, palettes, and packs allow.
 ---
 

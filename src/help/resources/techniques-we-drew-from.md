@@ -1,6 +1,6 @@
 ---
 title: Techniques we drew from
-order: 40
+order: 10
 summary: The tutorials behind the Techniques topics.
 ---
 

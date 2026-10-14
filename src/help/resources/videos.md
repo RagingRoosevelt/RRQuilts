@@ -1,6 +1,6 @@
 ---
 title: Video tutorials
-order: 70
+order: 10
 summary: Videos on binding, Y seams, and designing foundation paper pieced blocks.
 ---
 

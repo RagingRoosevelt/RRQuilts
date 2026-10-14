@@ -1,6 +1,6 @@
 ---
 title: Block and quilt directories
-order: 60
+order: 10
 summary: Reference books of quilt blocks, patterns, and techniques.
 ---
 

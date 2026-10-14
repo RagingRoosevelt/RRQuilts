@@ -1,6 +1,6 @@
 ---
 title: Calculators
-order: 5
+order: 10
 summary: Every Quilt Math calculator on one page, for cut sizes, borders, binding, backing, and yardage.
 toc: true
 ---

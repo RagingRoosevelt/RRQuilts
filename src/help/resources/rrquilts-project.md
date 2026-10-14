@@ -1,6 +1,6 @@
 ---
 title: RRQuilts project
-order: 20
+order: 10
 summary: The source code, issue tracker, and file format schema.
 ---
 
