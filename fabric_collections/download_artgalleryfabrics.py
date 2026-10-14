@@ -10,7 +10,8 @@
 
 The site has no bulk download, so each fabric image (500px, the largest it serves) is fetched one by
 one. collections.json lists every collection seen (kept across runs). A collection is skipped when
-a file with the same name and date is already there, so it can be re-run to pick up new collections. Collections the site gives no date get "??-??". Palettes need
+a file with the same name and date is already there, so it can be re-run to pick up new collections; the Pure Solids palettes are re-checked each run and gain any
+new colors (colors no longer listed stay). Collections the site gives no date get "??-??". Palettes need
 Pillow (to average each swatch's color).
 """
 import argparse, html, io, json, re, sys, time, urllib.error, urllib.request, zipfile
@@ -139,18 +140,26 @@ def main():
                    'kind': 'palette' if solids else 'images', 'items': len(items),
                    'file': (have or dest).name, 'downloaded': 'yes' if have else 'no'}
             rows.append(row)
-            if have:
+            # A palette is re-checked for new colors; anything else already there is done.
+            old = json.loads(have.read_text(encoding='utf-8'))['collection']['colors'] if have and solids else []
+            known = {c['id'] for c in old}
+            new = [x for x in items if f'agf.{slug(x[1] or x[0])}' not in known] if solids else items
+            if have and not new:
                 print(f'  = {have.name} (already there)')
                 continue
-            print(f'  + {dest.name} ({len(items)} {"colors" if solids else "fabrics"})')
-            if a.dry_run or not items:
+            if have:
+                dest = have
+                print(f'  + {dest.name} ({len(new)} new colors)')
+            else:
+                print(f'  + {dest.name} ({len(items)} {"colors" if solids else "fabrics"})')
+            if a.dry_run or not new:
                 continue
             part = dest.with_name(dest.name + '.part')
             if solids:
-                colors = []
-                for i, (fname, sku, thumb, tile) in enumerate(items, 1):
+                colors = list(old)  # colors the site no longer lists stay in the palette
+                for i, (fname, sku, thumb, tile) in enumerate(new, 1):
                     time.sleep(a.delay)
-                    print(f'\r    {i}/{len(items)}', end='', flush=True)
+                    print(f'\r    {i}/{len(new)}', end='', flush=True)
                     _, data = image(cat, thumb, tile)
                     colors.append({'id': f'agf.{slug(sku or fname)}',
                                    'notecard': {'name': fname, 'reference': f'Art Gallery Fabrics {sku}'.strip()},
@@ -178,7 +187,7 @@ def main():
                         names.add(arc)
                         z.writestr(arc, data)
                 print()
-            part.rename(dest)
+            part.replace(dest)
             row['downloaded'] = 'yes'
         except Exception as e:
             print(f'\n  ! {name}: {e}')
