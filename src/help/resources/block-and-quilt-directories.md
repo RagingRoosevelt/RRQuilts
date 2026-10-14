@@ -1,7 +1,7 @@
 ---
-title: Quilting books
+title: Block and quilt directories
 order: 60
-summary: Good books on quilting techniques, blocks, and log cabin quilts.
+summary: Reference books of quilt blocks, patterns, and techniques.
 ---
 
 - _1000 Great Quilt Blocks_ by Maggi McCormick Gordon
