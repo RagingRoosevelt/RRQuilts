@@ -162,15 +162,19 @@ bulkier join.
     miter on the front and on the back. Slip stitch the fold down by hand, or stitch in the ditch
     from the front by machine.
 
-<svg viewBox="0 0 300 110" width="450" role="img" aria-label="Cross section: the binding wrapped over the quilt's edge, its fold covering the stitching line on the back">
-  <rect x="20" y="40" width="130" height="6" fill="#c4282c"/>
-  <rect x="20" y="46" width="130" height="14" fill="#f4ecd8" stroke="currentColor" stroke-width="0.5"/>
-  <rect x="20" y="60" width="130" height="6" fill="#daa828"/>
-  <path d="M112 36 H156 V70 H118" fill="none" style="stroke: var(--q-primary)" stroke-width="7" stroke-linejoin="round"/>
-  <line x1="122" y1="30" x2="122" y2="44" stroke="currentColor" stroke-width="1.5"/>
-  <text x="170" y="40" font-size="11" fill="currentColor">top, batting, backing</text>
-  <text x="170" y="56" font-size="11" fill="currentColor">fold covers the</text>
-  <text x="170" y="72" font-size="11" fill="currentColor">stitching line</text>
+<svg viewBox="0 0 330 110" width="495" role="img" aria-label="Cross section: the binding, folded in half, wraps the quilt edge in two layers, raw edges on the front and the fold on the back covering the stitching line">
+  <rect x="20" y="40" width="140" height="7" fill="#c4282c"/>
+  <rect x="20" y="47" width="140" height="16" fill="#f4ecd8" stroke="currentColor" stroke-width="0.5"/>
+  <rect x="20" y="63" width="140" height="7" fill="#daa828"/>
+  <path d="M100 32 H166 Q172 32 172 38 V72 Q172 78 166 78 H106" fill="none" style="stroke: var(--q-primary)" stroke-width="4"/>
+  <path d="M100 37 H163 Q167 37 167 41 V69 Q167 73 163 73 H106" fill="none" style="stroke: var(--q-primary)" stroke-width="4"/>
+  <path d="M106 78 A2.5 2.5 0 0 1 106 73" fill="none" style="stroke: var(--q-primary)" stroke-width="4"/>
+  <line x1="112" y1="24" x2="112" y2="50" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <text x="96" y="20" font-size="11" fill="currentColor">stitching</text>
+  <text x="185" y="36" font-size="11" fill="currentColor">two layers: the strip</text>
+  <text x="185" y="52" font-size="11" fill="currentColor">folded in half, raw</text>
+  <text x="185" y="68" font-size="11" fill="currentColor">edges on the front</text>
+  <text x="20" y="98" font-size="11" fill="currentColor">top, batting, backing. On the back, the fold covers the stitching.</text>
 </svg>
 
 <svg viewBox="0 0 280 150" width="420" role="img" aria-label="A corner from the back: the binding folded over with a diagonal miter at the corner">
