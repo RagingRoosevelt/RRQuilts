@@ -40,7 +40,7 @@ The round save button in the header has a small colored dot:
 
 - On the home page choose **Open a project file** and pick a `.rrq` file, or drag a `.rrq` file
   onto the window.
-- In browsers that can reopen files, **Recent projects** lists your latest ones. Click one to open it.
+- In browsers that can reopen files (Chrome, Edge, and other Chromium-based browsers on a computer), **Recent projects** lists your latest ones. Click one to open it.
 
 If you start or open something else while the current project has unsaved changes, the app asks
 first. Closing the tab with unsaved changes also asks you to confirm.
