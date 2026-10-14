@@ -10,7 +10,7 @@ my.modafabrics.com sits behind a browser check, so this script doesn't fetch any
      download_links.html  the "JPG Images" links not downloaded yet; open it in the same browser
                           and click them
 3. Run it again after downloading. It finds the jpg_*.zip files (in ./modafabrics/ or ~/Downloads)
-   and renames them to "<collection name> | YY-MM | <designer>.zip" in ./modafabrics/.
+   and renames them to "YY-MM | <collection name> | <designer>.zip" in ./modafabrics/.
 
 A collection counts as downloaded when a zip with its name and date is there.
 
@@ -55,7 +55,7 @@ def collections(pages):
                       re.findall(r'class="downloads-type[^"]*">([^<]+)<', td.get('field-style', ''))]
             out[url] = {'name': name, 'designer': by, 'in_stores': when, 'styles': styles,
                         'jpg': url, 'zip': url.rsplit('/', 1)[-1],
-                        'file': f'{safe(name)} | {when} | {safe(by)}.zip'}
+                        'file': f'{when} | {safe(name)} | {safe(by)}.zip'}
     return list(out.values())
 
 
@@ -81,7 +81,7 @@ def main():
                 print(f'  filed {z.name} → {c["file"]}')
 
     def have(c):
-        prefix = f'{safe(c["name"])} | {c["in_stores"]} | '
+        prefix = f'{c["in_stores"]} | {safe(c["name"])} | '
         return any(f.name.startswith(prefix) for f in HERE.glob('*.zip'))
 
     todo = [c for c in cols if not have(c)]

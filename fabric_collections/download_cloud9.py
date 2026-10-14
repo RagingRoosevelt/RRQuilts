@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Download each Cloud9 Fabrics collection's Dropbox folder as a zip named
-"<collection name> | YY-MM | <designer>.zip".
+"YY-MM | <collection name> | <designer>.zip".
 
     python3 download_cloud9.py                 # asks which listing page(s)
     python3 download_cloud9.py --pages 1       # collections on listing page 1
@@ -125,7 +125,7 @@ def main():
                 print(f'  ! {url}: {e}')
                 failed.append(url)
                 continue
-            dest = out / f'{safe(name)} | {when} | {safe(by)}.zip'
+            dest = out / f'{when} | {safe(name)} | {safe(by)}.zip'
             row = {'name': name, 'date': when, 'designer': by, 'url': url, 'dropbox': link or '',
                    'file': dest.name, 'downloaded': 'no'}
             rows.append(row)
@@ -133,7 +133,7 @@ def main():
                 print(f'  - {dest.name}: no Dropbox link, skipped')
                 continue
             # Already downloaded: same collection name and date (the designer's spelling may change).
-            prefix = f'{safe(name)} | {when} | '
+            prefix = f'{when} | {safe(name)} | '
             have = next((f for f in out.iterdir() if f.name.startswith(prefix) and f.suffix == '.zip'), None)
             if have:
                 print(f'  = {have.name} (already there)')

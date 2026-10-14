@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Download Art Gallery Fabrics collections as zips of their fabric images, named
-"<collection name> | YY-MM | <designer>.zip". The Pure Solids collections become RRQuilts palettes
-("<collection name> | YY-MM | <designer>.rrqplt") with one color per solid instead.
+"YY-MM | <collection name> | <designer>.zip". The Pure Solids collections become RRQuilts palettes
+("YY-MM | <collection name> | <designer>.rrqplt") with one color per solid instead.
 
     python3 download_artgalleryfabrics.py                  # every collection
     python3 download_artgalleryfabrics.py --only sgraffito # collections whose name contains this
@@ -132,7 +132,7 @@ def main():
                 when = m and yy_mm(m.group(1), m.group(2))
             when = when or '??-??'
             solids = 'pure solids' in name.lower()
-            prefix = f'{safe(name)} | {when} | '
+            prefix = f'{when} | {safe(name)} | '
             dest = out / f'{prefix}{safe(by)}.{"rrqplt" if solids else "zip"}'
             have = next((f for f in out.iterdir() if f.name.startswith(prefix) and f.suffix == dest.suffix), None)
             items = fabrics(cat, s)
