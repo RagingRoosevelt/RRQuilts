@@ -99,8 +99,7 @@ calculator below.
   <polygon points="10,40 140,40 124,56 10,56" style="fill: var(--q-primary)" stroke="currentColor"/>
   <polygon points="124,56 140,40 140,4 124,4" style="fill: var(--q-primary); filter: brightness(0.75)" stroke="currentColor"/>
   <line x1="124" y1="56" x2="140" y2="40" stroke="#fff" stroke-width="1.5"/>
-  <line x1="10" y1="46" x2="134" y2="46" stroke="#fff" stroke-dasharray="4 3"/>
-  <line x1="134" y1="46" x2="140" y2="40" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <line x1="10" y1="46" x2="124" y2="46" stroke="#fff" stroke-dasharray="4 3"/>
   <text x="165" y="22" font-size="11" fill="currentColor">fold up along a</text>
   <text x="165" y="38" font-size="11" fill="currentColor">45° crease on the stitch</text>
   <text x="165" y="54" font-size="11" fill="currentColor">to the corner, raw edge</text>
@@ -163,7 +162,7 @@ width. Lay them right sides together at right angles, as in step 1, and sew on t
   <line x1="120" y1="60" x2="150" y2="90" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
   <text x="-92" y="72" font-size="10" fill="#fff">← to the rest</text>
   <text x="-80" y="84" font-size="10" fill="#fff">of the strip</text>
-  <g transform="translate(143 100) rotate(90)">
+  <g transform="translate(143 178) rotate(90)">
     <text x="0" y="0" font-size="9" fill="#333">to the rest →</text>
     <text x="0" y="11" font-size="9" fill="#333">of the strip</text>
   </g>
