@@ -38,7 +38,12 @@
         <div v-if="!shown.length" class="text-grey-7 q-pa-sm">No topics match “{{ query }}”.</div>
       </nav>
 
-      <article v-if="topic" class="col content" @click="follow">
+      <article
+        v-if="topic"
+        class="col content"
+        :class="{ 'is-dark': $q.dark.isActive }"
+        @click="follow"
+      >
         <div
           v-if="!$q.screen.gt.sm"
           class="mobile-bar row items-center justify-between q-mb-sm"
@@ -215,6 +220,10 @@ function follow(e: MouseEvent) {
 .help-md :deep(ol),
 .help-md :deep(ul) {
   padding-left: 1.4em;
+}
+/* Default link blues are too dark on the dark page: a light tint of the accent instead. */
+.is-dark .help-md :deep(a) {
+  color: color-mix(in srgb, var(--q-primary) 40%, white);
 }
 .help-md :deep(code) {
   background: rgba(128, 128, 128, 0.15);
