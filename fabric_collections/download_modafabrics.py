@@ -12,12 +12,20 @@ my.modafabrics.com sits behind a browser check, so this script doesn't fetch any
 3. Run it again after downloading. It finds the jpg_*.zip files (in ./modafabrics/ or ~/Downloads)
    and renames them to "YY-MM | <collection name> | <designer>.zip" in ./modafabrics/.
 
+   Or let it do the clicking: --browser opens a visible Firefox (Playwright); you get past the site's
+   check and log in there yourself, press Enter, and it downloads each missing zip in that browser,
+   10 seconds apart (the site's crawl delay), straight to its final name. The browser profile is
+   kept in ./modafabrics/.browser-profile, so you stay logged in between runs.
+
 A collection counts as downloaded when a zip with its name and date is there.
 
     python3 download_modafabrics.py
+    python3 download_modafabrics.py --browser          # download the missing zips in a browser
     python3 download_modafabrics.py --from ~/Desktop   # also look for downloaded zips here
+
+--browser needs Playwright:  pip install playwright && playwright install firefox
 """
-import argparse, html, re, shutil
+import argparse, html, re, shutil, time
 from pathlib import Path
 
 import collections_index
@@ -59,10 +67,47 @@ def collections(pages):
     return list(out.values())
 
 
+def browser_download(todo, delay):
+    """Download `todo` in a visible browser the user has logged in to. Returns the ones saved."""
+    try:
+        from playwright.sync_api import TimeoutError as Timeout, sync_playwright
+    except ImportError:
+        raise SystemExit('--browser needs Playwright: pip install playwright && playwright install firefox')
+    done = []
+    with sync_playwright() as p:
+        ctx = p.firefox.launch_persistent_context(str(HERE / '.browser-profile'), headless=False,
+                                                  accept_downloads=True)
+        page = ctx.pages[0] if ctx.pages else ctx.new_page()
+        page.goto(f'{SITE}/downloads')
+        input('In the browser window: get past the check and log in, then press Enter here… ')
+        for i, c in enumerate(todo, 1):
+            print(f'  [{i}/{len(todo)}] {c["file"]}')
+            for attempt in (1, 2):
+                try:
+                    with page.expect_download(timeout=60_000) as dl:
+                        page.evaluate('url => { window.location.href = url }', c['jpg'])
+                    part = HERE / (c['file'] + '.part')
+                    dl.value.save_as(part)
+                    part.replace(HERE / c['file'])
+                    done.append(c)
+                    break
+                except Timeout:
+                    if attempt == 1:
+                        input('    No download started (the check may be back). Clear it in the browser, '
+                              'then press Enter to retry… ')
+                    else:
+                        print('    skipped')
+            time.sleep(delay)
+        ctx.close()
+    return done
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--from', dest='src', action='append', default=[],
                     help='another folder to look in for downloaded jpg_*.zip files')
+    ap.add_argument('--browser', action='store_true', help='download the missing zips in a browser')
+    ap.add_argument('--delay', type=float, default=10.0, help='seconds between browser downloads')
     a = ap.parse_args()
     pages = sorted(HERE.glob('*.htm*'))
     pages = [p for p in pages if p.name != 'download_links.html']
@@ -85,6 +130,9 @@ def main():
         return any(f.name.startswith(prefix) for f in HERE.glob('*.zip'))
 
     todo = [c for c in cols if not have(c)]
+    if a.browser and todo:
+        got = browser_download(todo, a.delay)
+        todo = [c for c in todo if c not in got]
     collections_index.update(HERE / 'collections.json', [
         {'name': c['name'], 'date': c['in_stores'], 'designer': c['designer'],
          'styles': c['styles'], 'url': c['jpg'], 'file': c['file'],
