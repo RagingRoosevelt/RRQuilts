@@ -36,9 +36,13 @@ calculator below.
    - Trim the corner to ¼″ (7.5 mm) beyond the seam and press the seam open.
    - Repeat until you have one strip long enough for the whole quilt.
 
-<svg viewBox="0 0 320 120" width="480" role="img" aria-label="Two strips at right angles, right sides together, each hanging slightly past the other, with the diagonal sewing line across the overlap">
-  <rect x="20" y="60" width="150" height="30" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="130" y="10" width="30" height="90" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor" stroke-width="1.5"/>
+<svg viewBox="0 0 320 160" width="480" role="img" aria-label="Two strips at right angles, right sides together, each hanging slightly past the other, with the diagonal sewing line across the overlap">
+  <polygon points="20,60 170,60 170,90 20,90 20.0,90.0 25.0,85.0 20.0,80.0 25.0,75.0 20.0,70.0 25.0,65.0 20.0,60.0" style="fill: var(--q-primary)" stroke="none"/>
+  <polyline points="20,60 170,60 170,90 20,90" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <polyline points="20.0,90.0 25.0,85.0 20.0,80.0 25.0,75.0 20.0,70.0 25.0,65.0 20.0,60.0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
+  <polygon points="160,150 160,50 130,50 130,150 130.0,150.0 135.0,155.0 140.0,150.0 145.0,155.0 150.0,150.0 155.0,155.0 160.0,150.0" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="none"/>
+  <polyline points="160,150 160,50 130,50 130,150" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <polyline points="130.0,150.0 135.0,155.0 140.0,150.0 145.0,155.0 150.0,150.0 155.0,155.0 160.0,150.0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
   <line x1="130" y1="60" x2="160" y2="90" stroke="#333" stroke-width="2" stroke-dasharray="4 3"/>
   <text x="185" y="30" font-size="11" fill="currentColor">sew on the diagonal,</text>
   <text x="185" y="46" font-size="11" fill="currentColor">then trim to ¼″</text>
