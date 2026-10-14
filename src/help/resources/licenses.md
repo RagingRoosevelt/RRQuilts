@@ -15,5 +15,3 @@ Blocks, palettes, and packs carry a license that says what others may do with th
 - [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) works like BY-SA but allows
   non-commercial use only.
 - [CC0 / Public Domain](https://creativecommons.org/public-domain/cc0/) places no conditions on use.
-
-These links lead off the app and need an internet connection. Each opens in a new tab.

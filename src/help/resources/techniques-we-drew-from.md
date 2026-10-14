@@ -12,5 +12,3 @@ summary: The tutorials behind the Techniques topics.
   by Quilting Jetgirl has sizing tables and tips for accurate, no-waste geese.
 - [Reducing bulk in four-at-a-time flying geese](https://thecraftyquilter.com/2022/05/how-to-reduce-bulk-in-4-at-a-time-flying-geese/) by The Crafty Quilter
   trims the overlap of the small squares before sewing, so the goose points lie flat.
-
-These links lead off the app and need an internet connection. Each opens in a new tab.

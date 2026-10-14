@@ -9,5 +9,3 @@ summary: The source code, issue tracker, and file format schema.
   issue.
 - Anyone writing tools that read `.rrq` files can use the JSON Schema for
   [the project file format](https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v1.json).
-
-These links lead off the app and need an internet connection. Each opens in a new tab.
