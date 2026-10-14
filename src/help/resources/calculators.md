@@ -81,7 +81,7 @@ The formula is in [backing](/help/math/backing).
 
 ::calc backing
 
-## Squares from strips
+## Yardage for patches
 
 ::diagram math/yardage-and-fat-quarters
 

@@ -15,7 +15,12 @@
       <q-select
         v-if="calc.widths"
         v-model="width"
-        :options="boltWidths(units).map((w) => ({ label: w.label, value: w.id }))"
+        :options="
+          (calc.widths === 'any' ? WIDTHS[units] : boltWidths(units)).map((w) => ({
+            label: w.label,
+            value: w.id,
+          }))
+        "
         emit-value
         map-options
         outlined
@@ -65,7 +70,7 @@ import { computed, reactive, ref, watch } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import { boltWidths, CALCULATORS, calcContext, type CalcInput } from '@/help/calc';
 import { fmtLen } from '@/model/print/format';
-import { printPrefs } from '@/model/print/prefs';
+import { printPrefs, WIDTHS } from '@/model/print/prefs';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 

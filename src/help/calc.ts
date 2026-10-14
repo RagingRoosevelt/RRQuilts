@@ -3,7 +3,7 @@
 import type { Pt } from '@/model/geometry/path';
 import { fmtFabric, fmtLen, roundUp } from '@/model/print/format';
 import type { Piece } from '@/model/print/pieces';
-import { WIDTHS, type PrintPrefs } from '@/model/print/prefs';
+import { WIDTHS, type PrintPrefs, type WidthOption } from '@/model/print/prefs';
 import { cutFor, cutPlan, type Cut } from '@/model/print/rotary';
 import { BINDING_EXTRA, backing, binding, fabricNeeds } from '@/model/print/yardage';
 import type { Units } from '@/model/schema/project';
@@ -31,14 +31,17 @@ export interface CalcContext {
   step: number;
   slack: number;
   usable: number;
+  /** The chosen fabric (a bolt width, or fat quarters where the calculator offers them). */
+  fabric: WidthOption;
   fabricStep: number;
   overhang: number;
   bindingWidth: number;
 }
 export interface Calculator {
   title: string;
-  /** Uses the fabric width: the calculator offers a choice of bolt widths (as on the yardage page). */
-  widths?: boolean;
+  /** Uses the fabric width: the calculator offers a choice of bolt widths (as on the yardage page),
+   *  'any' also fat quarters. */
+  widths?: boolean | 'any';
   inputs: CalcInput[];
   rows: (v: Record<string, number>, c: CalcContext) => CalcRow[];
 }
@@ -46,17 +49,21 @@ export interface Calculator {
 /** Bolt widths a calculator can use (fat quarters are counted separately). */
 export const boltWidths = (units: Units) => WIDTHS[units].filter((w) => !w.fatQuarter);
 
-/** `width`: a bolt width id (WIDTHS); the first by default. */
-export const calcContext = (units: Units, p: PrintPrefs, width?: string): CalcContext => ({
-  units,
-  seam: p.seam[units],
-  step: p.rounding[units],
-  slack: p.miterSlack[units],
-  usable: (boltWidths(units).find((w) => w.id === width) ?? boltWidths(units)[0]!).usable,
-  fabricStep: p.fabricStep[units],
-  overhang: p.overhang[units],
-  bindingWidth: p.bindingWidth[units],
-});
+/** `width`: a fabric width id (WIDTHS); the first bolt width by default. */
+export function calcContext(units: Units, p: PrintPrefs, width?: string): CalcContext {
+  const fabric = WIDTHS[units].find((w) => w.id === width) ?? boltWidths(units)[0]!;
+  return {
+    units,
+    seam: p.seam[units],
+    step: p.rounding[units],
+    slack: p.miterSlack[units],
+    usable: fabric.usable,
+    fabric,
+    fabricStep: p.fabricStep[units],
+    overhang: p.overhang[units],
+    bindingWidth: p.bindingWidth[units],
+  };
+}
 
 const piece = (poly: Pt[]): Piece => ({ poly, curved: false, fill: 'x', marks: [] });
 const rect = (w: number, h: number) =>
@@ -255,26 +262,28 @@ export const CALCULATORS: Record<string, Calculator> = {
     ],
   },
   yardage: {
-    title: 'Squares from strips',
-    widths: true,
+    title: 'Yardage for patches',
+    widths: 'any',
     inputs: [
-      { key: 'n', label: 'How many squares', start: start(40, 40), count: true },
-      { key: 'f', label: 'Finished square side', start: start(3, 8) },
+      { key: 'n', label: 'How many patches', start: start(40, 40), count: true },
+      { key: 'w', label: 'Finished length', start: start(3, 8) },
+      { key: 'h', label: 'Finished width', start: start(3, 8) },
     ],
-    rows: ({ n, f }, c) => {
-      const pieces = Array.from({ length: Math.max(1, Math.round(n!)) }, () => rect(f!, f!));
+    rows: ({ n, w, h }, c) => {
+      const pieces = Array.from({ length: Math.max(1, Math.round(n!)) }, () => rect(w!, h!));
       const lines = cutPlan(pieces, c.seam, c.step, c.usable);
-      const need = fabricNeeds(lines, { usable: c.usable }, c.fabricStep)[0]!;
-      const fq = WIDTHS[c.units].find((x) => x.fatQuarter)!;
-      const fqLines = cutPlan(pieces, c.seam, c.step, fq.usable);
-      const fqNeed = fabricNeeds(fqLines, fq, c.fabricStep)[0]!;
+      const need = fabricNeeds(lines, c.fabric, c.fabricStep)[0]!;
       return [
         {
           label: 'Strips',
           value: `${lines[0]!.strips} × ${len(lines[0]!.stripWidth, c)} (${lines[0]!.perStrip} per strip)`,
         },
-        { label: `Fabric (${len(c.usable, c)} usable)`, value: fmtFabric(need.length, c.units) },
-        { label: 'Or fat quarters', value: String(fqNeed.fatQuarters) },
+        c.fabric.fatQuarter
+          ? { label: 'Fat quarters', value: String(need.fatQuarters) }
+          : {
+              label: `Fabric (${len(c.usable, c)} usable)`,
+              value: fmtFabric(need.length, c.units),
+            },
       ];
     },
   },

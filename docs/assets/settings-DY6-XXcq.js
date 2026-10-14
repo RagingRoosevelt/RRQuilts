@@ -1,1 +1,0 @@
-import{i as e,t}from"./settings-cLrrNpzD.js";import{a as n}from"./index-BM3-z4Cm.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};
