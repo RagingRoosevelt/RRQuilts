@@ -68,12 +68,18 @@ def collections(pages):
 
 
 def browser_download(todo, delay):
-    """Download `todo` in a visible browser the user has logged in to. Returns the ones saved."""
+    """Download `todo` in a visible browser the user has logged in to.
+    Returns (saved, missing): missing = links the site answers with "not found" (404/410)."""
     try:
-        from playwright.sync_api import TimeoutError as Timeout, sync_playwright
+        from playwright.sync_api import Error, TimeoutError as Timeout, sync_playwright
     except ImportError:
         raise SystemExit('Run with uv (uv run download_modafabrics.py), and once: uv run playwright install firefox')
-    done = []
+
+    class NoDownload(Exception):  # the link opened a page instead of a file
+        def __init__(self, status):
+            self.status = status
+
+    done, missing = [], []
     with sync_playwright() as p:
         ctx = p.firefox.launch_persistent_context(str(HERE / '.browser-profile'), headless=False,
                                                   accept_downloads=True)
@@ -84,22 +90,38 @@ def browser_download(todo, delay):
             print(f'  [{i}/{len(todo)}] {c["file"]}')
             for attempt in (1, 2):
                 try:
-                    with page.expect_download(timeout=60_000) as dl:
-                        page.evaluate('url => { window.location.href = url }', c['jpg'])
+                    with page.expect_download(timeout=120_000) as dl:
+                        try:
+                            resp = page.goto(c['jpg'], wait_until='commit')
+                        except Error as e:  # navigating to a file "fails" with this once it downloads
+                            if 'Download is starting' not in str(e):
+                                raise
+                            resp = None
+                        if resp is not None and resp.status >= 400:
+                            raise NoDownload(resp.status)
                     part = HERE / (c['file'] + '.part')
                     dl.value.save_as(part)
                     part.replace(HERE / c['file'])
                     done.append(c)
                     break
+                except NoDownload as e:
+                    if e.status in (404, 410):  # gone from the site: nothing to wait for
+                        print(f'    not on the site ({e.status}), skipped')
+                        missing.append(c)
+                        break
+                    if attempt == 1:  # 403/503 and the like: the browser check is back
+                        input(f'    The site answered {e.status} (the check may be back). Clear it in the '
+                              'browser, then press Enter to retry… ')
+                    else:
+                        print(f'    {e.status}, skipped')
                 except Timeout:
                     if attempt == 1:
-                        input('    No download started (the check may be back). Clear it in the browser, '
-                              'then press Enter to retry… ')
+                        input('    No download started. Check the browser, then press Enter to retry… ')
                     else:
                         print('    skipped')
             time.sleep(delay)
         ctx.close()
-    return done
+    return done, missing
 
 
 def main():
@@ -133,13 +155,14 @@ def main():
     if len(sys.argv) == 1 and todo:  # no options: ask
         a.browser = input(f'{len(todo)} of {len(cols)} collections still to download. '
                           'Download them in a browser now? [y/N] ').strip().lower() in ('y', 'yes')
+    missing = []
     if a.browser and todo:
-        got = browser_download(todo, a.delay)
+        got, missing = browser_download(todo, a.delay)
         todo = [c for c in todo if c not in got]
     collections_index.update(HERE / 'collections.json', [
         {'name': c['name'], 'date': c['in_stores'], 'designer': c['designer'],
          'styles': c['styles'], 'url': c['jpg'], 'file': c['file'],
-         'downloaded': 'no' if c in todo else 'yes'} for c in cols])
+         'downloaded': 'missing' if c in missing else 'no' if c in todo else 'yes'} for c in cols])
     links = '\n'.join(
         f'<li><a href="{html.escape(c["jpg"])}">{html.escape(c["name"])}</a> · {html.escape(c["designer"])} · '
         f'{c["in_stores"]} · {html.escape(", ".join(c["styles"]))}</li>' for c in todo)
