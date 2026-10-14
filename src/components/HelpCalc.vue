@@ -37,7 +37,8 @@
         />
         <LengthInput
           v-else
-          v-model="values[i.key]!"
+          :model-value="values[i.key]!"
+          @update:model-value="(v: number) => set(i, v)"
           :units="units"
           :min="0.25"
           :label="i.label"
@@ -62,7 +63,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
-import { boltWidths, CALCULATORS, calcContext } from '@/help/calc';
+import { boltWidths, CALCULATORS, calcContext, type CalcInput } from '@/help/calc';
 import { fmtLen } from '@/model/print/format';
 import { printPrefs } from '@/model/print/prefs';
 import { useProjectStore } from '@/stores/project';
@@ -80,6 +81,11 @@ const ctx = computed(() => calcContext(units.value, printPrefs(app.settings.prin
 const values = reactive<Record<string, number>>(
   Object.fromEntries((calc.value?.inputs ?? []).map((i) => [i.key, i.start[units.value]])),
 );
+/** Set an input, and the input linked to it (kept in proportion). */
+function set(i: CalcInput, v: number) {
+  values[i.key] = v;
+  if (i.link) values[i.link.key] = v * i.link.factor;
+}
 const rows = computed(() => {
   const c = calc.value;
   if (!c || c.inputs.some((i) => !(values[i.key]! > 0))) return [];

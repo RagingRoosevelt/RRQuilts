@@ -17,6 +17,8 @@ export interface CalcInput {
   count?: boolean;
   /** A plain number field (not snapped to the ruler). */
   raw?: boolean;
+  /** Changing this input sets `key` to this value × `factor` (e.g. a goose's height = width ÷ 2). */
+  link?: { key: string; factor: number };
 }
 export interface CalcRow {
   label: string;
@@ -140,14 +142,17 @@ export const CALCULATORS: Record<string, Calculator> = {
   },
   geese: {
     title: 'Flying geese',
-    // These methods make the classic 2:1 goose (right isosceles triangles): height = width ÷ 2.
-    inputs: [{ key: 'w', label: 'Finished width', start: start(4, 10) }],
+    // These methods make the classic 2:1 goose (right isosceles triangles), so the two sizes are
+    // linked: set either one.
+    inputs: [
+      { key: 'w', label: 'Finished width', start: start(4, 10), link: { key: 'h', factor: 0.5 } },
+      { key: 'h', label: 'Finished height', start: start(2, 5), link: { key: 'w', factor: 2 } },
+    ],
     rows: ({ w }, c) => {
       const h = w! / 2;
       const goose = cutFor(qst(w!), c.seam, c.step);
       const sky = cutFor(hst(h), c.seam, c.step);
       return [
-        { label: 'Finished size', value: `${len(w!, c)} × ${len(h, c)}` },
         {
           label: 'Stitch and flip (1)',
           value: `${size(cutFor(rect(w!, h), c.seam, c.step), c)} rectangle + 2 × ${size(cutFor(rect(h, h), c.seam, c.step), c)}`,
