@@ -22,13 +22,13 @@ to **⅞″**, the familiar "add ⅞″" rule. With 7.5 mm, it is ≈ 2.56 cm.
 Adding 2 × the seam allowance isn't enough, because the seam along the diagonal eats into the corner. The point
 of the triangle has to extend √2 × the seam allowance past the finished corner for the seams to meet.
 
-<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A cut square with its finished HST inside, the seam allowance shaded">
-  <rect x="10" y="10" width="100" height="100" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A cut square of fabric, halved on the diagonal, with the finished triangle dashed inside one half">
+  <rect x="10" y="10" width="100" height="100" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
   <line x1="10" y1="110" x2="110" y2="10" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="20,100 20,32 88,100" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-dasharray="4 3"/>
+  <polygon points="20,20 86,20 20,86" fill="none" stroke="#333" stroke-dasharray="4 3"/>
   <text x="125" y="40" font-size="11" fill="currentColor">cut square</text>
-  <text x="125" y="58" font-size="11" fill="currentColor">finished (dashed)</text>
-  <text x="125" y="76" font-size="11" fill="currentColor">triangle</text>
+  <text x="125" y="58" font-size="11" fill="currentColor">finished triangle</text>
+  <text x="125" y="76" font-size="11" fill="currentColor">(dashed)</text>
 </svg>
 
 ## Worked examples

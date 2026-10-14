@@ -21,12 +21,12 @@ measure. Three strips cut 2″ wide (5 cm) and sewn together should measure exac
 needle position or presser foot until they do. Accuracy matters more than the exact value, so use the
 same allowance throughout a project.
 
-<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A cut square with a dashed stitching line inside it. The gap is the seam allowance">
-  <rect x="10" y="10" width="100" height="90" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="25" y="25" width="70" height="60" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
+<svg viewBox="0 0 230 110" width="345" role="img" aria-label="A cut square of fabric with a dashed sewing line inside it. The band between them is the seam allowance">
+  <rect x="10" y="10" width="100" height="90" style="fill: #daa828; filter: brightness(0.8)" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="25" y="25" width="70" height="60" fill="#daa828" stroke="#333" stroke-dasharray="4 3"/>
   <text x="125" y="40" font-size="11" fill="currentColor">cut edge (solid)</text>
   <text x="125" y="58" font-size="11" fill="currentColor">sewing line (dashed)</text>
-  <text x="125" y="76" font-size="11" fill="currentColor">seam allowance (shaded)</text>
+  <text x="125" y="76" font-size="11" fill="currentColor">seam allowance (darker)</text>
 </svg>
 
 ## Where it shows up

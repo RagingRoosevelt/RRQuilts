@@ -22,11 +22,13 @@ The center's diagonal is the unit's side, so its side is f ÷ √2 (about 0.707 
 half-square triangles whose legs are f ÷ 2, so the cut is f ÷ 2 + (2 + √2) × SA, and each square is
 cut once diagonally to make 2 triangles.
 
-<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square with a tilted square inside it, touching the middle of each side">
-  <rect x="10" y="10" width="100" height="100" fill="none" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="60,10 110,60 60,110 10,60" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
-  <text x="125" y="55" font-size="11" fill="currentColor">tilted center</text>
-  <text x="125" y="72" font-size="11" fill="currentColor">4 corner triangles</text>
+<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square with a tilted center square inside it, touching the middle of each side, and a triangle in each corner">
+  <rect x="10" y="10" width="100" height="100" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="60,10 110,60 60,110 10,60" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <rect x="125" y="40" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="143" y="50" font-size="11" fill="currentColor">tilted center</text>
+  <rect x="125" y="58" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="143" y="68" font-size="11" fill="currentColor">4 corner triangles</text>
 </svg>
 
 ## Worked examples

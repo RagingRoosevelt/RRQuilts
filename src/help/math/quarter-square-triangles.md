@@ -24,13 +24,12 @@ This is more than a half-square triangle needs. The long side is the diagonal of
 triangle needs a seam allowance along that side _and_ a seam allowance on the two short sides, which
 sit at 45° to the long side. Each short seam moves the points out by (1 + √2) × SA along the long side.
 
-<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square cut along both diagonals into four triangles">
-  <rect x="10" y="10" width="100" height="100" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square of fabric cut along both diagonals into four triangles">
+  <rect x="10" y="10" width="100" height="100" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
   <line x1="10" y1="10" x2="110" y2="110" stroke="currentColor" stroke-width="1.5"/>
   <line x1="110" y1="10" x2="10" y2="110" stroke="currentColor" stroke-width="1.5"/>
-  <text x="125" y="50" font-size="11" fill="currentColor">cut square,</text>
-  <text x="125" y="68" font-size="11" fill="currentColor">both diagonals:</text>
-  <text x="125" y="86" font-size="11" fill="currentColor">4 triangles</text>
+  <text x="125" y="58" font-size="11" fill="currentColor">cut on both diagonals</text>
+  <text x="125" y="76" font-size="11" fill="currentColor">for 4 triangles</text>
 </svg>
 
 ## Worked examples

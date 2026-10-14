@@ -33,8 +33,8 @@ The cut length then adds **SA × (1 + √2) at each end**, a total of **2(1 + �
   diagonal's end point along the edge, by one more SA.
 
 <svg viewBox="0 0 220 110" width="330" role="img" aria-label="A mitered border strip shaped like a trapezoid with 45 degree ends, its seam allowance beyond the finished corner">
-  <polygon points="10,10 150,10 130,40 30,40" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="20,10 140,10 124,34 36,34" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
+  <polygon points="10,10 150,10 130,40 30,40" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="20,10 140,10 124,34 36,34" fill="none" stroke="#333" stroke-dasharray="4 3"/>
   <text x="160" y="25" font-size="11" fill="currentColor">finished (dashed)</text>
   <text x="160" y="42" font-size="11" fill="currentColor">cut, longer (solid)</text>
 </svg>

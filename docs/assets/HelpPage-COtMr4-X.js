@@ -1,4 +1,4 @@
-import{t as e}from"./settings-cLrrNpzD.js";import{At as t,Dt as n,J as r,R as i,T as a,U as o,V as s,X as c,Z as l,at as u,b as d,f,ft as p,g as m,h,jt as g,m as _,ot as ee,p as v,s as y,t as b,x,y as S}from"./create-CXFiK9Ge.js";import{V as C,t as w,v as te}from"./QBtn-D67DqTct.js";import{St as ne,a as re,bt as ie,i as ae,n as T,t as oe,vt as se,w as ce,xt as E,yt as le}from"./QCard-JZetY5gw.js";import{a as ue,r as de}from"./render-CRP6lwgu.js";import{a as fe,r as pe,t as D}from"./QSelect-BJLpY-rB.js";import{B as me,F as he,P as O,V as ge,z as _e}from"./index-D9FakHG6.js";import{n as ve,t as ye}from"./QTabs-DMXl-3vM.js";import{t as be}from"./QPage-D5_MJ09N.js";import{t as xe}from"./LengthInput-DebYgJkD.js";import{S as Se,_ as Ce,a as k,b as we,i as Te,n as Ee,o as De,r as Oe,t as ke,x as Ae,y as je}from"./yardage-D5dwrINA.js";var Me=[`horizontal`,`vertical`,`cell`,`none`],Ne=b({name:`QMarkupTable`,props:{...E,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>Me.includes(e)}},setup(e,{slots:t}){let n=ue(),r=ie(e,n),i=f(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>a(`div`,{class:i.value,tabindex:0},[a(`table`,{class:`q-table`},de(t.default))])}}),A=e=>Ce[e].filter(e=>!e.fatQuarter),Pe=(e,t,n)=>({units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:(A(e).find(e=>e.id===n)??A(e)[0]).usable,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}),Fe=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),j=(e,t)=>Fe([[0,0],[e,0],[e,t],[0,t]]),Ie=e=>Fe([[0,0],[e,0],[0,e]]),Le=e=>Fe([[0,0],[e,0],[e/2,e/2]]),Re=(e,t)=>Fe([[0,0],[e,0],[e-t,t],[t,t]]),M=(e,t)=>Ae(e,t.units),N=(e,t)=>e.cut[0]===e.cut[1]?`${M(e.cut[0],t)} square`:`${M(e.cut[0],t)} × ${M(e.cut[1],t)}`,P=(e,t)=>({in:e,cm:t}),ze={square:{title:`Square`,inputs:[{key:`f`,label:`Finished size`,start:P(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:N(k(j(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:P(6,15)},{key:`h`,label:`Finished width`,start:P(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:N(k(j(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished size (leg)`,start:P(3,8)}],rows:({f:e},t)=>{let n=k(Ie(e),t.seam,t.step),r=Se((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${N(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${M(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${M(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:P(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${N(k(Le(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:P(4,10),link:{key:`h`,factor:.5}},{key:`h`,label:`Finished height`,start:P(2,5),link:{key:`w`,factor:2}}],rows:({w:e},t)=>{let n=e/2,r=k(Le(e),t.seam,t.step),i=k(Ie(n),t.seam,t.step);return[{label:`Stitch and flip (1)`,value:`${N(k(j(e,n),t.seam,t.step),t)} rectangle + 2 × ${N(k(j(n,n),t.seam,t.step),t)}`},{label:`Four at a time (4)`,value:`1 × ${N(r,t)} + 4 × ${N(i,t)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${N(r,t)}; sky: 2 halves of a ${N(i,t)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit`,start:P(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:N(k(j(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${N(k(Ie(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block`,start:P(10,25)}],rows:({f:e},t)=>[{label:`Block diagonal`,value:M(e*Math.SQRT2,t)},{label:`Side setting triangles`,value:`${N(k(Le(e*Math.SQRT2),t.seam,t.step),t)}, cut both diagonals (4)`},{label:`Corner setting triangles`,value:`${N(k(Ie(e/Math.SQRT2),t.seam,t.step),t)}, cut once (2)`}]},border:{title:`Borders`,inputs:[{key:`w`,label:`Quilt width (before the border)`,start:P(48,120)},{key:`h`,label:`Quilt height (before the border)`,start:P(60,150)},{key:`b`,label:`Border width`,start:P(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${N(k(j(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${N(k(j(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${N(k(Re(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${N(k(Re(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:P(48,120)},{key:`h`,label:`Quilt height`,start:P(48,120)}],rows:({w:e,h:t},n)=>{let r=Oe(e,t,n.bindingWidth,ke[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${M(n.bindingWidth,n)} wide`},{label:`Total length`,value:M(2*(e+t)+ke[n.units],n)},{label:`Fabric`,value:we(r.length,n.units)}]}},backing:{title:`Backing`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:P(60,150)},{key:`h`,label:`Quilt height`,start:P(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:we(Ee(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${M(n.overhang,n)} each side`}]},yardage:{title:`Yardage for squares`,widths:!0,inputs:[{key:`n`,label:`How many`,start:P(40,40),count:!0},{key:`f`,label:`Finished size`,start:P(3,8)}],rows:({n:e,f:t},n)=>{let r=Array.from({length:Math.max(1,Math.round(e))},()=>j(t,t)),i=De(r,n.seam,n.step,n.usable),a=Te(i,{usable:n.usable},n.fabricStep)[0],o=Ce[n.units].find(e=>e.fatQuarter),s=De(r,n.seam,n.step,o.usable),c=Te(s,o,n.fabricStep)[0];return[{label:`Strips`,value:`${i[0].strips} × ${M(i[0].stripWidth,n)} (${i[0].perStrip} per strip)`},{label:`Fabric (${M(n.usable,n)} usable)`,value:we(a.length,n.units)},{label:`Or fat quarters`,value:String(c.fatQuarters)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:P(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:M(e,t)},{label:`Cut (rounded up)`,value:M(Se(e,t.step),t)}]}},Be={class:`text-subtitle2`},Ve={class:`text-caption text-grey-7`},He={class:`text-grey-8`},Ue={class:`text-weight-medium`},We=O(x({__name:`HelpCalc`,props:{name:{}},setup(t){let n=t,a=he(),o=e(),l=f(()=>ze[n.name]),b=f(()=>a.doc?.units??o.settings.units),x=ee(A(b.value)[0].id);r(b,e=>x.value=A(e)[0].id);let C=f(()=>Pe(b.value,je(o.settings.print),x.value)),w=u(Object.fromEntries((l.value?.inputs??[]).map(e=>[e.key,e.start[b.value]])));function ne(e,t){w[e.key]=t,e.link&&(w[e.link.key]=t*e.link.factor)}let ie=f(()=>{let e=l.value;return!e||e.inputs.some(e=>!(w[e.key]>0))?[]:e.rows(w,C.value)});return(e,n)=>l.value?(i(),_(oe,{key:0,flat:``,bordered:``,class:`help-calc q-my-md`},{default:c(()=>[d(T,{class:`q-pb-sm`},{default:c(()=>[v(`div`,Be,[d(te,{name:`calculate`,class:`q-mr-xs`}),S(g(l.value.title)+` calculator `,1)]),v(`div`,Ve,` Seam allowance `+g(p(Ae)(C.value.seam,b.value))+` · cut sizes rounded up to `+g(C.value.step?p(Ae)(C.value.step,b.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),d(T,{class:`row q-pt-none`,style:{gap:`12px`}},{default:c(()=>[l.value.widths?(i(),_(D,{key:0,modelValue:x.value,"onUpdate:modelValue":n[0]||=e=>x.value=e,options:p(A)(b.value).map(e=>({label:e.label,value:e.id})),"emit-value":``,"map-options":``,outlined:``,dense:``,label:`Fabric width`,style:{width:`200px`}},null,8,[`modelValue`,`options`])):h(``,!0),(i(!0),m(y,null,s(l.value.inputs,e=>(i(),m(y,{key:e.key},[e.count||e.raw?(i(),_(re,{key:0,modelValue:w[e.key],"onUpdate:modelValue":t=>w[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(i(),_(xe,{key:1,"model-value":w[e.key],"onUpdate:modelValue":t=>ne(e,t),units:b.value,min:.25,label:e.label,style:{width:`200px`}},null,8,[`model-value`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),d(Ne,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:c(()=>[v(`tbody`,null,[(i(!0),m(y,null,s(ie.value,e=>(i(),m(`tr`,{key:e.label},[v(`td`,He,g(e.label),1),v(`td`,Ue,g(e.value),1)]))),128))])]),_:1})]),_:1})):(i(),_(ge,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:c(()=>[S(`Unknown calculator “`+g(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-f18784c3`]]),Ge=`---
+import{t as e}from"./settings-cLrrNpzD.js";import{At as t,Dt as n,J as r,R as i,T as a,U as o,V as s,X as c,Z as l,at as u,b as d,f,ft as p,g as m,h,jt as g,m as _,ot as ee,p as v,s as y,t as b,x,y as S}from"./create-CXFiK9Ge.js";import{V as C,t as w,v as te}from"./QBtn-D67DqTct.js";import{St as ne,a as re,bt as ie,i as ae,n as T,t as oe,vt as se,w as ce,xt as E,yt as le}from"./QCard-JZetY5gw.js";import{a as ue,r as de}from"./render-CRP6lwgu.js";import{a as fe,r as pe,t as D}from"./QSelect-BJLpY-rB.js";import{B as me,F as he,P as O,V as ge,z as _e}from"./index-uodWtFb3.js";import{n as ve,t as ye}from"./QTabs-DMXl-3vM.js";import{t as be}from"./QPage-D5_MJ09N.js";import{t as xe}from"./LengthInput-DebYgJkD.js";import{S as Se,_ as Ce,a as k,b as we,i as Te,n as Ee,o as De,r as Oe,t as ke,x as Ae,y as je}from"./yardage-D5dwrINA.js";var Me=[`horizontal`,`vertical`,`cell`,`none`],Ne=b({name:`QMarkupTable`,props:{...E,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>Me.includes(e)}},setup(e,{slots:t}){let n=ue(),r=ie(e,n),i=f(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>a(`div`,{class:i.value,tabindex:0},[a(`table`,{class:`q-table`},de(t.default))])}}),A=e=>Ce[e].filter(e=>!e.fatQuarter),Pe=(e,t,n)=>({units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:(A(e).find(e=>e.id===n)??A(e)[0]).usable,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}),Fe=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),j=(e,t)=>Fe([[0,0],[e,0],[e,t],[0,t]]),Ie=e=>Fe([[0,0],[e,0],[0,e]]),Le=e=>Fe([[0,0],[e,0],[e/2,e/2]]),Re=(e,t)=>Fe([[0,0],[e,0],[e-t,t],[t,t]]),M=(e,t)=>Ae(e,t.units),N=(e,t)=>e.cut[0]===e.cut[1]?`${M(e.cut[0],t)} square`:`${M(e.cut[0],t)} × ${M(e.cut[1],t)}`,P=(e,t)=>({in:e,cm:t}),ze={square:{title:`Square`,inputs:[{key:`f`,label:`Finished size`,start:P(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:N(k(j(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:P(6,15)},{key:`h`,label:`Finished width`,start:P(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:N(k(j(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished size (leg)`,start:P(3,8)}],rows:({f:e},t)=>{let n=k(Ie(e),t.seam,t.step),r=Se((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${N(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${M(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${M(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:P(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${N(k(Le(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:P(4,10),link:{key:`h`,factor:.5}},{key:`h`,label:`Finished height`,start:P(2,5),link:{key:`w`,factor:2}}],rows:({w:e},t)=>{let n=e/2,r=k(Le(e),t.seam,t.step),i=k(Ie(n),t.seam,t.step);return[{label:`Stitch and flip (1)`,value:`${N(k(j(e,n),t.seam,t.step),t)} rectangle + 2 × ${N(k(j(n,n),t.seam,t.step),t)}`},{label:`Four at a time (4)`,value:`1 × ${N(r,t)} + 4 × ${N(i,t)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${N(r,t)}; sky: 2 halves of a ${N(i,t)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit`,start:P(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:N(k(j(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${N(k(Ie(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block`,start:P(10,25)}],rows:({f:e},t)=>[{label:`Block diagonal`,value:M(e*Math.SQRT2,t)},{label:`Side setting triangles`,value:`${N(k(Le(e*Math.SQRT2),t.seam,t.step),t)}, cut both diagonals (4)`},{label:`Corner setting triangles`,value:`${N(k(Ie(e/Math.SQRT2),t.seam,t.step),t)}, cut once (2)`}]},border:{title:`Borders`,inputs:[{key:`w`,label:`Quilt width (before the border)`,start:P(48,120)},{key:`h`,label:`Quilt height (before the border)`,start:P(60,150)},{key:`b`,label:`Border width`,start:P(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${N(k(j(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${N(k(j(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${N(k(Re(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${N(k(Re(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:P(48,120)},{key:`h`,label:`Quilt height`,start:P(48,120)}],rows:({w:e,h:t},n)=>{let r=Oe(e,t,n.bindingWidth,ke[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${M(n.bindingWidth,n)} wide`},{label:`Total length`,value:M(2*(e+t)+ke[n.units],n)},{label:`Fabric`,value:we(r.length,n.units)}]}},backing:{title:`Backing`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:P(60,150)},{key:`h`,label:`Quilt height`,start:P(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:we(Ee(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${M(n.overhang,n)} each side`}]},yardage:{title:`Yardage for squares`,widths:!0,inputs:[{key:`n`,label:`How many`,start:P(40,40),count:!0},{key:`f`,label:`Finished size`,start:P(3,8)}],rows:({n:e,f:t},n)=>{let r=Array.from({length:Math.max(1,Math.round(e))},()=>j(t,t)),i=De(r,n.seam,n.step,n.usable),a=Te(i,{usable:n.usable},n.fabricStep)[0],o=Ce[n.units].find(e=>e.fatQuarter),s=De(r,n.seam,n.step,o.usable),c=Te(s,o,n.fabricStep)[0];return[{label:`Strips`,value:`${i[0].strips} × ${M(i[0].stripWidth,n)} (${i[0].perStrip} per strip)`},{label:`Fabric (${M(n.usable,n)} usable)`,value:we(a.length,n.units)},{label:`Or fat quarters`,value:String(c.fatQuarters)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:P(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:M(e,t)},{label:`Cut (rounded up)`,value:M(Se(e,t.step),t)}]}},Be={class:`text-subtitle2`},Ve={class:`text-caption text-grey-7`},He={class:`text-grey-8`},Ue={class:`text-weight-medium`},We=O(x({__name:`HelpCalc`,props:{name:{}},setup(t){let n=t,a=he(),o=e(),l=f(()=>ze[n.name]),b=f(()=>a.doc?.units??o.settings.units),x=ee(A(b.value)[0].id);r(b,e=>x.value=A(e)[0].id);let C=f(()=>Pe(b.value,je(o.settings.print),x.value)),w=u(Object.fromEntries((l.value?.inputs??[]).map(e=>[e.key,e.start[b.value]])));function ne(e,t){w[e.key]=t,e.link&&(w[e.link.key]=t*e.link.factor)}let ie=f(()=>{let e=l.value;return!e||e.inputs.some(e=>!(w[e.key]>0))?[]:e.rows(w,C.value)});return(e,n)=>l.value?(i(),_(oe,{key:0,flat:``,bordered:``,class:`help-calc q-my-md`},{default:c(()=>[d(T,{class:`q-pb-sm`},{default:c(()=>[v(`div`,Be,[d(te,{name:`calculate`,class:`q-mr-xs`}),S(g(l.value.title)+` calculator `,1)]),v(`div`,Ve,` Seam allowance `+g(p(Ae)(C.value.seam,b.value))+` · cut sizes rounded up to `+g(C.value.step?p(Ae)(C.value.step,b.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),d(T,{class:`row q-pt-none`,style:{gap:`12px`}},{default:c(()=>[l.value.widths?(i(),_(D,{key:0,modelValue:x.value,"onUpdate:modelValue":n[0]||=e=>x.value=e,options:p(A)(b.value).map(e=>({label:e.label,value:e.id})),"emit-value":``,"map-options":``,outlined:``,dense:``,label:`Fabric width`,style:{width:`200px`}},null,8,[`modelValue`,`options`])):h(``,!0),(i(!0),m(y,null,s(l.value.inputs,e=>(i(),m(y,{key:e.key},[e.count||e.raw?(i(),_(re,{key:0,modelValue:w[e.key],"onUpdate:modelValue":t=>w[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(i(),_(xe,{key:1,"model-value":w[e.key],"onUpdate:modelValue":t=>ne(e,t),units:b.value,min:.25,label:e.label,style:{width:`200px`}},null,8,[`model-value`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),d(Ne,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:c(()=>[v(`tbody`,null,[(i(!0),m(y,null,s(ie.value,e=>(i(),m(`tr`,{key:e.label},[v(`td`,He,g(e.label),1),v(`td`,Ue,g(e.value),1)]))),128))])]),_:1})]),_:1})):(i(),_(ge,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:c(()=>[S(`Unknown calculator “`+g(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-f18784c3`]]),Ge=`---
 title: Block colorings
 order: 50
 summary: Color a block's patches and keep several colorings of the same drawing.
@@ -611,8 +611,8 @@ The cut length then adds **SA × (1 + √2) at each end**, a total of **2(1 + �
   diagonal's end point along the edge, by one more SA.
 
 <svg viewBox="0 0 220 110" width="330" role="img" aria-label="A mitered border strip shaped like a trapezoid with 45 degree ends, its seam allowance beyond the finished corner">
-  <polygon points="10,10 150,10 130,40 30,40" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="20,10 140,10 124,34 36,34" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
+  <polygon points="10,10 150,10 130,40 30,40" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="20,10 140,10 124,34 36,34" fill="none" stroke="#333" stroke-dasharray="4 3"/>
   <text x="160" y="25" font-size="11" fill="currentColor">finished (dashed)</text>
   <text x="160" y="42" font-size="11" fill="currentColor">cut, longer (solid)</text>
 </svg>
@@ -699,13 +699,13 @@ to **⅞″**, the familiar "add ⅞″" rule. With 7.5 mm, it is ≈ 2.56 cm.
 Adding 2 × the seam allowance isn't enough, because the seam along the diagonal eats into the corner. The point
 of the triangle has to extend √2 × the seam allowance past the finished corner for the seams to meet.
 
-<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A cut square with its finished HST inside, the seam allowance shaded">
-  <rect x="10" y="10" width="100" height="100" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A cut square of fabric, halved on the diagonal, with the finished triangle dashed inside one half">
+  <rect x="10" y="10" width="100" height="100" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
   <line x1="10" y1="110" x2="110" y2="10" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="20,100 20,32 88,100" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-dasharray="4 3"/>
+  <polygon points="20,20 86,20 20,86" fill="none" stroke="#333" stroke-dasharray="4 3"/>
   <text x="125" y="40" font-size="11" fill="currentColor">cut square</text>
-  <text x="125" y="58" font-size="11" fill="currentColor">finished (dashed)</text>
-  <text x="125" y="76" font-size="11" fill="currentColor">triangle</text>
+  <text x="125" y="58" font-size="11" fill="currentColor">finished triangle</text>
+  <text x="125" y="76" font-size="11" fill="currentColor">(dashed)</text>
 </svg>
 
 ## Worked examples
@@ -746,12 +746,17 @@ For a finished block of side f, the block's diagonal (corner to corner) is **f �
   legs are f ÷ √2. Cut a square of f ÷ √2 + (2 + √2) × SA once diagonally. You need 2 squares (4
   corners).
 
-<svg viewBox="0 0 220 130" width="330" role="img" aria-label="Four blocks turned on point, with triangles filling the edges and corners">
-  <rect x="10" y="10" width="140" height="110" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
-  <polygon points="80,20 120,60 80,100 40,60" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
-  <text x="160" y="50" font-size="11" fill="currentColor">block on point,</text>
-  <text x="160" y="67" font-size="11" fill="currentColor">triangles fill</text>
-  <text x="160" y="84" font-size="11" fill="currentColor">edges and corners</text>
+<svg viewBox="0 0 230 130" width="345" role="img" aria-label="A block turned on point, with setting triangles filling the edges and corners around it">
+  <rect x="10" y="20" width="140" height="80" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="80,20 120,60 80,100 40,60" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <line x1="10" y1="20" x2="40" y2="60" stroke="currentColor"/>
+  <line x1="10" y1="100" x2="40" y2="60" stroke="currentColor"/>
+  <line x1="150" y1="20" x2="120" y2="60" stroke="currentColor"/>
+  <line x1="150" y1="100" x2="120" y2="60" stroke="currentColor"/>
+  <rect x="160" y="40" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="178" y="50" font-size="11" fill="currentColor">block on point</text>
+  <rect x="160" y="58" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="178" y="68" font-size="11" fill="currentColor">setting triangles</text>
 </svg>
 
 ## Worked examples
@@ -791,13 +796,12 @@ This is more than a half-square triangle needs. The long side is the diagonal of
 triangle needs a seam allowance along that side _and_ a seam allowance on the two short sides, which
 sit at 45° to the long side. Each short seam moves the points out by (1 + √2) × SA along the long side.
 
-<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square cut along both diagonals into four triangles">
-  <rect x="10" y="10" width="100" height="100" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square of fabric cut along both diagonals into four triangles">
+  <rect x="10" y="10" width="100" height="100" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
   <line x1="10" y1="10" x2="110" y2="110" stroke="currentColor" stroke-width="1.5"/>
   <line x1="110" y1="10" x2="10" y2="110" stroke="currentColor" stroke-width="1.5"/>
-  <text x="125" y="50" font-size="11" fill="currentColor">cut square,</text>
-  <text x="125" y="68" font-size="11" fill="currentColor">both diagonals:</text>
-  <text x="125" y="86" font-size="11" fill="currentColor">4 triangles</text>
+  <text x="125" y="58" font-size="11" fill="currentColor">cut on both diagonals</text>
+  <text x="125" y="76" font-size="11" fill="currentColor">for 4 triangles</text>
 </svg>
 
 ## Worked examples
@@ -864,12 +868,12 @@ measure. Three strips cut 2″ wide (5 cm) and sewn together should measure exac
 needle position or presser foot until they do. Accuracy matters more than the exact value, so use the
 same allowance throughout a project.
 
-<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A cut square with a dashed stitching line inside it. The gap is the seam allowance">
-  <rect x="10" y="10" width="100" height="90" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="25" y="25" width="70" height="60" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
+<svg viewBox="0 0 230 110" width="345" role="img" aria-label="A cut square of fabric with a dashed sewing line inside it. The band between them is the seam allowance">
+  <rect x="10" y="10" width="100" height="90" style="fill: #daa828; filter: brightness(0.8)" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="25" y="25" width="70" height="60" fill="#daa828" stroke="#333" stroke-dasharray="4 3"/>
   <text x="125" y="40" font-size="11" fill="currentColor">cut edge (solid)</text>
   <text x="125" y="58" font-size="11" fill="currentColor">sewing line (dashed)</text>
-  <text x="125" y="76" font-size="11" fill="currentColor">seam allowance (shaded)</text>
+  <text x="125" y="76" font-size="11" fill="currentColor">seam allowance (darker)</text>
 </svg>
 
 ## Where it shows up
@@ -904,11 +908,13 @@ The center's diagonal is the unit's side, so its side is f ÷ √2 (about 0.707 
 half-square triangles whose legs are f ÷ 2, so the cut is f ÷ 2 + (2 + √2) × SA, and each square is
 cut once diagonally to make 2 triangles.
 
-<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square with a tilted square inside it, touching the middle of each side">
-  <rect x="10" y="10" width="100" height="100" fill="none" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="60,10 110,60 60,110 10,60" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
-  <text x="125" y="55" font-size="11" fill="currentColor">tilted center</text>
-  <text x="125" y="72" font-size="11" fill="currentColor">4 corner triangles</text>
+<svg viewBox="0 0 220 120" width="330" role="img" aria-label="A square with a tilted center square inside it, touching the middle of each side, and a triangle in each corner">
+  <rect x="10" y="10" width="100" height="100" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="60,10 110,60 60,110 10,60" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <rect x="125" y="40" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="143" y="50" font-size="11" fill="currentColor">tilted center</text>
+  <rect x="125" y="58" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="143" y="68" font-size="11" fill="currentColor">4 corner triangles</text>
 </svg>
 
 ## Worked examples
@@ -940,11 +946,11 @@ SA is the [seam allowance](/help/math/seam-allowance).
 Do it once for each side of a rectangle. With a ¼″ seam allowance that is the familiar "add ½″". With
 7.5 mm it is "add 1.5 cm".
 
-<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A rectangle with the finished area dashed inside it, a seam allowance on every side">
-  <rect x="10" y="10" width="120" height="80" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="25" y="25" width="90" height="50" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
+<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A rectangle of fabric with the finished area dashed inside it, a seam allowance on every side">
+  <rect x="10" y="10" width="120" height="80" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="25" y="25" width="90" height="50" fill="none" stroke="#333" stroke-dasharray="4 3"/>
   <text x="142" y="45" font-size="11" fill="currentColor">cut = finished</text>
-  <text x="142" y="62" font-size="11" fill="currentColor">+ s on each side</text>
+  <text x="142" y="62" font-size="11" fill="currentColor">+ SA on each side</text>
 </svg>
 
 ## Worked examples
@@ -991,11 +997,12 @@ Usable width is a little less than the printed width, since selvages are trimmed
 A fat quarter is 18″ × 21″ (50 × 55 cm), with 20″ (53 cm) usable. Strips are packed into the 18″ (50
 cm) depth. The calculator counts how many fat quarters the strips fit into.
 
-<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A fat quarter with strips laid across its width">
-  <rect x="10" y="10" width="140" height="90" fill="none" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="10" y="10" width="140" height="18" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
-  <rect x="10" y="28" width="140" height="18" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
-  <rect x="10" y="46" width="140" height="18" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
+<svg viewBox="0 0 220 110" width="330" role="img" aria-label="A fat quarter with strips laid across its width, and the leftover fabric below them">
+  <rect x="10" y="10" width="140" height="90" fill="#daa828" fill-opacity="0.35" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="10" y="10" width="140" height="18" fill="#daa828" stroke="currentColor"/>
+  <rect x="10" y="28" width="140" height="18" fill="#daa828" stroke="currentColor"/>
+  <rect x="10" y="46" width="140" height="18" fill="#daa828" stroke="currentColor"/>
+  <text x="80" y="88" font-size="11" fill="#333" text-anchor="middle">leftover</text>
   <text x="160" y="40" font-size="11" fill="currentColor">strips across</text>
   <text x="160" y="56" font-size="11" fill="currentColor">the 21″ width</text>
 </svg>
