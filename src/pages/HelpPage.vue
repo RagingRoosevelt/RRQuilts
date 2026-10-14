@@ -221,7 +221,10 @@ function follow(e: MouseEvent) {
 .help-md :deep(ul) {
   padding-left: 1.4em;
 }
-/* Default link blues are too dark on the dark page: a light tint of the accent instead. */
+/* Links follow the accent color: a shade of it on the light page, a tint on the dark one. */
+.help-md :deep(a) {
+  color: color-mix(in srgb, var(--q-primary) 75%, black);
+}
 .is-dark .help-md :deep(a) {
   color: color-mix(in srgb, var(--q-primary) 40%, white);
 }
