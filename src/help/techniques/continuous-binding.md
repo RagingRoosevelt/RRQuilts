@@ -149,7 +149,7 @@ calculator below.
 Unfold both tails completely along the loose stretch, so each is a single layer at its full cut
 width. Lay them right sides together at right angles, as in step 1, and sew on the diagonal.
 
-<svg viewBox="0 0 350 150" width="525" role="img" aria-label="The two tails opened and laid right sides together at right angles, sewn on the diagonal">
+<svg viewBox="0 0 350 172" width="525" role="img" aria-label="The two tails opened and laid right sides together at right angles, sewn on the diagonal">
   <rect x="20" y="60" width="140" height="30" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
   <rect x="120" y="50" width="30" height="95" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor" stroke-width="1.5"/>
   <line x1="120" y1="60" x2="150" y2="90" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
@@ -160,7 +160,11 @@ width. Lay them right sides together at right angles, as in step 1, and sew on t
   <text x="213" y="106" font-size="11" fill="currentColor">right side</text>
   <rect x="195" y="114" width="12" height="12" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor"/>
   <text x="213" y="124" font-size="11" fill="currentColor">wrong side</text>
-  <line x1="190" y1="46" x2="137" y2="76" stroke="currentColor"/>
+  <defs><marker id="join-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
+  <line x1="190" y1="46" x2="146" y2="70" stroke="currentColor" marker-end="url(#join-arrow)"/>
+  <text x="20" y="108" font-size="11" fill="currentColor">← to the start</text>
+  <text x="34" y="122" font-size="11" fill="currentColor">of the strip</text>
+  <text x="135" y="164" font-size="11" fill="currentColor" text-anchor="middle">↑ from the end of the strip</text>
 </svg>
 
 Turn the top tail down. If the binding now lies flat along the quilt without slack or pull, trim
@@ -197,10 +201,11 @@ bulkier join.
   <text x="66" y="87" font-size="6" fill="currentColor">stitch in the ditch from</text>
   <text x="66" y="93" font-size="6" fill="currentColor">the front, catching the</text>
   <text x="66" y="99" font-size="6" fill="currentColor">binding on the back</text>
-  <line x1="112" y1="84" x2="120.5" y2="78.5" stroke="currentColor" stroke-width="0.6"/>
+  <defs><marker id="xs-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
+  <line x1="112" y1="84" x2="119" y2="80" stroke="currentColor" stroke-width="0.6" marker-end="url(#xs-arrow)"/>
   <text x="112" y="19" font-size="6" fill="currentColor" text-anchor="middle">stitching, hidden</text>
   <text x="112" y="25" font-size="6" fill="currentColor" text-anchor="middle">under the fold</text>
-  <line x1="120" y1="26" x2="132" y2="34" stroke="currentColor" stroke-width="0.6"/>
+  <line x1="120" y1="26" x2="130.5" y2="32.5" stroke="currentColor" stroke-width="0.6" marker-end="url(#xs-arrow)"/>
   <text x="178" y="32" font-size="6" fill="currentColor">four layers on top: raw edges</text>
   <text x="178" y="40" font-size="6" fill="currentColor">at the quilt's edge, then the</text>
   <text x="178" y="48" font-size="6" fill="currentColor">strip folded back over them</text>
@@ -220,7 +225,8 @@ bulkier join.
   <path d="M10 23 H127 V140" fill="none" stroke="#111" stroke-width="1.6" stroke-dasharray="1.5 1.5"/>
   <text x="155" y="118" font-size="11" fill="currentColor">the stitch in the ditch</text>
   <text x="155" y="134" font-size="11" fill="currentColor">from the front shows here</text>
-  <line x1="152" y1="122" x2="130" y2="122" stroke="currentColor"/>
+  <defs><marker id="back-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
+  <line x1="152" y1="122" x2="131" y2="122" stroke="currentColor" marker-end="url(#back-arrow)"/>
   <text x="155" y="60" font-size="11" fill="currentColor">the back: one side</text>
   <text x="155" y="76" font-size="11" fill="currentColor">folded first, then</text>
   <text x="155" y="92" font-size="11" fill="currentColor">the other, for a miter</text>
