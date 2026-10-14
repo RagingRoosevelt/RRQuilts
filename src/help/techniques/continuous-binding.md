@@ -162,7 +162,7 @@ width. Lay them right sides together at right angles, as in step 1, and sew on t
   <line x1="120" y1="60" x2="150" y2="90" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
   <text x="-92" y="72" font-size="10" fill="#fff">← to the rest</text>
   <text x="-80" y="84" font-size="10" fill="#fff">of the strip</text>
-  <g transform="translate(143 178) rotate(90)">
+  <g transform="translate(139.5 178) rotate(90)">
     <text x="0" y="0" font-size="9" fill="#333">to the rest →</text>
     <text x="0" y="11" font-size="9" fill="#333">of the strip</text>
   </g>
