@@ -31,9 +31,9 @@
               class="tile"
               :class="{ active: editor.block === b.id }"
               :title="b.notecard.name"
-              @click="pickBlock(b.id)"
+              @click="pickBlock(b)"
             >
-              <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
+              <img :src="thumb(b, shown(b))" :alt="b.notecard.name" />
               <q-badge
                 v-if="b.colorVariant"
                 class="variant"
@@ -44,21 +44,21 @@
               </q-badge>
               <!-- Blocks with several colorings: click the count to choose which one to set. -->
               <span
-                v-if="b.colorings.length > 1"
+                v-if="offered(b).length > 1"
                 class="count"
                 role="button"
                 title="Choose coloring"
                 @click.stop
-                >{{ b.colorings.length }}
+                >{{ offered(b).length }}
                 <q-menu>
                   <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
                     <button
-                      v-for="(c, i) in b.colorings"
+                      v-for="(c, i) in offered(b)"
                       :key="c.id"
                       v-close-popup
                       class="tile"
                       :class="{
-                        active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id,
+                        active: shown(b) === c.id,
                       }"
                       :title="c.name ?? `Coloring ${i + 1}`"
                       @click="chooseColoring(b.id, c.id)"
@@ -80,9 +80,9 @@
               class="tile"
               :class="{ active: editor.block === b.id }"
               :title="b.notecard.name"
-              @click="pickBlock(b.id)"
+              @click="pickBlock(b)"
             >
-              <img :src="thumb(b, editor.coloringOf.get(b.id))" :alt="b.notecard.name" />
+              <img :src="thumb(b, shown(b))" :alt="b.notecard.name" />
               <q-badge
                 v-if="b.colorVariant"
                 class="variant"
@@ -93,21 +93,21 @@
               </q-badge>
               <!-- Blocks with several colorings: click the count to choose which one to set. -->
               <span
-                v-if="b.colorings.length > 1"
+                v-if="offered(b).length > 1"
                 class="count"
                 role="button"
                 title="Choose coloring"
                 @click.stop
-                >{{ b.colorings.length }}
+                >{{ offered(b).length }}
                 <q-menu>
                   <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
                     <button
-                      v-for="(c, i) in b.colorings"
+                      v-for="(c, i) in offered(b)"
                       :key="c.id"
                       v-close-popup
                       class="tile"
                       :class="{
-                        active: (editor.coloringOf.get(b.id) ?? b.colorings[0]?.id) === c.id,
+                        active: shown(b) === c.id,
                       }"
                       :title="c.name ?? `Coloring ${i + 1}`"
                       @click="chooseColoring(b.id, c.id)"
@@ -200,7 +200,7 @@ import { blockThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { usePaletteOffer } from '@/composables/palette-offer';
-import { isLibraryItem, splitItems } from '@/model/library-items';
+import { isLibraryItem, projectColorings, splitItems } from '@/model/library-items';
 import { blockSections, libraryGroups } from '@/model/library';
 import BlockSections from '@/components/BlockSections.vue';
 import { creditCopy } from '@/model/credits';
@@ -360,7 +360,26 @@ const colorTree = computed(() => {
 const thumb = (b: Block, coloringId?: string) =>
   blockThumbnail(doc.value, b, 96, $q.dark.isActive, coloringId, library.items.colors);
 
-function pickBlock(id: string) {
+/** The colorings a block offers: a color variant only its project colorings (when it has any). */
+function offered(b: Block) {
+  const own = projectColorings(b, library.lookup)?.own;
+  return own?.length ? own : b.colorings;
+}
+/** The coloring a block is set with: the one chosen if offered, else the first offered. */
+function shown(b: Block) {
+  const chosen = editor.coloringOf.get(b.id);
+  const list = offered(b);
+  return list.some((c) => c.id === chosen) ? chosen! : list[0]?.id;
+}
+function pickBlock(b: Block | string) {
+  const block =
+    typeof b === 'string'
+      ? (doc.value.project.blocks.find((x) => x.id === b) ?? library.lookup.block(b))
+      : b;
+  const id = typeof b === 'string' ? b : b.id;
+  // Placing uses the chosen coloring, so record the one shown (a variant's own, not its library's).
+  const c = block && shown(block);
+  if (c && editor.coloringOf.get(id) !== c) editor.coloringOf.set(id, c);
   editor.block = id;
   if (editor.tool !== 'set') editor.tool = 'set';
 }
