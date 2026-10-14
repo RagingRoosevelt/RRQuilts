@@ -26,11 +26,14 @@ are the [half-square](/help/math/half-square-triangles) size for the finished he
 Cut the goose from a quarter of the large square, and each sky from half of a small one. The cut sizes
 are the same as for four at a time, but nothing is sewn before cutting.
 
-<svg viewBox="0 0 220 90" width="330" role="img" aria-label="A flying-geese unit with a large triangle and a smaller triangle on each side">
-  <rect x="10" y="10" width="140" height="70" fill="none" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="10,80 80,10 150,80" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
-  <text x="160" y="40" font-size="11" fill="currentColor">goose from the large square</text>
-  <text x="160" y="56" font-size="11" fill="currentColor">sky from two small ones</text>
+<svg viewBox="0 0 330 100" width="495" role="img" aria-label="A flying-geese unit: the goose triangle pointing up, a sky triangle in each top corner">
+  <rect x="10" y="10" width="160" height="80" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="10,10 90,10 10,90" fill="#daa828" stroke="currentColor"/>
+  <polygon points="170,10 90,10 170,90" fill="#daa828" stroke="currentColor"/>
+  <rect x="190" y="30" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="208" y="40" font-size="11" fill="currentColor">goose (large square)</text>
+  <rect x="190" y="46" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="208" y="56" font-size="11" fill="currentColor">sky (small squares)</text>
 </svg>
 
 ## Worked examples

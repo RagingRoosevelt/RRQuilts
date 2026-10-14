@@ -25,20 +25,29 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
 2. Put a small square on one end of the rectangle, right sides together, so the line runs from the
    corner on the rectangle's long edge toward the middle of the other end.
 
-<svg viewBox="0 0 220 90" width="330" role="img" aria-label="A small square placed on the left end of a rectangle with a diagonal line">
-  <rect x="20" y="20" width="160" height="60" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="20" y="20" width="60" height="60" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
-  <line x1="20" y1="80" x2="80" y2="20" stroke="currentColor" stroke-width="1.5"/>
+<svg viewBox="0 0 330 120" width="495" role="img" aria-label="A sky square, wrong side up, on the left end of the goose rectangle, right sides together, with the sewing line drawn corner to corner">
+  <rect x="20" y="20" width="160" height="80" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="20" y="20" width="80" height="80" fill="#f6e7bd" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="20" y1="100" x2="100" y2="20" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <rect x="200" y="24" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="218" y="34" font-size="11" fill="currentColor">goose, right side</text>
+  <rect x="200" y="40" width="12" height="12" fill="#f6e7bd" stroke="currentColor"/>
+  <text x="218" y="50" font-size="11" fill="currentColor">sky, wrong side</text>
+  <text x="200" y="80" font-size="11" fill="currentColor">sew on the line</text>
 </svg>
 
 3. Sew on the line. Trim the corner beyond the seam to ¼″ (7.5 mm), and press the triangle
    open toward the corner.
 4. Repeat on the other end with the second square, so the two lines make a point at the center.
 
-<svg viewBox="0 0 220 90" width="330" role="img" aria-label="Both small squares sewn on. The two diagonals meet to form the point of the goose">
-  <rect x="20" y="20" width="160" height="60" fill="none" stroke="currentColor" stroke-width="1.5"/>
-  <polygon points="20,80 80,20 20,20" fill="currentColor" fill-opacity="0.3" stroke="currentColor"/>
-  <polygon points="180,80 120,20 180,20" fill="currentColor" fill-opacity="0.3" stroke="currentColor"/>
+<svg viewBox="0 0 330 120" width="495" role="img" aria-label="Both sky squares sewn, trimmed, and flipped: sky triangles in the top corners, the goose triangle pointing up between them">
+  <rect x="20" y="20" width="160" height="80" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="20,20 100,20 20,100" fill="#daa828" stroke="currentColor"/>
+  <polygon points="180,20 100,20 180,100" fill="#daa828" stroke="currentColor"/>
+  <rect x="200" y="40" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="218" y="50" font-size="11" fill="currentColor">goose, right side</text>
+  <rect x="200" y="56" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="218" y="66" font-size="11" fill="currentColor">sky, right side</text>
 </svg>
 
 ## Four at a time
@@ -48,13 +57,19 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
    squares overlap a little in the middle, with the lines running corner to corner.
 3. Sew ¼″ (7.5 mm) on both sides of the line, then cut on the line. Press the small triangles out.
 
-<svg viewBox="0 0 220 110" width="330" role="img" aria-label="Two small squares on opposite corners of a large square, with a stitching line on each side of the diagonal">
-  <rect x="30" y="10" width="90" height="90" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="30" y="10" width="50" height="50" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
-  <rect x="70" y="50" width="50" height="50" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
-  <line x1="30" y1="100" x2="120" y2="10" stroke="currentColor"/>
-  <text x="130" y="60" font-size="11" fill="currentColor">sew both sides,</text>
-  <text x="130" y="74" font-size="11" fill="currentColor">then cut</text>
+<svg viewBox="0 0 330 140" width="495" role="img" aria-label="Two sky squares, wrong side up, on opposite corners of the large goose square, overlapping in the middle, with a sewing line on each side of the diagonal and the cutting line on it">
+  <rect x="20" y="10" width="120" height="120" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="20" y="10" width="66" height="66" fill="#f6e7bd" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="74" y="64" width="66" height="66" fill="#f6e7bd" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="20" y1="10" x2="140" y2="130" stroke="#333" stroke-width="1.5"/>
+  <line x1="26" y1="4" x2="146" y2="124" stroke="#333" stroke-dasharray="4 3"/>
+  <line x1="14" y1="16" x2="134" y2="136" stroke="#333" stroke-dasharray="4 3"/>
+  <rect x="160" y="20" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="178" y="30" font-size="11" fill="currentColor">goose, right side</text>
+  <rect x="160" y="36" width="12" height="12" fill="#f6e7bd" stroke="currentColor"/>
+  <text x="178" y="46" font-size="11" fill="currentColor">sky, wrong side</text>
+  <text x="160" y="80" font-size="11" fill="currentColor">sew both dashed lines,</text>
+  <text x="160" y="96" font-size="11" fill="currentColor">cut on the solid line</text>
 </svg>
 
 4. Put a small square on the corner of each of the two pieces, right sides together, with the line
@@ -62,10 +77,20 @@ For a 4″ × 2″ (10 × 5 cm) finished unit, with ¼″ (7.5 mm) seams and rou
 5. Sew ¼″ (7.5 mm) on both sides of the line again and cut on the line. Press open. You have four
    units.
 
-<svg viewBox="0 0 220 90" width="330" role="img" aria-label="A unit with a small square on its open corner and the stitching and cutting lines">
-  <polygon points="20,80 110,10 200,80" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="100" y="30" width="50" height="50" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
-  <line x1="100" y1="80" x2="150" y2="30" stroke="currentColor"/>
+<svg viewBox="0 0 330 140" width="495" role="img" aria-label="One of the two pieces, pressed: the goose triangle with two sky triangles, and a third sky square, wrong side up, on its open goose corner, with sewing lines on each side of its diagonal">
+  <polygon points="20,130 140,10 140,130" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="20,130 20,10 80,70" fill="#daa828" stroke="currentColor"/>
+  <polygon points="20,10 140,10 80,70" fill="#daa828" stroke="currentColor"/>
+  <rect x="80" y="70" width="60" height="60" fill="#f6e7bd" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="80" y1="70" x2="140" y2="130" stroke="#333" stroke-width="1.5"/>
+  <line x1="86" y1="64" x2="146" y2="124" stroke="#333" stroke-dasharray="4 3"/>
+  <line x1="74" y1="76" x2="134" y2="136" stroke="#333" stroke-dasharray="4 3"/>
+  <rect x="160" y="20" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="178" y="30" font-size="11" fill="currentColor">goose, right side</text>
+  <rect x="160" y="36" width="12" height="12" fill="#daa828" stroke="currentColor"/>
+  <text x="178" y="46" font-size="11" fill="currentColor">sky, right side</text>
+  <rect x="160" y="52" width="12" height="12" fill="#f6e7bd" stroke="currentColor"/>
+  <text x="178" y="62" font-size="11" fill="currentColor">sky, wrong side</text>
 </svg>
 
 6. Trim each unit to 4½″ × 2½″ (11.5 × 6.5 cm), which is the finished size plus a seam allowance on every

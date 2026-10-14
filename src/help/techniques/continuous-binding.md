@@ -113,6 +113,7 @@ calculator below.
   <rect x="10" y="40" width="114" height="16" style="fill: var(--q-primary)" stroke="currentColor"/>
   <rect x="124" y="40" width="16" height="100" style="fill: var(--q-primary)" stroke="currentColor"/>
   <line x1="124" y1="40" x2="140" y2="40" stroke="currentColor" stroke-width="3"/>
+  <line x1="10" y1="46" x2="124" y2="46" stroke="#fff" stroke-dasharray="4 3"/>
   <line x1="134" y1="40" x2="134" y2="140" stroke="#fff" stroke-dasharray="4 3"/>
   <circle cx="134" cy="41" r="3" fill="#fff" stroke="currentColor"/>
   <text x="165" y="62" font-size="11" fill="currentColor">fold down, flush</text>
@@ -123,32 +124,53 @@ calculator below.
 
 7. **Keep sewing.** Start right at the fold with a backstitch and sew down the next side. Stop one SA
    from the next edge, sew out to the corner, and fold up and down the same way at every corner.
-8. **Join the two ends.** Stop sewing about 12″ (30 cm) before where you started. Lay both tails flat
-   along the quilt edge and trim them so they overlap by the width of the cut strip (2½″ / 6 cm).
+8. **Join the two ends.** Stop sewing about 12″ (30 cm) before where you started, so a gap is left
+   with both tails loose. Lay both tails along the quilt edge and trim them so they overlap by the
+   width of the cut strip (2½″ / 6 cm).
 
-<svg viewBox="0 0 300 100" width="450" role="img" aria-label="The two loose tails laid along the quilt edge, overlapping by one strip width">
-  <g transform="rotate(180 150 50)">
-    <defs><pattern id="cb-d" patternUnits="userSpaceOnUse" x="10" y="40" width="60" height="60"><polygon points="17.27,30.0 21.51,34.24 25.76,30.0 21.51,25.76" fill="#c4282c"/><polygon points="21.51,25.76 25.76,30.0 30.0,25.76 25.76,21.51" fill="#5a78a0"/><polygon points="25.76,21.51 30.0,25.76 34.24,21.51 30.0,17.27" fill="#c4282c"/><polygon points="21.51,34.24 25.76,38.49 30.0,34.24 25.76,30.0" fill="#5a78a0"/><polygon points="25.76,30.0 30.0,34.24 34.24,30.0 30.0,25.76" fill="#c4282c"/><polygon points="30.0,25.76 34.24,30.0 38.49,25.76 34.24,21.51" fill="#5a78a0"/><polygon points="25.76,38.49 30.0,42.73 34.24,38.49 30.0,34.24" fill="#c4282c"/><polygon points="30.0,34.24 34.24,38.49 38.49,34.24 34.24,30.0" fill="#5a78a0"/><polygon points="34.24,30.0 38.49,34.24 42.73,30.0 38.49,25.76" fill="#c4282c"/><polygon points="38.49,34.24 60.0,55.76 60.0,60.0 55.76,60.0 34.24,38.49" fill="#f4ecd8"/><polygon points="25.76,38.49 4.24,60.0 0.0,60.0 0.0,55.76 21.51,34.24" fill="#f4ecd8"/><polygon points="21.51,25.76 0.0,4.24 0.0,0.0 4.24,0.0 25.76,21.51" fill="#f4ecd8"/><polygon points="34.24,21.51 55.76,0.0 60.0,0.0 60.0,4.24 38.49,25.76" fill="#f4ecd8"/><polygon points="47.27,60.0 30.0,42.73 34.24,38.49 47.27,51.51" fill="#5a78a0"/><polygon points="0.0,47.27 17.27,30.0 21.51,34.24 8.49,47.27" fill="#5a78a0"/><polygon points="12.73,0.0 30.0,17.27 25.76,21.51 12.73,8.49" fill="#5a78a0"/><polygon points="60.0,12.73 42.73,30.0 38.49,25.76 51.51,12.73" fill="#5a78a0"/><polygon points="42.73,30.0 60.0,47.27 51.51,47.27 38.49,34.24" fill="#5a78a0"/><polygon points="30.0,42.73 12.73,60.0 12.73,51.51 25.76,38.49" fill="#5a78a0"/><polygon points="17.27,30.0 0.0,12.73 8.49,12.73 21.51,25.76" fill="#5a78a0"/><polygon points="30.0,17.27 47.27,0.0 47.27,8.49 34.24,21.51" fill="#5a78a0"/><polygon points="55.76,60.0 47.27,60.0 47.27,51.51" fill="#c4282c"/><polygon points="0.0,55.76 0.0,47.27 8.49,47.27" fill="#c4282c"/><polygon points="4.24,0.0 12.73,0.0 12.73,8.49" fill="#c4282c"/><polygon points="60.0,4.24 60.0,12.73 51.51,12.73" fill="#c4282c"/><polygon points="60.0,47.27 60.0,55.76 51.51,47.27" fill="#c4282c"/><polygon points="12.73,60.0 4.24,60.0 12.73,51.51" fill="#c4282c"/><polygon points="0.0,12.73 0.0,4.24 8.49,12.73" fill="#c4282c"/><polygon points="47.27,0.0 55.76,0.0 47.27,8.49" fill="#c4282c"/><polygon points="47.27,60.0 12.73,60.0 30.0,42.73" fill="#96c4e8"/><polygon points="0.0,47.27 0.0,12.73 17.27,30.0" fill="#96c4e8"/><polygon points="12.73,0.0 47.27,0.0 30.0,17.27" fill="#96c4e8"/><polygon points="60.0,12.73 60.0,47.27 42.73,30.0" fill="#96c4e8"/></pattern></defs>
-    <rect x="10" y="40" width="280" height="56" fill="url(#cb-d)" stroke="currentColor" stroke-width="1.5"/>
-    <rect x="10" y="40" width="160" height="16" style="fill: var(--q-primary)" stroke="currentColor"/>
-    <rect x="140" y="40" width="150" height="16" style="fill: var(--q-primary); filter: brightness(0.75)" stroke="currentColor"/>
-    <line x1="140" y1="20" x2="140" y2="60" stroke="currentColor" stroke-dasharray="4 3"/>
-    <line x1="170" y1="20" x2="170" y2="60" stroke="currentColor" stroke-dasharray="4 3"/>
-  </g>
-  <text x="145" y="96" font-size="11" fill="currentColor" text-anchor="middle">overlap = strip width</text>
+<svg viewBox="0 0 300 130" width="450" role="img" aria-label="The quilt edge nearest you: the start of the strip sewn on the left, the end sewn on the right, and between them an unsewn gap where the two loose tails overlap by one strip width">
+  <defs><pattern id="cb-d" patternUnits="userSpaceOnUse" x="10" y="-56" width="140" height="140"><polygon points="40.3,70.0 50.2,79.9 60.1,70.0 50.2,60.1" fill="#c4282c"/><polygon points="50.2,60.1 60.1,70.0 70.0,60.1 60.1,50.2" fill="#5a78a0"/><polygon points="60.1,50.2 70.0,60.1 79.9,50.2 70.0,40.3" fill="#c4282c"/><polygon points="50.2,79.9 60.1,89.8 70.0,79.9 60.1,70.0" fill="#5a78a0"/><polygon points="60.1,70.0 70.0,79.9 79.9,70.0 70.0,60.1" fill="#c4282c"/><polygon points="70.0,60.1 79.9,70.0 89.8,60.1 79.9,50.2" fill="#5a78a0"/><polygon points="60.1,89.8 70.0,99.7 79.9,89.8 70.0,79.9" fill="#c4282c"/><polygon points="70.0,79.9 79.9,89.8 89.8,79.9 79.9,70.0" fill="#5a78a0"/><polygon points="79.9,70.0 89.8,79.9 99.7,70.0 89.8,60.1" fill="#c4282c"/><polygon points="89.8,79.9 140.0,130.1 140.0,140.0 130.1,140.0 79.9,89.8" fill="#f4ecd8"/><polygon points="60.1,89.8 9.9,140.0 0.0,140.0 0.0,130.1 50.2,79.9" fill="#f4ecd8"/><polygon points="50.2,60.1 0.0,9.9 0.0,0.0 9.9,0.0 60.1,50.2" fill="#f4ecd8"/><polygon points="79.9,50.2 130.1,0.0 140.0,0.0 140.0,9.9 89.8,60.1" fill="#f4ecd8"/><polygon points="110.3,140.0 70.0,99.7 79.9,89.8 110.3,120.2" fill="#5a78a0"/><polygon points="0.0,110.3 40.3,70.0 50.2,79.9 19.8,110.3" fill="#5a78a0"/><polygon points="29.7,0.0 70.0,40.3 60.1,50.2 29.7,19.8" fill="#5a78a0"/><polygon points="140.0,29.7 99.7,70.0 89.8,60.1 120.2,29.7" fill="#5a78a0"/><polygon points="99.7,70.0 140.0,110.3 120.2,110.3 89.8,79.9" fill="#5a78a0"/><polygon points="70.0,99.7 29.7,140.0 29.7,120.2 60.1,89.8" fill="#5a78a0"/><polygon points="40.3,70.0 0.0,29.7 19.8,29.7 50.2,60.1" fill="#5a78a0"/><polygon points="70.0,40.3 110.3,0.0 110.3,19.8 79.9,50.2" fill="#5a78a0"/><polygon points="130.1,140.0 110.3,140.0 110.3,120.2" fill="#c4282c"/><polygon points="0.0,130.1 0.0,110.3 19.8,110.3" fill="#c4282c"/><polygon points="9.9,0.0 29.7,0.0 29.7,19.8" fill="#c4282c"/><polygon points="140.0,9.9 140.0,29.7 120.2,29.7" fill="#c4282c"/><polygon points="140.0,110.3 140.0,130.1 120.2,110.3" fill="#c4282c"/><polygon points="29.7,140.0 9.9,140.0 29.7,120.2" fill="#c4282c"/><polygon points="0.0,29.7 0.0,9.9 19.8,29.7" fill="#c4282c"/><polygon points="110.3,0.0 130.1,0.0 110.3,19.8" fill="#c4282c"/><polygon points="110.3,140.0 29.7,140.0 70.0,99.7" fill="#96c4e8"/><polygon points="0.0,110.3 0.0,29.7 40.3,70.0" fill="#96c4e8"/><polygon points="29.7,0.0 110.3,0.0 70.0,40.3" fill="#96c4e8"/><polygon points="140.0,29.7 140.0,110.3 99.7,70.0" fill="#96c4e8"/></pattern></defs>
+  <rect x="10" y="24" width="280" height="60" fill="url(#cb-d)" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="10" y="68" width="155" height="16" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <rect x="135" y="68" width="155" height="16" style="fill: var(--q-primary); filter: brightness(0.75)" stroke="currentColor"/>
+  <line x1="10" y1="78" x2="100" y2="78" stroke="#fff" stroke-dasharray="4 3"/>
+  <line x1="200" y1="78" x2="290" y2="78" stroke="#fff" stroke-dasharray="4 3"/>
+  <circle cx="100" cy="78" r="3" fill="#fff" stroke="currentColor"/>
+  <circle cx="200" cy="78" r="3" fill="#fff" stroke="currentColor"/>
+  <line x1="135" y1="18" x2="135" y2="90" stroke="currentColor" stroke-dasharray="4 3"/>
+  <line x1="165" y1="18" x2="165" y2="90" stroke="currentColor" stroke-dasharray="4 3"/>
+  <text x="150" y="13" font-size="11" fill="currentColor" text-anchor="middle">overlap = strip width</text>
+  <text x="55" y="100" font-size="11" fill="currentColor" text-anchor="middle">start of the strip</text>
+  <text x="245" y="100" font-size="11" fill="currentColor" text-anchor="middle">end of the strip</text>
+  <path d="M100 104 V110 H200 V104" fill="none" stroke="currentColor"/>
+  <text x="150" y="124" font-size="11" fill="currentColor" text-anchor="middle">gap, not sewn yet</text>
 </svg>
 
-Open the tails out and lay them right sides together at right angles, as in step 1. Sew on the
-diagonal, check that the binding lies flat along the quilt, then trim the seam to ¼″ and press it
-open. Refold the strip and sew the last stretch down.
+Unfold both tails completely along the loose stretch, so each is a single layer at its full cut
+width. Lay them right sides together at right angles, as in step 1, and sew on the diagonal.
 
-<svg viewBox="0 0 300 120" width="450" role="img" aria-label="The two tails opened and laid right sides together at right angles, sewn on the diagonal">
+<svg viewBox="0 0 320 150" width="480" role="img" aria-label="The two tails opened and laid right sides together at right angles, sewn on the diagonal">
   <rect x="20" y="60" width="140" height="30" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
-  <rect x="120" y="10" width="30" height="90" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="120" y="50" width="30" height="95" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor" stroke-width="1.5"/>
   <line x1="120" y1="60" x2="150" y2="90" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
   <text x="165" y="50" font-size="11" fill="currentColor">sew on the diagonal,</text>
-  <text x="165" y="66" font-size="11" fill="currentColor">check the fit,</text>
-  <text x="165" y="82" font-size="11" fill="currentColor">then trim to ¼″</text>
+  <text x="165" y="66" font-size="11" fill="currentColor">with both tails</text>
+  <text x="165" y="82" font-size="11" fill="currentColor">unfolded</text>
+  <rect x="165" y="96" width="12" height="12" style="fill: var(--q-primary)" stroke="currentColor"/>
+  <text x="183" y="106" font-size="11" fill="currentColor">right side</text>
+  <rect x="165" y="114" width="12" height="12" style="fill: color-mix(in srgb, var(--q-primary) 22%, white)" stroke="currentColor"/>
+  <text x="183" y="124" font-size="11" fill="currentColor">wrong side</text>
+</svg>
+
+Turn the top tail down. If the binding now lies flat along the quilt without slack or pull, trim
+the seam to ¼″ and press it open. Fold the strip in half again and sew the gap closed.
+
+<svg viewBox="0 0 300 120" width="450" role="img" aria-label="The top tail turned down: the two tails now make one straight strip, joined by a diagonal seam">
+  <polygon points="20,45 135,45 165,75 20,75" style="fill: var(--q-primary)" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="135,45 280,45 280,75 165,75" style="fill: var(--q-primary); filter: brightness(0.75)" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="135" y1="45" x2="165" y2="75" stroke="#fff" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="150" y="98" font-size="11" fill="currentColor" text-anchor="middle">turned down: one straight strip again,</text>
+  <text x="150" y="114" font-size="11" fill="currentColor" text-anchor="middle">joined on the diagonal</text>
 </svg>
 
 Another way to join the ends is the tucked end. Before you start, cut the starting end at 45° and
@@ -189,11 +211,15 @@ bulkier join.
   <text x="66" y="68.6" font-size="5" fill="#333">backing</text>
 </svg>
 
-<svg viewBox="0 0 280 150" width="420" role="img" aria-label="A corner from the back: the binding folded over with a diagonal miter at the corner">
+<svg viewBox="0 0 320 150" width="480" role="img" aria-label="A corner from the back: the binding folded over with a diagonal miter at the corner, held by the stitch in the ditch sewn from the front">
   <rect x="10" y="10" width="130" height="130" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>
   <polygon points="10,10 140,10 124,26 10,26" style="fill: var(--q-primary); filter: brightness(0.75)" stroke="currentColor"/>
   <polygon points="140,10 140,140 124,140 124,26" style="fill: var(--q-primary)" stroke="currentColor"/>
   <line x1="124" y1="26" x2="140" y2="10" stroke="#fff" stroke-width="1.5"/>
+  <path d="M10 23 H127 V140" fill="none" stroke="#111" stroke-width="1.6" stroke-dasharray="1.5 1.5"/>
+  <text x="155" y="118" font-size="11" fill="currentColor">the stitch in the ditch</text>
+  <text x="155" y="134" font-size="11" fill="currentColor">from the front shows here</text>
+  <line x1="152" y1="122" x2="130" y2="122" stroke="currentColor"/>
   <text x="155" y="60" font-size="11" fill="currentColor">the back: one side</text>
   <text x="155" y="76" font-size="11" fill="currentColor">folded first, then</text>
   <text x="155" y="92" font-size="11" fill="currentColor">the other, for a miter</text>
