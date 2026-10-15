@@ -973,7 +973,9 @@
           <div class="text-h6">Save to my library</div>
           <div class="text-grey-7">
             {{ ownPalettes.find((x) => x.palette.id === saveColors!.from)?.colors.length ?? 0 }}
-            color(s). Fabric images stay in the project.
+            color(s) and
+            {{ ownPalettes.find((x) => x.palette.id === saveColors!.from)?.fabrics.length ?? 0 }}
+            fabric image(s).
           </div>
           <q-select
             v-model="saveColors.to"
@@ -1060,6 +1062,7 @@ import {
   renamePalette,
 } from '@/model/project-palettes';
 import { collectionFile } from '@/model/collection-file';
+import type { LibraryDoc } from '@/model/schema/library';
 import { absorbFabrics, embedFabrics } from '@/storage/fabric-files';
 import {
   isLibraryItem,
@@ -1081,6 +1084,7 @@ import {
   blocksByLibrary,
   linkState,
   saveCollection,
+  addFabrics,
   syncBlock,
   syncColor,
   syncConflict,
@@ -1872,7 +1876,7 @@ async function colorVariant(lib: Block) {
 const linkOf = (b: Block) => linkState(library.mine ?? undefined, b, project.doc!.units);
 
 const askCategoryFor = useAskCategory();
-const askCategory = () => askCategoryFor(`Add to ${MY_LIBRARY}`);
+const askCategory = (kind: 'block' | 'colors') => askCategoryFor(`Add to ${MY_LIBRARY}`, '', kind);
 
 /** Take the library links a My-library operation set on blocks/colors into the open project. */
 function applyLinks(next: RrqDoc) {
@@ -1889,7 +1893,7 @@ function applyLinks(next: RrqDoc) {
 }
 
 async function addToMine(b: Block) {
-  const category = await askCategory();
+  const category = await askCategory('block');
   if (category === null) return;
   const r = await addBlock(library.ensureMine(await askAuthor()), project.doc!, b.id, category);
   await library.saveMine(r.lib);
@@ -1936,29 +1940,42 @@ const changedColors = computed(() =>
 
 const saveColors = ref<{ to: string; name: string; from: string } | null>(null);
 async function savePickedColors({ to, name, from }: { to: string; name: string; from: string }) {
-  // A project palette's colors (fabric images stay in the project).
-  const picked =
-    ownPalettes.value.find((x) => x.palette.id === from)?.colors.map((c) => c.id) ?? [];
+  // A project palette's colors and fabric images (library sizes are in inches).
+  const pp = ownPalettes.value.find((x) => x.palette.id === from);
+  const picked = pp?.colors.map((c) => c.id) ?? [];
+  const k = project.doc!.units === 'cm' ? 1 / 2.54 : 1;
+  const fabrics = (pp?.fabrics ?? []).map((f) => ({
+    ...f,
+    size: [f.size[0] * k, f.size[1] * k] as [number, number],
+  }));
+  const author = to ? settings.settings.author : await askAuthor();
+  let lib: LibraryDoc;
+  let doc: RrqDoc;
+  let id = to;
   if (to) {
-    const r = await addToCollection(library.mine!, project.doc!, to, picked);
-    await library.saveMine(r.lib);
-    applyLinks(r.doc);
-    return void $q.notify({ type: 'positive', message: 'Added to the palette.' });
+    ({ lib, doc } = picked.length
+      ? await addToCollection(library.mine!, project.doc!, to, picked)
+      : { lib: library.mine!, doc: project.doc! });
+  } else {
+    const category = await askCategory('colors');
+    if (category === null) return;
+    ({ lib, doc } = await saveCollection(
+      library.ensureMine(author),
+      project.doc!,
+      name.trim(),
+      picked,
+      author,
+      category,
+    ));
+    id = lib.items.at(-1)!.data.id;
   }
-  const category = await askCategory();
-  if (category === null) return;
-  const author = await askAuthor();
-  const r = await saveCollection(
-    library.ensureMine(author),
-    project.doc!,
-    name.trim(),
-    picked,
-    author,
-    category,
-  );
-  await library.saveMine(r.lib);
-  applyLinks(r.doc);
-  $q.notify({ type: 'positive', message: `Saved “${name.trim()}” to ${MY_LIBRARY}.` });
+  if (fabrics.length) lib = (await addFabrics(lib, { id }, fabrics, author)).lib;
+  await library.saveMine(lib);
+  applyLinks(doc);
+  $q.notify({
+    type: 'positive',
+    message: to ? 'Added to the palette.' : `Saved “${name.trim()}” to ${MY_LIBRARY}.`,
+  });
 }
 
 async function syncColors() {

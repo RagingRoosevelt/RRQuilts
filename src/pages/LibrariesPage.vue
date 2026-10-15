@@ -1684,7 +1684,7 @@ function remove(id: string) {
 const askCategory = useAskCategory();
 async function pickCategory(id: string) {
   const item = library.mine!.items.find((i) => i.data.id === id);
-  const v = await askCategory('Category', item?.category ?? '');
+  const v = await askCategory('Category', item?.category ?? '', item?.type);
   if (v !== null) await update((l) => setCategory(l, id, v));
 }
 

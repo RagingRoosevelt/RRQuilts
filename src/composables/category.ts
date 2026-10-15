@@ -1,5 +1,8 @@
 import { Dialog } from 'quasar';
 import { categoryTree, ensureCategory } from '@/model/library';
+import type { LibraryDoc } from '@/model/schema/library';
+
+type Kind = 'block' | 'colors';
 import { useLibraryStore } from '@/stores/library';
 import CategoryPicker, { type PickerItem } from '@/components/CategoryPicker.vue';
 import { useAuthor } from './author';
@@ -21,8 +24,18 @@ export function useAskCategory() {
     if (r.lib !== lib) await library.saveMine(r.lib);
     return r.id;
   }
+  /**
+   * Whether category `id` of `doc` suits items of `kind`: some item of that kind is in it (or in one
+   * of its subcategories). With `unusedOk`, a category nothing is in yet suits too.
+   */
+  function suits(doc: LibraryDoc, id: string, kind: Kind | undefined, unusedOk: boolean) {
+    if (!kind) return true;
+    const ids = new Set([id, ...doc.categories.filter((c) => c.parent === id).map((c) => c.id)]);
+    const inIt = doc.items.filter((i) => i.category && ids.has(i.category));
+    return inIt.some((i) => i.type === kind) || (unusedOk && !inIt.length);
+  }
   /** Categories other libraries use that My library lacks (by path), A–Z, subcategories indented. */
-  function fromOthers(): PickerItem[] {
+  function fromOthers(kind: Kind | undefined): PickerItem[] {
     const mine = new Set(
       categoryTree(library.mine?.categories ?? []).map((c) => c.label.toLowerCase()),
     );
@@ -30,6 +43,7 @@ export function useAskCategory() {
     for (const v of library.views)
       if (v.doc.kind !== 'personal')
         for (const c of categoryTree(v.doc.categories)) {
+          if (!suits(v.doc, c.id, kind, false)) continue;
           const [top, sub] = c.label.split(' / ');
           const subs = tree.get(top!) ?? new Set<string>();
           if (sub) subs.add(sub);
@@ -47,14 +61,14 @@ export function useAskCategory() {
       ];
     });
   }
-  return (title: string, current = ''): Promise<string | undefined | null> =>
+  /** `kind`: what is being categorized; categories only the other kind uses aren't offered. */
+  return (title: string, current = '', kind?: Kind): Promise<string | undefined | null> =>
     new Promise((resolve) => {
-      const mine = categoryTree(library.mine?.categories ?? []).map((c) => ({
-        label: c.name,
-        value: c.id,
-        depth: c.depth,
-      }));
-      const others = fromOthers();
+      const mineDoc = library.mine;
+      const mine = categoryTree(mineDoc?.categories ?? [])
+        .filter((c) => !mineDoc || c.id === current || suits(mineDoc, c.id, kind, true))
+        .map((c) => ({ label: c.name, value: c.id, depth: c.depth }));
+      const others = fromOthers(kind);
       const items: PickerItem[] = [
         { label: 'Uncategorized', value: '', depth: 0 },
         ...mine,
