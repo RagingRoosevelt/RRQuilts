@@ -1,6 +1,6 @@
 {
  "format": "rrq",
- "version": 1,
+ "version": 2,
  "app": "0.0.1",
  "units": "in",
  "futureTopLevel": {

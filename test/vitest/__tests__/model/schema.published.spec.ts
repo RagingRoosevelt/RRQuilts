@@ -4,7 +4,7 @@ import { RrqDoc } from '@/model/schema/project';
 
 // The published JSON Schema is the TypeBox schema serialized. `npm run schema` rewrites the files.
 const targets = [
-  'public/schemas/rrq.v1.json',
+  'public/schemas/rrq.v2.json',
   'specs/003-project-format/contracts/rrq.schema.json',
 ];
 const generated = JSON.stringify(RrqDoc, null, 2) + '\n';

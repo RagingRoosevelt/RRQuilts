@@ -14,7 +14,7 @@
     },
     "version": {
       "type": "number",
-      "const": 1
+      "const": 2
     },
     "app": {
       "type": "string"
@@ -219,7 +219,6 @@
                   "image": {
                     "type": "object",
                     "required": [
-                      "data",
                       "type",
                       "sha256"
                     ],
@@ -260,6 +259,10 @@
                     ],
                     "minItems": 2
                   },
+                  "approximate": {
+                    "type": "boolean",
+                    "const": true
+                  },
                   "average": {
                     "type": "array",
                     "additionalItems": false,
@@ -287,6 +290,43 @@
                   },
                   "sku": {
                     "type": "string"
+                  },
+                  "sizes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "px",
+                        "sha256",
+                        "type",
+                        "width",
+                        "height"
+                      ],
+                      "properties": {
+                        "px": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "height": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "path": {
+                          "type": "string"
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -4266,7 +4306,6 @@
               "image": {
                 "type": "object",
                 "required": [
-                  "data",
                   "type",
                   "sha256"
                 ],
@@ -4421,7 +4460,6 @@
               "file": {
                 "type": "object",
                 "required": [
-                  "data",
                   "type",
                   "sha256"
                 ],
@@ -5377,7 +5415,6 @@
               "asset": {
                 "type": "object",
                 "required": [
-                  "data",
                   "type",
                   "sha256"
                 ],
@@ -5422,11 +5459,48 @@
             "type": "string",
             "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
           }
+        },
+        "libraries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "packs"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "author": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "ref": {
+                "type": "string"
+              },
+              "file": {
+                "type": "string"
+              },
+              "packs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       }
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v1.json",
-  "title": "RRQuilts project (.rrq) v1"
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v2.json",
+  "title": "RRQuilts project (.rrq) v2"
 }

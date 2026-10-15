@@ -87,7 +87,7 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over `RrqDoc`.
 
 - `schema/` — TypeBox schemas = TS types + validation + published JSON Schema
-  (`public/schemas/rrq.v1.json`; regenerate with `npm run schema`, a test fails on drift)
+  (`public/schemas/rrq.v2.json`; regenerate with `npm run schema`, a test fails on drift)
 - `io.ts` — `parseProject` (JSON → migrate → validate → duplicate ids → dangling refs + asset
   hashes reported), `serializeProject`. New version: bump `VERSION`, add `migrations[old]`.
 - `units.ts` — only real lengths scale; block geometry is normalized 0…1

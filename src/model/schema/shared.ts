@@ -61,8 +61,12 @@ export const Credit = Type.Object({
 });
 
 /** Embedded binary (packed form). Library repositories may use `path` instead (spec 002). */
+/**
+ * A binary file. With `data` it's embedded; without, it's a reference resolved by `sha256` from the
+ * device's image store or a library (spec 014: library fabric images aren't embedded in projects).
+ */
 export const Asset = Type.Object({
-  data: Type.String({ pattern: '^data:[a-z]+/[a-z0-9.+-]+;base64,' }),
+  data: Type.Optional(Type.String({ pattern: '^data:[a-z]+/[a-z0-9.+-]+;base64,' })),
   type: Type.String(),
   sha256: Type.String({ pattern: '^[a-f0-9]{64}$' }),
   width: Type.Optional(Type.Integer({ minimum: 1 })),

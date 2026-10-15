@@ -18,10 +18,20 @@ describe('migrations', () => {
   });
 
   it('fails clearly when a migration step is missing', async () => {
-    const r = await parseProject(JSON.stringify(fixture()), { target: 2, migrations: {} });
+    const r = await parseProject(JSON.stringify({ ...fixture(), version: 1 }), {
+      target: 2,
+      migrations: {},
+    });
     expect(r).toMatchObject({
       ok: false,
       error: expect.stringMatching(/No migration from version 1/),
     });
+  });
+});
+
+describe('v1 → v2 (spec 014)', () => {
+  it('opens a version 1 project unchanged apart from its version', async () => {
+    const r = await parseProject(JSON.stringify({ ...fixture(), version: 1 }));
+    expect(r.ok && r.doc).toEqual(fixture());
   });
 });

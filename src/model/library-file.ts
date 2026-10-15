@@ -2,7 +2,7 @@
 // write backups (My library + installed packs) and packs (license-checked).
 import type { TSchema } from 'typebox';
 import Value from 'typebox/value';
-import { ALL_RIGHTS, authorOf, priorCredits, requiredLicense } from './credits';
+import { authorOf, noSharing, priorCredits, requiredLicense } from './credits';
 import { blockIds } from './ids';
 import {
   LIBRARY_FORMAT,
@@ -142,7 +142,7 @@ export function packDoc(mine: LibraryDoc, me: string, meta: PackMeta) {
   const excluded: string[] = [];
   const items = mine.items.filter((i) => {
     const theirs = (authorOf(i.data) ?? '') !== me;
-    const keep = !(theirs && i.data.license === ALL_RIGHTS);
+    const keep = !(theirs && noSharing(i.data.license));
     if (!keep) excluded.push(i.data.notecard.name);
     return keep;
   });

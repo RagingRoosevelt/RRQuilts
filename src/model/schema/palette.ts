@@ -1,14 +1,30 @@
 import Type from 'typebox';
 import { Asset, ItemId, RGB, Size, itemBase } from './shared';
 
+/** One standard size of a library fabric's image (spec 014: 256, 512, 1024 px long side). */
+export const FabricImage = Type.Object({
+  px: Type.Integer({ minimum: 1 }),
+  sha256: Type.String({ pattern: '^[a-f0-9]{64}$' }),
+  type: Type.String(),
+  width: Type.Integer({ minimum: 1 }),
+  height: Type.Integer({ minimum: 1 }),
+  /** Relative file in a library (repository layout); absent when only the hash is known. */
+  path: Type.Optional(Type.String()),
+});
+
 export const Fabric = Type.Object({
   ...itemBase,
+  /** The fabric's main image (largest size up to 512 px), embedded or referenced by hash. */
   image: Asset,
   /** Real-world size of the image in file units (true scale). */
   size: Size,
+  /** The size wasn't set, so it's the 8 in default (shown with ≈). */
+  approximate: Type.Optional(Type.Literal(true)),
   average: RGB,
   manufacturer: Type.Optional(Type.String()),
   sku: Type.Optional(Type.String()),
+  /** Library fabrics: every standard size available, never larger than the source. */
+  sizes: Type.Optional(Type.Array(FabricImage)),
 });
 
 export const Color = Type.Object({ ...itemBase, rgb: RGB });
@@ -43,5 +59,6 @@ export const Palette = Type.Object({
 });
 
 export type Fabric = Type.Static<typeof Fabric>;
+export type FabricImage = Type.Static<typeof FabricImage>;
 export type Color = Type.Static<typeof Color>;
 export type Palette = Type.Static<typeof Palette>;

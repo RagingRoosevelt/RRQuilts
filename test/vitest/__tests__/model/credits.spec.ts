@@ -4,6 +4,7 @@ import { copyBlock, newBlock } from '@/editor/block-ops';
 import { builtinItems } from '@/content/starter';
 import {
   ALL_RIGHTS,
+  PERSONAL_USE,
   blocksByOthers,
   effectiveLicense,
   licenseName,
@@ -24,6 +25,10 @@ describe('credits and licenses', () => {
       requiredLicense([{ license: 'CC-BY-SA-4.0' }, { license: 'CC-BY-NC-4.0', name: 'B' }]),
     ).toEqual({ license: 'CC-BY-NC-SA-4.0', because: 'B' });
     expect(requiredLicense([{ license: ALL_RIGHTS, name: 'C' }])?.license).toBe(ALL_RIGHTS);
+    // Personal-use (spec 014) locks like all rights reserved, keeping its own wording.
+    expect(
+      requiredLicense([{ license: 'CC-BY-SA-4.0' }, { license: PERSONAL_USE, name: 'P' }]),
+    ).toEqual({ license: PERSONAL_USE, because: 'P' });
     expect(licenseName('CC-BY-4.0')).toBe('CC BY 4.0');
   });
 

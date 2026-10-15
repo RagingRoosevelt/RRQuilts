@@ -1,15 +1,22 @@
 // Library documents (.rrqlib, spec 002 amended by spec 011): My library backups and shareable packs.
 import Type from 'typebox';
 import { Block } from './block';
-import { Color } from './palette';
+import { Color, Fabric } from './palette';
 import { Units } from './project';
 import { itemBase, Socials } from './shared';
 
 export const LIBRARY_FORMAT = 'rrqlib';
-export const LIBRARY_VERSION = 1;
+export const LIBRARY_VERSION = 2;
 
-/** A named set of colors; each color keeps its own `id@version` so projects link single colors. */
-export const ColorCollection = Type.Object({ ...itemBase, colors: Type.Array(Color) });
+/**
+ * A palette: a named set of colors and fabrics (spec 014); each keeps its own `id@version` so
+ * projects link single colors and fabrics.
+ */
+export const ColorCollection = Type.Object({
+  ...itemBase,
+  colors: Type.Array(Color),
+  fabrics: Type.Optional(Type.Array(Fabric)),
+});
 
 const category = { category: Type.Optional(Type.String()) };
 /** `data` is the project-schema object itself (id, notecard, author, license, credits inside). */

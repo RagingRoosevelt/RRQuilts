@@ -7,6 +7,10 @@ import type { Credit } from './schema/shared';
 
 export const DEFAULT_LICENSE = 'CC-BY-SA-4.0';
 export const ALL_RIGHTS = 'LicenseRef-All-Rights-Reserved';
+/** Spec 014: manufacturers' fabric images in personal libraries. Ranked with all rights reserved. */
+export const PERSONAL_USE = 'LicenseRef-Personal-Use';
+/** Licenses that forbid sharing others' work (never exported in someone else's pack). */
+export const noSharing = (id?: string) => id === ALL_RIGHTS || id === PERSONAL_USE;
 
 export const LICENSES = [
   {
@@ -34,6 +38,11 @@ export const LICENSES = [
     id: ALL_RIGHTS,
     name: 'All rights reserved',
     terms: 'Only the author may copy, change, or share it',
+  },
+  {
+    id: PERSONAL_USE,
+    name: 'All rights reserved, for personal use',
+    terms: 'For your own projects only; not to be shared or sold',
   },
 ];
 
@@ -103,7 +112,7 @@ export const needsCredit = (x: Creditable, me: string) =>
   (!!src(x) && !src(x)!.derived) || (!!x.author && x.author !== me);
 
 const rank = (id?: string) =>
-  !id ? 0 : id === ALL_RIGHTS ? 3 : /\bNC\b/.test(id) ? 2 : /\bSA\b/.test(id) ? 1 : 0;
+  !id ? 0 : noSharing(id) ? 3 : /\bNC\b/.test(id) ? 2 : /\bSA\b/.test(id) ? 1 : 0;
 const LOCKS = [undefined, 'CC-BY-SA-4.0', 'CC-BY-NC-SA-4.0', ALL_RIGHTS] as const;
 
 export interface Lock {
@@ -120,7 +129,11 @@ export function requiredLicense(sources: { license?: string; name?: string }[]):
   let best: { license?: string; name?: string } | undefined;
   for (const s of sources) if (rank(s.license) > rank(best?.license)) best = s;
   return best
-    ? { license: LOCKS[rank(best.license)]!, because: best.name ?? 'earlier work' }
+    ? {
+        // The two no-sharing licenses keep their own wording.
+        license: rank(best.license) === 3 ? best.license! : LOCKS[rank(best.license)]!,
+        because: best.name ?? 'earlier work',
+      }
     : undefined;
 }
 

@@ -5,9 +5,22 @@ import { Quilt } from './quilt';
 import { Id, ItemId, Socials } from './shared';
 
 export const FORMAT = 'rrq';
-export const VERSION = 1;
+export const VERSION = 2;
 
 export const Units = Type.Union([Type.Literal('in'), Type.Literal('cm')]);
+
+/** A library a project uses (spec 014 FR-032): where to get it, and which packs. */
+export const LibraryRef = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+  author: Type.Optional(Type.String()),
+  /** Repository address (spec 002), with an optional branch or tag. */
+  url: Type.Optional(Type.String()),
+  ref: Type.Optional(Type.String()),
+  /** A local `.rrqlib`'s file name, when there's no address. */
+  file: Type.Optional(Type.String()),
+  packs: Type.Array(Type.String()),
+});
 
 export const Project = Type.Object({
   /** Stable identity across renames and file copies (drafts, tab locks, recent list). */
@@ -28,6 +41,8 @@ export const Project = Type.Object({
   libraryBlocks: Type.Optional(Type.Array(ItemId)),
   /** Library palettes (color collections) picked for this project's design tray. */
   libraryPalettes: Type.Optional(Type.Array(ItemId)),
+  /** Libraries this project's items come from, so a device without one can offer to add it. */
+  libraries: Type.Optional(Type.Array(LibraryRef)),
 });
 
 export const RrqDoc = Type.Object(
@@ -40,11 +55,12 @@ export const RrqDoc = Type.Object(
   },
   {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v1.json',
-    title: 'RRQuilts project (.rrq) v1',
+    $id: 'https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v2.json',
+    title: 'RRQuilts project (.rrq) v2',
   },
 );
 
 export type Units = Type.Static<typeof Units>;
+export type LibraryRef = Type.Static<typeof LibraryRef>;
 export type Project = Type.Static<typeof Project>;
 export type RrqDoc = Type.Static<typeof RrqDoc>;

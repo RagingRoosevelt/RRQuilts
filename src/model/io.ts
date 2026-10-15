@@ -8,8 +8,10 @@ import { FORMAT, RrqDoc, VERSION } from './schema/project';
 type Raw = Record<string, unknown>;
 /** `migrations[n]` upgrades a version-n document to version n+1 (raw JSON, before validation). */
 export type Migrations = Record<number, (doc: Raw) => Raw>;
-// ponytail: empty until v2; the mechanism is exercised by tests.
-export const migrations: Migrations = {};
+export const migrations: Migrations = {
+  // v2 (spec 014): fabric image references, fabric sizes, library refs. All additive.
+  1: (doc) => doc,
+};
 
 export type ParseResult =
   { ok: true; doc: RrqDoc; report: string[] } | { ok: false; error: string };
@@ -197,6 +199,7 @@ async function badAssets(doc: RrqDoc): Promise<string[]> {
   ];
   const out: string[] = [];
   for (const [where, asset] of assets) {
+    if (!asset.data) continue; // a reference (library fabric image), resolved by hash elsewhere
     try {
       if ((await sha256Hex(dataUriBytes(asset.data))) !== asset.sha256)
         out.push(`${where}: image data is corrupted`);
