@@ -60,19 +60,8 @@
         :class="{ left: settings.settings.sidesSwapped }"
         :style="{ gap: '8px', '--fly-top': `${flyTop}px` }"
       >
-        <div class="row items-center no-wrap" style="gap: 4px">
-          <q-input
-            v-model="search"
-            dense
-            outlined
-            clearable
-            placeholder="Search names, notes"
-            class="col"
-          >
-            <template #prepend><q-icon name="search" /></template>
-          </q-input>
+        <div v-if="$q.screen.lt.md" class="row justify-end">
           <q-btn
-            v-if="$q.screen.lt.md"
             flat
             round
             dense
@@ -253,6 +242,9 @@
             </template>
           </q-select>
         </template>
+        <q-input v-model="search" dense outlined clearable placeholder="Search names, notes">
+          <template #prepend><q-icon name="search" /></template>
+        </q-input>
         <q-select
           v-if="settings.settings.libraryType === 'block'"
           v-model="settings.settings.libraryGroupBy"
