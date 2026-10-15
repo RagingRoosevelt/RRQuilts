@@ -264,7 +264,7 @@
           <div class="q-pa-md">
             <q-checkbox
               v-model="store.settings.hideSyncedMine"
-              label="Hide “My Library” blocks when they are synced with project blocks"
+              label="Hide “My Library” blocks and palettes when they are synced with the project's"
             />
           </div>
         </q-expansion-item>

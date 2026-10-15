@@ -61,6 +61,17 @@ export const ProjectPalette = Type.Object({
   notecard: Type.Object({ name: Type.String() }),
   colors: Type.Array(ItemId),
   fabrics: Type.Array(ItemId),
+  /**
+   * v4: the My library palette it's synced with (saved there from it), and `base`, a key of what
+   * both held at the last sync (to tell which side changed since).
+   */
+  source: Type.Optional(
+    Type.Object({
+      libraryId: Type.String(),
+      itemId: Type.String(),
+      base: Type.Optional(Type.String()),
+    }),
+  ),
 });
 
 export const Palette = Type.Object({

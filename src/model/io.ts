@@ -32,6 +32,8 @@ export const migrations: Migrations = {
     ];
     return { ...doc, project: { ...project, palette: { ...palette, collections } } };
   },
+  // v4: a project palette may record the My library palette it's synced with. Additive.
+  3: (doc) => doc,
 };
 
 export type ParseResult =

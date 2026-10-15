@@ -87,7 +87,7 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over `RrqDoc`.
 
 - `schema/` — TypeBox schemas = TS types + validation + published JSON Schema
-  (`public/schemas/rrq.v3.json`; regenerate with `npm run schema`, a test fails on drift)
+  (`public/schemas/rrq.v4.json`; regenerate with `npm run schema`, a test fails on drift)
 - `io.ts` — `parseProject` (JSON → migrate → validate → duplicate ids → dangling refs + asset
   hashes reported), `serializeProject`. New version: bump `VERSION`, add `migrations[old]`.
 - `units.ts` — only real lengths scale; block geometry is normalized 0…1
@@ -95,7 +95,9 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   `arrangement.ts` turns seams into faces (outline component only; dangling → unconnected)
 - `blocks/edit.ts` `applySeamEdit` — derive + stable ids/fills (`remap.ts`, 128² sampling)
 - `project-palettes.ts` — v3 project palettes (`palette.collections`: named groups of own colors and
-  fabrics by id); `syncPalettes` (in `syncDraft`) files loose own items into the first palette
+  fabrics by id); `syncPalettes` (in `syncDraft`) files loose own items into the first palette. v4
+  `source` links one to a My library palette (`base` = per-item hashes at the last sync;
+  `resolveSync` decides each difference's direction, conflicts go to the user)
 - `coloring.ts` `paint` — copy-on-write quilt colorings (this / allIdentical / alternate)
 - `layout/` — slots per `specs/003-project-format/contracts/slot-ids.md`; add a layout style by
   writing a generator and adding its id grammar there; `reconcile`/`applyLayout` on changes

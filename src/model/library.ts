@@ -370,6 +370,34 @@ export async function setCollectionColors(lib: LibraryDoc, id: string, colors: C
   return mapItem(lib, id, () => ({ ...item, data }));
 }
 
+/**
+ * Make My library palette `id` match a project palette (synchronize): its colors (`colorIds`, kept
+ * linked) and fabrics (`fabrics`, in inches) replace the palette's, as a new revision.
+ */
+export async function syncCollectionFrom(
+  lib: LibraryDoc,
+  doc: RrqDoc,
+  id: string,
+  colorIds: string[],
+  fabrics: Fabric[],
+) {
+  const item = lib.items.find((i) => i.type === 'colors' && i.data.id === id);
+  if (item?.type !== 'colors') return { lib, doc };
+  const byId = new Map(doc.project.palette.colors.map((c) => [c.id, c]));
+  const colors = await Promise.all(
+    colorIds.flatMap((c) => byId.get(c) ?? []).map((c) => asLibraryData(c, 1)),
+  );
+  const next = await nextCollection(item.data, colors);
+  const data = await asLibraryData(
+    { ...next, fabrics: await Promise.all(fabrics.map((f) => asLibraryData(f, 1))) },
+    next.revision ?? 1,
+  );
+  return {
+    lib: mapItem(lib, id, () => ({ ...item, data })),
+    doc: linkColors(doc, lib, colors),
+  };
+}
+
 /** A new color, made by the user, at the end of one of their collections. */
 export async function addNewColor(
   lib: LibraryDoc,

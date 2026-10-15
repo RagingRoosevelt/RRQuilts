@@ -445,6 +445,22 @@
               <span class="text-caption text-grey-7"
                 >· {{ pp.colors.length + pp.fabrics.length }}</span
               >
+              <!-- Synced with a My library palette: positive when they match, warning when not. -->
+              <q-icon
+                v-if="paletteLinks.get(pp.palette.id)"
+                name="sync"
+                size="xs"
+                :color="paletteLinks.get(pp.palette.id)!.inSync ? 'positive' : 'warning'"
+                class="q-ml-xs"
+              >
+                <q-tooltip>
+                  {{
+                    paletteLinks.get(pp.palette.id)!.inSync
+                      ? `In sync with “${paletteLinks.get(pp.palette.id)!.collection.notecard.name}” in ${MY_LIBRARY}`
+                      : `Differs from “${paletteLinks.get(pp.palette.id)!.collection.notecard.name}” in ${MY_LIBRARY}`
+                  }}
+                </q-tooltip>
+              </q-icon>
             </legend>
             <button class="strip col" @click="openProjectPalette(pp.palette.id, 0)">
               <span v-if="!pp.colors.length && !pp.fabrics.length" class="text-caption text-grey-7">
@@ -482,10 +498,25 @@
                     <q-item v-close-popup clickable @click="renameProjectPalette(pp.palette.id)">
                       <q-item-section>Rename…</q-item-section>
                     </q-item>
+                    <!-- Synced with My library: sync or unlink; otherwise save it there. -->
+                    <template v-if="paletteLinks.get(pp.palette.id)">
+                      <q-item
+                        v-close-popup
+                        clickable
+                        :disable="paletteLinks.get(pp.palette.id)!.inSync"
+                        @click="syncProjectPalette(pp)"
+                      >
+                        <q-item-section>Synchronize changes</q-item-section>
+                      </q-item>
+                      <q-item v-close-popup clickable @click="breakPaletteLink(pp)">
+                        <q-item-section>Break sync link</q-item-section>
+                      </q-item>
+                    </template>
                     <q-item
+                      v-else
                       v-close-popup
                       clickable
-                      :disable="!pp.colors.length"
+                      :disable="!pp.colors.length && !pp.fabrics.length"
                       @click="
                         saveColors = { to: '', name: pp.palette.notecard.name, from: pp.palette.id }
                       "
@@ -596,6 +627,47 @@
       </template>
     </template>
     <div v-else class="text-grey-7">Coming in a later version.</div>
+
+    <!-- Synchronizing when both sides changed: each difference, project's or library's. -->
+    <q-dialog :model-value="!!merging" @update:model-value="merging = null">
+      <q-card v-if="merging" style="width: 520px; max-width: 95vw">
+        <q-card-section>
+          <div class="text-h6">Synchronize “{{ merging.pp.palette.notecard.name }}”</div>
+          <div class="text-caption text-grey-7">
+            These changed in both the project palette and its {{ MY_LIBRARY }} palette. Choose what
+            to keep for each; other changes go the way they were made. Both end up the same.
+          </div>
+        </q-card-section>
+        <q-card-section class="column q-pt-none" style="gap: 8px; max-height: 60vh; overflow: auto">
+          <div
+            v-for="c in merging.changes"
+            :key="c.id"
+            class="row items-center no-wrap"
+            style="gap: 8px"
+          >
+            <span class="chip" :style="swatchOf(c.project ?? c.library)" />
+            <span v-if="c.project && c.library" class="chip" :style="swatchOf(c.library)" />
+            <div class="col" style="min-width: 0">
+              <div class="ellipsis">{{ c.name }}</div>
+              <div class="text-caption text-grey-7 ellipsis">{{ changeLabel(c) }}</div>
+            </div>
+            <q-btn-toggle
+              :model-value="merging.choice.get(c.id)"
+              dense
+              no-caps
+              unelevated
+              toggle-color="primary"
+              :options="changeOptions(c)"
+              @update:model-value="(v: 'project' | 'library') => merging!.choice.set(c.id, v)"
+            />
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn v-close-popup flat no-caps label="Cancel" />
+          <q-btn flat no-caps color="primary" label="Synchronize" @click="finishMerge" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <!-- A palette's colors and fabrics, one large (as in Libraries). -->
     <q-dialog :model-value="!!shownPalette" @update:model-value="shownPalette = null">
@@ -1014,7 +1086,7 @@ import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { ColorCollection } from '@/model/schema/library';
 import { swatchStyle } from '@/render/fabric-images';
 import { useQuasar } from 'quasar';
-import { computed, ref, toRaw, watch } from 'vue';
+import { computed, reactive, ref, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
@@ -1058,6 +1130,12 @@ import {
   addPalette,
   deletePalette,
   fileInto,
+  contentKey,
+  linkPalette,
+  paletteDiff,
+  resolveSync,
+  type PaletteChange,
+  paletteLinks as linksOf,
   projectPalettes,
   renamePalette,
 } from '@/model/project-palettes';
@@ -1065,6 +1143,7 @@ import { collectionFile } from '@/model/collection-file';
 import type { LibraryDoc } from '@/model/schema/library';
 import { absorbFabrics, embedFabrics } from '@/storage/fabric-files';
 import {
+  fabricToUnits,
   isLibraryItem,
   splitItems,
   syncLibraryItems,
@@ -1085,6 +1164,7 @@ import {
   linkState,
   saveCollection,
   addFabrics,
+  syncCollectionFrom,
   syncBlock,
   syncColor,
   syncConflict,
@@ -1161,7 +1241,14 @@ const collapse = useCollapsed();
 /** Library palettes by library: a library's packs (spec 014) together under its name. */
 const paletteLibs = computed(() => {
   const out = new Map<string, { id: string; name: string; collections: ColorCollection[] }>();
-  for (const v of library.views) {
+  // My library palettes synced with one of the project's palettes show once, there.
+  const linked = new Set([...paletteLinks.value.values()].map((l) => l.collection.id));
+  const synced = (c: ColorCollection) => linked.has(c.id);
+  for (const v0 of library.views) {
+    const v =
+      settings.settings.hideSyncedMine && v0.doc.kind === 'personal'
+        ? { ...v0, collections: v0.collections.filter((c) => !synced(c)) }
+        : v0;
     if (!v.collections.length) continue;
     const lib = v.doc.library ?? { id: v.doc.id, name: v.doc.name };
     const g = out.get(lib.id) ?? { id: lib.id, name: lib.name, collections: [] };
@@ -1191,6 +1278,13 @@ const shownData = computed((): Shown | undefined => {
 
 // --- The project's own palettes (format v3) ---
 const ownPalettes = computed(() => projectPalettes(project.doc!));
+/** Each project palette's synced My library palette, and whether they match. */
+const paletteLinks = computed(() =>
+  linksOf(
+    project.doc!,
+    (library.mine?.items ?? []).flatMap((i) => (i.type === 'colors' ? [i.data] : [])),
+  ),
+);
 const openProjectPalette = (id: string, at: number) => (shownPalette.value = { project: id, at });
 function newProjectPalette() {
   $q.dialog({
@@ -1972,10 +2066,152 @@ async function savePickedColors({ to, name, from }: { to: string; name: string; 
   if (fabrics.length) lib = (await addFabrics(lib, { id }, fabrics, author)).lib;
   await library.saveMine(lib);
   applyLinks(doc);
+  // The project palette stays synced with it.
+  const after = ownPalettes.value.find((x) => x.palette.id === from);
+  const link = {
+    libraryId: lib.id,
+    itemId: id,
+    ...(after ? { base: contentKey(after.colors, after.fabrics) } : {}),
+  };
+  project.change((d) => linkPalette(d, from, link));
   $q.notify({
     type: 'positive',
     message: to ? 'Added to the palette.' : `Saved “${name.trim()}” to ${MY_LIBRARY}.`,
   });
+}
+
+/**
+ * Synchronize a project palette with its My library palette: the side that changed since the last
+ * sync wins; when both did (or that isn't known), each difference is chosen in a dialog.
+ */
+function syncProjectPalette(pp: (typeof ownPalettes.value)[number]) {
+  const l = paletteLinks.value.get(pp.palette.id);
+  if (!l) return;
+  if (l.inSync) return void $q.notify({ message: 'Already in sync.' });
+  const { auto, conflicts } = resolveSync(paletteDiff(pp, l.collection), pp.palette.source?.base);
+  if (!conflicts.length) return void applyMerge(pp, auto);
+  // Changed on both sides: the user settles those; the rest go the way they changed.
+  const choice = reactive(new Map(auto));
+  for (const c of conflicts) choice.set(c.id, 'project');
+  merging.value = { pp, changes: conflicts, choice };
+}
+/** The per-change choices when both sides changed. */
+const merging = ref<{
+  pp: (typeof ownPalettes.value)[number];
+  changes: PaletteChange[];
+  choice: Map<string, 'project' | 'library'>;
+} | null>(null);
+const changeLabel = (c: PaletteChange) =>
+  !c.library
+    ? 'Only in the project'
+    : !c.project
+      ? `Only in ${MY_LIBRARY}`
+      : c.project.notecard.name !== c.library.notecard.name
+        ? `Renamed: “${c.library.notecard.name}” in ${MY_LIBRARY}`
+        : 'Color differs';
+const changeOptions = (c: PaletteChange) =>
+  !c.library
+    ? [
+        { label: 'Keep it', value: 'project' },
+        { label: 'Remove it', value: 'library' },
+      ]
+    : !c.project
+      ? [
+          { label: 'Add it', value: 'library' },
+          { label: 'Leave it out', value: 'project' },
+        ]
+      : [
+          { label: 'Project’s', value: 'project' },
+          { label: 'Library’s', value: 'library' },
+        ];
+const swatchOf = (x: Color | Fabric | undefined) =>
+  !x ? {} : 'rgb' in x ? { background: `rgb(${x.rgb.join(',')})` } : swatchStyle(x);
+function finishMerge() {
+  const m = merging.value!;
+  merging.value = null;
+  void applyMerge(m.pp, m.choice);
+}
+/** Apply the chosen side of each change to both the project palette and its My library palette. */
+async function applyMerge(
+  pp: (typeof ownPalettes.value)[number],
+  choice: Map<string, 'project' | 'library'>,
+) {
+  const l = paletteLinks.value.get(pp.palette.id);
+  if (!l || !library.mine) return;
+  const changes = new Map(paletteDiff(pp, l.collection).map((c) => [c.id, c]));
+  /** The chosen version of a changed color or fabric (undefined: it goes). */
+  const chosen = (id: string) => {
+    const c = changes.get(id)!;
+    return choice.get(id) === 'library' ? c.library : c.project;
+  };
+  // The result, in order: the project's, then what only My library had.
+  const ids = (kind: 'color' | 'fabric', mine: { id: string }[], theirs: { id: string }[]) =>
+    [...new Set([...mine, ...theirs].map((x) => x.id))].filter((id) => {
+      const c = changes.get(id);
+      return !c || chosen(id) !== undefined;
+    });
+  const colorIds = ids('color', pp.colors, l.collection.colors);
+  const fabricIds = ids('fabric', pp.fabrics, l.collection.fabrics ?? []);
+  const used = paintsUsed(project.doc!);
+  let kept = 0;
+  project.change((d) => {
+    const p = d.project.palette;
+    for (const c of changes.values()) {
+      const x = chosen(c.id);
+      if (!x || x === c.project) continue; // removed, or the project's stays as it is
+      if ('rgb' in x) {
+        const i = p.colors.findIndex((y) => y.id === c.id);
+        if (i >= 0) p.colors[i] = castDraft(x);
+        else p.colors.push(castDraft(x));
+      } else {
+        const f = fabricToUnits(x, d.units);
+        const i = p.fabrics.findIndex((y) => y.id === c.id);
+        if (i >= 0) p.fabrics[i] = castDraft(f);
+        else p.fabrics.push(castDraft(f));
+      }
+    }
+    // Removed: out of the project too, unless its quilts or blocks use it (then it stays here).
+    const pal = p.collections?.find((x) => x.id === pp.palette.id);
+    if (!pal) return;
+    for (const c of changes.values()) {
+      if (chosen(c.id) !== undefined || !c.project) continue;
+      const paint = c.kind === 'color' ? c.id : `fabric:${c.id}`;
+      if (used.has(paint)) {
+        kept++;
+        (c.kind === 'color' ? colorIds : fabricIds).push(c.id);
+        continue;
+      }
+      if (c.kind === 'color') p.colors = p.colors.filter((y) => y.id !== c.id);
+      else p.fabrics = p.fabrics.filter((y) => y.id !== c.id);
+    }
+    pal.colors = colorIds;
+    pal.fabrics = fabricIds;
+  });
+  // My library gets the same, in inches.
+  const now = ownPalettes.value.find((x) => x.palette.id === pp.palette.id)!;
+  const k = project.doc!.units === 'cm' ? 1 / 2.54 : 1;
+  const r = await syncCollectionFrom(
+    library.mine,
+    project.doc!,
+    l.collection.id,
+    now.colors.map((c) => c.id),
+    now.fabrics.map((f) => ({ ...f, size: [f.size[0] * k, f.size[1] * k] as [number, number] })),
+  );
+  await library.saveMine(r.lib);
+  applyLinks(r.doc);
+  const base = contentKey(now.colors, now.fabrics);
+  project.change((d) =>
+    linkPalette(d, pp.palette.id, { libraryId: r.lib.id, itemId: l.collection.id, base }),
+  );
+  $q.notify({
+    type: 'positive',
+    message:
+      `“${pp.palette.notecard.name}” and “${l.collection.notecard.name}” are in sync.` +
+      (kept ? ` ${kept} in use stayed in the project.` : ''),
+  });
+}
+function breakPaletteLink(pp: (typeof ownPalettes.value)[number]) {
+  project.change((d) => linkPalette(d, pp.palette.id));
 }
 
 async function syncColors() {

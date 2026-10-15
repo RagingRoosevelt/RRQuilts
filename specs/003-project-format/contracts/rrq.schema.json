@@ -14,7 +14,7 @@
     },
     "version": {
       "type": "number",
-      "const": 3
+      "const": 4
     },
     "app": {
       "type": "string"
@@ -669,6 +669,24 @@
                     "items": {
                       "type": "string",
                       "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                    }
+                  },
+                  "source": {
+                    "type": "object",
+                    "required": [
+                      "libraryId",
+                      "itemId"
+                    ],
+                    "properties": {
+                      "libraryId": {
+                        "type": "string"
+                      },
+                      "itemId": {
+                        "type": "string"
+                      },
+                      "base": {
+                        "type": "string"
+                      }
                     }
                   }
                 }

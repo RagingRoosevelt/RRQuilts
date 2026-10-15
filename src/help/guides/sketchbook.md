@@ -44,6 +44,10 @@ palettes](/help/guides/colors-and-palettes)). **New palette** adds one.
 - Click a palette to see its colors and fabrics large. There, **+** adds a color and the picture
   button adds fabric images. Drop image files on a palette to add them too.
 - A palette's **⋮** menu renames it, saves it to My library, exports it, or deletes it.
+- A palette saved to My library stays linked to it. A sync icon beside its name is green while
+  both match and amber when they differ. **Synchronize changes** brings each side's changes to the
+  other. A color or fabric changed in both is listed for you to choose. **Break sync link** ends
+  the link.
 - **Import palette (.rrqplt)** adds a palette file.
 - **Library palettes** lists palettes you can turn on. Ticked ones appear in the color trays.
 
