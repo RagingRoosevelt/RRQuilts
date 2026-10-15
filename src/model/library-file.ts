@@ -144,6 +144,10 @@ export interface PackMeta {
   author: string;
   socials?: Socials;
   license: string;
+  /** The pack's web pages. */
+  links?: Links;
+  /** Only these items (by id); all when absent. */
+  only?: string[];
 }
 
 /**
@@ -153,6 +157,7 @@ export interface PackMeta {
 export function packDoc(mine: LibraryDoc, me: string, meta: PackMeta) {
   const excluded: string[] = [];
   const items = mine.items.filter((i) => {
+    if (meta.only && !meta.only.includes(i.data.id)) return false;
     const theirs = (authorOf(i.data) ?? '') !== me;
     const keep = !(theirs && noSharing(i.data.license));
     if (!keep) excluded.push(i.data.notecard.name);
@@ -196,6 +201,7 @@ export function packDoc(mine: LibraryDoc, me: string, meta: PackMeta) {
       ...(meta.socials?.length ? { socials: meta.socials } : {}),
     },
     license: lock && lock.license !== meta.license ? lock.license : meta.license,
+    ...(meta.links ? { links: meta.links } : {}),
     changelog: [],
     ...(credits.length ? { credits } : {}),
     // Used categories, and the parents of used subcategories.

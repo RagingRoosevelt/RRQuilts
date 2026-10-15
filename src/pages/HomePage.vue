@@ -2,15 +2,29 @@
   <q-page padding>
     <div class="q-gutter-md column" style="max-width: 460px">
       <h1 class="text-h4">RRQuilts</h1>
-      <q-btn
-        color="primary"
-        size="lg"
-        icon="add"
-        label="Start a quilt"
-        no-caps
-        @click="confirmLeave(() => wizard?.show())"
-      />
-      <q-btn flat icon="note_add" label="New project" no-caps @click="confirmLeave(newProject)" />
+      <div class="row items-center no-wrap" style="gap: 4px">
+        <q-btn
+          color="primary"
+          size="lg"
+          icon="add"
+          label="Start a quilt"
+          no-caps
+          class="col"
+          @click="confirmLeave(() => wizard?.show())"
+        />
+        <HelpLink topic="guides/getting-started#start-a-quilt" label="Start a quilt" />
+      </div>
+      <div class="row items-center no-wrap" style="gap: 4px">
+        <q-btn
+          flat
+          icon="note_add"
+          label="New project"
+          no-caps
+          class="col"
+          @click="confirmLeave(newProject)"
+        />
+        <HelpLink topic="guides/sketchbook" label="New project" />
+      </div>
       <div class="row no-wrap" style="gap: 8px">
         <q-btn
           outline
@@ -91,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+import HelpLink from '@/components/HelpLink.vue';
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref, shallowRef } from 'vue';
 import { lockedProjects } from '@/session/tab-lock';

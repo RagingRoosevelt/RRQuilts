@@ -184,6 +184,7 @@
                 An open project's units are in its Details tab.
               </div>
             </div>
+            <q-toggle v-model="store.settings.showHelp" label="Show help buttons" />
             <div>
               <div class="text-subtitle1">Editor layout</div>
               <q-btn-toggle

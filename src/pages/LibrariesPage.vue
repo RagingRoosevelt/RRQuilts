@@ -15,23 +15,6 @@
         @click="toggleFilters"
       />
     </div>
-    <div class="row items-center q-mb-md" style="gap: 8px">
-      <q-btn outline no-caps icon="upload_file" label="Import" @click="importFile">
-        <q-tooltip>A backup or pack (.rrqlib), or a palette (.rrqplt)</q-tooltip>
-      </q-btn>
-      <q-btn outline no-caps icon="save" label="Back up…" @click="backingUp = { ...ALL }" />
-      <q-btn outline no-caps icon="add_photo_alternate" label="Add fabrics…" @click="addFabricsTo">
-        <q-tooltip>Fabric images (files, a folder, or a zip) into one of your palettes</q-tooltip>
-      </q-btn>
-      <q-btn
-        outline
-        no-caps
-        icon="share"
-        label="Share as pack…"
-        :disable="!library.mine?.items.length"
-        @click="startShare"
-      />
-    </div>
     <q-banner v-if="!library.stored" dense class="bg-warning text-dark q-mb-md">
       This browser isn't keeping your libraries (storage is blocked). Back up before closing.
     </q-banner>
@@ -246,23 +229,74 @@
             class="q-ma-xs"
             @click="hiddenLibs = []"
           />
-          <!-- Libraries from the web are added here, under the list. -->
-          <q-btn
-            v-if="collapse.isOpen('sidebar:libraries')"
-            flat
-            dense
-            no-caps
-            size="sm"
-            color="primary"
-            icon="cloud_download"
-            label="Add from the web…"
-            class="q-ma-xs"
-            @click="
-              Object.assign(adding, { open: true, url: '', ref: '', busy: false, fromLink: false })
-            "
-          >
-            <q-tooltip>Connect a library repository by its web address</q-tooltip>
-          </q-btn>
+          <!-- Adding and saving libraries, under the list. -->
+          <div v-if="collapse.isOpen('sidebar:libraries')" class="lib-actions q-pa-xs">
+            <div class="row no-wrap">
+              <q-btn
+                flat
+                dense
+                no-caps
+                size="sm"
+                color="primary"
+                icon="cloud_download"
+                label="Add from the web…"
+                class="col"
+                @click="
+                  Object.assign(adding, {
+                    open: true,
+                    url: '',
+                    ref: '',
+                    busy: false,
+                    fromLink: false,
+                  })
+                "
+              >
+                <q-tooltip>Connect a library repository by its web address</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat
+                dense
+                no-caps
+                size="sm"
+                color="primary"
+                icon="upload_file"
+                label="Import resource…"
+                class="col"
+                @click="importFile"
+              >
+                <q-tooltip>A backup, library or pack (.rrqlib), or a palette (.rrqplt)</q-tooltip>
+              </q-btn>
+            </div>
+            <div class="row no-wrap">
+              <q-btn
+                flat
+                dense
+                no-caps
+                size="sm"
+                color="primary"
+                icon="save"
+                label="Back up…"
+                class="col"
+                @click="backingUp = { ...ALL }"
+              >
+                <q-tooltip>Save My library and your libraries' settings to a file</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat
+                dense
+                no-caps
+                size="sm"
+                color="primary"
+                icon="share"
+                label="Make pack…"
+                class="col"
+                :disable="!library.mine?.items.length"
+                @click="startShare"
+              >
+                <q-tooltip>Share things from My library as a pack file</q-tooltip>
+              </q-btn>
+            </div>
+          </div>
         </fieldset>
         <SlidePicker v-model="settings.settings.libraryType" :options="TYPE_OPTIONS" label="Type" />
         <template v-for="f in filterFields" :key="f.key">
@@ -396,16 +430,22 @@
               palette here, add a block from a project's Blocks tab (<b>Add to my library</b>), save
               a palette from its Palettes tab (<b>Save to my library</b>), or import a backup.
             </div>
-            <q-btn
+            <div
               v-if="g.mine && !g.v.doc.items.length && libOpen(g)"
-              outline
-              dense
-              no-caps
-              icon="add"
-              label="New palette"
-              class="q-px-sm q-mb-md"
-              @click="newPalette()"
-            />
+              class="row items-center q-mb-md"
+              style="gap: 4px"
+            >
+              <q-btn
+                outline
+                dense
+                no-caps
+                icon="add"
+                label="New palette"
+                class="q-px-sm"
+                @click="newPalette()"
+              />
+              <HelpLink topic="guides/libraries#make-your-own-palettes" label="New palette" />
+            </div>
             <!-- My library with palettes but no blocks yet (Blocks view): where blocks come from. -->
             <div
               v-else-if="
@@ -504,6 +544,11 @@
                 label="New palette"
                 class="q-px-sm"
                 @click="newPalette()"
+              />
+              <HelpLink
+                v-if="g.mine"
+                topic="guides/libraries#make-your-own-palettes"
+                label="New palette"
               />
             </div>
             <div
@@ -860,22 +905,22 @@
     </q-dialog>
 
     <!-- Share as pack -->
-    <q-dialog :model-value="!!sharing" @update:model-value="sharing = null">
-      <q-card v-if="sharing && shared" style="width: 480px; max-width: 95vw">
-        <q-card-section class="text-h6">Share as pack</q-card-section>
+    <q-dialog v-model="shareOpen">
+      <q-card style="width: 480px; max-width: 95vw">
+        <q-card-section class="text-h6">Make a pack</q-card-section>
         <q-card-section class="column" style="gap: 8px">
-          <q-input v-model="sharing.name" dense outlined label="Name" />
+          <q-input v-model="share.name" dense outlined label="Name" />
           <q-input
-            v-model="sharing.description"
+            v-model="share.description"
             dense
             outlined
             type="textarea"
             autogrow
             label="Description"
           />
-          <q-input v-model="sharing.author" dense outlined label="Author" />
+          <q-input v-model="share.author" dense outlined label="Author" />
           <q-select
-            v-model="sharing.license"
+            v-model="share.license"
             :options="licenseOptions"
             emit-value
             map-options
@@ -897,6 +942,84 @@
               </q-item>
             </template>
           </q-select>
+          <div class="text-subtitle2 q-mt-sm">Web pages (optional)</div>
+          <q-input
+            v-model="share.homepage"
+            dense
+            outlined
+            label="Home page"
+            placeholder="https://…"
+            :error="!webOk(share.homepage)"
+            error-message="A web address, starting https://"
+          />
+          <q-input
+            v-model="share.gallery"
+            dense
+            outlined
+            label="Gallery"
+            placeholder="https://…"
+            :error="!webOk(share.gallery)"
+            error-message="A web address, starting https://"
+          />
+          <div
+            v-for="(o, n) in share.others"
+            :key="n"
+            class="row no-wrap items-start"
+            style="gap: 6px"
+          >
+            <q-input v-model="o.name" dense outlined label="Name" style="width: 30%" />
+            <q-input
+              v-model="o.url"
+              dense
+              outlined
+              label="Address"
+              class="col"
+              :error="!webOk(o.url)"
+              error-message="A web address"
+            />
+            <q-btn
+              flat
+              round
+              dense
+              icon="close"
+              aria-label="Remove link"
+              @click="share.others.splice(n, 1)"
+            />
+          </div>
+          <div>
+            <q-btn
+              flat
+              dense
+              no-caps
+              size="sm"
+              icon="add"
+              label="Another link"
+              @click="share.others.push({ name: '', url: '' })"
+            />
+          </div>
+          <div class="row items-center q-mt-sm" style="gap: 8px">
+            <div class="text-subtitle2">What to include</div>
+            <q-space />
+            <q-btn flat dense no-caps size="sm" label="All" @click="share.only = shareAll()" />
+            <q-btn flat dense no-caps size="sm" label="None" @click="share.only = []" />
+          </div>
+          <q-list
+            dense
+            bordered
+            separator
+            class="rounded-borders"
+            style="max-height: 35vh; overflow: auto"
+          >
+            <q-item v-for="it in shareItems" :key="it.id" tag="label">
+              <q-item-section side>
+                <q-checkbox v-model="share.only" dense :val="it.id" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ it.name }}</q-item-label>
+                <q-item-label caption>{{ it.kind }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
           <div class="text-caption">
             {{ shared.doc.items.length }} item(s), license
             <b>{{ licenseName(shared.doc.license!) }}</b>
@@ -915,7 +1038,7 @@
             no-caps
             color="primary"
             label="Download pack"
-            :disable="!sharing.name.trim() || !shared.doc.items.length"
+            :disable="!share.name.trim() || !shared.doc.items.length || !shareLinksOk"
             @click="downloadPack"
           />
         </q-card-actions>
@@ -2256,31 +2379,39 @@ function removePack(doc: LibraryDoc) {
 }
 
 const backingUp = ref<{ mine: boolean; packs: boolean } | null>(null);
-function backUp() {
+async function backUp() {
   const b = backingUp.value!;
   backingUp.value = null;
-  // Web libraries go in as their address and installed packs; on/off travels with the packs.
-  const connections = library.connections.flatMap((c) => {
-    const packs = library.packs.filter((p) => p.library?.id === c.index.id).map((p) => p.id);
-    return packs.length
-      ? [
-          {
-            url: c.url,
-            ...(c.ref ? { ref: c.ref } : {}),
-            library: { id: c.index.id, name: c.index.name },
-            packs,
-          },
-        ]
-      : [];
-  });
+  const busy = $q.notify({ message: 'Checking libraries on the web…', timeout: 0, spinner: true });
+  // Web libraries go in as their address and the installed packs it can still download; packs it
+  // can't (private, gone, offline) go in as copies with their images. On/off travels with them.
+  const connections = [];
+  for (const c of library.connections) {
+    const live = await library.livePacks(c);
+    const packs = library.packs
+      .filter((p) => p.library?.id === c.index.id && live.has(p.id))
+      .map((p) => p.id);
+    connections.push(
+      ...(packs.length
+        ? [
+            {
+              url: c.url,
+              ...(c.ref ? { ref: c.ref } : {}),
+              library: { id: c.index.id, name: c.index.name },
+              packs,
+            },
+          ]
+        : []),
+    );
+  }
+  busy();
   const doc = backupDoc(library.ensureMine(me.value), library.packs, b, {
     connections,
     packsOff: settings.settings.packsOff,
   });
   // With fabric images (spec 014), the backup is a zip of the document and its images.
-  void writeLibraryZip(doc, (d) => serializeLibrary(d, APP)).then((zip) =>
-    exportFile('RRQuilts library backup', zip ?? serializeLibrary(doc, APP), 'rrqlib'),
-  );
+  const zip = await writeLibraryZip(doc, (d) => serializeLibrary(d, APP));
+  await exportFile('RRQuilts library backup', zip ?? serializeLibrary(doc, APP), 'rrqlib');
 }
 
 // --- Fabric images into My library (spec 014) ---
@@ -2290,9 +2421,6 @@ const myPalettes = computed(() =>
     i.type === 'colors' ? [{ id: i.data.id, name: i.data.notecard.name }] : [],
   ),
 );
-function addFabricsTo() {
-  fabricDialog.value?.show();
-}
 async function fabricsAdded(fabrics: Fabric[], palette?: { id: string } | { name: string }) {
   if (!palette) return;
   await update(async (l) => (await addFabrics(l, palette, fabrics, me.value)).lib);
@@ -2355,34 +2483,80 @@ async function doRestore() {
   );
 }
 
-// --- Share as pack ---
-const sharing = ref<{ name: string; description: string; author: string; license: string } | null>(
-  null,
+// --- Make a pack ---
+/** The Make a pack form (always there; `shareOpen` shows it). */
+const share = reactive({
+  name: '',
+  description: '',
+  author: '',
+  license: DEFAULT_LICENSE,
+  homepage: '',
+  gallery: '',
+  others: [] as { name: string; url: string }[],
+  /** The My library items to include, by id. */
+  only: [] as string[],
+});
+const shareOpen = ref(false);
+/** Empty, or a web address (packs only carry http(s) links). */
+const webOk = (u: string) => !u.trim() || /^https?:\/\/\S+$/.test(u.trim());
+const shareLinksOk = computed(() =>
+  [share.homepage, share.gallery, ...share.others.map((o) => o.url)].every(webOk),
 );
+/** My library's items, palettes then blocks, for picking what a pack holds. */
+const shareItems = computed(() =>
+  [...(library.mine?.items ?? [])]
+    .sort(
+      (a, b) =>
+        a.type.localeCompare(b.type) || a.data.notecard.name.localeCompare(b.data.notecard.name),
+    )
+    .map((i) => ({
+      id: i.data.id,
+      name: i.data.notecard.name,
+      kind: i.type === 'block' ? 'Block' : 'Palette',
+    })),
+);
+const shareAll = () => shareItems.value.map((i) => i.id);
 const licenseOptions = LICENSES.map((l) => ({ value: l.id, label: l.name, terms: l.terms }));
 async function startShare() {
   const author = await askAuthor();
-  sharing.value = {
+  Object.assign(share, {
     name: author ? `${author}'s library` : 'My pack',
     description: '',
     author,
     license: DEFAULT_LICENSE,
+    homepage: '',
+    gallery: '',
+    others: [],
+    only: shareAll(),
+  });
+  shareOpen.value = true;
+}
+/** The links typed, trimmed, without empty ones (none at all: no `links`). */
+function shareLinks() {
+  const others = share.others
+    .map((o) => ({ name: o.name.trim() || o.url.trim(), url: o.url.trim() }))
+    .filter((o) => o.url && webOk(o.url));
+  const links = {
+    ...(share.homepage.trim() && webOk(share.homepage) ? { homepage: share.homepage.trim() } : {}),
+    ...(share.gallery.trim() && webOk(share.gallery) ? { gallery: share.gallery.trim() } : {}),
+    ...(others.length ? { others } : {}),
   };
+  return Object.keys(links).length ? { links } : {};
 }
 const shared = computed(() =>
-  sharing.value && library.mine
-    ? packDoc(library.mine, me.value, {
-        name: sharing.value.name.trim(),
-        description: sharing.value.description.trim(),
-        author: sharing.value.author.trim(),
-        socials: socialsOut(settings.settings.socials),
-        license: sharing.value.license,
-      })
-    : null,
+  packDoc(library.mine ?? emptyPersonal(me.value), me.value, {
+    name: share.name.trim(),
+    description: share.description.trim(),
+    author: share.author.trim(),
+    socials: socialsOut(settings.settings.socials),
+    license: share.license,
+    only: share.only,
+    ...shareLinks(),
+  }),
 );
 function downloadPack() {
-  const doc = shared.value!.doc;
-  sharing.value = null;
+  const doc = shared.value.doc;
+  shareOpen.value = false;
   void exportFile(doc.name, serializeLibrary(doc, APP), 'rrqlib');
 }
 </script>
@@ -2406,6 +2580,14 @@ function downloadPack() {
   border: 1px solid rgba(128, 128, 128, 0.4);
   margin: 0;
   padding: 0 0 4px;
+}
+.lib-actions .q-btn {
+  justify-content: flex-start;
+}
+.lib-actions :deep(.q-btn__content) {
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 .lib-picker legend {
   margin-left: 8px;

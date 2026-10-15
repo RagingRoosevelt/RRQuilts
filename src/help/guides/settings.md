@@ -16,6 +16,7 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 - **Theme** can be **Auto**, **Light** or **Dark**.
 - **Use the system accent color** applies where the browser shares it, and the app is blue otherwise.
 - **Units for new projects** can be **Inches** or **Centimeters**. An open project's units are in its **Details** tab.
+- **Show help buttons** shows the **?** buttons that open help about a screen or section.
 - **Editor layout** puts the panels either as **Toolbar left, sidebar right** or as **Sidebar left, toolbar right**.
 
 ## Fabrics

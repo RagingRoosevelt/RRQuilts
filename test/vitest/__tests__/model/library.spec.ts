@@ -299,6 +299,21 @@ describe('.rrqlib files', () => {
     expect(parseLibrary(JSON.stringify({ ...pack, packs: [pack] })).ok).toBe(false);
   });
 
+  it('a pack holds only the items picked, and its web page links', async () => {
+    const lib = await mine();
+    const meta = { name: 'P', author: ME, license: 'CC0-1.0' };
+    const links = {
+      homepage: 'https://example.org',
+      others: [{ name: 'Shop', url: 'https://s.example' }],
+    };
+    const { doc } = packDoc(lib, ME, { ...meta, only: [], links });
+    expect(doc.items).toEqual([]);
+    expect(doc.links).toEqual(links);
+    const id = lib.items[0]!.data.id;
+    expect(packDoc(lib, ME, { ...meta, only: [id] }).doc.items.map((i) => i.data.id)).toEqual([id]);
+    expect(packDoc(lib, ME, meta).doc.links).toBeUndefined();
+  });
+
   it('backup holds My library and packs; restore merges or replaces', async () => {
     const lib = await mine();
     const { doc: pack } = packDoc(lib, ME, { name: 'P', author: ME, license: 'CC0-1.0' });

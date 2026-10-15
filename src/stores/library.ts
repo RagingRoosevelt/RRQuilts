@@ -103,17 +103,24 @@ export const useLibraryStore = defineStore('library', () => {
     await write(() => deletePack(id));
     void freeImages();
   }
-  /** Connected libraries that answered this session (a failure is asked again next time). */
-  const reachable = new Set<string>();
-  async function online(c: Connection) {
-    if (reachable.has(c.index.id)) return true;
-    const ok = await fetchIndex(c.base).then(
-      () => true,
-      () => false,
-    );
-    if (ok) reachable.add(c.index.id);
-    return ok;
+  /** Connected libraries' current packs, from those that answered this session. */
+  const live = new Map<string, Set<string>>();
+  /**
+   * The ids of a connected library's packs that can be downloaded now: none when it can't be
+   * reached (private, gone, offline). An answer is kept for the session; a failure is asked again.
+   */
+  async function livePacks(c: Connection) {
+    const known = live.get(c.index.id);
+    if (known) return known;
+    try {
+      const ids = new Set((await fetchIndex(c.base)).packs.map((p) => p.id));
+      live.set(c.index.id, ids);
+      return ids;
+    } catch {
+      return new Set<string>();
+    }
   }
+  const online = async (c: Connection) => (await livePacks(c)).size > 0;
   /** Free images no library or project uses any more (after removing packs). */
   async function freeImages() {
     const open = useProjectStore().doc;
@@ -342,6 +349,7 @@ export const useLibraryStore = defineStore('library', () => {
     connections,
     connect,
     installFromFile,
+    livePacks,
     installFromRepo,
     checkForUpdate,
     acceptUpdate,

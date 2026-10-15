@@ -49,18 +49,20 @@ Tick **Use ... in this project** on a block in the project's **Blocks** tab. A p
 
 ## Back up and restore
 
-1. On **Libraries**, click **Back up…**.
+1. Under the **Libraries** list in the side panel, click **Back up…**.
 2. Choose **My library** and/or **Installed packs**, then click **Back up**. You get one `.rrqlib` file.
-   Packs from libraries added from the web are saved as the library's address, not copied, so the
-   file stays small. Restoring connects to them again and downloads the packs. Which packs were
-   switched off is kept too.
-3. To restore, click **Import** and pick the file. If you already have items, choose **Merge into my library (keep what's here)** or **Replace my library with the backup's**. For packs already installed, choose **Keep** or **Replace**. Then click **Restore**.
+   Packs that can still be downloaded from their library on the web are saved as the library's
+   address, so the file stays small. Restoring connects to them again and downloads the packs.
+   Packs that can't be downloaded (the library is private, gone, or you're offline) are copied in
+   with their images. Which packs were switched off is kept too.
+3. To restore, click **Import resource…** and pick the file. If you already have items, choose **Merge into my library (keep what's here)** or **Replace my library with the backup's**. For packs already installed, choose **Keep** or **Replace**. Then click **Restore**.
 
 Libraries live in browser storage. If the page warns that storage is blocked, back up before closing.
 
 ## Install a pack
 
-Click **Import** and choose a `.rrqlib` pack (or a `.rrqplt` palette). A file with several packs
+Under the **Libraries** list, click **Import resource…** and choose a `.rrqlib` pack (or a
+`.rrqplt` palette). A file with several packs
 lists them first: tick the ones to add. If the file says where the library lives on the web, the
 library is added as if from the web, and its other packs can be switched on later. Otherwise,
 import the file again to add more. To remove an installed pack, choose **Remove pack** in one of
@@ -68,9 +70,12 @@ its palettes' **⋮** menus. **Remove** under an imported library's name removes
 
 ## Share your own pack
 
-1. Click **Share as pack…** (needs at least one item in My library).
+1. Under the **Libraries** list, click **Make pack…** (needs at least one item in My library).
 2. Fill in **Name**, **Description**, **Author** and **License**. Items others have locked to a license can raise the minimum. Items marked all rights reserved by someone else are left out and listed.
-3. Click **Download pack** and send the `.rrqlib` file.
+3. Add its web pages if it has any: a **Home page**, a **Gallery**, and **Another link** for each
+   of the rest.
+4. Under **What to include**, tick the palettes and blocks to put in it.
+5. Click **Download pack** and send the `.rrqlib` file.
 
 Packs contain only what you chose. A pack never includes your projects.
 
@@ -78,8 +83,8 @@ Packs contain only what you chose. A pack never includes your projects.
 
 A fabric library is a set of **packs**, usually one palette of fabric images per collection.
 
-1. In **Libraries**, click **Import** and pick the library's `.rrqlib` file. Its packs are added
-   together.
+1. In **Libraries**, click **Import resource…** and pick the library's `.rrqlib` file, then tick
+   the packs you want.
 2. Under **Libraries** in the side panel, open the library's name to see its packs. Each has a
    switch. Packs that are off stay out of your projects' trays.
 3. Click a pack's name to see its palette.
@@ -116,10 +121,12 @@ there to add it. To share such a project, tick **Include library fabric
 images when saving** in the project's **Details** tab first (packs for personal use are left out).
 The project still names its libraries, so whoever opens it can add them too.
 
-## Add your own fabrics to My library
+## Make your own palettes
 
-1. In **Libraries**, click **Add fabrics…**.
-2. Pick the images, then choose a **Palette** of yours, or **New palette…** and type its name.
-3. Set the options as in [adding fabric images](/help/guides/colors-and-palettes) and click **Add**.
+1. In **Libraries**, click **New palette** in **My library** and type its name.
+2. Click the palette to open it. **+** adds a color, and the picture button adds fabric images. You
+   can also drop image files on the palette.
+3. Set the image options as in [adding fabric images](/help/guides/colors-and-palettes) and click
+   **Add**.
 
 **Back up…** saves My library with its fabric images, as one `.rrqlib` file.
