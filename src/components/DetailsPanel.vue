@@ -82,7 +82,8 @@
       />
       <div class="text-caption text-grey-7">
         Adds 256 px images of the library fabrics this project uses, for sharing with someone who
-        doesn't have those libraries. Fabrics whose license forbids sharing are left out.
+        doesn't have those libraries. Fabrics whose license forbids sharing are left out. The
+        project still says which libraries it uses, so anyone you share it with can add them.
       </div>
     </div>
     <template v-if="kind === 'project' && missingLibraries.length">

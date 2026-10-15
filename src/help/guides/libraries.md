@@ -97,6 +97,7 @@ project opened on a device without the library shows those fabrics as their aver
 names the library in its **Details** tab. If the library came from the web, click **Connect**
 there to add it. To share such a project, tick **Include library fabric
 images when saving** in the project's **Details** tab first (packs for personal use are left out).
+The project still names its libraries, so whoever opens it can add them too.
 
 ## Add your own fabrics to My library
 
