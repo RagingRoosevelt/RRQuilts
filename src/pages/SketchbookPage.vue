@@ -580,12 +580,11 @@
     <q-dialog :model-value="!!shownPalette" @update:model-value="shownPalette = null">
       <q-card v-if="shownPalette" style="width: min(80vw, 512px); max-width: none">
         <q-card-section class="row items-start no-wrap">
-          <div class="col">
-            <div class="text-h6">{{ shownPalette.palette.notecard.name }}</div>
-            <div v-if="shownPalette.palette.author" class="text-caption text-grey-7">
-              {{ shownPalette.palette.author }}
-            </div>
-          </div>
+          <PaletteTitle
+            class="col"
+            :palette="shownPalette.palette"
+            :license="shownPalette.palette.license ?? shownPalette.palette.source?.license"
+          />
           <q-btn v-close-popup flat round dense icon="close" aria-label="Close" />
         </q-card-section>
         <PalettePreview v-model:at="shownPalette.at" :palette="shownPalette.palette" />
@@ -973,6 +972,7 @@
 <script setup lang="ts">
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PalettePreview from '@/components/PalettePreview.vue';
+import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { ColorCollection } from '@/model/schema/library';
 import { swatchStyle } from '@/render/fabric-images';
 import { useQuasar } from 'quasar';
@@ -1134,7 +1134,10 @@ const paletteLibs = computed(() => {
   return [...out.values()];
 });
 /** The palette preview: a palette and which of its colors or fabrics is shown large. */
-type Shown = Pick<ColorCollection, 'notecard' | 'colors' | 'fabrics' | 'author'>;
+type Shown = Pick<
+  ColorCollection,
+  'notecard' | 'colors' | 'fabrics' | 'author' | 'source' | 'license'
+>;
 const shownPalette = ref<{ palette: Shown; at: number } | null>(null);
 const showPalette = (palette: Shown, at: number) => (shownPalette.value = { palette, at });
 /** A color, or a fabric standing in as one (`fabric:<id>`, its average color), with where it's from. */

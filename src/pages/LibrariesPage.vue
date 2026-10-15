@@ -375,12 +375,14 @@
               v-if="
                 (g.collections.length || g.mine) &&
                 settings.settings.libraryType !== 'block' &&
-                (!g.packOf || g.firstPalettes)
+                (!g.packOf || g.firstPalettes) &&
+                (settings.settings.libraryType !== 'colors' || g.mine)
               "
               class="row items-center q-mb-sm"
               style="gap: 8px"
             >
-              <h3 class="sub-title">Palettes</h3>
+              <!-- In the Palettes view everything is a palette: no heading needed. -->
+              <h3 v-if="settings.settings.libraryType !== 'colors'" class="sub-title">Palettes</h3>
               <q-btn
                 v-if="g.mine"
                 flat
@@ -559,13 +561,7 @@
             aria-label="Close"
             class="float-right"
           />
-          <div class="text-h6">{{ previewCollection.notecard.name }}</div>
-          <div class="text-caption text-grey-7">
-            {{ authorOf(previewCollection) ?? 'anonymous' }}
-            <template v-if="itemLicense(previewCollection)">
-              · {{ licenseName(itemLicense(previewCollection)!) }}</template
-            >
-          </div>
+          <PaletteTitle :palette="previewCollection" :license="itemLicense(previewCollection)" />
         </q-card-section>
         <PalettePreview
           v-model:at="swatchAt"
@@ -932,6 +928,7 @@ import { exportFile, pickFile } from '@/storage/files';
 import { isZip, readLibraryZip, writeLibraryZip } from '@/storage/library-zip';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PalettePreview from '@/components/PalettePreview.vue';
+import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { Fabric } from '@/model/schema/palette';
 import { retryMissing, swatchStyle } from '@/render/fabric-images';
 import { useLibraryStore } from '@/stores/library';
