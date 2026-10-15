@@ -35,6 +35,6 @@ to whoever you choose.
 ## How it's made
 
 RRQuilts is built in the open by volunteers. The source code is MIT licensed and is on
-[GitHub](https://github.com/RagingRoosevelt/RRQuilts). The built-in blocks and colors
-are original work under the same terms. Ideas, problem reports and requests for fabric collections
+[GitHub](https://github.com/RagingRoosevelt/RRQuilts). The built-in blocks
+are reproductions of traditional quilt blocks found in historical quilts. Ideas, problem reports and requests for fabric collections
 are welcome ([Got an idea?](/help/about/got-an-idea)).
