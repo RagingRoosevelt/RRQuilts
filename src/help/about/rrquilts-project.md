@@ -1,24 +1,40 @@
 ---
 title: RRQuilts project
 order: 10
-summary: Ask for a feature or fabric collection, report a problem, and find the source code.
+summary: What RRQuilts is for, what it promises, and where its source code lives.
 ---
 
-RRQuilts is free and open source. Ideas and reports are welcome on GitHub (you need a free GitHub
-account to post).
+RRQuilts is a quilt design tool that anyone can use for free, on any device with a web browser. It
+aims to be a good place to plan a quilt: draw blocks, lay out quilts, try colors and real fabric
+prints, and print what you need to cut and sew. It also aims to treat your work, and other people's
+work, with care.
 
-## Ask or report
+## What it promises
 
-- [Suggest a feature](https://github.com/RagingRoosevelt/RRQuilts/issues/new?template=feature_request.yml)
-  for something RRQuilts could do.
-- [Ask for a fabric collection](https://github.com/RagingRoosevelt/RRQuilts/issues/new?template=fabric_collection.yml)
-  to be added to a fabric library.
-- [Report a problem](https://github.com/RagingRoosevelt/RRQuilts/issues/new?template=bug_report.yml)
-  when something doesn't work as it should.
-- See [what others have asked](https://github.com/RagingRoosevelt/RRQuilts/issues) before posting.
+- **Free, with no account.** There's no sign-up, no subscription, and nothing held back for a paid
+  version.
+- **Works offline.** After the first visit the whole app is on your device. Install it from your
+  browser's menu and use it in a sewing room, at a retreat, or at a show with no signal. The only
+  things it downloads are library packs you choose to add.
+- **Your work stays yours.** Projects are files you save where you like. Nothing is sent anywhere,
+  and the app has no server to send it to. Unsaved changes are kept on your device until you save
+  or discard them.
+- **Open files.** Projects, palettes, blocks and libraries are plain, documented files
+  ([File formats](/help/about/file-formats)). They don't depend on RRQuilts to be read, now or
+  later.
+- **Credit where it's due.** Blocks and fabrics from libraries keep their author and license, and
+  copies keep crediting the original. The app follows each license's rules when you share
+  ([Credits and licenses](/help/guides/credits-and-licenses)).
 
-## Source and file formats
+## What it isn't
 
-- The source code (MIT licensed) is on [RRQuilts on GitHub](https://github.com/RagingRoosevelt/RRQuilts).
-- Anyone writing tools that read `.rrq` files can use the JSON Schema for
-  [the project file format](https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v2.json).
+RRQuilts doesn't open files from other quilt software. It reads and writes only its own formats.
+It also has no social features, comments or sharing service. To share a design, you send the file
+to whoever you choose.
+
+## How it's made
+
+RRQuilts is built in the open by volunteers. The source code is MIT licensed and is on
+[RRQuilts on GitHub](https://github.com/RagingRoosevelt/RRQuilts). The built-in blocks and colors
+are original work under the same terms. Ideas, problem reports and requests for fabric collections
+are welcome ([Got an idea?](/help/about/got-an-idea)).
