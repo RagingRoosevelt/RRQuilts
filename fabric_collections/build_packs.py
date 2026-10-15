@@ -204,15 +204,18 @@ def contents(doc):
 
 def zip_library(out_dir, dest, keep):
     """A `.rrqlib` zip of the library with only the image sizes `keep(px)` accepts."""
+    # Only what the index and its packs name: never images left over from earlier builds.
+    index = json.loads((out_dir / 'library.json').read_text())
+    files = ['library.json']
+    for p in index['packs']:
+        files.append(p['path'])
+        base = p['path'].rsplit('/', 1)[0] + '/' if '/' in p['path'] else ''
+        doc = json.loads((out_dir / p['path']).read_text())
+        files += sorted({base + s['path'] for it in doc['items'] for f in (it.get('data') or {}).get('fabrics') or []
+                         for s in f.get('sizes', []) if keep(s['px'])})
     with zipfile.ZipFile(dest, 'w', zipfile.ZIP_STORED) as z:
-        for f in sorted(out_dir.rglob('*')):
-            if not f.is_file():
-                continue
-            rel = f.relative_to(out_dir).as_posix()
-            m = re.match(r'packs/[^/]+/(\d+)/', rel)
-            if m and not keep(int(m.group(1))):
-                continue
-            z.write(f, rel)
+        for rel in files:
+            z.write(out_dir / rel, rel)
 
 
 def main():
