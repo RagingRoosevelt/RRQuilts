@@ -31,13 +31,49 @@
       </div>
       <div class="text-caption text-grey-7">…or drop a .rrq file anywhere on this window.</div>
 
-      <q-list v-if="recent.length" bordered separator class="rounded-borders">
+      <!-- Recent projects; unsaved work shows here too (opened from its draft) instead of a popup. -->
+      <q-list v-if="recent.length || looseDrafts.length" bordered separator class="rounded-borders">
         <q-item-label header>Recent projects</q-item-label>
         <q-item v-for="r in recent" :key="r.id" clickable @click="openRecent(r)">
           <q-item-section avatar><q-icon name="description" /></q-item-section>
           <q-item-section>
             <q-item-label>{{ r.name }}</q-item-label>
             <q-item-label caption>{{ new Date(r.openedAt).toLocaleString() }}</q-item-label>
+          </q-item-section>
+          <q-item-section v-if="draftOf(r.id)" side>
+            <q-btn
+              flat
+              dense
+              no-caps
+              color="warning"
+              icon="restore"
+              label="Unsaved changes"
+              @click.stop="openDraft(draftOf(r.id)!)"
+            >
+              <q-tooltip>
+                Open the changes made {{ when(draftOf(r.id)!.savedAt) }} that weren't saved to the
+                file
+              </q-tooltip>
+            </q-btn>
+          </q-item-section>
+        </q-item>
+        <q-item v-for="d in looseDrafts" :key="d.id" clickable @click="openDraft(d)">
+          <q-item-section avatar><q-icon name="restore" color="warning" /></q-item-section>
+          <q-item-section>
+            <q-item-label>{{ d.name }}</q-item-label>
+            <q-item-label caption>Not saved to a file yet · {{ when(d.savedAt) }}</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-btn
+              flat
+              round
+              dense
+              icon="delete"
+              :aria-label="`Discard ${d.name}`"
+              @click.stop="discardDraft(d)"
+            >
+              <q-tooltip>Discard these unsaved changes</q-tooltip>
+            </q-btn>
           </q-item-section>
         </q-item>
       </q-list>
@@ -56,7 +92,9 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, shallowRef } from 'vue';
+import { lockedProjects } from '@/session/tab-lock';
+import { unsavedDrafts, type Draft } from '@/storage/drafts';
 import { useRoute, useRouter } from 'vue-router';
 import { pickProject, supportsFileAccess } from '@/storage/files';
 import { recentProjects, type RecentEntry } from '@/storage/recent';
@@ -84,9 +122,9 @@ onMounted(async () => {
     $q.notify({ message: 'Open a project first.', color: 'warning', textColor: 'dark' });
     void router.replace({ path: '/' });
   }
-  if (supportsFileAccess()) {
+  if (supportsFileAccess())
     recent.value = (await recentProjects().catch(() => [])).filter((r) => r.handle);
-  }
+  await loadDrafts(); // every browser: unsaved work is listed (Firefox has no recent files)
 });
 
 /** Starting something new closes the open project; unsaved work stays in its draft. */
@@ -114,4 +152,33 @@ async function openPicked() {
 }
 
 const openRecent = (r: RecentEntry) => openWith(() => project.openRecent(r));
+
+// Unsaved work (drafts) beside the recent projects.
+const drafts = shallowRef<Draft[]>([]);
+async function loadDrafts() {
+  try {
+    const locked = await lockedProjects(); // being edited in another tab: not lost
+    drafts.value = (await unsavedDrafts()).filter(
+      (d) => !locked.has(d.id) && d.id !== project.doc?.project.id,
+    );
+  } catch {
+    drafts.value = [];
+  }
+}
+const draftOf = (id: string) => drafts.value.find((d) => d.id === id);
+/** Unsaved work with no file in the recent list: shown on its own. */
+const looseDrafts = computed(() =>
+  drafts.value.filter((d) => !recent.value.some((r) => r.id === d.id)),
+);
+const when = (t: number) => new Date(t).toLocaleString();
+function openDraft(d: Draft) {
+  confirmLeave(async () => {
+    await project.restoreDraft(d);
+    await router.push('/project');
+  });
+}
+async function discardDraft(d: Draft) {
+  await project.discardDraft(d);
+  drafts.value = drafts.value.filter((x) => x.id !== d.id);
+}
 </script>
