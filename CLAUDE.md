@@ -161,8 +161,9 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - Libraries: palettes hold `fabrics`; zipped `.rrqlib` (`model/zip.ts`, `storage/library-zip.ts`:
   `library.json` index + packs, backups with `images/`); packs switch off via setting `packsOff`
   (`library.views` = on, `allViews` = all). `public/schemas/formats.json` = current format versions
-- Tooling: `fabric_collections/build_packs.py` (manufacturer zips → libraries); template repository at
-  `~/Code/rrquilts-library-template` (local, unpublished)
+- Tooling: `fabric_collections/build_packs.py` (manufacturer zips → `libraries/<maker>/sources/`, gitignored);
+  each `libraries/<maker>` is a brand repository in the template layout, built by its own
+  `tools/build.py`. Template: `~/Code/rrquilts-library-template` (RRQuilts/rrquilts-library-template)
 
 ## Printing (spec 010)
 
