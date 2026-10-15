@@ -1,17 +1,21 @@
 <template>
   <q-page padding>
-    <div class="row items-center q-mb-md" style="gap: 8px">
+    <!-- The filters button sits on the sidebar's side, like the editors' menu button. -->
+    <div class="row items-center no-wrap q-mb-sm">
+      <h1 class="page-title col row items-center no-wrap">
+        Libraries <HelpLink topic="guides/libraries" label="Libraries" />
+      </h1>
       <q-btn
         v-if="$q.screen.lt.md"
         flat
         round
         icon="menu"
         aria-label="Filters"
-        @click="filtersOpen = !filtersOpen"
+        :style="settings.settings.sidesSwapped ? { order: -1 } : undefined"
+        @click="toggleFilters"
       />
-      <h1 class="page-title col row items-center no-wrap" style="min-width: 120px">
-        Libraries <HelpLink topic="guides/libraries" label="Libraries" />
-      </h1>
+    </div>
+    <div class="row items-center q-mb-md" style="gap: 8px">
       <q-btn outline no-caps icon="upload_file" label="Import" @click="importFile">
         <q-tooltip>A backup or pack (.rrqlib), or a palette (.rrqplt)</q-tooltip>
       </q-btn>
@@ -51,42 +55,75 @@
 
     <div class="row no-wrap-md" style="gap: 16px">
       <div
-        v-show="filtersOpen"
+        v-show="filtersOpen || $q.screen.gt.sm"
         class="libs column"
         :class="{ left: settings.settings.sidesSwapped }"
-        style="gap: 8px"
+        :style="{ gap: '8px', '--fly-top': `${flyTop}px` }"
       >
-        <q-input v-model="search" dense outlined clearable placeholder="Search names, notes">
-          <template #prepend><q-icon name="search" /></template>
-        </q-input>
+        <div class="row items-center no-wrap" style="gap: 4px">
+          <q-input
+            v-model="search"
+            dense
+            outlined
+            clearable
+            placeholder="Search names, notes"
+            class="col"
+          >
+            <template #prepend><q-icon name="search" /></template>
+          </q-input>
+          <q-btn
+            v-if="$q.screen.lt.md"
+            flat
+            round
+            dense
+            icon="close"
+            aria-label="Close filters"
+            @click="filtersOpen = false"
+          />
+        </div>
         <q-expansion-item
           default-opened
           dense
           label="Libraries"
-          :caption="`${library.allViews.length - hiddenLibs.length} of ${library.allViews.length}`"
+          :caption="`${library.views.length} of ${library.allViews.length} on`"
           class="lib-picker rounded-borders"
         >
           <div class="lib-checks column no-wrap q-px-sm">
             <template v-for="g in libGroups" :key="g.key">
-              <q-checkbox
+              <!-- Every library has a switch: off leaves it out of projects' trays and pickers.
+                   Its name shows just that library here. -->
+              <div
                 v-if="!g.packs"
-                dense
-                class="q-py-xs"
-                :model-value="!hiddenLibs.includes(g.view.doc.id)"
-                @update:model-value="toggleLib(g.view.doc.id)"
+                class="row items-center no-wrap q-py-xs q-pl-xs"
+                style="gap: 4px"
               >
-                {{ g.view.doc.name }}
-                <div class="text-caption text-grey-7">
-                  {{ kindLabel(g.view) }} · {{ counts(g.view) }}
+                <q-toggle
+                  dense
+                  size="sm"
+                  :model-value="packOn(g.view.doc.id)"
+                  :aria-label="`Use ${g.view.doc.name}`"
+                  @update:model-value="(on: boolean) => setLibOn(g.view.doc.id, on)"
+                />
+                <div class="col" style="min-width: 0">
+                  <a
+                    href="#"
+                    class="pack-link ellipsis block"
+                    :class="{ 'text-grey-6': !packOn(g.view.doc.id) }"
+                    @click.prevent="select(g.view.doc.id)"
+                    >{{ g.view.doc.name }}</a
+                  >
+                  <div class="text-caption text-grey-7 ellipsis">
+                    {{ kindLabel(g.view) }} · {{ counts(g.view) }}
+                  </div>
                 </div>
-              </q-checkbox>
+              </div>
               <!-- A library of packs (spec 014): each pack switched on or off for use;
                    a connected library's packs download when first switched on. -->
               <q-expansion-item
                 v-else
                 dense
-                :model-value="!!openGroups[g.key]"
-                @update:model-value="(o: boolean) => (openGroups[g.key] = o)"
+                :model-value="!collapsed.includes(g.key)"
+                @update:model-value="(o: boolean) => setCollapsed(g.key, !o)"
                 :class="{ 'just-added': justAdded === g.key }"
                 :label="g.name"
                 :caption="`${g.packs.filter((p) => p.view && packOn(p.id)).length} of ${g.packs.length} packs on`"
@@ -143,6 +180,18 @@
               </q-expansion-item>
             </template>
           </div>
+          <q-btn
+            v-if="hiddenLibs.length"
+            flat
+            dense
+            no-caps
+            size="sm"
+            color="primary"
+            icon="visibility"
+            label="Show all libraries"
+            class="q-ma-xs"
+            @click="hiddenLibs = []"
+          />
         </q-expansion-item>
         <SlidePicker v-model="settings.settings.libraryType" :options="TYPE_OPTIONS" label="Type" />
         <template v-for="f in filterFields" :key="f.key">
@@ -177,6 +226,7 @@
           </q-select>
         </template>
         <q-select
+          v-if="settings.settings.libraryType === 'block'"
           v-model="settings.settings.libraryGroupBy"
           :options="GROUP_BY"
           emit-value
@@ -872,6 +922,12 @@ const SkippedList = defineComponent({
 
 // --- Browsing: filters over every library ---
 const filtersOpen = ref($q.screen.gt.sm);
+/** Phones: the sidebar flies over the page, just under the app's header. */
+const flyTop = ref(50);
+function toggleFilters() {
+  flyTop.value = document.querySelector('.q-header')?.getBoundingClientRect().bottom ?? 50;
+  filtersOpen.value = !filtersOpen.value;
+}
 const select = (id: string) => {
   for (const k of ['cats', 'tags', 'styles'] as const) filters[k] = [];
   search.value = '';
@@ -879,11 +935,8 @@ const select = (id: string) => {
     id === 'mine' ? [] : library.allViews.map((v) => v.doc.id).filter((x) => x !== id);
 };
 /** Unchecked libraries; libraries installed later start checked. */
+/** Libraries left out of this page's view (a library's name shows just it). */
 const hiddenLibs = ref<string[]>([]);
-const toggleLib = (id: string) =>
-  (hiddenLibs.value = hiddenLibs.value.includes(id)
-    ? hiddenLibs.value.filter((x) => x !== id)
-    : [...hiddenLibs.value, id]);
 /** The library list: single libraries, and libraries of packs grouped (spec 014). */
 interface PackEntry {
   id: string;
@@ -923,6 +976,11 @@ const libGroups = computed(() => {
   return out;
 });
 const packOn = (id: string) => !settings.settings.packsOff.includes(id);
+function setLibOn(id: string, on: boolean) {
+  const off = settings.settings.packsOff.filter((x) => x !== id);
+  settings.settings.packsOff = on ? off : [...off, id];
+  if (on) retryMissing();
+}
 const downloading = ref<string[]>([]);
 async function setPackOn(g: PackGroup, p: PackEntry, on: boolean) {
   const off = settings.settings.packsOff.filter((x) => x !== p.id);
@@ -954,7 +1012,28 @@ async function setPackOn(g: PackGroup, p: PackEntry, on: boolean) {
 
 // --- Libraries connected from the web ---
 const justAdded = ref<string | null>(null);
-const openGroups = reactive<Record<string, boolean>>({});
+/** Libraries of packs start expanded; the ones collapsed are remembered on this device. */
+const COLLAPSED_KEY = 'rrquilts.librariesCollapsed';
+const collapsed = ref<string[]>(
+  (() => {
+    try {
+      const v = JSON.parse(localStorage.getItem(COLLAPSED_KEY) ?? '[]') as unknown;
+      return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+    } catch {
+      return [];
+    }
+  })(),
+);
+function setCollapsed(key: string, on: boolean) {
+  collapsed.value = on
+    ? [...new Set([...collapsed.value, key])]
+    : collapsed.value.filter((k) => k !== key);
+  try {
+    localStorage.setItem(COLLAPSED_KEY, JSON.stringify(collapsed.value));
+  } catch {
+    // Not kept (storage blocked): fine, it's only a view preference.
+  }
+}
 const adding = reactive({ open: false, url: '', ref: '', busy: false });
 async function connectLibrary() {
   const a = adding;
@@ -966,7 +1045,7 @@ async function connectLibrary() {
     // Show where it went: open the side panel, glow around the new library for a few seconds.
     filtersOpen.value = true;
     justAdded.value = `lib:${c.index.id}`;
-    openGroups[justAdded.value] = true;
+    setCollapsed(justAdded.value, false);
     void nextTick(() =>
       document
         .querySelector('.just-added')
@@ -1065,20 +1144,37 @@ const filtering = computed(
 const inScope = computed(() =>
   library.allViews.filter((v) => !hiddenLibs.value.includes(v.doc.id)),
 );
+/** Items of the type shown (Blocks, Palettes, or All): filters only offer what they use. */
+const ofType = (i: LibraryItem) =>
+  !settings.settings.libraryType || i.type === settings.settings.libraryType;
+const typedItems = computed(() => inScope.value.flatMap((v) => v.doc.items.filter(ofType)));
 const values = (f: 'tags' | 'styles') =>
-  [...new Set(inScope.value.flatMap((v) => v.doc.items.flatMap((i) => i.data.notecard[f] ?? [])))]
+  [...new Set(typedItems.value.flatMap((i) => i.data.notecard[f] ?? []))]
     .sort()
     .map((t) => ({ label: t, value: t }));
 const allCats = computed(() => [
   ...new Map(inScope.value.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
 ]);
+// Switching Blocks / Palettes / All: drop filter picks the new type doesn't offer.
+watch(
+  () => settings.settings.libraryType,
+  () => {
+    for (const f of filterFields.value) {
+      const ok = new Set(f.options.map((o) => o.value));
+      filters[f.key] = filters[f.key].filter((x) => ok.has(x));
+    }
+  },
+);
 const TYPE_OPTIONS = [
   { label: 'Blocks', value: 'block' },
   { label: 'Palettes', value: 'colors' },
   { label: 'All', value: '' },
 ];
 const filterFields = computed(() => {
-  const cats = allCats.value;
+  // Categories the shown items use, with their parents.
+  const used = new Set(typedItems.value.map((i) => i.category ?? ''));
+  for (const c of allCats.value) if (used.has(c.id) && c.parent) used.add(c.parent);
+  const cats = allCats.value.filter((c) => used.has(c.id));
   return [
     {
       key: 'cats' as const,
@@ -1086,7 +1182,7 @@ const filterFields = computed(() => {
       options: cats.length
         ? [
             ...categoryTree(cats).map((c) => ({ label: c.label, value: c.id })),
-            { label: 'Uncategorized', value: '' },
+            ...(used.has('') ? [{ label: 'Uncategorized', value: '' }] : []),
           ]
         : [],
     },
@@ -1560,11 +1656,26 @@ function downloadPack() {
   .row.no-wrap-md {
     flex-direction: column;
   }
+  /* Phones and portrait tablets: the sidebar flies over the page, like the editors'. */
   .libs {
-    width: 100%;
-    position: static;
+    position: fixed;
+    top: var(--fly-top, 50px);
+    height: calc(100dvh - var(--fly-top, 50px));
+    right: 0;
+    width: min(300px, 85vw);
     max-height: none;
-    order: 0;
+    z-index: 5;
+    padding: 12px;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.25);
+  }
+  .libs.left {
+    right: auto;
+    left: 0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.25);
+  }
+  :global(.body--dark .libs) {
+    background: var(--q-dark-page);
   }
 }
 .cards {

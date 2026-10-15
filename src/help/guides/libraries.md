@@ -13,9 +13,14 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
 ## Browse
 
 1. Choose **Libraries** in the header.
-2. Tick the libraries to show in the **Libraries** list on the side. Use **Type** to show **Blocks**, **Palettes** or **All**, the search box, and the **Category**, **Tags** and **Styles** filters.
-3. Use **Group blocks by** to arrange blocks by **Nothing**, **Category**, **Tags** or **Styles**.
-4. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)**. Palettes use **Export (.rrqplt)** instead.
+2. In the **Libraries** list on the side (the menu button on phones), each library has a switch.
+   Libraries that are off stay out of your projects' trays and pickers. Click a library's name to
+   show only it, and **Show all libraries** to see them all again.
+3. Use **Type** to show **Blocks**, **Palettes** or **All**, the search box, and the **Category**,
+   **Tags** and **Styles** filters. The filters offer only what the shown type uses.
+4. In **Blocks**, use **Group blocks by** to arrange blocks by **Nothing**, **Category**, **Tags** or
+   **Styles**.
+5. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)**. Palettes use **Export (.rrqplt)** instead.
 
 Pack items cannot be renamed or changed. Use **Copy to my library** and edit the copy. The copy keeps credit for the original author ([Credits and licenses](/help/guides/credits-and-licenses)).
 
