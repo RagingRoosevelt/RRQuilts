@@ -233,7 +233,9 @@
             icon="cloud_download"
             label="Add from the web…"
             class="q-ma-xs"
-            @click="Object.assign(adding, { open: true, url: '', ref: '', busy: false })"
+            @click="
+              Object.assign(adding, { open: true, url: '', ref: '', busy: false, fromLink: false })
+            "
           >
             <q-tooltip>Connect a library repository by its web address</q-tooltip>
           </q-btn>
@@ -898,8 +900,14 @@
     <!-- Add a library from the web -->
     <q-dialog v-model="adding.open">
       <q-card style="width: 480px; max-width: 90vw">
-        <q-card-section class="text-h6">Add a library from the web</q-card-section>
+        <q-card-section class="text-h6">{{
+          adding.fromLink ? 'Add this library?' : 'Add a library from the web'
+        }}</q-card-section>
         <q-card-section class="column" style="gap: 8px">
+          <div v-if="adding.fromLink">
+            A link asks to add the library at this address. Check it's the one you expect, then
+            click <b>Connect</b>.
+          </div>
           <q-input
             v-model="adding.url"
             dense
@@ -1063,7 +1071,7 @@ import FullName from '@/components/FullName.vue';
 import { useAskCategory } from '@/composables/category';
 // Libraries (spec 011): browse every library; manage My library; back up, restore, share, import.
 import { useQuasar } from 'quasar';
-import { computed, defineComponent, h, nextTick, reactive, ref, watch } from 'vue';
+import { computed, defineComponent, h, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { useAuthor } from '@/composables/author';
 import { serializeBlock } from '@/model/block-file';
 import { collectionFile, parseCollectionFile } from '@/model/collection-file';
@@ -1113,7 +1121,7 @@ import type { Fabric } from '@/model/schema/palette';
 import { retryMissing, swatchStyle } from '@/render/fabric-images';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { paintsUsed, replaceColors } from '@/editor/colors';
 import { fabricPaint } from '@/editor/paint';
 import { coloringSections } from '@/model/library-items';
@@ -1254,6 +1262,7 @@ function setLibOn(id: string, on: boolean) {
 // --- Turning off a library or pack the open project uses ---
 const project = useProjectStore();
 const router = useRouter();
+const route = useRoute();
 /** Its palettes the open project uses: swap their colors, copy them to My library, or cancel. */
 const turningOff = ref<{
   ids: string[];
@@ -1375,7 +1384,34 @@ function setCollapsed(key: string, on: boolean) {
     // Not kept (storage blocked): fine, it's only a view preference.
   }
 }
-const adding = reactive({ open: false, url: '', ref: '', busy: false });
+const adding = reactive({ open: false, url: '', ref: '', busy: false, fromLink: false });
+/** Open the side panel on a library and glow around it for a few seconds. */
+function showLibrary(id: string) {
+  filtersOpen.value = true;
+  justAdded.value = `lib:${id}`;
+  setCollapsed(justAdded.value, false);
+  void nextTick(() =>
+    document.querySelector('.just-added')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }),
+  );
+  setTimeout(() => (justAdded.value = null), 4500);
+}
+// A link to /libraries?add=<address>[&ref=<branch or tag>] (e.g. from a library's gallery page)
+// fills in Add from the web and asks; it never connects on its own.
+onMounted(async () => {
+  const url = route.query.add;
+  if (typeof url !== 'string' || !url.trim()) return;
+  const ref = typeof route.query.ref === 'string' ? route.query.ref.trim() : '';
+  // A reload doesn't ask again. Done first: dialogs close when the route changes.
+  await router.replace({ query: {} });
+  await library.connectionsLoaded;
+  const c = library.connections.find((x) => sameUrl(x.url, url));
+  if (c) {
+    showLibrary(c.index.id);
+    $q.notify({ message: `${c.index.name} is already added.` });
+    return;
+  }
+  Object.assign(adding, { open: true, url: url.trim(), ref, busy: false, fromLink: true });
+});
 async function connectLibrary() {
   const a = adding;
   if (!a.url.trim()) return;
@@ -1386,16 +1422,7 @@ async function connectLibrary() {
       (u) => !sameUrl(u, a.url),
     );
     Object.assign(a, { open: false, busy: false });
-    // Show where it went: open the side panel, glow around the new library for a few seconds.
-    filtersOpen.value = true;
-    justAdded.value = `lib:${c.index.id}`;
-    setCollapsed(justAdded.value, false);
-    void nextTick(() =>
-      document
-        .querySelector('.just-added')
-        ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }),
-    );
-    setTimeout(() => (justAdded.value = null), 4500);
+    showLibrary(c.index.id); // show where it went
     $q.notify({
       type: 'positive',
       message: `${c.index.name} connected. Switch on the packs you want.`,
