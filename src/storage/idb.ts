@@ -1,8 +1,8 @@
 // Minimal promise wrapper over IndexedDB. Any failure (blocked storage, quota, private mode)
 // surfaces as a rejected promise; callers degrade gracefully.
 const DB = 'rrquilts';
-const VERSION = 2;
-export const STORES = ['drafts', 'recent', 'libraries'] as const;
+const VERSION = 3;
+export const STORES = ['drafts', 'recent', 'libraries', 'images'] as const;
 export type StoreName = (typeof STORES)[number];
 
 let opening: Promise<IDBDatabase> | undefined;
@@ -46,6 +46,8 @@ export const idb = {
   delete: async (s: StoreName, key: string) => {
     await request((await store(s, 'readwrite')).delete(key));
   },
+  keys: async (s: StoreName) =>
+    (await request((await store(s, 'readonly')).getAllKeys())) as string[],
 };
 
 /** Test hook: forget the cached connection. */
