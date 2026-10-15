@@ -308,25 +308,6 @@
       </div>
 
       <div class="col" style="min-width: 0">
-        <!-- My library before it has anything: its section, and how to start it. -->
-        <div v-if="!library.mine && !filtering" class="lib-group q-mb-md">
-          <h2 class="lib-name">{{ MY_LIBRARY }}</h2>
-          <div class="text-grey-7 q-my-sm" style="max-width: 560px">
-            Your own blocks and palettes, available in every project on this device. Make a palette
-            here, add a block from a project's Blocks tab (<b>Add to my library</b>), save a palette
-            from its Palettes tab (<b>Save to my library</b>), or import a backup.
-          </div>
-          <div class="row" style="gap: 8px">
-            <q-btn outline no-caps icon="palette" label="New palette…" @click="newPalette()" />
-            <q-btn
-              outline
-              no-caps
-              icon="add_photo_alternate"
-              label="Add fabrics…"
-              @click="addFabricsTo"
-            />
-          </div>
-        </div>
         <template v-for="g in groups" :key="g.v.doc.id">
           <div class="lib-group q-mb-md" :class="{ 'in-lib': g.packOf && !g.firstOfLib }">
             <!-- Packs of one library (a repository or zipped library) sit under its name. -->
@@ -380,6 +361,39 @@
               />
             </div>
 
+            <div
+              v-if="g.mine && !g.v.doc.items.length && libOpen(g)"
+              class="text-grey-7 q-mb-sm"
+              style="max-width: 560px"
+            >
+              Your own blocks and palettes, available in every project on this device. Make a
+              palette here, add a block from a project's Blocks tab (<b>Add to my library</b>), save
+              a palette from its Palettes tab (<b>Save to my library</b>), or import a backup.
+            </div>
+            <q-btn
+              v-if="g.mine && !g.v.doc.items.length && libOpen(g)"
+              outline
+              dense
+              no-caps
+              icon="add"
+              label="New palette"
+              class="q-px-sm q-mb-md"
+              @click="newPalette()"
+            />
+            <!-- My library with palettes but no blocks yet (Blocks view): where blocks come from. -->
+            <div
+              v-else-if="
+                g.mine &&
+                !g.blocks.length &&
+                !filtering &&
+                settings.settings.libraryType === 'block' &&
+                libOpen(g)
+              "
+              class="text-grey-7 q-mb-sm"
+            >
+              No blocks yet. Add one from a project's Blocks tab (<b>Add to my library</b> in a
+              block's menu).
+            </div>
             <BlockSections
               v-if="g.blocks.length && libOpen(g)"
               :sections="g.sections"
@@ -445,7 +459,7 @@
             <div
               v-if="
                 libOpen(g) &&
-                (g.collections.length || g.mine) &&
+                (g.collections.length || (g.mine && g.v.doc.items.length)) &&
                 settings.settings.libraryType !== 'block' &&
                 (!g.packOf || g.firstPalettes) &&
                 (settings.settings.libraryType !== 'colors' || g.mine)
@@ -457,12 +471,12 @@
               <h3 v-if="settings.settings.libraryType !== 'colors'" class="sub-title">Palettes</h3>
               <q-btn
                 v-if="g.mine"
-                flat
+                outline
                 dense
                 no-caps
-                size="sm"
                 icon="add"
                 label="New palette"
+                class="q-px-sm"
                 @click="newPalette()"
               />
             </div>
@@ -492,6 +506,12 @@
                   >
                 </legend>
                 <button class="strip col" @click="previewing = { lib: g.v.doc.id, id: c.id }">
+                  <span
+                    v-if="!c.colors.length && !c.fabrics?.length"
+                    class="text-caption text-grey-7"
+                  >
+                    Empty: click to add colors or fabric images
+                  </span>
                   <span
                     v-for="(x, i) in c.colors"
                     :key="x.id"
@@ -1050,6 +1070,8 @@ import { collectionFile, parseCollectionFile } from '@/model/collection-file';
 import { DEFAULT_LICENSE, LICENSES, authorOf, licenseName, priorCredits } from '@/model/credits';
 import {
   MY_LIBRARY,
+  emptyPersonal,
+  withSources,
   blockSections,
   categoryTree,
   copyToMine,
@@ -1507,8 +1529,19 @@ const filtering = computed(
     !!hiddenLibs.value.length ||
     [filters.cats, filters.tags, filters.styles].some((f) => f.length),
 );
+/** Every library shown; My library always, as an empty one until something is saved there. */
 const inScope = computed(() =>
-  library.allViews.filter((v) => !hiddenLibs.value.includes(v.doc.id)),
+  [
+    ...(library.mine
+      ? []
+      : [
+          (() => {
+            const doc = emptyPersonal(me.value);
+            return { doc, ...withSources(doc) };
+          })(),
+        ]),
+    ...library.allViews,
+  ].filter((v) => !hiddenLibs.value.includes(v.doc.id)),
 );
 /** Items of the type shown (Blocks, Palettes, or All): filters only offer what they use. */
 const ofType = (i: LibraryItem) =>
@@ -2283,6 +2316,10 @@ function downloadPack() {
 .strip {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  min-height: 30px;
+  color: inherit;
+  text-align: left;
   gap: 2px;
   padding: 0;
   border: none;
