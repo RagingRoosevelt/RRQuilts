@@ -85,6 +85,9 @@
               <q-expansion-item
                 v-else
                 dense
+                :model-value="!!openGroups[g.key]"
+                @update:model-value="(o: boolean) => (openGroups[g.key] = o)"
+                :class="{ 'just-added': justAdded === g.key }"
                 :label="g.name"
                 :caption="`${g.packs.filter((p) => p.view && packOn(p.id)).length} of ${g.packs.length} packs on`"
                 header-class="q-px-xs"
@@ -92,7 +95,7 @@
                 <div
                   v-for="p in g.packs"
                   :key="p.id"
-                  class="row items-center no-wrap"
+                  class="row items-center no-wrap q-pl-xs"
                   style="gap: 4px"
                 >
                   <q-spinner v-if="downloading.includes(p.id)" size="20px" class="q-mx-sm" />
@@ -794,7 +797,7 @@ import FullName from '@/components/FullName.vue';
 import { useAskCategory } from '@/composables/category';
 // Libraries (spec 011): browse every library; manage My library; back up, restore, share, import.
 import { useQuasar } from 'quasar';
-import { computed, defineComponent, h, reactive, ref, watch } from 'vue';
+import { computed, defineComponent, h, nextTick, reactive, ref, watch } from 'vue';
 import { useAuthor } from '@/composables/author';
 import { serializeBlock } from '@/model/block-file';
 import { collectionFile, parseCollectionFile } from '@/model/collection-file';
@@ -950,6 +953,8 @@ async function setPackOn(g: PackGroup, p: PackEntry, on: boolean) {
 }
 
 // --- Libraries connected from the web ---
+const justAdded = ref<string | null>(null);
+const openGroups = reactive<Record<string, boolean>>({});
 const adding = reactive({ open: false, url: '', ref: '', busy: false });
 async function connectLibrary() {
   const a = adding;
@@ -958,6 +963,16 @@ async function connectLibrary() {
   try {
     const c = await library.connect(a.url, a.ref.trim() || undefined);
     Object.assign(a, { open: false, busy: false });
+    // Show where it went: open the side panel, glow around the new library for a few seconds.
+    filtersOpen.value = true;
+    justAdded.value = `lib:${c.index.id}`;
+    openGroups[justAdded.value] = true;
+    void nextTick(() =>
+      document
+        .querySelector('.just-added')
+        ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }),
+    );
+    setTimeout(() => (justAdded.value = null), 4500);
     $q.notify({
       type: 'positive',
       message: `${c.index.name} connected. Switch on the packs you want.`,
@@ -1677,6 +1692,27 @@ function downloadPack() {
 }
 .skin.active {
   border-color: var(--q-primary);
+}
+.just-added {
+  border-radius: 6px;
+  animation: just-added 1.5s ease-in-out 3;
+}
+@keyframes just-added {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 2px var(--q-primary),
+      inset 0 0 12px 2px var(--q-primary);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .just-added {
+    animation: none;
+    box-shadow: inset 0 0 0 2px var(--q-primary);
+  }
 }
 .pack-link {
   color: inherit;
