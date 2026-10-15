@@ -77,6 +77,33 @@ export async function prepareForSave(doc: RrqDoc, saveSize: number): Promise<Rrq
 }
 
 /** After opening: embedded images go into the store, and leave the in-memory document. */
+/**
+ * Fabrics with their images embedded at `px` (for a palette file shared on its own); fabrics whose
+ * license forbids sharing keep a reference only.
+ */
+export function embedFabrics(fabrics: readonly Fabric[], px: number): Promise<Fabric[]> {
+  return Promise.all(
+    fabrics.map(async (f) =>
+      noSharing(f.license ?? f.source?.license) ? f : { ...f, image: await embeddedAt(f, px) },
+    ),
+  );
+}
+
+/** Store fabrics' embedded images on this device; the fabrics keep references. */
+export function absorbFabrics(fabrics: readonly Fabric[]): Promise<Fabric[]> {
+  return Promise.all(
+    fabrics.map(async (f) => {
+      if (!f.image.data) return f;
+      try {
+        if (!(await storeEmbedded(f.image))) return f;
+      } catch {
+        return f;
+      }
+      return { ...f, image: ref(f.image) };
+    }),
+  );
+}
+
 export async function absorbImages(doc: RrqDoc): Promise<RrqDoc> {
   const fabrics = await Promise.all(
     doc.project.palette.fabrics.map(async (f) => {

@@ -618,6 +618,7 @@
           @add-images="addImagesTo(shownPalette.project!)"
           @drop-files="(files) => fabricImport?.show({ files, palette: shownPalette!.project! })"
           @edit="(i) => editProjectColor(shownData!.colors[i]!)"
+          @rename="renameShown"
           @remove="removeFromShown"
         />
       </q-card>
@@ -1059,6 +1060,7 @@ import {
   renamePalette,
 } from '@/model/project-palettes';
 import { collectionFile } from '@/model/collection-file';
+import { absorbFabrics, embedFabrics } from '@/storage/fabric-files';
 import {
   isLibraryItem,
   splitItems,
@@ -1223,10 +1225,12 @@ function exportProjectPalette(pp: (typeof ownPalettes.value)[number]) {
     colors: pp.colors,
     fabrics: pp.fabrics,
   } as ColorCollection;
-  void exportFile(
-    pp.palette.notecard.name,
-    JSON.stringify(collectionFile(c, import.meta.env.APP_VERSION)),
-    'rrqplt',
+  void embedFabrics(pp.fabrics, settings.settings.saveSize).then((fabrics) =>
+    exportFile(
+      pp.palette.notecard.name,
+      JSON.stringify(collectionFile({ ...c, fabrics }, import.meta.env.APP_VERSION)),
+      'rrqplt',
+    ),
   );
 }
 /** Fabric images into a palette: picked in the dialog, or dropped on the palette. */
@@ -1251,6 +1255,17 @@ function fabricsAdded(fabrics: Fabric[], to?: { id: string } | { name: string })
         [],
         fabrics.map((f) => f.id),
       );
+  });
+}
+/** Rename the shown palette's color or fabric `i` (colors first), from the editor's name field. */
+function renameShown(i: number, name: string) {
+  const d = shownData.value!;
+  const id = (d.colors[i] ?? d.fabrics?.[i - d.colors.length])?.id;
+  project.change((doc) => {
+    const x =
+      doc.project.palette.colors.find((y) => y.id === id) ??
+      doc.project.palette.fabrics.find((y) => y.id === id);
+    if (x) x.notecard.name = name;
   });
 }
 /** Remove the shown palette's color or fabric `i` (colors first), swapping any uses first. */
@@ -1955,18 +1970,34 @@ async function syncColors() {
   $q.notify({ type: 'positive', message: `Synced colors to ${MY_LIBRARY}.` });
 }
 
+/** A palette file becomes a project palette with its colors and fabrics (images stored here). */
 async function importCollectionFile() {
   const file = await pickFile(['rrqplt']);
   if (!file) return;
   const r = parseCollectionFile(await file.text());
   if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
-  const res = importCollectionColors(project.doc!, r.file.collection);
-  if (!res.added)
-    return void $q.notify({
-      message: `“${r.file.collection.notecard.name}”'s colors are already here.`,
-    });
-  project.change(() => res.doc);
-  $q.notify({ type: 'positive', message: `Added ${res.added} color(s) (undo removes them).` });
+  const c = r.file.collection;
+  const res = importCollectionColors(project.doc!, c);
+  const have = new Set(project.doc!.project.palette.fabrics.map((f) => f.id));
+  const fabrics = (await absorbFabrics(c.fabrics ?? [])).filter((f) => !have.has(f.id));
+  if (!res.added && !fabrics.length)
+    return void $q.notify({ message: `“${c.notecard.name}” is already here.` });
+  const colorIds = c.colors.map((x) => x.id);
+  project.change((d) => {
+    if (res.added) d.project.palette.colors = castDraft(res.doc.project.palette.colors);
+    d.project.palette.fabrics.push(...castDraft(fabrics));
+    const id = addPalette(d, itemId(settings.settings.author), c.notecard.name);
+    fileInto(
+      d,
+      id,
+      colorIds,
+      fabrics.map((f) => f.id),
+    );
+  });
+  $q.notify({
+    type: 'positive',
+    message: `Added “${c.notecard.name}”: ${res.added} color(s), ${fabrics.length} fabric(s).`,
+  });
 }
 
 function exportBlock(b: Block) {

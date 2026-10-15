@@ -424,6 +424,22 @@ export async function addFabrics(
   return { lib: mapItem(lib, target.id, () => ({ ...item, data })), id: target.id };
 }
 
+/** Rename fabric `fabricId` in My library palette `paletteId` (a new revision). */
+export async function renameFabric(
+  lib: LibraryDoc,
+  paletteId: string,
+  fabricId: string,
+  name: string,
+): Promise<LibraryDoc> {
+  const item = lib.items.find((i) => i.type === 'colors' && i.data.id === paletteId);
+  if (item?.type !== 'colors') return lib;
+  const fabrics = (item.data.fabrics ?? []).map((f) =>
+    f.id === fabricId ? { ...f, notecard: { ...f.notecard, name } } : f,
+  );
+  const data = await asLibraryData({ ...item.data, fabrics }, (item.data.revision ?? 1) + 1);
+  return mapItem(lib, paletteId, () => ({ ...item, data }));
+}
+
 /** Remove fabric `fabricId` from My library palette `paletteId` (a new revision). */
 export async function removeFabric(
   lib: LibraryDoc,

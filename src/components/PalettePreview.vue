@@ -32,7 +32,27 @@
       </q-carousel>
       <q-card-section class="row items-center no-wrap q-py-sm" style="gap: 8px">
         <div class="col" style="min-width: 0">
-          <div class="text-subtitle1 ellipsis">{{ shownSwatch!.item.notecard.name }}</div>
+          <!-- The name edits in place: click it, type, Enter (or click away) saves, Esc cancels. -->
+          <q-input
+            v-if="naming !== null"
+            v-model="naming"
+            dense
+            autofocus
+            aria-label="Name"
+            @keyup.enter="saveName"
+            @keyup.esc="naming = null"
+            @blur="saveName"
+          />
+          <div
+            v-else
+            class="text-subtitle1 ellipsis"
+            :class="{ 'name-edit': editable }"
+            :title="editable ? 'Click to rename' : undefined"
+            @click="editable && (naming = shownSwatch!.item.notecard.name)"
+          >
+            {{ shownSwatch!.item.notecard.name }}
+            <q-icon v-if="editable" name="edit" size="xs" class="text-grey-6" />
+          </div>
           <div class="text-caption text-grey-7 ellipsis">{{ swatchInfo(shownSwatch!) }}</div>
         </div>
         <template v-if="editable && (shownSwatch!.kind === 'color' || images)">
@@ -41,10 +61,12 @@
             flat
             round
             dense
-            icon="edit"
-            aria-label="Edit color"
+            icon="palette"
+            aria-label="Change color"
             @click="emit('edit', at)"
-          />
+          >
+            <q-tooltip>Change color</q-tooltip>
+          </q-btn>
           <q-btn
             flat
             round
@@ -112,6 +134,7 @@ const emit = defineEmits<{
   remove: [i: number];
   addImages: [];
   dropFiles: [files: File[]];
+  rename: [i: number, name: string];
 }>();
 
 type Swatch = { kind: 'color'; item: Color } | { kind: 'fabric'; item: Fabric };
@@ -123,6 +146,17 @@ watch(swatches, (l) => {
   if (props.at > l.length - 1) emit('update:at', Math.max(0, l.length - 1));
 });
 const dropping = ref(false);
+/** The name being typed (null: not renaming). */
+const naming = ref<string | null>(null);
+watch(
+  () => props.at,
+  () => (naming.value = null),
+);
+function saveName() {
+  const name = naming.value?.trim();
+  naming.value = null;
+  if (name && name !== shownSwatch.value?.item.notecard.name) emit('rename', props.at, name);
+}
 function onDrop(e: DragEvent) {
   dropping.value = false;
   const files = [...(e.dataTransfer?.files ?? [])];
@@ -159,6 +193,9 @@ function swatchInfo(x: Swatch) {
 </script>
 
 <style scoped>
+.name-edit {
+  cursor: text;
+}
 .drop-target {
   outline: 2px dashed var(--q-primary);
   outline-offset: -4px;

@@ -644,6 +644,7 @@
           @add-images="fabricDialog?.show({ palette: previewCollection!.id })"
           @drop-files="(files) => fabricDialog?.show({ files, palette: previewCollection!.id })"
           @edit="(i) => startColor(previewCollection!.id, i)"
+          @rename="(i, name) => renameSwatch(previewCollection!, i, name)"
           @remove="(i) => removeSwatch(previewCollection!, i)"
         />
         <ColorEditor v-if="previewMine" ref="colorEditor" @done="saveColorEdit" />
@@ -1062,6 +1063,7 @@ import {
   type LibraryView,
   addFabrics,
   removeFabric,
+  renameFabric,
 } from '@/model/library';
 import { backupDoc, packDoc, parseLibrary, restore, serializeLibrary } from '@/model/library-file';
 import { createProject } from '@/model/new-project';
@@ -1075,6 +1077,7 @@ import type {
 import type { Color } from '@/model/schema/palette';
 import { blockThumbnail } from '@/render/thumbnail';
 import { exportFile, pickFile } from '@/storage/files';
+import { absorbFabrics, embedFabrics } from '@/storage/fabric-files';
 import { isZip, readLibraryZip, writeLibraryZip } from '@/storage/library-zip';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PalettePreview from '@/components/PalettePreview.vue';
@@ -1781,6 +1784,15 @@ async function createPalette(name: string) {
   previewing.value = { lib: library.mine!.id, id: made };
 }
 const removeColor = (id: string, i: number) => editColors(id, (cs) => cs.filter((_, j) => j !== i));
+/** Rename a My library palette's color or fabric `i` (colors first), from the editor's name field. */
+function renameSwatch(c: ColorCollection, i: number, name: string) {
+  if (i < c.colors.length)
+    return editColors(c.id, (cs) =>
+      cs.map((x, j) => (j === i ? { ...x, notecard: { ...x.notecard, name } } : x)),
+    );
+  const f = c.fabrics?.[i - c.colors.length];
+  if (f) void update((l) => renameFabric(l, c.id, f.id, name));
+}
 /** Remove a My library palette's color or fabric `i` (colors first, as the preview lists them). */
 function removeSwatch(c: ColorCollection, i: number) {
   if (i < c.colors.length) return removeColor(c.id, i);
@@ -1816,8 +1828,13 @@ function exportBlock(b: Block) {
     'rrqbl',
   );
 }
-function exportCollection(c: ColorCollection) {
-  void exportFile(c.notecard.name, JSON.stringify(collectionFile(c, APP)), 'rrqplt');
+/** A palette file carries its fabric images (at the save size), so it opens anywhere. */
+async function exportCollection(c: ColorCollection) {
+  const fabrics = c.fabrics?.length
+    ? await embedFabrics(c.fabrics, settings.settings.saveSize)
+    : undefined;
+  const out = fabrics ? { ...c, fabrics } : c;
+  void exportFile(c.notecard.name, JSON.stringify(collectionFile(out, APP)), 'rrqplt');
 }
 
 const formatOf = (text: string): unknown => {
@@ -1889,10 +1906,13 @@ async function importZip(bytes: Uint8Array<ArrayBuffer>) {
   }
 }
 
-function importCollection(text: string) {
+async function importCollection(text: string) {
   const r = parseCollectionFile(text);
   if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
-  const c = r.file.collection;
+  // Its fabric images go into this device's image store; the palette keeps references.
+  const c = r.file.collection.fabrics?.length
+    ? { ...r.file.collection, fabrics: await absorbFabrics(r.file.collection.fabrics) }
+    : r.file.collection;
   const have = library.mine?.items.find((i) => i.data.id === c.id);
   const done = () => {
     select('mine');
