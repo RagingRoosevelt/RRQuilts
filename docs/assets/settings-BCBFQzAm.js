@@ -1,0 +1,1 @@
+import{l as e,t}from"./settings-gV525zU2.js";import{i as n}from"./index-Afs0oFgl.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

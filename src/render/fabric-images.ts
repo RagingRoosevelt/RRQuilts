@@ -46,9 +46,48 @@ export function bitmap(f: Fabric): ImageBitmap | undefined {
   return b && !(b instanceof Promise) ? b : undefined;
 }
 
+const urls = new Map<string, string | null | Promise<void>>();
+
+/** An object URL of the fabric's image (for swatches in lists), or undefined until it loads. */
+export function fabricUrl(f: Fabric, px = 256): string | undefined {
+  void imagesTick.value; // track
+  if (display.mode === 'colors') return undefined;
+  const sha = imageFor(f, px);
+  const u = urls.get(sha);
+  if (u === undefined)
+    urls.set(
+      sha,
+      (async () => {
+        try {
+          let row = await getImage(sha);
+          if (!row && f.image.sha256 === sha && f.image.data && (await storeEmbedded(f.image)))
+            row = await getImage(sha);
+          urls.set(
+            sha,
+            row ? URL.createObjectURL(new Blob([row.bytes], { type: row.type })) : null,
+          );
+          imagesTick.value++;
+        } catch {
+          urls.set(sha, null);
+        }
+      })(),
+    );
+  return typeof u === 'string' ? u : undefined;
+}
+
+/** CSS for a fabric swatch: its image over its average color. */
+export function swatchStyle(f: Fabric) {
+  const u = fabricUrl(f);
+  return {
+    backgroundColor: `rgb(${f.average.join(',')})`,
+    ...(u ? { backgroundImage: `url(${u})`, backgroundSize: 'cover' } : {}),
+  };
+}
+
 /** Try images that weren't available again (e.g. after a library pack is turned on). */
 export function retryMissing() {
   for (const [k, v] of bitmaps) if (v === null) bitmaps.delete(k);
+  for (const [k, v] of urls) if (v === null) urls.delete(k);
   imagesTick.value++;
 }
 

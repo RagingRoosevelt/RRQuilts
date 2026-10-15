@@ -132,6 +132,17 @@
         aria-label="Add color"
         @click="editorDialog?.show()"
       />
+      <q-btn
+        v-if="!project.readOnly"
+        round
+        dense
+        flat
+        icon="add_photo_alternate"
+        aria-label="Add fabric images"
+        @click="importDialog?.show()"
+      >
+        <q-tooltip>Add fabric images</q-tooltip>
+      </q-btn>
       <div v-if="sidebar" class="text-caption text-grey-7 q-px-xs" style="width: 100%">
         Add library palettes: tick their checkbox in the project's Palettes tab{{
           app.settings.hideLibraryPalettes ? ' (show them via Settings › Libraries)' : ''
@@ -140,13 +151,13 @@
       <!-- Project colors, In use, then each library with its picked palettes (nested sections). -->
       <template v-for="node in colorTree" :key="node.label">
         <TraySection
-          v-if="node.groups.some((g) => g.items.length)"
+          v-if="node.groups.some((g) => g.items.length || g.fabrics.length)"
           :label="node.label"
           :kind="node.lib ? 'colorlib' : 'colors'"
         >
           <component
             :is="node.lib ? TraySection : 'span'"
-            v-for="group in node.groups.filter((g) => g.items.length)"
+            v-for="group in node.groups.filter((g) => g.items.length || g.fabrics.length)"
             :key="group.label"
             v-bind="
               node.lib ? { label: group.label, kind: `colors:${node.lib}` } : { class: 'contents' }
@@ -179,11 +190,30 @@
                 </q-list>
               </q-menu>
             </button>
+            <!-- Fabrics (spec 014): the print over its average color. -->
+            <button
+              v-for="f in group.fabrics"
+              :key="f.id"
+              class="swatch fabric"
+              :class="{ active: editor.color === fabricPaint(f.id) }"
+              :style="swatchStyle(f)"
+              :title="f.notecard.name + (f.approximate ? ' (size ≈)' : '')"
+              @click="pickColor(fabricPaint(f.id))"
+            >
+              <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
+                <q-list dense style="min-width: 140px">
+                  <q-item v-close-popup clickable @click="removeFabric(f.id)">
+                    <q-item-section class="text-negative">Delete</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </button>
           </component>
         </TraySection>
       </template>
     </div>
     <ColorEditor ref="editorDialog" @done="saveColor" />
+    <FabricImportDialog ref="importDialog" :units="doc.units" @done="addFabrics" />
   </div>
 </template>
 
@@ -192,6 +222,9 @@ import { useQuasar } from 'quasar';
 import { QExpansionItem } from 'quasar';
 import { computed, defineComponent, h, onMounted, ref } from 'vue';
 import ColorEditor from '@/components/ColorEditor.vue';
+import FabricImportDialog from '@/components/FabricImportDialog.vue';
+import { fabricPaint } from '@/editor/paint';
+import { swatchStyle } from '@/render/fabric-images';
 import { colorInUse, colorsPainted, deleteColor } from '@/editor/colors';
 import type { RGB } from '@/editor/color';
 import { itemId } from '@/model/identity';
@@ -200,11 +233,11 @@ import { blockThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { usePaletteOffer } from '@/composables/palette-offer';
-import { isLibraryItem, projectColorings, splitItems } from '@/model/library-items';
+import { fabricsIn, isLibraryItem, projectColorings, splitItems } from '@/model/library-items';
 import { blockSections, libraryGroups } from '@/model/library';
 import BlockSections from '@/components/BlockSections.vue';
 import { creditCopy } from '@/model/credits';
-import type { Color } from '@/model/schema/palette';
+import type { Color, Fabric } from '@/model/schema/palette';
 import { produce } from 'immer';
 import type { Block } from '@/model/schema/block';
 import { useProjectStore } from '@/stores/project';
@@ -214,6 +247,7 @@ const project = useProjectStore();
 const editor = useEditorStore();
 const library = useLibraryStore();
 const editorDialog = ref<InstanceType<typeof ColorEditor>>();
+const importDialog = ref<InstanceType<typeof FabricImportDialog>>();
 const editing = ref<string | null>(null);
 
 /**
@@ -321,17 +355,20 @@ const colorTree = computed(() => {
   // library), then other library colors in use.
   const picked = new Set(doc.value.project.libraryPalettes ?? []);
   const shown = new Set<string>();
+  const shownFabrics = new Set<string>();
   const palettes = library.views.flatMap((v) =>
     v.collections
       .filter((c) => picked.has(c.id))
       .map((c) => {
         const items = c.colors.map((x) => byId.get(x.id) ?? x);
         items.forEach((x) => shown.add(x.id));
+        (c.fabrics ?? []).forEach((x) => shownFabrics.add(x.id));
         return {
           lib: v.doc.id,
           libName: v.doc.name,
           label: c.notecard.name,
           items: recentFirst(items),
+          fabrics: c.fabrics ?? [],
           mine: false,
         };
       }),
@@ -347,13 +384,21 @@ const colorTree = computed(() => {
     const groups = palettes.filter((p) => p.lib === lib);
     return { lib, label: groups[0]!.libName, groups };
   });
+  // Fabrics: the project's own, then library fabrics painted here but not in a picked palette.
+  const fabrics = doc.value.project.palette.fabrics;
+  const ownFabrics = fabrics.filter((f) => !isLibraryItem(f));
+  const usedFabrics = fabrics.filter((f) => isLibraryItem(f) && !shownFabrics.has(f.id));
   return [
     {
       lib: '',
       label: 'Project colors',
-      groups: [{ label: '', items: recentFirst(mine), mine: true }],
+      groups: [{ label: '', items: recentFirst(mine), fabrics: ownFabrics, mine: true }],
     },
-    { lib: '', label: 'In use', groups: [{ label: '', items: recentFirst(used), mine: false }] },
+    {
+      lib: '',
+      label: 'In use',
+      groups: [{ label: '', items: recentFirst(used), fabrics: usedFabrics, mine: false }],
+    },
     ...libs,
   ];
 });
@@ -389,6 +434,24 @@ function chooseColoring(blockId: string, coloringId: string) {
   if (b) offerPalette(b, coloringId);
   pickBlock(blockId);
 }
+/** Imported fabric images join the project's palette (spec 014). */
+function addFabrics(fabrics: Fabric[]) {
+  project.change((d) => void d.project.palette.fabrics.push(...fabrics));
+}
+function removeFabric(id: string) {
+  const used = fabricsIn([
+    ...doc.value.project.blocks.flatMap((b) => b.colorings),
+    ...doc.value.project.quilts.flatMap((q) => Object.values(q.colorings)),
+  ]).includes(id);
+  if (used) {
+    $q.notify({ message: 'This fabric is painted in the project. Paint over it first.' });
+    return;
+  }
+  project.change((d) => {
+    d.project.palette.fabrics = d.project.palette.fabrics.filter((f) => f.id !== id);
+  });
+}
+
 function pickColor(id: string) {
   editor.useColor(id);
   if (!props.colorsOnly && !['paint', 'spray', 'swap'].includes(editor.tool)) editor.tool = 'paint';
