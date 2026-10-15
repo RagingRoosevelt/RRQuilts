@@ -9,6 +9,7 @@ import {
   LIBRARY_VERSION,
   LibraryEnvelope,
   LibraryItem,
+  type BackupConnection,
   type LibraryBackup,
   type LibraryDoc,
 } from './schema/library';
@@ -118,11 +119,19 @@ export function backupDoc(
   mine: LibraryDoc,
   packs: LibraryDoc[],
   include: { mine: boolean; packs: boolean },
+  web: { connections: BackupConnection[]; packsOff: string[] } = { connections: [], packsOff: [] },
 ): LibraryBackup {
+  // Packs from web libraries travel as their connection (re-downloaded on restore), not copies.
+  const fromWeb = new Set(web.connections.flatMap((c) => c.packs));
+  const copies = packs.filter((p) => !fromWeb.has(p.id));
+  const backedUp = new Set([...copies.map((p) => p.id), ...fromWeb]);
+  const off = web.packsOff.filter((id) => backedUp.has(id));
   return {
     ...mine,
     ...(include.mine ? {} : { items: [], categories: [] }),
-    ...(include.packs && packs.length ? { packs } : {}),
+    ...(include.packs && copies.length ? { packs: copies } : {}),
+    ...(include.packs && web.connections.length ? { connections: web.connections } : {}),
+    ...(include.packs && off.length ? { packsOff: off } : {}),
   };
 }
 

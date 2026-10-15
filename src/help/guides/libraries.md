@@ -41,6 +41,9 @@ Tick **Use ... in this project** on a block in the project's **Blocks** tab. A p
 
 1. On **Libraries**, click **Back up…**.
 2. Choose **My library** and/or **Installed packs**, then click **Back up**. You get one `.rrqlib` file.
+   Packs from libraries added from the web are saved as the library's address, not copied, so the
+   file stays small. Restoring connects to them again and downloads the packs. Which packs were
+   switched off is kept too.
 3. To restore, click **Import** and pick the file. If you already have items, choose **Merge into my library (keep what's here)** or **Replace my library with the backup's**. For packs already installed, choose **Keep** or **Replace**. Then click **Restore**.
 
 Libraries live in browser storage. If the page warns that storage is blocked, back up before closing.

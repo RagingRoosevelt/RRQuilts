@@ -78,7 +78,18 @@ export async function fetchIndex(base: string): Promise<LibraryIndex> {
   } catch (e) {
     if ((e as { status?: number }).status !== 404) throw e;
   }
-  const single = parseLibraryValue(await fetchJson(base + 'rrqlib.json'));
+  let raw: unknown;
+  try {
+    raw = await fetchJson(base + 'rrqlib.json');
+  } catch (e) {
+    if ((e as { status?: number }).status !== 404) throw e;
+    throw new Error(
+      'No RRQuilts library at that address (no library.json). Check that the repository is ' +
+        'public, its files are pushed, and the branch is right.',
+      { cause: e },
+    );
+  }
+  const single = parseLibraryValue(raw);
   if (!single.ok) throw new Error(single.error);
   const d = single.doc;
   return {

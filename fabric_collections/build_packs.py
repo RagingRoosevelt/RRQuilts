@@ -174,7 +174,7 @@ def build_pack(maker, lib_id, zip_path, meta, out_dir):
     palette_id = f'{lib_id}.{slug(name, 58)}'
     revision = (old or {}).get('revision', 0) + (1 if contents(old) != contents_of(fabrics) else 0)
     doc = {
-        'format': 'rrqlib', 'version': 2, 'units': 'in', 'kind': 'pack',
+        'format': 'rrqlib', 'version': 3, 'units': 'in', 'kind': 'pack',
         'id': pack_id, 'revision': revision, 'name': name,
         'description': f'{name} by {designer}, {MAKERS[maker]}' + (f' ({when})' if when != '??-??' else ''),
         'author': {'name': designer}, 'license': LICENSE,

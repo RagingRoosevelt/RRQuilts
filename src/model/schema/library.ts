@@ -6,7 +6,7 @@ import { Units } from './project';
 import { itemBase, Socials } from './shared';
 
 export const LIBRARY_FORMAT = 'rrqlib';
-export const LIBRARY_VERSION = 2;
+export const LIBRARY_VERSION = 3;
 
 /**
  * A palette: a named set of colors and fabrics (spec 014); each keeps its own `id@version` so
@@ -55,6 +55,15 @@ export const LibraryCredit = Type.Object({
   license: Type.Optional(Type.String()),
 });
 
+/** A web library in a backup: where it is and which of its packs were installed. */
+export const BackupConnection = Type.Object({
+  url: Type.String(),
+  ref: Type.Optional(Type.String()),
+  library: Type.Object({ id: Type.String(), name: Type.String() }),
+  packs: Type.Array(Type.String()),
+});
+export type BackupConnection = Type.Static<typeof BackupConnection>;
+
 const head = {
   format: Type.Literal(LIBRARY_FORMAT),
   version: Type.Integer({ minimum: 1 }),
@@ -79,6 +88,12 @@ const head = {
   repositories: Type.Optional(Type.Array(RepositoryRef)),
   /** The library a pack belongs to (spec 014: a library is a set of switchable packs). */
   library: Type.Optional(Type.Object({ id: Type.String(), name: Type.String() })),
+  /**
+   * Backups (v3): libraries added from the web, kept as their address and installed packs (no
+   * images; restoring connects and downloads them again), and which backed-up packs were off.
+   */
+  connections: Type.Optional(Type.Array(BackupConnection)),
+  packsOff: Type.Optional(Type.Array(Type.String())),
 };
 
 /** The envelope as read from a file: items and embedded packs are checked one by one. */

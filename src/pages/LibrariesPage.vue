@@ -677,7 +677,8 @@
             :disable="!library.packs.length"
           />
           <div class="text-caption text-grey-7 q-mt-sm">
-            One .rrqlib file. Import it on any device to get everything back.
+            One .rrqlib file. Import it on any device to get everything back. Packs from libraries
+            added from the web are saved as their address and download again when restored.
           </div>
         </q-card-section>
         <q-card-actions align="right">
@@ -702,6 +703,17 @@
           <div>
             {{ restoring.backup.items.length }} item(s) for {{ MY_LIBRARY }},
             {{ restoring.backup.packs?.length ?? 0 }} pack(s).
+          </div>
+          <div v-if="restoring.backup.connections?.length">
+            From the web, downloaded again:
+            {{
+              restoring.backup.connections
+                .map(
+                  (w) =>
+                    `${w.library.name} (${w.packs.length} pack${w.packs.length === 1 ? '' : 's'})`,
+                )
+                .join(', ')
+            }}
           </div>
           <q-option-group
             v-if="library.mine?.items.length && restoring.backup.items.length"
@@ -1797,7 +1809,24 @@ const backingUp = ref<{ mine: boolean; packs: boolean } | null>(null);
 function backUp() {
   const b = backingUp.value!;
   backingUp.value = null;
-  const doc = backupDoc(library.ensureMine(me.value), library.packs, b);
+  // Web libraries go in as their address and installed packs; on/off travels with the packs.
+  const connections = library.connections.flatMap((c) => {
+    const packs = library.packs.filter((p) => p.library?.id === c.index.id).map((p) => p.id);
+    return packs.length
+      ? [
+          {
+            url: c.url,
+            ...(c.ref ? { ref: c.ref } : {}),
+            library: { id: c.index.id, name: c.index.name },
+            packs,
+          },
+        ]
+      : [];
+  });
+  const doc = backupDoc(library.ensureMine(me.value), library.packs, b, {
+    connections,
+    packsOff: settings.settings.packsOff,
+  });
   // With fabric images (spec 014), the backup is a zip of the document and its images.
   void writeLibraryZip(doc, (d) => serializeLibrary(d, APP)).then((zip) =>
     exportFile('RRQuilts library backup', zip ?? serializeLibrary(doc, APP), 'rrqlib'),
@@ -1842,9 +1871,38 @@ async function doRestore() {
   });
   await library.saveMine(next.mine);
   for (const p of next.packs) if (!library.packs.includes(p)) await library.savePack(p);
+  // Packs that were off stay off.
+  if (r.backup.packsOff?.length)
+    settings.settings.packsOff = [
+      ...new Set([...settings.settings.packsOff, ...r.backup.packsOff]),
+    ];
+  // Web libraries: connect again and download their packs (images at this device's screen size).
+  const failed: string[] = [];
+  for (const w of r.backup.connections ?? []) {
+    try {
+      const c =
+        library.connections.find((x) => x.index.id === w.library.id) ??
+        (await library.connect(w.url, w.ref));
+      for (const id of w.packs)
+        if (!library.packs.some((p) => p.id === id) && c.index.packs.some((p) => p.id === id))
+          await library.installFromRepo(c, id, settings.settings.imageSize);
+    } catch {
+      failed.push(w.library.name);
+    }
+  }
   void library.freeImages();
+  retryMissing();
   select('mine');
-  $q.notify({ type: 'positive', message: 'Libraries restored.' });
+  $q.notify(
+    failed.length
+      ? {
+          type: 'warning',
+          message: `Libraries restored, but ${failed.join(', ')} couldn't be reached. Add ${failed.length === 1 ? 'it' : 'them'} again with Add from the web when you're online.`,
+          timeout: 0,
+          actions: [{ label: 'OK', color: 'white' }],
+        }
+      : { type: 'positive', message: 'Libraries restored.' },
+  );
 }
 
 // --- Share as pack ---

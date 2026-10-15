@@ -94,6 +94,11 @@ describe('connected libraries (spec 002, 014)', () => {
     expect(() => rawBase('http://example.org')).toThrow(/https/);
   });
 
+  it('says so when an address has no library', async () => {
+    serve({});
+    await expect(fetchIndex(B)).rejects.toThrow(/No RRQuilts library at that address/);
+  });
+
   it('reads a single-pack repository as a one-pack library', async () => {
     serve({
       [B + 'rrqlib.json']: {
