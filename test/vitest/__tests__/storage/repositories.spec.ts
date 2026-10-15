@@ -161,7 +161,7 @@ describe('connected libraries (spec 002, 014)', () => {
       url: 'https://github.com/me/lib',
     });
     expect(await getImage(sizes[1]!.sha256)).toBeUndefined();
-    expect(await lib.fetchPrintImages(['p'])).toBe(1);
+    expect(await lib.fetchPackImages(['p'])).toBe(1);
     expect(await getImage(sizes[2]!.sha256)).toBeDefined();
     expect(calls.filter((u) => u.includes('/512/'))).toEqual([]);
   });

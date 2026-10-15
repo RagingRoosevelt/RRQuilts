@@ -1443,7 +1443,7 @@ onMounted(() => {
     ),
   );
   if (packs.size && navigator.onLine)
-    void library.fetchPrintImages([...packs]).then((n) => n && retryMissing());
+    void library.fetchPackImages([...packs]).then((n) => n && retryMissing());
   pageStyle = document.createElement('style');
   document.head.append(pageStyle);
   watchEffect(() => {

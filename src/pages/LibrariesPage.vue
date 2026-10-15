@@ -914,8 +914,11 @@ const downloading = ref<string[]>([]);
 async function setPackOn(g: PackGroup, p: PackEntry, on: boolean) {
   const off = settings.settings.packsOff.filter((x) => x !== p.id);
   settings.settings.packsOff = on ? off : [...off, p.id];
-  if (!on) return;
-  if (!p.view && g.connection) {
+  if (!on) return void (g.connection && library.freeImages());
+  if (p.view && g.connection) {
+    const px = settings.settings.imageSize;
+    await library.fetchPackImages([p.id], (s) => s <= 256 || s <= px);
+  } else if (!p.view && g.connection) {
     downloading.value = [...downloading.value, p.id];
     try {
       const skipped = await library.installFromRepo(

@@ -6,7 +6,10 @@ import { isLibraryItem } from '@/model/library-items';
 import type { Fabric } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Asset } from '@/model/schema/shared';
-import { getImage, storeEmbedded } from './images';
+import type { LibraryDoc } from '@/model/schema/library';
+import type { Draft } from './drafts';
+import { idb } from './idb';
+import { getImage, pruneImages, storeEmbedded } from './images';
 
 /** The image of `f` to save at `px`: its largest standard size up to `px`, else its main image. */
 function imageAt(f: Fabric, px: number): Omit<Asset, 'data'> {
@@ -69,4 +72,23 @@ export async function absorbImages(doc: RrqDoc): Promise<RrqDoc> {
     }),
   );
   return { ...doc, project: { ...doc.project, palette: { ...doc.project.palette, fabrics } } };
+}
+
+/** Every image hash a fabric points at. */
+const fabricShas = (f: Fabric) => [f.image.sha256, ...(f.sizes ?? []).map((s) => s.sha256)];
+
+/**
+ * Free the stored images nothing on this device uses any more: not the libraries `docs`, the open
+ * `projects`, or any draft (spec 014). Run after removing a pack or disconnecting a library.
+ */
+export async function freeUnusedImages(docs: readonly LibraryDoc[], projects: readonly RrqDoc[]) {
+  const keep = new Set<string>();
+  for (const d of docs)
+    for (const it of d.items)
+      if (it.type === 'colors')
+        for (const f of it.data.fabrics ?? []) fabricShas(f).forEach((s) => keep.add(s));
+  const drafts = await idb.getAll<Draft>('drafts');
+  for (const p of [...projects, ...drafts.map((d) => d.doc)])
+    for (const f of p.project.palette.fabrics) fabricShas(f).forEach((s) => keep.add(s));
+  await pruneImages(keep);
 }

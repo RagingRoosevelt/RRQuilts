@@ -19,6 +19,8 @@ import {
   type Connection,
 } from '@/storage/repositories';
 import { useSettingsStore } from './settings';
+import { useProjectStore } from './project';
+import { freeUnusedImages } from '@/storage/fabric-files';
 
 export const useLibraryStore = defineStore('library', () => {
   const builtin = shallowRef<LibraryDoc | null>(null);
@@ -87,6 +89,17 @@ export const useLibraryStore = defineStore('library', () => {
   async function removePack(id: string) {
     packs.value = packs.value.filter((p) => p.id !== id);
     await write(() => deletePack(id));
+    void freeImages();
+  }
+  /** Free images no library or project uses any more (after removing packs). */
+  function freeImages() {
+    const open = useProjectStore().doc;
+    // Off packs from connected libraries let go of their images: they download again when on.
+    const off = new Set(useSettingsStore().settings.packsOff);
+    const linked = (d: LibraryDoc) => connections.value.some((c) => c.index.id === d.library?.id);
+    const kept = packs.value.filter((d) => !off.has(d.id) || !linked(d));
+    const docs = [...(mine.value ? [mine.value] : []), ...kept];
+    return freeUnusedImages(docs, open ? [open] : []).catch(() => {});
   }
 
   // --- Libraries connected from the web (spec 002 US3/US4, spec 014) ---
@@ -154,8 +167,11 @@ export const useLibraryStore = defineStore('library', () => {
     await write(() => deleteConnection(c.index.id));
   }
 
-  /** Fetch the 1024 px images of connected packs (printing only); how many packs were tried. */
-  async function fetchPrintImages(packIds: string[]) {
+  /** Fetch connected packs' missing images (`want`: sizes; default 1024 px, printing only). */
+  async function fetchPackImages(
+    packIds: string[],
+    want: (px: number) => boolean = (px) => px === 1024,
+  ) {
     let n = 0;
     for (const id of packIds) {
       const doc = packs.value.find((p) => p.id === id);
@@ -163,7 +179,7 @@ export const useLibraryStore = defineStore('library', () => {
       const path = c?.index.packs.find((p) => p.id === id)?.path;
       if (!doc || !c || !path) continue;
       const dir = path.includes('/') ? path.slice(0, path.lastIndexOf('/') + 1) : '';
-      await fetchImages(c.base + dir, doc, (px) => px === 1024).catch(() => {});
+      await fetchImages(c.base + dir, doc, want).catch(() => {});
       n++;
     }
     return n;
@@ -222,6 +238,7 @@ export const useLibraryStore = defineStore('library', () => {
     whereOf,
     lacking,
     connectRef,
-    fetchPrintImages,
+    fetchPackImages,
+    freeImages,
   };
 });

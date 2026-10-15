@@ -7,7 +7,8 @@ import { libraryRefs } from '@/model/library-refs';
 import { createProject } from '@/model/new-project';
 import type { Fabric } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
-import { absorbImages, prepareForSave } from '@/storage/fabric-files';
+import { absorbImages, freeUnusedImages, prepareForSave } from '@/storage/fabric-files';
+import { putDraft, removeDraft } from '@/storage/drafts';
 import { resetIdb } from '@/storage/idb';
 import { getImage, putImage } from '@/storage/images';
 
@@ -77,6 +78,20 @@ describe('fabric images in saved projects (spec 014)', () => {
     const opened = await absorbImages(saved);
     expect(byId(opened, 'me.own').image.data).toBeUndefined();
     expect(await getImage(s512)).toBeDefined();
+  });
+
+  it('frees images nothing uses, keeping open projects and drafts', async () => {
+    const { doc, s256, s512 } = await setup();
+    const loose = await putImage(new Uint8Array([9]), { type: 'image/webp', width: 1, height: 1 });
+    await freeUnusedImages([], [doc]);
+    expect(await getImage(loose)).toBeUndefined();
+    expect(await getImage(s512)).toBeDefined();
+    await putDraft(doc, true);
+    await freeUnusedImages([], []);
+    expect(await getImage(s256)).toBeDefined();
+    await removeDraft(doc.project.id);
+    await freeUnusedImages([], []);
+    expect(await getImage(s256)).toBeUndefined();
   });
 
   it('lists the libraries a project uses', async () => {

@@ -20,5 +20,7 @@
 - [x] T014 Connected libraries (spec 002 US3/US4): `storage/repositories.ts`; Libraries › Add from the
   web…, index packs download when switched on, Check for updates (changelog; Update / Skip),
   Disconnect; project library refs carry the address, Details tab **Connect**; print fetches 1024
-- [ ] T015 Switch off built-in / My library palettes individually; free images of off packs;
-  warn when a library uses an older format
+- [x] T015 Free images: removed packs, and off packs of connected libraries (downloaded again when
+  switched on); imported packs keep theirs (they can't be downloaded again)
+- [ ] T016 Switch off built-in / My library palettes individually; warn when a library uses an
+  older format
