@@ -194,7 +194,7 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 ## Gotchas
 
 - Dev-server file watching must not see big folders: npm cache lives in `~/.cache/rrquilts-npm`
-  (outside the repo); Vite ignores `docs/`, `specs/`, `reference/`.
+  (outside the repo); Vite ignores `docs/`, `specs/`, `reference/`, `fabric_collections/`.
 - Workbox `skipWaiting` is forced off — updates apply only via the in-app prompt.
 - `make dev` / `make serve` are plain HTTP. Over the LAN (not localhost) browsers treat that as
   insecure: no service worker, no install, no File System Access — so PWA install/offline can't be

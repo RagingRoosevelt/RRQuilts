@@ -104,13 +104,20 @@
                   @update:model-value="(on: boolean) => setLibOn(g.view.doc.id, on)"
                 />
                 <div class="col" style="min-width: 0">
-                  <a
-                    href="#"
-                    class="pack-link ellipsis block"
-                    :class="{ 'text-grey-6': !packOn(g.view.doc.id) }"
-                    @click.prevent="select(g.view.doc.id)"
-                    >{{ g.view.doc.name }}</a
-                  >
+                  <div class="row items-center no-wrap" style="gap: 4px">
+                    <a
+                      href="#"
+                      class="pack-link ellipsis block"
+                      style="flex: 0 1 auto"
+                      :class="{ 'text-grey-6': !packOn(g.view.doc.id) }"
+                      @click.prevent="select(g.view.doc.id)"
+                      >{{ g.view.doc.name }}</a
+                    >
+                    <LibraryWebLink
+                      :url="libraryPage(g.view.doc.id, g.view.doc)"
+                      :name="g.view.doc.name"
+                    />
+                  </div>
                   <div class="text-caption text-grey-7 ellipsis">
                     {{ kindLabel(g.view) }} · {{ counts(g.view) }}
                   </div>
@@ -124,14 +131,30 @@
                 :model-value="!!packQuery?.trim() || !collapsed.includes(g.key)"
                 @update:model-value="(o: boolean) => setCollapsed(g.key, !o)"
                 :class="{ 'just-added': justAdded === g.key }"
-                :label="g.name"
-                :caption="
-                  g.bundled && !g.connection
-                    ? 'Not downloaded yet'
-                    : `${g.packs.filter((p) => p.view && packOn(p.id)).length} of ${g.packs.length} packs on`
-                "
                 header-class="q-px-xs"
               >
+                <template #header>
+                  <q-item-section>
+                    <q-item-label class="row items-center no-wrap" style="gap: 4px">
+                      <span class="ellipsis">{{ g.name }}</span>
+                      <LibraryWebLink
+                        :url="
+                          libraryPage(
+                            g.key.slice(4),
+                            g.packs.find((p) => p.view)?.view?.doc,
+                            g.bundled?.url,
+                          )
+                        "
+                        :name="g.name"
+                      />
+                    </q-item-label>
+                    <q-item-label caption>{{
+                      g.bundled && !g.connection
+                        ? 'Not downloaded yet'
+                        : `${g.packs.filter((p) => p.view && packOn(p.id)).length} of ${g.packs.length} packs on`
+                    }}</q-item-label>
+                  </q-item-section>
+                </template>
                 <div v-if="g.connection" class="row q-pb-xs" style="gap: 4px">
                   <q-btn
                     flat
@@ -1070,7 +1093,7 @@ import SlidePicker from '@/components/SlidePicker.vue';
 import FullName from '@/components/FullName.vue';
 import { useAskCategory } from '@/composables/category';
 // Libraries (spec 011): browse every library; manage My library; back up, restore, share, import.
-import { useQuasar } from 'quasar';
+import { QIcon, QTooltip, useQuasar } from 'quasar';
 import { computed, defineComponent, h, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { useAuthor } from '@/composables/author';
 import { serializeBlock } from '@/model/block-file';
@@ -1384,6 +1407,33 @@ function setCollapsed(key: string, on: boolean) {
     // Not kept (storage blocked): fine, it's only a view preference.
   }
 }
+/** Where a library's globe link goes: its home page, else its gallery, else its repository. */
+function libraryPage(libId: string, doc?: LibraryDoc, repository?: string) {
+  const c = library.connections.find((x) => x.index.id === libId);
+  const links = c?.index.links ?? doc?.links;
+  const url = links?.homepage ?? links?.gallery ?? c?.url ?? repository;
+  // Indexes come from the web unchecked: only web addresses become links.
+  return typeof url === 'string' && /^https?:\/\//.test(url) ? url : '';
+}
+/** The globe link beside a library's name (nothing when it has no web page). */
+const LibraryWebLink = defineComponent({
+  props: { url: { type: String, default: '' }, name: { type: String, required: true } },
+  setup: (props) => () =>
+    props.url
+      ? h(
+          'a',
+          {
+            class: 'lib-web',
+            href: props.url,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            'aria-label': `${props.name} on the web`,
+            onClick: (e: Event) => e.stopPropagation(), // not the expansion header's toggle
+          },
+          [h(QIcon, { name: 'public' }), h(QTooltip, () => props.url)],
+        )
+      : null,
+});
 const adding = reactive({ open: false, url: '', ref: '', busy: false, fromLink: false });
 /** Open the side panel on a library and glow around it for a few seconds. */
 function showLibrary(id: string) {
@@ -2422,6 +2472,13 @@ function downloadPack() {
   color: inherit;
   font: inherit;
   cursor: pointer;
+}
+/* A library's web page: a small globe beside its name. */
+.lib-web {
+  display: inline-flex;
+  flex: none;
+  color: var(--q-primary);
+  font-size: 16px;
 }
 .pack-link {
   color: inherit;

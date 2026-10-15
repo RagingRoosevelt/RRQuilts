@@ -33,6 +33,8 @@ export default defineConfig(() => ({
           eslint: {
             lintCommand: 'eslint -c ./eslint.config.js "./src*/**/*.{ts,js,mjs,cjs,vue}"',
             useFlatConfig: true,
+            // Only what it lints: watching the whole repository runs out of file watchers.
+            watchPath: ['./src', './src-pwa'],
           },
         },
         { server: false },
