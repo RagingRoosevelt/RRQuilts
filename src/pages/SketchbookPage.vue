@@ -531,8 +531,25 @@
           <!-- A fieldset, so the library's name sits in the top-left of its border. Packs of one
                library (spec 014) list together. -->
           <fieldset class="lib-box column q-mt-md q-mb-md" style="gap: 6px">
-            <legend class="text-subtitle2">{{ v.name }}</legend>
-            <div v-for="c in v.collections" :key="c.id" class="row items-center no-wrap">
+            <legend class="text-subtitle2">
+              <button
+                class="lib-toggle"
+                :aria-expanded="collapse.isOpen(`pal:${v.id}`)"
+                @click="collapse.toggle(`pal:${v.id}`)"
+              >
+                <q-icon
+                  :name="collapse.isOpen(`pal:${v.id}`) ? 'expand_more' : 'chevron_right'"
+                />{{ v.name }}
+                <span v-if="!collapse.isOpen(`pal:${v.id}`)" class="text-caption text-grey-7">
+                  · {{ v.collections.length }} palette{{ v.collections.length === 1 ? '' : 's' }}
+                </span>
+              </button>
+            </legend>
+            <div
+              v-for="c in collapse.isOpen(`pal:${v.id}`) ? v.collections : []"
+              :key="c.id"
+              class="row items-center no-wrap"
+            >
               <q-checkbox
                 dense
                 :model-value="!!project.doc.project.libraryPalettes?.includes(c.id)"
@@ -1002,7 +1019,7 @@ import ColoringCount from '@/components/ColoringCount.vue';
 import FullName from '@/components/FullName.vue';
 import HelpLink from '@/components/HelpLink.vue';
 import { useLibraryStore } from '@/stores/library';
-import { revealSection } from '@/composables/block-sections';
+import { revealSection, useCollapsed } from '@/composables/block-sections';
 import { socialsOut } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthor } from '@/composables/author';
@@ -1112,6 +1129,8 @@ const fabricImport = ref<InstanceType<typeof FabricImportDialog>>();
 const ownFabrics = computed(() =>
   (project.doc?.project.palette.fabrics ?? []).filter((f) => !isLibraryItem(f)),
 );
+/** Library boxes collapse from their title (remembered). */
+const collapse = useCollapsed();
 /** Library palettes by library: a library's packs (spec 014) together under its name. */
 const paletteLibs = computed(() => {
   const out = new Map<string, { id: string; name: string; collections: ColorCollection[] }>();
@@ -2232,6 +2251,17 @@ watch(
 }
 .lib-box legend {
   padding: 0 4px;
+}
+.lib-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
 .fabric-swatch {
   padding: 0;

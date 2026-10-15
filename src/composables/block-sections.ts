@@ -26,3 +26,18 @@ export function revealSection(lib: string, sec?: BlockSection, id?: string) {
       ?.scrollIntoView({ behavior: 'smooth', block: id ? 'center' : 'start' }),
   );
 }
+
+/** A collapsible library (or other group) remembered in settings like block sections; open by default. */
+export function useCollapsed() {
+  const settings = useSettingsStore();
+  const key = (id: string) => sectionKey(id, ROOT);
+  return {
+    isOpen: (id: string) => !settings.settings.collapsedSections.includes(key(id)),
+    toggle(id: string) {
+      const all = settings.settings.collapsedSections;
+      settings.settings.collapsedSections = all.includes(key(id))
+        ? all.filter((k) => k !== key(id))
+        : [...all, key(id)];
+    },
+  };
+}

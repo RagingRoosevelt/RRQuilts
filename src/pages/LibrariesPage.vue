@@ -270,7 +270,11 @@
           <div class="lib-group q-mb-md" :class="{ 'in-lib': g.packOf && !g.firstOfLib }">
             <!-- Packs of one library (a repository or zipped library) sit under its name. -->
             <div v-if="g.packOf && g.firstOfLib" class="q-mb-sm">
-              <h2 class="lib-name">{{ g.packOf.name }}</h2>
+              <h2 class="lib-name">
+                <button class="lib-toggle" :aria-expanded="libOpen(g)" @click="toggleLib(g)">
+                  <q-icon :name="libOpen(g) ? 'expand_more' : 'chevron_right'" />{{ g.packOf.name }}
+                </button>
+              </h2>
               <div class="text-caption text-grey-7">
                 {{ libPackCount(g.packOf.id) }}
               </div>
@@ -278,7 +282,13 @@
             <!-- A pack's palettes join its library's list, like a single library's. -->
             <div v-if="!g.packOf" class="row items-start q-mb-sm" style="gap: 8px">
               <div class="col">
-                <h2 class="lib-name">{{ g.v.doc.name }}</h2>
+                <h2 class="lib-name">
+                  <button class="lib-toggle" :aria-expanded="libOpen(g)" @click="toggleLib(g)">
+                    <q-icon :name="libOpen(g) ? 'expand_more' : 'chevron_right'" />{{
+                      g.v.doc.name
+                    }}
+                  </button>
+                </h2>
                 <div class="text-caption text-grey-7">
                   <template v-if="g.v.doc.author">by {{ g.v.doc.author.name }} · </template>
                   <template v-if="g.v.doc.license">{{ licenseName(g.v.doc.license) }} · </template>
@@ -310,7 +320,7 @@
             </div>
 
             <BlockSections
-              v-if="g.blocks.length"
+              v-if="g.blocks.length && libOpen(g)"
               :sections="g.sections"
               :lib="g.v.doc.id"
               title="Blocks"
@@ -373,6 +383,7 @@
 
             <div
               v-if="
+                libOpen(g) &&
                 (g.collections.length || g.mine) &&
                 settings.settings.libraryType !== 'block' &&
                 (!g.packOf || g.firstPalettes) &&
@@ -395,6 +406,7 @@
               />
             </div>
             <div
+              v-if="libOpen(g)"
               class="column"
               :class="g.packOf && !g.lastOfLib ? 'q-mb-sm' : 'q-mb-lg'"
               style="gap: 8px"
@@ -1002,7 +1014,7 @@ import { coloringSections } from '@/model/library-items';
 import type { Connection } from '@/storage/repositories';
 import type { PackChange } from '@/stores/library';
 import { diffCount } from '@/model/pack-diff';
-import { revealSection } from '@/composables/block-sections';
+import { revealSection, useCollapsed } from '@/composables/block-sections';
 import { socialsOut } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -1447,6 +1459,14 @@ function withLibraryHeads<T extends { v: LibraryView; collections: unknown[] }>(
       !!lib(g) && !sorted.slice(0, i).some((x) => lib(x) === lib(g) && x.collections.length),
   }));
 }
+/** Libraries collapse from their heading (remembered, like block sections). */
+const collapse = useCollapsed();
+const libOf = (g: { v: LibraryView; packOf?: { id: string } | undefined }) =>
+  `page:${g.packOf?.id ?? g.v.doc.id}`;
+const libOpen = (g: { v: LibraryView; packOf?: { id: string } | undefined }) =>
+  collapse.isOpen(libOf(g));
+const toggleLib = (g: { v: LibraryView; packOf?: { id: string } | undefined }) =>
+  collapse.toggle(libOf(g));
 const libPackCount = (id: string) => {
   const n = library.allViews.filter((v) => v.doc.library?.id === id).length;
   const c = library.connections.find((x) => x.index.id === id);
@@ -2062,6 +2082,17 @@ function downloadPack() {
     animation: none;
     box-shadow: inset 0 0 0 2px var(--q-primary);
   }
+}
+.lib-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
 .pack-link {
   color: inherit;
