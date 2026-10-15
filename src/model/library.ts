@@ -547,6 +547,32 @@ export function libraryGroups<
   return [...groups].filter(([, xs]) => xs.length).map(([label, items]) => ({ label, items }));
 }
 
+/**
+ * `blocks` by library, in sections: a library's category sections, or for a library of packs
+ * (spec 014) one section per pack under the library's name. Blocks no library has are left out.
+ */
+export function blocksByLibrary(views: readonly LibraryView[], blocks: readonly Block[]) {
+  const byId = new Map(blocks.map((b) => [b.id, b]));
+  const seen = new Set<string>();
+  const out = new Map<string, { id: string; label: string; sections: BlockSection[] }>();
+  for (const v of views) {
+    const bs = v.blocks
+      .filter((b) => byId.has(b.id) && !seen.has(b.id))
+      .map((b) => byId.get(b.id)!);
+    bs.forEach((b) => seen.add(b.id));
+    if (!bs.length) continue;
+    const lib = v.doc.library ?? { id: v.doc.id, name: v.doc.name };
+    const g = out.get(lib.id) ?? { id: lib.id, label: lib.name, sections: [] };
+    g.sections.push(
+      ...(v.doc.library
+        ? [{ key: v.doc.id, label: v.doc.name, blocks: bs, count: bs.length }]
+        : blockSections(v.doc, bs, 'category')),
+    );
+    out.set(lib.id, g);
+  }
+  return { groups: [...out.values()], other: blocks.filter((b) => !seen.has(b.id)) };
+}
+
 export type GroupBy = 'none' | 'category' | 'tags' | 'styles';
 export interface BlockSection {
   /** Unique within the library; a subcategory's is "Parent / Child". */

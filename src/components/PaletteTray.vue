@@ -234,7 +234,7 @@ import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { usePaletteOffer } from '@/composables/palette-offer';
 import { fabricsIn, isLibraryItem, projectColorings, splitItems } from '@/model/library-items';
-import { blockSections, libraryGroups } from '@/model/library';
+import { blocksByLibrary, libraryGroups } from '@/model/library';
 import BlockSections from '@/components/BlockSections.vue';
 import { creditCopy } from '@/model/credits';
 import type { Color, Fabric } from '@/model/schema/palette';
@@ -314,28 +314,14 @@ const blockGroups = computed(() => {
 const blockSectionGroups = computed(() => {
   const [mine, ...libs] = blockGroups.value;
   const avail = new Map(libs.flatMap((g) => g.items).map((b) => [b.id, b]));
-  const seen = new Set<string>();
-  const out = library.views.flatMap((v) => {
-    const bs = v.blocks
-      .filter((b) => avail.has(b.id) && !seen.has(b.id))
-      .map((b) => avail.get(b.id)!);
-    bs.forEach((b) => seen.add(b.id));
-    return bs.length
-      ? [
-          {
-            lib: `tray:${v.doc.id}`,
-            label: v.doc.name,
-            sections: blockSections(v.doc, bs, 'category'),
-          },
-        ]
-      : [];
-  });
+  const r = blocksByLibrary(library.views, [...avail.values()]);
+  const out = r.groups.map((g) => ({ lib: `tray:${g.id}`, label: g.label, sections: g.sections }));
   const flat = (lib: string, label: string, bs: Block[]) => ({
     lib,
     label,
     sections: [{ key: '', label: '', blocks: bs, count: bs.length }],
   });
-  const other = [...avail.values()].filter((b) => !seen.has(b.id));
+  const other = r.other;
   return [
     ...(mine!.items.length ? [flat('tray:mine', 'Mine', mine!.items)] : []),
     ...out,

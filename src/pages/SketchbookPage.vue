@@ -1034,8 +1034,8 @@ import {
   addBlock,
   addToCollection,
   colorChanged,
-  blockSections,
   libraryGroups,
+  blocksByLibrary,
   linkState,
   saveCollection,
   syncBlock,
@@ -1094,18 +1094,9 @@ const blocks = computed(() => split.value.mine);
 const libBlocks = computed(() => split.value.library);
 /** Library blocks per library, in category sections (blocks no installed library has: Other). */
 const libGroups = computed(() => {
-  const byId = new Map(libBlocks.value.map((b) => [b.id, b]));
-  const seen = new Set<string>();
-  const out = library.views.flatMap((v) => {
-    const bs = v.blocks
-      .filter((b) => byId.has(b.id) && !seen.has(b.id))
-      .map((b) => byId.get(b.id)!);
-    bs.forEach((b) => seen.add(b.id));
-    return bs.length
-      ? [{ lib: v.doc.id, label: v.doc.name, sections: blockSections(v.doc, bs, 'category') }]
-      : [];
-  });
-  const other = libBlocks.value.filter((b) => !seen.has(b.id));
+  const r = blocksByLibrary(library.views, libBlocks.value);
+  const out = r.groups.map((g) => ({ lib: g.id, label: g.label, sections: g.sections }));
+  const other = r.other;
   return other.length
     ? [
         ...out,

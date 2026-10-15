@@ -1,5 +1,5 @@
 <template>
-  <!-- A color as a pill: swatch, name, and (when editable) edit / delete buttons on hover. The
+  <!-- A color as a pill: swatch, name, and (when editable) edit / delete buttons below the name. The
        default slot adds overlays on the swatch; no color makes it the "Add" tile. -->
   <component
     :is="clickable ? 'button' : 'div'"
@@ -20,7 +20,7 @@
     <div class="text-caption ellipsis full-width text-center">
       {{ color ? color.notecard.name : 'Add' }}
     </div>
-    <template v-if="color && editable">
+    <div v-if="color && editable" class="row no-wrap justify-center pill-actions" style="gap: 4px">
       <q-btn
         round
         dense
@@ -45,7 +45,7 @@
       >
         <q-tooltip>Delete</q-tooltip>
       </q-btn>
-    </template>
+    </div>
   </component>
 </template>
 
@@ -90,18 +90,14 @@ div.color-pick {
   justify-content: center;
   border: 1px dashed rgba(128, 128, 128, 0.6);
 }
+/* Below the name, never over it; hidden until hover where there is hover (space kept). */
+.pill-actions {
+  margin-top: 2px;
+}
 .edit-color,
 .remove-color {
-  position: absolute;
-  bottom: 4px;
   opacity: 0;
   transition: opacity 0.15s;
-}
-.edit-color {
-  left: 4px;
-}
-.remove-color {
-  right: 4px;
 }
 .color-pick:hover :is(.remove-color, .edit-color),
 .color-pick:focus-within :is(.remove-color, .edit-color) {
