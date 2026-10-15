@@ -34,10 +34,7 @@
             label="New palette name"
           />
         </template>
-        <q-checkbox
-          v-model="crop"
-          label="Crop each image to a square (click an image to move the crop)"
-        />
+        <q-checkbox v-model="crop" label="Crop each image to a square" />
         <q-input
           v-model.number="width"
           type="number"
@@ -50,6 +47,10 @@
           :hint="`Leave empty for ${units === 'cm' ? '20.3 cm' : '8 in'} (marked ≈ until you set it)`"
           style="max-width: 320px"
         />
+        <div v-if="items.length" class="row items-center no-wrap text-caption" style="gap: 4px">
+          <q-icon name="crop" size="xs" color="primary" />
+          Click an image to change its crop: move the box, or drag a corner to resize it.
+        </div>
         <q-list v-if="items.length" dense separator class="rounded-borders list">
           <q-item v-for="(it, i) in items" :key="it.preview">
             <q-item-section avatar>
@@ -61,6 +62,7 @@
                 :aria-label="`Crop ${it.name}`"
                 @click="editing = editing === i ? null : i"
               >
+                <q-icon name="crop" size="14px" class="crop-badge" />
                 <q-tooltip>Change the crop</q-tooltip>
               </button>
             </q-item-section>
@@ -323,7 +325,16 @@ async function finish() {
   outline: 2px dashed var(--q-primary);
   outline-offset: -6px;
 }
+.crop-badge {
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 3px;
+}
 .preview {
+  position: relative;
   width: 40px;
   height: 40px;
   padding: 0;
