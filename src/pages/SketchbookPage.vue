@@ -496,12 +496,18 @@
         />
       </div>
       <div v-if="ownFabrics.length" class="swatches q-mb-lg">
-        <div
-          v-for="f in ownFabrics"
+        <button
+          v-for="(f, i) in ownFabrics"
           :key="f.id"
           class="fabric-swatch"
           :style="swatchStyle(f)"
           :title="f.notecard.name + (f.approximate ? ' (size ≈)' : '')"
+          @click="
+            showPalette(
+              { notecard: { name: 'Project fabrics' }, colors: [], fabrics: ownFabrics },
+              i,
+            )
+          "
         />
       </div>
       <div v-else class="text-caption text-grey-7 q-mb-lg">
@@ -520,10 +526,11 @@
         <div class="text-caption text-grey-7 q-mb-sm">
           Tick the palettes to use in this project's quilts; project colors are always available.
         </div>
-        <template v-for="v in paletteLibs" :key="v.doc.id">
-          <!-- A fieldset, so the library's name sits in the top-left of its border. -->
+        <template v-for="v in paletteLibs" :key="v.id">
+          <!-- A fieldset, so the library's name sits in the top-left of its border. Packs of one
+               library (spec 014) list together. -->
           <fieldset class="lib-box column q-mt-md q-mb-md" style="gap: 6px">
-            <legend class="text-subtitle2">{{ v.doc.name }}</legend>
+            <legend class="text-subtitle2">{{ v.name }}</legend>
             <div v-for="c in v.collections" :key="c.id" class="row items-center no-wrap">
               <q-checkbox
                 dense
@@ -541,19 +548,21 @@
                 >
               </div>
               <div class="row col" style="gap: 3px">
-                <div
-                  v-for="x in c.colors"
+                <button
+                  v-for="(x, i) in c.colors"
                   :key="x.id"
                   class="mini-swatch lib-swatch"
                   :style="{ background: `rgb(${x.rgb.join(',')})` }"
                   :title="x.notecard.name"
+                  @click="showPalette(c, i)"
                 />
-                <div
-                  v-for="x in c.fabrics ?? []"
+                <button
+                  v-for="(x, i) in c.fabrics ?? []"
                   :key="x.id"
                   class="mini-swatch lib-swatch"
                   :style="swatchStyle(x)"
                   :title="x.notecard.name"
+                  @click="showPalette(c, c.colors.length + i)"
                 />
               </div>
             </div>
@@ -565,6 +574,22 @@
       </div>
     </template>
     <div v-else class="text-grey-7">Coming in a later version.</div>
+
+    <!-- A palette's colors and fabrics, one large (as in Libraries). -->
+    <q-dialog :model-value="!!shownPalette" @update:model-value="shownPalette = null">
+      <q-card v-if="shownPalette" style="width: min(80vw, 600px); max-width: none">
+        <q-card-section class="row items-start no-wrap">
+          <div class="col">
+            <div class="text-h6">{{ shownPalette.palette.notecard.name }}</div>
+            <div v-if="shownPalette.palette.author" class="text-caption text-grey-7">
+              {{ shownPalette.palette.author }}
+            </div>
+          </div>
+          <q-btn v-close-popup flat round dense icon="close" aria-label="Close" />
+        </q-card-section>
+        <PalettePreview v-model:at="shownPalette.at" :palette="shownPalette.palette" />
+      </q-card>
+    </q-dialog>
 
     <q-dialog :model-value="!!preview" @update:model-value="preview = null">
       <q-card v-if="previewBlock" style="width: 560px; max-width: 95vw">
@@ -742,8 +767,8 @@
           <template v-if="unpicking.block">
             <div class="text-h6">New coloring from palette swap</div>
             <div class="text-caption text-grey-7">
-              Choose what each color of {{ unpicking.title }} becomes, or pick a palette to start
-              from its nearest colors.
+              Pick a palette: each color of {{ unpicking.title }} becomes its nearest color or
+              fabric there, and you can change any of them.
             </div>
             <q-select
               :model-value="unpicking.to ?? null"
@@ -780,7 +805,7 @@
             class="row items-center no-wrap"
             style="gap: 8px"
           >
-            <div class="mini-swatch big" :style="{ background: rgbCss(c.rgb) }" />
+            <div class="mini-swatch big" :style="optStyle(c)" />
             <div class="ellipsis" style="width: 110px">{{ c.notecard.name }}</div>
             <q-icon name="arrow_forward" />
             <q-select
@@ -797,17 +822,13 @@
               <template #prepend>
                 <div
                   class="mini-swatch"
-                  :style="{
-                    background: rgbCss(
-                      unpicking.options.find((o) => o.id === unpicking!.map[c.id])?.rgb,
-                    ),
-                  }"
+                  :style="optStyle(unpicking.options.find((o) => o.id === unpicking!.map[c.id]))"
                 />
               </template>
               <template #option="{ itemProps, opt }">
                 <q-item v-bind="itemProps" dense>
                   <q-item-section side>
-                    <div class="mini-swatch" :style="{ background: rgbCss(opt.rgb) }" />
+                    <div class="mini-swatch" :style="optStyle(opt)" />
                   </q-item-section>
                   <q-item-section>
                     {{ opt.notecard.name }}
@@ -923,9 +944,11 @@
 
 <script setup lang="ts">
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
+import PalettePreview from '@/components/PalettePreview.vue';
+import type { ColorCollection } from '@/model/schema/library';
 import { swatchStyle } from '@/render/fabric-images';
 import { useQuasar } from 'quasar';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, toRaw, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
@@ -991,7 +1014,7 @@ import {
   syncColor,
   syncConflict,
 } from '@/model/library';
-import type { Color } from '@/model/schema/palette';
+import type { Color, Fabric } from '@/model/schema/palette';
 
 const $q = useQuasar();
 const router = useRouter();
@@ -1069,8 +1092,34 @@ const fabricImport = ref<InstanceType<typeof FabricImportDialog>>();
 const ownFabrics = computed(() =>
   (project.doc?.project.palette.fabrics ?? []).filter((f) => !isLibraryItem(f)),
 );
-const paletteLibs = computed(() => library.views.filter((v) => v.collections.length));
-type Opt = Color & { from: string };
+/** Library palettes by library: a library's packs (spec 014) together under its name. */
+const paletteLibs = computed(() => {
+  const out = new Map<string, { id: string; name: string; collections: ColorCollection[] }>();
+  for (const v of library.views) {
+    if (!v.collections.length) continue;
+    const lib = v.doc.library ?? { id: v.doc.id, name: v.doc.name };
+    const g = out.get(lib.id) ?? { id: lib.id, name: lib.name, collections: [] };
+    g.collections.push(...v.collections);
+    out.set(lib.id, g);
+  }
+  return [...out.values()];
+});
+/** The palette preview: a palette and which of its colors or fabrics is shown large. */
+type Shown = Pick<ColorCollection, 'notecard' | 'colors' | 'fabrics' | 'author'>;
+const shownPalette = ref<{ palette: Shown; at: number } | null>(null);
+const showPalette = (palette: Shown, at: number) => (shownPalette.value = { palette, at });
+/** A color, or a fabric standing in as one (`fabric:<id>`, its average color), with where it's from. */
+type Opt = Color & { from: string; fabric?: Fabric };
+const fabricOpt = (f: Fabric, from: string): Opt => ({
+  id: `fabric:${f.id}`,
+  notecard: f.notecard,
+  rgb: f.average,
+  from,
+  fabric: f,
+});
+/** A swatch's CSS: a fabric's print, else the color. */
+const optStyle = (o?: Color & { fabric?: Fabric }) =>
+  o?.fabric ? swatchStyle(o.fabric) : { background: rgbCss(o?.rgb) };
 /** The swap dialog: colors in use that are going away, each mapped to one that stays. */
 const unpicking = ref<{
   title: string;
@@ -1080,7 +1129,7 @@ const unpicking = ref<{
   /** A new coloring of this block instead (from its coloring `coloring`), mapped onto palette `to`. */
   block?: { id: string; coloring: string };
   to?: string;
-  used: Color[];
+  used: (Color & { fabric?: Fabric })[];
   options: Opt[];
   map: Record<string, string>;
 } | null>(null);
@@ -1186,30 +1235,57 @@ function finishUnpick() {
 // --- New coloring from palette swap: the swap dialog, mapping one coloring's colors ---
 /** Palettes to map onto: the project's colors, then every palette in use in the libraries. */
 const swapPalettes = computed(() => [
-  ...(ownColors.value.length
-    ? [{ id: 'project', label: 'Project colors', colors: ownColors.value }]
+  ...(ownColors.value.length || ownFabrics.value.length
+    ? [
+        {
+          id: 'project',
+          label: 'Project colors and fabrics',
+          colors: [
+            ...ownColors.value.map((c) => ({ ...c, from: 'Project colors' })),
+            ...ownFabrics.value.map((f) => fabricOpt(f, 'Project fabrics')),
+          ] as Opt[],
+        },
+      ]
     : []),
   ...library.views.flatMap((v) =>
-    v.collections.map((c) => ({
-      id: c.id,
-      label: `${c.notecard.name} · ${v.doc.name}`,
-      colors: c.colors,
-    })),
+    v.collections.map((c) => {
+      const from = `${c.notecard.name} · ${v.doc.library?.name ?? v.doc.name}`;
+      return {
+        id: c.id,
+        label: from,
+        colors: [
+          ...c.colors.map((x) => ({ ...x, from })),
+          ...(c.fabrics ?? []).map((f) => fabricOpt(f, from)),
+        ] as Opt[],
+      };
+    }),
   ),
 ]);
+/** What a coloring can be swapped to: the project's colors and fabrics, and its palettes'. */
+const swapOptions = (extra: Opt[] = []) =>
+  [
+    ...extra,
+    ...remaining({}),
+    ...project.doc!.project.palette.fabrics.map((f) => fabricOpt(f, 'Project fabrics')),
+  ].filter((o, i, a) => a.findIndex((x) => x.id === o.id) === i);
 const colorById = (id: string): Color | undefined =>
   project.doc!.project.palette.colors.find((c) => c.id === id) ?? library.lookup.color(id);
 function startSwapColoring(b: Block) {
   const coloring = b.colorings.find((c) => c.id === shownColoring(b)) ?? b.colorings[0]!;
   const ids = new Set(
-    Object.values(coloring.fills).flatMap((f) => ('color' in f ? [f.color] : [])),
+    Object.values(coloring.fills).map((f) => ('color' in f ? f.color : `fabric:${f.fabric}`)),
   );
-  const used = [...ids].flatMap((id) => colorById(id) ?? []);
+  const fabric = (id: string) =>
+    project.doc!.project.palette.fabrics.find((f) => `fabric:${f.id}` === id);
+  const used = [...ids].flatMap((id) => {
+    const f = fabric(id);
+    return f ? [fabricOpt(f, '')] : (colorById(id) ?? []);
+  });
   unpicking.value = {
     title: coloring.name ? `${b.notecard.name} (${coloring.name})` : b.notecard.name,
     block: { id: b.id, coloring: coloring.id },
     used,
-    options: remaining({}),
+    options: swapOptions(),
     map: Object.fromEntries(used.map((c) => [c.id, c.id])),
   };
 }
@@ -1219,13 +1295,12 @@ function swapToPalette(id: string | null) {
   const pal = swapPalettes.value.find((p) => p.id === id);
   if (!pal) {
     delete u.to;
+    u.options = swapOptions();
     u.map = Object.fromEntries(u.used.map((c) => [c.id, c.id]));
     return;
   }
   u.to = pal.id;
-  const from = pal.label;
-  const extra = pal.colors.map((c) => ({ ...c, from }));
-  u.options = [...extra, ...remaining({}).filter((o) => !extra.some((x) => x.id === o.id))];
+  u.options = pal.colors; // only the chosen palette's colors and fabrics
   for (const c of u.used) {
     const n = nearestColor(c.rgb, pal.colors);
     if (n) u.map[c.id] = n.id;
@@ -1237,7 +1312,13 @@ function swapped(u: NonNullable<typeof unpicking.value>) {
   const { block, id } = saveColoringAs(b, u.block!.coloring);
   const next = produce(block, (d) => {
     const k = d.colorings.find((c) => c.id === id)!;
-    for (const f of Object.values(k.fills)) if ('color' in f) f.color = u.map[f.color] ?? f.color;
+    for (const [patch, f] of Object.entries(k.fills)) {
+      const to = u.map['color' in f ? f.color : `fabric:${f.fabric}`];
+      if (!to) continue;
+      k.fills[patch] = to.startsWith('fabric:')
+        ? { fabric: to.slice('fabric:'.length), offset: [0, 0], rotation: 0 }
+        : { color: to };
+    }
     const pal = swapPalettes.value.find((p) => p.id === u.to);
     if (pal) k.name = pal.label.split(' · ')[0]!;
   });
@@ -1247,7 +1328,19 @@ const swapPreview = computed(() => {
   const u = unpicking.value;
   if (!u?.block) return { before: '', after: '' };
   const s = swapped(u);
-  return { before: thumb(s.before, 160, u.block.coloring), after: thumb(s.block, 160, s.id) };
+  // Library fabrics picked here aren't in the project yet: lend them for the "after" picture.
+  const lent = u.options.flatMap((o) =>
+    o.fabric && !project.doc!.project.palette.fabrics.some((f) => f.id === o.fabric!.id)
+      ? [toRaw(o.fabric)] // not a Vue proxy: Immer can't take those
+      : [],
+  );
+  const doc = lent.length
+    ? produce(project.doc!, (d) => void d.project.palette.fabrics.push(...castDraft(lent)))
+    : project.doc!;
+  return {
+    before: thumb(s.before, 160, u.block.coloring),
+    after: blockThumbnail(doc, s.block, 160, $q.dark.isActive, s.id, library.items.colors),
+  };
 });
 function addSwapColoring(u: NonNullable<typeof unpicking.value>) {
   const { block, id } = swapped(u);
@@ -1912,6 +2005,8 @@ function showPlacements() {
 .mini-swatch.lib-swatch {
   width: 26px;
   height: 26px;
+  padding: 0;
+  cursor: pointer;
 }
 .mini-swatch.big {
   width: 28px;
@@ -2058,6 +2153,8 @@ function showPlacements() {
   padding: 0 4px;
 }
 .fabric-swatch {
+  padding: 0;
+  cursor: pointer;
   width: 48px;
   height: 48px;
   border-radius: 6px;

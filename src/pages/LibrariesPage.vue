@@ -567,77 +567,14 @@
             >
           </div>
         </q-card-section>
-        <!-- A large view of one color or fabric, and a strip of them all to pick from. -->
-        <template v-if="swatches.length">
-          <q-carousel
-            v-model="swatchAt"
-            animated
-            swipeable
-            arrows
-            infinite
-            height="min(80vw, 600px)"
-            control-type="unelevated"
-            control-color="white"
-            control-text-color="grey-9"
-          >
-            <q-carousel-slide
-              v-for="(x, i) in swatches"
-              :key="x.item.id"
-              :name="i"
-              class="q-pa-none"
-              :style="x.kind === 'fabric' ? bigFabric(x.item) : { background: css(x.item) }"
-            />
-          </q-carousel>
-          <q-card-section class="row items-center no-wrap q-py-sm" style="gap: 8px">
-            <div class="col" style="min-width: 0">
-              <div class="text-subtitle1 ellipsis">{{ shownSwatch!.item.notecard.name }}</div>
-              <div class="text-caption text-grey-7 ellipsis">{{ swatchInfo(shownSwatch!) }}</div>
-            </div>
-            <template v-if="previewMine && shownSwatch!.kind === 'color'">
-              <q-btn
-                flat
-                round
-                dense
-                icon="edit"
-                aria-label="Edit color"
-                @click="startColor(previewCollection!.id, swatchAt)"
-              />
-              <q-btn
-                flat
-                round
-                dense
-                icon="delete"
-                aria-label="Remove color"
-                @click="removeColor(previewCollection!.id, swatchAt)"
-              />
-            </template>
-          </q-card-section>
-        </template>
-        <div class="swatch-strip q-px-md q-pb-md">
-          <button
-            v-if="previewMine"
-            class="swatch-pick add"
-            aria-label="Add a color"
-            @click="startColor(previewCollection!.id)"
-          >
-            <q-icon name="add" />
-          </button>
-          <button
-            v-for="(x, i) in swatches"
-            :key="x.item.id"
-            :ref="
-              (el) =>
-                i === swatchAt &&
-                el &&
-                (el as HTMLElement).scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
-            "
-            class="swatch-pick"
-            :class="{ active: i === swatchAt }"
-            :title="x.item.notecard.name"
-            :style="x.kind === 'fabric' ? swatchStyle(x.item) : { background: css(x.item) }"
-            @click="swatchAt = i"
-          />
-        </div>
+        <PalettePreview
+          v-model:at="swatchAt"
+          :palette="previewCollection"
+          :editable="previewMine"
+          @add="startColor(previewCollection!.id)"
+          @edit="(i) => startColor(previewCollection!.id, i)"
+          @remove="(i) => removeColor(previewCollection!.id, i)"
+        />
         <ColorEditor v-if="previewMine" ref="colorEditor" @done="saveColorEdit" />
       </q-card>
     </q-dialog>
@@ -968,6 +905,7 @@ import { blockThumbnail } from '@/render/thumbnail';
 import { exportFile, pickFile } from '@/storage/files';
 import { isZip, readLibraryZip, writeLibraryZip } from '@/storage/library-zip';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
+import PalettePreview from '@/components/PalettePreview.vue';
 import type { Fabric } from '@/model/schema/palette';
 import { retryMissing, swatchStyle } from '@/render/fabric-images';
 import { useLibraryStore } from '@/stores/library';
@@ -1362,42 +1300,9 @@ const previewSections = computed(() =>
 const previewCollection = computed(() =>
   previewLib.value?.collections.find((c) => c.id === previewing.value?.id),
 );
-/** The palette preview: its colors, then its fabrics; `swatchAt` is the one shown large. */
-type Swatch = { kind: 'color'; item: Color } | { kind: 'fabric'; item: Fabric };
-const swatches = computed((): Swatch[] => [
-  ...(previewCollection.value?.colors ?? []).map((item) => ({ kind: 'color' as const, item })),
-  ...(previewCollection.value?.fabrics ?? []).map((item) => ({ kind: 'fabric' as const, item })),
-]);
+/** The palette preview's color or fabric shown large (where the palette was clicked). */
 const swatchAt = ref(0);
-/** A fabric in the large view: its whole image, fitted (its average color until it loads). */
-function bigFabric(f: Fabric) {
-  const st = swatchStyle(f);
-  return 'backgroundImage' in st
-    ? {
-        ...st,
-        backgroundSize: 'contain',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        backgroundColor: 'transparent',
-      }
-    : st;
-}
 watch(previewing, (p) => (swatchAt.value = p?.at ?? 0));
-watch(swatches, (l) => (swatchAt.value = Math.min(swatchAt.value, Math.max(0, l.length - 1))));
-const shownSwatch = computed(() => swatches.value[swatchAt.value]);
-const hex = (rgb: readonly number[]) =>
-  '#' +
-  rgb
-    .map((n) => n.toString(16).padStart(2, '0'))
-    .join('')
-    .toUpperCase();
-function swatchInfo(x: Swatch) {
-  if (x.kind === 'color')
-    return [x.item.notecard.reference, hex(x.item.rgb)].filter(Boolean).join(' · ');
-  const f = x.item;
-  const size = `${f.approximate ? '≈ ' : ''}${f.size.map((n) => roundLen(n, 'in')).join(' × ')} in`;
-  return [f.notecard.reference ?? f.sku, size].filter(Boolean).join(' · ');
-}
 
 // --- Editing My library ---
 async function update(fn: (lib: LibraryDoc) => LibraryDoc | Promise<LibraryDoc>) {
@@ -1969,36 +1874,6 @@ function downloadPack() {
     animation: none;
     box-shadow: inset 0 0 0 2px var(--q-primary);
   }
-}
-/* Up to three rows of swatches; more scroll. */
-.swatch-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  max-height: calc(3 * 50px + 8px);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  padding-top: 4px;
-}
-.swatch-pick {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 2px solid rgba(128, 128, 128, 0.4);
-  border-radius: 6px;
-  cursor: pointer;
-  color: inherit;
-  background: transparent;
-}
-.swatch-pick.active {
-  border-color: var(--q-primary);
-  box-shadow: 0 0 0 2px var(--q-primary);
-}
-.swatch-pick.add {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 .pack-link {
   color: inherit;
