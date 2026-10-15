@@ -16,3 +16,15 @@ describe('published schema', () => {
     expect(readFileSync(t, 'utf8')).toBe(generated);
   });
 });
+
+describe('published format versions (template repositories check these)', () => {
+  it('match the app', async () => {
+    const { VERSION } = await import('@/model/schema/project');
+    const { LIBRARY_VERSION } = await import('@/model/schema/library');
+    expect(JSON.parse(readFileSync('public/schemas/formats.json', 'utf8'))).toEqual({
+      rrq: VERSION,
+      rrqlib: LIBRARY_VERSION,
+      'rrqlib-index': 1,
+    });
+  });
+});
