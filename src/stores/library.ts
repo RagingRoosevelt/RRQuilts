@@ -6,6 +6,15 @@ import { builtinDoc, builtinLibrary } from '@/content/starter';
 import { emptyPersonal, lookupOf, withSources, type LibraryView } from '@/model/library';
 import type { LibraryDoc } from '@/model/schema/library';
 import { deletePack, loadLibraries, putMine, putPack } from '@/storage/libraries';
+import {
+  deleteConnection,
+  fetchIndex,
+  fetchPack,
+  loadConnections,
+  putConnection,
+  rawBase,
+  type Connection,
+} from '@/storage/repositories';
 import { useSettingsStore } from './settings';
 
 export const useLibraryStore = defineStore('library', () => {
@@ -77,6 +86,68 @@ export const useLibraryStore = defineStore('library', () => {
     await write(() => deletePack(id));
   }
 
+  // --- Libraries connected from the web (spec 002 US3/US4, spec 014) ---
+  const connections = shallowRef<Connection[]>([]);
+  void loadConnections()
+    .then((c) => void (connections.value = c))
+    .catch(() => {});
+  async function saveConnection(c: Connection) {
+    connections.value = [...connections.value.filter((x) => x.index.id !== c.index.id), c];
+    await write(() => putConnection(c));
+  }
+  /** Connect by address: only the index is fetched; packs download when switched on. */
+  async function connect(url: string, ref?: string) {
+    const base = rawBase(url, ref);
+    const index = await fetchIndex(base);
+    const c: Connection = {
+      id: `repo:${index.id}`,
+      url: url.trim(),
+      ...(ref ? { ref } : {}),
+      base,
+      index,
+      pinned: index.revision,
+    };
+    await saveConnection(c);
+    return c;
+  }
+  /** Download and install one of a connected library's packs. */
+  async function installFromRepo(c: Connection, packId: string, px: number) {
+    const p = c.index.packs.find((x) => x.id === packId);
+    if (!p) throw new Error('That pack isn’t in the library any more.');
+    const r = await fetchPack(c, p, px);
+    await savePack(r.doc);
+    return r.skipped;
+  }
+  /** A newer revision of a connected library, if any (with its changelog since the pin). */
+  async function checkForUpdate(c: Connection) {
+    const latest = await fetchIndex(c.base);
+    if (latest.revision <= c.pinned) return undefined;
+    return {
+      index: latest,
+      notes: (latest.changelog ?? []).filter((e) => e.revision > c.pinned),
+    };
+  }
+  /** Move the pin: re-download the installed packs whose revision changed. */
+  async function acceptUpdate(c: Connection, index: Connection['index'], px: number) {
+    const next = { ...c, index, pinned: index.revision };
+    const skipped: string[] = [];
+    for (const p of index.packs) {
+      const have = packs.value.find((x) => x.id === p.id);
+      if (have && (p.revision ?? 0) > have.revision)
+        skipped.push(...(await installFromRepo(next, p.id, px)));
+    }
+    await saveConnection(next);
+    return skipped;
+  }
+  async function declineUpdate(c: Connection, revision: number) {
+    await saveConnection({ ...c, declined: revision });
+  }
+  async function disconnect(c: Connection) {
+    for (const p of packs.value.filter((x) => x.library?.id === c.index.id)) await removePack(p.id);
+    connections.value = connections.value.filter((x) => x.index.id !== c.index.id);
+    await write(() => deleteConnection(c.index.id));
+  }
+
   return {
     builtin,
     mine,
@@ -91,5 +162,12 @@ export const useLibraryStore = defineStore('library', () => {
     saveMine,
     savePack,
     removePack,
+    connections,
+    connect,
+    installFromRepo,
+    checkForUpdate,
+    acceptUpdate,
+    declineUpdate,
+    disconnect,
   };
 });

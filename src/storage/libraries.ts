@@ -12,7 +12,7 @@ export async function loadLibraries() {
   const rows = await idb.getAll<Row>('libraries');
   return {
     mine: rows.find((r) => r.id === MINE)?.doc,
-    packs: rows.filter((r) => r.id !== MINE).map((r) => r.doc),
+    packs: rows.filter((r) => r.id.startsWith('pack:')).map((r) => r.doc),
   };
 }
 export const putMine = (doc: LibraryDoc) => idb.put<Row>('libraries', { id: MINE, doc });
