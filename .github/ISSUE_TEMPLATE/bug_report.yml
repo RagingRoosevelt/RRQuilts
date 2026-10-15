@@ -1,0 +1,43 @@
+name: Report a problem
+description: Something in RRQuilts doesn't work as it should.
+title: '[Problem]: '
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to make it happen again
+      placeholder: |
+        1. Open a project
+        2. ...
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      options: [Computer, Tablet, Phone]
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      placeholder: e.g. Firefox 140, Chrome on Android, Safari on iPad
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: RRQuilts version
+      description: Shown in Settings, at the bottom.
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or files
+      description: Drag screenshots here. A small .rrq project that shows the problem helps a lot.

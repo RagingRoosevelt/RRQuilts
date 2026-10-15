@@ -1,0 +1,31 @@
+name: Ask for a fabric collection
+description: A fabric collection you'd like in one of the RRQuilts fabric libraries.
+title: '[Fabric]: '
+labels: [fabric collection]
+body:
+  - type: input
+    id: collection
+    attributes:
+      label: Collection name
+    validations:
+      required: true
+  - type: input
+    id: maker
+    attributes:
+      label: Manufacturer
+      placeholder: e.g. Moda, Robert Kaufman, Art Gallery Fabrics, Cloud9
+    validations:
+      required: true
+  - type: input
+    id: designer
+    attributes:
+      label: Designer
+  - type: input
+    id: link
+    attributes:
+      label: Link to the collection
+      description: The manufacturer's page for it, if you have one.
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else

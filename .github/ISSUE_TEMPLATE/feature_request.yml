@@ -1,0 +1,27 @@
+name: Suggest a feature
+description: Something RRQuilts could do, or do better.
+title: '[Idea]: '
+labels: [enhancement]
+body:
+  - type: textarea
+    id: want
+    attributes:
+      label: What would you like to do?
+      description: Describe what you're trying to make or do, not just the button you'd add.
+    validations:
+      required: true
+  - type: textarea
+    id: now
+    attributes:
+      label: How do you do it today?
+      description: In RRQuilts, other software, or by hand.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Part of the app
+      options: [Quilt design, Block drawing, Colors and fabrics, Libraries, Printing, Help, Other]
+  - type: textarea
+    id: extra
+    attributes:
+      label: Pictures or examples
+      description: Sketches, photos or links.

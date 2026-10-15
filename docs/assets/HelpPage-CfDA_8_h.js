@@ -1,4 +1,28 @@
-import{_ as e,o as t,t as n}from"./project-BkxqR-Xb.js";import{At as r,Dt as i,J as a,R as o,T as s,U as c,V as l,W as u,X as d,Z as f,at as p,b as m,f as h,ft as g,g as _,h as v,jt as y,m as b,ot as ee,p as x,s as S,t as C,x as w,y as T}from"./create-CXFiK9Ge.js";import{H as te,n as ne,t as E,y as re}from"./_plugin-vue_export-helper-BO0JJGYa.js";import{Ct as ie,N as ae,P as oe,St as D,a as se,bt as ce,i as le,n as ue,t as O,wt as de,xt as fe}from"./QCard-CpQwTxrg.js";import{a as pe,r as me}from"./render-CRP6lwgu.js";import{a as he,r as ge,t as k}from"./QSelect-DE3L6RLv.js";import{L as _e}from"./index-DXX7QRtQ.js";import{n as ve,t as ye}from"./QTabs-DzK9iR9y.js";import{t as be}from"./QPage-D5_MJ09N.js";import{t as xe}from"./LengthInput-CF__mW46.js";import{S as Se,_ as Ce,a as A,b as j,i as we,n as Te,o as Ee,r as De,t as Oe,x as ke,y as Ae}from"./yardage-D5dwrINA.js";var je=[`horizontal`,`vertical`,`cell`,`none`],Me=C({name:`QMarkupTable`,props:{...ie,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>je.includes(e)}},setup(e,{slots:t}){let n=pe(),r=D(e,n),i=h(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>s(`div`,{class:i.value,tabindex:0},[s(`table`,{class:`q-table`},me(t.default))])}}),Ne=e=>Ce[e].filter(e=>!e.fatQuarter);function Pe(e,t,n){let r=Ce[e].find(e=>e.id===n)??Ne(e)[0];return{units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:r.usable,fabric:r,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}}var Fe=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),M=(e,t)=>Fe([[0,0],[e,0],[e,t],[0,t]]),Ie=e=>Fe([[0,0],[e,0],[0,e]]),Le=e=>Fe([[0,0],[e,0],[e/2,e/2]]),Re=(e,t)=>Fe([[0,0],[e,0],[e-t,t],[t,t]]),N=(e,t)=>ke(e,t.units),P=(e,t)=>e.cut[0]===e.cut[1]?`${N(e.cut[0],t)} square`:`${N(e.cut[0],t)} × ${N(e.cut[1],t)}`,F=(e,t)=>({in:e,cm:t}),ze={square:{title:`Square`,inputs:[{key:`f`,label:`Finished side`,start:F(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:P(A(M(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:F(6,15)},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:P(A(M(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished leg`,start:F(3,8)}],rows:({f:e},t)=>{let n=A(Ie(e),t.seam,t.step),r=Se((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${P(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${N(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${N(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:F(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${P(A(Le(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:F(4,10),link:{key:`h`,factor:.5}},{key:`h`,label:`Finished height`,start:F(2,5),link:{key:`w`,factor:2}}],rows:({w:e},t)=>{let n=e/2,r=A(Le(e),t.seam,t.step),i=A(Ie(n),t.seam,t.step);return[{label:`Stitch and flip (1)`,value:`${P(A(M(e,n),t.seam,t.step),t)} rectangle + 2 × ${P(A(M(n,n),t.seam,t.step),t)}`},{label:`Four at a time (4)`,value:`1 × ${P(r,t)} + 4 × ${P(i,t)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${P(r,t)}; sky: 2 halves of a ${P(i,t)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit side`,start:F(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:P(A(M(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${P(A(Ie(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block side`,start:F(10,25)},{key:`n`,label:`Blocks across`,start:F(3,3),count:!0},{key:`m`,label:`Blocks down`,start:F(2,2),count:!0}],rows:({f:e,n:t,m:n},r)=>{let i=e*Math.SQRT2,a=Math.max(1,Math.round(t)),o=Math.max(1,Math.round(n)),s=2*(a-1)+2*(o-1);return[{label:`Finished quilt`,value:`${N(a*i,r)} × ${N(o*i,r)}`},{label:`Block diagonal`,value:N(i,r)},{label:`Blocks`,value:String(a*o+(a-1)*(o-1))},{label:`Side setting triangles`,value:`${Math.ceil(s/4)} × ${P(A(Le(i),r.seam,r.step),r)}, cut both diagonals (${s} needed)`},{label:`Corner setting triangles`,value:`2 × ${P(A(Ie(e/Math.SQRT2),r.seam,r.step),r)}, cut once (4 corners)`}]}},border:{title:`Borders`,inputs:[{key:`w`,label:`Finished width, no border`,start:F(48,120)},{key:`h`,label:`Finished height, no border`,start:F(60,150)},{key:`b`,label:`Finished border width`,start:F(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${P(A(M(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${P(A(M(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${P(A(Re(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${P(A(Re(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(48,120)},{key:`h`,label:`Quilt height`,start:F(48,120)}],rows:({w:e,h:t},n)=>{let r=De(e,t,n.bindingWidth,Oe[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${N(n.bindingWidth,n)} wide`},{label:`Total length`,value:N(2*(e+t)+Oe[n.units],n)},{label:`Fabric`,value:j(r.length,n.units)}]}},backing:{title:`Backing`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(60,150)},{key:`h`,label:`Quilt height`,start:F(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:j(Te(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${N(n.overhang,n)} each side`}]},yardage:{title:`Patches from yardage`,widths:`any`,inputs:[{key:`n`,label:`How many patches`,start:F(40,40),count:!0},{key:`w`,label:`Finished length`,start:F(3,8),newLine:!0},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({n:e,w:t,h:n},r)=>{let i=Array.from({length:Math.max(1,Math.round(e))},()=>M(t,n)),a=Ee(i,r.seam,r.step,r.usable),o=we(a,r.fabric,r.fabricStep)[0];return[{label:`Strips`,value:`${a[0].strips} × ${N(a[0].stripWidth,r)} (${a[0].perStrip} per strip)`},r.fabric.fatQuarter?{label:`Fat quarters`,value:String(o.fatQuarters)}:{label:`Fabric (${N(r.usable,r)} usable)`,value:j(o.length,r.units)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:F(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:N(e,t)},{label:`Cut (rounded up)`,value:N(Se(e,t.step),t)}]}},Be={class:`text-subtitle2`},Ve={class:`text-caption text-grey-7`},He={key:0,class:`full-width`},Ue={class:`text-grey-8`},We={class:`text-weight-medium`},Ge=E(w({__name:`HelpCalc`,props:{name:{}},setup(t){let r=t,i=n(),s=e(),c=h(()=>ze[r.name]),u=h(()=>i.doc?.units??s.settings.units),f=ee(Ne(u.value)[0].id);a(u,e=>f.value=Ne(e)[0].id);let C=h(()=>Pe(u.value,Ae(s.settings.print),f.value)),w=p(Object.fromEntries((c.value?.inputs??[]).map(e=>[e.key,e.start[u.value]])));function te(e,t){w[e.key]=t,e.link&&(w[e.link.key]=t*e.link.factor)}let ne=h(()=>{let e=c.value;return!e||e.inputs.some(e=>!(w[e.key]>0))?[]:e.rows(w,C.value)});return(e,n)=>c.value?(o(),b(O,{key:0,bordered:``,class:`help-calc q-my-md shadow-2`},{default:d(()=>[m(ue,{class:`q-pb-sm`},{default:d(()=>[x(`div`,Be,[m(re,{name:`calculate`,class:`q-mr-xs`}),T(y(c.value.title)+` calculator `,1)]),x(`div`,Ve,` Seam allowance `+y(g(ke)(C.value.seam,u.value))+` · cut sizes rounded up to `+y(C.value.step?g(ke)(C.value.step,u.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),m(ue,{class:`inputs row q-pt-none`},{default:d(()=>[c.value.widths?(o(),b(k,{key:0,modelValue:f.value,"onUpdate:modelValue":n[0]||=e=>f.value=e,options:(c.value.widths===`any`?g(Ce)[u.value]:g(Ne)(u.value)).map(e=>({label:e.label,value:e.id})),"emit-value":``,"map-options":``,outlined:``,dense:``,label:`Fabric width`,style:{width:`200px`}},null,8,[`modelValue`,`options`])):v(``,!0),(o(!0),_(S,null,l(c.value.inputs,e=>(o(),_(S,{key:e.key},[e.newLine?(o(),_(`div`,He)):v(``,!0),e.count||e.raw?(o(),b(se,{key:1,modelValue:w[e.key],"onUpdate:modelValue":t=>w[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(o(),b(xe,{key:2,"model-value":w[e.key],"onUpdate:modelValue":t=>te(e,t),units:u.value,min:.25,label:e.label,style:{width:`240px`}},null,8,[`model-value`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),m(Me,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:d(()=>[x(`tbody`,null,[(o(!0),_(S,null,l(ne.value,e=>(o(),_(`tr`,{key:e.label},[x(`td`,Ue,y(e.label),1),x(`td`,We,y(e.value),1)]))),128))])]),_:1})]),_:1})):(o(),b(_e,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:d(()=>[T(`Unknown calculator “`+y(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-5c7e7680`]]),Ke=`---
+import{_ as e,o as t,t as n}from"./project-BkxqR-Xb.js";import{At as r,Dt as i,J as a,R as o,T as s,U as c,V as l,W as u,X as d,Z as f,at as p,b as m,f as h,ft as g,g as _,h as v,jt as y,m as b,ot as ee,p as x,s as S,t as C,x as w,y as T}from"./create-CXFiK9Ge.js";import{H as te,n as ne,t as E,y as re}from"./_plugin-vue_export-helper-BO0JJGYa.js";import{Ct as ie,N as ae,P as oe,St as D,a as se,bt as ce,i as le,n as ue,t as O,wt as de,xt as fe}from"./QCard-CpQwTxrg.js";import{a as pe,r as me}from"./render-CRP6lwgu.js";import{a as he,r as ge,t as k}from"./QSelect-DE3L6RLv.js";import{L as _e}from"./index-B5Xvoy2J.js";import{n as ve,t as ye}from"./QTabs-DzK9iR9y.js";import{t as be}from"./QPage-D5_MJ09N.js";import{t as xe}from"./LengthInput-CF__mW46.js";import{S as Se,_ as Ce,a as A,b as j,i as we,n as Te,o as Ee,r as De,t as Oe,x as ke,y as Ae}from"./yardage-D5dwrINA.js";var je=[`horizontal`,`vertical`,`cell`,`none`],Me=C({name:`QMarkupTable`,props:{...ie,dense:Boolean,flat:Boolean,bordered:Boolean,square:Boolean,wrapCells:Boolean,separator:{type:String,default:`horizontal`,validator:e=>je.includes(e)}},setup(e,{slots:t}){let n=pe(),r=D(e,n),i=h(()=>`q-markup-table q-table__container q-table__card q-table--${e.separator}-separator`+(r()?` q-table--dark q-table__card--dark q-dark`:``)+(e.dense?` q-table--dense`:``)+(e.flat?` q-table--flat`:``)+(e.bordered?` q-table--bordered`:``)+(e.square?` q-table--square`:``)+(e.wrapCells?``:` q-table--no-wrap`));return()=>s(`div`,{class:i.value,tabindex:0},[s(`table`,{class:`q-table`},me(t.default))])}}),Ne=e=>Ce[e].filter(e=>!e.fatQuarter);function Pe(e,t,n){let r=Ce[e].find(e=>e.id===n)??Ne(e)[0];return{units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:r.usable,fabric:r,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}}var Fe=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),M=(e,t)=>Fe([[0,0],[e,0],[e,t],[0,t]]),Ie=e=>Fe([[0,0],[e,0],[0,e]]),Le=e=>Fe([[0,0],[e,0],[e/2,e/2]]),Re=(e,t)=>Fe([[0,0],[e,0],[e-t,t],[t,t]]),N=(e,t)=>ke(e,t.units),P=(e,t)=>e.cut[0]===e.cut[1]?`${N(e.cut[0],t)} square`:`${N(e.cut[0],t)} × ${N(e.cut[1],t)}`,F=(e,t)=>({in:e,cm:t}),ze={square:{title:`Square`,inputs:[{key:`f`,label:`Finished side`,start:F(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:P(A(M(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:F(6,15)},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:P(A(M(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished leg`,start:F(3,8)}],rows:({f:e},t)=>{let n=A(Ie(e),t.seam,t.step),r=Se((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${P(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${N(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${N(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:F(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${P(A(Le(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:F(4,10),link:{key:`h`,factor:.5}},{key:`h`,label:`Finished height`,start:F(2,5),link:{key:`w`,factor:2}}],rows:({w:e},t)=>{let n=e/2,r=A(Le(e),t.seam,t.step),i=A(Ie(n),t.seam,t.step);return[{label:`Stitch and flip (1)`,value:`${P(A(M(e,n),t.seam,t.step),t)} rectangle + 2 × ${P(A(M(n,n),t.seam,t.step),t)}`},{label:`Four at a time (4)`,value:`1 × ${P(r,t)} + 4 × ${P(i,t)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${P(r,t)}; sky: 2 halves of a ${P(i,t)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit side`,start:F(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:P(A(M(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${P(A(Ie(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block side`,start:F(10,25)},{key:`n`,label:`Blocks across`,start:F(3,3),count:!0},{key:`m`,label:`Blocks down`,start:F(2,2),count:!0}],rows:({f:e,n:t,m:n},r)=>{let i=e*Math.SQRT2,a=Math.max(1,Math.round(t)),o=Math.max(1,Math.round(n)),s=2*(a-1)+2*(o-1);return[{label:`Finished quilt`,value:`${N(a*i,r)} × ${N(o*i,r)}`},{label:`Block diagonal`,value:N(i,r)},{label:`Blocks`,value:String(a*o+(a-1)*(o-1))},{label:`Side setting triangles`,value:`${Math.ceil(s/4)} × ${P(A(Le(i),r.seam,r.step),r)}, cut both diagonals (${s} needed)`},{label:`Corner setting triangles`,value:`2 × ${P(A(Ie(e/Math.SQRT2),r.seam,r.step),r)}, cut once (4 corners)`}]}},border:{title:`Borders`,inputs:[{key:`w`,label:`Finished width, no border`,start:F(48,120)},{key:`h`,label:`Finished height, no border`,start:F(60,150)},{key:`b`,label:`Finished border width`,start:F(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${P(A(M(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${P(A(M(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${P(A(Re(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${P(A(Re(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(48,120)},{key:`h`,label:`Quilt height`,start:F(48,120)}],rows:({w:e,h:t},n)=>{let r=De(e,t,n.bindingWidth,Oe[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${N(n.bindingWidth,n)} wide`},{label:`Total length`,value:N(2*(e+t)+Oe[n.units],n)},{label:`Fabric`,value:j(r.length,n.units)}]}},backing:{title:`Backing`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(60,150)},{key:`h`,label:`Quilt height`,start:F(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:j(Te(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${N(n.overhang,n)} each side`}]},yardage:{title:`Patches from yardage`,widths:`any`,inputs:[{key:`n`,label:`How many patches`,start:F(40,40),count:!0},{key:`w`,label:`Finished length`,start:F(3,8),newLine:!0},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({n:e,w:t,h:n},r)=>{let i=Array.from({length:Math.max(1,Math.round(e))},()=>M(t,n)),a=Ee(i,r.seam,r.step,r.usable),o=we(a,r.fabric,r.fabricStep)[0];return[{label:`Strips`,value:`${a[0].strips} × ${N(a[0].stripWidth,r)} (${a[0].perStrip} per strip)`},r.fabric.fatQuarter?{label:`Fat quarters`,value:String(o.fatQuarters)}:{label:`Fabric (${N(r.usable,r)} usable)`,value:j(o.length,r.units)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:F(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:N(e,t)},{label:`Cut (rounded up)`,value:N(Se(e,t.step),t)}]}},Be={class:`text-subtitle2`},Ve={class:`text-caption text-grey-7`},He={key:0,class:`full-width`},Ue={class:`text-grey-8`},We={class:`text-weight-medium`},Ge=E(w({__name:`HelpCalc`,props:{name:{}},setup(t){let r=t,i=n(),s=e(),c=h(()=>ze[r.name]),u=h(()=>i.doc?.units??s.settings.units),f=ee(Ne(u.value)[0].id);a(u,e=>f.value=Ne(e)[0].id);let C=h(()=>Pe(u.value,Ae(s.settings.print),f.value)),w=p(Object.fromEntries((c.value?.inputs??[]).map(e=>[e.key,e.start[u.value]])));function te(e,t){w[e.key]=t,e.link&&(w[e.link.key]=t*e.link.factor)}let ne=h(()=>{let e=c.value;return!e||e.inputs.some(e=>!(w[e.key]>0))?[]:e.rows(w,C.value)});return(e,n)=>c.value?(o(),b(O,{key:0,bordered:``,class:`help-calc q-my-md shadow-2`},{default:d(()=>[m(ue,{class:`q-pb-sm`},{default:d(()=>[x(`div`,Be,[m(re,{name:`calculate`,class:`q-mr-xs`}),T(y(c.value.title)+` calculator `,1)]),x(`div`,Ve,` Seam allowance `+y(g(ke)(C.value.seam,u.value))+` · cut sizes rounded up to `+y(C.value.step?g(ke)(C.value.step,u.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),m(ue,{class:`inputs row q-pt-none`},{default:d(()=>[c.value.widths?(o(),b(k,{key:0,modelValue:f.value,"onUpdate:modelValue":n[0]||=e=>f.value=e,options:(c.value.widths===`any`?g(Ce)[u.value]:g(Ne)(u.value)).map(e=>({label:e.label,value:e.id})),"emit-value":``,"map-options":``,outlined:``,dense:``,label:`Fabric width`,style:{width:`200px`}},null,8,[`modelValue`,`options`])):v(``,!0),(o(!0),_(S,null,l(c.value.inputs,e=>(o(),_(S,{key:e.key},[e.newLine?(o(),_(`div`,He)):v(``,!0),e.count||e.raw?(o(),b(se,{key:1,modelValue:w[e.key],"onUpdate:modelValue":t=>w[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(o(),b(xe,{key:2,"model-value":w[e.key],"onUpdate:modelValue":t=>te(e,t),units:u.value,min:.25,label:e.label,style:{width:`240px`}},null,8,[`model-value`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),m(Me,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:d(()=>[x(`tbody`,null,[(o(!0),_(S,null,l(ne.value,e=>(o(),_(`tr`,{key:e.label},[x(`td`,Ue,y(e.label),1),x(`td`,We,y(e.value),1)]))),128))])]),_:1})]),_:1})):(o(),b(_e,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:d(()=>[T(`Unknown calculator “`+y(t.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-5c7e7680`]]),Ke=`---
+title: RRQuilts project
+order: 10
+summary: Ask for a feature or fabric collection, report a problem, and find the source code.
+---
+
+RRQuilts is free and open source. Ideas and reports are welcome on GitHub (you need a free GitHub
+account to post).
+
+## Ask or report
+
+- [Suggest a feature](https://github.com/RagingRoosevelt/RRQuilts/issues/new?template=feature_request.yml)
+  for something RRQuilts could do.
+- [Ask for a fabric collection](https://github.com/RagingRoosevelt/RRQuilts/issues/new?template=fabric_collection.yml)
+  to be added to a fabric library.
+- [Report a problem](https://github.com/RagingRoosevelt/RRQuilts/issues/new?template=bug_report.yml)
+  when something doesn't work as it should.
+- See [what others have asked](https://github.com/RagingRoosevelt/RRQuilts/issues) before posting.
+
+## Source and file formats
+
+- The source code (MIT licensed) is on [RRQuilts on GitHub](https://github.com/RagingRoosevelt/RRQuilts).
+- Anyone writing tools that read \`.rrq\` files can use the JSON Schema for
+  [the project file format](https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v2.json).
+`,qe=`---
 title: Block colorings
 order: 50
 summary: Color a block's patches and keep several colorings of the same drawing.
@@ -43,7 +67,7 @@ change the block ([Designing a quilt](/help/guides/designing-a-quilt)).
 Library blocks can't be edited, but **Create a coloration variant** in the sketchbook makes your own
 version with the same drawing. Variants open straight into the **Color** tab (they have no **Draw**
 tab) and are marked **Color variant**.
-`,qe=`---
+`,Je=`---
 title: Colors and palettes
 order: 60
 summary: Make project colors, add fabric images, group them into palettes, and paint with them.
@@ -103,7 +127,7 @@ After you change a saved color, a **Sync to my library** button appears. It upda
 ## Share a palette
 
 A single palette travels as a \`.rrqplt\` file. Use **Import palette (.rrqplt)** in the **Palettes** tab to bring one in, or **Export (.rrqplt)** from a palette's **Actions** menu on the Libraries page.
-`,Je=`---
+`,Ye=`---
 title: Credits and licenses
 order: 80
 summary: Author, license, and the chain of credit for projects, quilts, and blocks.
@@ -142,7 +166,7 @@ Earlier work limits your choice. Share-alike and non-commercial licenses carry f
 ## In print
 
 Printouts show the author and credits, and each author's social set in **Settings › You**. See [Printing](/help/guides/printing).
-`,Ye=`---
+`,Xe=`---
 title: Designing a quilt
 order: 30
 summary: Set the layout and borders, place blocks, color patches, and use Apply to for repeats.
@@ -220,7 +244,7 @@ Above the tray, **Apply to** controls how many spaces a tap affects.
 The **Details** tab holds the quilt's title, author, license, and notes. The **Print** tab makes
 templates, cutting charts, and yardage ([Printing](/help/guides/printing)). Undo and redo are on the
 rail (Ctrl+Z, Ctrl+Shift+Z).
-`,Xe=`---
+`,Ze=`---
 title: Drawing blocks
 order: 40
 summary: Draw a block from seams (lines and arcs) and let the app find the patches.
@@ -270,7 +294,7 @@ the shapes you draw, see [Half-square triangles](/help/math/half-square-triangle
 **Details** holds the title, author, license, and notes. **Print** makes templates for the block
 ([Printing](/help/guides/printing)). Edits and copies of someone else's block credit them
 automatically ([Credits and licenses](/help/guides/credits-and-licenses)).
-`,Ze=`---
+`,Qe=`---
 title: Getting started
 order: 10
 summary: Start a quilt, save it to a file, open it again, recover unsaved work, and use the app offline.
@@ -345,7 +369,7 @@ A project can be edited in only one browser tab. A second tab shows a read-only 
 
 [The project sketchbook](/help/guides/sketchbook) · [Designing a quilt](/help/guides/designing-a-quilt)
 · [Settings](/help/guides/settings)
-`,Qe=`---
+`,$e=`---
 title: Libraries
 order: 70
 summary: My library, installed packs, backup and restore, and sharing your own pack.
@@ -452,7 +476,7 @@ images when saving** in the project's **Details** tab first (packs for personal 
 3. Set the options as in [adding fabric images](/help/guides/colors-and-palettes) and click **Add**.
 
 **Back up…** saves My library with its fabric images, as one \`.rrqlib\` file.
-`,$e=`---
+`,et=`---
 title: Printing
 order: 90
 summary: Block templates, the rotary cutting chart, yardage, and mitered corner guides.
@@ -495,7 +519,7 @@ Options are remembered in your settings. The numbers use the same formulas as th
 
 Fabrics print as their images, tiled at their real size, using the largest image on this device.
 Fabrics marked "≈" print at the default 8 in until you set their real size.
-`,et=`---
+`,tt=`---
 title: Settings
 order: 100
 summary: Your name and socials, appearance, units, library options, and moving settings between devices.
@@ -539,7 +563,7 @@ found show as a warning with a count, and their fabrics use average colors. Clic
 2. On the other device, open Settings and click **Import**, then pick the file.
 
 Anything in the file that isn't valid is reset to its default, and the message says which. Print options live in the Print tab ([Printing](/help/guides/printing)) but travel in the same file.
-`,tt=`---
+`,nt=`---
 title: The project sketchbook
 order: 20
 summary: Your project's home screen, with its quilts, blocks, palettes, and details.
@@ -590,7 +614,7 @@ palette tray in the quilt editor ([Colors and palettes](/help/guides/colors-and-
 
 The **Details** tab holds the project's title, author, license, units (**Inches** or
 **Centimeters**), and notes. See [Credits and licenses](/help/guides/credits-and-licenses).
-`,nt=`---
+`,rt=`---
 title: Backing
 order: 100
 summary: Fabric for the back, with an overhang, pieced the cheaper way.
@@ -646,7 +670,7 @@ The result is rounded up to your fabric step (⅛ yd or 10 cm by default).
 | 150 × 180 cm | 170 × 200 cm | 2 side to side, 2 × 170 = 340 cm (vs 400) | 340 cm        |
 
 ::calc backing
-`,rt=`---
+`,it=`---
 title: Binding
 order: 90
 summary: How many strips to cut to go around the quilt.
@@ -684,7 +708,7 @@ every width side by side.
 For sewing instructions, see [Continuous binding](/help/techniques/continuous-binding).
 
 ::calc binding
-`,it=`---
+`,at=`---
 title: Borders
 order: 80
 summary: Straight and mitered border strips, and why a mitered strip is longer.
@@ -764,7 +788,7 @@ sewing the miter. Set it to 0 to cut exact.
 | Mitered top/bottom  | 2 × 59¼″ × 4½″ (56 + 1.207 + 2 = 59.207″) | 2 × 149 × 11.5 cm (140 + 3.62 + 5 = 148.62) |
 
 ::calc border
-`,at=`---
+`,ot=`---
 title: Flying geese
 order: 50
 summary: A tall triangle with a smaller triangle on each side, built three ways.
@@ -821,7 +845,7 @@ a time uses one 5¼″ square for the geese and four 2⅞″ squares for the sky
 needs an 11.5 × 6.5 cm rectangle with two 6.5 cm squares, and four at a time needs one 14 cm square and four 8 cm squares.
 
 ::calc geese
-`,ot=`---
+`,st=`---
 title: Half-square triangles
 order: 30
 summary: Cut a square once diagonally for two triangles with their legs on the straight grain.
@@ -880,7 +904,7 @@ The rotary cutting chart on your printouts uses this same formula, seam allowanc
 
 The calculator also gives the squares for the [two, four, and eight at a time](/help/techniques/hst-units)
 methods, which sew before cutting and trim the units to size afterward.
-`,st=`---
+`,ct=`---
 title: On-point settings
 order: 70
 summary: Setting triangles for blocks turned 45°.
@@ -939,7 +963,7 @@ The calculator gives sizes for one side triangle square (it makes 4 triangles) a
 (2 triangles). The number you need depends on the layout.
 
 ::calc onpoint
-`,ct=`---
+`,lt=`---
 title: Patches from yardage and fat quarters
 order: 110
 summary: How much fabric a set of patches needs, from the bolt or in fat quarters.
@@ -1012,7 +1036,7 @@ cm) depth. The calculator counts how many fat quarters the strips fit into.
 | 10 × 5 cm | 11.5 × 6.5 cm | 9                | 5      | 32.5 cm, rounded up to 40 cm | 2 (10 strips of 4) |
 
 ::calc yardage
-`,lt=`---
+`,ut=`---
 title: Quarter-square triangles
 order: 40
 summary: Cut a square, cut both diagonals for four triangles, long side on the straight grain.
@@ -1066,7 +1090,7 @@ sit at 45° to the long side. Each short seam moves the points out by (1 + √2)
 | 10 cm              | 13.62 cm  | 14 cm square (5 mm rounding) | 4 triangles |
 
 ::calc qst
-`,ut=`---
+`,dt=`---
 title: Rounding
 order: 120
 summary: Why cut sizes round up to a ruler mark, and what that does to your piece.
@@ -1099,7 +1123,7 @@ printout flags it. A coarse step is faster to cut, but a finer step is closer to
 means the cut is never smaller than needed.
 
 ::calc rounding
-`,dt=`---
+`,ft=`---
 title: Seam allowance
 order: 10
 summary: The strip of fabric inside every seam, and why every cut size adds it.
@@ -1138,7 +1162,7 @@ same allowance throughout a project.
   [Half-square triangles](/help/math/half-square-triangles) and
   [Quarter-square triangles](/help/math/quarter-square-triangles).
 - The final size is rounded up to a mark on the ruler. See [Rounding](/help/math/rounding).
-`,ft=`---
+`,pt=`---
 title: Square in a square
 order: 60
 summary: A square set on point inside four corner triangles.
@@ -1188,7 +1212,7 @@ The calculator rounds up to your ruler. See [Rounding](/help/math/rounding). For
 once, see [Square-in-a-square units](/help/techniques/square-in-a-square-units).
 
 ::calc sqinsq
-`,pt=`---
+`,mt=`---
 title: Squares and rectangles
 order: 20
 summary: Cut size is the finished size plus a seam allowance on each side.
@@ -1245,7 +1269,7 @@ These already land on a ruler mark. When they don't, the cut is rounded up. See
 
 To work out how much fabric a pile of squares needs, see
 [Patches from yardage and fat quarters](/help/math/patches-from-yardage).
-`,mt=`---
+`,ht=`---
 title: Calculators
 order: 10
 summary: Every Quilt Math calculator on one page, for cut sizes, borders, binding, backing, and yardage.
@@ -1342,7 +1366,7 @@ The formula is in [patches from yardage and fat quarters](/help/math/patches-fro
 The formula is in [rounding](/help/math/rounding).
 
 ::calc rounding
-`,ht=`---
+`,gt=`---
 title: Block and quilt directories
 order: 10
 summary: Reference books of quilt blocks, patterns, and techniques.
@@ -1353,7 +1377,7 @@ summary: Reference books of quilt blocks, patterns, and techniques.
 - _Make a Quilt in a Day: Log Cabin Pattern_ by Eleanor Burns ([Google Books](https://books.google.com/books/about/Make_a_Quilt_in_a_Day/TIcxcAAACAAJ), [Internet Archive](https://archive.org/details/makequiltindaylo0000burn))
 - _The Quilting Bible: The Complete Photo Guide to Machine Quilting_, 3rd edition, by Creative Publishing International ([Google Books](https://www.google.com/books/about/The_Quilting_Bible_3rd_Edition/N2PKGQYAZmYC), [Internet Archive](https://archive.org/details/quiltingbiblecom00crea))
 - _Ultimate Quilting Bible: A Complete Reference with Step-by-Step Techniques_ by Marie Clayton ([Google Books](https://www.google.com/books/about/Ultimate_Quilting_Bible/SlAmEAAAQBAJ), [Internet Archive](https://archive.org/details/ultimatequilting0000clay))
-`,gt=`---
+`,_t=`---
 title: Learning to quilt
 order: 10
 summary: Places to learn quilting, video tutorials, and efficiency techniques.
@@ -1388,7 +1412,7 @@ summary: Places to learn quilting, video tutorials, and efficiency techniques.
   by Quilting Jetgirl has sizing tables and tips for accurate, no-waste geese.
 - [Reducing bulk in four-at-a-time flying geese](https://thecraftyquilter.com/2022/05/how-to-reduce-bulk-in-4-at-a-time-flying-geese/) by The Crafty Quilter
   trims the overlap of the small squares before sewing, so the goose points lie flat.
-`,_t=`---
+`,vt=`---
 title: Licenses
 order: 10
 summary: What the Creative Commons licenses on blocks, palettes, and packs allow.
@@ -1405,17 +1429,6 @@ Blocks, palettes, and packs carry a license that says what others may do with th
 - [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) works like BY-SA but allows
   non-commercial use only.
 - [CC0 / Public Domain](https://creativecommons.org/public-domain/cc0/) places no conditions on use.
-`,vt=`---
-title: RRQuilts project
-order: 10
-summary: The source code, issue tracker, and file format schema.
----
-
-- The source code (MIT licensed) is on [RRQuilts on GitHub](https://github.com/RagingRoosevelt/RRQuilts).
-- To [report a problem or suggest an idea](https://github.com/RagingRoosevelt/RRQuilts/issues), open a GitHub
-  issue.
-- Anyone writing tools that read \`.rrq\` files can use the JSON Schema for
-  [the project file format](https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v2.json).
 `,yt=`---
 title: Continuous mitered binding
 order: 10
@@ -2198,5 +2211,5 @@ ${this.parser.parse(e)}</blockquote>
 ${e}</tr>
 `}tablecell(e){let t=this.parser.parseInline(e.tokens),n=e.header?`th`:`td`;return(e.align?`<${n} align="${e.align}">`:`<${n}>`)+t+`</${n}>
 `}strong({tokens:e}){return`<strong>${this.parser.parseInline(e)}</strong>`}em({tokens:e}){return`<em>${this.parser.parseInline(e)}</em>`}codespan({text:e}){return`<code>${q(e,!0)}</code>`}br(e){return`<br>`}del({tokens:e}){return`<del>${this.parser.parseInline(e)}</del>`}link({href:e,title:t,text:n,tokens:r,autolink:i}){let a=i?q(n,!0):this.parser.parseInline(r),o=Bn(e);if(o===null)return a;e=q(o,i);let s=`<a href="`+e+`"`;return t&&(s+=` title="`+q(t)+`"`),s+=`>`+a+`</a>`,s}image({href:e,title:t,text:n,tokens:r}){r&&(n=this.parser.parseInline(r,this.parser.textRenderer));let i=Bn(e);if(i===null)return q(n);e=i;let a=`<img src="${q(e)}" alt="${q(n)}"`;return t&&(a+=` title="${q(t)}"`),a+=`>`,a}text(e){return`tokens`in e&&e.tokens?this.parser.parseInline(e.tokens):`escaped`in e&&e.escaped?e.text:q(e.text)}},Zn=class{strong({text:e}){return e}em({text:e}){return e}codespan({text:e}){return e}del({text:e}){return e}html({text:e}){return e}text({text:e}){return e}link({text:e}){return``+e}image({text:e}){return``+e}br(){return``}checkbox({raw:e}){return e}},X=class e{options;renderer;textRenderer;constructor(e){this.options=e||I,this.options.renderer=this.options.renderer||new Xn,this.renderer=this.options.renderer,this.renderer.options=this.options,this.renderer.parser=this,this.textRenderer=new Zn}static parse(t,n){return new e(n).parse(t)}static parseInline(t,n){return new e(n).parseInline(t)}parse(e){this.renderer.parser=this;let t=``;for(let n=0;n<e.length;n++){let r=e[n];if(this.options.extensions?.renderers?.[r.type]){let e=r,n=this.options.extensions.renderers[e.type].call({parser:this},e);if(n!==!1||![`space`,`hr`,`heading`,`code`,`table`,`blockquote`,`list`,`checkbox`,`html`,`def`,`paragraph`,`text`].includes(e.type)){t+=n||``;continue}}let i=r;switch(i.type){case`space`:t+=this.renderer.space(i);break;case`hr`:t+=this.renderer.hr(i);break;case`heading`:t+=this.renderer.heading(i);break;case`code`:t+=this.renderer.code(i);break;case`table`:t+=this.renderer.table(i);break;case`blockquote`:t+=this.renderer.blockquote(i);break;case`list`:t+=this.renderer.list(i);break;case`checkbox`:t+=this.renderer.checkbox(i);break;case`html`:t+=this.renderer.html(i);break;case`def`:t+=this.renderer.def(i);break;case`paragraph`:t+=this.renderer.paragraph(i);break;case`text`:t+=this.renderer.text(i);break;default:{let e=`Token with "`+i.type+`" type was not found.`;if(this.options.silent)return console.error(e),``;throw Error(e)}}}return t}parseInline(e,t=this.renderer){this.renderer.parser=this;let n=``;for(let r=0;r<e.length;r++){let i=e[r];if(this.options.extensions?.renderers?.[i.type]){let e=this.options.extensions.renderers[i.type].call({parser:this},i);if(e!==!1||![`escape`,`html`,`link`,`image`,`checkbox`,`strong`,`em`,`codespan`,`br`,`del`,`text`].includes(i.type)){n+=e||``;continue}}let a=i;switch(a.type){case`escape`:n+=t.text(a);break;case`html`:n+=t.html(a);break;case`link`:n+=t.link(a);break;case`image`:n+=t.image(a);break;case`checkbox`:n+=t.checkbox(a);break;case`strong`:n+=t.strong(a);break;case`em`:n+=t.em(a);break;case`codespan`:n+=t.codespan(a);break;case`br`:n+=t.br(a);break;case`del`:n+=t.del(a);break;case`text`:n+=t.text(a);break;default:{let e=`Token with "`+a.type+`" type was not found.`;if(this.options.silent)return console.error(e),``;throw Error(e)}}}return n}},Qn=class{options;block;constructor(e){this.options=e||I}static passThroughHooks=new Set([`preprocess`,`postprocess`,`processAllTokens`,`emStrongMask`]);static passThroughHooksRespectAsync=new Set([`preprocess`,`postprocess`,`processAllTokens`]);preprocess(e){return e}postprocess(e){return e}processAllTokens(e){return e}emStrongMask(e){return e}provideLexer(e=this.block){return e?Y.lex:Y.lexInline}provideParser(e=this.block){return e?X.parse:X.parseInline}};function Z(e,t){if(Array.isArray(t))for(let n=0;n<t.length;n++)e.push(t[n]);else e.push(t)}var Q=new class{defaults=Ct();options=this.setOptions;parse=this.parseMarkdown(!0);parseInline=this.parseMarkdown(!1);Parser=X;Renderer=Xn;TextRenderer=Zn;Lexer=Y;Tokenizer=Yn;Hooks=Qn;constructor(...e){this.use(...e)}walkTokens(e,t){let n=[];for(let r of e)switch(Z(n,t.call(this,r)),r.type){case`table`:{let e=r;for(let r of e.header)Z(n,this.walkTokens(r.tokens,t));for(let r of e.rows)for(let e of r)Z(n,this.walkTokens(e.tokens,t));break}case`list`:{let e=r;Z(n,this.walkTokens(e.items,t));break}default:{let e=r;this.defaults.extensions?.childTokens?.[e.type]?this.defaults.extensions.childTokens[e.type].forEach(r=>{let i=e[r].flat(1/0);Z(n,this.walkTokens(i,t))}):e.tokens&&Z(n,this.walkTokens(e.tokens,t))}}return n}use(...e){let t=this.defaults.extensions||{renderers:{},childTokens:{}};return e.forEach(e=>{let n={...e};if(n.async=this.defaults.async||n.async||!1,e.extensions&&(e.extensions.forEach(e=>{if(!e.name)throw Error(`extension name required`);if(`renderer`in e){let n=t.renderers[e.name];n?t.renderers[e.name]=function(...t){let r=e.renderer.apply(this,t);return r===!1&&(r=n.apply(this,t)),r}:t.renderers[e.name]=e.renderer}if(`tokenizer`in e){if(!e.level||e.level!==`block`&&e.level!==`inline`)throw Error(`extension level must be 'block' or 'inline'`);let n=t[e.level];n?n.unshift(e.tokenizer):t[e.level]=[e.tokenizer],e.start&&(e.level===`block`?t.startBlock?t.startBlock.push(e.start):t.startBlock=[e.start]:e.level===`inline`&&(t.startInline?t.startInline.push(e.start):t.startInline=[e.start]))}`childTokens`in e&&e.childTokens&&(t.childTokens[e.name]=e.childTokens)}),n.extensions=t),e.renderer){let t=this.defaults.renderer||new Xn(this.defaults);for(let n in e.renderer){if(!(n in t))throw Error(`renderer '${n}' does not exist`);if([`options`,`parser`].includes(n))continue;let r=n,i=e.renderer[r],a=t[r];t[r]=(...e)=>{let n=i.apply(t,e);return n===!1&&(n=a.apply(t,e)),n||``}}n.renderer=t}if(e.tokenizer){let t=this.defaults.tokenizer||new Yn(this.defaults);for(let n in e.tokenizer){if(!(n in t))throw Error(`tokenizer '${n}' does not exist`);if([`options`,`rules`,`lexer`].includes(n))continue;let r=n,i=e.tokenizer[r],a=t[r];t[r]=(...e)=>{let n=i.apply(t,e);return n===!1&&(n=a.apply(t,e)),n}}n.tokenizer=t}if(e.hooks){let t=this.defaults.hooks||new Qn;for(let n in e.hooks){if(!(n in t))throw Error(`hook '${n}' does not exist`);if([`options`,`block`].includes(n))continue;let r=n,i=e.hooks[r],a=t[r];t[r]=Qn.passThroughHooks.has(n)?e=>{if(this.defaults.async&&Qn.passThroughHooksRespectAsync.has(n))return(async()=>{let n=await i.call(t,e);return a.call(t,n)})();let r=i.call(t,e);return a.call(t,r)}:(...e)=>{if(this.defaults.async)return(async()=>{let n=await i.apply(t,e);return n===!1&&(n=await a.apply(t,e)),n})();let n=i.apply(t,e);return n===!1&&(n=a.apply(t,e)),n}}n.hooks=t}if(e.walkTokens){let t=this.defaults.walkTokens,r=e.walkTokens;n.walkTokens=function(e){let n=[];return n.push(r.call(this,e)),t&&Z(n,t.call(this,e)),n}}this.defaults={...this.defaults,...n}}),this}setOptions(e){return this.defaults={...this.defaults,...e},this}lexer(e,t){return Y.lex(e,t??this.defaults)}parser(e,t){return X.parse(e,t??this.defaults)}parseMarkdown(e){return(t,n)=>{let r={...n},i={...this.defaults,...r},a=this.onError(!!i.silent,!!i.async);if(this.defaults.async===!0&&r.async===!1)return a(Error(`marked(): The async option was set to true by an extension. Remove async: false from the parse options object to return a Promise.`));if(typeof t>`u`||t===null)return a(Error(`marked(): input parameter is undefined or null`));if(typeof t!=`string`)return a(Error(`marked(): input parameter is of type `+Object.prototype.toString.call(t)+`, string expected`));if(i.hooks&&(i.hooks.options=i,i.hooks.block=e),i.async)return(async()=>{let n=i.hooks?await i.hooks.preprocess(t):t,r=await(i.hooks?await i.hooks.provideLexer(e):e?Y.lex:Y.lexInline)(n,i),a=i.hooks?await i.hooks.processAllTokens(r):r;i.walkTokens&&await Promise.all(this.walkTokens(a,i.walkTokens));let o=await(i.hooks?await i.hooks.provideParser(e):e?X.parse:X.parseInline)(a,i);return i.hooks?await i.hooks.postprocess(o):o})().catch(a);try{i.hooks&&(t=i.hooks.preprocess(t));let n=(i.hooks?i.hooks.provideLexer(e):e?Y.lex:Y.lexInline)(t,i);i.hooks&&(n=i.hooks.processAllTokens(n)),i.walkTokens&&this.walkTokens(n,i.walkTokens);let r=(i.hooks?i.hooks.provideParser(e):e?X.parse:X.parseInline)(n,i);return i.hooks&&(r=i.hooks.postprocess(r)),r}catch(e){return a(e)}}}onError(e,t){return n=>{if(n.message+=`
-Please report this to https://github.com/markedjs/marked.`,e){let e=`<p>An error occurred:</p><pre>`+q(n.message+``,!0)+`</pre>`;return t?Promise.resolve(e):e}if(t)return Promise.reject(n);throw n}}};function $(e,t){return Q.parse(e,t)}$.options=$.setOptions=function(e){return Q.setOptions(e),$.defaults=Q.defaults,wt($.defaults),$},$.getDefaults=Ct,$.defaults=I;function $n(...e){return Q.use(...e),$.defaults=Q.defaults,wt($.defaults),$}$.use=$n,$.walkTokens=function(e,t){return Q.walkTokens(e,t)},$.parseInline=Q.parseInline,$.Parser=X,$.parser=X.parse,$.Renderer=Xn,$.TextRenderer=Zn,$.Lexer=Y,$.lexer=Y.lex,$.Tokenizer=Yn,$.Hooks=Qn,$.parse=$,$.options,$.setOptions,$.walkTokens,$.parseInline,X.parse,Y.lex;var er=[{id:`guides`,label:`App Guides`,icon:`menu_book`},{id:`math`,label:`Quilt Math`,icon:`calculate`},{id:`techniques`,label:`Techniques`,icon:`content_cut`},{id:`resources`,label:`Resources`,icon:`link`}],tr=e=>e.toLowerCase().replace(/[^a-z0-9]+/g,`-`).replace(/^-|-$/g,``);function nr(e){let t=/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(e),n={};for(let e of(t?.[1]??``).split(/\r?\n/)){let t=e.indexOf(`:`);t>0&&(n[e.slice(0,t).trim()]=e.slice(t+1).trim())}return{meta:n,body:t?e.slice(t[0].length):e}}function rr(e){let t=[],n=[],r=()=>{let e=n.join(`
-`).trim();if(!e)return;let r=$.parse(e,{async:!1,gfm:!0}).replace(/<h2>(.*?)<\/h2>/g,(e,t)=>`<h2 id="${tr(t)}">${t}</h2>`);t.push({kind:`html`,html:r.replace(/<a href="(https?:[^"]*)"/g,`<a href="$1" target="_blank" rel="noopener noreferrer"`)}),n=[]};for(let i of e.split(/\r?\n/)){let e=/^::calc\s+(\S+)\s*$/.exec(i),a=/^::diagram\s+(\S+)\s*$/.exec(i);if(a){let e=/<svg[\s\S]*?<\/svg>/.exec(ar[`./${a[1]}.md`]??``)?.[0];n.push(e??`<p>Missing diagram ${a[1]}</p>`)}else e?(r(),t.push({kind:`calc`,name:e[1]})):n.push(i)}return r(),t}function ir(e){let t=[...e.matchAll(/^## (.+)$/gm)].map(e=>({id:tr(e[1]),title:e[1]}));return t.length>1?t:void 0}var ar=Object.assign({"./guides/block-colorings.md":Ke,"./guides/colors-and-palettes.md":qe,"./guides/credits-and-licenses.md":Je,"./guides/designing-a-quilt.md":Ye,"./guides/drawing-blocks.md":Xe,"./guides/getting-started.md":Ze,"./guides/libraries.md":Qe,"./guides/printing.md":$e,"./guides/settings.md":et,"./guides/sketchbook.md":tt,"./math/backing.md":nt,"./math/binding.md":rt,"./math/borders.md":it,"./math/flying-geese.md":at,"./math/half-square-triangles.md":ot,"./math/on-point-settings.md":st,"./math/patches-from-yardage.md":ct,"./math/quarter-square-triangles.md":lt,"./math/rounding.md":ut,"./math/seam-allowance.md":dt,"./math/square-in-a-square.md":ft,"./math/squares-and-rectangles.md":pt,"./resources/calculators.md":mt,"./resources/directories.md":ht,"./resources/learning-to-quilt.md":gt,"./resources/licenses.md":_t,"./resources/rrquilts-project.md":vt,"./techniques/continuous-binding.md":yt,"./techniques/flying-geese-units.md":bt,"./techniques/hst-units.md":xt,"./techniques/square-in-a-square-units.md":St}),or=Object.entries(ar).map(([e,t])=>{let[,n,r]=/^\.\/([^/]+)\/([^/]+)\.md$/.exec(e),{meta:i,body:a}=nr(t);return{section:n,id:r,title:i.title??r,order:Number(i.order??100),summary:i.summary??``,text:`${i.title??``} ${i.summary??``} ${a}`.toLowerCase(),segments:rr(a),toc:ir(a),cards:i.cards===`true`}}).sort((e,t)=>e.order-t.order||e.title.localeCompare(t.title)),sr=e=>or.filter(t=>t.section===e),cr=(e,t)=>or.find(n=>n.section===e&&n.id===t);function lr(e,t){let n=t.toLowerCase().split(/\s+/).filter(Boolean);return e.filter(e=>n.every(t=>e.text.includes(t)))}var ur={class:`row no-wrap`,style:{gap:`24px`}},dr={key:0,class:`topics column`,"aria-label":`Topics`},fr={key:0,class:`text-caption text-grey-7`},pr={key:0,class:`text-grey-7 q-pa-sm`},mr={class:`topic-title`},hr=[`innerHTML`],gr={key:2,class:`toc`,"aria-label":`On this page`},_r=[`href`,`onClick`],vr={key:3,class:`toc`,"aria-hidden":`true`},yr={key:4,class:`col text-grey-7 q-pt-sm`},br=E(w({__name:`HelpPage`,setup(n){let s=pe(),p=e(),C=ae(),w=oe(),E=h(()=>C.params.section),ie=h(()=>er.find(e=>e.id===E.value)?.label??``),D=h(()=>C.params.topic??``),ue=h(()=>sr(E.value)),O=h(()=>D.value?cr(E.value,D.value):s.screen.gt.sm?ue.value[0]:void 0),me=h(()=>D.value&&!O.value?D.value:``),k=ee(``);a(E,()=>k.value=``);let xe=h(()=>lr(ue.value,k.value??``)),Se={"file-access":t},Ce=e=>e.replace(/\{\{yours:([\w-]+)\}\}/g,(e,t)=>Se[t]?Se[t]()?`yours does`:`yours doesn't`:e),A=h(()=>{let e=[{card:!1,segs:[]}];for(let t of O.value?.segments??[])if(t.kind!==`html`)e.at(-1).segs.push(t);else for(let n of t.html.split(/(?=<h2[ >])/))n.startsWith(`<h2`)&&e.push({card:!0,segs:[]}),n.trim()&&e.at(-1).segs.push({kind:`html`,html:n});return e.filter(e=>e.segs.length)}),j=e=>document.getElementById(e)?.scrollIntoView({behavior:`smooth`});function we(e){let t=e.target.closest(`.help-md a`),n=t?.getAttribute(`href`);n?.startsWith(`/`)&&!t?.target&&(e.preventDefault(),w.push(n))}return(e,t)=>{let n=c(`router-link`);return o(),b(be,{padding:``,class:`help`},{default:d(()=>[t[5]||=x(`h1`,{class:`page-title q-mb-sm`},`Help`,-1),m(ye,{"model-value":E.value,dense:``,"no-caps":``,align:`left`,class:`q-mb-md`,"onUpdate:modelValue":t[0]||=e=>g(w).push(`/help/${e}`)},{default:d(()=>[(o(!0),_(S,null,l(g(er),e=>(o(),b(ve,{key:e.id,name:e.id,icon:e.icon,label:e.label},null,8,[`name`,`icon`,`label`]))),128))]),_:1},8,[`model-value`]),x(`div`,ur,[!O.value||g(s).screen.gt.sm?(o(),_(`nav`,dr,[m(se,{modelValue:k.value,"onUpdate:modelValue":t[1]||=e=>k.value=e,dense:``,outlined:``,clearable:``,placeholder:`Search ${ie.value}`,class:`q-mb-sm`},{prepend:d(()=>[m(re,{name:`search`})]),_:1},8,[`modelValue`,`placeholder`]),(o(!0),_(S,null,l(xe.value,e=>(o(),b(n,{key:e.id,to:`/help/${E.value}/${e.id}`,class:i([`topic-link`,{active:e.id===O.value?.id}])},{default:d(()=>[x(`div`,null,y(e.title),1),e.summary?(o(),_(`div`,fr,y(e.summary),1)):v(``,!0)]),_:2},1032,[`to`,`class`]))),128)),xe.value.length?v(``,!0):(o(),_(`div`,pr,`No topics match “`+y(k.value)+`”.`,1))])):v(``,!0),O.value?(o(),_(`article`,{key:1,class:i([`col content`,{"is-dark":g(s).dark.isActive}]),onClick:we},[g(s).screen.gt.sm?v(``,!0):(o(),_(`div`,{key:0,class:i([`mobile-bar row items-center justify-between q-mb-sm`,{reverse:g(p).settings.sidesSwapped}]),style:r({background:g(s).dark.isActive?`var(--q-dark-page)`:`#fff`})},[m(ne,{flat:``,dense:``,"no-caps":``,icon:`arrow_back`,label:ie.value,to:`/help/${E.value}`},null,8,[`label`,`to`]),O.value.toc?(o(),b(ne,{key:0,flat:``,dense:``,round:``,icon:`menu`,"aria-label":`On this page`},{default:d(()=>[m(he,null,{default:d(()=>[m(ce,{dense:``,style:{"min-width":`220px`}},{default:d(()=>[m(le,{header:``},{default:d(()=>[...t[2]||=[T(`On this page`,-1)]]),_:1}),(o(!0),_(S,null,l(O.value.toc,e=>f((o(),b(fe,{key:e.id,clickable:``,onClick:t=>j(e.id)},{default:d(()=>[m(de,null,{default:d(()=>[T(y(e.title),1)]),_:2},1024)]),_:2},1032,[`onClick`])),[[ge]])),128))]),_:1})]),_:1})]),_:1})):v(``,!0)],6)),x(`h2`,mr,y(O.value.title),1),(o(!0),_(S,null,l(A.value,(e,t)=>(o(),b(u(O.value.cards&&e.card?`section`:`div`),{key:`${O.value.section}/${O.value.id}/${t}`,class:i({"section-card":O.value.cards&&e.card})},{default:d(()=>[(o(!0),_(S,null,l(e.segs,(e,t)=>(o(),_(S,{key:t},[e.kind===`html`?(o(),_(`div`,{key:0,class:`help-md`,innerHTML:Ce(e.html)},null,8,hr)):(o(),b(Ge,{key:1,name:e.name},null,8,[`name`]))],64))),128))]),_:2},1032,[`class`]))),128))],2)):v(``,!0),O.value?.toc&&g(s).screen.gt.sm?(o(),_(`nav`,gr,[t[3]||=x(`div`,{class:`text-caption text-grey-7 q-mb-xs`},`On this page`,-1),(o(!0),_(S,null,l(O.value.toc,e=>(o(),_(`a`,{key:e.id,href:`#${e.id}`,class:`topic-link`,onClick:te(t=>j(e.id),[`prevent`])},y(e.title),9,_r))),128))])):O.value&&g(s).screen.gt.sm?(o(),_(`div`,vr)):g(s).screen.gt.sm?(o(),_(`div`,yr,[me.value?(o(),b(_e,{key:0,dense:``,class:`bg-warning text-dark q-mb-md`},{default:d(()=>[T(` There's no topic “`+y(me.value)+`” in `+y(ie.value)+`. `,1)]),_:1})):v(``,!0),t[4]||=T(` Pick a topic. `,-1)])):v(``,!0)])]),_:1})}}}),[[`__scopeId`,`data-v-d7726ae5`]]);export{br as default};
+Please report this to https://github.com/markedjs/marked.`,e){let e=`<p>An error occurred:</p><pre>`+q(n.message+``,!0)+`</pre>`;return t?Promise.resolve(e):e}if(t)return Promise.reject(n);throw n}}};function $(e,t){return Q.parse(e,t)}$.options=$.setOptions=function(e){return Q.setOptions(e),$.defaults=Q.defaults,wt($.defaults),$},$.getDefaults=Ct,$.defaults=I;function $n(...e){return Q.use(...e),$.defaults=Q.defaults,wt($.defaults),$}$.use=$n,$.walkTokens=function(e,t){return Q.walkTokens(e,t)},$.parseInline=Q.parseInline,$.Parser=X,$.parser=X.parse,$.Renderer=Xn,$.TextRenderer=Zn,$.Lexer=Y,$.lexer=Y.lex,$.Tokenizer=Yn,$.Hooks=Qn,$.parse=$,$.options,$.setOptions,$.walkTokens,$.parseInline,X.parse,Y.lex;var er=[{id:`guides`,label:`App Guides`,icon:`menu_book`},{id:`math`,label:`Quilt Math`,icon:`calculate`},{id:`techniques`,label:`Techniques`,icon:`content_cut`},{id:`resources`,label:`Resources`,icon:`link`},{id:`about`,label:`About`,icon:`info`}],tr=e=>e.toLowerCase().replace(/[^a-z0-9]+/g,`-`).replace(/^-|-$/g,``);function nr(e){let t=/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(e),n={};for(let e of(t?.[1]??``).split(/\r?\n/)){let t=e.indexOf(`:`);t>0&&(n[e.slice(0,t).trim()]=e.slice(t+1).trim())}return{meta:n,body:t?e.slice(t[0].length):e}}function rr(e){let t=[],n=[],r=()=>{let e=n.join(`
+`).trim();if(!e)return;let r=$.parse(e,{async:!1,gfm:!0}).replace(/<h2>(.*?)<\/h2>/g,(e,t)=>`<h2 id="${tr(t)}">${t}</h2>`);t.push({kind:`html`,html:r.replace(/<a href="(https?:[^"]*)"/g,`<a href="$1" target="_blank" rel="noopener noreferrer"`)}),n=[]};for(let i of e.split(/\r?\n/)){let e=/^::calc\s+(\S+)\s*$/.exec(i),a=/^::diagram\s+(\S+)\s*$/.exec(i);if(a){let e=/<svg[\s\S]*?<\/svg>/.exec(ar[`./${a[1]}.md`]??``)?.[0];n.push(e??`<p>Missing diagram ${a[1]}</p>`)}else e?(r(),t.push({kind:`calc`,name:e[1]})):n.push(i)}return r(),t}function ir(e){let t=[...e.matchAll(/^## (.+)$/gm)].map(e=>({id:tr(e[1]),title:e[1]}));return t.length>1?t:void 0}var ar=Object.assign({"./about/rrquilts-project.md":Ke,"./guides/block-colorings.md":qe,"./guides/colors-and-palettes.md":Je,"./guides/credits-and-licenses.md":Ye,"./guides/designing-a-quilt.md":Xe,"./guides/drawing-blocks.md":Ze,"./guides/getting-started.md":Qe,"./guides/libraries.md":$e,"./guides/printing.md":et,"./guides/settings.md":tt,"./guides/sketchbook.md":nt,"./math/backing.md":rt,"./math/binding.md":it,"./math/borders.md":at,"./math/flying-geese.md":ot,"./math/half-square-triangles.md":st,"./math/on-point-settings.md":ct,"./math/patches-from-yardage.md":lt,"./math/quarter-square-triangles.md":ut,"./math/rounding.md":dt,"./math/seam-allowance.md":ft,"./math/square-in-a-square.md":pt,"./math/squares-and-rectangles.md":mt,"./resources/calculators.md":ht,"./resources/directories.md":gt,"./resources/learning-to-quilt.md":_t,"./resources/licenses.md":vt,"./techniques/continuous-binding.md":yt,"./techniques/flying-geese-units.md":bt,"./techniques/hst-units.md":xt,"./techniques/square-in-a-square-units.md":St}),or=Object.entries(ar).map(([e,t])=>{let[,n,r]=/^\.\/([^/]+)\/([^/]+)\.md$/.exec(e),{meta:i,body:a}=nr(t);return{section:n,id:r,title:i.title??r,order:Number(i.order??100),summary:i.summary??``,text:`${i.title??``} ${i.summary??``} ${a}`.toLowerCase(),segments:rr(a),toc:ir(a),cards:i.cards===`true`}}).sort((e,t)=>e.order-t.order||e.title.localeCompare(t.title)),sr=e=>or.filter(t=>t.section===e),cr=(e,t)=>or.find(n=>n.section===e&&n.id===t);function lr(e,t){let n=t.toLowerCase().split(/\s+/).filter(Boolean);return e.filter(e=>n.every(t=>e.text.includes(t)))}var ur={class:`row no-wrap`,style:{gap:`24px`}},dr={key:0,class:`topics column`,"aria-label":`Topics`},fr={key:0,class:`text-caption text-grey-7`},pr={key:0,class:`text-grey-7 q-pa-sm`},mr={class:`topic-title`},hr=[`innerHTML`],gr={key:2,class:`toc`,"aria-label":`On this page`},_r=[`href`,`onClick`],vr={key:3,class:`toc`,"aria-hidden":`true`},yr={key:4,class:`col text-grey-7 q-pt-sm`},br=E(w({__name:`HelpPage`,setup(n){let s=pe(),p=e(),C=ae(),w=oe(),E=h(()=>C.params.section),ie=h(()=>er.find(e=>e.id===E.value)?.label??``),D=h(()=>C.params.topic??``),ue=h(()=>sr(E.value)),O=h(()=>D.value?cr(E.value,D.value):s.screen.gt.sm?ue.value[0]:void 0),me=h(()=>D.value&&!O.value?D.value:``),k=ee(``);a(E,()=>k.value=``);let xe=h(()=>lr(ue.value,k.value??``)),Se={"file-access":t},Ce=e=>e.replace(/\{\{yours:([\w-]+)\}\}/g,(e,t)=>Se[t]?Se[t]()?`yours does`:`yours doesn't`:e),A=h(()=>{let e=[{card:!1,segs:[]}];for(let t of O.value?.segments??[])if(t.kind!==`html`)e.at(-1).segs.push(t);else for(let n of t.html.split(/(?=<h2[ >])/))n.startsWith(`<h2`)&&e.push({card:!0,segs:[]}),n.trim()&&e.at(-1).segs.push({kind:`html`,html:n});return e.filter(e=>e.segs.length)}),j=e=>document.getElementById(e)?.scrollIntoView({behavior:`smooth`});function we(e){let t=e.target.closest(`.help-md a`),n=t?.getAttribute(`href`);n?.startsWith(`/`)&&!t?.target&&(e.preventDefault(),w.push(n))}return(e,t)=>{let n=c(`router-link`);return o(),b(be,{padding:``,class:`help`},{default:d(()=>[t[5]||=x(`h1`,{class:`page-title q-mb-sm`},`Help`,-1),m(ye,{"model-value":E.value,dense:``,"no-caps":``,align:`left`,class:`q-mb-md`,"onUpdate:modelValue":t[0]||=e=>g(w).push(`/help/${e}`)},{default:d(()=>[(o(!0),_(S,null,l(g(er),e=>(o(),b(ve,{key:e.id,name:e.id,icon:e.icon,label:e.label},null,8,[`name`,`icon`,`label`]))),128))]),_:1},8,[`model-value`]),x(`div`,ur,[!O.value||g(s).screen.gt.sm?(o(),_(`nav`,dr,[m(se,{modelValue:k.value,"onUpdate:modelValue":t[1]||=e=>k.value=e,dense:``,outlined:``,clearable:``,placeholder:`Search ${ie.value}`,class:`q-mb-sm`},{prepend:d(()=>[m(re,{name:`search`})]),_:1},8,[`modelValue`,`placeholder`]),(o(!0),_(S,null,l(xe.value,e=>(o(),b(n,{key:e.id,to:`/help/${E.value}/${e.id}`,class:i([`topic-link`,{active:e.id===O.value?.id}])},{default:d(()=>[x(`div`,null,y(e.title),1),e.summary?(o(),_(`div`,fr,y(e.summary),1)):v(``,!0)]),_:2},1032,[`to`,`class`]))),128)),xe.value.length?v(``,!0):(o(),_(`div`,pr,`No topics match “`+y(k.value)+`”.`,1))])):v(``,!0),O.value?(o(),_(`article`,{key:1,class:i([`col content`,{"is-dark":g(s).dark.isActive}]),onClick:we},[g(s).screen.gt.sm?v(``,!0):(o(),_(`div`,{key:0,class:i([`mobile-bar row items-center justify-between q-mb-sm`,{reverse:g(p).settings.sidesSwapped}]),style:r({background:g(s).dark.isActive?`var(--q-dark-page)`:`#fff`})},[m(ne,{flat:``,dense:``,"no-caps":``,icon:`arrow_back`,label:ie.value,to:`/help/${E.value}`},null,8,[`label`,`to`]),O.value.toc?(o(),b(ne,{key:0,flat:``,dense:``,round:``,icon:`menu`,"aria-label":`On this page`},{default:d(()=>[m(he,null,{default:d(()=>[m(ce,{dense:``,style:{"min-width":`220px`}},{default:d(()=>[m(le,{header:``},{default:d(()=>[...t[2]||=[T(`On this page`,-1)]]),_:1}),(o(!0),_(S,null,l(O.value.toc,e=>f((o(),b(fe,{key:e.id,clickable:``,onClick:t=>j(e.id)},{default:d(()=>[m(de,null,{default:d(()=>[T(y(e.title),1)]),_:2},1024)]),_:2},1032,[`onClick`])),[[ge]])),128))]),_:1})]),_:1})]),_:1})):v(``,!0)],6)),x(`h2`,mr,y(O.value.title),1),(o(!0),_(S,null,l(A.value,(e,t)=>(o(),b(u(O.value.cards&&e.card?`section`:`div`),{key:`${O.value.section}/${O.value.id}/${t}`,class:i({"section-card":O.value.cards&&e.card})},{default:d(()=>[(o(!0),_(S,null,l(e.segs,(e,t)=>(o(),_(S,{key:t},[e.kind===`html`?(o(),_(`div`,{key:0,class:`help-md`,innerHTML:Ce(e.html)},null,8,hr)):(o(),b(Ge,{key:1,name:e.name},null,8,[`name`]))],64))),128))]),_:2},1032,[`class`]))),128))],2)):v(``,!0),O.value?.toc&&g(s).screen.gt.sm?(o(),_(`nav`,gr,[t[3]||=x(`div`,{class:`text-caption text-grey-7 q-mb-xs`},`On this page`,-1),(o(!0),_(S,null,l(O.value.toc,e=>(o(),_(`a`,{key:e.id,href:`#${e.id}`,class:`topic-link`,onClick:te(t=>j(e.id),[`prevent`])},y(e.title),9,_r))),128))])):O.value&&g(s).screen.gt.sm?(o(),_(`div`,vr)):g(s).screen.gt.sm?(o(),_(`div`,yr,[me.value?(o(),b(_e,{key:0,dense:``,class:`bg-warning text-dark q-mb-md`},{default:d(()=>[T(` There's no topic “`+y(me.value)+`” in `+y(ie.value)+`. `,1)]),_:1})):v(``,!0),t[4]||=T(` Pick a topic. `,-1)])):v(``,!0)])]),_:1})}}}),[[`__scopeId`,`data-v-d7726ae5`]]);export{br as default};

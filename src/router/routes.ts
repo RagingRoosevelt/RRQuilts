@@ -37,8 +37,10 @@ const routes: RouteRecordRaw[] = [
   { path: '/libraries', component: () => import('@/pages/LibrariesPage.vue') },
   // Help (spec 013): /help/<section>[/<topic>]; /help opens Guides.
   { path: '/help', redirect: '/help/guides' },
+  // Moved to the About tab.
+  { path: '/help/resources/rrquilts-project', redirect: '/help/about/rrquilts-project' },
   {
-    path: '/help/:section(guides|math|techniques|resources)/:topic?',
+    path: '/help/:section(guides|math|techniques|resources|about)/:topic?',
     component: () => import('@/pages/HelpPage.vue'),
   },
   // Settings is a fly-over (MainLayout); old links open it over Home.

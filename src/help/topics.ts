@@ -17,6 +17,7 @@ export const SECTIONS = [
   { id: 'math', label: 'Quilt Math', icon: 'calculate' },
   { id: 'techniques', label: 'Techniques', icon: 'content_cut' },
   { id: 'resources', label: 'Resources', icon: 'link' },
+  { id: 'about', label: 'About', icon: 'info' },
 ] as const;
 export type SectionId = (typeof SECTIONS)[number]['id'];
 
