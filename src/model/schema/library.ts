@@ -77,6 +77,8 @@ const head = {
   credits: Type.Optional(Type.Array(LibraryCredit)),
   categories: Type.Array(Category),
   repositories: Type.Optional(Type.Array(RepositoryRef)),
+  /** The library a pack belongs to (spec 014: a library is a set of switchable packs). */
+  library: Type.Optional(Type.Object({ id: Type.String(), name: Type.String() })),
 };
 
 /** The envelope as read from a file: items and embedded packs are checked one by one. */

@@ -6,6 +6,7 @@ import { builtinDoc, builtinLibrary } from '@/content/starter';
 import { emptyPersonal, lookupOf, withSources, type LibraryView } from '@/model/library';
 import type { LibraryDoc } from '@/model/schema/library';
 import { deletePack, loadLibraries, putMine, putPack } from '@/storage/libraries';
+import { useSettingsStore } from './settings';
 
 export const useLibraryStore = defineStore('library', () => {
   const builtin = shallowRef<LibraryDoc | null>(null);
@@ -24,11 +25,17 @@ export const useLibraryStore = defineStore('library', () => {
       .catch(() => void (stored.value = false)),
   ]).then(() => undefined);
 
-  const views = computed<LibraryView[]>(() =>
+  /** Every library on the device (the Libraries page lists them all). */
+  const allViews = computed<LibraryView[]>(() =>
     [mine.value, ...packs.value, builtin.value]
       .filter((d): d is LibraryDoc => !!d)
       .map((doc) => ({ doc, ...withSources(doc) })),
   );
+  /** Libraries in use: packs switched off (spec 014) are left out of trays and pickers. */
+  const views = computed<LibraryView[]>(() => {
+    const off = new Set(useSettingsStore().settings.packsOff);
+    return allViews.value.filter((v) => !off.has(v.doc.id));
+  });
   const lookup = computed(() => lookupOf(views.value));
   /** Every library item, each id once (the one projects get). */
   const items = computed(() => {
@@ -77,6 +84,7 @@ export const useLibraryStore = defineStore('library', () => {
     stored,
     loaded,
     views,
+    allViews,
     lookup,
     items,
     ensureMine,

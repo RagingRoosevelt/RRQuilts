@@ -51,21 +51,54 @@
           default-opened
           dense
           label="Libraries"
-          :caption="`${library.views.length - hiddenLibs.length} of ${library.views.length}`"
+          :caption="`${library.allViews.length - hiddenLibs.length} of ${library.allViews.length}`"
           class="lib-picker rounded-borders"
         >
           <div class="lib-checks column no-wrap q-px-sm">
-            <q-checkbox
-              v-for="v in library.views"
-              :key="v.doc.id"
-              dense
-              class="q-py-xs"
-              :model-value="!hiddenLibs.includes(v.doc.id)"
-              @update:model-value="toggleLib(v.doc.id)"
-            >
-              {{ v.doc.name }}
-              <div class="text-caption text-grey-7">{{ kindLabel(v) }} · {{ counts(v) }}</div>
-            </q-checkbox>
+            <template v-for="g in libGroups" :key="g.key">
+              <q-checkbox
+                v-if="!g.packs"
+                dense
+                class="q-py-xs"
+                :model-value="!hiddenLibs.includes(g.view.doc.id)"
+                @update:model-value="toggleLib(g.view.doc.id)"
+              >
+                {{ g.view.doc.name }}
+                <div class="text-caption text-grey-7">
+                  {{ kindLabel(g.view) }} · {{ counts(g.view) }}
+                </div>
+              </q-checkbox>
+              <!-- A library of packs (spec 014): each pack switched on or off for use. -->
+              <q-expansion-item
+                v-else
+                dense
+                :label="g.name"
+                :caption="`${g.packs.filter((v) => packOn(v.doc.id)).length} of ${g.packs.length} packs on`"
+                header-class="q-px-xs"
+              >
+                <div
+                  v-for="v in g.packs"
+                  :key="v.doc.id"
+                  class="row items-center no-wrap"
+                  style="gap: 4px"
+                >
+                  <q-toggle
+                    dense
+                    size="sm"
+                    :model-value="packOn(v.doc.id)"
+                    :aria-label="`Use ${v.doc.name}`"
+                    @update:model-value="(on: boolean) => setPackOn(v.doc.id, on)"
+                  />
+                  <a
+                    href="#"
+                    class="pack-link ellipsis"
+                    :class="{ 'text-grey-6': !packOn(v.doc.id) }"
+                    @click.prevent="select(v.doc.id)"
+                    >{{ v.doc.name }}</a
+                  >
+                </div>
+              </q-expansion-item>
+            </template>
           </div>
         </q-expansion-item>
         <SlidePicker v-model="settings.settings.libraryType" :options="TYPE_OPTIONS" label="Type" />
@@ -263,7 +296,9 @@
               >
                 <legend class="ellipsis">
                   {{ c.notecard.name }}
-                  <span class="text-caption text-grey-7">· {{ c.colors.length }}</span>
+                  <span class="text-caption text-grey-7"
+                    >· {{ c.colors.length + (c.fabrics?.length ?? 0) }}</span
+                  >
                 </legend>
                 <button class="strip col" @click="previewing = { lib: g.v.doc.id, id: c.id }">
                   <span
@@ -272,6 +307,14 @@
                     class="chip"
                     :style="{ background: css(x) }"
                     :title="x.notecard.name"
+                  />
+                  <!-- Fabrics (spec 014): the print over its average color. -->
+                  <span
+                    v-for="x in c.fabrics ?? []"
+                    :key="x.id"
+                    class="chip"
+                    :style="swatchStyle(x)"
+                    :title="x.notecard.name + (x.approximate ? ' (size ≈)' : '')"
                   />
                 </button>
                 <q-btn flat round dense icon="more_vert" aria-label="Actions">
@@ -672,6 +715,8 @@ import type {
 import type { Color } from '@/model/schema/palette';
 import { blockThumbnail } from '@/render/thumbnail';
 import { exportFile, pickFile } from '@/storage/files';
+import { isZip, readLibraryZip } from '@/storage/library-zip';
+import { retryMissing, swatchStyle } from '@/render/fabric-images';
 import { useLibraryStore } from '@/stores/library';
 import { revealSection } from '@/composables/block-sections';
 import { socialsOut } from '@/settings/socials';
@@ -708,7 +753,7 @@ const select = (id: string) => {
   for (const k of ['cats', 'tags', 'styles'] as const) filters[k] = [];
   search.value = '';
   hiddenLibs.value =
-    id === 'mine' ? [] : library.views.map((v) => v.doc.id).filter((x) => x !== id);
+    id === 'mine' ? [] : library.allViews.map((v) => v.doc.id).filter((x) => x !== id);
 };
 /** Unchecked libraries; libraries installed later start checked. */
 const hiddenLibs = ref<string[]>([]);
@@ -716,6 +761,35 @@ const toggleLib = (id: string) =>
   (hiddenLibs.value = hiddenLibs.value.includes(id)
     ? hiddenLibs.value.filter((x) => x !== id)
     : [...hiddenLibs.value, id]);
+/** The library list: single libraries, and libraries of packs grouped (spec 014). */
+const libGroups = computed(() => {
+  const out: (
+    | { key: string; view: LibraryView; packs?: undefined }
+    | { key: string; name: string; packs: LibraryView[] }
+  )[] = [];
+  const groups = new Map<string, { key: string; name: string; packs: LibraryView[] }>();
+  for (const v of library.allViews) {
+    const lib = v.doc.library;
+    if (!lib) {
+      out.push({ key: v.doc.id, view: v });
+      continue;
+    }
+    let g = groups.get(lib.id);
+    if (!g) {
+      groups.set(lib.id, (g = { key: `lib:${lib.id}`, name: lib.name, packs: [] }));
+      out.push(g);
+    }
+    g.packs.push(v);
+  }
+  return out;
+});
+const packOn = (id: string) => !settings.settings.packsOff.includes(id);
+function setPackOn(id: string, on: boolean) {
+  const off = settings.settings.packsOff.filter((x) => x !== id);
+  settings.settings.packsOff = on ? off : [...off, id];
+  if (on) retryMissing();
+}
+
 const isPack = (v: LibraryView) => library.packs.some((p) => p.id === v.doc.id);
 const kindLabel = (v: LibraryView) =>
   v.doc.kind === 'personal' ? 'Yours' : v.doc === library.builtin ? 'Built-in' : 'Pack';
@@ -744,7 +818,9 @@ const filtering = computed(
     !!hiddenLibs.value.length ||
     [filters.cats, filters.tags, filters.styles].some((f) => f.length),
 );
-const inScope = computed(() => library.views.filter((v) => !hiddenLibs.value.includes(v.doc.id)));
+const inScope = computed(() =>
+  library.allViews.filter((v) => !hiddenLibs.value.includes(v.doc.id)),
+);
 const values = (f: 'tags' | 'styles') =>
   [...new Set(inScope.value.flatMap((v) => v.doc.items.flatMap((i) => i.data.notecard[f] ?? [])))]
     .sort()
@@ -827,7 +903,7 @@ const previewing = ref<{ lib: string; id: string } | null>(null);
 /** The preview's coloring (undefined: the block's first); reset when the preview changes. */
 const previewColoring = ref<string>();
 watch(previewing, () => (previewColoring.value = undefined));
-const previewLib = computed(() => library.views.find((v) => v.doc.id === previewing.value?.lib));
+const previewLib = computed(() => library.allViews.find((v) => v.doc.id === previewing.value?.lib));
 const previewMine = computed(() => previewLib.value?.doc.kind === 'personal');
 const previewBlock = computed(() =>
   previewLib.value?.blocks.find((b) => b.id === previewing.value?.id),
@@ -867,7 +943,7 @@ const tagOptions = ref<string[]>([]);
 function filterTags(f: 'tags' | 'styles', typed: string, done: (fn: () => void) => void) {
   const q = typed.trim().toLowerCase();
   const all = new Set(
-    library.views.flatMap((v) => v.doc.items.flatMap((i) => i.data.notecard[f] ?? [])),
+    library.allViews.flatMap((v) => v.doc.items.flatMap((i) => i.data.notecard[f] ?? [])),
   );
   done(() => (tagOptions.value = [...all].filter((t) => t.toLowerCase().includes(q)).sort()));
 }
@@ -994,7 +1070,9 @@ const formatOf = (text: string): unknown => {
 async function importFile() {
   const file = await pickFile(['rrqlib', 'rrqplt']);
   if (!file) return;
-  const text = await file.text();
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (isZip(bytes)) return importZip(bytes);
+  const text = new TextDecoder().decode(bytes);
   if (formatOf(text) === 'rrqplt') return importCollection(text);
   const r = parseLibrary(text);
   if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
@@ -1006,6 +1084,37 @@ async function importFile() {
       packs: Object.fromEntries((r.doc.packs ?? []).map((p) => [p.id, 'keep' as const])),
     };
   } else installPack(r.doc, r.skipped);
+}
+
+/** A zipped library (spec 014): every pack in it, new or newer, installed at once. */
+async function importZip(bytes: Uint8Array<ArrayBuffer>) {
+  const busy = $q.notify({ message: 'Reading the library…', timeout: 0, spinner: true });
+  try {
+    const r = await readLibraryZip(bytes);
+    let added = 0;
+    let updated = 0;
+    for (const p of r.packs) {
+      const have = library.packs.find((x) => x.id === p.id);
+      if (have && have.revision >= p.revision) continue;
+      await library.savePack(p);
+      if (have) updated++;
+      else added++;
+    }
+    retryMissing();
+    busy();
+    $q.notify({
+      type: r.skipped.length ? 'warning' : 'positive',
+      message:
+        `${r.library?.name ?? 'Library'}: ${added} pack${added === 1 ? '' : 's'} added` +
+        (updated ? `, ${updated} updated` : '') +
+        (r.skipped.length ? `. Skipped: ${r.skipped.join('; ')}` : '.'),
+      timeout: r.skipped.length ? 0 : 3000,
+      ...(r.skipped.length ? { actions: [{ label: 'OK', color: 'white' }] } : {}),
+    });
+  } catch (e) {
+    busy();
+    $q.notify({ type: 'negative', message: e instanceof Error ? e.message : String(e) });
+  }
 }
 
 function importCollection(text: string) {
@@ -1303,5 +1412,13 @@ function downloadPack() {
 }
 .skin.active {
   border-color: var(--q-primary);
+}
+.pack-link {
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+}
+.pack-link:hover {
+  text-decoration: underline;
 }
 </style>

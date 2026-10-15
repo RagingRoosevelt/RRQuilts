@@ -44,6 +44,8 @@ export interface Settings {
   imageSize: 256 | 512;
   /** Size your own fabric images are saved at in projects and backups. */
   saveSize: 256 | 512;
+  /** Installed packs switched off (spec 014): hidden from trays and pickers. */
+  packsOff: string[];
   // Keys added by later app versions are kept as-is.
   [key: string]: unknown;
 }
@@ -86,6 +88,7 @@ export const defaults = (): Settings => ({
   fabricImages: 'standins',
   imageSize: 512,
   saveSize: 512,
+  packsOff: [],
 });
 
 const validators: Partial<Record<string, (v: unknown) => boolean>> = {
@@ -121,6 +124,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   fabricImages: (v) => v === 'standins' || v === 'blank' || v === 'colors',
   imageSize: (v) => v === 256 || v === 512,
   saveSize: (v) => v === 256 || v === 512,
+  packsOff: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   collapsedSections: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
 };
 
