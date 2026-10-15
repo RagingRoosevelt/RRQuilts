@@ -364,8 +364,9 @@ const colorTree = computed(() => {
         items.forEach((x) => shown.add(x.id));
         (c.fabrics ?? []).forEach((x) => shownFabrics.add(x.id));
         return {
-          lib: v.doc.id,
-          libName: v.doc.name,
+          // A library's packs (spec 014) group together under the library's name.
+          lib: v.doc.library?.id ?? v.doc.id,
+          libName: v.doc.library?.name ?? v.doc.name,
           label: c.notecard.name,
           items: recentFirst(items),
           fabrics: c.fabrics ?? [],
