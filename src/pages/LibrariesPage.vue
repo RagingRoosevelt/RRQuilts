@@ -97,11 +97,26 @@
               </span>
             </button>
           </legend>
+          <!-- One search for packs across libraries, above the list (it doesn't scroll away). -->
+          <q-input
+            v-if="collapse.isOpen('sidebar:libraries') && libGroups.some((g) => g.packs)"
+            v-model="packQuery"
+            dense
+            borderless
+            clearable
+            placeholder="Find a pack"
+            class="q-px-sm"
+          >
+            <template #prepend><q-icon name="search" size="xs" /></template>
+          </q-input>
           <div
             v-if="collapse.isOpen('sidebar:libraries')"
             class="lib-checks column no-wrap q-px-sm"
           >
-            <template v-for="g in libGroups" :key="g.key">
+            <div v-if="!shownGroups.length" class="text-caption text-grey-7 q-pa-xs">
+              No packs match.
+            </div>
+            <template v-for="g in shownGroups" :key="g.key">
               <!-- Every library has a switch: off leaves it out of projects' trays and pickers.
                    Its name shows just that library here. -->
               <div
@@ -134,28 +149,13 @@
               <q-expansion-item
                 v-else
                 dense
-                :model-value="!collapsed.includes(g.key)"
+                :model-value="!!packQuery?.trim() || !collapsed.includes(g.key)"
                 @update:model-value="(o: boolean) => setCollapsed(g.key, !o)"
                 :class="{ 'just-added': justAdded === g.key }"
                 :label="g.name"
                 :caption="`${g.packs.filter((p) => p.view && packOn(p.id)).length} of ${g.packs.length} packs on`"
                 header-class="q-px-xs"
               >
-                <!-- Libraries with many packs: find one by name. -->
-                <q-input
-                  v-if="g.packs.length > 8"
-                  v-model="packQuery[g.key]"
-                  dense
-                  borderless
-                  clearable
-                  placeholder="Find a pack"
-                  class="q-px-xs"
-                >
-                  <template #prepend><q-icon name="search" size="xs" /></template>
-                </q-input>
-                <div v-if="!shownPacks(g).length" class="text-caption text-grey-7 q-px-xs">
-                  No packs match.
-                </div>
                 <div
                   v-for="p in shownPacks(g)"
                   :key="p.id"
@@ -1143,12 +1143,18 @@ const libGroups = computed(() => {
   out.sort((a, b) => rank(a) - rank(b) || name(a).localeCompare(name(b)));
   return out;
 });
-/** The sidebar's pack search, per library. */
-const packQuery = reactive<Record<string, string | null>>({});
-const shownPacks = (g: PackGroup) => {
-  const q = packQuery[g.key]?.trim().toLowerCase();
-  return q ? g.packs.filter((p) => p.name.toLowerCase().includes(q)) : g.packs;
-};
+/** The sidebar's pack search: matching packs (and libraries by name); others hide while it's set. */
+const packQuery = ref<string | null>('');
+const packMatch = (name: string) =>
+  name.toLowerCase().includes(packQuery.value?.trim().toLowerCase() ?? '');
+const shownPacks = (g: PackGroup) => g.packs.filter((p) => packMatch(p.name));
+const shownGroups = computed(() =>
+  packQuery.value?.trim()
+    ? libGroups.value.filter((g) =>
+        g.packs ? packMatch(g.name) || shownPacks(g).length : packMatch(g.view.doc.name),
+      )
+    : libGroups.value,
+);
 const packOn = (id: string) => !settings.settings.packsOff.includes(id);
 function setLibOn(id: string, on: boolean) {
   const turn = () => {
@@ -2011,9 +2017,9 @@ function downloadPack() {
   padding: 0 4px;
   font-size: 0.875rem;
 }
-/* At most five libraries show; more scroll. */
+/* About seven libraries show; more scroll. */
 .lib-checks {
-  max-height: calc(5 * 50px);
+  max-height: calc(7.5 * 50px);
   overflow-y: auto;
   overflow-x: hidden;
 }
