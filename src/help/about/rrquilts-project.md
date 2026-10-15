@@ -1,7 +1,7 @@
 ---
 title: RRQuilts project
 order: 10
-summary: What RRQuilts is for, what it promises, and where its source code lives.
+summary: What RRQuilts is for, its principles, and where its source code lives.
 ---
 
 RRQuilts is a quilt design tool that anyone can use for free, on any device with a web browser. It
@@ -9,7 +9,7 @@ aims to be a good place to plan a quilt: draw blocks, lay out quilts, try colors
 prints, and print what you need to cut and sew. It also aims to treat your work, and other people's
 work, with care.
 
-## What it promises
+## Project principles
 
 - **Free, with no account.** There's no sign-up, no subscription, and nothing held back for a paid
   version.
