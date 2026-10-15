@@ -19,15 +19,6 @@
       <q-btn outline no-caps icon="upload_file" label="Import" @click="importFile">
         <q-tooltip>A backup or pack (.rrqlib), or a palette (.rrqplt)</q-tooltip>
       </q-btn>
-      <q-btn
-        outline
-        no-caps
-        icon="cloud_download"
-        label="Add from the web…"
-        @click="Object.assign(adding, { open: true, url: '', ref: '', busy: false })"
-      >
-        <q-tooltip>Connect a library repository by its web address</q-tooltip>
-      </q-btn>
       <q-btn outline no-caps icon="save" label="Back up…" @click="backingUp = { ...ALL }" />
       <q-btn
         v-if="!library.mine"
@@ -239,6 +230,21 @@
             class="q-ma-xs"
             @click="hiddenLibs = []"
           />
+          <!-- Libraries from the web are added here, under the list. -->
+          <q-btn
+            v-if="collapse.isOpen('sidebar:libraries')"
+            flat
+            dense
+            no-caps
+            size="sm"
+            color="primary"
+            icon="cloud_download"
+            label="Add from the web…"
+            class="q-ma-xs"
+            @click="Object.assign(adding, { open: true, url: '', ref: '', busy: false })"
+          >
+            <q-tooltip>Connect a library repository by its web address</q-tooltip>
+          </q-btn>
         </fieldset>
         <SlidePicker v-model="settings.settings.libraryType" :options="TYPE_OPTIONS" label="Type" />
         <template v-for="f in filterFields" :key="f.key">
@@ -1170,7 +1176,11 @@ const libGroups = computed(() => {
     if (c) {
       const g = groups.get(c.index.id);
       if (g) g.bundled = b;
-    } else if (!hidden.some((u) => sameUrl(u, b.url)))
+    } else if (
+      !hidden.some((u) => sameUrl(u, b.url)) &&
+      // Already connected from another address (a mirror): don't list it twice.
+      !library.connections.some((x) => x.index.name === b.name)
+    )
       out.push({ key: `bundled:${b.url}`, name: b.name, packs: [], bundled: b });
   }
   // My library first, then other libraries by name, then the built-in one.
@@ -2102,6 +2112,10 @@ function downloadPack() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+/* A very slight line between libraries. */
+.lib-checks > * + * {
+  border-top: 1px solid rgba(128, 128, 128, 0.15);
 }
 .lib-checks .q-checkbox {
   min-height: 50px;
