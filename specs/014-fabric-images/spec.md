@@ -120,11 +120,11 @@ Images come in sizes for each use, so screens and files stay light and printouts
 **Acceptance Scenarios**:
 
 1. **Given** a library, **Then** each fabric is available at 256 and 512 px (and 1024 px for
-   printing), never larger than its source.
+   printing when its builder opted in), never larger than its source.
 2. **Given** the screen setting Light (256) or Standard (512, default), **Then** the app downloads
    and shows that size.
 3. **Given** a printout with fabrics, **When** online and the library is connected, **Then** the
-   1024 px images for just those fabrics are fetched before the pages build; offline, the largest
+   1024 px images for just those fabrics (if the library has them) are fetched before the pages build; offline, the largest
    size on the device is used and the printout says so.
 4. **Given** the setting **Fabric images**: *Show, with average-color stand-ins while loading*
    (default) / *Show, blank while loading* / *Average colors only*, **Then** the app follows it
@@ -139,8 +139,8 @@ A creator turns a folder of images into a library repository others can add, usi
 **Acceptance Scenarios**:
 
 1. **Given** the template repository, **When** a creator puts source images in `sources/` and runs
-   the build tool, **Then** packs (one per folder/collection) are written with 256/512/1024 px WebP
-   images, average colors, hashes, and the library index.
+   the build tool, **Then** packs (one per folder/collection) are written with 256/512 px WebP
+   images (1024 px too with `--print`), average colors, hashes, and the library index.
 2. **Given** a push, **Then** a GitHub Action validates the library; **given** a version tag, **Then**
    a release is built with `.rrqlib` files for the whole library and for each pack, per image size.
 3. **Given** a newer library format than the repository uses, **Then** a scheduled Action reports it
@@ -186,9 +186,9 @@ A creator turns a folder of images into a library repository others can add, usi
 
 - **FR-010**: Images MUST be stored once per device, keyed by SHA-256, as binary (not base64) in
   IndexedDB; thumbnails and patterns are made on the device and cached in memory.
-- **FR-011**: Standard sizes MUST be 256, 512, and 1024 px on the long side, WebP (quality about 80,
-  metadata stripped), never enlarged; JPEG where the browser can't write WebP. 1024 px is for
-  printing only.
+- **FR-011**: Standard sizes MUST be 256 and 512 px on the long side, WebP (quality about 80,
+  metadata stripped), never enlarged; JPEG where the browser can't write WebP. 1024 px is optional
+  (build tools' `--print`, off by default: it about triples a library's size) and for printing only.
 - **FR-012**: Settings MUST include screen size (Light 256 / Standard 512), save size for the user's
   own fabrics (256 / 512), and **Fabric images** (stand-ins while loading / blank while loading /
   average colors only).

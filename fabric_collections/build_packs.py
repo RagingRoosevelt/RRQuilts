@@ -9,16 +9,18 @@ library; each collection zip in it becomes one pack holding a palette of its fab
     libraries/<maker>/packs/<pack>/<px>/<file>.webp
     libraries/<maker>-256.rrqlib                   zips for importing: Light (256 px)
     libraries/<maker>-512.rrqlib                     Standard (512 + 256 px)
-    libraries/<maker>-1024.rrqlib                    Print (1024 px)
+    libraries/<maker>-1024.rrqlib                    Print (1024 px), only with --print
 
-Images are cropped to a centred square, saved as WebP (quality 80) at 256/512/1024 px on the long
-side, never enlarged. Fabrics are 8 in square, marked approximate; author = designer; licensed
+Images are cropped to a centred square, saved as WebP (quality 80) at 256 and 512 px on the long
+side, never enlarged. 1024 px copies (for printing) only with --print: they triple a library's size,
+and without it packs built with them lose them. Fabrics are 8 in square, marked approximate; author = designer; licensed
 "All rights reserved, for personal use" (manufacturers' images are for your own use only).
 
     uv run build_packs.py                       # every manufacturer folder
     uv run build_packs.py cloud9                # one
     uv run build_packs.py cloud9 --only "pond"  # collections whose name contains this
     uv run build_packs.py --rebuild             # rebuild packs already built
+    uv run build_packs.py --print --rebuild     # with 1024 px images too
 """
 import argparse, hashlib, io, json, re, sys, zipfile
 from pathlib import Path
@@ -27,7 +29,7 @@ from PIL import Image, ImageStat
 
 HERE = Path(__file__).resolve().parent
 OUT = HERE / 'libraries'
-SIZES = (256, 512, 1024)
+SIZES = (256, 512)
 LICENSE = 'LicenseRef-Personal-Use'
 MAKERS = {
     'cloud9': 'Cloud9 Fabrics',
@@ -110,8 +112,7 @@ def build_pack(maker, lib_id, zip_path, meta, out_dir):
             (pdir / rel).write_bytes(data)
             images.append({'px': real_px, 'sha256': hashlib.sha256(data).hexdigest(), 'type': 'image/webp',
                            'width': iw, 'height': ih, 'path': rel})
-            bucket = '256' if real_px <= 256 else '512' if real_px <= 512 else '1024'
-            sizes_bytes[bucket] += len(data)
+            sizes_bytes[str(min(s for s in SIZES if real_px <= s))] += len(data)
         avg = [round(c) for c in ImageStat.Stat(im.resize((64, 64), Image.BOX)).mean]
         main = [i for i in images if i['px'] <= 512][-1]
         fabric = {
@@ -168,7 +169,12 @@ def main():
     ap.add_argument('makers', nargs='*', help=f'folders to build (default: {", ".join(MAKERS)})')
     ap.add_argument('--only', help='only collections whose name contains this (case-insensitive)')
     ap.add_argument('--rebuild', action='store_true', help='rebuild packs that are already built')
+    ap.add_argument('--print', action='store_true',
+                    help='also make 1024 px images (for printing) and <maker>-1024.rrqlib')
     a = ap.parse_args()
+    global SIZES
+    if a.print:
+        SIZES = (256, 512, 1024)
     for maker in a.makers or [m for m in MAKERS if (HERE / m).is_dir()]:
         if maker not in MAKERS:
             sys.exit(f'Unknown manufacturer folder: {maker}')
@@ -190,7 +196,8 @@ def main():
                 continue
             pack_id = f'{lib_id}-{slug(name, 120)}'
             if pack_id in packs and not a.rebuild and (out_dir / packs[pack_id]['path']).exists():
-                print(f'  = {name}')
+                dropped = 1024 not in SIZES and drop_large(out_dir, packs[pack_id])
+                print(f'  = {name}' + (' (1024 px removed)' if dropped else ''))
                 continue
             m = meta.get(zp.name) or {}
             try:
@@ -216,8 +223,31 @@ def main():
         index_path.write_text(json.dumps(index, indent=1, ensure_ascii=False))
         zip_library(out_dir, OUT / f'{maker}-256.rrqlib', lambda px: px <= 256)
         zip_library(out_dir, OUT / f'{maker}-512.rrqlib', lambda px: px <= 512)
-        zip_library(out_dir, OUT / f'{maker}-1024.rrqlib', lambda px: px > 512)
-        print(f'  → {len(packs)} packs; {OUT.relative_to(HERE)}/{maker}-{{256,512,1024}}.rrqlib')
+        if 1024 in SIZES:
+            zip_library(out_dir, OUT / f'{maker}-1024.rrqlib', lambda px: px > 512)
+        else:
+            (OUT / f'{maker}-1024.rrqlib').unlink(missing_ok=True)
+        print(f'  → {len(packs)} packs; {OUT.relative_to(HERE)}/{maker}-{{{",".join(map(str, SIZES))}}}.rrqlib')
+
+
+def drop_large(out_dir, entry):
+    """Remove a pack's images over 512 px (built before they were dropped). True if any were."""
+    pdir = out_dir / Path(entry['path']).parent
+    large = [d for d in pdir.iterdir() if d.is_dir() and d.name.isdigit() and int(d.name) > 512]
+    if not large:
+        return False
+    doc_path = pdir / 'rrqlib.json'
+    doc = json.loads(doc_path.read_text())
+    for item in doc['items']:
+        for f in (item.get('data') or {}).get('fabrics') or []:
+            f['sizes'] = [x for x in f.get('sizes', []) if x['px'] <= 512]
+    doc_path.write_text(json.dumps(doc, indent=1, ensure_ascii=False))
+    for d in large:
+        for f in d.iterdir():
+            f.unlink()
+        d.rmdir()
+    entry.get('sizes', {}).pop('1024', None)
+    return True
 
 
 if __name__ == '__main__':

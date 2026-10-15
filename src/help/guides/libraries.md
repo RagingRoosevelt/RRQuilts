@@ -72,8 +72,8 @@ Libraries can also live in a git repository, such as one on GitHub.
    versions of your packs. **Skip this update** waits for the next one.
 5. **Disconnect** removes the library and its packs from this device.
 
-When you print, larger images of these fabrics are downloaded if you're online, so printed fabrics
-look sharp.
+When you print, larger images of these fabrics are downloaded if you're online and the library has
+them, so printed fabrics look sharp.
 
 Projects don't carry library fabrics' images, only which fabric they are, so files stay small. A
 project opened on a device without the library shows those fabrics as their average colors and
