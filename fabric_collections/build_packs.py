@@ -39,6 +39,16 @@ MAKERS = {
 }
 # Images in collection zips that aren't fabrics.
 NOT_FABRIC = re.compile(r'logo|cover|banner|lookbook|header|full[-_ ]?collection|title|catalog', re.I)
+# Folders of marketing and product photos, not swatches (Cloud9: social posts, folded bolts, projects).
+NOT_SWATCH_DIR = re.compile(
+    r'(^|/)(for ig( story)?|bolts?|projects?|pre-?cuts?[^/]*|precut[^/]*|with banner|logo[^/]*|ruler)/', re.I)
+# Makers whose zips mix swatches with precuts, patterns and lifestyle shots: only files named like a
+# fabric count. Moda: `<style> <color>` (RS = Ruby Star; F/L/M… substrate letters), newer files add
+# the print's name ("RS4172 11 Flower Friends-Natural.jpg"). Their photos aren't cropped (panels).
+SWATCH_NAME = {
+    'modafabrics': re.compile(r'^(RS ?)?\d{3,6}[- ]\d{1,3}[A-Z]{0,3}( (?!copy\b)[^/]*)?\.(jpe?g|png)$', re.I),
+}
+Image.MAX_IMAGE_PIXELS = 300_000_000  # some manufacturer photos are print-resolution
 
 
 def slug(s, n=64):
@@ -79,19 +89,36 @@ def build_pack(maker, lib_id, zip_path, meta, out_dir):
     for entry in sorted(z.namelist()):
         if not re.search(r'\.(jpe?g|png|webp)$', entry, re.I) or entry.startswith('__MACOSX/'):
             continue
-        if NOT_FABRIC.search(entry.split('/')[-1]):
+        if NOT_FABRIC.search(entry.split('/')[-1]) or NOT_SWATCH_DIR.search(entry):
+            continue
+        named = SWATCH_NAME.get(maker)
+        m = named and named.match(entry.split('/')[-1])
+        if named and not m:
             continue
         try:
             im = Image.open(io.BytesIO(z.read(entry))).convert('RGB')
         except Exception:
             print(f'    ! unreadable: {entry}')
             continue
+        im.thumbnail((2048, 2048))  # plenty for 1024 px, and quick
         w, h = im.size
-        if max(w, h) > 1.6 * min(w, h):
+        long_in = 8
+        if named:
+            if max(w, h) > 1.6 * min(w, h):
+                long_in = 44  # a panel or border print: about a width of fabric
+        elif max(w, h) > 1.6 * min(w, h):
             continue  # banners and lookbook spreads, not swatches
-        s = min(w, h)
-        im = im.crop(((w - s) // 2, (h - s) // 2, (w - s) // 2 + s, (h - s) // 2 + s))
+        else:
+            s = min(w, h)
+            im = im.crop(((w - s) // 2, (h - s) // 2, (w - s) // 2 + s, (h - s) // 2 + s))
+            w, h = im.size
         fname, sku = name_from_file(entry)
+        if m and m.group(2):  # newer Moda names: "RS4172 11 Flower Friends-Natural"
+            stem = entry.split('/')[-1].rsplit('.', 1)[0]
+            sku, fname = stem[: -len(m.group(2))].strip(), m.group(2).strip()
+        elif m:  # "13900 11": style and color only
+            sku = entry.split('/')[-1].rsplit('.', 1)[0]
+            fname = f'{name} {sku}'
         if fname.isdigit() and not sku:  # Cloud9 style numbers
             sku, fname = fname, f'{name} {fname}'
         fid = f'{lib_id}.{slug(sku or fname)}'
@@ -121,7 +148,7 @@ def build_pack(maker, lib_id, zip_path, meta, out_dir):
             'author': designer,
             'license': LICENSE,
             'image': {k: main[k] for k in ('sha256', 'type', 'width', 'height')},
-            'size': [8, 8],
+            'size': [round(long_in * w / max(w, h), 2), round(long_in * h / max(w, h), 2)],
             'approximate': True,
             'average': avg,
             'manufacturer': MAKERS[maker],
