@@ -28,6 +28,9 @@ UA = {'User-Agent': 'Mozilla/5.0 (personal collection downloader)'}
 MONTHS = {m: i for i, m in enumerate('jan feb mar apr may jun jul aug sep oct nov dec'.split(), 1)}
 # Tiles for bundles and whole-collection packs, not single fabrics.
 BUNDLE = re.compile(r'full collection|\bFULL\d|bundle|pack\)|bolts|squares|fat quarters|half yards', re.I)
+# Photos of finished quilts, their backings, kits and patterns: not fabrics (`_`/`-` read as spaces).
+NOT_SWATCH = re.compile(r'quilt(?!ed|ing)|pattern(?!ed)|\bkit\b|backing', re.I)
+not_swatch = lambda *parts: bool(NOT_SWATCH.search(re.sub(r'[_-]+', ' ', ' '.join(parts))))
 
 
 def fetch(url):
@@ -75,7 +78,10 @@ def fabrics(cat, s):
         sku = text(sku.group(1)) if sku else ''
         thumb = re.search(r'<img src="([^"]+)"', t)
         file = re.search(r'func=show&file=(\d+)', t)  # the fabric's own page (not the tile's position)
-        if thumb and file and not BUNDLE.search(name + ' ' + text(t)):
+        if (
+            thumb and file and not BUNDLE.search(name + ' ' + text(t))
+            and not not_swatch(name, thumb.group(1).rsplit('/', 1)[-1])
+        ):
             out.append((name, sku, thumb.group(1), file.group(1)))
     return out
 

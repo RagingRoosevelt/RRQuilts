@@ -45,6 +45,11 @@ NOT_SWATCH_DIR = re.compile(
 # Makers whose zips mix swatches with precuts, patterns and lifestyle shots: only files named like a
 # fabric count. Moda: `<style> <color>` (RS = Ruby Star; F/L/M… substrate letters), newer files add
 # the print's name ("RS4172 11 Flower Friends-Natural.jpg"). Their photos aren't cropped (panels).
+# Makers whose zips hold non-swatch images recognisable by name (`_`/`-` read as spaces). Art Gallery:
+# photos of finished quilts, their backings, kits and patterns.
+NOT_SWATCH_NAME = {
+    'artgalleryfabrics': re.compile(r'quilt(?!ed|ing)|pattern(?!ed)|\bkit\b|backing', re.I),
+}
 SWATCH_NAME = {
     'modafabrics': re.compile(r'^(RS ?)?\d{3,6}[- ]\d{1,3}[A-Z]{0,3}( (?!copy\b)[^/]*)?\.(jpe?g|png)$', re.I),
 }
@@ -91,6 +96,9 @@ def build_pack(maker, lib_id, zip_path, meta, out_dir):
         if not re.search(r'\.(jpe?g|png|webp)$', entry, re.I) or entry.startswith('__MACOSX/'):
             continue
         if NOT_FABRIC.search(entry.split('/')[-1]) or NOT_SWATCH_DIR.search(entry):
+            continue
+        skip = NOT_SWATCH_NAME.get(maker)
+        if skip and skip.search(re.sub(r'[_-]+', ' ', entry.split('/')[-1])):
             continue
         named = SWATCH_NAME.get(maker)
         m = named and named.match(entry.split('/')[-1])
