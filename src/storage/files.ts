@@ -28,13 +28,14 @@ export const FILE_TYPES = {
   rrqplt: 'RRQuilts palette file',
   rrqlib: 'RRQuilts library file',
   rrqconf: 'RRQuilts settings file',
+  png: 'PNG image',
 } as const;
 export type FileExt = keyof typeof FILE_TYPES;
 
 // Names only: dialogs add the extension themselves where they show it.
 const pickerType = (ext: FileExt): PickerType => ({
   description: FILE_TYPES[ext],
-  accept: { 'application/json': [`.${ext}`] },
+  accept: { [ext === 'png' ? 'image/png' : 'application/json']: [`.${ext}`] },
 });
 /** Several types: all of them first (so every file shows), then each on its own, then JSON. */
 const pickerTypes = (exts: FileExt[]): PickerType[] => [
@@ -158,7 +159,8 @@ export async function exportFile(
 /** Fallback save: download a copy. */
 export function download(name: string, text: string | Uint8Array<ArrayBuffer>, ext = 'rrq') {
   // Not application/json: Android browsers append ".json" to the name for that type.
-  const url = URL.createObjectURL(new Blob([text], { type: 'application/octet-stream' }));
+  const type = ext === 'png' ? 'image/png' : 'application/octet-stream';
+  const url = URL.createObjectURL(new Blob([text], { type }));
   const a = document.createElement('a');
   a.href = url;
   a.download = fileNameFor(name, ext);

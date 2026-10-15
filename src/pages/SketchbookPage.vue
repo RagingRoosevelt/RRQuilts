@@ -78,6 +78,9 @@
                 <q-item v-close-popup clickable @click="openQuilt(q.id)"
                   ><q-item-section>Open</q-item-section></q-item
                 >
+                <q-item v-close-popup clickable @click="saveQuiltImage(project.doc!, q)"
+                  ><q-item-section>Save image</q-item-section></q-item
+                >
                 <template v-if="!project.readOnly">
                   <q-item v-close-popup clickable @click="duplicate(q.id)"
                     ><q-item-section>Duplicate as variation</q-item-section></q-item
@@ -236,6 +239,16 @@
                     /></q-item-section>
                     <q-item-section>Export (.rrqbl)</q-item-section>
                   </q-item>
+                  <q-item
+                    v-close-popup
+                    clickable
+                    @click="saveBlockImage(project.doc!, b, shownColoring(b), library.items.colors)"
+                  >
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="image"
+                    /></q-item-section>
+                    <q-item-section>Save image</q-item-section>
+                  </q-item>
                   <template v-if="!project.readOnly">
                     <q-item
                       v-close-popup
@@ -359,6 +372,18 @@
                             ><q-icon name="palette"
                           /></q-item-section>
                           <q-item-section>Create a coloration variant</q-item-section>
+                        </q-item>
+                        <q-item
+                          v-close-popup
+                          clickable
+                          @click="
+                            saveBlockImage(project.doc!, b, shownColoring(b), library.items.colors)
+                          "
+                        >
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="image"
+                          /></q-item-section>
+                          <q-item-section>Save image</q-item-section>
                         </q-item>
                         <q-item
                           v-if="otherVersions.has(b.id) && !project.readOnly"
@@ -1122,6 +1147,7 @@ import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
 import { describeSlot } from '@/model/plain';
 import type { Block } from '@/model/schema/block';
+import { saveBlockImage, saveQuiltImage } from '@/render/save-image';
 import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
