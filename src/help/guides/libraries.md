@@ -72,6 +72,10 @@ A fabric library is a set of **packs**, usually one palette of fabric images per
 
 ### Add a library from the web
 
+Some libraries come listed with RRQuilts and show in the side panel as **Not downloaded yet**. Click
+**Show packs** to see their packs, then switch on the ones you want. Nothing downloads before that.
+**Disconnect** removes one from this device's list.
+
 Libraries can also live in a git repository, such as one on GitHub.
 
 1. In **Libraries**, click **Add from the web…**.

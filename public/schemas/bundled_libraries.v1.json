@@ -1,0 +1,55 @@
+{
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "libraries"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "format": {
+      "type": "string",
+      "const": "rrq-bundled-libraries"
+    },
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "libraries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "url"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^https://",
+            "maxLength": 500
+          },
+          "ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/bundled_libraries.v1.json"
+}

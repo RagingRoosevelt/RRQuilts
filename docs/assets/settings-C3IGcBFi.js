@@ -1,0 +1,1 @@
+import{_ as e,g as t}from"./project-BkxqR-Xb.js";import{i as n}from"./index-BxEDry-y.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

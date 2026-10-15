@@ -142,7 +142,11 @@
                 @update:model-value="(o: boolean) => setCollapsed(g.key, !o)"
                 :class="{ 'just-added': justAdded === g.key }"
                 :label="g.name"
-                :caption="`${g.packs.filter((p) => p.view && packOn(p.id)).length} of ${g.packs.length} packs on`"
+                :caption="
+                  g.bundled && !g.connection
+                    ? 'Not downloaded yet'
+                    : `${g.packs.filter((p) => p.view && packOn(p.id)).length} of ${g.packs.length} packs on`
+                "
                 header-class="q-px-xs"
               >
                 <div
@@ -172,6 +176,22 @@
                   <span v-else class="ellipsis text-grey-6 col" style="min-width: 0">
                     {{ p.name }}<q-tooltip>Not downloaded yet</q-tooltip>
                   </span>
+                </div>
+                <!-- Offered with the app (bundled_libraries.json): its pack list downloads on request. -->
+                <div v-if="g.bundled && !g.connection" class="q-px-xs q-pb-xs">
+                  <div v-if="g.bundled.description" class="text-caption text-grey-7">
+                    {{ g.bundled.description }}
+                  </div>
+                  <q-btn
+                    flat
+                    dense
+                    no-caps
+                    size="sm"
+                    icon="cloud_download"
+                    label="Show packs"
+                    :loading="connectingBundled === g.key"
+                    @click="connectBundled(g)"
+                  />
                 </div>
                 <div v-if="g.connection" class="row q-py-xs" style="gap: 4px">
                   <q-btn
@@ -1044,6 +1064,8 @@ import { paintsUsed, replaceColors } from '@/editor/colors';
 import { fabricPaint } from '@/editor/paint';
 import { coloringSections } from '@/model/library-items';
 import type { Connection } from '@/storage/repositories';
+import { bundledLibraries, sameUrl } from '@/content/bundled';
+import type { BundledLibrary } from '@/model/schema/bundled';
 import type { PackChange } from '@/stores/library';
 import { diffCount } from '@/model/pack-diff';
 import { revealSection, useCollapsed } from '@/composables/block-sections';
@@ -1103,7 +1125,10 @@ interface PackGroup {
   name: string;
   packs: PackEntry[];
   connection?: Connection;
+  /** Offered with the app (bundled_libraries.json). */
+  bundled?: BundledLibrary;
 }
+const bundled = bundledLibraries();
 const libGroups = computed(() => {
   const out: ({ key: string; view: LibraryView; packs?: undefined } | PackGroup)[] = [];
   const groups = new Map<string, PackGroup>();
@@ -1128,6 +1153,16 @@ const libGroups = computed(() => {
   }
   // Packs alphabetically within their library.
   for (const g of out) if (g.packs) g.packs.sort((a, b) => a.name.localeCompare(b.name));
+  // Libraries offered with the app that aren't connected (or were disconnected) on this device.
+  const hidden = settings.settings.bundledHidden;
+  for (const b of bundled) {
+    const c = library.connections.find((x) => sameUrl(x.url, b.url));
+    if (c) {
+      const g = groups.get(c.index.id);
+      if (g) g.bundled = b;
+    } else if (!hidden.some((u) => sameUrl(u, b.url)))
+      out.push({ key: `bundled:${b.url}`, name: b.name, packs: [], bundled: b });
+  }
   // My library first, then other libraries by name, then the built-in one.
   const name = (g: (typeof out)[number]) => (g.packs ? g.name : g.view.doc.name);
   const rank = (g: (typeof out)[number]) =>
@@ -1289,6 +1324,9 @@ async function connectLibrary() {
   a.busy = true;
   try {
     const c = await library.connect(a.url, a.ref.trim() || undefined);
+    settings.settings.bundledHidden = settings.settings.bundledHidden.filter(
+      (u) => !sameUrl(u, a.url),
+    );
     Object.assign(a, { open: false, busy: false });
     // Show where it went: open the side panel, glow around the new library for a few seconds.
     filtersOpen.value = true;
@@ -1370,13 +1408,31 @@ async function declineUpdate() {
   updating.value = null;
   if (u) await library.declineUpdate(u.c, u.index.revision);
 }
+const connectingBundled = ref<string | null>(null);
+async function connectBundled(g: PackGroup) {
+  const b = g.bundled!;
+  connectingBundled.value = g.key;
+  try {
+    const c = await library.connect(b.url, b.ref);
+    setCollapsed(`lib:${c.index.id}`, false);
+  } catch (e) {
+    $q.notify({ type: 'negative', message: `${b.name}: ${(e as Error).message}` });
+  } finally {
+    connectingBundled.value = null;
+  }
+}
 function disconnect(c: Connection) {
   $q.dialog({
     title: `Disconnect ${c.index.name}?`,
     message: 'Its downloaded packs are removed from this device. Projects keep the items they use.',
     cancel: true,
     ok: { label: 'Disconnect', color: 'negative', flat: true },
-  }).onOk(() => void library.disconnect(c));
+  }).onOk(() => {
+    // A library offered with the app stays out of the list on this device once disconnected.
+    if (bundled.some((b) => sameUrl(b.url, c.url)))
+      settings.settings.bundledHidden = [...settings.settings.bundledHidden, c.url];
+    void library.disconnect(c);
+  });
 }
 
 const isPack = (v: LibraryView) => library.packs.some((p) => p.id === v.doc.id);

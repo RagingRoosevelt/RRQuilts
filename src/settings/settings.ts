@@ -46,6 +46,8 @@ export interface Settings {
   saveSize: 256 | 512;
   /** Installed packs switched off (spec 014): hidden from trays and pickers. */
   packsOff: string[];
+  /** Bundled libraries (bundled_libraries.json) disconnected on this device: their addresses. */
+  bundledHidden: string[];
   // Keys added by later app versions are kept as-is.
   [key: string]: unknown;
 }
@@ -89,6 +91,7 @@ export const defaults = (): Settings => ({
   imageSize: 512,
   saveSize: 512,
   packsOff: [],
+  bundledHidden: [],
 });
 
 const validators: Partial<Record<string, (v: unknown) => boolean>> = {
@@ -125,6 +128,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   imageSize: (v) => v === 256 || v === 512,
   saveSize: (v) => v === 256 || v === 512,
   packsOff: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
+  bundledHidden: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   collapsedSections: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
 };
 
