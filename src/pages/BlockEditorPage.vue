@@ -229,6 +229,7 @@ import {
   type SelectionOp,
 } from '@/editor/block-ops';
 import { detachColoring, fillKey } from '@/model/coloring';
+import { fillFor, paintOf } from '@/editor/paint';
 import {
   addNodes,
   cloneSegments,
@@ -494,14 +495,15 @@ function onPatch(patchId: string) {
   const cid = coloringId.value!;
   const current = b.colorings.find((c) => c.id === cid)?.fills[patchId];
   if (editor.blockTool === 'eyedropper') {
-    if (current && 'color' in current) editor.useColor(current.color);
+    const paint = paintOf(current);
+    if (paint) editor.useColor(paint);
     return;
   }
   if (!editor.color) {
     $q.notify({ message: 'Pick a color in the tray first.', timeout: 1500 });
     return;
   }
-  const fill = { color: editor.color };
+  const fill = fillFor(editor.color);
   // A library coloring is read-only: painting it starts a project copy (same undo step).
   let base: Block = b;
   let target = cid;

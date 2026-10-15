@@ -36,7 +36,7 @@ const toInches = (b: Block, units: Units): Block =>
   units === 'cm' ? { ...b, size: [b.size[0] / 2.54, b.size[1] / 2.54] } : b;
 
 /** A project item as library content: credits settled, no project `source`, current version. */
-async function asLibraryData<T extends Block | Color | ColorCollection>(
+async function asLibraryData<T extends Block | Color | Fabric | ColorCollection>(
   item: T,
   revision: number,
 ): Promise<T> {
@@ -389,6 +389,39 @@ export async function addNewColor(
     1,
   );
   return setCollectionColors(lib, id, [...item.data.colors, c]);
+}
+
+/**
+ * Imported fabric images (spec 014) at the end of one of the user's palettes, or in a new palette
+ * when `target` is a name. Fabrics are in inches, like all library content.
+ */
+export async function addFabrics(
+  lib: LibraryDoc,
+  target: { id: string } | { name: string },
+  fabrics: Fabric[],
+  me: string,
+): Promise<{ lib: LibraryDoc; id: string }> {
+  const fresh = await Promise.all(fabrics.map((f) => asLibraryData(f, 1)));
+  if ('name' in target) {
+    const data = await asLibraryData<ColorCollection>(
+      {
+        id: itemId(me),
+        notecard: { name: target.name },
+        ...(me ? { author: me } : {}),
+        colors: [],
+        fabrics: fresh,
+      },
+      1,
+    );
+    return { lib: { ...lib, items: [...lib.items, { type: 'colors', data }] }, id: data.id };
+  }
+  const item = lib.items.find((i) => i.type === 'colors' && i.data.id === target.id);
+  if (item?.type !== 'colors') return { lib, id: target.id };
+  const data = await asLibraryData(
+    { ...item.data, fabrics: [...(item.data.fabrics ?? []), ...fresh] },
+    (item.data.revision ?? 1) + 1,
+  );
+  return { lib: mapItem(lib, target.id, () => ({ ...item, data })), id: target.id };
 }
 
 /** Add or replace (same id) an imported color collection, kept as the file has it (credits too). */

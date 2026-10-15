@@ -348,3 +348,29 @@ describe('library search', () => {
     expectFast('search 500 library blocks', () => searchItems(items, 'block 4'), 100);
   });
 });
+
+describe('fabrics in My library palettes (spec 014)', () => {
+  it('go into a new palette or the end of an existing one, versioned', async () => {
+    const { emptyPersonal, addFabrics } = await import('@/model/library');
+    const fab = (id: string) => ({
+      id,
+      notecard: { name: id },
+      image: { sha256: 'b'.repeat(64), type: 'image/webp', width: 512, height: 512 },
+      size: [8, 8] as [number, number],
+      approximate: true as const,
+      average: [1, 2, 3] as [number, number, number],
+    });
+    const a = await addFabrics(emptyPersonal('Me'), { name: 'Stash' }, [fab('me.a')], 'Me');
+    const item = a.lib.items[0]!;
+    expect(item.type === 'colors' && item.data.fabrics?.map((f) => f.id)).toEqual(['me.a']);
+    expect(item.data.revision).toBe(1);
+    const b = await addFabrics(a.lib, { id: a.id }, [fab('me.b')], 'Me');
+    const after = b.lib.items[0]!;
+    expect(after.type === 'colors' && after.data.fabrics?.map((f) => f.id)).toEqual([
+      'me.a',
+      'me.b',
+    ]);
+    expect(after.data.revision).toBe(2);
+    expect(after.data.version).not.toBe(item.data.version);
+  });
+});

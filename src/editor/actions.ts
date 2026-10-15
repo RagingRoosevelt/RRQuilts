@@ -1,5 +1,6 @@
 // What a tap does with the current tool. Pure: (document, tap, tool state) → new document and/or
 // a selection change. The editor page applies the result through project.change (one undo step).
+import { fillFor, paintOf } from './paint';
 import { produce } from 'immer';
 import { allPatches } from '@/model/blocks/patches';
 import type { LibraryLookup } from '@/model/library-items';
@@ -124,15 +125,15 @@ export function applyTool(
     case 'find':
       return content ? { selectBlock: content.block } : {};
     case 'eyedropper': {
-      const f = fillAtHit();
-      return f && 'color' in f ? { selectColor: f.color } : { message: 'No solid color here.' };
+      const paint = paintOf(fillAtHit());
+      return paint ? { selectColor: paint } : { message: 'No color or fabric here.' };
     }
     case 'paint':
     case 'spray':
     case 'swap': {
       if (!s.color) return { message: 'Pick a color in the tray first.' };
       if (!content && !isPlainGroup(group)) return { message: 'Set a block here first.' };
-      const fill: Fill = { color: s.color };
+      const fill: Fill = fillFor(s.color);
       let next = doc;
       if (isPlainGroup(group)) {
         next = ensurePlainBlock(next);
