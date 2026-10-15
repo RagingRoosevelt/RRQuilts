@@ -73,6 +73,36 @@
         Converts every size in the project (10 in → 25.4 cm). Undo reverts.
       </div>
     </div>
+    <div v-if="kind === 'project'">
+      <q-checkbox
+        :model-value="!!project.doc!.project.includeLibraryImages"
+        :disable="ro"
+        label="Include library fabric images when saving"
+        @update:model-value="setIncludeImages"
+      />
+      <div class="text-caption text-grey-7">
+        Adds 256 px images of the library fabrics this project uses, for sharing with someone who
+        doesn't have those libraries. Fabrics whose license forbids sharing are left out.
+      </div>
+    </div>
+    <template v-if="kind === 'project' && missingLibraries.length">
+      <div class="text-subtitle2 q-mt-sm">Libraries this device doesn't have</div>
+      <q-list dense bordered separator class="rounded-borders">
+        <q-item v-for="l in missingLibraries" :key="l.id">
+          <q-item-section>
+            <q-item-label
+              >{{ l.name }}<template v-if="l.author"> by {{ l.author }}</template></q-item-label
+            >
+            <q-item-label caption>
+              {{ l.url ?? l.file ?? 'Ask whoever shared the project for it' }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+      <div class="text-caption text-grey-7">
+        Their fabrics show as average colors until you add them in Libraries (Import).
+      </div>
+    </template>
     <q-input
       :model-value="item.notes ?? ''"
       label="Notes"
@@ -124,6 +154,7 @@
 </template>
 
 <script setup lang="ts">
+import { useLibraryStore } from '@/stores/library';
 // Details tab (spec 009): title, notes, author, license, and who to credit — for the project, a
 // quilt, or a block. Each field is its own coalesced undo step.
 import { computed } from 'vue';
@@ -185,6 +216,18 @@ const lock = computed(() => {
   if (!t || !project.doc) return undefined;
   return 'layout' in t ? quiltLock(project.doc, t) : blockLock(t);
 });
+
+/** Libraries the project's file names that this device doesn't have (spec 014 FR-032). */
+const missingLibraries = computed(() => {
+  const have = new Set(useLibraryStore().views.map((v) => v.doc.id));
+  return (project.doc?.project.libraries ?? []).filter((l) => !have.has(l.id));
+});
+function setIncludeImages(on: boolean) {
+  project.change((d) => {
+    if (on) d.project.includeLibraryImages = true;
+    else delete d.project.includeLibraryImages;
+  });
+}
 
 const projectLicense = computed(() => project.doc?.project.license ?? DEFAULT_LICENSE);
 /** Items without their own license (older files) show the project's. */

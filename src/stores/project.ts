@@ -3,6 +3,8 @@
 import { freeze, produce, produceWithPatches, type Draft as ImmerDraft } from 'immer';
 import { defineStore } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
+import { absorbImages, prepareForSave } from '@/storage/fabric-files';
+import { libraryRefs } from '@/model/library-refs';
 import { parseProject, serializeProject } from '@/model/io';
 import { newId } from '@/model/ids';
 import { createProject } from '@/model/new-project';
@@ -130,8 +132,21 @@ export const useProjectStore = defineStore('project', () => {
   async function openFile(picked: Picked): Promise<string[]> {
     const r = await parseProject(await picked.file.text());
     if (!r.ok) throw new Error(r.error);
-    await load(r.doc, { handle: picked.handle ?? null, saved: true, dirty: false });
+    await load(await absorbImages(r.doc), {
+      handle: picked.handle ?? null,
+      saved: true,
+      dirty: false,
+    });
     mismatches.value = versionMismatches(r.doc, useLibraryStore().lookup);
+    // Libraries the project uses that this device lacks (spec 014): say so, and where to add them.
+    const have = new Set(useLibraryStore().views.map((v) => v.doc.id));
+    const missing = (r.doc.project.libraries ?? []).filter((l) => !have.has(l.id));
+    if (missing.length)
+      r.report.push(
+        `This project uses ${missing.length > 1 ? 'libraries' : 'a library'} this device doesn't have: ` +
+          missing.map((l) => (l.author ? `${l.name} by ${l.author}` : l.name)).join(', ') +
+          '. Add them in Libraries (Import); until then their fabrics show as average colors.',
+      );
     await rememberRecent({
       id: r.doc.project.id,
       name: r.doc.project.name,
@@ -242,6 +257,15 @@ export const useProjectStore = defineStore('project', () => {
   async function stamp() {
     if (doc.value) doc.value = freeze(await stampVersions(doc.value), true);
   }
+  /** The file's text: fabric images per spec 014, and the libraries the project uses. */
+  async function fileText() {
+    const d = doc.value!;
+    const refs = libraryRefs(d);
+    const { libraries: _old, ...rest } = d.project;
+    void _old;
+    const withRefs = { ...d, project: refs.length ? { ...rest, libraries: refs } : rest };
+    return serializeProject(await prepareForSave(withRefs, useSettingsStore().settings.saveSize));
+  }
 
   /** Writing a file (not while a save dialog is open: some never report a cancel). */
   const writing = ref(false);
@@ -260,7 +284,7 @@ export const useProjectStore = defineStore('project', () => {
     if (!doc.value || readOnly.value) return 'cancelled';
     await stamp();
     if (handle.value && (await ensurePermission(handle.value, 'readwrite'))) {
-      await write(handle.value, serializeProject(doc.value));
+      await write(handle.value, await fileText());
       return 'saved';
     }
     return saveAs();
@@ -269,7 +293,7 @@ export const useProjectStore = defineStore('project', () => {
   async function saveAs(): Promise<SaveResult> {
     if (!doc.value || readOnly.value) return 'cancelled';
     await stamp();
-    const text = serializeProject(doc.value);
+    const text = await fileText();
     if (supportsFileAccess()) {
       const h = await pickSaveHandle(doc.value.project.name);
       if (!h) return 'cancelled';

@@ -43,6 +43,8 @@ export const Project = Type.Object({
   libraryPalettes: Type.Optional(Type.Array(ItemId)),
   /** Libraries this project's items come from, so a device without one can offer to add it. */
   libraries: Type.Optional(Type.Array(LibraryRef)),
+  /** Saving embeds library fabric images too (256 px), for sharing with people without them. */
+  includeLibraryImages: Type.Optional(Type.Boolean()),
 });
 
 export const RrqDoc = Type.Object(
