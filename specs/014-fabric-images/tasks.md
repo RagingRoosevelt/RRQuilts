@@ -16,4 +16,4 @@
 - [x] T010 `fabric_collections/build_packs.py` + run on the four manufacturers
 - [x] T011 Template repository at `~/Code/rrquilts-library-template` (tools, workflows, README)
 - [x] T012 Library index + packs on/off in Libraries; zipped `.rrqlib` backup/import with images
-- [ ] T013 Print: SVG fabric patterns; 1024 fetch for printouts when connected
+- [x] T013 Print: SVG fabric patterns (largest image on the device). 1024 fetch waits on repositories (spec 002 US3)

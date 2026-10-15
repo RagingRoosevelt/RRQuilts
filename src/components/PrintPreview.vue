@@ -7,6 +7,27 @@
       ref="root"
       :class="printOnly ? 'print-root' : 'print-preview col scroll'"
     >
+      <!-- Fabric images for printed shapes (spec 014), tiled at their real size. -->
+      <svg
+        v-if="fabricPatterns.length"
+        class="pattern-defs"
+        width="0"
+        height="0"
+        aria-hidden="true"
+      >
+        <defs>
+          <pattern
+            v-for="p in fabricPatterns"
+            :id="p.id"
+            :key="p.id"
+            patternUnits="userSpaceOnUse"
+            :width="p.w"
+            :height="p.h"
+          >
+            <image :href="p.url" :width="p.w" :height="p.h" preserveAspectRatio="none" />
+          </pattern>
+        </defs>
+      </svg>
       <div v-if="!printOnly" class="row items-center q-pa-sm toolbar" style="gap: 8px">
         <div class="col text-caption text-grey-7">
           {{ sheets.length }} page{{ sheets.length === 1 ? '' : 's' }} · {{ paperLabel }} · print at
@@ -455,6 +476,7 @@
 </template>
 
 <script setup lang="ts">
+import { fabricUrl } from '@/render/fabric-images';
 import { QIcon } from 'quasar';
 import {
   computed,
@@ -634,6 +656,31 @@ const fillInfo = (key: string) => {
   }
   return { name: 'No color', css: '#fff' };
 };
+/**
+ * SVG fill for a printed shape (spec 014): a fabric prints as its image tiled at true size (the
+ * largest image on the device), else as its average color.
+ */
+const shapeFill = (key: string) => {
+  const p = fabricPatterns.value.find((x) => x.key === key);
+  return p ? `url(#${p.id})` : fillInfo(key).css;
+};
+const fabricPatterns = computed(() =>
+  (doc.value?.project.palette.fabrics ?? []).flatMap((f) => {
+    const url = fabricUrl(f, 1024);
+    return url
+      ? [
+          {
+            key: `fabric:${f.id}`,
+            // Each copy (on screen, print-only) has its own ids: one copy is hidden when printing.
+            id: `rrq-${props.printOnly ? 'p' : 's'}-fabric-${f.id.replace(/[^a-z0-9-]/gi, '_')}`,
+            url,
+            w: f.size[0],
+            h: f.size[1],
+          },
+        ]
+      : [];
+  }),
+);
 
 // What's being printed.
 const KIND_LABEL: Record<CutKind, string> = {
@@ -728,7 +775,7 @@ const view = computed<View | undefined>(() => {
           d: d(flattenLoop(pathToSegs(s.outline, [1, 1]), 0.01)),
           css: '#fff',
         })),
-        ...pieces.map((p) => ({ d: d(p.poly), css: fillInfo(p.fill).css })),
+        ...pieces.map((p) => ({ d: d(p.poly), css: shapeFill(p.fill) })),
       ],
       pictureBox: g.bounds,
     };
@@ -766,7 +813,7 @@ const view = computed<View | undefined>(() => {
     notes: block.notecard.notes,
     blocks: [],
     pieces,
-    picture: one.map((p) => ({ d: d(p.poly), css: fillInfo(p.fill).css })),
+    picture: one.map((p) => ({ d: d(p.poly), css: shapeFill(p.fill) })),
     pictureBox: [0, 0, size[0], size[1]],
     block,
     blockSize: size,
@@ -1333,7 +1380,7 @@ function blockPage(
     size: sizeLabel(...size),
     count: n,
     quilt: quiltName,
-    polys: one.map((p) => ({ d: d(p.poly), css: fillInfo(p.fill).css })),
+    polys: one.map((p) => ({ d: d(p.poly), css: shapeFill(p.fill) })),
     w: size[0],
     h: size[1],
     scale: Math.min(1, (aw * 0.45) / size[0], (ah * 0.5) / size[1]),
@@ -1669,5 +1716,10 @@ td {
   body {
     background: #fff !important;
   }
+}
+.pattern-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
 }
 </style>

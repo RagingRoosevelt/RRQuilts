@@ -141,6 +141,22 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   `yardage.ts`) so help math matches printouts. `pages/HelpPage.vue` at `/help/<section>/<topic>`;
   `components/HelpLink.vue` = "?" links from editors/print. A test checks calc names and topic links
 
+## Fabric images (spec 014)
+
+- Images live once per device in IndexedDB `images` (`storage/images.ts`, keyed by SHA-256); documents
+  hold `Asset`s without `data` (references). `render/fabric-images.ts`: decode cache, true-scale
+  `fabricFill` patterns (`colorLookup(doc, extra, { ctx, devicePerUnit })`), `swatchStyle`, `imagesTick`
+  (redraw trigger), `display` (settings `fabricImages`, `imageSize`)
+- Paint ids: `fabric:<id>` (`editor/paint.ts` `fillFor`/`paintOf`). Import: `editor/fabric-import.ts` +
+  `components/FabricImportDialog.vue` (256/512 WebP, never enlarged, 8 in ≈ default)
+- Save/open: `storage/fabric-files.ts` (own fabrics embedded at `saveSize`; library fabrics referenced,
+  256 px when `project.includeLibraryImages`; `absorbImages` on open); `model/library-refs.ts`
+- Libraries: palettes hold `fabrics`; zipped `.rrqlib` (`model/zip.ts`, `storage/library-zip.ts`:
+  `library.json` index + packs, backups with `images/`); packs switch off via setting `packsOff`
+  (`library.views` = on, `allViews` = all). `public/schemas/formats.json` = current format versions
+- Tooling: `fabric_collections/build_packs.py` (manufacturer zips → libraries); template repository at
+  `~/Code/rrquilts-library-template` (local, unpublished)
+
 ## Printing (spec 010)
 
 - `src/model/print/` (framework-free): `pieces.ts` (block/quilt pieces, lettered templates),
