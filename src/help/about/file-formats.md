@@ -22,9 +22,9 @@ upgrades them when you save.
 
 Anyone writing tools that read or make these files can use the published JSON Schemas:
 
-- [Project file (`.rrq`), version 4](https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v4.json)
-- [Bundled libraries list](https://ragingroosevelt.github.io/RRQuilts/schemas/bundled_libraries.v1.json)
-- [Current version of each format](https://ragingroosevelt.github.io/RRQuilts/schemas/formats.json)
+- [Project file (`.rrq`), version 4](../../schemas/rrq.v4.json)
+- [Bundled libraries list](../../schemas/bundled_libraries.v1.json)
+- [Current version of each format](../../schemas/formats.json)
 
 A library on the web is a git repository with a `library.json` index at its top and a folder for
 each pack.

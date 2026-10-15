@@ -57,8 +57,8 @@ export const RrqDoc = Type.Object(
   },
   {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v2.json',
-    title: 'RRQuilts project (.rrq) v2',
+    $id: `https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v${VERSION}.json`,
+    title: `RRQuilts project (.rrq) v${VERSION}`,
   },
 );
 
