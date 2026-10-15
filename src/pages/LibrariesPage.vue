@@ -149,6 +149,37 @@
                 "
                 header-class="q-px-xs"
               >
+                <div v-if="g.connection" class="row q-pb-xs" style="gap: 4px">
+                  <q-btn
+                    flat
+                    dense
+                    no-caps
+                    size="sm"
+                    icon="toggle_off"
+                    label="All off"
+                    :disable="!g.packs.some((p) => p.view && packOn(p.id))"
+                    @click="allPacksOff(g)"
+                  />
+                  <q-btn
+                    flat
+                    dense
+                    no-caps
+                    size="sm"
+                    icon="update"
+                    label="Check for updates"
+                    :loading="checking"
+                    @click="checkUpdate(g.connection)"
+                  />
+                  <q-btn
+                    flat
+                    dense
+                    no-caps
+                    size="sm"
+                    icon="link_off"
+                    label="Disconnect"
+                    @click="disconnect(g.connection)"
+                  />
+                </div>
                 <div
                   v-for="p in shownPacks(g)"
                   :key="p.id"
@@ -191,37 +222,6 @@
                     label="Show packs"
                     :loading="connectingBundled === g.key"
                     @click="connectBundled(g)"
-                  />
-                </div>
-                <div v-if="g.connection" class="row q-py-xs" style="gap: 4px">
-                  <q-btn
-                    flat
-                    dense
-                    no-caps
-                    size="sm"
-                    icon="toggle_off"
-                    label="All off"
-                    :disable="!g.packs.some((p) => p.view && packOn(p.id))"
-                    @click="allPacksOff(g)"
-                  />
-                  <q-btn
-                    flat
-                    dense
-                    no-caps
-                    size="sm"
-                    icon="update"
-                    label="Check for updates"
-                    :loading="checking"
-                    @click="checkUpdate(g.connection)"
-                  />
-                  <q-btn
-                    flat
-                    dense
-                    no-caps
-                    size="sm"
-                    icon="link_off"
-                    label="Disconnect"
-                    @click="disconnect(g.connection)"
                   />
                 </div>
               </q-expansion-item>
