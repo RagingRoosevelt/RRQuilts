@@ -267,8 +267,16 @@
           >), or import a backup.
         </div>
         <template v-for="g in groups" :key="g.v.doc.id">
-          <div class="lib-group q-mb-md">
-            <div class="row items-start q-mb-sm" style="gap: 8px">
+          <div class="lib-group q-mb-md" :class="{ 'in-lib': g.packOf && !g.firstOfLib }">
+            <!-- Packs of one library (a repository or zipped library) sit under its name. -->
+            <div v-if="g.packOf && g.firstOfLib" class="q-mb-sm">
+              <h2 class="lib-name">{{ g.packOf.name }}</h2>
+              <div class="text-caption text-grey-7">
+                {{ libPackCount(g.packOf.id) }}
+              </div>
+            </div>
+            <!-- A pack's palettes join its library's list, like a single library's. -->
+            <div v-if="!g.packOf" class="row items-start q-mb-sm" style="gap: 8px">
               <div class="col">
                 <h2 class="lib-name">{{ g.v.doc.name }}</h2>
                 <div class="text-caption text-grey-7">
@@ -364,7 +372,11 @@
             </BlockSections>
 
             <div
-              v-if="(g.collections.length || g.mine) && settings.settings.libraryType !== 'block'"
+              v-if="
+                (g.collections.length || g.mine) &&
+                settings.settings.libraryType !== 'block' &&
+                (!g.packOf || g.firstPalettes)
+              "
               class="row items-center q-mb-sm"
               style="gap: 8px"
             >
@@ -380,7 +392,11 @@
                 @click="newPalette()"
               />
             </div>
-            <div class="column q-mb-lg" style="gap: 8px">
+            <div
+              class="column"
+              :class="g.packOf && !g.lastOfLib ? 'q-mb-sm' : 'q-mb-lg'"
+              style="gap: 8px"
+            >
               <!-- A fieldset, so the name sits in the top-left border like a legend. -->
               <fieldset
                 v-for="c in g.collections"
@@ -390,7 +406,10 @@
                 <legend class="ellipsis">
                   {{ c.notecard.name }}
                   <span class="text-caption text-grey-7"
-                    >· {{ c.colors.length + (c.fabrics?.length ?? 0) }}</span
+                    >· {{ c.colors.length + (c.fabrics?.length ?? 0) }}
+                    <template v-if="g.packOf && g.v.doc.author">
+                      · {{ g.v.doc.author.name }}</template
+                    ></span
                   >
                 </legend>
                 <button class="strip col" @click="previewing = { lib: g.v.doc.id, id: c.id }">
@@ -439,6 +458,14 @@
                       </q-item>
                       <q-item v-if="g.mine" v-close-popup clickable @click="remove(c.id)">
                         <q-item-section class="text-negative">Delete</q-item-section>
+                      </q-item>
+                      <q-item
+                        v-if="g.packOf && isPack(g.v)"
+                        v-close-popup
+                        clickable
+                        @click="removePack(g.v.doc)"
+                      >
+                        <q-item-section class="text-negative">Remove pack</q-item-section>
                       </q-item>
                     </q-list>
                   </q-menu>
@@ -1255,25 +1282,50 @@ const GROUP_BY = [
   { label: 'Styles', value: 'styles' },
 ];
 const groups = computed(() =>
-  inScope.value
-    .map((v) => {
-      const ids = new Set(
-        searchItems(v.doc.items, search.value ?? '')
-          .filter(matches)
-          .map((i) => i.data.id),
-      );
-      const blocks = v.blocks.filter((b) => ids.has(b.id));
-      return {
-        v,
-        mine: v.doc.kind === 'personal',
-        blocks,
-        sections: blockSections(v.doc, blocks, settings.settings.libraryGroupBy),
-        collections: v.collections.filter((c) => ids.has(c.id)),
-      };
-    })
-    // My library shows even when empty (it holds the New palette button), unless filtering.
-    .filter((g) => g.blocks.length || g.collections.length || (g.mine && !filtering.value)),
+  withLibraryHeads(
+    inScope.value
+      .map((v) => {
+        const ids = new Set(
+          searchItems(v.doc.items, search.value ?? '')
+            .filter(matches)
+            .map((i) => i.data.id),
+        );
+        const blocks = v.blocks.filter((b) => ids.has(b.id));
+        return {
+          v,
+          mine: v.doc.kind === 'personal',
+          blocks,
+          sections: blockSections(v.doc, blocks, settings.settings.libraryGroupBy),
+          collections: v.collections.filter((c) => ids.has(c.id)),
+        };
+      })
+      // My library shows even when empty (it holds the New palette button), unless filtering.
+      .filter((g) => g.blocks.length || g.collections.length || (g.mine && !filtering.value)),
+  ),
 );
+/** Packs of the same library together, the first of each carrying the library's heading. */
+function withLibraryHeads<T extends { v: LibraryView; collections: unknown[] }>(gs: T[]) {
+  const key = (g: T) => g.v.doc.library?.id ?? g.v.doc.id;
+  const order = new Map<string, number>();
+  gs.forEach((g, i) => order.set(key(g), order.get(key(g)) ?? i));
+  const sorted = [...gs].sort((a, b) => order.get(key(a))! - order.get(key(b))!);
+  const lib = (g?: T) => g?.v.doc.library?.id;
+  return sorted.map((g, i) => ({
+    ...g,
+    packOf: g.v.doc.library,
+    firstOfLib: !!lib(g) && lib(sorted[i - 1]) !== lib(g),
+    lastOfLib: !!lib(g) && lib(sorted[i + 1]) !== lib(g),
+    /** The first of its library's packs with palettes: it carries the Palettes heading. */
+    firstPalettes:
+      !!lib(g) && !sorted.slice(0, i).some((x) => lib(x) === lib(g) && x.collections.length),
+  }));
+}
+const libPackCount = (id: string) => {
+  const n = library.allViews.filter((v) => v.doc.library?.id === id).length;
+  const c = library.connections.find((x) => x.index.id === id);
+  const all = c?.index.packs.length ?? n;
+  return `${n} of ${all} pack${all === 1 ? '' : 's'} on this device`;
+};
 
 const emptyDoc = createProject();
 /** The coloring each card shows ("<library>:<block>" → coloring id); default the first. */
@@ -1722,10 +1774,11 @@ function downloadPack() {
 .lib-checks .q-checkbox {
   min-height: 50px;
 }
-.lib-group + .lib-group {
+.lib-group + .lib-group:not(.in-lib) {
   border-top: 1px solid rgba(128, 128, 128, 0.3);
   padding-top: 12px;
 }
+
 @media (max-width: 1023px) {
   .row.no-wrap-md {
     flex-direction: column;
