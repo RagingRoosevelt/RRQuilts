@@ -202,6 +202,44 @@ def contents(doc):
         if doc else None
 
 
+def palette_contents(doc):
+    """A color pack's contents, for its revision: its colors' ids, names and values."""
+    return sorted((c['id'], c['notecard']['name'], tuple(c['rgb']))
+                  for it in (doc or {}).get('items', []) for c in it['data'].get('colors', [])) if doc else None
+
+
+def build_palette_pack(maker, lib_id, path, out_dir):
+    """A solids palette (.rrqplt from the downloaders, e.g. Pure Solids, Kona) → a color pack."""
+    col = json.loads(path.read_text())['collection']
+    name = col['notecard']['name']
+    pack_id = f'{lib_id}-{slug(name, 120)}'
+    pdir = out_dir / 'packs' / pack_id
+    old = json.loads((pdir / 'rrqlib.json').read_text()) if (pdir / 'rrqlib.json').exists() else None
+    shutil.rmtree(pdir, ignore_errors=True)
+    designer = col.get('author') or MAKERS[maker]
+    colors = col['colors']
+    data = {'id': f'{lib_id}.{slug(name, 58)}', 'notecard': col['notecard'], 'author': designer,
+            'license': LICENSE, 'colors': colors, 'fabrics': []}
+    doc = {'format': 'rrqlib', 'version': 3, 'units': 'in', 'kind': 'pack', 'id': pack_id, 'revision': 1,
+           'name': name, 'description': f'{name}, {MAKERS[maker]} solids',
+           'author': {'name': designer}, 'license': LICENSE, 'categories': [],
+           'library': {'id': lib_id, 'name': MAKERS[maker]}, 'items': [{'type': 'colors', 'data': data}]}
+    doc['revision'] = (old or {}).get('revision', 0) + (1 if palette_contents(old) != palette_contents(doc) else 0)
+    pdir.mkdir(parents=True, exist_ok=True)
+    (pdir / 'rrqlib.json').write_text(json.dumps(doc, indent=1, ensure_ascii=False))
+    return {'id': pack_id, 'name': name, 'kind': 'palettes', 'path': f'packs/{pack_id}/rrqlib.json',
+            'items': len(colors), 'revision': doc['revision'], 'date': '??-??', 'designer': designer,
+            'sizes': {}, 'fabrics': []}
+
+
+def palette_files(src):
+    """The maker's .rrqplt palettes, leaving out any whose colors are all in a bigger one (leftover
+    "new colors" pages the downloaders have since merged)."""
+    files = sorted(src.glob('*.rrqplt'))
+    names = {f: {c['notecard']['name'] for c in json.loads(f.read_text())['collection']['colors']} for f in files}
+    return [f for f in files if not any(g != f and names[f] < names[g] for g in files)]
+
+
 def zip_library(out_dir, dest, keep):
     """A `.rrqlib` zip of the library with only the image sizes `keep(px)` accepts."""
     # Only what the index and its packs name: never images left over from earlier builds.
@@ -264,6 +302,12 @@ def main():
                 print(f'  + {name} ({entry["items"]} fabrics)')
             else:
                 print(f'  - {name}: no fabric images')
+        for f in palette_files(src):
+            if a.only and a.only.lower() not in f.stem.lower():
+                continue
+            entry = build_palette_pack(maker, lib_id, f, out_dir)
+            packs[entry['id']] = entry
+            print(f'  + {entry["name"]} ({entry["items"]} colors)')
         if not packs:
             continue
         index = {
