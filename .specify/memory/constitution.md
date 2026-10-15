@@ -1,6 +1,10 @@
 <!--
 Sync Impact Report
-- Version change: 1.8.0 → 1.8.1 (PATCH: file extensions without separators — .rrqconf, .rrqlib;
+- Version change: 1.8.1 → 1.9.0 (MINOR: fabric images — .rrqlib may be a zip of the JSON plus
+  image files (Principle III); projects reference library fabric images instead of embedding them,
+  embedding only on request (Principle IV); printing may fetch larger images from a connected
+  library as a user-initiated repository fetch (Principle II). Spec 014.)
+- Prior: 1.8.0 → 1.8.1 (PATCH: file extensions without separators — .rrqconf, .rrqlib;
   browser file dialogs reject `_`/`-` in extensions)
 - Prior: 1.7.0 → 1.8.0 (MINOR: added Principle VI — Respect Content Licenses)
 - Prior: 1.6.0 → 1.7.0 (MINOR: TypeBox as the schema/validation library — Technology Stack)
@@ -55,7 +59,8 @@ The app MUST be an installable Progressive Web App that works fully offline afte
 - Every feature MUST work with the network disconnected. A feature that needs the network
   is out of scope unless the constitution is amended.
 - Sole exception: user-initiated connect/refresh of resource repositories (git repositories of
-  extra library content). Fetched content is stored on-device and MUST remain usable offline;
+  extra library content), including fetching a library pack the user turns on and the print-size
+  images for fabrics in a printout the user starts. Fetched content is stored on-device and MUST remain usable offline;
   no core capability may depend on a repository being reachable.
 - Web app manifest with name, icons (incl. maskable), theme color, `display: standalone`.
 - App updates: new service worker is detected and the user is prompted to reload; the app
@@ -69,7 +74,8 @@ Projects and settings are plain JSON with documented, versioned schemas.
 
 - Project file: `.rrq` — UTF-8 JSON, one project per file.
 - Settings file: `.rrqconf` — UTF-8 JSON export/import of app settings.
-- Library file: `.rrqlib` — UTF-8 JSON bundle of library resources. One format for both
+- Library file: `.rrqlib` — UTF-8 JSON bundle of library resources, or a zip holding that JSON
+  plus its image files (the layout of a resource repository). One format for both
   personal-library backup and shareable resource packs, distinguished by a required top-level
   `kind` (`personal` | `pack`; packs carry author and license); same content
   structure a resource repository provides, imported from disk (works offline).
@@ -98,7 +104,10 @@ All data stays on the user's device unless the user explicitly exports it.
 - Browser storage access MUST be wrapped (it can throw or be empty); the app runs on defaults
   when it is unavailable.
 - Projects MUST embed every library/repository item they use, so a `.rrq` file is
-  self-contained.
+  self-contained — except library fabric images, which are referenced (library, pack, item,
+  image hashes, plus the fabric's average color as a stand-in) and embedded only when the user
+  chooses "Include library fabric images" at save time. The user's own fabric images are always
+  embedded.
 - Repository and `.rrqlib` content is untrusted: validate every item, never execute it, enforce size limits.
 - Unsaved-work protection: warn before closing/navigating away with unsaved changes.
 

@@ -4,7 +4,8 @@
 
 **Created**: 2026-10-11
 
-**Status**: Draft
+**Status**: Draft (amended by spec 014: library index, packs, image sizes, zipped `.rrqlib`, custom
+licenses, templates)
 
 **Input**: User description: "Define the shared structure of resource repositories (git) and `.rrqlib`
 files. One document, packed (single file) or exploded (repo with image files). `kind` personal vs
@@ -252,6 +253,29 @@ changelog note, commit, and see the update offered with that note.
 - **FR-042**: Library items are identified by `id@version` (spec 008): `id` = `<author>.<random>`,
   `version` = content hash, plus a display `revision`; matching across libraries and projects uses
   `id@version`.
+
+**Library index, packs, and image sizes (amended by spec 014)**
+
+- **FR-050**: A library MAY consist of many packs. Its root holds `library.json`: `format`
+  (`"rrqlib-index"`), `version`, `id`, `name`, `description`, `author`, `license`, `revision`,
+  `changelog`, and `packs` — each `{ id, name, kind ("palettes" | "blocks"), path, items, revision,
+  sizes: { "256": bytes, "512": bytes, "1024": bytes } }`, plus per fabric its `id`, `name`, and
+  `average` color, so a pack can be listed and previewed before it is downloaded. A single-document
+  repository (`rrqlib.json` at the root, FR-030) remains valid and is treated as a one-pack library.
+- **FR-051**: Each pack is a library document (`packs/<pack>/rrqlib.json`) whose fabric images sit
+  beside it as `packs/<pack>/<size>/<file>.webp`; a fabric lists every size it has (`sizes`:
+  `{ px, path, sha256, type, width, height }`), never larger than its source.
+- **FR-052**: Users MUST be able to turn each pack on or off; only packs that are on are downloaded
+  and cached, at the device's screen size (256 or 512); 1024 is fetched only for printing.
+- **FR-053**: A `.rrqlib` MAY be a zip holding the library's files in the same layout (`library.json`
+  or `rrqlib.json`, `packs/`, images), avoiding base64. JSON-only `.rrqlib` files stay valid. Zips
+  MUST be read safely (no paths outside the archive, size limits per entry and in total).
+- **FR-054**: `license` MAY be a custom license `{ id, name, text }` (e.g. "All rights reserved, for
+  personal use"), treated like all rights reserved when copying, editing, or sharing.
+- **FR-055**: Library templates: a template repository (spec 014 FR-051) provides tools that build
+  packs and `library.json` from source images, validate against the published JSON Schemas, upgrade a
+  library to the current format version, and a release workflow producing `.rrqlib` files for the
+  whole library and each pack, per image size.
 
 ### Key Entities
 
