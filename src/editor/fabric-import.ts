@@ -83,12 +83,16 @@ const toBlob = (c: HTMLCanvasElement, type: string, q: number) =>
 export async function processImage(
   file: Blob,
   fileName: string,
-  opts: { crop: boolean },
+  opts: { crop: boolean; rect?: { x: number; y: number; w: number; h: number } | undefined },
 ): Promise<ProcessedImage> {
   const bmp = await createImageBitmap(file);
-  const { sx, sy, s } = opts.crop ? squareCrop(bmp.width, bmp.height) : { sx: 0, sy: 0, s: 0 };
-  const w = opts.crop ? s : bmp.width;
-  const h = opts.crop ? s : bmp.height;
+  // A crop the user set (fractions of the image), else the centered square or the whole image.
+  const r = opts.rect;
+  const sq = squareCrop(bmp.width, bmp.height);
+  const sx = r ? Math.round(r.x * bmp.width) : opts.crop ? sq.sx : 0;
+  const sy = r ? Math.round(r.y * bmp.height) : opts.crop ? sq.sy : 0;
+  const w = r ? Math.max(1, Math.round(r.w * bmp.width)) : opts.crop ? sq.s : bmp.width;
+  const h = r ? Math.max(1, Math.round(r.h * bmp.height)) : opts.crop ? sq.s : bmp.height;
   const sizes: ProcessedImage['sizes'] = [];
   for (const t of targetSizes(w, h)) {
     const c = canvasOf(t.width, t.height);

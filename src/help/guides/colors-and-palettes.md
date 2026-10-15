@@ -28,8 +28,9 @@ click it in its palette and use the edit button. The bin button removes it.
    editor's **Colors** tray).
 2. Click **Pick images or a zip** or **Pick a folder**. JPEG, PNG, and WebP images work, and several
    at once.
-3. Leave **Crop each image to a square from its center** ticked unless your images are already
-   trimmed.
+3. Leave **Crop each image to a square** ticked unless your images are already trimmed. Click an
+   image's thumbnail to move its crop, or drag a corner to resize it. You can also drop image files
+   onto the dialog.
 4. Type the **Real width of each image**, the width of fabric the photo shows. Left empty, it's
    8 in, and the fabric shows "≈" until you set it.
 5. Check the names in the list, then click **Add**.
