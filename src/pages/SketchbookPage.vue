@@ -647,7 +647,7 @@
             <template v-for="c in merging.changes" :key="c.id">
               <div class="merge-side">
                 <template v-if="c.project">
-                  <span class="chip" :style="swatchOf(c.project)" />
+                  <span class="merge-swatch" :style="swatchOf(c.project)" />
                   <div class="merge-text">
                     {{ c.project.notecard.name }}
                     <div v-if="'rgb' in c.project" class="text-caption text-grey-7">
@@ -670,7 +670,7 @@
               />
               <div class="merge-side">
                 <template v-if="c.library">
-                  <span class="chip" :style="swatchOf(c.library)" />
+                  <span class="merge-swatch" :style="swatchOf(c.library)" />
                   <div class="merge-text">
                     {{ c.library.notecard.name }}
                     <div v-if="'rgb' in c.library" class="text-caption text-grey-7">
@@ -2705,17 +2705,30 @@ watch(
 .merge-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
+  align-items: start; /* swatches line up; the arrows sit level with them */
   gap: 8px 10px;
 }
+/* Each side: a big swatch, its name and details wrapping underneath. */
 .merge-side {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   min-width: 0;
 }
+.merge-grid > .q-btn-toggle {
+  margin-top: 16px;
+}
+.merge-swatch {
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  background-size: cover;
+  flex: none;
+}
 .merge-text {
-  min-width: 0;
+  max-width: 100%;
   overflow-wrap: anywhere;
 }
 .lib-row-sep {
