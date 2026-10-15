@@ -81,14 +81,26 @@
             @click="filtersOpen = false"
           />
         </div>
-        <q-expansion-item
-          default-opened
-          dense
-          label="Libraries"
-          :caption="`${library.views.length} of ${library.allViews.length} on`"
-          class="lib-picker rounded-borders"
-        >
-          <div class="lib-checks column no-wrap q-px-sm">
+        <!-- A fieldset, so "Libraries" sits in the top-left of the border. -->
+        <fieldset class="lib-picker rounded-borders">
+          <legend>
+            <button
+              class="lib-toggle"
+              :aria-expanded="collapse.isOpen('sidebar:libraries')"
+              @click="collapse.toggle('sidebar:libraries')"
+            >
+              <q-icon
+                :name="collapse.isOpen('sidebar:libraries') ? 'expand_more' : 'chevron_right'"
+              />Libraries
+              <span class="text-caption text-grey-7">
+                · {{ library.views.length }} of {{ library.allViews.length }} on
+              </span>
+            </button>
+          </legend>
+          <div
+            v-if="collapse.isOpen('sidebar:libraries')"
+            class="lib-checks column no-wrap q-px-sm"
+          >
             <template v-for="g in libGroups" :key="g.key">
               <!-- Every library has a switch: off leaves it out of projects' trays and pickers.
                    Its name shows just that library here. -->
@@ -149,10 +161,11 @@
                     href="#"
                     class="pack-link ellipsis"
                     :class="{ 'text-grey-6': !packOn(p.id) }"
+                    :title="p.name"
                     @click.prevent="select(p.id)"
                     >{{ p.name }}</a
                   >
-                  <span v-else class="ellipsis text-grey-6">
+                  <span v-else class="ellipsis text-grey-6 col" style="min-width: 0">
                     {{ p.name }}<q-tooltip>Not downloaded yet</q-tooltip>
                   </span>
                 </div>
@@ -192,7 +205,7 @@
             class="q-ma-xs"
             @click="hiddenLibs = []"
           />
-        </q-expansion-item>
+        </fieldset>
         <SlidePicker v-model="settings.settings.libraryType" :options="TYPE_OPTIONS" label="Type" />
         <template v-for="f in filterFields" :key="f.key">
           <q-select
@@ -1108,6 +1121,11 @@ const libGroups = computed(() => {
       if (!g.packs.some((x) => x.id === p.id)) g.packs.push({ id: p.id, name: p.name });
     g.packs.sort((a, b) => (order.get(a.id) ?? -1) - (order.get(b.id) ?? -1));
   }
+  // My library first, then other libraries by name, then the built-in one.
+  const name = (g: (typeof out)[number]) => (g.packs ? g.name : g.view.doc.name);
+  const rank = (g: (typeof out)[number]) =>
+    g.packs ? 1 : g.view.doc.kind === 'personal' ? 0 : g.view.doc === library.builtin ? 2 : 1;
+  out.sort((a, b) => rank(a) - rank(b) || name(a).localeCompare(name(b)));
   return out;
 });
 const packOn = (id: string) => !settings.settings.packsOff.includes(id);
@@ -1456,10 +1474,14 @@ const groups = computed(() =>
 );
 /** Packs of the same library together, the first of each carrying the library's heading. */
 function withLibraryHeads<T extends { v: LibraryView; collections: unknown[] }>(gs: T[]) {
-  const key = (g: T) => g.v.doc.library?.id ?? g.v.doc.id;
-  const order = new Map<string, number>();
-  gs.forEach((g, i) => order.set(key(g), order.get(key(g)) ?? i));
-  const sorted = [...gs].sort((a, b) => order.get(key(a))! - order.get(key(b))!);
+  // My library first, then other libraries by name (a library's packs together, in their order),
+  // then the built-in one.
+  const rank = (g: T) => (g.v.doc.kind === 'personal' ? 0 : g.v.doc === library.builtin ? 2 : 1);
+  const libName = (g: T) => g.v.doc.library?.name ?? g.v.doc.name;
+  const sorted = gs
+    .map((g, i) => ({ g, i }))
+    .sort((a, b) => rank(a.g) - rank(b.g) || libName(a.g).localeCompare(libName(b.g)) || a.i - b.i)
+    .map((x) => x.g);
   const lib = (g?: T) => g?.v.doc.library?.id;
   return sorted.map((g, i) => ({
     ...g,
@@ -1954,11 +1976,33 @@ function downloadPack() {
 }
 .lib-picker {
   border: 1px solid rgba(128, 128, 128, 0.4);
+  margin: 0;
+  padding: 0 0 4px;
+}
+.lib-picker legend {
+  margin-left: 8px;
+  padding: 0 4px;
+  font-size: 0.875rem;
 }
 /* At most five libraries show; more scroll. */
 .lib-checks {
   max-height: calc(5 * 50px);
   overflow-y: auto;
+  overflow-x: hidden;
+}
+/* Long library and pack names shorten with "…" (full name on hover) instead of widening the panel. */
+.lib-picker,
+.lib-checks,
+.lib-checks > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.lib-checks :deep(.q-item__section--main),
+.lib-checks :deep(.q-item__label) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .lib-checks .q-checkbox {
   min-height: 50px;
@@ -2156,6 +2200,7 @@ function downloadPack() {
   color: inherit;
   text-decoration: none;
   min-width: 0;
+  flex: 1 1 auto;
 }
 .pack-link:hover {
   text-decoration: underline;

@@ -21,7 +21,7 @@ import { SEVEN_PATCH_BLOCKS } from './seven-patch';
 type P = [number, number];
 
 export const STARTER_LIBRARY = {
-  name: 'RRQuilts starter',
+  name: 'Built-In',
   author: 'RRQuilts contributors',
   /** Traditional designs and plain colors (spec 009). */
   license: 'PDM-1.0',

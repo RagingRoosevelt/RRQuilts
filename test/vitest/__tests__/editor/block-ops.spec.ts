@@ -92,7 +92,7 @@ describe('block operations', () => {
         author: 'RRQuilts contributors',
         name: 'Ohio Star',
         license: 'PDM-1.0',
-        library: 'RRQuilts starter',
+        library: 'Built-In',
       },
     ]);
     expect(attribution(star)).toMatch(
