@@ -16,13 +16,13 @@ where a step says so. Use the project's Makefile targets (see CLAUDE.md).
    ```
    ## X.Y.Z (YYYY-MM-DD)
 
-   ### Added
+   ### New features
    - ...
 
-   ### Changed
+   ### Fixes
    - ...
 
-   ### Fixed
+   ### Known issues
    - ...
    ```
 
@@ -37,6 +37,10 @@ where a step says so. Use the project's Makefile targets (see CLAUDE.md).
      that were never released.
    - Mention a file format change only as what it means for users (e.g. "older projects open and
      are upgraded").
+   - **Known issues** are problems users may still run into in this version. Commits don't say
+     what's still broken, so ask the user for them. If `gh` works, suggest the open issues labeled
+     `bug` (`gh issue list --label bug --state open`) as candidates. Leave the section out if there
+     are none.
    - Follow the Help writing style: no em or en dashes, no semicolons joining clauses, no
      "Concept: details" colons, no filler.
 
