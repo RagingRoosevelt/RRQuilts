@@ -5,6 +5,11 @@ import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
 import { colorLookup, drawBlock, drawQuilt, fitView } from './draw';
+import { display, imagesTick } from './fabric-images';
+
+/** Thumbnails redraw when fabrics change or their images finish loading. */
+const fabricsKey = (doc: RrqDoc) =>
+  `${doc.project.palette.fabrics.length}:${imagesTick.value}:${display.mode}:${display.size}`;
 
 const cache = new WeakMap<object, Map<string, { dep: unknown; url: string }>>();
 
@@ -26,7 +31,7 @@ function canvas(px: number) {
 export function quiltThumbnail(doc: RrqDoc, quilt: Quilt, px = 240, dark = false) {
   return cached(
     quilt,
-    `${px}:${dark}:${doc.project.palette.colors.length}`,
+    `${px}:${dark}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
     () => {
       const [c, ctx] = canvas(px);
       const g = generateSlots(quilt.layout, quilt.borders);
@@ -53,12 +58,12 @@ export function blockThumbnail(
   const coloring = block.colorings.find((c) => c.id === coloringId) ?? block.colorings[0];
   return cached(
     block,
-    `${px}:${dark}:${coloring?.id ?? ''}:${doc.project.palette.colors.length}`,
+    `${px}:${dark}:${coloring?.id ?? ''}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
     () => {
       const [c, ctx] = canvas(px);
       const s = (px - 8) / Math.max(...block.size);
       ctx.setTransform(s, 0, 0, s, 4, 4);
-      drawBlock(ctx, block, coloring, colorLookup(doc, libraryColors), {
+      drawBlock(ctx, block, coloring, colorLookup(doc, libraryColors, { ctx, devicePerUnit: s }), {
         outlines: true,
         lineWidth: 1 / s,
         dark,

@@ -3,12 +3,13 @@ import type { Generated, Slot } from '@/model/layout/slots';
 import type { Block } from '@/model/schema/block';
 import { resolveColoring } from '@/model/coloring';
 import type { ColoringBody, Fill } from '@/model/schema/coloring';
-import type { Color } from '@/model/schema/palette';
+import type { Color, Fabric } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
 import { mul, type M } from './affine';
 import { blockPaths, toPath2D } from './paths';
 import { placementMatrix } from './placement';
+import { fabricFill } from './fabric-images';
 
 export interface View {
   scale: number;
@@ -53,16 +54,30 @@ function hatch(ctx: CanvasRenderingContext2D, dark: boolean) {
   return hatchCache.pattern ?? '#ddd';
 }
 
-/** Fill → CSS color. `extra`: library colors not (yet) in the project, e.g. for library blocks. */
-export function colorLookup(doc: RrqDoc, extra: readonly Color[] = []) {
+/**
+ * Fill → fill style. `extra`: library colors/fabrics not (yet) in the project, e.g. for library
+ * blocks. With `canvas`, fabrics draw as true-scale image patterns (spec 014); without, as their
+ * average color.
+ */
+export function colorLookup(
+  doc: RrqDoc,
+  extra: readonly Color[] = [],
+  canvas?: { ctx: CanvasRenderingContext2D; devicePerUnit: number },
+  extraFabrics: readonly Fabric[] = [],
+) {
   const colors = new Map(
     [...extra, ...doc.project.palette.colors].map((c) => [c.id, `rgb(${c.rgb.join(',')})`]),
   );
-  const fabrics = new Map(
-    doc.project.palette.fabrics.map((f) => [f.id, `rgb(${f.average.join(',')})`]),
-  );
-  return (f: Fill | undefined) =>
-    !f ? undefined : 'color' in f ? colors.get(f.color) : fabrics.get(f.fabric);
+  const fabrics = new Map([...extraFabrics, ...doc.project.palette.fabrics].map((f) => [f.id, f]));
+  return (f: Fill | undefined): string | CanvasPattern | undefined => {
+    if (!f) return undefined;
+    if ('color' in f) return colors.get(f.color);
+    const fab = fabrics.get(f.fabric);
+    if (!fab) return undefined;
+    return canvas
+      ? fabricFill(canvas.ctx, fab, f, canvas.devicePerUnit)
+      : `rgb(${fab.average.join(',')})`;
+  };
 }
 
 /** Draw one block's patches with a coloring, in the current transform (block design units). */
@@ -92,7 +107,7 @@ export function drawQuilt(
   o: DrawOptions,
 ) {
   const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
-  const fillOf = colorLookup(doc);
+  const fillOf = colorLookup(doc, [], { ctx, devicePerUnit: o.dpr * o.view.scale });
   const base: M = [
     o.dpr * o.view.scale,
     0,

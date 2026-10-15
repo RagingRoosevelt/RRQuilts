@@ -4,7 +4,7 @@
       `project.libraries`; project v2 + library v2 (no-op migrations); `npm run schema`; tests
 - [x] T002 Licenses: `LicenseRef-Personal-Use` ranked as all rights reserved; tests
 - [x] T003 Storage: idb v3 `images` store; `storage/images.ts` (put/get/has, hash dedupe); tests
-- [ ] T004 `render/fabric-images.ts` pattern cache + `stores/images.ts` tick; settings
+- [x] T004 `render/fabric-images.ts` pattern cache + `stores/images.ts` tick; settings
       `fabricImages`, `imageSize`, `saveSize` (+ Settings UI)
 - [ ] T005 Rendering: fill lookup with patterns in quilt, block, thumbnails, trays/pickers
 - [ ] T006 `model/zip.ts` reader/writer (+ tests: round trip, unsafe paths, limits)

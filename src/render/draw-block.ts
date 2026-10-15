@@ -54,7 +54,7 @@ export function drawBlockEditor(
 
   // Patches
   if (o.mode === 'color') {
-    drawBlock(ctx, block, o.coloring, colorLookup(doc), {
+    drawBlock(ctx, block, o.coloring, colorLookup(doc, [], { ctx, devicePerUnit: k }), {
       outlines: true,
       lineWidth: px,
       dark: o.dark,

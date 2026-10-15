@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { imagesTick } from '@/render/fabric-images';
 import { useQuasar } from 'quasar';
 import { computed, ref, watch } from 'vue';
 import { useViewport } from '@/composables/viewport';
@@ -91,6 +92,7 @@ watch(
     props.labels,
     props.selected,
     $q.dark.isActive,
+    imagesTick.value, // fabric images arriving (spec 014)
   ],
   vp.schedule,
 );

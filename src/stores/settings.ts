@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { Dark } from 'quasar';
 import { ref, watch } from 'vue';
+import { display, imagesTick } from '@/render/fabric-images';
 import { loadSettings, saveSettings, type Settings } from '@/settings/settings';
 
 export const useSettingsStore = defineStore('settings', () => {
@@ -11,6 +12,12 @@ export const useSettingsStore = defineStore('settings', () => {
   const applyTheme = () => {
     Dark.set(settings.value.theme === 'auto' ? 'auto' : settings.value.theme === 'dark');
     document.documentElement.classList.toggle('os-accent', settings.value.osAccent);
+    // Fabric image display (spec 014); a change redraws everything that shows fabrics.
+    const { fabricImages, imageSize } = settings.value;
+    if (display.mode !== fabricImages || display.size !== imageSize) {
+      Object.assign(display, { mode: fabricImages, size: imageSize });
+      imagesTick.value++;
+    }
   };
 
   watch(

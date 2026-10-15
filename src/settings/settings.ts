@@ -37,6 +37,13 @@ export interface Settings {
   collapsedSections: string[];
   /** Print preferences (spec 010), merged with defaults where used (`printPrefs`). */
   print: Record<string, unknown>;
+  /** Fabric images (spec 014): show with average-color stand-ins while loading, blank while
+   *  loading, or average colors only (never load images). */
+  fabricImages: 'standins' | 'blank' | 'colors';
+  /** Fabric image size on screen: Light (256) or Standard (512). */
+  imageSize: 256 | 512;
+  /** Size your own fabric images are saved at in projects and backups. */
+  saveSize: 256 | 512;
   // Keys added by later app versions are kept as-is.
   [key: string]: unknown;
 }
@@ -76,6 +83,9 @@ export const defaults = (): Settings => ({
   hideSyncedMine: true,
   projectTab: 'quilts',
   print: {},
+  fabricImages: 'standins',
+  imageSize: 512,
+  saveSize: 512,
 });
 
 const validators: Partial<Record<string, (v: unknown) => boolean>> = {
@@ -108,6 +118,9 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
     typeof v === 'string' &&
     ['quilts', 'blocks', 'colors', 'photos', 'threads', 'details'].includes(v),
   print: (v) => isObject(v),
+  fabricImages: (v) => v === 'standins' || v === 'blank' || v === 'colors',
+  imageSize: (v) => v === 256 || v === 512,
+  saveSize: (v) => v === 256 || v === 512,
   collapsedSections: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
 };
 

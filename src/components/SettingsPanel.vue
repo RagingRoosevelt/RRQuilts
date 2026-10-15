@@ -216,6 +216,50 @@
             </div>
           </div>
         </q-expansion-item>
+        <q-expansion-item default-opened label="Fabrics" icon="texture">
+          <div class="q-pa-md column" style="gap: 16px">
+            <div>
+              <div class="text-subtitle1">Fabric images</div>
+              <q-option-group
+                v-model="store.settings.fabricImages"
+                :options="[
+                  { value: 'standins', label: 'Show them, with average colors while they load' },
+                  { value: 'blank', label: 'Show them, blank while they load' },
+                  { value: 'colors', label: 'Average colors only (never load images)' },
+                ]"
+              />
+            </div>
+            <div>
+              <div class="text-subtitle1">Image size on screen</div>
+              <q-btn-toggle
+                v-model="store.settings.imageSize"
+                no-caps
+                unelevated
+                toggle-color="primary"
+                :options="[
+                  { value: 256, label: 'Light (256 px)' },
+                  { value: 512, label: 'Standard (512 px)' },
+                ]"
+              />
+            </div>
+            <div>
+              <div class="text-subtitle1">Your fabric images in saved projects</div>
+              <q-btn-toggle
+                v-model="store.settings.saveSize"
+                no-caps
+                unelevated
+                toggle-color="primary"
+                :options="[
+                  { value: 256, label: 'Smaller (256 px)' },
+                  { value: 512, label: 'Standard (512 px)' },
+                ]"
+              />
+              <div class="text-caption text-grey-7 q-mt-xs">
+                Library fabrics are saved as references, not images.
+              </div>
+            </div>
+          </div>
+        </q-expansion-item>
         <q-expansion-item default-opened label="Project" icon="grid_view">
           <div class="q-pa-md">
             <q-checkbox

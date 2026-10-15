@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { imagesTick } from '@/render/fabric-images';
 import { useQuasar } from 'quasar';
 import { computed, ref, shallowRef, watch } from 'vue';
 import type { BlockEditorSettings } from '@/editor/block-ops';
@@ -347,6 +348,7 @@ watch(
     editor.blockMode,
     editor.blockTool,
     $q.dark.isActive,
+    imagesTick.value, // fabric images arriving (spec 014)
   ],
   vp.schedule,
 );
