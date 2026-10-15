@@ -476,6 +476,37 @@
         </div>
       </template>
       <ColorEditor ref="colorEditor" @done="addProjectColor" />
+      <!-- The project's own fabrics (spec 014); library fabrics come with their palettes. -->
+      <div class="row items-center q-mb-sm" style="gap: 8px">
+        <div class="text-subtitle2">Project fabrics</div>
+        <q-btn
+          v-if="!project.readOnly"
+          flat
+          dense
+          no-caps
+          size="sm"
+          icon="add_photo_alternate"
+          label="Add fabric images"
+          @click="fabricImport?.show()"
+        />
+      </div>
+      <div v-if="ownFabrics.length" class="swatches q-mb-lg">
+        <div
+          v-for="f in ownFabrics"
+          :key="f.id"
+          class="fabric-swatch"
+          :style="swatchStyle(f)"
+          :title="f.notecard.name + (f.approximate ? ' (size ≈)' : '')"
+        />
+      </div>
+      <div v-else class="text-caption text-grey-7 q-mb-lg">
+        Photos or scans of your fabrics, used like colors in the quilt and block editors.
+      </div>
+      <FabricImportDialog
+        ref="fabricImport"
+        :units="project.doc!.units"
+        @done="(fabrics) => project.change((d) => void d.project.palette.fabrics.push(...fabrics))"
+      />
       <div v-if="settings.settings.hideLibraryPalettes" class="text-caption text-grey-7 q-mt-lg">
         Library palettes are turned off in Settings › Libraries.
       </div>
@@ -500,7 +531,9 @@
               </q-tooltip>
               <div class="q-px-sm" style="width: 160px">
                 {{ c.notecard.name }}
-                <span class="text-caption text-grey-7">· {{ c.colors.length }}</span>
+                <span class="text-caption text-grey-7"
+                  >· {{ c.colors.length + (c.fabrics?.length ?? 0) }}</span
+                >
               </div>
               <div class="row col" style="gap: 3px">
                 <div
@@ -510,13 +543,20 @@
                   :style="{ background: `rgb(${x.rgb.join(',')})` }"
                   :title="x.notecard.name"
                 />
+                <div
+                  v-for="x in c.fabrics ?? []"
+                  :key="x.id"
+                  class="mini-swatch lib-swatch"
+                  :style="swatchStyle(x)"
+                  :title="x.notecard.name"
+                />
               </div>
             </div>
           </fieldset>
         </template>
       </template>
       <div class="text-caption text-grey-7 q-mt-md">
-        Edit a project color from the tray in the quilt editor. Fabrics arrive in a later version.
+        Edit a project color or fabric from the tray in the quilt editor.
       </div>
     </template>
     <div v-else class="text-grey-7">Coming in a later version.</div>
@@ -825,6 +865,8 @@
 </template>
 
 <script setup lang="ts">
+import FabricImportDialog from '@/components/FabricImportDialog.vue';
+import { swatchStyle } from '@/render/fabric-images';
 import { useQuasar } from 'quasar';
 import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -965,6 +1007,10 @@ const libGroups = computed(() => {
       ]
     : out;
 });
+const fabricImport = ref<InstanceType<typeof FabricImportDialog>>();
+const ownFabrics = computed(() =>
+  (project.doc?.project.palette.fabrics ?? []).filter((f) => !isLibraryItem(f)),
+);
 const paletteLibs = computed(() => library.views.filter((v) => v.collections.length));
 type Opt = Color & { from: string };
 /** The swap dialog: colors in use that are going away, each mapped to one that stays. */
@@ -1868,5 +1914,11 @@ function showPlacements() {
 }
 .lib-box legend {
   padding: 0 4px;
+}
+.fabric-swatch {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  border: 1px solid rgba(128, 128, 128, 0.4);
 }
 </style>
