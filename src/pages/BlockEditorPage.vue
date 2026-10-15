@@ -137,19 +137,46 @@
                   <div v-if="'note' in g" class="text-italic">{{ g.note }}</div>
                 </div>
                 <div class="row" style="gap: 8px">
-                  <button
-                    v-for="{ c, i } in g.items"
-                    :key="c.id"
-                    class="coloring"
-                    :class="{ active: c.id === coloringId }"
-                    @click="pickColoring(c.id)"
-                  >
-                    <img
-                      :src="blockThumbnail(project.doc, block, 72, $q.dark.isActive, c.id)"
-                      :alt="c.name ?? `Coloring ${i + 1}`"
-                    />
-                    <div class="text-caption ellipsis">{{ c.name ?? `Coloring ${i + 1}` }}</div>
-                  </button>
+                  <div v-for="{ c, i } in g.items" :key="c.id" class="column items-center">
+                    <button
+                      class="coloring"
+                      :class="{ active: c.id === coloringId }"
+                      @click="pickColoring(c.id)"
+                    >
+                      <img
+                        :src="blockThumbnail(project.doc, block, 72, $q.dark.isActive, c.id)"
+                        :alt="c.name ?? `Coloring ${i + 1}`"
+                      />
+                      <div class="text-caption ellipsis">{{ c.name ?? `Coloring ${i + 1}` }}</div>
+                    </button>
+                    <!-- Each coloring's own Rename and Delete (a library's colorings have neither). -->
+                    <div v-if="!project.readOnly && !isLibraryColoring(c.id)" class="row no-wrap">
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        size="sm"
+                        icon="edit"
+                        :aria-label="`Rename ${c.name ?? `Coloring ${i + 1}`}`"
+                        @click="renameColoringPrompt(c.id)"
+                      >
+                        <q-tooltip>Rename</q-tooltip>
+                      </q-btn>
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        size="sm"
+                        icon="delete"
+                        color="negative"
+                        :disable="block.colorings.length < 2"
+                        :aria-label="`Delete ${c.name ?? `Coloring ${i + 1}`}`"
+                        @click="removeColoring(c.id)"
+                      >
+                        <q-tooltip>Delete</q-tooltip>
+                      </q-btn>
+                    </div>
+                  </div>
                 </div>
               </template>
               <div v-if="!project.readOnly" class="row" style="gap: 6px">
@@ -160,25 +187,6 @@
                   icon="add"
                   label="Save as new coloring"
                   @click="saveAsNew"
-                />
-                <q-btn
-                  dense
-                  flat
-                  no-caps
-                  icon="edit"
-                  label="Rename"
-                  :disable="libraryColoring"
-                  @click="renameColoringPrompt"
-                />
-                <q-btn
-                  dense
-                  flat
-                  no-caps
-                  color="negative"
-                  icon="delete"
-                  label="Delete"
-                  :disable="block.colorings.length < 2 || libraryColoring"
-                  @click="removeColoring"
                 />
               </div>
             </div>
@@ -337,10 +345,11 @@ const coloringGroups = computed(() => {
   ].filter((g) => g.items.length);
 });
 /** The selected coloring is a color variant's untouched library coloring (read-only). */
-const libraryColoring = computed(() => {
+/** A color variant's colorings from its library block: read-only (spec 008 US7). */
+const isLibraryColoring = (id: string) => {
   const v = block.value && projectColorings(block.value, library.lookup);
-  return !!v && !v.own.some((c) => c.id === coloringId.value);
-});
+  return !!v && !v.own.some((c) => c.id === id);
+};
 const coloringId = computed(() => {
   const b = block.value;
   const chosen = b && editor.coloringOf.get(b.id);
@@ -507,7 +516,7 @@ function onPatch(patchId: string) {
   // A library coloring is read-only: painting it starts a project copy (same undo step).
   let base: Block = b;
   let target = cid;
-  if (libraryColoring.value) {
+  if (coloringId.value && isLibraryColoring(coloringId.value)) {
     const r = saveColoringAs(b, cid);
     const name = b.colorings.find((c) => c.id === cid)?.name;
     base = renameColoring(r.block, r.id, `${name ?? 'Coloring'} (project)`);
@@ -534,27 +543,24 @@ function saveAsNew() {
   project.change(() => withBlock(project.doc!, () => r.block));
   editor.coloringOf.set(block.value!.id, r.id);
 }
-function renameColoringPrompt() {
-  const c = block.value!.colorings.find((x) => x.id === coloringId.value);
+function renameColoringPrompt(id: string) {
+  const c = block.value!.colorings.find((x) => x.id === id);
   $q.dialog({
     title: 'Rename coloring',
     prompt: { model: c?.name ?? '', type: 'text' },
     cancel: true,
   }).onOk((name: string) => {
     if (name.trim())
-      project.change(() =>
-        withBlock(project.doc!, (b) => renameColoring(b, coloringId.value!, name.trim())),
-      );
+      project.change(() => withBlock(project.doc!, (b) => renameColoring(b, id, name.trim())));
   });
 }
-function removeColoring() {
-  const id = coloringId.value!;
+function removeColoring(id: string) {
   const blockId = block.value!.id;
   // Quilts following this coloring keep its colors as their own.
   project.change(() =>
     withBlock(detachColoring(project.doc!, blockId, id), (b) => deleteColoring(b, id)),
   );
-  editor.coloringOf.delete(block.value!.id);
+  if (coloringId.value === id) editor.coloringOf.delete(block.value!.id);
 }
 
 // --- Keyboard ---

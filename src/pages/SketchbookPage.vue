@@ -726,6 +726,21 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog :model-value="!!editingInUse" @update:model-value="editingInUse = null">
+      <q-card v-if="editingInUse" style="width: 420px; max-width: 95vw">
+        <q-card-section class="text-h6">This block is in use</q-card-section>
+        <q-card-section class="q-pt-none">
+          Changes will update {{ editingInUse.quilts.length }} quilt{{
+            editingInUse.quilts.length > 1 ? 's' : ''
+          }}: {{ editingInUse.quilts.join(', ') }}. To leave them alone, use "Edit a copy".
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn v-close-popup flat no-caps label="Cancel" />
+          <q-btn flat no-caps label="Edit a copy" @click="chooseInUse('copy')" />
+          <q-btn flat no-caps color="primary" label="Edit anyway" @click="chooseInUse('edit')" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-dialog :model-value="!!inUseDialog" @update:model-value="inUseDialog = null">
       <q-card v-if="inUseDialog" style="width: 420px; max-width: 95vw">
         <q-card-section>
@@ -1514,15 +1529,22 @@ function openBlock(id: string) {
     void router.push(`/project/block/${id}`);
   };
   if (!users.length || warnedBlocks.has(id) || project.readOnly) return go();
-  warnedBlocks.add(id);
-  $q.dialog({
-    title: 'This block is in use',
-    message: `Changes will update ${users.length} quilt${users.length > 1 ? 's' : ''}: ${users.map((q) => `"${q.notecard.name}"`).join(', ')}. To leave them alone, use "Edit a copy".`,
-    cancel: { label: 'Edit a copy', flat: true },
-    ok: { label: 'Edit anyway', flat: true },
-  })
-    .onOk(go)
-    .onCancel(() => void editCopy(id));
+  editingInUse.value = {
+    id,
+    quilts: users.map((q) => `"${q.notecard.name}"`),
+    go: () => {
+      warnedBlocks.add(id);
+      go();
+    },
+  };
+}
+/** Opening a block quilts use: edit it anyway, edit a copy, or cancel. */
+const editingInUse = ref<{ id: string; quilts: string[]; go: () => void } | null>(null);
+function chooseInUse(how: 'copy' | 'edit') {
+  const e = editingInUse.value!;
+  editingInUse.value = null;
+  if (how === 'copy') void editCopy(e.id);
+  else e.go();
 }
 
 async function editCopy(id: string) {

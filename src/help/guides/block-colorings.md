@@ -20,8 +20,9 @@ which one each placed block starts from.
 Under **Colorings** in the sidebar, each coloring is a thumbnail. Click one to work on it.
 
 - **Save as new coloring** copies the current one so you can change it freely.
-- **Rename** names it.
-- **Delete** removes it (a block always keeps at least one). Quilts that used it keep their colors.
+- The pencil under a coloring renames it.
+- The bin under a coloring deletes it (a block always keeps at least one). Quilts that used it keep
+  their colors.
 
 To recolor a whole coloring at once, open a block's menu in the sketchbook's **My blocks** and
 choose **New coloring from palette swap…**. Pick a palette and each color or fabric in the coloring
