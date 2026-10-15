@@ -639,28 +639,50 @@
           </div>
         </q-card-section>
         <q-card-section class="column q-pt-none" style="gap: 8px; max-height: 60vh; overflow: auto">
-          <div
-            v-for="c in merging.changes"
-            :key="c.id"
-            class="row items-center no-wrap"
-            style="gap: 8px"
-          >
-            <span class="chip" :style="swatchOf(c.project ?? c.library)" />
-            <span v-if="c.project && c.library" class="chip" :style="swatchOf(c.library)" />
-            <div class="col" style="min-width: 0">
-              <div class="ellipsis">{{ c.name }}</div>
-              <div class="text-caption text-grey-7 ellipsis">{{ changeLabel(c) }}</div>
-            </div>
-            <q-btn-toggle
-              :model-value="merging.choice.get(c.id)"
-              dense
-              no-caps
-              unelevated
-              toggle-color="primary"
-              :options="changeOptions(c)"
-              @update:model-value="(v: 'project' | 'library') => merging!.choice.set(c.id, v)"
-            />
+          <!-- Project's version | the choice | My library's version; choices line up. -->
+          <div class="merge-grid">
+            <div class="text-caption text-grey-7">This project</div>
+            <div />
+            <div class="text-caption text-grey-7">{{ MY_LIBRARY }}</div>
+            <template v-for="c in merging.changes" :key="c.id">
+              <div class="merge-side">
+                <template v-if="c.project">
+                  <span class="chip" :style="swatchOf(c.project)" />
+                  <div class="merge-text">
+                    {{ c.project.notecard.name }}
+                    <div v-if="'rgb' in c.project" class="text-caption text-grey-7">
+                      {{ hexOf(c.project) }}
+                    </div>
+                  </div>
+                </template>
+                <span v-else class="text-caption text-grey-7">Not there</span>
+              </div>
+              <q-btn-toggle
+                :model-value="merging.choice.get(c.id)"
+                dense
+                unelevated
+                toggle-color="primary"
+                :options="[
+                  { value: 'project', icon: 'west', attrs: { 'aria-label': 'Use the project’s' } },
+                  { value: 'library', icon: 'east', attrs: { 'aria-label': 'Use the library’s' } },
+                ]"
+                @update:model-value="(v: 'project' | 'library') => merging!.choice.set(c.id, v)"
+              />
+              <div class="merge-side">
+                <template v-if="c.library">
+                  <span class="chip" :style="swatchOf(c.library)" />
+                  <div class="merge-text">
+                    {{ c.library.notecard.name }}
+                    <div v-if="'rgb' in c.library" class="text-caption text-grey-7">
+                      {{ hexOf(c.library) }}
+                    </div>
+                  </div>
+                </template>
+                <span v-else class="text-caption text-grey-7">Not there</span>
+              </div>
+            </template>
           </div>
+          <div class="text-caption text-grey-7">The arrow points at the version that's kept.</div>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn v-close-popup flat no-caps label="Cancel" />
@@ -2101,29 +2123,14 @@ const merging = ref<{
   changes: PaletteChange[];
   choice: Map<string, 'project' | 'library'>;
 } | null>(null);
-const changeLabel = (c: PaletteChange) =>
-  !c.library
-    ? 'Only in the project'
-    : !c.project
-      ? `Only in ${MY_LIBRARY}`
-      : c.project.notecard.name !== c.library.notecard.name
-        ? `Renamed: “${c.library.notecard.name}” in ${MY_LIBRARY}`
-        : 'Color differs';
-const changeOptions = (c: PaletteChange) =>
-  !c.library
-    ? [
-        { label: 'Keep it', value: 'project' },
-        { label: 'Remove it', value: 'library' },
-      ]
-    : !c.project
-      ? [
-          { label: 'Add it', value: 'library' },
-          { label: 'Leave it out', value: 'project' },
-        ]
-      : [
-          { label: 'Project’s', value: 'project' },
-          { label: 'Library’s', value: 'library' },
-        ];
+const hexOf = (x: Color | Fabric) =>
+  'rgb' in x
+    ? '#' +
+      x.rgb
+        .map((n) => n.toString(16).padStart(2, '0'))
+        .join('')
+        .toUpperCase()
+    : '';
 const swatchOf = (x: Color | Fabric | undefined) =>
   !x ? {} : 'rgb' in x ? { background: `rgb(${x.rgb.join(',')})` } : swatchStyle(x);
 function finishMerge() {
@@ -2693,6 +2700,23 @@ watch(
   height: 28px;
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.2);
+}
+/* Synchronize dialog: project | choice | library, the choices in one column. */
+.merge-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 10px;
+}
+.merge-side {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.merge-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .lib-row-sep {
   border-top: 1px solid rgba(128, 128, 128, 0.15);
