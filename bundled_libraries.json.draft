@@ -1,0 +1,27 @@
+{
+  "$schema": "./public/schemas/bundled_libraries.v1.json",
+  "format": "rrq-bundled-libraries",
+  "version": 1,
+  "libraries": [
+    {
+      "name": "Cloud9 Fabrics",
+      "url": "https://github.com/RRQuilts/rrqlib-cloud9",
+      "description": "Fabric collections from Cloud9 Fabrics. For personal use only."
+    },
+    {
+      "name": "Robert Kaufman Fabrics",
+      "url": "https://github.com/RRQuilts/rrqlib-robertkaufman",
+      "description": "Fabric collections from Robert Kaufman Fabrics. For personal use only."
+    },
+    {
+      "name": "Art Gallery Fabrics",
+      "url": "https://github.com/RRQuilts/rrqlib-artgalleryfabrics",
+      "description": "Fabric collections from Art Gallery Fabrics. For personal use only."
+    },
+    {
+      "name": "Moda Fabrics",
+      "url": "https://github.com/RRQuilts/rrqlib-modafabrics",
+      "description": "Fabric collections from Moda Fabrics. For personal use only."
+    }
+  ]
+}
