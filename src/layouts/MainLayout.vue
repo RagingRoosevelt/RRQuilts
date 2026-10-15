@@ -37,6 +37,7 @@
           />
         </template>
         <q-space />
+        <ImageStatus />
         <SaveStatus />
         <q-btn
           flat
@@ -90,6 +91,7 @@
 import { useQuasar } from 'quasar';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import ImageStatus from '@/components/ImageStatus.vue';
 import SaveStatus from '@/components/SaveStatus.vue';
 import SettingsPanel from '@/components/SettingsPanel.vue';
 import { settingsOpen } from '@/composables/settings-open';

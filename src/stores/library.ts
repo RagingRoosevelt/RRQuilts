@@ -21,6 +21,7 @@ import {
 import { useSettingsStore } from './settings';
 import { useProjectStore } from './project';
 import { freeUnusedImages } from '@/storage/fabric-files';
+import { setMissingFetcher } from '@/render/fabric-images';
 
 export const useLibraryStore = defineStore('library', () => {
   const builtin = shallowRef<LibraryDoc | null>(null);
@@ -104,7 +105,7 @@ export const useLibraryStore = defineStore('library', () => {
 
   // --- Libraries connected from the web (spec 002 US3/US4, spec 014) ---
   const connections = shallowRef<Connection[]>([]);
-  void loadConnections()
+  const connectionsLoaded = loadConnections()
     .then((c) => {
       const now = connections.value; // connected meanwhile: keep
       connections.value = [...c.filter((x) => !now.some((y) => y.id === x.id)), ...now];
@@ -184,6 +185,24 @@ export const useLibraryStore = defineStore('library', () => {
     }
     return n;
   }
+  // Fabric images missing on this device (spec 014): download them from their connected library,
+  // a pack at a time (fabrics of one pack missing together share one download).
+  const fetching = new Map<string, Promise<boolean>>();
+  setMissingFetcher((f) => {
+    const packId = f.source?.libraryId;
+    if (!packId) return Promise.resolve(false);
+    let p = fetching.get(packId);
+    if (!p) {
+      const px = useSettingsStore().settings.imageSize;
+      p = Promise.all([loaded, connectionsLoaded])
+        .then(() => fetchPackImages([packId], (s) => s <= 256 || s <= px))
+        .then((n) => n > 0);
+      fetching.set(packId, p);
+      void p.finally(() => fetching.delete(packId));
+    }
+    return p;
+  });
+
   /** Where a pack came from (its library, and the address it's connected from). */
   function whereOf(packId: string): LibraryWhere | undefined {
     const pack = packs.value.find((p) => p.id === packId);

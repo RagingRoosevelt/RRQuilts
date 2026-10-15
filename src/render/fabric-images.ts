@@ -23,11 +23,55 @@ export function imageFor(f: Fabric, px = display.size) {
   return fit?.sha256 ?? f.image.sha256;
 }
 
+/** Every image of `f`, best first for `px`: the fit, then smaller sizes, then larger ones. */
+function candidates(f: Fabric, px: number) {
+  const sizes = [...(f.sizes ?? [])].sort((a, b) => a.px - b.px);
+  const below = sizes.filter((s) => s.px <= px).reverse();
+  const above = sizes.filter((s) => s.px > px);
+  return [...new Set([...below, ...above].map((s) => s.sha256).concat(f.image.sha256))];
+}
+
+/**
+ * Downloads a missing fabric's images from where it came from (a connected library), if it can.
+ * Set by the library store; resolves true when something was fetched.
+ */
+let fetchMissing: ((f: Fabric) => Promise<boolean>) | undefined;
+export const setMissingFetcher = (fn: (f: Fabric) => Promise<boolean>) => (fetchMissing = fn);
+
+/** How fabric images are doing on this device: loading now, and not found (by fabric id). */
+export const imageStatus = shallowRef({ loading: 0, missing: [] as string[] });
+const missing = new Map<string, Fabric>();
+let loading = 0;
+const publish = () => (imageStatus.value = { loading, missing: [...missing.keys()] });
+
+async function storedRow(f: Fabric, px: number) {
+  for (const sha of candidates(f, px)) {
+    const row = await getImage(sha);
+    if (row) return row;
+  }
+  if (f.image.data && (await storeEmbedded(f.image))) return getImage(f.image.sha256);
+  return undefined;
+}
+/** The best stored image of `f` for `px`, downloading it first when it's missing and can be. */
+async function findImage(f: Fabric, px: number) {
+  loading++;
+  publish();
+  try {
+    let row = await storedRow(f, px);
+    if (!row && fetchMissing && (await fetchMissing(f).catch(() => false)))
+      row = await storedRow(f, px);
+    if (row) missing.delete(f.id);
+    else missing.set(f.id, f);
+    return row;
+  } finally {
+    loading--;
+    publish();
+  }
+}
+
 async function load(sha: string, f: Fabric) {
   try {
-    let row = await getImage(sha);
-    if (!row && f.image.sha256 === sha && f.image.data && (await storeEmbedded(f.image)))
-      row = await getImage(sha);
+    const row = await findImage(f, display.size);
     if (!row) return void bitmaps.set(sha, null);
     bitmaps.set(sha, await createImageBitmap(new Blob([row.bytes], { type: row.type })));
     imagesTick.value++;
@@ -59,9 +103,7 @@ export function fabricUrl(f: Fabric, px = 256): string | undefined {
       sha,
       (async () => {
         try {
-          let row = await getImage(sha);
-          if (!row && f.image.sha256 === sha && f.image.data && (await storeEmbedded(f.image)))
-            row = await getImage(sha);
+          const row = await findImage(f, px);
           urls.set(
             sha,
             row ? URL.createObjectURL(new Blob([row.bytes], { type: row.type })) : null,
@@ -88,6 +130,8 @@ export function swatchStyle(f: Fabric) {
 export function retryMissing() {
   for (const [k, v] of bitmaps) if (v === null) bitmaps.delete(k);
   for (const [k, v] of urls) if (v === null) urls.delete(k);
+  missing.clear();
+  publish();
   imagesTick.value++;
 }
 

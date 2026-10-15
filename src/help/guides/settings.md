@@ -27,6 +27,10 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 - **Your fabric images in saved projects** sets the size your own fabrics are saved at. Library
   fabrics are saved as references, not images.
 
+While fabric images load, a spinner with a count shows in the header. Images missing from this
+device are downloaded from their library when it was added from the web. Any that still can't be
+found show as a warning with a count, and their fabrics use average colors. Click it to try again.
+
 ## Libraries and Project
 
 - **Hide library blocks from projects** and **Hide library palettes from projects** leave the libraries' lists out of the project's **Blocks** and **Palettes** tabs. Blocks and palettes already in use stay available.
