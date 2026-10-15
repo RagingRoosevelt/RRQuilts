@@ -92,6 +92,8 @@ Libraries can also live in a git repository, such as one on GitHub.
    side.
 2. Paste the repository's address. Add a branch or tag if its author asked you to. Click
    **Connect**. Only the list of packs is downloaded.
+   A library's own page may have a link that adds it. The link opens this step with the address
+   filled in, and asks before connecting.
 3. Open the library's name in the side panel and switch on the packs you want. Each pack downloads
    when you first switch it on, with images at the size set in **Settings › Fabrics**.
 4. Click **Check for updates** under the library's name. Before anything changes you see which colors and

@@ -280,6 +280,7 @@ export const useLibraryStore = defineStore('library', () => {
     packs,
     stored,
     loaded,
+    connectionsLoaded,
     views,
     allViews,
     lookup,
