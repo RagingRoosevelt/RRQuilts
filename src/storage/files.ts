@@ -113,7 +113,10 @@ export async function ensurePermission(handle: FileSystemFileHandle, mode: 'read
   return (await handle.requestPermission?.({ mode })) === 'granted';
 }
 
-export async function writeToHandle(handle: FileSystemFileHandle, text: string) {
+export async function writeToHandle(
+  handle: FileSystemFileHandle,
+  text: string | Uint8Array<ArrayBuffer>,
+) {
   const w = await handle.createWritable();
   await w.write(text);
   await w.close();
@@ -134,7 +137,11 @@ export async function pickSaveHandle(name: string): Promise<FileSystemFileHandle
 }
 
 /** Export a file: a save dialog with the named type where supported, else a download. */
-export async function exportFile(name: string, text: string, ext: FileExt) {
+export async function exportFile(
+  name: string,
+  text: string | Uint8Array<ArrayBuffer>,
+  ext: FileExt,
+) {
   if (!supportsFileAccess()) return download(name, text, ext);
   try {
     const handle = await window.showSaveFilePicker!({
@@ -149,7 +156,7 @@ export async function exportFile(name: string, text: string, ext: FileExt) {
 }
 
 /** Fallback save: download a copy. */
-export function download(name: string, text: string, ext = 'rrq') {
+export function download(name: string, text: string | Uint8Array<ArrayBuffer>, ext = 'rrq') {
   // Not application/json: Android browsers append ".json" to the name for that type.
   const url = URL.createObjectURL(new Blob([text], { type: 'application/octet-stream' }));
   const a = document.createElement('a');

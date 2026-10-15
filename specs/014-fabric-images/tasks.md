@@ -15,5 +15,5 @@
 - [x] T009 Missing-library offer dialog on open (+ Details tab entry)
 - [x] T010 `fabric_collections/build_packs.py` + run on the four manufacturers
 - [x] T011 Template repository at `~/Code/rrquilts-library-template` (tools, workflows, README)
-- [ ] T012 Library index + packs on/off in Libraries; zipped `.rrqlib` backup/import with images
+- [x] T012 Library index + packs on/off in Libraries; zipped `.rrqlib` backup/import with images
 - [ ] T013 Print: SVG fabric patterns; 1024 fetch for printouts when connected

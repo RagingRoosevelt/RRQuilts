@@ -2,13 +2,15 @@
 // (or one `rrqlib.json`), with fabric images as files beside each pack. Images are checked against
 // their hashes and kept in the device image store; packs come back ready to install.
 import { parseLibraryValue } from '@/model/library-file';
-import type { LibraryDoc } from '@/model/schema/library';
-import { readZip, type ZipEntry } from '@/model/zip';
-import { putImage } from './images';
+import type { LibraryBackup, LibraryDoc } from '@/model/schema/library';
+import { readZip, writeZip, type ZipEntry } from '@/model/zip';
+import { getImage, putImage } from './images';
 
 export interface ZippedLibrary {
   /** The library, when the zip has an index. */
   library?: { id: string; name: string };
+  /** A My library backup (with its images now stored), for the restore dialog. */
+  backup?: LibraryBackup;
   packs: LibraryDoc[];
   /** Problems with single packs or images (the rest loaded). */
   skipped: string[];
@@ -62,19 +64,68 @@ export async function readLibraryZip(bytes: Uint8Array<ArrayBuffer>): Promise<Zi
       continue;
     }
     skipped.push(...r.skipped.map((s) => `${r.doc.name}: ${s}`));
-    // Images beside the pack, checked against the hashes the pack declares.
-    for (const item of r.doc.items) {
-      if (item.type !== 'colors') continue;
-      for (const f of item.data.fabrics ?? [])
-        for (const s of f.sizes ?? []) {
-          const e = s.path && byName.get(dir + s.path);
-          if (!e) continue; // a size this zip doesn't carry (e.g. 1024 in a Standard zip)
-          const sha = await putImage(e.bytes, { type: s.type, width: s.width, height: s.height });
-          if (sha !== s.sha256)
-            skipped.push(`${r.doc.name}: ${f.notecard.name}: image doesn't match`);
-        }
-    }
+    // Images beside the document, checked against the hashes it declares (a backup's packs too).
+    for (const d of [r.doc, ...(r.doc.packs ?? [])])
+      for (const item of d.items) {
+        if (item.type !== 'colors') continue;
+        for (const f of item.data.fabrics ?? [])
+          for (const s of f.sizes ?? []) {
+            const e = s.path && byName.get(dir + s.path);
+            if (!e) continue; // a size this zip doesn't carry (e.g. 1024 in a Standard zip)
+            const sha = await putImage(e.bytes, { type: s.type, width: s.width, height: s.height });
+            if (sha !== s.sha256)
+              skipped.push(`${d.name}: ${f.notecard.name}: image doesn't match`);
+          }
+      }
+    if (r.doc.kind === 'personal') return { packs: [], backup: r.doc, skipped };
     packs.push(library ? { ...r.doc, library } : r.doc);
   }
   return { ...(library ? { library } : {}), packs, skipped };
+}
+
+const EXT: Record<string, string> = {
+  'image/webp': 'webp',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+};
+
+/**
+ * A library document with its fabric images as a zip (`rrqlib.json` + `images/`), or undefined when
+ * it has no fabric images on this device (then plain JSON is enough).
+ */
+export async function writeLibraryZip(
+  doc: LibraryBackup,
+  serialize: (d: LibraryBackup) => string,
+): Promise<Uint8Array<ArrayBuffer> | undefined> {
+  const images = new Map<string, ZipEntry>();
+  const withPaths = async (d: LibraryDoc): Promise<LibraryDoc> => ({
+    ...d,
+    items: await Promise.all(
+      d.items.map(async (item) => {
+        if (item.type !== 'colors' || !item.data.fabrics?.length) return item;
+        const fabrics = await Promise.all(
+          item.data.fabrics.map(async (f) => ({
+            ...f,
+            sizes: await Promise.all(
+              (f.sizes ?? []).map(async (s) => {
+                const row = await getImage(s.sha256);
+                if (!row) return s;
+                const path = `images/${s.sha256}.${EXT[row.type] ?? 'img'}`;
+                images.set(path, { name: path, bytes: new Uint8Array(row.bytes) });
+                return { ...s, path };
+              }),
+            ),
+          })),
+        );
+        return { ...item, data: { ...item.data, fabrics } };
+      }),
+    ),
+  });
+  const out: LibraryBackup = {
+    ...(await withPaths(doc)),
+    ...(doc.packs ? { packs: await Promise.all(doc.packs.map(withPaths)) } : {}),
+  };
+  if (!images.size) return undefined;
+  const json = new TextEncoder().encode(serialize(out));
+  return writeZip([{ name: 'rrqlib.json', bytes: json }, ...images.values()]);
 }

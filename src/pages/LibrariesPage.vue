@@ -24,6 +24,9 @@
         label="New palette…"
         @click="newPalette()"
       />
+      <q-btn outline no-caps icon="add_photo_alternate" label="Add fabrics…" @click="addFabricsTo">
+        <q-tooltip>Fabric images (files, a folder, or a zip) into one of your palettes</q-tooltip>
+      </q-btn>
       <q-btn
         outline
         no-caps
@@ -664,6 +667,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <FabricImportDialog ref="fabricDialog" units="in" :palettes="myPalettes" @done="fabricsAdded" />
   </q-page>
 </template>
 
@@ -702,6 +706,7 @@ import {
   saveCollection,
   setNotecard,
   type LibraryView,
+  addFabrics,
 } from '@/model/library';
 import { backupDoc, packDoc, parseLibrary, restore, serializeLibrary } from '@/model/library-file';
 import { createProject } from '@/model/new-project';
@@ -715,7 +720,9 @@ import type {
 import type { Color } from '@/model/schema/palette';
 import { blockThumbnail } from '@/render/thumbnail';
 import { exportFile, pickFile } from '@/storage/files';
-import { isZip, readLibraryZip } from '@/storage/library-zip';
+import { isZip, readLibraryZip, writeLibraryZip } from '@/storage/library-zip';
+import FabricImportDialog from '@/components/FabricImportDialog.vue';
+import type { Fabric } from '@/model/schema/palette';
 import { retryMissing, swatchStyle } from '@/render/fabric-images';
 import { useLibraryStore } from '@/stores/library';
 import { revealSection } from '@/composables/block-sections';
@@ -1091,6 +1098,16 @@ async function importZip(bytes: Uint8Array<ArrayBuffer>) {
   const busy = $q.notify({ message: 'Reading the library…', timeout: 0, spinner: true });
   try {
     const r = await readLibraryZip(bytes);
+    if (r.backup) {
+      busy();
+      restoring.value = {
+        backup: r.backup,
+        skipped: r.skipped,
+        mine: 'merge',
+        packs: Object.fromEntries((r.backup.packs ?? []).map((p) => [p.id, 'keep' as const])),
+      };
+      return;
+    }
     let added = 0;
     let updated = 0;
     for (const p of r.packs) {
@@ -1189,7 +1206,30 @@ function backUp() {
   const b = backingUp.value!;
   backingUp.value = null;
   const doc = backupDoc(library.ensureMine(me.value), library.packs, b);
-  void exportFile('RRQuilts library backup', serializeLibrary(doc, APP), 'rrqlib');
+  // With fabric images (spec 014), the backup is a zip of the document and its images.
+  void writeLibraryZip(doc, (d) => serializeLibrary(d, APP)).then((zip) =>
+    exportFile('RRQuilts library backup', zip ?? serializeLibrary(doc, APP), 'rrqlib'),
+  );
+}
+
+// --- Fabric images into My library (spec 014) ---
+const fabricDialog = ref<InstanceType<typeof FabricImportDialog>>();
+const myPalettes = computed(() =>
+  (library.mine?.items ?? []).flatMap((i) =>
+    i.type === 'colors' ? [{ id: i.data.id, name: i.data.notecard.name }] : [],
+  ),
+);
+function addFabricsTo() {
+  fabricDialog.value?.show();
+}
+async function fabricsAdded(fabrics: Fabric[], palette?: { id: string } | { name: string }) {
+  if (!palette) return;
+  await update(async (l) => (await addFabrics(l, palette, fabrics, me.value)).lib);
+  select('mine');
+  $q.notify({
+    type: 'positive',
+    message: `Added ${fabrics.length} fabric${fabrics.length > 1 ? 's' : ''} to ${MY_LIBRARY}.`,
+  });
 }
 
 const restoring = ref<{

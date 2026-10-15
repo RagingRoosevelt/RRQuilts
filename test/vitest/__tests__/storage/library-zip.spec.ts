@@ -5,7 +5,10 @@ import { sha256Hex } from '@/model/io';
 import { writeZip } from '@/model/zip';
 import { resetIdb } from '@/storage/idb';
 import { getImage } from '@/storage/images';
-import { isZip, readLibraryZip } from '@/storage/library-zip';
+import { isZip, readLibraryZip, writeLibraryZip } from '@/storage/library-zip';
+import { putImage } from '@/storage/images';
+import { serializeLibrary } from '@/model/library-file';
+import { addFabrics, emptyPersonal } from '@/model/library';
 
 beforeEach(() => {
   globalThis.indexedDB = new IDBFactory();
@@ -99,5 +102,41 @@ describe('zipped .rrqlib (spec 014)', () => {
       "Pond Days: Pond Days 229834: image doesn't match",
       'packs/gone/rrqlib.json: missing from the zip',
     ]);
+  });
+
+  it('backs up My library with its fabric images and restores them elsewhere', async () => {
+    const sha = await putImage(new Uint8Array([4, 4, 4]), {
+      type: 'image/webp',
+      width: 256,
+      height: 256,
+    });
+    const size = { px: 256, sha256: sha, type: 'image/webp', width: 256, height: 256 };
+    const { lib } = await addFabrics(
+      emptyPersonal('Me'),
+      { name: 'Stash' },
+      [
+        {
+          id: 'me.dots',
+          notecard: { name: 'Dots' },
+          image: { sha256: sha, type: 'image/webp', width: 256, height: 256 },
+          size: [8, 8],
+          average: [1, 2, 3],
+          sizes: [size],
+        },
+      ],
+      'Me',
+    );
+    const zip = await writeLibraryZip(lib, (d) => serializeLibrary(d, 'test'));
+    expect(zip && isZip(zip)).toBe(true);
+    globalThis.indexedDB = new IDBFactory(); // another device
+    resetIdb();
+    const r = await readLibraryZip(zip!);
+    expect(r.backup?.kind).toBe('personal');
+    expect(r.skipped).toEqual([]);
+    expect(await getImage(sha)).toBeDefined();
+    // Without fabric images there's nothing to zip.
+    expect(
+      await writeLibraryZip(emptyPersonal('Me'), (d) => serializeLibrary(d, 'test')),
+    ).toBeUndefined();
   });
 });
