@@ -151,7 +151,28 @@ async function openPicked() {
   if (picked) await openWith(() => project.openFile(picked));
 }
 
-const openRecent = (r: RecentEntry) => openWith(() => project.openRecent(r));
+function openRecent(r: RecentEntry) {
+  const d = draftOf(r.id);
+  if (!d) return void openWith(() => project.openRecent(r));
+  // The project has unsaved changes here: open those, or the file (losing them).
+  $q.dialog({
+    title: `${r.name} has unsaved changes`,
+    message: `Changes from ${when(d.savedAt)} weren't saved to the file.`,
+    options: {
+      type: 'radio',
+      model: 'draft',
+      items: [
+        { label: 'Open the unsaved changes', value: 'draft' },
+        { label: 'Open the saved file (the unsaved changes are lost)', value: 'file' },
+      ],
+    },
+    cancel: true,
+    ok: { label: 'Open', flat: true },
+  }).onOk((pick: 'draft' | 'file') => {
+    if (pick === 'draft') return openDraft(d);
+    void discardDraft(d).then(() => openWith(() => project.openRecent(r)));
+  });
+}
 
 // Unsaved work (drafts) beside the recent projects.
 const drafts = shallowRef<Draft[]>([]);
