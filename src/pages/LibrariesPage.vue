@@ -414,18 +414,22 @@
                 </legend>
                 <button class="strip col" @click="previewing = { lib: g.v.doc.id, id: c.id }">
                   <span
-                    v-for="x in c.colors"
+                    v-for="(x, i) in c.colors"
                     :key="x.id"
                     class="chip"
                     :style="{ background: css(x) }"
                     :title="x.notecard.name"
+                    @click.stop="previewing = { lib: g.v.doc.id, id: c.id, at: i }"
                   />
                   <!-- Fabrics (spec 014): the print over its average color. -->
                   <span
-                    v-for="x in c.fabrics ?? []"
+                    v-for="(x, i) in c.fabrics ?? []"
                     :key="x.id"
                     class="chip"
                     :style="swatchStyle(x)"
+                    @click.stop="
+                      previewing = { lib: g.v.doc.id, id: c.id, at: c.colors.length + i }
+                    "
                     :title="x.notecard.name + (x.approximate ? ' (size ≈)' : '')"
                   />
                 </button>
@@ -544,7 +548,7 @@
           </div>
         </q-card-section>
       </q-card>
-      <q-card v-else-if="previewCollection" style="width: 480px; max-width: 95vw">
+      <q-card v-else-if="previewCollection" style="width: min(80vw, 600px); max-width: none">
         <q-card-section>
           <q-btn
             v-close-popup
@@ -571,7 +575,7 @@
             swipeable
             arrows
             infinite
-            height="260px"
+            height="min(80vw, 600px)"
             control-type="unelevated"
             control-color="white"
             control-text-color="grey-9"
@@ -581,7 +585,7 @@
               :key="x.item.id"
               :name="i"
               class="q-pa-none"
-              :style="x.kind === 'fabric' ? swatchStyle(x.item) : { background: css(x.item) }"
+              :style="x.kind === 'fabric' ? bigFabric(x.item) : { background: css(x.item) }"
             />
           </q-carousel>
           <q-card-section class="row items-center no-wrap q-py-sm" style="gap: 8px">
@@ -1342,7 +1346,8 @@ const creditLine = (x: Block) =>
 const tagLine = (x: Block) =>
   [...(x.notecard.styles ?? []).map((s) => `style: ${s}`), ...(x.notecard.tags ?? [])].join(' · ');
 
-const previewing = ref<{ lib: string; id: string } | null>(null);
+/** What the preview shows; `at`: a palette's color or fabric to show first. */
+const previewing = ref<{ lib: string; id: string; at?: number } | null>(null);
 /** The preview's coloring (undefined: the block's first); reset when the preview changes. */
 const previewColoring = ref<string>();
 watch(previewing, () => (previewColoring.value = undefined));
@@ -1364,7 +1369,20 @@ const swatches = computed((): Swatch[] => [
   ...(previewCollection.value?.fabrics ?? []).map((item) => ({ kind: 'fabric' as const, item })),
 ]);
 const swatchAt = ref(0);
-watch(previewing, () => (swatchAt.value = 0));
+/** A fabric in the large view: its whole image, fitted (its average color until it loads). */
+function bigFabric(f: Fabric) {
+  const st = swatchStyle(f);
+  return 'backgroundImage' in st
+    ? {
+        ...st,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        backgroundColor: 'transparent',
+      }
+    : st;
+}
+watch(previewing, (p) => (swatchAt.value = p?.at ?? 0));
 watch(swatches, (l) => (swatchAt.value = Math.min(swatchAt.value, Math.max(0, l.length - 1))));
 const shownSwatch = computed(() => swatches.value[swatchAt.value]);
 const hex = (rgb: readonly number[]) =>
@@ -1952,10 +1970,13 @@ function downloadPack() {
     box-shadow: inset 0 0 0 2px var(--q-primary);
   }
 }
+/* Up to three rows of swatches; more scroll. */
 .swatch-strip {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  overflow-x: auto;
+  max-height: calc(3 * 50px + 8px);
+  overflow-y: auto;
   scrollbar-width: thin;
   padding-top: 4px;
 }
