@@ -20,14 +20,6 @@
         <q-tooltip>A backup or pack (.rrqlib), or a palette (.rrqplt)</q-tooltip>
       </q-btn>
       <q-btn outline no-caps icon="save" label="Back up…" @click="backingUp = { ...ALL }" />
-      <q-btn
-        v-if="!library.mine"
-        outline
-        no-caps
-        icon="palette"
-        label="New palette…"
-        @click="newPalette()"
-      />
       <q-btn outline no-caps icon="add_photo_alternate" label="Add fabrics…" @click="addFabricsTo">
         <q-tooltip>Fabric images (files, a folder, or a zip) into one of your palettes</q-tooltip>
       </q-btn>
@@ -316,11 +308,24 @@
       </div>
 
       <div class="col" style="min-width: 0">
-        <div v-if="!mineCount && !filtering" class="text-grey-7 q-pa-md" style="max-width: 560px">
-          Your own blocks and palettes, available in every project on this device. Add a block from
-          a project's Blocks tab (<b>Add to my library</b>), save colors from its Palettes tab (<b
-            >Save to my library</b
-          >), or import a backup.
+        <!-- My library before it has anything: its section, and how to start it. -->
+        <div v-if="!library.mine && !filtering" class="lib-group q-mb-md">
+          <h2 class="lib-name">{{ MY_LIBRARY }}</h2>
+          <div class="text-grey-7 q-my-sm" style="max-width: 560px">
+            Your own blocks and palettes, available in every project on this device. Make a palette
+            here, add a block from a project's Blocks tab (<b>Add to my library</b>), save a palette
+            from its Palettes tab (<b>Save to my library</b>), or import a backup.
+          </div>
+          <div class="row" style="gap: 8px">
+            <q-btn outline no-caps icon="palette" label="New palette…" @click="newPalette()" />
+            <q-btn
+              outline
+              no-caps
+              icon="add_photo_alternate"
+              label="Add fabrics…"
+              @click="addFabricsTo"
+            />
+          </div>
         </div>
         <template v-for="g in groups" :key="g.v.doc.id">
           <div class="lib-group q-mb-md" :class="{ 'in-lib': g.packOf && !g.firstOfLib }">
