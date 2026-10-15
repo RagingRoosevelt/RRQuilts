@@ -95,6 +95,8 @@
           {{ h.title }}
         </a>
       </nav>
+      <!-- A topic without headings: the sidebar stays, empty. -->
+      <div v-else-if="topic && $q.screen.gt.sm" class="toc" aria-hidden="true" />
       <div v-else-if="$q.screen.gt.sm" class="col text-grey-7 q-pt-sm">
         <q-banner v-if="missing" dense class="bg-warning text-dark q-mb-md">
           There's no topic “{{ missing }}” in {{ label }}.
