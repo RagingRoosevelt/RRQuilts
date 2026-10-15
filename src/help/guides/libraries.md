@@ -14,10 +14,11 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
 
 1. Choose **Libraries** in the header.
 2. In the **Libraries** list on the side (the menu button on phones), each library has a switch.
-   Libraries that are off stay out of your projects' trays and pickers. Click a library's name to
+   Libraries and packs that are off stay out of this page and your projects' trays and pickers
+   (click an off pack's name to look at it). Click a library's name to
    show only it, and **Show all libraries** to see them all again. **Find a pack** at the top
-   searches every library's packs. A library of packs has **All off**, **Check for updates** and
-   **Disconnect** under its name. Its arrow folds the list of packs away.
+   searches every library's packs. A library of packs has **All off** under its name, and
+   **Check for updates** and **Disconnect** when it's from the web (**Remove** when imported). Its arrow folds the list of packs away.
    If the open project uses colors or fabrics from a library you switch off, you can **Swap…** them
    for others (in the project's **Palettes** tab), **Copy to My library** to keep them, or
    **Cancel**.
@@ -59,8 +60,11 @@ Libraries live in browser storage. If the page warns that storage is blocked, ba
 
 ## Install a pack
 
-Click **Import** and choose a `.rrqlib` pack (or a `.rrqplt` palette). To remove an installed pack,
-choose **Remove pack** in one of its palettes' **⋮** menus.
+Click **Import** and choose a `.rrqlib` pack (or a `.rrqplt` palette). A file with several packs
+lists them first: tick the ones to add. If the file says where the library lives on the web, the
+library is added as if from the web, and its other packs can be switched on later. Otherwise,
+import the file again to add more. To remove an installed pack, choose **Remove pack** in one of
+its palettes' **⋮** menus. **Remove** under an imported library's name removes all of it.
 
 ## Share your own pack
 

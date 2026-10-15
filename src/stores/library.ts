@@ -19,6 +19,7 @@ import {
   putConnection,
   rawBase,
   type Connection,
+  type LibraryIndex,
 } from '@/storage/repositories';
 import { useSettingsStore } from './settings';
 import { useProjectStore } from './project';
@@ -140,6 +141,35 @@ export const useLibraryStore = defineStore('library', () => {
     await saveConnection(c);
     return c;
   }
+  /**
+   * A library file's chosen packs (images already stored), installed when new or newer. When the
+   * file names its repository, the library is connected as if added from the web: its other packs
+   * are listed, to switch on (download) later. Returns whether it's connected.
+   */
+  async function installFromFile(
+    index: LibraryIndex | undefined,
+    docs: LibraryDoc[],
+    chosen: string[],
+  ): Promise<boolean> {
+    for (const d of docs.filter((x) => chosen.includes(x.id))) {
+      const have = packs.value.find((x) => x.id === d.id);
+      if (!have || have.revision < d.revision) await savePack(d);
+    }
+    const url = index?.repository;
+    if (!index || typeof url !== 'string' || !/^https:\/\//.test(url)) return false;
+    let base: string;
+    try {
+      base = rawBase(url);
+    } catch {
+      return false;
+    }
+    const old = connections.value.find((c) => c.index.id === index.id);
+    if (!old)
+      await saveConnection({ id: `repo:${index.id}`, url, base, index, pinned: index.revision });
+    else if (index.revision > old.pinned)
+      await saveConnection({ ...old, index, pinned: index.revision });
+    return true;
+  }
   /** Download and install one of a connected library's packs. */
   async function installFromRepo(c: Connection, packId: string, px: number) {
     const p = c.index.packs.find((x) => x.id === packId);
@@ -203,10 +233,12 @@ export const useLibraryStore = defineStore('library', () => {
   async function declineUpdate(c: Connection, revision: number) {
     await saveConnection({ ...c, declined: revision });
   }
-  async function disconnect(c: Connection) {
-    for (const p of packs.value.filter((x) => x.library?.id === c.index.id)) await removePack(p.id);
-    connections.value = connections.value.filter((x) => x.index.id !== c.index.id);
-    await write(() => deleteConnection(c.index.id));
+  /** Remove a library of packs from this device: its packs, and its connection if it has one. */
+  async function removeLibrary(libId: string) {
+    for (const p of packs.value.filter((x) => x.library?.id === libId)) await removePack(p.id);
+    if (!connections.value.some((x) => x.index.id === libId)) return;
+    connections.value = connections.value.filter((x) => x.index.id !== libId);
+    await write(() => deleteConnection(libId));
   }
 
   /** Fetch connected packs' missing images (`want`: sizes; default 1024 px, printing only). */
@@ -291,11 +323,12 @@ export const useLibraryStore = defineStore('library', () => {
     removePack,
     connections,
     connect,
+    installFromFile,
     installFromRepo,
     checkForUpdate,
     acceptUpdate,
     declineUpdate,
-    disconnect,
+    removeLibrary,
     whereOf,
     lacking,
     connectRef,

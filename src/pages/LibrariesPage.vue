@@ -155,7 +155,7 @@
                     }}</q-item-label>
                   </q-item-section>
                 </template>
-                <div v-if="g.connection" class="row q-pb-xs" style="gap: 4px">
+                <div v-if="g.connection || g.packs.length > 1" class="row q-pb-xs" style="gap: 4px">
                   <q-btn
                     flat
                     dense
@@ -167,6 +167,7 @@
                     @click="allPacksOff(g)"
                   />
                   <q-btn
+                    v-if="g.connection"
                     flat
                     dense
                     no-caps
@@ -181,9 +182,9 @@
                     dense
                     no-caps
                     size="sm"
-                    icon="link_off"
-                    label="Disconnect"
-                    @click="disconnect(g.connection)"
+                    :icon="g.connection ? 'link_off' : 'delete'"
+                    :label="g.connection ? 'Disconnect' : 'Remove'"
+                    @click="disconnect(g)"
                   />
                 </div>
                 <div
@@ -960,6 +961,88 @@
       </q-card>
     </q-dialog>
 
+    <!-- Importing a library file: which of its packs to add -->
+    <q-dialog :model-value="!!picking" persistent>
+      <q-card v-if="picking" style="width: 520px; max-width: 92vw">
+        <q-card-section class="text-h6"
+          >Import {{ picking.r.library?.name ?? 'library' }}</q-card-section
+        >
+        <q-card-section class="q-pt-none column" style="gap: 8px">
+          <div class="text-body2">
+            Choose the packs to add.
+            <template v-if="pickConnects">
+              The library is added as if from the web: its other packs stay listed, to switch on
+              (and download) later.
+            </template>
+            <template v-else>Import this file again to add others later.</template>
+          </div>
+          <q-input
+            v-if="picking.r.packs.length > 8"
+            v-model="picking.filter"
+            dense
+            outlined
+            clearable
+            placeholder="Find a pack"
+          >
+            <template #prepend><q-icon name="search" /></template>
+          </q-input>
+          <div class="row items-center" style="gap: 8px">
+            <q-btn flat dense no-caps size="sm" label="Select all" @click="pickAll(true)" />
+            <q-btn flat dense no-caps size="sm" label="Select none" @click="pickAll(false)" />
+            <span class="text-caption text-grey-7">
+              {{ picking.chosen.length }} to add or update
+            </span>
+          </div>
+          <q-list
+            dense
+            bordered
+            separator
+            class="rounded-borders"
+            style="max-height: 50vh; overflow: auto"
+          >
+            <q-item
+              v-for="p in pickList"
+              :key="p.id"
+              tag="label"
+              :disable="pickStatus(p) === 'installed'"
+            >
+              <q-item-section side>
+                <q-checkbox
+                  dense
+                  :model-value="pickStatus(p) === 'installed' || picking.chosen.includes(p.id)"
+                  :disable="pickStatus(p) === 'installed'"
+                  @update:model-value="(on: boolean) => pickOne(p.id, on)"
+                />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ p.name }}</q-item-label>
+                <q-item-label caption>
+                  {{ itemCount(p) }} ·
+                  {{
+                    { new: 'new', update: 'newer than yours', installed: 'installed' }[
+                      pickStatus(p)
+                    ]
+                  }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat no-caps label="Cancel" @click="picking = null" />
+          <q-btn
+            flat
+            no-caps
+            color="primary"
+            :label="picking.chosen.length ? `Add ${picking.chosen.length}` : 'Add library'"
+            :disable="!picking.chosen.length && !pickConnects"
+            :loading="picking.busy"
+            @click="installPicked"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <!-- A connected library's update -->
     <q-dialog :model-value="!!updating" persistent>
       <q-card v-if="updating" style="width: 480px; max-width: 90vw">
@@ -1094,7 +1177,17 @@ import FullName from '@/components/FullName.vue';
 import { useAskCategory } from '@/composables/category';
 // Libraries (spec 011): browse every library; manage My library; back up, restore, share, import.
 import { QIcon, QTooltip, useQuasar } from 'quasar';
-import { computed, defineComponent, h, nextTick, onMounted, reactive, ref, watch } from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  markRaw,
+  nextTick,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue';
 import { useAuthor } from '@/composables/author';
 import { serializeBlock } from '@/model/block-file';
 import { collectionFile, parseCollectionFile } from '@/model/collection-file';
@@ -1136,7 +1229,7 @@ import type { Color } from '@/model/schema/palette';
 import { blockThumbnail } from '@/render/thumbnail';
 import { exportFile, pickFile } from '@/storage/files';
 import { absorbFabrics, embedFabrics } from '@/storage/fabric-files';
-import { isZip, readLibraryZip, writeLibraryZip } from '@/storage/library-zip';
+import { isZip, readLibraryZip, writeLibraryZip, type ZippedLibrary } from '@/storage/library-zip';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PalettePreview from '@/components/PalettePreview.vue';
 import PaletteTitle from '@/components/PaletteTitle.vue';
@@ -1199,6 +1292,14 @@ const select = (id: string) => {
 /** Unchecked libraries; libraries installed later start checked. */
 /** Libraries left out of this page's view (a library's name shows just it). */
 const hiddenLibs = ref<string[]>([]);
+// Libraries removed (or a shown one gone): forget them, and show everything if nothing's left.
+watch(
+  () => library.allViews.map((v) => v.doc.id),
+  (ids) => {
+    const hidden = hiddenLibs.value.filter((x) => ids.includes(x));
+    hiddenLibs.value = hidden.length >= ids.length ? [] : hidden;
+  },
+);
 /** The library list: single libraries, and libraries of packs grouped (spec 014). */
 interface PackEntry {
   id: string;
@@ -1564,17 +1665,20 @@ async function connectBundled(g: PackGroup) {
     connectingBundled.value = null;
   }
 }
-function disconnect(c: Connection) {
+/** Disconnect a web library, or remove an imported one: its packs leave this device. */
+function disconnect(g: PackGroup) {
+  const c = g.connection;
+  const verb = c ? 'Disconnect' : 'Remove';
   $q.dialog({
-    title: `Disconnect ${c.index.name}?`,
-    message: 'Its downloaded packs are removed from this device. Projects keep the items they use.',
+    title: `${verb} ${g.name}?`,
+    message: `Its ${c ? 'downloaded' : 'imported'} packs are removed from this device. Projects keep the items they use.`,
     cancel: true,
-    ok: { label: 'Disconnect', color: 'negative', flat: true },
+    ok: { label: verb, color: 'negative', flat: true },
   }).onOk(() => {
     // A library offered with the app stays out of the list on this device once disconnected.
-    if (bundled.some((b) => sameUrl(b.url, c.url)))
+    if (c && bundled.some((b) => sameUrl(b.url, c.url)))
       settings.settings.bundledHidden = [...settings.settings.bundledHidden, c.url];
-    void library.disconnect(c);
+    void library.removeLibrary(g.key.slice(4));
   });
 }
 
@@ -1618,7 +1722,12 @@ const inScope = computed(() =>
           })(),
         ]),
     ...library.allViews,
-  ].filter((v) => !hiddenLibs.value.includes(v.doc.id)),
+  ].filter(
+    (v) =>
+      !hiddenLibs.value.includes(v.doc.id) &&
+      // Switched-off libraries and packs stay out, unless picked by name to look at alone.
+      (packOn(v.doc.id) || library.allViews.length - hiddenLibs.value.length === 1),
+  ),
 );
 /** Items of the type shown (Blocks, Palettes, or All): filters only offer what they use. */
 const ofType = (i: LibraryItem) =>
@@ -1979,13 +2088,13 @@ async function importFile() {
   } else installPack(r.doc, r.skipped);
 }
 
-/** A zipped library (spec 014): every pack in it, new or newer, installed at once. */
+/** A zipped library (spec 014): a backup restores; a library's packs are picked first. */
 async function importZip(bytes: Uint8Array<ArrayBuffer>) {
   const busy = $q.notify({ message: 'Reading the library…', timeout: 0, spinner: true });
   try {
     const r = await readLibraryZip(bytes);
+    busy();
     if (r.backup) {
-      busy();
       restoring.value = {
         backup: r.backup,
         skipped: r.skipped,
@@ -1994,29 +2103,83 @@ async function importZip(bytes: Uint8Array<ArrayBuffer>) {
       };
       return;
     }
-    let added = 0;
-    let updated = 0;
-    for (const p of r.packs) {
-      const have = library.packs.find((x) => x.id === p.id);
-      if (have && have.revision >= p.revision) continue;
-      await library.savePack(p);
-      if (have) updated++;
-      else added++;
+    // Updates start ticked; packs this device doesn't have yet are the user's choice.
+    picking.value = {
+      r: markRaw(r), // frozen packs: Vue mustn't proxy them
+      chosen: r.packs.filter((p) => pickStatus(p) === 'update').map((p) => p.id),
+      filter: '',
+    };
+    if (r.packs.length === 1 && !r.index) {
+      picking.value.chosen = [r.packs[0]!.id]; // a single pack: nothing to choose
+      await installPicked();
     }
-    if (updated) void library.freeImages(); // dropped fabrics' images, unless a project uses them
-    retryMissing();
-    busy();
-    $q.notify({
-      type: r.skipped.length ? 'warning' : 'positive',
-      message:
-        `${r.library?.name ?? 'Library'}: ${added} pack${added === 1 ? '' : 's'} added` +
-        (updated ? `, ${updated} updated` : '') +
-        (r.skipped.length ? `. Skipped: ${r.skipped.join('; ')}` : '.'),
-      timeout: r.skipped.length ? 0 : 3000,
-      ...(r.skipped.length ? { actions: [{ label: 'OK', color: 'white' }] } : {}),
-    });
   } catch (e) {
     busy();
+    $q.notify({ type: 'negative', message: e instanceof Error ? e.message : String(e) });
+  }
+}
+const picking = ref<{
+  r: ZippedLibrary;
+  chosen: string[];
+  filter: string | null;
+  busy?: boolean;
+} | null>(null);
+/** The file names its repository: importing it connects the library. */
+const pickConnects = computed(() => /^https:\/\//.test(picking.value?.r.index?.repository ?? ''));
+function pickStatus(p: LibraryDoc) {
+  const have = library.packs.find((x) => x.id === p.id);
+  return !have ? 'new' : have.revision < p.revision ? 'update' : 'installed';
+}
+const pickList = computed(() => {
+  const q = picking.value?.filter?.trim().toLowerCase();
+  const all = [...(picking.value?.r.packs ?? [])].sort((a, b) => a.name.localeCompare(b.name));
+  return q ? all.filter((p) => p.name.toLowerCase().includes(q)) : all;
+});
+function pickOne(id: string, on: boolean) {
+  const pk = picking.value!;
+  pk.chosen = on ? [...new Set([...pk.chosen, id])] : pk.chosen.filter((x) => x !== id);
+}
+/** Select all or none of the packs shown (installed ones need nothing). */
+function pickAll(on: boolean) {
+  for (const p of pickList.value) if (pickStatus(p) !== 'installed') pickOne(p.id, on);
+}
+const itemCount = (p: LibraryDoc) => {
+  const n = p.items.reduce(
+    (t, i) => t + (i.type === 'colors' ? i.data.colors.length + (i.data.fabrics?.length ?? 0) : 1),
+    0,
+  );
+  return `${n} ${n === 1 ? 'item' : 'items'}`;
+};
+async function installPicked() {
+  const pk = picking.value;
+  if (!pk) return;
+  pk.busy = true;
+  try {
+    const updated = pk.chosen.filter((id) =>
+      pk.r.packs.some((p) => p.id === id && pickStatus(p) === 'update'),
+    );
+    const bad = await pk.r.storeImages(pk.chosen);
+    const connected = await library.installFromFile(pk.r.index, pk.r.packs, pk.chosen);
+    // Chosen packs are on, even ones switched off before.
+    settings.settings.packsOff = settings.settings.packsOff.filter((id) => !pk.chosen.includes(id));
+    if (updated.length) void library.freeImages(); // dropped fabrics' images, unless a project uses them
+    retryMissing();
+    picking.value = null;
+    if (pk.r.index) showLibrary(pk.r.index.id);
+    const added = pk.chosen.length - updated.length;
+    const skipped = [...pk.r.skipped, ...bad];
+    $q.notify({
+      type: skipped.length ? 'warning' : 'positive',
+      message:
+        `${pk.r.library?.name ?? 'Library'}: ${added} pack${added === 1 ? '' : 's'} added` +
+        (updated.length ? `, ${updated.length} updated` : '') +
+        (connected ? '. Switch on more packs any time.' : '.') +
+        (skipped.length ? ` Skipped: ${skipped.join('; ')}` : ''),
+      timeout: skipped.length ? 0 : 4000,
+      ...(skipped.length ? { actions: [{ label: 'OK', color: 'white' }] } : {}),
+    });
+  } catch (e) {
+    pk.busy = false;
     $q.notify({ type: 'negative', message: e instanceof Error ? e.message : String(e) });
   }
 }

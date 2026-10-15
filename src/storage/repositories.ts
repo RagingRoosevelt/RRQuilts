@@ -26,6 +26,11 @@ export interface LibraryIndex {
   license?: string;
   /** Home page, gallery and other pages (optional; not checked here, never followed by the app). */
   links?: Links;
+  /**
+   * The repository it comes from, written into release files (a downloaded file can then connect
+   * like Add from the web). Untrusted: only an https address is used.
+   */
+  repository?: string;
   revision: number;
   changelog?: { revision: number; date: string; notes: string }[];
   packs: IndexPack[];

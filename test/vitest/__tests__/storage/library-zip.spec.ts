@@ -66,6 +66,7 @@ async function libraryZip(opts: { badHash?: boolean; missingPack?: boolean } = {
     version: 1,
     id: 'cloud9-fabrics',
     name: 'Cloud9 Fabrics',
+    repository: 'https://github.com/RRQuilts/rrqlib-cloud9',
     packs: [
       { path: 'packs/pond/rrqlib.json' },
       ...(opts.missingPack ? [{ path: 'packs/gone/rrqlib.json' }] : []),
@@ -82,15 +83,20 @@ async function libraryZip(opts: { badHash?: boolean; missingPack?: boolean } = {
 }
 
 describe('zipped .rrqlib (spec 014)', () => {
-  it('reads the index and packs, and stores their images', async () => {
+  it('reads the index and packs; stores images only for the packs chosen', async () => {
     const { zip, sha } = await libraryZip();
     expect(isZip(zip)).toBe(true);
     const r = await readLibraryZip(zip);
     expect(r.library).toEqual({ id: 'cloud9-fabrics', name: 'Cloud9 Fabrics' });
+    expect(r.index?.repository).toBe('https://github.com/RRQuilts/rrqlib-cloud9');
     expect(r.packs.map((p) => [p.id, p.library?.id])).toEqual([
       ['cloud9-fabrics-pond-days', 'cloud9-fabrics'],
     ]);
     expect(r.skipped).toEqual([]);
+    expect(await getImage(sha)).toBeUndefined();
+    expect(await r.storeImages([])).toEqual([]);
+    expect(await getImage(sha)).toBeUndefined();
+    expect(await r.storeImages(['cloud9-fabrics-pond-days'])).toEqual([]);
     expect(await getImage(sha)).toBeDefined();
   });
 
@@ -98,9 +104,9 @@ describe('zipped .rrqlib (spec 014)', () => {
     const { zip } = await libraryZip({ badHash: true, missingPack: true });
     const r = await readLibraryZip(zip);
     expect(r.packs).toHaveLength(1);
-    expect(r.skipped).toEqual([
+    expect(r.skipped).toEqual(['packs/gone/rrqlib.json: missing from the zip']);
+    expect(await r.storeImages(['cloud9-fabrics-pond-days'])).toEqual([
       "Pond Days: Pond Days 229834: image doesn't match",
-      'packs/gone/rrqlib.json: missing from the zip',
     ]);
   });
 
