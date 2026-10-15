@@ -43,6 +43,24 @@ async function embedded(img: Asset): Promise<Asset> {
   return { ...ref(img), data: toDataUri(row.bytes, row.type) };
 }
 
+/**
+ * The image of `f` to save at `px`, embedded: its size for `px` if this device has it, else the
+ * largest smaller one it has, else (`larger`) any it has: a file saved at 256 and saved again at 512
+ * keeps its image rather than losing it. Else the reference.
+ */
+async function embeddedAt(f: Fabric, px: number, larger = true): Promise<Asset> {
+  const sizes = [...(f.sizes ?? [])].sort((a, b) => a.px - b.px);
+  const order = [
+    ...sizes.filter((x) => x.px <= px).reverse(),
+    ...(larger ? sizes.filter((x) => x.px > px) : []),
+  ].map((x) => ({ sha256: x.sha256, type: x.type, width: x.width, height: x.height }));
+  for (const a of larger || !sizes.length ? [...order, f.image] : order) {
+    const e = await embedded(a);
+    if (e.data) return e;
+  }
+  return f.image.data ? f.image : ref(imageAt(f, px));
+}
+
 /** The document as written to a file. */
 export async function prepareForSave(doc: RrqDoc, saveSize: number): Promise<RrqDoc> {
   const include = !!doc.project.includeLibraryImages;
@@ -50,9 +68,9 @@ export async function prepareForSave(doc: RrqDoc, saveSize: number): Promise<Rrq
     doc.project.palette.fabrics.map(async (f): Promise<Fabric> => {
       if (isLibraryItem(f)) {
         const share = include && !noSharing(f.license ?? f.source?.license);
-        return { ...f, image: share ? await embedded(imageAt(f, 256)) : ref(f.image) };
+        return { ...f, image: share ? await embeddedAt(f, 256, false) : ref(f.image) };
       }
-      return { ...f, image: await embedded(imageAt(f, saveSize)) };
+      return { ...f, image: await embeddedAt(f, saveSize) };
     }),
   );
   return { ...doc, project: { ...doc.project, palette: { ...doc.project.palette, fabrics } } };

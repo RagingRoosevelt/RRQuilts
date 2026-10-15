@@ -68,7 +68,7 @@ import { computed, watch } from 'vue';
 import { roundLen } from '@/model/units';
 import type { ColorCollection } from '@/model/schema/library';
 import type { Color, Fabric } from '@/model/schema/palette';
-import { swatchStyle } from '@/render/fabric-images';
+import { display, swatchStyle } from '@/render/fabric-images';
 
 const props = defineProps<{
   palette: Pick<ColorCollection, 'colors' | 'fabrics'>;
@@ -96,7 +96,7 @@ const shownSwatch = computed(() => swatches.value[props.at] ?? swatches.value[0]
 const css = (c: Color) => `rgb(${c.rgb.join(',')})`;
 /** A fabric in the large view: its whole image, fitted (its average color until it loads). */
 function bigFabric(f: Fabric) {
-  const st = swatchStyle(f);
+  const st = swatchStyle(f, display.size); // the screen-size setting: 512 looks sharper here
   return 'backgroundImage' in st
     ? {
         ...st,

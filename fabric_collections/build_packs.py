@@ -38,7 +38,7 @@ MAKERS = {
     'robertkaufman': 'Robert Kaufman',
 }
 # Images in collection zips that aren't fabrics.
-NOT_FABRIC = re.compile(r'logo|cover|banner|lookbook|header|full[-_ ]?collection|title|catalog|profile', re.I)
+NOT_FABRIC = re.compile(r'logo|cover|banner|lookbook|header|full[-_ ]?collection|title|catalog|profile|with[-_ ]*ruler', re.I)
 # Folders of marketing and product photos, not swatches (Cloud9: social posts, folded bolts, projects).
 NOT_SWATCH_DIR = re.compile(
     r'(^|/)(for ig( story)?|bolts?|projects?|pre-?cuts?[^/]*|precut[^/]*|with banner|logo[^/]*|ruler)/', re.I)

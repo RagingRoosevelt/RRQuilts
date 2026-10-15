@@ -10,7 +10,7 @@ import type { RrqDoc } from '@/model/schema/project';
 import { absorbImages, freeUnusedImages, prepareForSave } from '@/storage/fabric-files';
 import { putDraft, removeDraft } from '@/storage/drafts';
 import { resetIdb } from '@/storage/idb';
-import { getImage, putImage } from '@/storage/images';
+import { deleteImage, getImage, putImage } from '@/storage/images';
 
 beforeEach(() => {
   globalThis.indexedDB = new IDBFactory();
@@ -68,6 +68,13 @@ describe('fabric images in saved projects (spec 014)', () => {
     );
     expect(byId(out, 'lib.cc').image).toMatchObject({ sha256: s256, data: expect.any(String) });
     expect(byId(out, 'lib.pu').image.data).toBeUndefined();
+  });
+
+  it('keeps a fabric image when the save size is not on this device', async () => {
+    const { doc, s256, s512 } = await setup();
+    await deleteImage(s512); // e.g. opened from a file saved at 256
+    const out = await prepareForSave(doc, 512);
+    expect(byId(out, 'me.own').image).toMatchObject({ sha256: s256, data: expect.any(String) });
   });
 
   it('opening moves embedded images into the store', async () => {

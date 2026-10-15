@@ -42,6 +42,8 @@ export const setMissingFetcher = (fn: (f: Fabric) => Promise<boolean>) => (fetch
 export const imageStatus = shallowRef({ loading: 0, missing: [] as string[] });
 const missing = new Map<string, Fabric>();
 let loading = 0;
+/** Images being fetched to replace a smaller stand-in (once each per session). */
+const upgrading = new Set<string>();
 const publish = () => (imageStatus.value = { loading, missing: [...missing.keys()] });
 
 async function storedRow(f: Fabric, px: number) {
@@ -60,6 +62,20 @@ async function findImage(f: Fabric, px: number) {
     let row = await storedRow(f, px);
     if (!row && fetchMissing && (await fetchMissing(f).catch(() => false)))
       row = await storedRow(f, px);
+    // Shown at a smaller size than the screen setting (e.g. downloaded at 256, now 512): use it now,
+    // fetch the right size in the background, then redraw with it.
+    const fit = imageFor(f, px);
+    if (row && row.id !== fit && fetchMissing && !upgrading.has(fit)) {
+      upgrading.add(fit);
+      void fetchMissing(f)
+        .then(async (ok) => {
+          if (!ok || !(await getImage(fit))) return;
+          bitmaps.delete(fit);
+          urls.delete(fit);
+          imagesTick.value++;
+        })
+        .catch(() => {});
+    }
     if (row) missing.delete(f.id);
     else missing.set(f.id, f);
     return row;
@@ -118,8 +134,8 @@ export function fabricUrl(f: Fabric, px = 256): string | undefined {
 }
 
 /** CSS for a fabric swatch: its image over its average color. */
-export function swatchStyle(f: Fabric) {
-  const u = fabricUrl(f);
+export function swatchStyle(f: Fabric, px = 256) {
+  const u = fabricUrl(f, px);
   return {
     backgroundColor: `rgb(${f.average.join(',')})`,
     ...(u ? { backgroundImage: `url(${u})`, backgroundSize: 'cover' } : {}),
