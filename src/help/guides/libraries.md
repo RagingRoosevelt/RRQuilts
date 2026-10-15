@@ -6,7 +6,7 @@ summary: My library, installed packs, backup and restore, and sharing your own p
 
 The **Libraries** screen (header, next to **Project**) holds reusable blocks and palettes. It has three kinds of library.
 
-- **Built-in** blocks and palettes that come with the app.
+- **Built-In** blocks and palettes that come with the app.
 - **My library** is your own work, kept in this browser.
 - **Packs** are collections made by other people. They are read-only.
 
@@ -15,7 +15,9 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
 1. Choose **Libraries** in the header.
 2. In the **Libraries** list on the side (the menu button on phones), each library has a switch.
    Libraries that are off stay out of your projects' trays and pickers. Click a library's name to
-   show only it, and **Show all libraries** to see them all again.
+   show only it, and **Show all libraries** to see them all again. **Find a pack** at the top
+   searches every library's packs. A library of packs has **All off**, **Check for updates** and
+   **Disconnect** under its name. Its arrow folds the list of packs away.
    If the open project uses colors or fabrics from a library you switch off, you can **Swap…** them
    for others (in the project's **Palettes** tab), **Copy to My library** to keep them, or
    **Cancel**.
@@ -23,15 +25,22 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
    **Tags** and **Styles** filters. The filters offer only what the shown type uses.
 4. In **Blocks**, use **Group blocks by** to arrange blocks by **Nothing**, **Category**, **Tags** or
    **Styles**.
-5. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)**. Palettes use **Export (.rrqplt)** instead.
+5. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)**. Palettes use **Export (.rrqplt)** instead, and their files carry their fabric images.
+6. Click a palette, or one of its swatches, to see its colors and fabrics large. In your own
+   palettes, **+** adds a color, the picture button adds fabric images, and you can drop image files
+   on a palette or on this view. Click a name to rename it, then the check mark to save. **Change
+   color** and the bin are under the name.
 
 Pack items cannot be renamed or changed. Use **Copy to my library** and edit the copy. The copy keeps credit for the original author ([Credits and licenses](/help/guides/credits-and-licenses)).
 
 ## Put a project block or palette in My library
 
 1. For a block, open its **Actions** menu in the project's **Blocks** tab and choose **Add to my library…**.
-2. For colors, tick them in the **Palettes** tab and click **Save to my library…**.
-3. If you later change the project's version, **Sync to my library** (in the same menu, or the button in the **Palettes** tab) updates the library copy.
+2. For a palette, open its **⋮** menu in the project's **Palettes** tab and choose **Save to my
+   library…**. Its colors and fabric images go there, and the two stay synced
+   ([The project sketchbook](/help/guides/sketchbook)).
+3. If you later change the project's block, **Sync to my library** in its menu updates the library
+   copy.
 
 ## Use library blocks in a project
 
@@ -50,7 +59,8 @@ Libraries live in browser storage. If the page warns that storage is blocked, ba
 
 ## Install a pack
 
-Click **Import** and choose a `.rrqlib` pack (or a `.rrqplt` palette). To remove an installed pack, click **Remove pack** in its section.
+Click **Import** and choose a `.rrqlib` pack (or a `.rrqplt` palette). To remove an installed pack,
+choose **Remove pack** in one of its palettes' **⋮** menus.
 
 ## Share your own pack
 
@@ -78,12 +88,13 @@ Some libraries come listed with RRQuilts and show in the side panel as **Not dow
 
 Libraries can also live in a git repository, such as one on GitHub.
 
-1. In **Libraries**, click **Add from the web…**.
+1. In **Libraries**, click **Add from the web…** at the bottom of the **Libraries** list on the
+   side.
 2. Paste the repository's address. Add a branch or tag if its author asked you to. Click
    **Connect**. Only the list of packs is downloaded.
 3. Open the library's name in the side panel and switch on the packs you want. Each pack downloads
    when you first switch it on, with images at the size set in **Settings › Fabrics**.
-4. Click **Check for updates** under the packs. Before anything changes you see which colors and
+4. Click **Check for updates** under the library's name. Before anything changes you see which colors and
    fabrics in your packs are new, removed or changed, and any packs the library no longer has.
    **Update** downloads the new versions and removes what the library dropped (projects keep what
    they use). **Skip this update** waits for the next one. **Cancel** decides later.

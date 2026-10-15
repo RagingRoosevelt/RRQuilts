@@ -23,7 +23,9 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 - **Fabric images** chooses how fabrics appear. **Show them, with average colors while they load**
   is the default. **Average colors only (never load images)** is fastest and uses no space for
   library images.
-- **Image size on screen** picks **Light (256 px)** or **Standard (512 px)**.
+- **Image size on screen** picks **Light (256 px)** or **Standard (512 px)**. After switching to
+  Standard, fabrics from libraries added from the web download their larger images as they're
+  shown.
 - **Your fabric images in saved projects** sets the size your own fabrics are saved at. Library
   fabrics are saved as references, not images.
 
@@ -34,7 +36,8 @@ found show as a warning with a count, and their fabrics use average colors. Clic
 ## Libraries and Project
 
 - **Hide library blocks from projects** and **Hide library palettes from projects** leave the libraries' lists out of the project's **Blocks** and **Palettes** tabs. Blocks and palettes already in use stay available.
-- **Hide "My Library" blocks when they are synced with project blocks** tidies the project's **Blocks** tab ([Libraries](/help/guides/libraries)).
+- **Hide "My Library" blocks and palettes when they are synced with the project's** tidies the
+  project's **Blocks** and **Palettes** tabs ([Libraries](/help/guides/libraries)).
 
 ## Move settings to another device
 

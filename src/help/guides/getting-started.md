@@ -42,6 +42,7 @@ The round save button in the header has a small colored dot:
   onto the window.
 - **Recent projects** lists your latest ones. Click one to open it. This needs a browser that can reopen
   files, such as Chrome, Edge, or another Chromium-based browser on a computer ({{yours:file-access}}).
+  Unsaved work is listed there too, in every browser.
 
 If you start or open something else while the current project has unsaved changes, the app asks
 first. Closing the tab with unsaved changes also asks you to confirm.
@@ -51,11 +52,13 @@ first. Closing the tab with unsaved changes also asks you to confirm.
 While you edit, the app keeps a **draft** of your project in the browser (within about 15 seconds of each change). A draft
 is crash insurance and not a save, because clearing site data can erase it.
 
-1. If the browser closed or crashed, the app offers **Restore unsaved work?** the next time it opens.
-2. Choose **Restore** on the project you want, or **Discard** to delete its draft. **Decide later**
-   closes the list.
-3. You can reopen the list any time with **Restore unsaved project** on the home page.
-4. Once restored, press save to put the work in a file.
+1. Unsaved work shows in the home page's **Recent projects** list. A project with a file gets an
+   **Unsaved changes** button. Click it to open those changes. Work that was never saved to a file
+   is listed as **Not saved to a file yet**. Click it to open it, or the bin to discard it.
+2. Clicking a recent project that has unsaved changes asks whether to open those changes or the
+   saved file. Opening the file discards the changes.
+3. **Restore unsaved project** on the home page also lists all unsaved work.
+4. Once it's open, press save to put the work in a file.
 
 ## Offline use
 

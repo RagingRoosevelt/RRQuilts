@@ -19,7 +19,8 @@ project's quilts.
 4. Click **Add**.
 
 To change a project color later, right-click (or long-press) it in the tray and choose **Edit…**, or
-click it in its palette and use the edit button. The bin button removes it.
+click it in its palette and use **Change color**. To rename a color or fabric there, click its name,
+type, and click the check mark. The bin button removes it.
 
 ## Add fabric images
 
