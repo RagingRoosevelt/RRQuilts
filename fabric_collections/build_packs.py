@@ -22,7 +22,7 @@ and without it packs built with them lose them. Fabrics are 8 in square, marked 
     uv run build_packs.py --rebuild             # rebuild packs already built
     uv run build_packs.py --print --rebuild     # with 1024 px images too
 """
-import argparse, hashlib, io, json, re, sys, zipfile
+import argparse, hashlib, io, json, re, shutil, sys, zipfile
 from pathlib import Path
 
 from PIL import Image, ImageStat
@@ -84,6 +84,7 @@ def build_pack(maker, lib_id, zip_path, meta, out_dir):
     pack_id = f'{lib_id}-{slug(name, 120)}'
     pdir = out_dir / 'packs' / pack_id
     z = zipfile.ZipFile(zip_path)
+    shutil.rmtree(pdir, ignore_errors=True)  # no images left from an earlier build
     fabrics, ids, preview = [], set(), []
     sizes_bytes = {str(s): 0 for s in SIZES}
     for entry in sorted(z.namelist()):
