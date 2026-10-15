@@ -24,6 +24,21 @@ export const Notecard = Type.Object({
 });
 
 /** The author's socials: a site (or free-text type) and a handle (or, for Website/custom, a link). */
+const webAddress = Type.String({ pattern: '^https?://', maxLength: 500 });
+/**
+ * A library's web pages (index and `.rrqlib`): its home page, its gallery, and any others. Optional
+ * and ignored by apps that don't know it, so the formats keep their versions.
+ */
+export const Links = Type.Object({
+  homepage: Type.Optional(webAddress),
+  gallery: Type.Optional(webAddress),
+  others: Type.Optional(
+    Type.Array(Type.Object({ name: Type.String({ maxLength: 100 }), url: webAddress }), {
+      maxItems: 20,
+    }),
+  ),
+});
+
 export const Socials = Type.Array(
   Type.Object({
     type: Type.String({ maxLength: 60 }),
@@ -117,6 +132,7 @@ export const itemBase = {
 
 export type Credit = Type.Static<typeof Credit>;
 export type Socials = Type.Static<typeof Socials>;
+export type Links = Type.Static<typeof Links>;
 export type Path = Type.Static<typeof Path>;
 export type PathCommand = Type.Static<typeof PathCommand>;
 export type Asset = Type.Static<typeof Asset>;

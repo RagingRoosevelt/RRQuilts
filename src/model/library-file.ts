@@ -13,7 +13,7 @@ import {
   type LibraryBackup,
   type LibraryDoc,
 } from './schema/library';
-import type { Socials } from './schema/shared';
+import { Links, type Socials } from './schema/shared';
 
 export type LibraryParse =
   { ok: true; doc: LibraryBackup; skipped: string[] } | { ok: false; error: string };
@@ -47,7 +47,10 @@ export function parseLibraryValue(raw: unknown, nested = false): LibraryParse {
     return fail('Library file has an invalid version.');
   if (raw.version > LIBRARY_VERSION)
     return fail('This library is from a newer RRQuilts. Update the app to open it.');
-  if (!Value.Check(LibraryEnvelope, raw))
+  // Bad web page links don't spoil the library: they're dropped and listed.
+  const badLinks = 'links' in raw && !Value.Check(Links, raw.links);
+  if (badLinks) raw = Object.fromEntries(Object.entries(raw).filter(([k]) => k !== 'links'));
+  if (!isObject(raw) || !Value.Check(LibraryEnvelope, raw))
     return fail(`Library file is damaged: ${firstError(LibraryEnvelope, raw)}`);
   if (raw.kind === 'pack' && (!raw.author?.name || !raw.license))
     return fail('This pack has no author or license, so it can’t be used.');
@@ -62,7 +65,7 @@ export function parseLibraryValue(raw: unknown, nested = false): LibraryParse {
     parent && parent !== c.id && tops.has(parent) ? { ...c, parent } : c,
   );
   const categories = new Set(cats.map((c) => c.id));
-  const skipped: string[] = [];
+  const skipped: string[] = badLinks ? ['Web page links: not valid web addresses'] : [];
   const items: LibraryItem[] = [];
   const ids = new Set<string>();
   rawItems.forEach((x, i) => {

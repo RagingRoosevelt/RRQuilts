@@ -3,6 +3,7 @@
 // downloaded when switched on. Everything fetched is untrusted: validated, and images hash-checked.
 import { parseLibraryValue } from '@/model/library-file';
 import type { LibraryDoc } from '@/model/schema/library';
+import type { Links } from '@/model/schema/shared';
 import { idb } from './idb';
 import { getImage, putImage } from './images';
 
@@ -23,6 +24,8 @@ export interface LibraryIndex {
   description?: string;
   author?: { name: string; url?: string };
   license?: string;
+  /** Home page, gallery and other pages (optional; not checked here, never followed by the app). */
+  links?: Links;
   revision: number;
   changelog?: { revision: number; date: string; notes: string }[];
   packs: IndexPack[];

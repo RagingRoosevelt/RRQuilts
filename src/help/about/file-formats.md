@@ -27,4 +27,5 @@ Anyone writing tools that read or make these files can use the published JSON Sc
 - [Current version of each format](../../schemas/formats.json)
 
 A library on the web is a git repository with a `library.json` index at its top and a folder for
-each pack.
+each pack. A library's index and files can name its web pages in `links`: a `homepage`, a
+`gallery`, and `others`, each with a `name` and `url`.

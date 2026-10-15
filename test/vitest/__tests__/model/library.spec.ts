@@ -255,6 +255,24 @@ describe('.rrqlib files', () => {
     expect(parseLibrary('nope').ok).toBe(false);
   });
 
+  it('keeps web page links; bad ones are dropped and listed, the library still loads', async () => {
+    const raw = JSON.parse(serializeLibrary(await mine(), 'test')) as LibraryDoc;
+    const links = {
+      homepage: 'https://example.org',
+      gallery: 'https://example.org/gallery',
+      others: [{ name: 'Shop', url: 'https://shop.example.org' }],
+    };
+    const ok = parseLibrary(JSON.stringify({ ...raw, links }));
+    expect(ok.ok && ok.doc.links).toEqual(links);
+    const bad = parseLibrary(
+      JSON.stringify({ ...raw, links: { homepage: 'javascript:alert(1)' } }),
+    );
+    expect(bad.ok).toBe(true);
+    if (!bad.ok) return;
+    expect(bad.doc.links).toBeUndefined();
+    expect(bad.skipped).toEqual(['Web page links: not valid web addresses']);
+  });
+
   it('cm files are read in inches; unknown categories dropped', async () => {
     const lib = await mine();
     const cm = {
