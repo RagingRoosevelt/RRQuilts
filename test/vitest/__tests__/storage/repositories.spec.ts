@@ -7,6 +7,7 @@ import { getImage } from '@/storage/images';
 import { fetchIndex, fetchPack, rawBase, type Connection } from '@/storage/repositories';
 import { createPinia, setActivePinia } from 'pinia';
 import { useLibraryStore } from '@/stores/library';
+import { useSettingsStore } from '@/stores/settings';
 
 beforeEach(() => {
   globalThis.indexedDB = new IDBFactory();
@@ -169,5 +170,32 @@ describe('connected libraries (spec 002, 014)', () => {
     expect(await lib.fetchPackImages(['p'])).toBe(1);
     expect(await getImage(sizes[2]!.sha256)).toBeDefined();
     expect(calls.filter((u) => u.includes('/512/'))).toEqual([]);
+  });
+
+  it('frees a switched-off pack’s images only while its library can be reached', async () => {
+    setActivePinia(createPinia());
+    const { sizes, files } = await packFixture();
+    const index = {
+      format: 'rrqlib-index',
+      version: 1,
+      id: 'lib',
+      name: 'Lib',
+      revision: 1,
+      packs: [{ id: 'p', name: 'P', path: 'packs/p/rrqlib.json' }],
+    };
+    serve({ ...files, [B + 'library.json']: index });
+    const lib = useLibraryStore();
+    await lib.connectRef(
+      { id: 'lib', name: 'Lib', url: 'https://github.com/me/lib', packs: ['p'] },
+      256,
+    );
+    expect(await getImage(sizes[0]!.sha256)).toBeDefined();
+    useSettingsStore().settings.packsOff = ['p'];
+    serve({}); // the repository went private (or offline)
+    await lib.freeImages();
+    expect(await getImage(sizes[0]!.sha256)).toBeDefined();
+    serve({ [B + 'library.json']: index });
+    await lib.freeImages();
+    expect(await getImage(sizes[0]!.sha256)).toBeUndefined();
   });
 });

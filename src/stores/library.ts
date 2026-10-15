@@ -103,13 +103,31 @@ export const useLibraryStore = defineStore('library', () => {
     await write(() => deletePack(id));
     void freeImages();
   }
+  /** Connected libraries that answered this session (a failure is asked again next time). */
+  const reachable = new Set<string>();
+  async function online(c: Connection) {
+    if (reachable.has(c.index.id)) return true;
+    const ok = await fetchIndex(c.base).then(
+      () => true,
+      () => false,
+    );
+    if (ok) reachable.add(c.index.id);
+    return ok;
+  }
   /** Free images no library or project uses any more (after removing packs). */
-  function freeImages() {
+  async function freeImages() {
     const open = useProjectStore().doc;
-    // Off packs from connected libraries let go of their images: they download again when on.
+    // Off packs from connected libraries let go of their images (they download again when on),
+    // but only while the library can be reached: a private, gone or offline one keeps them.
     const off = new Set(useSettingsStore().settings.packsOff);
-    const linked = (d: LibraryDoc) => connections.value.some((c) => c.index.id === d.library?.id);
-    const kept = packs.value.filter((d) => !off.has(d.id) || !linked(d));
+    const live = new Set<string>();
+    for (const c of connections.value)
+      if (
+        packs.value.some((d) => off.has(d.id) && d.library?.id === c.index.id) &&
+        (await online(c))
+      )
+        live.add(c.index.id);
+    const kept = packs.value.filter((d) => !off.has(d.id) || !live.has(d.library?.id ?? ''));
     const docs = [...(mine.value ? [mine.value] : []), ...kept];
     return freeUnusedImages(docs, open ? [open] : []).catch(() => {});
   }
