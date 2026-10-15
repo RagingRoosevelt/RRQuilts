@@ -157,6 +157,8 @@ export const useLibraryStore = defineStore('library', () => {
         skipped.push(...(await installFromRepo(next, p.id, px)));
     }
     await saveConnection(next);
+    // Newer versions may have dropped fabrics: their images go unless a project still uses them.
+    void freeImages();
     return skipped;
   }
   async function declineUpdate(c: Connection, revision: number) {

@@ -1605,6 +1605,7 @@ async function importZip(bytes: Uint8Array<ArrayBuffer>) {
       if (have) updated++;
       else added++;
     }
+    if (updated) void library.freeImages(); // dropped fabrics' images, unless a project uses them
     retryMissing();
     busy();
     $q.notify({
@@ -1652,6 +1653,7 @@ function installPack(doc: LibraryDoc, skipped: string[]) {
   const have = library.packs.find((p) => p.id === doc.id);
   const install = async () => {
     await library.savePack(doc);
+    if (have) void library.freeImages(); // a newer version may have dropped fabrics
     select(doc.id);
     $q.notify({
       type: skipped.length ? 'warning' : 'positive',
@@ -1738,6 +1740,7 @@ async function doRestore() {
   });
   await library.saveMine(next.mine);
   for (const p of next.packs) if (!library.packs.includes(p)) await library.savePack(p);
+  void library.freeImages();
   select('mine');
   $q.notify({ type: 'positive', message: 'Libraries restored.' });
 }

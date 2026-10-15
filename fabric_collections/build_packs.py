@@ -89,6 +89,9 @@ def build_pack(maker, lib_id, zip_path, meta, out_dir):
     pack_id = f'{lib_id}-{slug(name, 120)}'
     pdir = out_dir / 'packs' / pack_id
     z = zipfile.ZipFile(zip_path)
+    # The earlier build's revision and contents: a pack whose fabrics or images change gets the next
+    # revision, so connected apps download it again on update.
+    old = json.loads((pdir / 'rrqlib.json').read_text()) if (pdir / 'rrqlib.json').exists() else None
     shutil.rmtree(pdir, ignore_errors=True)  # no images left from an earlier build
     fabrics, ids, preview = [], set(), []
     sizes_bytes = {str(s): 0 for s in SIZES}
@@ -169,9 +172,10 @@ def build_pack(maker, lib_id, zip_path, meta, out_dir):
     if not fabrics:
         return None
     palette_id = f'{lib_id}.{slug(name, 58)}'
+    revision = (old or {}).get('revision', 0) + (1 if contents(old) != contents_of(fabrics) else 0)
     doc = {
         'format': 'rrqlib', 'version': 2, 'units': 'in', 'kind': 'pack',
-        'id': pack_id, 'revision': 1, 'name': name,
+        'id': pack_id, 'revision': revision, 'name': name,
         'description': f'{name} by {designer}, {MAKERS[maker]}' + (f' ({when})' if when != '??-??' else ''),
         'author': {'name': designer}, 'license': LICENSE,
         'categories': [],
@@ -183,8 +187,19 @@ def build_pack(maker, lib_id, zip_path, meta, out_dir):
     pdir.mkdir(parents=True, exist_ok=True)
     (pdir / 'rrqlib.json').write_text(json.dumps(doc, indent=1, ensure_ascii=False))
     return {'id': pack_id, 'name': name, 'kind': 'palettes', 'path': f'packs/{pack_id}/rrqlib.json',
-            'items': len(fabrics), 'revision': 1, 'date': when, 'designer': designer,
+            'items': len(fabrics), 'revision': revision, 'date': when, 'designer': designer,
             'sizes': sizes_bytes, 'fabrics': preview}
+
+
+def contents_of(fabrics):
+    """What a pack's update would change: its fabrics, their names and images."""
+    return sorted((f['id'], f['notecard']['name'], tuple(s['sha256'] for s in f.get('sizes', [])))
+                  for f in fabrics)
+
+
+def contents(doc):
+    return contents_of([f for it in (doc or {}).get('items', []) for f in it['data'].get('fabrics', [])]) \
+        if doc else None
 
 
 def zip_library(out_dir, dest, keep):
