@@ -472,6 +472,10 @@
                 v-for="c in g.collections"
                 :key="c.id"
                 class="collection row items-center no-wrap"
+                :class="{ 'drop-target': dropOn === c.id }"
+                @dragover.prevent="g.mine && (dropOn = c.id)"
+                @dragleave="dropOn = null"
+                @drop.prevent="g.mine && dropImages($event, c.id)"
               >
                 <legend class="ellipsis">
                   {{ c.notecard.name }}
@@ -635,9 +639,12 @@
           v-model:at="swatchAt"
           :palette="previewCollection"
           :editable="previewMine"
+          images
           @add="startColor(previewCollection!.id)"
+          @add-images="fabricDialog?.show({ palette: previewCollection!.id })"
+          @drop-files="(files) => fabricDialog?.show({ files, palette: previewCollection!.id })"
           @edit="(i) => startColor(previewCollection!.id, i)"
-          @remove="(i) => removeColor(previewCollection!.id, i)"
+          @remove="(i) => removeSwatch(previewCollection!, i)"
         />
         <ColorEditor v-if="previewMine" ref="colorEditor" @done="saveColorEdit" />
       </q-card>
@@ -1054,6 +1061,7 @@ import {
   setNotecard,
   type LibraryView,
   addFabrics,
+  removeFabric,
 } from '@/model/library';
 import { backupDoc, packDoc, parseLibrary, restore, serializeLibrary } from '@/model/library-file';
 import { createProject } from '@/model/new-project';
@@ -1773,6 +1781,19 @@ async function createPalette(name: string) {
   previewing.value = { lib: library.mine!.id, id: made };
 }
 const removeColor = (id: string, i: number) => editColors(id, (cs) => cs.filter((_, j) => j !== i));
+/** Remove a My library palette's color or fabric `i` (colors first, as the preview lists them). */
+function removeSwatch(c: ColorCollection, i: number) {
+  if (i < c.colors.length) return removeColor(c.id, i);
+  const f = c.fabrics?.[i - c.colors.length];
+  if (f) void update((l) => removeFabric(l, c.id, f.id));
+}
+/** Image files dropped on a My library palette: add them as fabrics (the import dialog first). */
+const dropOn = ref<string | null>(null);
+function dropImages(e: DragEvent, palette: string) {
+  dropOn.value = null;
+  const files = [...(e.dataTransfer?.files ?? [])];
+  if (files.length) fabricDialog.value?.show({ files, palette });
+}
 
 async function copyMine(v: LibraryView, id: string) {
   const item = v.doc.items.find((i) => i.data.id === id);
@@ -2225,6 +2246,10 @@ function downloadPack() {
   padding: 2px 6px 6px;
   margin: 0;
   min-width: 0;
+}
+.collection.drop-target {
+  border-color: var(--q-primary);
+  box-shadow: inset 0 0 0 1px var(--q-primary);
 }
 .collection legend {
   padding: 0 4px;

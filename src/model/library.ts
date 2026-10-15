@@ -424,6 +424,21 @@ export async function addFabrics(
   return { lib: mapItem(lib, target.id, () => ({ ...item, data })), id: target.id };
 }
 
+/** Remove fabric `fabricId` from My library palette `paletteId` (a new revision). */
+export async function removeFabric(
+  lib: LibraryDoc,
+  paletteId: string,
+  fabricId: string,
+): Promise<LibraryDoc> {
+  const item = lib.items.find((i) => i.type === 'colors' && i.data.id === paletteId);
+  if (item?.type !== 'colors') return lib;
+  const data = await asLibraryData(
+    { ...item.data, fabrics: (item.data.fabrics ?? []).filter((f) => f.id !== fabricId) },
+    (item.data.revision ?? 1) + 1,
+  );
+  return mapItem(lib, paletteId, () => ({ ...item, data }));
+}
+
 /** Add or replace (same id) an imported color collection, kept as the file has it (credits too). */
 export async function putCollection(lib: LibraryDoc, c: ColorCollection): Promise<LibraryDoc> {
   const colors = await Promise.all(c.colors.map((x) => asLibraryData(x, x.revision ?? 1)));

@@ -395,7 +395,6 @@
 
     <template v-else-if="tab === 'colors'">
       <div v-if="!project.readOnly" class="row items-center q-mb-sm" style="gap: 8px">
-        <q-btn outline dense no-caps icon="add" label="New palette" @click="newProjectPalette" />
         <q-btn
           v-if="changedColors.length"
           outline
@@ -420,6 +419,16 @@
         Your own colors and fabric images, in palettes. Click one to see it large and to add, change
         or remove colors and fabrics. Drop image files on a palette to add them.
       </div>
+      <q-btn
+        v-if="!project.readOnly"
+        outline
+        dense
+        no-caps
+        icon="add"
+        label="New palette"
+        class="q-mb-sm self-start"
+        @click="newProjectPalette"
+      />
       <!-- A project palette looks and edits like a My library palette (Libraries page). -->
       <div class="column q-mb-lg" style="gap: 8px">
         <template v-for="(pp, i) in ownPalettes" :key="pp.palette.id">
@@ -607,6 +616,7 @@
           images
           @add="newProjectColor(shownPalette.project)"
           @add-images="addImagesTo(shownPalette.project!)"
+          @drop-files="(files) => fabricImport?.show({ files, palette: shownPalette!.project! })"
           @edit="(i) => editProjectColor(shownData!.colors[i]!)"
           @remove="removeFromShown"
         />
