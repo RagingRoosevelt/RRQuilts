@@ -28,14 +28,22 @@
         <div class="text-subtitle1 ellipsis">{{ shownSwatch!.item.notecard.name }}</div>
         <div class="text-caption text-grey-7 ellipsis">{{ swatchInfo(shownSwatch!) }}</div>
       </div>
-      <template v-if="editable && shownSwatch!.kind === 'color'">
-        <q-btn flat round dense icon="edit" aria-label="Edit color" @click="emit('edit', at)" />
+      <template v-if="editable && (shownSwatch!.kind === 'color' || images)">
+        <q-btn
+          v-if="shownSwatch!.kind === 'color'"
+          flat
+          round
+          dense
+          icon="edit"
+          aria-label="Edit color"
+          @click="emit('edit', at)"
+        />
         <q-btn
           flat
           round
           dense
           icon="delete"
-          aria-label="Remove color"
+          :aria-label="shownSwatch!.kind === 'color' ? 'Remove color' : 'Remove fabric'"
           @click="emit('remove', at)"
         />
       </template>
@@ -44,6 +52,16 @@
   <div class="swatch-strip q-px-md q-pb-md">
     <button v-if="editable" class="swatch-pick add" aria-label="Add a color" @click="emit('add')">
       <q-icon name="add" />
+      <q-tooltip>Add a color</q-tooltip>
+    </button>
+    <button
+      v-if="editable && images"
+      class="swatch-pick add"
+      aria-label="Add fabric images"
+      @click="emit('addImages')"
+    >
+      <q-icon name="add_photo_alternate" />
+      <q-tooltip>Add fabric images</q-tooltip>
     </button>
     <button
       v-for="(x, i) in swatches"
@@ -76,12 +94,15 @@ const props = defineProps<{
   at: number;
   /** Colors can be added, edited and removed (My library). */
   editable?: boolean;
+  /** Fabric images can be added and removed too (project palettes). */
+  images?: boolean;
 }>();
 const emit = defineEmits<{
   'update:at': [i: number];
   add: [];
   edit: [i: number];
   remove: [i: number];
+  addImages: [];
 }>();
 
 type Swatch = { kind: 'color'; item: Color } | { kind: 'fabric'; item: Fabric };

@@ -1,27 +1,31 @@
 ---
 title: Colors and palettes
 order: 60
-summary: Make project colors, add fabric images, group them into palettes, and paint with them.
+summary: Make project palettes of colors and fabric images, and paint with them.
 ---
 
 A **color** is one swatch. A **fabric** is a photo or scan of a print, drawn at its real size. A
-**palette** is a named group of colors and fabrics. A project always has its own
-colors (listed first in the project's **Palettes** tab). You can also tick palettes from your
-libraries to use in the project's quilts.
+**palette** is a named group of colors and fabrics. A project has palettes of its own (listed first
+in the project's **Palettes** tab). You can also tick palettes from your libraries to use in the
+project's quilts.
 
 ## Add a project color
 
 1. Open your project and choose the **Palettes** tab.
-2. Click the empty swatch at the start of the project's colors (or **Add color**, the **+** button, in the quilt editor's **Colors** tray).
+2. Click a project palette, then the **+** at the start of its swatches (or **Add color**, the **+**
+   button, in the quilt editor's **Colors** tray, which adds to the first palette). **New palette**
+   makes another palette.
 3. In the dialog, type a **Name**, then pick the color with the **Picker** tab, the **RGB** tab, or by typing a **Hex** value.
 4. Click **Add**.
 
-To change a project color later, right-click (or long-press) it in the tray and choose **Edit…**, or use the edit button on its swatch in the **Palettes** tab. Choose **Delete** to remove it.
+To change a project color later, right-click (or long-press) it in the tray and choose **Edit…**, or
+click it in its palette and use the edit button. The bin button removes it.
 
 ## Add fabric images
 
-1. In the project's **Palettes** tab, click **Add fabric images** beside **Project fabrics** (or the
-   picture button next to **Add color** in the quilt editor's **Colors** tray).
+1. In the project's **Palettes** tab, open a palette and click the picture button beside **+**, or
+   drop image files onto the palette (or use the picture button next to **Add color** in the quilt
+   editor's **Colors** tray).
 2. Click **Pick images or a zip** or **Pick a folder**. JPEG, PNG, and WebP images work, and several
    at once.
 3. Leave **Crop each image to a square from its center** ticked unless your images are already

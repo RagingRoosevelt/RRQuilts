@@ -52,11 +52,25 @@ export const Font = Type.Object({
   bundled: Type.Optional(Type.String()),
 });
 
+/**
+ * A palette of the project's own colors and fabrics (v3): named, listing them by id. The colors
+ * and fabrics themselves stay in `colors` / `fabrics`; library ones come with library palettes.
+ */
+export const ProjectPalette = Type.Object({
+  id: ItemId,
+  notecard: Type.Object({ name: Type.String() }),
+  colors: Type.Array(ItemId),
+  fabrics: Type.Array(ItemId),
+});
+
 export const Palette = Type.Object({
   fabrics: Type.Array(Fabric),
   colors: Type.Array(Color),
   threads: Type.Array(Thread),
+  /** The project's own palettes (v3). Own colors and fabrics in none of them join the first. */
+  collections: Type.Optional(Type.Array(ProjectPalette)),
 });
+export type ProjectPalette = Type.Static<typeof ProjectPalette>;
 
 export type Fabric = Type.Static<typeof Fabric>;
 export type FabricImage = Type.Static<typeof FabricImage>;

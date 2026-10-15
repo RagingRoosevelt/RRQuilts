@@ -235,6 +235,7 @@ import { useLibraryStore } from '@/stores/library';
 import { usePaletteOffer } from '@/composables/palette-offer';
 import { fabricsIn, isLibraryItem, projectColorings, splitItems } from '@/model/library-items';
 import { blocksByLibrary, libraryGroups } from '@/model/library';
+import { projectPalettes } from '@/model/project-palettes';
 import BlockSections from '@/components/BlockSections.vue';
 import { creditCopy } from '@/model/credits';
 import type { Color, Fabric } from '@/model/schema/palette';
@@ -376,13 +377,18 @@ const colorTree = computed(() => {
   });
   // Fabrics: the project's own, then library fabrics painted here but not in a picked palette.
   const fabrics = doc.value.project.palette.fabrics;
-  const ownFabrics = fabrics.filter((f) => !isLibraryItem(f));
   const usedFabrics = fabrics.filter((f) => isLibraryItem(f) && !shownFabrics.has(f.id));
   return [
     {
-      lib: '',
-      label: 'Project colors',
-      groups: [{ label: '', items: recentFirst(mine), fabrics: ownFabrics, mine: true }],
+      // The project's own palettes (format v3), each a section like a library's palettes.
+      lib: 'project',
+      label: 'Project palettes',
+      groups: projectPalettes(doc.value).map((pp) => ({
+        label: pp.palette.notecard.name,
+        items: recentFirst(pp.colors),
+        fabrics: pp.fabrics,
+        mine: true,
+      })),
     },
     {
       lib: '',

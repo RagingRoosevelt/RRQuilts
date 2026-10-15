@@ -11,6 +11,27 @@ export type Migrations = Record<number, (doc: Raw) => Raw>;
 export const migrations: Migrations = {
   // v2 (spec 014): fabric image references, fabric sizes, library refs. All additive.
   1: (doc) => doc,
+  // v3: project palettes. The project's own colors and fabrics (not from a library) become one.
+  2: (doc) => {
+    const project = isObject(doc.project) ? doc.project : undefined;
+    const palette = project && isObject(project.palette) ? project.palette : undefined;
+    if (!palette || palette.collections !== undefined) return doc;
+    const own = (xs: unknown) =>
+      (Array.isArray(xs) ? xs : []).flatMap((x) =>
+        isObject(x) &&
+        typeof x.id === 'string' &&
+        (!isObject(x.source) || x.source.derived === true)
+          ? [x.id]
+          : [],
+      );
+    const colors = own(palette.colors);
+    const fabrics = own(palette.fabrics);
+    if (!colors.length && !fabrics.length) return doc;
+    const collections = [
+      { id: 'project-palette', notecard: { name: 'Project palette' }, colors, fabrics },
+    ];
+    return { ...doc, project: { ...project, palette: { ...palette, collections } } };
+  },
 };
 
 export type ParseResult =

@@ -9,7 +9,7 @@ describe('rejections', () => {
     expect((await parseProject('{oops')).ok).toBe(false);
     expect((await parse({ ...fixture(), format: 'rrqconf' })).ok).toBe(false);
     expect((await parse({ ...fixture(), version: 0 })).ok).toBe(false);
-    const newer = await parse({ ...fixture(), version: 3 });
+    const newer = await parse({ ...fixture(), version: 4 });
     expect(newer).toMatchObject({ ok: false, error: expect.stringMatching(/newer/) });
   });
 

@@ -16,7 +16,7 @@
       <q-tabs v-model="tab" dense no-caps align="left" class="col proj-tabs">
         <q-tab name="quilts" :label="`Quilts (${quilts.length})`" />
         <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
-        <q-tab name="colors" :label="`Palettes (${colorGroups[0]!.items.length})`" />
+        <q-tab name="colors" :label="`Palettes (${ownPalettes.length + pickedPalettes.length})`" />
         <q-tab name="photos" label="Photos" />
         <q-tab name="threads" label="Threads" />
         <q-tab name="details" label="Details" />
@@ -395,15 +395,7 @@
 
     <template v-else-if="tab === 'colors'">
       <div v-if="!project.readOnly" class="row items-center q-mb-sm" style="gap: 8px">
-        <q-btn
-          outline
-          dense
-          no-caps
-          icon="collections_bookmark"
-          label="Save to my library…"
-          :disable="!pickedColors.length"
-          @click="saveColors = { to: '', name: '' }"
-        />
+        <q-btn outline dense no-caps icon="add" label="New palette" @click="newProjectPalette" />
         <q-btn
           v-if="changedColors.length"
           outline
@@ -423,101 +415,106 @@
           @click="importCollectionFile"
         />
       </div>
-      <div v-if="!project.readOnly" class="text-caption text-grey-7 q-mb-sm">
-        Tick project colors to save them as a palette in {{ MY_LIBRARY }}.
+      <div class="text-subtitle2">Project palettes</div>
+      <div class="text-caption text-grey-7 q-mb-sm">
+        Your own colors and fabric images, in palettes. Click one to see it large and to add, change
+        or remove colors and fabrics. Drop image files on a palette to add them.
       </div>
-      <template v-for="group in colorGroups.slice(0, 1)" :key="group.label">
-        <div class="row items-center q-mb-sm" style="gap: 8px">
-          <div class="text-subtitle2">{{ group.label }}</div>
-          <q-btn
-            v-if="!project.readOnly && group.items.length"
-            flat
-            dense
-            no-caps
-            size="sm"
-            icon="clear_all"
-            label="Clear"
-            :disable="!pickedPalettes.length"
-            @click="clearMine"
+      <!-- A project palette looks and edits like a My library palette (Libraries page). -->
+      <div class="column q-mb-lg" style="gap: 8px">
+        <template v-for="(pp, i) in ownPalettes" :key="pp.palette.id">
+          <hr v-if="i" class="pal-hr" />
+          <fieldset
+            class="collection row items-center no-wrap"
+            :class="{ 'drop-target': dropOn === pp.palette.id }"
+            @dragover.prevent="dropOn = pp.palette.id"
+            @dragleave="dropOn = null"
+            @drop.prevent="dropImages($event, pp.palette.id)"
           >
-            <q-tooltip v-if="!pickedPalettes.length">Pick a library palette first</q-tooltip>
-          </q-btn>
+            <legend class="ellipsis">
+              {{ pp.palette.notecard.name }}
+              <span class="text-caption text-grey-7"
+                >· {{ pp.colors.length + pp.fabrics.length }}</span
+              >
+            </legend>
+            <button class="strip col" @click="openProjectPalette(pp.palette.id, 0)">
+              <span v-if="!pp.colors.length && !pp.fabrics.length" class="text-caption text-grey-7">
+                Empty: click to add colors or fabric images
+              </span>
+              <span
+                v-for="(x, j) in pp.colors"
+                :key="x.id"
+                class="chip"
+                :style="{ background: `rgb(${x.rgb.join(',')})` }"
+                :title="x.notecard.name"
+                @click.stop="openProjectPalette(pp.palette.id, j)"
+              />
+              <span
+                v-for="(x, j) in pp.fabrics"
+                :key="x.id"
+                class="chip"
+                :style="swatchStyle(x)"
+                :title="x.notecard.name"
+                @click.stop="openProjectPalette(pp.palette.id, pp.colors.length + j)"
+              />
+            </button>
+            <q-btn flat round dense icon="more_vert" aria-label="Actions">
+              <q-menu>
+                <q-list dense style="min-width: 190px">
+                  <q-item v-close-popup clickable @click="openProjectPalette(pp.palette.id, 0)">
+                    <q-item-section>{{
+                      project.readOnly ? 'Preview' : 'Edit colors…'
+                    }}</q-item-section>
+                  </q-item>
+                  <template v-if="!project.readOnly">
+                    <q-item v-close-popup clickable @click="addImagesTo(pp.palette.id)">
+                      <q-item-section>Add fabric images…</q-item-section>
+                    </q-item>
+                    <q-item v-close-popup clickable @click="renameProjectPalette(pp.palette.id)">
+                      <q-item-section>Rename…</q-item-section>
+                    </q-item>
+                    <q-item
+                      v-close-popup
+                      clickable
+                      :disable="!pp.colors.length"
+                      @click="
+                        saveColors = { to: '', name: pp.palette.notecard.name, from: pp.palette.id }
+                      "
+                    >
+                      <q-item-section>Save to my library…</q-item-section>
+                    </q-item>
+                  </template>
+                  <q-item
+                    v-close-popup
+                    clickable
+                    :disable="!pp.colors.length"
+                    @click="exportProjectPalette(pp)"
+                  >
+                    <q-item-section>Export (.rrqplt)</q-item-section>
+                  </q-item>
+                  <q-item
+                    v-if="!project.readOnly"
+                    v-close-popup
+                    clickable
+                    @click="deleteProjectPalette(pp)"
+                  >
+                    <q-item-section class="text-negative">Delete</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </fieldset>
+        </template>
+        <div v-if="!ownPalettes.length" class="text-caption text-grey-7">
+          No palettes of your own yet. Click New palette.
         </div>
-        <div class="swatches q-mb-lg">
-          <ColorPill v-if="!project.readOnly" clickable @click="newProjectColor" />
-          <ColorPill
-            v-for="c in group.items"
-            :key="c.id"
-            :color="c"
-            :editable="!project.readOnly"
-            :clickable="group.mine && !project.readOnly"
-            :active="group.mine && pickedColors.includes(c.id)"
-            @click="togglePickColor(c.id)"
-            @edit="editProjectColor(c)"
-            @remove="deleteProjectColor(c)"
-          >
-            <q-icon
-              v-if="group.mine && changedColors.includes(c.id)"
-              name="sync"
-              color="warning"
-              size="xs"
-              class="absolute-top-right"
-            >
-              <q-tooltip>Changed since {{ MY_LIBRARY }}</q-tooltip>
-            </q-icon>
-            <q-checkbox
-              v-if="!project.readOnly"
-              dense
-              size="xs"
-              class="save-pick on-hover"
-              :class="{ checked: pickedColors.includes(c.id) }"
-              :model-value="pickedColors.includes(c.id)"
-              :aria-label="`Select ${c.notecard.name} for saving to ${MY_LIBRARY}`"
-              @click.stop
-              @update:model-value="togglePickColor(c.id)"
-            >
-              <q-tooltip>Select for Save to my library</q-tooltip>
-            </q-checkbox>
-          </ColorPill>
-        </div>
-      </template>
+      </div>
       <ColorEditor ref="colorEditor" @done="addProjectColor" />
-      <!-- The project's own fabrics (spec 014); library fabrics come with their palettes. -->
-      <div class="row items-center q-mb-sm" style="gap: 8px">
-        <div class="text-subtitle2">Project fabrics</div>
-        <q-btn
-          v-if="!project.readOnly"
-          flat
-          dense
-          no-caps
-          size="sm"
-          icon="add_photo_alternate"
-          label="Add fabric images"
-          @click="fabricImport?.show()"
-        />
-      </div>
-      <div v-if="ownFabrics.length" class="swatches q-mb-lg">
-        <button
-          v-for="(f, i) in ownFabrics"
-          :key="f.id"
-          class="fabric-swatch"
-          :style="swatchStyle(f)"
-          :title="f.notecard.name + (f.approximate ? ' (size ≈)' : '')"
-          @click="
-            showPalette(
-              { notecard: { name: 'Project fabrics' }, colors: [], fabrics: ownFabrics },
-              i,
-            )
-          "
-        />
-      </div>
-      <div v-else class="text-caption text-grey-7 q-mb-lg">
-        Photos or scans of your fabrics, used like colors in the quilt and block editors.
-      </div>
       <FabricImportDialog
         ref="fabricImport"
         :units="project.doc!.units"
-        @done="(fabrics) => project.change((d) => void d.project.palette.fabrics.push(...fabrics))"
+        :palettes="ownPalettes.map((x) => ({ id: x.palette.id, name: x.palette.notecard.name }))"
+        @done="fabricsAdded"
       />
       <div v-if="settings.settings.hideLibraryPalettes" class="text-caption text-grey-7 q-mt-lg">
         Library palettes are turned off in Settings › Libraries.
@@ -525,7 +522,7 @@
       <template v-else>
         <div class="text-subtitle2 q-mt-lg">Library palettes</div>
         <div class="text-caption text-grey-7 q-mb-sm">
-          Tick the palettes to use in this project's quilts; project colors are always available.
+          Tick the palettes to use in this project's quilts; project palettes are always available.
         </div>
         <template v-for="v in paletteLibs" :key="v.id">
           <!-- A fieldset, so the library's name sits in the top-left of its border. Packs of one
@@ -546,9 +543,10 @@
               </button>
             </legend>
             <div
-              v-for="c in collapse.isOpen(`pal:${v.id}`) ? v.collections : []"
+              v-for="(c, ci) in collapse.isOpen(`pal:${v.id}`) ? v.collections : []"
               :key="c.id"
               class="row items-center no-wrap"
+              :class="{ 'lib-row-sep': ci > 0 }"
             >
               <q-checkbox
                 dense
@@ -587,24 +585,31 @@
           </fieldset>
         </template>
       </template>
-      <div class="text-caption text-grey-7 q-mt-md">
-        Edit a project color or fabric from the tray in the quilt editor.
-      </div>
     </template>
     <div v-else class="text-grey-7">Coming in a later version.</div>
 
     <!-- A palette's colors and fabrics, one large (as in Libraries). -->
     <q-dialog :model-value="!!shownPalette" @update:model-value="shownPalette = null">
-      <q-card v-if="shownPalette" style="width: min(80vw, 512px); max-width: none">
+      <q-card v-if="shownPalette && shownData" style="width: min(80vw, 512px); max-width: none">
         <q-card-section class="row items-start no-wrap">
           <PaletteTitle
             class="col"
-            :palette="shownPalette.palette"
-            :license="shownPalette.palette.license ?? shownPalette.palette.source?.license"
+            :palette="shownData"
+            :license="shownData.license ?? shownData.source?.license"
           />
           <q-btn v-close-popup flat round dense icon="close" aria-label="Close" />
         </q-card-section>
-        <PalettePreview v-model:at="shownPalette.at" :palette="shownPalette.palette" />
+        <!-- A project palette is edited here, like a My library palette on the Libraries page. -->
+        <PalettePreview
+          v-model:at="shownPalette.at"
+          :palette="shownData"
+          :editable="!!shownPalette.project && !project.readOnly"
+          images
+          @add="newProjectColor(shownPalette.project)"
+          @add-images="addImagesTo(shownPalette.project!)"
+          @edit="(i) => editProjectColor(shownData!.colors[i]!)"
+          @remove="removeFromShown"
+        />
       </q-card>
     </q-dialog>
 
@@ -955,7 +960,10 @@
       <q-card v-if="saveColors" style="width: 380px; max-width: 95vw">
         <q-card-section class="q-gutter-sm">
           <div class="text-h6">Save to my library</div>
-          <div class="text-grey-7">{{ pickedColors.length }} color(s)</div>
+          <div class="text-grey-7">
+            {{ ownPalettes.find((x) => x.palette.id === saveColors!.from)?.colors.length ?? 0 }}
+            color(s). Fabric images stay in the project.
+          </div>
           <q-select
             v-model="saveColors.to"
             :options="[
@@ -1013,7 +1021,6 @@ import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
 import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
-import ColorPill from '@/components/ColorPill.vue';
 import { itemId } from '@/model/identity';
 import ColoringCount from '@/components/ColoringCount.vue';
 import FullName from '@/components/FullName.vue';
@@ -1035,6 +1042,14 @@ import { parseProject } from '@/model/io';
 import type { RrqDoc } from '@/model/schema/project';
 import { castDraft, produce, type Draft } from 'immer';
 import {
+  addPalette,
+  deletePalette,
+  fileInto,
+  projectPalettes,
+  renamePalette,
+} from '@/model/project-palettes';
+import { collectionFile } from '@/model/collection-file';
+import {
   isLibraryItem,
   splitItems,
   syncLibraryItems,
@@ -1051,7 +1066,6 @@ import {
   addBlock,
   addToCollection,
   colorChanged,
-  libraryGroups,
   blocksByLibrary,
   linkState,
   saveCollection,
@@ -1126,9 +1140,6 @@ const libGroups = computed(() => {
     : out;
 });
 const fabricImport = ref<InstanceType<typeof FabricImportDialog>>();
-const ownFabrics = computed(() =>
-  (project.doc?.project.palette.fabrics ?? []).filter((f) => !isLibraryItem(f)),
-);
 /** Library boxes collapse from their title (remembered). */
 const collapse = useCollapsed();
 /** Library palettes by library: a library's packs (spec 014) together under its name. */
@@ -1152,8 +1163,94 @@ type Shown = Pick<
   ColorCollection,
   'notecard' | 'colors' | 'fabrics' | 'author' | 'source' | 'license'
 >;
-const shownPalette = ref<{ palette: Shown; at: number } | null>(null);
+/** `project`: one of the project's own palettes (editable, read from the project as it changes). */
+const shownPalette = ref<{ palette?: Shown; project?: string; at: number } | null>(null);
 const showPalette = (palette: Shown, at: number) => (shownPalette.value = { palette, at });
+const shownData = computed((): Shown | undefined => {
+  const sp = shownPalette.value;
+  if (!sp?.project) return sp?.palette;
+  const pp = ownPalettes.value.find((x) => x.palette.id === sp.project);
+  return pp && { notecard: pp.palette.notecard, colors: pp.colors, fabrics: pp.fabrics };
+});
+
+// --- The project's own palettes (format v3) ---
+const ownPalettes = computed(() => projectPalettes(project.doc!));
+const openProjectPalette = (id: string, at: number) => (shownPalette.value = { project: id, at });
+function newProjectPalette() {
+  $q.dialog({
+    title: 'New palette',
+    prompt: { model: '', type: 'text', isValid: (v: string) => !!v.trim() },
+    cancel: true,
+  }).onOk((name: string) => {
+    const id = itemId(settings.settings.author);
+    project.change((d) => void addPalette(d, id, name.trim()));
+  });
+}
+function renameProjectPalette(id: string) {
+  const pp = ownPalettes.value.find((x) => x.palette.id === id);
+  $q.dialog({
+    title: 'Rename palette',
+    prompt: {
+      model: pp?.palette.notecard.name ?? '',
+      type: 'text',
+      isValid: (v: string) => !!v.trim(),
+    },
+    cancel: true,
+  }).onOk((name: string) => project.change((d) => renamePalette(d, id, name.trim())));
+}
+/** Delete a palette with its colors and fabrics; any in use are swapped first (the swap dialog). */
+function deleteProjectPalette(pp: (typeof ownPalettes.value)[number]) {
+  confirmRemoval(
+    [...pp.colors, ...pp.fabrics.map((f) => fabricOpt(f, ''))],
+    { projectPalette: pp.palette.id },
+    pp.palette.notecard.name,
+  );
+}
+function exportProjectPalette(pp: (typeof ownPalettes.value)[number]) {
+  const c = {
+    id: pp.palette.id,
+    notecard: pp.palette.notecard,
+    colors: pp.colors,
+    fabrics: pp.fabrics,
+  } as ColorCollection;
+  void exportFile(
+    pp.palette.notecard.name,
+    JSON.stringify(collectionFile(c, import.meta.env.APP_VERSION)),
+    'rrqplt',
+  );
+}
+/** Fabric images into a palette: picked in the dialog, or dropped on the palette. */
+const addImagesTo = (id: string) => fabricImport.value?.show({ palette: id });
+const dropOn = ref<string | null>(null);
+function dropImages(e: DragEvent, id: string) {
+  dropOn.value = null;
+  const files = [...(e.dataTransfer?.files ?? [])];
+  if (files.length) fabricImport.value?.show({ files, palette: id });
+}
+function fabricsAdded(fabrics: Fabric[], to?: { id: string } | { name: string }) {
+  project.change((d) => {
+    d.project.palette.fabrics.push(...fabrics);
+    const id =
+      to && 'name' in to
+        ? addPalette(d, itemId(settings.settings.author), to.name)
+        : (to?.id ?? d.project.palette.collections?.[0]?.id);
+    if (id)
+      fileInto(
+        d,
+        id,
+        [],
+        fabrics.map((f) => f.id),
+      );
+  });
+}
+/** Remove the shown palette's color or fabric `i` (colors first), swapping any uses first. */
+function removeFromShown(i: number) {
+  const d = shownData.value!;
+  const c = d.colors[i];
+  if (c) return deleteProjectColor(c);
+  const f = d.fabrics?.[i - d.colors.length];
+  if (f) confirmRemoval([fabricOpt(f, '')], { fabric: f.id }, f.notecard.name);
+}
 /** A color, or a fabric standing in as one (`fabric:<id>`, its average color), with where it's from. */
 type Opt = Color & { from: string; fabric?: Fabric };
 const fabricOpt = (f: Fabric, from: string): Opt => ({
@@ -1172,6 +1269,9 @@ const unpicking = ref<{
   /** What is going away: a palette (its id), one project color, or (neither) all project colors. */
   palette?: string;
   color?: string;
+  /** One of the project's own palettes going away (with its items), or one fabric. */
+  projectPalette?: string;
+  fabric?: string;
   /** Libraries' palettes going away, and the packs to switch off afterwards (Libraries page). */
   palettes?: string[];
   packsOff?: string[];
@@ -1191,18 +1291,31 @@ const ownColors = computed(() =>
 const lastSource = (id: string) =>
   !ownColors.value.length && pickedPalettes.value.length === 1 && pickedPalettes.value[0] === id;
 
-type Drop = { palette?: string; palettes?: string[]; mine?: boolean; color?: string };
+type Drop = {
+  palette?: string;
+  palettes?: string[];
+  mine?: boolean;
+  color?: string;
+  /** One of the project's own palettes, deleted with its colors and fabrics. */
+  projectPalette?: string;
+  fabric?: string;
+};
 /** Colors and fabrics available after removing a palette (`palette`, `palettes`) or My colors (`mine`). */
 function remaining(drop: Drop): Opt[] {
   const all = library.views.flatMap((v) => v.collections.map((c) => ({ v, c })));
   const going = new Set([drop.palette, ...(drop.palettes ?? [])]);
   return [
-    ...(drop.mine
-      ? []
-      : ownColors.value
+    // The project's own palettes (but not the one, or the color or fabric, going away).
+    ...(drop.mine ? [] : ownPalettes.value)
+      .filter((pp) => pp.palette.id !== drop.projectPalette)
+      .flatMap((pp) => [
+        ...pp.colors
           .filter((c) => c.id !== drop.color)
-          .map((c) => ({ ...c, from: 'Project colors' }))),
-    ...ownFabrics.value.map((f) => fabricOpt(f, 'Project fabrics')),
+          .map((c) => ({ ...c, from: pp.palette.notecard.name })),
+        ...pp.fabrics
+          .filter((f) => f.id !== drop.fabric)
+          .map((f) => fabricOpt(f, pp.palette.notecard.name)),
+      ]),
     ...all
       .filter((x) => pickedPalettes.value.includes(x.c.id) && !going.has(x.c.id))
       .flatMap((x) => {
@@ -1238,6 +1351,8 @@ function confirmRemoval(
     ...(drop.palette ? { palette: drop.palette } : {}),
     ...(drop.color ? { color: drop.color } : {}),
     ...(drop.palettes ? { palettes: drop.palettes } : {}),
+    ...(drop.projectPalette ? { projectPalette: drop.projectPalette } : {}),
+    ...(drop.fabric ? { fabric: drop.fabric } : {}),
     ...(packsOff ? { packsOff } : {}),
     used,
     options,
@@ -1251,9 +1366,6 @@ function pickPalette(id: string, on: boolean) {
   const c = library.views.flatMap((v) => v.collections).find((x) => x.id === id);
   confirmRemoval(c?.colors ?? [], { palette: id }, c?.notecard.name ?? 'This palette');
 }
-function clearMine() {
-  confirmRemoval(ownColors.value, { mine: true }, 'Project colors');
-}
 function deleteProjectColor(c: Color) {
   confirmRemoval([c], { color: c.id }, c.notecard.name);
 }
@@ -1264,8 +1376,11 @@ function editProjectColor(c: Color) {
   editingColor.value = c.id;
   colorEditor.value?.show({ name: c.notecard.name, rgb: [...c.rgb] as [number, number, number] });
 }
-function newProjectColor() {
+/** The palette a new color goes into. */
+const colorTarget = ref<string | undefined>();
+function newProjectColor(palette?: string) {
   editingColor.value = null;
+  colorTarget.value = palette;
   colorEditor.value?.show();
 }
 function addProjectColor({ name, rgb }: { name: string; rgb: [number, number, number] }) {
@@ -1276,12 +1391,11 @@ function addProjectColor({ name, rgb }: { name: string; rgb: [number, number, nu
     if (c) {
       c.notecard.name = name;
       c.rgb = rgb;
-    } else
-      d.project.palette.colors.push({
-        id: itemId(settings.settings.author),
-        notecard: { name },
-        rgb,
-      });
+    } else {
+      const nid = itemId(settings.settings.author);
+      d.project.palette.colors.push({ id: nid, notecard: { name }, rgb });
+      if (colorTarget.value) fileInto(d, colorTarget.value, [nid]);
+    }
   });
 }
 function finishUnpick() {
@@ -1292,20 +1406,21 @@ function finishUnpick() {
 }
 
 // --- New coloring from palette swap: the swap dialog, mapping one coloring's colors ---
-/** Palettes to map onto: the project's colors, then every palette in use in the libraries. */
+/** Palettes to map onto: the project's own palettes, then every palette in use in the libraries. */
 const swapPalettes = computed(() => [
-  ...(ownColors.value.length || ownFabrics.value.length
-    ? [
-        {
-          id: 'project',
-          label: 'Project colors and fabrics',
-          colors: [
-            ...ownColors.value.map((c) => ({ ...c, from: 'Project colors' })),
-            ...ownFabrics.value.map((f) => fabricOpt(f, 'Project fabrics')),
-          ] as Opt[],
-        },
-      ]
-    : []),
+  ...ownPalettes.value
+    .filter((pp) => pp.colors.length || pp.fabrics.length)
+    .map((pp) => {
+      const from = `${pp.palette.notecard.name} · this project`;
+      return {
+        id: `project:${pp.palette.id}`,
+        label: from,
+        colors: [
+          ...pp.colors.map((c) => ({ ...c, from })),
+          ...pp.fabrics.map((f) => fabricOpt(f, from)),
+        ] as Opt[],
+      };
+    }),
   ...library.views.flatMap((v) =>
     v.collections.map((c) => {
       const from = `${c.notecard.name} · ${v.doc.library?.name ?? v.doc.name}`;
@@ -1412,7 +1527,10 @@ function addSwapColoring(u: NonNullable<typeof unpicking.value>) {
 /** Recolor, then unpick the palette or clear My colors (inside a project.change recipe). */
 function removal(d: Draft<RrqDoc>, u: NonNullable<typeof unpicking.value>) {
   replaceColors(d, new Map(Object.entries(u.map)));
-  if (u.palette || u.palettes) {
+  if (u.projectPalette) deletePalette(d, u.projectPalette);
+  else if (u.fabric)
+    d.project.palette.fabrics = d.project.palette.fabrics.filter((f) => f.id !== u.fabric);
+  else if (u.palette || u.palettes) {
     const going = new Set([u.palette, ...(u.palettes ?? [])]);
     d.project.libraryPalettes = (d.project.libraryPalettes ?? []).filter((x) => !going.has(x));
     if (!d.project.libraryPalettes.length) delete d.project.libraryPalettes;
@@ -1539,13 +1657,6 @@ function pickAll(bs: { id: string }[], on: boolean) {
     else delete d.project.libraryBlocks;
   });
 }
-const colorGroups = computed(() => {
-  const c = splitItems(project.doc!.project.palette.colors, library.items.colors);
-  return [
-    { label: 'Project colors', items: c.mine, mine: true },
-    ...libraryGroups(c.library, library.views, 'colors').map((g) => ({ ...g, mine: false })),
-  ];
-});
 const previewBlock = computed(() =>
   [...blocks.value, ...libBlocks.value].find((b) => b.id === preview.value),
 );
@@ -1788,11 +1899,7 @@ function syncToMine(b: Block) {
 }
 
 // Colors: pick own colors, save them as a collection or add them to one; sync changed ones.
-const pickedColors = ref<string[]>([]);
-const togglePickColor = (id: string) =>
-  (pickedColors.value = pickedColors.value.includes(id)
-    ? pickedColors.value.filter((x) => x !== id)
-    : [...pickedColors.value, id]);
+
 const myCollections = computed(
   () => library.views.find((v) => v.doc.kind === 'personal')?.collections ?? [],
 );
@@ -1802,13 +1909,15 @@ const changedColors = computed(() =>
     .map((c) => c.id),
 );
 
-const saveColors = ref<{ to: string; name: string } | null>(null);
-async function savePickedColors({ to, name }: { to: string; name: string }) {
+const saveColors = ref<{ to: string; name: string; from: string } | null>(null);
+async function savePickedColors({ to, name, from }: { to: string; name: string; from: string }) {
+  // A project palette's colors (fabric images stay in the project).
+  const picked =
+    ownPalettes.value.find((x) => x.palette.id === from)?.colors.map((c) => c.id) ?? [];
   if (to) {
-    const r = await addToCollection(library.mine!, project.doc!, to, pickedColors.value);
+    const r = await addToCollection(library.mine!, project.doc!, to, picked);
     await library.saveMine(r.lib);
     applyLinks(r.doc);
-    pickedColors.value = [];
     return void $q.notify({ type: 'positive', message: 'Added to the palette.' });
   }
   const category = await askCategory();
@@ -1818,13 +1927,12 @@ async function savePickedColors({ to, name }: { to: string; name: string }) {
     library.ensureMine(author),
     project.doc!,
     name.trim(),
-    pickedColors.value,
+    picked,
     author,
     category,
   );
   await library.saveMine(r.lib);
   applyLinks(r.doc);
-  pickedColors.value = [];
   $q.notify({ type: 'positive', message: `Saved “${name.trim()}” to ${MY_LIBRARY}.` });
 }
 
@@ -2255,6 +2363,52 @@ watch(
 }
 .lib-box legend {
   padding: 0 4px;
+}
+/* Project palettes: rows like the Libraries page's palettes. */
+.collection {
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 8px;
+  padding: 2px 6px 6px;
+  margin: 0;
+  min-width: 0;
+}
+.collection legend {
+  padding: 0 4px;
+  max-width: 80%;
+}
+.collection.drop-target {
+  border-color: var(--q-primary);
+  box-shadow: inset 0 0 0 1px var(--q-primary);
+}
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  min-height: 30px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.chip {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+.lib-row-sep {
+  border-top: 1px solid rgba(128, 128, 128, 0.15);
+  padding-top: 4px;
+}
+.pal-hr {
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-top: 1px solid rgba(128, 128, 128, 0.15);
 }
 .lib-toggle {
   display: inline-flex;

@@ -105,12 +105,14 @@ const busy = ref(false);
 const done = ref(0);
 const errors = ref<string[]>([]);
 
-function show() {
+/** Open the dialog: empty, or with dropped `files` and the palette they're for. */
+function show(opts: { files?: File[]; palette?: string } = {}) {
   items.value = [];
   errors.value = [];
-  palette.value = props.palettes?.[0]?.id ?? NEW.value;
+  palette.value = opts.palette ?? props.palettes?.[0]?.id ?? NEW.value;
   newName.value = '';
   open.value = true;
+  if (opts.files?.length) void addFiles(opts.files);
 }
 defineExpose({ show });
 
@@ -120,20 +122,22 @@ function pick(folder: boolean) {
   input.multiple = true;
   if (folder) input.webkitdirectory = true;
   else input.accept = 'image/jpeg,image/png,image/webp,.zip';
-  input.onchange = async () => {
-    try {
-      for (const f of await imageFiles([...(input.files ?? [])]))
-        items.value.push({
-          ...nameFromFile(f.name),
-          file: f.name,
-          blob: f.blob,
-          preview: URL.createObjectURL(f.blob),
-        });
-    } catch (e) {
-      errors.value.push(e instanceof Error ? e.message : String(e));
-    }
-  };
+  input.onchange = () => void addFiles([...(input.files ?? [])]);
   input.click();
+}
+
+async function addFiles(files: File[]) {
+  try {
+    for (const f of await imageFiles(files))
+      items.value.push({
+        ...nameFromFile(f.name),
+        file: f.name,
+        blob: f.blob,
+        preview: URL.createObjectURL(f.blob),
+      });
+  } catch (e) {
+    errors.value.push(e instanceof Error ? e.message : String(e));
+  }
 }
 
 function drop(i: number) {

@@ -38,10 +38,12 @@ Libraries themselves are covered in [Libraries](/help/guides/libraries).
 
 ## Palettes
 
-Your **project colors** are listed here. Add one with the **+** button, or edit a color from the
-palette tray in the quilt editor ([Colors and palettes](/help/guides/colors-and-palettes)).
+**Project palettes** hold your own colors and fabric images ([Colors and
+palettes](/help/guides/colors-and-palettes)). **New palette** adds one.
 
-- Tick project colors, then **Save to my library…** to keep them as a palette.
+- Click a palette to see its colors and fabrics large. There, **+** adds a color and the picture
+  button adds fabric images. Drop image files on a palette to add them too.
+- A palette's **⋮** menu renames it, saves it to My library, exports it, or deletes it.
 - **Import palette (.rrqplt)** adds a palette file.
 - **Library palettes** lists palettes you can turn on. Ticked ones appear in the color trays.
 

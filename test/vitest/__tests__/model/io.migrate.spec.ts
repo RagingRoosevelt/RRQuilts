@@ -35,3 +35,13 @@ describe('v1 → v2 (spec 014)', () => {
     expect(r.ok && r.doc).toEqual(fixture());
   });
 });
+
+describe('v2 → v3 (project palettes)', () => {
+  it("puts a version 2 project's own colors and fabrics into one palette", async () => {
+    const f = structuredClone(fixture());
+    const want = f.project.palette.collections;
+    delete f.project.palette.collections;
+    const r = await parseProject(JSON.stringify({ ...f, version: 2 }));
+    expect(r.ok && r.doc.project.palette.collections).toEqual(want);
+  });
+});

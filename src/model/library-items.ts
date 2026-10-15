@@ -1,6 +1,8 @@
 // Library items in projects (spec 008): a library item is embedded only while something uses it,
 // keeps its identity (`id@version`), and is never edited in place.
 import { produce, type Draft } from 'immer';
+import { syncPalettes } from './project-palettes';
+import { newId } from './ids';
 import { allPatches } from './blocks/patches';
 import { assignIds, remapColoring } from './blocks/remap';
 import { pathPolygon } from './geometry/path';
@@ -50,6 +52,7 @@ export const blocksUsed = (p: RrqDoc['project']) =>
  */
 export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   const p = d.project;
+  syncPalettes(d, newId);
   if (lib) {
     const have = new Set(p.blocks.map((b) => b.id));
     for (const id of blocksUsed(p)) {
