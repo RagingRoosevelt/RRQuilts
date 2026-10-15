@@ -225,3 +225,22 @@ export function projectColorings(
   const theirs = new Set(origin.colorings.map((c) => JSON.stringify(c)));
   return { origin, own: b.colorings.filter((c) => !theirs.has(JSON.stringify(c))) };
 }
+
+/**
+ * A block's colorings in sections for previews: a color variant's own colorings apart from its
+ * library block's (spec 008 US7); otherwise one unlabeled section.
+ */
+export function coloringSections(
+  b: Block,
+  lib: { block(id: string): Block | undefined } | undefined,
+  own = 'Project colorings',
+): { label?: string; colorings: Block['colorings'] }[] {
+  const v = projectColorings(b, lib);
+  if (!v || !v.own.length) return [{ colorings: b.colorings }];
+  const mine = new Set(v.own.map((c) => c.id));
+  const theirs = b.colorings.filter((c) => !mine.has(c.id));
+  return [
+    { label: own, colorings: v.own },
+    ...(theirs.length ? [{ label: 'Library colorings', colorings: theirs }] : []),
+  ];
+}

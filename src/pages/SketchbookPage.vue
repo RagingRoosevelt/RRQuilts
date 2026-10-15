@@ -587,23 +587,32 @@
           </div>
         </q-card-section>
         <img
-          :src="thumb(previewBlock, 560, previewColoring)"
+          :src="thumb(previewBlock, 560, previewColoring ?? previewSections[0]!.colorings[0]?.id)"
           style="width: 100%; display: block"
           alt=""
         />
-        <div v-if="previewBlock.colorings.length > 1" class="row q-px-md q-pt-sm" style="gap: 6px">
-          <button
-            v-for="(k, i) in previewBlock.colorings"
-            :key="k.id"
-            class="skin"
-            :class="{ active: (previewColoring ?? previewBlock.colorings[0]!.id) === k.id }"
-            :title="k.name ?? `Coloring ${i + 1}`"
-            @click="previewColoring = k.id"
-          >
-            <img :src="thumb(previewBlock, 64, k.id)" alt="" />
-            <span class="skin-name">{{ k.name ?? `Coloring ${i + 1}` }}</span>
-          </button>
-        </div>
+        <template v-if="previewBlock.colorings.length > 1">
+          <template v-for="sec in previewSections" :key="sec.label ?? ''">
+            <div v-if="sec.label" class="text-subtitle2 q-px-md q-pt-sm">{{ sec.label }}</div>
+            <div class="row q-px-md q-pt-sm" style="gap: 6px">
+              <button
+                v-for="k in sec.colorings"
+                :key="k.id"
+                class="skin"
+                :class="{
+                  active: (previewColoring ?? previewSections[0]!.colorings[0]?.id) === k.id,
+                }"
+                :title="k.name ?? `Coloring ${previewBlock.colorings.indexOf(k) + 1}`"
+                @click="previewColoring = k.id"
+              >
+                <img :src="thumb(previewBlock, 64, k.id)" alt="" />
+                <span class="skin-name">{{
+                  k.name ?? `Coloring ${previewBlock.colorings.indexOf(k) + 1}`
+                }}</span>
+              </button>
+            </div>
+          </template>
+        </template>
         <q-card-section class="column" style="gap: 4px">
           <div v-if="previewBlock.notecard.notes" style="white-space: pre-wrap">
             {{ previewBlock.notecard.notes }}
@@ -915,6 +924,7 @@ import {
   syncLibraryItems,
   versionMismatches,
   projectColorings,
+  coloringSections,
   toUnits,
   useMyCopy,
 } from '@/model/library-items';
@@ -1234,6 +1244,11 @@ const colorGroups = computed(() => {
 });
 const previewBlock = computed(() =>
   [...blocks.value, ...libBlocks.value].find((b) => b.id === preview.value),
+);
+const previewSections = computed(() =>
+  previewBlock.value
+    ? coloringSections(previewBlock.value, library.lookup, 'Project colorings')
+    : [],
 );
 const thumb = (b: Block, px: number, coloring?: string) =>
   blockThumbnail(project.doc!, b, px, $q.dark.isActive, coloring, library.items.colors);

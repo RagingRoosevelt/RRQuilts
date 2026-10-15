@@ -95,6 +95,29 @@ const average = (f: Fabric) => `rgb(${f.average.join(',')})`;
 const patterns = new WeakMap<CanvasRenderingContext2D, Map<string, CanvasPattern | null>>();
 
 /**
+ * A fabric pattern's matrix under `m` (the context's transform): the fabric keeps its true size and
+ * the shape's rotation and mirroring, but never its stretch (a border is the plain block scaled to
+ * fit). Built in device space, then `m` undone.
+ */
+export function patternMatrix(
+  m: DOMMatrix,
+  devicePerUnit: number,
+  f: Pick<Fabric, 'size'>,
+  bmp: { width: number; height: number },
+  fill?: { offset: readonly number[]; rotation: number },
+) {
+  const len = Math.hypot(m.a, m.b) || 1;
+  const [ux, uy] = [m.a / len, m.b / len];
+  const flip = Math.sign(m.a * m.d - m.b * m.c) || 1;
+  const device = new DOMMatrix([ux, uy, -uy * flip, ux * flip, m.e, m.f])
+    .scaleSelf(devicePerUnit, devicePerUnit)
+    .translateSelf(fill?.offset[0] ?? 0, fill?.offset[1] ?? 0)
+    .rotateSelf(fill?.rotation ?? 0)
+    .scaleSelf(f.size[0] / bmp.width, f.size[1] / bmp.height);
+  return m.inverse().multiplySelf(device);
+}
+
+/**
  * Fill style for a fabric in `ctx`'s current transform. `devicePerUnit`: device pixels per real
  * unit (inch or cm) for this drawing, so the print keeps its true size however the block is scaled.
  */
@@ -112,13 +135,6 @@ export function fabricFill(
   let p = byCtx.get(sha);
   if (p === undefined) byCtx.set(sha, (p = ctx.createPattern(bmp, 'repeat')));
   if (!p) return average(f);
-  const m = ctx.getTransform();
-  const k = devicePerUnit / Math.hypot(m.a, m.b); // current user units per real unit, inverted
-  p.setTransform(
-    new DOMMatrix()
-      .translateSelf(fill?.offset[0] ?? 0, fill?.offset[1] ?? 0)
-      .rotateSelf(fill?.rotation ?? 0)
-      .scaleSelf((f.size[0] / bmp.width) * k, (f.size[1] / bmp.height) * k),
-  );
+  p.setTransform(patternMatrix(ctx.getTransform(), devicePerUnit, f, bmp, fill));
   return p;
 }

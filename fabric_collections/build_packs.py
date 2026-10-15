@@ -193,7 +193,11 @@ def main():
                 print(f'  = {name}')
                 continue
             m = meta.get(zp.name) or {}
-            entry = build_pack(maker, lib_id, zp, {'designer': m.get('designer'), 'styles': m.get('styles')}, out_dir)
+            try:
+                entry = build_pack(maker, lib_id, zp, {'designer': m.get('designer'), 'styles': m.get('styles')}, out_dir)
+            except zipfile.BadZipFile:
+                print(f'  - {name}: damaged zip, download it again ({zp.name})')
+                continue
             if entry:
                 packs[pack_id] = entry
                 print(f'  + {name} ({entry["items"]} fabrics)')

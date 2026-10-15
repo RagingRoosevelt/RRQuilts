@@ -10,6 +10,7 @@ import {
   syncLibraryItems,
   keepAsMine,
   projectColorings,
+  coloringSections,
   swapToLibraryVersion,
   useMyCopy,
   versionMismatches,
@@ -180,6 +181,13 @@ describe('projectColorings', () => {
     });
     expect(projectColorings(v1, lookup)!.own.map((c) => c.id)).toEqual([v1.colorings[1]!.id]);
     expect(projectColorings(orig, lookup)).toBeUndefined();
+    // Previews show them in their own section, apart from the library's.
+    expect(coloringSections(v0, lookup)).toEqual([{ colorings: v0.colorings }]);
+    const secs = coloringSections(v1, lookup);
+    expect(secs.map((x) => [x.label, x.colorings.length])).toEqual([
+      ['Project colorings', 1],
+      ['Library colorings', v1.colorings.length - 1],
+    ]);
   });
 });
 
