@@ -199,6 +199,16 @@
                     dense
                     no-caps
                     size="sm"
+                    icon="toggle_off"
+                    label="All off"
+                    :disable="!g.packs.some((p) => p.view && packOn(p.id))"
+                    @click="allPacksOff(g)"
+                  />
+                  <q-btn
+                    flat
+                    dense
+                    no-caps
+                    size="sm"
                     icon="update"
                     label="Check for updates"
                     :loading="checking"
@@ -1407,6 +1417,14 @@ async function declineUpdate() {
   const u = updating.value;
   updating.value = null;
   if (u) await library.declineUpdate(u.c, u.index.revision);
+}
+/** Switch off every pack of a library (asking first about any the open project uses). */
+function allPacksOff(g: PackGroup) {
+  const ids = g.packs.filter((p) => p.view && packOn(p.id)).map((p) => p.id);
+  checkOff(ids, () => {
+    settings.settings.packsOff = [...new Set([...settings.settings.packsOff, ...ids])];
+    if (g.connection) void library.freeImages();
+  });
 }
 const connectingBundled = ref<string | null>(null);
 async function connectBundled(g: PackGroup) {
