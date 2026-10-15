@@ -95,13 +95,19 @@ export async function fetchIndex(base: string): Promise<LibraryIndex> {
 }
 
 /** Download one pack and its images up to `px` (256 always), checked; returns it ready to install. */
+/** A pack's document only (no images), checked: to see what an update would change. */
+export async function fetchPackDoc(c: Connection, pack: IndexPack) {
+  const r = parseLibraryValue(await fetchJson(c.base + pack.path));
+  if (!r.ok) throw new Error(`${pack.name}: ${r.error}`);
+  return r;
+}
+
 export async function fetchPack(
   c: Connection,
   pack: IndexPack,
   px: number,
 ): Promise<{ doc: LibraryDoc; skipped: string[] }> {
-  const r = parseLibraryValue(await fetchJson(c.base + pack.path));
-  if (!r.ok) throw new Error(`${pack.name}: ${r.error}`);
+  const r = await fetchPackDoc(c, pack);
   const dir = pack.path.includes('/') ? pack.path.slice(0, pack.path.lastIndexOf('/') + 1) : '';
   const skipped = [...r.skipped];
   await fetchImages(c.base + dir, r.doc, (s) => s <= 256 || s <= px, skipped);

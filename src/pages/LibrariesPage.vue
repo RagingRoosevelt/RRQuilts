@@ -820,15 +820,77 @@
     <q-dialog :model-value="!!updating" persistent>
       <q-card v-if="updating" style="width: 480px; max-width: 90vw">
         <q-card-section class="text-h6">{{ updating.index.name }} has an update</q-card-section>
-        <q-card-section>
-          <div v-if="!updating.notes.length" class="text-grey-7">No notes for this update.</div>
-          <div v-for="n in updating.notes" :key="n.revision" class="q-mb-sm">
-            <div class="text-weight-medium">Revision {{ n.revision }} · {{ n.date }}</div>
-            <div style="white-space: pre-line">{{ n.notes }}</div>
+        <q-card-section class="q-pt-none" style="max-height: 60vh; overflow: auto">
+          <!-- What changes on this device, before anything is downloaded or removed. -->
+          <div v-if="updating.changes.length" class="text-weight-medium q-mb-sm">
+            {{
+              [
+                updateTotals.added && `${updateTotals.added} new`,
+                updateTotals.removed && `${updateTotals.removed} removed`,
+                updateTotals.changed && `${updateTotals.changed} changed`,
+              ]
+                .filter(Boolean)
+                .join(' · ') || 'No color or fabric changes'
+            }}
+            <span class="text-grey-7 text-weight-regular">(colors and fabrics in your packs)</span>
           </div>
+          <div v-else class="text-grey-7 q-mb-sm">No changes to the packs on this device.</div>
+          <q-expansion-item
+            v-for="ch in updating.changes"
+            :key="ch.id"
+            dense
+            dense-toggle
+            :label="ch.kind === 'removed' ? `${ch.name} (no longer in the library)` : ch.name"
+            :caption="
+              [
+                diffCount(ch.diff).added && `${diffCount(ch.diff).added} new`,
+                diffCount(ch.diff).removed && `${diffCount(ch.diff).removed} removed`,
+                diffCount(ch.diff).changed && `${diffCount(ch.diff).changed} changed`,
+              ]
+                .filter(Boolean)
+                .join(' · ') || 'Details only'
+            "
+          >
+            <div class="q-pl-md q-pb-sm">
+              <template
+                v-for="part in [
+                  { label: 'New', items: diffSwatches(ch.diff.added) },
+                  { label: 'Removed', items: diffSwatches(ch.diff.removed) },
+                  { label: 'Changed', items: diffSwatches(ch.diff.changed) },
+                ]"
+                :key="part.label"
+              >
+                <div v-if="part.items.length" class="text-caption text-grey-7 q-mt-xs">
+                  {{ part.label }}
+                </div>
+                <div v-if="part.items.length" class="row" style="gap: 4px">
+                  <span
+                    v-for="x in part.items"
+                    :key="x.id"
+                    class="chip"
+                    :style="x.style"
+                    :title="x.name"
+                  />
+                </div>
+                <div v-if="part.items.length" class="text-caption">
+                  {{ part.items.map((x) => x.name).join(', ') }}
+                </div>
+              </template>
+            </div>
+          </q-expansion-item>
+          <div v-if="updating.newPacks.length" class="q-mt-sm">
+            New packs to switch on: {{ updating.newPacks.join(', ') }}
+          </div>
+          <template v-if="updating.notes.length">
+            <div class="text-subtitle2 q-mt-md">Notes</div>
+            <div v-for="n in updating.notes" :key="n.revision" class="q-mb-sm">
+              <div class="text-weight-medium">Revision {{ n.revision }} · {{ n.date }}</div>
+              <div style="white-space: pre-line">{{ n.notes }}</div>
+            </div>
+          </template>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat no-caps label="Not now" :disable="updating.busy" @click="updating = null" />
+          <q-btn flat no-caps label="Cancel" :disable="updating.busy" @click="updating = null" />
           <q-btn
             flat
             no-caps
@@ -938,6 +1000,8 @@ import { paintsUsed, replaceColors } from '@/editor/colors';
 import { fabricPaint } from '@/editor/paint';
 import { coloringSections } from '@/model/library-items';
 import type { Connection } from '@/storage/repositories';
+import type { PackChange } from '@/stores/library';
+import { diffCount } from '@/model/pack-diff';
 import { revealSection } from '@/composables/block-sections';
 import { socialsOut } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
@@ -1192,8 +1256,26 @@ const updating = ref<{
   c: Connection;
   index: Connection['index'];
   notes: { revision: number; date: string; notes: string }[];
+  changes: PackChange[];
+  newPacks: string[];
   busy?: boolean;
 } | null>(null);
+/** The update's totals across packs, for its summary line. */
+const updateTotals = computed(() => {
+  const t = { added: 0, removed: 0, changed: 0 };
+  for (const ch of updating.value?.changes ?? []) {
+    const n = diffCount(ch.diff);
+    t.added += n.added;
+    t.removed += n.removed;
+    t.changed += n.changed;
+  }
+  return t;
+});
+/** A diff's colors and fabrics as swatches: fabrics show their image if this device has it. */
+const diffSwatches = (part: { colors: Color[]; fabrics: Fabric[] }) => [
+  ...part.colors.map((c) => ({ id: c.id, name: c.notecard.name, style: { background: css(c) } })),
+  ...part.fabrics.map((f) => ({ id: f.id, name: f.notecard.name, style: swatchStyle(f) })),
+];
 async function checkUpdate(c: Connection) {
   checking.value = true;
   try {

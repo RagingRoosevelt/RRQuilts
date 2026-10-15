@@ -8,11 +8,13 @@ import type { LibraryDoc } from '@/model/schema/library';
 import type { LibraryRef } from '@/model/schema/project';
 import type { LibraryWhere } from '@/model/library-refs';
 import { deletePack, loadLibraries, putMine, putPack } from '@/storage/libraries';
+import { packDiff, type PackDiff } from '@/model/pack-diff';
 import {
   deleteConnection,
   fetchImages,
   fetchIndex,
   fetchPack,
+  fetchPackDoc,
   loadConnections,
   putConnection,
   rawBase,
@@ -22,6 +24,14 @@ import { useSettingsStore } from './settings';
 import { useProjectStore } from './project';
 import { freeUnusedImages } from '@/storage/fabric-files';
 import { setMissingFetcher } from '@/render/fabric-images';
+
+/** One pack's part of a library update. */
+export interface PackChange {
+  id: string;
+  name: string;
+  kind: 'updated' | 'removed';
+  diff: PackDiff;
+}
 
 export const useLibraryStore = defineStore('library', () => {
   const builtin = shallowRef<LibraryDoc | null>(null);
@@ -142,15 +152,44 @@ export const useLibraryStore = defineStore('library', () => {
   async function checkForUpdate(c: Connection) {
     const latest = await fetchIndex(c.base);
     if (latest.revision <= c.pinned) return undefined;
+    // What changes in the packs on this device (their documents only; images come on Update).
+    const installed = packs.value.filter((p) => p.library?.id === c.index.id);
+    const changes: PackChange[] = [];
+    for (const p of latest.packs) {
+      const have = installed.find((x) => x.id === p.id);
+      if (!have || (p.revision ?? 0) <= have.revision) continue;
+      const next = await fetchPackDoc({ ...c, index: latest }, p);
+      changes.push({ id: p.id, name: p.name, kind: 'updated', diff: packDiff(have, next.doc) });
+    }
+    for (const have of installed)
+      if (!latest.packs.some((p) => p.id === have.id))
+        changes.push({
+          id: have.id,
+          name: have.name,
+          kind: 'removed',
+          diff: packDiff(have, { ...have, items: [] }),
+        });
+    const offered = latest.packs.filter(
+      (p) => !c.index.packs.some((x) => x.id === p.id) && !installed.some((x) => x.id === p.id),
+    );
     return {
       index: latest,
       notes: (latest.changelog ?? []).filter((e) => e.revision > c.pinned),
+      changes,
+      /** Packs new to the library: listed to switch on, not downloaded. */
+      newPacks: offered.map((p) => p.name),
     };
   }
   /** Move the pin: re-download the installed packs whose revision changed. */
   async function acceptUpdate(c: Connection, index: Connection['index'], px: number) {
     const next = { ...c, index, pinned: index.revision };
     const skipped: string[] = [];
+    // Packs the library no longer has go (the update showed them as removed).
+    for (const p of packs.value.filter((x) => x.library?.id === c.index.id))
+      if (!index.packs.some((x) => x.id === p.id)) {
+        packs.value = packs.value.filter((x) => x.id !== p.id);
+        await write(() => deletePack(p.id));
+      }
     for (const p of index.packs) {
       const have = packs.value.find((x) => x.id === p.id);
       if (have && (p.revision ?? 0) > have.revision)

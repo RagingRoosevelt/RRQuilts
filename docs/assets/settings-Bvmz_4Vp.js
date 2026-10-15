@@ -1,0 +1,1 @@
+import{_ as e,g as t}from"./project-ls16NMUx.js";import{i as n}from"./index-BhcEEd-M.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

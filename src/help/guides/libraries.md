@@ -76,8 +76,10 @@ Libraries can also live in a git repository, such as one on GitHub.
    **Connect**. Only the list of packs is downloaded.
 3. Open the library's name in the side panel and switch on the packs you want. Each pack downloads
    when you first switch it on, with images at the size set in **Settings › Fabrics**.
-4. Click **Check for updates** under the packs to see what changed. **Update** downloads the new
-   versions of your packs. **Skip this update** waits for the next one.
+4. Click **Check for updates** under the packs. Before anything changes you see which colors and
+   fabrics in your packs are new, removed or changed, and any packs the library no longer has.
+   **Update** downloads the new versions and removes what the library dropped (projects keep what
+   they use). **Skip this update** waits for the next one. **Cancel** decides later.
 5. **Disconnect** removes the library and its packs from this device.
 
 When you print, larger images of these fabrics are downloaded if you're online and the library has
