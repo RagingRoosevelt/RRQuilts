@@ -7,7 +7,7 @@ import { pathPolygon } from './geometry/path';
 import { variationName } from './new-quilt';
 import type { Block } from './schema/block';
 import type { ColoringBody } from './schema/coloring';
-import type { Color } from './schema/palette';
+import type { Color, Fabric } from './schema/palette';
 import type { RrqDoc } from './schema/project';
 
 type Sourced = { source?: { libraryId: string; derived?: boolean | undefined } | undefined };
@@ -17,7 +17,13 @@ export const isLibraryItem = (x: Sourced) => !!x.source && !x.source.derived;
 export interface LibraryLookup {
   block(id: string): Block | undefined;
   color(id: string): Color | undefined;
+  /** Library fabrics (spec 014); optional so plain lookups (tests, files) needn't provide it. */
+  fabric?(id: string): Fabric | undefined;
 }
+
+/** A library fabric (sizes in inches, like library blocks) in project units. */
+export const fabricToUnits = (f: Fabric, units: RrqDoc['units']): Fabric =>
+  units === 'cm' ? { ...f, size: [f.size[0] * 2.54, f.size[1] * 2.54] } : f;
 
 /** A library block (inches) in project units. */
 export const toUnits = (b: Block, units: RrqDoc['units']): Block =>
@@ -25,6 +31,10 @@ export const toUnits = (b: Block, units: RrqDoc['units']): Block =>
 
 export const colorsIn = (colorings: ColoringBody[]) =>
   colorings.flatMap((c) => Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])));
+export const fabricsIn = (colorings: ColoringBody[]) =>
+  colorings.flatMap((c) =>
+    Object.values(c.fills).flatMap((f) => ('fabric' in f ? [f.fabric] : [])),
+  );
 
 export const blocksUsed = (p: RrqDoc['project']) =>
   new Set(
@@ -71,6 +81,21 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   }
   const keptColors = p.palette.colors.filter((c) => !isLibraryItem(c) || usedColors.has(c.id));
   if (keptColors.length !== p.palette.colors.length) p.palette.colors = keptColors;
+  // Library fabrics (spec 014) the same way: in the project while painted, gone when not.
+  const colorings = [
+    ...p.blocks.flatMap((b) => b.colorings),
+    ...p.quilts.flatMap((q) => Object.values(q.colorings)),
+  ];
+  const usedFabrics = new Set(fabricsIn(colorings));
+  if (lib?.fabric) {
+    const have = new Set(p.palette.fabrics.map((f) => f.id));
+    for (const id of usedFabrics) {
+      const f = !have.has(id) ? lib.fabric(id) : undefined;
+      if (f) p.palette.fabrics.push(fabricToUnits(f, d.units));
+    }
+  }
+  const keptFabrics = p.palette.fabrics.filter((f) => !isLibraryItem(f) || usedFabrics.has(f.id));
+  if (keptFabrics.length !== p.palette.fabrics.length) p.palette.fabrics = keptFabrics;
 }
 
 export const syncLibraryItems = (doc: RrqDoc, lib?: LibraryLookup): RrqDoc =>

@@ -182,3 +182,39 @@ describe('projectColorings', () => {
     expect(projectColorings(orig, lookup)).toBeUndefined();
   });
 });
+
+describe('library fabrics (spec 014)', () => {
+  it('are embedded while painted, in project units, and dropped when not', async () => {
+    const { lookup, doc } = await setup();
+    const fabric = {
+      id: 'agf.pe-595',
+      notecard: { name: 'Marshmallow' },
+      source: { libraryId: 'agf', itemId: 'agf.pe-595', revision: 1 },
+      image: { sha256: 'a'.repeat(64), type: 'image/webp', width: 512, height: 512 },
+      size: [8, 8] as [number, number],
+      average: [240, 236, 233] as [number, number, number],
+    };
+    const lib = { ...lookup, fabric: (id: string) => (id === fabric.id ? fabric : undefined) };
+    const cmDoc = produce(doc, (d) => void (d.units = 'cm'));
+    const painted = produce(cmDoc, (d) => {
+      const b = d.project.blocks[0] ?? undefined;
+      if (b) b.colorings[0]!.fills.p1 = { fabric: fabric.id, offset: [0, 0], rotation: 0 };
+      else
+        d.project.quilts[0]!.colorings.k = {
+          fills: { p1: { fabric: fabric.id, offset: [0, 0], rotation: 0 } },
+        };
+    });
+    const synced = syncLibraryItems(painted, lib);
+    expect(synced.project.palette.fabrics.map((f) => [f.id, f.size])).toEqual([
+      [fabric.id, [20.32, 20.32]],
+    ]);
+    const unpainted = syncLibraryItems(
+      produce(synced, (d) => {
+        for (const b of d.project.blocks) for (const c of b.colorings) c.fills = {};
+        for (const q of d.project.quilts) q.colorings = {};
+      }),
+      lib,
+    );
+    expect(unpainted.project.palette.fabrics).toEqual([]);
+  });
+});

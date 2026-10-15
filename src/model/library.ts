@@ -13,7 +13,7 @@ import {
   type LibraryDoc,
   type LibraryItem,
 } from './schema/library';
-import type { Color } from './schema/palette';
+import type { Color, Fabric } from './schema/palette';
 import type { RrqDoc, Units } from './schema/project';
 
 export const MY_LIBRARY = 'My library';
@@ -443,7 +443,7 @@ export function withSources(lib: LibraryDoc) {
     ...(x.author || lib.author?.name ? { author: x.author ?? lib.author!.name } : {}),
     ...(lib.license ? { license: lib.license } : {}),
   });
-  const stamp = <T extends Block | Color>(x: T): T =>
+  const stamp = <T extends Block | Color | Fabric>(x: T): T =>
     x.source && !x.source.derived && x.source.libraryId === lib.id
       ? x
       : { ...x, source: { ...source(x), name: x.notecard.name } };
@@ -454,10 +454,20 @@ export function withSources(lib: LibraryDoc) {
     if (i.type === 'block') {
       blocks.push(stamp(i.data));
       blockColors.push(...(i.colors ?? []).map(stamp));
-    } else collections.push({ ...i.data, colors: i.data.colors.map(stamp) });
+    } else
+      collections.push({
+        ...i.data,
+        colors: i.data.colors.map(stamp),
+        ...(i.data.fabrics ? { fabrics: i.data.fabrics.map(stamp) } : {}),
+      });
   }
   // Collection colors first: they win when a block carries the same color.
-  return { blocks, collections, colors: [...collections.flatMap((c) => c.colors), ...blockColors] };
+  return {
+    blocks,
+    collections,
+    colors: [...collections.flatMap((c) => c.colors), ...blockColors],
+    fabrics: collections.flatMap((c) => c.fabrics ?? []),
+  };
 }
 export type LibraryView = ReturnType<typeof withSources> & { doc: LibraryDoc };
 
@@ -465,11 +475,17 @@ export type LibraryView = ReturnType<typeof withSources> & { doc: LibraryDoc };
 export function lookupOf(views: readonly LibraryView[]): LibraryLookup {
   const blocks = new Map<string, Block>();
   const colors = new Map<string, Color>();
+  const fabrics = new Map<string, Fabric>();
   for (const v of [...views].reverse()) {
     for (const b of v.blocks) blocks.set(b.id, b);
     for (const c of [...v.colors].reverse()) colors.set(c.id, c);
+    for (const f of v.fabrics) fabrics.set(f.id, f);
   }
-  return { block: (id) => blocks.get(id), color: (id) => colors.get(id) };
+  return {
+    block: (id) => blocks.get(id),
+    color: (id) => colors.get(id),
+    fabric: (id) => fabrics.get(id),
+  };
 }
 
 /**
