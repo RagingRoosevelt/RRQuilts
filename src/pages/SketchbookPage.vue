@@ -214,6 +214,11 @@
                         ><q-icon name="content_copy" /></q-item-section
                       ><q-item-section>Edit a copy</q-item-section>
                     </q-item>
+                    <q-item v-close-popup clickable @click="startSwapColoring(b)">
+                      <q-item-section avatar class="menu-icon"
+                        ><q-icon name="palette" /></q-item-section
+                      ><q-item-section>New coloring from palette swap…</q-item-section>
+                    </q-item>
                   </template>
                   <q-item v-close-popup clickable @click="preview = b.id">
                     <q-item-section avatar class="menu-icon"
@@ -734,13 +739,36 @@
     <q-dialog :model-value="!!unpicking" @update:model-value="unpicking = null">
       <q-card v-if="unpicking" style="width: 520px; max-width: 95vw">
         <q-card-section>
-          <div class="text-h6">
-            {{ unpicking.used.length }} color{{ unpicking.used.length === 1 ? '' : 's' }} in use
-          </div>
-          <div class="text-caption text-grey-7">
-            {{ unpicking.title }} has colors used in this project's blocks and quilts. Choose what
-            each one becomes; the nearest match is suggested.
-          </div>
+          <template v-if="unpicking.block">
+            <div class="text-h6">New coloring from palette swap</div>
+            <div class="text-caption text-grey-7">
+              Choose what each color of {{ unpicking.title }} becomes, or pick a palette to start
+              from its nearest colors.
+            </div>
+            <q-select
+              :model-value="unpicking.to ?? null"
+              :options="swapPalettes"
+              option-value="id"
+              option-label="label"
+              emit-value
+              map-options
+              dense
+              outlined
+              clearable
+              label="Palette"
+              class="q-mt-sm"
+              @update:model-value="swapToPalette"
+            />
+          </template>
+          <template v-else>
+            <div class="text-h6">
+              {{ unpicking.used.length }} color{{ unpicking.used.length === 1 ? '' : 's' }} in use
+            </div>
+            <div class="text-caption text-grey-7">
+              {{ unpicking.title }} has colors used in this project's blocks and quilts. Choose what
+              each one becomes; the nearest match is suggested.
+            </div>
+          </template>
         </q-card-section>
         <q-card-section v-if="!unpicking.options.length" class="text-negative">
           No other colors would be left. Pick another palette or add your own colors first.
@@ -790,7 +818,21 @@
             </q-select>
           </div>
         </q-card-section>
-        <q-card-section v-if="unpicking.options.length && affected.length" class="q-pt-none">
+        <q-card-section
+          v-if="unpicking.block"
+          class="row justify-center q-pt-none"
+          style="gap: 12px"
+        >
+          <div v-for="side in ['Before', 'After']" :key="side" class="column items-center">
+            <img
+              :src="side === 'After' ? swapPreview.after : swapPreview.before"
+              style="width: 160px; height: 160px"
+              alt=""
+            />
+            <div class="text-caption">{{ side }}</div>
+          </div>
+        </q-card-section>
+        <q-card-section v-else-if="unpicking.options.length && affected.length" class="q-pt-none">
           <q-carousel
             v-model="previewQuilt"
             animated
@@ -830,7 +872,13 @@
             flat
             no-caps
             color="primary"
-            :label="unpicking.palette || unpicking.color ? 'Swap and remove' : 'Swap and clear'"
+            :label="
+              unpicking.block
+                ? 'Add coloring'
+                : unpicking.palette || unpicking.color
+                  ? 'Swap and remove'
+                  : 'Swap and clear'
+            "
             :disable="!unpicking.options.length"
             @click="finishUnpick"
           />
@@ -883,7 +931,7 @@ import DetailsPanel from '@/components/DetailsPanel.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
 import { useStartQuilt } from '@/composables/start-quilt';
 import { allPatches } from '@/model/blocks/patches';
-import { attribution, copyBlock, newBlock } from '@/editor/block-ops';
+import { attribution, copyBlock, newBlock, saveColoringAs } from '@/editor/block-ops';
 import { nearestColor } from '@/editor/color';
 import { colorsUsed, quiltColors, replaceColors } from '@/editor/colors';
 import { authorOf, effectiveLicense, licenseName, priorCredits } from '@/model/credits';
@@ -917,7 +965,7 @@ import {
 } from '@/model/block-file';
 import { parseProject } from '@/model/io';
 import type { RrqDoc } from '@/model/schema/project';
-import { produce, type Draft } from 'immer';
+import { castDraft, produce, type Draft } from 'immer';
 import {
   isLibraryItem,
   splitItems,
@@ -1029,6 +1077,9 @@ const unpicking = ref<{
   /** What is going away: a palette (its id), one project color, or (neither) all project colors. */
   palette?: string;
   color?: string;
+  /** A new coloring of this block instead (from its coloring `coloring`), mapped onto palette `to`. */
+  block?: { id: string; coloring: string };
+  to?: string;
   used: Color[];
   options: Opt[];
   map: Record<string, string>;
@@ -1128,7 +1179,83 @@ function addProjectColor({ name, rgb }: { name: string; rgb: [number, number, nu
 function finishUnpick() {
   const u = unpicking.value!;
   unpicking.value = null;
-  applyRemoval(u);
+  if (u.block) addSwapColoring(u);
+  else applyRemoval(u);
+}
+
+// --- New coloring from palette swap: the swap dialog, mapping one coloring's colors ---
+/** Palettes to map onto: the project's colors, then every palette in use in the libraries. */
+const swapPalettes = computed(() => [
+  ...(ownColors.value.length
+    ? [{ id: 'project', label: 'Project colors', colors: ownColors.value }]
+    : []),
+  ...library.views.flatMap((v) =>
+    v.collections.map((c) => ({
+      id: c.id,
+      label: `${c.notecard.name} · ${v.doc.name}`,
+      colors: c.colors,
+    })),
+  ),
+]);
+const colorById = (id: string): Color | undefined =>
+  project.doc!.project.palette.colors.find((c) => c.id === id) ?? library.lookup.color(id);
+function startSwapColoring(b: Block) {
+  const coloring = b.colorings.find((c) => c.id === shownColoring(b)) ?? b.colorings[0]!;
+  const ids = new Set(
+    Object.values(coloring.fills).flatMap((f) => ('color' in f ? [f.color] : [])),
+  );
+  const used = [...ids].flatMap((id) => colorById(id) ?? []);
+  unpicking.value = {
+    title: coloring.name ? `${b.notecard.name} (${coloring.name})` : b.notecard.name,
+    block: { id: b.id, coloring: coloring.id },
+    used,
+    options: remaining({}),
+    map: Object.fromEntries(used.map((c) => [c.id, c.id])),
+  };
+}
+/** Suggest each color's nearest in palette `id` (cleared: back to the colors as they are). */
+function swapToPalette(id: string | null) {
+  const u = unpicking.value!;
+  const pal = swapPalettes.value.find((p) => p.id === id);
+  if (!pal) {
+    delete u.to;
+    u.map = Object.fromEntries(u.used.map((c) => [c.id, c.id]));
+    return;
+  }
+  u.to = pal.id;
+  const from = pal.label;
+  const extra = pal.colors.map((c) => ({ ...c, from }));
+  u.options = [...extra, ...remaining({}).filter((o) => !extra.some((x) => x.id === o.id))];
+  for (const c of u.used) {
+    const n = nearestColor(c.rgb, pal.colors);
+    if (n) u.map[c.id] = n.id;
+  }
+}
+/** The block with the swapped coloring added (`after`), or as it is. */
+function swapped(u: NonNullable<typeof unpicking.value>) {
+  const b = blocks.value.find((x) => x.id === u.block!.id)!;
+  const { block, id } = saveColoringAs(b, u.block!.coloring);
+  const next = produce(block, (d) => {
+    const k = d.colorings.find((c) => c.id === id)!;
+    for (const f of Object.values(k.fills)) if ('color' in f) f.color = u.map[f.color] ?? f.color;
+    const pal = swapPalettes.value.find((p) => p.id === u.to);
+    if (pal) k.name = pal.label.split(' · ')[0]!;
+  });
+  return { before: b, block: next, id };
+}
+const swapPreview = computed(() => {
+  const u = unpicking.value;
+  if (!u?.block) return { before: '', after: '' };
+  const s = swapped(u);
+  return { before: thumb(s.before, 160, u.block.coloring), after: thumb(s.block, 160, s.id) };
+});
+function addSwapColoring(u: NonNullable<typeof unpicking.value>) {
+  const { block, id } = swapped(u);
+  project.change((d) => {
+    const i = d.project.blocks.findIndex((b) => b.id === block.id);
+    if (i >= 0) d.project.blocks[i] = castDraft(block);
+  });
+  editor.coloringOf.set(block.id, id);
 }
 /** Recolor, then unpick the palette or clear My colors (inside a project.change recipe). */
 function removal(d: Draft<RrqDoc>, u: NonNullable<typeof unpicking.value>) {
@@ -1182,7 +1309,7 @@ watch(unpicking, () => {
     previewQuilt.value = affected.value[0]?.key ?? '';
 });
 const afterDoc = computed(() =>
-  unpicking.value
+  unpicking.value && !unpicking.value.block
     ? syncLibraryItems(
         produce(project.doc!, (d) => removal(d, unpicking.value!)),
         library.lookup,

@@ -23,6 +23,10 @@ Under **Colorings** in the sidebar, each coloring is a thumbnail. Click one to w
 - **Rename** names it.
 - **Delete** removes it (a block always keeps at least one). Quilts that used it keep their colors.
 
+To recolor a whole coloring at once, open a block's menu in the sketchbook's **My blocks** and
+choose **New coloring from palette swap…**. Pick a palette to map each color to its nearest match
+there, or choose colors one by one. **Add coloring** keeps the result as a new coloring.
+
 If a coloring uses colors from a palette the project has not turned on, the app offers **Turn on**
 for that palette so its colors appear in the trays.
 
