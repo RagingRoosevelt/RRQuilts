@@ -85,4 +85,15 @@ describe('fabric images in saved projects (spec 014)', () => {
       { id: 'cloud9', name: 'Cloud9', author: 'Me', packs: ['cloud9'] },
     ]);
   });
+
+  it('groups packs under their connected library, with its address', async () => {
+    const { doc } = await setup();
+    const where = () => ({
+      library: { id: 'makers', name: 'Makers' },
+      url: 'https://github.com/a/b',
+    });
+    expect(libraryRefs(doc, where)).toEqual([
+      { id: 'makers', name: 'Makers', url: 'https://github.com/a/b', packs: ['cloud9'] },
+    ]);
+  });
 });

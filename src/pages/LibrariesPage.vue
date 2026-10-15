@@ -15,6 +15,15 @@
       <q-btn outline no-caps icon="upload_file" label="Import" @click="importFile">
         <q-tooltip>A backup or pack (.rrqlib), or a palette (.rrqplt)</q-tooltip>
       </q-btn>
+      <q-btn
+        outline
+        no-caps
+        icon="cloud_download"
+        label="Add from the web…"
+        @click="Object.assign(adding, { open: true, url: '', ref: '', busy: false })"
+      >
+        <q-tooltip>Connect a library repository by its web address</q-tooltip>
+      </q-btn>
       <q-btn outline no-caps icon="save" label="Back up…" @click="backingUp = { ...ALL }" />
       <q-btn
         v-if="!library.mine"
@@ -71,34 +80,62 @@
                   {{ kindLabel(g.view) }} · {{ counts(g.view) }}
                 </div>
               </q-checkbox>
-              <!-- A library of packs (spec 014): each pack switched on or off for use. -->
+              <!-- A library of packs (spec 014): each pack switched on or off for use;
+                   a connected library's packs download when first switched on. -->
               <q-expansion-item
                 v-else
                 dense
                 :label="g.name"
-                :caption="`${g.packs.filter((v) => packOn(v.doc.id)).length} of ${g.packs.length} packs on`"
+                :caption="`${g.packs.filter((p) => p.view && packOn(p.id)).length} of ${g.packs.length} packs on`"
                 header-class="q-px-xs"
               >
                 <div
-                  v-for="v in g.packs"
-                  :key="v.doc.id"
+                  v-for="p in g.packs"
+                  :key="p.id"
                   class="row items-center no-wrap"
                   style="gap: 4px"
                 >
+                  <q-spinner v-if="downloading.includes(p.id)" size="20px" class="q-mx-sm" />
                   <q-toggle
+                    v-else
                     dense
                     size="sm"
-                    :model-value="packOn(v.doc.id)"
-                    :aria-label="`Use ${v.doc.name}`"
-                    @update:model-value="(on: boolean) => setPackOn(v.doc.id, on)"
+                    :model-value="!!p.view && packOn(p.id)"
+                    :aria-label="`Use ${p.name}`"
+                    @update:model-value="(on: boolean) => setPackOn(g, p, on)"
                   />
                   <a
+                    v-if="p.view"
                     href="#"
                     class="pack-link ellipsis"
-                    :class="{ 'text-grey-6': !packOn(v.doc.id) }"
-                    @click.prevent="select(v.doc.id)"
-                    >{{ v.doc.name }}</a
+                    :class="{ 'text-grey-6': !packOn(p.id) }"
+                    @click.prevent="select(p.id)"
+                    >{{ p.name }}</a
                   >
+                  <span v-else class="ellipsis text-grey-6">
+                    {{ p.name }}<q-tooltip>Not downloaded yet</q-tooltip>
+                  </span>
+                </div>
+                <div v-if="g.connection" class="row q-py-xs" style="gap: 4px">
+                  <q-btn
+                    flat
+                    dense
+                    no-caps
+                    size="sm"
+                    icon="update"
+                    label="Check for updates"
+                    :loading="checking"
+                    @click="checkUpdate(g.connection)"
+                  />
+                  <q-btn
+                    flat
+                    dense
+                    no-caps
+                    size="sm"
+                    icon="link_off"
+                    label="Disconnect"
+                    @click="disconnect(g.connection)"
+                  />
                 </div>
               </q-expansion-item>
             </template>
@@ -667,6 +704,71 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <!-- Add a library from the web -->
+    <q-dialog v-model="adding.open">
+      <q-card style="width: 480px; max-width: 90vw">
+        <q-card-section class="text-h6">Add a library from the web</q-card-section>
+        <q-card-section class="column" style="gap: 8px">
+          <q-input
+            v-model="adding.url"
+            dense
+            outlined
+            autofocus
+            label="Address"
+            placeholder="https://github.com/someone/their-library"
+            @keyup.enter="connectLibrary"
+          />
+          <q-input v-model="adding.ref" dense outlined label="Branch or tag (optional)" />
+          <div class="text-caption text-grey-7">
+            Only the list of packs is downloaded now. Switch packs on to download them.
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn v-close-popup flat no-caps label="Cancel" />
+          <q-btn
+            flat
+            no-caps
+            color="primary"
+            label="Connect"
+            :loading="adding.busy"
+            :disable="!adding.url.trim()"
+            @click="connectLibrary"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- A connected library's update -->
+    <q-dialog :model-value="!!updating" persistent>
+      <q-card v-if="updating" style="width: 480px; max-width: 90vw">
+        <q-card-section class="text-h6">{{ updating.index.name }} has an update</q-card-section>
+        <q-card-section>
+          <div v-if="!updating.notes.length" class="text-grey-7">No notes for this update.</div>
+          <div v-for="n in updating.notes" :key="n.revision" class="q-mb-sm">
+            <div class="text-weight-medium">Revision {{ n.revision }} · {{ n.date }}</div>
+            <div style="white-space: pre-line">{{ n.notes }}</div>
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat no-caps label="Not now" :disable="updating.busy" @click="updating = null" />
+          <q-btn
+            flat
+            no-caps
+            label="Skip this update"
+            :disable="updating.busy"
+            @click="declineUpdate"
+          />
+          <q-btn
+            flat
+            no-caps
+            color="primary"
+            label="Update"
+            :loading="updating.busy"
+            @click="acceptUpdate"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <FabricImportDialog ref="fabricDialog" units="in" :palettes="myPalettes" @done="fabricsAdded" />
   </q-page>
 </template>
@@ -725,6 +827,7 @@ import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import type { Fabric } from '@/model/schema/palette';
 import { retryMissing, swatchStyle } from '@/render/fabric-images';
 import { useLibraryStore } from '@/stores/library';
+import type { Connection } from '@/storage/repositories';
 import { revealSection } from '@/composables/block-sections';
 import { socialsOut } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
@@ -769,32 +872,138 @@ const toggleLib = (id: string) =>
     ? hiddenLibs.value.filter((x) => x !== id)
     : [...hiddenLibs.value, id]);
 /** The library list: single libraries, and libraries of packs grouped (spec 014). */
+interface PackEntry {
+  id: string;
+  name: string;
+  view?: LibraryView;
+}
+interface PackGroup {
+  key: string;
+  name: string;
+  packs: PackEntry[];
+  connection?: Connection;
+}
 const libGroups = computed(() => {
-  const out: (
-    | { key: string; view: LibraryView; packs?: undefined }
-    | { key: string; name: string; packs: LibraryView[] }
-  )[] = [];
-  const groups = new Map<string, { key: string; name: string; packs: LibraryView[] }>();
-  for (const v of library.allViews) {
-    const lib = v.doc.library;
-    if (!lib) {
-      out.push({ key: v.doc.id, view: v });
-      continue;
-    }
-    let g = groups.get(lib.id);
+  const out: ({ key: string; view: LibraryView; packs?: undefined } | PackGroup)[] = [];
+  const groups = new Map<string, PackGroup>();
+  const group = (id: string, name: string) => {
+    let g = groups.get(id);
     if (!g) {
-      groups.set(lib.id, (g = { key: `lib:${lib.id}`, name: lib.name, packs: [] }));
+      groups.set(id, (g = { key: `lib:${id}`, name, packs: [] }));
       out.push(g);
     }
-    g.packs.push(v);
+    return g;
+  };
+  for (const v of library.allViews) {
+    const lib = v.doc.library;
+    if (!lib) out.push({ key: v.doc.id, view: v });
+    else group(lib.id, lib.name).packs.push({ id: v.doc.id, name: v.doc.name, view: v });
+  }
+  for (const c of library.connections) {
+    const g = group(c.index.id, c.index.name);
+    g.connection = c;
+    const order = new Map(c.index.packs.map((p, i) => [p.id, i]));
+    for (const p of c.index.packs)
+      if (!g.packs.some((x) => x.id === p.id)) g.packs.push({ id: p.id, name: p.name });
+    g.packs.sort((a, b) => (order.get(a.id) ?? -1) - (order.get(b.id) ?? -1));
   }
   return out;
 });
 const packOn = (id: string) => !settings.settings.packsOff.includes(id);
-function setPackOn(id: string, on: boolean) {
-  const off = settings.settings.packsOff.filter((x) => x !== id);
-  settings.settings.packsOff = on ? off : [...off, id];
-  if (on) retryMissing();
+const downloading = ref<string[]>([]);
+async function setPackOn(g: PackGroup, p: PackEntry, on: boolean) {
+  const off = settings.settings.packsOff.filter((x) => x !== p.id);
+  settings.settings.packsOff = on ? off : [...off, p.id];
+  if (!on) return;
+  if (!p.view && g.connection) {
+    downloading.value = [...downloading.value, p.id];
+    try {
+      const skipped = await library.installFromRepo(
+        g.connection,
+        p.id,
+        settings.settings.imageSize,
+      );
+      $q.notify({
+        message: `${p.name} downloaded` + (skipped.length ? ` (${skipped.length} skipped)` : ''),
+        ...(skipped.length ? { caption: skipped.slice(0, 3).join('; ') } : {}),
+      });
+    } catch (e) {
+      $q.notify({ type: 'negative', message: `${p.name}: ${(e as Error).message}` });
+    } finally {
+      downloading.value = downloading.value.filter((x) => x !== p.id);
+    }
+  }
+  retryMissing();
+}
+
+// --- Libraries connected from the web ---
+const adding = reactive({ open: false, url: '', ref: '', busy: false });
+async function connectLibrary() {
+  const a = adding;
+  if (!a.url.trim()) return;
+  a.busy = true;
+  try {
+    const c = await library.connect(a.url, a.ref.trim() || undefined);
+    Object.assign(a, { open: false, busy: false });
+    $q.notify({
+      type: 'positive',
+      message: `${c.index.name} connected. Switch on the packs you want.`,
+    });
+  } catch (e) {
+    a.busy = false;
+    $q.notify({
+      type: 'negative',
+      message: (e as Error).message || 'Couldn’t reach that address.',
+    });
+  }
+}
+const checking = ref(false);
+const updating = ref<{
+  c: Connection;
+  index: Connection['index'];
+  notes: { revision: number; date: string; notes: string }[];
+  busy?: boolean;
+} | null>(null);
+async function checkUpdate(c: Connection) {
+  checking.value = true;
+  try {
+    const u = await library.checkForUpdate(c);
+    if (u) updating.value = { c, ...u };
+    else $q.notify({ message: `${c.index.name} is up to date.` });
+  } catch (e) {
+    $q.notify({ type: 'negative', message: (e as Error).message });
+  } finally {
+    checking.value = false;
+  }
+}
+async function acceptUpdate() {
+  const u = updating.value;
+  if (!u) return;
+  u.busy = true;
+  try {
+    const skipped = await library.acceptUpdate(u.c, u.index, settings.settings.imageSize);
+    $q.notify({
+      type: 'positive',
+      message: `${u.index.name} updated` + (skipped.length ? ` (${skipped.length} skipped)` : ''),
+    });
+    updating.value = null;
+  } catch (e) {
+    u.busy = false;
+    $q.notify({ type: 'negative', message: (e as Error).message });
+  }
+}
+async function declineUpdate() {
+  const u = updating.value;
+  updating.value = null;
+  if (u) await library.declineUpdate(u.c, u.index.revision);
+}
+function disconnect(c: Connection) {
+  $q.dialog({
+    title: `Disconnect ${c.index.name}?`,
+    message: 'Its downloaded packs are removed from this device. Projects keep the items they use.',
+    cancel: true,
+    ok: { label: 'Disconnect', color: 'negative', flat: true },
+  }).onOk(() => void library.disconnect(c));
 }
 
 const isPack = (v: LibraryView) => library.packs.some((p) => p.id === v.doc.id);

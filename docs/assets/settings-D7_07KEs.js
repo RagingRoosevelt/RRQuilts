@@ -1,0 +1,1 @@
+import{n as e,t}from"./library-DYRHezN7.js";import{i as n}from"./index-D3fsMG_O.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

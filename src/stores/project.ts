@@ -139,13 +139,13 @@ export const useProjectStore = defineStore('project', () => {
     });
     mismatches.value = versionMismatches(r.doc, useLibraryStore().lookup);
     // Libraries the project uses that this device lacks (spec 014): say so, and where to add them.
-    const have = new Set(useLibraryStore().views.map((v) => v.doc.id));
-    const missing = (r.doc.project.libraries ?? []).filter((l) => !have.has(l.id));
+    const lib = useLibraryStore();
+    const missing = (r.doc.project.libraries ?? []).filter((l) => lib.lacking(l).length);
     if (missing.length)
       r.report.push(
         `This project uses ${missing.length > 1 ? 'libraries' : 'a library'} this device doesn't have: ` +
           missing.map((l) => (l.author ? `${l.name} by ${l.author}` : l.name)).join(', ') +
-          '. Add them in Libraries (Import); until then their fabrics show as average colors.',
+          '. Add them from the project’s Details tab or Libraries; until then their fabrics show as average colors.',
       );
     await rememberRecent({
       id: r.doc.project.id,
@@ -260,7 +260,7 @@ export const useProjectStore = defineStore('project', () => {
   /** The file's text: fabric images per spec 014, and the libraries the project uses. */
   async function fileText() {
     const d = doc.value!;
-    const refs = libraryRefs(d);
+    const refs = libraryRefs(d, useLibraryStore().whereOf);
     const { libraries: _old, ...rest } = d.project;
     void _old;
     const withRefs = { ...d, project: refs.length ? { ...rest, libraries: refs } : rest };

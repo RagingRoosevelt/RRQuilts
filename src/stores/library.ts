@@ -5,9 +5,12 @@ import { computed, ref, shallowRef } from 'vue';
 import { builtinDoc, builtinLibrary } from '@/content/starter';
 import { emptyPersonal, lookupOf, withSources, type LibraryView } from '@/model/library';
 import type { LibraryDoc } from '@/model/schema/library';
+import type { LibraryRef } from '@/model/schema/project';
+import type { LibraryWhere } from '@/model/library-refs';
 import { deletePack, loadLibraries, putMine, putPack } from '@/storage/libraries';
 import {
   deleteConnection,
+  fetchImages,
   fetchIndex,
   fetchPack,
   loadConnections,
@@ -89,7 +92,10 @@ export const useLibraryStore = defineStore('library', () => {
   // --- Libraries connected from the web (spec 002 US3/US4, spec 014) ---
   const connections = shallowRef<Connection[]>([]);
   void loadConnections()
-    .then((c) => void (connections.value = c))
+    .then((c) => {
+      const now = connections.value; // connected meanwhile: keep
+      connections.value = [...c.filter((x) => !now.some((y) => y.id === x.id)), ...now];
+    })
     .catch(() => {});
   async function saveConnection(c: Connection) {
     connections.value = [...connections.value.filter((x) => x.index.id !== c.index.id), c];
@@ -148,6 +154,50 @@ export const useLibraryStore = defineStore('library', () => {
     await write(() => deleteConnection(c.index.id));
   }
 
+  /** Fetch the 1024 px images of connected packs (printing only); how many packs were tried. */
+  async function fetchPrintImages(packIds: string[]) {
+    let n = 0;
+    for (const id of packIds) {
+      const doc = packs.value.find((p) => p.id === id);
+      const c = connections.value.find((x) => x.index.id === doc?.library?.id);
+      const path = c?.index.packs.find((p) => p.id === id)?.path;
+      if (!doc || !c || !path) continue;
+      const dir = path.includes('/') ? path.slice(0, path.lastIndexOf('/') + 1) : '';
+      await fetchImages(c.base + dir, doc, (px) => px === 1024).catch(() => {});
+      n++;
+    }
+    return n;
+  }
+  /** Where a pack came from (its library, and the address it's connected from). */
+  function whereOf(packId: string): LibraryWhere | undefined {
+    const pack = packs.value.find((p) => p.id === packId);
+    const libId = pack?.library?.id;
+    const c = connections.value.find(
+      (x) => x.index.id === libId || x.index.packs.some((p) => p.id === packId),
+    );
+    const library = pack?.library ?? (c && { id: c.index.id, name: c.index.name });
+    if (!library && !c) return undefined;
+    return {
+      ...(library ? { library } : {}),
+      ...(c ? { url: c.url, ...(c.ref ? { ref: c.ref } : {}) } : {}),
+    };
+  }
+  /** Packs of `ref` this device lacks (spec 014 FR-032). */
+  const lacking = (ref: LibraryRef) => {
+    const have = new Set(allViews.value.map((v) => v.doc.id));
+    return ref.packs.filter((p) => !have.has(p));
+  };
+  /** Connect a project's library by its address and download the packs the project uses. */
+  async function connectRef(ref: LibraryRef, px: number) {
+    if (!ref.url) throw new Error('No address for this library.');
+    const c =
+      connections.value.find((x) => x.index.id === ref.id) ?? (await connect(ref.url, ref.ref));
+    const skipped: string[] = [];
+    for (const p of lacking(ref))
+      if (c.index.packs.some((x) => x.id === p)) skipped.push(...(await installFromRepo(c, p, px)));
+    return skipped;
+  }
+
   return {
     builtin,
     mine,
@@ -169,5 +219,9 @@ export const useLibraryStore = defineStore('library', () => {
     acceptUpdate,
     declineUpdate,
     disconnect,
+    whereOf,
+    lacking,
+    connectRef,
+    fetchPrintImages,
   };
 });

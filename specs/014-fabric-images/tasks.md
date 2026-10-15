@@ -17,3 +17,8 @@
 - [x] T011 Template repository at `~/Code/rrquilts-library-template` (tools, workflows, README)
 - [x] T012 Library index + packs on/off in Libraries; zipped `.rrqlib` backup/import with images
 - [x] T013 Print: SVG fabric patterns (largest image on the device). 1024 fetch waits on repositories (spec 002 US3)
+- [x] T014 Connected libraries (spec 002 US3/US4): `storage/repositories.ts`; Libraries › Add from the
+  web…, index packs download when switched on, Check for updates (changelog; Update / Skip),
+  Disconnect; project library refs carry the address, Details tab **Connect**; print fetches 1024
+- [ ] T015 Switch off built-in / My library palettes individually; free images of off packs;
+  warn when a library uses an older format

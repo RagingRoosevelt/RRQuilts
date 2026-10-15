@@ -56,12 +56,29 @@ A fabric library is a set of **packs**, usually one palette of fabric images per
 1. In **Libraries**, click **Import** and pick the library's `.rrqlib` file. Its packs are added
    together.
 2. Under **Libraries** in the side panel, open the library's name to see its packs. Each has a
-   switch. Packs that are off stay out of your projects' trays and take no space for images.
+   switch. Packs that are off stay out of your projects' trays.
 3. Click a pack's name to see its palette.
+
+### Add a library from the web
+
+Libraries can also live in a git repository, such as one on GitHub.
+
+1. In **Libraries**, click **Add from the web…**.
+2. Paste the repository's address. Add a branch or tag if its author asked you to. Click
+   **Connect**. Only the list of packs is downloaded.
+3. Open the library's name in the side panel and switch on the packs you want. Each pack downloads
+   when you first switch it on, with images at the size set in **Settings › Fabrics**.
+4. Click **Check for updates** under the packs to see what changed. **Update** downloads the new
+   versions of your packs. **Skip this update** waits for the next one.
+5. **Disconnect** removes the library and its packs from this device.
+
+When you print, larger images of these fabrics are downloaded if you're online, so printed fabrics
+look sharp.
 
 Projects don't carry library fabrics' images, only which fabric they are, so files stay small. A
 project opened on a device without the library shows those fabrics as their average colors and
-names the library in its **Details** tab. To share such a project, tick **Include library fabric
+names the library in its **Details** tab. If the library came from the web, click **Connect**
+there to add it. To share such a project, tick **Include library fabric
 images when saving** in the project's **Details** tab first (packs for personal use are left out).
 
 ## Add your own fabrics to My library

@@ -476,7 +476,7 @@
 </template>
 
 <script setup lang="ts">
-import { fabricUrl } from '@/render/fabric-images';
+import { fabricUrl, retryMissing } from '@/render/fabric-images';
 import { QIcon } from 'quasar';
 import {
   computed,
@@ -666,7 +666,7 @@ const shapeFill = (key: string) => {
 };
 const fabricPatterns = computed(() =>
   (doc.value?.project.palette.fabrics ?? []).flatMap((f) => {
-    const url = fabricUrl(f, 1024);
+    const url = fabricUrl(f, 1024) ?? fabricUrl(f, 512) ?? fabricUrl(f, 256);
     return url
       ? [
           {
@@ -1436,6 +1436,14 @@ const creditLine = (c: Credit) =>
 let pageStyle: HTMLStyleElement | null = null;
 onMounted(() => {
   if (!props.printOnly) return;
+  // Print-size (1024 px) images of connected libraries' fabrics, when online (spec 014).
+  const packs = new Set(
+    (doc.value?.project.palette.fabrics ?? []).flatMap((f) =>
+      f.source && !f.source.derived ? [f.source.libraryId] : [],
+    ),
+  );
+  if (packs.size && navigator.onLine)
+    void library.fetchPrintImages([...packs]).then((n) => n && retryMissing());
   pageStyle = document.createElement('style');
   document.head.append(pageStyle);
   watchEffect(() => {

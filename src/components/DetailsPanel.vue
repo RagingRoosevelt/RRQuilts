@@ -97,10 +97,21 @@
               {{ l.url ?? l.file ?? 'Ask whoever shared the project for it' }}
             </q-item-label>
           </q-item-section>
+          <q-item-section v-if="l.url" side>
+            <q-btn
+              flat
+              dense
+              no-caps
+              color="primary"
+              label="Connect"
+              :loading="connecting === l.id"
+              @click="connectLibrary(l)"
+            />
+          </q-item-section>
         </q-item>
       </q-list>
       <div class="text-caption text-grey-7">
-        Their fabrics show as average colors until you add them in Libraries (Import).
+        Their fabrics show as average colors until you connect them or import them in Libraries.
       </div>
     </template>
     <q-input
@@ -157,7 +168,9 @@
 import { useLibraryStore } from '@/stores/library';
 // Details tab (spec 009): title, notes, author, license, and who to credit — for the project, a
 // quilt, or a block. Each field is its own coalesced undo step.
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { useQuasar } from 'quasar';
+import { retryMissing } from '@/render/fabric-images';
 import {
   DEFAULT_LICENSE,
   LICENSES,
@@ -168,7 +181,7 @@ import {
   quiltLock,
 } from '@/model/credits';
 import { isLibraryItem } from '@/model/library-items';
-import type { Units } from '@/model/schema/project';
+import type { LibraryRef, Units } from '@/model/schema/project';
 import type { Credit } from '@/model/schema/shared';
 import { convertUnits } from '@/model/units';
 import { useProjectStore } from '@/stores/project';
@@ -177,6 +190,7 @@ import { useSettingsStore } from '@/stores/settings';
 const props = defineProps<{ kind: 'project' | 'quilt' | 'block'; id?: string }>();
 
 const project = useProjectStore();
+const $q = useQuasar();
 const app = useSettingsStore();
 const ro = computed(() => project.readOnly);
 const me = computed(() => app.settings.author);
@@ -218,10 +232,26 @@ const lock = computed(() => {
 });
 
 /** Libraries the project's file names that this device doesn't have (spec 014 FR-032). */
-const missingLibraries = computed(() => {
-  const have = new Set(useLibraryStore().views.map((v) => v.doc.id));
-  return (project.doc?.project.libraries ?? []).filter((l) => !have.has(l.id));
-});
+const libStore = useLibraryStore();
+const missingLibraries = computed(() =>
+  (project.doc?.project.libraries ?? []).filter((l) => libStore.lacking(l).length),
+);
+const connecting = ref<string | null>(null);
+async function connectLibrary(l: LibraryRef) {
+  connecting.value = l.id;
+  try {
+    const skipped = await libStore.connectRef(l, useSettingsStore().settings.imageSize);
+    retryMissing();
+    $q.notify({
+      type: 'positive',
+      message: `${l.name} added` + (skipped.length ? ` (${skipped.length} skipped)` : ''),
+    });
+  } catch (e) {
+    $q.notify({ type: 'negative', message: `${l.name}: ${(e as Error).message}` });
+  } finally {
+    connecting.value = null;
+  }
+}
 function setIncludeImages(on: boolean) {
   project.change((d) => {
     if (on) d.project.includeLibraryImages = true;

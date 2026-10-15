@@ -5,6 +5,8 @@ import { sha256Hex } from '@/model/io';
 import { resetIdb } from '@/storage/idb';
 import { getImage } from '@/storage/images';
 import { fetchIndex, fetchPack, rawBase, type Connection } from '@/storage/repositories';
+import { createPinia, setActivePinia } from 'pinia';
+import { useLibraryStore } from '@/stores/library';
 
 beforeEach(() => {
   globalThis.indexedDB = new IDBFactory();
@@ -26,6 +28,58 @@ function serve(files: Record<string, unknown>) {
 }
 
 const B = 'https://raw.githubusercontent.com/me/lib/main/';
+
+/** A library with one pack `p` holding one fabric in three sizes. */
+async function packFixture() {
+  const img = (n: number) => new Uint8Array([n, n, n]);
+  const s = async (px: number, n: number) => ({
+    px,
+    sha256: await sha256Hex(img(n)),
+    type: 'image/webp',
+    width: px,
+    height: px,
+    path: `${px}/a.webp`,
+  });
+  const sizes = [await s(256, 1), await s(512, 2), await s(1024, 3)];
+  const files = {
+    [B + 'packs/p/rrqlib.json']: {
+      format: 'rrqlib',
+      version: 2,
+      units: 'in',
+      kind: 'pack',
+      id: 'p',
+      revision: 1,
+      name: 'P',
+      author: { name: 'A' },
+      license: 'CC0-1.0',
+      categories: [],
+      items: [
+        {
+          type: 'colors',
+          data: {
+            id: 'a.p',
+            notecard: { name: 'P' },
+            colors: [],
+            fabrics: [
+              {
+                id: 'a.f',
+                notecard: { name: 'F' },
+                image: { sha256: sizes[1]!.sha256, type: 'image/webp' },
+                size: [8, 8],
+                average: [1, 2, 3],
+                sizes,
+              },
+            ],
+          },
+        },
+      ],
+    },
+    [B + 'packs/p/256/a.webp']: img(1),
+    [B + 'packs/p/512/a.webp']: img(2),
+    [B + 'packs/p/1024/a.webp']: img(3),
+  };
+  return { sizes, files };
+}
 
 describe('connected libraries (spec 002, 014)', () => {
   it('turns repository addresses into raw file addresses', () => {
@@ -65,53 +119,8 @@ describe('connected libraries (spec 002, 014)', () => {
   });
 
   it('downloads a pack with its images up to the screen size, checked', async () => {
-    const img = (n: number) => new Uint8Array([n, n, n]);
-    const s = async (px: number, n: number) => ({
-      px,
-      sha256: await sha256Hex(img(n)),
-      type: 'image/webp',
-      width: px,
-      height: px,
-      path: `${px}/a.webp`,
-    });
-    const sizes = [await s(256, 1), await s(512, 2), await s(1024, 3)];
-    const calls = serve({
-      [B + 'packs/p/rrqlib.json']: {
-        format: 'rrqlib',
-        version: 2,
-        units: 'in',
-        kind: 'pack',
-        id: 'p',
-        revision: 1,
-        name: 'P',
-        author: { name: 'A' },
-        license: 'CC0-1.0',
-        categories: [],
-        items: [
-          {
-            type: 'colors',
-            data: {
-              id: 'a.p',
-              notecard: { name: 'P' },
-              colors: [],
-              fabrics: [
-                {
-                  id: 'a.f',
-                  notecard: { name: 'F' },
-                  image: { sha256: sizes[1]!.sha256, type: 'image/webp' },
-                  size: [8, 8],
-                  average: [1, 2, 3],
-                  sizes,
-                },
-              ],
-            },
-          },
-        ],
-      },
-      [B + 'packs/p/256/a.webp']: img(1),
-      [B + 'packs/p/512/a.webp']: img(2),
-      [B + 'packs/p/1024/a.webp']: img(3),
-    });
+    const { sizes, files } = await packFixture();
+    const calls = serve(files);
     const c = {
       id: 'repo:lib',
       url: 'https://github.com/me/lib',
@@ -126,5 +135,34 @@ describe('connected libraries (spec 002, 014)', () => {
     expect(await getImage(sizes[1]!.sha256)).toBeDefined();
     expect(await getImage(sizes[2]!.sha256)).toBeUndefined(); // 1024: for printing only
     expect(calls.some((u) => u.includes('/1024/'))).toBe(false);
+  });
+
+  it('connects a project’s library by address and fetches print images on request', async () => {
+    setActivePinia(createPinia());
+    const { sizes, files } = await packFixture();
+    const calls = serve({
+      ...files,
+      [B + 'library.json']: {
+        format: 'rrqlib-index',
+        version: 1,
+        id: 'lib',
+        name: 'Lib',
+        revision: 1,
+        packs: [{ id: 'p', name: 'P', path: 'packs/p/rrqlib.json' }],
+      },
+    });
+    const lib = useLibraryStore();
+    const ref = { id: 'lib', name: 'Lib', url: 'https://github.com/me/lib', packs: ['p'] };
+    expect(lib.lacking(ref)).toEqual(['p']);
+    expect(await lib.connectRef(ref, 256)).toEqual([]);
+    expect(lib.lacking(ref)).toEqual([]);
+    expect(lib.whereOf('p')).toEqual({
+      library: { id: 'lib', name: 'Lib' },
+      url: 'https://github.com/me/lib',
+    });
+    expect(await getImage(sizes[1]!.sha256)).toBeUndefined();
+    expect(await lib.fetchPrintImages(['p'])).toBe(1);
+    expect(await getImage(sizes[2]!.sha256)).toBeDefined();
+    expect(calls.filter((u) => u.includes('/512/'))).toEqual([]);
   });
 });
