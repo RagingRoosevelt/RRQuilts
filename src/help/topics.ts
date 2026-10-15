@@ -104,7 +104,21 @@ const files = import.meta.glob<string>('./*/*.md', {
   eager: true,
 });
 
-export const TOPICS: Topic[] = Object.entries(files)
+// The project's CHANGELOG.md, shown as Help › About › Changelog (it has no front matter).
+const changelog = import.meta.glob<string>('/CHANGELOG.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+const changelogTopic = Object.values(changelog).map(
+  (raw) =>
+    `---\ntitle: Changelog\norder: 40\nsummary: What changed in each version.\n---\n${raw.replace(/^# .*\n/, '')}`,
+);
+
+export const TOPICS: Topic[] = [
+  ...Object.entries(files),
+  ...changelogTopic.map((raw) => ['./about/changelog.md', raw] as const),
+]
   .map(([path, raw]) => {
     const [, section, id] = /^\.\/([^/]+)\/([^/]+)\.md$/.exec(path)!;
     const { meta, body } = parseTopic(raw);

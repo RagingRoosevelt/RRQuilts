@@ -63,6 +63,9 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 - `make check` — lint → test → build
 - `make serve` — nginx at `localhost:8080/RRQuilts/` serving `docs/`
 - `make commit MSG="…"` — check + rebuild `docs/` + commit all; `make push` — refuses if dirty/stale
+- `make release` — pick major/minor/hotfix, then Claude follows `scripts/release.md`: writes the
+  `CHANGELOG.md` entry (shown at Help › About › Changelog; features for quilters, not commits), sets
+  `package.json` version, commits, pushes, tags `vX.Y.Z`. A test keeps the two versions matching
 - Ad-hoc commands in the container: copy the `RUN` macro in the Makefile (quote the repo path — it
   contains a space).
 

@@ -27,7 +27,7 @@ RUN = docker run --rm $(TTY) -u $$(id -u):$$(id -g) \
 	-e RRQ_BASE="$(RRQ_BASE)" -e RRQ_POLL="$(POLL)" \
 	-v "$(CURDIR)":/app -w /app $(1) $(IMAGE)
 
-.PHONY: help image install dev build test lint format check serve clean commit push ensure-clean ensure-docs-clean
+.PHONY: help image install dev build test lint format check serve clean commit push release ensure-clean ensure-docs-clean
 
 help: ## List targets
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -74,6 +74,9 @@ commit: $(COMMIT_PRE) ## Run checks, then commit everything incl. docs/ (MSG="..
 	git add -A
 	@# Read MSG from the environment so multi-line messages survive make expansion.
 	@if [ -n "$$MSG" ]; then git commit -m "$$MSG"; else git commit; fi
+
+release: ## Claude writes the changelog entry, sets the version, commits, pushes, tags
+	@scripts/release.sh
 
 push: $(PUSH_PRE) ## Refuse if dirty or docs/ stale, then push current branch
 	git push -u origin HEAD
