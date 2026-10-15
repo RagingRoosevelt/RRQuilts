@@ -548,7 +548,7 @@
           </div>
         </q-card-section>
       </q-card>
-      <q-card v-else-if="previewCollection" style="width: min(80vw, 600px); max-width: none">
+      <q-card v-else-if="previewCollection" style="width: min(80vw, 512px); max-width: none">
         <q-card-section>
           <q-btn
             v-close-popup
@@ -851,6 +851,32 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <!-- Turning off a library or pack the open project uses -->
+    <q-dialog :model-value="!!turningOff" @update:model-value="turningOff = null">
+      <q-card v-if="turningOff" style="width: 460px; max-width: 95vw">
+        <q-card-section class="text-h6">{{ turningOff.name }} is in use</q-card-section>
+        <q-card-section class="q-pt-none">
+          The open project, {{ project.doc?.project.name }}, uses {{ turningOff.paints }} color{{
+            turningOff.paints === 1 ? '' : 's'
+          }}
+          or fabric{{ turningOff.paints === 1 ? '' : 's' }} from
+          {{ turningOff.palettes.map((x) => x.c.notecard.name).join(', ') }}. Swap them for others,
+          or keep them by copying {{ turningOff.palettes.length === 1 ? 'it' : 'them' }} to
+          {{ MY_LIBRARY }}.
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn v-close-popup flat no-caps label="Cancel" />
+          <q-btn
+            flat
+            no-caps
+            :label="`Copy to ${MY_LIBRARY}`"
+            :loading="turningOff.busy"
+            @click="copyBeforeOff"
+          />
+          <q-btn flat no-caps color="primary" label="Swap…" @click="swapBeforeOff" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <FabricImportDialog ref="fabricDialog" units="in" :palettes="myPalettes" @done="fabricsAdded" />
   </q-page>
 </template>
@@ -909,6 +935,10 @@ import PalettePreview from '@/components/PalettePreview.vue';
 import type { Fabric } from '@/model/schema/palette';
 import { retryMissing, swatchStyle } from '@/render/fabric-images';
 import { useLibraryStore } from '@/stores/library';
+import { useProjectStore } from '@/stores/project';
+import { useRouter } from 'vue-router';
+import { paintsUsed, replaceColors } from '@/editor/colors';
+import { fabricPaint } from '@/editor/paint';
 import { coloringSections } from '@/model/library-items';
 import type { Connection } from '@/storage/repositories';
 import { revealSection } from '@/composables/block-sections';
@@ -997,12 +1027,88 @@ const libGroups = computed(() => {
 });
 const packOn = (id: string) => !settings.settings.packsOff.includes(id);
 function setLibOn(id: string, on: boolean) {
-  const off = settings.settings.packsOff.filter((x) => x !== id);
-  settings.settings.packsOff = on ? off : [...off, id];
-  if (on) retryMissing();
+  const turn = () => {
+    const off = settings.settings.packsOff.filter((x) => x !== id);
+    settings.settings.packsOff = on ? off : [...off, id];
+    if (on) retryMissing();
+  };
+  if (on) turn();
+  else checkOff([id], turn);
+}
+
+// --- Turning off a library or pack the open project uses ---
+const project = useProjectStore();
+const router = useRouter();
+/** Its palettes the open project uses: swap their colors, copy them to My library, or cancel. */
+const turningOff = ref<{
+  ids: string[];
+  name: string;
+  palettes: { v: LibraryView; c: ColorCollection }[];
+  paints: number;
+  off: () => void;
+  busy?: boolean;
+} | null>(null);
+function checkOff(ids: string[], off: () => void) {
+  const doc = project.doc;
+  if (!doc || project.readOnly) return off();
+  const used = paintsUsed(doc);
+  const views = library.allViews.filter((v) => ids.includes(v.doc.id));
+  const members = (c: ColorCollection) => [
+    ...c.colors.map((x) => x.id),
+    ...(c.fabrics ?? []).map((f) => fabricPaint(f.id)),
+  ];
+  const palettes = views.flatMap((v) =>
+    v.collections.filter((c) => members(c).some((m) => used.has(m))).map((c) => ({ v, c })),
+  );
+  if (!palettes.length) return off();
+  turningOff.value = {
+    ids,
+    name: views.length === 1 ? views[0]!.doc.name : (views[0]?.doc.library?.name ?? 'This library'),
+    palettes,
+    paints: new Set(palettes.flatMap((x) => members(x.c)).filter((m) => used.has(m))).size,
+    off,
+  };
+}
+/** Swap in the project's Palettes tab; the pack turns off once the swap is done. */
+function swapBeforeOff() {
+  const t = turningOff.value!;
+  turningOff.value = null;
+  void router.push({ path: '/project', query: { turnOff: t.ids.join(',') } });
+}
+/** Copy the palettes in use to My library, point the project at the copies, then turn off. */
+async function copyBeforeOff() {
+  const t = turningOff.value!;
+  t.busy = true;
+  const author = await askAuthor();
+  const map = new Map<string, string>();
+  const swapPalette = new Map<string, string>();
+  for (const { v, c } of t.palettes) {
+    const item = v.doc.items.find((i) => i.data.id === c.id);
+    if (item?.type !== 'colors') continue;
+    await update((l) => copyToMine(l, { ...item, data: c }, author, DEFAULT_LICENSE));
+    const copy = library.mine!.items.at(-1)!.data as ColorCollection;
+    c.colors.forEach((x, i) => copy.colors[i] && map.set(x.id, copy.colors[i].id));
+    swapPalette.set(c.id, copy.id);
+  }
+  project.change((d) => {
+    replaceColors(d, map);
+    if (d.project.libraryPalettes)
+      d.project.libraryPalettes = d.project.libraryPalettes.map((id) => swapPalette.get(id) ?? id);
+  });
+  turningOff.value = null;
+  t.off();
+  $q.notify({
+    type: 'positive',
+    message: `Copied ${t.palettes.length} palette${t.palettes.length === 1 ? '' : 's'} to ${MY_LIBRARY}; ${t.name} is off.`,
+  });
 }
 const downloading = ref<string[]>([]);
 async function setPackOn(g: PackGroup, p: PackEntry, on: boolean) {
+  if (!on && p.view)
+    return checkOff([p.id], () => {
+      settings.settings.packsOff = [...settings.settings.packsOff.filter((x) => x !== p.id), p.id];
+      if (g.connection) void library.freeImages();
+    });
   const off = settings.settings.packsOff.filter((x) => x !== p.id);
   settings.settings.packsOff = on ? off : [...off, p.id];
   if (!on) return void (g.connection && library.freeImages());

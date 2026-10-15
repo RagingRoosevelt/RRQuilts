@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { produce } from 'immer';
 import { fromHex, fromHsl, nearestColor, toHex, toHsl } from '@/editor/color';
-import { colorsPainted, colorsUsed, quiltColors, replaceColors } from '@/editor/colors';
+import { colorsPainted, colorsUsed, paintsUsed, quiltColors, replaceColors } from '@/editor/colors';
 import { addStarterContent } from '@/content/starter';
 import { createProject } from '@/model/new-project';
 import { createQuilt } from '@/model/new-quilt';
@@ -53,6 +53,21 @@ describe('swapping colors when a palette is unpicked', () => {
     const next = produce(doc, (d) => replaceColors(d, new Map([[old, 'rrquilts.red']])));
     expect(colorsUsed(next).has(old)).toBe(false);
     expect(colorsUsed(next).has('rrquilts.red')).toBe(true);
+  });
+
+  it('swaps colors for fabrics and back (paint ids)', () => {
+    const doc = structuredClone(fixture());
+    const own = doc.project.blocks.find((b) => !b.source)!;
+    const fill = Object.values(own.colorings[0]!.fills).find((f) => 'color' in f) as {
+      color: string;
+    };
+    const old = fill.color;
+    const toFabric = produce(doc, (d) => replaceColors(d, new Map([[old, 'fabric:f1']])));
+    expect(paintsUsed(toFabric).has('fabric:f1')).toBe(true);
+    expect(paintsUsed(toFabric).has(old)).toBe(false);
+    const back = produce(toFabric, (d) => replaceColors(d, new Map([['fabric:f1', old]])));
+    expect(paintsUsed(back).has(old)).toBe(true);
+    expect(paintsUsed(back).has('fabric:f1')).toBe(false);
   });
 
   it("remaps a library block's designer colors in the quilt, leaving the block unchanged", () => {

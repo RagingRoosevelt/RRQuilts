@@ -16,6 +16,9 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
 2. In the **Libraries** list on the side (the menu button on phones), each library has a switch.
    Libraries that are off stay out of your projects' trays and pickers. Click a library's name to
    show only it, and **Show all libraries** to see them all again.
+   If the open project uses colors or fabrics from a library you switch off, you can **Swap…** them
+   for others (in the project's **Palettes** tab), **Copy to My library** to keep them, or
+   **Cancel**.
 3. Use **Type** to show **Blocks**, **Palettes** or **All**, the search box, and the **Category**,
    **Tags** and **Styles** filters. The filters offer only what the shown type uses.
 4. In **Blocks**, use **Group blocks by** to arrange blocks by **Nothing**, **Category**, **Tags** or

@@ -10,7 +10,7 @@
       swipeable
       arrows
       infinite
-      height="min(80vw, 600px)"
+      height="min(80vw, 512px)"
       control-type="unelevated"
       control-color="white"
       control-text-color="grey-9"

@@ -274,7 +274,8 @@
       <template v-else>
         <div class="text-subtitle2 q-mt-lg">Library blocks</div>
         <div class="text-caption text-grey-7 q-mb-sm">
-          Tick the ones to use in this project's quilts; your own blocks are always available.
+          Select block availability when designing your quilts; your own blocks are always
+          available.
         </div>
         <template v-for="group in libGroups" :key="group.lib">
           <BlockSections :sections="group.sections" :lib="group.lib" :title="group.label">
@@ -577,7 +578,7 @@
 
     <!-- A palette's colors and fabrics, one large (as in Libraries). -->
     <q-dialog :model-value="!!shownPalette" @update:model-value="shownPalette = null">
-      <q-card v-if="shownPalette" style="width: min(80vw, 600px); max-width: none">
+      <q-card v-if="shownPalette" style="width: min(80vw, 512px); max-width: none">
         <q-card-section class="row items-start no-wrap">
           <div class="col">
             <div class="text-h6">{{ shownPalette.palette.notecard.name }}</div>
@@ -802,7 +803,17 @@
           </template>
           <template v-else>
             <div class="text-h6">
-              {{ unpicking.used.length }} color{{ unpicking.used.length === 1 ? '' : 's' }} in use
+              {{ unpicking.used.length }}
+              {{
+                unpicking.used.some((c) => c.fabric)
+                  ? unpicking.used.length === 1
+                    ? 'fabric'
+                    : 'colors and fabrics'
+                  : unpicking.used.length === 1
+                    ? 'color'
+                    : 'colors'
+              }}
+              in use
             </div>
             <div class="text-caption text-grey-7">
               {{ unpicking.title }} has colors used in this project's blocks and quilts. Choose what
@@ -911,9 +922,11 @@
             :label="
               unpicking.block
                 ? 'Add coloring'
-                : unpicking.palette || unpicking.color
-                  ? 'Swap and remove'
-                  : 'Swap and clear'
+                : unpicking.packsOff
+                  ? 'Swap and turn off'
+                  : unpicking.palette || unpicking.color
+                    ? 'Swap and remove'
+                    : 'Swap and clear'
             "
             :disable="!unpicking.options.length"
             @click="finishUnpick"
@@ -964,14 +977,14 @@ import type { ColorCollection } from '@/model/schema/library';
 import { swatchStyle } from '@/render/fabric-images';
 import { useQuasar } from 'quasar';
 import { computed, ref, toRaw, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
 import { useStartQuilt } from '@/composables/start-quilt';
 import { allPatches } from '@/model/blocks/patches';
 import { attribution, copyBlock, newBlock, saveColoringAs } from '@/editor/block-ops';
 import { nearestColor } from '@/editor/color';
-import { colorsUsed, quiltColors, replaceColors } from '@/editor/colors';
+import { paintsUsed, quiltColors, replaceColors } from '@/editor/colors';
 import { authorOf, effectiveLicense, licenseName, priorCredits } from '@/model/credits';
 import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
@@ -1033,6 +1046,7 @@ import type { Color, Fabric } from '@/model/schema/palette';
 
 const $q = useQuasar();
 const router = useRouter();
+const route = useRoute();
 const project = useProjectStore();
 const editor = useEditorStore();
 const startQuilt = useStartQuilt();
@@ -1141,6 +1155,9 @@ const unpicking = ref<{
   /** What is going away: a palette (its id), one project color, or (neither) all project colors. */
   palette?: string;
   color?: string;
+  /** Libraries' palettes going away, and the packs to switch off afterwards (Libraries page). */
+  palettes?: string[];
+  packsOff?: string[];
   /** A new coloring of this block instead (from its coloring `coloring`), mapped onto palette `to`. */
   block?: { id: string; coloring: string };
   to?: string;
@@ -1157,20 +1174,27 @@ const ownColors = computed(() =>
 const lastSource = (id: string) =>
   !ownColors.value.length && pickedPalettes.value.length === 1 && pickedPalettes.value[0] === id;
 
-/** Colors available after removing a palette (`palette`) or My colors (`mine`). */
-function remaining(drop: { palette?: string; mine?: boolean; color?: string }): Opt[] {
+type Drop = { palette?: string; palettes?: string[]; mine?: boolean; color?: string };
+/** Colors and fabrics available after removing a palette (`palette`, `palettes`) or My colors (`mine`). */
+function remaining(drop: Drop): Opt[] {
   const all = library.views.flatMap((v) => v.collections.map((c) => ({ v, c })));
+  const going = new Set([drop.palette, ...(drop.palettes ?? [])]);
   return [
     ...(drop.mine
       ? []
       : ownColors.value
           .filter((c) => c.id !== drop.color)
           .map((c) => ({ ...c, from: 'Project colors' }))),
+    ...ownFabrics.value.map((f) => fabricOpt(f, 'Project fabrics')),
     ...all
-      .filter((x) => pickedPalettes.value.includes(x.c.id) && x.c.id !== drop.palette)
-      .flatMap((x) =>
-        x.c.colors.map((c) => ({ ...c, from: `${x.c.notecard.name} · ${x.v.doc.name}` })),
-      ),
+      .filter((x) => pickedPalettes.value.includes(x.c.id) && !going.has(x.c.id))
+      .flatMap((x) => {
+        const from = `${x.c.notecard.name} · ${x.v.doc.library?.name ?? x.v.doc.name}`;
+        return [
+          ...x.c.colors.map((c) => ({ ...c, from })),
+          ...(x.c.fabrics ?? []).map((f) => fabricOpt(f, from)),
+        ];
+      }),
   ].filter((c, i, a) => a.findIndex((o) => o.id === c.id) === i);
 }
 /**
@@ -1178,13 +1202,14 @@ function remaining(drop: { palette?: string; mine?: boolean; color?: string }): 
  * get a dialog mapping each to the nearest remaining color; Cancel changes nothing.
  */
 function confirmRemoval(
-  going: Color[],
-  drop: { palette?: string; mine?: boolean; color?: string },
+  going: (Color & { fabric?: Fabric })[],
+  drop: Drop,
   title: string,
+  packsOff?: string[],
 ) {
   const options = remaining(drop);
   const keep = new Set(options.map((o) => o.id));
-  const inUse = colorsUsed(project.doc!);
+  const inUse = paintsUsed(project.doc!);
   const used = going.filter((c) => inUse.has(c.id) && !keep.has(c.id));
   const map: Record<string, string> = {};
   for (const c of used) {
@@ -1195,6 +1220,8 @@ function confirmRemoval(
     title,
     ...(drop.palette ? { palette: drop.palette } : {}),
     ...(drop.color ? { color: drop.color } : {}),
+    ...(drop.palettes ? { palettes: drop.palettes } : {}),
+    ...(packsOff ? { packsOff } : {}),
     used,
     options,
     map,
@@ -1368,16 +1395,41 @@ function addSwapColoring(u: NonNullable<typeof unpicking.value>) {
 /** Recolor, then unpick the palette or clear My colors (inside a project.change recipe). */
 function removal(d: Draft<RrqDoc>, u: NonNullable<typeof unpicking.value>) {
   replaceColors(d, new Map(Object.entries(u.map)));
-  if (u.palette) {
-    d.project.libraryPalettes = (d.project.libraryPalettes ?? []).filter((x) => x !== u.palette);
+  if (u.palette || u.palettes) {
+    const going = new Set([u.palette, ...(u.palettes ?? [])]);
+    d.project.libraryPalettes = (d.project.libraryPalettes ?? []).filter((x) => !going.has(x));
     if (!d.project.libraryPalettes.length) delete d.project.libraryPalettes;
   } else
     d.project.palette.colors = d.project.palette.colors.filter((c) =>
       u.color ? c.id !== u.color : isLibraryItem(c),
     );
 }
-const applyRemoval = (u: NonNullable<typeof unpicking.value>) =>
+function applyRemoval(u: NonNullable<typeof unpicking.value>) {
   project.change((d) => removal(d, u));
+  if (u.packsOff) {
+    const off = new Set([...settings.settings.packsOff, ...u.packsOff]);
+    settings.settings.packsOff = [...off];
+  }
+}
+/**
+ * Turning off libraries or packs from the Libraries page (`?turnOff=<ids>`) whose colors or fabrics
+ * this project uses: swap them in the usual dialog, then they switch off.
+ */
+function startTurnOff(ids: string[]) {
+  const views = library.allViews.filter((v) => ids.includes(v.doc.id));
+  const cols = views.flatMap((v) => v.collections);
+  const going = cols.flatMap((c) => [
+    ...c.colors.map((x) => ({ ...x, from: '' })),
+    ...(c.fabrics ?? []).map((f) => fabricOpt(f, '')),
+  ]);
+  const name = views[0]?.doc.library?.name ?? views[0]?.doc.name ?? 'This library';
+  confirmRemoval(
+    going,
+    { palettes: cols.map((c) => c.id) },
+    views.length === 1 ? views[0]!.doc.name : name,
+    ids,
+  );
+}
 /** The dialog's carousel: which quilt, and the project as it would be after the swap. */
 const previewQuilt = ref('');
 type Affected = {
@@ -1966,6 +2018,19 @@ function showPlacements() {
   editor.block = d.id;
   void router.push(`/project/quilt/${d.quilt}`);
 }
+// Turning off a library's packs from the Libraries page (`?turnOff=`), watched for (last, so
+// everything it uses exists).
+watch(
+  () => route.query.turnOff,
+  (q) => {
+    const ids = typeof q === 'string' ? q.split(',') : [];
+    if (!ids.length || !project.doc) return;
+    tab.value = 'colors';
+    // After the address is tidied: dialogs close when the route changes.
+    void router.replace({ query: {} }).then(() => startTurnOff(ids));
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped>

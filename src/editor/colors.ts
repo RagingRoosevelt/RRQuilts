@@ -4,6 +4,7 @@ import type { ColoringBody } from '@/model/schema/coloring';
 import { resolveColoring } from '@/model/coloring';
 import { isLibraryItem } from '@/model/library-items';
 import type { RrqDoc } from '@/model/schema/project';
+import { fillFor, paintOf } from './paint';
 
 function allColorings(d: RrqDoc | Draft<RrqDoc>): ColoringBody[] {
   return [
@@ -34,6 +35,9 @@ function ownColorings(d: RrqDoc | Draft<RrqDoc>): ColoringBody[] {
 
 const colorsOf = (cs: readonly ColoringBody[]) =>
   cs.flatMap((c) => Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])));
+/** Paint ids (colors, and `fabric:<id>` for fabrics) the colorings use. */
+const paintsOf = (cs: readonly ColoringBody[]) =>
+  cs.flatMap((c) => Object.values(c.fills).map((f) => paintOf(f)!));
 
 /** Colors the user painted: in the project's own blocks and in quilt colorings. */
 export const colorsPainted = (doc: RrqDoc) => new Set(colorsOf(ownColorings(doc)));
@@ -55,16 +59,24 @@ export const quiltColors = (doc: RrqDoc, quilt: RrqDoc['project']['quilts'][numb
 export const colorsUsed = (doc: RrqDoc) =>
   new Set([...colorsPainted(doc), ...doc.project.quilts.flatMap((q) => [...quiltColors(doc, q)])]);
 
+/** Like `colorsUsed`, for colors and fabrics (paint ids: `fabric:<id>` for a fabric). */
+export const paintsUsed = (doc: RrqDoc) =>
+  new Set([
+    ...paintsOf(ownColorings(doc)),
+    ...doc.project.quilts.flatMap((q) => paintsOf(shown(doc, q))),
+  ]);
+
 /**
  * Recolor: every painted fill of an old color takes its new one; where a quilt shows an old color
  * from a block's own coloring (a library block's designer colors), the quilt recolors that patch,
  * leaving the block unchanged.
  */
 export function replaceColors(d: Draft<RrqDoc>, map: ReadonlyMap<string, string>) {
+  // Keys and values are paint ids: colors, or `fabric:<id>` (a fabric can swap for a color too).
   for (const c of ownColorings(d))
-    for (const f of Object.values(c.fills)) {
-      const to = 'color' in f ? map.get(f.color) : undefined;
-      if (to && 'color' in f) f.color = to;
+    for (const [patch, f] of Object.entries(c.fills)) {
+      const to = map.get(paintOf(f)!);
+      if (to && to !== paintOf(f)) c.fills[patch] = fillFor(to);
     }
   const blocks = new Map(d.project.blocks.map((b) => [b.id, b]));
   for (const q of d.project.quilts)
@@ -73,8 +85,8 @@ export function replaceColors(d: Draft<RrqDoc>, map: ReadonlyMap<string, string>
       const base = c?.base && blocks.get(s.block)?.colorings.find((x) => x.id === c.base);
       if (!c || !base) continue;
       for (const [patch, f] of Object.entries(base.fills)) {
-        const to = 'color' in f ? map.get(f.color) : undefined;
-        if (to && !c.fills[patch] && !c.cleared?.includes(patch)) c.fills[patch] = { color: to };
+        const to = map.get(paintOf(f)!);
+        if (to && !c.fills[patch] && !c.cleared?.includes(patch)) c.fills[patch] = fillFor(to);
       }
     }
 }
