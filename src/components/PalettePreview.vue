@@ -30,52 +30,69 @@
           :style="x.kind === 'fabric' ? bigFabric(x.item) : { background: css(x.item) }"
         />
       </q-carousel>
-      <q-card-section class="row items-center no-wrap q-py-sm" style="gap: 8px">
-        <div class="col" style="min-width: 0">
-          <!-- The name edits in place: click it, type, Enter (or click away) saves, Esc cancels. -->
-          <q-input
-            v-if="naming !== null"
-            v-model="naming"
-            dense
-            autofocus
-            aria-label="Name"
-            @keyup.enter="saveName"
-            @keyup.esc="naming = null"
-            @blur="saveName"
-          />
-          <div
-            v-else
-            class="text-subtitle1 ellipsis"
-            :class="{ 'name-edit': editable }"
-            :title="editable ? 'Click to rename' : undefined"
-            @click="editable && (naming = shownSwatch!.item.notecard.name)"
-          >
-            {{ shownSwatch!.item.notecard.name }}
-            <q-icon v-if="editable" name="edit" size="xs" class="text-grey-6" />
-          </div>
-          <div class="text-caption text-grey-7 ellipsis">{{ swatchInfo(shownSwatch!) }}</div>
+      <q-card-section class="q-py-sm">
+        <!-- The name on its own row; its details and actions below. -->
+        <!-- The name edits in place: click it, type, then save (or Enter); cancel (or Esc). -->
+        <q-input
+          v-if="naming !== null"
+          v-model="naming"
+          dense
+          autofocus
+          aria-label="Name"
+          @keyup.enter="saveName"
+          @keyup.esc="naming = null"
+        >
+          <template #append>
+            <q-btn flat round dense size="sm" icon="check" aria-label="Save name" @click="saveName">
+              <q-tooltip>Save</q-tooltip>
+            </q-btn>
+            <q-btn
+              flat
+              round
+              dense
+              size="sm"
+              icon="close"
+              aria-label="Cancel"
+              @click="naming = null"
+            >
+              <q-tooltip>Cancel</q-tooltip>
+            </q-btn>
+          </template>
+        </q-input>
+        <div
+          v-else
+          class="text-subtitle1 ellipsis"
+          :class="{ 'name-edit': editable }"
+          :title="editable ? 'Click to rename' : undefined"
+          @click="editable && (naming = shownSwatch!.item.notecard.name)"
+        >
+          {{ shownSwatch!.item.notecard.name }}
+          <q-icon v-if="editable" name="edit" size="xs" class="text-grey-6" />
         </div>
-        <template v-if="editable && (shownSwatch!.kind === 'color' || images)">
-          <q-btn
-            v-if="shownSwatch!.kind === 'color'"
-            flat
-            round
-            dense
-            icon="palette"
-            aria-label="Change color"
-            @click="emit('edit', at)"
-          >
-            <q-tooltip>Change color</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            dense
-            icon="delete"
-            :aria-label="shownSwatch!.kind === 'color' ? 'Remove color' : 'Remove fabric'"
-            @click="emit('remove', at)"
-          />
-        </template>
+        <div class="row items-center no-wrap" style="gap: 8px">
+          <div class="col text-caption text-grey-7 ellipsis">{{ swatchInfo(shownSwatch!) }}</div>
+          <template v-if="editable && (shownSwatch!.kind === 'color' || images)">
+            <q-btn
+              v-if="shownSwatch!.kind === 'color'"
+              flat
+              round
+              dense
+              icon="palette"
+              aria-label="Change color"
+              @click="emit('edit', at)"
+            >
+              <q-tooltip>Change color</q-tooltip>
+            </q-btn>
+            <q-btn
+              flat
+              round
+              dense
+              icon="delete"
+              :aria-label="shownSwatch!.kind === 'color' ? 'Remove color' : 'Remove fabric'"
+              @click="emit('remove', at)"
+            />
+          </template>
+        </div>
       </q-card-section>
     </template>
     <div class="swatch-strip q-px-md q-pb-md">
