@@ -7,7 +7,7 @@
 - [x] T004 `render/fabric-images.ts` pattern cache + `stores/images.ts` tick; settings
       `fabricImages`, `imageSize`, `saveSize` (+ Settings UI)
 - [ ] T005 Rendering: fill lookup with patterns in quilt, block, thumbnails, trays/pickers
-- [ ] T006 `model/zip.ts` reader/writer (+ tests: round trip, unsafe paths, limits)
+- [x] T006 `model/zip.ts` reader/writer (+ tests: round trip, unsafe paths, limits)
 - [ ] T007 `editor/fabric-import.ts` pipeline (+ tests for pure parts) and `FabricImportDialog.vue`
       (files/folder/zip → My library palette or project palette)
 - [ ] T008 Project save/open: own embedded at save size, library referenced, include option,
