@@ -1141,6 +1141,10 @@ const paletteLibs = computed(() => {
     g.collections.push(...v.collections);
     out.set(lib.id, g);
   }
+  // A library's packs (one palette each) alphabetically; a single library keeps its order.
+  for (const g of out.values())
+    if (library.views.some((v) => v.doc.library?.id === g.id))
+      g.collections.sort((a, b) => a.notecard.name.localeCompare(b.notecard.name));
   return [...out.values()];
 });
 /** The palette preview: a palette and which of its colors or fabrics is shown large. */

@@ -141,8 +141,23 @@
                 :caption="`${g.packs.filter((p) => p.view && packOn(p.id)).length} of ${g.packs.length} packs on`"
                 header-class="q-px-xs"
               >
+                <!-- Libraries with many packs: find one by name. -->
+                <q-input
+                  v-if="g.packs.length > 8"
+                  v-model="packQuery[g.key]"
+                  dense
+                  borderless
+                  clearable
+                  placeholder="Find a pack"
+                  class="q-px-xs"
+                >
+                  <template #prepend><q-icon name="search" size="xs" /></template>
+                </q-input>
+                <div v-if="!shownPacks(g).length" class="text-caption text-grey-7 q-px-xs">
+                  No packs match.
+                </div>
                 <div
-                  v-for="p in g.packs"
+                  v-for="p in shownPacks(g)"
                   :key="p.id"
                   class="row items-center no-wrap q-pl-xs"
                   style="gap: 4px"
@@ -1116,11 +1131,11 @@ const libGroups = computed(() => {
   for (const c of library.connections) {
     const g = group(c.index.id, c.index.name);
     g.connection = c;
-    const order = new Map(c.index.packs.map((p, i) => [p.id, i]));
     for (const p of c.index.packs)
       if (!g.packs.some((x) => x.id === p.id)) g.packs.push({ id: p.id, name: p.name });
-    g.packs.sort((a, b) => (order.get(a.id) ?? -1) - (order.get(b.id) ?? -1));
   }
+  // Packs alphabetically within their library.
+  for (const g of out) if (g.packs) g.packs.sort((a, b) => a.name.localeCompare(b.name));
   // My library first, then other libraries by name, then the built-in one.
   const name = (g: (typeof out)[number]) => (g.packs ? g.name : g.view.doc.name);
   const rank = (g: (typeof out)[number]) =>
@@ -1128,6 +1143,12 @@ const libGroups = computed(() => {
   out.sort((a, b) => rank(a) - rank(b) || name(a).localeCompare(name(b)));
   return out;
 });
+/** The sidebar's pack search, per library. */
+const packQuery = reactive<Record<string, string | null>>({});
+const shownPacks = (g: PackGroup) => {
+  const q = packQuery[g.key]?.trim().toLowerCase();
+  return q ? g.packs.filter((p) => p.name.toLowerCase().includes(q)) : g.packs;
+};
 const packOn = (id: string) => !settings.settings.packsOff.includes(id);
 function setLibOn(id: string, on: boolean) {
   const turn = () => {
@@ -1480,7 +1501,13 @@ function withLibraryHeads<T extends { v: LibraryView; collections: unknown[] }>(
   const libName = (g: T) => g.v.doc.library?.name ?? g.v.doc.name;
   const sorted = gs
     .map((g, i) => ({ g, i }))
-    .sort((a, b) => rank(a.g) - rank(b.g) || libName(a.g).localeCompare(libName(b.g)) || a.i - b.i)
+    .sort(
+      (a, b) =>
+        rank(a.g) - rank(b.g) ||
+        libName(a.g).localeCompare(libName(b.g)) ||
+        (a.g.v.doc.library ? a.g.v.doc.name.localeCompare(b.g.v.doc.name) : 0) ||
+        a.i - b.i,
+    )
     .map((x) => x.g);
   const lib = (g?: T) => g?.v.doc.library?.id;
   return sorted.map((g, i) => ({

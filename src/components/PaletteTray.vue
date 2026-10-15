@@ -369,6 +369,9 @@ const colorTree = computed(() => {
     .filter((c): c is Color => !!c);
   const libs = [...new Set(palettes.map((p) => p.lib))].map((lib) => {
     const groups = palettes.filter((p) => p.lib === lib);
+    // A library's packs (spec 014) alphabetically; a single library's palettes keep their order.
+    if (library.views.some((v) => v.doc.library?.id === lib))
+      groups.sort((a, b) => a.label.localeCompare(b.label));
     return { lib, label: groups[0]!.libName, groups };
   });
   // Fabrics: the project's own, then library fabrics painted here but not in a picked palette.

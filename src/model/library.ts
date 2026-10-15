@@ -570,6 +570,10 @@ export function blocksByLibrary(views: readonly LibraryView[], blocks: readonly 
     );
     out.set(lib.id, g);
   }
+  // A library's packs alphabetically (a single library's category sections keep their order).
+  for (const g of out.values())
+    if (views.some((v) => v.doc.library?.id === g.id))
+      g.sections.sort((a, b) => a.label.localeCompare(b.label));
   return { groups: [...out.values()], other: blocks.filter((b) => !seen.has(b.id)) };
 }
 
