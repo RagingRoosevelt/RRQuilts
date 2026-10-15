@@ -38,3 +38,6 @@ Options are remembered in your settings. The numbers use the same formulas as th
 - The **Yardage estimate** lists fabric per color, plus backing and binding. See [patches from yardage and fat quarters](/help/math/patches-from-yardage), [backing](/help/math/backing) and [binding](/help/math/binding).
 - The **Mitered corner guide** appears if the quilt has mitered borders. This true-size guide shows each strip's 45 degree ends and where stitching stops. See [borders](/help/math/borders).
 - **Credits** list the author, license and earlier contributors ([Credits and licenses](/help/guides/credits-and-licenses)).
+
+Fabrics print as their images, tiled at their real size, using the largest image on this device.
+Fabrics marked "≈" print at the default 8 in until you set their real size.

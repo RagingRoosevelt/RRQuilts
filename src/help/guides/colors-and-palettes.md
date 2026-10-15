@@ -1,10 +1,11 @@
 ---
 title: Colors and palettes
 order: 60
-summary: Make project colors, group them into palettes, and paint with them.
+summary: Make project colors, add fabric images, group them into palettes, and paint with them.
 ---
 
-A **color** is one swatch. A **palette** is a named group of colors. A project always has its own
+A **color** is one swatch. A **fabric** is a photo or scan of a print, drawn at its real size. A
+**palette** is a named group of colors and fabrics. A project always has its own
 colors (listed first in the project's **Palettes** tab). You can also tick palettes from your
 libraries to use in the project's quilts.
 
@@ -17,17 +18,33 @@ libraries to use in the project's quilts.
 
 To change a project color later, right-click (or long-press) it in the tray and choose **Edit…**, or use the edit button on its swatch in the **Palettes** tab. Choose **Delete** to remove it.
 
+## Add fabric images
+
+1. In the project's **Palettes** tab, click **Add fabric images** beside **Project fabrics** (or the
+   picture button next to **Add color** in the quilt editor's **Colors** tray).
+2. Click **Pick images or a zip** or **Pick a folder**. JPEG, PNG, and WebP images work, and several
+   at once.
+3. Leave **Crop each image to a square from its center** ticked unless your images are already
+   trimmed.
+4. Type the **Real width of each image**, the width of fabric the photo shows. Left empty, it's
+   8 in, and the fabric shows "≈" until you set it.
+5. Check the names in the list, then click **Add**.
+
+Each image is reduced to 256 and 512 px and kept on this device. Saved projects carry your own
+fabrics' images, at the size chosen in **Settings › Fabrics**.
+
 ## Use library palettes
 
 1. In the project's **Palettes** tab, scroll to **Library palettes**.
-2. Tick the checkbox beside each palette you want. Its colors then appear in the quilt editor's **Colors** tray, under the library's name.
+2. Tick the checkbox beside each palette you want. Its colors and fabrics then appear in the quilt
+   editor's **Colors** tray, under the library's name.
 
 Library colors are read-only. Right-click one in the tray and choose **Edit a copy…** to make your own version. If the list is empty, check **Settings › Libraries**, where **Hide library palettes from projects** hides it.
 
 ## Paint a quilt
 
 1. Open a quilt and choose its **Design** tab.
-2. In the tray, open the **Colors** tab and click a color.
+2. In the tray, open the **Colors** tab and click a color or fabric.
 3. Pick the **Paint** tool and tap a patch. **Spray (same color)**, **Swap color everywhere** and **Eyedropper** are in the same toolbar.
 4. Set the scope first. **This** paints one block, **All** paints every identical block, and **Alternate** paints every other one.
 

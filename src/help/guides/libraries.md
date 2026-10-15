@@ -48,3 +48,26 @@ Click **Import** and choose a `.rrqlib` pack (or a `.rrqplt` palette). To remove
 3. Click **Download pack** and send the `.rrqlib` file.
 
 Packs contain only what you chose. A pack never includes your projects.
+
+## Fabric libraries
+
+A fabric library is a set of **packs**, usually one palette of fabric images per collection.
+
+1. In **Libraries**, click **Import** and pick the library's `.rrqlib` file. Its packs are added
+   together.
+2. Under **Libraries** in the side panel, open the library's name to see its packs. Each has a
+   switch. Packs that are off stay out of your projects' trays and take no space for images.
+3. Click a pack's name to see its palette.
+
+Projects don't carry library fabrics' images, only which fabric they are, so files stay small. A
+project opened on a device without the library shows those fabrics as their average colors and
+names the library in its **Details** tab. To share such a project, tick **Include library fabric
+images when saving** in the project's **Details** tab first (packs for personal use are left out).
+
+## Add your own fabrics to My library
+
+1. In **Libraries**, click **Add fabrics…**.
+2. Pick the images, then choose a **Palette** of yours, or **New palette…** and type its name.
+3. Set the options as in [adding fabric images](/help/guides/colors-and-palettes) and click **Add**.
+
+**Back up…** saves My library with its fabric images, as one `.rrqlib` file.

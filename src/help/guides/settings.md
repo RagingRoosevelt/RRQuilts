@@ -18,6 +18,15 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 - **Units for new projects** can be **Inches** or **Centimeters**. An open project's units are in its **Details** tab.
 - **Editor layout** puts the panels either as **Toolbar left, sidebar right** or as **Sidebar left, toolbar right**.
 
+## Fabrics
+
+- **Fabric images** chooses how fabrics appear. **Show them, with average colors while they load**
+  is the default. **Average colors only (never load images)** is fastest and uses no space for
+  library images.
+- **Image size on screen** picks **Light (256 px)** or **Standard (512 px)**.
+- **Your fabric images in saved projects** sets the size your own fabrics are saved at. Library
+  fabrics are saved as references, not images.
+
 ## Libraries and Project
 
 - **Hide library blocks from projects** and **Hide library palettes from projects** leave the libraries' lists out of the project's **Blocks** and **Palettes** tabs. Blocks and palettes already in use stay available.
