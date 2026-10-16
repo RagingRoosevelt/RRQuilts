@@ -14,7 +14,7 @@
         :contracted="$q.screen.lt.sm"
       >
         <q-step name="name" title="You" icon="person">
-          <!-- Log Cabin, Mexican Cross II, and Bear's Paws, fanned out like swatch cards. -->
+          <!-- Basic Log Cabin, Mexican Cross II, and Bear's Paws, fanned out like swatch cards. -->
           <div v-if="cards.length" class="hero" aria-hidden="true">
             <img v-for="(src, i) in cards" :key="i" :src="src" alt="" :class="`card c${i}`" />
           </div>
@@ -143,7 +143,7 @@ const scratch = createProject();
 /** Three built-in blocks, each in one of its themed colorings (same slot as the others: pastel,
  *  the original colors, the last theme). */
 const CARDS: [name: string, coloring: (n: number) => number][] = [
-  ['Log Cabin I', () => 1],
+  ['Basic Log Cabin', () => 1],
   ['Mexican Cross II', () => 0],
   ["Bear's Paws", (n) => n - 1],
 ];
