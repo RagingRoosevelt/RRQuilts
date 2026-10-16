@@ -4,6 +4,7 @@
 export type Theme = 'auto' | 'light' | 'dark';
 export type Units = 'in' | 'cm';
 
+import type { OverlayDefaults } from '@/model/targets';
 import type { Social } from './socials';
 
 export interface Settings {
@@ -54,6 +55,9 @@ export interface Settings {
   bundledHidden: string[];
   /** New quilt wizard target sizes: US or European beds ('auto' follows `units`). */
   bedSizes: 'auto' | 'us' | 'eu';
+  /** Reference overlay starting points (lengths in inches); each unset until given in Settings or
+   *  first used in the new quilt wizard. */
+  overlayDefaults: OverlayDefaults;
   // Keys added by later app versions are kept as-is.
   [key: string]: unknown;
 }
@@ -101,12 +105,33 @@ export const defaults = (): Settings => ({
   packsOff: [],
   bundledHidden: [],
   bedSizes: 'auto',
+  overlayDefaults: {},
 });
 
 const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   theme: (v) => v === 'auto' || v === 'light' || v === 'dark',
   units: (v) => v === 'in' || v === 'cm',
   bedSizes: (v) => v === 'auto' || v === 'us' || v === 'eu',
+  overlayDefaults: (v) => {
+    if (!isObject(v)) return false;
+    const num = (x: unknown) => x === undefined || (typeof x === 'number' && x >= 0 && x < 1000);
+    const fit = (x: unknown) => x === 'women' || x === 'men';
+    const str = (x: unknown) => typeof x === 'string' && x.length <= 100;
+    const { top, pants, bed } = v;
+    return (
+      (top === undefined ||
+        (isObject(top) && fit(top.fit) && str(top.size) && num(top.sleeveLength))) &&
+      (pants === undefined ||
+        (isObject(pants) && fit(pants.fit) && str(pants.size) && num(pants.inseam))) &&
+      (bed === undefined ||
+        (isObject(bed) &&
+          (bed.region === 'us' || bed.region === 'eu') &&
+          str(bed.name) &&
+          num(bed.drop) &&
+          num(bed.tuck) &&
+          (bed.tall === undefined || typeof bed.tall === 'boolean')))
+    );
+  },
   hintsDismissed: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   author: (v) => typeof v === 'string' && v.length <= 100,
   authorAsked: (v) => typeof v === 'boolean',

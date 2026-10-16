@@ -24,7 +24,7 @@
       map-options
       :readonly="readonly"
       :hint="hint"
-      @update:model-value="(c) => emit('update:modelValue', startChoice(c, modelValue, units))"
+      @update:model-value="choose"
     >
       <template #option="scope">
         <div v-if="scope.opt.header" class="target-header">{{ scope.opt.label }}</div>
@@ -212,15 +212,25 @@ function setRegion(region: Region) {
     TARGETS[region].some((t) => t.name === m.choice);
   emit(
     'update:modelValue',
-    keep ? { ...m, region } : startChoice(null, { ...m, region }, props.units),
+    keep ? { ...m, region } : startChoice(null, { ...m, region }, props.units, mine()),
   );
+}
+
+/** The quilter's own sizes and bed (Settings), where a new choice starts. */
+const mine = () => useSettingsStore().settings.overlayDefaults;
+/** A new choice: garments start from the quilter's own fit and size, beds from their bed. */
+function choose(c: string | null) {
+  const prev = { ...props.modelValue };
+  delete prev.fit;
+  delete prev.size;
+  emit('update:modelValue', startChoice(c, prev, props.units, mine()));
 }
 
 /** Women's or men's: the size list changes, so the size and lengths start over. */
 function setFit(fit: Fit) {
   const rest = { ...props.modelValue, fit };
   delete rest.size;
-  emit('update:modelValue', startChoice(rest.choice, rest, props.units));
+  emit('update:modelValue', startChoice(rest.choice, rest, props.units, mine()));
 }
 
 function setCustom(i: number, v: number) {

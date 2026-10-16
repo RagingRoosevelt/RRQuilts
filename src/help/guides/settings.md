@@ -27,9 +27,19 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 
 ## Quilt and block design
 
-- **Recently used colors first in each palette** moves the colors you picked last to the front of
+- **Sort colors and fabrics in palette by most recent use** moves the colors you picked last to the front of
   each palette in the Design tab. It's off at first, so palettes keep their own order and the color
   you pick is only highlighted.
+- **Reference overlay** sets where a target size starts in the new quilt wizard and the Layout tab.
+  - **Size lists** picks the US or European sizes. **Auto** follows your units.
+  - **Your top** and **Your pants** keep your size (and sleeve length or inseam). Picking **Top** or
+    **Pants** as a target starts from them.
+  - **Your bed** keeps your bed with its drop, pillow tuck, and Tall (XL). Picking that bed starts
+    from them.
+  - Each starts unset. **Set now** sets it here, or the first one you use in the new quilt wizard
+    sets it. **Clear** unsets it.
+
+Each part of these sections is a card that opens and closes with its header.
 
 ## Fabrics
 

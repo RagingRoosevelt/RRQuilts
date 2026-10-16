@@ -45,6 +45,14 @@ export const TARGETS: Record<Region, NamedTarget[]> = {
   ],
 };
 
+/** The quilter's own starting points (app settings): their top and pants sizes and their bed.
+ *  Lengths in inches. */
+export interface OverlayDefaults {
+  top?: { fit: Fit; size: string; sleeveLength?: number };
+  pants?: { fit: Fit; size: string; inseam?: number };
+  bed?: { region: Region; name: string; drop?: number; tuck?: number; tall?: boolean };
+}
+
 /** What the quilter picked. Lengths are in project units. */
 export interface TargetInput {
   /** null: none; 'custom'; 'top' or 'pants' (garments); else a named size from `region`'s list. */
@@ -95,33 +103,72 @@ export function garmentRow(input: TargetInput) {
 
 /**
  * The fields a new choice starts with (keeping the region): a bed's drop, a garment's middle size
- * and its sleeve length and inseam. `fit` picks women's or men's for garments.
+ * and its sleeve length and inseam. `prev.fit` (when set) picks women's or men's for garments.
+ * `defaults` (the quilter's own sizes and bed) take over where they fit.
  */
-export function startChoice(choice: string | null, prev: TargetInput, units: Units): TargetInput {
+export function startChoice(
+  choice: string | null,
+  prev: TargetInput,
+  units: Units,
+  defaults: OverlayDefaults = {},
+): TargetInput {
   const k = units === 'cm' ? 2.54 : 1;
-  const len = (v: number) => (units === 'cm' ? Math.round(v * k) : v);
+  const len = (v: number) => (units === 'cm' ? Math.round(v * k * 2) / 2 : v);
   const base: TargetInput = { choice, region: prev.region };
   if (choice === 'custom')
     return { ...base, custom: prev.custom ?? (units === 'cm' ? [150, 200] : [60, 80]) };
   if (isGarment(choice)) {
-    const fit = prev.fit ?? 'women';
-    const g: TargetInput = {
-      ...base,
-      fit,
-      piece: prev.piece === 'sleeve' && choice === 'pants' ? 'front' : (prev.piece ?? 'front'),
-    };
+    const mine = choice === 'top' ? defaults.top : defaults.pants;
+    const fit = prev.fit ?? mine?.fit ?? 'women';
+    const own = mine && mine.fit === fit ? mine : undefined;
+    const piece = prev.piece === 'sleeve' && choice === 'pants' ? 'front' : (prev.piece ?? 'front');
+    const g: TargetInput = { ...base, fit, piece, ...(own ? { size: own.size } : {}) };
     const row = garmentRow(g);
+    const sleeve = defaults.top && own === defaults.top ? defaults.top.sleeveLength : undefined;
+    const inseam = defaults.pants && own === defaults.pants ? defaults.pants.inseam : undefined;
     return {
       ...g,
       size: row.us,
-      sleeveLength: len(row.m.arm),
-      inseam: len(fit === 'men' ? 32 : 30.5),
+      sleeveLength: len(sleeve ?? row.m.arm),
+      inseam: len(inseam ?? (fit === 'men' ? 32 : 30.5)),
     };
   }
   const t = named(base);
-  if (t?.drop !== undefined)
-    return { ...base, drop: fromRegion(t.drop, base.region, units), tuck: 0, tall: false };
-  return base;
+  if (t?.drop === undefined) return base;
+  const bed = defaults.bed;
+  if (bed && bed.region === base.region && bed.name === choice)
+    return {
+      ...base,
+      drop: bed.drop !== undefined ? len(bed.drop) : fromRegion(t.drop, base.region, units),
+      tuck: len(bed.tuck ?? 0),
+      tall: !!bed.tall && t.tall !== undefined,
+    };
+  return { ...base, drop: fromRegion(t.drop, base.region, units), tuck: 0, tall: false };
+}
+
+/** The defaults a target sets when the quilter has none yet (first use in the wizard). */
+export function defaultsFrom(input: TargetInput, units: Units): OverlayDefaults {
+  const k = units === 'cm' ? 2.54 : 1;
+  const inch = (v: number | undefined) => (v === undefined ? undefined : +(v / k).toFixed(3));
+  const fit = input.fit ?? 'women';
+  const size = garmentRow(input).us;
+  const opt = <T>(key: string, v: T | undefined) => (v === undefined ? {} : { [key]: v });
+  if (input.choice === 'top')
+    return { top: { fit, size, ...opt('sleeveLength', inch(input.sleeveLength)) } };
+  if (input.choice === 'pants')
+    return { pants: { fit, size, ...opt('inseam', inch(input.inseam)) } };
+  const t = named(input);
+  if (t?.drop !== undefined && input.choice)
+    return {
+      bed: {
+        region: input.region,
+        name: input.choice,
+        ...opt('drop', inch(input.drop)),
+        ...opt('tuck', inch(input.tuck)),
+        ...opt('tall', input.tall),
+      },
+    };
+  return {};
 }
 
 /** The shape a target input describes in project units, or null for none (or an unknown name). */

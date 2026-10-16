@@ -300,6 +300,7 @@ import LengthInput from '@/components/LengthInput.vue';
 import TargetEditor from '@/components/TargetEditor.vue';
 import {
   defaultRegion,
+  defaultsFrom,
   placeTarget,
   resolveTarget,
   shapeSize,
@@ -658,6 +659,12 @@ function create() {
   open.value = false;
   // A plain copy: the project freezes what it's given, and these are live, editable objects.
   const t = targetShape.value;
+  // The first garment or bed made becomes the quilter's own, until changed in Settings.
+  const settings = useSettingsStore().settings;
+  const first = defaultsFrom(targetInput.value, props.units);
+  for (const key of ['top', 'pants', 'bed'] as const)
+    if (first[key] && !settings.overlayDefaults[key])
+      settings.overlayDefaults = { ...settings.overlayDefaults, [key]: first[key] };
   const target: QuiltTarget | undefined = t
     ? { visible: true, input: targetInput.value, ...t }
     : undefined;
