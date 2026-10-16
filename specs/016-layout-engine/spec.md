@@ -195,7 +195,10 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
   and print with cut sizes and grain along the outer edge.
 - **FR-023**: A block set into a cut-off space (a setting piece or a trimmed edge block) MUST be
   placed whole, at the size and turn of the blocks around it, and only then cut to the space's
-  outline; it is never stretched to fit. Plain fills color the space's own outline. Switching
+  outline; it is never stretched to fit. Plain fills color the space's own outline. With Exact or
+  Floating, a setting piece holding a block becomes a trimmed block with its sashing, and that whole
+  side of the quilt is cut at the block points (no float on that side, its plain setting triangles
+  included), so nothing is left bare around the block; removing the blocks restores the float. Switching
   between finishes moves a block at an edge position to the same position's new space (a seam
   corner's first half stands for the whole corner); placed blocks that would be lost are listed in
   the removal warning. *Added 2026-10-15 (owner).*

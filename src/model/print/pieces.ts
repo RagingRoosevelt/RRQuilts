@@ -10,7 +10,7 @@ import {
   pointInPolygon,
   type Pt,
 } from '../geometry/path';
-import { generateSlots } from '../layout/slots';
+import { generateFor } from '../layout/slots';
 import { PLAIN_BLOCK } from '../plain';
 import type { Block } from '../schema/block';
 import type { ColoringBody } from '../schema/coloring';
@@ -64,7 +64,7 @@ export function quiltPieces(
   doc: RrqDoc,
   quilt: Quilt,
   blockId?: string,
-  slots = generateSlots(quilt.layout, quilt.borders).slots,
+  slots = generateFor(quilt).slots,
 ): Piece[] {
   const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
   return slots.flatMap((slot) => {

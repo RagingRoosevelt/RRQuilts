@@ -182,7 +182,7 @@ import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
-import { applyLayout, generateSlots, reconcile } from '@/model/layout/slots';
+import { applyLayout, generateFor, reconcile } from '@/model/layout/slots';
 import { PLAIN_BLOCK, slotGroup } from '@/model/plain';
 import type { Border, Layout } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
@@ -219,7 +219,7 @@ watch(
   },
   { immediate: true },
 );
-const generated = computed(() => generateSlots(quilt.value!.layout, quilt.value!.borders));
+const generated = computed(() => generateFor(quilt.value!));
 const units = computed(() => project.doc?.units ?? 'in');
 const border = ref(0);
 const hover = ref<Hit | null>(null);

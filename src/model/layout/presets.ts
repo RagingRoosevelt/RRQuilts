@@ -118,7 +118,11 @@ export function horizontal(l: HorizontalLayout): { tiling: Tiling; center: Bound
  * cornerstones belong to the cell up-left of them in the lattice (`se`, `sw`, `s`). Ids:
  * specs/016-layout-engine/contracts/slot-ids.md.
  */
-export function onPoint(l: OnPointLayout): {
+export function onPoint(
+  l: OnPointLayout,
+  /** Edge positions holding a block (`m:r{r}c{c}` → the id it's placed under), Exact/Floating. */
+  edgeBlocks: ReadonlyMap<string, string> = new Map(),
+): {
   slots: Slot[];
   center: Bounds;
   edge: PathCommand[];
@@ -127,18 +131,31 @@ export function onPoint(l: OnPointLayout): {
   const { cols: C, rows: R, block: s, sash: g, edge } = l;
   const finish = edge.finish;
   const f = finish === 'float' ? edge.float : 0;
+  // A block at an edge position is trimmed there: the edge on that side moves in to the block
+  // points (no float), and the block gets its sashing.
+  const held = finish === 'exact' || finish === 'float' ? edgeBlocks : new Map<string, string>();
+  const sides = [false, false, false, false]; // top, right, bottom, left hold blocks
+  for (const at of held.keys()) {
+    const [, r, c] = /r(\d+)c(\d+)/.exec(at)!.map(Number) as [number, number, number];
+    if (r === 0) sides[0] = true;
+    if (c === l.cols) sides[1] = true;
+    if (r === l.rows) sides[2] = true;
+    if (c === 0) sides[3] = true;
+  }
+  const fs = sides.map((t) => (t ? 0 : f)) as [number, number, number, number];
+  const [fT, fR, fB, fL] = fs;
   const k = Math.SQRT1_2;
   const P = s + g;
   const D = 2 * k * P; // center to center along a row
   const h = k * (s + 2 * g); // block center to the tip of its sashing frame
   const [W, H] = [(C - 1) * D + 2 * h, (R - 1) * D + 2 * h];
-  const exact: Bounds = [f, f, W + f, H + f];
-  const quilt: Bounds = [0, 0, W + 2 * f, H + 2 * f];
+  const exact: Bounds = [fL, fT, W + fL, H + fT];
+  const quilt: Bounds = [0, 0, W + fL + fR, H + fT + fB];
 
   // Lattice (x right-down, y left-down on screen, cell origin = top point) → quilt.
   const L = (x: number, y: number): Pt => [k * (x - y), k * (x + y)];
-  // main(1,1) (p = 1, q = R) has its center at (h + f, h + f).
-  const O: Pt = [h + f - D / 2 - (D * R) / 2, h + f - k * s - D / 2 + (D * R) / 2];
+  // main(1,1) (p = 1, q = R) has its center at (h + fL, h + fT).
+  const O: Pt = [h + fL - D / 2 - (D * R) / 2, h + fT - k * s - D / 2 + (D * R) / 2];
   const cellTransform = (lx: number, ly: number, w: number, hh: number): M => {
     const [ox, oy] = L(lx, ly);
     return [k * w, k * w, -k * hh, k * hh, O[0] + ox, O[1] + oy];
@@ -166,8 +183,9 @@ export function onPoint(l: OnPointLayout): {
           : 'out';
   const code = ({ main, r, c }: Pos) => `${main ? '' : 'm:'}r${r}c${c}`;
   const blockish = (p: number, q: number) => {
-    const st = status(pos(p, q));
-    return st === 'core' || (st === 'ring' && finish === 'trim');
+    const x = pos(p, q);
+    const st = status(x);
+    return st === 'core' || (st === 'ring' && (finish === 'trim' || held.has(code(x))));
   };
   const altOf = (p: number, q: number) => (pos(p, q).main ? 0 : 1);
 
@@ -180,7 +198,8 @@ export function onPoint(l: OnPointLayout): {
     id: (p, q) => {
       const x = pos(p, q);
       const st = status(x);
-      return st === 'core' || (st === 'ring' && finish === 'trim') ? `b:${code(x)}` : null;
+      if (st === 'core' || (st === 'ring' && finish === 'trim')) return `b:${code(x)}`;
+      return (st === 'ring' && held.get(code(x))) || null;
     },
     alt: altOf,
   };
@@ -230,7 +249,7 @@ export function onPoint(l: OnPointLayout): {
     for (let p = -1; p <= span; p++)
       for (let q = -1; q <= span; q++) {
         const x = pos(p, q);
-        if (status(x) !== 'ring') continue;
+        if (status(x) !== 'ring' || held.has(code(x))) continue;
         const [top, bottom, left, right] = [x.r === 0, x.r === R, x.c === 0, x.c === C];
         const [x0, x1] = [top || left ? -g : 0, bottom || right ? s + g : s];
         const [y0, y1] = [top || right ? -g : 0, bottom || left ? s + g : s];
@@ -244,7 +263,7 @@ export function onPoint(l: OnPointLayout): {
         const parts: [string, Pt[]][] =
           corner && l.corner === 'seam' ? splitCorner(poly, x, exact) : [['', poly]];
         for (const [suffix, part] of parts) {
-          const outline = f > 0 ? extrude(part, exact, f) : part;
+          const outline = f > 0 ? extrude(part, exact, fs) : part;
           slots.push({
             id: `set:${code(x)}${suffix}`,
             kind: 'set',
@@ -265,7 +284,7 @@ export function onPoint(l: OnPointLayout): {
     slots,
     center: quilt,
     edge: finish === 'none' ? zigzag() : rectPath(0, 0, quilt[2], quilt[3]),
-    trim: finish === 'float' || finish === 'trim',
+    trim: finish === 'float' || finish === 'trim' || held.size > 0,
   };
 
   /** Tips of the outer blocks' sashing frames and the V's between them, clockwise from top-left. */
@@ -310,12 +329,15 @@ const NORMAL: Pt[] = [
   [-1, 0],
 ];
 
-/** Push the edges lying on `r`'s sides out by `f` (corners meet at the grown rectangle's corner). */
-function extrude(poly: Pt[], r: Bounds, f: number): Pt[] {
+/** Push the edges lying on `r`'s sides out by `fs` (top, right, bottom, left); corners meet at the
+ *  grown rectangle's corner. */
+function extrude(poly: Pt[], r: Bounds, fs: readonly number[]): Pt[] {
   const out: Pt[] = [];
   const n = poly.length;
   const push = (p: Pt, ...sides: number[]) =>
-    out.push(sides.reduce<Pt>((q, s) => [q[0] + NORMAL[s]![0] * f, q[1] + NORMAL[s]![1] * f], p));
+    out.push(
+      sides.reduce<Pt>((q, s) => [q[0] + NORMAL[s]![0] * fs[s]!, q[1] + NORMAL[s]![1] * fs[s]!], p),
+    );
   poly.forEach((v, i) => {
     const sin = sideOf(poly[(i + n - 1) % n]!, v, r);
     const sout = sideOf(v, poly[(i + 1) % n]!, r);

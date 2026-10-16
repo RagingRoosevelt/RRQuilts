@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { apply, invert } from '@/model/geometry/affine';
+import { flattenLoop, pathToSegs, pointInPolygon, type Pt } from '@/model/geometry/path';
 import { generateSlots, type Generated } from '@/model/layout/slots';
 import { onPointDefaults } from '@/model/io';
 import { ensurePlainBlock, ensureSlotContent } from '@/model/plain';
@@ -235,5 +236,51 @@ describe('On-Point printing', () => {
       0,
     );
     expect(length).toBeCloseTo((4 * (3 + 2) - 4) * 10, 9);
+  });
+});
+
+describe('Blocks at edge positions move that side in (Exact, Floating)', () => {
+  const sample = (g: Generated) => {
+    const polys = g.slots.map((s) => flattenLoop(pathToSegs(s.outline, [1, 1]), 1e-3));
+    const [x0, y0, x1, y1] = g.center;
+    let bad = 0;
+    for (let a = 0; a < 60; a++)
+      for (let b = 0; b < 60; b++) {
+        const pt: Pt = [x0 + ((a + 0.3137) / 60) * (x1 - x0), y0 + ((b + 0.5711) / 60) * (y1 - y0)];
+        if (polys.filter((q) => pointInPolygon(pt, q)).length !== 1) bad++;
+      }
+    return bad;
+  };
+
+  it('only the side holding a block loses its float', () => {
+    const l = op({ cols: 3, rows: 3, block: 8, finish: 'float' });
+    const plain = generateSlots(l, []);
+    const g = generateSlots(l, [], new Map([['m:r0c1', 'set:m:r0c1']]));
+    expect(height(g)).toBeCloseTo(height(plain) - 1, 9);
+    expect(width(g)).toBeCloseTo(width(plain), 9);
+    const held = g.slots.find((s) => s.id === 'set:m:r0c1')!;
+    expect(held.kind).toBe('block');
+    expect(held.cut).toBeUndefined();
+    expect(slotArea(held)).toBeCloseTo(64 / 2, 6); // half the block, cut at its points
+    expect(sample(g)).toBe(0);
+  });
+
+  it('every combination with blocks at some edge positions covers the quilt exactly', () => {
+    let seed = 7;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (const finish of ['exact', 'float'] as const)
+      for (const sash of [0, 1.5])
+        for (const corner of ['triangle', 'seam'] as const)
+          for (let n = 0; n < 4; n++) {
+            const l = op({ cols: 3, rows: 2, block: 5, sash, finish, corner });
+            const ring = generateSlots(l, []).slots.filter((s) => s.kind === 'set');
+            const held = new Map(
+              ring.filter(() => rnd() < 0.4).map((s) => [/m:r\d+c\d+/.exec(s.id)![0], s.id]),
+            );
+            const g = generateSlots(l, [], held);
+            const at = `${finish} sash ${sash} ${corner} ${[...held.keys()].join()}`;
+            expect(new Set(g.slots.map((s) => s.id)).size, at).toBe(g.slots.length);
+            expect(sample(g), at).toBe(0);
+          }
   });
 });

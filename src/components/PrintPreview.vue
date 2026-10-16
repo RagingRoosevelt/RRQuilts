@@ -518,7 +518,7 @@ import {
   quiltLock,
 } from '@/model/credits';
 import { pathToSegs, flattenLoop, sub, type Pt } from '@/model/geometry/path';
-import { generateSlots } from '@/model/layout/slots';
+import { generateFor } from '@/model/layout/slots';
 import { fmtFabric, fmtLen } from '@/model/print/format';
 import { pack, pillWidth, splitFlow, tiles, wrapPills } from '@/model/print/pack';
 import {
@@ -773,7 +773,7 @@ const view = computed<View | undefined>(() => {
   if (props.kind === 'quilt') {
     const quilt = dd.project.quilts.find((q) => q.id === id);
     if (!quilt) return undefined;
-    const g = generateSlots(quilt.layout, quilt.borders);
+    const g = generateFor(quilt);
     const pieces = quiltPieces(dd, quilt);
     const [x0, y0, x1, y1] = g.bounds;
     return {
@@ -810,7 +810,7 @@ const view = computed<View | undefined>(() => {
   let keyColoring =
     block.colorings.find((c) => c.id === props.target?.coloring) ?? block.colorings[0];
   if (quilt) {
-    const g = generateSlots(quilt.layout, quilt.borders);
+    const g = generateFor(quilt);
     const slot = g.slots.find((s) => quilt.layers[0].slots[s.id]?.block === block.id);
     if (slot) {
       size = slot.size;
@@ -1196,7 +1196,7 @@ function quiltBlocks() {
   const quilt = dd.project.quilts.find((q) => q.id === props.id);
   if (!quilt) return [];
   const seen = new Set<string>();
-  return generateSlots(quilt.layout, quilt.borders).slots.flatMap((slot) => {
+  return generateFor(quilt).slots.flatMap((slot) => {
     const content = quilt.layers[0].slots[slot.id];
     const block = content && dd.project.blocks.find((b) => b.id === content.block);
     if (!content || !block || seen.has(block.id) || block.notecard.tags?.includes('system'))

@@ -108,7 +108,12 @@ export function polySlot(id: string, pts: [number, number][]): Slot {
   };
 }
 
-export function generateSlots(layout: Layout, borders: Border[]): Generated {
+export function generateSlots(
+  layout: Layout,
+  borders: Border[],
+  /** On-Point: edge positions holding blocks (`edgeBlocks`); they move that side's edge in. */
+  held?: ReadonlyMap<string, string>,
+): Generated {
   const unsupported: string[] = [];
   let slots: Slot[] = [];
   let center: Bounds = [0, 0, 0, 0];
@@ -118,7 +123,7 @@ export function generateSlots(layout: Layout, borders: Border[]): Generated {
     slots = tile(h.tiling);
     center = h.center;
   } else if (layout.style === 'on-point') {
-    const o = onPoint(layout);
+    const o = onPoint(layout, held);
     // No fill: the uneven edge is the quilt's edge, so borders are set aside (kept in the file).
     if (layout.edge.finish === 'none')
       return {
@@ -145,6 +150,20 @@ export function generateSlots(layout: Layout, borders: Border[]): Generated {
   };
 }
 
+/** On-Point edge positions (setting pieces) holding a block: position → the id it's under. */
+export function edgeBlocks(quilt: Quilt): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const [id, c] of Object.entries(quilt.layers[0].slots)) {
+    const at = /^set:(m:r\d+c\d+)(?::[12])?$/.exec(id)?.[1];
+    if (at && c.block !== PLAIN_BLOCK && !out.has(at)) out.set(at, id);
+  }
+  return out;
+}
+
+/** The quilt's spaces, given what's placed in it. */
+export const generateFor = (quilt: Quilt) =>
+  generateSlots(quilt.layout, quilt.borders, edgeBlocks(quilt));
+
 export interface Reconciled {
   slots: Record<string, SlotContent>;
   /** Slot ids whose content would be lost (warn before applying, FR-057). */
@@ -153,7 +172,7 @@ export interface Reconciled {
 
 /** Which placed content survives a layout/border change. */
 export function reconcile(quilt: Quilt, layout: Layout, borders: Border[]): Reconciled {
-  const ids = new Set(generateSlots(layout, borders).slots.map((s) => s.id));
+  const ids = new Set(generateSlots(layout, borders, edgeBlocks(quilt)).slots.map((s) => s.id));
   // Borders set aside by No fill keep their pieces' colors for when they come back.
   const setAside = layout.style === 'on-point' && layout.edge.finish === 'none';
   const slots: Record<string, SlotContent> = {};

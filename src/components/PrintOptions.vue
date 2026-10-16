@@ -305,7 +305,7 @@
 import { computed, ref, watch } from 'vue';
 import HelpLink from '@/components/HelpLink.vue';
 import LengthInput from '@/components/LengthInput.vue';
-import { generateSlots } from '@/model/layout/slots';
+import { generateFor } from '@/model/layout/slots';
 import { fmtLen } from '@/model/print/format';
 import {
   FABRIC_STEPS,
@@ -389,9 +389,7 @@ const fmtSize = (s: [number, number]) =>
   `${fmtLen(s[0], units.value)} × ${fmtLen(s[1], units.value)}`;
 const quiltSizes = computed(() =>
   project.doc!.project.quilts.flatMap((q) => {
-    const slot = generateSlots(q.layout, q.borders).slots.find(
-      (s) => q.layers[0].slots[s.id]?.block === props.id,
-    );
+    const slot = generateFor(q).slots.find((s) => q.layers[0].slots[s.id]?.block === props.id);
     return slot ? [{ quilt: q, size: slot.size }] : [];
   }),
 );
