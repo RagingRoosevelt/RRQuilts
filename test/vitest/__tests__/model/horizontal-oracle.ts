@@ -1,15 +1,30 @@
-// Horizontal layout: rows × cols of blocks with optional sashing, cornerstones, and sash border.
-import type { HorizontalLayout } from '../schema/quilt';
-import { rectSlot, type Bounds, type Slot } from './slots';
+// Frozen copy of the Horizontal generator from before the layout engine (spec 016). The engine
+// must reproduce it (layout-engine.spec.ts). Do not edit.
+import type { HorizontalLayout } from '@/model/schema/quilt';
+import type { PathCommand } from '@/model/schema/shared';
 
-export function horizontalSlots(l: HorizontalLayout): { slots: Slot[]; center: Bounds } {
+interface OracleSlot {
+  id: string;
+  outline: PathCommand[];
+  transform: [number, number, number, number, number, number];
+}
+
+const rectSlot = (id: string, x: number, y: number, w: number, h: number): OracleSlot => ({
+  id,
+  outline: [['M', x, y], ['L', x + w, y], ['L', x + w, y + h], ['L', x, y + h], ['Z']],
+  transform: [w, 0, 0, h, x, y],
+});
+
+export function oracleHorizontal(l: HorizontalLayout): {
+  slots: OracleSlot[];
+  center: [number, number, number, number];
+} {
   const [bw, bh] = l.block;
   const [sw, sh] = l.sash;
   const ox = l.sashBorder ? sw : 0;
   const oy = l.sashBorder ? sh : 0;
   const bx = (c: number) => ox + (c - 1) * (bw + sw);
   const by = (r: number) => oy + (r - 1) * (bh + sh);
-  // Sash index k sits after block k (k = 0 is the leading sash border).
   const sx = (k: number) => (k === 0 ? 0 : bx(k) + bw);
   const sy = (k: number) => (k === 0 ? 0 : by(k) + bh);
   const range = (n: number) => {
@@ -20,7 +35,7 @@ export function horizontalSlots(l: HorizontalLayout): { slots: Slot[]; center: B
   const rows = Array.from({ length: l.rows }, (_, i) => i + 1);
   const cols = Array.from({ length: l.cols }, (_, i) => i + 1);
 
-  const slots: Slot[] = [];
+  const slots: OracleSlot[] = [];
   for (const r of rows)
     for (const c of cols) slots.push(rectSlot(`b:r${r}c${c}`, bx(c), by(r), bw, bh));
   if (sw > 0) {

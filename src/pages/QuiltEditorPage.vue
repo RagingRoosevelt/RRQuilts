@@ -215,7 +215,6 @@ watch(
   { immediate: true },
 );
 const generated = computed(() => generateSlots(quilt.value!.layout, quilt.value!.borders));
-const slotIds = computed(() => generated.value.slots.map((s) => s.id));
 const units = computed(() => project.doc?.units ?? 'in');
 const border = ref(0);
 const hover = ref<Hit | null>(null);
@@ -298,7 +297,7 @@ const hoverSize = computed(() => {
 
 function onTap(hit: Hit) {
   if (!project.doc || !quilt.value) return;
-  const r = applyTool(project.doc, quilt.value.id, slotIds.value, hit, {
+  const r = applyTool(project.doc, quilt.value.id, generated.value.slots, hit, {
     ...editor.$state,
     library: library.lookup,
   });

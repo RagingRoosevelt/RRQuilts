@@ -21,7 +21,7 @@ const quilt = (): Quilt => {
   q.layers[0].slots = { 'b:r1c1': s('A'), 'b:r1c2': s('A'), 'b:r2c1': s('B'), 'b:r2c2': s('A') };
   return q;
 };
-const ids = (q: Quilt) => generateSlots(q.layout, q.borders).slots.map((s) => s.id);
+const ids = (q: Quilt) => generateSlots(q.layout, q.borders).slots;
 
 describe('scope resolution', () => {
   it('setting a block targets block spaces', () => {
@@ -65,5 +65,24 @@ describe('scope resolution', () => {
     expect(ensurePlainBlock(doc)).toBe(doc);
     const q = ensureSlotContent(quilt(), ['sash:v:r1c1', 'b:r1c1']);
     expect(q.layers[0].slots['sash:v:r1c1']?.block).toBe('plain');
+  });
+
+  it('alt matches the old digit-sum parity, so Alternate selects the same spaces', () => {
+    const q = quilt();
+    q.layout = { ...q.layout, sashBorder: true } as typeof q.layout;
+    q.borders = [
+      { style: 'long-horizontal', sides: [2, 2, 2, 2] },
+      { style: 'long-horizontal', sides: [1, 1, 1, 1] },
+    ];
+    const slots = ids(q);
+    const parity = (id: string) => (id.match(/\d+/g) ?? []).reduce((s, n) => s + Number(n), 0) % 2;
+    for (const s of slots) expect(s.alt, s.id).toBe(parity(s.id));
+    for (const group of ['block', 'sash', 'cs']) {
+      const tapped = slots.find((s) => slotGroup(s.id) === group)!.id;
+      const expected = slots
+        .filter((s) => slotGroup(s.id) === group && parity(s.id) === parity(tapped))
+        .map((s) => s.id);
+      expect(setTargets(slots, tapped, 'alternate').sort()).toEqual(expected.sort());
+    }
   });
 });

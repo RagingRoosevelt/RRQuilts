@@ -392,9 +392,7 @@ const quiltSizes = computed(() =>
     const slot = generateSlots(q.layout, q.borders).slots.find(
       (s) => q.layers[0].slots[s.id]?.block === props.id,
     );
-    return slot
-      ? [{ quilt: q, size: [slot.transform[0], slot.transform[3]] as [number, number] }]
-      : [];
+    return slot ? [{ quilt: q, size: slot.size }] : [];
   }),
 );
 const sizeOptions = computed(() => [

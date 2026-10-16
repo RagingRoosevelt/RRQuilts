@@ -6,14 +6,31 @@ import { produce } from 'immer';
 import type { PathCommand } from '../schema/shared';
 import type { Border, Layout, Quilt, SlotContent } from '../schema/quilt';
 import { borderSlots } from './borders';
-import { horizontalSlots } from './horizontal';
+import { tile } from './engine';
+import { horizontal } from './presets';
+
+export type SlotKind = 'block' | 'sash' | 'cs' | 'set' | 'border';
+/** `piece` = setting, partial, or irregular space: plain fill only. */
+export type SpaceShape =
+  'rect' | 'triangle' | 'diamond60' | 'hexagon' | 'clamshell' | 'spool' | 'piece';
 
 export interface Slot {
   id: string;
-  /** Closed outline in quilt units; block content is clipped to it. */
+  kind: SlotKind;
+  shape: SpaceShape;
+  /** Degrees between allowed block turns (90 square, 180 rectangle, 360 none). */
+  turns: number;
+  /** Alternate-scope class (checkerboard: 0/1). */
+  alt: number;
+  /** Visible outline in quilt units (lines and arcs); block content is clipped to it. */
   outline: PathCommand[];
-  /** Affine map [a, b, c, d, e, f] from the block's unit square to quilt units (SVG order). */
+  /** Affine map [a, b, c, d, e, f] from the block's unit square to quilt units (SVG order). The
+   *  whole space, even when `outline` is trimmed. */
   transform: [number, number, number, number, number, number];
+  /** Finished size of the whole space, in its own axes. */
+  size: [number, number];
+  /** Shape to cut when larger than `outline` (floating setting pieces). */
+  cut?: PathCommand[];
 }
 
 export type Bounds = [x0: number, y0: number, x1: number, y1: number];
@@ -26,24 +43,90 @@ export interface Generated {
   bounds: Bounds;
   /** Styles stored in the file whose generators aren't available yet. */
   unsupported: string[];
+  /** The quilt's outer edge (binding runs along it). */
+  edge: PathCommand[];
+  /** Pieces are cut larger than the edge (trim the quilt top after piecing). */
+  trim: boolean;
 }
+
+/** Checkerboard class from the numbers in an id (rows + cols, sash indices, …). */
+export const digitParity = (id: string) =>
+  (id.match(/\d+/g) ?? []).reduce((s, n) => s + Number(n), 0) % 2;
+
+export const rectPath = (x: number, y: number, w: number, h: number): PathCommand[] => [
+  ['M', x, y],
+  ['L', x + w, y],
+  ['L', x + w, y + h],
+  ['L', x, y + h],
+  ['Z'],
+];
+
+const kindOf = (id: string): SlotKind =>
+  id.startsWith('b:')
+    ? 'block'
+    : id.startsWith('sash:')
+      ? 'sash'
+      : id.startsWith('cs:')
+        ? 'cs'
+        : id.startsWith('set:')
+          ? 'set'
+          : 'border';
 
 export const rectSlot = (id: string, x: number, y: number, w: number, h: number): Slot => ({
   id,
-  outline: [['M', x, y], ['L', x + w, y], ['L', x + w, y + h], ['L', x, y + h], ['Z']],
+  kind: kindOf(id),
+  shape: 'rect',
+  turns: w === h ? 90 : 180,
+  alt: digitParity(id),
+  outline: rectPath(x, y, w, h),
   transform: [w, 0, 0, h, x, y],
+  size: [w, h],
 });
+
+/** A plain piece with a polygon outline; the block square maps to its bounding box. */
+export function polySlot(id: string, pts: [number, number][]): Slot {
+  const xs = pts.map((p) => p[0]);
+  const ys = pts.map((p) => p[1]);
+  const [x0, y0] = [Math.min(...xs), Math.min(...ys)];
+  const [w, h] = [Math.max(...xs) - x0, Math.max(...ys) - y0];
+  const outline: PathCommand[] = [
+    ['M', ...pts[0]!],
+    ...pts.slice(1).map((p): PathCommand => ['L', ...p]),
+    ['Z'],
+  ];
+  return {
+    id,
+    kind: kindOf(id),
+    shape: 'piece',
+    turns: 360,
+    alt: digitParity(id),
+    outline,
+    transform: [w, 0, 0, h, x0, y0],
+    size: [w, h],
+  };
+}
 
 export function generateSlots(layout: Layout, borders: Border[]): Generated {
   const unsupported: string[] = [];
   let slots: Slot[] = [];
   let center: Bounds = [0, 0, 0, 0];
-  if (layout.style === 'horizontal') ({ slots, center } = horizontalSlots(layout));
-  else unsupported.push(`layout ${layout.style}`);
+  if (layout.style === 'horizontal') {
+    const h = horizontal(layout);
+    slots = tile(h.tiling);
+    center = h.center;
+  } else unsupported.push(`layout ${layout.style}`);
 
   const b = borderSlots(borders, center);
   unsupported.push(...b.unsupported);
-  return { slots: [...slots, ...b.slots], center, bounds: b.bounds, unsupported };
+  const [x0, y0, x1, y1] = b.bounds;
+  return {
+    slots: [...slots, ...b.slots],
+    center,
+    bounds: b.bounds,
+    unsupported,
+    edge: rectPath(x0, y0, x1 - x0, y1 - y0),
+    trim: false,
+  };
 }
 
 export interface Reconciled {

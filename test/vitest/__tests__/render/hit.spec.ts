@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { addStarterContent } from '@/content/starter';
-import { generateSlots } from '@/model/layout/slots';
+import { generateSlots, type Generated, type Slot } from '@/model/layout/slots';
 import { createProject } from '@/model/new-project';
 import type { Quilt } from '@/model/schema/quilt';
 import { apply, invert, mul, orient } from '@/render/affine';
@@ -65,5 +65,34 @@ describe('hit-testing', () => {
     expect(hitTest(blocks, q0, g, [21, 1])?.patchId).toBe(patchContaining([0.9, 0.1]));
     // Rotated 90° clockwise: the top-right of the space shows the block's top-left.
     expect(hitTest(blocks, quilt(90), g, [21, 1])?.patchId).toBe(patchContaining([0.1, 0.1]));
+  });
+});
+
+describe('hit-testing curved outlines', () => {
+  // Unit square whose right edge bulges out as a half-circle (clockwise on screen: negative sweep).
+  const slot: Slot = {
+    id: 'b:r1c1',
+    kind: 'block',
+    shape: 'piece',
+    turns: 360,
+    alt: 0,
+    outline: [['M', 0, 0], ['L', 1, 0], ['A', 1, 1, -180], ['L', 0, 1], ['Z']],
+    transform: [1, 0, 0, 1, 0, 0],
+    size: [1, 1],
+  };
+  const g: Generated = {
+    slots: [slot],
+    center: [0, 0, 1, 1],
+    bounds: [0, 0, 1.5, 1],
+    unsupported: [],
+    edge: slot.outline,
+    trim: false,
+  };
+  const q = { layers: [{ slots: {} }] } as unknown as Quilt;
+
+  it('hits inside the bulge and misses outside it', () => {
+    expect(hitTest(new Map(), q, g, [1.3, 0.5])).toEqual({ slotId: 'b:r1c1' });
+    expect(hitTest(new Map(), q, g, [1.3, 0.05])).toBeNull();
+    expect(hitTest(new Map(), q, g, [0.5, 0.5])).toEqual({ slotId: 'b:r1c1' });
   });
 });

@@ -791,7 +791,7 @@ const view = computed<View | undefined>(() => {
     const g = generateSlots(quilt.layout, quilt.borders);
     const slot = g.slots.find((s) => quilt.layers[0].slots[s.id]?.block === block.id);
     if (slot) {
-      size = [slot.transform[0], slot.transform[3]];
+      size = slot.size;
       keyColoring = resolveColoring(
         quilt.colorings[quilt.layers[0].slots[slot.id]!.coloring],
         block,
@@ -1108,8 +1108,7 @@ const logical = computed<Sheet[]>(() => {
                   fstep,
                 ),
                 binding: binding(
-                  x1 - x0,
-                  y1 - y0,
+                  2 * (x1 - x0 + (y1 - y0)),
                   prefs.value.bindingWidth[units.value],
                   BINDING_EXTRA[units.value],
                   c.opt.usable,
@@ -1177,7 +1176,7 @@ function quiltBlocks() {
     if (!content || !block || seen.has(block.id) || block.notecard.tags?.includes('system'))
       return [];
     seen.add(block.id);
-    const size: [number, number] = [slot.transform[0], slot.transform[3]];
+    const size = slot.size;
     return [
       {
         quilt,

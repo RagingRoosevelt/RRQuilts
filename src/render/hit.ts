@@ -19,8 +19,13 @@ export function blockPolygons(block: Block) {
   return p;
 }
 
-const slotPoly = (s: Slot): Pt[] =>
-  s.outline.flatMap((c): Pt[] => (c[0] === 'M' || c[0] === 'L' ? [[c[1], c[2]]] : []));
+const slotPolys = new WeakMap<Slot, Pt[]>();
+/** Flattened outline (arcs included), cached per slot. */
+const slotPoly = (s: Slot): Pt[] => {
+  let p = slotPolys.get(s);
+  if (!p) slotPolys.set(s, (p = pathPolygon(s.outline, [1, 1])));
+  return p;
+};
 
 export interface Hit {
   slotId: string;

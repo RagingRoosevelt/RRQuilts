@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { addStarterContent } from '@/content/starter';
 import { applyTool, type ToolState } from '@/editor/actions';
+import type { Space } from '@/editor/scope';
 import { allPatches } from '@/model/blocks/patches';
 import { paint, resolveColoring } from '@/model/coloring';
 import { produce } from 'immer';
@@ -39,15 +40,12 @@ function setup() {
       ],
     },
   };
-  const ids = generateSlots(
-    doc.project.quilts[0]!.layout,
-    doc.project.quilts[0]!.borders,
-  ).slots.map((s) => s.id);
+  const ids = generateSlots(doc.project.quilts[0]!.layout, doc.project.quilts[0]!.borders).slots;
   const byName = (n: string) => doc.project.blocks.find((b) => b.notecard.name === n)!;
   const color = (n: string) => doc.project.palette.colors.find((c) => c.notecard.name === n)!.id;
   return { doc, ids, byName, color };
 }
-const run = (doc: RrqDoc, ids: string[], slotId: string, s: ToolState, patchId?: string) =>
+const run = (doc: RrqDoc, ids: readonly Space[], slotId: string, s: ToolState, patchId?: string) =>
   applyTool(doc, 'q', ids, { slotId, ...(patchId ? { patchId } : {}) }, s);
 const q = (doc: RrqDoc) => doc.project.quilts[0]!;
 
@@ -128,7 +126,7 @@ describe('editor actions', () => {
       block: null,
       color: gold,
     }).doc!;
-    const sashes = ids.filter((id) => id.startsWith('sash:'));
+    const sashes = ids.map((x) => x.id).filter((id) => id.startsWith('sash:'));
     for (const s of sashes) {
       const c = q(d).layers[0].slots[s]!;
       expect(c.block).toBe('plain');
@@ -196,10 +194,7 @@ describe('editor actions', () => {
         ],
       },
     };
-    const ids = generateSlots(
-      big.project.quilts[0]!.layout,
-      big.project.quilts[0]!.borders,
-    ).slots.map((s) => s.id);
+    const ids = generateSlots(big.project.quilts[0]!.layout, big.project.quilts[0]!.borders).slots;
     const star = byName('Ohio Star');
     const set = () =>
       run(big, ids, 'b:r1c1', { tool: 'set', scope: 'all', block: star.id, color: null }).doc!;

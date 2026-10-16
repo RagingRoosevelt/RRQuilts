@@ -72,13 +72,15 @@ export function quiltPieces(doc: RrqDoc, quilt: Quilt, blockId?: string): Piece[
       const l = Math.hypot(...v) || 1;
       return [v[0] / l, v[1] / l];
     };
-    // A plain piece is its slot's shape (mitered border sides are trapezoids, not stretched squares).
+    // A plain piece is its slot's shape (mitered border sides are trapezoids, not stretched squares);
+    // a floating setting piece is cut as its larger `cut` shape and trimmed after piecing.
     const slotPoly =
       block.id === PLAIN_BLOCK &&
-      simplify(flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3), 1e-4);
+      simplify(flattenLoop(pathToSegs(slot.cut ?? slot.outline, [1, 1]), 1e-3), 1e-4);
     return blockPieces(block, block.size, coloring).map((piece) => ({
       ...piece,
       poly: slotPoly || piece.poly.map(at),
+      curved: slotPoly ? isCurved(slot.cut ?? slot.outline) : piece.curved,
       marks: piece.marks.map((m) => ({ p: at(m.p), n: dir(m.n) })),
     }));
   });
