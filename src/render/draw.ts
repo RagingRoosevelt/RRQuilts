@@ -29,6 +29,9 @@ export interface DrawOptions {
   selected?: Set<string>;
   /** Visual theme: patch outline and empty-space colors. */
   dark: boolean;
+  /** Draw the quilt's reference overlay when it's switched on (the editor, a Details download);
+   *  thumbnails and list downloads leave it out. */
+  target?: boolean;
 }
 
 const slotPaths = new WeakMap<Slot, Path2D>();
@@ -168,7 +171,7 @@ export function drawQuilt(
     ctx.stroke(slotPath(slot));
   }
   if (o.labels) drawLabels(ctx, quilt, generated, blocks, base, o.dpr);
-  if (quilt.target?.visible) drawTarget(ctx, quilt.target, generated.bounds, px);
+  if (o.target && quilt.target?.visible) drawTarget(ctx, quilt.target, generated.bounds, px);
 }
 
 /** A target size (spec 006 FR-001a): a see-through, dashed outline centered on the quilt, with a

@@ -36,7 +36,8 @@
     </q-select>
 
     <div v-if="garment" class="q-mt-md column" style="gap: 8px">
-      <div class="row no-wrap" style="gap: 8px">
+      <!-- Fit and piece side by side where there's room, else the piece on its own line. -->
+      <div class="row" style="gap: 8px">
         <q-btn-toggle
           :model-value="modelValue.fit ?? 'women'"
           no-caps
@@ -51,7 +52,7 @@
         />
         <q-btn-toggle
           :model-value="modelValue.piece ?? 'front'"
-          class="col"
+          style="flex: 1 1 210px"
           spread
           no-caps
           unelevated

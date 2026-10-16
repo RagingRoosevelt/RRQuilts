@@ -65,6 +65,7 @@ const vp = useViewport({
     ctx.fillStyle = $q.dark.isActive ? '#3c3c3c' : '#9e9e9e'; // neutral gray (spec 004 FR-015)
     ctx.fillRect(0, 0, c.width, c.height);
     drawQuilt(ctx, props.doc, props.quilt, props.generated, {
+      target: true,
       dpr,
       view,
       outlines: props.outlines,

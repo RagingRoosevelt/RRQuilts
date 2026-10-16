@@ -128,6 +128,13 @@
       @blur="(e: Event) => set('notes', (e.target as HTMLInputElement).value, true)"
     />
 
+    <div v-if="quilt" class="row items-center" style="gap: 8px">
+      <q-btn outline no-caps icon="download" label="Download image" @click="downloadImage" />
+      <div v-if="quilt.target?.visible" class="text-caption text-grey-7 col">
+        With the reference overlay (it's enabled in Layout).
+      </div>
+    </div>
+
     <template v-if="credits.length">
       <div class="text-subtitle2 q-mt-sm">Based on</div>
       <q-list dense bordered separator class="rounded-borders">
@@ -166,6 +173,7 @@
 </template>
 
 <script setup lang="ts">
+import { saveQuiltImage } from '@/render/save-image';
 import { useLibraryStore } from '@/stores/library';
 // Details tab (spec 009): title, notes, author, license, and who to credit — for the project, a
 // quilt, or a block. Each field is its own coalesced undo step.
@@ -220,6 +228,12 @@ const item = computed(() => {
   );
 });
 
+/** The quilt (Details of a quilt): its picture can be downloaded. */
+const quilt = computed(() =>
+  props.kind === 'quilt' && target.value && 'layout' in target.value ? target.value : undefined,
+);
+/** A PNG of the quilt; the reference overlay only when it's switched on in Layout. */
+const downloadImage = () => quilt.value && saveQuiltImage(project.doc!, quilt.value, true);
 const credits = computed(() => (target.value ? priorCredits(target.value) : []));
 const others = computed(() =>
   props.kind === 'quilt' && project.doc && target.value && 'layout' in target.value

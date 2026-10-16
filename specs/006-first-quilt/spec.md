@@ -229,7 +229,7 @@ zoom, drag-pan, and Fit.
   (and mattress rectangle) in project units, so the outline still draws if the size lists change;
   unit conversion converts it. Older quilts have none. The Layout tab's **Reference overlay** section (Layout and Reference overlay are its two sections; each layout's settings are grouped under divider lines with the group's name set into them, as on the wizard's Size page)
   adds, changes, shows or hides (Show), fades (an **Opacity** slider, 10 to 100%, saved as the target's optional `opacity`), or removes (None) it, with the same controls as the wizard;
-  the editor draws it centered on the quilt, and Fit includes it. Settings › Quilt and block design › Reference overlay
+  the editor draws it centered on the quilt, and Fit includes it. Quilt thumbnails and the project quilt list's image download leave it out; the quilt editor's Details tab has **Download image**, which includes it only when it's enabled in Layout. Settings › Quilt and block design › Reference overlay
   (owner, 2026-10-16) holds the size lists choice (Auto by units, US, European) and the quilter's
   own top, pants, and bed (setting `overlayDefaults`, lengths in inches), where those targets start;
   each is unset until set there or first used in the wizard (the wizard saves it when a quilt is

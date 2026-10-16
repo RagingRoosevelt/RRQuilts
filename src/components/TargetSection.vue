@@ -23,7 +23,7 @@
     <div v-if="target" class="text-caption text-grey-8">
       {{ target.label }}, {{ size }} {{ units }}
     </div>
-    <div v-if="target" class="row items-center no-wrap q-px-sm" style="gap: 12px">
+    <div v-if="target" class="row items-center no-wrap q-pl-sm q-pr-md" style="gap: 12px">
       <div class="text-caption">Opacity</div>
       <q-slider
         class="col"
