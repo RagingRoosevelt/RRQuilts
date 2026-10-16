@@ -237,7 +237,7 @@
             </SettingsCard>
           </div>
         </q-expansion-item>
-        <q-expansion-item default-opened label="Fabrics" icon="texture">
+        <q-expansion-item default-opened label="Fabrics" icon="attachment">
           <div class="q-pa-md column" style="gap: 16px">
             <SettingsCard label="Fabric images">
               <q-option-group
