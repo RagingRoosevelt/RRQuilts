@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-15
 
-**Status**: Draft
+**Status**: Implemented (2026-10-15)
 
 **Input**: User description: "Shared layout engine (spec 001 FR-029c). One engine generates every quilt
 layout: a repeating cell of block spaces and sashing (each space with its own shape and turn),

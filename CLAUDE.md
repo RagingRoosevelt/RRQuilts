@@ -102,15 +102,19 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   `source` links one to a My library palette (`base` = per-item hashes at the last sync;
   `resolveSync` decides each difference's direction, conflicts go to the user)
 - `coloring.ts` `paint` — copy-on-write quilt colorings (this / allIdentical / alternate)
-- `layout/` — slots per `specs/003-project-format/contracts/slot-ids.md`; add a layout style by
-  writing a generator and adding its id grammar there; `reconcile`/`applyLayout` on changes
+- `layout/` — one engine: `engine.ts` `tile(Tiling)` = bands of a repeating cell stepped by a, b, one
+  affine `map`, `merges` (triangle grids), `clip` to the quilt (`clip.ts`, curved outlines too);
+  `presets.ts` (`horizontal`, `onPoint`) return a `Tiling`; `slots.ts` `Slot` has kind/shape/turns/
+  alt/size/cut, `Generated` has edge/trim; `reconcile`/`applyLayout`/`convertLayout` on changes. Add
+  a style = a preset + its id grammar in `specs/003-project-format/contracts/slot-ids.md`; test-only
+  presets (`__tests__/model/layout-presets.ts`) prove the planned ones
 - Fixture with every entity: `test/fixtures/everything.rrq`
 
 ## Editor (spec 006)
 
 - `src/render/` — Canvas 2D: `paths.ts` cached `Path2D` per block (design units, true arcs),
   `draw.ts` quilt drawing + `fitView`, `hit.ts` tap → slot/patch (model polygons, testable),
-  `affine.ts`/`placement.ts` transforms, `thumbnail.ts` cached data URLs
+  `affine.ts` (re-exports `model/geometry/affine.ts`)/`placement.ts` transforms, `thumbnail.ts` cached data URLs
 - `src/editor/` — `actions.ts` (pure: tap + tool → new doc), `scope.ts` (This/All/Alternate),
   `undo.ts` (Immer patch history), `color.ts`/`colors.ts`
 - `src/stores/editor.ts` — session tool/mode/scope/selection/view state

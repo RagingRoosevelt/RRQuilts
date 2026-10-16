@@ -11,13 +11,38 @@ hide the seam lines and the block names, and the bar under the quilt reports its
 
 ## Layout
 
-1. Open the **Layout** tab. **Style** is **Horizontal** (blocks in rows). Other styles are listed as
-   coming soon.
+1. Open the **Layout** tab. **Style** is **Horizontal** (blocks in rows) or **On-Point** (blocks
+   turned 45°, see below). More styles are coming soon.
 2. Set **Columns** and **Rows** (1 to 100).
 3. Set the **Finished block size** (**Width** and **Height**). Switch on **Keep width and height
    equal** to keep blocks square.
 4. Set the **Sashing** (the strips between blocks) the same way. 0 means none. **Sashing around the
    outside** adds strips around the edge too. Where sashes cross are cornerstones.
+
+## On-point layouts
+
+Choose **On-Point** as the **Style** to turn the blocks 45° so they sit as diamonds. A second set of
+blocks fills the spaces between them, and setting pieces finish the edge.
+
+1. **Blocks across** and **Blocks down** count the main blocks. Between them the layout adds a
+   second set of blocks, so a 3 by 3 layout also holds 2 by 2 in between.
+2. **Finished block size** is the finished side of a block. The width of a block on point, corner
+   to corner, is shown under it. It is the side times about 1.41.
+3. **Sashing width** frames every block, with cornerstones where the strips cross. Use 0 for none.
+   At the quilt's corners, choose **Corner triangle** for one triangle in each corner, or **Seam**
+   to split each corner in two, continuing the line of the side triangles.
+4. **Edge** decides what happens where the diamonds meet the edge of the quilt.
+   - **Exact** puts the block points right on the edge, with setting triangles in the gaps.
+   - **Floating** cuts the setting triangles larger, so the blocks float inside the edge. Trim the
+     quilt top to its final size after piecing. **Float** sets how much extra the triangles get.
+   - **Trimmed blocks** uses partial blocks along the edge. They are cut by the edge, but they are
+     cut and counted as whole blocks.
+   - **No fill** leaves the zigzag edge as it is, and the binding follows it. Borders are set aside
+     until you choose another finish.
+5. The Print tab notes when the quilt top needs trimming.
+
+Switching between **Horizontal** and **On-Point** keeps the blocks in the main grid. Blocks that
+only exist in one style are listed in a warning before they are removed.
 
 ## Borders
 

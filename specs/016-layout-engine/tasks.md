@@ -202,21 +202,21 @@ pieces, size shown; place/color/turn/undo/save/reopen work.
 - [X] T040 (opus) Checks for every preset: unique ids, area sum = clip area (no gaps or overlaps), hit test at
   each space's interior point finds that space, `drawQuilt` runs on a stub 2D context, plain pieces
   produce templates (arcs kept) in `test/vitest/__tests__/model/layout-presets.spec.ts`
-- [ ] T041 (sonnet) Performance check: 100 × 100 On-Point generates under the budget used by
+- [X] T041 (sonnet) Performance check: 100 × 100 On-Point generates under the budget used by
   `test/vitest/__tests__/model/perf.spec.ts`, added there
 
 ---
 
 ## Phase 8: Polish & cross-cutting
 
-- [ ] T042 (sonnet) [P] Copy the On-Point grammar into `specs/003-project-format/contracts/slot-ids.md`
-- [ ] T043 (sonnet) [P] Help: On-Point and edge finishes in `src/help/guides/designing-a-quilt.md` (help docs
+- [X] T042 (sonnet) [P] Copy the On-Point grammar into `specs/003-project-format/contracts/slot-ids.md`
+- [X] T043 (sonnet) [P] Help: On-Point and edge finishes in `src/help/guides/designing-a-quilt.md` (help docs
   style; link checks green)
-- [ ] T044 (sonnet) [P] CLAUDE.md layout section: engine, presets, slot fields, how to add a style as a preset
+- [X] T044 (sonnet) [P] CLAUDE.md layout section: engine, presets, slot fields, how to add a style as a preset
   in `CLAUDE.md`
-- [ ] T045 (sonnet) [P] Tracker and spec 001 status: FR-029c, FR-022, FR-029e (On-Point part) done in
+- [X] T045 (sonnet) [P] Tracker and spec 001 status: FR-029c, FR-022, FR-029e (On-Point part) done in
   `/home/theodore/Obsidian/NotesVault/Projects/RRQuilts_todo.md`; spec 016 status Implemented
-- [ ] T046 (sonnet) Run quickstart.md end to end (automated + manual); fix what fails; `make commit`
+- [X] T046 (sonnet) Run quickstart.md end to end (automated + manual); fix what fails; `make commit`
 
 ---
 
