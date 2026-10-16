@@ -45,7 +45,7 @@ fabrics' images, at the size chosen in **Settings › Fabrics**.
 2. Tick the checkbox beside each palette you want. Its colors and fabrics then appear in the quilt
    editor's **Colors** tray, under the library's name.
 
-Library colors are read-only. Right-click one in the tray and choose **Edit a copy…** to make your own version. If the list is empty, check **Settings › Libraries**, where **Hide library palettes from projects** hides it.
+Library colors are read-only. Right-click one in the tray and choose **Edit a copy…** to make your own version. If the list is empty, check **Settings › Project**, where **Hide library palettes from projects** hides it.
 
 ## Paint a quilt
 
