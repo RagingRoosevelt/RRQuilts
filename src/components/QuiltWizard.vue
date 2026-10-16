@@ -36,172 +36,192 @@
                 <div class="text-caption">{{ c.label }}</div>
               </button>
             </div>
-            <div v-if="isStrip" class="text-caption">
-              Set up the strips, their length and widths, on the next step.
-            </div>
-            <div v-else class="row q-col-gutter-sm">
-              <q-input
-                v-model.number="cols"
-                class="col-6"
-                dense
-                outlined
-                type="number"
-                min="1"
-                max="100"
-                :label="acrossLabel"
+            <q-select
+              v-model="target"
+              dense
+              outlined
+              label="Target size"
+              :options="targetOptions"
+              emit-value
+              map-options
+              hint="Shown as an outline over the preview, to size the quilt to"
+            />
+            <LengthInput
+              v-if="isBed"
+              v-model="drop"
+              class="q-mt-lg"
+              label="Drop over the sides and foot"
+              :units="units"
+              :min="0"
+            />
+          </q-step>
+          <q-step name="detail" :title="detailTitle" :icon="isStrip ? 'view_stream' : 'straighten'">
+            <template v-if="isStrip">
+              <q-btn-toggle
+                v-model="stripLayout.style"
+                class="q-mb-md"
+                spread
+                no-caps
+                unelevated
+                toggle-color="primary"
+                :options="[
+                  { label: 'Horizontal', value: 'horizontal-strip' },
+                  { label: 'Vertical', value: 'vertical-strip' },
+                ]"
               />
-              <q-input
-                v-model.number="rows"
-                class="col-6"
-                dense
-                outlined
-                type="number"
-                min="1"
-                max="100"
-                :label="downLabel"
-              />
-              <template v-if="style === 'variable-point'">
-                <LengthInput
-                  v-model="tile.width"
-                  class="col-12"
-                  label="Diamond width"
-                  :units="units"
-                  :min="0.25"
-                />
-                <LengthInput
-                  v-model="tile.height"
-                  class="col-12"
-                  label="Diamond height"
-                  :units="units"
-                  :min="0.25"
-                />
-                <div class="col-12 text-caption text-grey-7">
-                  Measured through the diamond, point to point.
-                </div>
-              </template>
-              <LengthInput
-                v-else-if="style === 'baby-blocks'"
-                v-model="tile.dside"
-                class="col-12"
-                label="Diamond side"
+              <StripsInspector
+                :layout="stripLayout"
                 :units="units"
-                :min="0.25"
+                :readonly="false"
+                @change="(l) => (stripLayout = l as StripLayout)"
               />
-              <template v-else-if="style === 'variable-blocks'">
-                <LengthInput
-                  v-model="tile.width"
-                  class="col-12"
-                  label="Cube width"
-                  :units="units"
-                  :min="0.25"
-                />
-                <LengthInput
-                  v-model="tile.top"
-                  class="col-6"
-                  label="Top height"
-                  :units="units"
-                  :min="0.25"
-                />
-                <LengthInput
-                  v-model="tile.side"
-                  class="col-6"
-                  label="Side height"
-                  :units="units"
-                  :min="0.25"
+            </template>
+            <template v-else>
+              <template v-if="style === 'one-patch'">
+                <div class="styles q-mb-md" role="radiogroup" aria-label="Patch shape">
+                  <button
+                    v-for="c in shapeCards"
+                    :key="c.value"
+                    type="button"
+                    role="radio"
+                    class="style-card"
+                    :class="{ on: tile.shape === c.value }"
+                    :aria-checked="tile.shape === c.value"
+                    @click="tile.shape = c.value"
+                  >
+                    <svg :viewBox="c.picture.box" class="preview-art">
+                      <path
+                        v-for="(p, i) in c.picture.paths"
+                        :key="i"
+                        :d="p.d"
+                        :class="p.kind"
+                        vector-effect="non-scaling-stroke"
+                      />
+                    </svg>
+                    <div class="text-caption">{{ c.label }}</div>
+                  </button>
+                </div>
+                <q-btn-toggle
+                  v-if="!STRAIGHT.includes(tile.shape)"
+                  class="q-mb-md"
+                  v-model="tile.edge"
+                  spread
+                  no-caps
+                  unelevated
+                  toggle-color="primary"
+                  :options="[
+                    { label: 'Trimmed straight', value: 'trim' },
+                    { label: 'Whole patches', value: 'none' },
+                  ]"
                 />
               </template>
-              <template v-else-if="style === 'one-patch'">
-                <template v-if="twoSizes">
+              <div class="row q-col-gutter-sm">
+                <q-input
+                  v-model.number="cols"
+                  class="col-6"
+                  dense
+                  outlined
+                  type="number"
+                  min="1"
+                  max="100"
+                  :label="acrossLabel"
+                />
+                <q-input
+                  v-model.number="rows"
+                  class="col-6"
+                  dense
+                  outlined
+                  type="number"
+                  min="1"
+                  max="100"
+                  :label="downLabel"
+                />
+                <template v-if="style === 'variable-point'">
                   <LengthInput
                     v-model="tile.width"
-                    class="col-6"
-                    :label="tile.shape === 'tumblers' ? 'Bottom width' : 'Width'"
+                    class="col-12"
+                    label="Diamond width"
                     :units="units"
                     :min="0.25"
                   />
                   <LengthInput
                     v-model="tile.height"
+                    class="col-12"
+                    label="Diamond height"
+                    :units="units"
+                    :min="0.25"
+                  />
+                  <div class="col-12 text-caption text-grey-7">
+                    Measured through the diamond, point to point.
+                  </div>
+                </template>
+                <LengthInput
+                  v-else-if="style === 'baby-blocks'"
+                  v-model="tile.dside"
+                  class="col-12"
+                  label="Diamond side"
+                  :units="units"
+                  :min="0.25"
+                />
+                <template v-else-if="style === 'variable-blocks'">
+                  <LengthInput
+                    v-model="tile.width"
+                    class="col-12"
+                    label="Cube width"
+                    :units="units"
+                    :min="0.25"
+                  />
+                  <LengthInput
+                    v-model="tile.top"
                     class="col-6"
-                    label="Height"
+                    label="Top height"
+                    :units="units"
+                    :min="0.25"
+                  />
+                  <LengthInput
+                    v-model="tile.side"
+                    class="col-6"
+                    label="Side height"
+                    :units="units"
+                    :min="0.25"
+                  />
+                </template>
+                <template v-else-if="style === 'one-patch'">
+                  <template v-if="twoSizes">
+                    <LengthInput
+                      v-model="tile.width"
+                      class="col-6"
+                      :label="tile.shape === 'tumblers' ? 'Bottom width' : 'Width'"
+                      :units="units"
+                      :min="0.25"
+                    />
+                    <LengthInput
+                      v-model="tile.height"
+                      class="col-6"
+                      label="Height"
+                      :units="units"
+                      :min="0.25"
+                    />
+                  </template>
+                  <LengthInput
+                    v-else
+                    v-model="tile.width"
+                    class="col-12"
+                    :label="oneSizeLabel"
                     :units="units"
                     :min="0.25"
                   />
                 </template>
                 <LengthInput
                   v-else
-                  v-model="tile.width"
+                  v-model="blockSize"
                   class="col-12"
-                  :label="oneSizeLabel"
+                  label="Finished block size"
                   :units="units"
-                  :min="0.25"
+                  :min="0.5"
                 />
-              </template>
-              <LengthInput
-                v-else
-                v-model="blockSize"
-                class="col-12"
-                label="Finished block size"
-                :units="units"
-                :min="0.5"
-              />
-            </div>
-          </q-step>
-          <q-step v-if="isStrip" name="strips" title="Strips" icon="view_stream">
-            <q-btn-toggle
-              v-model="stripLayout.style"
-              class="q-mb-md"
-              spread
-              no-caps
-              unelevated
-              toggle-color="primary"
-              :options="[
-                { label: 'Horizontal', value: 'horizontal-strip' },
-                { label: 'Vertical', value: 'vertical-strip' },
-              ]"
-            />
-            <StripsInspector
-              :layout="stripLayout"
-              :units="units"
-              :readonly="false"
-              @change="(l) => (stripLayout = l as StripLayout)"
-            />
-          </q-step>
-          <q-step v-if="style === 'one-patch'" name="shape" title="Shape" icon="category">
-            <div class="styles q-mb-md" role="radiogroup" aria-label="Patch shape">
-              <button
-                v-for="c in shapeCards"
-                :key="c.value"
-                type="button"
-                role="radio"
-                class="style-card"
-                :class="{ on: tile.shape === c.value }"
-                :aria-checked="tile.shape === c.value"
-                @click="tile.shape = c.value"
-              >
-                <svg :viewBox="c.picture.box" class="preview-art">
-                  <path
-                    v-for="(p, i) in c.picture.paths"
-                    :key="i"
-                    :d="p.d"
-                    :class="p.kind"
-                    vector-effect="non-scaling-stroke"
-                  />
-                </svg>
-                <div class="text-caption">{{ c.label }}</div>
-              </button>
-            </div>
-            <q-btn-toggle
-              v-if="!STRAIGHT.includes(tile.shape)"
-              v-model="tile.edge"
-              spread
-              no-caps
-              unelevated
-              toggle-color="primary"
-              :options="[
-                { label: 'Trimmed straight', value: 'trim' },
-                { label: 'Whole patches', value: 'none' },
-              ]"
-            />
+              </div>
+            </template>
           </q-step>
           <q-step name="sashing" title="Sashing" icon="view_comfy">
             <div v-if="isStrip" class="text-caption">
@@ -254,6 +274,24 @@
               :class="p.kind"
               vector-effect="non-scaling-stroke"
             />
+            <rect
+              v-if="preview.target"
+              class="target"
+              :x="preview.target.x"
+              :y="preview.target.y"
+              :width="preview.target.w"
+              :height="preview.target.h"
+              vector-effect="non-scaling-stroke"
+            />
+            <rect
+              v-if="preview.core"
+              class="core"
+              :x="preview.core.x"
+              :y="preview.core.y"
+              :width="preview.core.w"
+              :height="preview.core.h"
+              vector-effect="non-scaling-stroke"
+            />
           </svg>
           <div v-else class="text-caption text-grey-7">Too many spaces to preview.</div>
         </div>
@@ -291,15 +329,54 @@ const emit = defineEmits<{ create: [layout: Layout, borders: Border[]] }>();
 
 const open = ref(false);
 const step = ref('blocks');
-// Styles that need it get a customization step before Sashing (spec 017 FR-020).
-const steps = computed(() => [
-  'blocks',
-  ...(isStrip.value ? ['strips'] : []),
-  ...(style.value === 'one-patch' ? ['shape'] : []),
-  'sashing',
-  'borders',
+// Layout and target size first; the chosen layout's own settings next (spec 006 FR-001a).
+const steps = ['blocks', 'detail', 'sashing', 'borders'];
+const next = computed(() => steps[steps.indexOf(step.value) + 1]);
+const detailTitle = computed(() =>
+  isStrip.value ? 'Strips' : style.value === 'one-patch' ? 'Shape and size' : 'Size',
+);
+/**
+ * Target sizes (width × height, inches then cm). Beds are mattress tops, with a default drop over
+ * the sides and foot; the drop can be changed.
+ */
+const TARGETS: {
+  name: string;
+  in: [number, number];
+  cm: [number, number];
+  drop?: [number, number];
+}[] = [
+  { name: 'Placemat', in: [18, 13], cm: [46, 33] },
+  { name: 'Table runner', in: [72, 14], cm: [183, 36] },
+  { name: 'Wall hanging', in: [36, 36], cm: [91, 91] },
+  { name: 'Throw', in: [50, 65], cm: [127, 165] },
+  { name: 'Crib', in: [28, 52], cm: [71, 132], drop: [0, 0] },
+  { name: 'Twin', in: [39, 75], cm: [99, 191], drop: [12, 30] },
+  { name: 'Double (Full)', in: [54, 75], cm: [137, 191], drop: [12, 30] },
+  { name: 'Queen', in: [60, 80], cm: [152, 203], drop: [14, 35] },
+  { name: 'King', in: [76, 80], cm: [193, 203], drop: [14, 35] },
+];
+const target = ref<string | null>(null);
+const drop = ref(0);
+const targetOf = computed(() => TARGETS.find((t) => t.name === target.value));
+const isBed = computed(() => !!targetOf.value?.drop);
+watch(target, () => {
+  const d = targetOf.value?.drop;
+  drop.value = d ? d[props.units === 'cm' ? 1 : 0] : 0;
+});
+const targetSize = computed(() => {
+  const t = targetOf.value;
+  return t ? (props.units === 'cm' ? t.cm : t.in) : null;
+});
+const targetOptions = computed(() => [
+  { label: 'None', value: null },
+  ...TARGETS.map((t) => {
+    const [w, h] = props.units === 'cm' ? t.cm : t.in;
+    return {
+      label: `${t.name}, ${w} × ${h} ${props.units}${t.drop ? ' mattress' : ''}`,
+      value: t.name,
+    };
+  }),
 ]);
-const next = computed(() => steps.value[steps.value.indexOf(step.value) + 1]);
 const style = ref<Style>('straight-set');
 const cols = ref(5);
 const rows = ref(5);
@@ -439,7 +516,21 @@ function picture(l: Layout, b: Border[]) {
     })),
   };
 }
-const preview = computed(() => picture(layout.value, borders.value));
+const preview = computed(() => {
+  const pic = picture(layout.value, borders.value);
+  const t = targetSize.value;
+  if (!pic || !t) return pic && { ...pic, target: null, core: null };
+  // The target (with any drop over the sides and foot) is centered on the quilt; the mattress top
+  // sits at its head. The picture grows to show both.
+  const dr = isBed.value ? Math.max(0, drop.value || 0) : 0;
+  const [x0, y0, x1, y1] = generated.value.bounds;
+  const [w, h] = [t[0] + 2 * dr, t[1] + dr];
+  const r = { x: (x0 + x1) / 2 - w / 2, y: (y0 + y1) / 2 - h / 2, w, h };
+  const core = dr > 0 ? { x: r.x + dr, y: r.y, w: t[0], h: t[1] } : null;
+  const [a, b] = [Math.min(x0, r.x), Math.min(y0, r.y)];
+  const [c, d] = [Math.max(x1, r.x + r.w), Math.max(y1, r.y + r.h)];
+  return { ...pic, box: `${a} ${b} ${c - a} ${d - b}`, target: r, core };
+});
 
 type Style =
   | 'straight-set'
@@ -568,7 +659,11 @@ const styleCards = STYLES.map((x) => ({ ...x, picture: picture(x.sample, [])! })
 
 const summary = computed(() => {
   const [x0, y0, x1, y1] = generated.value.bounds;
-  return `Finished ${+(x1 - x0).toFixed(2)} × ${+(y1 - y0).toFixed(2)} ${props.units}`;
+  const done = `Finished ${+(x1 - x0).toFixed(2)} × ${+(y1 - y0).toFixed(2)} ${props.units}`;
+  const t = targetSize.value;
+  if (!t) return done;
+  const dr = isBed.value ? Math.max(0, drop.value || 0) : 0;
+  return `${done} · ${target.value}${dr ? ' with drop' : ''} ${t[0] + 2 * dr} × ${t[1] + dr} ${props.units}`;
 });
 
 function create() {
@@ -582,6 +677,7 @@ function show() {
   const cm = props.units === 'cm';
   step.value = 'blocks';
   style.value = 'straight-set';
+  target.value = null;
   cols.value = rows.value = 5;
   blockSize.value = cm ? 25 : 10;
   sash.value = 0;
@@ -676,6 +772,19 @@ defineExpose({ show });
 }
 .preview-art path.border {
   fill: #eceff1;
+}
+.preview-art rect.core {
+  fill: none;
+  stroke: var(--q-primary);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+.preview-art rect.target {
+  fill: var(--q-primary);
+  fill-opacity: 0.12;
+  stroke: var(--q-primary);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
 }
 :global(.body--dark .preview-art path) {
   stroke: #757575;

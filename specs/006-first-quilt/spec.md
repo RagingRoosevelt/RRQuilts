@@ -193,13 +193,17 @@ zoom, drag-pan, and Fit.
   sashing + sash border, borders) defaulting to 5×5 blocks of 10" (25 cm), no sashing, one 2" (5 cm)
   long-horizontal border. *Amended by spec 016 FR-013: the first step also picks the style
   (Horizontal or On-Point), and a live preview shows the quilt as choices are made.*
-- **FR-001a** *(planned, not built)*: The wizard's first page MUST pick the layout style and a target
-  size: None (default), or a named size such as Placemat, Table runner, Wall hanging, Crib, Throw,
-  Twin, Double (Full), Queen, or King (each a width × height, with inch and cm values to be agreed;
-  common bed sizes include the drop over the sides). With a size picked, the live preview MUST show
-  that size as a transparent outline over the quilt, so the quilter can match counts and sizes to
-  it. Counts, block sizes, and other layout settings move to the layout's own second page (as the
-  Strips step does for strip quilts). *Added 2026-10-16 (owner).*
+- **FR-001a**: The wizard's first page MUST pick the layout style and a target size: None (default),
+  Placemat 18 × 13, Table runner 72 × 14, Wall hanging 36 × 36, Throw 50 × 65, or a bed by its
+  mattress top: Crib 28 × 52, Twin 39 × 75, Double (Full) 54 × 75, Queen 60 × 80, King 76 × 80 (in
+  inches; cm lists its own rounded values). A bed adds a **drop** over the sides and foot (default
+  12″ / 30 cm for Twin and Double, 14″ / 35 cm for Queen and King, 0 for Crib), editable. With a
+  size picked, the live preview MUST show it as a transparent outline over the quilt, centered on
+  it: the outer outline is the size with its drop, and a fine outline inside marks the mattress top
+  at the head. The footer shows the quilt's finished size and the target's. Counts, block sizes,
+  and other layout settings are on the second page ("Size"; "Shape and size" for One Patch,
+  "Strips" for strip quilts). The target isn't saved with the quilt. *Added and built 2026-10-16
+  (owner).*
 - **FR-002**: ~~New projects MUST start with the starter blocks and colors~~ — superseded by spec 008:
   starter content is a built-in library; projects embed library items only while used.
 - **FR-003**: The sketchbook MUST show tabbed card grids with thumbnails rendered from the model;
