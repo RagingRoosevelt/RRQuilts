@@ -118,7 +118,7 @@ export function generateSlots(
   let slots: Slot[] = [];
   let center: Bounds = [0, 0, 0, 0];
   let trim = false;
-  if (layout.style === 'horizontal') {
+  if (layout.style === 'straight-set') {
     const h = horizontal(layout);
     slots = tile(h.tiling);
     center = h.center;
@@ -209,7 +209,7 @@ export function applyLayout(quilt: Quilt, layout: Layout, borders: Border[]): Qu
 }
 
 /** The layout in another style, keeping counts, block size, and sashing (spec 016 US4). */
-export type LayoutStyle = 'horizontal' | 'on-point' | 'horizontal-strip' | 'vertical-strip';
+export type LayoutStyle = 'straight-set' | 'on-point' | 'horizontal-strip' | 'vertical-strip';
 
 /** The layout in another style: counts, block size, and sashing carry over between Horizontal and
  *  On-Point (spec 016 US4); strips keep everything when only their direction changes. */
@@ -220,13 +220,13 @@ export function convertLayout(layout: Layout, style: LayoutStyle, units: 'in' | 
     return 'strips' in layout ? { ...layout, style } : { ...stripDefaults(k), style };
   if (style === 'on-point') {
     const d = onPointDefaults(k);
-    return layout.style === 'horizontal'
+    return layout.style === 'straight-set'
       ? { ...d, cols: layout.cols, rows: layout.rows, block: layout.block[0], sash: layout.sash[0] }
       : d;
   }
   if (layout.style === 'on-point')
     return {
-      style: 'horizontal',
+      style: 'straight-set',
       cols: layout.cols,
       rows: layout.rows,
       block: [layout.block, layout.block],
@@ -234,7 +234,7 @@ export function convertLayout(layout: Layout, style: LayoutStyle, units: 'in' | 
       sashBorder: false,
     };
   return {
-    style: 'horizontal',
+    style: 'straight-set',
     cols: 3,
     rows: 3,
     block: [12 * k, 12 * k],

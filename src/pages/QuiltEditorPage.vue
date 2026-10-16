@@ -189,7 +189,7 @@
         <LayoutInspector
           v-else-if="
             editor.mode === 'layout' &&
-            (quilt.layout.style === 'horizontal' || quilt.layout.style === 'on-point' || strips)
+            (quilt.layout.style === 'straight-set' || quilt.layout.style === 'on-point' || strips)
           "
           :key="quilt.id"
           :layout="quilt.layout"

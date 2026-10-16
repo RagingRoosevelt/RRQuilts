@@ -42,7 +42,7 @@ export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
       delete e?.graph?.step;
     }
     for (const q of p.quilts) {
-      if (q.layout.style === 'horizontal') {
+      if (q.layout.style === 'straight-set') {
         q.layout.block = scalePair(q.layout.block);
         q.layout.sash = scalePair(q.layout.sash);
       } else if (q.layout.style === 'on-point') {

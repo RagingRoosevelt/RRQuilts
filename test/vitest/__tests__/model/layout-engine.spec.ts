@@ -55,7 +55,7 @@ describe('Horizontal on the layout engine matches the old generator (SC-001)', (
             for (const sashBorder of [false, true])
               for (const borders of borderSets) {
                 const l: HorizontalLayout = {
-                  style: 'horizontal',
+                  style: 'straight-set',
                   cols,
                   rows,
                   block,

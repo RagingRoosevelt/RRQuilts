@@ -7,7 +7,7 @@ const length = Type.Number({ minimum: 0 });
 
 /** Horizontal layout: rows × cols of blocks, optional sashing and sash border. */
 export const HorizontalLayout = Type.Object({
-  style: Type.Literal('horizontal'),
+  style: Type.Literal('straight-set'),
   cols: count,
   rows: count,
   block: Size,

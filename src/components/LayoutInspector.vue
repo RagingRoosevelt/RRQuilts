@@ -7,7 +7,7 @@
       outlined
       label="Style"
       :options="[
-        { label: 'Straight Set', value: 'horizontal' },
+        { label: 'Straight Set', value: 'straight-set' },
         { label: 'On-Point', value: 'on-point' },
         { label: 'Horizontal Strip', value: 'horizontal-strip' },
         { label: 'Vertical Strip', value: 'vertical-strip' },
@@ -119,7 +119,7 @@
         Borders are set aside while the edge is unfilled. They come back with another edge.
       </div>
     </template>
-    <template v-else-if="layout.style === 'horizontal'">
+    <template v-else-if="layout.style === 'straight-set'">
       <div class="row q-col-gutter-sm">
         <q-input
           class="col-6"
@@ -248,8 +248,8 @@ const pair = (k: 'block' | 'sash') => {
   const v = (props.layout as HorizontalLayout)[k];
   return Array.isArray(v) && v[0] === v[1];
 };
-const squareBlock = ref(props.layout.style !== 'horizontal' || pair('block'));
-const squareSash = ref(props.layout.style !== 'horizontal' || pair('sash'));
+const squareBlock = ref(props.layout.style !== 'straight-set' || pair('block'));
+const squareSash = ref(props.layout.style !== 'straight-set' || pair('sash'));
 
 function setCount(key: 'cols' | 'rows', v: string | number | null) {
   const n = Math.round(Number(v));

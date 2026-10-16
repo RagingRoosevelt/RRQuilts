@@ -5,7 +5,7 @@ import { Quilt } from './quilt';
 import { Id, ItemId, Socials } from './shared';
 
 export const FORMAT = 'rrq';
-export const VERSION = 6;
+export const VERSION = 5;
 
 export const Units = Type.Union([Type.Literal('in'), Type.Literal('cm')]);
 

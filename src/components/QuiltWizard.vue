@@ -95,7 +95,7 @@
             </div>
             <LengthInput v-else v-model="sash" label="Sashing width (0 for none)" :units="units" />
             <q-toggle
-              v-if="style === 'horizontal'"
+              v-if="style === 'straight-set'"
               v-model="sashBorder"
               class="q-mt-sm"
               label="Sashing around the outside"
@@ -174,7 +174,7 @@ const steps = computed(() => [
   'borders',
 ]);
 const next = computed(() => steps.value[steps.value.indexOf(step.value) + 1]);
-const style = ref<Style>('horizontal');
+const style = ref<Style>('straight-set');
 const cols = ref(5);
 const rows = ref(5);
 const blockSize = ref(10);
@@ -198,7 +198,7 @@ const layout = computed<Layout>(() =>
           sash: sash.value,
         }
       : {
-          style: 'horizontal',
+          style: 'straight-set',
           cols: clampCount(cols.value),
           rows: clampCount(rows.value),
           block: [blockSize.value, blockSize.value],
@@ -232,7 +232,7 @@ function picture(l: Layout, b: Border[]) {
 }
 const preview = computed(() => picture(layout.value, borders.value));
 
-type Style = 'horizontal' | 'on-point' | 'strips';
+type Style = 'straight-set' | 'on-point' | 'strips';
 const sampleStrips = (style: 'horizontal-strip' | 'vertical-strip'): Layout => ({
   style,
   length: 16,
@@ -247,10 +247,10 @@ const sampleStrips = (style: 'horizontal-strip' | 'vertical-strip'): Layout => (
 /** Styles to pick from, each with a small sample. */
 const STYLES: { value: Style; label: string; sample: Layout }[] = [
   {
-    value: 'horizontal',
+    value: 'straight-set',
     label: 'Straight Set',
     sample: {
-      style: 'horizontal',
+      style: 'straight-set',
       cols: 3,
       rows: 3,
       block: [1, 1],
@@ -282,7 +282,7 @@ function create() {
 function show() {
   const cm = props.units === 'cm';
   step.value = 'blocks';
-  style.value = 'horizontal';
+  style.value = 'straight-set';
   cols.value = rows.value = 5;
   blockSize.value = cm ? 25 : 10;
   sash.value = 0;

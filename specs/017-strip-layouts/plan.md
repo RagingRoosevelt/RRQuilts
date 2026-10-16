@@ -7,23 +7,23 @@
 Strip quilts become a layout-engine preset: each strip is one band whose repeating cell is its
 style's pieces, stepped along the strip and clipped at the quilt's ends. Strips carry lasting ids, so
 content follows a strip through insert, delete, and swap. The Layout tab gets a strip list and two
-toolbar tools (Swap strips, Strip style). Project format v6.
+toolbar tools (Swap strips, Strip style). Project format v5 (shared with spec 016; both unreleased).
 
 ## Technical Context
 
 TypeScript strict, Vue 3 + Quasar, Pinia, Immer, TypeBox, Vitest; no new dependencies. Storage: `.rrq`
-v5 → v6. Performance: 24 strips × 100 units regenerate without a visible pause. Model stays
+v4 → v5 (one new version with spec 016). Performance: 24 strips × 100 units regenerate without a visible pause. Model stays
 framework-free.
 
 ## Constitution Check
 
-I–IV pass (static, offline, v6 with migration and published schema, nothing dropped silently: the
+I–IV pass (static, offline, v5 with migration and published schema, nothing dropped silently: the
 removal warning covers style changes and deletes). V: no new abstraction; the engine is reused as is.
 VI not affected. Re-checked after design: unchanged.
 
 ## Design
 
-### Data (project v6)
+### Data (project v5)
 
 `StripLayout = { style: 'horizontal-strip' | 'vertical-strip', length, strips: Strip[] }`,
 `Strip = { id, style, width, along, across }` (`id` = `newId()`, lasting; `across` used by Checker
@@ -67,12 +67,12 @@ default strips (spec Assumptions). Switching direction only changes `style`.
 ## Project Structure
 
 ```text
-src/model/schema/quilt.ts, project.ts, io.ts (v6 + migration 5), units.ts
+src/model/schema/quilt.ts, project.ts, io.ts (v5 migration 4), units.ts
 src/model/layout/presets.ts (strips preset), strips.ts (ops), slots.ts (dispatch, convertLayout)
 src/model/plain.ts (slotGroup strip:), src/editor/scope.ts (kind strip)
 src/stores/editor.ts, src/components/LayoutInspector.vue (+ StripsInspector.vue),
 src/pages/QuiltEditorPage.vue (layout tools, Escape), src/components/QuiltWizard.vue
-public/schemas/rrq.v6.json, formats.json; specs/003 slot-id contract; help; CLAUDE.md
+public/schemas/rrq.v5.json, formats.json; specs/003 slot-id contract; help; CLAUDE.md
 test/vitest/__tests__/model/layout-strips.spec.ts
 ```
 

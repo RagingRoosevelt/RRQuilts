@@ -14,7 +14,7 @@
     },
     "version": {
       "type": "number",
-      "const": 6
+      "const": 5
     },
     "app": {
       "type": "string"
@@ -4696,7 +4696,7 @@
                     "properties": {
                       "style": {
                         "type": "string",
-                        "const": "horizontal"
+                        "const": "straight-set"
                       },
                       "cols": {
                         "type": "integer",
@@ -5721,6 +5721,6 @@
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v6.json",
-  "title": "RRQuilts project (.rrq) v6"
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v5.json",
+  "title": "RRQuilts project (.rrq) v5"
 }

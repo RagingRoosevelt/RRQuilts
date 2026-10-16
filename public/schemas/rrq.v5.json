@@ -4696,7 +4696,7 @@
                     "properties": {
                       "style": {
                         "type": "string",
-                        "const": "horizontal"
+                        "const": "straight-set"
                       },
                       "cols": {
                         "type": "integer",
@@ -4827,6 +4827,84 @@
                   {
                     "type": "object",
                     "required": [
+                      "style",
+                      "length",
+                      "strips"
+                    ],
+                    "properties": {
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "horizontal-strip"
+                          },
+                          {
+                            "type": "string",
+                            "const": "vertical-strip"
+                          }
+                        ]
+                      },
+                      "length": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "strips": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "style",
+                            "width",
+                            "along",
+                            "across"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]{1,32}$"
+                            },
+                            "style": {
+                              "enum": [
+                                "plain",
+                                "blocks",
+                                "half-drop-blocks",
+                                "spaced-squares",
+                                "points-a",
+                                "points-b",
+                                "diamonds",
+                                "half-drop-diamonds",
+                                "double-diamonds",
+                                "half-drop-double-diamonds",
+                                "checker-board"
+                              ]
+                            },
+                            "width": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "along": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 100
+                            },
+                            "across": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 100
+                            },
+                            "square": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
                       "style"
                     ],
                     "properties": {
@@ -4835,8 +4913,6 @@
                           "variable-point",
                           "baby-blocks",
                           "variable-blocks",
-                          "horizontal-strip",
-                          "vertical-strip",
                           "one-patch",
                           "custom-set"
                         ]

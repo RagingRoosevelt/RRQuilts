@@ -67,7 +67,14 @@ describe('every planned layout is an engine preset (SC-004)', () => {
       it('hit-tests each space at a point inside it', () => {
         const g = generated(p.slots, box);
         const q = quiltWith(
-          { style: 'horizontal', cols: 1, rows: 1, block: [1, 1], sash: [0, 0], sashBorder: false },
+          {
+            style: 'straight-set',
+            cols: 1,
+            rows: 1,
+            block: [1, 1],
+            sash: [0, 0],
+            sashBorder: false,
+          },
           [],
         );
         for (const [i, s] of p.slots.entries()) {
@@ -93,7 +100,14 @@ describe('every planned layout is an engine preset (SC-004)', () => {
         ) as unknown as CanvasRenderingContext2D;
         const doc = ensurePlainBlock(fixture());
         const q = quiltWith(
-          { style: 'horizontal', cols: 1, rows: 1, block: [1, 1], sash: [0, 0], sashBorder: false },
+          {
+            style: 'straight-set',
+            cols: 1,
+            rows: 1,
+            block: [1, 1],
+            sash: [0, 0],
+            sashBorder: false,
+          },
           [],
         );
         drawQuilt(ctx, doc, q, generated(p.slots, box), {

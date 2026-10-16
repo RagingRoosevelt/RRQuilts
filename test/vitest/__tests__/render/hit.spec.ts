@@ -27,7 +27,7 @@ describe('hit-testing', () => {
     id: 'q',
     notecard: { name: 'q' },
     layout: {
-      style: 'horizontal',
+      style: 'straight-set',
       cols: 2,
       rows: 1,
       block: [10, 10],

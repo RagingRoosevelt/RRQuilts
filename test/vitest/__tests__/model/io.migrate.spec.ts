@@ -56,11 +56,12 @@ describe('v4 → v5 (On-Point layout)', () => {
   const withLayout = (layout: unknown, units = 'in') => {
     const f = structuredClone(fixture());
     f.project.quilts[0]!.layout = layout as never;
-    return { ...f, units };
+    return { ...f, units, version: 4 };
   };
 
-  it('opens Horizontal layouts unchanged apart from the version', async () => {
-    const r = await parseProject(JSON.stringify(fixture()));
+  it('opens Horizontal layouts as Straight Set, otherwise unchanged apart from the version', async () => {
+    const old = withLayout({ ...fixture().project.quilts[0]!.layout, style: 'horizontal' });
+    const r = await parseProject(JSON.stringify(old));
     expect(r.ok && r.doc).toEqual({ ...fixture(), version: VERSION });
   });
 

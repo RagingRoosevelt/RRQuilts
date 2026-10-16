@@ -201,7 +201,7 @@ describe('format', () => {
   it('migrates placeholder strip quilts to the default strips', () => {
     const doc = migrate({
       format: 'rrq',
-      version: 5,
+      version: 4,
       units: 'cm',
       project: { quilts: [{ layout: { style: 'vertical-strip' } }] },
     }) as { project: { quilts: { layout: StripLayout }[] } };

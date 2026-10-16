@@ -173,9 +173,10 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
 
 **Format and printing**
 
-- **FR-030**: The strip layout MUST be saved in the project; the project format version MUST rise
-  with a migration (placeholder strip styles get the default strips) and the published schema be
-  regenerated.
+- **FR-030**: The strip layout MUST be saved in the project, in project format v5 shared with spec
+  016 (one new version after the released v4, with one v4 → v5 migration: placeholder strip styles
+  get the default strips, and the Horizontal layout is stored as `straight-set`, its name in the app),
+  and the published schema regenerated. *Amended 2026-10-16 (owner).*
 - **FR-031**: Printing MUST cut plain strips as strips (joined when longer than the usable fabric
   width), pattern pieces as rotary cuts or templates, and blocks as usual; yardage includes them.
 

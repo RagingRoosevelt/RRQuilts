@@ -22,7 +22,7 @@ function setup() {
           id: 'q',
           notecard: { name: 'Q' },
           layout: {
-            style: 'horizontal',
+            style: 'straight-set',
             cols: 2,
             rows: 2,
             block: [10, 10],

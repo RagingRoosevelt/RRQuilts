@@ -33,32 +33,24 @@ export const migrations: Migrations = {
     return { ...doc, project: { ...project, palette: { ...palette, collections } } };
   },
   // v4: a project palette may record the My library palette it's synced with. Additive.
-  3: (doc) => doc, // v5 (spec 016): On-Point layouts have parameters. A placeholder `{ style: 'on-point' }` from
-  // older files gets the defaults, in the project's units.
+  3: (doc) => doc,
+  // v5 (specs 016, 017; the first new version after 0.2.0's v4): On-Point and strip layouts have
+  // parameters (placeholders from older files get the defaults, in the project's units), and the
+  // Horizontal layout is stored as `straight-set`, its name in the app.
   4: (doc) => {
     const project = isObject(doc.project) ? doc.project : undefined;
     if (!project || !Array.isArray(project.quilts)) return doc;
     const k = doc.units === 'cm' ? 2.5 : 1;
-    const quilts = project.quilts.map((q: unknown) =>
-      isObject(q) && isObject(q.layout) && q.layout.style === 'on-point' && !('cols' in q.layout)
-        ? { ...q, layout: onPointDefaults(k) }
-        : q,
-    );
-    return { ...doc, project: { ...project, quilts } };
-  },
-  // v6 (spec 017): strip quilts have strips. Placeholder strip styles get the default strips.
-  5: (doc) => {
-    const project = isObject(doc.project) ? doc.project : undefined;
-    if (!project || !Array.isArray(project.quilts)) return doc;
-    const k = doc.units === 'cm' ? 2.5 : 1;
-    const quilts = project.quilts.map((q: unknown) =>
-      isObject(q) &&
-      isObject(q.layout) &&
-      (q.layout.style === 'horizontal-strip' || q.layout.style === 'vertical-strip') &&
-      !('strips' in q.layout)
-        ? { ...q, layout: { ...stripDefaults(k), style: q.layout.style } }
-        : q,
-    );
+    const quilts = project.quilts.map((q: unknown) => {
+      if (!isObject(q) || !isObject(q.layout)) return q;
+      const style = q.layout.style;
+      if (style === 'horizontal') return { ...q, layout: { ...q.layout, style: 'straight-set' } };
+      if (style === 'on-point' && !('cols' in q.layout))
+        return { ...q, layout: onPointDefaults(k) };
+      if ((style === 'horizontal-strip' || style === 'vertical-strip') && !('strips' in q.layout))
+        return { ...q, layout: { ...stripDefaults(k), style } };
+      return q;
+    });
     return { ...doc, project: { ...project, quilts } };
   },
 };

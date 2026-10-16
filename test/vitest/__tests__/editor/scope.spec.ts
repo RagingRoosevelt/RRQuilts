@@ -8,7 +8,7 @@ import { fixture } from '../model/helpers';
 const quilt = (): Quilt => {
   const q = structuredClone(fixture().project.quilts[0]!);
   q.layout = {
-    style: 'horizontal',
+    style: 'straight-set',
     cols: 2,
     rows: 2,
     block: [5, 5],

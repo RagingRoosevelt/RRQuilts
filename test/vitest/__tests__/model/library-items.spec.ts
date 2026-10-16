@@ -28,7 +28,7 @@ async function setup() {
   };
   const quilt = createQuilt(
     'Q',
-    { style: 'horizontal', cols: 2, rows: 1, block: [10, 10], sash: [0, 0], sashBorder: false },
+    { style: 'straight-set', cols: 2, rows: 1, block: [10, 10], sash: [0, 0], sashBorder: false },
     [],
   );
   const doc0 = createProject();

@@ -5,7 +5,7 @@ import type { Border, HorizontalLayout, Quilt } from '@/model/schema/quilt';
 import { fixture } from './helpers';
 
 const layout = (cols: number, rows: number): HorizontalLayout => ({
-  style: 'horizontal',
+  style: 'straight-set',
   cols,
   rows,
   block: [9, 9],
@@ -108,8 +108,8 @@ describe('convertLayout', () => {
   });
 
   it('On-Point back to Horizontal is square with no sash border', () => {
-    expect(convertLayout({ ...d, block: 8, sash: 2 }, 'horizontal', 'in')).toMatchObject({
-      style: 'horizontal',
+    expect(convertLayout({ ...d, block: 8, sash: 2 }, 'straight-set', 'in')).toMatchObject({
+      style: 'straight-set',
       block: [8, 8],
       sash: [2, 2],
       sashBorder: false,
