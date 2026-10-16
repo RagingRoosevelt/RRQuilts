@@ -1,19 +1,19 @@
 <template>
   <!-- Layout tab: the quilt's target size outline (spec 006 FR-001a). -->
   <div class="column q-mt-lg" style="gap: 8px">
-    <FieldGroup label="Reference overlay" heading />
-    <div class="row items-center">
-      <div class="text-caption text-grey-8 col">A size to aim for, drawn over the quilt</div>
-      <q-toggle
-        v-if="target"
-        :model-value="target.visible"
-        label="Show"
-        left-label
-        dense
-        :disable="readonly"
-        @update:model-value="(v) => emit('change', { ...target!, visible: v }, '')"
-      />
-    </div>
+    <FieldGroup label="Reference overlay" heading>
+      <template v-if="target" #aside>
+        <q-toggle
+          :model-value="target.visible"
+          label="Show"
+          left-label
+          dense
+          :disable="readonly"
+          @update:model-value="(v) => emit('change', { ...target!, visible: v }, '')"
+        />
+      </template>
+    </FieldGroup>
+    <div class="text-caption text-grey-8">A size to aim for, drawn over the quilt</div>
     <TargetEditor
       :model-value="input"
       :units="units"
