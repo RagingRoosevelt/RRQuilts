@@ -6,6 +6,7 @@ import type {
   OnePatchLayout,
   OnPointLayout,
   StripLayout,
+  StripStyle,
   TumblingLayout,
   VariablePointLayout,
 } from '../schema/quilt';
@@ -409,6 +410,228 @@ function splitCorner(
   ];
 }
 
+/** Pattern styles shared by strips (spec 017) and pieced borders (spec 018). */
+export type PatternStyle =
+  StripStyle | 'big-little-diamonds' | 'half-drop-big-little-diamonds' | 'big-little-points';
+
+export interface PatternArgs {
+  style: PatternStyle;
+  /** Length along, width across, units along, units across (Checker Board). */
+  L: number;
+  w: number;
+  n: number;
+  across: number;
+  /** Where the band starts across (strips stack). */
+  y0: number;
+  kind: SlotKind;
+  /** Plain pieces' ids: `${prefix}${code}${i}`. */
+  prefix: string;
+  /** Turn the pattern over across the band (points facing the other way). */
+  flip?: boolean;
+  /** Block spaces for block styles (else their units are painted rectangles). */
+  block?: (dx: number, u: number, half: boolean) => CellPiece;
+}
+
+/**
+ * One band of a pattern in band-local coordinates: x along (0…L), y across (y0…y0 + w). Units repeat
+ * every L ÷ n; pieces past the ends are trimmed by the caller's clip.
+ */
+export function patternBands(p: PatternArgs): Band[] {
+  const { L, w, n, y0, prefix } = p;
+  const [y1, ym] = [y0 + w, y0 + w / 2];
+  const u = L / n;
+  const fy = (y: number) => (p.flip ? y0 + y1 - y : y);
+  const plain = (code: string, pts: Pt[], alt = 1): CellPiece => ({
+    kind: p.kind,
+    shape: 'piece',
+    turns: 360,
+    size: [u, w],
+    transform: IDENTITY,
+    outline: toPath(pts.map(([x, y]): Pt => [x, fy(y)])),
+    id: (i) => `${prefix}${code}${i}`,
+    alt: () => alt,
+  });
+  const along = (cell: CellPiece[], from = -1, to = n): Band => ({
+    cell,
+    a: [u, 0],
+    b: [0, 0],
+    i: [from, to],
+    j: [0, 0],
+  });
+  const rect = (x0: number, a: number, b: number, x1: number): Pt[] => [
+    [x0, a],
+    [x1, a],
+    [x1, b],
+    [x0, b],
+  ];
+  // Points along the band: bases on the far side (y1), tips on the near side (y0).
+  const points = (dx: number) =>
+    along([
+      plain(
+        'f',
+        [
+          [dx, y1],
+          [dx + u / 2, y0],
+          [dx + u, y1],
+        ],
+        0,
+      ),
+      plain('g', [
+        [dx + u / 2, y0],
+        [dx + 1.5 * u, y0],
+        [dx + u, y1],
+      ]),
+    ]);
+  const diamonds = (dx: number, t: number, b: number, row = '') => {
+    const m = (t + b) / 2;
+    return along([
+      plain(
+        `f${row}`,
+        [
+          [dx + u / 2, t],
+          [dx + u, m],
+          [dx + u / 2, b],
+          [dx, m],
+        ],
+        0,
+      ),
+      plain(`g${row}`, [
+        [dx + u / 2, t],
+        [dx + 1.5 * u, t],
+        [dx + u, m],
+      ]),
+      plain(`h${row}`, [
+        [dx + u, m],
+        [dx + 1.5 * u, b],
+        [dx + u / 2, b],
+      ]),
+    ]);
+  };
+  // A big shape (2/3 of a unit) then a little one (1/3, half as tall), and the background around.
+  const big = (2 * u) / 3;
+  const little = u / 3;
+  const bigLittleDiamonds = (dx: number) =>
+    along([
+      plain(
+        'f',
+        [
+          [dx + big / 2, y0],
+          [dx + big, ym],
+          [dx + big / 2, y1],
+          [dx, ym],
+        ],
+        0,
+      ),
+      plain(
+        'k',
+        [
+          [dx + big, ym],
+          [dx + big + little / 2, ym - w / 4],
+          [dx + u, ym],
+          [dx + big + little / 2, ym + w / 4],
+        ],
+        0,
+      ),
+      plain('g', [
+        [dx + big / 2, y0],
+        [dx + u + big / 2, y0],
+        [dx + u, ym],
+        [dx + big + little / 2, ym - w / 4],
+        [dx + big, ym],
+      ]),
+      plain('h', [
+        [dx + big, ym],
+        [dx + big + little / 2, ym + w / 4],
+        [dx + u, ym],
+        [dx + u + big / 2, y1],
+        [dx + big / 2, y1],
+      ]),
+    ]);
+  switch (p.style) {
+    case 'plain':
+      return [along([plain('p', rect(0, y0, y1, L))], 0, 0)];
+    case 'blocks':
+    case 'half-drop-blocks': {
+      const half = p.style === 'half-drop-blocks';
+      const dx = half ? -u / 2 : 0;
+      const unit = p.block?.(dx, u, half) ?? {
+        ...plain('u', rect(dx, y0, y1, dx + u)),
+        alt: (i: number) => ((i % 2) + 2) % 2,
+      };
+      return [along([unit], 0, half ? n : n - 1)];
+    }
+    case 'points-a':
+      return [points(0)];
+    case 'points-b':
+      return [points(-u / 2)];
+    case 'diamonds':
+      return [diamonds(0, y0, y1)];
+    case 'half-drop-diamonds':
+      return [diamonds(-u / 2, y0, y1)];
+    case 'double-diamonds':
+      return [diamonds(0, y0, ym), diamonds(0, ym, y1, '2-')];
+    case 'half-drop-double-diamonds':
+      return [diamonds(0, y0, ym), diamonds(-u / 2, ym, y1, '2-')];
+    case 'big-little-diamonds':
+      return [bigLittleDiamonds(0)];
+    case 'half-drop-big-little-diamonds':
+      return [bigLittleDiamonds(-u / 2)];
+    case 'big-little-points':
+      return [
+        along([
+          plain(
+            'f',
+            [
+              [0, y1],
+              [big / 2, y0],
+              [big, y1],
+            ],
+            0,
+          ),
+          plain(
+            'k',
+            [
+              [big, y1],
+              [big + little / 2, ym],
+              [u, y1],
+            ],
+            0,
+          ),
+          plain('g', [
+            [big / 2, y0],
+            [u + big / 2, y0],
+            [u, y1],
+            [big + little / 2, ym],
+            [big, y1],
+          ]),
+        ]),
+      ];
+    case 'spaced-squares': {
+      const a = Math.min(w, u);
+      const [s0, s1] = [ym - a / 2, ym + a / 2];
+      const cell = [plain('f', rect((u - a) / 2, s0, s1, (u + a) / 2), 0)];
+      // Spacers between squares (and at the ends), and above and below when squares are narrower.
+      if (u > a) cell.push(plain('g', rect((u + a) / 2, y0, y1, (3 * u - a) / 2)));
+      if (w > a) cell.push(plain('t', rect(0, y0, s0, u)), plain('b', rect(0, s1, y1, u)));
+      return [along(cell)];
+    }
+    case 'checker-board': {
+      const h = w / p.across;
+      return [
+        along(
+          Array.from({ length: p.across }, (_, r) => ({
+            ...plain('c', rect(0, y0 + r * h, y0 + (r + 1) * h, u)),
+            id: (i: number) => `${prefix}c${i}.${r}`,
+            alt: (i: number) => (i + r) % 2,
+          })),
+          0,
+          n - 1,
+        ),
+      ];
+    }
+  }
+}
+
 /**
  * Strip quilts (spec 017): one band per strip, stepped along it and clipped at the quilt's ends.
  * Strip-local coordinates run x along (0…length) and y across; Vertical swaps the axes, with block
@@ -423,202 +646,34 @@ export function strips(l: StripLayout): { tiling: Tiling; center: Bounds } {
   let y0 = 0;
   for (const st of l.strips) {
     const w = stripWidth(l, st);
-    const [y1, ym] = [y0 + w, y0 + w / 2];
-    const n = st.along;
-    const u = L / n;
     const sid = st.id;
-    const plain = (code: string, pts: Pt[], alt = 1): CellPiece => ({
-      kind: 'strip',
-      shape: 'piece',
-      turns: 360,
-      size: [u, w],
-      transform: IDENTITY,
-      outline: toPath(pts),
-      id: (i) => `strip:${sid}:${code}${i}`,
-      alt: () => alt,
-    });
-    // A block space `bw` × `bh` (strip-local) at x = `x0`, upright in the quilt either way.
-    const block = (x0: number, id: (i: number) => string): CellPiece => {
-      const g: M = vertical ? [w, 0, 0, u, y0, x0] : [u, 0, 0, w, x0, y0];
+    // A block space at x = `dx`, upright in the quilt either way.
+    const block = (dx: number, u: number, half: boolean): CellPiece => {
+      const g: M = vertical ? [w, 0, 0, u, y0, dx] : [u, 0, 0, w, dx, y0];
       return {
         kind: 'block',
         shape: 'rect',
         turns: Math.abs(u - w) < 1e-9 ? 90 : 180,
         size: [u, w],
         transform: vertical ? mul(swap, g) : g,
-        id,
+        id: (i) => `b:s${sid}:${half ? i : i + 1}`,
         alt: (i) => ((i % 2) + 2) % 2,
       };
     };
-    const along = (cell: CellPiece[], from = -1, to = n): Band => ({
-      cell,
-      a: [u, 0],
-      b: [0, 0],
-      i: [from, to],
-      j: [0, 0],
-    });
-    // Points and diamonds in a row from `t` to `b` (across), shifted `dx` along.
-    const points = (dx: number) =>
-      along([
-        plain(
-          'f',
-          [
-            [dx, y1],
-            [dx + u / 2, y0],
-            [dx + u, y1],
-          ],
-          0,
-        ),
-        plain('g', [
-          [dx + u / 2, y0],
-          [dx + 1.5 * u, y0],
-          [dx + u, y1],
-        ]),
-      ]);
-    const diamonds = (dx: number, t: number, b: number, row = '') => {
-      const m = (t + b) / 2;
-      return along([
-        plain(
-          `f${row}`,
-          [
-            [dx + u / 2, t],
-            [dx + u, m],
-            [dx + u / 2, b],
-            [dx, m],
-          ],
-          0,
-        ),
-        plain(`g${row}`, [
-          [dx + u / 2, t],
-          [dx + 1.5 * u, t],
-          [dx + u, m],
-        ]),
-        plain(`h${row}`, [
-          [dx + u, m],
-          [dx + 1.5 * u, b],
-          [dx + u / 2, b],
-        ]),
-      ]);
-    };
-    switch (st.style) {
-      case 'plain':
-        bands.push(
-          along(
-            [
-              plain('p', [
-                [0, y0],
-                [L, y0],
-                [L, y1],
-                [0, y1],
-              ]),
-            ],
-            0,
-            0,
-          ),
-        );
-        break;
-      case 'blocks':
-      case 'half-drop-blocks': {
-        const half = st.style === 'half-drop-blocks';
-        const dx = half ? -u / 2 : 0;
-        // Square blocks take blocks; with Square blocks off the units are painted only.
-        const unit = squareBlocks(st)
-          ? block(dx, (i) => `b:s${sid}:${half ? i : i + 1}`)
-          : {
-              ...plain('u', [
-                [dx, y0],
-                [dx + u, y0],
-                [dx + u, y1],
-                [dx, y1],
-              ]),
-              alt: (i: number) => ((i % 2) + 2) % 2,
-            };
-        bands.push(along([unit], 0, half ? n : n - 1));
-        break;
-      }
-      case 'points-a':
-        bands.push(points(0));
-        break;
-      case 'points-b':
-        bands.push(points(-u / 2));
-        break;
-      case 'diamonds':
-        bands.push(diamonds(0, y0, y1));
-        break;
-      case 'half-drop-diamonds':
-        bands.push(diamonds(-u / 2, y0, y1));
-        break;
-      case 'double-diamonds':
-        bands.push(diamonds(0, y0, ym), diamonds(0, ym, y1, '2-'));
-        break;
-      case 'half-drop-double-diamonds':
-        bands.push(diamonds(0, y0, ym), diamonds(-u / 2, ym, y1, '2-'));
-        break;
-      case 'spaced-squares': {
-        const a = Math.min(w, u);
-        const [s0, s1] = [ym - a / 2, ym + a / 2];
-        const cell = [
-          plain(
-            'f',
-            [
-              [(u - a) / 2, s0],
-              [(u + a) / 2, s0],
-              [(u + a) / 2, s1],
-              [(u - a) / 2, s1],
-            ],
-            0,
-          ),
-        ];
-        // Spacers between squares (and at the ends), and above and below when squares are narrower.
-        if (u > a)
-          cell.push(
-            plain('g', [
-              [(u + a) / 2, y0],
-              [(3 * u - a) / 2, y0],
-              [(3 * u - a) / 2, y1],
-              [(u + a) / 2, y1],
-            ]),
-          );
-        if (w > a)
-          cell.push(
-            plain('t', [
-              [0, y0],
-              [u, y0],
-              [u, s0],
-              [0, s0],
-            ]),
-            plain('b', [
-              [0, s1],
-              [u, s1],
-              [u, y1],
-              [0, y1],
-            ]),
-          );
-        bands.push(along(cell));
-        break;
-      }
-      case 'checker-board': {
-        const h = w / st.across;
-        bands.push(
-          along(
-            Array.from({ length: st.across }, (_, r) => ({
-              ...plain('c', [
-                [0, y0 + r * h],
-                [u, y0 + r * h],
-                [u, y0 + (r + 1) * h],
-                [0, y0 + (r + 1) * h],
-              ]),
-              id: (i: number) => `strip:${sid}:c${i}.${r}`,
-              alt: (i: number) => (i + r) % 2,
-            })),
-            0,
-            n - 1,
-          ),
-        );
-        break;
-      }
-    }
-    y0 = y1;
+    bands.push(
+      ...patternBands({
+        style: st.style,
+        L,
+        w,
+        n: st.along,
+        across: st.across,
+        y0,
+        kind: 'strip',
+        prefix: `strip:${sid}:`,
+        ...(squareBlocks(st) ? { block } : {}),
+      }),
+    );
+    y0 += w;
   }
   const [W, H] = vertical ? [y0, L] : [L, y0];
   return { tiling: { bands, map, clip: [0, 0, W, H] }, center: [0, 0, W, H] };

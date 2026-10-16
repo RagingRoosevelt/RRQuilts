@@ -163,3 +163,6 @@ along all four sides with corner squares; paint points and background with Alter
   edges Trimmed. cm projects use 2.5 × (rounded).
 - Border corner squares are the border's width on both sides (left/right width × top/bottom width).
 - "Blocks" border styles are rectangles painted like pieced strips until blocks in borders exist.
+- Default counts give each pattern its classic proportions for the border's width: square blocks,
+  tiles, and diamonds; 90° points; spaced squares as long as their gaps; square big shapes among big
+  and little ones; square diamonds in double rows.

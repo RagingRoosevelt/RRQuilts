@@ -176,7 +176,11 @@ export function generateSlots(
     trim = true;
   } else unsupported.push(`layout ${layout.style}`);
 
-  const b = borderSlots(borders, center);
+  const b = borderSlots(
+    borders,
+    center,
+    layout.style === 'straight-set' ? [layout.cols, layout.rows] : undefined,
+  );
   unsupported.push(...b.unsupported);
   const [x0, y0, x1, y1] = b.bounds;
   return {

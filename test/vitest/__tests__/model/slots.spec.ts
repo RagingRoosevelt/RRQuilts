@@ -69,10 +69,10 @@ describe('horizontal layout slots', () => {
     expect(generateSlots(layout(5, 6), borders)).toEqual(g);
   });
 
-  it('reports styles without generators but still places them as strips', () => {
+  it('generates pieced border styles too (no stand-ins left)', () => {
     const r = generateSlots(layout(2, 2), [{ style: 'points-in', sides: [2, 2, 2, 2] }]);
-    expect(r.unsupported).toEqual(['border 1 points-in']);
-    expect(r.slots.filter((s) => s.id.startsWith('border:'))).toHaveLength(4);
+    expect(r.unsupported).toEqual([]);
+    expect(r.slots.filter((s) => s.id.startsWith('border:1:top:')).length).toBeGreaterThan(1);
   });
 });
 
