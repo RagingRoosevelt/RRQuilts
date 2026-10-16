@@ -14,7 +14,7 @@
     },
     "version": {
       "type": "number",
-      "const": 5
+      "const": 6
     },
     "app": {
       "type": "string"
@@ -4905,15 +4905,219 @@
                   {
                     "type": "object",
                     "required": [
+                      "style",
+                      "cols",
+                      "rows",
+                      "width",
+                      "height",
+                      "sash",
+                      "corner",
+                      "edge"
+                    ],
+                    "properties": {
+                      "style": {
+                        "type": "string",
+                        "const": "variable-point"
+                      },
+                      "cols": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                      },
+                      "rows": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                      },
+                      "width": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "height": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "sash": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "corner": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "triangle"
+                          },
+                          {
+                            "type": "string",
+                            "const": "seam"
+                          }
+                        ]
+                      },
+                      "edge": {
+                        "type": "object",
+                        "required": [
+                          "finish",
+                          "float"
+                        ],
+                        "properties": {
+                          "finish": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "const": "exact"
+                              },
+                              {
+                                "type": "string",
+                                "const": "float"
+                              },
+                              {
+                                "type": "string",
+                                "const": "trim"
+                              },
+                              {
+                                "type": "string",
+                                "const": "none"
+                              }
+                            ]
+                          },
+                          "float": {
+                            "type": "number",
+                            "minimum": 0
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "style",
+                      "shape",
+                      "cols",
+                      "rows",
+                      "width",
+                      "height",
+                      "edge"
+                    ],
+                    "properties": {
+                      "style": {
+                        "type": "string",
+                        "const": "one-patch"
+                      },
+                      "shape": {
+                        "enum": [
+                          "squares",
+                          "rectangles",
+                          "bricks",
+                          "half-square-triangles",
+                          "triangles",
+                          "diamonds",
+                          "hexagons",
+                          "tumblers",
+                          "clamshells",
+                          "octagons"
+                        ]
+                      },
+                      "cols": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                      },
+                      "rows": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                      },
+                      "width": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "height": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "edge": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "trim"
+                          },
+                          {
+                            "type": "string",
+                            "const": "none"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "style",
+                      "cols",
+                      "rows",
+                      "width",
+                      "top",
+                      "side",
+                      "edge"
+                    ],
+                    "properties": {
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "baby-blocks"
+                          },
+                          {
+                            "type": "string",
+                            "const": "variable-blocks"
+                          }
+                        ]
+                      },
+                      "cols": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                      },
+                      "rows": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                      },
+                      "width": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "top": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "side": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "edge": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "trim"
+                          },
+                          {
+                            "type": "string",
+                            "const": "none"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
                       "style"
                     ],
                     "properties": {
                       "style": {
                         "enum": [
-                          "variable-point",
-                          "baby-blocks",
-                          "variable-blocks",
-                          "one-patch",
                           "custom-set"
                         ]
                       }
@@ -5721,6 +5925,6 @@
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v5.json",
-  "title": "RRQuilts project (.rrq) v5"
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v6.json",
+  "title": "RRQuilts project (.rrq) v6"
 }

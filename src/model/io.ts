@@ -53,7 +53,70 @@ export const migrations: Migrations = {
     });
     return { ...doc, project: { ...project, quilts } };
   },
+  // v6 (spec 018): Variable Point, One Patch, Baby Blocks, and Variable Blocks have parameters;
+  // placeholders get the defaults, in the project's units.
+  5: (doc) => {
+    const project = isObject(doc.project) ? doc.project : undefined;
+    if (!project || !Array.isArray(project.quilts)) return doc;
+    const k = doc.units === 'cm' ? 2.5 : 1;
+    const quilts = project.quilts.map((q: unknown) => {
+      if (!isObject(q) || !isObject(q.layout) || Object.keys(q.layout).length > 1) return q;
+      const d = layoutDefaults(String(q.layout.style), k);
+      return d ? { ...q, layout: d } : q;
+    });
+    return { ...doc, project: { ...project, quilts } };
+  },
 };
+
+/** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */
+export function layoutDefaults(style: string, k: number) {
+  const r = (x: number) => Math.round(x * k * 2) / 2; // cm rounded to half centimetres
+  switch (style) {
+    case 'variable-point':
+      return {
+        style: 'variable-point' as const,
+        cols: 3,
+        rows: 3,
+        width: r(12),
+        height: r(16),
+        sash: 0,
+        corner: 'triangle' as const,
+        edge: { finish: 'float' as const, float: r(1) },
+      };
+    case 'one-patch':
+      return {
+        style: 'one-patch' as const,
+        shape: 'squares' as const,
+        cols: 8,
+        rows: 8,
+        width: r(4),
+        height: r(4),
+        edge: 'trim' as const,
+      };
+    case 'baby-blocks':
+      return {
+        style: 'baby-blocks' as const,
+        cols: 6,
+        rows: 6,
+        width: 3 * k * Math.sqrt(3),
+        top: 3 * k,
+        side: 3 * k,
+        edge: 'trim' as const,
+      };
+    case 'variable-blocks':
+      return {
+        style: 'variable-blocks' as const,
+        cols: 6,
+        rows: 6,
+        width: r(6),
+        top: r(3),
+        side: r(4),
+        edge: 'trim' as const,
+      };
+    default:
+      return null;
+  }
+}
 
 /** A new strip quilt: `n` strips alternating plain and 6 blocks, square blocks (`k` as above). */
 export const stripDefaults = (k: number, n = 5) => ({

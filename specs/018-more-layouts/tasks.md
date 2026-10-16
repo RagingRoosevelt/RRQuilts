@@ -5,14 +5,14 @@ Opus reviews every diff. Nothing is merged or pushed (owner reviews `feat/more-l
 
 ## Phase 1: Model
 
-- [ ] T001 (opus) Schema v6: VariablePoint, OnePatch, Tumbling layouts; migration 5; units scaling;
+- [X] T001 (opus) Schema v6: VariablePoint, OnePatch, Tumbling layouts; migration 5; units scaling;
   `patch` kind and `p:` slot group
-- [ ] T002 (opus) Variable Point preset (On-Point scaled, patches) + tests
-- [ ] T003 (opus) One Patch preset, ten shapes, Trimmed / No fill + tests
-- [ ] T004 (opus) Tumbling preset (Baby Blocks, Variable Blocks) + tests
+- [X] T002 (opus) Variable Point preset (On-Point scaled, patches) + tests
+- [X] T003 (opus) One Patch preset, ten shapes, Trimmed / No fill + tests
+- [X] T004 (opus) Tumbling preset (Baby Blocks, Variable Blocks) + tests
 - [ ] T005 (opus) Strip pattern cells factored out; pieced border styles on all sides with corners;
   aligned counts + tests (coverage, ids, colors carry over between pattern styles)
-- [ ] T006 (opus) Published schema v6, formats.json, fixture, version tests
+- [X] T006 (opus) Published schema v6, formats.json, fixture, version tests
 
 ## Phase 2: UI
 

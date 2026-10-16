@@ -9,13 +9,15 @@ export const PLAIN_BLOCK = 'plain';
 export const PLAIN_PATCH = 'p';
 
 export type SlotGroup =
-  'block' | 'sash' | 'cs' | 'set' | `border:${number}` | `strip:${string}` | 'other';
+  'block' | 'sash' | 'cs' | 'set' | 'patch' | `border:${number}` | `strip:${string}` | 'other';
 
 export function slotGroup(slotId: string): SlotGroup {
   if (slotId.startsWith('b:')) return 'block';
   if (slotId.startsWith('sash:')) return 'sash';
   if (slotId.startsWith('cs:')) return 'cs';
   if (slotId.startsWith('set:')) return 'set';
+  // Patches of One Patch, tumbling blocks, and Variable Point: painted, never blocks (spec 018).
+  if (slotId.startsWith('p:')) return 'patch';
   const strip = /^strip:([^:]+):/.exec(slotId);
   if (strip) return `strip:${strip[1]}`;
   const m = /^border:(\d+):/.exec(slotId);
@@ -66,6 +68,7 @@ export function describeSlot(slotId: string): string {
   if (g === 'sash') return 'sash';
   if (g === 'cs') return 'cornerstone';
   if (g === 'set') return 'setting piece';
+  if (g === 'patch') return 'patch';
   if (g.startsWith('strip:')) return 'strip';
   if (g.startsWith('border:')) return `border ${Number(g.slice(7)) + 1}`;
   return 'space';

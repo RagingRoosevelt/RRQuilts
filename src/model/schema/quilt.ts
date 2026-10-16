@@ -42,7 +42,60 @@ export const OnPointLayout = Type.Object({
 
 /** Styles whose generators come with later presets; parameters are stored as-is for now. */
 export const OtherLayout = Type.Object({
-  style: Type.Enum(['variable-point', 'baby-blocks', 'variable-blocks', 'one-patch', 'custom-set']),
+  style: Type.Enum(['custom-set']),
+});
+
+/** Variable Point (spec 018): On-Point with diamonds `width` × `height` through the block; the
+ *  diamonds take colors and fabrics only. */
+export const VariablePointLayout = Type.Object({
+  style: Type.Literal('variable-point'),
+  cols: count,
+  rows: count,
+  width: Type.Number({ exclusiveMinimum: 0 }),
+  height: Type.Number({ exclusiveMinimum: 0 }),
+  sash: length,
+  corner: Type.Union([Type.Literal('triangle'), Type.Literal('seam')]),
+  edge: EdgeFinish,
+});
+
+/** Edge of a tessellation: trimmed straight, or whole shapes (bound along the zigzag). */
+export const PatchEdge = Type.Union([Type.Literal('trim'), Type.Literal('none')]);
+
+export const PatchShape = Type.Enum([
+  'squares',
+  'rectangles',
+  'bricks',
+  'half-square-triangles',
+  'triangles',
+  'diamonds',
+  'hexagons',
+  'tumblers',
+  'clamshells',
+  'octagons',
+]);
+
+/** One Patch (spec 018): one shape repeated `cols` × `rows`; `width` (and `height` where the shape
+ *  has one) is the patch's finished size. */
+export const OnePatchLayout = Type.Object({
+  style: Type.Literal('one-patch'),
+  shape: PatchShape,
+  cols: count,
+  rows: count,
+  width: Type.Number({ exclusiveMinimum: 0 }),
+  height: Type.Number({ exclusiveMinimum: 0 }),
+  edge: PatchEdge,
+});
+
+/** Baby Blocks and Variable Blocks (spec 018): cubes of three diamonds; `width` across a cube,
+ *  `top` the top diamond's height, `side` the side diamonds' upright edge. */
+export const TumblingLayout = Type.Object({
+  style: Type.Union([Type.Literal('baby-blocks'), Type.Literal('variable-blocks')]),
+  cols: count,
+  rows: count,
+  width: Type.Number({ exclusiveMinimum: 0 }),
+  top: Type.Number({ exclusiveMinimum: 0 }),
+  side: Type.Number({ exclusiveMinimum: 0 }),
+  edge: PatchEdge,
 });
 
 export const StripStyle = Type.Enum([
@@ -80,7 +133,15 @@ export const StripLayout = Type.Object({
   strips: Type.Array(Strip, { minItems: 1 }),
 });
 
-export const Layout = Type.Union([HorizontalLayout, OnPointLayout, StripLayout, OtherLayout]);
+export const Layout = Type.Union([
+  HorizontalLayout,
+  OnPointLayout,
+  StripLayout,
+  VariablePointLayout,
+  OnePatchLayout,
+  TumblingLayout,
+  OtherLayout,
+]);
 
 export const BorderStyle = Type.Enum([
   'mitered',
@@ -167,6 +228,10 @@ export const Quilt = Type.Object({
 export type HorizontalLayout = Type.Static<typeof HorizontalLayout>;
 export type OnPointLayout = Type.Static<typeof OnPointLayout>;
 export type StripLayout = Type.Static<typeof StripLayout>;
+export type VariablePointLayout = Type.Static<typeof VariablePointLayout>;
+export type OnePatchLayout = Type.Static<typeof OnePatchLayout>;
+export type TumblingLayout = Type.Static<typeof TumblingLayout>;
+export type PatchShape = Type.Static<typeof PatchShape>;
 export type Strip = Type.Static<typeof Strip>;
 export type StripStyle = Type.Static<typeof StripStyle>;
 export type Layout = Type.Static<typeof Layout>;
