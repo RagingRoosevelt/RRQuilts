@@ -58,7 +58,9 @@ export const useEditorStore = defineStore('editor', () => {
 
   function useColor(id: string) {
     color.value = id;
-    recentColors.value = [id, ...recentColors.value.filter((c) => c !== id)].slice(0, 12);
+    // Remembered in first-picked order, so the tray never reshuffles (oldest drop off first).
+    if (!recentColors.value.includes(id))
+      recentColors.value = [...recentColors.value, id].slice(-12);
   }
 
   return {

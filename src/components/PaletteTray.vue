@@ -329,11 +329,6 @@ const blockSectionGroups = computed(() => {
     ...(other.length ? [flat('tray:other', 'Other libraries', other)] : []),
   ];
 });
-/** Recently used colors first within each section. */
-const recentFirst = <T extends { id: string }>(all: T[]) => [
-  ...editor.recentColors.map((id) => all.find((c) => c.id === id)).filter((c) => !!c),
-  ...all.filter((c) => !editor.recentColors.includes(c.id)),
-];
 const colorTree = computed(() => {
   const colors = doc.value.project.palette.colors;
   const { mine, library: lib } = splitItems(colors, library.items.colors);
@@ -355,7 +350,7 @@ const colorTree = computed(() => {
           lib: v.doc.library?.id ?? v.doc.id,
           libName: v.doc.library?.name ?? v.doc.name,
           label: c.notecard.name,
-          items: recentFirst(items),
+          items,
           fabrics: c.fabrics ?? [],
           mine: false,
         };
@@ -385,7 +380,7 @@ const colorTree = computed(() => {
       label: 'Project palettes',
       groups: projectPalettes(doc.value).map((pp) => ({
         label: pp.palette.notecard.name,
-        items: recentFirst(pp.colors),
+        items: pp.colors,
         fabrics: pp.fabrics,
         mine: true,
       })),
@@ -393,7 +388,7 @@ const colorTree = computed(() => {
     {
       lib: '',
       label: 'In use',
-      groups: [{ label: '', items: recentFirst(used), fabrics: usedFabrics, mine: false }],
+      groups: [{ label: '', items: used, fabrics: usedFabrics, mine: false }],
     },
     ...libs,
   ];
