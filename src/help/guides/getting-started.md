@@ -10,10 +10,13 @@ work lives in a **project**, one file (ending in `.rrq`) that holds your quilts,
 ## Start a quilt
 
 1. On the home page (the **RRQuilts** button in the header), choose **Start a quilt**.
-2. The wizard has three steps. Use **Next** to move on, or click a step's title. A picture of the
+2. The wizard has three steps (four for strip quilts). Use **Next** to move on, or click a step's title. A picture of the
    quilt under the steps changes as you choose.
-   - **Blocks** picks the style, **Horizontal** (rows of blocks) or **On-Point** (blocks turned to
-     sit as diamonds), and sets how many blocks and their **Finished block size**.
+   - **Blocks** picks the style, **Horizontal** (rows of blocks), **On-Point** (blocks turned to
+     sit as diamonds), or **Strips**, and sets how many blocks and their **Finished block size**
+     (for strips, how many strips and their **Length**).
+   - **Strips** (strip quilts only) sets **Horizontal** or **Vertical** and each strip's style and
+     size, as in the Layout tab.
    - **Sashing** has **Sashing width (0 for none)**. Horizontal quilts can also have **Sashing
      around the outside**.
    - **Borders** takes the **Number of borders** and the **Width of each**.

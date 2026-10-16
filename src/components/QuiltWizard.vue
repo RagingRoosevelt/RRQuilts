@@ -1,136 +1,160 @@
 <template>
   <q-dialog v-model="open">
-    <q-card style="width: 420px; max-width: 95vw">
-      <q-stepper v-model="step" flat animated header-nav>
-        <q-step :name="1" title="Blocks" icon="grid_on">
-          <!-- Style cards: each drawn by the layout engine; later styles join the list. -->
-          <div class="styles q-mb-md" role="radiogroup" aria-label="Layout style">
-            <button
-              v-for="c in styleCards"
-              :key="c.value"
-              type="button"
-              role="radio"
-              class="style-card"
-              :class="{ on: style === c.value }"
-              :aria-checked="style === c.value"
-              @click="style = c.value"
-            >
-              <svg :viewBox="c.picture.box" class="preview-art">
-                <path
-                  v-for="(p, i) in c.picture.paths"
-                  :key="i"
-                  :d="p.d"
-                  :class="p.kind"
-                  vector-effect="non-scaling-stroke"
-                />
-              </svg>
-              <div class="text-caption">{{ c.label }}</div>
-            </button>
-          </div>
-          <div v-if="isStrip" class="row q-col-gutter-sm">
+    <q-card class="wizard">
+      <div class="body">
+        <q-stepper v-model="step" class="steps" flat animated header-nav alternative-labels>
+          <q-step name="blocks" title="Blocks" icon="grid_on">
+            <!-- Style cards: each drawn by the layout engine; later styles join the list. -->
+            <div class="styles q-mb-md" role="radiogroup" aria-label="Layout style">
+              <button
+                v-for="c in styleCards"
+                :key="c.value"
+                type="button"
+                role="radio"
+                class="style-card"
+                :class="{ on: style === c.value }"
+                :aria-checked="style === c.value"
+                @click="style = c.value"
+              >
+                <svg :viewBox="c.picture.box" class="preview-art">
+                  <path
+                    v-for="(p, i) in c.picture.paths"
+                    :key="i"
+                    :d="p.d"
+                    :class="p.kind"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+                <div class="text-caption">{{ c.label }}</div>
+              </button>
+            </div>
+            <div v-if="isStrip" class="row q-col-gutter-sm">
+              <q-input
+                :model-value="stripLayout.strips.length"
+                @update:model-value="(v) => setStripCount(Number(v))"
+                class="col-6"
+                dense
+                outlined
+                type="number"
+                min="1"
+                max="100"
+                label="Number of strips"
+              />
+              <LengthInput
+                :model-value="stripLayout.length"
+                class="col-6"
+                label="Length"
+                :units="units"
+                :min="1"
+                @update:model-value="(v) => (stripLayout = { ...stripLayout, length: v })"
+              />
+            </div>
+            <div v-else class="row q-col-gutter-sm">
+              <q-input
+                v-model.number="cols"
+                class="col-6"
+                dense
+                outlined
+                type="number"
+                min="1"
+                max="100"
+                :label="style === 'on-point' ? 'Blocks across' : 'Columns'"
+              />
+              <q-input
+                v-model.number="rows"
+                class="col-6"
+                dense
+                outlined
+                type="number"
+                min="1"
+                max="100"
+                :label="style === 'on-point' ? 'Blocks down' : 'Rows'"
+              />
+              <LengthInput
+                v-model="blockSize"
+                class="col-12"
+                label="Finished block size"
+                :units="units"
+                :min="0.5"
+              />
+            </div>
+          </q-step>
+          <q-step v-if="isStrip" name="strips" title="Strips" icon="view_stream">
+            <q-btn-toggle
+              v-model="stripLayout.style"
+              class="q-mb-md"
+              spread
+              no-caps
+              unelevated
+              toggle-color="primary"
+              :options="[
+                { label: 'Horizontal', value: 'horizontal-strip' },
+                { label: 'Vertical', value: 'vertical-strip' },
+              ]"
+            />
+            <StripsInspector
+              :layout="stripLayout"
+              :units="units"
+              :readonly="false"
+              @change="(l) => (stripLayout = l as StripLayout)"
+            />
+          </q-step>
+          <q-step name="sashing" title="Sashing" icon="view_comfy">
+            <div v-if="isStrip" class="text-caption">
+              Strip quilts have no sashing. Strips sit edge to edge.
+            </div>
+            <LengthInput v-else v-model="sash" label="Sashing width (0 for none)" :units="units" />
+            <q-toggle
+              v-if="style === 'horizontal'"
+              v-model="sashBorder"
+              class="q-mt-sm"
+              label="Sashing around the outside"
+              :disable="!sash"
+            />
+          </q-step>
+          <q-step name="borders" title="Borders" icon="crop_square">
             <q-input
-              v-model.number="stripCount"
-              class="col-6"
+              v-model.number="borderCount"
               dense
               outlined
               type="number"
-              min="1"
-              max="100"
-              label="Number of strips"
+              min="0"
+              max="5"
+              label="Number of borders"
             />
             <LengthInput
-              v-model="stripLength"
-              class="col-6"
-              label="Length"
+              v-if="borderCount > 0"
+              v-model="borderWidth"
+              class="q-mt-sm"
+              label="Width of each"
               :units="units"
-              :min="1"
+              :min="0.25"
             />
-          </div>
-          <div v-else class="row q-col-gutter-sm">
-            <q-input
-              v-model.number="cols"
-              class="col-6"
-              dense
-              outlined
-              type="number"
-              min="1"
-              max="100"
-              :label="style === 'on-point' ? 'Blocks across' : 'Columns'"
+          </q-step>
+        </q-stepper>
+        <!-- Live preview of the layout as it's being chosen (beside the steps; below on phones). -->
+        <div class="preview q-pa-md">
+          <svg
+            v-if="preview"
+            :viewBox="preview.box"
+            class="preview-art"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <path
+              v-for="(p, i) in preview.paths"
+              :key="i"
+              :d="p.d"
+              :class="p.kind"
+              vector-effect="non-scaling-stroke"
             />
-            <q-input
-              v-model.number="rows"
-              class="col-6"
-              dense
-              outlined
-              type="number"
-              min="1"
-              max="100"
-              :label="style === 'on-point' ? 'Blocks down' : 'Rows'"
-            />
-            <LengthInput
-              v-model="blockSize"
-              class="col-12"
-              label="Finished block size"
-              :units="units"
-              :min="0.5"
-            />
-          </div>
-        </q-step>
-        <q-step :name="2" title="Sashing" icon="view_comfy">
-          <div v-if="isStrip" class="text-caption">
-            Strip quilts have no sashing. Strips sit edge to edge.
-          </div>
-          <LengthInput v-else v-model="sash" label="Sashing width (0 for none)" :units="units" />
-          <q-toggle
-            v-if="style === 'horizontal'"
-            v-model="sashBorder"
-            class="q-mt-sm"
-            label="Sashing around the outside"
-            :disable="!sash"
-          />
-        </q-step>
-        <q-step :name="3" title="Borders" icon="crop_square">
-          <q-input
-            v-model.number="borderCount"
-            dense
-            outlined
-            type="number"
-            min="0"
-            max="5"
-            label="Number of borders"
-          />
-          <LengthInput
-            v-if="borderCount > 0"
-            v-model="borderWidth"
-            class="q-mt-sm"
-            label="Width of each"
-            :units="units"
-            :min="0.25"
-          />
-        </q-step>
-      </q-stepper>
-      <!-- Live preview of the layout as it's being chosen. -->
-      <div class="preview q-px-md">
-        <svg
-          v-if="preview"
-          :viewBox="preview.box"
-          class="preview-art"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <path
-            v-for="(p, i) in preview.paths"
-            :key="i"
-            :d="p.d"
-            :class="p.kind"
-            vector-effect="non-scaling-stroke"
-          />
-        </svg>
-        <div v-else class="text-caption text-grey-7">Too many spaces to preview.</div>
+          </svg>
+          <div v-else class="text-caption text-grey-7">Too many spaces to preview.</div>
+        </div>
       </div>
       <q-card-actions align="right">
         <div class="col text-caption q-pl-sm">{{ summary }}</div>
         <q-btn flat no-caps label="Cancel" @click="open = false" />
-        <q-btn v-if="step < 3" flat no-caps label="Next" @click="step++" />
+        <q-btn v-if="next" flat no-caps label="Next" @click="step = next" />
         <q-btn unelevated no-caps color="primary" label="Create quilt" @click="create" />
       </q-card-actions>
     </q-card>
@@ -140,16 +164,26 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
+import StripsInspector from '@/components/StripsInspector.vue';
 import { onPointDefaults, stripDefaults } from '@/model/io';
 import { flattenLoop, pathToSegs } from '@/model/geometry/path';
 import { generateSlots } from '@/model/layout/slots';
-import type { Border, Layout } from '@/model/schema/quilt';
+import type { Border, Layout, StripLayout } from '@/model/schema/quilt';
+import { useEditorStore } from '@/stores/editor';
 
 const props = defineProps<{ units: 'in' | 'cm' }>();
 const emit = defineEmits<{ create: [layout: Layout, borders: Border[]] }>();
 
 const open = ref(false);
-const step = ref(1);
+const step = ref('blocks');
+// Styles that need it get a customization step before Sashing (spec 017 FR-020).
+const steps = computed(() => [
+  'blocks',
+  ...(isStrip.value ? ['strips'] : []),
+  'sashing',
+  'borders',
+]);
+const next = computed(() => steps.value[steps.value.indexOf(step.value) + 1]);
 const style = ref<Style>('horizontal');
 const cols = ref(5);
 const rows = ref(5);
@@ -160,16 +194,18 @@ const borderCount = ref(1);
 const borderWidth = ref(2);
 
 const clampCount = (n: number) => Math.min(100, Math.max(1, Math.round(n || 1)));
-const stripCount = ref(5);
-const stripLength = ref(48);
-const isStrip = computed(() => style.value.endsWith('-strip'));
+const stripLayout = ref<StripLayout>(stripDefaults(1));
+const isStrip = computed(() => style.value === 'strips');
+/** More or fewer strips: keeps the ones already set up, new ones alternate plain and blocks. */
+function setStripCount(n: number) {
+  const k = props.units === 'cm' ? 2.5 : 1;
+  const all = stripDefaults(k, clampCount(n)).strips;
+  const strips = all.map((s, i) => stripLayout.value.strips[i] ?? s);
+  stripLayout.value = { ...stripLayout.value, strips };
+}
 const layout = computed<Layout>(() =>
   isStrip.value
-    ? {
-        ...stripDefaults(props.units === 'cm' ? 2.5 : 1, clampCount(stripCount.value)),
-        style: style.value as 'horizontal-strip' | 'vertical-strip',
-        length: stripLength.value,
-      }
+    ? stripLayout.value
     : style.value === 'on-point'
       ? {
           ...onPointDefaults(props.units === 'cm' ? 2.5 : 1),
@@ -213,7 +249,7 @@ function picture(l: Layout, b: Border[]) {
 }
 const preview = computed(() => picture(layout.value, borders.value));
 
-type Style = 'horizontal' | 'on-point' | 'horizontal-strip' | 'vertical-strip';
+type Style = 'horizontal' | 'on-point' | 'strips';
 const sampleStrips = (style: 'horizontal-strip' | 'vertical-strip'): Layout => ({
   style,
   length: 16,
@@ -244,12 +280,7 @@ const STYLES: { value: Style; label: string; sample: Layout }[] = [
     label: 'On-Point',
     sample: { ...onPointDefaults(1), block: 1, edge: { finish: 'exact', float: 0 } },
   },
-  {
-    value: 'horizontal-strip',
-    label: 'Horizontal Strip',
-    sample: sampleStrips('horizontal-strip'),
-  },
-  { value: 'vertical-strip', label: 'Vertical Strip', sample: sampleStrips('vertical-strip') },
+  { value: 'strips', label: 'Strips', sample: sampleStrips('horizontal-strip') },
 ];
 const styleCards = STYLES.map((x) => ({ ...x, picture: picture(x.sample, [])! }));
 
@@ -260,13 +291,14 @@ const summary = computed(() => {
 
 function create() {
   open.value = false;
-  emit('create', layout.value, borders.value);
+  // A plain copy: the project freezes what it's given, and these are live, editable objects.
+  emit('create', JSON.parse(JSON.stringify(layout.value)) as Layout, borders.value);
 }
 
 /** Open with the defaults for the project's units (FR-001). */
 function show() {
   const cm = props.units === 'cm';
-  step.value = 1;
+  step.value = 'blocks';
   style.value = 'horizontal';
   cols.value = rows.value = 5;
   blockSize.value = cm ? 25 : 10;
@@ -274,16 +306,36 @@ function show() {
   sashBorder.value = false;
   borderCount.value = 1;
   borderWidth.value = cm ? 5 : 2;
-  stripCount.value = 5;
-  stripLength.value = cm ? 120 : 48;
+  stripLayout.value = stripDefaults(cm ? 2.5 : 1);
+  useEditorStore().selectedStrip = null;
   open.value = true;
 }
 defineExpose({ show });
 </script>
 
 <style scoped>
+.wizard {
+  width: 760px;
+  max-width: 95vw;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+}
+.body {
+  display: flex;
+  flex-wrap: wrap;
+  overflow-y: auto;
+  min-height: 0;
+}
+.steps {
+  flex: 1 1 400px;
+  min-width: 0;
+}
 .preview {
-  height: 200px;
+  flex: 1 1 260px;
+  height: 320px;
+  position: sticky;
+  top: 0;
 }
 .preview svg {
   width: 100%;
