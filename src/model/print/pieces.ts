@@ -27,6 +27,8 @@ export interface Piece {
   fill: string;
   /** Alignment marks: the middle of each curved edge, with its outward normal. */
   marks: { p: Pt; n: Pt }[];
+  /** What shows in the quilt when cut larger (floating setting pieces); pictures draw this. */
+  shown?: Pt[];
 }
 
 const isCurved = (path: readonly (readonly (string | number)[])[]) =>
@@ -57,10 +59,15 @@ export function blockPieces(
   });
 }
 
-/** Every piece of a quilt as placed (optionally only slots holding `blockId`). */
-export function quiltPieces(doc: RrqDoc, quilt: Quilt, blockId?: string): Piece[] {
+/** Every piece of a quilt as placed (optionally only slots holding `blockId`; `slots` for tests). */
+export function quiltPieces(
+  doc: RrqDoc,
+  quilt: Quilt,
+  blockId?: string,
+  slots = generateSlots(quilt.layout, quilt.borders).slots,
+): Piece[] {
   const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
-  return generateSlots(quilt.layout, quilt.borders).slots.flatMap((slot) => {
+  return slots.flatMap((slot) => {
     const content = quilt.layers[0].slots[slot.id];
     const block = content && blocks.get(content.block);
     if (!content || !block || (blockId && block.id !== blockId)) return [];
@@ -77,9 +84,12 @@ export function quiltPieces(doc: RrqDoc, quilt: Quilt, blockId?: string): Piece[
     const slotPoly =
       block.id === PLAIN_BLOCK &&
       simplify(flattenLoop(pathToSegs(slot.cut ?? slot.outline, [1, 1]), 1e-3), 1e-4);
+    const shown =
+      slotPoly && slot.cut && simplify(flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3), 1e-4);
     return blockPieces(block, block.size, coloring).map((piece) => ({
       ...piece,
       poly: slotPoly || piece.poly.map(at),
+      ...(shown ? { shown } : {}),
       curved: slotPoly ? isCurved(slot.cut ?? slot.outline) : piece.curved,
       marks: piece.marks.map((m) => ({ p: at(m.p), n: dir(m.n) })),
     }));

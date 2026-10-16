@@ -1,9 +1,16 @@
-// Trim a space's outline to the quilt rectangle. Straight outlines: polygon clipping against the
-// rectangle's four sides. Curved outlines (clamshell, spool): the arrangement of the outline and the
-// rectangle, keeping the faces inside both, with true arcs.
-import { toPatch } from '../blocks/derive';
-import { arrange } from '../geometry/arrangement';
-import { flattenLoop, pathToSegs, pointInPolygon, type Pt } from '../geometry/path';
+// Trim a space's outline to the quilt rectangle, one side at a time. Straight outlines: polygon
+// clipping. Curved outlines (clamshell, spool): segments cut where they cross, true arcs kept.
+import { intersect } from '../geometry/intersect';
+import {
+  dist,
+  flattenLoop,
+  pathToSegs,
+  pointAt,
+  signedArea,
+  subSegment,
+  type Pt,
+  type Seg,
+} from '../geometry/path';
 import type { PathCommand } from '../schema/shared';
 import type { Bounds } from './slots';
 
@@ -73,43 +80,50 @@ export function clipOutline(outline: PathCommand[], r: Bounds): PathCommand[] | 
     const poly = clipPolygon(pts, r);
     return poly.length >= 3 ? toPath(poly) : null;
   }
-  const segs = pathToSegs(outline, [1, 1]);
-  const scale = Math.max(r[2] - r[0], r[3] - r[1]);
-  const shape = flattenLoop(segs, 1e-4 * scale);
+  // Curved: cut every segment where it crosses each side in turn, keep the pieces inside, and close
+  // the gaps along that side. A shape cut in two stays one outline, joined along the edge.
+  let segs = pathToSegs(outline, [1, 1]);
   const [x0, y0, x1, y1] = r;
-  const box: Pt[] = [
-    [x0, y0],
-    [x1, y0],
-    [x1, y1],
-    [x0, y1],
+  const far = 4 * Math.max(x1 - x0, y1 - y0) + 1;
+  const eps = 1e-9 * far;
+  const sides: [Seg, (p: Pt) => boolean][] = [
+    [line([x0, y0 - far], [x0, y1 + far]), (p) => p[0] >= x0 - eps],
+    [line([x1, y0 - far], [x1, y1 + far]), (p) => p[0] <= x1 + eps],
+    [line([x0 - far, y0], [x1 + far, y0]), (p) => p[1] >= y0 - eps],
+    [line([x0 - far, y1], [x1 + far, y1]), (p) => p[1] <= y1 + eps],
   ];
-  const input = [
-    ...segs.map((seg, i) => ({ id: `s${i}`, seg, outline: true })),
-    ...box.map((a, i) => ({
-      id: `r${i}`,
-      seg: { kind: 'line' as const, a, b: box[(i + 1) % 4]! },
-      outline: true,
-    })),
-  ];
-  const inside = (p: Pt) => p[0] > x0 && p[0] < x1 && p[1] > y0 && p[1] < y1;
-  const faces = arrange(input, 1e-7 * scale).faces.filter((f) => {
-    const p = interior(f.poly);
-    return p && inside(p) && pointInPolygon(p, shape);
-  });
-  // ponytail: one piece per space. A space cut in two by the edge (a spool through its waist) keeps
-  // its larger part; give Slot several outlines if a preset ever needs both.
-  const best = faces.sort((a, b) => b.area - a.area)[0];
-  return best ? toPatch(best, 1, 1).path : null;
+  for (const [edge, inside] of sides) {
+    const kept: Seg[] = [];
+    for (const seg of segs) {
+      const ts = intersect(seg, edge, eps)
+        .map((h) => h.t1)
+        .filter((t) => t > 1e-9 && t < 1 - 1e-9)
+        .sort((a, b) => a - b);
+      const ends = [0, ...ts, 1];
+      for (let n = 0; n + 1 < ends.length; n++) {
+        const part = subSegment(seg, ends[n]!, ends[n + 1]!);
+        if (inside(pointAt(part, 0.5))) kept.push(part);
+      }
+    }
+    segs = [];
+    for (const seg of kept) {
+      const last = segs[segs.length - 1];
+      if (last && dist(last.b, seg.a) > eps) segs.push(line(last.b, seg.a));
+      segs.push(seg);
+    }
+    if (!segs.length) return null;
+    const [first, end] = [segs[0]!, segs[segs.length - 1]!];
+    if (dist(end.b, first.a) > eps) segs.push(line(end.b, first.a));
+  }
+  if (Math.abs(signedArea(flattenLoop(segs, 1e-4 * far))) < 1e-9 * far * far) return null;
+  const path: PathCommand[] = [['M', ...segs[0]!.a]];
+  for (const g of segs) {
+    if (g.kind === 'line') path.push(['L', ...g.b]);
+    else if (g.kind === 'arc') path.push(['A', ...g.b, g.sweep]);
+    else path.push(['C', ...g.c1, ...g.c2, ...g.b]);
+  }
+  path.push(['Z']);
+  return path;
 }
 
-/** A point inside a simple polygon: the midpoint of a short diagonal that lies inside. */
-function interior(poly: Pt[]): Pt | null {
-  for (let i = 0; i < poly.length; i++) {
-    const a = poly[i]!;
-    const b = poly[(i + 1) % poly.length]!;
-    const c = poly[(i + 2) % poly.length]!;
-    const p: Pt = [(a[0] + b[0] * 2 + c[0]) / 4, (a[1] + b[1] * 2 + c[1]) / 4];
-    if (pointInPolygon(p, poly)) return p;
-  }
-  return null;
-}
+const line = (a: Pt, b: Pt): Seg => ({ kind: 'line', a, b });

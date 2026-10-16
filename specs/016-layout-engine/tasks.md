@@ -125,11 +125,11 @@ pieces, size shown; place/color/turn/undo/save/reopen work.
   in `src/model/layout/slots.ts`
 - [X] T025 (sonnet) [P] [US1] `slotGroup` knows `set:` (plain group `set`) and `b:m:` (block), and
   `describeSlot` reads "between r1-c1" / "setting piece" in `src/model/plain.ts`
-- [ ] T026 (sonnet) [US1] Layout inspector: style picker enables On-Point; On-Point fields (blocks across,
+- [X] T026 (sonnet) [US1] Layout inspector: style picker enables On-Point; On-Point fields (blocks across,
   down, block side with width on point shown, sashing, corner style); quilt finished size line, in
   `src/components/LayoutInspector.vue` (props widen to `Layout`) and `src/pages/QuiltEditorPage.vue`
   (show the inspector for both styles)
-- [ ] T027 (sonnet) [US1] Verify in the browser (dev server on 9000, Playwright Firefox): make 3 × 4 On-Point,
+- [X] T027 (sonnet) [US1] Verify in the browser (dev server on 9000, Playwright Firefox): make 3 × 4 On-Point,
   place and color blocks with This / All / Alternate, turn, undo, save, reopen; screenshot to the
   scratchpad
 
@@ -150,7 +150,7 @@ pieces, size shown; place/color/turn/undo/save/reopen work.
   and no `set:`; None gives no outer ring, a zigzag `edge`, no border slots while `quilt.borders` is
   untouched; `trim` true for Floating and Trim; float 0 = Exact in
   `test/vitest/__tests__/model/layout-on-point.spec.ts`
-- [ ] T029 (opus) [P] [US2] Print tests: Floating cut list uses the oversized triangles; Trim counts partial
+- [X] T029 (opus) [P] [US2] Print tests: Floating cut list uses the oversized triangles; Trim counts partial
   blocks as whole blocks in pieces and yardage; None binding length = zigzag perimeter in
   `test/vitest/__tests__/print/print.spec.ts`
 
@@ -162,13 +162,13 @@ pieces, size shown; place/color/turn/undo/save/reopen work.
   returns the zigzag `edge` in `src/model/layout/presets.ts` / `src/model/layout/engine.ts`
 - [X] T031 (opus) [US2] `generateSlots` skips borders when the edge finish is None and reports them as set
   aside (for the inspector note) in `src/model/layout/slots.ts`
-- [ ] T032 (sonnet) [US2] Inspector: edge finish select (Exact, Floating, Trimmed blocks, No fill) with the
+- [X] T032 (sonnet) [US2] Inspector: edge finish select (Exact, Floating, Trimmed blocks, No fill) with the
   float amount, note when borders are set aside; Borders inspector disabled with the same note in
   `src/components/LayoutInspector.vue` and `src/components/BordersInspector.vue`
-- [ ] T033 (opus) [US2] Print: binding from `Generated.edge` perimeter; trim note ("Trim the quilt top to the
+- [X] T033 (opus) [US2] Print: binding from `Generated.edge` perimeter; trim note ("Trim the quilt top to the
   marked edge") and the edge drawn on the quilt diagram when `trim` in
   `src/components/PrintPreview.vue`
-- [ ] T034 (sonnet) [US2] Verify in the browser: switch through the four finishes, check size, borders gone
+- [X] T034 (sonnet) [US2] Verify in the browser: switch through the four finishes, check size, borders gone
   and back, print preview list and binding; screenshots to the scratchpad
 
 ---
@@ -177,13 +177,13 @@ pieces, size shown; place/color/turn/undo/save/reopen work.
 
 **Independent Test**: Horizontal 3 × 3 with nine blocks → On-Point → back: blocks stay.
 
-- [ ] T035 (sonnet) [P] [US4] Conversion test: Horizontal → On-Point keeps cols, rows, `block[0]`, `sash[0]`;
+- [X] T035 (sonnet) [P] [US4] Conversion test: Horizontal → On-Point keeps cols, rows, `block[0]`, `sash[0]`;
   On-Point → Horizontal gives square block and sash, no sash border; `reconcile` keeps `b:r…`
   and drops `b:m:`/`set:` in `test/vitest/__tests__/model/slots.spec.ts`
-- [ ] T036 (opus) [US4] `convertLayout(layout, style)` in `src/model/layout/slots.ts`; style picker change
+- [X] T036 (opus) [US4] `convertLayout(layout, style)` in `src/model/layout/slots.ts`; style picker change
   goes through it, then the existing removal warning (`reconcile().dropped`) in
   `src/components/LayoutInspector.vue` / `src/pages/QuiltEditorPage.vue`
-- [ ] T037 (sonnet) [US4] Verify in the browser: place nine blocks, switch both ways, warning lists between
+- [X] T037 (sonnet) [US4] Verify in the browser: place nine blocks, switch both ways, warning lists between
   blocks
 
 ---
@@ -192,14 +192,14 @@ pieces, size shown; place/color/turn/undo/save/reopen work.
 
 **Goal**: every planned lattice layout generates through the engine without engine changes.
 
-- [ ] T038 (opus) Test-only presets in `test/vitest/__tests__/model/layout-presets.ts`: Variable Point
+- [X] T038 (opus) Test-only presets in `test/vitest/__tests__/model/layout-presets.ts`: Variable Point
   (sheared map), Baby Blocks and Variable Blocks (three diamonds per cell), Horizontal Strip with a
   half-drop strip and Vertical Strip (bands), One Patch (single shape), triangle (up/down cell),
   60° diamond, hexagon, clamshell (arcs; trimmed and shaped edge), spool (arcs, alternating turn),
   mixed triangle grid with merges (Baby Blocks, Star, Hexagons and Triangles via `Merge`)
-- [ ] T039 (opus) Merge support in the engine (union outline of covered triangles via `arrange()`, id
+- [X] T039 (opus) Merge support in the engine (union outline of covered triangles via `arrange()`, id
   `{shape}:{first covered id}`) in `src/model/layout/engine.ts`
-- [ ] T040 (opus) Checks for every preset: unique ids, area sum = clip area (no gaps or overlaps), hit test at
+- [X] T040 (opus) Checks for every preset: unique ids, area sum = clip area (no gaps or overlaps), hit test at
   each space's interior point finds that space, `drawQuilt` runs on a stub 2D context, plain pieces
   produce templates (arcs kept) in `test/vitest/__tests__/model/layout-presets.spec.ts`
 - [ ] T041 (sonnet) Performance check: 100 × 100 On-Point generates under the budget used by

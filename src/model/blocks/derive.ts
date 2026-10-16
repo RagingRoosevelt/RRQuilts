@@ -56,7 +56,7 @@ export function deriveSeamPatches(drawing: Drawing, size: [number, number]): Der
   };
 }
 
-export function toPatch(face: Face, w: number, h: number): DerivedPatch {
+function toPatch(face: Face, w: number, h: number): DerivedPatch {
   const n = (p: Pt): [number, number] => [p[0] / w, p[1] / h];
   const first = n(face.segs[0]!.a);
   const path: PathCommand[] = [['M', ...first]];

@@ -64,6 +64,9 @@
         @click="remove"
       />
     </div>
+    <div v-if="setAside" class="text-caption text-grey-8">
+      Borders are set aside while the edge is unfilled. They come back with another edge.
+    </div>
 
     <template v-if="current">
       <q-select
@@ -116,6 +119,7 @@ const props = defineProps<{
   selected: number;
   units: string;
   readonly: boolean;
+  setAside?: boolean;
 }>();
 const emit = defineEmits<{
   change: [borders: Border[], coalesce: string];

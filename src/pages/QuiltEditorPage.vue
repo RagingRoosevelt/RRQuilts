@@ -141,11 +141,15 @@
           <PaletteTray sidebar />
         </template>
         <LayoutInspector
-          v-else-if="editor.mode === 'layout' && quilt.layout.style === 'horizontal'"
+          v-else-if="
+            editor.mode === 'layout' &&
+            (quilt.layout.style === 'horizontal' || quilt.layout.style === 'on-point')
+          "
           :key="quilt.id"
           :layout="quilt.layout"
           :units="units"
           :readonly="project.readOnly"
+          :has-borders="quilt.borders.length > 0"
           @change="(l, k) => changeLayout(l, quilt!.borders, k)"
         />
         <BordersInspector
@@ -153,7 +157,8 @@
           v-model:selected="border"
           :borders="quilt.borders"
           :units="units"
-          :readonly="project.readOnly"
+          :readonly="project.readOnly || bordersSetAside"
+          :set-aside="bordersSetAside"
           @change="(b, k) => changeLayout(quilt!.layout, b, k)"
         />
         <DetailsPanel v-else-if="editor.mode === 'details'" kind="quilt" :id="quilt.id" />
@@ -281,6 +286,12 @@ const found = computed(() => {
 const sidebarLabel = computed(() => (editor.sidebar ? 'Hide sidebar' : 'Show sidebar'));
 const labelsLabel = computed(() => (editor.labels ? 'Hide block names' : 'Show block names'));
 
+const bordersSetAside = computed(
+  () =>
+    quilt.value?.layout.style === 'on-point' &&
+    quilt.value.layout.edge.finish === 'none' &&
+    quilt.value.borders.length > 0,
+);
 const fmt = (n: number) => `${Number(n.toFixed(3))}`;
 const dims = (b: [number, number, number, number]) =>
   `${fmt(b[2] - b[0])} × ${fmt(b[3] - b[1])} ${units.value}`;
@@ -289,10 +300,12 @@ const hoverSize = computed(() => {
   if (!s) return '';
   const t = s.transform;
   const kind =
-    { block: 'Block', sash: 'Sash', cs: 'Cornerstone', other: 'Space' }[
+    { block: 'Block', sash: 'Sash', cs: 'Cornerstone', other: 'Space', set: 'Setting piece' }[
       slotGroup(s.id) as string
     ] ?? 'Border';
-  return `${kind} ${fmt(Math.hypot(t[0], t[1]))} × ${fmt(Math.hypot(t[2], t[3]))} ${units.value}`;
+  if (s.kind === 'set') return 'Setting piece';
+  const [w, h] = s.kind === 'block' ? s.size : [Math.hypot(t[0], t[1]), Math.hypot(t[2], t[3])];
+  return `${kind} ${fmt(w)} × ${fmt(h)} ${units.value}`;
 });
 
 function onTap(hit: Hit) {

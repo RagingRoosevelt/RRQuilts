@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { apply, invert } from '@/model/geometry/affine';
 import { generateSlots, type Generated } from '@/model/layout/slots';
 import { onPointDefaults } from '@/model/io';
 import { ensurePlainBlock, ensureSlotContent } from '@/model/plain';
@@ -174,6 +175,59 @@ describe('On-Point sweep', () => {
               const at = `${cols}x${rows} sash ${sash} ${finish} ${corner}`;
               expect(new Set(g.slots.map((s) => s.id)).size, at).toBe(g.slots.length);
               expect(covered(g), at).toBeCloseTo(edgeArea(g), 6);
+              // A plain piece is filled through its transform: the unit square must cover it.
+              for (const x of g.slots.filter((x) => x.kind !== 'block')) {
+                const inv = invert(x.transform);
+                for (const c of x.outline)
+                  if (c[0] === 'M' || c[0] === 'L') {
+                    const [u, v] = apply(inv, [c[1], c[2]]);
+                    expect(Math.min(u, v, 1 - u, 1 - v), `${at} ${x.id}`).toBeGreaterThan(-1e-9);
+                  }
+              }
             }
+  });
+});
+
+describe('On-Point printing', () => {
+  const polyArea = (poly: [number, number][]) =>
+    Math.abs(poly.reduce((a, p, i) => a + cross(p, poly[(i + 1) % poly.length]!), 0) / 2);
+  const cross = (p: [number, number], q: [number, number]) => p[0] * q[1] - p[1] * q[0];
+
+  it('Trimmed blocks: a partial block is cut and counted whole', () => {
+    const l = op({ cols: 3, rows: 3, block: 9, finish: 'trim' });
+    const q = quiltWith(l, []);
+    q.layers[0].slots['b:m:r0c1'] = { block: 'seam1', coloring: 'qk1', rotation: 0, flip: false };
+    const whole = structuredClone(q);
+    whole.layers[0].slots = { 'b:r1c1': q.layers[0].slots['b:m:r0c1'] };
+    const sum = (x: typeof q) =>
+      quiltPieces(fixture(), x).reduce((a, p) => a + polyArea(p.poly), 0);
+    expect(sum(q)).toBeGreaterThan(0);
+    expect(sum(q)).toBeCloseTo(sum(whole), 6);
+  });
+
+  it('Floating: setting pieces are cut larger than they show', () => {
+    const l = op({ cols: 2, rows: 2, block: 8, finish: 'float' });
+    const doc = ensurePlainBlock(fixture());
+    const q = ensureSlotContent(
+      quiltWith(l, []),
+      generateSlots(l, []).slots.map((s) => s.id),
+    );
+    for (const p of quiltPieces(doc, q)) {
+      expect(p.shown).toBeDefined();
+      expect(polyArea(p.poly)).toBeGreaterThan(polyArea(p.shown!));
+    }
+  });
+
+  it('No fill: the edge runs along the zigzag (binding length)', () => {
+    const g = generateSlots(op({ cols: 3, rows: 2, block: 10, finish: 'none' }), []);
+    const pts = g.edge.flatMap((c) =>
+      c[0] === 'M' || c[0] === 'L' ? [[c[1], c[2]] as const] : [],
+    );
+    const length = pts.reduce(
+      (a, p, i) =>
+        a + Math.hypot(p[0] - pts[(i + 1) % pts.length]![0], p[1] - pts[(i + 1) % pts.length]![1]),
+      0,
+    );
+    expect(length).toBeCloseTo((4 * (3 + 2) - 4) * 10, 9);
   });
 });
