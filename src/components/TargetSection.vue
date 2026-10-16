@@ -14,31 +14,34 @@
       </template>
     </FieldGroup>
     <div class="text-caption text-grey-8">A size to aim for, drawn over the quilt</div>
-    <TargetEditor
-      :model-value="input"
-      :units="units"
-      :readonly="readonly"
-      @update:model-value="edit"
-    />
-    <div v-if="target" class="text-caption text-grey-8">
-      {{ target.label }}, {{ size }} {{ units }}
-    </div>
-    <div v-if="target" class="row items-center no-wrap q-pl-sm q-pr-md" style="gap: 12px">
-      <div class="text-caption">Opacity</div>
-      <q-slider
-        class="col"
-        :model-value="Math.round((target.opacity ?? 1) * 100)"
-        :min="10"
-        :max="100"
-        :step="5"
-        label
-        :label-value="`${Math.round((target.opacity ?? 1) * 100)}%`"
-        :disable="readonly"
-        aria-label="Overlay opacity"
-        @update:model-value="
-          (v) => v !== null && emit('change', { ...target!, opacity: v / 100 }, 'target-opacity')
-        "
+    <!-- Switched off (Show): the settings stay as they are, greyed out, until it's on again. -->
+    <div class="column" :class="{ off }" style="gap: 8px">
+      <TargetEditor
+        :model-value="input"
+        :units="units"
+        :readonly="readonly || off"
+        @update:model-value="edit"
       />
+      <div v-if="target" class="text-caption text-grey-8">
+        {{ target.label }}, {{ size }} {{ units }}
+      </div>
+      <div v-if="target" class="row items-center no-wrap q-pl-sm q-pr-md" style="gap: 12px">
+        <div class="text-caption">Opacity</div>
+        <q-slider
+          class="col"
+          :model-value="Math.round((target.opacity ?? 1) * 100)"
+          :min="10"
+          :max="100"
+          :step="5"
+          label
+          :label-value="`${Math.round((target.opacity ?? 1) * 100)}%`"
+          :disable="readonly || off"
+          aria-label="Overlay opacity"
+          @update:model-value="
+            (v) => v !== null && emit('change', { ...target!, opacity: v / 100 }, 'target-opacity')
+          "
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -65,6 +68,7 @@ const input = computed<TargetInput>(
       region: defaultRegion(useSettingsStore().settings.bedSizes, props.units),
     },
 );
+const off = computed(() => !!props.target && !props.target.visible);
 const size = computed(() => {
   if (!props.target) return '';
   const [w, h] = shapeSize(props.target);
@@ -89,3 +93,10 @@ function edit(next: TargetInput) {
   );
 }
 </script>
+
+<style scoped>
+.off {
+  opacity: 0.45;
+  pointer-events: none;
+}
+</style>

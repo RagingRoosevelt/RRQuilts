@@ -3,6 +3,7 @@
   <div class="column" style="gap: 8px">
     <q-btn-toggle
       :model-value="modelValue.region"
+      class="col-auto one-line"
       spread
       no-caps
       unelevated
@@ -274,6 +275,11 @@ function setSize(us: string) {
 </script>
 
 <style scoped>
+/* Switch labels stay on one line, so the switch is as tall as the others. */
+.one-line :deep(.q-btn__content) {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
 /* A group label set into its divider line. */
 .target-header {
   display: flex;
