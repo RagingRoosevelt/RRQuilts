@@ -14,7 +14,7 @@ work lives in a **project**, one file (ending in `.rrq`) that holds your quilts,
    quilt under the steps changes as you choose.
    - **Blocks** picks the style, **Horizontal** (rows of blocks), **On-Point** (blocks turned to
      sit as diamonds), or **Strips**, and sets how many blocks and their **Finished block size**
-     (for strips, how many strips and their **Length**).
+     (for strips, how many strips and their **Strip length**).
    - **Strips** (strip quilts only) sets **Horizontal** or **Vertical** and each strip's style and
      size, as in the Layout tab.
    - **Sashing** has **Sashing width (0 for none)**. Horizontal quilts can also have **Sashing

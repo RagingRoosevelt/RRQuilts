@@ -2,7 +2,7 @@
   <div class="column" style="gap: 12px">
     <LengthInput
       :model-value="layout.length"
-      label="Length"
+      label="Strip length (all strips)"
       :units="units"
       :min="0.25"
       :readonly="readonly"
@@ -42,6 +42,9 @@
     <q-toggle v-model="clone" dense label="Clone the selected strip" :disable="readonly" />
 
     <template v-if="current">
+      <div class="text-subtitle2">
+        Strip {{ layout.strips.findIndex((s) => s.id === current!.id) + 1 }}
+      </div>
       <q-select
         :model-value="current.style"
         dense
@@ -55,7 +58,7 @@
       />
       <LengthInput
         :model-value="current.width"
-        label="Width"
+        label="Strip width"
         :units="units"
         :min="0.25"
         :readonly="readonly"
@@ -67,7 +70,7 @@
         dense
         outlined
         type="number"
-        label="Along"
+        label="Units along"
         min="1"
         max="100"
         :readonly="readonly"
@@ -79,7 +82,7 @@
         dense
         outlined
         type="number"
-        label="Across"
+        label="Units across"
         min="1"
         max="100"
         :readonly="readonly"

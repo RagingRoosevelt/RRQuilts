@@ -43,7 +43,7 @@
               <LengthInput
                 :model-value="stripLayout.length"
                 class="col-6"
-                label="Length"
+                label="Strip length"
                 :units="units"
                 :min="1"
                 @update:model-value="(v) => (stripLayout = { ...stripLayout, length: v })"

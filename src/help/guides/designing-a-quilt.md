@@ -52,7 +52,7 @@ only exist in one style are listed in a warning before they are removed.
 
 A strip quilt is a stack of strips. With **Horizontal Strip** they run left to right, stacked top
 to bottom. With **Vertical Strip** they run top to bottom, side by side. Every strip is the same
-**Length**, and each has its own style and width.
+**Strip length (all strips)**, and each has its own style and **Strip width**.
 
 1. Pick a strip in the list, tap it on the quilt, or step through them with the arrows.
 2. Choose its **Style**.
@@ -63,8 +63,8 @@ to bottom. With **Vertical Strip** they run top to bottom, side by side. Every s
      **Half Drop** version), and **Checker Board** are pieced patterns. You color them with fabric
      and colors, not blocks. **Alternate** colors every other shape, so the points and their
      background take different colors in one tap.
-3. Set its **Width** and **Along**, the number of units along the strip. **Checker Board** also
-   has **Across**. The unit size shows below. When the units aren't square (or the points aren't
+3. Set its **Strip width** and **Units along**, the number of units along the strip. **Checker
+   Board** also has **Units across**. The unit size shows below. When the units aren't square (or the points aren't
    right angles), a **Make square** button offers the count or the length that fixes them.
 4. **Add** puts a new strip at the end, **Insert** puts one before the selected strip, and
    **Delete** removes the selected strip. With **Clone the selected strip** on, the new strip copies
