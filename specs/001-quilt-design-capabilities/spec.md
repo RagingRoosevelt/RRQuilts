@@ -632,6 +632,19 @@ and its Files-app integration (phones) work by hand.
 - **FR-028**: The app MUST turn a block made only of horizontal/vertical lines into a Custom Set
   layout.
 - **FR-029**: Maximum blocks per row/column MUST be configurable (default 24, up to 100).
+- **FR-029a**: The app MUST support shaped-block layouts, where every space holds a block of that
+  shape: Triangle (equilateral, rows alternating point up and point down), Hexagon, Diamond (60°),
+  Clamshell, and Spool (spools alternate quarter turns). Each takes counts and a finished size, and
+  the quilt's edge either trims the outer spaces straight (partial spaces hold a trimmed block or a
+  plain fill) or leaves whole spaces (a shaped edge). *Added 2026-10-15.*
+- **FR-029b**: Layout spaces MAY have curved edges (clamshell, spool); drawing, coloring, placing,
+  and printing (templates with seam allowance) MUST handle them like straight-edged spaces.
+  *Added 2026-10-15.*
+- **FR-029c** *(design constraint)*: Layouts MUST come from one shared engine: a repeating cell of
+  block spaces and sashing (each space with its own shape and turn), repeated along two directions,
+  turned or sheared as a whole, and trimmed to the quilt. Each layout style (FR-020–FR-025,
+  FR-029a) is a preset of that engine's parameters, not separate geometry; space ids stay derived
+  from position (contracts/slot-ids.md). *Added 2026-10-15.*
 
 **Borders (US5)**
 
@@ -687,6 +700,12 @@ and its Files-app integration (phones) work by hand.
 
 - **FR-060**: Block styles MUST include seam-line pieced, patch-grid pieced, appliqué block, appliqué
   motif, seam-line + appliqué, and patch-grid + appliqué; each has a finished width/height.
+- **FR-060a**: Blocks MUST have a shape: square or rectangle (the default), equilateral triangle,
+  hexagon, 60° diamond, clamshell, or spool. The block editor draws within the shape's outline and
+  offers a snap grid that suits it (triangular for triangles, hexagons, and diamonds); patches are
+  found within the outline. A block goes only into layout spaces of its shape, and its turns and
+  flips follow the shape's symmetry (60° steps for hexagons, 120° for triangles). *Added
+  2026-10-15.*
 - **FR-061**: Drawing aids MUST include snap grid (horizontal/vertical counts), snap to grid/nodes/
   lines/whole patch/aligned segments, auto-join, graph paper overlay, guides (convert/clear), and
   fill-closed-patches preview.
