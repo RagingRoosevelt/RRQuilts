@@ -5,6 +5,7 @@ import type { HorizontalLayout, OnPointLayout, StripLayout } from '../schema/qui
 import type { PathCommand } from '../schema/shared';
 import { clipByLine, clipPolygon, toPath } from './clip';
 import { tile, type Band, type CellPiece, type Tiling } from './engine';
+import { squareBlocks, stripWidth } from './strips';
 import { rectPath, type Bounds, type Slot, type SlotKind } from './slots';
 
 const rect = (
@@ -414,7 +415,7 @@ export function strips(l: StripLayout): { tiling: Tiling; center: Bounds } {
   const bands: Band[] = [];
   let y0 = 0;
   for (const st of l.strips) {
-    const w = st.width;
+    const w = stripWidth(l, st);
     const [y1, ym] = [y0 + w, y0 + w / 2];
     const n = st.along;
     const u = L / n;
@@ -510,11 +511,24 @@ export function strips(l: StripLayout): { tiling: Tiling; center: Bounds } {
         );
         break;
       case 'blocks':
-        bands.push(along([block(0, (i) => `b:s${sid}:${i + 1}`)], 0, n - 1));
+      case 'half-drop-blocks': {
+        const half = st.style === 'half-drop-blocks';
+        const dx = half ? -u / 2 : 0;
+        // Square blocks take blocks; with Square blocks off the units are painted only.
+        const unit = squareBlocks(st)
+          ? block(dx, (i) => `b:s${sid}:${half ? i : i + 1}`)
+          : {
+              ...plain('u', [
+                [dx, y0],
+                [dx + u, y0],
+                [dx + u, y1],
+                [dx, y1],
+              ]),
+              alt: (i: number) => ((i % 2) + 2) % 2,
+            };
+        bands.push(along([unit], 0, half ? n : n - 1));
         break;
-      case 'half-drop-blocks':
-        bands.push(along([block(-u / 2, (i) => `b:s${sid}:${i}`)], 0, n));
-        break;
+      }
       case 'points-a':
         bands.push(points(0));
         break;

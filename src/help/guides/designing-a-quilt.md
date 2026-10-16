@@ -57,8 +57,10 @@ to bottom. With **Vertical Strip** they run top to bottom, side by side. Every s
 1. Pick a strip in the list or tap it on the quilt.
 2. Choose its **Style**.
    - **Plain** is one piece of fabric.
-   - **Pieced Blocks** and **Half Drop Blocks** hold blocks. Half Drop starts and ends with half
-     blocks, which are cut from whole ones.
+   - **Pieced Blocks** and **Half Drop Blocks** are a **Block strip** or a **Pieced strip**. A block
+     strip holds blocks, and keeps them square, so its width follows the length and the units along.
+     A pieced strip is rectangles of any width that you color with fabric. Half Drop starts and ends
+     with half units, cut from whole ones.
    - **Spaced Squares**, **Points A** and **B**, **Diamonds**, **Double Diamonds** (each also in a
      **Half Drop** version), and **Checker Board** are pieced patterns. You color them with fabric
      and colors, not blocks. **Alternate** colors every other shape, so the points and their

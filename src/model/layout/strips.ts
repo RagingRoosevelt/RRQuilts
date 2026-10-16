@@ -51,6 +51,14 @@ export function swapStrips(l: StripLayout, a: string, b: string): StripLayout {
   return { ...l, strips };
 }
 
+/** Block strips that keep their blocks square (the default). */
+export const squareBlocks = (s: Strip) =>
+  (s.style === 'blocks' || s.style === 'half-drop-blocks') && s.square !== false;
+
+/** A strip's width as laid out: square block strips follow the length and their count. */
+export const stripWidth = (l: StripLayout, s: Strip) =>
+  squareBlocks(s) ? l.length / s.along : s.width;
+
 /** Move a strip into gap `to` (0 = before the first, n = after the last). */
 export function moveStrip(l: StripLayout, id: string, to: number): StripLayout {
   const from = l.strips.findIndex((x) => x.id === id);
@@ -97,6 +105,7 @@ export function squareUnit(s: Strip): number | null {
 
 /** Fixes that make a strip's units square: the count at this length, or the length at this count. */
 export function squareFixes(l: StripLayout, s: Strip): { along?: number; length?: number } | null {
+  if (squareBlocks(s)) return null; // already square by construction
   const unit = squareUnit(s);
   if (unit === null || Math.abs(l.length / s.along - unit) < 1 / 64) return null;
   const along = Math.round(l.length / unit);

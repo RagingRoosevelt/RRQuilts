@@ -133,8 +133,10 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
 - **FR-002**: Strip styles MUST be Plain, Pieced Blocks, Half Drop Blocks, Spaced Squares, Points A,
   Points B, Diamonds, Half Drop Diamonds, Double Diamonds, Half Drop Double Diamonds, and Checker
   Board, each with the count along the length it needs (Checker Board also across the width).
-- **FR-003**: Pieced Blocks and Half Drop Blocks MUST make block spaces; all other styles MUST make
-  plain pieces (colors and fabrics only).
+- **FR-003**: Pieced Blocks and Half Drop Blocks MUST be either a **block strip** (the default:
+  square block spaces, the strip's width following length ÷ units along, so blocks are always
+  square) or a **pieced strip** (rectangles of any width, colors and fabrics only); all other styles
+  MUST make plain pieces. *Amended 2026-10-16 (owner).*
 - **FR-004**: Placed blocks and colors MUST belong to the strip they're in, so inserting, deleting,
   or reordering other strips never moves or drops them (space ids follow the strip, not its
   position; the slot-id contract gains the strip grammar).

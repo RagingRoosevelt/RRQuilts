@@ -73,6 +73,7 @@ export const stripDefaults = (k: number, n = 5) => ({
     width: (i % 2 ? 8 : 3) * k,
     along: 6,
     across: 1,
+    ...(i % 2 ? { square: true } : {}),
   })),
 });
 

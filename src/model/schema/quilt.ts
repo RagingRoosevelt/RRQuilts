@@ -68,6 +68,9 @@ export const Strip = Type.Object({
   along: count,
   /** Units across the strip (Checker Board). */
   across: count,
+  /** Block styles: a block strip (square blocks, the width following length ÷ along; default),
+   *  or false for a pieced strip (rectangles painted only, any width). */
+  square: Type.Optional(Type.Boolean()),
 });
 
 /** Strip quilts (spec 017): strips stacked down (horizontal) or across (vertical), one length. */

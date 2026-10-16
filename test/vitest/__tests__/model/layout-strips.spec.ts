@@ -11,6 +11,7 @@ import {
   setStrip,
   squareFixes,
   squareUnit,
+  stripWidth,
   stripOf,
   swapStrips,
 } from '@/model/layout/strips';
@@ -52,9 +53,10 @@ describe('strip styles (SC-003)', () => {
   for (const { value: style } of STRIP_STYLES)
     it(`${style} covers its strip for counts 1…24`, () => {
       for (let along = 1; along <= 24; along++) {
-        const g = generateSlots(one(strip('s1', style, 6, along, 3)), []);
+        const l = one(strip('s1', style, 6, along, 3));
+        const g = generateSlots(l, []);
         const at = `${style} ×${along}`;
-        expect(area(g), at).toBeCloseTo(40 * 6, 6);
+        expect(area(g), at).toBeCloseTo(40 * stripWidth(l, l.strips[0]!), 6);
         expect(new Set(g.slots.map((s) => s.id)).size, at).toBe(g.slots.length);
         if ([1, 2, 5, 24].includes(along)) expect(badSamples(g), at).toBe(0);
       }
@@ -65,6 +67,20 @@ describe('strip styles (SC-003)', () => {
       const kinds = new Set(generateSlots(one(strip('s1', style)), []).slots.map((s) => s.kind));
       expect([...kinds], style).toEqual(style.includes('blocks') ? ['block'] : ['strip']);
     }
+  });
+
+  it('square block strips: width follows length ÷ along; off: painted units, set width', () => {
+    const sq = one(strip('s1', 'blocks', 3, 6), 30);
+    expect(generateSlots(sq, []).center).toEqual([0, 0, 30, 5]);
+    expect(generateSlots(sq, []).slots.every((s) => s.kind === 'block' && s.turns === 90)).toBe(
+      true,
+    );
+    const off = one({ ...strip('s1', 'blocks', 3, 6), square: false }, 30);
+    const g = generateSlots(off, []);
+    expect(g.center).toEqual([0, 0, 30, 3]);
+    expect(g.slots.map((s) => s.kind)).toEqual(Array(6).fill('strip'));
+    expect(g.slots[0]!.id).toBe('strip:s1:u0');
+    expect(squareFixes(sq, sq.strips[0]!)).toBeNull();
   });
 
   it('half drop blocks: half blocks at both ends, placed whole', () => {
@@ -160,7 +176,8 @@ describe('strip edits keep content with its strip (SC-002)', () => {
 describe('square units (SC-004)', () => {
   it('fixes give square units or 90° points within 1/64″', () => {
     for (const { value: style } of STRIP_STYLES) {
-      const s = strip('s', style, 5, 7, 2);
+      // Pieced (not square-by-construction) so block styles have something to fix too.
+      const s = { ...strip('s', style, 5, 7, 2), square: false };
       const l = one(s, 47);
       const fix = squareFixes(l, s);
       if (squareUnit(s) === null) {

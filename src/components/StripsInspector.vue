@@ -43,7 +43,7 @@
           </button>
           <button type="button" class="row-btn" @click="editor.selectedStrip = s.id">
             <span>{{ i + 1 }}. {{ labelOf(s.style) }}</span>
-            <span>{{ fmtLen(s.width, lu) }}</span>
+            <span>{{ fmtLen(stripWidth(layout, s), lu) }}</span>
           </button>
           <button
             v-if="!readonly && layout.strips.length > 1"
@@ -81,12 +81,34 @@
         :readonly="readonly"
         @update:model-value="(v) => patch({ style: v }, '')"
       />
+      <template v-if="isBlocks">
+        <q-btn-toggle
+          :model-value="current.square !== false"
+          spread
+          no-caps
+          unelevated
+          toggle-color="primary"
+          :disable="readonly"
+          :options="[
+            { label: 'Block strip', value: true },
+            { label: 'Pieced strip', value: false },
+          ]"
+          @update:model-value="(v) => patch({ square: v, width: stripWidth(layout, current!) }, '')"
+        />
+        <div class="text-caption text-grey-7">
+          {{
+            current.square !== false
+              ? 'Holds blocks. The width follows the length and the units along, so blocks stay square.'
+              : 'Rectangles you color with fabric. Set any width.'
+          }}
+        </div>
+      </template>
       <LengthInput
-        :model-value="current.width"
+        :model-value="stripWidth(layout, current)"
         label="Strip width"
         :units="units"
         :min="0.25"
-        :readonly="readonly"
+        :readonly="readonly || squareBlocks(current)"
         @update:model-value="(v) => patch({ width: v }, 'width')"
       />
       <q-input
@@ -115,7 +137,7 @@
       />
       <div v-if="current.style !== 'plain'" class="text-caption text-grey-7">
         Unit size: {{ fmtLen(layout.length / current.along, lu) }} ×
-        {{ fmtLen(current.width, lu) }}
+        {{ fmtLen(stripWidth(layout, current), lu) }}
       </div>
       <template v-if="fixes">
         <q-btn
@@ -153,6 +175,8 @@ import {
   setStrip,
   squareFixes,
   moveStrip,
+  squareBlocks,
+  stripWidth,
 } from '@/model/layout/strips';
 import { fmtLen } from '@/model/print/format';
 import type { Layout, Strip, StripLayout } from '@/model/schema/quilt';
@@ -171,6 +195,9 @@ const labelOf = (v: string) => STRIP_STYLES.find((s) => s.value === v)?.label ??
 
 const current = computed(
   () => props.layout.strips.find((s) => s.id === editor.selectedStrip) ?? props.layout.strips[0],
+);
+const isBlocks = computed(
+  () => current.value?.style === 'blocks' || current.value?.style === 'half-drop-blocks',
 );
 const fixes = computed(() => (current.value ? squareFixes(props.layout, current.value) : null));
 
