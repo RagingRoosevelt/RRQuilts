@@ -9,7 +9,7 @@ import {
   insertStrip,
   moveStrip,
   setStrip,
-  squareFixes,
+  squareAlong,
   squareUnit,
   stripWidth,
   stripOf,
@@ -82,7 +82,7 @@ describe('strip styles (SC-003)', () => {
     expect(g.center).toEqual([0, 0, 30, 3]);
     expect(g.slots.map((s) => s.kind)).toEqual(Array(6).fill('strip'));
     expect(g.slots[0]!.id).toBe('strip:s1:u0');
-    expect(squareFixes(sq, sq.strips[0]!)).toBeNull();
+    expect(squareAlong(sq, sq.strips[0]!)).toBeNull();
   });
 
   it('half drop blocks: half blocks at both ends, placed whole', () => {
@@ -176,20 +176,24 @@ describe('strip edits keep content with its strip (SC-002)', () => {
 });
 
 describe('square units (SC-004)', () => {
-  it('fixes give square units or 90° points within 1/64″', () => {
+  it('the along fix gives square units or 90° points within 1/64″, length unchanged', () => {
     for (const { value: style } of STRIP_STYLES) {
       // Pieced (not square-by-construction) so block styles have something to fix too.
       const s = { ...strip('s', style, 5, 7, 2), square: false };
-      const l = one(s, 47);
-      const fix = squareFixes(l, s);
+      const l = one(s, 50);
+      const along = squareAlong(l, s);
       if (squareUnit(s) === null) {
-        expect(fix, style).toBeNull();
+        expect(along, style).toBeNull();
         continue;
       }
-      const lengthFixed = one(s, fix!.length);
-      expect(squareFixes(lengthFixed, s), style).toBeNull();
-      if (fix!.along) expect(squareFixes(l, { ...s, along: fix!.along }), style).toBeNull();
+      expect(along, style).not.toBeNull();
+      const fixed = { ...s, along: along! };
+      expect(Math.abs(50 / fixed.along - squareUnit(fixed)!), style).toBeLessThan(1 / 64);
+      expect(squareAlong(one(fixed, 50), fixed), style).toBeNull();
     }
+    // No whole count works: 47″ of 5″ squares.
+    const odd = { ...strip('s', 'blocks', 5, 7), square: false };
+    expect(squareAlong(one(odd, 47), odd)).toBeNull();
   });
 });
 

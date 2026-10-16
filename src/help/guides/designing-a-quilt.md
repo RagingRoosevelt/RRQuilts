@@ -67,7 +67,7 @@ to bottom. With **Vertical Strip** they run top to bottom, side by side. Every s
      background take different colors in one tap.
 3. Set its **Strip width** and **Units along**, the number of units along the strip. **Checker
    Board** also has **Units across**. The unit size shows below. When the units aren't square (or the points aren't
-   right angles), a **Make square** button offers the count or the length that fixes them.
+   right angles), a **Make square** button offers the number of units that fixes them.
 4. To add a strip, point between two strips in the list (or above the first, or below the last) and
    click the **+** at the start of the line that appears. On a phone the lines always show. The new
    strip is a plain 2″ strip. The **×** at the end of a strip's row deletes it. To move a strip,

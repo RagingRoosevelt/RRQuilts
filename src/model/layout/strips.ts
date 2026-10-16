@@ -103,14 +103,15 @@ export function squareUnit(s: Strip): number | null {
   }
 }
 
-/** Fixes that make a strip's units square: the count at this length, or the length at this count. */
-export function squareFixes(l: StripLayout, s: Strip): { along?: number; length?: number } | null {
+/**
+ * The count along that makes this strip's units square (or its points 90°) at the current length,
+ * or null when they already are, the style has none, or no whole count up to 100 does. Only the
+ * strip changes; the shared length never does.
+ */
+export function squareAlong(l: StripLayout, s: Strip): number | null {
   if (squareBlocks(s)) return null; // already square by construction
   const unit = squareUnit(s);
   if (unit === null || Math.abs(l.length / s.along - unit) < 1 / 64) return null;
   const along = Math.round(l.length / unit);
-  return {
-    ...(along >= 1 && along <= 100 && Math.abs(l.length / along - unit) < 1 / 64 ? { along } : {}),
-    length: unit * s.along,
-  };
+  return along >= 1 && along <= 100 && Math.abs(l.length / along - unit) < 1 / 64 ? along : null;
 }

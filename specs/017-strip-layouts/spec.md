@@ -45,8 +45,8 @@ shown widths, all the same length.
    the length is editable; **given** Checker Board, **Then** the count across the width is editable
    too; **given** Plain, **Then** no counts.
 5. **Given** a strip whose units aren't square (blocks) or whose points aren't 90°, **Then** the
-   inspector shows the unit size and offers to make them square: the count or the length that
-   would make them so (strip formulas, see FR-012).
+   inspector shows the unit size and offers to make them square by changing that strip's count
+   along (FR-012).
 
 ---
 
@@ -160,13 +160,11 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
   2026-10-16 (owner).* *Added
   2026-10-16 (owner).*
 - **FR-012**: The inspector MUST show each strip's unit size and, when units aren't square (or points
-  not 90°), offer one-tap fixes: the count that makes them square at the current length, or the
-  length that does at the current count, using the strip formulas: width × count = length (blocks,
-  diamonds), width × count ÷ 2 = length (double diamonds), width × count × 2 = length (points), and
-  for Checker Board, along = across × length ÷ width.
-
-**Wizard** (spec 016 FR-013)
-
+  not 90°), offer a one-tap fix that changes only that strip's count along (never the shared
+  length): the whole count that makes them square at the current length, from the strip formulas
+  (unit = width for blocks and diamonds, width ÷ 2 for double diamonds, width × 2 for points, width ÷
+  across for Checker Board); no fix is offered when no whole count up to 100 works. *Amended
+  2026-10-16 (owner): no length fix.*
 - **FR-020**: The wizard MUST have one Strips card. Its first step (Layout) only picks the style;
   styles that need it get their own customization step before Sashing ("Strips"), which holds
   everything that sizes them: Horizontal or Vertical, the strip length, and the strips with their

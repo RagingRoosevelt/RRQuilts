@@ -139,26 +139,15 @@
         Unit size: {{ fmtLen(layout.length / current.along, lu) }} ×
         {{ fmtLen(stripWidth(layout, current), lu) }}
       </div>
-      <template v-if="fixes">
-        <q-btn
-          v-if="fixes.along"
-          dense
-          no-caps
-          outline
-          :label="`Make square: ${fixes.along} along`"
-          :disable="readonly"
-          @click="patch({ along: fixes.along! }, '')"
-        />
-        <q-btn
-          v-if="fixes.length"
-          dense
-          no-caps
-          outline
-          :label="`Make square: length ${fmtLen(fixes.length, lu)}`"
-          :disable="readonly"
-          @click="emit('change', { ...layout, length: fixes.length! }, '')"
-        />
-      </template>
+      <q-btn
+        v-if="fix"
+        dense
+        no-caps
+        outline
+        :label="`Make square: ${fix} along`"
+        :disable="readonly"
+        @click="patch({ along: fix! }, '')"
+      />
     </template>
     <div v-if="hint" class="text-caption text-primary">{{ hint }}</div>
   </div>
@@ -173,7 +162,7 @@ import {
   deleteStrip,
   insertStrip,
   setStrip,
-  squareFixes,
+  squareAlong,
   moveStrip,
   squareBlocks,
   stripWidth,
@@ -199,7 +188,7 @@ const current = computed(
 const isBlocks = computed(
   () => current.value?.style === 'blocks' || current.value?.style === 'half-drop-blocks',
 );
-const fixes = computed(() => (current.value ? squareFixes(props.layout, current.value) : null));
+const fix = computed(() => (current.value ? squareAlong(props.layout, current.value) : null));
 
 // Dragging a strip: `to` is the gap it would land in (0 = before the first).
 const listEl = ref<HTMLElement>();
