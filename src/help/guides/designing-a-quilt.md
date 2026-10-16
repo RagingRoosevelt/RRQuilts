@@ -37,6 +37,9 @@ blocks fills the spaces between them, and setting pieces finish the edge.
      quilt top to its final size after piecing. **Float** sets how much extra the triangles get.
    - **Trimmed blocks** uses partial blocks along the edge. They are cut by the edge, but they are
      cut and counted as whole blocks.
+   - You can also set a block into a single setting triangle. It's placed whole, turned like the
+     others, and cut at the edge. That side of the quilt is then cut at the block points, so it
+     loses its float until the block is removed.
    - **No fill** leaves the zigzag edge as it is, and the binding follows it. Borders are set aside
      until you choose another finish.
 5. The Print tab notes when the quilt top needs trimming.

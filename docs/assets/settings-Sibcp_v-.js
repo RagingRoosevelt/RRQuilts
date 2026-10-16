@@ -1,0 +1,1 @@
+import{_ as e,g as t}from"./project-DVkSX6Xf.js";import{i as n}from"./index-BN3J0cwS.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

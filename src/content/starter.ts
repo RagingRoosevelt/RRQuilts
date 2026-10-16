@@ -238,6 +238,14 @@ const logColors = [C.Cream, C.Linen, C.Indigo, C.Navy];
 
 export const STARTER_BLOCKS: StarterBlock[] = [
   {
+    // One patch, no seams: a plain square (alternate blocks, blocks between on point).
+    name: 'Plain Block',
+    category: 'Basics',
+    seams: [],
+    base: C.Cream!,
+    points: [],
+  },
+  {
     name: 'Four Patch',
     category: 'N-Patch/Four-patch',
     seams: cross,
@@ -591,6 +599,7 @@ export async function builtinLibrary(): Promise<BuiltinItems> {
 
 /** Built-in categories, two levels ("Parent/Child"); parents listed before their children. */
 const STARTER_CATEGORIES = [
+  'Basics',
   'Medallions',
   'Strips',
   'Strips/Log Cabin',
