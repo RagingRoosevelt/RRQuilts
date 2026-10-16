@@ -643,8 +643,14 @@ and its Files-app integration (phones) work by hand.
 - **FR-029c** *(design constraint)*: Layouts MUST come from one shared engine: a repeating cell of
   block spaces and sashing (each space with its own shape and turn), repeated along two directions,
   turned or sheared as a whole, and trimmed to the quilt. Each layout style (FR-020–FR-025,
-  FR-029a) is a preset of that engine's parameters, not separate geometry; space ids stay derived
+  FR-029a, FR-029d) is a preset of that engine's parameters, not separate geometry; space ids stay derived
   from position (contracts/slot-ids.md). *Added 2026-10-15.*
+- **FR-029d**: Triangles, 60° diamonds, and hexagons of the same side length MUST be able to share one
+  layout, since all three are made of the same equilateral triangles (a diamond is two, a hexagon
+  six). Presets include Baby Blocks (three diamonds per hexagon), Star (a hexagon ringed by six
+  triangles), and Hexagons and Triangles (alternating). The user MAY also merge neighboring spaces
+  into a larger shape (two triangles into a diamond, six into a hexagon) or split one back.
+  *Added 2026-10-15.*
 
 **Borders (US5)**
 
