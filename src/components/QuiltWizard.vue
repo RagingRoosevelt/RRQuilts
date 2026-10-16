@@ -3,18 +3,30 @@
     <q-card style="width: 420px; max-width: 95vw">
       <q-stepper v-model="step" flat animated header-nav>
         <q-step :name="1" title="Blocks" icon="grid_on">
-          <q-btn-toggle
-            v-model="style"
-            class="q-mb-md"
-            spread
-            no-caps
-            unelevated
-            toggle-color="primary"
-            :options="[
-              { label: 'Horizontal', value: 'horizontal' },
-              { label: 'On-Point', value: 'on-point' },
-            ]"
-          />
+          <!-- Style cards: each drawn by the layout engine; later styles join the list. -->
+          <div class="styles q-mb-md" role="radiogroup" aria-label="Layout style">
+            <button
+              v-for="c in styleCards"
+              :key="c.value"
+              type="button"
+              role="radio"
+              class="style-card"
+              :class="{ on: style === c.value }"
+              :aria-checked="style === c.value"
+              @click="style = c.value"
+            >
+              <svg :viewBox="c.picture.box" class="preview-art">
+                <path
+                  v-for="(p, i) in c.picture.paths"
+                  :key="i"
+                  :d="p.d"
+                  :class="p.kind"
+                  vector-effect="non-scaling-stroke"
+                />
+              </svg>
+              <div class="text-caption">{{ c.label }}</div>
+            </button>
+          </div>
           <div class="row q-col-gutter-sm">
             <q-input
               v-model.number="cols"
@@ -77,7 +89,12 @@
       </q-stepper>
       <!-- Live preview of the layout as it's being chosen. -->
       <div class="preview q-px-md">
-        <svg v-if="preview" :viewBox="preview.box" preserveAspectRatio="xMidYMid meet">
+        <svg
+          v-if="preview"
+          :viewBox="preview.box"
+          class="preview-art"
+          preserveAspectRatio="xMidYMid meet"
+        >
           <path
             v-for="(p, i) in preview.paths"
             :key="i"
@@ -111,7 +128,7 @@ const emit = defineEmits<{ create: [layout: Layout, borders: Border[]] }>();
 
 const open = ref(false);
 const step = ref(1);
-const style = ref<'horizontal' | 'on-point'>('horizontal');
+const style = ref<Style>('horizontal');
 const cols = ref(5);
 const rows = ref(5);
 const blockSize = ref(10);
@@ -147,8 +164,10 @@ const borders = computed<Border[]>(() =>
 );
 const generated = computed(() => generateSlots(layout.value, borders.value));
 // ponytail: plain SVG paths, capped; a canvas would be needed to preview very large quilts.
-const preview = computed(() => {
-  const g = generated.value;
+/** Outlines of a layout's spaces as SVG paths, or null when there are too many to draw. */
+function picture(l: Layout, b: Border[]) {
+  const g = generateSlots(l, b);
+  // ponytail: plain SVG paths, capped; a canvas would be needed to preview very large quilts.
   if (g.slots.length > 6000) return null;
   const [x0, y0, x1, y1] = g.bounds;
   return {
@@ -160,7 +179,32 @@ const preview = computed(() => {
         .join('L')}Z`,
     })),
   };
-});
+}
+const preview = computed(() => picture(layout.value, borders.value));
+
+type Style = 'horizontal' | 'on-point';
+/** Styles to pick from, each with a small sample. */
+const STYLES: { value: Style; label: string; sample: Layout }[] = [
+  {
+    value: 'horizontal',
+    label: 'Horizontal',
+    sample: {
+      style: 'horizontal',
+      cols: 3,
+      rows: 3,
+      block: [1, 1],
+      sash: [0, 0],
+      sashBorder: false,
+    },
+  },
+  {
+    value: 'on-point',
+    label: 'On-Point',
+    sample: { ...onPointDefaults(1), block: 1, edge: { finish: 'exact', float: 0 } },
+  },
+];
+const styleCards = STYLES.map((x) => ({ ...x, picture: picture(x.sample, [])! }));
+
 const summary = computed(() => {
   const [x0, y0, x1, y1] = generated.value.bounds;
   return `Finished ${+(x1 - x0).toFixed(2)} × ${+(y1 - y0).toFixed(2)} ${props.units}`;
@@ -195,31 +239,55 @@ defineExpose({ show });
   width: 100%;
   height: 100%;
 }
-.preview path {
+.styles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.style-card {
+  width: 88px;
+  padding: 6px 4px 2px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.style-card:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+.style-card.on {
+  border-color: var(--q-primary);
+}
+.style-card svg {
+  width: 64px;
+  height: 64px;
+}
+.preview-art path {
   stroke: #9e9e9e;
   stroke-width: 1;
   fill: #fafafa;
 }
-.preview path.sash,
-.preview path.cs {
+.preview-art path.sash,
+.preview-art path.cs {
   fill: #cfd8dc;
 }
-.preview path.set {
+.preview-art path.set {
   fill: #e3ecf5;
 }
-.preview path.border {
+.preview-art path.border {
   fill: #eceff1;
 }
-:global(.body--dark .preview path) {
+:global(.body--dark .preview-art path) {
   stroke: #757575;
   fill: #2b2b2b;
 }
-:global(.body--dark .preview path.sash),
-:global(.body--dark .preview path.cs),
-:global(.body--dark .preview path.border) {
+:global(.body--dark .preview-art path.sash),
+:global(.body--dark .preview-art path.cs),
+:global(.body--dark .preview-art path.border) {
   fill: #3a3f44;
 }
-:global(.body--dark .preview path.set) {
+:global(.body--dark .preview-art path.set) {
   fill: #33404d;
 }
 </style>

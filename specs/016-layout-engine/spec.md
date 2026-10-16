@@ -182,8 +182,9 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
   sashing width (0 for none), and corner style (corner triangle or seam).
 - **FR-011**: The inspector MUST show the quilt's finished size and the block's width on point.
 - **FR-012**: The layout style picker MUST offer On-Point (it is listed as coming soon today).
-- **FR-013**: The Start a quilt wizard (spec 006 FR-001) MUST offer the style (Horizontal or
-  On-Point; On-Point starts with the default corners and edge) and MUST show a live preview of the
+- **FR-013**: The Start a quilt wizard (spec 006 FR-001) MUST offer the style as picture cards
+  (each a small sample drawn by the layout engine, so later styles just join the list; Horizontal
+  and On-Point now, On-Point starting with the default corners and edge) and MUST show a live preview of the
   quilt, with its finished size, that updates as choices are made. *Added 2026-10-15 (owner).*
 
 **Edge finish** (spec 001 FR-029e)
