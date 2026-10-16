@@ -65,7 +65,8 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 - `make commit MSG="…"` — check + rebuild `docs/` + commit all; `make push` — refuses if dirty/stale
 - `make release` — pick major/minor/hotfix, then Claude follows `scripts/release.md`: writes the
   `CHANGELOG.md` entry (shown at Help › About › Changelog; features for quilters, not commits), sets
-  `package.json` version, commits, pushes, tags `vX.Y.Z`. A test keeps the two versions matching
+  `package.json` version, commits on `release/X.Y.Z`, fast-forwards `main`, pushes, and tags
+  `vX.Y.Z` (every release must be tagged and the tag pushed). A test keeps the two versions matching
 - Ad-hoc commands in the container: copy the `RUN` macro in the Makefile (quote the repo path — it
   contains a space).
 
