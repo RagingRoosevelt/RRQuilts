@@ -36,6 +36,6 @@ Opus reviews every diff. Tests are included (the spec's SC are checks).
 
 ## Phase 3: Polish
 
-- [ ] T011 (sonnet) Help (designing-a-quilt: strip quilts, tools), slot-id contract in specs/003,
+- [X] T011 (sonnet) Help (designing-a-quilt: strip quilts, tools), slot-id contract in specs/003,
   CLAUDE.md, tracker, spec status
-- [ ] T012 (opus) Browser check of every story; review; commit
+- [X] T012 (opus) Browser check of every story; review; commit

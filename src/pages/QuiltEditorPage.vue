@@ -76,6 +76,52 @@
             <q-tooltip anchor="center right" self="center left">{{ labelsLabel }}</q-tooltip>
           </q-btn>
         </template>
+        <template v-if="editor.mode === 'layout' && strips">
+          <q-separator />
+          <q-btn
+            :flat="editor.layoutTool !== 'swap-strips'"
+            :unelevated="editor.layoutTool === 'swap-strips'"
+            :color="editor.layoutTool === 'swap-strips' ? 'primary' : undefined"
+            dense
+            :icon="strips.style === 'vertical-strip' ? 'swap_horiz' : 'swap_vert'"
+            aria-label="Swap strips"
+            :disable="project.readOnly"
+            @click="toggleLayoutTool('swap-strips')"
+          >
+            <q-tooltip anchor="center right" self="center left">Swap strips</q-tooltip>
+          </q-btn>
+          <q-btn
+            :flat="editor.layoutTool !== 'strip-style'"
+            :unelevated="editor.layoutTool === 'strip-style'"
+            :color="editor.layoutTool === 'strip-style' ? 'primary' : undefined"
+            dense
+            icon="view_stream"
+            :aria-label="`Strip style: ${styleLabel}`"
+            :disable="project.readOnly"
+          >
+            <q-tooltip anchor="center right" self="center left">
+              Strip style: {{ styleLabel }}
+            </q-tooltip>
+            <q-icon name="arrow_right" size="14px" class="menu-mark" />
+            <q-menu anchor="top right" self="top left">
+              <q-list dense style="min-width: 180px">
+                <q-item
+                  v-for="x in STRIP_STYLES"
+                  :key="x.value"
+                  v-close-popup
+                  clickable
+                  :active="editor.layoutTool === 'strip-style' && editor.stripStyle === x.value"
+                  @click="pickStripStyle(x.value)"
+                >
+                  <q-item-section>{{ x.label }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
+          <div v-if="editor.layoutTool === 'strip-style'" class="caption text-caption">
+            {{ styleLabel }}
+          </div>
+        </template>
         <template v-if="editor.mode === 'design'">
           <q-separator />
           <q-btn
@@ -111,7 +157,7 @@
           :outlines="editor.outlines"
           :labels="editor.labels"
           :selected="found"
-          :pan-only="editor.mode !== 'design' || editor.tool === 'pan'"
+          :pan-only="panOnly"
           @tap="onTap"
           @hover="(h) => (hover = h)"
         />
@@ -143,13 +189,14 @@
         <LayoutInspector
           v-else-if="
             editor.mode === 'layout' &&
-            (quilt.layout.style === 'horizontal' || quilt.layout.style === 'on-point')
+            (quilt.layout.style === 'horizontal' || quilt.layout.style === 'on-point' || strips)
           "
           :key="quilt.id"
           :layout="quilt.layout"
           :units="units"
           :readonly="project.readOnly"
           :has-borders="quilt.borders.length > 0"
+          :hint="layoutHint"
           @change="(l, k) => changeLayout(l, quilt!.borders, k)"
         />
         <BordersInspector
@@ -171,7 +218,7 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
 import HelpLink from '@/components/HelpLink.vue';
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BordersInspector from '@/components/BordersInspector.vue';
 import DetailsPanel from '@/components/DetailsPanel.vue';
@@ -182,9 +229,10 @@ import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
+import { STRIP_STYLES, stripOf, swapStrips, setStrip } from '@/model/layout/strips';
 import { applyLayout, generateFor, reconcile } from '@/model/layout/slots';
 import { PLAIN_BLOCK, slotGroup } from '@/model/plain';
-import type { Border, Layout } from '@/model/schema/quilt';
+import type { Border, Layout, StripLayout, StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 import type { Hit } from '@/render/hit';
 import { useEditorStore, type Tool } from '@/stores/editor';
@@ -276,9 +324,64 @@ function selectTool(id: Tool) {
     editor.flipAxis = editor.flipAxis === 'h' ? 'v' : 'h';
   editor.tool = id;
 }
+/** The layout when it is a strip layout (spec 017). */
+const strips = computed<StripLayout | null>(() => {
+  const l = quilt.value?.layout;
+  return l && (l.style === 'horizontal-strip' || l.style === 'vertical-strip') ? l : null;
+});
+const panOnly = computed(
+  () =>
+    !(editor.mode === 'layout' && strips.value) &&
+    (editor.mode !== 'design' || editor.tool === 'pan'),
+);
+const styleLabel = computed(
+  () => STRIP_STYLES.find((x) => x.value === editor.stripStyle)?.label ?? '',
+);
+function toggleLayoutTool(t: 'swap-strips' | 'strip-style') {
+  editor.swapFirst = null;
+  editor.layoutTool = editor.layoutTool === t ? null : t;
+}
+/** Choosing a style from the menu turns the tool on with it. */
+function pickStripStyle(v: StripStyle) {
+  editor.swapFirst = null;
+  editor.stripStyle = v;
+  editor.layoutTool = 'strip-style';
+}
+const layoutHint = computed(() =>
+  editor.layoutTool === 'swap-strips'
+    ? editor.swapFirst
+      ? 'Tap the second strip (the same strip or Escape cancels).'
+      : 'Tap a strip to swap.'
+    : editor.layoutTool === 'strip-style'
+      ? `Tap strips to make them ${styleLabel.value}.`
+      : '',
+);
+// Tools belong to the Layout tab of one strip quilt.
+watch(
+  () => `${editor.mode}:${quilt.value?.id}`,
+  () => {
+    editor.layoutTool = null;
+    editor.swapFirst = null;
+  },
+);
+const onKey = (e: KeyboardEvent) => {
+  const t = e.target as HTMLElement | null;
+  if (e.key === 'Escape' && !t?.closest('input, textarea, select, [contenteditable]')) {
+    if (editor.swapFirst) editor.swapFirst = null;
+    else editor.layoutTool = null;
+  }
+};
+onMounted(() => window.addEventListener('keydown', onKey));
+onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
 /** Find tool: outline every placement of the selected block. */
 const found = computed(() => {
+  if (editor.mode === 'layout' && strips.value) {
+    const id = editor.swapFirst ?? editor.selectedStrip;
+    return id
+      ? new Set(generated.value.slots.map((x) => x.id).filter((x) => stripOf(x) === id))
+      : undefined;
+  }
   if (editor.tool !== 'find' || !editor.block || !quilt.value) return undefined;
   const slots = quilt.value.layers[0].slots;
   return new Set(Object.keys(slots).filter((id) => slots[id]!.block === editor.block));
@@ -304,12 +407,31 @@ const hoverSize = computed(() => {
       slotGroup(s.id) as string
     ] ?? 'Border';
   if (s.kind === 'set') return 'Setting piece';
+  if (s.kind === 'strip') return 'Strip piece';
   const [w, h] = s.kind === 'block' ? s.size : [Math.hypot(t[0], t[1]), Math.hypot(t[2], t[3])];
   return `${kind} ${fmt(w)} × ${fmt(h)} ${units.value}`;
 });
 
+function onStripTap(hit: Hit, l: StripLayout) {
+  const id = stripOf(hit.slotId);
+  if (!id) return;
+  const b = quilt.value!.borders;
+  if (editor.layoutTool === 'swap-strips') {
+    if (!editor.swapFirst) editor.swapFirst = id;
+    else {
+      const first = editor.swapFirst;
+      editor.swapFirst = null;
+      if (first !== id) changeLayout(swapStrips(l, first, id), b, '');
+    }
+  } else if (editor.layoutTool === 'strip-style') {
+    editor.selectedStrip = id;
+    changeLayout(setStrip(l, id, { style: editor.stripStyle }), b, '');
+  } else editor.selectedStrip = id;
+}
+
 function onTap(hit: Hit) {
   if (!project.doc || !quilt.value) return;
+  if (editor.mode === 'layout') return strips.value ? onStripTap(hit, strips.value) : undefined;
   const r = applyTool(project.doc, quilt.value.id, generated.value.slots, hit, {
     ...editor.$state,
     library: library.lookup,
@@ -362,6 +484,23 @@ function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
 }
 .flip-v :deep(.q-icon) {
   transform: rotate(90deg);
+}
+.rail :deep(.q-btn) {
+  position: relative;
+}
+.menu-mark {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+}
+.caption {
+  max-width: 44px;
+  text-align: center;
+  line-height: 1.1;
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rail {
   overflow-y: auto;

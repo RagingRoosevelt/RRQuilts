@@ -27,7 +27,26 @@
               <div class="text-caption">{{ c.label }}</div>
             </button>
           </div>
-          <div class="row q-col-gutter-sm">
+          <div v-if="isStrip" class="row q-col-gutter-sm">
+            <q-input
+              v-model.number="stripCount"
+              class="col-6"
+              dense
+              outlined
+              type="number"
+              min="1"
+              max="100"
+              label="Number of strips"
+            />
+            <LengthInput
+              v-model="stripLength"
+              class="col-6"
+              label="Length"
+              :units="units"
+              :min="1"
+            />
+          </div>
+          <div v-else class="row q-col-gutter-sm">
             <q-input
               v-model.number="cols"
               class="col-6"
@@ -58,7 +77,10 @@
           </div>
         </q-step>
         <q-step :name="2" title="Sashing" icon="view_comfy">
-          <LengthInput v-model="sash" label="Sashing width (0 for none)" :units="units" />
+          <div v-if="isStrip" class="text-caption">
+            Strip quilts have no sashing. Strips sit edge to edge.
+          </div>
+          <LengthInput v-else v-model="sash" label="Sashing width (0 for none)" :units="units" />
           <q-toggle
             v-if="style === 'horizontal'"
             v-model="sashBorder"
@@ -118,7 +140,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
-import { onPointDefaults } from '@/model/io';
+import { onPointDefaults, stripDefaults } from '@/model/io';
 import { flattenLoop, pathToSegs } from '@/model/geometry/path';
 import { generateSlots } from '@/model/layout/slots';
 import type { Border, Layout } from '@/model/schema/quilt';
@@ -138,23 +160,32 @@ const borderCount = ref(1);
 const borderWidth = ref(2);
 
 const clampCount = (n: number) => Math.min(100, Math.max(1, Math.round(n || 1)));
+const stripCount = ref(5);
+const stripLength = ref(48);
+const isStrip = computed(() => style.value.endsWith('-strip'));
 const layout = computed<Layout>(() =>
-  style.value === 'on-point'
+  isStrip.value
     ? {
-        ...onPointDefaults(props.units === 'cm' ? 2.5 : 1),
-        cols: clampCount(cols.value),
-        rows: clampCount(rows.value),
-        block: blockSize.value,
-        sash: sash.value,
+        ...stripDefaults(props.units === 'cm' ? 2.5 : 1, clampCount(stripCount.value)),
+        style: style.value as 'horizontal-strip' | 'vertical-strip',
+        length: stripLength.value,
       }
-    : {
-        style: 'horizontal',
-        cols: clampCount(cols.value),
-        rows: clampCount(rows.value),
-        block: [blockSize.value, blockSize.value],
-        sash: [sash.value, sash.value],
-        sashBorder: sash.value > 0 && sashBorder.value,
-      },
+    : style.value === 'on-point'
+      ? {
+          ...onPointDefaults(props.units === 'cm' ? 2.5 : 1),
+          cols: clampCount(cols.value),
+          rows: clampCount(rows.value),
+          block: blockSize.value,
+          sash: sash.value,
+        }
+      : {
+          style: 'horizontal',
+          cols: clampCount(cols.value),
+          rows: clampCount(rows.value),
+          block: [blockSize.value, blockSize.value],
+          sash: [sash.value, sash.value],
+          sashBorder: sash.value > 0 && sashBorder.value,
+        },
 );
 const borders = computed<Border[]>(() =>
   Array.from({ length: Math.max(0, Math.min(5, Math.round(borderCount.value || 0))) }, () => ({
@@ -182,7 +213,18 @@ function picture(l: Layout, b: Border[]) {
 }
 const preview = computed(() => picture(layout.value, borders.value));
 
-type Style = 'horizontal' | 'on-point';
+type Style = 'horizontal' | 'on-point' | 'horizontal-strip' | 'vertical-strip';
+const sampleStrips = (style: 'horizontal-strip' | 'vertical-strip'): Layout => ({
+  style,
+  length: 16,
+  strips: ['plain', 'blocks', 'plain', 'blocks'].map((st, i) => ({
+    id: `w${i}`,
+    style: st as 'plain' | 'blocks',
+    width: st === 'plain' ? 3 : 4,
+    along: 4,
+    across: 1,
+  })),
+});
 /** Styles to pick from, each with a small sample. */
 const STYLES: { value: Style; label: string; sample: Layout }[] = [
   {
@@ -202,6 +244,12 @@ const STYLES: { value: Style; label: string; sample: Layout }[] = [
     label: 'On-Point',
     sample: { ...onPointDefaults(1), block: 1, edge: { finish: 'exact', float: 0 } },
   },
+  {
+    value: 'horizontal-strip',
+    label: 'Horizontal Strip',
+    sample: sampleStrips('horizontal-strip'),
+  },
+  { value: 'vertical-strip', label: 'Vertical Strip', sample: sampleStrips('vertical-strip') },
 ];
 const styleCards = STYLES.map((x) => ({ ...x, picture: picture(x.sample, [])! }));
 
@@ -226,6 +274,8 @@ function show() {
   sashBorder.value = false;
   borderCount.value = 1;
   borderWidth.value = cm ? 5 : 2;
+  stripCount.value = 5;
+  stripLength.value = cm ? 120 : 48;
   open.value = true;
 }
 defineExpose({ show });

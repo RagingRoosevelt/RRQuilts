@@ -43,3 +43,20 @@ outside the blocks (row or column 0, R + 1, C + 1) when it owns sashing along th
 
 Other layout styles add grammar here when their presets are specified; ids MUST remain
 position-derived.
+
+## Strip quilts (spec 017)
+
+Ids follow the strip's lasting `id` (stored in the layout), so inserting, deleting, or swapping
+strips never moves content to another strip.
+
+| Element | Id | Example |
+|---|---|---|
+| Block space k (Pieced Blocks: 1…n; Half Drop: 0…n, ends half) | `b:s{strip}:{k}` | `b:sx7k2:3` |
+| Plain strip | `strip:{strip}:p0` | |
+| Pattern foreground (point, diamond, square), unit k | `strip:{strip}:f{k}` | `strip:x7k2:f2` |
+| Pattern background, unit k (`g` top/between, `h` bottom, `t`/`b` above/below a square) | `strip:{strip}:{g|h|t|b}{k}` | |
+| Second row of double diamonds | `strip:{strip}:{f|g|h}2-{k}` | |
+| Checker Board cell (along k, across r) | `strip:{strip}:c{k}.{r}` | `strip:x7k2:c3.1` |
+
+Pattern pieces of the same role keep their ids across pattern styles, so colors carry over when a
+strip changes, for example, from Points to Diamonds.

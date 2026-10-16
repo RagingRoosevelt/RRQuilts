@@ -104,7 +104,8 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - `coloring.ts` `paint` — copy-on-write quilt colorings (this / allIdentical / alternate)
 - `layout/` — one engine: `engine.ts` `tile(Tiling)` = bands of a repeating cell stepped by a, b, one
   affine `map`, `merges` (triangle grids), `clip` to the quilt (`clip.ts`, curved outlines too);
-  `presets.ts` (`horizontal`, `onPoint`) return a `Tiling`; `slots.ts` `Slot` has kind/shape/turns/
+  `presets.ts` (`horizontal`, `onPoint`, `strips`) return a `Tiling`; `strips.ts` strip ops (add/insert/
+  delete/swap/set, square fixes); `slots.ts` `Slot` has kind/shape/turns/
   alt/size/cut, `Generated` has edge/trim; `reconcile`/`applyLayout`/`convertLayout` on changes. Add
   a style = a preset + its id grammar in `specs/003-project-format/contracts/slot-ids.md`; test-only
   presets (`__tests__/model/layout-presets.ts`) prove the planned ones

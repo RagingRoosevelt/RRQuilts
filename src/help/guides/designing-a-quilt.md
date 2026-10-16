@@ -11,8 +11,9 @@ hide the seam lines and the block names, and the bar under the quilt reports its
 
 ## Layout
 
-1. Open the **Layout** tab. **Style** is **Horizontal** (blocks in rows) or **On-Point** (blocks
-   turned 45°, see below). More styles are coming soon.
+1. Open the **Layout** tab. **Style** is **Horizontal** (blocks in rows), **On-Point** (blocks
+   turned 45°), or **Horizontal Strip** and **Vertical Strip** (see below). More styles are coming
+   soon.
 2. Set **Columns** and **Rows** (1 to 100).
 3. Set the **Finished block size** (**Width** and **Height**). Switch on **Keep width and height
    equal** to keep blocks square.
@@ -46,6 +47,34 @@ blocks fills the spaces between them, and setting pieces finish the edge.
 
 Switching between **Horizontal** and **On-Point** keeps the blocks in the main grid. Blocks that
 only exist in one style are listed in a warning before they are removed.
+
+## Strip quilts
+
+A strip quilt is a stack of strips. With **Horizontal Strip** they run left to right, stacked top
+to bottom. With **Vertical Strip** they run top to bottom, side by side. Every strip is the same
+**Length**, and each has its own style and width.
+
+1. Pick a strip in the list, tap it on the quilt, or step through them with the arrows.
+2. Choose its **Style**.
+   - **Plain** is one piece of fabric.
+   - **Pieced Blocks** and **Half Drop Blocks** hold blocks. Half Drop starts and ends with half
+     blocks, which are cut from whole ones.
+   - **Spaced Squares**, **Points A** and **B**, **Diamonds**, **Double Diamonds** (each also in a
+     **Half Drop** version), and **Checker Board** are pieced patterns. You color them with fabric
+     and colors, not blocks. **Alternate** colors every other shape, so the points and their
+     background take different colors in one tap.
+3. Set its **Width** and **Along**, the number of units along the strip. **Checker Board** also
+   has **Across**. The unit size shows below. When the units aren't square (or the points aren't
+   right angles), a **Make square** button offers the count or the length that fixes them.
+4. **Add** puts a new strip at the end, **Insert** puts one before the selected strip, and
+   **Delete** removes the selected strip. With **Clone the selected strip** on, the new strip copies
+   its style and size. Otherwise it's a plain 2″ strip.
+
+Two tools on the left rail help rearrange strips.
+
+- **Swap strips** trades two strips. Tap one, then the other. Each keeps its blocks and colors. Tap
+  the first strip again or press Escape to cancel.
+- **Strip style** opens a menu of the styles. Pick one, then tap strips to give them that style.
 
 ## Borders
 

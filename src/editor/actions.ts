@@ -84,8 +84,9 @@ export function applyTool(
       const targets = setTargets(spaces, hit.slotId, s.scope);
       if (!targets.length)
         return {
-          message:
-            group === 'cs'
+          message: hit.slotId.startsWith('strip:')
+            ? 'Strip patterns take fabric, not blocks. Use Paint.'
+            : group === 'cs'
               ? "This cornerstone isn't square, so it takes fabric. Use Paint."
               : 'Sashing and borders take fabric, not blocks. Use Paint.',
         };

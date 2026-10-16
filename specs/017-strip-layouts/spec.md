@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-16
 
-**Status**: Draft
+**Status**: Implemented (2026-10-16)
 
 **Input**: User description: "Strip layouts (spec 001 FR-024): Horizontal Strip and Vertical Strip
 quilts as presets of the shared layout engine (spec 016). A strip quilt is a stack of strips running

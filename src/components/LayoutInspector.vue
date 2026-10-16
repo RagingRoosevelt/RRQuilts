@@ -9,6 +9,8 @@
       :options="[
         { label: 'Horizontal', value: 'horizontal' },
         { label: 'On-Point', value: 'on-point' },
+        { label: 'Horizontal Strip', value: 'horizontal-strip' },
+        { label: 'Vertical Strip', value: 'vertical-strip' },
         ...soon,
       ]"
       emit-value
@@ -17,7 +19,15 @@
       :readonly="readonly"
       @update:model-value="(v) => emit('change', convertLayout(layout, v, lu), '')"
     />
-    <template v-if="layout.style === 'on-point'">
+    <StripsInspector
+      v-if="layout.style === 'horizontal-strip' || layout.style === 'vertical-strip'"
+      :layout="layout"
+      :units="units"
+      :readonly="readonly"
+      :hint="hint"
+      @change="(l, k) => emit('change', l, k)"
+    />
+    <template v-else-if="layout.style === 'on-point'">
       <div class="row q-col-gutter-sm">
         <q-input
           class="col-6"
@@ -202,6 +212,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
+import StripsInspector from '@/components/StripsInspector.vue';
 import { convertLayout } from '@/model/layout/slots';
 import { fmtLen } from '@/model/print/format';
 import type { HorizontalLayout, Layout, OnPointLayout } from '@/model/schema/quilt';
@@ -211,6 +222,7 @@ const props = defineProps<{
   units: string;
   readonly: boolean;
   hasBorders?: boolean;
+  hint?: string | undefined;
 }>();
 const emit = defineEmits<{ change: [layout: Layout, coalesce: string] }>();
 const op = (patch: Partial<OnPointLayout>, k = '') =>
@@ -229,14 +241,9 @@ const edgeOptions = [
   { label: 'No fill', value: 'none', hint: 'Bind the uneven edge' },
 ];
 
-const soon = [
-  'Variable Point',
-  'Baby Blocks',
-  'Variable Blocks',
-  'Strips',
-  'One Patch',
-  'Custom Set',
-].map((label) => ({ label: `${label} (coming soon)`, value: label, disable: true }));
+const soon = ['Variable Point', 'Baby Blocks', 'Variable Blocks', 'One Patch', 'Custom Set'].map(
+  (label) => ({ label: `${label} (coming soon)`, value: label, disable: true }),
+);
 const pair = (k: 'block' | 'sash') => {
   const v = (props.layout as HorizontalLayout)[k];
   return Array.isArray(v) && v[0] === v[1];
