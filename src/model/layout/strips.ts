@@ -51,6 +51,17 @@ export function swapStrips(l: StripLayout, a: string, b: string): StripLayout {
   return { ...l, strips };
 }
 
+/** Move a strip into gap `to` (0 = before the first, n = after the last). */
+export function moveStrip(l: StripLayout, id: string, to: number): StripLayout {
+  const from = l.strips.findIndex((x) => x.id === id);
+  if (from < 0) return l;
+  const at = to > from ? to - 1 : to;
+  if (at === from) return l;
+  const strips = l.strips.filter((x) => x.id !== id);
+  strips.splice(at, 0, l.strips[from]!);
+  return { ...l, strips };
+}
+
 export const setStrip = (
   l: StripLayout,
   id: string,

@@ -54,7 +54,7 @@ A strip quilt is a stack of strips. With **Horizontal Strip** they run left to r
 to bottom. With **Vertical Strip** they run top to bottom, side by side. Every strip is the same
 **Strip length (all strips)**, and each has its own style and **Strip width**.
 
-1. Pick a strip in the list, tap it on the quilt, or step through them with the arrows.
+1. Pick a strip in the list or tap it on the quilt.
 2. Choose its **Style**.
    - **Plain** is one piece of fabric.
    - **Pieced Blocks** and **Half Drop Blocks** hold blocks. Half Drop starts and ends with half
@@ -67,8 +67,9 @@ to bottom. With **Vertical Strip** they run top to bottom, side by side. Every s
    Board** also has **Units across**. The unit size shows below. When the units aren't square (or the points aren't
    right angles), a **Make square** button offers the count or the length that fixes them.
 4. To add a strip, point between two strips in the list (or above the first, or below the last) and
-   click the **+** at the end of the line that appears. On a phone the lines always show. The new
-   strip is a plain 2″ strip. The **×** at the end of a strip's row deletes it.
+   click the **+** at the start of the line that appears. On a phone the lines always show. The new
+   strip is a plain 2″ strip. The **×** at the end of a strip's row deletes it. To move a strip,
+   drag it by the grip at the start of its row.
 
 Two tools on the left rail help rearrange strips.
 

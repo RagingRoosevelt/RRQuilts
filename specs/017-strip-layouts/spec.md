@@ -58,12 +58,14 @@ is inserted there; click a strip's × → it is deleted.
 **Acceptance Scenarios**:
 
 1. **Given** the strip list, **Then** every gap (above the first strip, between strips, and after
-   the last) holds a line with a + button at its end, shown on hover on desktop and always on touch
+   the last) holds a line with a + button at its left end (away from the row's ×), shown on hover on desktop and always on touch
    screens; **When** the user clicks +, **Then** a blank strip (Plain, 2″ / 5 cm) is inserted
    there and selected.
 2. **Given** a strip row, **Then** it ends with a small chip-like × that deletes that strip (not
    shown when only one strip is left); its placed blocks are listed in the usual warning first.
-3. **Given** a selected strip, **Then** previous/next step through the strips.
+3. **Given** the strip list, **When** the user drags a strip by its grip (mouse or touch), **Then**
+   the insert line where it will land lights up, and dropping moves it there with its settings and
+   content (one undo step); the grip's arrow keys move it one place.
 4. **Given** blocks and colors placed in strips, **When** strips are inserted or deleted elsewhere,
    **Then** every remaining strip keeps its blocks and colors.
 5. **Given** a strip quilt, **When** the user picks the Swap strips tool in the toolbar, taps one
@@ -141,11 +143,11 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
 
 **Inspector**
 
-- **FR-010**: The Layout tab MUST show the strip list with the selected strip, previous/next, an
-  insert line with a + in every gap (above, between, below; on hover, always on touch) that inserts
-  a blank strip, and a chip-like × on each row to delete it; and the selected strip's style, width,
+- **FR-010**: The Layout tab MUST show the strip list (tap a strip to select it) with an insert
+  line with a + at its left in every gap (above, between, below; on hover, always on touch) that
+  inserts a blank strip, a chip-like × on each row to delete it, and a grip to drag it elsewhere; and the selected strip's style, width,
   and counts, plus the shared length and the direction (Horizontal or Vertical). *Amended
-  2026-10-16 (owner): no Clone.*
+  2026-10-16 (owner): no Clone, no previous/next, drag to reorder.*
 - **FR-011**: Tapping a strip in the quilt while the Layout tab is open MUST select it.
 - **FR-013**: For strip quilts, the quilt editor's toolbar MUST offer a Swap strips tool: tap two
   strips to trade their places (settings and content go with them), one undo step; Escape or tapping
@@ -204,4 +206,4 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
   (spec 001 FR-060a) and is out of scope.
 - Default new strip quilt: 5 strips alternating Plain 3″ and Pieced Blocks 8″ (6 blocks), 48″ long
   (cm: 7.5, 20, 120).
-- Strips are reordered with the Swap strips tool (FR-013); dragging is not required.
+- Strips are reordered by dragging them in the list (FR-010) or with the Swap strips tool (FR-013).

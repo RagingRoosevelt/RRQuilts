@@ -11,11 +11,11 @@
     <div class="text-caption">
       Strips, {{ layout.style === 'vertical-strip' ? 'left to right' : 'top to bottom' }}
     </div>
-    <!-- A line with a + in every gap inserts a blank strip there (on hover; always on touch). -->
-    <div class="list">
+    <!-- A line with a + in every gap inserts a blank strip there (on hover; always on touch).
+         Drag a strip by its grip; the line where it will land lights up. -->
+    <div ref="listEl" class="list">
       <template v-for="(s, i) in layout.strips" :key="s.id">
-        <div v-if="!readonly" class="gap">
-          <hr />
+        <div v-if="!readonly" class="gap" :class="{ drop: drag?.to === i }">
           <button
             type="button"
             class="add"
@@ -24,8 +24,23 @@
           >
             <q-icon name="add" size="14px" />
           </button>
+          <hr />
         </div>
-        <div class="strip-row" :class="{ on: s.id === current?.id }">
+        <div class="strip-row" :class="{ on: s.id === current?.id, dragging: drag?.id === s.id }">
+          <button
+            v-if="!readonly && layout.strips.length > 1"
+            type="button"
+            class="grip"
+            :aria-label="`Move strip ${i + 1} (drag, or arrow keys)`"
+            @pointerdown="startDrag($event, s.id, i)"
+            @pointermove="moveDrag"
+            @pointerup="endDrag"
+            @pointercancel="drag = null"
+            @keydown.up.prevent="moveBy(s.id, i, -1)"
+            @keydown.down.prevent="moveBy(s.id, i, 1)"
+          >
+            <q-icon name="drag_indicator" size="18px" />
+          </button>
           <button type="button" class="row-btn" @click="editor.selectedStrip = s.id">
             <span>{{ i + 1 }}. {{ labelOf(s.style) }}</span>
             <span>{{ fmtLen(s.width, lu) }}</span>
@@ -41,8 +56,7 @@
           </button>
         </div>
       </template>
-      <div v-if="!readonly" class="gap">
-        <hr />
+      <div v-if="!readonly" class="gap" :class="{ drop: drag?.to === layout.strips.length }">
         <button
           type="button"
           class="add"
@@ -51,17 +65,11 @@
         >
           <q-icon name="add" size="14px" />
         </button>
+        <hr />
       </div>
-    </div>
-    <div class="row items-center" style="gap: 4px">
-      <q-btn flat dense icon="chevron_left" aria-label="Previous strip" @click="step(-1)" />
-      <q-btn flat dense icon="chevron_right" aria-label="Next strip" @click="step(1)" />
     </div>
 
     <template v-if="current">
-      <div class="text-subtitle2">
-        Strip {{ layout.strips.findIndex((s) => s.id === current!.id) + 1 }}
-      </div>
       <q-select
         :model-value="current.style"
         dense
@@ -135,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import {
   STRIP_STYLES,
@@ -144,6 +152,7 @@ import {
   insertStrip,
   setStrip,
   squareFixes,
+  moveStrip,
 } from '@/model/layout/strips';
 import { fmtLen } from '@/model/print/format';
 import type { Layout, Strip, StripLayout } from '@/model/schema/quilt';
@@ -165,11 +174,32 @@ const current = computed(
 );
 const fixes = computed(() => (current.value ? squareFixes(props.layout, current.value) : null));
 
-function step(d: number) {
-  const n = props.layout.strips.length;
-  const i = props.layout.strips.findIndex((s) => s.id === current.value?.id);
-  editor.selectedStrip = props.layout.strips[(i + d + n) % n]!.id;
+// Dragging a strip: `to` is the gap it would land in (0 = before the first).
+const listEl = ref<HTMLElement>();
+const drag = ref<{ id: string; to: number } | null>(null);
+function startDrag(e: PointerEvent, id: string, i: number) {
+  (e.currentTarget as Element).setPointerCapture(e.pointerId);
+  drag.value = { id, to: i };
 }
+function moveDrag(e: PointerEvent) {
+  if (!drag.value || !listEl.value) return;
+  const rows = [...listEl.value.querySelectorAll('.strip-row')];
+  drag.value.to = rows.filter((r) => {
+    const b = r.getBoundingClientRect();
+    return b.top + b.height / 2 < e.clientY;
+  }).length;
+}
+function endDrag() {
+  const d = drag.value;
+  drag.value = null;
+  if (d) move(d.id, d.to);
+}
+function move(id: string, to: number) {
+  const next = moveStrip(props.layout, id, to);
+  if (next !== props.layout) emit('change', next, '');
+}
+/** Keyboard: one place up or down. */
+const moveBy = (id: string, i: number, d: -1 | 1) => move(id, d < 0 ? i - 1 : i + 2);
 /** A blank (plain) strip before strip `i`, or at the end. */
 function insertAt(i: number) {
   const u = lu.value;
@@ -213,6 +243,23 @@ function count(key: 'along' | 'across', v: string | number | null) {
 .strip-row .row-btn {
   flex: 1;
 }
+.strip-row.dragging {
+  opacity: 0.5;
+}
+.grip {
+  display: grid;
+  place-items: center;
+  padding: 0 0 0 2px;
+  border: none;
+  background: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: grab;
+  touch-action: none;
+}
+.grip:active {
+  cursor: grabbing;
+}
 /* Chip-like delete at the end of each row. */
 .del {
   display: grid;
@@ -239,7 +286,7 @@ function count(key: 'along' | 'across', v: string | number | null) {
 }
 .gap hr {
   flex: 1;
-  margin: 0 4px 0 0;
+  margin: 0 0 0 4px;
   border: none;
   border-top: 2px solid var(--q-primary);
 }
@@ -260,6 +307,8 @@ function count(key: 'along' | 'across', v: string | number | null) {
   opacity: 0;
   transition: opacity 0.1s;
 }
+.gap.drop hr,
+.gap.drop .add,
 .gap:hover hr,
 .gap:hover .add,
 .gap:focus-within hr,

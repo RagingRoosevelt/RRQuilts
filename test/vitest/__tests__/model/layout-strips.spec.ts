@@ -7,6 +7,7 @@ import {
   addStrip,
   deleteStrip,
   insertStrip,
+  moveStrip,
   setStrip,
   squareFixes,
   squareUnit,
@@ -126,6 +127,17 @@ describe('strip edits keep content with its strip (SC-002)', () => {
     const del = deleteStrip(base, 'b');
     expect(reconcile(q, del, []).dropped.every((id) => stripOf(id) === 'b')).toBe(true);
     expect(deleteStrip(one(strip('x', 'plain')), 'x').strips).toHaveLength(1);
+  });
+
+  it('moving a strip into a gap', () => {
+    const ids = (l: StripLayout) => l.strips.map((s) => s.id).join('');
+    expect(ids(moveStrip(base, 'a', 3))).toBe('bca');
+    expect(ids(moveStrip(base, 'c', 0))).toBe('cab');
+    expect(ids(moveStrip(base, 'b', 1))).toBe('abc');
+    expect(ids(moveStrip(base, 'b', 2))).toBe('abc');
+    expect(Object.keys(reconcile(filled(), moveStrip(base, 'a', 3), []).slots)).toHaveLength(
+      Object.keys(filled().layers[0].slots).length,
+    );
   });
 
   it('new strips are blank: plain, 2″ (5 cm), with new ids', () => {
