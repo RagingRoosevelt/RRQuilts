@@ -6,7 +6,7 @@ import { produce } from 'immer';
 import type { PathCommand } from '../schema/shared';
 import type { Border, Layout, Quilt, SlotContent } from '../schema/quilt';
 import { borderSlots } from './borders';
-import { onPointDefaults, stripDefaults } from '../io';
+import { layoutDefaults, onPointDefaults, stripDefaults } from '../io';
 import { PLAIN_BLOCK } from '../plain';
 import { flattenLoop, pathToSegs, signedArea, type Pt } from '../geometry/path';
 import { toPath } from './clip';
@@ -244,7 +244,15 @@ export function applyLayout(quilt: Quilt, layout: Layout, borders: Border[]): Qu
 }
 
 /** The layout in another style, keeping counts, block size, and sashing (spec 016 US4). */
-export type LayoutStyle = 'straight-set' | 'on-point' | 'horizontal-strip' | 'vertical-strip';
+export type LayoutStyle =
+  | 'straight-set'
+  | 'on-point'
+  | 'horizontal-strip'
+  | 'vertical-strip'
+  | 'variable-point'
+  | 'one-patch'
+  | 'baby-blocks'
+  | 'variable-blocks';
 
 /** The layout in another style: counts, block size, and sashing carry over between Horizontal and
  *  On-Point (spec 016 US4); strips keep everything when only their direction changes. */
@@ -253,6 +261,25 @@ export function convertLayout(layout: Layout, style: LayoutStyle, units: 'in' | 
   const k = units === 'cm' ? 2.5 : 1;
   if (style === 'horizontal-strip' || style === 'vertical-strip')
     return 'strips' in layout ? { ...layout, style } : { ...stripDefaults(k), style };
+  // On-Point and Variable Point keep counts, sashing, corners, and edge (a square on point is
+  // `block`·√2 across and as tall).
+  if (style === 'variable-point' && layout.style === 'on-point') {
+    const d = layout.block * Math.SQRT2;
+    const { cols, rows, sash, corner, edge } = layout;
+    return { style, cols, rows, sash, corner, edge, width: d, height: d };
+  }
+  if (style === 'on-point' && layout.style === 'variable-point') {
+    const { cols, rows, sash, corner, edge, width } = layout;
+    return { style, cols, rows, sash, corner, edge, block: width * Math.SQRT1_2 };
+  }
+  // Baby Blocks and Variable Blocks keep counts and sizes.
+  if (
+    (style === 'baby-blocks' || style === 'variable-blocks') &&
+    (layout.style === 'baby-blocks' || layout.style === 'variable-blocks')
+  )
+    return { ...layout, style };
+  const fresh = layoutDefaults(style, k);
+  if (fresh) return fresh;
   if (style === 'on-point') {
     const d = onPointDefaults(k);
     return layout.style === 'straight-set'
