@@ -49,6 +49,9 @@ export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
         q.layout.block = len(q.layout.block);
         q.layout.sash = len(q.layout.sash);
         q.layout.edge.float = len(q.layout.edge.float);
+      } else if (q.layout.style === 'horizontal-strip' || q.layout.style === 'vertical-strip') {
+        q.layout.length = len(q.layout.length);
+        for (const st of q.layout.strips) st.width = len(st.width);
       }
       for (const b of q.borders) b.sides = b.sides.map(len) as typeof b.sides;
       for (const c of Object.values(q.colorings)) scaleColoring(c, scalePair);

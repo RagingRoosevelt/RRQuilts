@@ -1,6 +1,6 @@
 // Load/save .rrq files. Input is untrusted: parse, migrate, validate, then check integrity.
 import Value from 'typebox/value';
-import { findDuplicateIds } from './ids';
+import { findDuplicateIds, newId } from './ids';
 import type { Asset } from './schema/shared';
 import type { ColoringBody } from './schema/coloring';
 import { FORMAT, RrqDoc, VERSION } from './schema/project';
@@ -46,7 +46,35 @@ export const migrations: Migrations = {
     );
     return { ...doc, project: { ...project, quilts } };
   },
+  // v6 (spec 017): strip quilts have strips. Placeholder strip styles get the default strips.
+  5: (doc) => {
+    const project = isObject(doc.project) ? doc.project : undefined;
+    if (!project || !Array.isArray(project.quilts)) return doc;
+    const k = doc.units === 'cm' ? 2.5 : 1;
+    const quilts = project.quilts.map((q: unknown) =>
+      isObject(q) &&
+      isObject(q.layout) &&
+      (q.layout.style === 'horizontal-strip' || q.layout.style === 'vertical-strip') &&
+      !('strips' in q.layout)
+        ? { ...q, layout: { ...stripDefaults(k), style: q.layout.style } }
+        : q,
+    );
+    return { ...doc, project: { ...project, quilts } };
+  },
 };
+
+/** A new strip quilt: `n` strips alternating plain and 6 blocks, square blocks (`k` as above). */
+export const stripDefaults = (k: number, n = 5) => ({
+  style: 'horizontal-strip' as const,
+  length: 48 * k,
+  strips: Array.from({ length: n }, (_, i) => ({
+    id: newId(),
+    style: i % 2 ? ('blocks' as const) : ('plain' as const),
+    width: (i % 2 ? 8 : 3) * k,
+    along: 6,
+    across: 1,
+  })),
+});
 
 /** A new On-Point layout; `k` = project units per inch (2.5 for cm: round numbers). */
 export const onPointDefaults = (k: number) => ({

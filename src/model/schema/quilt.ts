@@ -42,18 +42,42 @@ export const OnPointLayout = Type.Object({
 
 /** Styles whose generators come with later presets; parameters are stored as-is for now. */
 export const OtherLayout = Type.Object({
-  style: Type.Enum([
-    'variable-point',
-    'baby-blocks',
-    'variable-blocks',
-    'horizontal-strip',
-    'vertical-strip',
-    'one-patch',
-    'custom-set',
-  ]),
+  style: Type.Enum(['variable-point', 'baby-blocks', 'variable-blocks', 'one-patch', 'custom-set']),
 });
 
-export const Layout = Type.Union([HorizontalLayout, OnPointLayout, OtherLayout]);
+export const StripStyle = Type.Enum([
+  'plain',
+  'blocks',
+  'half-drop-blocks',
+  'spaced-squares',
+  'points-a',
+  'points-b',
+  'diamonds',
+  'half-drop-diamonds',
+  'double-diamonds',
+  'half-drop-double-diamonds',
+  'checker-board',
+]);
+
+/** One strip (spec 017): a lasting `id` (content follows it), style, width, and counts. */
+export const Strip = Type.Object({
+  id: Id,
+  style: StripStyle,
+  width: Type.Number({ exclusiveMinimum: 0 }),
+  /** Units along the strip (repeating styles). */
+  along: count,
+  /** Units across the strip (Checker Board). */
+  across: count,
+});
+
+/** Strip quilts (spec 017): strips stacked down (horizontal) or across (vertical), one length. */
+export const StripLayout = Type.Object({
+  style: Type.Union([Type.Literal('horizontal-strip'), Type.Literal('vertical-strip')]),
+  length: Type.Number({ exclusiveMinimum: 0 }),
+  strips: Type.Array(Strip, { minItems: 1 }),
+});
+
+export const Layout = Type.Union([HorizontalLayout, OnPointLayout, StripLayout, OtherLayout]);
 
 export const BorderStyle = Type.Enum([
   'mitered',
@@ -139,6 +163,9 @@ export const Quilt = Type.Object({
 
 export type HorizontalLayout = Type.Static<typeof HorizontalLayout>;
 export type OnPointLayout = Type.Static<typeof OnPointLayout>;
+export type StripLayout = Type.Static<typeof StripLayout>;
+export type Strip = Type.Static<typeof Strip>;
+export type StripStyle = Type.Static<typeof StripStyle>;
 export type Layout = Type.Static<typeof Layout>;
 export type Border = Type.Static<typeof Border>;
 export type SlotContent = Type.Static<typeof SlotContent>;

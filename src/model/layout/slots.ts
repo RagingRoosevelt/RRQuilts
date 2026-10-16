@@ -6,12 +6,12 @@ import { produce } from 'immer';
 import type { PathCommand } from '../schema/shared';
 import type { Border, Layout, Quilt, SlotContent } from '../schema/quilt';
 import { borderSlots } from './borders';
-import { onPointDefaults } from '../io';
+import { onPointDefaults, stripDefaults } from '../io';
 import { PLAIN_BLOCK } from '../plain';
 import { tile } from './engine';
-import { horizontal, onPoint } from './presets';
+import { horizontal, onPoint, strips } from './presets';
 
-export type SlotKind = 'block' | 'sash' | 'cs' | 'set' | 'border';
+export type SlotKind = 'block' | 'sash' | 'cs' | 'set' | 'border' | 'strip';
 /** `piece` = setting, partial, or irregular space: plain fill only. */
 export type SpaceShape =
   'rect' | 'triangle' | 'diamond60' | 'hexagon' | 'clamshell' | 'spool' | 'piece';
@@ -122,6 +122,10 @@ export function generateSlots(
     const h = horizontal(layout);
     slots = tile(h.tiling);
     center = h.center;
+  } else if (layout.style === 'horizontal-strip' || layout.style === 'vertical-strip') {
+    const t = strips(layout);
+    slots = tile(t.tiling);
+    center = t.center;
   } else if (layout.style === 'on-point') {
     const o = onPoint(layout, held);
     // No fill: the uneven edge is the quilt's edge, so borders are set aside (kept in the file).
@@ -205,14 +209,17 @@ export function applyLayout(quilt: Quilt, layout: Layout, borders: Border[]): Qu
 }
 
 /** The layout in another style, keeping counts, block size, and sashing (spec 016 US4). */
-export function convertLayout(
-  layout: Layout,
-  style: 'horizontal' | 'on-point',
-  units: 'in' | 'cm',
-): Layout {
+export type LayoutStyle = 'horizontal' | 'on-point' | 'horizontal-strip' | 'vertical-strip';
+
+/** The layout in another style: counts, block size, and sashing carry over between Horizontal and
+ *  On-Point (spec 016 US4); strips keep everything when only their direction changes. */
+export function convertLayout(layout: Layout, style: LayoutStyle, units: 'in' | 'cm'): Layout {
   if (layout.style === style) return layout;
+  const k = units === 'cm' ? 2.5 : 1;
+  if (style === 'horizontal-strip' || style === 'vertical-strip')
+    return 'strips' in layout ? { ...layout, style } : { ...stripDefaults(k), style };
   if (style === 'on-point') {
-    const d = onPointDefaults(units === 'cm' ? 2.5 : 1);
+    const d = onPointDefaults(k);
     return layout.style === 'horizontal'
       ? { ...d, cols: layout.cols, rows: layout.rows, block: layout.block[0], sash: layout.sash[0] }
       : d;
@@ -226,7 +233,6 @@ export function convertLayout(
       sash: [layout.sash, layout.sash],
       sashBorder: false,
     };
-  const k = units === 'cm' ? 2.5 : 1;
   return {
     style: 'horizontal',
     cols: 3,

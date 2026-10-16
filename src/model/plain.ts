@@ -8,13 +8,16 @@ import type { Quilt } from './schema/quilt';
 export const PLAIN_BLOCK = 'plain';
 export const PLAIN_PATCH = 'p';
 
-export type SlotGroup = 'block' | 'sash' | 'cs' | 'set' | `border:${number}` | 'other';
+export type SlotGroup =
+  'block' | 'sash' | 'cs' | 'set' | `border:${number}` | `strip:${string}` | 'other';
 
 export function slotGroup(slotId: string): SlotGroup {
   if (slotId.startsWith('b:')) return 'block';
   if (slotId.startsWith('sash:')) return 'sash';
   if (slotId.startsWith('cs:')) return 'cs';
   if (slotId.startsWith('set:')) return 'set';
+  const strip = /^strip:([^:]+):/.exec(slotId);
+  if (strip) return `strip:${strip[1]}`;
   const m = /^border:(\d+):/.exec(slotId);
   return m ? `border:${Number(m[1])}` : 'other';
 }
@@ -63,6 +66,7 @@ export function describeSlot(slotId: string): string {
   if (g === 'sash') return 'sash';
   if (g === 'cs') return 'cornerstone';
   if (g === 'set') return 'setting piece';
+  if (g.startsWith('strip:')) return 'strip';
   if (g.startsWith('border:')) return `border ${Number(g.slice(7)) + 1}`;
   return 'space';
 }

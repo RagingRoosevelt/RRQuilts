@@ -1,7 +1,7 @@
 // Layout styles as engine presets: stored layout parameters → Tiling (engine.ts).
-import type { M } from '../geometry/affine';
+import { IDENTITY, mul, type M } from '../geometry/affine';
 import type { Pt } from '../geometry/path';
-import type { HorizontalLayout, OnPointLayout } from '../schema/quilt';
+import type { HorizontalLayout, OnPointLayout, StripLayout } from '../schema/quilt';
 import type { PathCommand } from '../schema/shared';
 import { clipByLine, clipPolygon, toPath } from './clip';
 import { tile, type Band, type CellPiece, type Tiling } from './engine';
@@ -399,4 +399,206 @@ function splitCorner(
     [':1', a],
     [':2', b],
   ];
+}
+
+/**
+ * Strip quilts (spec 017): one band per strip, stepped along it and clipped at the quilt's ends.
+ * Strip-local coordinates run x along (0…length) and y across; Vertical swaps the axes, with block
+ * spaces kept upright. Ids follow the strip's lasting id (contracts in specs/017).
+ */
+export function strips(l: StripLayout): { tiling: Tiling; center: Bounds } {
+  const L = l.length;
+  const vertical = l.style === 'vertical-strip';
+  const swap: M = [0, 1, 1, 0, 0, 0];
+  const map = vertical ? swap : IDENTITY;
+  const bands: Band[] = [];
+  let y0 = 0;
+  for (const st of l.strips) {
+    const w = st.width;
+    const [y1, ym] = [y0 + w, y0 + w / 2];
+    const n = st.along;
+    const u = L / n;
+    const sid = st.id;
+    const plain = (code: string, pts: Pt[], alt = 1): CellPiece => ({
+      kind: 'strip',
+      shape: 'piece',
+      turns: 360,
+      size: [u, w],
+      transform: IDENTITY,
+      outline: toPath(pts),
+      id: (i) => `strip:${sid}:${code}${i}`,
+      alt: () => alt,
+    });
+    // A block space `bw` × `bh` (strip-local) at x = `x0`, upright in the quilt either way.
+    const block = (x0: number, id: (i: number) => string): CellPiece => {
+      const g: M = vertical ? [w, 0, 0, u, y0, x0] : [u, 0, 0, w, x0, y0];
+      return {
+        kind: 'block',
+        shape: 'rect',
+        turns: Math.abs(u - w) < 1e-9 ? 90 : 180,
+        size: [u, w],
+        transform: vertical ? mul(swap, g) : g,
+        id,
+        alt: (i) => ((i % 2) + 2) % 2,
+      };
+    };
+    const along = (cell: CellPiece[], from = -1, to = n): Band => ({
+      cell,
+      a: [u, 0],
+      b: [0, 0],
+      i: [from, to],
+      j: [0, 0],
+    });
+    // Points and diamonds in a row from `t` to `b` (across), shifted `dx` along.
+    const points = (dx: number) =>
+      along([
+        plain(
+          'f',
+          [
+            [dx, y1],
+            [dx + u / 2, y0],
+            [dx + u, y1],
+          ],
+          0,
+        ),
+        plain('g', [
+          [dx + u / 2, y0],
+          [dx + 1.5 * u, y0],
+          [dx + u, y1],
+        ]),
+      ]);
+    const diamonds = (dx: number, t: number, b: number, row = '') => {
+      const m = (t + b) / 2;
+      return along([
+        plain(
+          `f${row}`,
+          [
+            [dx + u / 2, t],
+            [dx + u, m],
+            [dx + u / 2, b],
+            [dx, m],
+          ],
+          0,
+        ),
+        plain(`g${row}`, [
+          [dx + u / 2, t],
+          [dx + 1.5 * u, t],
+          [dx + u, m],
+        ]),
+        plain(`h${row}`, [
+          [dx + u, m],
+          [dx + 1.5 * u, b],
+          [dx + u / 2, b],
+        ]),
+      ]);
+    };
+    switch (st.style) {
+      case 'plain':
+        bands.push(
+          along(
+            [
+              plain('p', [
+                [0, y0],
+                [L, y0],
+                [L, y1],
+                [0, y1],
+              ]),
+            ],
+            0,
+            0,
+          ),
+        );
+        break;
+      case 'blocks':
+        bands.push(along([block(0, (i) => `b:s${sid}:${i + 1}`)], 0, n - 1));
+        break;
+      case 'half-drop-blocks':
+        bands.push(along([block(-u / 2, (i) => `b:s${sid}:${i}`)], 0, n));
+        break;
+      case 'points-a':
+        bands.push(points(0));
+        break;
+      case 'points-b':
+        bands.push(points(-u / 2));
+        break;
+      case 'diamonds':
+        bands.push(diamonds(0, y0, y1));
+        break;
+      case 'half-drop-diamonds':
+        bands.push(diamonds(-u / 2, y0, y1));
+        break;
+      case 'double-diamonds':
+        bands.push(diamonds(0, y0, ym), diamonds(0, ym, y1, '2-'));
+        break;
+      case 'half-drop-double-diamonds':
+        bands.push(diamonds(0, y0, ym), diamonds(-u / 2, ym, y1, '2-'));
+        break;
+      case 'spaced-squares': {
+        const a = Math.min(w, u);
+        const [s0, s1] = [ym - a / 2, ym + a / 2];
+        const cell = [
+          plain(
+            'f',
+            [
+              [(u - a) / 2, s0],
+              [(u + a) / 2, s0],
+              [(u + a) / 2, s1],
+              [(u - a) / 2, s1],
+            ],
+            0,
+          ),
+        ];
+        // Spacers between squares (and at the ends), and above and below when squares are narrower.
+        if (u > a)
+          cell.push(
+            plain('g', [
+              [(u + a) / 2, y0],
+              [(3 * u - a) / 2, y0],
+              [(3 * u - a) / 2, y1],
+              [(u + a) / 2, y1],
+            ]),
+          );
+        if (w > a)
+          cell.push(
+            plain('t', [
+              [0, y0],
+              [u, y0],
+              [u, s0],
+              [0, s0],
+            ]),
+            plain('b', [
+              [0, s1],
+              [u, s1],
+              [u, y1],
+              [0, y1],
+            ]),
+          );
+        bands.push(along(cell));
+        break;
+      }
+      case 'checker-board': {
+        const h = w / st.across;
+        bands.push(
+          along(
+            Array.from({ length: st.across }, (_, r) => ({
+              ...plain('c', [
+                [0, y0 + r * h],
+                [u, y0 + r * h],
+                [u, y0 + (r + 1) * h],
+                [0, y0 + (r + 1) * h],
+              ]),
+              id: (i: number) => `strip:${sid}:c${i}.${r}`,
+              alt: (i: number) => (i + r) % 2,
+            })),
+            0,
+            n - 1,
+          ),
+        );
+        break;
+      }
+    }
+    y0 = y1;
+  }
+  const [W, H] = vertical ? [y0, L] : [L, y0];
+  return { tiling: { bands, map, clip: [0, 0, W, H] }, center: [0, 0, W, H] };
 }
