@@ -65,6 +65,10 @@ Delete → the selected strip goes; with Clone on, Add copies the selected strip
    placed blocks are listed in the usual warning first.
 4. **Given** blocks and colors placed in strips, **When** strips are inserted or deleted elsewhere,
    **Then** every remaining strip keeps its blocks and colors.
+5. **Given** a strip quilt, **When** the user picks the Swap strips tool in the toolbar, taps one
+   strip, then another, **Then** the two strips trade places, each keeping its settings, blocks, and
+   colors; the first tap is highlighted until the second, tapping it again cancels, and the swap is
+   one undo step.
 
 ---
 
@@ -135,6 +139,9 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
   Insert, Delete, and a Clone option, and the selected strip's style, width, and counts, plus the
   shared length and the direction (Horizontal or Vertical).
 - **FR-011**: Tapping a strip in the quilt while the Layout tab is open MUST select it.
+- **FR-013**: For strip quilts, the quilt editor's toolbar MUST offer a Swap strips tool: tap two
+  strips to trade their places (settings and content go with them), one undo step. *Added
+  2026-10-16 (owner).*
 - **FR-012**: The inspector MUST show each strip's unit size and, when units aren't square (or points
   not 90°), offer one-tap fixes: the count that makes them square at the current length, or the
   length that does at the current count, using the strip formulas: width × count = length (blocks,
@@ -167,8 +174,8 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
 
 - **SC-001**: A quilter builds a 5-strip quilt (plain, blocks, points, blocks, plain) and prints its
   cutting list in under 3 minutes.
-- **SC-002**: Inserting or deleting a strip never changes the content of any other strip (checked over
-  every style).
+- **SC-002**: Inserting, deleting, or swapping strips never changes the content of any strip other
+  than moving it with its strip (checked over every style).
 - **SC-003**: Every style covers its strip exactly (no gaps or overlaps) for counts 1 to 24 and any
   width and length.
 - **SC-004**: Using the offered fix gives square units or 90° points to within 1/64″.
@@ -181,4 +188,4 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
   (spec 001 FR-060a) and is out of scope.
 - Default new strip quilt: 5 strips alternating Plain 3″ and Pieced Blocks 8″ (6 blocks), 48″ long
   (cm: 7.5, 20, 120).
-- Reordering strips by dragging is not required; Insert and Delete cover rearranging.
+- Strips are reordered with the Swap strips tool (FR-013); dragging is not required.
