@@ -3,7 +3,7 @@
     <q-card class="wizard">
       <div class="body">
         <q-stepper v-model="step" class="steps" flat animated header-nav alternative-labels>
-          <q-step name="blocks" title="Blocks" icon="grid_on">
+          <q-step name="blocks" title="Layout" icon="grid_on">
             <!-- Style cards: each drawn by the layout engine; later styles join the list. -->
             <div class="styles q-mb-md" role="radiogroup" aria-label="Layout style">
               <button
@@ -28,26 +28,8 @@
                 <div class="text-caption">{{ c.label }}</div>
               </button>
             </div>
-            <div v-if="isStrip" class="row q-col-gutter-sm">
-              <q-input
-                :model-value="stripLayout.strips.length"
-                @update:model-value="(v) => setStripCount(Number(v))"
-                class="col-6"
-                dense
-                outlined
-                type="number"
-                min="1"
-                max="100"
-                label="Number of strips"
-              />
-              <LengthInput
-                :model-value="stripLayout.length"
-                class="col-6"
-                label="Strip length"
-                :units="units"
-                :min="1"
-                @update:model-value="(v) => (stripLayout = { ...stripLayout, length: v })"
-              />
+            <div v-if="isStrip" class="text-caption">
+              Set up the strips, their length and widths, on the next step.
             </div>
             <div v-else class="row q-col-gutter-sm">
               <q-input
@@ -196,13 +178,6 @@ const borderWidth = ref(2);
 const clampCount = (n: number) => Math.min(100, Math.max(1, Math.round(n || 1)));
 const stripLayout = ref<StripLayout>(stripDefaults(1));
 const isStrip = computed(() => style.value === 'strips');
-/** More or fewer strips: keeps the ones already set up, new ones alternate plain and blocks. */
-function setStripCount(n: number) {
-  const k = props.units === 'cm' ? 2.5 : 1;
-  const all = stripDefaults(k, clampCount(n)).strips;
-  const strips = all.map((s, i) => stripLayout.value.strips[i] ?? s);
-  stripLayout.value = { ...stripLayout.value, strips };
-}
 const layout = computed<Layout>(() =>
   isStrip.value
     ? stripLayout.value

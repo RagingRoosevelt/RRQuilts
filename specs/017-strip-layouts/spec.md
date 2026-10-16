@@ -100,9 +100,9 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
 
 1. **Given** Start a quilt, **Then** the style cards include one Strips card, and the live preview
    shows the default strips.
-2. **Given** Strips in the wizard, **Then** the Blocks step asks for the number of strips and the
-   length, and a Strips step (before Sashing) sets Horizontal or Vertical and each strip's style,
-   width, and counts; sashing doesn't apply.
+2. **Given** Strips in the wizard, **Then** a Strips step (before Sashing) sets Horizontal or
+   Vertical, the strip length, and the strips with their styles, widths, and counts; sashing
+   doesn't apply.
 
 ---
 
@@ -160,9 +160,10 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
 
 **Wizard** (spec 016 FR-013)
 
-- **FR-020**: The wizard MUST have one Strips card. Its Blocks step asks for the number of strips
-  and the length; styles that need it get their own customization step before Sashing ("Strips":
-  Horizontal or Vertical, and each strip's settings, as in the Layout tab). The preview follows,
+- **FR-020**: The wizard MUST have one Strips card. Its first step (Layout) only picks the style;
+  styles that need it get their own customization step before Sashing ("Strips"), which holds
+  everything that sizes them: Horizontal or Vertical, the strip length, and the strips with their
+  styles, widths, and counts, as in the Layout tab. Each step keeps a layout's size settings together. The preview follows,
   beside the steps (below them on phones). *Amended 2026-10-16 (owner).*
 
 **Format and printing**
