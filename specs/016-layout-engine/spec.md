@@ -19,6 +19,16 @@ existing projects are unchanged."
 > editor), spec 010 (printing). Later specs add the other styles (Variable Point, Baby Blocks,
 > shaped-block and mixed layouts) as presets, and block shapes (FR-060a).
 
+## Clarifications
+
+### Session 2026-10-15
+
+- Q: What number does On-Point's block size field take? → A: The finished side of the square block;
+  the width on point is shown alongside.
+- Q: Which edge finish do new On-Point quilts start with? → A: Floating, 1″.
+- Q: How is a partial block (Trimmed blocks) printed and counted for yardage? → A: As the whole block,
+  then trimmed: cut list and yardage count full blocks, and the printout shows the trim line.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Make an On-Point quilt (Priority: P1)
@@ -68,7 +78,8 @@ the quilt size, and the printed piece list change to match each.
    inside the straight edge, and the quilt size grows to match.
 3. **Given** Trimmed blocks, **Then** the edge spaces hold partial blocks (half and quarter blocks cut
    by the straight edge) instead of setting pieces; each partial space takes a block, colored like
-   the rest, and shows only the part inside the quilt.
+   the rest, and shows only the part inside the quilt. Printing and yardage count each partial block
+   as a whole block, with a note to trim after setting along the shown trim line.
 4. **Given** No fill, **Then** the zigzag edge is the quilt's edge: no setting pieces, borders are
    unavailable (existing borders are kept in the file but set aside, with a note), and the binding
    follows the zigzag.
@@ -119,6 +130,8 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
 - On-Point with 1 across and several down (or the reverse): a single diagonal column, side triangles
   on two sides only.
 - Float amount 0 → same as Exact; negative float → not allowed.
+- Floating: printing gives the oversized setting-piece cut sizes and says to trim the quilt top to
+  the shown edge.
 - Trimmed blocks with sashing: sashing is trimmed by the straight edge like the blocks.
 - No fill, then switching back to an edge with setting pieces → the set-aside borders return.
 - A block placed in a partial space then switched to Exact → the partial space is gone; the block is
@@ -173,7 +186,7 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
 **Edge finish** (spec 001 FR-029e)
 
 - **FR-020**: A layout with an uneven edge MUST offer Exact, Floating (with a float amount), Trimmed
-  blocks, and No fill, defaulting to Exact.
+  blocks, and No fill. New On-Point quilts start Floating with a 1″ float.
 - **FR-021**: Setting pieces MUST be plain spaces that color like patches, are included in yardage,
   and print with cut sizes and grain along the outer edge.
 - **FR-022**: No fill MUST make the uneven edge the quilt's edge: borders set aside (kept, restored
@@ -220,7 +233,7 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
 - The editing gesture for merging and splitting triangle-grid spaces is a later feature; the engine
   already generates layouts with merged spaces.
 - Block sizes are entered as the finished square side (what quilters piece); the reference quilt
-  software measures differently, which isn't copied.
+  software measures differently, which isn't copied (confirmed 2026-10-15).
 - Borders keep working as today (straight strips around the straight edge); border styles are not
   part of this feature.
 - Turning or flipping a block in an on-point space uses the same choices as a square space (90°
