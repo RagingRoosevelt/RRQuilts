@@ -634,7 +634,7 @@ and its Files-app integration (phones) work by hand.
 - **FR-029**: Maximum blocks per row/column MUST be configurable (default 24, up to 100).
 - **FR-029a**: The app MUST support shaped-block layouts, where every space holds a block of that
   shape: Triangle (equilateral, rows alternating point up and point down), Hexagon, Diamond (60°),
-  Clamshell, and Spool (spools alternate quarter turns). Each takes counts and a finished size, and
+  Clamshell, and Spool (the layout sets neighboring spool spaces at right angles to each other). Each takes counts and a finished size, and
   the quilt's edge either trims the outer spaces straight (partial spaces hold a trimmed block or a
   plain fill) or leaves whole spaces (a shaped edge). *Added 2026-10-15.*
 - **FR-029b**: Layout spaces MAY have curved edges (clamshell, spool); drawing, coloring, placing,
@@ -643,7 +643,7 @@ and its Files-app integration (phones) work by hand.
 - **FR-029c** *(design constraint)*: Layouts MUST come from one shared engine: a repeating cell of
   block spaces and sashing (each space with its own shape and turn), repeated along two directions,
   turned or sheared as a whole, and trimmed to the quilt. Each layout style (FR-020–FR-025,
-  FR-029a, FR-029d) is a preset of that engine's parameters, not separate geometry; space ids stay derived
+  FR-029a, FR-029d, FR-029e) is a preset of that engine's parameters, not separate geometry; space ids stay derived
   from position (contracts/slot-ids.md). *Added 2026-10-15.*
 - **FR-029d**: Triangles, 60° diamonds, and hexagons of the same side length MUST be able to share one
   layout, since all three are made of the same equilateral triangles (a diamond is two, a hexagon
@@ -651,6 +651,13 @@ and its Files-app integration (phones) work by hand.
   triangles), and Hexagons and Triangles (alternating). The user MAY also merge neighboring spaces
   into a larger shape (two triangles into a diamond, six into a hexagon) or split one back.
   *Added 2026-10-15.*
+- **FR-029e**: Where a layout's edge isn't straight (On-Point, the shaped edges of FR-029a and
+  FR-029d), the gaps between it and the quilt's straight edge or first border MUST be filled with
+  setting pieces: plain spaces shaped to the gap (setting triangles, half hexagons, and so on) that
+  are colored, sized, and printed like any patch. The user chooses exact setting pieces (block points
+  meet the border), oversized ones by a float amount (blocks float, trimmed after piecing), or
+  trimmed blocks instead (FR-029a). With no border the shaped edge MAY stay as the quilt's edge.
+  This generalizes FR-022's corner triangles. *Added 2026-10-15.*
 
 **Borders (US5)**
 
@@ -709,9 +716,11 @@ and its Files-app integration (phones) work by hand.
 - **FR-060a**: Blocks MUST have a shape: square or rectangle (the default), equilateral triangle,
   hexagon, 60° diamond, clamshell, or spool. The block editor draws within the shape's outline and
   offers a snap grid that suits it (triangular for triangles, hexagons, and diamonds); patches are
-  found within the outline. A block goes only into layout spaces of its shape, and its turns and
-  flips follow the shape's symmetry (60° steps for hexagons, 120° for triangles). *Added
-  2026-10-15.*
+  found within the outline. A block goes only into layout spaces of its shape. Turning or flipping a
+  block within its space MUST keep the space's outline, so the choices follow the shape's symmetry:
+  90° steps for squares, 60° for hexagons, 120° for triangles, 180° for rectangles, 60° diamonds,
+  and spools, and none for clamshells (which only flip left to right). How the layout turns its
+  spaces (FR-029a) is separate from this. *Added 2026-10-15.*
 - **FR-061**: Drawing aids MUST include snap grid (horizontal/vertical counts), snap to grid/nodes/
   lines/whole patch/aligned segments, auto-join, graph paper overlay, guides (convert/clear), and
   fill-closed-patches preview.
