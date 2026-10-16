@@ -38,11 +38,10 @@ describe('garment outlines (wizard target sizes)', () => {
     expect(height(garmentOutline('pants', 'front', m))).toBeCloseTo(m.rise + m.inseam, 6);
   });
 
-  it('long sleeves are longer than short ones; backs have the higher neck', () => {
+  it('sleeves are as long as asked, to the wrist by default; backs have the higher neck', () => {
     const m = measurements('men', 'L');
-    expect(height(garmentOutline('top', 'sleeve', m, true))).toBeGreaterThan(
-      height(garmentOutline('top', 'sleeve', m, false)) + 10,
-    );
+    expect(height(garmentOutline('top', 'sleeve', m))).toBeCloseTo(m.arm, 6);
+    expect(height(garmentOutline('top', 'sleeve', m, 12))).toBeCloseTo(12, 6);
     const neck = (p: Pt[]) => p[0]![1];
     expect(neck(garmentOutline('top', 'back', m))).toBeLessThan(
       neck(garmentOutline('top', 'front', m)),

@@ -122,18 +122,21 @@ function bodice(m: Measurements, back: boolean): Pt[] {
   return back ? whole(half_) : half_;
 }
 
-/** A set-in sleeve, whole: cap on top, short (to above the elbow) or long (to the wrist). */
-function sleeve(m: Measurements, long: boolean): Pt[] {
+/** A set-in sleeve, whole: cap on top, `length` from the top of the cap (the shoulder) to the hem,
+ *  narrowing from the upper arm toward the wrist (the full arm length). */
+function sleeve(m: Measurements, length: number): Pt[] {
   const bicep = m.upperArm + 2;
   const cap = (m.backLength / 2 + 0.75) * 0.6;
-  const length = long ? m.arm : 9;
-  const hem = long ? Math.max(9, bicep * 0.62) : bicep - 1;
+  const wrist = Math.max(9, bicep * 0.62);
+  const t = Math.min(1, Math.max(0, length - cap) / (m.arm - cap));
+  const hem = bicep + (wrist - bicep) * t;
+  length = Math.max(length, cap + 0.5);
   const n = 16;
   const capPts = Array.from({ length: n + 1 }, (_, i): Pt => {
     const t = i / n;
     return [-bicep / 2 + t * bicep, (cap * (1 + Math.cos(2 * Math.PI * t))) / 2];
   });
-  return [...capPts, [hem / 2, cap + length], [-hem / 2, cap + length]];
+  return [...capPts, [hem / 2, length], [-hem / 2, length]];
 }
 
 /** One trouser leg's front or back, side seam on the left. */
@@ -158,16 +161,17 @@ function pants(m: Measurements, back: boolean): Pt[] {
   ];
 }
 
-/** The outline of a garment piece in inches; `long` sleeves for the sleeve, pants pieces are a
+/** The outline of a garment piece in inches; a sleeve `sleeveLength` long (default: to the
+ *  wrist), pants pieces are a
  *  front or a back (no sleeve). */
 export function garmentOutline(
   garment: 'top' | 'pants',
   piece: GarmentPiece,
   m: Measurements,
-  long = true,
+  sleeveLength = m.arm,
 ): Pt[] {
   if (garment === 'pants') return pants(m, piece === 'back');
-  return piece === 'sleeve' ? sleeve(m, long) : bodice(m, piece === 'back');
+  return piece === 'sleeve' ? sleeve(m, sleeveLength) : bodice(m, piece === 'back');
 }
 
 /** Bounding box [x0, y0, x1, y1] of points. */

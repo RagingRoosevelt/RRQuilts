@@ -86,17 +86,12 @@
                       ]
                 "
               />
-              <q-btn-toggle
+              <LengthInput
                 v-if="target === 'top' && piece === 'sleeve'"
-                v-model="longSleeve"
-                spread
-                no-caps
-                unelevated
-                toggle-color="primary"
-                :options="[
-                  { label: 'Short sleeve', value: false },
-                  { label: 'Long sleeve', value: true },
-                ]"
+                v-model="sleeveLength"
+                label="Sleeve length, shoulder to hem"
+                :units="units"
+                :min="1"
               />
               <div class="row items-center no-wrap" style="gap: 8px">
                 <q-btn-toggle
@@ -563,19 +558,35 @@ const isGarment = computed(() => target.value === 'top' || target.value === 'pan
 const fit = ref<Fit>('women');
 const gsize = ref<GarmentSize>('M');
 const piece = ref<GarmentPiece>('front');
-const longSleeve = ref(true);
+const unitK = computed(() => (props.units === 'cm' ? 2.54 : 1));
+/** Sleeve length in the project's units: the size's full arm length until changed. */
+const sleeveLength = ref(23);
+watch(
+  [fit, gsize, () => props.units],
+  () => {
+    const v = measurements(fit.value, gsize.value).arm * unitK.value;
+    sleeveLength.value = props.units === 'cm' ? Math.round(v) : v;
+  },
+  { immediate: true },
+);
 watch(target, (t) => {
   if (t === 'pants' && piece.value === 'sleeve') piece.value = 'front';
+});
+// Garment pieces have no borders: picking one sets them to none, leaving garments brings back
+// the default border (unless the count was changed meanwhile).
+watch(isGarment, (g) => {
+  if (g) borderCount.value = 0;
+  else if (borderCount.value === 0) borderCount.value = 1;
 });
 /** The garment piece's outline in the project's units. */
 const garmentPts = computed((): Pt[] | null => {
   if (!isGarment.value) return null;
-  const k = props.units === 'cm' ? 2.54 : 1;
+  const k = unitK.value;
   return garmentOutline(
     target.value as 'top' | 'pants',
     piece.value,
     measurements(fit.value, gsize.value),
-    longSleeve.value,
+    (sleeveLength.value || 1) / k,
   ).map(([x, y]): Pt => [x * k, y * k]);
 });
 const sizeOptions = computed(() =>
