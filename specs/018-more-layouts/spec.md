@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-16
 
-**Status**: Draft
+**Status**: Implemented on `feat/more-layouts` (awaiting owner review)
 
 **Input**: Owner request 2026-10-16: implement Variable Point, One Patch (no Photo Patchwork yet),
 Baby Blocks, Variable Blocks, and the pieced border styles. Decisions given up front: diamonds and
@@ -166,3 +166,8 @@ along all four sides with corner squares; paint points and background with Alter
 - Default counts give each pattern its classic proportions for the border's width: square blocks,
   tiles, and diamonds; 90° points; spaced squares as long as their gaps; square big shapes among big
   and little ones; square diamonds in double rows.
+- Variable Point stretches On-Point vertically: the float is the same on every side, but sashing
+  between diamonds is thinner across the steep sides than the set width says (it is the On-Point
+  sash stretched).
+- Hexagons can't be colored in two alternating colors, so Alternate colors every other row.
+- Unpainted patches don't print, as with every other space.

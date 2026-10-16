@@ -155,4 +155,21 @@ describe('format v6', () => {
       expect(doc.project.quilts[0]!.layout, style).toEqual(layoutDefaults(style, 1));
     }
   });
+  it('Variable Point floats the same distance on every side', () => {
+    const g = generateSlots(
+      {
+        style: 'variable-point',
+        cols: 3,
+        rows: 3,
+        width: 12,
+        height: 16,
+        sash: 0,
+        corner: 'triangle',
+        edge: { finish: 'float', float: 1 },
+      },
+      [],
+    );
+    const [x0, y0, x1, y1] = g.center;
+    expect([x1 - x0, y1 - y0]).toEqual([38, 50].map((v) => expect.closeTo(v, 9)));
+  });
 });

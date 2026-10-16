@@ -131,6 +131,8 @@ export function onPoint(
   l: OnPointLayout,
   /** Edge positions holding a block (`m:r{r}c{c}` → the id it's placed under), Exact/Floating. */
   edgeBlocks: ReadonlyMap<string, string> = new Map(),
+  /** Top and bottom floats are divided by this (Variable Point stretches the result by it). */
+  stretch = 1,
 ): {
   slots: Slot[];
   center: Bounds;
@@ -151,7 +153,12 @@ export function onPoint(
     if (r === l.rows) sides[2] = true;
     if (c === 0) sides[3] = true;
   }
-  const fs = sides.map((t) => (t ? 0 : f)) as [number, number, number, number];
+  const fs = sides.map((t, i) => (t ? 0 : i % 2 ? f : f / stretch)) as [
+    number,
+    number,
+    number,
+    number,
+  ];
   const [fT, fR, fB, fL] = fs;
   const k = Math.SQRT1_2;
   const P = s + g;
@@ -712,16 +719,20 @@ const ring = (n: number, r: number, cx: number, cy: number, turn: number): Pt[] 
  * patch (fabric only until diamond-shaped blocks exist).
  */
 export function variablePoint(l: VariablePointLayout) {
-  const o = onPoint({
-    style: 'on-point',
-    cols: l.cols,
-    rows: l.rows,
-    block: l.width * Math.SQRT1_2,
-    sash: l.sash,
-    corner: l.corner,
-    edge: l.edge,
-  });
   const k = l.height / l.width;
+  const o = onPoint(
+    {
+      style: 'on-point',
+      cols: l.cols,
+      rows: l.rows,
+      block: l.width * Math.SQRT1_2,
+      sash: l.sash,
+      corner: l.corner,
+      edge: l.edge,
+    },
+    undefined,
+    k,
+  );
   const m: M = [1, 0, 0, k, 0, 0];
   const slots = o.slots.map((s): Slot => ({
     ...s,

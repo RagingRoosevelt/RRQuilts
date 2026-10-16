@@ -187,16 +187,7 @@
           <PaletteTray sidebar />
         </template>
         <LayoutInspector
-          v-else-if="
-            editor.mode === 'layout' &&
-            (quilt.layout.style === 'straight-set' ||
-              quilt.layout.style === 'on-point' ||
-              quilt.layout.style === 'variable-point' ||
-              quilt.layout.style === 'one-patch' ||
-              quilt.layout.style === 'baby-blocks' ||
-              quilt.layout.style === 'variable-blocks' ||
-              strips)
-          "
+          v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'"
           :key="quilt.id"
           :layout="quilt.layout"
           :units="units"

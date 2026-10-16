@@ -21,10 +21,10 @@ Opus reviews every diff. Nothing is merged or pushed (owner reviews `feat/more-l
 - [X] T008 (sonnet) Wizard cards for the four styles; One Patch shape step; preview
 - [X] T009 (sonnet) Borders inspector: counts for pieced styles (aligned styles say they follow the
   layout); hover label "Patch"; Set message for patches
-- [ ] T010 (sonnet) Browser check of every story, screenshots
+- [X] T010 (sonnet) Browser check of every story, screenshots
 
 ## Phase 3: Polish
 
-- [ ] T011 (sonnet) Help (designing-a-quilt layouts and borders), slot-id contract, CLAUDE.md,
+- [X] T011 (sonnet) Help (designing-a-quilt layouts and borders), slot-id contract, CLAUDE.md,
   tracker, spec 001 notes
 - [ ] T012 (opus) Review, drawings of every style, final checks, report
