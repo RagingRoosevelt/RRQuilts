@@ -195,8 +195,8 @@ zoom, drag-pan, and Fit.
   (Horizontal or On-Point), and a live preview shows the quilt as choices are made.*
 - **FR-001a**: The wizard's first page MUST pick the layout style and a target size: None (default),
   Placemat 18 × 13, Table runner 72 × 14, Wall hanging 36 × 36, Throw 50 × 65, or a bed by its
-  mattress top: Crib 28 × 52, Twin 39 × 75, Double (Full) 54 × 75, Queen 60 × 80, King 76 × 80 (in
-  inches). cm projects list the other sizes in rounded cm (46 × 33, 183 × 36, 91 × 91, 127 × 165,
+  mattress top: Crib 28 × 52, Twin 39 × 75, Double (Full) 54 × 75, Queen 60 × 80, King 76 × 80,
+  California King 72 × 84 (in inches). cm projects list the other sizes in rounded cm (46 × 33, 183 × 36, 91 × 91, 127 × 165,
   Crib 71 × 132) and European beds (owner, 2026-10-16): Single 90 × 200, Single (XL) 100 × 200,
   Small double 120 × 200, Standard double / Queen 140 × 200, Queen (Europe) / King 160 × 200, Super
   King (Europe) 180 × 200, Emperor / Grand King 200 × 200. A bed adds a **drop** over the sides and
@@ -204,9 +204,10 @@ zoom, drag-pan, and Fit.
   wider, 0 for Crib. A **Pillow tuck** checkbox (beds, off by default) adds extra at the head
   (12″ / 30 cm, editable) for bedspread-style quilts. A **US sizes / European sizes** switch picks the
   list (shown in the project's units; inches to the half, cm whole); it starts from the units
-  preference and, once changed, is remembered (setting `bedSizes`). European 200 cm beds offer
-  **Tall** (220 cm long). The list is grouped (labels set into divider lines): None, Custom (width ×
-  height fields), Table, wall, and lap, then Beds. With a
+  preference and, once changed, is remembered (setting `bedSizes`). **Tall (XL)** makes Twin and
+  Double 80″ long and European 200 cm beds 210 cm. The list is grouped (labels set into divider lines): None, Custom (width ×
+  height fields), Table, wall, and lap, then Beds (mattress size), each name on the left and its
+  size on the right. Switching lists keeps Custom (and its values) and sizes both lists share. With a
   size picked, the live preview MUST show it as a transparent outline over the quilt, centered on
   it: the outer outline is the size with its drop and tuck, and a fine outline inside marks the mattress top
   at the head. The footer shows the quilt's finished size and the target's. Counts, block sizes,

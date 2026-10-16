@@ -61,7 +61,8 @@
               <template #option="scope">
                 <div v-if="scope.opt.header" class="target-header">{{ scope.opt.label }}</div>
                 <q-item v-else v-bind="scope.itemProps">
-                  <q-item-section>{{ scope.opt.label }}</q-item-section>
+                  <q-item-section>{{ scope.opt.name ?? scope.opt.label }}</q-item-section>
+                  <q-item-section v-if="scope.opt.size" side>{{ scope.opt.size }}</q-item-section>
                 </q-item>
               </template>
             </q-select>
@@ -93,7 +94,7 @@
               v-if="canBeTall"
               v-model="tall"
               class="q-mt-sm"
-              :label="`Tall (${conv(targetOf?.size[0] ?? 0)} × ${conv(220)} ${units})`"
+              :label="`Tall (XL), ${conv(targetOf?.size[0] ?? 0)} × ${conv(targetOf?.tall ?? 0)} ${units}`"
             />
             <q-checkbox v-if="isBed" v-model="tuck" class="q-mt-sm" label="Pillow tuck" />
             <LengthInput
@@ -391,7 +392,8 @@ const detailTitle = computed(() =>
  * be changed.
  */
 type Region = 'us' | 'eu';
-type Target = { name: string; size: [number, number]; drop?: number };
+/** `tall`: the bed's long (XL) length, when it comes in one. */
+type Target = { name: string; size: [number, number]; drop?: number; tall?: number };
 const TARGETS: Record<Region, Target[]> = {
   us: [
     { name: 'Placemat', size: [18, 13] },
@@ -399,10 +401,11 @@ const TARGETS: Record<Region, Target[]> = {
     { name: 'Wall hanging', size: [36, 36] },
     { name: 'Throw', size: [50, 65] },
     { name: 'Crib', size: [28, 52], drop: 0 },
-    { name: 'Twin', size: [39, 75], drop: 12 },
-    { name: 'Double (Full)', size: [54, 75], drop: 12 },
+    { name: 'Twin', size: [39, 75], drop: 12, tall: 80 },
+    { name: 'Double (Full)', size: [54, 75], drop: 12, tall: 80 },
     { name: 'Queen', size: [60, 80], drop: 14 },
     { name: 'King', size: [76, 80], drop: 14 },
+    { name: 'California King', size: [72, 84], drop: 14 },
   ],
   eu: [
     { name: 'Placemat', size: [46, 33] },
@@ -410,13 +413,13 @@ const TARGETS: Record<Region, Target[]> = {
     { name: 'Wall hanging', size: [91, 91] },
     { name: 'Throw', size: [127, 165] },
     { name: 'Crib', size: [71, 132], drop: 0 },
-    { name: 'Single', size: [90, 200], drop: 30 },
-    { name: 'Single (XL)', size: [100, 200], drop: 30 },
-    { name: 'Small double', size: [120, 200], drop: 30 },
-    { name: 'Standard double / Queen', size: [140, 200], drop: 30 },
-    { name: 'Queen (Europe) / King', size: [160, 200], drop: 35 },
-    { name: 'Super King (Europe)', size: [180, 200], drop: 35 },
-    { name: 'Emperor / Grand King', size: [200, 200], drop: 35 },
+    { name: 'Single', size: [90, 200], drop: 30, tall: 210 },
+    { name: 'Single (XL)', size: [100, 200], drop: 30, tall: 210 },
+    { name: 'Small double', size: [120, 200], drop: 30, tall: 210 },
+    { name: 'Standard double / Queen', size: [140, 200], drop: 30, tall: 210 },
+    { name: 'Queen (Europe) / King', size: [160, 200], drop: 35, tall: 210 },
+    { name: 'Super King (Europe)', size: [180, 200], drop: 35, tall: 210 },
+    { name: 'Emperor / Grand King', size: [200, 200], drop: 35, tall: 210 },
   ],
 };
 const settings = useSettingsStore();
@@ -445,11 +448,11 @@ const conv = (v: number) =>
 const target = ref<string | null>(null);
 const drop = ref(0);
 const tuck = ref(false);
-/** European beds come in a long (220 cm) version too. */
+/** Many beds come in a long (XL) version too. */
 const tall = ref(false);
 const tuckLength = ref(12);
 const targetOf = computed(() => TARGETS[region.value].find((t) => t.name === target.value));
-const canBeTall = computed(() => region.value === 'eu' && targetOf.value?.size[1] === 200);
+const canBeTall = computed(() => targetOf.value?.tall !== undefined);
 const isBed = computed(() => targetOf.value?.drop !== undefined);
 watch(target, () => (drop.value = conv(targetOf.value?.drop ?? 0)));
 /** Extra at the head (pillow tuck) and over the sides and foot, for beds. */
@@ -464,13 +467,15 @@ const custom = ref<[number, number]>([60, 80]);
 const targetSize = computed((): [number, number] | null => {
   if (target.value === 'custom') return [custom.value[0] || 1, custom.value[1] || 1];
   const t = targetOf.value?.size;
-  return t ? [conv(t[0]), conv(canBeTall.value && tall.value ? 220 : t[1])] : null;
+  return t
+    ? [conv(t[0]), conv(tall.value && targetOf.value?.tall ? targetOf.value.tall : t[1])]
+    : null;
 });
 const targetOptions = computed(() => {
-  const item = (t: Target) => ({
-    label: `${t.name}, ${conv(t.size[0])} × ${conv(t.size[1])} ${props.units}${t.drop !== undefined ? ' mattress' : ''}`,
-    value: t.name,
-  });
+  const item = (t: Target) => {
+    const size = `${conv(t.size[0])} × ${conv(t.size[1])} ${props.units}`;
+    return { label: `${t.name}, ${size}`, value: t.name, name: t.name, size };
+  };
   const header = (label: string) => ({ label, value: `#${label}`, header: true, disable: true });
   const all = TARGETS[region.value];
   return [
@@ -478,7 +483,7 @@ const targetOptions = computed(() => {
     { label: 'Custom', value: 'custom' },
     header('Table, wall, and lap'),
     ...all.filter((t) => t.drop === undefined).map(item),
-    header('Beds'),
+    header('Beds (mattress size)'),
     ...all.filter((t) => t.drop !== undefined).map(item),
   ];
 });
