@@ -6,8 +6,9 @@ import { produce } from 'immer';
 import type { PathCommand } from '../schema/shared';
 import type { Border, Layout, Quilt, SlotContent } from '../schema/quilt';
 import { borderSlots } from './borders';
+import { onPointDefaults } from '../io';
 import { tile } from './engine';
-import { horizontal } from './presets';
+import { horizontal, onPoint } from './presets';
 
 export type SlotKind = 'block' | 'sash' | 'cs' | 'set' | 'border';
 /** `piece` = setting, partial, or irregular space: plain fill only. */
@@ -110,10 +111,24 @@ export function generateSlots(layout: Layout, borders: Border[]): Generated {
   const unsupported: string[] = [];
   let slots: Slot[] = [];
   let center: Bounds = [0, 0, 0, 0];
+  let trim = false;
   if (layout.style === 'horizontal') {
     const h = horizontal(layout);
     slots = tile(h.tiling);
     center = h.center;
+  } else if (layout.style === 'on-point') {
+    const o = onPoint(layout);
+    // No fill: the uneven edge is the quilt's edge, so borders are set aside (kept in the file).
+    if (layout.edge.finish === 'none')
+      return {
+        slots: o.slots,
+        center: o.center,
+        bounds: o.center,
+        unsupported,
+        edge: o.edge,
+        trim: false,
+      };
+    ({ slots, center, trim } = o);
   } else unsupported.push(`layout ${layout.style}`);
 
   const b = borderSlots(borders, center);
@@ -125,7 +140,7 @@ export function generateSlots(layout: Layout, borders: Border[]): Generated {
     bounds: b.bounds,
     unsupported,
     edge: rectPath(x0, y0, x1 - x0, y1 - y0),
-    trim: false,
+    trim,
   };
 }
 
@@ -138,10 +153,12 @@ export interface Reconciled {
 /** Which placed content survives a layout/border change. */
 export function reconcile(quilt: Quilt, layout: Layout, borders: Border[]): Reconciled {
   const ids = new Set(generateSlots(layout, borders).slots.map((s) => s.id));
+  // Borders set aside by No fill keep their pieces' colors for when they come back.
+  const setAside = layout.style === 'on-point' && layout.edge.finish === 'none';
   const slots: Record<string, SlotContent> = {};
   const dropped: string[] = [];
   for (const [id, content] of Object.entries(quilt.layers[0].slots)) {
-    if (ids.has(id)) slots[id] = content;
+    if (ids.has(id) || (setAside && id.startsWith('border:'))) slots[id] = content;
     else dropped.push(id);
   }
   return { slots, dropped };
@@ -155,4 +172,37 @@ export function applyLayout(quilt: Quilt, layout: Layout, borders: Border[]): Qu
     q.borders = borders;
     q.layers[0].slots = slots;
   });
+}
+
+/** The layout in another style, keeping counts, block size, and sashing (spec 016 US4). */
+export function convertLayout(
+  layout: Layout,
+  style: 'horizontal' | 'on-point',
+  units: 'in' | 'cm',
+): Layout {
+  if (layout.style === style) return layout;
+  if (style === 'on-point') {
+    const d = onPointDefaults(units === 'cm' ? 2.5 : 1);
+    return layout.style === 'horizontal'
+      ? { ...d, cols: layout.cols, rows: layout.rows, block: layout.block[0], sash: layout.sash[0] }
+      : d;
+  }
+  if (layout.style === 'on-point')
+    return {
+      style: 'horizontal',
+      cols: layout.cols,
+      rows: layout.rows,
+      block: [layout.block, layout.block],
+      sash: [layout.sash, layout.sash],
+      sashBorder: false,
+    };
+  const k = units === 'cm' ? 2.5 : 1;
+  return {
+    style: 'horizontal',
+    cols: 3,
+    rows: 3,
+    block: [12 * k, 12 * k],
+    sash: [0, 0],
+    sashBorder: false,
+  };
 }

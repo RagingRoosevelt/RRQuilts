@@ -42,11 +42,25 @@ export function clipPolygon(poly: Pt[], [x0, y0, x1, y1]: Bounds): Pt[] {
   return out;
 }
 
+/** Keep the part of a convex polygon on `keep`'s side of the line through `a` and `b`. */
+export function clipByLine(poly: Pt[], a: Pt, b: Pt, keep: Pt): Pt[] {
+  const side = (p: Pt) => (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]);
+  const sign = Math.sign(side(keep));
+  const out: Pt[] = [];
+  poly.forEach((cur, i) => {
+    const prev = poly[(i + poly.length - 1) % poly.length]!;
+    const [sc, sp] = [side(cur) * sign, side(prev) * sign];
+    if (sc >= -EPS !== sp >= -EPS) out.push(at(prev, cur, sp / (sp - sc)));
+    if (sc >= -EPS) out.push(cur);
+  });
+  return out;
+}
+
 const at = (a: Pt, b: Pt, t: number): Pt => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 
 const isStraight = (path: PathCommand[]) => path.every((c) => c[0] !== 'A' && c[0] !== 'C');
 
-const toPath = (poly: Pt[]): PathCommand[] => [
+export const toPath = (poly: Pt[]): PathCommand[] => [
   ['M', ...poly[0]!],
   ...poly.slice(1).map((p): PathCommand => ['L', ...p]),
   ['Z'],

@@ -80,19 +80,19 @@ consumers stop inferring from ids and axis-aligned transforms, and the engine pr
 
 **Independent Test**: every fixture opens, migrates to v5, and generates identical slots.
 
-- [ ] T015 (sonnet) [P] [US3] Migration test: v4 fixture with Horizontal unchanged except `version`; v4 doc with
+- [X] T015 (sonnet) [P] [US3] Migration test: v4 fixture with Horizontal unchanged except `version`; v4 doc with
   `{ style: 'on-point' }` gets default On-Point parameters in
   `test/vitest/__tests__/model/io.migrate.spec.ts`
-- [ ] T016 (opus) [US3] `OnPointLayout` schema (`cols`, `rows`, `block`, `sash`, `corner`, `edge { finish,
+- [X] T016 (opus) [US3] `OnPointLayout` schema (`cols`, `rows`, `block`, `sash`, `corner`, `edge { finish,
   float }`), remove `'on-point'` from `OtherLayout`, `VERSION = 5` in
   `src/model/schema/quilt.ts` and `src/model/schema/project.ts`
-- [ ] T017 (opus) [US3] Migration `4` (placeholder On-Point → defaults in the project's units: 3 × 3, 12″ /
+- [X] T017 (opus) [US3] Migration `4` (placeholder On-Point → defaults in the project's units: 3 × 3, 12″ /
   30 cm, sash 0, `triangle`, float 1″ / 2.5 cm) in `src/model/io.ts`
-- [ ] T018 (sonnet) [P] [US3] Scale On-Point `block`, `sash`, `edge.float` in `src/model/units.ts` (+ case in
+- [X] T018 (sonnet) [P] [US3] Scale On-Point `block`, `sash`, `edge.float` in `src/model/units.ts` (+ case in
   `test/vitest/__tests__/model/units.spec.ts`)
-- [ ] T019 (sonnet) [US3] Regenerate `public/schemas/rrq.v5.json` (`npm run schema` in the container), update
+- [X] T019 (sonnet) [US3] Regenerate `public/schemas/rrq.v5.json` (`npm run schema` in the container), update
   `public/schemas/formats.json`, keep `rrq.v4.json`; `schema.published.spec.ts` green
-- [ ] T020 (sonnet) [US3] Bump `test/fixtures/everything.rrq` to v5 only if the round-trip test requires it
+- [X] T020 (sonnet) [US3] Bump `test/fixtures/everything.rrq` to v5 only if the round-trip test requires it
   (otherwise leave it at v4 as migration coverage) in `test/fixtures/everything.rrq`
 
 ---
@@ -106,24 +106,24 @@ pieces, size shown; place/color/turn/undo/save/reopen work.
 
 ### Tests
 
-- [ ] T021 (opus) [P] [US1] On-Point generation tests: counts (C × R main, (C−1)(R−1) between,
+- [X] T021 (opus) [P] [US1] On-Point generation tests: counts (C × R main, (C−1)(R−1) between,
   2(C−1) + 2(R−1) side pieces, 4 corners, 8 corner halves with `seam`), 1 × 1 and 1 × R, ids per
   `contracts/slot-ids.md`, unique ids, area sum = quilt area, Exact width = C·s·√2 and height
   R·s·√2, `alt` 0 main / 1 between, `size` = [s, s], with sashing (sash and cornerstone ids, setting
   pieces meet sashing) in `test/vitest/__tests__/model/layout-on-point.spec.ts`
-- [ ] T022 (opus) [P] [US1] Cut sizes (SC-003): 8″ block, ¼″ seam → side setting piece QST cut 12⅝″, corner
+- [X] T022 (opus) [P] [US1] Cut sizes (SC-003): 8″ block, ¼″ seam → side setting piece QST cut 12⅝″, corner
   HST cut 6⅝″, grain on the outer edge, via `quiltPieces` + `cutFor` in
   `test/vitest/__tests__/print/print.spec.ts`
 
 ### Implementation
 
-- [ ] T023 (opus) [US1] On-Point preset: main and between blocks as one band on the 45° lattice (`map` =
+- [X] T023 (opus) [US1] On-Point preset: main and between blocks as one band on the 45° lattice (`map` =
   turn 45° + translate), outer ring of `set:` pieces clipped to the quilt rectangle through the outer
   block points, `corner: 'seam'` splits corner pieces, diagonal sashes and cornerstones when
   `sash > 0` with ids per contract, `shape: 'rect'`, `turns: 90`, in `src/model/layout/presets.ts`
-- [ ] T024 (opus) [US1] `generateSlots` dispatches `on-point` to the preset; remove it from `unsupported`
+- [X] T024 (opus) [US1] `generateSlots` dispatches `on-point` to the preset; remove it from `unsupported`
   in `src/model/layout/slots.ts`
-- [ ] T025 (sonnet) [P] [US1] `slotGroup` knows `set:` (plain group `set`) and `b:m:` (block), and
+- [X] T025 (sonnet) [P] [US1] `slotGroup` knows `set:` (plain group `set`) and `b:m:` (block), and
   `describeSlot` reads "between r1-c1" / "setting piece" in `src/model/plain.ts`
 - [ ] T026 (sonnet) [US1] Layout inspector: style picker enables On-Point; On-Point fields (blocks across,
   down, block side with width on point shown, sashing, corner style); quilt finished size line, in
@@ -145,7 +145,7 @@ pieces, size shown; place/color/turn/undo/save/reopen work.
 
 ### Tests
 
-- [ ] T028 (opus) [P] [US2] Edge finish tests: Floating adds 2·float to width and height and `cut` ⊇
+- [X] T028 (opus) [P] [US2] Edge finish tests: Floating adds 2·float to width and height and `cut` ⊇
   `outline` for setting pieces; Trim gives `b:m:` partial spaces (clipped outline, whole transform)
   and no `set:`; None gives no outer ring, a zigzag `edge`, no border slots while `quilt.borders` is
   untouched; `trim` true for Floating and Trim; float 0 = Exact in
@@ -156,11 +156,11 @@ pieces, size shown; place/color/turn/undo/save/reopen work.
 
 ### Implementation
 
-- [ ] T030 (opus) [US2] Edge finishes in the On-Point preset: Floating moves the clip rectangle out by
+- [X] T030 (opus) [US2] Edge finishes in the On-Point preset: Floating moves the clip rectangle out by
   `float` and sets `cut` to the smallest right-isosceles triangle containing each setting piece;
   Trim turns the outer ring into `b:m:` block pieces; None drops the outer ring and clip and
   returns the zigzag `edge` in `src/model/layout/presets.ts` / `src/model/layout/engine.ts`
-- [ ] T031 (opus) [US2] `generateSlots` skips borders when the edge finish is None and reports them as set
+- [X] T031 (opus) [US2] `generateSlots` skips borders when the edge finish is None and reports them as set
   aside (for the inspector note) in `src/model/layout/slots.ts`
 - [ ] T032 (sonnet) [US2] Inspector: edge finish select (Exact, Floating, Trimmed blocks, No fill) with the
   float amount, note when borders are set aside; Borders inspector disabled with the same note in

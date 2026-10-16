@@ -15,10 +15,34 @@ export const HorizontalLayout = Type.Object({
   sashBorder: Type.Boolean(),
 });
 
-/** Styles whose generators come with the layout feature; parameters are stored as-is for now. */
+/** How an uneven layout edge is finished (spec 016): setting pieces cut exact or oversized by
+ *  `float`, partial blocks trimmed by the edge, or no fill (the uneven edge is bound as it is). */
+export const EdgeFinish = Type.Object({
+  finish: Type.Union([
+    Type.Literal('exact'),
+    Type.Literal('float'),
+    Type.Literal('trim'),
+    Type.Literal('none'),
+  ]),
+  /** Kept when another finish is chosen. */
+  float: length,
+});
+
+/** On-Point (spec 016): square blocks turned 45°, `cols` × `rows` on the main grid plus the blocks
+ *  between them; `block` is the finished side. */
+export const OnPointLayout = Type.Object({
+  style: Type.Literal('on-point'),
+  cols: count,
+  rows: count,
+  block: Type.Number({ exclusiveMinimum: 0 }),
+  sash: length,
+  corner: Type.Union([Type.Literal('triangle'), Type.Literal('seam')]),
+  edge: EdgeFinish,
+});
+
+/** Styles whose generators come with later presets; parameters are stored as-is for now. */
 export const OtherLayout = Type.Object({
   style: Type.Enum([
-    'on-point',
     'variable-point',
     'baby-blocks',
     'variable-blocks',
@@ -29,7 +53,7 @@ export const OtherLayout = Type.Object({
   ]),
 });
 
-export const Layout = Type.Union([HorizontalLayout, OtherLayout]);
+export const Layout = Type.Union([HorizontalLayout, OnPointLayout, OtherLayout]);
 
 export const BorderStyle = Type.Enum([
   'mitered',
@@ -114,6 +138,7 @@ export const Quilt = Type.Object({
 });
 
 export type HorizontalLayout = Type.Static<typeof HorizontalLayout>;
+export type OnPointLayout = Type.Static<typeof OnPointLayout>;
 export type Layout = Type.Static<typeof Layout>;
 export type Border = Type.Static<typeof Border>;
 export type SlotContent = Type.Static<typeof SlotContent>;

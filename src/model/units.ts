@@ -45,6 +45,10 @@ export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
       if (q.layout.style === 'horizontal') {
         q.layout.block = scalePair(q.layout.block);
         q.layout.sash = scalePair(q.layout.sash);
+      } else if (q.layout.style === 'on-point') {
+        q.layout.block = len(q.layout.block);
+        q.layout.sash = len(q.layout.sash);
+        q.layout.edge.float = len(q.layout.edge.float);
       }
       for (const b of q.borders) b.sides = b.sides.map(len) as typeof b.sides;
       for (const c of Object.values(q.colorings)) scaleColoring(c, scalePair);

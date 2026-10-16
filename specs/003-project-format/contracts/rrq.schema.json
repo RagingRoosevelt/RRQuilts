@@ -14,7 +14,7 @@
     },
     "version": {
       "type": "number",
-      "const": 4
+      "const": 5
     },
     "app": {
       "type": "string"
@@ -4746,12 +4746,92 @@
                   {
                     "type": "object",
                     "required": [
+                      "style",
+                      "cols",
+                      "rows",
+                      "block",
+                      "sash",
+                      "corner",
+                      "edge"
+                    ],
+                    "properties": {
+                      "style": {
+                        "type": "string",
+                        "const": "on-point"
+                      },
+                      "cols": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                      },
+                      "rows": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                      },
+                      "block": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "sash": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "corner": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "triangle"
+                          },
+                          {
+                            "type": "string",
+                            "const": "seam"
+                          }
+                        ]
+                      },
+                      "edge": {
+                        "type": "object",
+                        "required": [
+                          "finish",
+                          "float"
+                        ],
+                        "properties": {
+                          "finish": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "const": "exact"
+                              },
+                              {
+                                "type": "string",
+                                "const": "float"
+                              },
+                              {
+                                "type": "string",
+                                "const": "trim"
+                              },
+                              {
+                                "type": "string",
+                                "const": "none"
+                              }
+                            ]
+                          },
+                          "float": {
+                            "type": "number",
+                            "minimum": 0
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
                       "style"
                     ],
                     "properties": {
                       "style": {
                         "enum": [
-                          "on-point",
                           "variable-point",
                           "baby-blocks",
                           "variable-blocks",
@@ -5565,6 +5645,6 @@
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v4.json",
-  "title": "RRQuilts project (.rrq) v4"
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v5.json",
+  "title": "RRQuilts project (.rrq) v5"
 }

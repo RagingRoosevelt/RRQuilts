@@ -33,8 +33,31 @@ export const migrations: Migrations = {
     return { ...doc, project: { ...project, palette: { ...palette, collections } } };
   },
   // v4: a project palette may record the My library palette it's synced with. Additive.
-  3: (doc) => doc,
+  3: (doc) => doc, // v5 (spec 016): On-Point layouts have parameters. A placeholder `{ style: 'on-point' }` from
+  // older files gets the defaults, in the project's units.
+  4: (doc) => {
+    const project = isObject(doc.project) ? doc.project : undefined;
+    if (!project || !Array.isArray(project.quilts)) return doc;
+    const k = doc.units === 'cm' ? 2.5 : 1;
+    const quilts = project.quilts.map((q: unknown) =>
+      isObject(q) && isObject(q.layout) && q.layout.style === 'on-point' && !('cols' in q.layout)
+        ? { ...q, layout: onPointDefaults(k) }
+        : q,
+    );
+    return { ...doc, project: { ...project, quilts } };
+  },
 };
+
+/** A new On-Point layout; `k` = project units per inch (2.5 for cm: round numbers). */
+export const onPointDefaults = (k: number) => ({
+  style: 'on-point' as const,
+  cols: 3,
+  rows: 3,
+  block: 12 * k,
+  sash: 0,
+  corner: 'triangle' as const,
+  edge: { finish: 'float' as const, float: 1 * k },
+});
 
 export type ParseResult =
   { ok: true; doc: RrqDoc; report: string[] } | { ok: false; error: string };
