@@ -39,7 +39,7 @@ Click the gear in the header to open **Settings** as a panel over the current sc
   - Each starts unset. **Set now** sets it here, or the first one you use in the new quilt wizard
     sets it. **Clear** unsets it.
 
-Each part of these sections is a card that opens and closes with its header.
+Each part of these sections is a card. Click its title to close or open it.
 
 ## Fabrics
 

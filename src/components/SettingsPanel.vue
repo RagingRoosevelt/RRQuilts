@@ -161,11 +161,18 @@
                   { label: 'Dark', value: 'dark' },
                 ]"
               />
+              <div>
+                <q-checkbox
+                  v-model="store.settings.osAccent"
+                  class="q-mt-sm"
+                  label="Use the system accent color"
+                >
+                  <q-tooltip
+                    >Where the browser shares it (Firefox, Safari); otherwise blue.</q-tooltip
+                  >
+                </q-checkbox>
+              </div>
             </SettingsCard>
-
-            <q-checkbox v-model="store.settings.osAccent" label="Use the system accent color">
-              <q-tooltip>Where the browser shares it (Firefox, Safari); otherwise blue.</q-tooltip>
-            </q-checkbox>
 
             <SettingsCard label="Units for new projects">
               <q-btn-toggle
