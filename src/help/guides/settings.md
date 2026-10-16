@@ -19,7 +19,7 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 - **Show help buttons** shows the **?** buttons that open help about a screen or section.
 - **Editor layout** puts the panels either as **Toolbar left, sidebar right** or as **Sidebar left, toolbar right**.
 
-## Libraries and Project
+## Project
 
 - **Hide library blocks from projects** and **Hide library palettes from projects** leave the libraries' lists out of the project's **Blocks** and **Palettes** tabs. Blocks and palettes already in use stay available.
 - **Hide "My Library" blocks and palettes when they are synced with the project's** tidies the
