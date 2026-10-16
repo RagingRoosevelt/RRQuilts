@@ -120,7 +120,7 @@
             v-if="preview"
             :viewBox="preview.box"
             class="preview-art"
-            preserveAspectRatio="xMidYMid meet"
+            preserveAspectRatio="xMidYMin meet"
           >
             <path
               v-for="(p, i) in preview.paths"
@@ -304,6 +304,8 @@ defineExpose({ show });
   flex-wrap: wrap;
   align-content: flex-start;
   overflow-y: auto;
+  /* Room for the scrollbar always, so nothing shifts when it appears. */
+  scrollbar-gutter: stable;
   min-height: 0;
 }
 .steps {
@@ -315,6 +317,14 @@ defineExpose({ show });
   height: min(520px, 60vh);
   position: sticky;
   top: 0;
+}
+/* Beside the steps, the picture starts level with the step's first row. ponytail: 128px = the
+   stepper header (104) + its content padding (24); measure again if the step header changes. */
+@media (min-width: 720px) {
+  .preview {
+    padding-top: 128px;
+    height: min(640px, 72vh);
+  }
 }
 .preview svg {
   width: 100%;
