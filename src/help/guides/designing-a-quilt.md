@@ -62,8 +62,8 @@ color patches with colors and fabrics, not blocks. **Alternate** colors every ot
 
 - **Variable Point** is like On-Point, but the diamonds can be taller or wider than they are across.
   Set the **Diamond width** and **Diamond height**, measured point to point through the diamond, or
-  the **Point angle** at the top and bottom points. Tick the two you want to set, and the third is
-  worked out. With width and height equal (a 90° angle), the diamonds are on-point squares.
+  the **Point angle** at the top and bottom points, or the **Leg length** of each side. Tick the
+  two you want to set, and the others are worked out. With width and height equal (a 90° angle), the diamonds are on-point squares.
 - **One Patch** repeats one shape over the quilt. Pick the **Shape** (squares, rectangles, bricks,
   half-square triangles, triangles, 60° diamonds, hexagons, tumblers, clamshells, or octagons and
   squares), then the number of patches across and down and the patch size.

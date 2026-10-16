@@ -43,6 +43,7 @@
             />
           </q-step>
           <q-step name="detail" :title="detailTitle" :icon="isStrip ? 'view_stream' : 'straighten'">
+            <div class="text-subtitle1 q-mb-md">{{ styleLabel }}</div>
             <template v-if="isStrip">
               <q-btn-toggle
                 v-model="stripLayout.style"
@@ -132,7 +133,7 @@
                     @change="(w, h) => Object.assign(tile, { width: w, height: h })"
                   />
                   <div class="col-12 text-caption text-grey-7">
-                    Measured through the diamond, point to point.
+                    Width and height are measured through the diamond, point to point.
                   </div>
                 </template>
                 <LengthInput

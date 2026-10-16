@@ -223,7 +223,7 @@ zoom, drag-pan, and Fit.
   size picked, the live preview MUST show it as a transparent outline over the quilt, centered on
   it: the outer outline is the size with its drop and tuck, and a fine outline inside marks the mattress top
   at the head. The footer shows the quilt's finished size and the target's. Counts, block sizes,
-  and other layout settings are on the second page ("Size"; "Shape" for One Patch,
+  and other layout settings are on the second page, headed with the layout's name ("Size"; "Shape" for One Patch,
   "Strips" for strip quilts). The target is saved with the quilt (optional `target` on a
   quilt, format v6, `src/model/targets.ts`): visibility, the choices made, and the resolved outline
   (and mattress rectangle) in project units, so the outline still draws if the size lists change;

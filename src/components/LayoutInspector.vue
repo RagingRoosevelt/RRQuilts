@@ -67,8 +67,8 @@
           @change="(width, height, k) => op({ width, height }, k)"
         />
         <div class="text-caption text-grey-7">
-          Measured through the diamond, point to point. Diamonds and setting pieces take colors and
-          fabrics.
+          Width and height are measured through the diamond, point to point. Diamonds and setting
+          pieces take colors and fabrics.
         </div>
       </template>
       <div v-else>
