@@ -202,11 +202,15 @@ zoom, drag-pan, and Fit.
   King (Europe) 180 × 200, Emperor / Grand King 200 × 200. A bed adds a **drop** over the sides and
   foot, editable: 12″ for Twin and Double, 14″ for Queen and King, 30 cm up to 140 wide, 35 cm
   wider, 0 for Crib. A **Pillow tuck** checkbox (beds, off by default) adds extra at the head
-  (12″ / 30 cm, editable) for bedspread-style quilts. With a
+  (12″ / 30 cm, editable) for bedspread-style quilts. A **US sizes / European sizes** switch picks the
+  list (shown in the project's units; inches to the half, cm whole); it starts from the units
+  preference and, once changed, is remembered (setting `bedSizes`). European 200 cm beds offer
+  **Tall** (220 cm long). The list is grouped (labels set into divider lines): None, Custom (width ×
+  height fields), Table, wall, and lap, then Beds. With a
   size picked, the live preview MUST show it as a transparent outline over the quilt, centered on
   it: the outer outline is the size with its drop and tuck, and a fine outline inside marks the mattress top
   at the head. The footer shows the quilt's finished size and the target's. Counts, block sizes,
-  and other layout settings are on the second page ("Size"; "Shape and size" for One Patch,
+  and other layout settings are on the second page ("Size"; "Shape" for One Patch,
   "Strips" for strip quilts). The target isn't saved with the quilt. *Added and built 2026-10-16
   (owner).*
 - **FR-002**: ~~New projects MUST start with the starter blocks and colors~~ — superseded by spec 008:

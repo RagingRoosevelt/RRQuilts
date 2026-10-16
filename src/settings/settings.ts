@@ -52,6 +52,8 @@ export interface Settings {
   packsOff: string[];
   /** Bundled libraries (bundled_libraries.json) disconnected on this device: their addresses. */
   bundledHidden: string[];
+  /** New quilt wizard target sizes: US or European beds ('auto' follows `units`). */
+  bedSizes: 'auto' | 'us' | 'eu';
   // Keys added by later app versions are kept as-is.
   [key: string]: unknown;
 }
@@ -98,11 +100,13 @@ export const defaults = (): Settings => ({
   saveSize: 512,
   packsOff: [],
   bundledHidden: [],
+  bedSizes: 'auto',
 });
 
 const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   theme: (v) => v === 'auto' || v === 'light' || v === 'dark',
   units: (v) => v === 'in' || v === 'cm',
+  bedSizes: (v) => v === 'auto' || v === 'us' || v === 'eu',
   hintsDismissed: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   author: (v) => typeof v === 'string' && v.length <= 100,
   authorAsked: (v) => typeof v === 'boolean',

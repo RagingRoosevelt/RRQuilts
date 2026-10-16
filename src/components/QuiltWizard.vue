@@ -36,6 +36,18 @@
                 <div class="text-caption">{{ c.label }}</div>
               </button>
             </div>
+            <q-btn-toggle
+              v-model="region"
+              class="q-mb-sm"
+              spread
+              no-caps
+              unelevated
+              toggle-color="primary"
+              :options="[
+                { label: 'US sizes', value: 'us' },
+                { label: 'European sizes', value: 'eu' },
+              ]"
+            />
             <q-select
               v-model="target"
               dense
@@ -45,7 +57,30 @@
               emit-value
               map-options
               hint="Shown as an outline over the preview, to size the quilt to"
-            />
+            >
+              <template #option="scope">
+                <div v-if="scope.opt.header" class="target-header">{{ scope.opt.label }}</div>
+                <q-item v-else v-bind="scope.itemProps">
+                  <q-item-section>{{ scope.opt.label }}</q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+            <div v-if="target === 'custom'" class="row q-col-gutter-sm q-mt-lg">
+              <LengthInput
+                v-model="custom[0]"
+                class="col-6"
+                label="Target width"
+                :units="units"
+                :min="1"
+              />
+              <LengthInput
+                v-model="custom[1]"
+                class="col-6"
+                label="Target height"
+                :units="units"
+                :min="1"
+              />
+            </div>
             <LengthInput
               v-if="isBed"
               v-model="drop"
@@ -53,6 +88,12 @@
               label="Drop over the sides and foot"
               :units="units"
               :min="0"
+            />
+            <q-checkbox
+              v-if="canBeTall"
+              v-model="tall"
+              class="q-mt-sm"
+              :label="`Tall (${conv(targetOf?.size[0] ?? 0)} × ${conv(220)} ${units})`"
             />
             <q-checkbox v-if="isBed" v-model="tuck" class="q-mt-sm" label="Pillow tuck" />
             <LengthInput
@@ -331,6 +372,7 @@ import type {
   VariablePointLayout,
 } from '@/model/schema/quilt';
 import { useEditorStore } from '@/stores/editor';
+import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{ units: 'in' | 'cm' }>();
 const emit = defineEmits<{ create: [layout: Layout, borders: Border[]] }>();
@@ -341,15 +383,17 @@ const step = ref('blocks');
 const steps = ['blocks', 'detail', 'sashing', 'borders'];
 const next = computed(() => steps[steps.indexOf(step.value) + 1]);
 const detailTitle = computed(() =>
-  isStrip.value ? 'Strips' : style.value === 'one-patch' ? 'Shape and size' : 'Size',
+  isStrip.value ? 'Strips' : style.value === 'one-patch' ? 'Shape' : 'Size',
 );
 /**
- * Target sizes (width × height) for inch and cm projects. Beds are mattress tops, with a default
- * drop over the sides and foot that can be changed; cm projects list European bed sizes.
+ * Target sizes (width × height) in US sizes (inches) and European sizes (cm), shown converted to
+ * the project's units. Beds are mattress tops, with a default drop over the sides and foot that can
+ * be changed.
  */
+type Region = 'us' | 'eu';
 type Target = { name: string; size: [number, number]; drop?: number };
-const TARGETS: Record<'in' | 'cm', Target[]> = {
-  in: [
+const TARGETS: Record<Region, Target[]> = {
+  us: [
     { name: 'Placemat', size: [18, 13] },
     { name: 'Table runner', size: [72, 14] },
     { name: 'Wall hanging', size: [36, 36] },
@@ -360,7 +404,7 @@ const TARGETS: Record<'in' | 'cm', Target[]> = {
     { name: 'Queen', size: [60, 80], drop: 14 },
     { name: 'King', size: [76, 80], drop: 14 },
   ],
-  cm: [
+  eu: [
     { name: 'Placemat', size: [46, 33] },
     { name: 'Table runner', size: [183, 36] },
     { name: 'Wall hanging', size: [91, 91] },
@@ -375,13 +419,35 @@ const TARGETS: Record<'in' | 'cm', Target[]> = {
     { name: 'Emperor / Grand King', size: [200, 200], drop: 35 },
   ],
 };
+const settings = useSettingsStore();
+/** US or European sizes: remembered once chosen, else following the units preference. */
+const region = computed<Region>({
+  get: () => {
+    const b = settings.settings.bedSizes;
+    return b === 'us' || b === 'eu' ? b : props.units === 'cm' ? 'eu' : 'us';
+  },
+  set: (v) => (settings.settings.bedSizes = v),
+});
+watch(region, () => (target.value = null));
+/** A length in the region's units, in the project's (cm whole, inches to the half). */
+const conv = (v: number) =>
+  region.value === 'us'
+    ? props.units === 'cm'
+      ? Math.round(v * 2.54)
+      : v
+    : props.units === 'cm'
+      ? v
+      : Math.round((v / 2.54) * 2) / 2;
 const target = ref<string | null>(null);
 const drop = ref(0);
 const tuck = ref(false);
+/** European beds come in a long (220 cm) version too. */
+const tall = ref(false);
 const tuckLength = ref(12);
-const targetOf = computed(() => TARGETS[props.units].find((t) => t.name === target.value));
+const targetOf = computed(() => TARGETS[region.value].find((t) => t.name === target.value));
+const canBeTall = computed(() => region.value === 'eu' && targetOf.value?.size[1] === 200);
 const isBed = computed(() => targetOf.value?.drop !== undefined);
-watch(target, () => (drop.value = targetOf.value?.drop ?? 0));
+watch(target, () => (drop.value = conv(targetOf.value?.drop ?? 0)));
 /** Extra at the head (pillow tuck) and over the sides and foot, for beds. */
 const extra = computed(() => {
   const bed = isBed.value;
@@ -390,14 +456,28 @@ const extra = computed(() => {
     tuck: bed && tuck.value ? Math.max(0, tuckLength.value || 0) : 0,
   };
 });
-const targetSize = computed(() => targetOf.value?.size ?? null);
-const targetOptions = computed(() => [
-  { label: 'None', value: null },
-  ...TARGETS[props.units].map((t) => ({
-    label: `${t.name}, ${t.size[0]} × ${t.size[1]} ${props.units}${t.drop !== undefined ? ' mattress' : ''}`,
+const custom = ref<[number, number]>([60, 80]);
+const targetSize = computed((): [number, number] | null => {
+  if (target.value === 'custom') return [custom.value[0] || 1, custom.value[1] || 1];
+  const t = targetOf.value?.size;
+  return t ? [conv(t[0]), conv(canBeTall.value && tall.value ? 220 : t[1])] : null;
+});
+const targetOptions = computed(() => {
+  const item = (t: Target) => ({
+    label: `${t.name}, ${conv(t.size[0])} × ${conv(t.size[1])} ${props.units}${t.drop !== undefined ? ' mattress' : ''}`,
     value: t.name,
-  })),
-]);
+  });
+  const header = (label: string) => ({ label, value: `#${label}`, header: true, disable: true });
+  const all = TARGETS[region.value];
+  return [
+    { label: 'None', value: null },
+    { label: 'Custom', value: 'custom' },
+    header('Table, wall, and lap'),
+    ...all.filter((t) => t.drop === undefined).map(item),
+    header('Beds'),
+    ...all.filter((t) => t.drop !== undefined).map(item),
+  ];
+});
 const style = ref<Style>('straight-set');
 const cols = ref(5);
 const rows = ref(5);
@@ -685,7 +765,8 @@ const summary = computed(() => {
   if (!t) return done;
   const { drop: dr, tuck: tk } = extra.value;
   const more = [dr && 'drop', tk && 'pillow tuck'].filter(Boolean).join(' and ');
-  return `${done} · ${target.value}${more ? ` with ${more}` : ''} ${t[0] + 2 * dr} × ${t[1] + dr + tk} ${props.units}`;
+  const name = target.value === 'custom' ? 'Target' : target.value;
+  return `${done} · ${name}${more ? ` with ${more}` : ''} ${t[0] + 2 * dr} × ${t[1] + dr + tk} ${props.units}`;
 });
 
 function create() {
@@ -701,6 +782,8 @@ function show() {
   style.value = 'straight-set';
   target.value = null;
   tuck.value = false;
+  tall.value = false;
+  custom.value = cm ? [150, 200] : [60, 80];
   tuckLength.value = cm ? 30 : 12;
   cols.value = rows.value = 5;
   blockSize.value = cm ? 25 : 10;
@@ -796,6 +879,25 @@ defineExpose({ show });
 }
 .preview-art path.border {
   fill: #eceff1;
+}
+/* A group label set into its divider line. */
+.target-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px 2px;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+.target-header::before,
+.target-header::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid currentColor;
+  opacity: 0.4;
+}
+.target-header::before {
+  flex: 0 0 12px;
 }
 .preview-art rect.core {
   fill: none;

@@ -16,10 +16,12 @@ work lives in a **project**, one file (ending in `.rrq`) that holds your quilts,
      (blocks turned to sit as diamonds), **One Patch**, or **Strips**. **Target size** can show a
      size to aim for, from a placemat to a king bed, as an outline over the picture. For a bed, the
      outline is the mattress top with the **Drop over the sides and foot** around it. Tick
-     **Pillow tuck** for a quilt that tucks under and over the pillows (extra at the head). The size of
+     **Pillow tuck** for a quilt that tucks under and over the pillows (extra at the head). **US
+     sizes** and **European sizes** switch the list of beds, and **Tall** makes a European bed 220
+     cm long. **Custom** takes any width and height. The size of
      your quilt and the target show at the bottom.
    - **Size** sets how many blocks (or patches, or cubes) and how big they are. For **One Patch**
-     it's **Shape and size**, with a picture of each shape. For strip quilts it's **Strips**:
+     it's **Shape**, with a picture of each shape. For strip quilts it's **Strips**:
      **Horizontal** or **Vertical**, the **Strip length**, and each strip's style and **Strip
      width**, as in the Layout tab.
    - **Sashing** has **Sashing width (0 for none)**. Horizontal quilts can also have **Sashing
