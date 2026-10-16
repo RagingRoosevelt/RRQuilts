@@ -158,6 +158,10 @@ Screens link to the help that explains them.
 1. **Given** an editor tab or a print section (e.g. the corner guide page, the rotary chart),
    **Then** a help link opens the matching guide, Quilt math topic, or technique.
 2. **Given** a first-use hint, **Then** it can link to its guide.
+3. **Given** the home page or Libraries, **Then** Start a quilt, New project, Libraries, and My
+   library's New palette have a "?" beside them (added 2026-10-15).
+4. **Given** the setting **Show help buttons** (Settings › Interface, on by default) turned off,
+   **Then** no "?" buttons show (added 2026-10-15).
 
 ### Edge Cases
 
@@ -195,6 +199,11 @@ Screens link to the help that explains them.
 
 - **FR-020**: Topics with two or more `##` sections MUST show an "On this page" table of contents
   (sidebar on wide screens, menu on phones); `cards: true` MUST show each section in a card.
+- **FR-022**: An **About** section MUST hold the project's principles, how to suggest ideas (issue
+  forms), the file formats with links to their published schemas (relative, so they work on any
+  host), and the **Changelog**: the project's `CHANGELOG.md`, bundled, written per release for
+  quilters (New features, Fixes, Known issues) by `make release` (added 2026-10-15).
+- **FR-023**: Help "?" buttons MUST follow the **Show help buttons** setting (default on).
 - **FR-021**: Each calculator MUST appear as a slightly raised card; inputs that belong together
   (length × width) stay on one line where space allows; length fields use the app's −/+ buttons
   rather than the browser's spinner, and no input label is cut off.

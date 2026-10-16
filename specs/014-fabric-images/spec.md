@@ -142,7 +142,8 @@ A creator turns a folder of images into a library repository others can add, usi
    the build tool, **Then** packs (one per folder/collection) are written with 256/512 px WebP
    images (1024 px too with `--print`), average colors, hashes, and the library index.
 2. **Given** a push, **Then** a GitHub Action validates the library; **given** a version tag, **Then**
-   a release is built with `.rrqlib` files for the whole library and for each pack, per image size.
+   a release is built with a `.rrqlib` file of the whole library per image size (amended
+   2026-10-15, spec 015: no file per pack; the index inside names the repository).
 3. **Given** a newer library format than the repository uses, **Then** a scheduled Action reports it
    (an issue) and `tools/upgrade` migrates the library and refreshes the tools.
 4. **Given** the README, **Then** it explains building, committing, tagging, and hosting (public
@@ -254,5 +255,5 @@ A creator turns a folder of images into a library repository others can add, usi
   or published publicly.
 - *Assumed*: approximate scale shows as "≈" beside the size; packs are switched in Libraries;
   GitHub addresses default to the `main` branch.
-- The template repository lives on the owner's GitHub account until an `rrquilts` organization
-  exists; publishing it is the owner's step.
+- The template repository is published as `RRQuilts/rrquilts-library-template` (2026-10-15); its
+  gallery site, links, and release changes are specified in spec 015.
