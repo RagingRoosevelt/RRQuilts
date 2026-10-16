@@ -16,6 +16,8 @@ import {
   swapStrips,
 } from '@/model/layout/strips';
 import type { Strip, StripLayout, StripStyle } from '@/model/schema/quilt';
+import { quiltPieces } from '@/model/print/pieces';
+import { fixture } from './helpers';
 import { quiltWith, slotArea } from './layout-helpers';
 
 const strip = (id: string, style: StripStyle, width = 6, along = 4, across = 3): Strip => ({
@@ -203,5 +205,20 @@ describe('format', () => {
     expect(l.style).toBe('vertical-strip');
     expect(l.length).toBe(120);
     expect(l.strips.map((s) => s.style)).toEqual(['plain', 'blocks', 'plain', 'blocks', 'plain']);
+  });
+});
+
+describe('printing half drops', () => {
+  it('the picture shows only the part of an end block inside its space; cutting counts it whole', () => {
+    const l = one(strip('s1', 'half-drop-blocks', 10, 4));
+    const q = quiltWith(l, []);
+    q.layers[0].slots['b:ss1:0'] = { block: 'seam1', coloring: 'qk1', rotation: 0, flip: false };
+    const pieces = quiltPieces(fixture(), q);
+    expect(pieces.length).toBeGreaterThan(0);
+    for (const p of pieces) {
+      expect(p.shown).toBeDefined();
+      for (const [x] of p.shown!) expect(x).toBeGreaterThanOrEqual(-1e-9);
+    }
+    expect(pieces.some((p) => p.poly.some(([x]) => x < -1e-9))).toBe(true);
   });
 });

@@ -8,9 +8,11 @@ import {
   pathToSegs,
   pointAt,
   pointInPolygon,
+  signedArea,
   type Pt,
 } from '../geometry/path';
-import { generateFor } from '../layout/slots';
+import { clipConvex } from '../layout/clip';
+import { generateFor, type Slot } from '../layout/slots';
 import { PLAIN_BLOCK } from '../plain';
 import type { Block } from '../schema/block';
 import type { ColoringBody } from '../schema/coloring';
@@ -61,6 +63,14 @@ export function blockPieces(
   });
 }
 
+/** The space's outline covers less than the whole block square mapped into it. */
+function trimmed(slot: Slot) {
+  const [a, b, c, d] = slot.transform;
+  const whole = Math.abs(a * d - b * c);
+  const seen = Math.abs(signedArea(flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3)));
+  return seen < whole * (1 - 1e-6);
+}
+
 /** Every piece of a quilt as placed (optionally only slots holding `blockId`; `slots` for tests). */
 export function quiltPieces(
   doc: RrqDoc,
@@ -88,10 +98,15 @@ export function quiltPieces(
       simplify(flattenLoop(pathToSegs(slot.cut ?? slot.outline, [1, 1]), 1e-3), 1e-4);
     const shown =
       slotPoly && slot.cut && simplify(flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3), 1e-4);
+    // A block trimmed by its space (half drops, partial edge blocks) is cut whole; pictures show
+    // only the part inside the space.
+    const window =
+      !slotPoly && trimmed(slot) && flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3);
     return blockPieces(block, block.size, coloring).map((piece) => ({
       ...piece,
       poly: slotPoly || piece.poly.map(at),
       ...(shown ? { shown } : {}),
+      ...(window ? { shown: clipConvex(piece.poly.map(at), window) } : {}),
       ...(slotPoly && slot.kind === 'set' ? { setting: true } : {}),
       curved: slotPoly ? isCurved(slot.cut ?? slot.outline) : piece.curved,
       marks: piece.marks.map((m) => ({ p: at(m.p), n: dir(m.n) })),

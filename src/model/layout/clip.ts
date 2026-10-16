@@ -63,6 +63,19 @@ export function clipByLine(poly: Pt[], a: Pt, b: Pt, keep: Pt): Pt[] {
   return out;
 }
 
+/** `poly` cut to a convex `window` (both straight-edged). */
+export function clipConvex(poly: Pt[], window: Pt[]): Pt[] {
+  const mid: Pt = [
+    window.reduce((s, p) => s + p[0], 0) / window.length,
+    window.reduce((s, p) => s + p[1], 0) / window.length,
+  ];
+  let out = poly;
+  window.forEach((a, i) => {
+    if (out.length) out = clipByLine(out, a, window[(i + 1) % window.length]!, mid);
+  });
+  return out;
+}
+
 const at = (a: Pt, b: Pt, t: number): Pt => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 
 const isStraight = (path: PathCommand[]) => path.every((c) => c[0] !== 'A' && c[0] !== 'C');
