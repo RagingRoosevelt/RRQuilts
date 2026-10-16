@@ -215,9 +215,10 @@ zoom, drag-pan, and Fit.
   women, 32″ men, editable). A "?" shows the size chart of body measurements for the list shown. The outline
   takes the piece's shape, drafted from that size (`src/model/garments.ts`: hip-length top with 4″
   ease, the front one side of a buttoned front with a 1″ button stand, the back whole as cut on
-  the fold; set-in sleeve; one trouser leg, laid out as patterns show it: a straight, fairly wide leg; the front with
-  center front on the left and a 1.5″ fly extension cut on; the back with its center seam leaning
-  out and rising, a waist dart, and the deeper crotch). It's a size guide, not a sewing pattern. Picking a garment sets the
+  the fold; set-in sleeve; one trouser leg, laid out as patterns show it: a straight, fairly wide leg with nearly straight
+  side seams and a smoothly hollow inseam; the front with center front on the left, a slanted
+  pocket opening, and a 1.5″ fly extension cut on; the back with a waist dart and its center seam
+  slanting in and up toward the waist, running into the J-shaped crotch). It's a size guide, not a sewing pattern. Picking a garment sets the
   borders to none (garment pieces have none); leaving garments brings the default border back. With a
   size picked, the live preview MUST show it as a transparent outline over the quilt, centered on
   it: the outer outline is the size with its drop and tuck, and a fine outline inside marks the mattress top

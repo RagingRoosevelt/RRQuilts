@@ -189,9 +189,10 @@ function sleeve(m: Measurements, length: number): Pt[] {
 }
 
 /**
- * One trouser leg, laid out as patterns show it: the front with center front on the left (and a
- * cut-on fly extension), the back with center back on the right. A straight, fairly wide leg; the
- * back is wider, its center seam leans out and rises, it has a waist dart and the deeper crotch.
+ * One trouser leg, laid out as patterns show it: the front with center front on the left (with a
+ * slanted pocket opening and a cut-on fly extension), the back with center back on the right. A
+ * straight, fairly wide leg with nearly straight side seams; the back is wider, with a waist dart,
+ * its center seam slanting in and up toward the waist and running into the deeper J-shaped crotch.
  */
 function pants(m: Measurements, back: boolean): Pt[] {
   const w = (m.hip + 2) / 4 + (back ? 0.75 : -0.25); // side to center at the hip
@@ -200,72 +201,59 @@ function pants(m: Measurements, back: boolean): Pt[] {
   const hipDepth = rise - 2.5; // waist to the full hip
   const length = m.rise + m.inseam;
   const kneeY = rise + m.inseam * 0.45;
-  const crease = (w + ext) / 2;
   const knee = (w + ext) * (back ? 0.76 : 0.88);
   const hem = knee * 0.97;
-  // The waist is narrower than the hip: the side seam curves out to the hip (and the back takes
-  // the rest in a dart).
-  const dart = back ? 0.75 : 0;
-  const waist = (m.waist + 1) / 4 + dart;
-  const lift = back ? 1.25 : 0; // the back rises at the center
-  const lean = back ? 1.25 : 0; // and its center seam leans out
-  const top: Pt = [Math.max(0.25, w + lean - waist), 0];
-  const cTop: Pt = [w + lean, -lift];
+  const sideTop: Pt = [0.5, 0]; // the side seam leans in a little to the waist
   const hip: Pt = [0, hipDepth];
-  const sideKnee: Pt = [crease - knee / 2, kneeY];
-  const innerKnee: Pt = [crease + knee / 2, kneeY];
-  // Center seam: straight down to where the crotch curve begins, then around to the crotch point.
-  const curveTop: Pt = [w, rise - (back ? 4 : 3)];
-  const point: Pt = [w + ext, rise];
-  const crotch = back
-    ? curve(curveTop, [w + ext * 0.15, rise + 0.25], point, 10)
-    : curve(curveTop, [w, rise], point, 8);
-  // Front: a fly extension cut on, 1.5″ past center front, from the waist to the crotch curve.
+  // The side seam runs nearly straight to the hem; the inseam takes the leg's taper.
+  const sideHem: Pt = [back ? 1.25 : 0.75, length];
+  const innerKnee: Pt = [(back ? 0.75 : 0.5) + knee, kneeY];
+  const point: Pt = [w + ext, rise + (back ? 0.5 : 0)];
+  // Inseam: one gently hollow curve from the crotch point to the hem.
+  const innerHem: Pt = [sideHem[0] + hem, length];
+  const leg: Pt[] = [...curve(point, [innerKnee[0] - 0.5, kneeY], innerHem, 10), sideHem, hip];
+  if (back) {
+    // Center back: in 1.25″ and up 1″ at the waist, straight on that slant to the hip, then the J
+    // curve carries the slant on round to the crotch point.
+    const cTop: Pt = [w - 1.25, -1];
+    const slope = (w - cTop[0]) / (hipDepth - cTop[1]);
+    const corner: Pt = [w + slope * (point[1] - hipDepth), point[1]];
+    // Waist: from the side up to center back, with a 1″ dart 3½″ deep midway.
+    const mx = (sideTop[0] + cTop[0]) / 2;
+    const my = (sideTop[1] + cTop[1]) / 2;
+    const dy = (0.5 * (cTop[1] - sideTop[1])) / (cTop[0] - sideTop[0]);
+    return [
+      sideTop,
+      [mx - 0.5, my - dy],
+      [mx, my + 3.5],
+      [mx + 0.5, my + dy],
+      cTop,
+      [w, hipDepth],
+      ...curve([w, hipDepth], corner, point, 10),
+      ...leg,
+    ];
+  }
+  // Front: slanted pocket opening from the waist down to the side seam; center front straight
+  // down (a fly extension cut on beside it) to a short crotch curve.
+  const pocketTop: Pt = [sideTop[0] + 4, 0];
+  const pocketSide: Pt = [0.3, 6.5];
+  const curveTop: Pt = [w, rise - 3];
   const fly = 1.5;
   const flyEnd = curveTop[1] - 0.25;
-  const flyPts: Pt[] = back
-    ? []
-    : [
-        [w + fly, 0],
-        [w + fly, flyEnd - 0.75],
-        ...curve([w + fly, flyEnd - 0.75], [w + fly, flyEnd], [w + fly - 0.75, flyEnd], 4),
-        [w, flyEnd],
-      ];
-  // Back waist: rising toward the center, with a dart midway.
-  const dartPts: Pt[] = back
-    ? (() => {
-        const mx = (top[0] + cTop[0]) / 2;
-        const my = (top[1] + cTop[1]) / 2;
-        return [
-          [mx - dart / 2, my - (dart / 2) * (lift / (cTop[0] - top[0]))],
-          [mx, my + 3.5],
-          [mx + dart / 2, my + (dart / 2) * (lift / (cTop[0] - top[0]))],
-        ];
-      })()
-    : [];
   const pts: Pt[] = [
-    top,
-    ...dartPts,
-    cTop,
-    ...flyPts,
-    ...(back ? [] : [curveTop]),
-    ...crotch,
-    // Inseam: in from the crotch point to the knee, then straight down.
-    ...curve(
-      point,
-      [point[0] + (innerKnee[0] - point[0]) * 0.35 - 0.25, rise + (kneeY - rise) * 0.4],
-      innerKnee,
-      6,
-    ),
-    [crease + hem / 2, length],
-    [crease - hem / 2, length],
-    sideKnee,
-    // Side seam: nearly straight up to the hip, then curving in to the waist.
-    hip,
-    ...curve(hip, [0, hipDepth * 0.3], top, 6).slice(0, -1),
+    pocketTop,
+    [w + fly, 0],
+    [w + fly, flyEnd - 0.75],
+    ...curve([w + fly, flyEnd - 0.75], [w + fly, flyEnd], [w + fly - 0.75, flyEnd], 4),
+    [w, flyEnd],
+    curveTop,
+    ...curve(curveTop, [w, rise], point, 8),
+    ...leg,
+    pocketSide,
+    ...curve(pocketSide, [pocketTop[0] - 0.5, 5.5], pocketTop, 8).slice(0, -1),
   ];
   // Patterns lay the front with its center on the left.
-  return back ? pts : pts.map(([x, y]): Pt => [-x, y]);
+  return pts.map(([x, y]): Pt => [-x, y]);
 }
 
 /** The outline of a garment piece in inches; a sleeve `sleeveLength` long (default: to the
