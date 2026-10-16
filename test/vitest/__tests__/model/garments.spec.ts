@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bbox, garmentOutline, measurements, SIZES, type Fit } from '@/model/garments';
+import { bbox, garmentOutline, measurements, sizeRows, SIZES, type Fit } from '@/model/garments';
 import type { Pt } from '@/model/geometry/path';
 
 const area = (p: Pt[]) =>
@@ -46,5 +46,19 @@ describe('garment outlines (wizard target sizes)', () => {
     expect(neck(garmentOutline('top', 'back', m))).toBeLessThan(
       neck(garmentOutline('top', 'front', m)),
     );
+  });
+  it('pants sizes: men by waist in inches (EU about waist + 16), women by misses number (EU + 32)', () => {
+    const men = sizeRows('pants', 'men');
+    expect(men.map((r) => r.us)).toEqual(['28', '30', '32', '34', '36', '38', '40', '42']);
+    expect(men.find((r) => r.us === '32')!.eu).toBe(48);
+    expect(men.find((r) => r.us === '32')!.m.waist).toBe(32);
+    const women = sizeRows('pants', 'women');
+    expect(women.find((r) => r.us === '8')!.eu).toBe(40);
+    for (const list of [men, women])
+      for (let i = 1; i < list.length; i++)
+        expect(width(garmentOutline('pants', 'front', list[i]!.m))).toBeGreaterThan(
+          width(garmentOutline('pants', 'front', list[i - 1]!.m)),
+        );
+    expect(sizeRows('top', 'women').map((r) => r.us)).toEqual(SIZES);
   });
 });

@@ -67,33 +67,7 @@
               </template>
             </q-select>
             <div v-if="isGarment" class="q-mt-lg column" style="gap: 8px">
-              <q-btn-toggle
-                v-model="piece"
-                spread
-                no-caps
-                unelevated
-                toggle-color="primary"
-                :options="
-                  target === 'top'
-                    ? [
-                        { label: 'Front', value: 'front' },
-                        { label: 'Back', value: 'back' },
-                        { label: 'Sleeve', value: 'sleeve' },
-                      ]
-                    : [
-                        { label: 'Front', value: 'front' },
-                        { label: 'Back', value: 'back' },
-                      ]
-                "
-              />
-              <LengthInput
-                v-if="target === 'top' && piece === 'sleeve'"
-                v-model="sleeveLength"
-                label="Sleeve length, shoulder to hem"
-                :units="units"
-                :min="1"
-              />
-              <div class="row items-center no-wrap" style="gap: 8px">
+              <div class="row no-wrap" style="gap: 8px">
                 <q-btn-toggle
                   v-model="fit"
                   no-caps
@@ -104,12 +78,34 @@
                     { label: 'Men\'s', value: 'men' },
                   ]"
                 />
+                <q-btn-toggle
+                  v-model="piece"
+                  class="col"
+                  spread
+                  no-caps
+                  unelevated
+                  toggle-color="primary"
+                  :options="
+                    target === 'top'
+                      ? [
+                          { label: 'Front', value: 'front' },
+                          { label: 'Back', value: 'back' },
+                          { label: 'Sleeve', value: 'sleeve' },
+                        ]
+                      : [
+                          { label: 'Front', value: 'front' },
+                          { label: 'Back', value: 'back' },
+                        ]
+                  "
+                />
+              </div>
+              <div class="row items-center no-wrap" style="gap: 8px">
                 <q-select
                   v-model="gsize"
                   class="col"
                   dense
                   outlined
-                  label="Size"
+                  :label="target === 'pants' && fit === 'men' ? 'Waist size' : 'Size'"
                   :options="sizeOptions"
                   emit-value
                   map-options
@@ -126,16 +122,13 @@
                       <thead>
                         <tr>
                           <th>Size</th>
-                          <th>{{ fit === 'men' ? 'Chest' : 'Bust' }}</th>
-                          <th>Waist</th>
-                          <th>Hip</th>
-                          <th>Inseam</th>
+                          <th v-for="h in chartHead" :key="h">{{ h }}</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr v-for="r in chart" :key="r.size">
                           <td>{{ r.size }}</td>
-                          <td v-for="(c, i) in r.cols" :key="i">{{ c }}</td>
+                          <td v-for="(c, k) in r.cols" :key="k">{{ c }}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -143,6 +136,20 @@
                   </q-tooltip>
                 </q-icon>
               </div>
+              <LengthInput
+                v-if="target === 'top' && piece === 'sleeve'"
+                v-model="sleeveLength"
+                label="Sleeve length, shoulder to hem"
+                :units="units"
+                :min="1"
+              />
+              <LengthInput
+                v-if="target === 'pants'"
+                v-model="inseam"
+                label="Inseam"
+                :units="units"
+                :min="1"
+              />
             </div>
             <div v-if="target === 'custom'" class="row q-col-gutter-sm q-mt-lg">
               <LengthInput
@@ -436,17 +443,7 @@ import { computed, reactive, ref, watch } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import StripsInspector from '@/components/StripsInspector.vue';
 import { layoutDefaults, onPointDefaults, stripDefaults } from '@/model/io';
-import {
-  bbox,
-  CHART,
-  EU_SIZES,
-  garmentOutline,
-  measurements,
-  SIZES,
-  type Fit,
-  type GarmentPiece,
-  type GarmentSize,
-} from '@/model/garments';
+import { bbox, garmentOutline, sizeRows, type Fit, type GarmentPiece } from '@/model/garments';
 import { flattenLoop, pathToSegs, type Pt } from '@/model/geometry/path';
 import { generateSlots } from '@/model/layout/slots';
 import type {
@@ -556,15 +553,32 @@ const custom = ref<[number, number]>([60, 80]);
 /** Garments: a top's front, back, or sleeve, or a trouser leg's front or back, by size. */
 const isGarment = computed(() => target.value === 'top' || target.value === 'pants');
 const fit = ref<Fit>('women');
-const gsize = ref<GarmentSize>('M');
-const piece = ref<GarmentPiece>('front');
 const unitK = computed(() => (props.units === 'cm' ? 2.54 : 1));
+/** Index into the size list (tops XS…XXL, pants by misses number or waist). */
+const gsize = ref(2);
+const sizeList = computed(() => sizeRows(target.value === 'pants' ? 'pants' : 'top', fit.value));
+const row = computed(() => sizeList.value[Math.min(gsize.value, sizeList.value.length - 1)]!);
+// Start each list at a middle size: M, women's 8, men's 32.
+watch([target, fit], () => {
+  gsize.value = target.value === 'pants' && fit.value === 'women' ? 4 : 2;
+});
+/** Pants inseam in the project's units: the fit's usual length until changed. */
+const inseam = ref(30.5);
+watch(
+  [fit, () => props.units],
+  () => {
+    const v = (fit.value === 'men' ? 32 : 30.5) * unitK.value;
+    inseam.value = props.units === 'cm' ? Math.round(v) : v;
+  },
+  { immediate: true },
+);
+const piece = ref<GarmentPiece>('front');
 /** Sleeve length in the project's units: the size's full arm length until changed. */
 const sleeveLength = ref(23);
 watch(
   [fit, gsize, () => props.units],
   () => {
-    const v = measurements(fit.value, gsize.value).arm * unitK.value;
+    const v = row.value.m.arm * unitK.value;
     sleeveLength.value = props.units === 'cm' ? Math.round(v) : v;
   },
   { immediate: true },
@@ -585,25 +599,29 @@ const garmentPts = computed((): Pt[] | null => {
   return garmentOutline(
     target.value as 'top' | 'pants',
     piece.value,
-    measurements(fit.value, gsize.value),
+    { ...row.value.m, inseam: (inseam.value || 1) / k },
     (sleeveLength.value || 1) / k,
   ).map(([x, y]): Pt => [x * k, y * k]);
 });
 const sizeOptions = computed(() =>
-  SIZES.map((sz, i) => ({
-    label: region.value === 'eu' ? `${EU_SIZES[fit.value][i]} (${sz})` : sz,
-    value: sz,
+  sizeList.value.map((r, i) => ({
+    label: region.value === 'eu' ? `${r.eu} (US ${r.us})` : r.us,
+    value: i,
   })),
 );
-/** Size chart rows in the project's units (cm whole, inches as charted). */
+/** Size chart in the project's units (cm whole, inches as charted): tops by bust or chest, waist,
+ *  hip; pants by waist, hip, rise. */
+const chartHead = computed(() =>
+  target.value === 'pants'
+    ? ['Waist', 'Hip', 'Rise']
+    : [fit.value === 'men' ? 'Chest' : 'Bust', 'Waist', 'Hip'],
+);
 const chart = computed(() =>
-  SIZES.map((sz, i) => {
-    const m = CHART[fit.value][i]!;
-    const u = (v: number) => (props.units === 'cm' ? Math.round(v * 2.54) : v);
-    return {
-      size: sizeOptions.value[i]!.label,
-      cols: [m.bust, m.waist, m.hip, m.inseam].map(u),
-    };
+  sizeList.value.map((r, i) => {
+    const u = (v: number) => (props.units === 'cm' ? Math.round(v * 2.54) : +v.toFixed(2));
+    const { m } = r;
+    const cols = target.value === 'pants' ? [m.waist, m.hip, m.rise] : [m.bust, m.waist, m.hip];
+    return { size: sizeOptions.value[i]!.label, cols: cols.map(u) };
   }),
 );
 const targetSize = computed((): [number, number] | null => {
@@ -942,7 +960,7 @@ const summary = computed(() => {
     target.value === 'custom'
       ? 'Target'
       : isGarment.value
-        ? `${target.value === 'top' ? 'Top' : 'Pants'} ${piece.value}, ${fit.value}'s ${sizeOptions.value.find((o) => o.value === gsize.value)?.label}`
+        ? `${target.value === 'top' ? 'Top' : 'Pants'} ${piece.value}, ${fit.value}'s ${sizeOptions.value[Math.min(gsize.value, sizeList.value.length - 1)]?.label}`
         : target.value;
   const n = (v: number) => +v.toFixed(2);
   return `${done} · ${name}${more ? ` with ${more}` : ''} ${n(t[0] + 2 * dr)} × ${n(t[1] + dr + tk)} ${props.units}`;

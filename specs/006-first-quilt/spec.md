@@ -209,8 +209,10 @@ zoom, drag-pan, and Fit.
   height fields), Table, wall, and lap, then Beds (mattress size), each name on the left and its
   size on the right. Switching lists keeps Custom (and its values) and sizes both lists share.
   A **Garments** group (before Beds) offers **Top** (Front, Back, or Sleeve with a sleeve length from
-  shoulder to hem, starting at the size's full arm length) and **Pants** (Front or Back), in Women's or Men's sizes XS to XXL (European numbers 34 to
-  44 and 44 to 54 with European sizes), with a "?" size chart of body measurements. The outline
+  shoulder to hem, starting at the size's full arm length) and **Pants** (Front or Back), Women's or Men's (on one row with the piece switch). Tops come in XS to XXL (European 34 to 44
+  for women, 44 to 54 for men); pants in US women's misses sizes 0 to 18 (European US + 32) or men's
+  waist sizes 28 to 42 in inches (European about the waist + 16), with an **Inseam** field (30½″
+  women, 32″ men, editable). A "?" shows the size chart of body measurements for the list shown. The outline
   takes the piece's shape, drafted from that size (`src/model/garments.ts`: hip-length top with 4″
   ease, the front one side of a buttoned front with a 1″ button stand, the back whole as cut on
   the fold; set-in sleeve; one trouser leg, laid out as patterns show it: a straight, fairly wide leg; the front with

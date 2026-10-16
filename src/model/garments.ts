@@ -72,6 +72,55 @@ export const CHART: Record<Fit, Measurements[]> = {
 export const measurements = (fit: Fit, size: GarmentSize): Measurements =>
   CHART[fit][SIZES.indexOf(size)]!;
 
+/** A size as sold: its US label, European number, and body measurements. */
+export interface SizeRow {
+  us: string;
+  eu: number;
+  m: Measurements;
+}
+
+/** Women's misses sizes (US 0 to 18): bust, waist, hip. European numbers are US + 32. */
+const MISSES: [number, number, number, number][] = [
+  [0, 32, 24, 34.5],
+  [2, 33, 25, 35.5],
+  [4, 34, 26, 36.5],
+  [6, 35, 27, 37.5],
+  [8, 36, 28, 38.5],
+  [10, 37, 29, 39.5],
+  [12, 38.5, 30.5, 41],
+  [14, 40, 32, 42.5],
+  [16, 41.5, 33.5, 44],
+  [18, 43.5, 35.5, 46],
+];
+
+/**
+ * Sizes to pick from. Tops: XS to XXL. Pants: women's misses numbers, men's waist in inches (28 to
+ * 42; European numbers about the waist + 16). Pants rows fill the measurements a trouser doesn't
+ * use from the letter size closest in hip.
+ */
+const quarter = (v: number) => Math.round(v * 4) / 4;
+
+export function sizeRows(garment: 'top' | 'pants', fit: Fit): SizeRow[] {
+  if (garment === 'top')
+    return SIZES.map((sz, i) => ({ us: sz, eu: EU_SIZES[fit][i]!, m: CHART[fit][i]! }));
+  const near = (hip: number) =>
+    CHART[fit].reduce((a, b) => (Math.abs(b.hip - hip) < Math.abs(a.hip - hip) ? b : a));
+  if (fit === 'women')
+    return MISSES.map(([us, bust, waist, hip]) => ({
+      us: `${us}`,
+      eu: us + 32,
+      m: { ...near(hip), bust, waist, hip, rise: quarter(10 + (hip - 35) * 0.1) },
+    }));
+  return [28, 30, 32, 34, 36, 38, 40, 42].map((waist) => {
+    const hip = waist + 6;
+    return {
+      us: `${waist}`,
+      eu: waist + 16,
+      m: { ...near(hip), bust: hip, waist, hip, rise: quarter(10.5 + (hip - 34) * 0.085) },
+    };
+  });
+}
+
 /** A quadratic Bézier from `a` to `b` bending toward `c`, sampled (without `a`). */
 function curve(a: Pt, c: Pt, b: Pt, n = 8): Pt[] {
   return Array.from({ length: n }, (_, i) => {
