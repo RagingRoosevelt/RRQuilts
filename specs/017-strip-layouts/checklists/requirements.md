@@ -34,5 +34,4 @@
 - Pattern geometry (Points A/B, Diamonds, Double Diamonds, Spaced Squares, Checker Board) is left to
   the plan, following the reference software's styles; the spec fixes what each style holds and
   how it is counted.
-- Defaults taken without asking: Clone copies settings but not content; default strips as in
-  Assumptions; the wizard asks strip count and length only.
+- Defaults taken without asking: default strips as in Assumptions; the wizard asks strip count and length only.

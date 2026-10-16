@@ -128,12 +128,11 @@ describe('strip edits keep content with its strip (SC-002)', () => {
     expect(deleteStrip(one(strip('x', 'plain')), 'x').strips).toHaveLength(1);
   });
 
-  it('add copies the selected strip with Clone, else a plain 2″ strip; new ids', () => {
-    const plain = addStrip(base, 'in').layout.strips.at(-1)!;
-    expect(plain).toMatchObject({ style: 'plain', width: 2 });
-    const clone = addStrip(base, 'cm', base.strips[1]).layout.strips.at(-1)!;
-    expect(clone).toMatchObject({ style: 'points-a', width: 4, along: 6 });
-    expect(clone.id).not.toBe('b');
+  it('new strips are blank: plain, 2″ (5 cm), with new ids', () => {
+    expect(addStrip(base, 'in').layout.strips.at(-1)).toMatchObject({ style: 'plain', width: 2 });
+    const ins = insertStrip(base, 'b', 'cm');
+    expect(ins.layout.strips.map((s) => s.id).indexOf(ins.id)).toBe(1);
+    expect(ins.layout.strips[1]).toMatchObject({ style: 'plain', width: 5 });
   });
 
   it('changing a strip style only touches that strip; pattern colors carry over', () => {

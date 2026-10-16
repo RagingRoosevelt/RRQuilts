@@ -50,19 +50,20 @@ shown widths, all the same length.
 
 ---
 
-### User Story 2 - Add, insert, delete, and clone strips (Priority: P1)
+### User Story 2 - Insert and delete strips (Priority: P1)
 
-**Independent Test**: Select strip 2 → Insert → a new strip appears before it; Add → one at the end;
-Delete → the selected strip goes; with Clone on, Add copies the selected strip's settings.
+**Independent Test**: Hover between strips 1 and 2 → a line with a + appears; click + → a blank strip
+is inserted there; click a strip's × → it is deleted.
 
 **Acceptance Scenarios**:
 
-1. **Given** Clone off, **When** Add or Insert, **Then** a plain strip 2″ (5 cm) wide is added at the
-   end, or inserted before the selected strip, and selected.
-2. **Given** Clone on, **When** Add or Insert, **Then** the new strip copies the selected strip's
-   style, width, and counts, and starts empty (no blocks or colors), as the reference software does.
-3. **Given** Delete, **Then** the selected strip is removed (a quilt keeps at least one strip); its
-   placed blocks are listed in the usual warning first.
+1. **Given** the strip list, **Then** every gap (above the first strip, between strips, and after
+   the last) holds a line with a + button at its end, shown on hover on desktop and always on touch
+   screens; **When** the user clicks +, **Then** a blank strip (Plain, 2″ / 5 cm) is inserted
+   there and selected.
+2. **Given** a strip row, **Then** it ends with a small chip-like × that deletes that strip (not
+   shown when only one strip is left); its placed blocks are listed in the usual warning first.
+3. **Given** a selected strip, **Then** previous/next step through the strips.
 4. **Given** blocks and colors placed in strips, **When** strips are inserted or deleted elsewhere,
    **Then** every remaining strip keeps its blocks and colors.
 5. **Given** a strip quilt, **When** the user picks the Swap strips tool in the toolbar, taps one
@@ -140,9 +141,11 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
 
 **Inspector**
 
-- **FR-010**: The Layout tab MUST show the strip list with the selected strip, previous/next, Add,
-  Insert, Delete, and a Clone option, and the selected strip's style, width, and counts, plus the
-  shared length and the direction (Horizontal or Vertical).
+- **FR-010**: The Layout tab MUST show the strip list with the selected strip, previous/next, an
+  insert line with a + in every gap (above, between, below; on hover, always on touch) that inserts
+  a blank strip, and a chip-like × on each row to delete it; and the selected strip's style, width,
+  and counts, plus the shared length and the direction (Horizontal or Vertical). *Amended
+  2026-10-16 (owner): no Clone.*
 - **FR-011**: Tapping a strip in the quilt while the Layout tab is open MUST select it.
 - **FR-013**: For strip quilts, the quilt editor's toolbar MUST offer a Swap strips tool: tap two
   strips to trade their places (settings and content go with them), one undo step; Escape or tapping

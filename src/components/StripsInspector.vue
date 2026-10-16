@@ -11,35 +11,52 @@
     <div class="text-caption">
       Strips, {{ layout.style === 'vertical-strip' ? 'left to right' : 'top to bottom' }}
     </div>
+    <!-- A line with a + in every gap inserts a blank strip there (on hover; always on touch). -->
     <div class="list">
-      <button
-        v-for="(s, i) in layout.strips"
-        :key="s.id"
-        type="button"
-        class="row-btn"
-        :class="{ on: s.id === current?.id }"
-        @click="editor.selectedStrip = s.id"
-      >
-        <span>{{ i + 1 }}. {{ labelOf(s.style) }}</span>
-        <span>{{ fmtLen(s.width, lu) }}</span>
-      </button>
+      <template v-for="(s, i) in layout.strips" :key="s.id">
+        <div v-if="!readonly" class="gap">
+          <hr />
+          <button
+            type="button"
+            class="add"
+            :aria-label="`Insert a strip before strip ${i + 1}`"
+            @click="insertAt(i)"
+          >
+            <q-icon name="add" size="14px" />
+          </button>
+        </div>
+        <div class="strip-row" :class="{ on: s.id === current?.id }">
+          <button type="button" class="row-btn" @click="editor.selectedStrip = s.id">
+            <span>{{ i + 1 }}. {{ labelOf(s.style) }}</span>
+            <span>{{ fmtLen(s.width, lu) }}</span>
+          </button>
+          <button
+            v-if="!readonly && layout.strips.length > 1"
+            type="button"
+            class="del"
+            :aria-label="`Delete strip ${i + 1}`"
+            @click="del(s.id)"
+          >
+            <q-icon name="close" size="14px" />
+          </button>
+        </div>
+      </template>
+      <div v-if="!readonly" class="gap">
+        <hr />
+        <button
+          type="button"
+          class="add"
+          aria-label="Add a strip at the end"
+          @click="insertAt(layout.strips.length)"
+        >
+          <q-icon name="add" size="14px" />
+        </button>
+      </div>
     </div>
     <div class="row items-center" style="gap: 4px">
       <q-btn flat dense icon="chevron_left" aria-label="Previous strip" @click="step(-1)" />
       <q-btn flat dense icon="chevron_right" aria-label="Next strip" @click="step(1)" />
-      <q-space />
-      <q-btn dense no-caps flat label="Add" :disable="readonly" @click="add(false)" />
-      <q-btn dense no-caps flat label="Insert" :disable="readonly" @click="add(true)" />
-      <q-btn
-        dense
-        no-caps
-        flat
-        label="Delete"
-        :disable="readonly || layout.strips.length < 2"
-        @click="del"
-      />
     </div>
-    <q-toggle v-model="clone" dense label="Clone the selected strip" :disable="readonly" />
 
     <template v-if="current">
       <div class="text-subtitle2">
@@ -118,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import {
   STRIP_STYLES,
@@ -141,7 +158,6 @@ const props = defineProps<{
 const emit = defineEmits<{ change: [layout: Layout, coalesce: string] }>();
 const editor = useEditorStore();
 const lu = computed(() => (props.units === 'cm' ? 'cm' : 'in'));
-const clone = ref(false);
 const labelOf = (v: string) => STRIP_STYLES.find((s) => s.value === v)?.label ?? v;
 
 const current = computed(
@@ -154,21 +170,19 @@ function step(d: number) {
   const i = props.layout.strips.findIndex((s) => s.id === current.value?.id);
   editor.selectedStrip = props.layout.strips[(i + d + n) % n]!.id;
 }
-function add(before: boolean) {
-  const like = clone.value ? current.value : undefined;
+/** A blank (plain) strip before strip `i`, or at the end. */
+function insertAt(i: number) {
   const u = lu.value;
-  const r =
-    before && current.value
-      ? insertStrip(props.layout, current.value.id, u, like)
-      : addStrip(props.layout, u, like);
+  const before = props.layout.strips[i];
+  const r = before ? insertStrip(props.layout, before.id, u) : addStrip(props.layout, u);
   editor.selectedStrip = r.id;
   emit('change', r.layout, '');
 }
-function del() {
-  if (!current.value) return;
-  const i = props.layout.strips.findIndex((s) => s.id === current.value!.id);
-  const next = deleteStrip(props.layout, current.value.id);
-  editor.selectedStrip = next.strips[Math.min(i, next.strips.length - 1)]!.id;
+function del(id: string) {
+  const i = props.layout.strips.findIndex((s) => s.id === id);
+  const next = deleteStrip(props.layout, id);
+  if (editor.selectedStrip === id || !editor.selectedStrip)
+    editor.selectedStrip = next.strips[Math.min(i, next.strips.length - 1)]!.id;
   emit('change', next, '');
 }
 function patch(p: Partial<Omit<Strip, 'id'>>, k: string) {
@@ -184,16 +198,89 @@ function count(key: 'along' | 'across', v: string | number | null) {
 .list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  max-height: 200px;
-  overflow-y: auto;
+}
+.strip-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+.strip-row.on {
+  border-color: var(--q-primary);
+  background: rgba(25, 118, 210, 0.12);
+}
+.strip-row .row-btn {
+  flex: 1;
+}
+/* Chip-like delete at the end of each row. */
+.del {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(128, 128, 128, 0.2);
+  color: inherit;
+  cursor: pointer;
+}
+.del:hover {
+  background: rgba(198, 40, 40, 0.25);
+}
+/* Insert gaps: a rule with a + badge at its end. */
+.gap {
+  position: relative;
+  height: 12px;
+  display: flex;
+  align-items: center;
+}
+.gap hr {
+  flex: 1;
+  margin: 0 4px 0 0;
+  border: none;
+  border-top: 2px solid var(--q-primary);
+}
+.add {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--q-primary);
+  color: #fff;
+  cursor: pointer;
+}
+.gap hr,
+.gap .add {
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.gap:hover hr,
+.gap:hover .add,
+.gap:focus-within hr,
+.gap:focus-within .add {
+  opacity: 1;
+}
+@media (hover: none) {
+  .gap hr,
+  .gap .add {
+    opacity: 1;
+  }
+  .gap hr {
+    opacity: 0.35;
+  }
 }
 .row-btn {
   display: flex;
   justify-content: space-between;
   gap: 8px;
   padding: 4px 8px;
-  border: 1px solid transparent;
+  border: none;
   border-radius: 4px;
   background: none;
   color: inherit;
@@ -202,9 +289,5 @@ function count(key: 'along' | 'across', v: string | number | null) {
 }
 .row-btn:hover {
   background: rgba(128, 128, 128, 0.12);
-}
-.row-btn.on {
-  border-color: var(--q-primary);
-  background: rgba(25, 118, 210, 0.12);
 }
 </style>

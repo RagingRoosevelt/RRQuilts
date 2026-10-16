@@ -16,19 +16,22 @@ export const STRIP_STYLES: { value: StripStyle; label: string }[] = [
   { value: 'checker-board', label: 'Checker Board' },
 ];
 
-/** A new strip: a copy of `like` (Clone) or plain, 2″ (5 cm) wide. */
-const fresh = (like: Strip | undefined, units: 'in' | 'cm'): Strip =>
-  like
-    ? { ...like, id: newId() }
-    : { id: newId(), style: 'plain', width: units === 'cm' ? 5 : 2, along: 6, across: 1 };
+/** A new, blank strip: plain, 2″ (5 cm) wide. */
+const fresh = (units: 'in' | 'cm'): Strip => ({
+  id: newId(),
+  style: 'plain',
+  width: units === 'cm' ? 5 : 2,
+  along: 6,
+  across: 1,
+});
 
-export const addStrip = (l: StripLayout, units: 'in' | 'cm', like?: Strip) => {
-  const s = fresh(like, units);
+export const addStrip = (l: StripLayout, units: 'in' | 'cm') => {
+  const s = fresh(units);
   return { layout: { ...l, strips: [...l.strips, s] }, id: s.id };
 };
 
-export const insertStrip = (l: StripLayout, before: string, units: 'in' | 'cm', like?: Strip) => {
-  const s = fresh(like, units);
+export const insertStrip = (l: StripLayout, before: string, units: 'in' | 'cm') => {
+  const s = fresh(units);
   const i = Math.max(
     0,
     l.strips.findIndex((x) => x.id === before),

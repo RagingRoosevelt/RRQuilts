@@ -2,7 +2,15 @@
   <q-dialog v-model="open">
     <q-card class="wizard">
       <div class="body">
-        <q-stepper v-model="step" class="steps" flat animated header-nav alternative-labels>
+        <q-stepper
+          v-model="step"
+          class="steps"
+          flat
+          animated
+          header-nav
+          alternative-labels
+          :contracted="$q.screen.lt.sm"
+        >
           <q-step name="blocks" title="Layout" icon="grid_on">
             <!-- Style cards: each drawn by the layout engine; later styles join the list. -->
             <div class="styles q-mb-md" role="radiogroup" aria-label="Layout style">
