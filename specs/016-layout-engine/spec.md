@@ -137,10 +137,22 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
   sashing pieces, each with a shape, size, and turn), its repeat along two directions, a turn and
   shear of the whole, the quilt's trim, and the edge finish. Horizontal and On-Point are presets
   (fixed choices of these), not separate geometry.
-- **FR-002**: A space MUST carry its shape and its outline, and outlines MAY include arcs, so later
-  presets (triangle, 60° diamond, hexagon, mixed triangle-grid layouts, clamshell, spool: spec 001
-  FR-029a, FR-029b, FR-029d) need no change to how spaces are described, drawn, hit-tested, clipped,
-  or printed.
+- **FR-002**: A space MUST carry its shape and its outline, and outlines MAY include arcs.
+- **FR-002a**: The engine MUST be able to generate every layout planned in spec 001, even though this
+  feature gives users only Horizontal and On-Point, so that each later style is a preset plus its
+  inspector and never a change to the engine:
+  - Variable Point (a sheared and turned lattice: diamonds measured through the block);
+  - Baby Blocks and Variable Blocks (three diamonds per repeat, each with its own turn; equal or
+    unequal sides);
+  - Horizontal and Vertical Strip (a stack of strips, each with its own repeating cell and count,
+    sharing one length, half drops included);
+  - One Patch and Photo Patchwork (one tessellating patch shape repeated);
+  - triangle, 60° diamond, hexagon, clamshell, and spool layouts with trimmed or shaped edges (spec
+    001 FR-029a, FR-029b);
+  - mixed triangle-grid layouts and their presets (Baby Blocks, Star, Hexagons and Triangles), and
+    merging and splitting spaces on the triangle grid, stored as which grid triangles each space
+    covers (FR-029d).
+  Custom Set (free placement, FR-026) is not a lattice and stays outside the engine.
 - **FR-003**: In this feature only square and rectangle blocks are placeable; a space's shape decides
   which blocks fit it, so later block shapes (FR-060a) plug in without changing placement.
 - **FR-004**: Space ids MUST stay derived from position (spec 003 slot-ids contract). On-Point's main
@@ -192,18 +204,20 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
 - **SC-003**: On-Point quilt size and setting-triangle cut sizes match the standard quilting formulas
   (side triangles: block diagonal + 1¼″ square cut twice; corners: block side ÷ √2 + ⅞″ square cut
   once) within 1/16″.
-- **SC-004**: A hexagon grid and a clamshell grid can be described as engine presets in a check that
-  draws them, without changes to space description, drawing, or hit testing (proving FR-002 ahead of
-  their user-facing presets).
+- **SC-004**: Every layout in FR-002a is described as an engine preset in a check (no user interface)
+  that generates, draws, and hit-tests it, with unique position-based ids and spaces that cover the
+  quilt without gaps or overlaps (other than trims). Adding each one's user-facing style later needs
+  no change to the engine, drawing, hit testing, or printing.
 - **SC-005**: Changing On-Point counts up to 100 × 100 redraws without a noticeable pause on a
   mid-range phone.
 
 ## Assumptions
 
-- Variable Point, Baby Blocks, Variable Blocks, strips, One Patch, Custom Set, and the shaped and
-  mixed layouts of FR-029a/b/d are later presets; this feature ships only Horizontal and On-Point.
-- Merging and splitting triangle-grid spaces (FR-029d) is a later feature; the engine's space model
-  just mustn't rule it out.
+- The engine supports every layout in FR-002a now (proved by SC-004), but their inspectors, style
+  picker entries, file parameters, and printing checks come with later specs; this feature ships only
+  Horizontal and On-Point to users.
+- The editing gesture for merging and splitting triangle-grid spaces is a later feature; the engine
+  already generates layouts with merged spaces.
 - Block sizes are entered as the finished square side (what quilters piece); the reference quilt
   software measures differently, which isn't copied.
 - Borders keep working as today (straight strips around the straight edge); border styles are not

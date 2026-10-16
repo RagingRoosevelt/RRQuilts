@@ -32,7 +32,7 @@
 ## Notes
 
 - The engine itself (FR-001–FR-005, SC-001, SC-004) is an internal design constraint from spec 001
-  FR-029c; it is stated by its observable effects (identical Horizontal spaces, future shapes need no
-  change) rather than by structure.
+  FR-029c; it is stated by its observable effects (identical Horizontal spaces; every planned layout
+  generated in a check, SC-004) rather than by structure.
 - Defaults taken without asking: block size = finished square side; Exact edge by default; No fill
   sets borders aside rather than deleting them; On-Point main grid reuses Horizontal ids.
