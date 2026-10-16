@@ -66,6 +66,15 @@ export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
         q.layout.side = len(q.layout.side);
       }
       for (const b of q.borders) b.sides = b.sides.map(len) as typeof b.sides;
+      if (q.target) {
+        const t = q.target;
+        t.outline = t.outline.map(scalePair);
+        if (t.core) t.core = t.core.map(len) as typeof t.core;
+        const i = t.input;
+        if (i.custom) i.custom = scalePair(i.custom);
+        for (const k of ['drop', 'tuck', 'sleeveLength', 'inseam'] as const)
+          if (i[k] !== undefined) i[k] = len(i[k]);
+      }
       for (const c of Object.values(q.colorings)) scaleColoring(c, scalePair);
       for (const item of q.layers.flatMap((l) => l.items)) {
         item.x = len(item.x);

@@ -99,7 +99,7 @@
     <QuiltWizard
       ref="wizard"
       :units="settings.settings.units"
-      @create="(l, b) => startQuilt(l, b, true)"
+      @create="(l, b, t) => startQuilt(l, b, t, true)"
     />
   </q-page>
 </template>

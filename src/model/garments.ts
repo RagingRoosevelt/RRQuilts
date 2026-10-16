@@ -235,8 +235,8 @@ function pants(m: Measurements, back: boolean): Pt[] {
   }
   // Front: slanted pocket opening from the waist down to the side seam; center front straight
   // down (a fly extension cut on beside it) to a short crotch curve.
-  const pocketTop: Pt = [sideTop[0] + 4, 0];
-  const pocketSide: Pt = [0.3, 6.5];
+  const pocketTop: Pt = [sideTop[0] + 3.25, 0];
+  const pocketSide: Pt = [0.35, 5.5];
   const curveTop: Pt = [w, rise - 3];
   const fly = 1.5;
   const flyEnd = curveTop[1] - 0.25;
@@ -250,7 +250,7 @@ function pants(m: Measurements, back: boolean): Pt[] {
     ...curve(curveTop, [w, rise], point, 8),
     ...leg,
     pocketSide,
-    ...curve(pocketSide, [pocketTop[0] - 0.5, 5.5], pocketTop, 8).slice(0, -1),
+    ...curve(pocketSide, [pocketTop[0] - 0.9, 3.6], pocketTop, 8).slice(0, -1),
   ];
   // Patterns lay the front with its center on the left.
   return pts.map(([x, y]): Pt => [-x, y]);

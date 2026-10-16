@@ -215,6 +215,31 @@ export const PiecingLayer = Type.Object({
 });
 export const FreeLayer = Type.Object({ visible: Type.Boolean(), items: Type.Array(Item) });
 
+/** A target size shown as an outline over the quilt (spec 006 FR-001a): the quilter's choices
+ *  and the shape they resolved to (project units, top-left of its box at 0, 0), so the outline
+ *  still draws if the size lists change. */
+export const QuiltTarget = Type.Object({
+  visible: Type.Boolean(),
+  input: Type.Object({
+    choice: Type.Union([Type.String({ maxLength: 100 }), Type.Null()]),
+    region: Type.Union([Type.Literal('us'), Type.Literal('eu')]),
+    custom: Type.Optional(Type.Tuple([length, length])),
+    drop: Type.Optional(length),
+    tuck: Type.Optional(length),
+    tall: Type.Optional(Type.Boolean()),
+    fit: Type.Optional(Type.Union([Type.Literal('women'), Type.Literal('men')])),
+    size: Type.Optional(Type.String({ maxLength: 20 })),
+    piece: Type.Optional(
+      Type.Union([Type.Literal('front'), Type.Literal('back'), Type.Literal('sleeve')]),
+    ),
+    sleeveLength: Type.Optional(length),
+    inseam: Type.Optional(length),
+  }),
+  outline: Type.Array(Type.Tuple([Type.Number(), Type.Number()]), { maxItems: 1000 }),
+  core: Type.Optional(Type.Tuple([length, length, length, length])),
+  label: Type.String({ maxLength: 200 }),
+});
+
 export const Quilt = Type.Object({
   ...itemBase,
   layout: Layout,
@@ -223,6 +248,7 @@ export const Quilt = Type.Object({
   colorings: Type.Record(Type.String(), ColoringBody),
   /** Fixed purposes: [piecing, appliqué, quilting]. */
   layers: Type.Tuple([PiecingLayer, FreeLayer, FreeLayer]),
+  target: Type.Optional(QuiltTarget),
 });
 
 export type HorizontalLayout = Type.Static<typeof HorizontalLayout>;
@@ -239,3 +265,4 @@ export type Border = Type.Static<typeof Border>;
 export type SlotContent = Type.Static<typeof SlotContent>;
 export type Item = Type.Static<typeof Item>;
 export type Quilt = Type.Static<typeof Quilt>;
+export type QuiltTarget = Type.Static<typeof QuiltTarget>;

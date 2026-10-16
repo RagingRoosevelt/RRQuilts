@@ -224,7 +224,12 @@ zoom, drag-pan, and Fit.
   it: the outer outline is the size with its drop and tuck, and a fine outline inside marks the mattress top
   at the head. The footer shows the quilt's finished size and the target's. Counts, block sizes,
   and other layout settings are on the second page ("Size"; "Shape" for One Patch,
-  "Strips" for strip quilts). The target isn't saved with the quilt. *Added and built 2026-10-16
+  "Strips" for strip quilts). The target is saved with the quilt (optional `target` on a
+  quilt, format v6, `src/model/targets.ts`): visibility, the choices made, and the resolved outline
+  (and mattress rectangle) in project units, so the outline still draws if the size lists change;
+  unit conversion converts it. Older quilts have none. The Layout tab's **Target size** section
+  adds, changes, shows or hides (Show), or removes (None) it, with the same controls as the wizard;
+  the editor draws it centered on the quilt, and Fit includes it. *Added and built 2026-10-16
   (owner).*
 - **FR-002**: ~~New projects MUST start with the starter blocks and colors~~ — superseded by spec 008:
   starter content is a built-in library; projects embed library items only while used.

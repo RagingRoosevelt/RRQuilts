@@ -5,7 +5,8 @@ import { resolveColoring } from '@/model/coloring';
 import type { ColoringBody, Fill } from '@/model/schema/coloring';
 import type { Color, Fabric } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
-import type { Quilt } from '@/model/schema/quilt';
+import type { Quilt, QuiltTarget } from '@/model/schema/quilt';
+import { placeTarget } from '@/model/targets';
 import { mul, type M } from './affine';
 import { blockPaths, toPath2D } from './paths';
 import { placementMatrix } from './placement';
@@ -167,6 +168,49 @@ export function drawQuilt(
     ctx.stroke(slotPath(slot));
   }
   if (o.labels) drawLabels(ctx, quilt, generated, blocks, base, o.dpr);
+  if (quilt.target?.visible) drawTarget(ctx, quilt.target, generated.bounds, px);
+}
+
+/** A target size (spec 006 FR-001a): a see-through, dashed outline centered on the quilt, with a
+ *  bed's mattress top dotted inside. */
+function drawTarget(
+  ctx: CanvasRenderingContext2D,
+  target: QuiltTarget,
+  bounds: [number, number, number, number],
+  px: number,
+) {
+  const p = placeTarget(target, bounds);
+  const path = new Path2D();
+  p.outline.forEach(([x, y], i) => (i ? path.lineTo(x, y) : path.moveTo(x, y)));
+  path.closePath();
+  ctx.save();
+  ctx.fillStyle = 'rgba(25,118,210,0.12)';
+  ctx.fill(path);
+  ctx.strokeStyle = '#1976d2';
+  ctx.lineWidth = 2 * px;
+  ctx.setLineDash([6 * px, 4 * px]);
+  ctx.stroke(path);
+  if (p.core) {
+    ctx.lineWidth = px;
+    ctx.setLineDash([2 * px, 3 * px]);
+    ctx.strokeRect(...p.core);
+  }
+  ctx.restore();
+}
+
+/** The quilt's bounds grown to take in a visible target outline. */
+export function boundsWithTarget(
+  quilt: Quilt,
+  bounds: [number, number, number, number],
+): [number, number, number, number] {
+  if (!quilt.target?.visible) return bounds;
+  const b = placeTarget(quilt.target, bounds).box;
+  return [
+    Math.min(bounds[0], b[0]),
+    Math.min(bounds[1], b[1]),
+    Math.max(bounds[2], b[2]),
+    Math.max(bounds[3], b[3]),
+  ];
 }
 
 /** Block names centered on their placements (screen-space text, skipped where too small). */

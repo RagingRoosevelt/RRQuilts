@@ -5813,6 +5813,162 @@
                   }
                 ],
                 "minItems": 3
+              },
+              "target": {
+                "type": "object",
+                "required": [
+                  "visible",
+                  "input",
+                  "outline",
+                  "label"
+                ],
+                "properties": {
+                  "visible": {
+                    "type": "boolean"
+                  },
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "choice",
+                      "region"
+                    ],
+                    "properties": {
+                      "choice": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 100
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "region": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "us"
+                          },
+                          {
+                            "type": "string",
+                            "const": "eu"
+                          }
+                        ]
+                      },
+                      "custom": {
+                        "type": "array",
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          {
+                            "type": "number",
+                            "minimum": 0
+                          }
+                        ],
+                        "minItems": 2
+                      },
+                      "drop": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "tuck": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "tall": {
+                        "type": "boolean"
+                      },
+                      "fit": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "women"
+                          },
+                          {
+                            "type": "string",
+                            "const": "men"
+                          }
+                        ]
+                      },
+                      "size": {
+                        "type": "string",
+                        "maxLength": 20
+                      },
+                      "piece": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "front"
+                          },
+                          {
+                            "type": "string",
+                            "const": "back"
+                          },
+                          {
+                            "type": "string",
+                            "const": "sleeve"
+                          }
+                        ]
+                      },
+                      "sleeveLength": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "inseam": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "outline": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "additionalItems": false,
+                      "items": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "number"
+                        }
+                      ],
+                      "minItems": 2
+                    },
+                    "maxItems": 1000
+                  },
+                  "core": {
+                    "type": "array",
+                    "additionalItems": false,
+                    "items": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    ],
+                    "minItems": 4
+                  },
+                  "label": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                }
               }
             }
           }

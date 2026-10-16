@@ -1,7 +1,7 @@
 import { useRouter } from 'vue-router';
 import { DEFAULT_LICENSE } from '@/model/credits';
 import { createQuilt } from '@/model/new-quilt';
-import type { Border, Layout } from '@/model/schema/quilt';
+import type { Border, Layout, QuiltTarget } from '@/model/schema/quilt';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
@@ -12,12 +12,13 @@ export function useStartQuilt() {
   const router = useRouter();
   const project = useProjectStore();
   const editor = useEditorStore();
-  return async (layout: Layout, borders: Border[], fresh = false) => {
+  return async (layout: Layout, borders: Border[], target?: QuiltTarget, fresh = false) => {
     if (fresh || !project.isOpen) await project.newProject();
     const n = project.doc!.project.quilts.length + 1;
     const author = useSettingsStore().settings.author;
     const quilt = {
       ...createQuilt(`Quilt ${n}`, layout, borders),
+      ...(target ? { target } : {}),
       ...(author ? { author } : {}),
       license: project.doc!.project.license ?? DEFAULT_LICENSE,
     };

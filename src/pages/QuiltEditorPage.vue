@@ -186,16 +186,23 @@
           <div class="text-caption text-grey-7 q-mb-sm">{{ toolHint }}</div>
           <PaletteTray sidebar />
         </template>
-        <LayoutInspector
-          v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'"
-          :key="quilt.id"
-          :layout="quilt.layout"
-          :units="units"
-          :readonly="project.readOnly"
-          :has-borders="quilt.borders.length > 0"
-          :hint="layoutHint"
-          @change="(l, k) => changeLayout(l, quilt!.borders, k)"
-        />
+        <template v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'">
+          <LayoutInspector
+            :key="quilt.id"
+            :layout="quilt.layout"
+            :units="units"
+            :readonly="project.readOnly"
+            :has-borders="quilt.borders.length > 0"
+            :hint="layoutHint"
+            @change="(l, k) => changeLayout(l, quilt!.borders, k)"
+          />
+          <TargetSection
+            :target="quilt.target"
+            :units="units"
+            :readonly="project.readOnly"
+            @change="changeTarget"
+          />
+        </template>
         <BordersInspector
           v-else-if="editor.mode === 'borders'"
           v-model:selected="border"
@@ -219,6 +226,7 @@ import HelpLink from '@/components/HelpLink.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BordersInspector from '@/components/BordersInspector.vue';
+import TargetSection from '@/components/TargetSection.vue';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import LayoutInspector from '@/components/LayoutInspector.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
@@ -230,7 +238,7 @@ import { applyTool } from '@/editor/actions';
 import { STRIP_STYLES, stripOf, swapStrips, setStrip } from '@/model/layout/strips';
 import { applyLayout, generateFor, reconcile, type Bounds } from '@/model/layout/slots';
 import { PLAIN_BLOCK, slotGroup } from '@/model/plain';
-import type { Border, Layout, StripLayout, StripStyle } from '@/model/schema/quilt';
+import type { Border, Layout, QuiltTarget, StripLayout, StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 import type { Hit } from '@/render/hit';
 import { useEditorStore, type Tool } from '@/stores/editor';
@@ -455,6 +463,20 @@ function onTap(hit: Hit) {
     const next = r.doc;
     project.change(() => next);
   }
+}
+
+/** Set or remove the quilt's target size outline. */
+function changeTarget(target: QuiltTarget | undefined, coalesce: string) {
+  const q = quilt.value;
+  if (!q || project.readOnly) return;
+  project.change(
+    (d) => {
+      const dq = d.project.quilts.find((x) => x.id === q.id)!;
+      if (target) dq.target = JSON.parse(JSON.stringify(target)) as QuiltTarget;
+      else delete dq.target;
+    },
+    coalesce ? { coalesce } : {},
+  );
 }
 
 function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
