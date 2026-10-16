@@ -5,7 +5,7 @@ import { generateSlots, type Generated } from '@/model/layout/slots';
 import { onPointDefaults } from '@/model/io';
 import { ensurePlainBlock, ensureSlotContent } from '@/model/plain';
 import { quiltPieces } from '@/model/print/pieces';
-import { cutFor } from '@/model/print/rotary';
+import { cutFor, cutPlan } from '@/model/print/rotary';
 import type { OnPointLayout } from '@/model/schema/quilt';
 import { fixture } from './helpers';
 import { quiltWith, slotArea } from './layout-helpers';
@@ -282,5 +282,19 @@ describe('Blocks at edge positions move that side in (Exact, Floating)', () => {
             expect(new Set(g.slots.map((s) => s.id)).size, at).toBe(g.slots.length);
             expect(sample(g), at).toBe(0);
           }
+  });
+});
+
+describe('cutting chart', () => {
+  it('no rounding warning on setting triangles', () => {
+    const l = op({ cols: 3, rows: 3, block: 8 });
+    const doc = ensurePlainBlock(fixture());
+    const q = ensureSlotContent(
+      quiltWith(l, []),
+      generateSlots(l, []).slots.map((s) => s.id),
+    );
+    const lines = cutPlan(quiltPieces(doc, q), 0.25, 0.125, 40);
+    expect(lines.some((x) => x.cut.kind === 'qst')).toBe(true);
+    expect(lines.every((x) => !x.cut.distorted)).toBe(true);
   });
 });

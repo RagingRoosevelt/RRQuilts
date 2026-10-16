@@ -192,7 +192,8 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
 - **FR-020**: A layout with an uneven edge MUST offer Exact, Floating (with a float amount), Trimmed
   blocks, and No fill. New On-Point quilts start Floating with a 1″ float.
 - **FR-021**: Setting pieces MUST be plain spaces that color like patches, are included in yardage,
-  and print with cut sizes and grain along the outer edge.
+  and print with cut sizes and grain along the outer edge. The cutting chart doesn't warn that their
+  sizes are off the rounding grid (setting triangles are cut slightly large on purpose).
 - **FR-023**: A block set into a cut-off space (a setting piece or a trimmed edge block) MUST be
   placed whole, at the size and turn of the blocks around it, and only then cut to the space's
   outline; it is never stretched to fit. Plain fills color the space's own outline. With Exact or

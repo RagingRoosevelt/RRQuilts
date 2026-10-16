@@ -29,6 +29,8 @@ export interface Piece {
   marks: { p: Pt; n: Pt }[];
   /** What shows in the quilt when cut larger (floating setting pieces); pictures draw this. */
   shown?: Pt[];
+  /** A setting piece: cut a little large by custom, so rounding up is fine. */
+  setting?: boolean;
 }
 
 const isCurved = (path: readonly (readonly (string | number)[])[]) =>
@@ -90,6 +92,7 @@ export function quiltPieces(
       ...piece,
       poly: slotPoly || piece.poly.map(at),
       ...(shown ? { shown } : {}),
+      ...(slotPoly && slot.kind === 'set' ? { setting: true } : {}),
       curved: slotPoly ? isCurved(slot.cut ?? slot.outline) : piece.curved,
       marks: piece.marks.map((m) => ({ p: at(m.p), n: dir(m.n) })),
     }));
