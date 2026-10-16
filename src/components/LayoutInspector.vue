@@ -7,7 +7,7 @@
       outlined
       label="Style"
       :options="[
-        { label: 'Horizontal', value: 'horizontal' },
+        { label: 'Straight Set', value: 'horizontal' },
         { label: 'On-Point', value: 'on-point' },
         { label: 'Horizontal Strip', value: 'horizontal-strip' },
         { label: 'Vertical Strip', value: 'vertical-strip' },

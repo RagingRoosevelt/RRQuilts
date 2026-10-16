@@ -248,7 +248,7 @@ const sampleStrips = (style: 'horizontal-strip' | 'vertical-strip'): Layout => (
 const STYLES: { value: Style; label: string; sample: Layout }[] = [
   {
     value: 'horizontal',
-    label: 'Horizontal',
+    label: 'Straight Set',
     sample: {
       style: 'horizontal',
       cols: 3,

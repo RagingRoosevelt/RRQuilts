@@ -11,7 +11,7 @@ hide the seam lines and the block names, and the bar under the quilt reports its
 
 ## Layout
 
-1. Open the **Layout** tab. **Style** is **Horizontal** (blocks in rows), **On-Point** (blocks
+1. Open the **Layout** tab. **Style** is **Straight Set** (blocks in rows and columns), **On-Point** (blocks
    turned 45°), or **Horizontal Strip** and **Vertical Strip** (see below). More styles are coming
    soon.
 2. Set **Columns** and **Rows** (1 to 100).
@@ -45,7 +45,7 @@ blocks fills the spaces between them, and setting pieces finish the edge.
      until you choose another finish.
 5. The Print tab notes when the quilt top needs trimming.
 
-Switching between **Horizontal** and **On-Point** keeps the blocks in the main grid. Blocks that
+Switching between **Straight Set** and **On-Point** keeps the blocks in the main grid. Blocks that
 only exist in one style are listed in a warning before they are removed.
 
 ## Strip quilts

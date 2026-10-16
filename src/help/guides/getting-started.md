@@ -12,7 +12,7 @@ work lives in a **project**, one file (ending in `.rrq`) that holds your quilts,
 1. On the home page (the **RRQuilts** button in the header), choose **Start a quilt**.
 2. The wizard has three steps (four for strip quilts). Use **Next** to move on, or click a step's title. A picture of the
    quilt beside the steps (under them on a phone) changes as you choose.
-   - **Layout** picks the style, **Horizontal** (rows of blocks), **On-Point** (blocks turned to
+   - **Layout** picks the style, **Straight Set** (blocks in rows and columns), **On-Point** (blocks turned to
      sit as diamonds), or **Strips**. For blocks it also sets how many and their **Finished block
      size**.
    - **Strips** (strip quilts only) holds everything that sizes them: **Horizontal** or

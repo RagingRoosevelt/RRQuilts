@@ -613,7 +613,8 @@ and its Files-app integration (phones) work by hand.
 
 **Quilt layouts (US2)**
 
-- **FR-020**: The app MUST support layout styles: Horizontal, On-Point, Variable Point, Baby Blocks,
+- **FR-020**: The app MUST support layout styles: Horizontal (shown as **Straight Set**; *renamed
+  2026-10-16*), On-Point, Variable Point, Baby Blocks,
   Variable Blocks, Horizontal Strip, Vertical Strip, One Patch, Photo Patchwork, and Custom Set.
 - **FR-021**: Horizontal layouts MUST support block count, finished width/height (lockable square),
   sashing width/height (lockable), and optional sash border.
