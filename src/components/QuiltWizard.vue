@@ -428,7 +428,11 @@ const region = computed<Region>({
   },
   set: (v) => (settings.settings.bedSizes = v),
 });
-watch(region, () => (target.value = null));
+// Custom, and sizes both lists share (placemat…), stay picked across the switch.
+watch(region, (r) => {
+  if (target.value !== 'custom' && !TARGETS[r].some((t) => t.name === target.value))
+    target.value = null;
+});
 /** A length in the region's units, in the project's (cm whole, inches to the half). */
 const conv = (v: number) =>
   region.value === 'us'
