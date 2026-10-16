@@ -631,6 +631,12 @@ and its Files-app integration (phones) work by hand.
 - **FR-026**: Custom Set layouts MUST provide a resizable blank center with free placement and an
   option to preserve or scale existing block sizes on resize.
 - **FR-027**: The app MUST provide a library of ready-made layouts by size and by style.
+- **FR-027a** *(planned, not built)*: A **Christmas tree skirt** layout MUST make a round (or
+  many-sided) skirt: an outer diameter, a center hole for the trunk with a slit from it to the edge
+  (the opening), and the ring divided into wedges (a count) and optionally into rounds (rings),
+  each wedge or wedge segment a space for a block or colors and fabrics. Wedges are trapezoids or
+  curved-edge (true circle) pieces; printing gives each wedge as a template. Borders follow the
+  outer edge. *Added 2026-10-16 (owner); implementation later.*
 - **FR-028**: The app MUST turn a block made only of horizontal/vertical lines into a Custom Set
   layout.
 - **FR-029**: Maximum blocks per row/column MUST be configurable (default 24, up to 100).
