@@ -103,104 +103,112 @@
                   ]"
                 />
               </template>
-              <div class="row q-col-gutter-sm">
-                <q-input
-                  v-model.number="cols"
-                  class="col-6"
-                  dense
-                  outlined
-                  type="number"
-                  min="1"
-                  max="100"
-                  :label="acrossLabel"
-                />
-                <q-input
-                  v-model.number="rows"
-                  class="col-6"
-                  dense
-                  outlined
-                  type="number"
-                  min="1"
-                  max="100"
-                  :label="downLabel"
-                />
-                <template v-if="style === 'variable-point'">
-                  <DiamondSize
-                    class="col-12"
-                    :width="tile.width"
-                    :height="tile.height"
-                    :units="units"
-                    @change="(w, h) => Object.assign(tile, { width: w, height: h })"
-                  />
-                  <div class="col-12 text-caption text-grey-7">
-                    Width and height are measured through the diamond, point to point.
+              <div class="column" style="gap: 16px">
+                <FieldGroup :label="countLabel">
+                  <div class="row q-col-gutter-sm">
+                    <q-input
+                      v-model.number="cols"
+                      class="col-6"
+                      dense
+                      outlined
+                      type="number"
+                      min="1"
+                      max="100"
+                      :label="acrossLabel"
+                    />
+                    <q-input
+                      v-model.number="rows"
+                      class="col-6"
+                      dense
+                      outlined
+                      type="number"
+                      min="1"
+                      max="100"
+                      :label="downLabel"
+                    />
                   </div>
-                </template>
-                <LengthInput
-                  v-else-if="style === 'baby-blocks'"
-                  v-model="tile.dside"
-                  class="col-12"
-                  label="Diamond side"
-                  :units="units"
-                  :min="0.25"
-                />
-                <template v-else-if="style === 'variable-blocks'">
-                  <LengthInput
-                    v-model="tile.width"
-                    class="col-12"
-                    label="Cube width"
-                    :units="units"
-                    :min="0.25"
-                  />
-                  <LengthInput
-                    v-model="tile.top"
-                    class="col-6"
-                    label="Top height"
-                    :units="units"
-                    :min="0.25"
-                  />
-                  <LengthInput
-                    v-model="tile.side"
-                    class="col-6"
-                    label="Side height"
-                    :units="units"
-                    :min="0.25"
-                  />
-                </template>
-                <template v-else-if="style === 'one-patch'">
-                  <template v-if="twoSizes">
+                </FieldGroup>
+                <FieldGroup :label="sizeLabel">
+                  <div class="row q-col-gutter-sm">
+                    <template v-if="style === 'variable-point'">
+                      <DiamondSize
+                        class="col-12"
+                        :width="tile.width"
+                        :height="tile.height"
+                        :units="units"
+                        @change="(w, h) => Object.assign(tile, { width: w, height: h })"
+                      />
+                      <div class="col-12 text-caption text-grey-7">
+                        Width and height are measured through the diamond, point to point.
+                      </div>
+                    </template>
                     <LengthInput
-                      v-model="tile.width"
-                      class="col-6"
-                      :label="tile.shape === 'tumblers' ? 'Bottom width' : 'Width'"
+                      v-else-if="style === 'baby-blocks'"
+                      v-model="tile.dside"
+                      class="col-12"
+                      label="Diamond side"
                       :units="units"
                       :min="0.25"
                     />
+                    <template v-else-if="style === 'variable-blocks'">
+                      <LengthInput
+                        v-model="tile.width"
+                        class="col-12"
+                        label="Cube width"
+                        :units="units"
+                        :min="0.25"
+                      />
+                      <LengthInput
+                        v-model="tile.top"
+                        class="col-6"
+                        label="Top height"
+                        :units="units"
+                        :min="0.25"
+                      />
+                      <LengthInput
+                        v-model="tile.side"
+                        class="col-6"
+                        label="Side height"
+                        :units="units"
+                        :min="0.25"
+                      />
+                    </template>
+                    <template v-else-if="style === 'one-patch'">
+                      <template v-if="twoSizes">
+                        <LengthInput
+                          v-model="tile.width"
+                          class="col-6"
+                          :label="tile.shape === 'tumblers' ? 'Bottom width' : 'Width'"
+                          :units="units"
+                          :min="0.25"
+                        />
+                        <LengthInput
+                          v-model="tile.height"
+                          class="col-6"
+                          label="Height"
+                          :units="units"
+                          :min="0.25"
+                        />
+                      </template>
+                      <LengthInput
+                        v-else
+                        v-model="tile.width"
+                        class="col-12"
+                        :label="oneSizeLabel"
+                        :units="units"
+                        :min="0.25"
+                      />
+                    </template>
                     <LengthInput
-                      v-model="tile.height"
-                      class="col-6"
-                      label="Height"
+                      v-else
+                      v-model="blockSize"
+                      class="col-12"
+                      label="Finished block size"
                       :units="units"
-                      :min="0.25"
+                      :min="0.5"
                     />
-                  </template>
-                  <LengthInput
-                    v-else
-                    v-model="tile.width"
-                    class="col-12"
-                    :label="oneSizeLabel"
-                    :units="units"
-                    :min="0.25"
-                  />
-                </template>
-                <LengthInput
-                  v-else
-                  v-model="blockSize"
-                  class="col-12"
-                  label="Finished block size"
-                  :units="units"
-                  :min="0.5"
-                />
+                  </div>
+                </FieldGroup>
               </div>
             </template>
           </q-step>
@@ -287,6 +295,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
 import DiamondSize from '@/components/DiamondSize.vue';
+import FieldGroup from '@/components/FieldGroup.vue';
 import LengthInput from '@/components/LengthInput.vue';
 import TargetEditor from '@/components/TargetEditor.vue';
 import {
@@ -596,6 +605,25 @@ const STYLES: { value: Style; label: string; sample: Layout }[] = [
     },
   },
 ];
+/** Card labels on the Size page: how many, and how big. */
+const countLabel = computed(() =>
+  style.value === 'straight-set'
+    ? 'Columns and rows'
+    : style.value === 'one-patch'
+      ? 'Patches'
+      : style.value.endsWith('blocks')
+        ? 'Cubes'
+        : 'Blocks',
+);
+const sizeLabel = computed(() =>
+  style.value === 'variable-point' || style.value === 'baby-blocks'
+    ? 'Diamond size'
+    : style.value === 'variable-blocks'
+      ? 'Cube size'
+      : style.value === 'one-patch'
+        ? 'Patch size'
+        : 'Block size',
+);
 const styleLabel = computed(() => STYLES.find((x) => x.value === style.value)?.label ?? '');
 const SHAPES: [PatchShape, string][] = [
   ['squares', 'Squares'],

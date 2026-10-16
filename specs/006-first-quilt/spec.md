@@ -227,7 +227,7 @@ zoom, drag-pan, and Fit.
   "Strips" for strip quilts). The target is saved with the quilt (optional `target` on a
   quilt, format v6, `src/model/targets.ts`): visibility, the choices made, and the resolved outline
   (and mattress rectangle) in project units, so the outline still draws if the size lists change;
-  unit conversion converts it. Older quilts have none. The Layout tab's **Target size** section
+  unit conversion converts it. Older quilts have none. The Layout tab's **Reference overlay** section (Layout and Reference overlay are its two sections; each layout's settings are grouped under divider lines with the group's name set into them, as on the wizard's Size page)
   adds, changes, shows or hides (Show), or removes (None) it, with the same controls as the wizard;
   the editor draws it centered on the quilt, and Fit includes it. *Added and built 2026-10-16
   (owner).*

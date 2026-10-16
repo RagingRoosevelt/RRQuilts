@@ -1,6 +1,6 @@
 <template>
   <div class="q-gutter-md">
-    <div class="text-subtitle2">Layout</div>
+    <FieldGroup label="Layout" heading />
     <q-select
       :model-value="layout.style"
       dense
@@ -32,109 +32,125 @@
       @change="(l, k) => emit('change', l, k)"
     />
     <template v-else-if="layout.style === 'on-point' || layout.style === 'variable-point'">
-      <div class="row q-col-gutter-sm">
-        <q-input
-          class="col-6"
-          :model-value="layout.cols"
-          dense
-          outlined
-          type="number"
-          label="Blocks across"
-          min="1"
-          max="100"
-          :readonly="readonly"
-          @update:model-value="(v) => setCount('cols', v)"
-        />
-        <q-input
-          class="col-6"
-          :model-value="layout.rows"
-          dense
-          outlined
-          type="number"
-          label="Blocks down"
-          min="1"
-          max="100"
-          :readonly="readonly"
-          @update:model-value="(v) => setCount('rows', v)"
-        />
-      </div>
-      <template v-if="layout.style === 'variable-point'">
-        <DiamondSize
-          :width="layout.width"
-          :height="layout.height"
-          :units="units"
-          :readonly="readonly"
-          @change="(width, height, k) => op({ width, height }, k)"
-        />
-        <div class="text-caption text-grey-7">
-          Width and height are measured through the diamond, point to point. Diamonds and setting
-          pieces take colors and fabrics.
+      <FieldGroup label="Blocks">
+        <div class="column" style="gap: 8px">
+          <div class="row q-col-gutter-sm">
+            <q-input
+              class="col-6"
+              :model-value="layout.cols"
+              dense
+              outlined
+              type="number"
+              label="Blocks across"
+              min="1"
+              max="100"
+              :readonly="readonly"
+              @update:model-value="(v) => setCount('cols', v)"
+            />
+            <q-input
+              class="col-6"
+              :model-value="layout.rows"
+              dense
+              outlined
+              type="number"
+              label="Blocks down"
+              min="1"
+              max="100"
+              :readonly="readonly"
+              @update:model-value="(v) => setCount('rows', v)"
+            />
+          </div>
         </div>
-      </template>
-      <div v-else>
-        <LengthInput
-          :model-value="layout.block"
-          label="Finished block size"
-          :units="units"
-          :min="0.25"
-          :readonly="readonly"
-          @update:model-value="(v) => op({ block: v }, 'block')"
-        />
-        <div class="text-caption text-grey-7">
-          Width on point: {{ fmtLen(layout.block * Math.SQRT2, lu) }}
+      </FieldGroup>
+      <FieldGroup :label="layout.style === 'variable-point' ? 'Diamond size' : 'Block size'">
+        <div class="column" style="gap: 8px">
+          <template v-if="layout.style === 'variable-point'">
+            <DiamondSize
+              :width="layout.width"
+              :height="layout.height"
+              :units="units"
+              :readonly="readonly"
+              @change="(width, height, k) => op({ width, height }, k)"
+            />
+            <div class="text-caption text-grey-7">
+              Width and height are measured through the diamond, point to point. Diamonds and
+              setting pieces take colors and fabrics.
+            </div>
+          </template>
+          <div v-else>
+            <LengthInput
+              :model-value="layout.block"
+              label="Finished block size"
+              :units="units"
+              :min="0.25"
+              :readonly="readonly"
+              @update:model-value="(v) => op({ block: v }, 'block')"
+            />
+            <div class="text-caption text-grey-7">
+              Width on point: {{ fmtLen(layout.block * Math.SQRT2, lu) }}
+            </div>
+          </div>
         </div>
-      </div>
-      <LengthInput
-        :model-value="layout.sash"
-        label="Sashing width (0 for none)"
-        :units="units"
-        :readonly="readonly"
-        @update:model-value="(v) => op({ sash: v }, 'sash')"
-      />
-      <q-btn-toggle
-        :model-value="layout.corner"
-        dense
-        no-caps
-        spread
-        :options="[
-          { label: 'Corner triangle', value: 'triangle' },
-          { label: 'Seam', value: 'seam' },
-        ]"
-        :disable="readonly"
-        @update:model-value="(v) => op({ corner: v }, '')"
-      />
-      <q-select
-        :model-value="layout.edge.finish"
-        dense
-        outlined
-        label="Edge"
-        :options="edgeOptions"
-        emit-value
-        map-options
-        :readonly="readonly"
-        @update:model-value="(v) => edge({ finish: v }, '')"
-      >
-        <template #option="{ opt, itemProps }">
-          <q-item v-bind="itemProps">
-            <q-item-section>
-              <q-item-label>{{ opt.label }}</q-item-label>
-              <q-item-label caption>{{ opt.hint }}</q-item-label>
-            </q-item-section>
-          </q-item>
-        </template>
-      </q-select>
-      <LengthInput
-        v-if="layout.edge.finish === 'float'"
-        :model-value="layout.edge.float"
-        label="Float"
-        :units="units"
-        :min="0"
-        :readonly="readonly"
-        @update:model-value="(v) => edge({ float: v }, 'float')"
-      />
-      <div v-if="layout.edge.finish === 'none' && hasBorders" class="text-caption text-grey-8">
-        Borders are set aside while the edge is unfilled. They come back with another edge.
-      </div>
+      </FieldGroup>
+      <FieldGroup label="Sashing">
+        <div class="column" style="gap: 8px">
+          <LengthInput
+            :model-value="layout.sash"
+            label="Sashing width (0 for none)"
+            :units="units"
+            :readonly="readonly"
+            @update:model-value="(v) => op({ sash: v }, 'sash')"
+          />
+        </div>
+      </FieldGroup>
+      <FieldGroup label="Edge">
+        <div class="column" style="gap: 8px">
+          <q-btn-toggle
+            :model-value="layout.corner"
+            dense
+            no-caps
+            spread
+            :options="[
+              { label: 'Corner triangle', value: 'triangle' },
+              { label: 'Seam', value: 'seam' },
+            ]"
+            :disable="readonly"
+            @update:model-value="(v) => op({ corner: v }, '')"
+          />
+          <q-select
+            :model-value="layout.edge.finish"
+            dense
+            outlined
+            label="Edge"
+            :options="edgeOptions"
+            emit-value
+            map-options
+            :readonly="readonly"
+            @update:model-value="(v) => edge({ finish: v }, '')"
+          >
+            <template #option="{ opt, itemProps }">
+              <q-item v-bind="itemProps">
+                <q-item-section>
+                  <q-item-label>{{ opt.label }}</q-item-label>
+                  <q-item-label caption>{{ opt.hint }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+          <LengthInput
+            v-if="layout.edge.finish === 'float'"
+            :model-value="layout.edge.float"
+            label="Float"
+            :units="units"
+            :min="0"
+            :readonly="readonly"
+            @update:model-value="(v) => edge({ float: v }, 'float')"
+          />
+          <div v-if="layout.edge.finish === 'none' && hasBorders" class="text-caption text-grey-8">
+            Borders are set aside while the edge is unfilled. They come back with another edge.
+          </div>
+        </div>
+      </FieldGroup>
     </template>
     <template
       v-else-if="
@@ -155,205 +171,235 @@
         :readonly="readonly"
         @update:model-value="(v) => tile({ shape: v }, '')"
       />
-      <div class="row q-col-gutter-sm">
-        <q-input
-          class="col-6"
-          :model-value="layout.cols"
-          dense
-          outlined
-          type="number"
-          :label="layout.style === 'one-patch' ? 'Patches across' : 'Cubes across'"
-          min="1"
-          max="100"
-          :readonly="readonly"
-          @update:model-value="(v) => setCount('cols', v)"
-        />
-        <q-input
-          class="col-6"
-          :model-value="layout.rows"
-          dense
-          outlined
-          type="number"
-          :label="layout.style === 'one-patch' ? 'Patches down' : 'Cubes down'"
-          min="1"
-          max="100"
-          :readonly="readonly"
-          @update:model-value="(v) => setCount('rows', v)"
-        />
-      </div>
-      <template v-if="layout.style === 'one-patch'">
-        <div v-if="twoSizes" class="row q-col-gutter-sm">
-          <LengthInput
-            class="col-6"
-            :model-value="layout.width"
-            :label="layout.shape === 'tumblers' ? 'Bottom width' : 'Width'"
-            :units="units"
-            :min="0.25"
-            :readonly="readonly"
-            @update:model-value="(v) => tile({ width: v }, 'width')"
-          />
-          <LengthInput
-            class="col-6"
-            :model-value="layout.height"
-            label="Height"
-            :units="units"
-            :min="0.25"
-            :readonly="readonly"
-            @update:model-value="(v) => tile({ height: v }, 'height')"
-          />
+      <FieldGroup :label="layout.style === 'one-patch' ? 'Patches' : 'Cubes'">
+        <div class="column" style="gap: 8px">
+          <div class="row q-col-gutter-sm">
+            <q-input
+              class="col-6"
+              :model-value="layout.cols"
+              dense
+              outlined
+              type="number"
+              :label="layout.style === 'one-patch' ? 'Patches across' : 'Cubes across'"
+              min="1"
+              max="100"
+              :readonly="readonly"
+              @update:model-value="(v) => setCount('cols', v)"
+            />
+            <q-input
+              class="col-6"
+              :model-value="layout.rows"
+              dense
+              outlined
+              type="number"
+              :label="layout.style === 'one-patch' ? 'Patches down' : 'Cubes down'"
+              min="1"
+              max="100"
+              :readonly="readonly"
+              @update:model-value="(v) => setCount('rows', v)"
+            />
+          </div>
         </div>
-        <LengthInput
-          v-else
-          :model-value="layout.width"
-          :label="oneSizeLabel"
-          :units="units"
-          :min="0.25"
-          :readonly="readonly"
-          @update:model-value="(v) => tile({ width: v, height: v }, 'width')"
-        />
-      </template>
-      <LengthInput
-        v-else-if="layout.style === 'baby-blocks'"
-        :model-value="layout.side"
-        label="Diamond side"
-        :units="units"
-        :min="0.25"
-        :readonly="readonly"
-        @update:model-value="(v) => tile({ width: v * Math.sqrt(3), top: v, side: v }, 'side')"
-      />
-      <template v-else>
-        <LengthInput
-          :model-value="layout.width"
-          label="Cube width"
-          :units="units"
-          :min="0.25"
-          :readonly="readonly"
-          @update:model-value="(v) => tile({ width: v }, 'width')"
-        />
-        <div class="row q-col-gutter-sm">
+      </FieldGroup>
+      <FieldGroup
+        :label="
+          layout.style === 'one-patch'
+            ? 'Patch size'
+            : layout.style === 'baby-blocks'
+              ? 'Diamond size'
+              : 'Cube size'
+        "
+      >
+        <div class="column" style="gap: 8px">
+          <template v-if="layout.style === 'one-patch'">
+            <div v-if="twoSizes" class="row q-col-gutter-sm">
+              <LengthInput
+                class="col-6"
+                :model-value="layout.width"
+                :label="layout.shape === 'tumblers' ? 'Bottom width' : 'Width'"
+                :units="units"
+                :min="0.25"
+                :readonly="readonly"
+                @update:model-value="(v) => tile({ width: v }, 'width')"
+              />
+              <LengthInput
+                class="col-6"
+                :model-value="layout.height"
+                label="Height"
+                :units="units"
+                :min="0.25"
+                :readonly="readonly"
+                @update:model-value="(v) => tile({ height: v }, 'height')"
+              />
+            </div>
+            <LengthInput
+              v-else
+              :model-value="layout.width"
+              :label="oneSizeLabel"
+              :units="units"
+              :min="0.25"
+              :readonly="readonly"
+              @update:model-value="(v) => tile({ width: v, height: v }, 'width')"
+            />
+          </template>
           <LengthInput
-            class="col-6"
-            :model-value="layout.top"
-            label="Top height"
-            :units="units"
-            :min="0.25"
-            :readonly="readonly"
-            @update:model-value="(v) => tile({ top: v }, 'top')"
-          />
-          <LengthInput
-            class="col-6"
+            v-else-if="layout.style === 'baby-blocks'"
             :model-value="layout.side"
-            label="Side height"
+            label="Diamond side"
             :units="units"
             :min="0.25"
             :readonly="readonly"
-            @update:model-value="(v) => tile({ side: v }, 'side')"
+            @update:model-value="(v) => tile({ width: v * Math.sqrt(3), top: v, side: v }, 'side')"
           />
+          <template v-else>
+            <LengthInput
+              :model-value="layout.width"
+              label="Cube width"
+              :units="units"
+              :min="0.25"
+              :readonly="readonly"
+              @update:model-value="(v) => tile({ width: v }, 'width')"
+            />
+            <div class="row q-col-gutter-sm">
+              <LengthInput
+                class="col-6"
+                :model-value="layout.top"
+                label="Top height"
+                :units="units"
+                :min="0.25"
+                :readonly="readonly"
+                @update:model-value="(v) => tile({ top: v }, 'top')"
+              />
+              <LengthInput
+                class="col-6"
+                :model-value="layout.side"
+                label="Side height"
+                :units="units"
+                :min="0.25"
+                :readonly="readonly"
+                @update:model-value="(v) => tile({ side: v }, 'side')"
+              />
+            </div>
+          </template>
         </div>
-      </template>
-      <q-select
-        v-if="layout.style !== 'one-patch' || !STRAIGHT.includes(layout.shape)"
-        :model-value="layout.edge"
-        dense
-        outlined
-        label="Edge"
-        :options="patchEdgeOptions"
-        emit-value
-        map-options
-        :readonly="readonly"
-        @update:model-value="(v) => tile({ edge: v }, '')"
-      />
-      <div v-if="layout.edge === 'none' && hasBorders" class="text-caption text-grey-8">
-        The quilt's edge follows the patches; borders are set aside.
-      </div>
-      <div class="text-caption text-grey-7">Patches take colors and fabrics.</div>
+      </FieldGroup>
+      <FieldGroup label="Edge">
+        <div class="column" style="gap: 8px">
+          <q-select
+            v-if="layout.style !== 'one-patch' || !STRAIGHT.includes(layout.shape)"
+            :model-value="layout.edge"
+            dense
+            outlined
+            label="Edge"
+            :options="patchEdgeOptions"
+            emit-value
+            map-options
+            :readonly="readonly"
+            @update:model-value="(v) => tile({ edge: v }, '')"
+          />
+          <div v-if="layout.edge === 'none' && hasBorders" class="text-caption text-grey-8">
+            The quilt's edge follows the patches; borders are set aside.
+          </div>
+          <div class="text-caption text-grey-7">Patches take colors and fabrics.</div>
+        </div>
+      </FieldGroup>
     </template>
     <template v-else-if="layout.style === 'straight-set'">
-      <div class="row q-col-gutter-sm">
-        <q-input
-          class="col-6"
-          :model-value="layout.cols"
-          dense
-          outlined
-          type="number"
-          label="Columns"
-          min="1"
-          max="100"
-          :readonly="readonly"
-          @update:model-value="(v) => setCount('cols', v)"
-        />
-        <q-input
-          class="col-6"
-          :model-value="layout.rows"
-          dense
-          outlined
-          type="number"
-          label="Rows"
-          min="1"
-          max="100"
-          :readonly="readonly"
-          @update:model-value="(v) => setCount('rows', v)"
-        />
-      </div>
-      <div class="text-caption">Finished block size</div>
-      <q-toggle
-        v-model="squareBlock"
-        dense
-        label="Keep width and height equal"
-        :disable="readonly"
-      />
-      <div class="row q-col-gutter-sm">
-        <LengthInput
-          class="col-6"
-          :model-value="layout.block[0]"
-          label="Width"
-          :units="units"
-          :min="0.25"
-          :readonly="readonly"
-          @update:model-value="(v) => setPair('block', 0, v, squareBlock)"
-        />
-        <LengthInput
-          class="col-6"
-          :model-value="layout.block[1]"
-          label="Height"
-          :units="units"
-          :min="0.25"
-          :readonly="readonly"
-          @update:model-value="(v) => setPair('block', 1, v, squareBlock)"
-        />
-      </div>
-      <div class="text-caption">Sashing (0 for none)</div>
-      <q-toggle
-        v-model="squareSash"
-        dense
-        label="Keep width and height equal"
-        :disable="readonly"
-      />
-      <div class="row q-col-gutter-sm">
-        <LengthInput
-          class="col-6"
-          :model-value="layout.sash[0]"
-          label="Width"
-          :units="units"
-          :readonly="readonly"
-          @update:model-value="(v) => setPair('sash', 0, v, squareSash)"
-        />
-        <LengthInput
-          class="col-6"
-          :model-value="layout.sash[1]"
-          label="Height"
-          :units="units"
-          :readonly="readonly"
-          @update:model-value="(v) => setPair('sash', 1, v, squareSash)"
-        />
-      </div>
-      <q-toggle
-        :model-value="layout.sashBorder"
-        dense
-        label="Sashing around the outside"
-        :disable="readonly"
-        @update:model-value="(v) => hz({ sashBorder: v })"
-      />
+      <FieldGroup label="Columns and rows">
+        <div class="column" style="gap: 8px">
+          <div class="row q-col-gutter-sm">
+            <q-input
+              class="col-6"
+              :model-value="layout.cols"
+              dense
+              outlined
+              type="number"
+              label="Columns"
+              min="1"
+              max="100"
+              :readonly="readonly"
+              @update:model-value="(v) => setCount('cols', v)"
+            />
+            <q-input
+              class="col-6"
+              :model-value="layout.rows"
+              dense
+              outlined
+              type="number"
+              label="Rows"
+              min="1"
+              max="100"
+              :readonly="readonly"
+              @update:model-value="(v) => setCount('rows', v)"
+            />
+          </div>
+        </div>
+      </FieldGroup>
+      <FieldGroup label="Finished block size">
+        <div class="column" style="gap: 8px">
+          <q-toggle
+            v-model="squareBlock"
+            dense
+            label="Keep width and height equal"
+            :disable="readonly"
+          />
+          <div class="row q-col-gutter-sm">
+            <LengthInput
+              class="col-6"
+              :model-value="layout.block[0]"
+              label="Width"
+              :units="units"
+              :min="0.25"
+              :readonly="readonly"
+              @update:model-value="(v) => setPair('block', 0, v, squareBlock)"
+            />
+            <LengthInput
+              class="col-6"
+              :model-value="layout.block[1]"
+              label="Height"
+              :units="units"
+              :min="0.25"
+              :readonly="readonly"
+              @update:model-value="(v) => setPair('block', 1, v, squareBlock)"
+            />
+          </div>
+        </div>
+      </FieldGroup>
+      <FieldGroup label="Sashing (0 for none)">
+        <div class="column" style="gap: 8px">
+          <q-toggle
+            v-model="squareSash"
+            dense
+            label="Keep width and height equal"
+            :disable="readonly"
+          />
+          <div class="row q-col-gutter-sm">
+            <LengthInput
+              class="col-6"
+              :model-value="layout.sash[0]"
+              label="Width"
+              :units="units"
+              :readonly="readonly"
+              @update:model-value="(v) => setPair('sash', 0, v, squareSash)"
+            />
+            <LengthInput
+              class="col-6"
+              :model-value="layout.sash[1]"
+              label="Height"
+              :units="units"
+              :readonly="readonly"
+              @update:model-value="(v) => setPair('sash', 1, v, squareSash)"
+            />
+          </div>
+          <q-toggle
+            :model-value="layout.sashBorder"
+            dense
+            label="Sashing around the outside"
+            :disable="readonly"
+            @update:model-value="(v) => hz({ sashBorder: v })"
+          />
+        </div>
+      </FieldGroup>
     </template>
   </div>
 </template>
@@ -361,6 +407,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import DiamondSize from '@/components/DiamondSize.vue';
+import FieldGroup from '@/components/FieldGroup.vue';
 import LengthInput from '@/components/LengthInput.vue';
 import StripsInspector from '@/components/StripsInspector.vue';
 import { convertLayout } from '@/model/layout/slots';

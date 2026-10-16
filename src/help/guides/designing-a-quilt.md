@@ -20,11 +20,10 @@ hide the seam lines and the block names, and the bar under the quilt reports its
 4. Set the **Sashing** (the strips between blocks) the same way. 0 means none. **Sashing around the
    outside** adds strips around the edge too. Where sashes cross are cornerstones.
 
-### Target size
+### Reference overlay
 
-Below the layout settings, **Target size** draws a size to aim for as a dashed outline over the
-quilt: a bed with its drop, a placemat, a garment piece, or a custom size. It's the same choice as
-in the new quilt wizard, saved with the quilt. **Show** hides or shows the outline, and **None**
+Below the layout settings, **Reference overlay** draws a size to aim for as a dashed outline over the
+quilt: a bed with its drop, a placemat, a garment piece, or a custom size. Pick it under **Target size**, as in the new quilt wizard, saved with the quilt. **Show** hides or shows the outline, and **None**
 removes it.
 
 ## On-point layouts
