@@ -2,6 +2,23 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.3.0 (2026-10-16)
+
+### New features
+
+- Make On-Point quilts, with blocks turned on point, blocks between them, sashing, and a choice of edge. Setting triangles can be cut to size or oversized so the blocks float, the edge can be partial blocks, or the zigzag edge can be bound as it is.
+- Build a quilt from strips, each with its own style (plain, blocks, half-drop blocks, points, diamonds, double diamonds, spaced squares, or checkerboard) and width. Drag strips to reorder them, or swap and restyle them from the toolbar.
+- Start a quilt shows a live preview and a picture card for each layout style, with its own step for setting up strips.
+- A Plain Block in the built-in library, for plain alternate squares.
+- Clearer templates. Long thin pieces get their labels in a row, labels on small pieces can use the seam allowance, and sizes that are off the ruler grid show their fractions on a line below.
+- The Horizontal layout is now called Straight Set. Older projects open and are upgraded.
+- A setting to show recently used colors first in each palette.
+
+### Fixes
+
+- Blocks no longer get stretched into sashing and borders. These take colors and fabrics, and square cornerstones can hold a block.
+- Picking a color in the Design tab no longer moves it within its palette.
+
 ## 0.2.0 (2026-10-15)
 
 ### New features
