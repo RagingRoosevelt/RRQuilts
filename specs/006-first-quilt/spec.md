@@ -196,8 +196,12 @@ zoom, drag-pan, and Fit.
 - **FR-001a**: The wizard's first page MUST pick the layout style and a target size: None (default),
   Placemat 18 × 13, Table runner 72 × 14, Wall hanging 36 × 36, Throw 50 × 65, or a bed by its
   mattress top: Crib 28 × 52, Twin 39 × 75, Double (Full) 54 × 75, Queen 60 × 80, King 76 × 80 (in
-  inches; cm lists its own rounded values). A bed adds a **drop** over the sides and foot (default
-  12″ / 30 cm for Twin and Double, 14″ / 35 cm for Queen and King, 0 for Crib), editable. With a
+  inches). cm projects list the other sizes in rounded cm (46 × 33, 183 × 36, 91 × 91, 127 × 165,
+  Crib 71 × 132) and European beds (owner, 2026-10-16): Single 90 × 200, Single (XL) 100 × 200,
+  Small double 120 × 200, Standard double / Queen 140 × 200, Queen (Europe) / King 160 × 200, Super
+  King (Europe) 180 × 200, Emperor / Grand King 200 × 200. A bed adds a **drop** over the sides and
+  foot, editable: 12″ for Twin and Double, 14″ for Queen and King, 30 cm up to 140 wide, 35 cm
+  wider, 0 for Crib. With a
   size picked, the live preview MUST show it as a transparent outline over the quilt, centered on
   it: the outer outline is the size with its drop, and a fine outline inside marks the mattress top
   at the head. The footer shows the quilt's finished size and the target's. Counts, block sizes,

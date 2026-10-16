@@ -336,46 +336,49 @@ const detailTitle = computed(() =>
   isStrip.value ? 'Strips' : style.value === 'one-patch' ? 'Shape and size' : 'Size',
 );
 /**
- * Target sizes (width × height, inches then cm). Beds are mattress tops, with a default drop over
- * the sides and foot; the drop can be changed.
+ * Target sizes (width × height) for inch and cm projects. Beds are mattress tops, with a default
+ * drop over the sides and foot that can be changed; cm projects list European bed sizes.
  */
-const TARGETS: {
-  name: string;
-  in: [number, number];
-  cm: [number, number];
-  drop?: [number, number];
-}[] = [
-  { name: 'Placemat', in: [18, 13], cm: [46, 33] },
-  { name: 'Table runner', in: [72, 14], cm: [183, 36] },
-  { name: 'Wall hanging', in: [36, 36], cm: [91, 91] },
-  { name: 'Throw', in: [50, 65], cm: [127, 165] },
-  { name: 'Crib', in: [28, 52], cm: [71, 132], drop: [0, 0] },
-  { name: 'Twin', in: [39, 75], cm: [99, 191], drop: [12, 30] },
-  { name: 'Double (Full)', in: [54, 75], cm: [137, 191], drop: [12, 30] },
-  { name: 'Queen', in: [60, 80], cm: [152, 203], drop: [14, 35] },
-  { name: 'King', in: [76, 80], cm: [193, 203], drop: [14, 35] },
-];
+type Target = { name: string; size: [number, number]; drop?: number };
+const TARGETS: Record<'in' | 'cm', Target[]> = {
+  in: [
+    { name: 'Placemat', size: [18, 13] },
+    { name: 'Table runner', size: [72, 14] },
+    { name: 'Wall hanging', size: [36, 36] },
+    { name: 'Throw', size: [50, 65] },
+    { name: 'Crib', size: [28, 52], drop: 0 },
+    { name: 'Twin', size: [39, 75], drop: 12 },
+    { name: 'Double (Full)', size: [54, 75], drop: 12 },
+    { name: 'Queen', size: [60, 80], drop: 14 },
+    { name: 'King', size: [76, 80], drop: 14 },
+  ],
+  cm: [
+    { name: 'Placemat', size: [46, 33] },
+    { name: 'Table runner', size: [183, 36] },
+    { name: 'Wall hanging', size: [91, 91] },
+    { name: 'Throw', size: [127, 165] },
+    { name: 'Crib', size: [71, 132], drop: 0 },
+    { name: 'Single', size: [90, 200], drop: 30 },
+    { name: 'Single (XL)', size: [100, 200], drop: 30 },
+    { name: 'Small double', size: [120, 200], drop: 30 },
+    { name: 'Standard double / Queen', size: [140, 200], drop: 30 },
+    { name: 'Queen (Europe) / King', size: [160, 200], drop: 35 },
+    { name: 'Super King (Europe)', size: [180, 200], drop: 35 },
+    { name: 'Emperor / Grand King', size: [200, 200], drop: 35 },
+  ],
+};
 const target = ref<string | null>(null);
 const drop = ref(0);
-const targetOf = computed(() => TARGETS.find((t) => t.name === target.value));
-const isBed = computed(() => !!targetOf.value?.drop);
-watch(target, () => {
-  const d = targetOf.value?.drop;
-  drop.value = d ? d[props.units === 'cm' ? 1 : 0] : 0;
-});
-const targetSize = computed(() => {
-  const t = targetOf.value;
-  return t ? (props.units === 'cm' ? t.cm : t.in) : null;
-});
+const targetOf = computed(() => TARGETS[props.units].find((t) => t.name === target.value));
+const isBed = computed(() => targetOf.value?.drop !== undefined);
+watch(target, () => (drop.value = targetOf.value?.drop ?? 0));
+const targetSize = computed(() => targetOf.value?.size ?? null);
 const targetOptions = computed(() => [
   { label: 'None', value: null },
-  ...TARGETS.map((t) => {
-    const [w, h] = props.units === 'cm' ? t.cm : t.in;
-    return {
-      label: `${t.name}, ${w} × ${h} ${props.units}${t.drop ? ' mattress' : ''}`,
-      value: t.name,
-    };
-  }),
+  ...TARGETS[props.units].map((t) => ({
+    label: `${t.name}, ${t.size[0]} × ${t.size[1]} ${props.units}${t.drop !== undefined ? ' mattress' : ''}`,
+    value: t.name,
+  })),
 ]);
 const style = ref<Style>('straight-set');
 const cols = ref(5);
