@@ -183,7 +183,7 @@ import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
 import { applyLayout, generateSlots, reconcile } from '@/model/layout/slots';
-import { slotGroup } from '@/model/plain';
+import { PLAIN_BLOCK, slotGroup } from '@/model/plain';
 import type { Border, Layout } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 import type { Hit } from '@/render/hit';
@@ -326,7 +326,10 @@ function onTap(hit: Hit) {
 function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
   const q = quilt.value;
   if (!q || project.readOnly) return;
-  const lost = reconcile(q, layout, borders).dropped.filter((id) => slotGroup(id) === 'block');
+  // Placed blocks only (plain fills of sashes and setting pieces just go).
+  const lost = reconcile(q, layout, borders).dropped.filter(
+    (id) => q.layers[0].slots[id]?.block !== PLAIN_BLOCK,
+  );
   const go = () =>
     project.change(
       (d) => {

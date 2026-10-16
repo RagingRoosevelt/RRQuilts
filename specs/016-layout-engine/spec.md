@@ -193,6 +193,12 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
   blocks, and No fill. New On-Point quilts start Floating with a 1″ float.
 - **FR-021**: Setting pieces MUST be plain spaces that color like patches, are included in yardage,
   and print with cut sizes and grain along the outer edge.
+- **FR-023**: A block set into a cut-off space (a setting piece or a trimmed edge block) MUST be
+  placed whole, at the size and turn of the blocks around it, and only then cut to the space's
+  outline; it is never stretched to fit. Plain fills color the space's own outline. Switching
+  between finishes moves a block at an edge position to the same position's new space (a seam
+  corner's first half stands for the whole corner); placed blocks that would be lost are listed in
+  the removal warning. *Added 2026-10-15 (owner).*
 - **FR-022**: No fill MUST make the uneven edge the quilt's edge: borders set aside (kept, restored
   when another finish is chosen), binding length measured along the edge.
 

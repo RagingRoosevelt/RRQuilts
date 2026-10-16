@@ -7,6 +7,7 @@ import type { PathCommand } from '../schema/shared';
 import type { Border, Layout, Quilt, SlotContent } from '../schema/quilt';
 import { borderSlots } from './borders';
 import { onPointDefaults } from '../io';
+import { PLAIN_BLOCK } from '../plain';
 import { tile } from './engine';
 import { horizontal, onPoint } from './presets';
 
@@ -159,7 +160,17 @@ export function reconcile(quilt: Quilt, layout: Layout, borders: Border[]): Reco
   const dropped: string[] = [];
   for (const [id, content] of Object.entries(quilt.layers[0].slots)) {
     if (ids.has(id) || (setAside && id.startsWith('border:'))) slots[id] = content;
-    else dropped.push(id);
+    else {
+      // An edge position is a setting piece or a trimmed block depending on the finish: a block
+      // set there moves with it (a seam corner's first half stands for the whole corner).
+      const pos = /^(?:set|b):(m:r\d+c\d+)(?::1)?$/.exec(id)?.[1];
+      const twin =
+        pos &&
+        content.block !== PLAIN_BLOCK &&
+        [`b:${pos}`, `set:${pos}`, `set:${pos}:1`].find((t) => ids.has(t));
+      if (twin && !quilt.layers[0].slots[twin]) slots[twin] = content;
+      else dropped.push(id);
+    }
   }
   return { slots, dropped };
 }

@@ -252,8 +252,8 @@ export function onPoint(l: OnPointLayout): {
             turns: 360,
             alt: 0,
             outline: toPath(outline),
-            // A plain fill: the unit square covers the whole piece (its bounding box).
-            transform: boxTransform(outline),
+            // A block set here is placed whole, turned like the others, then cut to the piece.
+            transform: cellTransform(p * P, -q * P, s, s),
             size: [s, s],
             ...(f > 0 ? { cut: toPath(cutShape(part, exact, quilt)) } : {}),
           });
@@ -291,13 +291,6 @@ export function onPoint(l: OnPointLayout): {
     }
     return toPath(pts);
   }
-}
-
-function boxTransform(poly: Pt[]): M {
-  const xs = poly.map((p) => p[0]);
-  const ys = poly.map((p) => p[1]);
-  const [x0, y0] = [Math.min(...xs), Math.min(...ys)];
-  return [Math.max(...xs) - x0, 0, 0, Math.max(...ys) - y0, x0, y0];
 }
 
 const near = (a: number, b: number) => Math.abs(a - b) < 1e-9 * (1 + Math.abs(a));

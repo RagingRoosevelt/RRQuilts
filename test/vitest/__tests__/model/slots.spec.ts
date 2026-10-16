@@ -131,3 +131,40 @@ describe('convertLayout', () => {
     expect(reconcile(o, layout(3, 3), []).dropped.sort()).toEqual(['b:m:r1c1', 'set:m:r0c1']);
   });
 });
+
+describe('blocks at On-Point edge positions follow the edge finish', () => {
+  const op = (finish: 'exact' | 'trim', corner: 'triangle' | 'seam' = 'triangle') => ({
+    ...onPointDefaults(1),
+    corner,
+    edge: { finish, float: 1 },
+  });
+  const at = (slots: Record<string, unknown>, id: string) => Object.keys(slots).includes(id);
+  const placed = { block: 'seam1', coloring: 'qk1', rotation: 0 as const, flip: false };
+
+  it('a block in a setting piece becomes the trimmed block there, and back', () => {
+    const q = structuredClone(fixture().project.quilts[0]!);
+    q.layout = op('exact');
+    q.borders = [];
+    q.layers[0].slots = {
+      'set:m:r0c1': placed,
+      'set:m:r0c2': { ...placed, block: 'plain' },
+    };
+    const toTrim = reconcile(q, op('trim'), []);
+    expect(at(toTrim.slots, 'b:m:r0c1')).toBe(true);
+    expect(toTrim.dropped).toEqual(['set:m:r0c2']); // plain fill has nowhere to go
+    q.layout = op('trim');
+    q.layers[0].slots = toTrim.slots;
+    expect(at(reconcile(q, op('exact'), []).slots, 'set:m:r0c1')).toBe(true);
+  });
+
+  it('a seam corner hands its first half to the trimmed corner block', () => {
+    const q = structuredClone(fixture().project.quilts[0]!);
+    q.layout = op('exact', 'seam');
+    q.borders = [];
+    q.layers[0].slots = { 'set:m:r0c0:1': placed };
+    expect(at(reconcile(q, op('trim'), []).slots, 'b:m:r0c0')).toBe(true);
+    q.layout = op('trim');
+    q.layers[0].slots = { 'b:m:r0c0': placed };
+    expect(at(reconcile(q, op('exact', 'seam'), []).slots, 'set:m:r0c0:1')).toBe(true);
+  });
+});

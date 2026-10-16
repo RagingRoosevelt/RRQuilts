@@ -175,8 +175,14 @@ describe('On-Point sweep', () => {
               const at = `${cols}x${rows} sash ${sash} ${finish} ${corner}`;
               expect(new Set(g.slots.map((s) => s.id)).size, at).toBe(g.slots.length);
               expect(covered(g), at).toBeCloseTo(edgeArea(g), 6);
-              // A plain piece is filled through its transform: the unit square must cover it.
-              for (const x of g.slots.filter((x) => x.kind !== 'block')) {
+              // Sashing maps its whole strip; setting pieces map the turned block square of their
+              // lattice cell (placed whole, then cut), like every block on point.
+              for (const x of g.slots.filter((x) => x.kind === 'set'))
+                expect(
+                  x.transform.slice(0, 4).map((v) => Math.abs(v)),
+                  `${at} ${x.id}`,
+                ).toEqual(Array(4).fill(5 * Math.SQRT1_2));
+              for (const x of g.slots.filter((x) => x.kind === 'sash' || x.kind === 'cs')) {
                 const inv = invert(x.transform);
                 for (const c of x.outline)
                   if (c[0] === 'M' || c[0] === 'L') {
