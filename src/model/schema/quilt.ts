@@ -220,6 +220,8 @@ export const FreeLayer = Type.Object({ visible: Type.Boolean(), items: Type.Arra
  *  still draws if the size lists change. */
 export const QuiltTarget = Type.Object({
   visible: Type.Boolean(),
+  /** How strongly the outline shows (0…1; default 1). */
+  opacity: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
   input: Type.Object({
     choice: Type.Union([Type.String({ maxLength: 100 }), Type.Null()]),
     region: Type.Union([Type.Literal('us'), Type.Literal('eu')]),

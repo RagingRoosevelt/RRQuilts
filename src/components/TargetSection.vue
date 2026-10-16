@@ -23,6 +23,23 @@
     <div v-if="target" class="text-caption text-grey-8">
       {{ target.label }}, {{ size }} {{ units }}
     </div>
+    <div v-if="target" class="row items-center no-wrap q-px-sm" style="gap: 12px">
+      <div class="text-caption">Opacity</div>
+      <q-slider
+        class="col"
+        :model-value="Math.round((target.opacity ?? 1) * 100)"
+        :min="10"
+        :max="100"
+        :step="5"
+        label
+        :label-value="`${Math.round((target.opacity ?? 1) * 100)}%`"
+        :disable="readonly"
+        aria-label="Overlay opacity"
+        @update:model-value="
+          (v) => v !== null && emit('change', { ...target!, opacity: v / 100 }, 'target-opacity')
+        "
+      />
+    </div>
   </div>
 </template>
 
@@ -59,6 +76,16 @@ function edit(next: TargetInput) {
   const shape = resolveTarget(next, props.units);
   if (!shape) return emit('change', undefined, '');
   // Typed fields coalesce into one undo step.
-  emit('change', { visible: props.target?.visible ?? true, input: next, ...shape }, 'target');
+  const opacity = props.target?.opacity;
+  emit(
+    'change',
+    {
+      visible: props.target?.visible ?? true,
+      ...(opacity !== undefined ? { opacity } : {}),
+      input: next,
+      ...shape,
+    },
+    'target',
+  );
 }
 </script>

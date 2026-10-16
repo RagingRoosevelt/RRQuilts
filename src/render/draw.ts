@@ -184,6 +184,7 @@ function drawTarget(
   p.outline.forEach(([x, y], i) => (i ? path.lineTo(x, y) : path.moveTo(x, y)));
   path.closePath();
   ctx.save();
+  ctx.globalAlpha = target.opacity ?? 1;
   ctx.fillStyle = 'rgba(25,118,210,0.12)';
   ctx.fill(path);
   ctx.strokeStyle = '#1976d2';

@@ -5826,6 +5826,11 @@
                   "visible": {
                     "type": "boolean"
                   },
+                  "opacity": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
                   "input": {
                     "type": "object",
                     "required": [
