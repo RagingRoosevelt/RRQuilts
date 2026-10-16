@@ -45,7 +45,7 @@ Pack items cannot be renamed or changed. Use **Copy to my library** and edit the
 
 ## Use library blocks in a project
 
-Tick **Use ... in this project** on a block in the project's **Blocks** tab. A project embeds the items it uses, so it opens fine without the library. **Settings › Libraries** can hide the library lists in the project.
+Tick **Use ... in this project** on a block in the project's **Blocks** tab. A project embeds the items it uses, so it opens fine without the library. **Settings › Project** can hide the library lists in the project.
 
 ## Back up and restore
 

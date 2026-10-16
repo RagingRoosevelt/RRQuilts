@@ -254,7 +254,13 @@ export const CALCULATORS: Record<string, Calculator> = {
       { key: 'h', label: 'Quilt height', start: start(48, 120) },
     ],
     rows: ({ w, h }, c) => {
-      const b = binding(w!, h!, c.bindingWidth, BINDING_EXTRA[c.units], c.usable, c.fabricStep);
+      const b = binding(
+        2 * (w! + h!),
+        c.bindingWidth,
+        BINDING_EXTRA[c.units],
+        c.usable,
+        c.fabricStep,
+      );
       return [
         { label: 'Strips', value: `${b.strips} × ${len(c.bindingWidth, c)} wide` },
         { label: 'Total length', value: len(2 * (w! + h!) + BINDING_EXTRA[c.units], c) },

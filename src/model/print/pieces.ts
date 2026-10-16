@@ -8,9 +8,11 @@ import {
   pathToSegs,
   pointAt,
   pointInPolygon,
+  signedArea,
   type Pt,
 } from '../geometry/path';
-import { generateSlots } from '../layout/slots';
+import { clipConvex } from '../layout/clip';
+import { generateFor, type Slot } from '../layout/slots';
 import { PLAIN_BLOCK } from '../plain';
 import type { Block } from '../schema/block';
 import type { ColoringBody } from '../schema/coloring';
@@ -27,6 +29,10 @@ export interface Piece {
   fill: string;
   /** Alignment marks: the middle of each curved edge, with its outward normal. */
   marks: { p: Pt; n: Pt }[];
+  /** What shows in the quilt when cut larger (floating setting pieces); pictures draw this. */
+  shown?: Pt[];
+  /** A setting piece: cut a little large by custom, so rounding up is fine. */
+  setting?: boolean;
 }
 
 const isCurved = (path: readonly (readonly (string | number)[])[]) =>
@@ -57,10 +63,23 @@ export function blockPieces(
   });
 }
 
-/** Every piece of a quilt as placed (optionally only slots holding `blockId`). */
-export function quiltPieces(doc: RrqDoc, quilt: Quilt, blockId?: string): Piece[] {
+/** The space's outline covers less than the whole block square mapped into it. */
+function trimmed(slot: Slot) {
+  const [a, b, c, d] = slot.transform;
+  const whole = Math.abs(a * d - b * c);
+  const seen = Math.abs(signedArea(flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3)));
+  return seen < whole * (1 - 1e-6);
+}
+
+/** Every piece of a quilt as placed (optionally only slots holding `blockId`; `slots` for tests). */
+export function quiltPieces(
+  doc: RrqDoc,
+  quilt: Quilt,
+  blockId?: string,
+  slots = generateFor(quilt).slots,
+): Piece[] {
   const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
-  return generateSlots(quilt.layout, quilt.borders).slots.flatMap((slot) => {
+  return slots.flatMap((slot) => {
     const content = quilt.layers[0].slots[slot.id];
     const block = content && blocks.get(content.block);
     if (!content || !block || (blockId && block.id !== blockId)) return [];
@@ -72,13 +91,24 @@ export function quiltPieces(doc: RrqDoc, quilt: Quilt, blockId?: string): Piece[
       const l = Math.hypot(...v) || 1;
       return [v[0] / l, v[1] / l];
     };
-    // A plain piece is its slot's shape (mitered border sides are trapezoids, not stretched squares).
+    // A plain piece is its slot's shape (mitered border sides are trapezoids, not stretched squares);
+    // a floating setting piece is cut as its larger `cut` shape and trimmed after piecing.
     const slotPoly =
       block.id === PLAIN_BLOCK &&
-      simplify(flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3), 1e-4);
+      simplify(flattenLoop(pathToSegs(slot.cut ?? slot.outline, [1, 1]), 1e-3), 1e-4);
+    const shown =
+      slotPoly && slot.cut && simplify(flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3), 1e-4);
+    // A block trimmed by its space (half drops, partial edge blocks) is cut whole; pictures show
+    // only the part inside the space.
+    const window =
+      !slotPoly && trimmed(slot) && flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3);
     return blockPieces(block, block.size, coloring).map((piece) => ({
       ...piece,
       poly: slotPoly || piece.poly.map(at),
+      ...(shown ? { shown } : {}),
+      ...(window ? { shown: clipConvex(piece.poly.map(at), window) } : {}),
+      ...(slotPoly && slot.kind === 'set' ? { setting: true } : {}),
+      curved: slotPoly ? isCurved(slot.cut ?? slot.outline) : piece.curved,
       marks: piece.marks.map((m) => ({ p: at(m.p), n: dir(m.n) })),
     }));
   });

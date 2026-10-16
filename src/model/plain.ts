@@ -1,4 +1,4 @@
-// Plain pieces: sashes, cornerstones, and border sides are colored as a built-in single-patch
+// Plain pieces: sashes, cornerstones, setting pieces, and border sides are colored as a built-in single-patch
 // block, created in the project the first time one is painted.
 import { produce } from 'immer';
 import { newId } from './ids';
@@ -8,12 +8,16 @@ import type { Quilt } from './schema/quilt';
 export const PLAIN_BLOCK = 'plain';
 export const PLAIN_PATCH = 'p';
 
-export type SlotGroup = 'block' | 'sash' | 'cs' | `border:${number}` | 'other';
+export type SlotGroup =
+  'block' | 'sash' | 'cs' | 'set' | `border:${number}` | `strip:${string}` | 'other';
 
 export function slotGroup(slotId: string): SlotGroup {
   if (slotId.startsWith('b:')) return 'block';
   if (slotId.startsWith('sash:')) return 'sash';
   if (slotId.startsWith('cs:')) return 'cs';
+  if (slotId.startsWith('set:')) return 'set';
+  const strip = /^strip:([^:]+):/.exec(slotId);
+  if (strip) return `strip:${strip[1]}`;
   const m = /^border:(\d+):/.exec(slotId);
   return m ? `border:${Number(m[1])}` : 'other';
 }
@@ -56,11 +60,13 @@ export const ensureSlotContent = (quilt: Quilt, slotIds: string[]) => {
 
 /** "r2-c3", "sash", "border 1"… for telling people where a placement is. */
 export function describeSlot(slotId: string): string {
-  const b = /^b:r(\d+)c(\d+)/.exec(slotId);
-  if (b) return `r${b[1]}-c${b[2]}`;
+  const b = /^b:(m:)?r(\d+)c(\d+)/.exec(slotId);
+  if (b) return `${b[1] ? 'between ' : ''}r${b[2]}-c${b[3]}`;
   const g = slotGroup(slotId);
   if (g === 'sash') return 'sash';
   if (g === 'cs') return 'cornerstone';
+  if (g === 'set') return 'setting piece';
+  if (g.startsWith('strip:')) return 'strip';
   if (g.startsWith('border:')) return `border ${Number(g.slice(7)) + 1}`;
   return 'space';
 }

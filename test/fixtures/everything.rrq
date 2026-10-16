@@ -1,6 +1,6 @@
 {
   "format": "rrq",
-  "version": 4,
+  "version": 5,
   "app": "0.0.1",
   "units": "in",
   "futureTopLevel": {
@@ -714,7 +714,7 @@
         },
         "futureQuiltKey": true,
         "layout": {
-          "style": "horizontal",
+          "style": "straight-set",
           "cols": 5,
           "rows": 6,
           "block": [

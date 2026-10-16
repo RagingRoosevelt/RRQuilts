@@ -1,24 +1,40 @@
-// What a tap applies to: This (one space), All, or Alternate (checkerboard of the same kind).
+// What a tap applies to: This (one space), All, or Alternate (spaces of the same alternate class).
+import type { Slot } from '@/model/layout/slots';
 import { slotGroup } from '@/model/plain';
 import type { Quilt } from '@/model/schema/quilt';
 
 export type Scope = 'this' | 'all' | 'alternate';
+export type Space = Pick<Slot, 'id' | 'alt'> & Partial<Pick<Slot, 'kind' | 'size'>>;
 
-/** Checkerboard parity from the numbers in a slot id (rows + cols, sash indices, …). */
-export const parity = (slotId: string) =>
-  (slotId.match(/\d+/g) ?? []).reduce((s, n) => s + Number(n), 0) % 2;
+/**
+ * Whether a block may be set here: block spaces, setting pieces (the block is trimmed there), and
+ * square cornerstones (the strips on both sides the same width). Sashing and borders take fabric.
+ */
+export const takesBlock = (s: Space) =>
+  s.kind === 'cs'
+    ? !!s.size && Math.abs(s.size[0] - s.size[1]) < 1e-9 * Math.max(1, ...s.size)
+    : s.kind === undefined || s.kind === 'block' || s.kind === 'set';
 
 /** Spaces of the same kind as `tapped` (block spaces, sashes, cornerstones, one border). */
-function sameKind(slotIds: string[], tapped: string) {
+function sameKind(spaces: readonly Space[], tapped: string) {
   const g = slotGroup(tapped);
-  return slotIds.filter((id) => slotGroup(id) === g);
+  return spaces.filter((s) => slotGroup(s.id) === g);
+}
+
+const altOf = (spaces: readonly Space[], id: string) => spaces.find((s) => s.id === id)?.alt;
+
+/** `kind` narrowed by scope; ids out. */
+function scoped(kind: readonly Space[], spaces: readonly Space[], tapped: string, scope: Scope) {
+  const alt = altOf(spaces, tapped);
+  return (scope === 'all' ? kind : kind.filter((s) => s.alt === alt)).map((s) => s.id);
 }
 
 /** Targets for setting a block: block spaces regardless of what's in them. */
-export function setTargets(slotIds: string[], tapped: string, scope: Scope): string[] {
+export function setTargets(spaces: readonly Space[], tapped: string, scope: Scope): string[] {
+  const here = spaces.find((s) => s.id === tapped);
+  if (here && !takesBlock(here)) return [];
   if (scope === 'this') return [tapped];
-  const kind = sameKind(slotIds, tapped);
-  return scope === 'all' ? kind : kind.filter((id) => parity(id) === parity(tapped));
+  return scoped(sameKind(spaces, tapped).filter(takesBlock), spaces, tapped, scope);
 }
 
 /**
@@ -27,16 +43,28 @@ export function setTargets(slotIds: string[], tapped: string, scope: Scope): str
  */
 export function placementTargets(
   quilt: Quilt,
-  slotIds: string[],
+  spaces: readonly Space[],
   tapped: string,
   scope: Scope,
 ): string[] {
   if (scope === 'this') return [tapped];
   const slots = quilt.layers[0].slots;
-  let kind = sameKind(slotIds, tapped);
+  let kind = sameKind(spaces, tapped);
   if (slotGroup(tapped) === 'block') {
     const block = slots[tapped]?.block;
-    kind = kind.filter((id) => slots[id] && slots[id].block === block);
+    kind = kind.filter((s) => slots[s.id] && slots[s.id]!.block === block);
   }
-  return scope === 'all' ? kind : kind.filter((id) => parity(id) === parity(tapped));
+  return scoped(kind, spaces, tapped, scope);
+}
+
+/** Filled spaces for spray: all, or those in the tapped space's alternate class. */
+export function sprayTargets(
+  quilt: Quilt,
+  spaces: readonly Space[],
+  tapped: string,
+  scope: Scope,
+): string[] {
+  if (scope === 'this') return [tapped];
+  const filled = spaces.filter((s) => quilt.layers[0].slots[s.id]);
+  return scoped(filled, spaces, tapped, scope);
 }

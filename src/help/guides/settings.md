@@ -19,6 +19,18 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 - **Show help buttons** shows the **?** buttons that open help about a screen or section.
 - **Editor layout** puts the panels either as **Toolbar left, sidebar right** or as **Sidebar left, toolbar right**.
 
+## Project
+
+- **Hide library blocks from projects** and **Hide library palettes from projects** leave the libraries' lists out of the project's **Blocks** and **Palettes** tabs. Blocks and palettes already in use stay available.
+- **Hide "My Library" blocks and palettes when they are synced with the project's** tidies the
+  project's **Blocks** and **Palettes** tabs ([Libraries](/help/guides/libraries)).
+
+## Quilt and block design
+
+- **Recently used colors first in each palette** moves the colors you picked last to the front of
+  each palette in the Design tab. It's off at first, so palettes keep their own order and the color
+  you pick is only highlighted.
+
 ## Fabrics
 
 - **Fabric images** chooses how fabrics appear. **Show them, with average colors while they load**
@@ -33,12 +45,6 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 While fabric images load, a spinner with a count shows in the header. Images missing from this
 device are downloaded from their library when it was added from the web. Any that still can't be
 found show as a warning with a count, and their fabrics use average colors. Click it to try again.
-
-## Libraries and Project
-
-- **Hide library blocks from projects** and **Hide library palettes from projects** leave the libraries' lists out of the project's **Blocks** and **Palettes** tabs. Blocks and palettes already in use stay available.
-- **Hide "My Library" blocks and palettes when they are synced with the project's** tidies the
-  project's **Blocks** and **Palettes** tabs ([Libraries](/help/guides/libraries)).
 
 ## Move settings to another device
 

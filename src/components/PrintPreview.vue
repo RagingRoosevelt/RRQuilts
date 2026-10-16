@@ -211,7 +211,12 @@
                     <tbody>
                       <tr v-for="(l, j) in g.lines" :key="j">
                         <td>{{ KIND_LABEL[l.cut.kind] }}</td>
-                        <td>{{ finishedLabel(l.cut) }}</td>
+                        <td>
+                          {{ splitApprox(finishedLabel(l.cut))[0] }}
+                          <div v-if="splitApprox(finishedLabel(l.cut))[1]" class="approx">
+                            (~ {{ splitApprox(finishedLabel(l.cut))[1] }})
+                          </div>
+                        </td>
                         <td>{{ l.cut.kind === 'template' ? 'Use template' : cutLabel(l.cut) }}</td>
                         <td>{{ howLabel(l) }}</td>
                         <td>
@@ -307,6 +312,10 @@
                       :font-size="(font / s.scale) * 0.8"
                       text-anchor="middle"
                       :fill="l.light ? '#fff' : '#000'"
+                      :stroke="l.light ? '#000' : '#fff'"
+                      :stroke-width="(font / s.scale) * 0.8 * 0.22"
+                      paint-order="stroke"
+                      stroke-linejoin="round"
                     >
                       {{ l.text }}
                     </text>
@@ -426,18 +435,33 @@
                 :height="`${s.h * s.scale}${units}`"
                 :viewBox="`${s.x0} ${s.y0} ${s.w} ${s.h}`"
               >
+                <!-- Whole blocks trimmed at the edge show only what's inside it. -->
+                <clipPath v-if="s.edge" :id="`edge${i}`"><path :d="s.edge" /></clipPath>
+                <g :clip-path="s.edge ? `url(#edge${i})` : undefined">
+                  <path
+                    v-for="(p, j) in s.polys"
+                    :key="j"
+                    :d="p.d"
+                    :fill="prefs.outline ? 'none' : p.css"
+                    stroke="#000"
+                    :stroke-width="(stroke / s.scale) * 0.6"
+                  />
+                </g>
                 <path
-                  v-for="(p, j) in s.polys"
-                  :key="j"
-                  :d="p.d"
-                  :fill="prefs.outline ? 'none' : p.css"
+                  v-if="s.edge"
+                  :d="s.edge"
+                  fill="none"
                   stroke="#000"
-                  :stroke-width="(stroke / s.scale) * 0.6"
+                  :stroke-width="(stroke / s.scale) * 1.5"
                 />
               </svg>
               <div class="text-caption">
                 {{ s.scale >= 0.999 ? 'True size' : `Scaled to ${Math.round(s.scale * 100)}%` }} ·
                 finished {{ view.size }}
+              </div>
+              <div v-if="s.trim" class="text-caption">
+                Pieces at the edge are cut larger. Trim the quilt top to the marked edge after
+                piecing.
               </div>
               <div v-if="!isBlockKind && view.basedOn.length" class="text-caption">
                 Based on {{ view.basedOn.map(creditLine).join('; ') }}
@@ -502,9 +526,9 @@ import {
   priorCredits,
   quiltLock,
 } from '@/model/credits';
-import { pathToSegs, flattenLoop, type Pt } from '@/model/geometry/path';
-import { generateSlots } from '@/model/layout/slots';
-import { fmtFabric, fmtLen } from '@/model/print/format';
+import { pathToSegs, flattenLoop, sub, type Pt } from '@/model/geometry/path';
+import { generateFor } from '@/model/layout/slots';
+import { fmtFabric, fmtLen, splitApprox } from '@/model/print/format';
 import { pack, pillWidth, splitFlow, tiles, wrapPills } from '@/model/print/pack';
 import {
   blockPieces,
@@ -737,12 +761,17 @@ interface View {
   /** Picture: outlines (+ fills) in their own coordinates. */
   picture: { d: string; css: string }[];
   pictureBox: readonly [number, number, number, number];
+  /** Quilts: the outer edge (pieces are clipped to it) and whether to trim to it after piecing. */
+  edge?: Pt[];
+  trim?: boolean;
   /** Templates: block, its finished size, and pieces of one block for the key. */
   block?: Block;
   blockSize?: [number, number];
   keyPieces?: Piece[];
 }
 
+const perimeter = (poly: Pt[]) =>
+  poly.reduce((s, p, i) => s + Math.hypot(...sub(poly[(i + 1) % poly.length]!, p)), 0);
 const d = (poly: Pt[]) => `M${poly.map((p) => `${p[0]} ${p[1]}`).join('L')}Z`;
 const sizeLabel = (w: number, h: number) => `${fmt(w)} × ${fmt(h)}`;
 
@@ -753,7 +782,7 @@ const view = computed<View | undefined>(() => {
   if (props.kind === 'quilt') {
     const quilt = dd.project.quilts.find((q) => q.id === id);
     if (!quilt) return undefined;
-    const g = generateSlots(quilt.layout, quilt.borders);
+    const g = generateFor(quilt);
     const pieces = quiltPieces(dd, quilt);
     const [x0, y0, x1, y1] = g.bounds;
     return {
@@ -775,9 +804,11 @@ const view = computed<View | undefined>(() => {
           d: d(flattenLoop(pathToSegs(s.outline, [1, 1]), 0.01)),
           css: '#fff',
         })),
-        ...pieces.map((p) => ({ d: d(p.poly), css: shapeFill(p.fill) })),
+        ...pieces.map((p) => ({ d: d(p.shown ?? p.poly), css: shapeFill(p.fill) })),
       ],
       pictureBox: g.bounds,
+      edge: flattenLoop(pathToSegs(g.edge, [1, 1]), 0.01),
+      trim: g.trim,
     };
   }
   const block = dd.project.blocks.find((b) => b.id === id);
@@ -788,10 +819,10 @@ const view = computed<View | undefined>(() => {
   let keyColoring =
     block.colorings.find((c) => c.id === props.target?.coloring) ?? block.colorings[0];
   if (quilt) {
-    const g = generateSlots(quilt.layout, quilt.borders);
+    const g = generateFor(quilt);
     const slot = g.slots.find((s) => quilt.layers[0].slots[s.id]?.block === block.id);
     if (slot) {
-      size = [slot.transform[0], slot.transform[3]];
+      size = slot.size;
       keyColoring = resolveColoring(
         quilt.colorings[quilt.layers[0].slots[slot.id]!.coloring],
         block,
@@ -950,6 +981,8 @@ type Sheet = (
       kind: 'picture';
       heading: string;
       polys: { d: string; css: string }[];
+      edge?: string | undefined;
+      trim?: boolean | undefined;
       x0: number;
       y0: number;
       w: number;
@@ -1040,6 +1073,8 @@ const logical = computed<Sheet[]>(() => {
         kind: 'picture',
         heading: isBlock ? 'Block' : 'Quilt',
         polys: v.picture,
+        edge: v.edge && d(v.edge),
+        trim: v.trim,
         x0,
         y0,
         w,
@@ -1108,8 +1143,7 @@ const logical = computed<Sheet[]>(() => {
                   fstep,
                 ),
                 binding: binding(
-                  x1 - x0,
-                  y1 - y0,
+                  v.edge ? perimeter(v.edge) : 2 * (x1 - x0 + (y1 - y0)),
                   prefs.value.bindingWidth[units.value],
                   BINDING_EXTRA[units.value],
                   c.opt.usable,
@@ -1171,13 +1205,13 @@ function quiltBlocks() {
   const quilt = dd.project.quilts.find((q) => q.id === props.id);
   if (!quilt) return [];
   const seen = new Set<string>();
-  return generateSlots(quilt.layout, quilt.borders).slots.flatMap((slot) => {
+  return generateFor(quilt).slots.flatMap((slot) => {
     const content = quilt.layers[0].slots[slot.id];
     const block = content && dd.project.blocks.find((b) => b.id === content.block);
     if (!content || !block || seen.has(block.id) || block.notecard.tags?.includes('system'))
       return [];
     seen.add(block.id);
-    const size: [number, number] = [slot.transform[0], slot.transform[3]];
+    const size = slot.size;
     return [
       {
         quilt,
@@ -1577,6 +1611,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.approx {
+  font-size: 0.85em;
+  color: #555;
+}
 /* Sheets never push on the panels around the preview; it scrolls instead. */
 .print-preview {
   min-width: 0;
@@ -1687,6 +1725,7 @@ td {
 }
 .warn {
   color: #b00020;
+  font-size: 0.8em;
 }
 .avoid-break {
   break-inside: avoid;

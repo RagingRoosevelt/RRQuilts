@@ -6,14 +6,33 @@ import { produce } from 'immer';
 import type { PathCommand } from '../schema/shared';
 import type { Border, Layout, Quilt, SlotContent } from '../schema/quilt';
 import { borderSlots } from './borders';
-import { horizontalSlots } from './horizontal';
+import { onPointDefaults, stripDefaults } from '../io';
+import { PLAIN_BLOCK } from '../plain';
+import { tile } from './engine';
+import { horizontal, onPoint, strips } from './presets';
+
+export type SlotKind = 'block' | 'sash' | 'cs' | 'set' | 'border' | 'strip';
+/** `piece` = setting, partial, or irregular space: plain fill only. */
+export type SpaceShape =
+  'rect' | 'triangle' | 'diamond60' | 'hexagon' | 'clamshell' | 'spool' | 'piece';
 
 export interface Slot {
   id: string;
-  /** Closed outline in quilt units; block content is clipped to it. */
+  kind: SlotKind;
+  shape: SpaceShape;
+  /** Degrees between allowed block turns (90 square, 180 rectangle, 360 none). */
+  turns: number;
+  /** Alternate-scope class (checkerboard: 0/1). */
+  alt: number;
+  /** Visible outline in quilt units (lines and arcs); block content is clipped to it. */
   outline: PathCommand[];
-  /** Affine map [a, b, c, d, e, f] from the block's unit square to quilt units (SVG order). */
+  /** Affine map [a, b, c, d, e, f] from the block's unit square to quilt units (SVG order). The
+   *  whole space, even when `outline` is trimmed. */
   transform: [number, number, number, number, number, number];
+  /** Finished size of the whole space, in its own axes. */
+  size: [number, number];
+  /** Shape to cut when larger than `outline` (floating setting pieces). */
+  cut?: PathCommand[];
 }
 
 export type Bounds = [x0: number, y0: number, x1: number, y1: number];
@@ -26,25 +45,128 @@ export interface Generated {
   bounds: Bounds;
   /** Styles stored in the file whose generators aren't available yet. */
   unsupported: string[];
+  /** The quilt's outer edge (binding runs along it). */
+  edge: PathCommand[];
+  /** Pieces are cut larger than the edge (trim the quilt top after piecing). */
+  trim: boolean;
 }
+
+/** Checkerboard class from the numbers in an id (rows + cols, sash indices, …). */
+export const digitParity = (id: string) =>
+  (id.match(/\d+/g) ?? []).reduce((s, n) => s + Number(n), 0) % 2;
+
+export const rectPath = (x: number, y: number, w: number, h: number): PathCommand[] => [
+  ['M', x, y],
+  ['L', x + w, y],
+  ['L', x + w, y + h],
+  ['L', x, y + h],
+  ['Z'],
+];
+
+const kindOf = (id: string): SlotKind =>
+  id.startsWith('b:')
+    ? 'block'
+    : id.startsWith('sash:')
+      ? 'sash'
+      : id.startsWith('cs:')
+        ? 'cs'
+        : id.startsWith('set:')
+          ? 'set'
+          : 'border';
 
 export const rectSlot = (id: string, x: number, y: number, w: number, h: number): Slot => ({
   id,
-  outline: [['M', x, y], ['L', x + w, y], ['L', x + w, y + h], ['L', x, y + h], ['Z']],
+  kind: kindOf(id),
+  shape: 'rect',
+  turns: w === h ? 90 : 180,
+  alt: digitParity(id),
+  outline: rectPath(x, y, w, h),
   transform: [w, 0, 0, h, x, y],
+  size: [w, h],
 });
 
-export function generateSlots(layout: Layout, borders: Border[]): Generated {
+/** A plain piece with a polygon outline; the block square maps to its bounding box. */
+export function polySlot(id: string, pts: [number, number][]): Slot {
+  const xs = pts.map((p) => p[0]);
+  const ys = pts.map((p) => p[1]);
+  const [x0, y0] = [Math.min(...xs), Math.min(...ys)];
+  const [w, h] = [Math.max(...xs) - x0, Math.max(...ys) - y0];
+  const outline: PathCommand[] = [
+    ['M', ...pts[0]!],
+    ...pts.slice(1).map((p): PathCommand => ['L', ...p]),
+    ['Z'],
+  ];
+  return {
+    id,
+    kind: kindOf(id),
+    shape: 'piece',
+    turns: 360,
+    alt: digitParity(id),
+    outline,
+    transform: [w, 0, 0, h, x0, y0],
+    size: [w, h],
+  };
+}
+
+export function generateSlots(
+  layout: Layout,
+  borders: Border[],
+  /** On-Point: edge positions holding blocks (`edgeBlocks`); they move that side's edge in. */
+  held?: ReadonlyMap<string, string>,
+): Generated {
   const unsupported: string[] = [];
   let slots: Slot[] = [];
   let center: Bounds = [0, 0, 0, 0];
-  if (layout.style === 'horizontal') ({ slots, center } = horizontalSlots(layout));
-  else unsupported.push(`layout ${layout.style}`);
+  let trim = false;
+  if (layout.style === 'straight-set') {
+    const h = horizontal(layout);
+    slots = tile(h.tiling);
+    center = h.center;
+  } else if (layout.style === 'horizontal-strip' || layout.style === 'vertical-strip') {
+    const t = strips(layout);
+    slots = tile(t.tiling);
+    center = t.center;
+  } else if (layout.style === 'on-point') {
+    const o = onPoint(layout, held);
+    // No fill: the uneven edge is the quilt's edge, so borders are set aside (kept in the file).
+    if (layout.edge.finish === 'none')
+      return {
+        slots: o.slots,
+        center: o.center,
+        bounds: o.center,
+        unsupported,
+        edge: o.edge,
+        trim: false,
+      };
+    ({ slots, center, trim } = o);
+  } else unsupported.push(`layout ${layout.style}`);
 
   const b = borderSlots(borders, center);
   unsupported.push(...b.unsupported);
-  return { slots: [...slots, ...b.slots], center, bounds: b.bounds, unsupported };
+  const [x0, y0, x1, y1] = b.bounds;
+  return {
+    slots: [...slots, ...b.slots],
+    center,
+    bounds: b.bounds,
+    unsupported,
+    edge: rectPath(x0, y0, x1 - x0, y1 - y0),
+    trim,
+  };
 }
+
+/** On-Point edge positions (setting pieces) holding a block: position → the id it's under. */
+export function edgeBlocks(quilt: Quilt): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const [id, c] of Object.entries(quilt.layers[0].slots)) {
+    const at = /^set:(m:r\d+c\d+)(?::[12])?$/.exec(id)?.[1];
+    if (at && c.block !== PLAIN_BLOCK && !out.has(at)) out.set(at, id);
+  }
+  return out;
+}
+
+/** The quilt's spaces, given what's placed in it. */
+export const generateFor = (quilt: Quilt) =>
+  generateSlots(quilt.layout, quilt.borders, edgeBlocks(quilt));
 
 export interface Reconciled {
   slots: Record<string, SlotContent>;
@@ -54,12 +176,24 @@ export interface Reconciled {
 
 /** Which placed content survives a layout/border change. */
 export function reconcile(quilt: Quilt, layout: Layout, borders: Border[]): Reconciled {
-  const ids = new Set(generateSlots(layout, borders).slots.map((s) => s.id));
+  const ids = new Set(generateSlots(layout, borders, edgeBlocks(quilt)).slots.map((s) => s.id));
+  // Borders set aside by No fill keep their pieces' colors for when they come back.
+  const setAside = layout.style === 'on-point' && layout.edge.finish === 'none';
   const slots: Record<string, SlotContent> = {};
   const dropped: string[] = [];
   for (const [id, content] of Object.entries(quilt.layers[0].slots)) {
-    if (ids.has(id)) slots[id] = content;
-    else dropped.push(id);
+    if (ids.has(id) || (setAside && id.startsWith('border:'))) slots[id] = content;
+    else {
+      // An edge position is a setting piece or a trimmed block depending on the finish: a block
+      // set there moves with it (a seam corner's first half stands for the whole corner).
+      const pos = /^(?:set|b):(m:r\d+c\d+)(?::1)?$/.exec(id)?.[1];
+      const twin =
+        pos &&
+        content.block !== PLAIN_BLOCK &&
+        [`b:${pos}`, `set:${pos}`, `set:${pos}:1`].find((t) => ids.has(t));
+      if (twin && !quilt.layers[0].slots[twin]) slots[twin] = content;
+      else dropped.push(id);
+    }
   }
   return { slots, dropped };
 }
@@ -72,4 +206,39 @@ export function applyLayout(quilt: Quilt, layout: Layout, borders: Border[]): Qu
     q.borders = borders;
     q.layers[0].slots = slots;
   });
+}
+
+/** The layout in another style, keeping counts, block size, and sashing (spec 016 US4). */
+export type LayoutStyle = 'straight-set' | 'on-point' | 'horizontal-strip' | 'vertical-strip';
+
+/** The layout in another style: counts, block size, and sashing carry over between Horizontal and
+ *  On-Point (spec 016 US4); strips keep everything when only their direction changes. */
+export function convertLayout(layout: Layout, style: LayoutStyle, units: 'in' | 'cm'): Layout {
+  if (layout.style === style) return layout;
+  const k = units === 'cm' ? 2.5 : 1;
+  if (style === 'horizontal-strip' || style === 'vertical-strip')
+    return 'strips' in layout ? { ...layout, style } : { ...stripDefaults(k), style };
+  if (style === 'on-point') {
+    const d = onPointDefaults(k);
+    return layout.style === 'straight-set'
+      ? { ...d, cols: layout.cols, rows: layout.rows, block: layout.block[0], sash: layout.sash[0] }
+      : d;
+  }
+  if (layout.style === 'on-point')
+    return {
+      style: 'straight-set',
+      cols: layout.cols,
+      rows: layout.rows,
+      block: [layout.block, layout.block],
+      sash: [layout.sash, layout.sash],
+      sashBorder: false,
+    };
+  return {
+    style: 'straight-set',
+    cols: 3,
+    rows: 3,
+    block: [12 * k, 12 * k],
+    sash: [0, 0],
+    sashBorder: false,
+  };
 }

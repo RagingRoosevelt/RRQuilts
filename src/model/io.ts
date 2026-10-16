@@ -1,6 +1,6 @@
 // Load/save .rrq files. Input is untrusted: parse, migrate, validate, then check integrity.
 import Value from 'typebox/value';
-import { findDuplicateIds } from './ids';
+import { findDuplicateIds, newId } from './ids';
 import type { Asset } from './schema/shared';
 import type { ColoringBody } from './schema/coloring';
 import { FORMAT, RrqDoc, VERSION } from './schema/project';
@@ -34,7 +34,51 @@ export const migrations: Migrations = {
   },
   // v4: a project palette may record the My library palette it's synced with. Additive.
   3: (doc) => doc,
+  // v5 (specs 016, 017; the first new version after 0.2.0's v4): On-Point and strip layouts have
+  // parameters (placeholders from older files get the defaults, in the project's units), and the
+  // Horizontal layout is stored as `straight-set`, its name in the app.
+  4: (doc) => {
+    const project = isObject(doc.project) ? doc.project : undefined;
+    if (!project || !Array.isArray(project.quilts)) return doc;
+    const k = doc.units === 'cm' ? 2.5 : 1;
+    const quilts = project.quilts.map((q: unknown) => {
+      if (!isObject(q) || !isObject(q.layout)) return q;
+      const style = q.layout.style;
+      if (style === 'horizontal') return { ...q, layout: { ...q.layout, style: 'straight-set' } };
+      if (style === 'on-point' && !('cols' in q.layout))
+        return { ...q, layout: onPointDefaults(k) };
+      if ((style === 'horizontal-strip' || style === 'vertical-strip') && !('strips' in q.layout))
+        return { ...q, layout: { ...stripDefaults(k), style } };
+      return q;
+    });
+    return { ...doc, project: { ...project, quilts } };
+  },
 };
+
+/** A new strip quilt: `n` strips alternating plain and 6 blocks, square blocks (`k` as above). */
+export const stripDefaults = (k: number, n = 5) => ({
+  style: 'horizontal-strip' as const,
+  length: 48 * k,
+  strips: Array.from({ length: n }, (_, i) => ({
+    id: newId(),
+    style: i % 2 ? ('blocks' as const) : ('plain' as const),
+    width: (i % 2 ? 8 : 3) * k,
+    along: 6,
+    across: 1,
+    ...(i % 2 ? { square: true } : {}),
+  })),
+});
+
+/** A new On-Point layout; `k` = project units per inch (2.5 for cm: round numbers). */
+export const onPointDefaults = (k: number) => ({
+  style: 'on-point' as const,
+  cols: 3,
+  rows: 3,
+  block: 12 * k,
+  sash: 0,
+  corner: 'triangle' as const,
+  edge: { finish: 'float' as const, float: 1 * k },
+});
 
 export type ParseResult =
   { ok: true; doc: RrqDoc; report: string[] } | { ok: false; error: string };

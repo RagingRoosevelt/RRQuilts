@@ -10,6 +10,7 @@ import { mul, type M } from './affine';
 import { blockPaths, toPath2D } from './paths';
 import { placementMatrix } from './placement';
 import { fabricFill } from './fabric-images';
+import { PLAIN_BLOCK, PLAIN_PATCH } from '@/model/plain';
 
 export interface View {
   scale: number;
@@ -129,6 +130,19 @@ export function drawQuilt(
       ctx.lineWidth = px;
       ctx.strokeStyle = o.dark ? '#555' : '#c9c9c9';
       ctx.stroke(outline);
+      continue;
+    }
+    if (block.id === PLAIN_BLOCK) {
+      // Plain pieces (sashes, setting pieces, borders) fill their own outline, whatever block
+      // square the space maps (a setting piece's square is the turned block before cutting).
+      const coloring = resolveColoring(quilt.colorings[content.coloring], block);
+      ctx.fillStyle = fillOf(coloring?.fills[PLAIN_PATCH]) ?? hatch(ctx, o.dark);
+      ctx.fill(outline);
+      if (o.outlines) {
+        ctx.lineWidth = px;
+        ctx.strokeStyle = o.dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
+        ctx.stroke(outline);
+      }
       continue;
     }
     ctx.save();

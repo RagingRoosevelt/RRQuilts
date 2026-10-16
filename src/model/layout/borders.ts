@@ -1,22 +1,9 @@
 // Borders around the quilt center, innermost first. v1 generates the plain strip styles; the
 // pieced styles are stored and reported as unsupported until their generators exist.
 import type { Border } from '../schema/quilt';
-import type { PathCommand } from '../schema/shared';
-import { rectSlot, type Bounds, type Slot } from './slots';
+import { polySlot, rectSlot, type Bounds, type Slot } from './slots';
 
 type Side = 'top' | 'right' | 'bottom' | 'left';
-
-function polySlot(id: string, pts: [number, number][]): Slot {
-  const xs = pts.map((p) => p[0]);
-  const ys = pts.map((p) => p[1]);
-  const [x0, y0] = [Math.min(...xs), Math.min(...ys)];
-  const outline: PathCommand[] = [
-    ['M', ...pts[0]!],
-    ...pts.slice(1).map((p): PathCommand => ['L', ...p]),
-    ['Z'],
-  ];
-  return { id, outline, transform: [Math.max(...xs) - x0, 0, 0, Math.max(...ys) - y0, x0, y0] };
-}
 
 export function borderSlots(
   borders: Border[],

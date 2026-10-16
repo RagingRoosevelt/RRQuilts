@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { applyLayout, generateSlots, reconcile } from '@/model/layout/slots';
+import { applyLayout, convertLayout, generateSlots, reconcile } from '@/model/layout/slots';
+import { onPointDefaults } from '@/model/io';
 import type { Border, HorizontalLayout, Quilt } from '@/model/schema/quilt';
 import { fixture } from './helpers';
 
 const layout = (cols: number, rows: number): HorizontalLayout => ({
-  style: 'horizontal',
+  style: 'straight-set',
   cols,
   rows,
   block: [9, 9],
@@ -94,5 +95,76 @@ describe('changing a layout keeps what still fits', () => {
   it('5×6 → 4×6 reports the 6 blocks that would be lost', () => {
     const r = reconcile(filledQuilt(5, 6), layout(4, 6), borders);
     expect(r.dropped.sort()).toEqual(['b:r1c5', 'b:r2c5', 'b:r3c5', 'b:r4c5', 'b:r5c5', 'b:r6c5']);
+  });
+});
+
+describe('convertLayout', () => {
+  const h: HorizontalLayout = { ...layout(3, 4), block: [8, 6], sash: [2, 1] };
+  const op = convertLayout(h, 'on-point', 'in');
+  const d = onPointDefaults(1);
+
+  it('Horizontal to On-Point keeps counts, block and sash width, defaults for the rest', () => {
+    expect(op).toEqual({ ...d, cols: 3, rows: 4, block: 8, sash: 2 });
+  });
+
+  it('On-Point back to Horizontal is square with no sash border', () => {
+    expect(convertLayout({ ...d, block: 8, sash: 2 }, 'straight-set', 'in')).toMatchObject({
+      style: 'straight-set',
+      block: [8, 8],
+      sash: [2, 2],
+      sashBorder: false,
+    });
+  });
+
+  it('keeps all nine blocks going to On-Point, drops between and setting pieces coming back', () => {
+    const q = filledQuilt(3, 3);
+    q.borders = [];
+    q.layout = layout(3, 3);
+    expect(reconcile(q, convertLayout(q.layout, 'on-point', 'in'), []).dropped).toEqual([]);
+    const o = structuredClone(q);
+    o.layout = { ...d, cols: 3, rows: 3 };
+    o.layers[0].slots = {
+      'b:r1c1': { block: 'seam1', coloring: 'qk1', rotation: 0, flip: false },
+      'b:m:r1c1': { block: 'seam1', coloring: 'qk1', rotation: 0, flip: false },
+      'set:m:r0c1': { block: 'seam1', coloring: 'qk1', rotation: 0, flip: false },
+    };
+    expect(reconcile(o, layout(3, 3), []).dropped.sort()).toEqual(['b:m:r1c1', 'set:m:r0c1']);
+  });
+});
+
+describe('blocks at On-Point edge positions follow the edge finish', () => {
+  const op = (finish: 'exact' | 'trim', corner: 'triangle' | 'seam' = 'triangle') => ({
+    ...onPointDefaults(1),
+    corner,
+    edge: { finish, float: 1 },
+  });
+  const at = (slots: Record<string, unknown>, id: string) => Object.keys(slots).includes(id);
+  const placed = { block: 'seam1', coloring: 'qk1', rotation: 0 as const, flip: false };
+
+  it('a block in a setting piece becomes the trimmed block there, and back', () => {
+    const q = structuredClone(fixture().project.quilts[0]!);
+    q.layout = op('exact');
+    q.borders = [];
+    q.layers[0].slots = {
+      'set:m:r0c1': placed,
+      'set:m:r0c2': { ...placed, block: 'plain' },
+    };
+    const toTrim = reconcile(q, op('trim'), []);
+    expect(at(toTrim.slots, 'b:m:r0c1')).toBe(true);
+    expect(toTrim.dropped).toEqual(['set:m:r0c2']); // plain fill has nowhere to go
+    q.layout = op('trim');
+    q.layers[0].slots = toTrim.slots;
+    expect(at(reconcile(q, op('exact'), []).slots, 'set:m:r0c1')).toBe(true);
+  });
+
+  it('a seam corner hands its first half to the trimmed corner block', () => {
+    const q = structuredClone(fixture().project.quilts[0]!);
+    q.layout = op('exact', 'seam');
+    q.borders = [];
+    q.layers[0].slots = { 'set:m:r0c0:1': placed };
+    expect(at(reconcile(q, op('trim'), []).slots, 'b:m:r0c0')).toBe(true);
+    q.layout = op('trim');
+    q.layers[0].slots = { 'b:m:r0c0': placed };
+    expect(at(reconcile(q, op('exact', 'seam'), []).slots, 'set:m:r0c0:1')).toBe(true);
   });
 });

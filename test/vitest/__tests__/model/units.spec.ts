@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { convertUnits } from '@/model/units';
+import { onPointDefaults } from '@/model/io';
 import { fixture } from './helpers';
 
 /** Every number in `a` equals the one in `b` within `eps`. */
@@ -41,5 +42,17 @@ describe('units', () => {
     const cm = convertUnits(fixture(), 'cm');
     const back = convertUnits(cm, 'in');
     expect(back.project.quilts[0]!.borders[0]!.sides[0]).toBe(2);
+  });
+
+  it('scales On-Point block, sash and edge float; counts and finishes stay', () => {
+    const doc = fixture();
+    const layout = { ...onPointDefaults(1), sash: 1.5 };
+    doc.project.quilts[0]!.layout = layout;
+    const out = convertUnits(doc, 'cm').project.quilts[0]!.layout as unknown as typeof layout;
+    expect(out).toMatchObject({ style: 'on-point', cols: 3, rows: 3, corner: 'triangle' });
+    expect(out.block).toBeCloseTo(12 * 2.54);
+    expect(out.sash).toBeCloseTo(1.5 * 2.54);
+    expect(out.edge.float).toBeCloseTo(2.54);
+    expect(out.edge.finish).toBe('float');
   });
 });

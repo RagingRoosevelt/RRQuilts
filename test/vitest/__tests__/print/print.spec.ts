@@ -183,7 +183,7 @@ describe('yardage', () => {
     expect(fq[0]!.fatQuarters).toBe(1);
     // 60×80 quilt + 4" each side: 68 wide → 2 panels of 88" (176") beats 3 panels of 68" (204").
     expect(backing(60, 80, 4, 40, 4.5)).toBe(180);
-    expect(binding(60, 80, 2.5, 10, 40, 4.5)).toEqual({ strips: 8, length: 22.5 });
+    expect(binding(280, 2.5, 10, 40, 4.5)).toEqual({ strips: 8, length: 22.5 });
   });
 
   it('packs pieces on pages and tiles big ones', () => {

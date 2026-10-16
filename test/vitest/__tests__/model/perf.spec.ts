@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { parseProject, serializeProject, sha256Hex } from '@/model/io';
+import { onPointDefaults, parseProject, serializeProject, sha256Hex } from '@/model/io';
+import { generateSlots } from '@/model/layout/slots';
 import type { RrqDoc } from '@/model/schema/project';
 import { fixture } from './helpers';
 
@@ -26,6 +27,16 @@ describe('performance', () => {
     const r = await parseProject(text);
     const ms = performance.now() - start;
     expect(r.ok).toBe(true);
+    expect(ms).toBeLessThan(3000);
+  });
+
+  it('generates a 100 x 100 On-Point layout quickly', () => {
+    const layout = { ...onPointDefaults(1), cols: 100, rows: 100, sash: 1 };
+    const start = performance.now();
+    const g = generateSlots(layout, []);
+    const ms = performance.now() - start;
+    console.log(`on-point 100x100: ${Math.round(ms)} ms, ${g.slots.length} slots`);
+    expect(g.slots.length).toBeGreaterThan(20000);
     expect(ms).toBeLessThan(3000);
   });
 });

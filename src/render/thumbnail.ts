@@ -1,5 +1,5 @@
 // Small images of quilts and blocks for sketchbook cards, cached per (immutable) object.
-import { generateSlots } from '@/model/layout/slots';
+import { generateFor } from '@/model/layout/slots';
 import type { Block } from '@/model/schema/block';
 import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
@@ -34,7 +34,7 @@ export function quiltThumbnail(doc: RrqDoc, quilt: Quilt, px = 240, dark = false
     `${px}:${dark}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
     () => {
       const [c, ctx] = canvas(px);
-      const g = generateSlots(quilt.layout, quilt.borders);
+      const g = generateFor(quilt);
       drawQuilt(ctx, doc, quilt, g, {
         dpr: 1,
         view: fitView(g.bounds, px, px, 6),

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseProject } from '@/model/io';
+import { VERSION } from '@/model/schema/project';
 import { fixture } from './helpers';
 
 const parse = (doc: unknown) => parseProject(JSON.stringify(doc));
@@ -9,7 +10,7 @@ describe('rejections', () => {
     expect((await parseProject('{oops')).ok).toBe(false);
     expect((await parse({ ...fixture(), format: 'rrqconf' })).ok).toBe(false);
     expect((await parse({ ...fixture(), version: 0 })).ok).toBe(false);
-    const newer = await parse({ ...fixture(), version: 5 });
+    const newer = await parse({ ...fixture(), version: VERSION + 1 });
     expect(newer).toMatchObject({ ok: false, error: expect.stringMatching(/newer/) });
   });
 

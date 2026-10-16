@@ -282,7 +282,7 @@
       </div>
 
       <div v-if="settings.settings.hideLibraryBlocks" class="text-caption text-grey-7 q-mt-lg">
-        Library blocks are turned off in Settings › Libraries.
+        Library blocks are turned off in Settings › Project.
       </div>
       <template v-else>
         <div class="text-subtitle2 q-mt-lg">Library blocks</div>
@@ -582,7 +582,7 @@
         @done="fabricsAdded"
       />
       <div v-if="settings.settings.hideLibraryPalettes" class="text-caption text-grey-7 q-mt-lg">
-        Library palettes are turned off in Settings › Libraries.
+        Library palettes are turned off in Settings › Project.
       </div>
       <template v-else>
         <div class="text-subtitle2 q-mt-lg">Library palettes</div>
@@ -1972,7 +1972,7 @@ const flashed = ref<string>();
 function showOriginal(v: Block) {
   const id = v.source?.itemId;
   if (settings.settings.hideLibraryBlocks) {
-    $q.notify({ message: 'Library blocks are turned off in Settings › Libraries.' });
+    $q.notify({ message: 'Library blocks are turned off in Settings › Project.' });
     return;
   }
   const g = libGroups.value.find((x) => x.sections.some((s) => s.blocks.some((b) => b.id === id)));

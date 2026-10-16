@@ -81,7 +81,7 @@ describe('swapping colors when a palette is unpicked', () => {
         createQuilt(
           'Q',
           {
-            style: 'horizontal',
+            style: 'straight-set',
             cols: 1,
             rows: 1,
             block: [10, 10],

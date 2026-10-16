@@ -58,15 +58,14 @@ export function backing(w: number, h: number, overhang: number, usable: number, 
 /** Binding: extra length for the joins, the mitered corners, and the final join (10″ / 25 cm). */
 export const BINDING_EXTRA = { in: 10, cm: 25 } as const;
 
-/** Straight-grain binding strips around a `w`×`h` quilt, with `extra` for joins and corners. */
+/** Straight-grain binding strips along a `perimeter`, with `extra` for joins and corners. */
 export function binding(
-  w: number,
-  h: number,
+  perimeter: number,
   stripWidth: number,
   extra: number,
   usable: number,
   step: number,
 ) {
-  const strips = Math.ceil((2 * (w + h) + extra) / usable);
+  const strips = Math.ceil((perimeter + extra) / usable);
   return { strips, length: roundUp(strips * stripWidth, step) };
 }

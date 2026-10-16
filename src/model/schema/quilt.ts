@@ -7,7 +7,7 @@ const length = Type.Number({ minimum: 0 });
 
 /** Horizontal layout: rows × cols of blocks, optional sashing and sash border. */
 export const HorizontalLayout = Type.Object({
-  style: Type.Literal('horizontal'),
+  style: Type.Literal('straight-set'),
   cols: count,
   rows: count,
   block: Size,
@@ -15,21 +15,72 @@ export const HorizontalLayout = Type.Object({
   sashBorder: Type.Boolean(),
 });
 
-/** Styles whose generators come with the layout feature; parameters are stored as-is for now. */
-export const OtherLayout = Type.Object({
-  style: Type.Enum([
-    'on-point',
-    'variable-point',
-    'baby-blocks',
-    'variable-blocks',
-    'horizontal-strip',
-    'vertical-strip',
-    'one-patch',
-    'custom-set',
+/** How an uneven layout edge is finished (spec 016): setting pieces cut exact or oversized by
+ *  `float`, partial blocks trimmed by the edge, or no fill (the uneven edge is bound as it is). */
+export const EdgeFinish = Type.Object({
+  finish: Type.Union([
+    Type.Literal('exact'),
+    Type.Literal('float'),
+    Type.Literal('trim'),
+    Type.Literal('none'),
   ]),
+  /** Kept when another finish is chosen. */
+  float: length,
 });
 
-export const Layout = Type.Union([HorizontalLayout, OtherLayout]);
+/** On-Point (spec 016): square blocks turned 45°, `cols` × `rows` on the main grid plus the blocks
+ *  between them; `block` is the finished side. */
+export const OnPointLayout = Type.Object({
+  style: Type.Literal('on-point'),
+  cols: count,
+  rows: count,
+  block: Type.Number({ exclusiveMinimum: 0 }),
+  sash: length,
+  corner: Type.Union([Type.Literal('triangle'), Type.Literal('seam')]),
+  edge: EdgeFinish,
+});
+
+/** Styles whose generators come with later presets; parameters are stored as-is for now. */
+export const OtherLayout = Type.Object({
+  style: Type.Enum(['variable-point', 'baby-blocks', 'variable-blocks', 'one-patch', 'custom-set']),
+});
+
+export const StripStyle = Type.Enum([
+  'plain',
+  'blocks',
+  'half-drop-blocks',
+  'spaced-squares',
+  'points-a',
+  'points-b',
+  'diamonds',
+  'half-drop-diamonds',
+  'double-diamonds',
+  'half-drop-double-diamonds',
+  'checker-board',
+]);
+
+/** One strip (spec 017): a lasting `id` (content follows it), style, width, and counts. */
+export const Strip = Type.Object({
+  id: Id,
+  style: StripStyle,
+  width: Type.Number({ exclusiveMinimum: 0 }),
+  /** Units along the strip (repeating styles). */
+  along: count,
+  /** Units across the strip (Checker Board). */
+  across: count,
+  /** Block styles: a block strip (square blocks, the width following length ÷ along; default),
+   *  or false for a pieced strip (rectangles painted only, any width). */
+  square: Type.Optional(Type.Boolean()),
+});
+
+/** Strip quilts (spec 017): strips stacked down (horizontal) or across (vertical), one length. */
+export const StripLayout = Type.Object({
+  style: Type.Union([Type.Literal('horizontal-strip'), Type.Literal('vertical-strip')]),
+  length: Type.Number({ exclusiveMinimum: 0 }),
+  strips: Type.Array(Strip, { minItems: 1 }),
+});
+
+export const Layout = Type.Union([HorizontalLayout, OnPointLayout, StripLayout, OtherLayout]);
 
 export const BorderStyle = Type.Enum([
   'mitered',
@@ -114,6 +165,10 @@ export const Quilt = Type.Object({
 });
 
 export type HorizontalLayout = Type.Static<typeof HorizontalLayout>;
+export type OnPointLayout = Type.Static<typeof OnPointLayout>;
+export type StripLayout = Type.Static<typeof StripLayout>;
+export type Strip = Type.Static<typeof Strip>;
+export type StripStyle = Type.Static<typeof StripStyle>;
 export type Layout = Type.Static<typeof Layout>;
 export type Border = Type.Static<typeof Border>;
 export type SlotContent = Type.Static<typeof SlotContent>;

@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive, ref } from 'vue';
 import type { Scope } from '@/editor/scope';
+import type { StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 
 export type Mode = 'layout' | 'borders' | 'design' | 'print' | 'details';
@@ -11,6 +12,8 @@ export type Tool =
 export type BlockMode = 'draw' | 'color' | 'print' | 'details';
 export type BlockTool =
   'select' | 'node' | 'line' | 'arc' | 'grid' | 'pan' | 'paint' | 'spray' | 'eyedropper';
+
+export type LayoutTool = 'swap-strips' | 'strip-style';
 
 export const BLOCK_TOOLS: Tool[] = ['set', 'rotate', 'flip', 'erase', 'find'];
 export const COLOR_TOOLS: Tool[] = ['paint', 'spray', 'swap', 'eyedropper'];
@@ -36,6 +39,14 @@ export const useEditorStore = defineStore('editor', () => {
   /** Flip direction; tapping the Flip tool while it's active switches it. */
   const flipAxis = ref<'h' | 'v'>('h');
 
+  // Strip quilts (spec 017)
+  const selectedStrip = ref<string | null>(null);
+  const layoutTool = ref<LayoutTool | null>(null);
+  /** Style the Strip style tool applies (picked from its menu). */
+  const stripStyle = ref<StripStyle>('plain');
+  /** First strip chosen by Swap strips, waiting for the second. */
+  const swapFirst = ref<string | null>(null);
+
   // Block editor
   const blockMode = ref<BlockMode>('draw');
   const blockTool = ref<BlockTool>('line');
@@ -47,6 +58,7 @@ export const useEditorStore = defineStore('editor', () => {
 
   function useColor(id: string) {
     color.value = id;
+    // Most recent first; the tray sorts by it only when the setting asks (recentColorsFirst).
     recentColors.value = [id, ...recentColors.value.filter((c) => c !== id)].slice(0, 12);
   }
 
@@ -66,6 +78,10 @@ export const useEditorStore = defineStore('editor', () => {
     zoomPrint,
     views,
     flipAxis,
+    selectedStrip,
+    layoutTool,
+    stripStyle,
+    swapFirst,
     blockMode,
     blockTool,
     arcSign,

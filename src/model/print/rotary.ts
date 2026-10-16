@@ -148,6 +148,8 @@ export function cutPlan(
   const groups = new Map<string, { fill: string; cut: Cut; count: number }>();
   for (const piece of pieces) {
     const cut = cutFor(piece, seam, step, slack);
+    // Setting triangles are cut slightly large on purpose: no rounding warning.
+    if (piece.setting) cut.distorted = false;
     const key = groupKey(piece.fill, cut);
     const g = groups.get(key) ?? { fill: piece.fill, cut, count: 0 };
     g.count++;

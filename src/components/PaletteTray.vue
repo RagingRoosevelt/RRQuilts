@@ -145,7 +145,7 @@
       </q-btn>
       <div v-if="sidebar" class="text-caption text-grey-7 q-px-xs" style="width: 100%">
         Add library palettes: tick their checkbox in the project's Palettes tab{{
-          app.settings.hideLibraryPalettes ? ' (show them via Settings › Libraries)' : ''
+          app.settings.hideLibraryPalettes ? ' (show them via Settings › Project)' : ''
         }}.
       </div>
       <!-- Project colors, In use, then each library with its picked palettes (nested sections). -->
@@ -329,11 +329,14 @@ const blockSectionGroups = computed(() => {
     ...(other.length ? [flat('tray:other', 'Other libraries', other)] : []),
   ];
 });
-/** Recently used colors first within each section. */
-const recentFirst = <T extends { id: string }>(all: T[]) => [
-  ...editor.recentColors.map((id) => all.find((c) => c.id === id)).filter((c) => !!c),
-  ...all.filter((c) => !editor.recentColors.includes(c.id)),
-];
+/** Recently used colors first within each section when the setting asks; else palette order. */
+const recentFirst = <T extends { id: string }>(all: T[]) =>
+  app.settings.recentColorsFirst
+    ? [
+        ...editor.recentColors.map((id) => all.find((c) => c.id === id)).filter((c) => !!c),
+        ...all.filter((c) => !editor.recentColors.includes(c.id)),
+      ]
+    : all;
 const colorTree = computed(() => {
   const colors = doc.value.project.palette.colors;
   const { mine, library: lib } = splitItems(colors, library.items.colors);
@@ -393,7 +396,16 @@ const colorTree = computed(() => {
     {
       lib: '',
       label: 'In use',
-      groups: [{ label: '', items: recentFirst(used), fabrics: usedFabrics, mine: false }],
+      groups: [
+        {
+          label: '', // Off: by name, so picking a color doesn't move it.
+          items: app.settings.recentColorsFirst
+            ? recentFirst(used)
+            : [...used].sort((a, b) => a.notecard.name.localeCompare(b.notecard.name)),
+          fabrics: usedFabrics,
+          mine: false,
+        },
+      ],
     },
     ...libs,
   ];

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseProject, serializeProject } from '@/model/io';
+import { VERSION } from '@/model/schema/project';
 import { fixture, fixtureText } from './helpers';
 
 describe('round-trip', () => {
@@ -14,7 +15,7 @@ describe('round-trip', () => {
     if (!first.ok) throw new Error(first.error);
     const second = await parseProject(serializeProject(first.doc));
     if (!second.ok) throw new Error(second.error);
-    expect(second.doc).toEqual(fixture());
+    expect(second.doc).toEqual({ ...fixture(), version: VERSION }); // fixture stays v4 as migration coverage
     const text = serializeProject(second.doc);
     for (const key of ['futureTopLevel', 'futureProjectKey', 'futureQuiltKey', 'futureEditorKey']) {
       expect(text).toContain(key);
