@@ -1,0 +1,1 @@
+import{_ as e,g as t}from"./project-BXSaQUp_.js";import{i as n}from"./index-o-gF3DIO.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

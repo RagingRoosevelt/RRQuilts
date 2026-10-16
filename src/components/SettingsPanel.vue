@@ -217,6 +217,22 @@
             </div>
           </div>
         </q-expansion-item>
+        <q-expansion-item default-opened label="Project" icon="grid_view">
+          <div class="q-pa-md">
+            <q-checkbox
+              v-model="store.settings.hideSyncedMine"
+              label="Hide “My Library” blocks and palettes when they are synced with the project's"
+            />
+          </div>
+        </q-expansion-item>
+        <q-expansion-item default-opened label="Quilt and block design" icon="palette">
+          <div class="q-pa-md">
+            <q-toggle
+              v-model="store.settings.recentColorsFirst"
+              label="Recently used colors first in each palette"
+            />
+          </div>
+        </q-expansion-item>
         <q-expansion-item default-opened label="Fabrics" icon="texture">
           <div class="q-pa-md column" style="gap: 16px">
             <div>
@@ -259,22 +275,6 @@
                 Library fabrics are saved as references, not images.
               </div>
             </div>
-          </div>
-        </q-expansion-item>
-        <q-expansion-item default-opened label="Project" icon="grid_view">
-          <div class="q-pa-md">
-            <q-checkbox
-              v-model="store.settings.hideSyncedMine"
-              label="Hide “My Library” blocks and palettes when they are synced with the project's"
-            />
-          </div>
-        </q-expansion-item>
-        <q-expansion-item default-opened label="Design" icon="palette">
-          <div class="q-pa-md">
-            <q-toggle
-              v-model="store.settings.recentColorsFirst"
-              label="Recently used colors first in each palette"
-            />
           </div>
         </q-expansion-item>
       </q-list>
