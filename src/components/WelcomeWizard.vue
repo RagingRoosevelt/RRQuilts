@@ -4,8 +4,27 @@
   <q-dialog v-model="open" persistent>
     <q-card class="welcome">
       <q-card-section class="text-h6">Welcome to RRQuilts</q-card-section>
-      <q-stepper v-model="step" flat animated header-nav alternative-labels class="col">
+      <q-stepper
+        v-model="step"
+        flat
+        animated
+        header-nav
+        alternative-labels
+        class="steps"
+        :contracted="$q.screen.lt.sm"
+      >
         <q-step name="name" title="You" icon="person">
+          <!-- Mexican Cross II in three of its colorings, fanned out like swatch cards. -->
+          <div v-if="cards.length" class="hero" aria-hidden="true">
+            <img v-for="(src, i) in cards" :key="i" :src="src" alt="" :class="`card c${i}`" />
+          </div>
+          <p class="text-body1 q-mb-lg">
+            RRQuilts is a free quilt designer that runs in your browser, even offline. Lay out a
+            quilt (straight sets, on point, strips, one-patch shapes, tumbling blocks, and pieced
+            borders), draw your own blocks, color them with your colors and fabric photos, and print
+            templates, cutting charts, and yardage. Your work stays on your device, in files you
+            save.
+          </p>
           <p>
             What name should go on the quilts, blocks, and palettes you design? Your real name, a
             pseudonym, a shop name, or a handle are all fine. It's shown as the credit when you
@@ -88,9 +107,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { useQuasar } from 'quasar';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import OverlaySettings from '@/components/OverlaySettings.vue';
+import { createProject } from '@/model/new-project';
+import { blockThumbnail } from '@/render/thumbnail';
+import { useLibraryStore } from '@/stores/library';
 import { welcomeOpen as open } from '@/composables/settings-open';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -113,6 +136,19 @@ const GUIDES = [
 const STEPS = ['name', 'units', 'sizes', 'help'];
 
 const settings = useSettingsStore().settings;
+const $q = useQuasar();
+const library = useLibraryStore();
+// Built-in blocks draw against an empty project (their colors come from the built-in library).
+const scratch = createProject();
+const cards = computed(() => {
+  const b = library.items.blocks.find((x) => x.notecard.name === 'Mexican Cross II');
+  if (!b) return [];
+  const n = b.colorings.length;
+  const picks = [...new Set([1, 0, n - 1].filter((i) => i < n))];
+  return picks.map((i) =>
+    blockThumbnail(scratch, b, 220, $q.dark.isActive, b.colorings[i]!.id, library.items.colors),
+  );
+});
 const router = useRouter();
 const step = ref('name');
 const move = (d: number) => (step.value = STEPS[STEPS.indexOf(step.value) + d] ?? step.value);
@@ -137,8 +173,59 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 120px;
+  margin-bottom: 4px;
+}
+.card {
+  width: 92px;
+  height: 92px;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  background: #fff;
+}
+.c0 {
+  transform: rotate(-10deg) translate(18px, 10px);
+}
+.c1 {
+  position: relative;
+  z-index: 1;
+  animation: bob 3.2s ease-in-out infinite;
+}
+.c2 {
+  transform: rotate(10deg) translate(-18px, 10px);
+}
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.12) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.12) rotate(3deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .c1 {
+    animation: none;
+    transform: scale(1.12);
+  }
+}
+/* One size for every step: the step scrolls if it needs to, the buttons stay put. */
 .welcome {
   width: 640px;
   max-width: 95vw;
+  height: min(760px, 92vh);
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+}
+.steps {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 </style>
