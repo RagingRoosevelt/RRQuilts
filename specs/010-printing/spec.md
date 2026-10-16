@@ -146,3 +146,10 @@ these units from neighboring patches and offer the method alongside the per-patc
 
 - **SC-001**: Printed templates and the scale square measure within 0.5 mm of size at 100% scale.
 - **SC-002**: Rotary cut sizes match standard quilting charts (e.g. 3″ finished HST → 3⅞″ squares).
+
+## Addendum 2026-10-16 (spec 018)
+
+- Quilt pieces that aren't blocks (patches, setting pieces, pieced border and strip pattern shapes)
+  that the cutting chart cuts from a template get template pages too, after the blocks', headed
+  "Templates: quilt pieces" and lettered Q… (no key). The option reads "Templates (blocks and quilt
+  pieces)".

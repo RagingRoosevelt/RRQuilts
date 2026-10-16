@@ -549,6 +549,7 @@ import {
   type PrintTarget,
 } from '@/model/print/prefs';
 import { cutFor, cutPlan, type Cut, type CutKind, type CutLine } from '@/model/print/rotary';
+import { PLAIN_BLOCK } from '@/model/plain';
 import {
   BINDING_EXTRA,
   backing,
@@ -1106,6 +1107,25 @@ const logical = computed<Sheet[]>(() => {
           }),
         );
       }
+      // Pieces of the quilt itself that need templates (patches, setting and border shapes, strip
+      // patterns): the ones the cutting chart says to cut from a template, lettered Q….
+      const quilt = doc.value!.project.quilts.find((q) => q.id === props.id);
+      const plain = quilt
+        ? quiltPieces(doc.value!, quilt, PLAIN_BLOCK).filter(
+            (p) => cutFor(p, 0, 0).kind === 'template',
+          )
+        : [];
+      if (plain.length)
+        out.push(
+          ...templateSheets({
+            pieces: plain,
+            size: [1, 1],
+            keyPieces: [],
+            heading: 'Templates: quilt pieces',
+            prefix: 'Q',
+            noKey: true,
+          }),
+        );
     }
     if (section === 'rotary') {
       const lines = cutPlan(v.pieces, seam.value, step.value, usableForCuts.value, slack.value);
