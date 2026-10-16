@@ -26,7 +26,7 @@ export interface Settings {
   projectTab: 'quilts' | 'blocks' | 'colors' | 'photos' | 'threads' | 'details';
   /** Your socials (GitHub, a pattern shop, …): a known or free-text type and a handle (or link). */
   socials: Social[];
-  /** Project Blocks / Palettes tabs leave out the library lists (Settings › Libraries). */
+  /** Project Blocks / Palettes tabs leave out the library lists (Settings › Project). */
   hideLibraryBlocks: boolean;
   hideLibraryPalettes: boolean;
   /** Project Blocks tab: a My-library block shows once, as its synced project copy. */
