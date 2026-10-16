@@ -248,8 +248,7 @@
                   { value: 'colors', label: 'Average colors only (never load images)' },
                 ]"
               />
-            </SettingsCard>
-            <SettingsCard label="Image size on screen">
+              <div class="text-caption q-mt-md q-mb-xs">Image size on screen</div>
               <q-btn-toggle
                 v-model="store.settings.imageSize"
                 no-caps
@@ -260,8 +259,7 @@
                   { value: 512, label: 'Standard (512 px)' },
                 ]"
               />
-            </SettingsCard>
-            <SettingsCard label="Your fabric images in saved projects">
+              <div class="text-caption q-mt-md q-mb-xs">Your fabric images in saved projects</div>
               <q-btn-toggle
                 v-model="store.settings.saveSize"
                 no-caps
