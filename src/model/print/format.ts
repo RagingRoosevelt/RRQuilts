@@ -22,6 +22,15 @@ export function fmtLen(x: number, units: Units): string {
   return `${Number(x.toFixed(3))}″ (~ ${ruler(sixteenths)}″)`;
 }
 
+/**
+ * A label's exact sizes and, when any is approximated, the ruler fractions on their own:
+ * "3.333″ (~ 3 5/16″) × 2″" → ["3.333″ × 2″", "3 5/16″ × 2″"].
+ */
+export function splitApprox(label: string): [exact: string, approx: string | null] {
+  if (!label.includes('(~ ')) return [label, null];
+  return [label.replace(/ \(~ [^)]+\)/g, ''), label.replace(/\S+ \(~ ([^)]+)\)/g, '$1')];
+}
+
 /** Yards (inches projects) or centimeters of fabric. */
 export const fmtFabric = (inUnits: number, units: Units) =>
   units === 'cm'

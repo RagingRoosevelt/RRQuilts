@@ -211,7 +211,12 @@
                     <tbody>
                       <tr v-for="(l, j) in g.lines" :key="j">
                         <td>{{ KIND_LABEL[l.cut.kind] }}</td>
-                        <td>{{ finishedLabel(l.cut) }}</td>
+                        <td>
+                          {{ splitApprox(finishedLabel(l.cut))[0] }}
+                          <div v-if="splitApprox(finishedLabel(l.cut))[1]" class="approx">
+                            (~ {{ splitApprox(finishedLabel(l.cut))[1] }})
+                          </div>
+                        </td>
                         <td>{{ l.cut.kind === 'template' ? 'Use template' : cutLabel(l.cut) }}</td>
                         <td>{{ howLabel(l) }}</td>
                         <td>
@@ -307,6 +312,10 @@
                       :font-size="(font / s.scale) * 0.8"
                       text-anchor="middle"
                       :fill="l.light ? '#fff' : '#000'"
+                      :stroke="l.light ? '#000' : '#fff'"
+                      :stroke-width="(font / s.scale) * 0.8 * 0.22"
+                      paint-order="stroke"
+                      stroke-linejoin="round"
                     >
                       {{ l.text }}
                     </text>
@@ -519,7 +528,7 @@ import {
 } from '@/model/credits';
 import { pathToSegs, flattenLoop, sub, type Pt } from '@/model/geometry/path';
 import { generateFor } from '@/model/layout/slots';
-import { fmtFabric, fmtLen } from '@/model/print/format';
+import { fmtFabric, fmtLen, splitApprox } from '@/model/print/format';
 import { pack, pillWidth, splitFlow, tiles, wrapPills } from '@/model/print/pack';
 import {
   blockPieces,
@@ -1602,6 +1611,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.approx {
+  font-size: 0.85em;
+  color: #555;
+}
 /* Sheets never push on the panels around the preview; it scrolls instead. */
 .print-preview {
   min-width: 0;
@@ -1712,6 +1725,7 @@ td {
 }
 .warn {
   color: #b00020;
+  font-size: 0.8em;
 }
 .avoid-break {
   break-inside: avoid;

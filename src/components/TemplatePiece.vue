@@ -61,6 +61,8 @@
       :transform="`translate(${seamSpot.x} ${seamSpot.y}) rotate(${seamSpot.deg})`"
       :font-size="seamSpot.size"
       text-anchor="middle"
+      class="halo"
+      :stroke-width="seamSpot.size * 0.22"
       dominant-baseline="central"
     >
       {{ look.seamText }}
@@ -94,6 +96,8 @@
         :font-size="line.size"
         :font-weight="line.bold ? 'bold' : undefined"
         :text-anchor="line.anchor"
+        class="halo"
+        :stroke-width="line.size * 0.22"
       >
         {{ line.text }}
       </text>
@@ -107,6 +111,14 @@
       <tspan v-for="(c, i) in caption" :key="i" :font-size="look.font * 0.85 * c.k">{{
         c.text
       }}</tspan>
+    </text>
+    <text
+      v-if="caption.length && captionApprox"
+      :x="bounds[0]"
+      :y="bounds[3] + look.font * (1.3 * captionK + 1.1)"
+      :font-size="look.font * 0.7"
+    >
+      (~ {{ captionApprox }})
     </text>
     <!-- Color key off: a pill per fabric under the template -->
     <g v-for="p in pills" :key="p.n" :transform="`translate(${p.x} ${pillY + p.y})`">
@@ -138,6 +150,7 @@
 import { computed } from 'vue';
 import { pointInPolygon, type Pt } from '@/model/geometry/path';
 import { pillWidth, wrapPills } from '@/model/print/pack';
+import { splitApprox } from '@/model/print/format';
 import type { PlacedPiece } from '@/model/print/pieces';
 
 const props = defineProps<{
@@ -169,27 +182,28 @@ const bounds = computed(() => {
   const ys = props.piece.cut.map((p) => p[1]);
   return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] as const;
 });
-// A finished size with an approximation ("3.333″ (~ 3 5/16″)") is long: it goes small and the cut
-// count large, so what to cut stays easy to read.
-const approx = computed(() => props.piece.size.includes('(~'));
-const sizeK = computed(() => (approx.value ? 0.75 : 1));
-const noteK = computed(() => (approx.value ? 1.35 : 1));
 /** Unchecked labels print under the template: "B · 3″ legs · Cut 72 Cream", each at its size. */
 const caption = computed(() => {
   const l = props.look.labels;
   return [
     l.letter ? null : { text: props.piece.letter, k: 1 },
-    l.size ? null : { text: props.piece.size, k: sizeK.value },
-    l.counts ? null : { text: props.piece.note, k: noteK.value },
+    l.size ? null : { text: splitApprox(props.piece.size)[0], k: 1 },
+    l.counts ? null : { text: props.piece.note, k: 1 },
   ]
     .filter((x) => !!x?.text)
     .map((x, i) => ({ ...x!, text: i ? ` · ${x!.text}` : x!.text }));
 });
 const captionK = computed(() => Math.max(1, ...caption.value.map((x) => x.k)));
+/** The caption's size, when approximated, gets its ruler fractions on a line of their own. */
+const captionApprox = computed(() =>
+  props.look.labels.size ? null : splitApprox(props.piece.size)[1],
+);
 /** Fabric pills (color key unchecked), laid left to right under the caption. */
 const pillY = computed(
   () =>
-    bounds.value[3] + props.look.font * (caption.value.length ? 0.6 + 1.3 * captionK.value : 0.4),
+    bounds.value[3] +
+    props.look.font *
+      ((caption.value.length ? 0.6 + 1.3 * captionK.value : 0.4) + (captionApprox.value ? 1.1 : 0)),
 );
 const pills = computed(() => {
   if (props.look.labels.color) return [];
@@ -206,10 +220,13 @@ const pills = computed(() => {
 /** Checked notes, printed on the template: finished size, then what to cut. */
 const insideLines = computed(() => {
   const l = props.look.labels;
+  const [exact, approx] = splitApprox(props.piece.size);
   return [
-    l.size ? { text: `Finished ${props.piece.size}`, em: 0.9 * sizeK.value } : null,
-    l.counts ? { text: props.piece.note, em: 0.9 * noteK.value } : null,
-  ].filter((x) => !!x?.text) as { text: string; em: number }[];
+    l.size ? { text: `Finished ${exact}`, em: 0.9 } : null,
+    // Ruler fractions for sizes off the grid, on their own line under the exact size.
+    l.size && approx ? { text: `(~ ${approx})`, em: 0.7, under: true } : null,
+    l.counts ? { text: props.piece.note, em: 0.9 } : null,
+  ].filter((x) => !!x?.text) as { text: string; em: number; under?: boolean }[];
 });
 /** Where the cutting line crosses a line through `at` along x (`up` false) or y (`up` true). */
 function chord(at: number, up: boolean): [number, number] {
@@ -251,7 +268,18 @@ const layout = computed(() => {
   const height = (rows.reduce((a, x) => a + x.em * 1.15, 0) + arrow) * f;
   const width = Math.max(0, ...rows.map(textW));
   const kStack = Math.max(0, Math.min(1, room / (height || 1), room / (width || 1)));
-  // A row along the piece's longer side.
+  // A row along the piece's longer side: three items (start, middle, end); the ruler fractions stay
+  // stacked under the size they belong to.
+  type Item = (typeof rows)[number] & { sub?: { text: string; em: number } };
+  const items = rows.reduce<Item[]>(
+    (out, x) =>
+      'under' in x && x.under && out.length
+        ? [...out.slice(0, -1), { ...out.at(-1)!, sub: { text: x.text, em: x.em } }]
+        : [...out, x],
+    [],
+  );
+  const itemH = (x: Item) => (x.em + (x.sub?.em ?? 0)) * 1.15;
+  const itemW = (x: Item) => Math.max(textW(x), x.sub ? textW(x.sub) : 0);
   const xs = props.piece.sew.map((p) => p[0]);
   const ys = props.piece.sew.map((p) => p[1]);
   const up = Math.max(...ys) - Math.min(...ys) > Math.max(...xs) - Math.min(...xs);
@@ -259,11 +287,30 @@ const layout = computed(() => {
   const pad = f * 0.25;
   const span = b - a - 2 * pad;
   const gap = f * 0.8;
-  const rowH = (Math.max(0, ...rows.map((x) => x.em)) * 1.15 + arrow) * f;
-  const rowW = rows.reduce((t, x) => t + textW(x), 0) + gap * Math.max(0, rows.length - 1);
+  const rowH = (Math.max(0, ...items.map(itemH)) + arrow) * f;
+  const rowW = items.reduce((t, x) => t + itemW(x), 0) + gap * Math.max(0, items.length - 1);
   const kRow = Math.max(0, Math.min(1, room / (rowH || 1), span / (rowW || 1)));
-  const row = rows.length > 1 && kRow > kStack * 1.15;
-  return { f, cx, cy, room, rows, arrow, height, width, kStack, up, a, b, pad, rowH, kRow, row };
+  const row = items.length > 1 && kRow > kStack * 1.15;
+  return {
+    f,
+    cx,
+    cy,
+    room,
+    rows,
+    items,
+    arrow,
+    height,
+    width,
+    kStack,
+    up,
+    a,
+    b,
+    pad,
+    rowH,
+    kRow,
+    row,
+    itemH,
+  };
 });
 
 const stack = computed(() => {
@@ -271,24 +318,32 @@ const stack = computed(() => {
   const { f, cx, cy, rows, arrow } = L;
   if (L.row) {
     const k = L.kRow;
+    const rows = L.items;
     const n = rows.length;
     const anchors = n === 2 ? ['start', 'end'] : ['start', 'middle', 'end'];
     // Along the row: start at a (left, or the bottom when reading upward), end at b.
     const along =
       n === 2 ? [L.a + L.pad, L.b - L.pad] : [L.a + L.pad, (L.a + L.b) / 2, L.b - L.pad];
-    const lift = (arrow * f + Math.max(...rows.map((x) => x.em)) * 0.9 * f) * k - (L.rowH * k) / 2;
-    const lines = rows.map((x, i) => {
-      // Upright pieces read bottom to top: the start of the row is at the bottom.
+    // Each item centered in the band under the grain arrow; offsets run across the row (down the
+    // page for a flat row, rightward for an upright one, which reads bottom to top).
+    const bandTop = -(L.rowH * k) / 2 + arrow * f * k;
+    const band = L.rowH * k - arrow * f * k;
+    const lines = rows.flatMap((x, i) => {
       const t = L.up ? L.a + L.b - along[i]! : along[i]!;
-      return {
-        text: x.text,
-        size: x.em * f * k,
-        bold: x.bold,
-        x: L.up ? cx + lift : t,
-        y: L.up ? t : cy + lift,
+      const top = bandTop + (band - L.itemH(x) * f * k) / 2;
+      const at = (d: number, text: string, em: number, bold: boolean) => ({
+        text,
+        size: em * f * k,
+        bold,
+        x: L.up ? cx + d : t,
+        y: L.up ? t : cy + d,
         anchor: anchors[i]!,
         up: L.up,
-      };
+      });
+      const main = at(top + x.em * 0.9 * f * k, x.text, x.em, x.bold);
+      return x.sub
+        ? [main, at(top + (x.em * 1.15 + x.sub.em * 0.9) * f * k, x.sub.text, x.sub.em, false)]
+        : [main];
     });
     const arrowAt: Pt = L.up
       ? [cx - (L.rowH * k) / 2 + f * 0.5 * k, cy]
@@ -389,3 +444,12 @@ function head(s: 1 | -1) {
   return `M${x} ${y}L${bx - gy * k * 0.5} ${by + gx * k * 0.5}L${bx + gy * k * 0.5} ${by - gx * k * 0.5}Z`;
 }
 </script>
+
+<style scoped>
+/* A light outline under label text (painted first), so labels read across the seam lines. */
+.halo {
+  stroke: #fff;
+  paint-order: stroke;
+  stroke-linejoin: round;
+}
+</style>

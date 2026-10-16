@@ -136,6 +136,11 @@ these units from neighboring patches and offer the method alongside the per-patc
   MUST stay inside the cutting line. On long thin pieces, where a stack would shrink them, they lie
   in a row along the piece instead: letter at the start, size in the middle, count at the end
   (reading upward on upright pieces); such pieces carry no scale square. *Added 2026-10-16 (owner).*
+- **FR-007**: A finished size off the ruler grid MUST print as its exact value with the ruler
+  fractions on the line below in the form "(~ 3 5/16″ × 13/16″)", on templates (also when labels
+  lie in a row, stacked in the middle item), under templates, and in the cutting chart; the chart's
+  rounding warning prints smaller than the chart text. Template labels carry a light halo so they
+  read across the seam lines (light labels on dark fabric get a dark one). *Added 2026-10-16 (owner).*
 
 ## Success Criteria *(mandatory)*
 

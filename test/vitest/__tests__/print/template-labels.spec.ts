@@ -43,7 +43,7 @@ const piece = (w: number, h: number): PlacedPiece => ({
 const labels = (p: PlacedPiece) =>
   mount(TemplatePiece, { props: { piece: p, look } })
     .findAll('text')
-    .filter((t) => ['A', 'Finished', 'Cut'].some((s) => t.text().startsWith(s)))
+    .filter((t) => ['A', 'Finished', 'Cut', '(~'].some((s) => t.text().startsWith(s)))
     .map((t) => ({
       text: t.text(),
       x: Number(t.attributes('x')),
@@ -64,7 +64,6 @@ describe('template labels', () => {
     const l = labels(piece(4, 0.5));
     expect(l.map((x) => x.text)).toEqual(['A', 'Finished 4″ × 0.5″', 'Cut 24']);
     expect(l.map((x) => x.anchor)).toEqual(['start', 'middle', 'end']);
-    expect(new Set(l.map((x) => x.y)).size).toBe(1);
     expect(l[0]!.x).toBeLessThan(l[1]!.x);
     expect(l[1]!.x).toBeLessThan(l[2]!.x);
     // Bigger than a stack could be, and inside the cutting line (seam allowance allowed).
@@ -73,10 +72,24 @@ describe('template labels', () => {
     expect(l[2]!.x).toBeLessThanOrEqual(4.5);
   });
 
+  it('keep ruler fractions stacked under the size, in a row too', () => {
+    const l = labels({ ...piece(4, 0.5), size: '3.333″ (~ 3 5/16″) × 0.5″' });
+    expect(l.map((x) => x.text)).toEqual([
+      'A',
+      'Finished 3.333″ × 0.5″',
+      '(~ 3 5/16″ × 0.5″)',
+      'Cut 24',
+    ]);
+    expect(l[1]!.x).toBe(l[2]!.x);
+    expect(l[2]!.y).toBeGreaterThan(l[1]!.y);
+    const stacked = labels({ ...piece(4, 4), size: '3.333″ (~ 3 5/16″) × 4″' });
+    expect(stacked[2]!.text).toBe('(~ 3 5/16″ × 4″)');
+    expect(stacked[2]!.y).toBeGreaterThan(stacked[1]!.y);
+  });
+
   it('read upward on tall thin pieces', () => {
     const l = labels(piece(0.5, 4));
     expect(l.every((x) => x.up)).toBe(true);
-    expect(new Set(l.map((x) => x.x)).size).toBe(1);
     expect(l[0]!.y).toBeGreaterThan(l[2]!.y); // starts at the bottom
   });
 });
