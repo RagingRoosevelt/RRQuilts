@@ -14,7 +14,7 @@
         :contracted="$q.screen.lt.sm"
       >
         <q-step name="name" title="You" icon="person">
-          <!-- Mexican Cross II in three of its colorings, fanned out like swatch cards. -->
+          <!-- Log Cabin, Mexican Cross II, and Bear's Paws, fanned out like swatch cards. -->
           <div v-if="cards.length" class="hero" aria-hidden="true">
             <img v-for="(src, i) in cards" :key="i" :src="src" alt="" :class="`card c${i}`" />
           </div>
@@ -140,15 +140,22 @@ const $q = useQuasar();
 const library = useLibraryStore();
 // Built-in blocks draw against an empty project (their colors come from the built-in library).
 const scratch = createProject();
-const cards = computed(() => {
-  const b = library.items.blocks.find((x) => x.notecard.name === 'Mexican Cross II');
-  if (!b) return [];
-  const n = b.colorings.length;
-  const picks = [...new Set([1, 0, n - 1].filter((i) => i < n))];
-  return picks.map((i) =>
-    blockThumbnail(scratch, b, 220, $q.dark.isActive, b.colorings[i]!.id, library.items.colors),
-  );
-});
+/** Three built-in blocks, each in one of its themed colorings (same slot as the others: pastel,
+ *  the original colors, the last theme). */
+const CARDS: [name: string, coloring: (n: number) => number][] = [
+  ['Log Cabin I', () => 1],
+  ['Mexican Cross II', () => 0],
+  ["Bear's Paws", (n) => n - 1],
+];
+const cards = computed(() =>
+  CARDS.flatMap(([name, pick]) => {
+    const b = library.items.blocks.find((x) => x.notecard.name === name);
+    const c = b?.colorings[Math.min(pick(b.colorings.length), b.colorings.length - 1)];
+    return b && c
+      ? [blockThumbnail(scratch, b, 220, $q.dark.isActive, c.id, library.items.colors)]
+      : [];
+  }),
+);
 const router = useRouter();
 const step = ref('name');
 const move = (d: number) => (step.value = STEPS[STEPS.indexOf(step.value) + d] ?? step.value);
