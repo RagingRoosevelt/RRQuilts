@@ -1116,29 +1116,48 @@
             class="rounded-borders"
             style="max-height: 50vh; overflow: auto"
           >
-            <q-item v-for="p in pickList" :key="p.id" tag="label">
+            <q-item
+              v-for="p in pickList"
+              :key="p.id"
+              tag="label"
+              :disable="pickStatus(p) === 'have'"
+            >
               <q-item-section side>
                 <q-checkbox
                   dense
-                  :model-value="picking.chosen.includes(p.id)"
+                  :model-value="pickStatus(p) === 'have' || picking.chosen.includes(p.id)"
+                  :disable="pickStatus(p) === 'have'"
                   @update:model-value="(on: boolean) => pickOne(p.id, on)"
                 />
               </q-item-section>
               <q-item-section>
                 <q-item-label>{{ p.name }}</q-item-label>
-                <q-item-label caption>
-                  {{ itemCount(p) }} ·
-                  {{
-                    {
-                      new: 'new',
-                      update: 'newer than yours',
-                      installed: 'installed (tick to add it again, with any missing images)',
-                    }[pickStatus(p)]
-                  }}
-                </q-item-label>
+                <q-item-label caption>{{ itemCount(p) }} · {{ pickNote(p) }}</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
+          <q-toggle
+            v-if="largerPacks.length"
+            v-model="picking.addLarger"
+            :label="`Add the file's larger images (${filePx} px) to ${largerPacks.length} pack${largerPacks.length === 1 ? '' : 's'} you have`"
+          />
+          <div v-if="smallerPacks.length">
+            <div class="text-body2">
+              {{ smallerPacks.length }} pack{{ smallerPacks.length === 1 ? '' : 's' }} you have
+              {{ smallerPacks.length === 1 ? 'has' : 'have' }} larger images than this file's ({{
+                filePx
+              }}
+              px):
+            </div>
+            <q-option-group
+              v-model="picking.useSmaller"
+              dense
+              :options="[
+                { label: 'Keep your larger images', value: false },
+                { label: 'Switch to this file\'s smaller images (frees space)', value: true },
+              ]"
+            />
+          </div>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat no-caps label="Cancel" @click="picking = null" />
@@ -1146,8 +1165,8 @@
             flat
             no-caps
             color="primary"
-            :label="picking.chosen.length ? `Add ${picking.chosen.length}` : 'Add library'"
-            :disable="!picking.chosen.length && !pickConnects"
+            label="Import"
+            :disable="!pickSomething"
             :loading="picking.busy"
             @click="installPicked"
           />
@@ -1342,7 +1361,14 @@ import type { Color } from '@/model/schema/palette';
 import { blockThumbnail } from '@/render/thumbnail';
 import { exportFile, pickFile } from '@/storage/files';
 import { absorbFabrics, embedFabrics } from '@/storage/fabric-files';
-import { isZip, readLibraryZip, writeLibraryZip, type ZippedLibrary } from '@/storage/library-zip';
+import { deleteImage } from '@/storage/images';
+import {
+  isZip,
+  readLibraryZip,
+  writeLibraryZip,
+  type ImageCheck,
+  type ZippedLibrary,
+} from '@/storage/library-zip';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PalettePreview from '@/components/PalettePreview.vue';
 import PaletteTitle from '@/components/PaletteTitle.vue';
@@ -2216,12 +2242,24 @@ async function importZip(bytes: Uint8Array<ArrayBuffer>) {
       };
       return;
     }
-    // Updates start ticked; packs this device doesn't have yet are the user's choice.
+    // Installed packs identical to the file's: their images here compared with the file's.
+    const checks = await r.imageCheck(
+      r.packs
+        .filter((p) => library.packs.some((x) => x.id === p.id && x.revision >= p.revision))
+        .map((p) => p.id),
+    );
     picking.value = {
       r: markRaw(r), // frozen packs: Vue mustn't proxy them
-      chosen: r.packs.filter((p) => pickStatus(p) === 'update').map((p) => p.id),
+      checks,
+      addLarger: true,
+      useSmaller: false,
+      chosen: [],
       filter: '',
     };
+    // Updates and incomplete packs start ticked; new ones are the user's choice.
+    picking.value.chosen = r.packs
+      .filter((p) => ['update', 'missing'].includes(pickStatus(p)))
+      .map((p) => p.id);
     if (r.packs.length === 1 && !r.index) {
       picking.value.chosen = [r.packs[0]!.id]; // a single pack: nothing to choose
       await installPicked();
@@ -2233,15 +2271,38 @@ async function importZip(bytes: Uint8Array<ArrayBuffer>) {
 }
 const picking = ref<{
   r: ZippedLibrary;
+  /** Installed packs the file has too: image sizes here and in the file, and images missing. */
+  checks: Record<string, ImageCheck>;
+  /** Packs here with smaller images than the file's: add the file's larger ones. */
+  addLarger: boolean;
+  /** Packs here with larger images than the file's: switch to the file's (frees space). */
+  useSmaller: boolean;
   chosen: string[];
   filter: string | null;
   busy?: boolean;
 } | null>(null);
 /** The file names its repository: importing it connects the library. */
 const pickConnects = computed(() => /^https:\/\//.test(picking.value?.r.index?.repository ?? ''));
+/**
+ * new; update (the file's is newer); missing (same, but images are missing here); off (complete
+ * but switched off: ticking switches it on); have (complete and on: nothing to do).
+ */
 function pickStatus(p: LibraryDoc) {
   const have = library.packs.find((x) => x.id === p.id);
-  return !have ? 'new' : have.revision < p.revision ? 'update' : 'installed';
+  if (!have) return 'new';
+  if (have.revision < p.revision) return 'update';
+  if (picking.value?.checks[p.id]?.holes) return 'missing';
+  return packOn(p.id) ? 'have' : 'off';
+}
+function pickNote(p: LibraryDoc) {
+  const n = picking.value?.checks[p.id]?.holes ?? 0;
+  return {
+    new: 'new',
+    update: 'newer than yours',
+    missing: `installed, ${n} image${n === 1 ? '' : 's'} missing`,
+    off: 'installed, switched off',
+    have: 'installed',
+  }[pickStatus(p)];
 }
 const pickList = computed(() => {
   const q = picking.value?.filter?.trim().toLowerCase();
@@ -2252,10 +2313,30 @@ function pickOne(id: string, on: boolean) {
   const pk = picking.value!;
   pk.chosen = on ? [...new Set([...pk.chosen, id])] : pk.chosen.filter((x) => x !== id);
 }
-/** Select all or none of the packs shown. */
+/** Select all or none of the packs shown (complete ones need nothing). */
 function pickAll(on: boolean) {
-  for (const p of pickList.value) pickOne(p.id, on);
+  for (const p of pickList.value) if (pickStatus(p) !== 'have') pickOne(p.id, on);
 }
+/** Installed packs whose images here are smaller, or larger, than the file's. */
+const sizeDiff = (larger: boolean) =>
+  Object.entries(picking.value?.checks ?? {})
+    .filter(([, c]) => c.havePx && c.filePx && (larger ? c.filePx > c.havePx : c.filePx < c.havePx))
+    .map(([id]) => id);
+const largerPacks = computed(() => sizeDiff(true));
+const smallerPacks = computed(() => sizeDiff(false));
+const filePx = computed(() =>
+  Math.max(0, ...Object.values(picking.value?.checks ?? {}).map((c) => c.filePx)),
+);
+const pickSomething = computed(() => {
+  const pk = picking.value;
+  return (
+    !!pk &&
+    (!!pk.chosen.length ||
+      pickConnects.value ||
+      (pk.addLarger && !!largerPacks.value.length) ||
+      (pk.useSmaller && !!smallerPacks.value.length))
+  );
+});
 const itemCount = (p: LibraryDoc) => {
   const n = p.items.reduce(
     (t, i) => t + (i.type === 'colors' ? i.data.colors.length + (i.data.fabrics?.length ?? 0) : 1),
@@ -2268,24 +2349,43 @@ async function installPicked() {
   if (!pk) return;
   pk.busy = true;
   try {
-    const updated = pk.chosen.filter((id) =>
-      pk.r.packs.some((p) => p.id === id && pickStatus(p) === 'update'),
-    );
-    const bad = await pk.r.storeImages(pk.chosen);
+    // Counted before installing: afterwards every chosen pack is installed.
+    const by = (st: string) =>
+      pk.chosen.filter((id) => pk.r.packs.some((p) => p.id === id && pickStatus(p) === st)).length;
+    const counts = { new: by('new'), update: by('update'), missing: by('missing'), off: by('off') };
+    const larger = pk.addLarger ? largerPacks.value : [];
+    const smaller = pk.useSmaller ? smallerPacks.value : [];
+    const bad = await pk.r.storeImages([...new Set([...pk.chosen, ...larger, ...smaller])]);
+    // Switching to the file's smaller images: the larger ones of those packs go.
+    for (const id of smaller) {
+      const max = pk.checks[id]!.filePx;
+      const doc = pk.r.packs.find((p) => p.id === id)!;
+      for (const i of doc.items)
+        if (i.type === 'colors')
+          for (const f of i.data.fabrics ?? [])
+            for (const sz of f.sizes ?? []) if (sz.px > max) await deleteImage(sz.sha256);
+    }
     const connected = await library.installFromFile(pk.r.index, pk.r.packs, pk.chosen);
     // Chosen packs are on, even ones switched off before.
     settings.settings.packsOff = settings.settings.packsOff.filter((id) => !pk.chosen.includes(id));
-    if (updated.length) void library.freeImages(); // dropped fabrics' images, unless a project uses them
+    if (counts.update) void library.freeImages(); // dropped fabrics' images, unless a project uses them
     retryMissing();
     picking.value = null;
     if (pk.r.index) showLibrary(pk.r.index.id);
-    const added = pk.chosen.length - updated.length;
+    const n = (k: number, what: string) => `${k} pack${k === 1 ? '' : 's'} ${what}`;
+    const done = [
+      ...(counts.new ? [n(counts.new, 'added')] : []),
+      ...(counts.update ? [n(counts.update, 'updated')] : []),
+      ...(counts.missing ? [n(counts.missing, 'completed')] : []),
+      ...(counts.off ? [n(counts.off, 'switched on')] : []),
+      ...(larger.length ? [n(larger.length, 'given larger images')] : []),
+      ...(smaller.length ? [n(smaller.length, 'switched to smaller images')] : []),
+    ];
     const skipped = [...pk.r.skipped, ...bad];
     $q.notify({
       type: skipped.length ? 'warning' : 'positive',
       message:
-        `${pk.r.library?.name ?? 'Library'}: ${added} pack${added === 1 ? '' : 's'} added` +
-        (updated.length ? `, ${updated.length} updated` : '') +
+        `${pk.r.library?.name ?? 'Library'}: ${done.join(', ') || 'nothing to add'}` +
         (connected ? '. Switch on more packs any time.' : '.') +
         (skipped.length ? ` Skipped: ${skipped.join('; ')}` : ''),
       timeout: skipped.length ? 0 : 4000,

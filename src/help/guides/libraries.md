@@ -65,7 +65,9 @@ Under the **Libraries** list, click **Import resource…** and choose a `.rrqlib
 `.rrqplt` palette). A file with several packs
 lists them first: tick the ones to add. If the file says where the library lives on the web, the
 library is added as if from the web, and its other packs can be switched on later. Otherwise,
-import the file again to add more. To remove an installed pack, choose **Remove pack** in one of
+import the file again to add more. Packs you already have show as installed, or say how many of
+their images are missing (ticked, to fill them in). A file with larger images than yours offers to
+add them, and one with smaller images offers to switch to them, which frees space. To remove an installed pack, choose **Remove pack** in one of
 its palettes' **⋮** menus. **Remove** under an imported library's name removes all of it.
 
 ## Share your own pack

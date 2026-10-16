@@ -5,7 +5,7 @@ import { parseLibraryValue } from '@/model/library-file';
 import type { LibraryBackup, LibraryDoc } from '@/model/schema/library';
 import type { Fabric } from '@/model/schema/palette';
 import { readZip, writeZip, type ZipEntry } from '@/model/zip';
-import { getImage, putImage } from './images';
+import { getImage, imageIds, putImage } from './images';
 import type { LibraryIndex } from './repositories';
 
 export interface ZippedLibrary {
@@ -20,6 +20,16 @@ export interface ZippedLibrary {
   skipped: string[];
   /** Keep these packs' images (checked against their hashes); returns the ones that didn't match. */
   storeImages: (packIds: string[]) => Promise<string[]>;
+  /** Installed packs' images, compared with this device (one read of its image list). */
+  imageCheck: (packIds: string[]) => Promise<Record<string, ImageCheck>>;
+}
+
+export interface ImageCheck {
+  /** The largest image size the zip carries for the pack, and the largest this device holds. */
+  filePx: number;
+  havePx: number;
+  /** Images the zip has, at sizes this device holds, that it lacks. */
+  holes: number;
 }
 
 /** Whether these bytes are a zip (vs. a JSON `.rrqlib`). */
@@ -63,6 +73,26 @@ export async function readLibraryZip(bytes: Uint8Array<ArrayBuffer>): Promise<Zi
       }
     return bad;
   }
+  const docs = new Map<string, LibraryDoc>();
+  async function imageCheck(packIds: string[]) {
+    const here = new Set((await imageIds()).map(String));
+    const out: Record<string, ImageCheck> = {};
+    for (const id of packIds) {
+      const doc = docs.get(id);
+      if (!doc) continue;
+      const sizes = doc.items.flatMap((i) =>
+        i.type === 'colors' ? (i.data.fabrics ?? []).flatMap((f) => f.sizes ?? []) : [],
+      );
+      const havePx = Math.max(0, ...sizes.filter((s) => here.has(s.sha256)).map((s) => s.px));
+      const inZip = (images.get(id) ?? []).map((x) => x.s);
+      out[id] = {
+        filePx: Math.max(0, ...inZip.map((s) => s.px)),
+        havePx,
+        holes: inZip.filter((s) => s.px <= havePx && !here.has(s.sha256)).length,
+      };
+    }
+    return out;
+  }
   for (const path of paths) {
     const dir = path.includes('/') ? path.slice(0, path.lastIndexOf('/') + 1) : '';
     let raw: unknown;
@@ -98,15 +128,17 @@ export async function readLibraryZip(bytes: Uint8Array<ArrayBuffer>): Promise<Zi
       await storeImages([r.doc.id, ...(r.doc.packs ?? []).map((p) => p.id)]).then((bad) =>
         skipped.push(...bad),
       );
-      return { packs: [], backup: r.doc, skipped, storeImages };
+      return { packs: [], backup: r.doc, skipped, storeImages, imageCheck };
     }
     packs.push(library ? { ...r.doc, library } : r.doc);
+    docs.set(r.doc.id, r.doc);
   }
   return {
     ...(library ? { library, index: index as LibraryIndex } : {}),
     packs,
     skipped,
     storeImages,
+    imageCheck,
   };
 }
 
