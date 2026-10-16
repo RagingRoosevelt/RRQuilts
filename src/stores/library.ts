@@ -1,7 +1,7 @@
 // Libraries (spec 008/011): built-in, My library, and installed packs. Projects look items up across
 // all of them (My library first, then packs, then built-in). Changes are saved to IndexedDB.
 import { defineStore } from 'pinia';
-import { computed, ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef, toRaw } from 'vue';
 import { builtinDoc, builtinLibrary } from '@/content/starter';
 import { emptyPersonal, lookupOf, withSources, type LibraryView } from '@/model/library';
 import type { LibraryDoc } from '@/model/schema/library';
@@ -21,6 +21,7 @@ import {
   type Connection,
   type LibraryIndex,
 } from '@/storage/repositories';
+import type { BackupConnection } from '@/model/schema/library';
 import { useSettingsStore } from './settings';
 import { useProjectStore } from './project';
 import { freeUnusedImages } from '@/storage/fabric-files';
@@ -90,11 +91,14 @@ export const useLibraryStore = defineStore('library', () => {
 
   /** My library, created on first use. */
   const ensureMine = (me: string) => mine.value ?? emptyPersonal(me);
+  // Saved documents are plain objects: a Vue proxy can't be frozen or stored (structured clone).
   async function saveMine(doc: LibraryDoc) {
+    doc = toRaw(doc);
     mine.value = Object.freeze(doc);
     await write(() => putMine(doc));
   }
   async function savePack(doc: LibraryDoc) {
+    doc = toRaw(doc);
     packs.value = [...packs.value.filter((p) => p.id !== doc.id), Object.freeze(doc)];
     await write(() => putPack(doc));
   }
@@ -148,6 +152,7 @@ export const useLibraryStore = defineStore('library', () => {
     })
     .catch(() => {});
   async function saveConnection(c: Connection) {
+    c = toRaw(c);
     connections.value = [...connections.value.filter((x) => x.index.id !== c.index.id), c];
     await write(() => putConnection(c));
   }
@@ -194,6 +199,31 @@ export const useLibraryStore = defineStore('library', () => {
     else if (index.revision > old.pinned)
       await saveConnection({ ...old, index, pinned: index.revision });
     return true;
+  }
+  /**
+   * A web library from a backup: connected again by its address, or, when that can't be reached
+   * (private, gone, offline), from the index saved with it, so it comes back with all its packs.
+   */
+  async function reconnect(w: BackupConnection): Promise<Connection> {
+    const have = connections.value.find((x) => x.index.id === w.library.id);
+    if (have) return have;
+    try {
+      return await connect(w.url, w.ref);
+    } catch (e) {
+      const i = w.index as Partial<LibraryIndex> | undefined;
+      if (i?.format !== 'rrqlib-index' || i.id !== w.library.id || !Array.isArray(i.packs)) throw e;
+      const index = i as LibraryIndex;
+      const c: Connection = {
+        id: `repo:${index.id}`,
+        url: w.url,
+        ...(w.ref ? { ref: w.ref } : {}),
+        base: rawBase(w.url, w.ref),
+        index,
+        pinned: index.revision,
+      };
+      await saveConnection(c);
+      return c;
+    }
   }
   /** Download and install one of a connected library's packs. */
   async function installFromRepo(c: Connection, packId: string, px: number) {
@@ -349,6 +379,7 @@ export const useLibraryStore = defineStore('library', () => {
     connections,
     connect,
     installFromFile,
+    reconnect,
     livePacks,
     installFromRepo,
     checkForUpdate,

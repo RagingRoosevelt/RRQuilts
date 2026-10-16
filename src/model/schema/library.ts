@@ -60,7 +60,10 @@ export const BackupConnection = Type.Object({
   url: Type.String(),
   ref: Type.Optional(Type.String()),
   library: Type.Object({ id: Type.String(), name: Type.String() }),
+  /** Packs to download again on restore (the ones its library could still serve). */
   packs: Type.Array(Type.String()),
+  /** Its index at backup time: restores the library, with all its packs listed, when offline. */
+  index: Type.Optional(Type.Unknown()),
 });
 export type BackupConnection = Type.Static<typeof BackupConnection>;
 

@@ -865,15 +865,8 @@
             {{ restoring.backup.packs?.length ?? 0 }} pack(s).
           </div>
           <div v-if="restoring.backup.connections?.length">
-            From the web, downloaded again:
-            {{
-              restoring.backup.connections
-                .map(
-                  (w) =>
-                    `${w.library.name} (${w.packs.length} pack${w.packs.length === 1 ? '' : 's'})`,
-                )
-                .join(', ')
-            }}
+            Libraries from the web, added again:
+            {{ restoring.backup.connections.map(webLine).join('; ') }}
           </div>
           <q-option-group
             v-if="library.mine?.items.length && restoring.backup.items.length"
@@ -1123,17 +1116,11 @@
             class="rounded-borders"
             style="max-height: 50vh; overflow: auto"
           >
-            <q-item
-              v-for="p in pickList"
-              :key="p.id"
-              tag="label"
-              :disable="pickStatus(p) === 'installed'"
-            >
+            <q-item v-for="p in pickList" :key="p.id" tag="label">
               <q-item-section side>
                 <q-checkbox
                   dense
-                  :model-value="pickStatus(p) === 'installed' || picking.chosen.includes(p.id)"
-                  :disable="pickStatus(p) === 'installed'"
+                  :model-value="picking.chosen.includes(p.id)"
                   @update:model-value="(on: boolean) => pickOne(p.id, on)"
                 />
               </q-item-section>
@@ -1142,9 +1129,11 @@
                 <q-item-label caption>
                   {{ itemCount(p) }} ·
                   {{
-                    { new: 'new', update: 'newer than yours', installed: 'installed' }[
-                      pickStatus(p)
-                    ]
+                    {
+                      new: 'new',
+                      update: 'newer than yours',
+                      installed: 'installed (tick to add it again, with any missing images)',
+                    }[pickStatus(p)]
                   }}
                 </q-item-label>
               </q-item-section>
@@ -1347,6 +1336,7 @@ import type {
   LibraryBackup,
   LibraryDoc,
   LibraryItem,
+  BackupConnection,
 } from '@/model/schema/library';
 import type { Color } from '@/model/schema/palette';
 import { blockThumbnail } from '@/render/thumbnail';
@@ -2203,7 +2193,7 @@ async function importFile() {
   if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
   if (r.doc.kind === 'personal') {
     restoring.value = {
-      backup: r.doc,
+      backup: markRaw(r.doc), // frozen documents: Vue mustn't proxy them
       skipped: r.skipped,
       mine: 'merge',
       packs: Object.fromEntries((r.doc.packs ?? []).map((p) => [p.id, 'keep' as const])),
@@ -2219,7 +2209,7 @@ async function importZip(bytes: Uint8Array<ArrayBuffer>) {
     busy();
     if (r.backup) {
       restoring.value = {
-        backup: r.backup,
+        backup: markRaw(r.backup),
         skipped: r.skipped,
         mine: 'merge',
         packs: Object.fromEntries((r.backup.packs ?? []).map((p) => [p.id, 'keep' as const])),
@@ -2262,9 +2252,9 @@ function pickOne(id: string, on: boolean) {
   const pk = picking.value!;
   pk.chosen = on ? [...new Set([...pk.chosen, id])] : pk.chosen.filter((x) => x !== id);
 }
-/** Select all or none of the packs shown (installed ones need nothing). */
+/** Select all or none of the packs shown. */
 function pickAll(on: boolean) {
-  for (const p of pickList.value) if (pickStatus(p) !== 'installed') pickOne(p.id, on);
+  for (const p of pickList.value) pickOne(p.id, on);
 }
 const itemCount = (p: LibraryDoc) => {
   const n = p.items.reduce(
@@ -2383,26 +2373,21 @@ async function backUp() {
   const b = backingUp.value!;
   backingUp.value = null;
   const busy = $q.notify({ message: 'Checking libraries on the web…', timeout: 0, spinner: true });
-  // Web libraries go in as their address and the installed packs it can still download; packs it
-  // can't (private, gone, offline) go in as copies with their images. On/off travels with them.
-  const connections = [];
+  // Every web library with packs here goes in as its address and index (so a restore brings it
+  // back even when it can't be reached), listing the packs it can still serve. The others (private,
+  // gone, offline) go in as copies with their images. On/off travels with them.
+  const connections: BackupConnection[] = [];
   for (const c of library.connections) {
+    const installed = library.packs.filter((p) => p.library?.id === c.index.id);
+    if (!installed.length) continue;
     const live = await library.livePacks(c);
-    const packs = library.packs
-      .filter((p) => p.library?.id === c.index.id && live.has(p.id))
-      .map((p) => p.id);
-    connections.push(
-      ...(packs.length
-        ? [
-            {
-              url: c.url,
-              ...(c.ref ? { ref: c.ref } : {}),
-              library: { id: c.index.id, name: c.index.name },
-              packs,
-            },
-          ]
-        : []),
-    );
+    connections.push({
+      url: c.url,
+      ...(c.ref ? { ref: c.ref } : {}),
+      library: { id: c.index.id, name: c.index.name },
+      packs: installed.filter((p) => live.has(p.id)).map((p) => p.id),
+      index: c.index,
+    });
   }
   busy();
   const doc = backupDoc(library.ensureMine(me.value), library.packs, b, {
@@ -2437,6 +2422,18 @@ const restoring = ref<{
   mine: 'merge' | 'replace';
   packs: Record<string, 'keep' | 'replace'>;
 } | null>(null);
+/** A backed-up web library: what comes from the web and what's in the file. */
+function webLine(w: BackupConnection) {
+  const n = (k: number) => `${k} pack${k === 1 ? '' : 's'}`;
+  const inFile = (restoring.value?.backup.packs ?? []).filter(
+    (p) => p.library?.id === w.library.id,
+  );
+  const parts = [
+    ...(w.packs.length ? [`${n(w.packs.length)} to download`] : []),
+    ...(inFile.length ? [`${n(inFile.length)} in this file`] : []),
+  ];
+  return `${w.library.name}${parts.length ? ` (${parts.join(', ')})` : ''}`;
+}
 const installedAgain = computed(() =>
   (restoring.value?.backup.packs ?? []).filter((p) => library.packs.some((x) => x.id === p.id)),
 );
@@ -2458,9 +2455,7 @@ async function doRestore() {
   const failed: string[] = [];
   for (const w of r.backup.connections ?? []) {
     try {
-      const c =
-        library.connections.find((x) => x.index.id === w.library.id) ??
-        (await library.connect(w.url, w.ref));
+      const c = await library.reconnect(w);
       for (const id of w.packs)
         if (!library.packs.some((p) => p.id === id) && c.index.packs.some((p) => p.id === id))
           await library.installFromRepo(c, id, settings.settings.imageSize);
