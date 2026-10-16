@@ -147,8 +147,8 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
   strips to trade their places (settings and content go with them), one undo step; Escape or tapping
   the first strip again cancels.
 - **FR-014**: For strip quilts, the toolbar MUST offer a Strip style tool: its button opens a menu of
-  the styles to pick from (the pick is shown on the button), and tapping a strip sets that strip's
-  style. *Added
+  the styles to pick from (the pick is shown on the button, and a small filled chevron marks it as a
+  menu), and tapping a strip sets that strip's style. *Added
   2026-10-16 (owner).* *Added
   2026-10-16 (owner).*
 - **FR-012**: The inspector MUST show each strip's unit size and, when units aren't square (or points
