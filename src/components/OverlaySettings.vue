@@ -47,6 +47,13 @@
             map-options
             @update:model-value="(size) => setGarment(g.key, { size })"
           />
+          <SizeChart
+            class="self-center"
+            :garment="g.key"
+            :fit="mine[g.key]!.fit"
+            :region="region"
+            :units="units"
+          />
         </div>
         <LengthInput
           :model-value="shown(g.key === 'top' ? mine.top?.sleeveLength : mine.pants?.inseam, g)"
@@ -120,6 +127,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
+import SizeChart from '@/components/SizeChart.vue';
 import { sizeRows, type Fit } from '@/model/garments';
 import { TARGETS, defaultRegion, fromRegion, type OverlayDefaults } from '@/model/targets';
 import { useSettingsStore } from '@/stores/settings';

@@ -74,31 +74,12 @@
           :readonly="readonly"
           @update:model-value="setSize"
         />
-        <q-icon
-          name="help_outline"
-          size="sm"
-          class="text-grey-7"
-          tabindex="0"
-          aria-label="Size chart"
-        >
-          <q-tooltip class="text-body2">
-            <table class="size-chart">
-              <thead>
-                <tr>
-                  <th>Size</th>
-                  <th v-for="h in chartHead" :key="h">{{ h }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="r in chart" :key="r.size">
-                  <td>{{ r.size }}</td>
-                  <td v-for="(c, k) in r.cols" :key="k">{{ c }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="text-caption">Body measurements, {{ units }}</div>
-          </q-tooltip>
-        </q-icon>
+        <SizeChart
+          :garment="garment"
+          :fit="modelValue.fit ?? 'women'"
+          :region="modelValue.region"
+          :units="units"
+        />
       </div>
       <LengthInput
         v-if="garment === 'top' && modelValue.piece === 'sleeve'"
@@ -173,6 +154,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
+import SizeChart from '@/components/SizeChart.vue';
 import {
   TARGETS,
   fromRegion,
@@ -288,30 +270,9 @@ function setSize(us: string) {
   const r = rows.value.find((x) => x.us === us);
   set({ size: us, ...(r ? { sleeveLength: len(r.m.arm) } : {}) });
 }
-const chartHead = computed(() =>
-  garment.value === 'pants'
-    ? ['Waist', 'Hip', 'Rise']
-    : [props.modelValue.fit === 'men' ? 'Chest' : 'Bust', 'Waist', 'Hip'],
-);
-const chart = computed(() =>
-  rows.value.map((r) => {
-    const u = (v: number) => (props.units === 'cm' ? Math.round(v * 2.54) : +v.toFixed(2));
-    const { m } = r;
-    const cols = garment.value === 'pants' ? [m.waist, m.hip, m.rise] : [m.bust, m.waist, m.hip];
-    return { size: sizeLabel(r), cols: cols.map(u) };
-  }),
-);
 </script>
 
 <style scoped>
-.size-chart {
-  border-collapse: collapse;
-}
-.size-chart th,
-.size-chart td {
-  padding: 1px 8px;
-  text-align: right;
-}
 /* A group label set into its divider line. */
 .target-header {
   display: flex;
