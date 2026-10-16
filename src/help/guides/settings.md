@@ -40,6 +40,12 @@ found show as a warning with a count, and their fabrics use average colors. Clic
 - **Hide "My Library" blocks and palettes when they are synced with the project's** tidies the
   project's **Blocks** and **Palettes** tabs ([Libraries](/help/guides/libraries)).
 
+## Design
+
+- **Recently used colors first in each palette** moves the colors you picked last to the front of
+  each palette in the Design tab. It's off at first, so palettes keep their own order and the color
+  you pick is only highlighted.
+
 ## Move settings to another device
 
 1. In Settings, under **Settings file (.rrqconf)**, click **Export**.

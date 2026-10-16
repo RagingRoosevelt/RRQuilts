@@ -42,6 +42,8 @@ export interface Settings {
   fabricImages: 'standins' | 'blank' | 'colors';
   /** The "?" buttons that open Help about a screen or section. */
   showHelp: boolean;
+  /** Design tab color tray: recently used colors first in each palette (off: palette order). */
+  recentColorsFirst: boolean;
   /** Fabric image size on screen: Light (256) or Standard (512). */
   imageSize: 256 | 512;
   /** Size your own fabric images are saved at in projects and backups. */
@@ -91,6 +93,7 @@ export const defaults = (): Settings => ({
   print: {},
   fabricImages: 'standins',
   showHelp: true,
+  recentColorsFirst: false,
   imageSize: 512,
   saveSize: 512,
   packsOff: [],
@@ -129,6 +132,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   print: (v) => isObject(v),
   fabricImages: (v) => v === 'standins' || v === 'blank' || v === 'colors',
   showHelp: (v) => typeof v === 'boolean',
+  recentColorsFirst: (v) => typeof v === 'boolean',
   imageSize: (v) => v === 256 || v === 512,
   saveSize: (v) => v === 256 || v === 512,
   packsOff: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),

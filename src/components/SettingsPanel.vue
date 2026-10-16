@@ -269,6 +269,14 @@
             />
           </div>
         </q-expansion-item>
+        <q-expansion-item default-opened label="Design" icon="palette">
+          <div class="q-pa-md">
+            <q-toggle
+              v-model="store.settings.recentColorsFirst"
+              label="Recently used colors first in each palette"
+            />
+          </div>
+        </q-expansion-item>
       </q-list>
 
       <div class="q-gutter-sm">
