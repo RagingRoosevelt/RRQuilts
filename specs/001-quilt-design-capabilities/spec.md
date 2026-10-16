@@ -653,12 +653,12 @@ and its Files-app integration (phones) work by hand.
   into a larger shape (two triangles into a diamond, six into a hexagon) or split one back.
   *Added 2026-10-15.*
 - **FR-029e**: Where a layout's edge isn't straight (On-Point, the shaped edges of FR-029a and
-  FR-029d), the gaps between it and the quilt's straight edge or first border MUST be filled with
-  setting pieces: plain spaces shaped to the gap (setting triangles, half hexagons, and so on) that
-  are colored, sized, and printed like any patch. The user chooses exact setting pieces (block points
-  meet the border), oversized ones by a float amount (blocks float, trimmed after piecing), or
-  trimmed blocks instead (FR-029a). With no border the shaped edge MAY stay as the quilt's edge.
-  This generalizes FR-022's corner triangles. *Added 2026-10-15.*
+  FR-029d), the user MUST choose how to finish it: exact setting pieces (plain spaces shaped to the
+  gap, such as setting triangles or half hexagons, colored, sized, and printed like any patch, with
+  block points meeting the straight edge or first border), oversized setting pieces by a float
+  amount (blocks float, trimmed after piecing), trimmed blocks (FR-029a), or no fill: the uneven
+  edge is the quilt's edge and is bound as it is (no straight borders outside it; binding length
+  follows the edge). This generalizes FR-022's corner triangles. *Added 2026-10-15.*
 
 **Borders (US5)**
 
