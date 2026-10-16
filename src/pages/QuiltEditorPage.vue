@@ -189,7 +189,13 @@
         <LayoutInspector
           v-else-if="
             editor.mode === 'layout' &&
-            (quilt.layout.style === 'straight-set' || quilt.layout.style === 'on-point' || strips)
+            (quilt.layout.style === 'straight-set' ||
+              quilt.layout.style === 'on-point' ||
+              quilt.layout.style === 'variable-point' ||
+              quilt.layout.style === 'one-patch' ||
+              quilt.layout.style === 'baby-blocks' ||
+              quilt.layout.style === 'variable-blocks' ||
+              strips)
           "
           :key="quilt.id"
           :layout="quilt.layout"
@@ -206,6 +212,7 @@
           :units="units"
           :readonly="project.readOnly || bordersSetAside"
           :set-aside="bordersSetAside"
+          :inner="borderInner"
           @change="(b, k) => changeLayout(quilt!.layout, b, k)"
         />
         <DetailsPanel v-else-if="editor.mode === 'details'" kind="quilt" :id="quilt.id" />
@@ -230,7 +237,7 @@ import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
 import { STRIP_STYLES, stripOf, swapStrips, setStrip } from '@/model/layout/strips';
-import { applyLayout, generateFor, reconcile } from '@/model/layout/slots';
+import { applyLayout, generateFor, reconcile, type Bounds } from '@/model/layout/slots';
 import { PLAIN_BLOCK, slotGroup } from '@/model/plain';
 import type { Border, Layout, StripLayout, StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
@@ -389,11 +396,21 @@ const found = computed(() => {
 const sidebarLabel = computed(() => (editor.sidebar ? 'Hide sidebar' : 'Show sidebar'));
 const labelsLabel = computed(() => (editor.labels ? 'Hide block names' : 'Show block names'));
 
+const setsBordersAside = (l: Layout) =>
+  l.style === 'on-point' || l.style === 'variable-point'
+    ? l.edge.finish === 'none'
+    : l.style === 'one-patch' || l.style === 'baby-blocks' || l.style === 'variable-blocks'
+      ? l.edge === 'none'
+      : false;
+/** The selected border's inside edge: the quilt center grown by the borders within it. */
+const borderInner = computed((): Bounds => {
+  const [x0, y0, x1, y1] = generated.value.center;
+  const within = quilt.value!.borders.slice(0, border.value);
+  const sum = (i: number) => within.reduce((a, b) => a + b.sides[i]!, 0);
+  return [x0 - sum(0), y0 - sum(1), x1 + sum(2), y1 + sum(3)];
+});
 const bordersSetAside = computed(
-  () =>
-    quilt.value?.layout.style === 'on-point' &&
-    quilt.value.layout.edge.finish === 'none' &&
-    quilt.value.borders.length > 0,
+  () => !!quilt.value && setsBordersAside(quilt.value.layout) && quilt.value.borders.length > 0,
 );
 const fmt = (n: number) => `${Number(n.toFixed(3))}`;
 const dims = (b: [number, number, number, number]) =>
@@ -407,6 +424,7 @@ const hoverSize = computed(() => {
       slotGroup(s.id) as string
     ] ?? 'Border';
   if (s.kind === 'set') return 'Setting piece';
+  if (s.kind === 'patch') return 'Patch';
   if (s.kind === 'strip') return 'Strip piece';
   const [w, h] = s.kind === 'block' ? s.size : [Math.hypot(t[0], t[1]), Math.hypot(t[2], t[3])];
   return `${kind} ${fmt(w)} × ${fmt(h)} ${units.value}`;

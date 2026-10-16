@@ -84,13 +84,15 @@ export function applyTool(
       const targets = setTargets(spaces, hit.slotId, s.scope);
       if (!targets.length)
         return {
-          message: /^strip:[^:]+:u\d/.test(hit.slotId)
-            ? 'This is a pieced strip, so it takes fabric. Make it a block strip in the Layout tab to set blocks.'
-            : hit.slotId.startsWith('strip:')
-              ? 'Strip patterns take fabric, not blocks. Use Paint.'
-              : group === 'cs'
-                ? "This cornerstone isn't square, so it takes fabric. Use Paint."
-                : 'Sashing and borders take fabric, not blocks. Use Paint.',
+          message: hit.slotId.startsWith('p:')
+            ? 'Patches take colors and fabrics. Use Paint.'
+            : /^strip:[^:]+:u\d/.test(hit.slotId)
+              ? 'This is a pieced strip, so it takes fabric. Make it a block strip in the Layout tab to set blocks.'
+              : hit.slotId.startsWith('strip:')
+                ? 'Strip patterns take fabric, not blocks. Use Paint.'
+                : group === 'cs'
+                  ? "This cornerstone isn't square, so it takes fabric. Use Paint."
+                  : 'Sashing and borders take fabric, not blocks. Use Paint.',
         };
       return {
         doc: withQuilt(

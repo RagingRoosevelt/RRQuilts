@@ -48,7 +48,7 @@
                 type="number"
                 min="1"
                 max="100"
-                :label="style === 'on-point' ? 'Blocks across' : 'Columns'"
+                :label="acrossLabel"
               />
               <q-input
                 v-model.number="rows"
@@ -58,9 +58,86 @@
                 type="number"
                 min="1"
                 max="100"
-                :label="style === 'on-point' ? 'Blocks down' : 'Rows'"
+                :label="downLabel"
               />
+              <template v-if="style === 'variable-point'">
+                <LengthInput
+                  v-model="tile.width"
+                  class="col-12"
+                  label="Diamond width"
+                  :units="units"
+                  :min="0.25"
+                />
+                <LengthInput
+                  v-model="tile.height"
+                  class="col-12"
+                  label="Diamond height"
+                  :units="units"
+                  :min="0.25"
+                />
+                <div class="col-12 text-caption text-grey-7">
+                  Measured through the diamond, point to point.
+                </div>
+              </template>
               <LengthInput
+                v-else-if="style === 'baby-blocks'"
+                v-model="tile.dside"
+                class="col-12"
+                label="Diamond side"
+                :units="units"
+                :min="0.25"
+              />
+              <template v-else-if="style === 'variable-blocks'">
+                <LengthInput
+                  v-model="tile.width"
+                  class="col-12"
+                  label="Cube width"
+                  :units="units"
+                  :min="0.25"
+                />
+                <LengthInput
+                  v-model="tile.top"
+                  class="col-6"
+                  label="Top height"
+                  :units="units"
+                  :min="0.25"
+                />
+                <LengthInput
+                  v-model="tile.side"
+                  class="col-6"
+                  label="Side height"
+                  :units="units"
+                  :min="0.25"
+                />
+              </template>
+              <template v-else-if="style === 'one-patch'">
+                <template v-if="twoSizes">
+                  <LengthInput
+                    v-model="tile.width"
+                    class="col-6"
+                    :label="tile.shape === 'tumblers' ? 'Bottom width' : 'Width'"
+                    :units="units"
+                    :min="0.25"
+                  />
+                  <LengthInput
+                    v-model="tile.height"
+                    class="col-6"
+                    label="Height"
+                    :units="units"
+                    :min="0.25"
+                  />
+                </template>
+                <LengthInput
+                  v-else
+                  v-model="tile.width"
+                  class="col-12"
+                  :label="oneSizeLabel"
+                  :units="units"
+                  :min="0.25"
+                />
+              </template>
+              <LengthInput
+                v-else
                 v-model="blockSize"
                 class="col-12"
                 label="Finished block size"
@@ -89,9 +166,49 @@
               @change="(l) => (stripLayout = l as StripLayout)"
             />
           </q-step>
+          <q-step v-if="style === 'one-patch'" name="shape" title="Shape" icon="category">
+            <div class="styles q-mb-md" role="radiogroup" aria-label="Patch shape">
+              <button
+                v-for="c in shapeCards"
+                :key="c.value"
+                type="button"
+                role="radio"
+                class="style-card"
+                :class="{ on: tile.shape === c.value }"
+                :aria-checked="tile.shape === c.value"
+                @click="tile.shape = c.value"
+              >
+                <svg :viewBox="c.picture.box" class="preview-art">
+                  <path
+                    v-for="(p, i) in c.picture.paths"
+                    :key="i"
+                    :d="p.d"
+                    :class="p.kind"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+                <div class="text-caption">{{ c.label }}</div>
+              </button>
+            </div>
+            <q-btn-toggle
+              v-if="!STRAIGHT.includes(tile.shape)"
+              v-model="tile.edge"
+              spread
+              no-caps
+              unelevated
+              toggle-color="primary"
+              :options="[
+                { label: 'Trimmed straight', value: 'trim' },
+                { label: 'Whole patches', value: 'none' },
+              ]"
+            />
+          </q-step>
           <q-step name="sashing" title="Sashing" icon="view_comfy">
             <div v-if="isStrip" class="text-caption">
               Strip quilts have no sashing. Strips sit edge to edge.
+            </div>
+            <div v-else-if="!hasSash" class="text-caption">
+              {{ styleLabel }} quilts have no sashing.
             </div>
             <LengthInput v-else v-model="sash" label="Sashing width (0 for none)" :units="units" />
             <q-toggle
@@ -152,13 +269,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import StripsInspector from '@/components/StripsInspector.vue';
-import { onPointDefaults, stripDefaults } from '@/model/io';
+import { layoutDefaults, onPointDefaults, stripDefaults } from '@/model/io';
 import { flattenLoop, pathToSegs } from '@/model/geometry/path';
 import { generateSlots } from '@/model/layout/slots';
-import type { Border, Layout, StripLayout } from '@/model/schema/quilt';
+import type {
+  Border,
+  Layout,
+  OnePatchLayout,
+  PatchShape,
+  StripLayout,
+  TumblingLayout,
+  VariablePointLayout,
+} from '@/model/schema/quilt';
 import { useEditorStore } from '@/stores/editor';
 
 const props = defineProps<{ units: 'in' | 'cm' }>();
@@ -170,6 +295,7 @@ const step = ref('blocks');
 const steps = computed(() => [
   'blocks',
   ...(isStrip.value ? ['strips'] : []),
+  ...(style.value === 'one-patch' ? ['shape'] : []),
   'sashing',
   'borders',
 ]);
@@ -183,28 +309,111 @@ const sashBorder = ref(false);
 const borderCount = ref(1);
 const borderWidth = ref(2);
 
+const k = computed(() => (props.units === 'cm' ? 2.5 : 1));
+type EdgeChoice = 'trim' | 'none';
+const STRAIGHT: PatchShape[] = ['squares', 'rectangles', 'half-square-triangles'];
+const TWO_SIZES: PatchShape[] = ['rectangles', 'bricks', 'half-square-triangles', 'tumblers'];
+const ONE_SIZE: Partial<Record<PatchShape, string>> = {
+  squares: 'Patch size',
+  triangles: 'Side',
+  diamonds: 'Side',
+  hexagons: 'Side',
+  clamshells: 'Width',
+  octagons: 'Width',
+};
+// Fields of the four newer styles; switching style reloads them from that style's defaults.
+const tile = reactive<{
+  shape: PatchShape;
+  edge: EdgeChoice;
+  width: number;
+  height: number;
+  top: number;
+  side: number;
+  dside: number;
+}>({
+  shape: 'squares',
+  edge: 'trim',
+  width: 4,
+  height: 4,
+  top: 3,
+  side: 3,
+  dside: 3,
+});
+const twoSizes = computed(() => TWO_SIZES.includes(tile.shape));
+const oneSizeLabel = computed(() => ONE_SIZE[tile.shape] ?? 'Size');
+function loadTile() {
+  const d = layoutDefaults(style.value, k.value);
+  if (!d) return;
+  if ('shape' in d) tile.shape = d.shape;
+  tile.edge = 'edge' in d && typeof d.edge === 'string' ? d.edge : 'trim';
+  if ('width' in d) tile.width = d.width;
+  if ('height' in d) tile.height = d.height;
+  if ('top' in d) tile.top = d.top;
+  if ('side' in d) tile.side = d.side;
+  tile.dside = 3 * k.value;
+}
+watch(style, loadTile);
 const clampCount = (n: number) => Math.min(100, Math.max(1, Math.round(n || 1)));
 const stripLayout = ref<StripLayout>(stripDefaults(1));
 const isStrip = computed(() => style.value === 'strips');
 const layout = computed<Layout>(() =>
   isStrip.value
     ? stripLayout.value
-    : style.value === 'on-point'
+    : style.value === 'variable-point'
       ? {
-          ...onPointDefaults(props.units === 'cm' ? 2.5 : 1),
+          ...(layoutDefaults('variable-point', k.value) as VariablePointLayout),
           cols: clampCount(cols.value),
           rows: clampCount(rows.value),
-          block: blockSize.value,
+          width: tile.width,
+          height: tile.height,
           sash: sash.value,
         }
-      : {
-          style: 'straight-set',
-          cols: clampCount(cols.value),
-          rows: clampCount(rows.value),
-          block: [blockSize.value, blockSize.value],
-          sash: [sash.value, sash.value],
-          sashBorder: sash.value > 0 && sashBorder.value,
-        },
+      : style.value === 'one-patch'
+        ? {
+            ...(layoutDefaults('one-patch', k.value) as OnePatchLayout),
+            shape: tile.shape,
+            cols: clampCount(cols.value),
+            rows: clampCount(rows.value),
+            width: tile.width,
+            height: twoSizes.value ? tile.height : tile.width,
+            edge: STRAIGHT.includes(tile.shape) ? 'trim' : tile.edge,
+          }
+        : style.value === 'baby-blocks'
+          ? {
+              ...(layoutDefaults('baby-blocks', k.value) as TumblingLayout),
+              cols: clampCount(cols.value),
+              rows: clampCount(rows.value),
+              width: tile.dside * Math.sqrt(3),
+              top: tile.dside,
+              side: tile.dside,
+              edge: tile.edge,
+            }
+          : style.value === 'variable-blocks'
+            ? {
+                ...(layoutDefaults('variable-blocks', k.value) as TumblingLayout),
+                cols: clampCount(cols.value),
+                rows: clampCount(rows.value),
+                width: tile.width,
+                top: tile.top,
+                side: tile.side,
+                edge: tile.edge,
+              }
+            : style.value === 'on-point'
+              ? {
+                  ...onPointDefaults(props.units === 'cm' ? 2.5 : 1),
+                  cols: clampCount(cols.value),
+                  rows: clampCount(rows.value),
+                  block: blockSize.value,
+                  sash: sash.value,
+                }
+              : {
+                  style: 'straight-set',
+                  cols: clampCount(cols.value),
+                  rows: clampCount(rows.value),
+                  block: [blockSize.value, blockSize.value],
+                  sash: [sash.value, sash.value],
+                  sashBorder: sash.value > 0 && sashBorder.value,
+                },
 );
 const borders = computed<Border[]>(() =>
   Array.from({ length: Math.max(0, Math.min(5, Math.round(borderCount.value || 0))) }, () => ({
@@ -232,7 +441,44 @@ function picture(l: Layout, b: Border[]) {
 }
 const preview = computed(() => picture(layout.value, borders.value));
 
-type Style = 'straight-set' | 'on-point' | 'strips';
+type Style =
+  | 'straight-set'
+  | 'on-point'
+  | 'strips'
+  | 'variable-point'
+  | 'one-patch'
+  | 'baby-blocks'
+  | 'variable-blocks';
+const onPointish = (st: Style) => st === 'on-point' || st === 'variable-point';
+const hasSash = computed(() =>
+  ['straight-set', 'on-point', 'variable-point'].includes(style.value),
+);
+const acrossLabel = computed(() =>
+  onPointish(style.value)
+    ? 'Blocks across'
+    : style.value === 'one-patch'
+      ? 'Patches across'
+      : style.value.endsWith('blocks')
+        ? 'Cubes across'
+        : 'Columns',
+);
+const downLabel = computed(() =>
+  onPointish(style.value)
+    ? 'Blocks down'
+    : style.value === 'one-patch'
+      ? 'Patches down'
+      : style.value.endsWith('blocks')
+        ? 'Cubes down'
+        : 'Rows',
+);
+const sampleOnePatch = (shape: PatchShape): Layout => ({
+  ...(layoutDefaults('one-patch', 1) as OnePatchLayout),
+  shape,
+  cols: 3,
+  rows: 3,
+  width: 1,
+  height: 1,
+});
 const sampleStrips = (style: 'horizontal-strip' | 'vertical-strip'): Layout => ({
   style,
   length: 16,
@@ -264,7 +510,60 @@ const STYLES: { value: Style; label: string; sample: Layout }[] = [
     sample: { ...onPointDefaults(1), block: 1, edge: { finish: 'exact', float: 0 } },
   },
   { value: 'strips', label: 'Strips', sample: sampleStrips('horizontal-strip') },
+  {
+    value: 'variable-point',
+    label: 'Variable Point',
+    sample: {
+      ...(layoutDefaults('variable-point', 1) as VariablePointLayout),
+      width: 1,
+      height: 1.3,
+      edge: { finish: 'exact', float: 0 },
+    },
+  },
+  { value: 'one-patch', label: 'One Patch', sample: sampleOnePatch('hexagons') },
+  {
+    value: 'baby-blocks',
+    label: 'Baby Blocks',
+    sample: {
+      ...(layoutDefaults('baby-blocks', 1) as TumblingLayout),
+      cols: 3,
+      rows: 3,
+      width: Math.sqrt(3),
+      top: 1,
+      side: 1,
+    },
+  },
+  {
+    value: 'variable-blocks',
+    label: 'Variable Blocks',
+    sample: {
+      ...(layoutDefaults('variable-blocks', 1) as TumblingLayout),
+      cols: 3,
+      rows: 3,
+      width: 2,
+      top: 1,
+      side: 1.4,
+    },
+  },
 ];
+const styleLabel = computed(() => STYLES.find((x) => x.value === style.value)?.label ?? '');
+const SHAPES: [PatchShape, string][] = [
+  ['squares', 'Squares'],
+  ['rectangles', 'Rectangles'],
+  ['bricks', 'Bricks'],
+  ['half-square-triangles', 'Half-square triangles'],
+  ['triangles', 'Triangles'],
+  ['diamonds', '60° diamonds'],
+  ['hexagons', 'Hexagons'],
+  ['tumblers', 'Tumblers'],
+  ['clamshells', 'Clamshells'],
+  ['octagons', 'Octagons and squares'],
+];
+const shapeCards = SHAPES.map(([value, label]) => ({
+  value,
+  label,
+  picture: picture(sampleOnePatch(value), [])!,
+}));
 const styleCards = STYLES.map((x) => ({ ...x, picture: picture(x.sample, [])! }));
 
 const summary = computed(() => {
@@ -290,6 +589,7 @@ function show() {
   borderCount.value = 1;
   borderWidth.value = cm ? 5 : 2;
   stripLayout.value = stripDefaults(cm ? 2.5 : 1);
+  loadTile();
   useEditorStore().selectedStrip = null;
   open.value = true;
 }

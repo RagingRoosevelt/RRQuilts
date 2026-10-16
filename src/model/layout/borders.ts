@@ -108,6 +108,26 @@ const PIECED: Partial<
   'half-drop-aligned': { pattern: 'half-drop-blocks', aligned: true },
 };
 
+/**
+ * Units along the top and bottom and down the sides of a pieced border around `inner`: the layout's
+ * columns and rows for aligned styles, else the border's own counts, else the counts giving its
+ * pattern its natural proportions (UNIT).
+ */
+export function borderCounts(
+  b: Border,
+  inner: Bounds,
+  aligned?: [number, number],
+): [number, number] {
+  const spec = PIECED[b.style] ?? { pattern: 'plain' as const };
+  const [x0, y0, x1, y1] = inner;
+  const [l, t] = b.sides;
+  const auto = (len: number, width: number) =>
+    Math.max(1, Math.round(len / Math.max(width * (UNIT[spec.pattern] ?? 1), 1e-9)));
+  const pick = (i: 0 | 1, len: number, width: number) =>
+    Math.max(1, (spec.aligned ? aligned?.[i] : undefined) ?? b.blocks?.[i] ?? auto(len, width));
+  return [pick(0, x1 - x0, t), pick(1, y1 - y0, l)];
+}
+
 /** A pattern's natural unit length, in border widths: square blocks and diamonds, 90° points, a
  *  spaced square as long as its gap, a square big shape among big and little ones. Default counts. */
 const UNIT: Partial<Record<PatternStyle, number>> = {
@@ -129,13 +149,8 @@ function pieced(b: Border, n: number, inner: Bounds, aligned?: [number, number])
   const [x0, y0, x1, y1] = inner;
   const [l, t, r, bt] = b.sides;
   const [W, H] = [x1 - x0, y1 - y0];
-  const count = (len: number, width: number, i: 0 | 1) =>
-    Math.max(
-      1,
-      (spec.aligned ? aligned?.[i] : undefined) ??
-        b.blocks?.[i] ??
-        Math.round(len / Math.max(width * (UNIT[spec.pattern] ?? 1), 1e-9)),
-    );
+  const counts = borderCounts(b, inner, aligned);
+  const count = (_len: number, _width: number, i: 0 | 1) => counts[i];
   // Each side: band-local x along it, y from the quilt (0) outward.
   const sides: [Side, number, number, M, Bounds, 0 | 1][] = [
     ['top', t, W, [1, 0, 0, -1, x0, y0], [x0, y0 - t, x1, y0], 0],

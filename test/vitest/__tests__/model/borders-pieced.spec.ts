@@ -62,7 +62,7 @@ describe('pieced border styles (spec 018)', () => {
     it(`${style} covers the border ring, unique ids, fabric only`, () => {
       for (const blocks of [undefined, [1, 1], [5, 3]] as const) {
         const g = generateSlots(layout, [border(style, blocks as [number, number] | undefined)]);
-        const at = `${style} ${blocks}`;
+        const at = `${style} ${blocks?.join() ?? 'auto'}`;
         expect(g.unsupported, at).toEqual([]);
         expect(new Set(g.slots.map((s) => s.id)).size, at).toBe(g.slots.length);
         expect(bad(g), at).toBe(0);

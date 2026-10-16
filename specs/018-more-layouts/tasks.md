@@ -16,10 +16,10 @@ Opus reviews every diff. Nothing is merged or pushed (owner reviews `feat/more-l
 
 ## Phase 2: UI
 
-- [ ] T007 (sonnet) Layout inspector sections for the four styles (style select, counts, sizes,
+- [X] T007 (sonnet) Layout inspector sections for the four styles (style select, counts, sizes,
   shape, edge), convertLayout for them
-- [ ] T008 (sonnet) Wizard cards for the four styles; One Patch shape step; preview
-- [ ] T009 (sonnet) Borders inspector: counts for pieced styles (aligned styles say they follow the
+- [X] T008 (sonnet) Wizard cards for the four styles; One Patch shape step; preview
+- [X] T009 (sonnet) Borders inspector: counts for pieced styles (aligned styles say they follow the
   layout); hover label "Patch"; Set message for patches
 - [ ] T010 (sonnet) Browser check of every story, screenshots
 
