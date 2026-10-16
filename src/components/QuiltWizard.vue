@@ -66,6 +66,89 @@
                 </q-item>
               </template>
             </q-select>
+            <div v-if="isGarment" class="q-mt-lg column" style="gap: 8px">
+              <q-btn-toggle
+                v-model="piece"
+                spread
+                no-caps
+                unelevated
+                toggle-color="primary"
+                :options="
+                  target === 'top'
+                    ? [
+                        { label: 'Front', value: 'front' },
+                        { label: 'Back', value: 'back' },
+                        { label: 'Sleeve', value: 'sleeve' },
+                      ]
+                    : [
+                        { label: 'Front', value: 'front' },
+                        { label: 'Back', value: 'back' },
+                      ]
+                "
+              />
+              <q-btn-toggle
+                v-if="target === 'top' && piece === 'sleeve'"
+                v-model="longSleeve"
+                spread
+                no-caps
+                unelevated
+                toggle-color="primary"
+                :options="[
+                  { label: 'Short sleeve', value: false },
+                  { label: 'Long sleeve', value: true },
+                ]"
+              />
+              <div class="row items-center no-wrap" style="gap: 8px">
+                <q-btn-toggle
+                  v-model="fit"
+                  no-caps
+                  unelevated
+                  toggle-color="primary"
+                  :options="[
+                    { label: 'Women\'s', value: 'women' },
+                    { label: 'Men\'s', value: 'men' },
+                  ]"
+                />
+                <q-select
+                  v-model="gsize"
+                  class="col"
+                  dense
+                  outlined
+                  label="Size"
+                  :options="sizeOptions"
+                  emit-value
+                  map-options
+                />
+                <q-icon
+                  name="help_outline"
+                  size="sm"
+                  class="text-grey-7"
+                  tabindex="0"
+                  aria-label="Size chart"
+                >
+                  <q-tooltip class="text-body2">
+                    <table class="size-chart">
+                      <thead>
+                        <tr>
+                          <th>Size</th>
+                          <th>{{ fit === 'men' ? 'Chest' : 'Bust' }}</th>
+                          <th>Waist</th>
+                          <th>Hip</th>
+                          <th>Inseam</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="r in chart" :key="r.size">
+                          <td>{{ r.size }}</td>
+                          <td v-for="(c, i) in r.cols" :key="i">{{ c }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div class="text-caption">Body measurements, {{ units }}</div>
+                  </q-tooltip>
+                </q-icon>
+              </div>
+            </div>
             <div v-if="target === 'custom'" class="row q-col-gutter-sm q-mt-lg">
               <LengthInput
                 v-model="custom[0]"
@@ -324,13 +407,10 @@
               :class="p.kind"
               vector-effect="non-scaling-stroke"
             />
-            <rect
+            <path
               v-if="preview.target"
               class="target"
-              :x="preview.target.x"
-              :y="preview.target.y"
-              :width="preview.target.w"
-              :height="preview.target.h"
+              :d="preview.target.d"
               vector-effect="non-scaling-stroke"
             />
             <rect
@@ -361,7 +441,18 @@ import { computed, reactive, ref, watch } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import StripsInspector from '@/components/StripsInspector.vue';
 import { layoutDefaults, onPointDefaults, stripDefaults } from '@/model/io';
-import { flattenLoop, pathToSegs } from '@/model/geometry/path';
+import {
+  bbox,
+  CHART,
+  EU_SIZES,
+  garmentOutline,
+  measurements,
+  SIZES,
+  type Fit,
+  type GarmentPiece,
+  type GarmentSize,
+} from '@/model/garments';
+import { flattenLoop, pathToSegs, type Pt } from '@/model/geometry/path';
 import { generateSlots } from '@/model/layout/slots';
 import type {
   Border,
@@ -433,7 +524,10 @@ const region = computed<Region>({
 });
 // Custom, and sizes both lists share (placemat…), stay picked across the switch.
 watch(region, (r) => {
-  if (target.value !== 'custom' && !TARGETS[r].some((t) => t.name === target.value))
+  if (
+    !['custom', 'top', 'pants'].includes(target.value ?? '') &&
+    !TARGETS[r].some((t) => t.name === target.value)
+  )
     target.value = null;
 });
 /** A length in the region's units, in the project's (cm whole, inches to the half). */
@@ -464,8 +558,50 @@ const extra = computed(() => {
   };
 });
 const custom = ref<[number, number]>([60, 80]);
+/** Garments: a top's front, back, or sleeve, or a trouser leg's front or back, by size. */
+const isGarment = computed(() => target.value === 'top' || target.value === 'pants');
+const fit = ref<Fit>('women');
+const gsize = ref<GarmentSize>('M');
+const piece = ref<GarmentPiece>('front');
+const longSleeve = ref(true);
+watch(target, (t) => {
+  if (t === 'pants' && piece.value === 'sleeve') piece.value = 'front';
+});
+/** The garment piece's outline in the project's units. */
+const garmentPts = computed((): Pt[] | null => {
+  if (!isGarment.value) return null;
+  const k = props.units === 'cm' ? 2.54 : 1;
+  return garmentOutline(
+    target.value as 'top' | 'pants',
+    piece.value,
+    measurements(fit.value, gsize.value),
+    longSleeve.value,
+  ).map(([x, y]): Pt => [x * k, y * k]);
+});
+const sizeOptions = computed(() =>
+  SIZES.map((sz, i) => ({
+    label: region.value === 'eu' ? `${EU_SIZES[fit.value][i]} (${sz})` : sz,
+    value: sz,
+  })),
+);
+/** Size chart rows in the project's units (cm whole, inches as charted). */
+const chart = computed(() =>
+  SIZES.map((sz, i) => {
+    const m = CHART[fit.value][i]!;
+    const u = (v: number) => (props.units === 'cm' ? Math.round(v * 2.54) : v);
+    return {
+      size: sizeOptions.value[i]!.label,
+      cols: [m.bust, m.waist, m.hip, m.inseam].map(u),
+    };
+  }),
+);
 const targetSize = computed((): [number, number] | null => {
   if (target.value === 'custom') return [custom.value[0] || 1, custom.value[1] || 1];
+  const g = garmentPts.value;
+  if (g) {
+    const [a, b, c, d] = bbox(g);
+    return [c - a, d - b];
+  }
   const t = targetOf.value?.size;
   return t
     ? [conv(t[0]), conv(tall.value && targetOf.value?.tall ? targetOf.value.tall : t[1])]
@@ -483,6 +619,9 @@ const targetOptions = computed(() => {
     { label: 'Custom', value: 'custom' },
     header('Table, wall, and lap'),
     ...all.filter((t) => t.drop === undefined).map(item),
+    header('Garments'),
+    { label: 'Top', value: 'top' },
+    { label: 'Pants', value: 'pants' },
     header('Beds (mattress size)'),
     ...all.filter((t) => t.drop !== undefined).map(item),
   ];
@@ -637,9 +776,23 @@ const preview = computed(() => {
   const [w, h] = [t[0] + 2 * dr, t[1] + dr + tk];
   const r = { x: (x0 + x1) / 2 - w / 2, y: (y0 + y1) / 2 - h / 2, w, h };
   const core = dr + tk > 0 ? { x: r.x + dr, y: r.y + tk, w: t[0], h: t[1] } : null;
+  // A garment piece's outline, its box where the target box goes; else the box itself.
+  const g = garmentPts.value;
+  const pts: Pt[] = g
+    ? (() => {
+        const [gx, gy] = bbox(g);
+        return g.map(([x, y]): Pt => [x - gx + r.x, y - gy + r.y]);
+      })()
+    : [
+        [r.x, r.y],
+        [r.x + w, r.y],
+        [r.x + w, r.y + h],
+        [r.x, r.y + h],
+      ];
+  const d = `M${pts.map((p) => `${p[0]} ${p[1]}`).join('L')}Z`;
   const [a, b] = [Math.min(x0, r.x), Math.min(y0, r.y)];
-  const [c, d] = [Math.max(x1, r.x + r.w), Math.max(y1, r.y + r.h)];
-  return { ...pic, box: `${a} ${b} ${c - a} ${d - b}`, target: r, core };
+  const [c, e] = [Math.max(x1, r.x + r.w), Math.max(y1, r.y + r.h)];
+  return { ...pic, box: `${a} ${b} ${c - a} ${e - b}`, target: { d }, core };
 });
 
 type Style =
@@ -774,8 +927,14 @@ const summary = computed(() => {
   if (!t) return done;
   const { drop: dr, tuck: tk } = extra.value;
   const more = [dr && 'drop', tk && 'pillow tuck'].filter(Boolean).join(' and ');
-  const name = target.value === 'custom' ? 'Target' : target.value;
-  return `${done} · ${name}${more ? ` with ${more}` : ''} ${t[0] + 2 * dr} × ${t[1] + dr + tk} ${props.units}`;
+  const name =
+    target.value === 'custom'
+      ? 'Target'
+      : isGarment.value
+        ? `${target.value === 'top' ? 'Top' : 'Pants'} ${piece.value}, ${fit.value}'s ${sizeOptions.value.find((o) => o.value === gsize.value)?.label}`
+        : target.value;
+  const n = (v: number) => +v.toFixed(2);
+  return `${done} · ${name}${more ? ` with ${more}` : ''} ${n(t[0] + 2 * dr)} × ${n(t[1] + dr + tk)} ${props.units}`;
 });
 
 function create() {
@@ -793,6 +952,7 @@ function show() {
   tuck.value = false;
   tall.value = false;
   custom.value = cm ? [150, 200] : [60, 80];
+  piece.value = 'front';
   tuckLength.value = cm ? 30 : 12;
   cols.value = rows.value = 5;
   blockSize.value = cm ? 25 : 10;
@@ -889,6 +1049,14 @@ defineExpose({ show });
 .preview-art path.border {
   fill: #eceff1;
 }
+.size-chart {
+  border-collapse: collapse;
+}
+.size-chart th,
+.size-chart td {
+  padding: 1px 8px;
+  text-align: right;
+}
 /* A group label set into its divider line. */
 .target-header {
   display: flex;
@@ -914,7 +1082,7 @@ defineExpose({ show });
   stroke-width: 1;
   stroke-dasharray: 2 3;
 }
-.preview-art rect.target {
+.preview-art .target {
   fill: var(--q-primary);
   fill-opacity: 0.12;
   stroke: var(--q-primary);

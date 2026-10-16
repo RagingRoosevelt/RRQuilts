@@ -18,7 +18,10 @@ work lives in a **project**, one file (ending in `.rrq`) that holds your quilts,
      outline is the mattress top with the **Drop over the sides and foot** around it. Tick
      **Pillow tuck** for a quilt that tucks under and over the pillows (extra at the head). **US
      sizes** and **European sizes** switch the list of beds, and **Tall (XL)** picks a bed's long
-     version (Twin XL, or 210 cm for European beds). **Custom** takes any width and height. The size of
+     version (Twin XL, or 210 cm for European beds). **Custom** takes any width and height.
+     Under **Garments**, **Top** and **Pants** show a garment piece's shape for a size you pick
+     (the **?** beside the size shows the size chart). Choose **Front**, **Back**, or (for a top)
+     **Sleeve**, short or long. A top's front is one side of a buttoned front. The size of
      your quilt and the target show at the bottom.
    - **Size** sets how many blocks (or patches, or cubes) and how big they are. For **One Patch**
      it's **Shape**, with a picture of each shape. For strip quilts it's **Strips**:
