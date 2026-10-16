@@ -86,11 +86,11 @@ export function layoutDefaults(style: string, k: number) {
     case 'one-patch':
       return {
         style: 'one-patch' as const,
-        shape: 'squares' as const,
+        shape: 'hexagons' as const,
         cols: 8,
         rows: 8,
-        width: r(4),
-        height: r(4),
+        width: r(3),
+        height: r(3),
         edge: 'trim' as const,
       };
     case 'baby-blocks':

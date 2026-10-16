@@ -158,8 +158,8 @@ along all four sides with corner squares; paint points and background with Alter
 
 ## Assumptions
 
-- Defaults: Variable Point 3 × 3, 12″ wide, 16″ high, edge Floating 1″; One Patch Squares 8 × 8,
-  4″; Baby Blocks 6 × 6, 3″ side; Variable Blocks 6 × 6, 6″ wide, 3″ top, 4″ sides; tessellation
+- Defaults: Variable Point 3 × 3, 12″ wide, 16″ high, edge Floating 1″; One Patch Hexagons 8 × 8,
+  3″ side (the shape people picture for one-patch quilts, and unlike Straight Set); Baby Blocks 6 × 6, 3″ side; Variable Blocks 6 × 6, 6″ wide, 3″ top, 4″ sides; tessellation
   edges Trimmed. cm projects use 2.5 × (rounded).
 - Border corner squares are the border's width on both sides (left/right width × top/bottom width).
 - "Blocks" border styles are rectangles painted like pieced strips until blocks in borders exist.

@@ -331,10 +331,10 @@ const tile = reactive<{
   side: number;
   dside: number;
 }>({
-  shape: 'squares',
+  shape: 'hexagons',
   edge: 'trim',
-  width: 4,
-  height: 4,
+  width: 3,
+  height: 3,
   top: 3,
   side: 3,
   dside: 3,
