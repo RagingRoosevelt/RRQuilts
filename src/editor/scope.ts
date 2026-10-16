@@ -4,7 +4,16 @@ import { slotGroup } from '@/model/plain';
 import type { Quilt } from '@/model/schema/quilt';
 
 export type Scope = 'this' | 'all' | 'alternate';
-export type Space = Pick<Slot, 'id' | 'alt'>;
+export type Space = Pick<Slot, 'id' | 'alt'> & Partial<Pick<Slot, 'kind' | 'size'>>;
+
+/**
+ * Whether a block may be set here: block spaces, setting pieces (the block is trimmed there), and
+ * square cornerstones (the strips on both sides the same width). Sashing and borders take fabric.
+ */
+export const takesBlock = (s: Space) =>
+  s.kind === 'cs'
+    ? !!s.size && Math.abs(s.size[0] - s.size[1]) < 1e-9 * Math.max(1, ...s.size)
+    : s.kind === undefined || s.kind === 'block' || s.kind === 'set';
 
 /** Spaces of the same kind as `tapped` (block spaces, sashes, cornerstones, one border). */
 function sameKind(spaces: readonly Space[], tapped: string) {
@@ -22,8 +31,10 @@ function scoped(kind: readonly Space[], spaces: readonly Space[], tapped: string
 
 /** Targets for setting a block: block spaces regardless of what's in them. */
 export function setTargets(spaces: readonly Space[], tapped: string, scope: Scope): string[] {
+  const here = spaces.find((s) => s.id === tapped);
+  if (here && !takesBlock(here)) return [];
   if (scope === 'this') return [tapped];
-  return scoped(sameKind(spaces, tapped), spaces, tapped, scope);
+  return scoped(sameKind(spaces, tapped).filter(takesBlock), spaces, tapped, scope);
 }
 
 /**

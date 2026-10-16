@@ -296,3 +296,26 @@ describe('editor actions', () => {
     expect(others.every((p) => fills[p]?.['color' as never] === color('Black'))).toBe(true);
   });
 });
+
+describe('where blocks can be set', () => {
+  const set = (doc: RrqDoc, ids: readonly Space[], slotId: string, block: string) =>
+    run(doc, ids, slotId, { tool: 'set', scope: 'this', block, color: null });
+
+  it('not in sashing or borders; in square cornerstones', () => {
+    const { doc, ids, byName } = setup();
+    const star = byName('Ohio Star').id;
+    expect(set(doc, ids, 'sash:v:r1c1', star)).toEqual({
+      message: 'Sashing and borders take fabric, not blocks. Use Paint.',
+    });
+    expect(set(doc, ids, 'border:1:top', star).doc).toBeUndefined();
+    expect(q(set(doc, ids, 'cs:r1c1', star).doc!).layers[0].slots['cs:r1c1']?.block).toBe(star);
+  });
+
+  it('not in a cornerstone between sashing of different widths', () => {
+    const { doc, byName } = setup();
+    const layout = { ...q(doc).layout, sash: [1, 2] } as never;
+    const d = { ...doc, project: { ...doc.project, quilts: [{ ...q(doc), layout }] } };
+    const ids = generateSlots(layout, []).slots;
+    expect(set(d, ids, 'cs:r1c1', byName('Ohio Star').id).message).toMatch(/isn't square/);
+  });
+});

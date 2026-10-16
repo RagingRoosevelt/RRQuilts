@@ -82,6 +82,13 @@ export function applyTool(
       const block = s.block ? (blocks.get(s.block) ?? s.library?.block(s.block)) : undefined;
       if (!block) return { message: 'Pick a block in the tray first.' };
       const targets = setTargets(spaces, hit.slotId, s.scope);
+      if (!targets.length)
+        return {
+          message:
+            group === 'cs'
+              ? "This cornerstone isn't square, so it takes fabric. Use Paint."
+              : 'Sashing and borders take fabric, not blocks. Use Paint.',
+        };
       return {
         doc: withQuilt(
           doc,

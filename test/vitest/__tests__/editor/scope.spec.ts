@@ -82,7 +82,24 @@ describe('scope resolution', () => {
       const expected = slots
         .filter((s) => slotGroup(s.id) === group && parity(s.id) === parity(tapped))
         .map((s) => s.id);
-      expect(setTargets(slots, tapped, 'alternate').sort()).toEqual(expected.sort());
+      // Every space filled with plain fabric, so Alternate paints by class.
+      const filled = {
+        ...q,
+        layers: [
+          {
+            ...q.layers[0],
+            slots: Object.fromEntries(
+              slots.map((x) => [
+                x.id,
+                { block: 'plain', coloring: 'k', rotation: 0 as const, flip: false },
+              ]),
+            ),
+          },
+          q.layers[1],
+          q.layers[2],
+        ],
+      } as Quilt;
+      expect(placementTargets(filled, slots, tapped, 'alternate').sort()).toEqual(expected.sort());
     }
   });
 });

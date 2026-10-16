@@ -206,6 +206,11 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
 - **FR-022**: No fill MUST make the uneven edge the quilt's edge: borders set aside (kept, restored
   when another finish is chosen), binding length measured along the edge.
 
+- **FR-024**: Blocks MUST be settable only into block spaces, setting pieces (FR-023), and
+  cornerstones that are square (the strips on both sides the same width). Sashing and borders take
+  palette entries (colors and fabrics) only; pieced borders come from border styles (spec 001
+  FR-030). Trying to set a block elsewhere says why. *Added 2026-10-16 (owner).*
+
 **Format** (spec 003)
 
 - **FR-030**: On-Point's parameters MUST be saved in the project. The project format version MUST be
