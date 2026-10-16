@@ -10,9 +10,12 @@ work lives in a **project**, one file (ending in `.rrq`) that holds your quilts,
 ## Start a quilt
 
 1. On the home page (the **RRQuilts** button in the header), choose **Start a quilt**.
-2. The wizard has three steps. Use **Next** to move on, or click a step's title.
-   - **Blocks** sets **Columns**, **Rows**, and **Finished block size**.
-   - **Sashing** has **Sashing width (0 for none)** and **Sashing around the outside**.
+2. The wizard has three steps. Use **Next** to move on, or click a step's title. A picture of the
+   quilt under the steps changes as you choose.
+   - **Blocks** picks the style, **Horizontal** (rows of blocks) or **On-Point** (blocks turned to
+     sit as diamonds), and sets how many blocks and their **Finished block size**.
+   - **Sashing** has **Sashing width (0 for none)**. Horizontal quilts can also have **Sashing
+     around the outside**.
    - **Borders** takes the **Number of borders** and the **Width of each**.
 3. Choose **Create quilt**. The quilt opens in the Design tab, ready for you to place blocks. See
    [Designing a quilt](/help/guides/designing-a-quilt).

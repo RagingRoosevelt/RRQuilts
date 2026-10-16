@@ -191,7 +191,8 @@ zoom, drag-pan, and Fit.
 
 - **FR-001**: "Start a quilt" MUST open a three-step skippable wizard (columns/rows + block size,
   sashing + sash border, borders) defaulting to 5×5 blocks of 10" (25 cm), no sashing, one 2" (5 cm)
-  long-horizontal border.
+  long-horizontal border. *Amended by spec 016 FR-013: the first step also picks the style
+  (Horizontal or On-Point), and a live preview shows the quilt as choices are made.*
 - **FR-002**: ~~New projects MUST start with the starter blocks and colors~~ — superseded by spec 008:
   starter content is a built-in library; projects embed library items only while used.
 - **FR-003**: The sketchbook MUST show tabbed card grids with thumbnails rendered from the model;
