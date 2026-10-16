@@ -54,6 +54,14 @@
               :units="units"
               :min="0"
             />
+            <q-checkbox v-if="isBed" v-model="tuck" class="q-mt-sm" label="Pillow tuck" />
+            <LengthInput
+              v-if="isBed && tuck"
+              v-model="tuckLength"
+              label="Pillow tuck at the head"
+              :units="units"
+              :min="0"
+            />
           </q-step>
           <q-step name="detail" :title="detailTitle" :icon="isStrip ? 'view_stream' : 'straighten'">
             <template v-if="isStrip">
@@ -369,9 +377,19 @@ const TARGETS: Record<'in' | 'cm', Target[]> = {
 };
 const target = ref<string | null>(null);
 const drop = ref(0);
+const tuck = ref(false);
+const tuckLength = ref(12);
 const targetOf = computed(() => TARGETS[props.units].find((t) => t.name === target.value));
 const isBed = computed(() => targetOf.value?.drop !== undefined);
 watch(target, () => (drop.value = targetOf.value?.drop ?? 0));
+/** Extra at the head (pillow tuck) and over the sides and foot, for beds. */
+const extra = computed(() => {
+  const bed = isBed.value;
+  return {
+    drop: bed ? Math.max(0, drop.value || 0) : 0,
+    tuck: bed && tuck.value ? Math.max(0, tuckLength.value || 0) : 0,
+  };
+});
 const targetSize = computed(() => targetOf.value?.size ?? null);
 const targetOptions = computed(() => [
   { label: 'None', value: null },
@@ -525,11 +543,11 @@ const preview = computed(() => {
   if (!pic || !t) return pic && { ...pic, target: null, core: null };
   // The target (with any drop over the sides and foot) is centered on the quilt; the mattress top
   // sits at its head. The picture grows to show both.
-  const dr = isBed.value ? Math.max(0, drop.value || 0) : 0;
+  const { drop: dr, tuck: tk } = extra.value;
   const [x0, y0, x1, y1] = generated.value.bounds;
-  const [w, h] = [t[0] + 2 * dr, t[1] + dr];
+  const [w, h] = [t[0] + 2 * dr, t[1] + dr + tk];
   const r = { x: (x0 + x1) / 2 - w / 2, y: (y0 + y1) / 2 - h / 2, w, h };
-  const core = dr > 0 ? { x: r.x + dr, y: r.y, w: t[0], h: t[1] } : null;
+  const core = dr + tk > 0 ? { x: r.x + dr, y: r.y + tk, w: t[0], h: t[1] } : null;
   const [a, b] = [Math.min(x0, r.x), Math.min(y0, r.y)];
   const [c, d] = [Math.max(x1, r.x + r.w), Math.max(y1, r.y + r.h)];
   return { ...pic, box: `${a} ${b} ${c - a} ${d - b}`, target: r, core };
@@ -665,8 +683,9 @@ const summary = computed(() => {
   const done = `Finished ${+(x1 - x0).toFixed(2)} × ${+(y1 - y0).toFixed(2)} ${props.units}`;
   const t = targetSize.value;
   if (!t) return done;
-  const dr = isBed.value ? Math.max(0, drop.value || 0) : 0;
-  return `${done} · ${target.value}${dr ? ' with drop' : ''} ${t[0] + 2 * dr} × ${t[1] + dr} ${props.units}`;
+  const { drop: dr, tuck: tk } = extra.value;
+  const more = [dr && 'drop', tk && 'pillow tuck'].filter(Boolean).join(' and ');
+  return `${done} · ${target.value}${more ? ` with ${more}` : ''} ${t[0] + 2 * dr} × ${t[1] + dr + tk} ${props.units}`;
 });
 
 function create() {
@@ -681,6 +700,8 @@ function show() {
   step.value = 'blocks';
   style.value = 'straight-set';
   target.value = null;
+  tuck.value = false;
+  tuckLength.value = cm ? 30 : 12;
   cols.value = rows.value = 5;
   blockSize.value = cm ? 25 : 10;
   sash.value = 0;

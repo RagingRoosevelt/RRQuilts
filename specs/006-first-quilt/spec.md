@@ -201,9 +201,10 @@ zoom, drag-pan, and Fit.
   Small double 120 × 200, Standard double / Queen 140 × 200, Queen (Europe) / King 160 × 200, Super
   King (Europe) 180 × 200, Emperor / Grand King 200 × 200. A bed adds a **drop** over the sides and
   foot, editable: 12″ for Twin and Double, 14″ for Queen and King, 30 cm up to 140 wide, 35 cm
-  wider, 0 for Crib. With a
+  wider, 0 for Crib. A **Pillow tuck** checkbox (beds, off by default) adds extra at the head
+  (12″ / 30 cm, editable) for bedspread-style quilts. With a
   size picked, the live preview MUST show it as a transparent outline over the quilt, centered on
-  it: the outer outline is the size with its drop, and a fine outline inside marks the mattress top
+  it: the outer outline is the size with its drop and tuck, and a fine outline inside marks the mattress top
   at the head. The footer shows the quilt's finished size and the target's. Counts, block sizes,
   and other layout settings are on the second page ("Size"; "Shape and size" for One Patch,
   "Strips" for strip quilts). The target isn't saved with the quilt. *Added and built 2026-10-16
