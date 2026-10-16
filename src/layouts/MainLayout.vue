@@ -84,6 +84,7 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+    <WelcomeWizard />
   </q-layout>
 </template>
 
@@ -94,6 +95,7 @@ import { useRoute } from 'vue-router';
 import ImageStatus from '@/components/ImageStatus.vue';
 import SaveStatus from '@/components/SaveStatus.vue';
 import SettingsPanel from '@/components/SettingsPanel.vue';
+import WelcomeWizard from '@/components/WelcomeWizard.vue';
 import { settingsOpen } from '@/composables/settings-open';
 import { useProjectStore } from '@/stores/project';
 

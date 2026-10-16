@@ -11,6 +11,9 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 - **Your name** goes into projects, blocks and packs you make. The ids of new items start with a short form of it.
 - **Socials** are added with **Add a social**. Pick a **Type** (Website, a site, or one you type) and a **Handle or link**. Drag the handle at the left to reorder. The selected radio button is the one shown in printed credits.
 
+**Show the welcome again** opens the welcome you saw on your first visit: your name, units, your
+sizes, and help.
+
 ## Interface
 
 - **Theme** can be **Auto**, **Light** or **Dark**.

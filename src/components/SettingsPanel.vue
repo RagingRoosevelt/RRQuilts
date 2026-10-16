@@ -147,6 +147,14 @@
                 site becomes its handle; Website and your own types keep what you type.
               </div>
             </SettingsCard>
+            <q-btn
+              flat
+              no-caps
+              icon="waving_hand"
+              label="Show the welcome again"
+              class="q-mt-sm"
+              @click="welcomeOpen = true"
+            />
           </div>
         </q-expansion-item>
         <q-expansion-item default-opened label="Interface" icon="tune">
@@ -293,6 +301,7 @@
 import { useQuasar } from 'quasar';
 import OverlaySettings from '@/components/OverlaySettings.vue';
 import SettingsCard from '@/components/SettingsCard.vue';
+import { welcomeOpen } from '@/composables/settings-open';
 import { computed, reactive, ref } from 'vue';
 import { authorSlug } from '@/model/identity';
 import { parseConf, toConf } from '@/settings/settings';

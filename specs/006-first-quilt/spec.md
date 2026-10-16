@@ -235,6 +235,13 @@ zoom, drag-pan, and Fit.
   each is unset until set there or first used in the wizard (the wizard saves it when a quilt is
   created with that target). *Added and built 2026-10-16
   (owner).*
+- **FR-001b**: On a first visit (no name asked yet), a **welcome wizard** MUST offer, each step
+  skippable: the name for credits (a real name, pseudonym, shop name, or handle; shown as the credit
+  on shared work and the start of ids), units for new projects, the quilter's own bed, top, and
+  pants for the reference overlay (Settings' Reference overlay controls, with what they're for), the
+  help buttons toggle, and links to the help guides (getting started, designing a quilt, drawing
+  blocks, colors and palettes, libraries, printing). Finishing or skipping sets `welcomeDone` and
+  `authorAsked`; Settings › You › **Show the welcome again** reopens it. *Added 2026-10-16 (owner).*
 - **FR-002**: ~~New projects MUST start with the starter blocks and colors~~ — superseded by spec 008:
   starter content is a built-in library; projects embed library items only while used.
 - **FR-003**: The sketchbook MUST show tabbed card grids with thumbnails rendered from the model;

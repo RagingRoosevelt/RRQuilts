@@ -15,6 +15,8 @@ export interface Settings {
   author: string;
   /** The author name has been asked for once. */
   authorAsked: boolean;
+  /** The welcome wizard has been finished or skipped. */
+  welcomeDone: boolean;
   /** Use the OS accent color for the app's primary color (where the browser exposes it). */
   osAccent: boolean;
   /** Editors: toolbar on the right and sidebar on the left (default: the reverse). */
@@ -85,6 +87,7 @@ export const defaults = (): Settings => ({
   hintsDismissed: [],
   author: '',
   authorAsked: false,
+  welcomeDone: false,
   collapsedSections: [],
   sidesSwapped: false,
   osAccent: true,
@@ -135,6 +138,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   hintsDismissed: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   author: (v) => typeof v === 'string' && v.length <= 100,
   authorAsked: (v) => typeof v === 'boolean',
+  welcomeDone: (v) => typeof v === 'boolean',
   sidesSwapped: (v) => typeof v === 'boolean',
   osAccent: (v) => typeof v === 'boolean',
   trayTab: (v) => v === 'blocks' || v === 'colors',
