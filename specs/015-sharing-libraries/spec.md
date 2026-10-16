@@ -5,7 +5,7 @@
 
 **Created**: 2026-10-15
 
-**Status**: Implemented (written after the 2026-10-15 working session, from what was built and
+**Status**: Implemented except FR-017 (written after the 2026-10-15 working session, from what was built and
 the decisions made there)
 
 **Input**: Owner requests on 2026-10-15: brand libraries in the template layout; a gallery site for
@@ -121,6 +121,8 @@ A quilter shares items from My library as a pack.
 1. **Given** Make pack, **Then** the user can set name, description, author, license, a home page,
    a gallery, other links (name and address), and tick which palettes and blocks to include.
 2. **Given** a link that isn't a web address, or nothing ticked, **Then** Download pack is off.
+3. **Given** palettes with fabric images, **Then** the pack file includes the images (FR-017, not
+   yet built).
 
 ---
 
@@ -183,6 +185,9 @@ A library maintainer publishes a repository, its releases, and a gallery page.
 - **FR-014**: Make pack MUST take links and the items to include (US6).
 - **FR-015**: Imported libraries without a connection MUST have All off and Remove; web libraries
   All off, Check for updates, and Disconnect.
+- **FR-017**: A pack file MUST carry its fabric images (a zipped `.rrqlib`, as backups are), so a
+  palette with fabrics arrives complete. *Not yet built: packs are written as plain JSON without
+  images (found 2026-10-15).*
 - **FR-016**: The sidebar's Libraries box MUST hold Add from the web, Import resource, Back up, and
   Make pack (two rows); the separate Add fabrics button is removed (palettes take images directly).
 
