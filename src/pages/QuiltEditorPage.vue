@@ -426,6 +426,9 @@ const hoverSize = computed(() => {
   if (s.kind === 'set') return 'Setting piece';
   if (s.kind === 'patch') return 'Patch';
   if (s.kind === 'strip') return 'Strip piece';
+  // Pattern pieces (pieced borders and the like) have no width × height to speak of.
+  if (s.shape === 'piece' && s.kind !== 'border') return kind;
+  if (s.kind === 'border' && /:(?:[a-z]+\d|corner:[a-z]+:)/.test(s.id)) return 'Border piece';
   const [w, h] = s.kind === 'block' ? s.size : [Math.hypot(t[0], t[1]), Math.hypot(t[2], t[3])];
   return `${kind} ${fmt(w)} × ${fmt(h)} ${units.value}`;
 });
