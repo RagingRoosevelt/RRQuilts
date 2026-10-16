@@ -12,7 +12,11 @@
       <q-tab name="colors" label="Colors" />
     </q-tabs>
 
-    <div v-if="tab === 'blocks'" class="strip q-pa-sm" style="gap: 8px">
+    <div v-if="tab === 'blocks' && noBlocks" class="q-pa-md text-caption text-grey-8">
+      This quilt layout doesn't support blocks. Its pieces take colors and fabrics: use the Colors
+      tab.
+    </div>
+    <div v-else-if="tab === 'blocks'" class="strip q-pa-sm" style="gap: 8px">
       <div v-if="blockGroups.length === 1" class="text-caption text-grey-7 q-pa-xs">
         Pick library blocks in the project's Blocks tab.
       </div>
@@ -256,10 +260,15 @@ const editing = ref<string | null>(null);
  * `sidebar`: quilt editor Design sidebar — sources are accordion sections; open sections and the
  * tab are remembered app-wide.
  */
-const props = withDefaults(defineProps<{ colorsOnly?: boolean; sidebar?: boolean }>(), {
-  colorsOnly: false,
-  sidebar: false,
-});
+const props = withDefaults(
+  defineProps<{
+    colorsOnly?: boolean;
+    sidebar?: boolean;
+    /** The quilt has no spaces for blocks: Blocks says so, and it opens on Colors. */
+    noBlocks?: boolean;
+  }>(),
+  { colorsOnly: false, sidebar: false, noBlocks: false },
+);
 const app = useSettingsStore();
 const tab = computed({
   get: () =>
@@ -272,7 +281,10 @@ const tab = computed({
   },
 });
 onMounted(() => {
-  if (props.sidebar && !props.colorsOnly && tab.value !== app.settings.trayTab)
+  // A quilt without block spaces opens on Colors (without changing the remembered tab).
+  if (props.noBlocks) {
+    if (tab.value === 'blocks') editor.tool = 'paint';
+  } else if (props.sidebar && !props.colorsOnly && tab.value !== app.settings.trayTab)
     tab.value = app.settings.trayTab;
 });
 

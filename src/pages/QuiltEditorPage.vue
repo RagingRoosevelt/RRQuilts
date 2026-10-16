@@ -184,7 +184,7 @@
             />
           </div>
           <div class="text-caption text-grey-7 q-mb-sm">{{ toolHint }}</div>
-          <PaletteTray sidebar />
+          <PaletteTray sidebar :no-blocks="!hasBlockSpaces" />
         </template>
         <template v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'">
           <LayoutInspector
@@ -235,6 +235,7 @@ import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
+import { takesBlock } from '@/editor/scope';
 import { STRIP_STYLES, stripOf, swapStrips, setStrip } from '@/model/layout/strips';
 import { applyLayout, generateFor, reconcile, type Bounds } from '@/model/layout/slots';
 import { PLAIN_BLOCK, slotGroup } from '@/model/plain';
@@ -408,6 +409,8 @@ const borderInner = computed((): Bounds => {
   const sum = (i: number) => within.reduce((a, b) => a + b.sides[i]!, 0);
   return [x0 - sum(0), y0 - sum(1), x1 + sum(2), y1 + sum(3)];
 });
+/** Some space takes a block (patch layouts and pieced strips take only colors and fabrics). */
+const hasBlockSpaces = computed(() => generated.value.slots.some(takesBlock));
 const bordersSetAside = computed(
   () => !!quilt.value && setsBordersAside(quilt.value.layout) && quilt.value.borders.length > 0,
 );

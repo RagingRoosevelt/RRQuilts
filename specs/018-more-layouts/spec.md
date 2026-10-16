@@ -123,6 +123,9 @@ along all four sides with corner squares; paint points and background with Alter
 - Switching a border to another pieced style keeps the colors of pieces with the same role
   (foreground stays foreground), as strips do.
 - Files from older versions with the placeholder styles open with each style's defaults.
+- A quilt whose layout has no block spaces (patch layouts, strip quilts with only pieced strips)
+  starts in Design on Colors with Paint; the tray's Blocks tab still opens but shows no blocks, only
+  a note that the layout doesn't support blocks (owner, 2026-10-16).
 
 ## Requirements *(mandatory)*
 

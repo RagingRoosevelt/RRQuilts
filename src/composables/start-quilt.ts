@@ -1,5 +1,7 @@
 import { useRouter } from 'vue-router';
 import { DEFAULT_LICENSE } from '@/model/credits';
+import { takesBlock } from '@/editor/scope';
+import { generateFor } from '@/model/layout/slots';
 import { createQuilt } from '@/model/new-quilt';
 import type { Border, Layout, QuiltTarget } from '@/model/schema/quilt';
 import { useEditorStore } from '@/stores/editor';
@@ -24,7 +26,8 @@ export function useStartQuilt() {
     };
     project.change((d) => void d.project.quilts.push(quilt));
     editor.mode = 'design';
-    editor.tool = 'set';
+    // Layouts without block spaces (patches, pieced strips) start on Colors with Paint.
+    editor.tool = generateFor(quilt).slots.some(takesBlock) ? 'set' : 'paint';
     editor.block =
       project.doc!.project.blocks.find((b) => !b.notecard.tags?.includes('system'))?.id ??
       useLibraryStore().items.blocks[0]?.id ??
