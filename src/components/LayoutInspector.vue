@@ -59,26 +59,13 @@
         />
       </div>
       <template v-if="layout.style === 'variable-point'">
-        <div class="row q-col-gutter-sm">
-          <LengthInput
-            class="col-12"
-            :model-value="layout.width"
-            label="Diamond width"
-            :units="units"
-            :min="0.25"
-            :readonly="readonly"
-            @update:model-value="(v) => op({ width: v }, 'width')"
-          />
-          <LengthInput
-            class="col-12"
-            :model-value="layout.height"
-            label="Diamond height"
-            :units="units"
-            :min="0.25"
-            :readonly="readonly"
-            @update:model-value="(v) => op({ height: v }, 'height')"
-          />
-        </div>
+        <DiamondSize
+          :width="layout.width"
+          :height="layout.height"
+          :units="units"
+          :readonly="readonly"
+          @change="(width, height, k) => op({ width, height }, k)"
+        />
         <div class="text-caption text-grey-7">
           Measured through the diamond, point to point. Diamonds and setting pieces take colors and
           fabrics.
@@ -373,6 +360,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import DiamondSize from '@/components/DiamondSize.vue';
 import LengthInput from '@/components/LengthInput.vue';
 import StripsInspector from '@/components/StripsInspector.vue';
 import { convertLayout } from '@/model/layout/slots';

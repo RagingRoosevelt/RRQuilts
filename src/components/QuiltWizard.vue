@@ -124,19 +124,12 @@
                   :label="downLabel"
                 />
                 <template v-if="style === 'variable-point'">
-                  <LengthInput
-                    v-model="tile.width"
+                  <DiamondSize
                     class="col-12"
-                    label="Diamond width"
+                    :width="tile.width"
+                    :height="tile.height"
                     :units="units"
-                    :min="0.25"
-                  />
-                  <LengthInput
-                    v-model="tile.height"
-                    class="col-12"
-                    label="Diamond height"
-                    :units="units"
-                    :min="0.25"
+                    @change="(w, h) => Object.assign(tile, { width: w, height: h })"
                   />
                   <div class="col-12 text-caption text-grey-7">
                     Measured through the diamond, point to point.
@@ -292,6 +285,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
+import DiamondSize from '@/components/DiamondSize.vue';
 import LengthInput from '@/components/LengthInput.vue';
 import TargetEditor from '@/components/TargetEditor.vue';
 import {

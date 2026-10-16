@@ -31,6 +31,9 @@ paint like patches.
 1. **Given** Variable Point, **Then** it takes blocks across and down, diamond width and height
    (through the diamond, point to point), sashing, corner style, and edge finish, as On-Point does.
 2. **Given** width = height, **Then** the diamonds are On-Point squares measured corner to corner.
+2a. **Given** the size fields, **Then** the quilter ticks any two of width, height, and point angle
+   (the angle at the top and bottom points, 90° for a square); the third is calculated and can't
+   be typed (owner, 2026-10-16). Ticking the third frees the one ticked longer ago.
 3. **Given** a diamond or setting piece, **Then** it takes colors and fabrics only; Set says blocks
    come with diamond-shaped blocks.
 
