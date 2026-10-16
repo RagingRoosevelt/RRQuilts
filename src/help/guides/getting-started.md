@@ -21,7 +21,7 @@ work lives in a **project**, one file (ending in `.rrq`) that holds your quilts,
      version (Twin XL, or 210 cm for European beds). **Custom** takes any width and height.
      Under **Garments**, **Top** and **Pants** show a garment piece's shape for a size you pick
      (the **?** beside the size shows the size chart). Choose **Front**, **Back**, or (for a top)
-     **Sleeve**, short or long. A top's front is one side of a buttoned front. The size of
+     **Sleeve** with its **Sleeve length** from the shoulder to the hem. A top's front is one side of a buttoned front, and a pants front has its fly. Garments start with no borders. The size of
      your quilt and the target show at the bottom.
    - **Size** sets how many blocks (or patches, or cubes) and how big they are. For **One Patch**
      it's **Shape**, with a picture of each shape. For strip quilts it's **Strips**:

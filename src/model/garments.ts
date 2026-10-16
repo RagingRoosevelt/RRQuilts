@@ -139,25 +139,54 @@ function sleeve(m: Measurements, length: number): Pt[] {
   return [...capPts, [hem / 2, length], [-hem / 2, length]];
 }
 
-/** One trouser leg's front or back, side seam on the left. */
+/** One trouser leg's front (with its fly extension) or back, side seam on the left. */
 function pants(m: Measurements, back: boolean): Pt[] {
-  const ease = 2;
-  const w = (m.hip + ease) / 4 + (back ? 0.75 : -0.25); // side to center at the hip
-  const ext = back ? m.hip / 10 : m.hip / 16; // crotch extension past the center seam
+  const w = (m.hip + 2) / 4 + (back ? 0.75 : -0.25); // side to center at the hip
+  const ext = back ? m.hip / 8 : m.hip / 16 + 0.75; // crotch extension past the center seam
   const rise = m.rise;
+  const hipDepth = rise - 2.5; // waist to the full hip
   const length = m.rise + m.inseam;
+  const kneeY = rise + m.inseam * 0.45;
+  const crease = (w + ext) / 2;
+  const hem = (back ? 10 : 9) + (m.hip - 36) / 8;
+  const knee = hem + (back ? 1.5 : 1);
+  // The waist is narrower than the hip (darts in the back): the side seam curves out to the hip.
+  const waist = (m.waist + 1) / 4 + (back ? 1 : 0.5);
   const lift = back ? 1 : 0; // the back rises higher at the center
-  const legCenter = (w + ext) / 2;
-  const hem = (back ? 9 : 8) + (m.hip - 36) / 8;
-  const center: Pt = [w, rise - 2];
+  const lean = back ? 1 : 0; // and its center seam leans out
+  const top: Pt = [w + lean - waist, 0];
+  const hip: Pt = [0, hipDepth];
+  const sideKnee: Pt = [crease - knee / 2, kneeY];
+  const innerKnee: Pt = [crease + knee / 2, kneeY];
+  // Center seam down to where the crotch curve begins, then around to the crotch point.
+  const curveTop: Pt = [w, rise - 3.5];
+  const point: Pt = [w + ext, rise];
+  // Front: a fly extension cut on, 1.5″ past center front, from the waist to the crotch curve.
+  const fly = 1.5;
+  const flyEnd = curveTop[1] - 0.25;
+  const flyPts: Pt[] = back
+    ? []
+    : [
+        [w + fly, 0],
+        [w + fly, flyEnd - 0.75],
+        ...curve([w + fly, flyEnd - 0.75], [w + fly, flyEnd], [w + fly - 0.75, flyEnd], 4),
+        [w, flyEnd],
+      ];
   return [
-    [0, 0],
-    [w + (back ? 0.75 : 0), -lift],
-    center,
-    ...curve(center, [w, rise], [w + ext, rise], 6),
-    [legCenter + hem / 2, length],
-    [legCenter - hem / 2, length],
-    [0, rise],
+    top,
+    [w + lean, -lift],
+    ...flyPts,
+    curveTop,
+    ...curve(curveTop, [w, rise], point, 8),
+    // Inseam: in from the crotch point to the knee, then straight down.
+    ...curve(point, [innerKnee[0] + 0.5, (rise + kneeY) / 2], innerKnee, 6),
+    [crease + hem / 2, length],
+    [crease - hem / 2, length],
+    sideKnee,
+    // Side seam: out over the hip, in to the waist.
+    ...curve(sideKnee, [0, (hipDepth + kneeY) / 2], hip, 4).slice(0, -1),
+    hip,
+    ...curve(hip, [0, hipDepth * 0.35], top, 6).slice(0, -1),
   ];
 }
 

@@ -208,12 +208,14 @@ zoom, drag-pan, and Fit.
   Double 80″ long and European 200 cm beds 210 cm. The list is grouped (labels set into divider lines): None, Custom (width ×
   height fields), Table, wall, and lap, then Beds (mattress size), each name on the left and its
   size on the right. Switching lists keeps Custom (and its values) and sizes both lists share.
-  A **Garments** group (before Beds) offers **Top** (Front, Back, or Sleeve; the sleeve Short or
-  Long) and **Pants** (Front or Back), in Women's or Men's sizes XS to XXL (European numbers 34 to
+  A **Garments** group (before Beds) offers **Top** (Front, Back, or Sleeve with a sleeve length from
+  shoulder to hem, starting at the size's full arm length) and **Pants** (Front or Back), in Women's or Men's sizes XS to XXL (European numbers 34 to
   44 and 44 to 54 with European sizes), with a "?" size chart of body measurements. The outline
   takes the piece's shape, drafted from that size (`src/model/garments.ts`: hip-length top with 4″
   ease, the front one side of a buttoned front with a 1″ button stand, the back whole as cut on
-  the fold; set-in sleeve; one trouser leg). It's a size guide, not a sewing pattern. With a
+  the fold; set-in sleeve; one trouser leg with a curved side seam and knee shaping, the front with a
+  1.5″ fly extension cut on). It's a size guide, not a sewing pattern. Picking a garment sets the
+  borders to none (garment pieces have none); leaving garments brings the default border back. With a
   size picked, the live preview MUST show it as a transparent outline over the quilt, centered on
   it: the outer outline is the size with its drop and tuck, and a fine outline inside marks the mattress top
   at the head. The footer shows the quilt's finished size and the target's. Counts, block sizes,
