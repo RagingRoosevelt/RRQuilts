@@ -193,6 +193,13 @@ zoom, drag-pan, and Fit.
   sashing + sash border, borders) defaulting to 5×5 blocks of 10" (25 cm), no sashing, one 2" (5 cm)
   long-horizontal border. *Amended by spec 016 FR-013: the first step also picks the style
   (Horizontal or On-Point), and a live preview shows the quilt as choices are made.*
+- **FR-001a** *(planned, not built)*: The wizard's first page MUST pick the layout style and a target
+  size: None (default), or a named size such as Placemat, Table runner, Wall hanging, Crib, Throw,
+  Twin, Double (Full), Queen, or King (each a width × height, with inch and cm values to be agreed;
+  common bed sizes include the drop over the sides). With a size picked, the live preview MUST show
+  that size as a transparent outline over the quilt, so the quilter can match counts and sizes to
+  it. Counts, block sizes, and other layout settings move to the layout's own second page (as the
+  Strips step does for strip quilts). *Added 2026-10-16 (owner).*
 - **FR-002**: ~~New projects MUST start with the starter blocks and colors~~ — superseded by spec 008:
   starter content is a built-in library; projects embed library items only while used.
 - **FR-003**: The sketchbook MUST show tabbed card grids with thumbnails rendered from the model;
