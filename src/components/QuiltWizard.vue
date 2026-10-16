@@ -314,16 +314,20 @@ defineExpose({ show });
 </script>
 
 <style scoped>
+/* One size whatever the step shows: the content scrolls, the buttons stay put. */
 .wizard {
   width: 760px;
   max-width: 95vw;
-  max-height: 92vh;
+  height: min(720px, 92vh);
+  max-height: none;
   display: flex;
   flex-direction: column;
 }
 .body {
+  flex: 1;
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   overflow-y: auto;
   min-height: 0;
 }
@@ -333,7 +337,7 @@ defineExpose({ show });
 }
 .preview {
   flex: 1 1 260px;
-  height: 320px;
+  height: min(520px, 60vh);
   position: sticky;
   top: 0;
 }
