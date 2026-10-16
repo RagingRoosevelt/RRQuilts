@@ -69,8 +69,8 @@ Delete → the selected strip goes; with Clone on, Add copies the selected strip
    strip, then another, **Then** the two strips trade places, each keeping its settings, blocks, and
    colors; the first tap is highlighted until the second, tapping it again or pressing Escape cancels,
    and the swap is one undo step.
-6. **Given** the Strip style tool, **When** the user clicks its toolbar button again, **Then** it steps
-   to the next style (Plain → Pieced Blocks → … → Checker Board → Plain), shown on the button; **when**
+6. **Given** the Strip style tool, **When** the user clicks its toolbar button, **Then** a menu of all
+   the styles opens, and picking one makes it the tool's style (shown on the button); **when**
    the user taps a strip, **Then** that strip takes the tool's style (keeping its width and counts),
    one undo step, with the usual warning if placed blocks would be lost.
 
@@ -146,8 +146,9 @@ Points strip, print → cutting list has the plain strip, the triangles, and the
 - **FR-013**: For strip quilts, the quilt editor's toolbar MUST offer a Swap strips tool: tap two
   strips to trade their places (settings and content go with them), one undo step; Escape or tapping
   the first strip again cancels.
-- **FR-014**: For strip quilts, the toolbar MUST offer a Strip style tool: each click on its button
-  steps through the styles (shown on the button), and tapping a strip sets that strip's style. *Added
+- **FR-014**: For strip quilts, the toolbar MUST offer a Strip style tool: its button opens a menu of
+  the styles to pick from (the pick is shown on the button), and tapping a strip sets that strip's
+  style. *Added
   2026-10-16 (owner).* *Added
   2026-10-16 (owner).*
 - **FR-012**: The inspector MUST show each strip's unit size and, when units aren't square (or points

@@ -22,17 +22,17 @@ Opus reviews every diff. Tests are included (the spec's SC are checks).
 
 ## Phase 2: Editing UI
 
-- [ ] T006 (sonnet) Editor store: `selectedStrip`, layout tools `swap-strips`, `strip-style` with
-  cycling `stripStyle`, pending swap in `src/stores/editor.ts`
-- [ ] T007 (sonnet) Strips inspector (list, previous/next, Add, Insert, Delete, Clone, direction,
+- [X] T006 (sonnet) Editor store: `selectedStrip`, layout tools `swap-strips`, `strip-style` with
+  `stripStyle`, pending swap in `src/stores/editor.ts`
+- [X] T007 (sonnet) Strips inspector (list, previous/next, Add, Insert, Delete, Clone, direction,
   length, selected strip's style/width/counts, unit size and square fixes) in
   `src/components/StripsInspector.vue`, wired from `LayoutInspector.vue`
-- [ ] T008 (sonnet) Layout tab canvas taps: select strip; Swap strips tool (highlight first, Escape /
-  same tap cancels); Strip style tool; toolbar buttons (style shown on the button) in
+- [X] T008 (sonnet) Layout tab canvas taps: select strip; Swap strips tool (highlight first, Escape /
+  same tap cancels); Strip style tool (its button opens a menu of styles; the pick is shown on the button) in
   `src/pages/QuiltEditorPage.vue`, `src/components/QuiltCanvas.vue`
-- [ ] T009 (sonnet) Wizard cards Horizontal Strip / Vertical Strip; Blocks step asks number of
+- [X] T009 (sonnet) Wizard cards Horizontal Strip / Vertical Strip; Blocks step asks number of
   strips and length in `src/components/QuiltWizard.vue`
-- [ ] T010 (sonnet) Hover label "Strip piece"; Set message for strip pieces
+- [X] T010 (sonnet) Hover label "Strip piece"; Set message for strip pieces
 
 ## Phase 3: Polish
 
