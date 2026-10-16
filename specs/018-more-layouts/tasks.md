@@ -27,4 +27,4 @@ Opus reviews every diff. Nothing is merged or pushed (owner reviews `feat/more-l
 
 - [X] T011 (sonnet) Help (designing-a-quilt layouts and borders), slot-id contract, CLAUDE.md,
   tracker, spec 001 notes
-- [ ] T012 (opus) Review, drawings of every style, final checks, report
+- [X] T012 (opus) Review, drawings of every style, final checks, report
