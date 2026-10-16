@@ -88,11 +88,12 @@
       <text
         v-for="(line, i) in stack.lines"
         :key="i"
-        :x="piece.center[0]"
+        :x="line.x"
         :y="line.y"
+        :transform="line.up ? `rotate(-90 ${line.x} ${line.y})` : undefined"
         :font-size="line.size"
         :font-weight="line.bold ? 'bold' : undefined"
-        text-anchor="middle"
+        :text-anchor="line.anchor"
       >
         {{ line.text }}
       </text>
@@ -210,37 +211,124 @@ const insideLines = computed(() => {
     l.counts ? { text: props.piece.note, em: 0.9 * noteK.value } : null,
   ].filter((x) => !!x?.text) as { text: string; em: number }[];
 });
+/** Where the cutting line crosses a line through `at` along x (`up` false) or y (`up` true). */
+function chord(at: number, up: boolean): [number, number] {
+  const ts: number[] = [];
+  const cut = props.piece.cut;
+  // A line x = at (upright pieces) or y = at: u is the coordinate fixed by it, v the one along it.
+  const [u, v]: [0 | 1, 0 | 1] = up ? [0, 1] : [1, 0];
+  cut.forEach((a, i) => {
+    const b = cut[(i + 1) % cut.length]!;
+    if ((a[u] - at) * (b[u] - at) <= 0 && a[u] !== b[u])
+      ts.push(a[v] + ((at - a[u]) / (b[u] - a[u])) * (b[v] - a[v]));
+  });
+  const c = props.piece.center[v];
+  return ts.length ? [Math.min(...ts), Math.max(...ts)] : [c, c];
+}
+
+/** Width of the seam allowance band (cutting line beyond the sewing line). */
+const seamBand = computed(() => {
+  const w = (poly: Pt[]) => Math.max(...poly.map((p) => p[0])) - Math.min(...poly.map((p) => p[0]));
+  return Math.max(0, (w(props.piece.cut) - w(props.piece.sew)) / 2);
+});
+
 /**
- * Letter and notes stacked at the roomiest spot inside the sewing line, shrunk to fit when the piece
- * is small (width estimated at 0.55 em per character).
+ * Letter and notes at the roomiest spot, shrunk to fit when the piece is small (width estimated at
+ * 0.55 em per character). Small pieces may run into the seam allowance but stay inside the cutting
+ * line. Stacked, or, on long thin pieces where that fits better, in a row along the piece: letter,
+ * size, count (start, middle, end), reading bottom to top on upright pieces.
  */
-const stack = computed(() => {
+const layout = computed(() => {
   const f = props.look.font;
-  const sq = scaleSquare.value;
-  const room = props.piece.room * 1.9;
+  const [cx, cy] = props.piece.center;
+  const room = props.piece.room * 1.9 + seamBand.value * 1.6;
   const rows = [
     ...(props.look.labels.letter ? [{ text: props.piece.letter, em: 1.6, bold: true }] : []),
     ...insideLines.value.map((x) => ({ ...x, bold: false })),
   ];
   const arrow = props.look.grain && props.piece.grainLength > 0 ? 1.2 : 0;
+  const textW = (x: { text: string; em: number }) => x.text.length * 0.55 * x.em * f;
   const height = (rows.reduce((a, x) => a + x.em * 1.15, 0) + arrow) * f;
-  const width = Math.max(0, ...rows.map((x) => x.text.length * 0.55 * x.em)) * f;
-  // The scale square keeps its size; the text shrinks around it.
+  const width = Math.max(0, ...rows.map(textW));
+  const kStack = Math.max(0, Math.min(1, room / (height || 1), room / (width || 1)));
+  // A row along the piece's longer side.
+  const xs = props.piece.sew.map((p) => p[0]);
+  const ys = props.piece.sew.map((p) => p[1]);
+  const up = Math.max(...ys) - Math.min(...ys) > Math.max(...xs) - Math.min(...xs);
+  const [a, b] = chord(up ? cx : cy, up);
+  const pad = f * 0.25;
+  const span = b - a - 2 * pad;
+  const gap = f * 0.8;
+  const rowH = (Math.max(0, ...rows.map((x) => x.em)) * 1.15 + arrow) * f;
+  const rowW = rows.reduce((t, x) => t + textW(x), 0) + gap * Math.max(0, rows.length - 1);
+  const kRow = Math.max(0, Math.min(1, room / (rowH || 1), span / (rowW || 1)));
+  const row = rows.length > 1 && kRow > kStack * 1.15;
+  return { f, cx, cy, room, rows, arrow, height, width, kStack, up, a, b, pad, rowH, kRow, row };
+});
+
+const stack = computed(() => {
+  const L = layout.value;
+  const { f, cx, cy, rows, arrow } = L;
+  if (L.row) {
+    const k = L.kRow;
+    const n = rows.length;
+    const anchors = n === 2 ? ['start', 'end'] : ['start', 'middle', 'end'];
+    // Along the row: start at a (left, or the bottom when reading upward), end at b.
+    const along =
+      n === 2 ? [L.a + L.pad, L.b - L.pad] : [L.a + L.pad, (L.a + L.b) / 2, L.b - L.pad];
+    const lift = (arrow * f + Math.max(...rows.map((x) => x.em)) * 0.9 * f) * k - (L.rowH * k) / 2;
+    const lines = rows.map((x, i) => {
+      // Upright pieces read bottom to top: the start of the row is at the bottom.
+      const t = L.up ? L.a + L.b - along[i]! : along[i]!;
+      return {
+        text: x.text,
+        size: x.em * f * k,
+        bold: x.bold,
+        x: L.up ? cx + lift : t,
+        y: L.up ? t : cy + lift,
+        anchor: anchors[i]!,
+        up: L.up,
+      };
+    });
+    const arrowAt: Pt = L.up
+      ? [cx - (L.rowH * k) / 2 + f * 0.5 * k, cy]
+      : [cx, cy - (L.rowH * k) / 2 + f * 0.5 * k];
+    return { lines, top: 0, k, width: 0, squareY: 0, arrowAt };
+  }
+  // Stacked, with the scale square (which keeps its size) under the text.
+  const sq = scaleSquare.value;
   const below = sq ? sq + f * 0.4 : 0;
-  const k = Math.max(0, Math.min(1, (room - below) / (height || 1), room / (width || 1)));
-  let y = props.piece.center[1] - (height * k + below) / 2 + arrow * f * k;
+  const k = Math.max(0, Math.min(1, (L.room - below) / (L.height || 1), L.room / (L.width || 1)));
+  let y = cy - (L.height * k + below) / 2 + arrow * f * k;
   const lines = rows.map((x) => {
     y += x.em * 1.15 * f * k;
-    return { text: x.text, size: x.em * f * k, bold: x.bold, y: y - x.em * 0.25 * f * k };
+    const at = y - x.em * 0.25 * f * k;
+    return {
+      text: x.text,
+      size: x.em * f * k,
+      bold: x.bold,
+      x: cx,
+      y: at,
+      anchor: 'middle',
+      up: false,
+    };
   });
-  const top = props.piece.center[1] - (height * k + below) / 2;
-  return { lines, top, k, width: width * k, squareY: top + height * k + (below - sq) };
+  const top = cy - (L.height * k + below) / 2;
+  return {
+    lines,
+    top,
+    k,
+    width: L.width * k,
+    squareY: top + L.height * k + (below - sq),
+    arrowAt: undefined as Pt | undefined,
+  };
 });
 
 /** The scale square's side: the largest offered that fits the label room (big on big pieces). */
 const scaleSquare = computed(() => {
   const s = props.look.square;
-  if (!s) return 0;
+  // ponytail: no scale square on pieces labelled in a row (too thin for one).
+  if (!s || layout.value.row) return 0;
   const xs = props.piece.sew.map((p) => p[0]);
   const ys = props.piece.sew.map((p) => p[1]);
   const side = Math.min(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
@@ -283,12 +371,13 @@ const end = (s: 1 | -1): Pt => {
   const c = props.piece.center;
   const [gx, gy] = props.piece.grain;
   const L = props.piece.grainLength / 2;
-  const { top, k, width } = stack.value;
-  // Across the piece: above the labels; up and down: beside them.
+  const { top, k, width, arrowAt } = stack.value;
+  // Across the piece: above the labels; up and down: beside them (rows: their own spot).
   const at: Pt =
-    Math.abs(gy) > Math.abs(gx)
+    arrowAt ??
+    (Math.abs(gy) > Math.abs(gx)
       ? [c[0] - width / 2 - props.look.font * 0.8 * k, c[1]]
-      : [c[0], top + props.look.font * 0.5 * k];
+      : [c[0], top + props.look.font * 0.5 * k]);
   return [at[0] + s * gx * L, at[1] + s * gy * L];
 };
 function head(s: 1 | -1) {

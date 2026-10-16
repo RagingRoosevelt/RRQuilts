@@ -132,6 +132,10 @@ these units from neighboring patches and offer the method alongside the per-patc
 - **FR-004**: Rotary math: squares/rectangles +2×seam; HST square = leg + (2+√2)×seam, 2 per square;
   QST square = hypotenuse + 2(1+√2)×seam, 4 per square; rounded up to the rounding step.
 - **FR-005**: Yardage never under-estimates: whole strips across the usable width, rounded up.
+- **FR-006**: Template labels (letter, finished size, cut count) MAY run into the seam allowance but
+  MUST stay inside the cutting line. On long thin pieces, where a stack would shrink them, they lie
+  in a row along the piece instead: letter at the start, size in the middle, count at the end
+  (reading upward on upright pieces); such pieces carry no scale square. *Added 2026-10-16 (owner).*
 
 ## Success Criteria *(mandatory)*
 
