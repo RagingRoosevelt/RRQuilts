@@ -219,7 +219,7 @@ zoom, drag-pan, and Fit.
   side seams and a smoothly hollow inseam; the front with center front on the left, a slanted
   pocket opening, and a 1.5″ fly extension cut on; the back with a waist dart and its center seam
   slanting in and up toward the waist, running into the J-shaped crotch). It's a size guide, not a sewing pattern. Picking a garment sets the
-  borders to none (garment pieces have none); leaving garments brings the default border back. With a
+  borders to none (garment pieces have none); leaving garments brings the default border back. In the Layout tab, switching a quilt with borders to a garment asks whether to remove them (Remove / Keep them). With a
   size picked, the live preview MUST show it as a transparent outline over the quilt, centered on
   it: the outer outline is the size with its drop and tuck, and a fine outline inside marks the mattress top
   at the head. The footer shows the quilt's finished size and the target's. Counts, block sizes,

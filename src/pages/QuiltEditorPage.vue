@@ -472,6 +472,15 @@ function onTap(hit: Hit) {
 function changeTarget(target: QuiltTarget | undefined, coalesce: string) {
   const q = quilt.value;
   if (!q || project.readOnly) return;
+  // Switching to a garment piece: it likely needs no borders, so offer to take them off.
+  const garment = (t?: QuiltTarget) => t?.input.choice === 'top' || t?.input.choice === 'pants';
+  if (garment(target) && !garment(q.target) && q.borders.length)
+    $q.dialog({
+      title: 'Remove the borders?',
+      message: "Garment pieces usually don't have borders. Remove this quilt's borders?",
+      ok: { label: 'Remove', flat: true, noCaps: true },
+      cancel: { label: 'Keep them', flat: true, noCaps: true },
+    }).onOk(() => changeLayout(q.layout, [], ''));
   project.change(
     (d) => {
       const dq = d.project.quilts.find((x) => x.id === q.id)!;
