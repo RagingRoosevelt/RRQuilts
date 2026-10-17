@@ -5982,6 +5982,10 @@
                   }
                 }
               },
+              "colorsName": {
+                "type": "string",
+                "maxLength": 100
+              },
               "variants": {
                 "type": "array",
                 "items": {

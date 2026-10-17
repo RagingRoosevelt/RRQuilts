@@ -265,7 +265,9 @@ export const Quilt = Type.Object({
   /** Fixed purposes: [piecing, appliqué, quilting]. */
   layers: Type.Tuple([PiecingLayer, FreeLayer, FreeLayer]),
   target: Type.Optional(QuiltTarget),
-  /** Color variants (palette swaps) and the one shown (none: the quilt's own colors). */
+  /** Color variants (palette swaps) and the one shown (none: the quilt's own colors, the first
+   *  variant, named `colorsName`). */
+  colorsName: Type.Optional(Type.String({ maxLength: 100 })),
   variants: Type.Optional(Type.Array(QuiltVariant, { maxItems: 100 })),
   shownVariant: Type.Optional(Id),
 });

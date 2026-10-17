@@ -112,7 +112,10 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   presets (`__tests__/model/layout-presets.ts`) prove the planned ones
 - `quilt-variants.ts` — quilt color variants (palette swaps `from` fill key → `to` fill; `shownVariant`
   saved); applied in `drawQuilt`, `quiltPieces`; painting with one shown records swaps
-  (`editor/actions.ts`); `components/QuiltVariants.vue` (badge / row / Design panel)
+  (`editor/actions.ts`); the quilt's own colors are the first variant (`colorsName`; deleting it
+  bakes the next in); `components/QuiltVariants.vue` (badge / row / Design panel).
+  `components/PaletteSwapDialog.vue` (+ `composables/swap-options.ts`) = palette swap for block
+  colorings and quilt variants (Sketchbook card menus)
 - `targets.ts` (+ `garments.ts`) — target sizes (beds, garments…) → outline; quilts store `target`
   (choices + resolved outline); `components/TargetEditor.vue` (wizard + Layout tab `TargetSection`)
 - Fixture with every entity: `test/fixtures/everything.rrq`

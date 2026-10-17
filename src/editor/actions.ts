@@ -152,7 +152,7 @@ export function applyTool(
         if (from === 'none')
           return {
             message:
-              'Color variants swap colors already in the quilt. Show the original colors to paint here.',
+              'Color variants swap colors already in the quilt. Show the first variant to paint here.',
           };
         return { doc: withQuilt(doc, setSwap(quilt, variant.id, from, fillFor(s.color))) };
       }

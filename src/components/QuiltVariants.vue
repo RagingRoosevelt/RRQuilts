@@ -1,9 +1,8 @@
 <template>
-  <!-- A quilt's color variants (palette swaps): the count badge, like a block's colorings; its menu
-       shows each variant to pick, and makes, renames, or deletes them. `badge` sits on a card's
-       thumbnail; `row` shows the quilt as it's shown, its variant's name, and the badge. -->
-  <!-- `panel`: the Design sidebar's section, like a block's Colorings: every variant to pick, each
-       with Rename and Delete, and Save as new variant (a copy of the one shown). -->
+  <!-- A quilt's color variants (palette swaps), as a block's colorings: `badge` is the count on a
+       card's thumbnail, its menu picks the variant shown; `row` shows the quilt as shown, its
+       variant's name, and the badge; `panel` is the Design sidebar's section (pick, Rename, Delete,
+       Save as new variant). New variants from a palette swap: the quilt card's menu. -->
   <q-expansion-item
     v-if="mode === 'panel'"
     default-opened
@@ -14,15 +13,11 @@
     <div class="column q-pb-md" style="gap: 8px">
       <div class="row" style="gap: 8px">
         <div v-for="c in choices" :key="c.id ?? ''" class="column items-center">
-          <button
-            class="qv-pick big"
-            :class="{ active: (quilt.shownVariant ?? undefined) === c.id }"
-            @click="show(c.id)"
-          >
+          <button class="qv-pick big" :class="{ active: shown === c.id }" @click="show(c.id)">
             <img :src="thumbOf(c.id, 72)" :alt="c.name" />
             <div class="qv-pick-name">{{ c.name }}</div>
           </button>
-          <div v-if="!readonly && c.id" class="row no-wrap">
+          <div v-if="!readonly" class="row no-wrap">
             <q-btn
               flat
               round
@@ -30,7 +25,7 @@
               size="sm"
               icon="edit"
               :aria-label="`Rename ${c.name}`"
-              @click="rename(c.id)"
+              @click="rename(c.id, c.name)"
             >
               <q-tooltip>Rename</q-tooltip>
             </q-btn>
@@ -41,8 +36,9 @@
               size="sm"
               icon="delete"
               color="negative"
+              :disable="choices.length < 2"
               :aria-label="`Delete ${c.name}`"
-              @click="remove(c.id)"
+              @click="remove(c.id, c.name)"
             >
               <q-tooltip>Delete</q-tooltip>
             </q-btn>
@@ -52,41 +48,35 @@
       <div v-if="!readonly" class="row">
         <q-btn dense outline no-caps icon="add" label="Save as new variant" @click="make" />
       </div>
-      <div class="text-caption text-grey-7">
-        With a variant shown, painting swaps a color for another across the quilt.
+      <div v-if="choices.length > 1" class="text-caption text-grey-7">
+        In a variant after the first, painting swaps a color for another across the quilt.
       </div>
     </div>
   </q-expansion-item>
   <div v-else-if="mode === 'row'" class="row items-center no-wrap" style="gap: 10px">
     <div class="relative-position">
-      <img :src="thumbOf(quilt.shownVariant)" alt="" class="row-thumb" />
-      <span class="count" role="button" title="Color variants" @click.stop>
-        {{ count }}
-        <VariantMenu />
-      </span>
+      <img :src="thumbOf(shown)" alt="" class="row-thumb" />
+      <VariantCount />
     </div>
     <div class="col">
-      <div class="text-caption text-grey-7">Colors</div>
-      <div>{{ shownName }}</div>
+      <div class="text-caption text-grey-7">Color variant</div>
+      <div>{{ choices.find((c) => c.id === shown)?.name }}</div>
     </div>
   </div>
-  <span
-    v-else-if="count > 1"
-    class="count overlay"
-    role="button"
-    title="Color variants"
-    @click.stop
-  >
-    {{ count }}
-    <VariantMenu />
-  </span>
+  <VariantCount v-else />
 </template>
 
 <script setup lang="ts">
-import { ClosePopup, QBtn, QMenu, useQuasar } from 'quasar';
+import { ClosePopup, QMenu, useQuasar } from 'quasar';
 import { computed, defineComponent, h, withDirectives } from 'vue';
 import { newId } from '@/model/ids';
-import { addVariant, removeVariant, renameVariant, shownVariant } from '@/model/quilt-variants';
+import {
+  addVariant,
+  removeVariant,
+  renameVariant,
+  shownVariant,
+  variantList,
+} from '@/model/quilt-variants';
 import type { Quilt } from '@/model/schema/quilt';
 import { quiltThumbnail } from '@/render/thumbnail';
 import { useProjectStore } from '@/stores/project';
@@ -98,14 +88,9 @@ const props = withDefaults(
 const $q = useQuasar();
 const project = useProjectStore();
 
-/** The quilt's own colors plus each variant. */
-const count = computed(() => (props.quilt.variants?.length ?? 0) + 1);
-const shownName = computed(() => shownVariant(props.quilt)?.name ?? 'Original colors');
-/** The quilt's own colors, then each variant. */
-const choices = computed((): { id: string | undefined; name: string }[] => [
-  { id: undefined, name: 'Original colors' },
-  ...(props.quilt.variants ?? []).map((v) => ({ id: v.id, name: v.name })),
-]);
+/** The quilt's own colors (no id), then each variant. */
+const choices = computed(() => variantList(props.quilt));
+const shown = computed(() => shownVariant(props.quilt)?.id);
 const thumbOf = (id: string | undefined, px = 112) => {
   const q: Quilt = { ...props.quilt };
   if (id) q.shownVariant = id;
@@ -126,100 +111,65 @@ const show = (id: string | undefined) =>
     else delete q.shownVariant;
     return q;
   });
-/** A new variant: a copy of the one shown (the quilt's own colors when none is). */
+/** A new variant: a copy of the one shown. */
 const make = () => edit((q) => addVariant(q, newId(), undefined, shownVariant(q)));
-function rename(id = props.quilt.shownVariant) {
-  const v = shownVariant(props.quilt, id);
-  if (!v) return;
+function rename(id: string | undefined, name: string) {
   $q.dialog({
     title: 'Rename the color variant',
-    prompt: { model: v.name, type: 'text' },
+    prompt: { model: name, type: 'text' },
     cancel: true,
-  }).onOk((name: string) => name.trim() && edit((q) => renameVariant(q, v.id, name.trim())));
+  }).onOk((n: string) => n.trim() && edit((q) => renameVariant(q, id, n.trim())));
 }
-function remove(id = props.quilt.shownVariant) {
-  const v = shownVariant(props.quilt, id);
-  if (!v) return;
+function remove(id: string | undefined, name: string) {
   $q.dialog({
     title: 'Delete the color variant?',
-    message: `“${v.name}” and its color swaps go. The quilt's own colors stay.`,
+    message: `“${name}” and its colors go.`,
     cancel: true,
     ok: { label: 'Delete', color: 'negative', flat: true },
-  }).onOk(() => edit((q) => removeVariant(q, v.id)));
+  }).onOk(() => edit((q) => removeVariant(q, id, project.doc!.project.blocks)));
 }
 
-/** The badge's menu: each variant (the quilt's own colors first), then make, rename, delete. */
-const VariantMenu = defineComponent(() => () => {
-  const choices: { id: string | undefined; name: string }[] = [
-    { id: undefined, name: 'Original colors' },
-    ...(props.quilt.variants ?? []).map((v) => ({ id: v.id, name: v.name })),
-  ];
-  const tiles = choices.map((c) =>
-    withDirectives(
-      h(
-        'button',
-        {
-          class: ['qv-pick', { active: (props.quilt.shownVariant ?? undefined) === c.id }],
-          title: c.name,
-          onClick: () => show(c.id),
-        },
-        [h('img', { src: thumbOf(c.id), alt: '' }), h('div', { class: 'qv-pick-name' }, c.name)],
-      ),
-      [[ClosePopup]],
-    ),
-  );
-  const actions = props.readonly
-    ? []
-    : [
-        withDirectives(
-          h(QBtn, {
-            flat: true,
-            dense: true,
-            noCaps: true,
-            icon: 'add',
-            label: 'New variant',
-            onClick: make,
-          }),
-          [[ClosePopup]],
+/** The count, as on block cards (ColoringCount): its menu picks the variant shown. */
+const VariantCount = defineComponent(
+  () => () =>
+    choices.value.length < 2
+      ? null
+      : h(
+          'span',
+          {
+            class: ['qv-count', { overlay: props.mode === 'badge' }],
+            role: 'button',
+            title: 'Choose color variant',
+            onClick: (e: Event) => e.stopPropagation(),
+          },
+          [
+            String(choices.value.length),
+            h(QMenu, null, () =>
+              h(
+                'div',
+                { class: 'row q-pa-sm', style: 'gap: 6px; max-width: 340px' },
+                choices.value.map((c) =>
+                  withDirectives(
+                    h(
+                      'button',
+                      {
+                        class: ['qv-pick', { active: shown.value === c.id }],
+                        title: c.name,
+                        onClick: () => show(c.id),
+                      },
+                      [
+                        h('img', { src: thumbOf(c.id), alt: '' }),
+                        h('div', { class: 'qv-pick-name' }, c.name),
+                      ],
+                    ),
+                    [[ClosePopup]],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        ...(props.quilt.shownVariant
-          ? [
-              withDirectives(
-                h(QBtn, {
-                  flat: true,
-                  dense: true,
-                  noCaps: true,
-                  label: 'Rename…',
-                  onClick: () => rename(),
-                }),
-                [[ClosePopup]],
-              ),
-              withDirectives(
-                h(QBtn, {
-                  flat: true,
-                  dense: true,
-                  noCaps: true,
-                  color: 'negative',
-                  label: 'Delete',
-                  onClick: () => remove(),
-                }),
-                [[ClosePopup]],
-              ),
-            ]
-          : []),
-      ];
-  return h(QMenu, null, () =>
-    h('div', { class: 'q-pa-sm', style: 'max-width: 340px' }, [
-      h('div', { class: 'row', style: 'gap: 6px' }, tiles),
-      actions.length ? h('div', { class: 'row q-mt-sm', style: 'gap: 4px' }, actions) : null,
-      h(
-        'div',
-        { class: 'text-caption text-grey-7 q-mt-xs' },
-        'With a variant shown, painting swaps a color for another across the quilt.',
-      ),
-    ]),
-  );
-});
+);
 </script>
 
 <style scoped>
@@ -229,8 +179,12 @@ const VariantMenu = defineComponent(() => () => {
   height: 56px;
   border-radius: 4px;
 }
-/* The count badge, as on block cards (ColoringCount). */
-.count {
+</style>
+
+<style>
+/* The count badge, as on block cards (ColoringCount); the menu is rendered in <body>, so these
+   aren't scoped. */
+.qv-count {
   position: absolute;
   right: -10px;
   bottom: -10px;
@@ -246,11 +200,11 @@ const VariantMenu = defineComponent(() => () => {
   backdrop-filter: blur(3px);
   mask-image: radial-gradient(farthest-side, #000 70%, transparent);
 }
-.count.overlay {
+.qv-count.overlay {
   right: -4px;
   bottom: -4px;
 }
-.count::before {
+.qv-count::before {
   content: '';
   position: absolute;
   inset: 8px;
@@ -259,10 +213,6 @@ const VariantMenu = defineComponent(() => () => {
   background: var(--q-primary);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
-</style>
-
-<style>
-/* The variants menu (rendered in <body>, so not scoped). */
 .qv-pick {
   width: 72px;
   padding: 2px;

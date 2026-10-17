@@ -163,12 +163,16 @@ The left rail holds the tools. Tooltips and a hint line above the tray say what 
 
 ## Color variants
 
-A quilt can have color variants, to try it in other colors without losing its own. In the Design
-tab, **Color variants** shows the original colors and each variant. **Save as new variant** copies
-the one shown. With a variant shown, painting a piece swaps its color for the new one everywhere in
-the quilt, in that variant only. Pick **Original colors** to go back. Each variant can be renamed or
-deleted. The variant shown is saved with the quilt, and printing and pictures use it. The count on a
-quilt's card picks a variant too.
+A quilt can have color variants, to try it in other colors, like a block's colorings. In the Design
+tab, **Color variants** shows each one. The first is the quilt's own colors. **Save as new variant**
+copies the one shown. In a later variant, painting a piece swaps its color for the new one
+everywhere in the quilt, in that variant only. Each variant can be renamed or deleted while another
+is left. Deleting the first makes the next one the quilt's own colors. The variant shown is saved
+with the quilt, and printing and pictures use it.
+
+On the project's Quilts tab, the count on a quilt's card picks the variant shown. The card's menu
+has **New color variant from palette swap**: pick a palette, and each color becomes its nearest
+color there. Change any you like, then **Add variant**.
 
 ## Apply to
 

@@ -55,6 +55,10 @@ function shown(doc: RrqDoc | Draft<RrqDoc>, quilt: RrqDoc['project']['quilts'][n
 export const quiltColors = (doc: RrqDoc, quilt: RrqDoc['project']['quilts'][number]) =>
   new Set(colorsOf(shown(doc, quilt)));
 
+/** Paint ids (colors, and `fabric:<id>`) a quilt shows, before any color variant's swaps. */
+export const quiltPaints = (doc: RrqDoc, quilt: RrqDoc['project']['quilts'][number]) =>
+  new Set(paintsOf(shown(doc, quilt)));
+
 /** Colors the project depends on: painted ones, and those its quilts show. */
 export const colorsUsed = (doc: RrqDoc) =>
   new Set([...colorsPainted(doc), ...doc.project.quilts.flatMap((q) => [...quiltColors(doc, q)])]);

@@ -88,6 +88,9 @@
                   <q-item v-close-popup clickable @click="duplicate(q.id)"
                     ><q-item-section>Duplicate as variation</q-item-section></q-item
                   >
+                  <q-item v-close-popup clickable @click="startSwapVariant(q)"
+                    ><q-item-section>New color variant from palette swap…</q-item-section></q-item
+                  >
                   <q-item v-close-popup clickable @click="quiltDetails(q.id)"
                     ><q-item-section>Details</q-item-section></q-item
                   >
@@ -949,28 +952,7 @@
     <q-dialog :model-value="!!unpicking" @update:model-value="unpicking = null">
       <q-card v-if="unpicking" style="width: 520px; max-width: 95vw">
         <q-card-section>
-          <template v-if="unpicking.block">
-            <div class="text-h6">New coloring from palette swap</div>
-            <div class="text-caption text-grey-7">
-              Pick a palette: each color of {{ unpicking.title }} becomes its nearest color or
-              fabric there, and you can change any of them.
-            </div>
-            <q-select
-              :model-value="unpicking.to ?? null"
-              :options="swapPalettes"
-              option-value="id"
-              option-label="label"
-              emit-value
-              map-options
-              dense
-              outlined
-              clearable
-              label="Palette"
-              class="q-mt-sm"
-              @update:model-value="swapToPalette"
-            />
-          </template>
-          <template v-else>
+          <template v-if="unpicking">
             <div class="text-h6">
               {{ unpicking.used.length }}
               {{
@@ -1034,21 +1016,7 @@
             </q-select>
           </div>
         </q-card-section>
-        <q-card-section
-          v-if="unpicking.block"
-          class="row justify-center q-pt-none"
-          style="gap: 12px"
-        >
-          <div v-for="side in ['Before', 'After']" :key="side" class="column items-center">
-            <img
-              :src="side === 'After' ? swapPreview.after : swapPreview.before"
-              style="width: 160px; height: 160px"
-              alt=""
-            />
-            <div class="text-caption">{{ side }}</div>
-          </div>
-        </q-card-section>
-        <q-card-section v-else-if="unpicking.options.length && affected.length" class="q-pt-none">
+        <q-card-section v-if="unpicking.options.length && affected.length" class="q-pt-none">
           <q-carousel
             v-model="previewQuilt"
             animated
@@ -1089,13 +1057,11 @@
             no-caps
             color="primary"
             :label="
-              unpicking.block
-                ? 'Add coloring'
-                : unpicking.packsOff
-                  ? 'Swap and turn off'
-                  : unpicking.palette || unpicking.color
-                    ? 'Swap and remove'
-                    : 'Swap and clear'
+              unpicking.packsOff
+                ? 'Swap and turn off'
+                : unpicking.palette || unpicking.color
+                  ? 'Swap and remove'
+                  : 'Swap and clear'
             "
             :disable="!unpicking.options.length"
             @click="finishUnpick"
@@ -1103,6 +1069,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <PaletteSwapDialog ref="swapDialog" />
 
     <q-dialog :model-value="!!saveColors" @update:model-value="saveColors = null">
       <q-card v-if="saveColors" style="width: 380px; max-width: 95vw">
@@ -1147,12 +1114,21 @@
 <script setup lang="ts">
 import QuiltVariants from '@/components/QuiltVariants.vue';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
+import PaletteSwapDialog from '@/components/PaletteSwapDialog.vue';
+import {
+  fabricOpt,
+  optStyle,
+  useSwapOptions,
+  type Drop,
+  type Opt,
+} from '@/composables/swap-options';
+import { fillFor, paintOf } from '@/editor/paint';
 import PalettePreview from '@/components/PalettePreview.vue';
 import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { ColorCollection } from '@/model/schema/library';
 import { swatchStyle } from '@/render/fabric-images';
 import { useQuasar } from 'quasar';
-import { computed, reactive, ref, toRaw, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
@@ -1160,7 +1136,10 @@ import { useStartQuilt } from '@/composables/start-quilt';
 import { allPatches } from '@/model/blocks/patches';
 import { attribution, copyBlock, newBlock, saveColoringAs } from '@/editor/block-ops';
 import { nearestColor } from '@/editor/color';
-import { paintsUsed, quiltColors, replaceColors } from '@/editor/colors';
+import { paintsUsed, quiltColors, quiltPaints, replaceColors } from '@/editor/colors';
+import { fillKey } from '@/model/coloring';
+import { addVariant, setSwap, shownVariant, swapper, variantList } from '@/model/quilt-variants';
+import type { Quilt } from '@/model/schema/quilt';
 import { authorOf, effectiveLicense, licenseName, priorCredits } from '@/model/credits';
 import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
@@ -1203,7 +1182,6 @@ import {
   resolveSync,
   type PaletteChange,
   paletteLinks as linksOf,
-  projectPalettes,
   renamePalette,
 } from '@/model/project-palettes';
 import { collectionFile } from '@/model/collection-file';
@@ -1344,7 +1322,7 @@ const shownData = computed((): Shown | undefined => {
 });
 
 // --- The project's own palettes (format v3) ---
-const ownPalettes = computed(() => projectPalettes(project.doc!));
+const { ownPalettes, pickedPalettes, remaining, paintOpt } = useSwapOptions();
 /** Each project palette's synced My library palette, and whether they match. */
 const paletteLinks = computed(() =>
   linksOf(
@@ -1441,18 +1419,6 @@ function removeFromShown(i: number) {
   const f = d.fabrics?.[i - d.colors.length];
   if (f) confirmRemoval([fabricOpt(f, '')], { fabric: f.id }, f.notecard.name);
 }
-/** A color, or a fabric standing in as one (`fabric:<id>`, its average color), with where it's from. */
-type Opt = Color & { from: string; fabric?: Fabric };
-const fabricOpt = (f: Fabric, from: string): Opt => ({
-  id: `fabric:${f.id}`,
-  notecard: f.notecard,
-  rgb: f.average,
-  from,
-  fabric: f,
-});
-/** A swatch's CSS: a fabric's print, else the color. */
-const optStyle = (o?: Color & { fabric?: Fabric }) =>
-  o?.fabric ? swatchStyle(o.fabric) : { background: rgbCss(o?.rgb) };
 /** The swap dialog: colors in use that are going away, each mapped to one that stays. */
 const unpicking = ref<{
   title: string;
@@ -1465,58 +1431,16 @@ const unpicking = ref<{
   /** Libraries' palettes going away, and the packs to switch off afterwards (Libraries page). */
   palettes?: string[];
   packsOff?: string[];
-  /** A new coloring of this block instead (from its coloring `coloring`), mapped onto palette `to`. */
-  block?: { id: string; coloring: string };
-  to?: string;
   used: (Color & { fabric?: Fabric })[];
   options: Opt[];
   map: Record<string, string>;
 } | null>(null);
-const rgbCss = (rgb?: readonly number[]) => (rgb ? `rgb(${rgb.join(',')})` : 'transparent');
-const pickedPalettes = computed(() => project.doc!.project.libraryPalettes ?? []);
 const ownColors = computed(() =>
   project.doc!.project.palette.colors.filter((c) => !isLibraryItem(c)),
 );
 /** The only picked palette while there are no colors of your own: it can't be unpicked. */
 const lastSource = (id: string) =>
   !ownColors.value.length && pickedPalettes.value.length === 1 && pickedPalettes.value[0] === id;
-
-type Drop = {
-  palette?: string;
-  palettes?: string[];
-  mine?: boolean;
-  color?: string;
-  /** One of the project's own palettes, deleted with its colors and fabrics. */
-  projectPalette?: string;
-  fabric?: string;
-};
-/** Colors and fabrics available after removing a palette (`palette`, `palettes`) or My colors (`mine`). */
-function remaining(drop: Drop): Opt[] {
-  const all = library.views.flatMap((v) => v.collections.map((c) => ({ v, c })));
-  const going = new Set([drop.palette, ...(drop.palettes ?? [])]);
-  return [
-    // The project's own palettes (but not the one, or the color or fabric, going away).
-    ...(drop.mine ? [] : ownPalettes.value)
-      .filter((pp) => pp.palette.id !== drop.projectPalette)
-      .flatMap((pp) => [
-        ...pp.colors
-          .filter((c) => c.id !== drop.color)
-          .map((c) => ({ ...c, from: pp.palette.notecard.name })),
-        ...pp.fabrics
-          .filter((f) => f.id !== drop.fabric)
-          .map((f) => fabricOpt(f, pp.palette.notecard.name)),
-      ]),
-    ...all
-      .filter((x) => pickedPalettes.value.includes(x.c.id) && !going.has(x.c.id))
-      .flatMap((x) => {
-        const from = `${x.c.notecard.name} · ${x.v.doc.library?.name ?? x.v.doc.name}`;
-        return [
-          ...x.c.colors.map((c) => ({ ...c, from })),
-          ...(x.c.fabrics ?? []).map((f) => fabricOpt(f, from)),
-        ];
-      }),
-  ].filter((c, i, a) => a.findIndex((o) => o.id === c.id) === i);
-}
 /**
  * Removing colors: those the project's own blocks and quilts use and nothing remaining provides
  * get a dialog mapping each to the nearest remaining color; Cancel changes nothing.
@@ -1591,128 +1515,77 @@ function addProjectColor({ name, rgb }: { name: string; rgb: [number, number, nu
 function finishUnpick() {
   const u = unpicking.value!;
   unpicking.value = null;
-  if (u.block) addSwapColoring(u);
-  else applyRemoval(u);
+  applyRemoval(u);
 }
 
 // --- New coloring from palette swap: the swap dialog, mapping one coloring's colors ---
-/** Palettes to map onto: the project's own palettes, then every palette in use in the libraries. */
-const swapPalettes = computed(() => [
-  ...ownPalettes.value
-    .filter((pp) => pp.colors.length || pp.fabrics.length)
-    .map((pp) => {
-      const from = `${pp.palette.notecard.name} · this project`;
-      return {
-        id: `project:${pp.palette.id}`,
-        label: from,
-        colors: [
-          ...pp.colors.map((c) => ({ ...c, from })),
-          ...pp.fabrics.map((f) => fabricOpt(f, from)),
-        ] as Opt[],
-      };
-    }),
-  ...library.views.flatMap((v) =>
-    v.collections.map((c) => {
-      const from = `${c.notecard.name} · ${v.doc.library?.name ?? v.doc.name}`;
-      return {
-        id: c.id,
-        label: from,
-        colors: [
-          ...c.colors.map((x) => ({ ...x, from })),
-          ...(c.fabrics ?? []).map((f) => fabricOpt(f, from)),
-        ] as Opt[],
-      };
-    }),
-  ),
-]);
-/** What a coloring can be swapped to: the project's colors and fabrics, and its palettes'. */
-const swapOptions = (extra: Opt[] = []) =>
-  [
-    ...extra,
-    ...remaining({}),
-    ...project.doc!.project.palette.fabrics.map((f) => fabricOpt(f, 'Project fabrics')),
-  ].filter((o, i, a) => a.findIndex((x) => x.id === o.id) === i);
-const colorById = (id: string): Color | undefined =>
-  project.doc!.project.palette.colors.find((c) => c.id === id) ?? library.lookup.color(id);
-function startSwapColoring(b: Block) {
-  const coloring = b.colorings.find((c) => c.id === shownColoring(b)) ?? b.colorings[0]!;
-  const ids = new Set(
-    Object.values(coloring.fills).map((f) => ('color' in f ? f.color : `fabric:${f.fabric}`)),
-  );
-  const fabric = (id: string) =>
-    project.doc!.project.palette.fabrics.find((f) => `fabric:${f.id}` === id);
-  const used = [...ids].flatMap((id) => {
-    const f = fabric(id);
-    return f ? [fabricOpt(f, '')] : (colorById(id) ?? []);
-  });
-  unpicking.value = {
-    title: coloring.name ? `${b.notecard.name} (${coloring.name})` : b.notecard.name,
-    block: { id: b.id, coloring: coloring.id },
-    used,
-    options: swapOptions(),
-    map: Object.fromEntries(used.map((c) => [c.id, c.id])),
-  };
-}
-/** Suggest each color's nearest in palette `id` (cleared: back to the colors as they are). */
-function swapToPalette(id: string | null) {
-  const u = unpicking.value!;
-  const pal = swapPalettes.value.find((p) => p.id === id);
-  if (!pal) {
-    delete u.to;
-    u.options = swapOptions();
-    u.map = Object.fromEntries(u.used.map((c) => [c.id, c.id]));
-    return;
-  }
-  u.to = pal.id;
-  u.options = pal.colors; // only the chosen palette's colors and fabrics
-  for (const c of u.used) {
-    const n = nearestColor(c.rgb, pal.colors);
-    if (n) u.map[c.id] = n.id;
-  }
-}
-/** The block with the swapped coloring added (`after`), or as it is. */
-function swapped(u: NonNullable<typeof unpicking.value>) {
-  const b = blocks.value.find((x) => x.id === u.block!.id)!;
-  const { block, id } = saveColoringAs(b, u.block!.coloring);
+const swapDialog = ref<InstanceType<typeof PaletteSwapDialog>>();
+/** The block with coloring `from` copied, swapped by `map` (and named for the palette). */
+function swapped(b: Block, from: string, map: Record<string, string>, name?: string) {
+  const { block, id } = saveColoringAs(b, from);
   const next = produce(block, (d) => {
     const k = d.colorings.find((c) => c.id === id)!;
     for (const [patch, f] of Object.entries(k.fills)) {
-      const to = u.map['color' in f ? f.color : `fabric:${f.fabric}`];
-      if (!to) continue;
-      k.fills[patch] = to.startsWith('fabric:')
-        ? { fabric: to.slice('fabric:'.length), offset: [0, 0], rotation: 0 }
-        : { color: to };
+      const to = map[paintOf(f)!];
+      if (to) k.fills[patch] = fillFor(to);
     }
-    const pal = swapPalettes.value.find((p) => p.id === u.to);
-    if (pal) k.name = pal.label.split(' · ')[0]!;
+    if (name) k.name = name;
   });
-  return { before: b, block: next, id };
+  return { block: next, id };
 }
-const swapPreview = computed(() => {
-  const u = unpicking.value;
-  if (!u?.block) return { before: '', after: '' };
-  const s = swapped(u);
-  // Library fabrics picked here aren't in the project yet: lend them for the "after" picture.
-  const lent = u.options.flatMap((o) =>
-    o.fabric && !project.doc!.project.palette.fabrics.some((f) => f.id === o.fabric!.id)
-      ? [toRaw(o.fabric)] // not a Vue proxy: Immer can't take those
-      : [],
-  );
-  const doc = lent.length
-    ? produce(project.doc!, (d) => void d.project.palette.fabrics.push(...castDraft(lent)))
-    : project.doc!;
-  return {
-    before: thumb(s.before, 160, u.block.coloring),
-    after: blockThumbnail(doc, s.block, 160, $q.dark.isActive, s.id, library.items.colors),
-  };
-});
-function addSwapColoring(u: NonNullable<typeof unpicking.value>) {
-  const { block, id } = swapped(u);
-  project.change((d) => {
-    const i = d.project.blocks.findIndex((b) => b.id === block.id);
-    if (i >= 0) d.project.blocks[i] = castDraft(block);
+/** The quilt with a new color variant: the one shown, its colors as shown swapped by `map`. */
+function swappedQuilt(q: Quilt, map: Record<string, string>, name?: string): Quilt {
+  const shown = swapper(shownVariant(q));
+  const id = newId();
+  let next = addVariant(q, id, name, shownVariant(q));
+  for (const p of quiltPaints(project.doc!, q)) {
+    const from = fillFor(p);
+    const now = paintOf(shown(from))!;
+    if (map[now] && map[now] !== now) next = setSwap(next, id, fillKey(from), fillFor(map[now]));
+  }
+  return next;
+}
+function startSwapVariant(q: Quilt) {
+  const shown = swapper(shownVariant(q));
+  const now = new Set([...quiltPaints(project.doc!, q)].map((p) => paintOf(shown(fillFor(p)))!));
+  const name = variantList(q).find((v) => v.id === shownVariant(q)?.id)?.name;
+  swapDialog.value?.show({
+    heading: 'New color variant from palette swap',
+    title: `${q.notecard.name} (${name})`,
+    okLabel: 'Add variant',
+    used: [...now].flatMap((p) => paintOpt(p) ?? []),
+    before: quiltThumbnail(project.doc!, q, 160, $q.dark.isActive, true),
+    preview: (map, n, doc) =>
+      quiltThumbnail(doc, swappedQuilt(q, map, n), 160, $q.dark.isActive, true),
+    done: (map, n) =>
+      project.change((d) => {
+        const i = d.project.quilts.findIndex((x) => x.id === q.id);
+        if (i >= 0) d.project.quilts[i] = castDraft(swappedQuilt(q, map, n));
+      }),
   });
-  editor.coloringOf.set(block.id, id);
+}
+function startSwapColoring(b: Block) {
+  const coloring = b.colorings.find((c) => c.id === shownColoring(b)) ?? b.colorings[0]!;
+  const ids = new Set(Object.values(coloring.fills).map((f) => paintOf(f)!));
+  swapDialog.value?.show({
+    heading: 'New coloring from palette swap',
+    title: coloring.name ? `${b.notecard.name} (${coloring.name})` : b.notecard.name,
+    okLabel: 'Add coloring',
+    used: [...ids].flatMap((id) => paintOpt(id) ?? []),
+    before: thumb(b, 160, coloring.id),
+    preview: (map, name, doc) => {
+      const s = swapped(b, coloring.id, map, name);
+      return blockThumbnail(doc, s.block, 160, $q.dark.isActive, s.id, library.items.colors);
+    },
+    done: (map, name) => {
+      const { block, id } = swapped(b, coloring.id, map, name);
+      project.change((d) => {
+        const i = d.project.blocks.findIndex((x) => x.id === block.id);
+        if (i >= 0) d.project.blocks[i] = castDraft(block);
+      });
+      editor.coloringOf.set(block.id, id);
+    },
+  });
 }
 /** Recolor, then unpick the palette or clear My colors (inside a project.change recipe). */
 function removal(d: Draft<RrqDoc>, u: NonNullable<typeof unpicking.value>) {
@@ -1794,7 +1667,7 @@ watch(unpicking, () => {
     previewQuilt.value = affected.value[0]?.key ?? '';
 });
 const afterDoc = computed(() =>
-  unpicking.value && !unpicking.value.block
+  unpicking.value
     ? syncLibraryItems(
         produce(project.doc!, (d) => removal(d, unpicking.value!)),
         library.lookup,
