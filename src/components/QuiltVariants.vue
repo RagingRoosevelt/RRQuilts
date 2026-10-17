@@ -49,7 +49,8 @@
         <q-btn dense outline no-caps icon="add" label="Save as new variant" @click="make" />
       </div>
       <div v-if="choices.length > 1" class="text-caption text-grey-7">
-        In a variant after the first, painting swaps a color for another across the quilt.
+        In every variant but the first, painting a piece recolors every piece of that color, in that
+        variant only.
       </div>
     </div>
   </q-expansion-item>
