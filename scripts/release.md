@@ -3,8 +3,10 @@
 You are releasing a new version. Work through these steps in order, and stop to ask the user
 where a step says so. Use the project's Makefile targets (see CLAUDE.md).
 
-1. **Check the state.** `git status` must be clean and the branch `main`. If not, stop and tell the
-   user what's uncommitted.
+1. **Check the state.** `git status` must be clean. Changes never go straight onto `main`: they reach
+   it from a feature branch. If the work to release is still on a feature branch, merge it into
+   `main` with `git checkout main && git merge --no-ff <branch>` (ask the user which branch if it's
+   unclear), then make the release branch: `git checkout -b release/X.Y.Z`.
 2. **Find what changed.** The last release is the newest tag matching `v*`
    (`git describe --tags --abbrev=0 --match 'v*'`; none means everything is new). Read
    `git log <tag>..HEAD` (or the whole log) and the current `CHANGELOG.md`.
@@ -48,8 +50,15 @@ where a step says so. Use the project's Makefile targets (see CLAUDE.md).
 
 5. **Show the user** the entry, and wait for their OK or edits.
 6. **Set the version**: `package.json` `"version"` to `X.Y.Z` (nothing else in it).
-7. **Commit**: `make commit MSG="Release X.Y.Z"` (it runs the checks, including the test that the
-   changelog and package.json versions match, and rebuilds `docs/`).
-8. **Push**: `make push`.
-9. **Tag**: `git tag -a vX.Y.Z -m "RRQuilts X.Y.Z"` then `git push origin vX.Y.Z`.
-10. Tell the user it's released, with the tag name.
+7. **Commit** on the release branch: `make commit MSG="Release X.Y.Z"` (it runs the checks,
+   including the test that the changelog and package.json versions match, and rebuilds `docs/`).
+8. **Bring `main` up to it and push**: `git checkout main && git merge --ff-only release/X.Y.Z`,
+   then `make push` (publishes the site).
+9. **Tag the release. Every release needs its tag**: the next release finds what changed since the
+   newest `v*` tag (step 2), so a missing tag makes it repeat everything. Tag the release commit on
+   `main` and push the tag:
+   `git tag -a vX.Y.Z -m "RRQuilts X.Y.Z"` then `git push origin vX.Y.Z`.
+   Check it reached GitHub: `git ls-remote --tags origin vX.Y.Z` must print it.
+10. **Check it's live**: `https://theodorelindsey.io/RRQuilts/` serves the new build within a minute
+    or two (Help › About shows the version).
+11. Tell the user it's released, with the tag name.
