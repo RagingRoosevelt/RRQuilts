@@ -495,41 +495,44 @@
                   />
                 </g>
               </svg>
-              <!-- Under the picture: a title and author for the quilt (print settings › Quilt picture). -->
-              <div
-                v-if="!isBlockKind && (prefs.picture.title || prefs.picture.author)"
-                class="text-center"
-              >
-                <h1 v-if="prefs.picture.title" class="pic-title">
-                  {{ view.title
-                  }}<template v-if="prefs.picture.projectName"> • {{ doc.project.name }}</template>
-                </h1>
-                <h2 v-if="prefs.picture.author" class="pic-author">
-                  By {{ view.author ?? 'anonymous' }}
-                </h2>
-                <div v-if="!prefs.picture.header" class="byline">Designed in RRQuilts</div>
-              </div>
-              <div v-if="sizeLine(s)" class="text-caption">{{ sizeLine(s) }}</div>
-              <div v-if="s.trim && onPage(s, 'trimNote')" class="text-caption">
-                Pieces at the edge are cut larger. Trim the quilt top to the marked edge after
-                piecing.
-              </div>
-              <div v-if="!isBlockKind && view.basedOn.length" class="text-caption">
-                Based on {{ view.basedOn.map(creditLine).join('; ') }}
-              </div>
-              <div v-if="view.notes && onPage(s, 'notes')" class="notes self-stretch">
-                {{ view.notes }}
+              <!-- Under the picture: the scale square at the right, the text flowing around it. -->
+              <div class="pic-caption self-stretch">
+                <div v-if="onPage(s, 'scaleSquare')" class="scale-box">
+                  <div
+                    class="scale-square"
+                    :style="{ width: `${scaleSquare}${units}`, height: `${scaleSquare}${units}` }"
+                  />
+                  <div class="scale-label">{{ fmt(scaleSquare) }} square</div>
+                </div>
+                <!-- Under the picture: a title and author for the quilt (print settings › Quilt picture). -->
+                <div
+                  v-if="!isBlockKind && (prefs.picture.title || prefs.picture.author)"
+                  class="text-center"
+                >
+                  <h1 v-if="prefs.picture.title" class="pic-title">
+                    {{ view.title
+                    }}<template v-if="prefs.picture.projectName">
+                      • {{ doc.project.name }}</template
+                    >
+                  </h1>
+                  <h2 v-if="prefs.picture.author" class="pic-author">
+                    By {{ view.author ?? 'anonymous' }}
+                  </h2>
+                  <div v-if="!prefs.picture.header" class="byline">Designed in RRQuilts</div>
+                </div>
+                <div v-if="sizeLine(s)" class="text-caption">{{ sizeLine(s) }}</div>
+                <div v-if="s.trim && onPage(s, 'trimNote')" class="text-caption">
+                  Pieces at the edge are cut larger. Trim the quilt top to the marked edge after
+                  piecing.
+                </div>
+                <div v-if="!isBlockKind && view.basedOn.length" class="text-caption">
+                  Based on {{ view.basedOn.map(creditLine).join('; ') }}
+                </div>
+                <div v-if="view.notes && onPage(s, 'notes')" class="notes self-stretch">
+                  {{ view.notes }}
+                </div>
               </div>
             </div>
-          </div>
-
-          <!-- The quilt picture page checks the printer's scale once for the whole printout. -->
-          <div v-if="s.kind === 'picture' && onPage(s, 'scaleSquare')" class="column items-end">
-            <div
-              class="scale-square"
-              :style="{ width: `${scaleSquare}${units}`, height: `${scaleSquare}${units}` }"
-            />
-            <div class="scale-label">{{ fmt(scaleSquare) }} square</div>
           </div>
 
           <div v-if="measure" class="ruler" :style="{ height: `${area[1]}${units}` }" />
@@ -1189,10 +1192,7 @@ const logical = computed<Sheet[]>(() => {
       const h = y1 - y0 + 0.0001;
       // Leave room for the notes under the picture and the scale square above the footer.
       const room =
-        (v.notes ? ah * 0.7 : ah - 2 * font.value) -
-        (isBlock || prefs.value.picture.scaleSquare ? scaleSquare.value : 0) -
-        (isBlock ? 0 : titleRoom()) -
-        font.value * 1.5;
+        (v.notes ? ah * 0.7 : ah - 2 * font.value) - (isBlock ? 0 : titleRoom()) - font.value * 1.5;
       // The quilt's picture can be made smaller (print settings › Quilt picture › Picture size).
       const size = isBlock ? 1 : Math.max(0.75, Math.min(1.5, prefs.value.pictureSize));
       const most = Math.min(aw / w, (ah - font.value * 3) / h); // the page, less a caption
@@ -1892,6 +1892,15 @@ onMounted(() => {
   font-size: 1.4em;
   line-height: 1.25;
   font-weight: 400;
+}
+.pic-caption {
+  text-align: center;
+}
+/* The picture page checks the printer's scale once for the whole printout; text flows around it. */
+.scale-box {
+  float: right;
+  margin: 0 0 4px 12px;
+  text-align: right;
 }
 .scale-square {
   border: 0.3mm solid #000;
