@@ -2,6 +2,30 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.4.0 (2026-10-16)
+
+### New features
+
+- Four new layouts. Variable Point lays out diamonds of any width, height, or point angle. One Patch tiles a single shape such as hexagons. Baby Blocks tiles tumbling-block cubes, and Variable Blocks lets you squash or stretch them.
+- Pieced borders in 19 styles, including points, diamonds, spaced squares, and checkerboard.
+- Quilt colorways. Try a quilt in other colors and switch between them. A new colorway can start from a palette swap, and its colors are changed by picking a replacement for each color of the original.
+- Pick a target size when you start a quilt, from a placemat to a king bed, US or European, or a top or pants in your size. It is drawn as an outline over the quilt and can be changed later in the Layout tab.
+- The reference overlay shows that outline with your choice of tint, opacity, and fill, on screen and in print.
+- A welcome on your first visit asks for your name for credits, your units, and your bed and clothing sizes.
+- The printed quilt picture can show its title, author, and project name, with a slider for the picture's size.
+- Templates for quilt pieces that need them, such as one-patch shapes, setting triangles, and pieced border pieces.
+- The yardage list shows a large swatch of each color and fabric photo.
+- Download a quilt's picture from its Details tab.
+
+### Fixes
+
+- Unsaved work from an older version of the app opens and is upgraded. If it can't be read, you can download it to keep it.
+- The Libraries page and the project's block list open faster.
+
+### Known issues
+
+- An empty palette in Libraries has no place to drop fabric images. Use Add fabric images instead.
+
 ## 0.3.0 (2026-10-16)
 
 ### New features
