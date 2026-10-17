@@ -253,11 +253,7 @@
                   <template v-for="fill in s.fills" :key="fill">
                     <tr v-if="on(s, `y>${fill}`)" :data-m="`y>${fill}`">
                       <td>
-                        <span
-                          class="chip"
-                          :class="{ photo: !!fabricUrlOf(fill) }"
-                          :style="chipStyle(fill)"
-                        />
+                        <span class="chip yardage" :style="chipStyle(fill)" />
                         {{ fillInfo(fill).name }}
                       </td>
                       <td v-for="c in s.cols" :key="c.opt.id">{{ amount(c.needs.get(fill)) }}</td>
@@ -1934,7 +1930,8 @@ td {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
-.chip.photo {
+/* Yardage: colors as large as fabric photos. */
+.chip.yardage {
   width: 6mm;
   height: 6mm;
 }

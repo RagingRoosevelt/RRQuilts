@@ -1,7 +1,7 @@
 <template>
   <!-- One color (or fabric) and what it becomes: the palette swap dialog's rows and a colorway's
        mapping. The replacement is picked from a grid of swatches in sections, as the palette tray. -->
-  <div class="row items-center no-wrap" style="gap: 8px">
+  <div ref="rowEl" class="row items-center no-wrap" style="gap: 8px">
     <!-- `stacked` (narrow places, the Design sidebar): the swatch above its name. -->
     <div v-if="stacked" class="column items-center ps-from">
       <div class="ps-swatch big" :style="optStyle(from)" />
@@ -17,37 +17,58 @@
       class="ps-field col row items-center no-wrap"
       :disabled="readonly"
       :aria-label="`${from.notecard.name} becomes ${current?.notecard.name ?? 'nothing'}`"
+      @click="open = !open"
     >
       <div class="ps-swatch field" :style="optStyle(current)" />
       <div class="col ellipsis text-left">{{ current?.notecard.name }}</div>
       <q-icon name="arrow_drop_down" size="20px" />
-      <q-menu v-if="!readonly" anchor="bottom left" self="top left" class="ps-menu">
-        <div class="q-pa-sm">
-          <template v-for="s in sections" :key="s.key">
-            <div v-if="s.top" class="ps-top">{{ s.top }}</div>
-            <div v-if="s.sub" class="ps-sub">{{ s.sub }}</div>
-            <div class="ps-grid">
-              <button
-                v-for="o in s.items"
-                :key="o.id"
-                v-close-popup
-                type="button"
-                class="ps-swatch option"
-                :class="{ active: o.id === modelValue }"
-                :style="optStyle(o)"
-                :title="o.notecard.name"
-                @click="emit('update:modelValue', o.id)"
-              />
-            </div>
-          </template>
-        </div>
-      </q-menu>
     </button>
+    <!-- As wide as the whole row (so it stays inside the sidebar), under it. -->
+    <q-menu
+      v-if="!readonly && rowEl"
+      v-model="open"
+      :target="rowEl"
+      no-parent-event
+      :style="{ width: `${rowEl.offsetWidth}px` }"
+      anchor="bottom left"
+      self="top left"
+      class="ps-menu"
+      @before-show="foldAll"
+    >
+      <div class="q-pa-sm">
+        <template v-for="g in groups" :key="g.top">
+          <button v-if="g.top" type="button" class="ps-head ps-top" @click="toggle(g.top)">
+            <q-icon name="expand_more" size="18px" :class="{ shut: shut.has(g.top) }" />
+            {{ g.top }}
+          </button>
+          <template v-if="!shut.has(g.top)">
+            <template v-for="s in g.subs" :key="s.key">
+              <button v-if="s.sub" type="button" class="ps-head ps-sub" @click="toggle(s.key)">
+                <q-icon name="expand_more" size="16px" :class="{ shut: shut.has(s.key) }" />
+                {{ s.sub }}
+              </button>
+              <div v-if="!shut.has(s.key)" class="ps-grid">
+                <button
+                  v-for="o in s.items"
+                  :key="o.id"
+                  type="button"
+                  class="ps-swatch option"
+                  :class="{ active: o.id === modelValue }"
+                  :style="optStyle(o)"
+                  :title="o.notecard.name"
+                  @click="pick(o.id)"
+                />
+              </div>
+            </template>
+          </template>
+        </template>
+      </div>
+    </q-menu>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { optStyle, type Opt } from '@/composables/swap-options';
 
 const props = defineProps<{
@@ -59,20 +80,45 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ 'update:modelValue': [id: string] }>();
 
+const rowEl = ref<HTMLElement>();
+const open = ref(false);
 const current = computed(() => props.options.find((o) => o.id === props.modelValue));
-/** The options in sections, as the palette tray: each library (or Project palettes) and its
- *  palettes, in the order they first come (a library's name shown once). */
-const sections = computed(() => {
-  const key = (o: Opt) => o.section?.join('\u0000') ?? '';
-  let top: string | undefined;
-  return [...new Set(props.options.map(key))].map((k) => {
-    const items = props.options.filter((o) => key(o) === k);
-    const [t, sub] = items[0]!.section ?? [];
-    const s = { key: k, top: t !== top ? t : undefined, sub, items };
-    top = t;
-    return s;
-  });
+/** The options in sections, as the palette tray: each library (or Project palettes, In use) and
+ *  its palettes, in the order they first come. */
+const groups = computed(() => {
+  const out: { top: string; subs: { key: string; sub?: string; items: Opt[] }[] }[] = [];
+  for (const o of props.options) {
+    const [top = '', sub] = o.section ?? [];
+    const key = `${top}\u0000${sub ?? ''}`;
+    let g = out.at(-1);
+    if (g?.top !== top) out.push((g = { top, subs: [] }));
+    let s = g.subs.find((x) => x.key === key);
+    if (!s) g.subs.push((s = { key, ...(sub ? { sub } : {}), items: [] }));
+    s.items.push(o);
+  }
+  return out;
 });
+function pick(id: string) {
+  open.value = false;
+  emit('update:modelValue', id);
+}
+/** Folded sections and palettes (by top name or key). */
+const shut = reactive(new Set<string>());
+const toggle = (k: string) => (shut.has(k) ? shut.delete(k) : shut.add(k));
+/** On opening: In use and wherever the current pick is stay open; with more than a couple of
+ *  palettes the rest start folded, so the list is short. */
+function foldAll() {
+  shut.clear();
+  const subs = groups.value.flatMap((g) => g.subs.map((s) => ({ g, s })));
+  if (subs.length <= 2) return;
+  for (const { g, s } of subs) {
+    const keep = g.top === 'In use' || s.items.some((o) => o.id === props.modelValue);
+    if (!keep) shut.add(s.sub ? s.key : g.top);
+  }
+  // A library none of whose palettes is open folds as a whole.
+  for (const g of groups.value)
+    if (g.top !== 'In use' && g.subs.every((s) => !s.sub || shut.has(s.key))) shut.add(g.top);
+}
 </script>
 
 <style>
@@ -129,7 +175,6 @@ const sections = computed(() => {
   cursor: default;
 }
 .ps-menu {
-  width: 300px;
   max-width: 90vw;
 }
 .ps-grid {
@@ -138,12 +183,31 @@ const sections = computed(() => {
   gap: 6px;
   padding: 2px 4px 6px;
 }
+/* Section headers fold their swatches. */
+.ps-head {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ps-head .q-icon {
+  transition: transform 0.15s;
+}
+.ps-head .q-icon.shut {
+  transform: rotate(-90deg);
+}
 .ps-top {
-  padding: 8px 4px 2px;
+  padding: 8px 0 2px;
   font-weight: 500;
 }
 .ps-sub {
-  padding: 2px 4px 4px 12px;
+  padding: 2px 4px 4px 8px;
   font-size: 12px;
   opacity: 0.7;
 }

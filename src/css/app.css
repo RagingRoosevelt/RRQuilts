@@ -18,3 +18,9 @@ html {
     --q-primary: AccentColor;
   }
 }
+
+/* Links in dark mode: the browser's dark blue is hard to read on a dark background. A lighter
+   primary instead; `:where` keeps this weaker than any class that colors a link (menus, tabs…). */
+:where(.body--dark) a:where(:link, :visited) {
+  color: color-mix(in srgb, var(--q-primary) 45%, white);
+}

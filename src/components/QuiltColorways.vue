@@ -15,6 +15,7 @@
         <div v-for="c in choices" :key="c.id ?? ''" class="column items-center">
           <button class="qv-pick big" :class="{ active: shown === c.id }" @click="show(c.id)">
             <img :src="thumbOf(c.id, 72)" :alt="c.name" />
+            <span v-if="!c.id" class="qv-primary">Primary</span>
             <div class="qv-pick-name">{{ c.name }}</div>
           </button>
           <div v-if="!readonly" class="row no-wrap">
@@ -60,7 +61,7 @@
       <ColorwayCount />
     </div>
     <div class="col">
-      <div class="text-caption text-grey-7">Colorway</div>
+      <div class="text-caption text-grey-7">{{ shown ? 'Colorway' : 'Primary colorway' }}</div>
       <div>{{ choices.find((c) => c.id === shown)?.name }}</div>
     </div>
   </div>
@@ -160,6 +161,7 @@ const ColorwayCount = defineComponent(
                       },
                       [
                         h('img', { src: thumbOf(c.id), alt: '' }),
+                        c.id ? null : h('span', { class: 'qv-primary' }, 'Primary'),
                         h('div', { class: 'qv-pick-name' }, c.name),
                       ],
                     ),
@@ -215,6 +217,7 @@ const ColorwayCount = defineComponent(
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 .qv-pick {
+  position: relative;
   width: 72px;
   padding: 2px;
   border: 2px solid transparent;
@@ -223,6 +226,19 @@ const ColorwayCount = defineComponent(
   color: inherit;
   cursor: pointer;
   font-size: 11px;
+}
+/* "Primary" on the primary colorway's thumbnail. */
+.qv-primary {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 9px;
+  line-height: 14px;
+  color: white;
+  background: var(--q-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 .qv-pick.active {
   border-color: var(--q-primary);
