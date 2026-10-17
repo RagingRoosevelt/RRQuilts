@@ -1,8 +1,12 @@
 <template>
   <!-- Layout tab: the quilt's target size outline (spec 006 FR-001a). -->
   <div class="column q-mt-lg" style="gap: 8px">
-    <FieldGroup label="Reference overlay" heading>
-      <template v-if="target" #aside>
+    <FieldGroup label="Reference overlay" heading />
+    <div class="text-caption text-grey-8">A size to aim for, drawn over the quilt</div>
+    <!-- Switched off (Show): the other settings stay as they are, greyed out, until it's on again. -->
+    <div class="column" style="gap: 8px">
+      <!-- Show, then tint and invert (shared by Layout and print), then the fill; above the size. -->
+      <div v-if="target" class="row items-center no-wrap" style="gap: 12px">
         <q-toggle
           :model-value="target.visible"
           label="Show"
@@ -11,31 +15,31 @@
           :disable="readonly"
           @update:model-value="(v) => emit('change', { ...target!, visible: v }, '')"
         />
-      </template>
-    </FieldGroup>
-    <div class="text-caption text-grey-8">A size to aim for, drawn over the quilt</div>
-    <!-- Switched off (Show): the settings stay as they are, greyed out, until it's on again. -->
-    <div class="column" :class="{ off }" style="gap: 8px">
-      <!-- Invert and tint (both shared by Layout and print), then the fill; above the size. -->
-      <div v-if="target" class="row items-center no-wrap" style="gap: 12px">
-        <q-toggle
-          :model-value="!!target.invert"
-          dense
-          label="Invert"
-          left-label
-          :disable="readonly || off"
-          @update:model-value="(v) => emit('change', { ...target!, invert: v }, '')"
-        >
-          <q-tooltip>Shade outside the shape, to the quilt's edge</q-tooltip>
-        </q-toggle>
-        <div>Tint</div>
-        <TintPicker
-          :model-value="target.tint ?? OVERLAY_TINT"
-          :disable="readonly || off"
-          @update:model-value="(t) => emit('change', { ...target!, tint: t }, '')"
-        />
+        <div class="row items-center no-wrap" :class="{ off }" style="gap: 12px">
+          <div>Tint</div>
+          <TintPicker
+            :model-value="target.tint ?? OVERLAY_TINT"
+            :disable="readonly || off"
+            @update:model-value="(t) => emit('change', { ...target!, tint: t }, '')"
+          />
+          <q-toggle
+            :model-value="!!target.invert"
+            dense
+            label="Invert"
+            left-label
+            :disable="readonly || off"
+            @update:model-value="(v) => emit('change', { ...target!, invert: v }, '')"
+          >
+            <q-tooltip>Shade outside the shape, to the quilt's edge</q-tooltip>
+          </q-toggle>
+        </div>
       </div>
-      <div v-if="target" class="row items-center no-wrap q-pr-md" style="gap: 12px">
+      <div
+        v-if="target"
+        class="row items-center no-wrap q-pr-md"
+        :class="{ off }"
+        style="gap: 12px"
+      >
         <div>Fill</div>
         <q-slider
           class="col"
@@ -54,6 +58,7 @@
       </div>
       <hr v-if="target" class="split" />
       <TargetEditor
+        :class="{ off }"
         :model-value="input"
         :units="units"
         :readonly="readonly || off"

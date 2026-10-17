@@ -77,19 +77,29 @@
       @update:model-value="(v) => setOpen('Quilt picture', v)"
     >
       <div class="column q-pa-sm" style="gap: 4px">
-        <q-checkbox
-          :model-value="prefs.showOverlay"
-          dense
-          label="Show reference overlay"
-          left-label
-          @update:model-value="(v: boolean) => set('showOverlay', v)"
-        />
-        <div class="text-caption text-grey-7">
-          When it's enabled in the Layout tab. Tint and Invert are shared with Layout, Fill is for
-          print.
-        </div>
-        <!-- Invert and tint (the quilt's, shared with Layout), then print's own fill. -->
+        <FieldGroup label="Reference overlay">
+          <div class="text-caption text-grey-7 q-mb-xs">
+            When it's enabled in the Layout tab. Tint and Invert are shared with Layout, Show and
+            Fill are for print.
+          </div>
+        </FieldGroup>
+        <!-- Show (print's own), tint and invert (the quilt's, shared with Layout), then print's
+             own fill. -->
         <div class="row items-center no-wrap" style="gap: 12px">
+          <q-toggle
+            :model-value="prefs.showOverlay"
+            dense
+            label="Show"
+            left-label
+            aria-label="Show reference overlay"
+            @update:model-value="(v: boolean) => set('showOverlay', v)"
+          />
+          <div>Tint</div>
+          <TintPicker
+            :model-value="quiltTarget?.tint ?? OVERLAY_TINT"
+            :disable="!prefs.showOverlay || !quiltTarget || project.readOnly"
+            @update:model-value="setTint"
+          />
           <q-toggle
             :model-value="!!quiltTarget?.invert"
             dense
@@ -100,12 +110,6 @@
           >
             <q-tooltip>Shade outside the shape, to the quilt's edge</q-tooltip>
           </q-toggle>
-          <div>Tint</div>
-          <TintPicker
-            :model-value="quiltTarget?.tint ?? OVERLAY_TINT"
-            :disable="!prefs.showOverlay || !quiltTarget || project.readOnly"
-            @update:model-value="setTint"
-          />
         </div>
         <div class="row items-center no-wrap q-pr-md" style="gap: 12px">
           <div>Fill</div>
@@ -362,6 +366,7 @@
 <script setup lang="ts">
 import TintPicker from '@/components/TintPicker.vue';
 import { computed, ref, watch } from 'vue';
+import FieldGroup from '@/components/FieldGroup.vue';
 import HelpLink from '@/components/HelpLink.vue';
 import LengthInput from '@/components/LengthInput.vue';
 import { generateFor } from '@/model/layout/slots';
