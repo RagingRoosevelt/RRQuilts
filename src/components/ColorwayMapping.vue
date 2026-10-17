@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import PaintMapRow from '@/components/PaintMapRow.vue';
-import { useSwapOptions, type Opt } from '@/composables/swap-options';
+import { useSwapOptions, type Opt, type Section } from '@/composables/swap-options';
 import { quiltPaints } from '@/editor/colors';
 import { fillFor, paintOf } from '@/editor/paint';
 import { fillKey } from '@/model/coloring';
@@ -44,11 +44,13 @@ const rows = computed(() => {
     return from ? [{ from, to: paintOf(swap(fillFor(p)))! }] : [];
   });
 });
-/** The project's colors and fabrics and its palettes', with the ones in use. */
+/** The ones in use, then the project's colors and fabrics and its palettes' (as the tray). */
+const IN_USE: Section = ['In use'];
 const options = computed(() =>
-  [...rows.value.flatMap((r) => [r.from, paintOpt(r.to)]), ...swapOptions()].filter(
-    (o, i, a): o is Opt => !!o && a.findIndex((x) => x?.id === o.id) === i,
-  ),
+  [
+    ...rows.value.flatMap((r) => [{ ...r.from, section: IN_USE }, paintOpt(r.to, IN_USE)]),
+    ...swapOptions(),
+  ].filter((o, i, a): o is Opt => !!o && a.findIndex((x) => x?.id === o.id) === i),
 );
 
 function change(from: string, to: string) {
