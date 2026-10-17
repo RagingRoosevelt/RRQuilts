@@ -250,7 +250,11 @@
                   <template v-for="fill in s.fills" :key="fill">
                     <tr v-if="on(s, `y>${fill}`)" :data-m="`y>${fill}`">
                       <td>
-                        <span class="chip" :style="{ background: fillInfo(fill).css }" />
+                        <span
+                          class="chip"
+                          :class="{ photo: !!fabricUrlOf(fill) }"
+                          :style="chipStyle(fill)"
+                        />
                         {{ fillInfo(fill).name }}
                       </td>
                       <td v-for="c in s.cols" :key="c.opt.id">{{ amount(c.needs.get(fill)) }}</td>
@@ -723,6 +727,22 @@ const shapeFill = (key: string) => {
   const p = fabricPatterns.value.find((x) => x.key === key);
   return p ? `url(#${p.id})` : fillInfo(key).css;
 };
+/** A fabric's photo (else undefined). */
+const fabricUrlOf = (fill: string) => fabricPatterns.value.find((x) => x.key === fill)?.url;
+/** A yardage chip: the fabric's photo cropped to its middle half and scaled down to the chip
+ *  (the photo at twice the chip's size, centered), else the color. */
+function chipStyle(fill: string) {
+  const css = fillInfo(fill).css;
+  const url = fabricUrlOf(fill);
+  return url
+    ? {
+        backgroundColor: css,
+        backgroundImage: `url(${url})`,
+        backgroundSize: '200% 200%',
+        backgroundPosition: 'center',
+      }
+    : { background: css };
+}
 const fabricPatterns = computed(() =>
   (doc.value?.project.palette.fabrics ?? []).flatMap((f) => {
     const url = fabricUrl(f, 1024) ?? fabricUrl(f, 512) ?? fabricUrl(f, 256);
@@ -1839,6 +1859,13 @@ td {
   height: 4mm;
   border: 0.2mm solid #000;
   vertical-align: middle;
+  /* Print the color or photo even when the browser leaves out backgrounds. */
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.chip.photo {
+  width: 6mm;
+  height: 6mm;
 }
 .warn {
   color: #b00020;

@@ -157,3 +157,6 @@ these units from neighboring patches and offer the method alongside the per-patc
   overlay** (print preference `showOverlay`, off by default) and its own **Fill** (`overlayOpacity`, 30%): the
   quilt picture page then draws the quilt's reference overlay, when it's enabled in Layout, in the
   quilt's tint and invert (shared with Layout, and editable here too; show and fill are print's own), and grows to show it.
+- Yardage: a fabric's chip shows its photo through a 6 mm square window on the middle half of the
+  photo (the middle half, scaled down to the chip), else its color; chips print even when the
+  browser leaves out backgrounds (`print-color-adjust: exact`).
