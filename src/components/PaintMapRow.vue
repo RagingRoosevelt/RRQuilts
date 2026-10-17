@@ -1,6 +1,6 @@
 <template>
   <!-- One color (or fabric) and what it becomes: the palette swap dialog's rows and a colorway's
-       mapping. -->
+       mapping. The replacement is picked from a grid of swatches in sections, as the palette tray. -->
   <div class="row items-center no-wrap" style="gap: 8px">
     <!-- `stacked` (narrow places, the Design sidebar): the swatch above its name. -->
     <div v-if="stacked" class="column items-center ps-from">
@@ -12,35 +12,37 @@
       <div class="ellipsis" style="width: 110px">{{ from.notecard.name }}</div>
     </template>
     <q-icon name="arrow_forward" />
-    <q-select
-      :model-value="modelValue"
-      :options="listed"
-      option-value="id"
-      :option-label="(o) => o.notecard.name"
-      emit-value
-      map-options
-      dense
-      outlined
-      :readonly="readonly"
-      class="col"
-      style="min-width: 0"
-      @update:model-value="(v) => emit('update:modelValue', v)"
+    <button
+      type="button"
+      class="ps-field col row items-center no-wrap"
+      :disabled="readonly"
+      :aria-label="`${from.notecard.name} becomes ${current?.notecard.name ?? 'nothing'}`"
     >
-      <template #prepend>
-        <div class="ps-swatch" :style="optStyle(options.find((o) => o.id === modelValue))" />
-      </template>
-      <template #option="{ itemProps, opt }">
-        <q-item-label v-if="opt.header" header :class="opt.sub ? 'ps-sub' : 'ps-top'">{{
-          opt.notecard.name
-        }}</q-item-label>
-        <q-item v-else v-bind="itemProps" dense>
-          <q-item-section side>
-            <div class="ps-swatch" :style="optStyle(opt)" />
-          </q-item-section>
-          <q-item-section>{{ opt.notecard.name }}</q-item-section>
-        </q-item>
-      </template>
-    </q-select>
+      <div class="ps-swatch field" :style="optStyle(current)" />
+      <div class="col ellipsis text-left">{{ current?.notecard.name }}</div>
+      <q-icon name="arrow_drop_down" size="20px" />
+      <q-menu v-if="!readonly" anchor="bottom left" self="top left" class="ps-menu">
+        <div class="q-pa-sm">
+          <template v-for="s in sections" :key="s.key">
+            <div v-if="s.top" class="ps-top">{{ s.top }}</div>
+            <div v-if="s.sub" class="ps-sub">{{ s.sub }}</div>
+            <div class="ps-grid">
+              <button
+                v-for="o in s.items"
+                :key="o.id"
+                v-close-popup
+                type="button"
+                class="ps-swatch option"
+                :class="{ active: o.id === modelValue }"
+                :style="optStyle(o)"
+                :title="o.notecard.name"
+                @click="emit('update:modelValue', o.id)"
+              />
+            </div>
+          </template>
+        </div>
+      </q-menu>
+    </button>
   </div>
 </template>
 
@@ -57,37 +59,24 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ 'update:modelValue': [id: string] }>();
 
-type Listed = Opt & { header?: boolean; sub?: boolean; disable?: boolean };
+const current = computed(() => props.options.find((o) => o.id === props.modelValue));
 /** The options in sections, as the palette tray: each library (or Project palettes) and its
- *  palettes, in the order they first come. */
-const listed = computed((): Listed[] => {
+ *  palettes, in the order they first come (a library's name shown once). */
+const sections = computed(() => {
   const key = (o: Opt) => o.section?.join('\u0000') ?? '';
-  const order = [...new Set(props.options.map(key))];
-  const out: Listed[] = [];
   let top: string | undefined;
-  for (const k of order) {
+  return [...new Set(props.options.map(key))].map((k) => {
     const items = props.options.filter((o) => key(o) === k);
     const [t, sub] = items[0]!.section ?? [];
-    const header = (name: string, isSub: boolean): Listed => ({
-      id: `header:${isSub ? 'sub' : 'top'}:${k}`,
-      notecard: { name },
-      rgb: [0, 0, 0],
-      from: '',
-      header: true,
-      sub: isSub,
-      disable: true,
-    });
-    if (t && t !== top) out.push(header(t, false));
+    const s = { key: k, top: t !== top ? t : undefined, sub, items };
     top = t;
-    if (sub) out.push(header(sub, true));
-    out.push(...items);
-  }
-  return out;
+    return s;
+  });
 });
 </script>
 
 <style>
-/* Swatches (also in the select's menu, rendered in <body>, so not scoped). */
+/* Swatches and the menu (rendered in <body>, so not scoped). */
 .ps-swatch {
   width: 18px;
   height: 18px;
@@ -95,20 +84,67 @@ const listed = computed((): Listed[] => {
   border: 1px solid rgba(0, 0, 0, 0.15);
   flex: none;
 }
+.ps-swatch.big {
+  width: 28px;
+  height: 28px;
+}
+.ps-swatch.field {
+  width: 24px;
+  height: 24px;
+}
+.ps-swatch.option {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  cursor: pointer;
+}
+.ps-swatch.option.active {
+  outline: 2px solid var(--q-primary);
+  outline-offset: 1px;
+}
 .ps-from {
   width: 64px;
   flex: none;
 }
+/* Looks like an outlined dense field. */
+.ps-field {
+  min-width: 0;
+  height: 40px;
+  gap: 8px;
+  padding: 0 4px 0 8px;
+  border: 1px solid rgba(0, 0, 0, 0.24);
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.body--dark .ps-field {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.ps-field:hover:not([disabled]) {
+  border-color: currentColor;
+}
+.ps-field[disabled] {
+  cursor: default;
+}
+.ps-menu {
+  width: 300px;
+  max-width: 90vw;
+}
+.ps-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 2px 4px 6px;
+}
 .ps-top {
-  padding: 10px 12px 2px;
+  padding: 8px 4px 2px;
   font-weight: 500;
 }
 .ps-sub {
-  padding: 4px 12px 2px 20px;
+  padding: 2px 4px 4px 12px;
   font-size: 12px;
-}
-.ps-swatch.big {
-  width: 28px;
-  height: 28px;
+  opacity: 0.7;
 }
 </style>
