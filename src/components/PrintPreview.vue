@@ -495,7 +495,7 @@
                   />
                 </g>
               </svg>
-              <!-- Under the picture: the scale square at the right, the text flowing around it. -->
+              <!-- Under the picture: its text; the scale square is pinned to the page's bottom right. -->
               <div class="pic-caption self-stretch">
                 <div v-if="onPage(s, 'scaleSquare')" class="scale-box">
                   <div
@@ -1840,6 +1840,7 @@ onMounted(() => {
 }
 .content {
   flex: 1;
+  position: relative;
 }
 .sheet.measure {
   position: fixed;
@@ -1896,10 +1897,12 @@ onMounted(() => {
 .pic-caption {
   text-align: center;
 }
-/* The picture page checks the printer's scale once for the whole printout; text flows around it. */
+/* The picture page checks the printer's scale once for the whole printout: at the bottom right of
+   the page, out of the way of the picture and its centered text. */
 .scale-box {
-  float: right;
-  margin: 0 0 4px 12px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
   text-align: right;
 }
 .scale-square {
