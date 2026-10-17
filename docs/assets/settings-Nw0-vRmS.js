@@ -1,1 +1,0 @@
-import{v as e,y as t}from"./project-DNNKxt_Q.js";import{i as n}from"./index-CF1-7KPx.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

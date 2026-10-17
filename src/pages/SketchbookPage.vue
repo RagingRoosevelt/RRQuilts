@@ -1554,9 +1554,9 @@ function startSwapVariant(q: Quilt) {
     title: `${q.notecard.name} (${name})`,
     okLabel: 'Add variant',
     used: [...now].flatMap((p) => paintOpt(p) ?? []),
-    before: quiltThumbnail(project.doc!, q, 500, $q.dark.isActive, true),
+    before: quiltThumbnail(project.doc!, q, 500, $q.dark.isActive, true, true),
     preview: (map, n, doc) =>
-      quiltThumbnail(doc, swappedQuilt(q, map, n), 500, $q.dark.isActive, true),
+      quiltThumbnail(doc, swappedQuilt(q, map, n), 500, $q.dark.isActive, true, true),
     done: (map, n) =>
       project.change((d) => {
         const i = d.project.quilts.findIndex((x) => x.id === q.id);

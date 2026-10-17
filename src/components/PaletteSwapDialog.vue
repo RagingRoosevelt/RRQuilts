@@ -123,15 +123,24 @@ function pick(id: string | null) {
 
 const after = computed(() => {
   if (!job.value) return '';
-  // Library fabrics picked here aren't in the project yet: lend them for the "after" picture.
-  const lent = options.value.flatMap((o) =>
-    o.fabric && !project.doc!.project.palette.fabrics.some((f) => f.id === o.fabric!.id)
-      ? [toRaw(o.fabric)] // not a Vue proxy: Immer can't take those
+  // Library colors and fabrics picked here aren't in the project yet: lend them for the "after"
+  // picture (as plain objects: Immer can't take Vue proxies).
+  const pal = project.doc!.project.palette;
+  const fabrics = options.value.flatMap((o) =>
+    o.fabric && !pal.fabrics.some((f) => f.id === o.fabric!.id) ? [toRaw(o.fabric)] : [],
+  );
+  const colors = options.value.flatMap((o) =>
+    !o.fabric && !pal.colors.some((c) => c.id === o.id)
+      ? [{ id: o.id, notecard: toRaw(o.notecard), rgb: toRaw(o.rgb) }]
       : [],
   );
-  const doc = lent.length
-    ? produce(project.doc!, (d) => void d.project.palette.fabrics.push(...castDraft(lent)))
-    : project.doc!;
+  const doc =
+    fabrics.length || colors.length
+      ? produce(project.doc!, (d) => {
+          d.project.palette.fabrics.push(...castDraft(fabrics));
+          d.project.palette.colors.push(...castDraft(colors));
+        })
+      : project.doc!;
   return job.value.preview({ ...map.value }, name.value, doc);
 });
 const ok = () => job.value?.done({ ...map.value }, name.value);

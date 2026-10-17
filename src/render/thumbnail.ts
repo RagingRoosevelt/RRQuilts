@@ -22,30 +22,39 @@ function cached(key: object, extra: string, render: () => string, dep?: unknown)
   return v.url;
 }
 
-function canvas(px: number) {
+function canvas(px: number, h = px) {
   const c = document.createElement('canvas');
-  c.width = c.height = px;
+  c.width = px;
+  c.height = h;
   return [c, c.getContext('2d')!] as const;
 }
 
-/** A quilt's picture; `withTarget` adds its reference overlay when that's switched on. */
+/** A quilt's picture; `withTarget` adds its reference overlay when that's switched on. Square (for
+ *  cards), or `shaped`: the quilt's own shape, `px` on its longer side. */
 export function quiltThumbnail(
   doc: RrqDoc,
   quilt: Quilt,
   px = 240,
   dark = false,
   withTarget = false,
+  shaped = false,
 ) {
   return cached(
     quilt,
-    `${px}:${dark}:${withTarget}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
+    `${px}:${dark}:${withTarget}:${shaped}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
     () => {
-      const [c, ctx] = canvas(px);
       const g = generateFor(quilt);
       const bounds = withTarget ? boundsWithTarget(quilt, g.bounds) : g.bounds;
+      const [bw, bh] = [bounds[2] - bounds[0], bounds[3] - bounds[1]];
+      const [w, h] = !shaped
+        ? [px, px]
+        : bw >= bh
+          ? [px, Math.max(1, Math.round((px * bh) / bw))]
+          : [Math.max(1, Math.round((px * bw) / bh)), px];
+      const [c, ctx] = canvas(w, h);
       drawQuilt(ctx, doc, quilt, g, {
         dpr: 1,
-        view: fitView(bounds, px, px, 6),
+        view: fitView(bounds, w, h, shaped ? 0 : 6),
         outlines: false,
         dark,
         target: withTarget,
