@@ -77,10 +77,24 @@
       @update:model-value="(v) => setOpen('Quilt picture', v)"
     >
       <div class="column q-pa-sm" style="gap: 4px">
+        <div class="row items-center no-wrap q-pr-md q-mb-sm" style="gap: 12px">
+          <div>Picture size</div>
+          <q-slider
+            class="col"
+            :model-value="Math.round(prefs.pictureSize * 100)"
+            :min="75"
+            :max="150"
+            :step="5"
+            label
+            :label-value="`${Math.round(prefs.pictureSize * 100)}%`"
+            aria-label="Picture size"
+            @update:model-value="(v) => v !== null && set('pictureSize', v / 100)"
+          />
+        </div>
         <FieldGroup label="Show on the page">
           <div class="column">
             <q-checkbox
-              v-for="item in PICTURE_ITEMS"
+              v-for="item in pictureItems"
               :key="item.key"
               :model-value="prefs.picture[item.key]"
               dense
@@ -410,17 +424,23 @@ const emit = defineEmits<{ target: [target: PrintTarget] }>();
 const project = useProjectStore();
 /** The quilt picture page's optional items. */
 const PICTURE_ITEMS = [
-  { key: 'header', label: 'Page header' },
   { key: 'title', label: 'Title (the quilt’s name)' },
-  { key: 'author', label: 'Author' },
   { key: 'projectName', label: 'Project name (in the title)' },
-  { key: 'footer', label: 'Page footer' },
-  { key: 'scaleSquare', label: 'Scale square (1″ or 2 cm)' },
+  { key: 'author', label: 'Author' },
   { key: 'scale', label: 'Scale (%)' },
   { key: 'finished', label: 'Finished size' },
-  { key: 'trimNote', label: 'Note to trim the edge (cut-larger pieces)' },
+  { key: 'trimNote', label: 'Edge trim note' },
   { key: 'notes', label: 'Notes (from Details)' },
+  { key: 'scaleSquare', label: 'Scale square (1″ or 2 cm)' },
+  { key: 'header', label: 'Page header' },
+  { key: 'footer', label: 'Page footer' },
 ] as const;
+/** The edge trim note only for quilts with pieces cut larger at the edge (it's printed then). */
+const pictureItems = computed(() => {
+  const q = project.doc?.project.quilts.find((x) => x.id === props.id);
+  const trim = props.kind === 'quilt' && !!q && generateFor(q).trim;
+  return PICTURE_ITEMS.filter((it) => it.key !== 'trimNote' || trim);
+});
 /** The quilt's reference overlay: its tint is shared with the Layout tab. */
 const quiltTarget = computed(() =>
   props.kind === 'quilt'

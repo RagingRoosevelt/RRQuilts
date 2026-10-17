@@ -165,4 +165,6 @@ these units from neighboring patches and offer the method alongside the per-patc
   (H2-sized) under the picture, page footer (off by default), scale square, scale (%), finished size, the note to trim
   the edge, and the notes from Details; each can be left off the quilt picture page (other pages
   keep theirs). "Designed in RRQuilts" is printed under the project name in the header, or under
-  the author when the header is off. The Reference overlay subsection follows.
+  the author when the header is off. A **Picture size** slider (`pictureSize`, 75 to 150% of the usual fit, default 100%) sizes
+  the quilt's picture, never past true size, the page's width, or its height less a caption. The
+  edge trim note checkbox shows only for quilts with pieces cut larger at the edge. The Reference overlay subsection follows.

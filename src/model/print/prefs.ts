@@ -57,7 +57,10 @@ export const PRINT_DEFAULTS = {
    *  quilt's tint with this fill strength (the outline always prints fully). */
   showOverlay: false,
   overlayOpacity: 0.3,
-  /** What the quilt picture page shows (all on by default). */
+  /** The quilt picture's size against its usual fit (0.75…1.5); never past true size, the page's
+   *  width, or its height less a caption. */
+  pictureSize: 1,
+  /** What the quilt picture page shows. */
   picture: {
     header: false,
     title: true,

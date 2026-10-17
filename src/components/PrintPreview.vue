@@ -1193,7 +1193,10 @@ const logical = computed<Sheet[]>(() => {
         (isBlock || prefs.value.picture.scaleSquare ? scaleSquare.value : 0) -
         (isBlock ? 0 : titleRoom()) -
         font.value * 1.5;
-      const scale = Math.min(1, aw / w, room / h);
+      // The quilt's picture can be made smaller (print settings › Quilt picture › Picture size).
+      const size = isBlock ? 1 : Math.max(0.75, Math.min(1.5, prefs.value.pictureSize));
+      const most = Math.min(aw / w, (ah - font.value * 3) / h); // the page, less a caption
+      const scale = Math.min(1, most, Math.min(aw / w, room / h) * size);
       out.push({
         kind: 'picture',
         heading: isBlock ? 'Block' : 'Quilt',
