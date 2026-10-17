@@ -311,12 +311,9 @@
               </q-checkbox>
             </template>
             <template #default="{ block: b }">
-              <q-intersection once class="card-slot">
-                <div
-                  :id="`lib-block-${b.id}`"
-                  class="card"
-                  :class="{ picked: isPicked(b.id), flash: flashed === b.id }"
-                >
+              <!-- The id is on the place (always there) so "Show the original" can scroll to it. -->
+              <q-intersection :id="`lib-block-${b.id}`" once class="card-slot">
+                <div class="card" :class="{ picked: isPicked(b.id), flash: flashed === b.id }">
                   <q-checkbox
                     class="pick-box"
                     :model-value="isPicked(b.id)"
