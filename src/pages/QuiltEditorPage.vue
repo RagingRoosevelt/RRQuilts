@@ -170,6 +170,7 @@
       <!-- Inspector -->
       <div v-show="editor.sidebar" class="inspector q-pa-md scroll">
         <template v-if="editor.mode === 'design'">
+          <QuiltVariants :quilt="quilt" mode="panel" :readonly="project.readOnly" class="q-mb-sm" />
           <div class="row items-center q-mb-xs" style="gap: 8px">
             <span class="text-caption">Apply to</span>
             <q-btn-toggle
@@ -221,6 +222,7 @@
 </template>
 
 <script setup lang="ts">
+import QuiltVariants from '@/components/QuiltVariants.vue';
 import { useQuasar } from 'quasar';
 import HelpLink from '@/components/HelpLink.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';

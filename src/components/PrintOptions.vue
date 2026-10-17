@@ -1,5 +1,11 @@
 <template>
   <div v-if="project.doc" class="column" style="gap: 12px">
+    <QuiltVariants
+      v-if="kind === 'quilt' && printQuilt"
+      :quilt="printQuilt"
+      mode="row"
+      :readonly="project.readOnly"
+    />
     <div>
       <div class="text-subtitle2">Print</div>
       <q-option-group
@@ -393,6 +399,7 @@
 </template>
 
 <script setup lang="ts">
+import QuiltVariants from '@/components/QuiltVariants.vue';
 import TintPicker from '@/components/TintPicker.vue';
 import { computed, ref, watch } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
@@ -422,6 +429,7 @@ const props = defineProps<{
 const emit = defineEmits<{ target: [target: PrintTarget] }>();
 
 const project = useProjectStore();
+const printQuilt = computed(() => project.doc?.project.quilts.find((q) => q.id === props.id));
 /** The quilt picture page's optional items. */
 const PICTURE_ITEMS = [
   { key: 'title', label: 'Title (the quilt’s name)' },

@@ -64,12 +64,15 @@
         @dragover.prevent
         @drop="drop('quilts', i)"
       >
-        <button class="thumb" @click="openQuilt(q.id)">
-          <img
-            :src="quiltThumbnail(project.doc, q, 240, $q.dark.isActive)"
-            :alt="q.notecard.name"
-          />
-        </button>
+        <div class="relative-position">
+          <button class="thumb" @click="openQuilt(q.id)">
+            <img
+              :src="quiltThumbnail(project.doc, q, 240, $q.dark.isActive, true)"
+              :alt="q.notecard.name"
+            />
+          </button>
+          <QuiltVariants :quilt="q" :readonly="project.readOnly" />
+        </div>
         <div class="row items-center no-wrap">
           <FullName class="col" :name="q.notecard.name" />
           <q-btn flat round dense icon="more_vert" aria-label="Actions">
@@ -1142,6 +1145,7 @@
 </template>
 
 <script setup lang="ts">
+import QuiltVariants from '@/components/QuiltVariants.vue';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PalettePreview from '@/components/PalettePreview.vue';
 import PaletteTitle from '@/components/PaletteTitle.vue';
@@ -1801,7 +1805,7 @@ function slideThumb(doc: RrqDoc, a: Affected, fresh: boolean) {
   // A fresh object for "after", so the thumbnail cache (per object) can't serve the "before" one.
   if (a.kind === 'quilt') {
     const q = doc.project.quilts.find((x) => x.id === a.id);
-    return q ? quiltThumbnail(doc, fresh ? { ...q } : q, 160, $q.dark.isActive) : '';
+    return q ? quiltThumbnail(doc, fresh ? { ...q } : q, 160, $q.dark.isActive, true) : '';
   }
   const b = doc.project.blocks.find((x) => x.id === a.id);
   return b

@@ -1,5 +1,5 @@
 import Type from 'typebox';
-import { ColoringBody } from './coloring';
+import { ColoringBody, Fill } from './coloring';
 import { Id, ItemId, Size, Vec2, itemBase } from './shared';
 
 const count = Type.Integer({ minimum: 1, maximum: 100 });
@@ -246,6 +246,16 @@ export const QuiltTarget = Type.Object({
   label: Type.String({ maxLength: 200 }),
 });
 
+/** A color variant of a quilt (a palette swap): every piece colored `from` (a fill key, e.g.
+ *  "color:<id>") shows `to` instead. Edits to the quilt show in every variant. */
+export const QuiltVariant = Type.Object({
+  id: Id,
+  name: Type.String({ maxLength: 100 }),
+  swaps: Type.Array(Type.Object({ from: Type.String({ maxLength: 200 }), to: Fill }), {
+    maxItems: 1000,
+  }),
+});
+
 export const Quilt = Type.Object({
   ...itemBase,
   layout: Layout,
@@ -255,6 +265,9 @@ export const Quilt = Type.Object({
   /** Fixed purposes: [piecing, appliqué, quilting]. */
   layers: Type.Tuple([PiecingLayer, FreeLayer, FreeLayer]),
   target: Type.Optional(QuiltTarget),
+  /** Color variants (palette swaps) and the one shown (none: the quilt's own colors). */
+  variants: Type.Optional(Type.Array(QuiltVariant, { maxItems: 100 })),
+  shownVariant: Type.Optional(Id),
 });
 
 export type HorizontalLayout = Type.Static<typeof HorizontalLayout>;
@@ -272,3 +285,4 @@ export type SlotContent = Type.Static<typeof SlotContent>;
 export type Item = Type.Static<typeof Item>;
 export type Quilt = Type.Static<typeof Quilt>;
 export type QuiltTarget = Type.Static<typeof QuiltTarget>;
+export type QuiltVariant = Type.Static<typeof QuiltVariant>;

@@ -161,6 +161,15 @@ The left rail holds the tools. Tooltips and a hint line above the tray say what 
 3. A placed block follows its block's coloring until you recolor a patch in the quilt. The change
    then applies only to the quilt.
 
+## Color variants
+
+A quilt can have color variants, to try it in other colors without losing its own. In the Design
+tab, **Color variants** shows the original colors and each variant. **Save as new variant** copies
+the one shown. With a variant shown, painting a piece swaps its color for the new one everywhere in
+the quilt, in that variant only. Pick **Original colors** to go back. Each variant can be renamed or
+deleted. The variant shown is saved with the quilt, and printing and pictures use it. The count on a
+quilt's card picks a variant too.
+
 ## Apply to
 
 Above the tray, **Apply to** controls how many spaces a tap affects.
