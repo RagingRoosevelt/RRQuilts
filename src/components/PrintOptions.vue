@@ -413,7 +413,7 @@ const PICTURE_ITEMS = [
   { key: 'header', label: 'Page header' },
   { key: 'title', label: 'Title (the quilt’s name)' },
   { key: 'author', label: 'Author' },
-  { key: 'projectName', label: 'Project name (in the header)' },
+  { key: 'projectName', label: 'Project name (in the title)' },
   { key: 'footer', label: 'Page footer' },
   { key: 'scaleSquare', label: 'Scale square (1″ or 2 cm)' },
   { key: 'scale', label: 'Scale (%)' },

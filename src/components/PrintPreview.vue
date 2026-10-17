@@ -62,7 +62,7 @@
               <div v-if="i === 0" class="ellipsis byline">{{ view.byline }}</div>
             </div>
             <div class="text-grey-8 text-right">
-              <template v-if="onPage(s, 'projectName')">{{ doc.project.name }}</template>
+              {{ doc.project.name }}
               <div v-if="s.kind === 'picture'" class="byline">Designed in RRQuilts</div>
             </div>
           </header>
@@ -500,7 +500,10 @@
                 v-if="!isBlockKind && (prefs.picture.title || prefs.picture.author)"
                 class="text-center"
               >
-                <h1 v-if="prefs.picture.title" class="pic-title">{{ view.title }}</h1>
+                <h1 v-if="prefs.picture.title" class="pic-title">
+                  {{ view.title
+                  }}<template v-if="prefs.picture.projectName"> • {{ doc.project.name }}</template>
+                </h1>
                 <h2 v-if="prefs.picture.author" class="pic-author">
                   By {{ view.author ?? 'anonymous' }}
                 </h2>
