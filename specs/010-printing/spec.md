@@ -160,7 +160,9 @@ these units from neighboring patches and offer the method alongside the per-patc
 - Yardage: a fabric's chip shows its photo through a 6 mm square window on the middle half of the
   photo (the middle half, scaled down to the chip), else its color; chips print even when the
   browser leaves out backgrounds (`print-color-adjust: exact`).
-- Quilt picture › **Show on the page** (print preference `picture`, all on by default): project name,
-  page footer, scale square, scale (%), finished size, the note to trim the edge, and the notes from
-  Details, each can be left off the quilt picture page (other pages keep theirs). The page header
-  says "Designed in RRQuilts" under the project name.
+- Quilt picture › **Show on the page** (print preference `picture`): page header (off by default),
+  title (the quilt's name, H1-sized) and author (H2-sized) under the picture, project name (in the
+  header), page footer (off by default), scale square, scale (%), finished size, the note to trim
+  the edge, and the notes from Details; each can be left off the quilt picture page (other pages
+  keep theirs). "Designed in RRQuilts" is printed under the project name in the header, or under
+  the author when the header is off. The Reference overlay subsection follows.

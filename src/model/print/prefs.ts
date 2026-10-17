@@ -59,8 +59,11 @@ export const PRINT_DEFAULTS = {
   overlayOpacity: 0.3,
   /** What the quilt picture page shows (all on by default). */
   picture: {
+    header: false,
+    title: true,
+    author: true,
     projectName: true,
-    footer: true,
+    footer: false,
     scaleSquare: true,
     scale: true,
     finished: true,

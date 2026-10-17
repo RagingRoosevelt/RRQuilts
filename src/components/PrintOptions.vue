@@ -77,7 +77,22 @@
       @update:model-value="(v) => setOpen('Quilt picture', v)"
     >
       <div class="column q-pa-sm" style="gap: 4px">
-        <FieldGroup label="Reference overlay">
+        <FieldGroup label="Show on the page">
+          <div class="column">
+            <q-checkbox
+              v-for="item in PICTURE_ITEMS"
+              :key="item.key"
+              :model-value="prefs.picture[item.key]"
+              dense
+              :label="item.label"
+              class="q-py-xs"
+              @update:model-value="
+                (v: boolean) => set('picture', { ...prefs.picture, [item.key]: v })
+              "
+            />
+          </div>
+        </FieldGroup>
+        <FieldGroup label="Reference overlay" class="q-mt-sm">
           <div class="text-caption text-grey-7 q-mb-xs">
             When it's enabled in the Layout tab. Tint and Invert are shared with Layout, Show and
             Fill are for print.
@@ -126,21 +141,6 @@
             @update:model-value="(v) => v !== null && set('overlayOpacity', v / 100)"
           />
         </div>
-        <FieldGroup label="Show on the page" class="q-mt-sm">
-          <div class="column">
-            <q-checkbox
-              v-for="item in PICTURE_ITEMS"
-              :key="item.key"
-              :model-value="prefs.picture[item.key]"
-              dense
-              :label="item.label"
-              class="q-py-xs"
-              @update:model-value="
-                (v: boolean) => set('picture', { ...prefs.picture, [item.key]: v })
-              "
-            />
-          </div>
-        </FieldGroup>
       </div>
     </q-expansion-item>
 
@@ -410,7 +410,10 @@ const emit = defineEmits<{ target: [target: PrintTarget] }>();
 const project = useProjectStore();
 /** The quilt picture page's optional items. */
 const PICTURE_ITEMS = [
-  { key: 'projectName', label: 'Project name' },
+  { key: 'header', label: 'Page header' },
+  { key: 'title', label: 'Title (the quilt’s name)' },
+  { key: 'author', label: 'Author' },
+  { key: 'projectName', label: 'Project name (in the header)' },
   { key: 'footer', label: 'Page footer' },
   { key: 'scaleSquare', label: 'Scale square (1″ or 2 cm)' },
   { key: 'scale', label: 'Scale (%)' },

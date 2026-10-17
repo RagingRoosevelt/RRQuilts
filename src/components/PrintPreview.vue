@@ -53,7 +53,7 @@
           :style="measure ? measureStyle : sheetStyle"
           :data-i="measure ? i : undefined"
         >
-          <header v-if="!measure" class="row items-baseline no-wrap">
+          <header v-if="!measure && onPage(s, 'header')" class="row items-baseline no-wrap">
             <div class="col" style="min-width: 0">
               <div class="ellipsis">
                 <b>{{ view.title }}</b> · {{ view.size }} · {{ s.heading }}
@@ -495,6 +495,17 @@
                   />
                 </g>
               </svg>
+              <!-- Under the picture: a title and author for the quilt (print settings › Quilt picture). -->
+              <div
+                v-if="!isBlockKind && (prefs.picture.title || prefs.picture.author)"
+                class="text-center"
+              >
+                <h1 v-if="prefs.picture.title" class="pic-title">{{ view.title }}</h1>
+                <h2 v-if="prefs.picture.author" class="pic-author">
+                  By {{ view.author ?? 'anonymous' }}
+                </h2>
+                <div v-if="!prefs.picture.header" class="byline">Designed in RRQuilts</div>
+              </div>
               <div v-if="sizeLine(s)" class="text-caption">{{ sizeLine(s) }}</div>
               <div v-if="s.trim && onPage(s, 'trimNote')" class="text-caption">
                 Pieces at the edge are cut larger. Trim the quilt top to the marked edge after
@@ -690,6 +701,16 @@ type PictureItem = keyof PrintPrefs['picture'];
 /** The quilt picture page's optional items (print settings › Quilt picture); other pages show all. */
 const onPage = (s: Sheet, item: PictureItem) =>
   isBlockKind.value || s.kind !== 'picture' || prefs.value.picture[item];
+/** Height of the quilt picture's title, author, and "Designed in" lines (page units). */
+const titleRoom = () => {
+  const p = prefs.value.picture;
+  const f = font.value;
+  return (
+    (p.title ? 2.4 * f : 0) +
+    (p.author ? 1.8 * f : 0) +
+    (p.title || p.author ? (p.header ? 0 : 1.2 * f) + 0.5 * f : 0)
+  );
+};
 /** "Scaled to 14% · finished 54″ × 54″", each part when it's shown. */
 function sizeLine(s: Sheet & { kind: 'picture' }) {
   return [
@@ -1167,6 +1188,7 @@ const logical = computed<Sheet[]>(() => {
       const room =
         (v.notes ? ah * 0.7 : ah - 2 * font.value) -
         (isBlock || prefs.value.picture.scaleSquare ? scaleSquare.value : 0) -
+        (isBlock ? 0 : titleRoom()) -
         font.value * 1.5;
       const scale = Math.min(1, aw / w, room / h);
       out.push({
@@ -1852,6 +1874,18 @@ onMounted(() => {
 }
 .byline {
   font-size: 9pt;
+}
+.pic-title {
+  margin: 0;
+  font-size: 2em;
+  line-height: 1.2;
+  font-weight: 600;
+}
+.pic-author {
+  margin: 0;
+  font-size: 1.4em;
+  line-height: 1.25;
+  font-weight: 400;
 }
 .scale-square {
   border: 0.3mm solid #000;
