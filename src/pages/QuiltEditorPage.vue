@@ -599,6 +599,12 @@ function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
     background: var(--q-dark-page);
   }
 }
+/* Phones: nearly the whole width, so its menus fit. */
+@media (max-width: 599px) {
+  .inspector {
+    width: 95%;
+  }
+}
 .sizes {
   position: absolute;
   left: 8px;

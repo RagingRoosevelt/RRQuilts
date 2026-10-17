@@ -1880,7 +1880,7 @@ function showOriginal(v: Block) {
     done = true;
     document.removeEventListener('scrollend', glow, true);
     flashed.value = id;
-    setTimeout(() => (flashed.value = undefined), 1600);
+    setTimeout(() => (flashed.value = undefined), 3600);
   };
   document.addEventListener('scrollend', glow, true);
   setTimeout(glow, 1000);
@@ -2456,7 +2456,7 @@ watch(
   flex: none;
 }
 .card.flash {
-  animation: glow 1.6s ease-out;
+  animation: glow 1.2s ease-out 3; /* three flashes */
 }
 @keyframes glow {
   0%,
