@@ -13,6 +13,7 @@
       :model-value="r.to"
       :options="options"
       :readonly="readonly"
+      stacked
       @update:model-value="(to) => change(r.from.id, to)"
     />
     <div v-if="!rows.length" class="text-caption text-grey-8">{{ primary }} has no colors yet.</div>

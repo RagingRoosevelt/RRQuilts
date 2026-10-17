@@ -2,8 +2,15 @@
   <!-- One color (or fabric) and what it becomes: the palette swap dialog's rows and a colorway's
        mapping. -->
   <div class="row items-center no-wrap" style="gap: 8px">
-    <div class="ps-swatch big" :style="optStyle(from)" />
-    <div class="ellipsis" style="width: 110px">{{ from.notecard.name }}</div>
+    <!-- `stacked` (narrow places, the Design sidebar): the swatch above its name. -->
+    <div v-if="stacked" class="column items-center ps-from">
+      <div class="ps-swatch big" :style="optStyle(from)" />
+      <div class="ellipsis text-caption" style="max-width: 100%">{{ from.notecard.name }}</div>
+    </div>
+    <template v-else>
+      <div class="ps-swatch big" :style="optStyle(from)" />
+      <div class="ellipsis" style="width: 110px">{{ from.notecard.name }}</div>
+    </template>
     <q-icon name="arrow_forward" />
     <q-select
       :model-value="modelValue"
@@ -16,6 +23,7 @@
       outlined
       :readonly="readonly"
       class="col"
+      style="min-width: 0"
       @update:model-value="(v) => emit('update:modelValue', v)"
     >
       <template #prepend>
@@ -45,6 +53,7 @@ const props = defineProps<{
   modelValue: string | undefined;
   options: Opt[];
   readonly?: boolean;
+  stacked?: boolean;
 }>();
 const emit = defineEmits<{ 'update:modelValue': [id: string] }>();
 
@@ -84,6 +93,10 @@ const listed = computed((): Listed[] => {
   height: 18px;
   border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.15);
+  flex: none;
+}
+.ps-from {
+  width: 64px;
   flex: none;
 }
 .ps-top {
