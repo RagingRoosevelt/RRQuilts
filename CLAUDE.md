@@ -52,6 +52,8 @@ like sketchbook/worktable are fine).
 
 Project principles: `.specify/memory/constitution.md` (authoritative).
 Flow: `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`.
+New specs/stories/bug write-ups outside the feature in progress: `specs/backlog` branch in the
+`../Kits Quilts specs` worktree (constitution, Development Workflow); never commit to `main`.
 
 ## Commands
 

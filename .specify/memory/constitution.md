@@ -1,6 +1,11 @@
 <!--
 Sync Impact Report
-- Version change: 1.8.1 → 1.9.0 (MINOR: fabric images — .rrqlib may be a zip of the JSON plus
+- Version change: 1.9.0 → 1.10.0 (MINOR: Development Workflow gains branch rules: changes reach
+  `main` only by merging a feature/fix/release branch; new specs, stories, requirements and bug
+  write-ups not part of the feature in progress go on `specs/backlog` in its own worktree, committed
+  with plain `git commit`. The footer, left at 1.8.1 by the 1.9.0 amendment, is corrected.)
+  Templates: ✅ plan/spec/tasks templates (no change) ✅ CLAUDE.md (pointer under Spec Kit)
+- Prior: 1.8.1 → 1.9.0 (MINOR: fabric images — .rrqlib may be a zip of the JSON plus
   image files (Principle III); projects reference library fabric images instead of embedding them,
   embedding only on request (Principle IV); printing may fetch larger images from a connected
   library as a user-initiated repository fetch (Principle II). Spec 014.)
@@ -240,6 +245,15 @@ Minimum envelope (details defined per feature in `specs/`):
   core geometry/calculation logic. UI tests only where logic lives in components.
 - Commit and push via `make commit` / `make push` so pre-steps always run; extra pre-steps are
   added there, not remembered by hand.
+- Changes MUST reach `main` only by merging a feature, fix, or release branch (`feat/…`,
+  `fix/…`, `release/X.Y.Z`); nothing is committed straight to `main`.
+- New specs, user stories, requirements, and bug write-ups that are not part of the feature in
+  progress MUST be written on the `specs/backlog` branch, in its own worktree
+  (`git worktree add "../Kits Quilts specs" -b specs/backlog main`, kept current by merging
+  `main`), not on the feature branch, so they can be reviewed and merged on their own. Spec changes
+  that describe the feature being built go on that feature's branch. Specs-only commits there
+  may use plain `git commit` (no code or `docs/` changes to check). Spec numbers MUST be free on
+  every open branch.
 - Before merge: `make check` passes and `docs/` is rebuilt and committed; offline smoke
   test via `make serve` (load once, go offline, reload, open/save a project).
 - CI (GitHub Actions) MUST run `make check` on every push and pull request and MUST fail when
@@ -254,4 +268,4 @@ This constitution supersedes other practices. Amendments are made via
 (MAJOR: principle removed/redefined; MINOR: principle/section added; PATCH: wording).
 Runtime development guidance lives in `CLAUDE.md`.
 
-**Version**: 1.8.1 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-12
+**Version**: 1.10.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-16
