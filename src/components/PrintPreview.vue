@@ -62,7 +62,7 @@
               <div v-if="i === 0" class="ellipsis byline">{{ view.byline }}</div>
             </div>
             <div class="text-grey-8 text-right">
-              {{ doc.project.name }}
+              <template v-if="onPage(s, 'projectName')">{{ doc.project.name }}</template>
               <div v-if="s.kind === 'picture'" class="byline">Designed in RRQuilts</div>
             </div>
           </header>
@@ -495,23 +495,22 @@
                   />
                 </g>
               </svg>
-              <div class="text-caption">
-                {{ s.scale >= 0.999 ? 'True size' : `Scaled to ${Math.round(s.scale * 100)}%` }} ·
-                finished {{ view.size }}
-              </div>
-              <div v-if="s.trim" class="text-caption">
+              <div v-if="sizeLine(s)" class="text-caption">{{ sizeLine(s) }}</div>
+              <div v-if="s.trim && onPage(s, 'trimNote')" class="text-caption">
                 Pieces at the edge are cut larger. Trim the quilt top to the marked edge after
                 piecing.
               </div>
               <div v-if="!isBlockKind && view.basedOn.length" class="text-caption">
                 Based on {{ view.basedOn.map(creditLine).join('; ') }}
               </div>
-              <div v-if="view.notes" class="notes self-stretch">{{ view.notes }}</div>
+              <div v-if="view.notes && onPage(s, 'notes')" class="notes self-stretch">
+                {{ view.notes }}
+              </div>
             </div>
           </div>
 
           <!-- The quilt picture page checks the printer's scale once for the whole printout. -->
-          <div v-if="s.kind === 'picture'" class="column items-end">
+          <div v-if="s.kind === 'picture' && onPage(s, 'scaleSquare')" class="column items-end">
             <div
               class="scale-square"
               :style="{ width: `${scaleSquare}${units}`, height: `${scaleSquare}${units}` }"
@@ -520,7 +519,7 @@
           </div>
 
           <div v-if="measure" class="ruler" :style="{ height: `${area[1]}${units}` }" />
-          <footer v-else class="row no-wrap" style="gap: 12px">
+          <footer v-else-if="onPage(s, 'footer')" class="row no-wrap" style="gap: 12px">
             <div class="col ellipsis">{{ view.title }} · {{ view.byline }}</div>
             <div>{{ i + 1 }} of {{ sheets.length }}</div>
           </footer>
@@ -587,6 +586,7 @@ import {
   pick,
   printPrefs,
   type PrintTarget,
+  type PrintPrefs,
 } from '@/model/print/prefs';
 import { cutFor, cutPlan, type Cut, type CutKind, type CutLine } from '@/model/print/rotary';
 import { PLAIN_BLOCK } from '@/model/plain';
@@ -686,6 +686,20 @@ const LINE_MM = { thin: 0.25, medium: 0.5, thick: 0.8 } as const;
 const stroke = computed(() => LINE_MM[prefs.value.lineWeight] / mm.value);
 const font = computed(() => 3.6 / mm.value);
 const scaleSquare = computed(() => (units.value === 'in' ? 1 : 2));
+type PictureItem = keyof PrintPrefs['picture'];
+/** The quilt picture page's optional items (print settings › Quilt picture); other pages show all. */
+const onPage = (s: Sheet, item: PictureItem) =>
+  isBlockKind.value || s.kind !== 'picture' || prefs.value.picture[item];
+/** "Scaled to 14% · finished 54″ × 54″", each part when it's shown. */
+function sizeLine(s: Sheet & { kind: 'picture' }) {
+  return [
+    onPage(s, 'scale') &&
+      (s.scale >= 0.999 ? 'True size' : `Scaled to ${Math.round(s.scale * 100)}%`),
+    onPage(s, 'finished') && `finished ${view.value!.size}`,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
 const look = computed(() => ({
   stroke: stroke.value,
   font: font.value,
@@ -1151,7 +1165,9 @@ const logical = computed<Sheet[]>(() => {
       const h = y1 - y0 + 0.0001;
       // Leave room for the notes under the picture and the scale square above the footer.
       const room =
-        (v.notes ? ah * 0.7 : ah - 2 * font.value) - scaleSquare.value - font.value * 1.5;
+        (v.notes ? ah * 0.7 : ah - 2 * font.value) -
+        (isBlock || prefs.value.picture.scaleSquare ? scaleSquare.value : 0) -
+        font.value * 1.5;
       const scale = Math.min(1, aw / w, room / h);
       out.push({
         kind: 'picture',

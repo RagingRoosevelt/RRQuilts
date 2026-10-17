@@ -126,6 +126,21 @@
             @update:model-value="(v) => v !== null && set('overlayOpacity', v / 100)"
           />
         </div>
+        <FieldGroup label="Show on the page" class="q-mt-sm">
+          <div class="column">
+            <q-checkbox
+              v-for="item in PICTURE_ITEMS"
+              :key="item.key"
+              :model-value="prefs.picture[item.key]"
+              dense
+              :label="item.label"
+              class="q-py-xs"
+              @update:model-value="
+                (v: boolean) => set('picture', { ...prefs.picture, [item.key]: v })
+              "
+            />
+          </div>
+        </FieldGroup>
       </div>
     </q-expansion-item>
 
@@ -393,6 +408,16 @@ const props = defineProps<{
 const emit = defineEmits<{ target: [target: PrintTarget] }>();
 
 const project = useProjectStore();
+/** The quilt picture page's optional items. */
+const PICTURE_ITEMS = [
+  { key: 'projectName', label: 'Project name' },
+  { key: 'footer', label: 'Page footer' },
+  { key: 'scaleSquare', label: 'Scale square (1″ or 2 cm)' },
+  { key: 'scale', label: 'Scale (%)' },
+  { key: 'finished', label: 'Finished size' },
+  { key: 'trimNote', label: 'Note to trim the edge (cut-larger pieces)' },
+  { key: 'notes', label: 'Notes (from Details)' },
+] as const;
 /** The quilt's reference overlay: its tint is shared with the Layout tab. */
 const quiltTarget = computed(() =>
   props.kind === 'quilt'

@@ -57,6 +57,16 @@ export const PRINT_DEFAULTS = {
    *  quilt's tint with this fill strength (the outline always prints fully). */
   showOverlay: false,
   overlayOpacity: 0.3,
+  /** What the quilt picture page shows (all on by default). */
+  picture: {
+    projectName: true,
+    footer: true,
+    scaleSquare: true,
+    scale: true,
+    finished: true,
+    trimNote: true,
+    notes: true,
+  },
   blockSections: ['templates', 'rotary'] as BlockSection[],
   quiltSections: ['picture', 'blocks', 'yardage', 'rotary', 'templates'] as QuiltSection[],
 };
