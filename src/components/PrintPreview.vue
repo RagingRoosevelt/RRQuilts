@@ -1163,17 +1163,26 @@ const logical = computed<Sheet[]>(() => {
             (p) => cutFor(p, 0, 0).kind === 'template',
           )
         : [];
-      if (plain.length)
+      if (plain.length) {
+        // Key: where each lettered piece goes in the quilt (the pieces, moved to start at 0, 0).
+        const xs = plain.flatMap((p) => p.poly.map((q) => q[0]));
+        const ys = plain.flatMap((p) => p.poly.map((q) => q[1]));
+        const [kx, ky] = [Math.min(...xs), Math.min(...ys)];
+        const key = plain.map((p) => ({
+          ...p,
+          poly: p.poly.map(([x, y]): Pt => [x - kx, y - ky]),
+        }));
         out.push(
           ...templateSheets({
             pieces: plain,
-            size: [1, 1],
-            keyPieces: [],
+            size: [Math.max(...xs) - kx, Math.max(...ys) - ky],
+            keyPieces: key,
             heading: 'Templates: quilt pieces',
             prefix: 'Q',
-            noKey: true,
+            bigKey: true,
           }),
         );
+      }
     }
     if (section === 'rotary') {
       const lines = cutPlan(v.pieces, seam.value, step.value, usableForCuts.value, slack.value);
@@ -1302,6 +1311,8 @@ function templateSheets(src: {
   prefix?: string;
   /** The key is on the block page instead. */
   noKey?: boolean;
+  /** A key as wide as the page (a whole quilt's pieces), not a quarter of it. */
+  bigKey?: boolean;
 }): Sheet[] {
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
@@ -1309,7 +1320,9 @@ function templateSheets(src: {
   const prefix = src.prefix ?? '';
   const items = templateItems(src.pieces, prefix);
   // Key: the block with each patch's letter, about a quarter of the page wide.
-  const keyScale = Math.min(aw, ah) / 4 / Math.max(...src.size);
+  const keyScale = src.bigKey
+    ? Math.min(aw, ah * 0.8) / Math.max(...src.size)
+    : Math.min(aw, ah) / 4 / Math.max(...src.size);
   const keyItem = {
     key: 'key',
     letter: '',
