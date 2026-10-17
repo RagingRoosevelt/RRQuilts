@@ -5831,6 +5831,10 @@
                     "minimum": 0,
                     "maximum": 1
                   },
+                  "tint": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
                   "input": {
                     "type": "object",
                     "required": [

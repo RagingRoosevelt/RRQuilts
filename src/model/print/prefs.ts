@@ -53,8 +53,10 @@ export const PRINT_DEFAULTS = {
   lineWeight: 'thin' as 'thin' | 'medium' | 'thick',
   mirror: false,
   outline: false,
-  /** The quilt picture shows the quilt's reference overlay (when it's enabled in Layout). */
+  /** The quilt picture shows the quilt's reference overlay (when it's enabled in Layout), in the
+   *  quilt's tint with this fill strength (the outline always prints fully). */
   showOverlay: false,
+  overlayOpacity: 0.3,
   blockSections: ['templates', 'rotary'] as BlockSection[],
   quiltSections: ['picture', 'blocks', 'yardage', 'rotary', 'templates'] as QuiltSection[],
 };

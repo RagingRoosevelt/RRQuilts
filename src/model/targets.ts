@@ -240,3 +240,12 @@ export function placeTarget(s: TargetShape, quilt: [number, number, number, numb
 /** The region a new target starts in: the remembered choice, else by the project's units. */
 export const defaultRegion = (remembered: string | undefined, units: Units): Region =>
   remembered === 'us' || remembered === 'eu' ? remembered : units === 'cm' ? 'eu' : 'us';
+
+/** The overlay's look: outline and fill in the tint; the fill at `opacity` (0…1) of its strongest
+ *  (40%), so the default 30% is a light wash. The outline ignores opacity. */
+export const OVERLAY_TINT = '#1976d2';
+export const OVERLAY_OPACITY = 0.3;
+export function overlayFill(tint = OVERLAY_TINT, opacity = OVERLAY_OPACITY): string {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(tint.slice(i, i + 2), 16) || 0);
+  return `rgba(${r},${g},${b},${+(Math.max(0, Math.min(1, opacity)) * 0.4).toFixed(3)})`;
+}

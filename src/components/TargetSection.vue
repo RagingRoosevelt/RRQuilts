@@ -26,19 +26,32 @@
         {{ target.label }}, {{ size }} {{ units }}
       </div>
       <div v-if="target" class="row items-center no-wrap q-pl-sm q-pr-md" style="gap: 12px">
-        <div class="text-caption">Opacity</div>
+        <div class="text-caption">Fill</div>
         <q-slider
           class="col"
-          :model-value="Math.round((target.opacity ?? 1) * 100)"
-          :min="10"
+          :model-value="Math.round((target.opacity ?? OVERLAY_OPACITY) * 100)"
+          :min="0"
           :max="100"
           :step="5"
           label
-          :label-value="`${Math.round((target.opacity ?? 1) * 100)}%`"
+          :label-value="`${Math.round((target.opacity ?? OVERLAY_OPACITY) * 100)}%`"
           :disable="readonly || off"
           aria-label="Overlay opacity"
           @update:model-value="
             (v) => v !== null && emit('change', { ...target!, opacity: v / 100 }, 'target-opacity')
+          "
+        />
+      </div>
+      <div v-if="target" class="row items-center no-wrap q-pl-sm" style="gap: 12px">
+        <div class="text-caption">Tint</div>
+        <input
+          type="color"
+          class="tint"
+          :value="target.tint ?? OVERLAY_TINT"
+          :disabled="readonly || off"
+          aria-label="Overlay tint"
+          @change="
+            (e) => emit('change', { ...target!, tint: (e.target as HTMLInputElement).value }, '')
           "
         />
       </div>
@@ -51,7 +64,14 @@ import { computed } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import TargetEditor from '@/components/TargetEditor.vue';
 import type { QuiltTarget } from '@/model/schema/quilt';
-import { defaultRegion, resolveTarget, shapeSize, type TargetInput } from '@/model/targets';
+import {
+  defaultRegion,
+  OVERLAY_OPACITY,
+  OVERLAY_TINT,
+  resolveTarget,
+  shapeSize,
+  type TargetInput,
+} from '@/model/targets';
 import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
@@ -80,12 +100,13 @@ function edit(next: TargetInput) {
   const shape = resolveTarget(next, props.units);
   if (!shape) return emit('change', undefined, '');
   // Typed fields coalesce into one undo step.
-  const opacity = props.target?.opacity;
+  const { opacity, tint } = props.target ?? {};
   emit(
     'change',
     {
       visible: props.target?.visible ?? true,
       ...(opacity !== undefined ? { opacity } : {}),
+      ...(tint !== undefined ? { tint } : {}),
       input: next,
       ...shape,
     },
@@ -95,6 +116,15 @@ function edit(next: TargetInput) {
 </script>
 
 <style scoped>
+.tint {
+  width: 40px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
 .off {
   opacity: 0.45;
   pointer-events: none;

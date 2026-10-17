@@ -83,7 +83,24 @@
           label="Show reference overlay"
           @update:model-value="(v: boolean) => set('showOverlay', v)"
         />
-        <div class="text-caption text-grey-7">When it's enabled in the Layout tab.</div>
+        <div class="text-caption text-grey-7">
+          When it's enabled in the Layout tab, in its tint from there.
+        </div>
+        <div class="row items-center no-wrap q-pr-md" style="gap: 12px">
+          <div class="text-caption">Fill</div>
+          <q-slider
+            class="col"
+            :model-value="Math.round(prefs.overlayOpacity * 100)"
+            :min="0"
+            :max="100"
+            :step="5"
+            label
+            :label-value="`${Math.round(prefs.overlayOpacity * 100)}%`"
+            :disable="!prefs.showOverlay"
+            aria-label="Printed overlay fill"
+            @update:model-value="(v) => v !== null && set('overlayOpacity', v / 100)"
+          />
+        </div>
       </div>
     </q-expansion-item>
 

@@ -25,7 +25,7 @@ size.
 
 Below the layout settings, **Reference overlay** draws a size to aim for as a dashed outline over
 the quilt: a bed with its drop, a placemat, a garment piece, or a custom size. Pick it under
-**Target size**, as in the new quilt wizard. It's saved with the quilt. **Show** hides or shows the outline, **Opacity** fades it, and **None** removes it.
+**Target size**, as in the new quilt wizard. It's saved with the quilt. **Show** hides or shows the outline, **Fill** sets how strongly it's shaded, **Tint** picks its color, and **None** removes it.
 
 ## On-point layouts
 

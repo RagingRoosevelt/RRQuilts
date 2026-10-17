@@ -154,5 +154,6 @@ these units from neighboring patches and offer the method alongside the per-patc
   "Templates: quilt pieces" and lettered Q…, with a page-wide key: the template pieces in place, each labeled with its letter. The option reads "Templates (blocks and quilt
   pieces)".
 - A **Quilt picture** section in the print options (quilts, after Paper) has **Show reference
-  overlay** (print preference `showOverlay`, off by default): the quilt picture page then draws the
-  quilt's reference overlay, when it's enabled in Layout, and grows to show it.
+  overlay** (print preference `showOverlay`, off by default) and its own **Fill** (`overlayOpacity`, 30%): the
+  quilt picture page then draws the quilt's reference overlay, when it's enabled in Layout, in the
+  quilt's tint (shared with Layout; show and fill are print's own), and grows to show it.

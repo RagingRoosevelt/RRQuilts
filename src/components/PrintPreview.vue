@@ -454,11 +454,11 @@
                   stroke="#000"
                   :stroke-width="(stroke / s.scale) * 1.5"
                 />
-                <g v-if="s.overlay" :opacity="s.overlay.opacity">
+                <g v-if="s.overlay">
                   <path
                     :d="s.overlay.d"
-                    fill="rgba(25,118,210,0.12)"
-                    stroke="#1976d2"
+                    :fill="s.overlay.fill"
+                    :stroke="s.overlay.tint"
                     :stroke-width="(stroke / s.scale) * 1.5"
                     :stroke-dasharray="`${(stroke / s.scale) * 8} ${(stroke / s.scale) * 5}`"
                   />
@@ -466,7 +466,7 @@
                     v-if="s.overlay.core"
                     :d="s.overlay.core"
                     fill="none"
-                    stroke="#1976d2"
+                    :stroke="s.overlay.tint"
                     :stroke-width="stroke / s.scale"
                     :stroke-dasharray="`${(stroke / s.scale) * 2} ${(stroke / s.scale) * 3}`"
                   />
@@ -567,7 +567,7 @@ import {
 } from '@/model/print/prefs';
 import { cutFor, cutPlan, type Cut, type CutKind, type CutLine } from '@/model/print/rotary';
 import { PLAIN_BLOCK } from '@/model/plain';
-import { placeTarget } from '@/model/targets';
+import { OVERLAY_TINT, overlayFill, placeTarget } from '@/model/targets';
 import {
   BINDING_EXTRA,
   backing,
@@ -1003,7 +1003,7 @@ type Sheet = (
       edge?: string | undefined;
       trim?: boolean | undefined;
       /** The quilt's reference overlay (print option, when enabled in Layout). */
-      overlay?: { d: string; core: string | null; opacity: number } | undefined;
+      overlay?: { d: string; core: string | null; tint: string; fill: string } | undefined;
       x0: number;
       y0: number;
       w: number;
@@ -1121,7 +1121,8 @@ const logical = computed<Sheet[]>(() => {
                     [placed.core[0], placed.core[1] + placed.core[3]],
                   ])
                 : null,
-              opacity: q!.target!.opacity ?? 1,
+              tint: q!.target!.tint ?? OVERLAY_TINT,
+              fill: overlayFill(q!.target!.tint, prefs.value.overlayOpacity),
             }
           : undefined,
         x0,
