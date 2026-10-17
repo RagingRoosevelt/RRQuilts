@@ -12,8 +12,7 @@
       <q-list bordered separator class="rounded-borders">
         <q-expansion-item default-opened label="You" icon="person">
           <div class="q-pa-md">
-            <div>
-              <div class="text-subtitle1">Your name</div>
+            <SettingsCard label="Your name">
               <q-input
                 v-model.trim="store.settings.author"
                 outlined
@@ -23,9 +22,8 @@
                 :hint="`Shown in projects, blocks, and packs you share. Ids of items you create start with “${slug}.” (existing items keep theirs).`"
                 @update:model-value="store.settings.authorAsked = true"
               />
-            </div>
-            <div class="q-mt-md">
-              <div class="text-subtitle1">Socials</div>
+            </SettingsCard>
+            <SettingsCard label="Socials" class="q-mt-md">
               <div
                 v-if="store.settings.socials.length && !editing.size"
                 class="text-caption text-grey-7 credits-label"
@@ -148,13 +146,20 @@
                 Saved with your name in projects and packs you share. A profile link for a known
                 site becomes its handle; Website and your own types keep what you type.
               </div>
-            </div>
+            </SettingsCard>
+            <q-btn
+              flat
+              no-caps
+              icon="waving_hand"
+              label="Show the welcome again"
+              class="q-mt-sm"
+              @click="welcomeOpen = true"
+            />
           </div>
         </q-expansion-item>
         <q-expansion-item default-opened label="Interface" icon="tune">
           <div class="q-pa-md column" style="gap: 16px">
-            <div>
-              <div class="text-subtitle1">Theme</div>
+            <SettingsCard label="Theme">
               <q-btn-toggle
                 v-model="store.settings.theme"
                 no-caps
@@ -164,14 +169,20 @@
                   { label: 'Dark', value: 'dark' },
                 ]"
               />
-            </div>
+              <div>
+                <q-checkbox
+                  v-model="store.settings.osAccent"
+                  class="q-mt-sm"
+                  label="Use the system accent color"
+                >
+                  <q-tooltip
+                    >Where the browser shares it (Firefox, Safari); otherwise blue.</q-tooltip
+                  >
+                </q-checkbox>
+              </div>
+            </SettingsCard>
 
-            <q-checkbox v-model="store.settings.osAccent" label="Use the system accent color">
-              <q-tooltip>Where the browser shares it (Firefox, Safari); otherwise blue.</q-tooltip>
-            </q-checkbox>
-
-            <div>
-              <div class="text-subtitle1">Units for new projects</div>
+            <SettingsCard label="Units for new projects">
               <q-btn-toggle
                 v-model="store.settings.units"
                 no-caps
@@ -183,10 +194,9 @@
               <div class="text-caption text-grey-7 q-mt-xs">
                 An open project's units are in its Details tab.
               </div>
-            </div>
+            </SettingsCard>
             <q-toggle v-model="store.settings.showHelp" label="Show help buttons" />
-            <div>
-              <div class="text-subtitle1">Editor layout</div>
+            <SettingsCard label="Editor layout">
               <q-btn-toggle
                 v-model="store.settings.sidesSwapped"
                 no-caps
@@ -198,7 +208,7 @@
               <div class="text-caption text-grey-7 q-mt-xs">
                 The quilt and block editors; the Libraries filters follow the sidebar.
               </div>
-            </div>
+            </SettingsCard>
           </div>
         </q-expansion-item>
         <q-expansion-item default-opened label="Project" icon="grid_view">
@@ -225,14 +235,19 @@
           <div class="q-pa-md">
             <q-toggle
               v-model="store.settings.recentColorsFirst"
-              label="Recently used colors first in each palette"
+              label="Sort colors and fabrics in palette by most recent use"
             />
+            <SettingsCard label="Reference overlay" class="q-mt-md">
+              <div class="text-caption text-grey-8 q-mb-sm">
+                Where a target size starts in the new quilt wizard and the Layout tab.
+              </div>
+              <OverlaySettings />
+            </SettingsCard>
           </div>
         </q-expansion-item>
-        <q-expansion-item default-opened label="Fabrics" icon="texture">
+        <q-expansion-item default-opened label="Fabrics" icon="attachment">
           <div class="q-pa-md column" style="gap: 16px">
-            <div>
-              <div class="text-subtitle1">Fabric images</div>
+            <SettingsCard label="Fabric images">
               <q-option-group
                 v-model="store.settings.fabricImages"
                 :options="[
@@ -241,9 +256,7 @@
                   { value: 'colors', label: 'Average colors only (never load images)' },
                 ]"
               />
-            </div>
-            <div>
-              <div class="text-subtitle1">Image size on screen</div>
+              <div class="text-caption q-mt-md q-mb-xs">Image size on screen</div>
               <q-btn-toggle
                 v-model="store.settings.imageSize"
                 no-caps
@@ -254,9 +267,7 @@
                   { value: 512, label: 'Standard (512 px)' },
                 ]"
               />
-            </div>
-            <div>
-              <div class="text-subtitle1">Your fabric images in saved projects</div>
+              <div class="text-caption q-mt-md q-mb-xs">Your fabric images in saved projects</div>
               <q-btn-toggle
                 v-model="store.settings.saveSize"
                 no-caps
@@ -270,7 +281,7 @@
               <div class="text-caption text-grey-7 q-mt-xs">
                 Library fabrics are saved as references, not images.
               </div>
-            </div>
+            </SettingsCard>
           </div>
         </q-expansion-item>
       </q-list>
@@ -288,6 +299,9 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
+import OverlaySettings from '@/components/OverlaySettings.vue';
+import SettingsCard from '@/components/SettingsCard.vue';
+import { welcomeOpen } from '@/composables/settings-open';
 import { computed, reactive, ref } from 'vue';
 import { authorSlug } from '@/model/identity';
 import { parseConf, toConf } from '@/settings/settings';

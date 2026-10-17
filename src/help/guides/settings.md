@@ -11,6 +11,9 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 - **Your name** goes into projects, blocks and packs you make. The ids of new items start with a short form of it.
 - **Socials** are added with **Add a social**. Pick a **Type** (Website, a site, or one you type) and a **Handle or link**. Drag the handle at the left to reorder. The selected radio button is the one shown in printed credits.
 
+**Show the welcome again** opens the welcome you saw on your first visit: your name, units, your
+sizes, and help.
+
 ## Interface
 
 - **Theme** can be **Auto**, **Light** or **Dark**.
@@ -27,9 +30,19 @@ Click the gear in the header to open **Settings** as a panel over the current sc
 
 ## Quilt and block design
 
-- **Recently used colors first in each palette** moves the colors you picked last to the front of
+- **Sort colors and fabrics in palette by most recent use** moves the colors you picked last to the front of
   each palette in the Design tab. It's off at first, so palettes keep their own order and the color
   you pick is only highlighted.
+- **Reference overlay** sets where a target size starts in the new quilt wizard and the Layout tab.
+  - **Size lists** picks the US or European sizes. **Auto** follows your units.
+  - **Your top** and **Your pants** keep your size (and sleeve length or inseam). Picking **Top** or
+    **Pants** as a target starts from them.
+  - **Your bed** keeps your bed with its drop, pillow tuck, and Tall (XL). Picking that bed starts
+    from them.
+  - Each starts unset. **Set now** sets it here, or the first one you use in the new quilt wizard
+    sets it. **Clear** unsets it.
+
+Each part of these sections is a card. Click its title to close or open it.
 
 ## Fabrics
 

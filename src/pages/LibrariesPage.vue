@@ -467,58 +467,65 @@
               title="Blocks"
             >
               <template #default="{ block: b }">
-                <div class="card">
-                  <div class="relative-position">
-                    <button class="thumb" @click="previewing = { lib: g.v.doc.id, id: b.id }">
-                      <img
-                        :src="thumb(b, 200, shown.get(`${g.v.doc.id}:${b.id}`))"
-                        :alt="b.notecard.name"
+                <!-- Built as it comes into view (then kept), not all at once. -->
+                <q-intersection once class="card-slot">
+                  <div class="card">
+                    <div class="relative-position">
+                      <button class="thumb" @click="previewing = { lib: g.v.doc.id, id: b.id }">
+                        <img
+                          :src="thumb(b, 200, shown.get(`${g.v.doc.id}:${b.id}`))"
+                          :alt="b.notecard.name"
+                        />
+                      </button>
+                      <ColoringCount
+                        :block="b"
+                        :model-value="shown.get(`${g.v.doc.id}:${b.id}`)"
+                        :thumb="(id) => thumb(b, 64, id)"
+                        @update:model-value="(id) => shown.set(`${g.v.doc.id}:${b.id}`, id)"
                       />
-                    </button>
-                    <ColoringCount
-                      :block="b"
-                      :model-value="shown.get(`${g.v.doc.id}:${b.id}`)"
-                      :thumb="(id) => thumb(b, 64, id)"
-                      @update:model-value="(id) => shown.set(`${g.v.doc.id}:${b.id}`, id)"
-                    />
+                    </div>
+                    <div class="row items-center no-wrap">
+                      <FullName class="col" :name="b.notecard.name" />
+                      <q-btn flat round dense icon="more_vert" aria-label="Actions">
+                        <q-menu>
+                          <q-list dense style="min-width: 170px">
+                            <q-item
+                              v-close-popup
+                              clickable
+                              @click="previewing = { lib: g.v.doc.id, id: b.id }"
+                            >
+                              <q-item-section>Preview</q-item-section>
+                            </q-item>
+                            <template v-if="g.mine">
+                              <q-item
+                                v-close-popup
+                                clickable
+                                @click="rename(b.id, b.notecard.name)"
+                              >
+                                <q-item-section>Rename…</q-item-section>
+                              </q-item>
+                              <q-item v-close-popup clickable @click="pickCategory(b.id)">
+                                <q-item-section>Category…</q-item-section>
+                              </q-item>
+                              <q-item v-close-popup clickable @click="startTagging(b.id)">
+                                <q-item-section>Tags & styles…</q-item-section>
+                              </q-item>
+                            </template>
+                            <q-item v-else v-close-popup clickable @click="copyMine(g.v, b.id)">
+                              <q-item-section>Copy to my library</q-item-section>
+                            </q-item>
+                            <q-item v-close-popup clickable @click="exportBlock(b)">
+                              <q-item-section>Export (.rrqbl)</q-item-section>
+                            </q-item>
+                            <q-item v-if="g.mine" v-close-popup clickable @click="remove(b.id)">
+                              <q-item-section class="text-negative">Delete</q-item-section>
+                            </q-item>
+                          </q-list>
+                        </q-menu>
+                      </q-btn>
+                    </div>
                   </div>
-                  <div class="row items-center no-wrap">
-                    <FullName class="col" :name="b.notecard.name" />
-                    <q-btn flat round dense icon="more_vert" aria-label="Actions">
-                      <q-menu>
-                        <q-list dense style="min-width: 170px">
-                          <q-item
-                            v-close-popup
-                            clickable
-                            @click="previewing = { lib: g.v.doc.id, id: b.id }"
-                          >
-                            <q-item-section>Preview</q-item-section>
-                          </q-item>
-                          <template v-if="g.mine">
-                            <q-item v-close-popup clickable @click="rename(b.id, b.notecard.name)">
-                              <q-item-section>Rename…</q-item-section>
-                            </q-item>
-                            <q-item v-close-popup clickable @click="pickCategory(b.id)">
-                              <q-item-section>Category…</q-item-section>
-                            </q-item>
-                            <q-item v-close-popup clickable @click="startTagging(b.id)">
-                              <q-item-section>Tags & styles…</q-item-section>
-                            </q-item>
-                          </template>
-                          <q-item v-else v-close-popup clickable @click="copyMine(g.v, b.id)">
-                            <q-item-section>Copy to my library</q-item-section>
-                          </q-item>
-                          <q-item v-close-popup clickable @click="exportBlock(b)">
-                            <q-item-section>Export (.rrqbl)</q-item-section>
-                          </q-item>
-                          <q-item v-if="g.mine" v-close-popup clickable @click="remove(b.id)">
-                            <q-item-section class="text-negative">Delete</q-item-section>
-                          </q-item>
-                        </q-list>
-                      </q-menu>
-                    </q-btn>
-                  </div>
-                </div>
+                </q-intersection>
               </template>
             </BlockSections>
 
@@ -2657,6 +2664,11 @@ function downloadPack() {
 </script>
 
 <style scoped>
+/* A card's place before it's built (when scrolled into view): about a card's height, so the page
+   doesn't jump as cards appear. */
+.card-slot:not(:has(.card)) {
+  min-height: 189px;
+}
 .libs {
   width: 260px;
   flex: none;

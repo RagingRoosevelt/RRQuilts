@@ -36,7 +36,7 @@ describe('credits and licenses', () => {
     const star = builtinItems().blocks.find((b) => b.id === 'rrquilts.ohio-star')!;
     const jane = { ...copyBlock(star, [], 'Jane'), license: 'CC-BY-SA-4.0' };
     const mine = newBlock('Mine', [10, 10], 'in', 'Sam');
-    const quilt = produce(createQuilt('Q', { style: 'one-patch' }, []), (q) => {
+    const quilt = produce(createQuilt('Q', { style: 'custom-set' }, []), (q) => {
       q.layers[0].slots = {
         a: { block: jane.id, coloring: 'k', rotation: 0, flip: false },
         b: { block: mine.id, coloring: 'k', rotation: 0, flip: false },

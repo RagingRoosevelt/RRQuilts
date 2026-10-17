@@ -60,3 +60,26 @@ strips never moves content to another strip.
 
 Pattern pieces of the same role keep their ids across pattern styles, so colors carry over when a
 strip changes, for example, from Points to Diamonds.
+
+## Patch layouts (spec 018)
+
+Patches take colors and fabrics only (slot group `patch`). `i` counts across, `j` down, from 0;
+trimmed edges add partial patches at negative or past-the-end indices.
+
+| Element | Id | Example |
+|---|---|---|
+| Variable Point diamond (setting pieces, sashes keep their On-Point ids) | On-Point block id with `b:` → `p:` | `p:r2c3`, `p:m:r1c1` |
+| One Patch patch (squares, rectangles, bricks, diamonds, hexagons, tumblers, clamshells) | `p:i{i}j{j}` | `p:i4j1` |
+| Half-square triangle halves | `p:i{i}j{j}{a|b}` | `p:i0j0a` |
+| Equilateral triangle, up or down (`r` = index in the row) | `p:i{r}j{j}{u|d}` | `p:i2j3u` |
+| Octagon / the small square up and left of it | `p:i{i}j{j}o` / `p:i{i}j{j}s` | |
+| Tumbling-block face (top, left, right) | `p:i{i}j{j}{t|l|r}` | `p:i2j1t` |
+
+## Pieced borders (spec 018)
+
+Border n's sides are pattern bands (the strip patterns above) running along the side from the
+quilt outward. Pieces use the strip codes with the side in place of the strip: `border:{n}:{side}:{code}{k}`
+(side `top`, `bottom`, `left`, `right`; codes as for strips, plus `u` = rectangle unit and `k` = little
+shape in big and little styles). Corners are `border:{n}:corner:{tl|tr|br|bl}`; Tile On Point Corners
+splits each into `…:c` (the square on point) and triangles `…:1` to `…:4`. Plain styles keep the ids
+above (`border:{n}:{side}`).

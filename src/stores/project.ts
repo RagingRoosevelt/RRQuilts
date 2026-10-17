@@ -30,7 +30,14 @@ import {
   takeOverEditLock,
   type HeldLock,
 } from '@/session/tab-lock';
-import { getDraft, markDraftClean, putDraft, removeDraft, type Draft } from '@/storage/drafts';
+import {
+  getDraft,
+  markDraftClean,
+  putDraft,
+  removeDraft,
+  type Draft,
+  draftDoc,
+} from '@/storage/drafts';
 import {
   download,
   ensurePermission,
@@ -173,10 +180,13 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
-  async function restoreDraft(draft: Draft) {
+  /** Open unsaved work; returns problems found while loading (as for a file). */
+  async function restoreDraft(draft: Draft): Promise<string[]> {
+    const { doc: d, report } = await draftDoc(draft);
     // If this project was saved to a file before, keep saving to that file.
     const recent = await getRecent(draft.id).catch(() => undefined);
-    await load(draft.doc, { handle: recent?.handle ?? null, saved: !!recent, dirty: draft.dirty });
+    await load(d, { handle: recent?.handle ?? null, saved: !!recent, dirty: draft.dirty });
+    return report;
   }
 
   async function discardDraft(draft: Draft) {
@@ -321,8 +331,10 @@ export const useProjectStore = defineStore('project', () => {
     const r = await takeOverEditLock(id, onLost);
     lock = r.lock;
     const draft = await getDraft(id).catch(() => undefined);
-    if (draft) {
-      doc.value = freeze(draft.doc, true);
+    // Written by the other tab, maybe an older app version: brought up to date like any draft.
+    const fresh = draft && (await draftDoc(draft).catch(() => undefined));
+    if (draft && fresh) {
+      doc.value = freeze(fresh.doc, true);
       if (draft.dirty) revision.value = savedRevision.value + 1;
     }
     readOnly.value = false;

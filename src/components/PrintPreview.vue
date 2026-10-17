@@ -53,7 +53,7 @@
           :style="measure ? measureStyle : sheetStyle"
           :data-i="measure ? i : undefined"
         >
-          <header v-if="!measure" class="row items-baseline no-wrap">
+          <header v-if="!measure && onPage(s, 'header')" class="row items-baseline no-wrap">
             <div class="col" style="min-width: 0">
               <div class="ellipsis">
                 <b>{{ view.title }}</b> · {{ view.size }} · {{ s.heading }}
@@ -61,7 +61,10 @@
               </div>
               <div v-if="i === 0" class="ellipsis byline">{{ view.byline }}</div>
             </div>
-            <div class="text-grey-8">{{ doc.project.name }}</div>
+            <div class="text-grey-8 text-right">
+              {{ doc.project.name }}
+              <div v-if="s.kind === 'picture'" class="byline">Designed in RRQuilts</div>
+            </div>
           </header>
 
           <div class="content">
@@ -250,7 +253,7 @@
                   <template v-for="fill in s.fills" :key="fill">
                     <tr v-if="on(s, `y>${fill}`)" :data-m="`y>${fill}`">
                       <td>
-                        <span class="chip" :style="{ background: fillInfo(fill).css }" />
+                        <span class="chip yardage" :style="chipStyle(fill)" />
                         {{ fillInfo(fill).name }}
                       </td>
                       <td v-for="c in s.cols" :key="c.opt.id">{{ amount(c.needs.get(fill)) }}</td>
@@ -454,33 +457,82 @@
                   stroke="#000"
                   :stroke-width="(stroke / s.scale) * 1.5"
                 />
+                <g v-if="s.overlay">
+                  <clipPath v-if="s.overlay.shade" :id="`quilt${i}`">
+                    <rect
+                      :x="s.overlay.quilt[0]"
+                      :y="s.overlay.quilt[1]"
+                      :width="s.overlay.quilt[2]"
+                      :height="s.overlay.quilt[3]"
+                    />
+                  </clipPath>
+                  <path
+                    v-if="s.overlay.shade"
+                    :d="s.overlay.shade"
+                    fill-rule="evenodd"
+                    :fill="s.overlay.fill"
+                    stroke="none"
+                    :clip-path="`url(#quilt${i})`"
+                  />
+                  <path
+                    :d="s.overlay.d"
+                    :fill="s.overlay.shade ? 'none' : s.overlay.fill"
+                    :stroke="s.overlay.tint"
+                    :stroke-width="(stroke / s.scale) * 1.5"
+                    :stroke-dasharray="`${(stroke / s.scale) * 8} ${(stroke / s.scale) * 5}`"
+                  />
+                  <path
+                    v-if="s.overlay.core"
+                    :d="s.overlay.core"
+                    fill="none"
+                    :stroke="s.overlay.tint"
+                    :stroke-width="stroke / s.scale"
+                    :stroke-dasharray="`${(stroke / s.scale) * 2} ${(stroke / s.scale) * 3}`"
+                  />
+                </g>
               </svg>
-              <div class="text-caption">
-                {{ s.scale >= 0.999 ? 'True size' : `Scaled to ${Math.round(s.scale * 100)}%` }} ·
-                finished {{ view.size }}
+              <!-- Under the picture: its text; the scale square is pinned to the page's bottom right. -->
+              <div class="pic-caption self-stretch">
+                <div v-if="onPage(s, 'scaleSquare')" class="scale-box">
+                  <div
+                    class="scale-square"
+                    :style="{ width: `${scaleSquare}${units}`, height: `${scaleSquare}${units}` }"
+                  />
+                  <div class="scale-label">{{ fmt(scaleSquare) }} square</div>
+                </div>
+                <!-- Under the picture: a title and author for the quilt (print settings › Quilt picture). -->
+                <div
+                  v-if="!isBlockKind && (prefs.picture.title || prefs.picture.author)"
+                  class="text-center"
+                >
+                  <h1 v-if="prefs.picture.title" class="pic-title">
+                    {{ view.title
+                    }}<template v-if="prefs.picture.projectName">
+                      • {{ doc.project.name }}</template
+                    >
+                  </h1>
+                  <h2 v-if="prefs.picture.author" class="pic-author">
+                    By {{ view.author ?? 'anonymous' }}
+                  </h2>
+                  <div v-if="!prefs.picture.header" class="byline">Designed in RRQuilts</div>
+                </div>
+                <div v-if="sizeLine(s)" class="text-caption">{{ sizeLine(s) }}</div>
+                <div v-if="s.trim && onPage(s, 'trimNote')" class="text-caption">
+                  Pieces at the edge are cut larger. Trim the quilt top to the marked edge after
+                  piecing.
+                </div>
+                <div v-if="!isBlockKind && view.basedOn.length" class="text-caption">
+                  Based on {{ view.basedOn.map(creditLine).join('; ') }}
+                </div>
+                <div v-if="view.notes && onPage(s, 'notes')" class="notes self-stretch">
+                  {{ view.notes }}
+                </div>
               </div>
-              <div v-if="s.trim" class="text-caption">
-                Pieces at the edge are cut larger. Trim the quilt top to the marked edge after
-                piecing.
-              </div>
-              <div v-if="!isBlockKind && view.basedOn.length" class="text-caption">
-                Based on {{ view.basedOn.map(creditLine).join('; ') }}
-              </div>
-              <div v-if="view.notes" class="notes self-stretch">{{ view.notes }}</div>
             </div>
           </div>
 
-          <!-- The quilt picture page checks the printer's scale once for the whole printout. -->
-          <div v-if="s.kind === 'picture'" class="column items-end">
-            <div
-              class="scale-square"
-              :style="{ width: `${scaleSquare}${units}`, height: `${scaleSquare}${units}` }"
-            />
-            <div class="scale-label">{{ fmt(scaleSquare) }} square</div>
-          </div>
-
           <div v-if="measure" class="ruler" :style="{ height: `${area[1]}${units}` }" />
-          <footer v-else class="row no-wrap" style="gap: 12px">
+          <footer v-else-if="onPage(s, 'footer')" class="row no-wrap" style="gap: 12px">
             <div class="col ellipsis">{{ view.title }} · {{ view.byline }}</div>
             <div>{{ i + 1 }} of {{ sheets.length }}</div>
           </footer>
@@ -547,8 +599,11 @@ import {
   pick,
   printPrefs,
   type PrintTarget,
+  type PrintPrefs,
 } from '@/model/print/prefs';
 import { cutFor, cutPlan, type Cut, type CutKind, type CutLine } from '@/model/print/rotary';
+import { PLAIN_BLOCK } from '@/model/plain';
+import { OVERLAY_TINT, overlayFill, placeTarget } from '@/model/targets';
 import {
   BINDING_EXTRA,
   backing,
@@ -644,6 +699,30 @@ const LINE_MM = { thin: 0.25, medium: 0.5, thick: 0.8 } as const;
 const stroke = computed(() => LINE_MM[prefs.value.lineWeight] / mm.value);
 const font = computed(() => 3.6 / mm.value);
 const scaleSquare = computed(() => (units.value === 'in' ? 1 : 2));
+type PictureItem = keyof PrintPrefs['picture'];
+/** The quilt picture page's optional items (print settings › Quilt picture); other pages show all. */
+const onPage = (s: Sheet, item: PictureItem) =>
+  isBlockKind.value || s.kind !== 'picture' || prefs.value.picture[item];
+/** Height of the quilt picture's title, author, and "Designed in" lines (page units). */
+const titleRoom = () => {
+  const p = prefs.value.picture;
+  const f = font.value;
+  return (
+    (p.title ? 2.4 * f : 0) +
+    (p.author ? 1.8 * f : 0) +
+    (p.title || p.author ? (p.header ? 0 : 1.2 * f) + 0.5 * f : 0)
+  );
+};
+/** "Scaled to 14% · finished 54″ × 54″", each part when it's shown. */
+function sizeLine(s: Sheet & { kind: 'picture' }) {
+  return [
+    onPage(s, 'scale') &&
+      (s.scale >= 0.999 ? 'True size' : `Scaled to ${Math.round(s.scale * 100)}%`),
+    onPage(s, 'finished') && `finished ${view.value!.size}`,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
 const look = computed(() => ({
   stroke: stroke.value,
   font: font.value,
@@ -688,6 +767,22 @@ const shapeFill = (key: string) => {
   const p = fabricPatterns.value.find((x) => x.key === key);
   return p ? `url(#${p.id})` : fillInfo(key).css;
 };
+/** A fabric's photo (else undefined). */
+const fabricUrlOf = (fill: string) => fabricPatterns.value.find((x) => x.key === fill)?.url;
+/** A yardage chip: the fabric's photo cropped to its middle half and scaled down to the chip
+ *  (the photo at twice the chip's size, centered), else the color. */
+function chipStyle(fill: string) {
+  const css = fillInfo(fill).css;
+  const url = fabricUrlOf(fill);
+  return url
+    ? {
+        backgroundColor: css,
+        backgroundImage: `url(${url})`,
+        backgroundSize: '200% 200%',
+        backgroundPosition: 'center',
+      }
+    : { background: css };
+}
 const fabricPatterns = computed(() =>
   (doc.value?.project.palette.fabrics ?? []).flatMap((f) => {
     const url = fabricUrl(f, 1024) ?? fabricUrl(f, 512) ?? fabricUrl(f, 256);
@@ -983,6 +1078,18 @@ type Sheet = (
       polys: { d: string; css: string }[];
       edge?: string | undefined;
       trim?: boolean | undefined;
+      /** The quilt's reference overlay (print option, when enabled in Layout). */
+      overlay?:
+        | {
+            d: string;
+            core: string | null;
+            tint: string;
+            fill: string;
+            /** Inverted: the quilt outside the shape (quilt rectangle + shape, even-odd). */
+            shade: string | null;
+            quilt: [number, number, number, number];
+          }
+        | undefined;
       x0: number;
       y0: number;
       w: number;
@@ -1062,19 +1169,60 @@ const logical = computed<Sheet[]>(() => {
       continue;
     }
     if (section === 'picture') {
-      const [x0, y0, x1, y1] = v.pictureBox;
+      // The reference overlay when asked for and enabled in Layout; the picture grows to show it.
+      const q = isBlock ? undefined : doc.value!.project.quilts.find((x) => x.id === props.id);
+      const placed =
+        prefs.value.showOverlay && q?.target?.visible
+          ? placeTarget(q.target, [...v.pictureBox] as [number, number, number, number])
+          : null;
+      const box = v.pictureBox;
+      const [x0, y0, x1, y1] = placed
+        ? [
+            Math.min(box[0], placed.box[0]),
+            Math.min(box[1], placed.box[1]),
+            Math.max(box[2], placed.box[2]),
+            Math.max(box[3], placed.box[3]),
+          ]
+        : box;
       const w = x1 - x0;
       const h = y1 - y0 + 0.0001;
       // Leave room for the notes under the picture and the scale square above the footer.
       const room =
-        (v.notes ? ah * 0.7 : ah - 2 * font.value) - scaleSquare.value - font.value * 1.5;
-      const scale = Math.min(1, aw / w, room / h);
+        (v.notes ? ah * 0.7 : ah - 2 * font.value) - (isBlock ? 0 : titleRoom()) - font.value * 1.5;
+      // The quilt's picture can be made smaller (print settings › Quilt picture › Picture size).
+      const size = isBlock ? 1 : Math.max(0.75, Math.min(1.5, prefs.value.pictureSize));
+      const most = Math.min(aw / w, (ah - font.value * 3) / h); // the page, less a caption
+      const scale = Math.min(1, most, Math.min(aw / w, room / h) * size);
       out.push({
         kind: 'picture',
         heading: isBlock ? 'Block' : 'Quilt',
         polys: v.picture,
         edge: v.edge && d(v.edge),
         trim: v.trim,
+        overlay: placed
+          ? {
+              d: d(placed.outline),
+              core: placed.core
+                ? d([
+                    [placed.core[0], placed.core[1]],
+                    [placed.core[0] + placed.core[2], placed.core[1]],
+                    [placed.core[0] + placed.core[2], placed.core[1] + placed.core[3]],
+                    [placed.core[0], placed.core[1] + placed.core[3]],
+                  ])
+                : null,
+              tint: q!.target!.tint ?? OVERLAY_TINT,
+              shade: q!.target!.invert
+                ? d([
+                    [box[0], box[1]],
+                    [box[2], box[1]],
+                    [box[2], box[3]],
+                    [box[0], box[3]],
+                  ]) + d(placed.outline)
+                : null,
+              quilt: [box[0], box[1], box[2] - box[0], box[3] - box[1]],
+              fill: overlayFill(q!.target!.tint, prefs.value.overlayOpacity),
+            }
+          : undefined,
         x0,
         y0,
         w,
@@ -1103,6 +1251,34 @@ const logical = computed<Sheet[]>(() => {
             heading: `Templates: ${u.number} · ${u.block.notecard.name}`,
             prefix: String(u.number),
             noKey: prefs.value.keyOnBlockPage && wanted.includes('blocks'),
+          }),
+        );
+      }
+      // Pieces of the quilt itself that need templates (patches, setting and border shapes, strip
+      // patterns): the ones the cutting chart says to cut from a template, lettered Q….
+      const quilt = doc.value!.project.quilts.find((q) => q.id === props.id);
+      const plain = quilt
+        ? quiltPieces(doc.value!, quilt, PLAIN_BLOCK).filter(
+            (p) => cutFor(p, 0, 0).kind === 'template',
+          )
+        : [];
+      if (plain.length) {
+        // Key: where each lettered piece goes in the quilt (the pieces, moved to start at 0, 0).
+        const xs = plain.flatMap((p) => p.poly.map((q) => q[0]));
+        const ys = plain.flatMap((p) => p.poly.map((q) => q[1]));
+        const [kx, ky] = [Math.min(...xs), Math.min(...ys)];
+        const key = plain.map((p) => ({
+          ...p,
+          poly: p.poly.map(([x, y]): Pt => [x - kx, y - ky]),
+        }));
+        out.push(
+          ...templateSheets({
+            pieces: plain,
+            size: [Math.max(...xs) - kx, Math.max(...ys) - ky],
+            keyPieces: key,
+            heading: 'Templates: quilt pieces',
+            prefix: 'Q',
+            bigKey: true,
           }),
         );
       }
@@ -1234,6 +1410,8 @@ function templateSheets(src: {
   prefix?: string;
   /** The key is on the block page instead. */
   noKey?: boolean;
+  /** A key as wide as the page (a whole quilt's pieces), not a quarter of it. */
+  bigKey?: boolean;
 }): Sheet[] {
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
@@ -1241,7 +1419,9 @@ function templateSheets(src: {
   const prefix = src.prefix ?? '';
   const items = templateItems(src.pieces, prefix);
   // Key: the block with each patch's letter, about a quarter of the page wide.
-  const keyScale = Math.min(aw, ah) / 4 / Math.max(...src.size);
+  const keyScale = src.bigKey
+    ? Math.min(aw, ah * 0.8) / Math.max(...src.size)
+    : Math.min(aw, ah) / 4 / Math.max(...src.size);
   const keyItem = {
     key: 'key',
     letter: '',
@@ -1656,6 +1836,7 @@ onMounted(() => {
 }
 .content {
   flex: 1;
+  position: relative;
 }
 .sheet.measure {
   position: fixed;
@@ -1697,6 +1878,29 @@ onMounted(() => {
 .byline {
   font-size: 9pt;
 }
+.pic-title {
+  margin: 0;
+  font-size: 2em;
+  line-height: 1.2;
+  font-weight: 600;
+}
+.pic-author {
+  margin: 0;
+  font-size: 1.4em;
+  line-height: 1.25;
+  font-weight: 400;
+}
+.pic-caption {
+  text-align: center;
+}
+/* The picture page checks the printer's scale once for the whole printout: at the bottom right of
+   the page, out of the way of the picture and its centered text. */
+.scale-box {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  text-align: right;
+}
 .scale-square {
   border: 0.3mm solid #000;
   box-sizing: border-box;
@@ -1722,6 +1926,17 @@ td {
   height: 4mm;
   border: 0.2mm solid #000;
   vertical-align: middle;
+  /* Print the color or photo even when the browser leaves out backgrounds. */
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+/* Yardage: colors and photos 10 mm, beside the name, which starts at the top of the row like the
+   amounts. */
+.chip.yardage {
+  float: left;
+  width: 10mm;
+  height: 10mm;
+  margin-right: 2mm;
 }
 .warn {
   color: #b00020;

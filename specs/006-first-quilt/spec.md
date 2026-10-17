@@ -193,6 +193,55 @@ zoom, drag-pan, and Fit.
   sashing + sash border, borders) defaulting to 5×5 blocks of 10" (25 cm), no sashing, one 2" (5 cm)
   long-horizontal border. *Amended by spec 016 FR-013: the first step also picks the style
   (Horizontal or On-Point), and a live preview shows the quilt as choices are made.*
+- **FR-001a**: The wizard's first page MUST pick the layout style and a target size: None (default),
+  Placemat 18 × 13, Table runner 72 × 14, Wall hanging 36 × 36, Throw 50 × 65, or a bed by its
+  mattress top: Crib 28 × 52, Twin 39 × 75, Double (Full) 54 × 75, Queen 60 × 80, King 76 × 80,
+  California King 72 × 84 (in inches). cm projects list the other sizes in rounded cm (46 × 33, 183 × 36, 91 × 91, 127 × 165,
+  Crib 71 × 132) and European beds (owner, 2026-10-16): Single 90 × 200, Single (XL) 100 × 200,
+  Small double 120 × 200, Standard double / Queen 140 × 200, Queen (Europe) / King 160 × 200, Super
+  King (Europe) 180 × 200, Emperor / Grand King 200 × 200. A bed adds a **drop** over the sides and
+  foot, editable: 12″ for Twin and Double, 14″ for Queen and King, 30 cm up to 140 wide, 35 cm
+  wider, 0 for Crib. A **Pillow tuck** checkbox (beds, off by default) adds extra at the head
+  (12″ / 30 cm, editable) for bedspread-style quilts. A **US sizes / European sizes** switch picks the
+  list (shown in the project's units; inches to the half, cm whole); it starts from the units
+  preference and, once changed, is remembered (setting `bedSizes`). **Tall (XL)** makes Twin and
+  Double 80″ long and European 200 cm beds 210 cm. The list is grouped (labels set into divider lines): None, Custom (width ×
+  height fields), Table, wall, and lap, then Beds (mattress size), each name on the left and its
+  size on the right. Switching lists keeps Custom (and its values) and sizes both lists share.
+  A **Garments** group (before Beds) offers **Top** (Front, Back, or Sleeve with a sleeve length from
+  shoulder to hem, starting at the size's full arm length) and **Pants** (Front or Back), Women's or Men's (on one row with the piece switch). Tops come in XS to XXL (European 34 to 44
+  for women, 44 to 54 for men); pants in US women's misses sizes 0 to 18 (European US + 32) or men's
+  waist sizes 28 to 42 in inches (European about the waist + 16), with an **Inseam** field (30½″
+  women, 32″ men, editable). A "?" shows the size chart of body measurements for the list shown. The outline
+  takes the piece's shape, drafted from that size (`src/model/garments.ts`: hip-length top with 4″
+  ease, the front one side of a buttoned front with a 1″ button stand, the back whole as cut on
+  the fold; set-in sleeve; one trouser leg, laid out as patterns show it: a straight, fairly wide leg with nearly straight
+  side seams and a smoothly hollow inseam; the front with center front on the left, a slanted
+  pocket opening, and a 1.5″ fly extension cut on; the back with a waist dart and its center seam
+  slanting in and up toward the waist, running into the J-shaped crotch). It's a size guide, not a sewing pattern. Picking a garment sets the
+  borders to none (garment pieces have none); leaving garments brings the default border back. In the Layout tab, switching a quilt with borders to a garment asks whether to remove them (Remove / Keep them). With a
+  size picked, the live preview MUST show it as a transparent outline over the quilt, centered on
+  it: the outer outline is the size with its drop and tuck, and a fine outline inside marks the mattress top
+  at the head. The footer shows the quilt's finished size and the target's. Counts, block sizes,
+  and other layout settings are on the second page, headed with the layout's name ("Size"; "Shape" for One Patch,
+  "Strips" for strip quilts). The target is saved with the quilt (optional `target` on a
+  quilt, format v6, `src/model/targets.ts`): visibility, the choices made, and the resolved outline
+  (and mattress rectangle) in project units, so the outline still draws if the size lists change;
+  unit conversion converts it. Older quilts have none. The Layout tab's **Reference overlay** section (Layout and Reference overlay are its two sections; each layout's settings are grouped under divider lines with the group's name set into them, as on the wizard's Size page)
+  adds, changes, shows or hides (Show), sets its **Fill** (0 to 100%, default 30%, the target's optional `opacity`; the outline always shows fully) and **Tint** (outline and fill color, optional `tint`, default blue; Quasar's color picker, not the browser's) and **Invert** (optional `invert`: shade outside the shape, out to the quilt's edge), or removes (None) it, with the same controls as the wizard;
+  the editor draws it centered on the quilt, and Fit includes it. Quilt thumbnails show it while it's enabled in Layout; the project quilt list's image download always leaves it out; the quilt editor's Details tab has **Download image**, which includes it only when it's enabled in Layout. Settings › Quilt and block design › Reference overlay
+  (owner, 2026-10-16) holds the size lists choice (Auto by units, US, European) and the quilter's
+  own top, pants, and bed (setting `overlayDefaults`, lengths in inches), where those targets start;
+  each is unset until set there or first used in the wizard (the wizard saves it when a quilt is
+  created with that target). *Added and built 2026-10-16
+  (owner).*
+- **FR-001b**: On a first visit (no name asked yet), a **welcome wizard** MUST offer, each step
+  skippable: the name for credits (a real name, pseudonym, shop name, or handle; shown as the credit
+  on shared work and the start of ids), units for new projects, the quilter's own bed, top, and
+  pants for the reference overlay (Settings' Reference overlay controls, with what they're for), the
+  help buttons toggle, and links to the help guides (getting started, designing a quilt, drawing
+  blocks, colors and palettes, libraries, printing). Finishing or skipping sets `welcomeDone` and
+  `authorAsked`; Settings › You › **Show the welcome again** reopens it. *Added 2026-10-16 (owner).*
 - **FR-002**: ~~New projects MUST start with the starter blocks and colors~~ — superseded by spec 008:
   starter content is a built-in library; projects embed library items only while used.
 - **FR-003**: The sketchbook MUST show tabbed card grids with thumbnails rendered from the model;

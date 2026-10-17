@@ -26,7 +26,7 @@ import { useViewport } from '@/composables/viewport';
 import type { Generated } from '@/model/layout/slots';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
-import { drawQuilt, type View } from '@/render/draw';
+import { boundsWithTarget, drawQuilt, type View } from '@/render/draw';
 import { hitTest, type Hit } from '@/render/hit';
 
 const props = defineProps<{
@@ -58,13 +58,14 @@ const vp = useViewport({
   canvas,
   getView: () => props.view,
   setView: (v) => emit('update:view', v),
-  bounds: () => props.generated.bounds,
+  bounds: () => boundsWithTarget(props.quilt, props.generated.bounds),
   panOnly: () => props.panOnly,
   draw(ctx, view, dpr) {
     const c = canvas.value!;
     ctx.fillStyle = $q.dark.isActive ? '#3c3c3c' : '#9e9e9e'; // neutral gray (spec 004 FR-015)
     ctx.fillRect(0, 0, c.width, c.height);
     drawQuilt(ctx, props.doc, props.quilt, props.generated, {
+      target: true,
       dpr,
       view,
       outlines: props.outlines,

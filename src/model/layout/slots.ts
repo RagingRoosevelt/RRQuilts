@@ -6,12 +6,14 @@ import { produce } from 'immer';
 import type { PathCommand } from '../schema/shared';
 import type { Border, Layout, Quilt, SlotContent } from '../schema/quilt';
 import { borderSlots } from './borders';
-import { onPointDefaults, stripDefaults } from '../io';
+import { layoutDefaults, onPointDefaults, stripDefaults } from '../io';
 import { PLAIN_BLOCK } from '../plain';
+import { flattenLoop, pathToSegs, signedArea, type Pt } from '../geometry/path';
+import { toPath } from './clip';
 import { tile } from './engine';
-import { horizontal, onPoint, strips } from './presets';
+import { horizontal, onePatch, onPoint, strips, tumbling, variablePoint } from './presets';
 
-export type SlotKind = 'block' | 'sash' | 'cs' | 'set' | 'border' | 'strip';
+export type SlotKind = 'block' | 'sash' | 'cs' | 'set' | 'border' | 'strip' | 'patch';
 /** `piece` = setting, partial, or irregular space: plain fill only. */
 export type SpaceShape =
   'rect' | 'triangle' | 'diamond60' | 'hexagon' | 'clamshell' | 'spool' | 'piece';
@@ -139,9 +141,46 @@ export function generateSlots(
         trim: false,
       };
     ({ slots, center, trim } = o);
+  } else if (layout.style === 'variable-point') {
+    const o = variablePoint(layout);
+    if (layout.edge.finish === 'none')
+      return {
+        slots: o.slots,
+        center: o.center,
+        bounds: o.center,
+        unsupported,
+        edge: o.edge,
+        trim: false,
+      };
+    ({ slots, center, trim } = o);
+  } else if (
+    layout.style === 'one-patch' ||
+    layout.style === 'baby-blocks' ||
+    layout.style === 'variable-blocks'
+  ) {
+    const t = layout.style === 'one-patch' ? onePatch(layout) : tumbling(layout);
+    slots = tile(t.tiling);
+    if (!t.center) {
+      // No fill: whole patches; their outline is the quilt's edge and borders are set aside.
+      const box = boundsOf(slots);
+      return {
+        slots,
+        center: box,
+        bounds: box,
+        unsupported,
+        edge: outerEdge(slots, box),
+        trim: false,
+      };
+    }
+    center = t.center;
+    trim = true;
   } else unsupported.push(`layout ${layout.style}`);
 
-  const b = borderSlots(borders, center);
+  const b = borderSlots(
+    borders,
+    center,
+    layout.style === 'straight-set' ? [layout.cols, layout.rows] : undefined,
+  );
   unsupported.push(...b.unsupported);
   const [x0, y0, x1, y1] = b.bounds;
   return {
@@ -209,7 +248,15 @@ export function applyLayout(quilt: Quilt, layout: Layout, borders: Border[]): Qu
 }
 
 /** The layout in another style, keeping counts, block size, and sashing (spec 016 US4). */
-export type LayoutStyle = 'straight-set' | 'on-point' | 'horizontal-strip' | 'vertical-strip';
+export type LayoutStyle =
+  | 'straight-set'
+  | 'on-point'
+  | 'horizontal-strip'
+  | 'vertical-strip'
+  | 'variable-point'
+  | 'one-patch'
+  | 'baby-blocks'
+  | 'variable-blocks';
 
 /** The layout in another style: counts, block size, and sashing carry over between Horizontal and
  *  On-Point (spec 016 US4); strips keep everything when only their direction changes. */
@@ -218,6 +265,25 @@ export function convertLayout(layout: Layout, style: LayoutStyle, units: 'in' | 
   const k = units === 'cm' ? 2.5 : 1;
   if (style === 'horizontal-strip' || style === 'vertical-strip')
     return 'strips' in layout ? { ...layout, style } : { ...stripDefaults(k), style };
+  // On-Point and Variable Point keep counts, sashing, corners, and edge (a square on point is
+  // `block`·√2 across and as tall).
+  if (style === 'variable-point' && layout.style === 'on-point') {
+    const d = layout.block * Math.SQRT2;
+    const { cols, rows, sash, corner, edge } = layout;
+    return { style, cols, rows, sash, corner, edge, width: d, height: d };
+  }
+  if (style === 'on-point' && layout.style === 'variable-point') {
+    const { cols, rows, sash, corner, edge, width } = layout;
+    return { style, cols, rows, sash, corner, edge, block: width * Math.SQRT1_2 };
+  }
+  // Baby Blocks and Variable Blocks keep counts and sizes.
+  if (
+    (style === 'baby-blocks' || style === 'variable-blocks') &&
+    (layout.style === 'baby-blocks' || layout.style === 'variable-blocks')
+  )
+    return { ...layout, style };
+  const fresh = layoutDefaults(style, k);
+  if (fresh) return fresh;
   if (style === 'on-point') {
     const d = onPointDefaults(k);
     return layout.style === 'straight-set'
@@ -241,4 +307,104 @@ export function convertLayout(layout: Layout, style: LayoutStyle, units: 'in' | 
     sash: [0, 0],
     sashBorder: false,
   };
+}
+
+const pointsOf = (s: Slot) => flattenLoop(pathToSegs(s.outline, [1, 1]), 1e-3);
+
+function boundsOf(slots: Slot[]): Bounds {
+  const pts = slots.flatMap(pointsOf);
+  const xs = pts.map((p) => p[0]);
+  const ys = pts.map((p) => p[1]);
+  return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+}
+
+/**
+ * The outline around straight-edged patches (edges shared by two patches cancel out); the bounding
+ * rectangle when any patch is curved. ponytail: one outer loop, the longest.
+ */
+function outerEdge(slots: Slot[], box: Bounds): PathCommand[] {
+  const [x0, y0, x1, y1] = box;
+  if (slots.some((s) => s.outline.some((c) => c[0] === 'A' || c[0] === 'C')))
+    return rectPath(x0, y0, x1 - x0, y1 - y0);
+  const key = (p: readonly number[]) => `${p[0]!.toFixed(5)},${p[1]!.toFixed(5)}`;
+  // Every outline turned the same way round, so a shared side runs opposite ways and cancels.
+  const polys = slots.map((s) => {
+    const pts = s.outline.flatMap((c): Pt[] =>
+      c[0] === 'M' || c[0] === 'L' ? [[c[1], c[2]]] : [],
+    );
+    return signedArea(pts) < 0 ? pts.reverse() : pts;
+  });
+  const eps = 1e-6 * Math.max(x1 - x0, y1 - y0, 1);
+  // Corners bucketed on a grid about one patch wide, so each side only checks nearby corners.
+  const cell = Math.max(
+    eps,
+    polys.reduce((m, p) => {
+      const xs = p.map((q) => q[0]);
+      return Math.max(m, Math.max(...xs) - Math.min(...xs));
+    }, 0),
+  );
+  const grid = new Map<string, Pt[]>();
+  const at = (x: number, y: number) => `${Math.floor(x / cell)},${Math.floor(y / cell)}`;
+  for (const p of polys.flat()) {
+    const k = at(p[0], p[1]);
+    grid.set(k, [...(grid.get(k) ?? []), p]);
+  }
+  const near = (a: Pt, b: Pt) => {
+    const out: Pt[] = [];
+    const [gx0, gx1] = [
+      Math.floor(Math.min(a[0], b[0]) / cell),
+      Math.floor(Math.max(a[0], b[0]) / cell),
+    ];
+    const [gy0, gy1] = [
+      Math.floor(Math.min(a[1], b[1]) / cell),
+      Math.floor(Math.max(a[1], b[1]) / cell),
+    ];
+    for (let gx = gx0; gx <= gx1; gx++)
+      for (let gy = gy0; gy <= gy1; gy++) out.push(...(grid.get(`${gx},${gy}`) ?? []));
+    return out;
+  };
+  const edges = new Map<string, [Pt, Pt]>();
+  for (const pts of polys)
+    pts.forEach((a, i) => {
+      const b = pts[(i + 1) % pts.length]!;
+      // Split the side at every patch corner lying on it, so partly shared sides cancel too.
+      const L2 = (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2;
+      const cuts = near(a, b)
+        .map((p) => ({
+          p,
+          t: ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1])) / L2,
+        }))
+        .filter(
+          ({ p, t }) =>
+            t > 1e-9 &&
+            t < 1 - 1e-9 &&
+            Math.abs((b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])) /
+              Math.sqrt(L2) <
+              eps,
+        )
+        .sort((u, v) => u.t - v.t)
+        .map((c) => c.p);
+      const run = [a, ...cuts, b];
+      for (let k = 0; k + 1 < run.length; k++) {
+        const [u, v] = [run[k]!, run[k + 1]!];
+        if (key(u) === key(v)) continue;
+        const back = `${key(v)}>${key(u)}`;
+        if (edges.has(back)) edges.delete(back);
+        else edges.set(`${key(u)}>${key(v)}`, [u, v]);
+      }
+    });
+  const next = new Map([...edges.values()].map(([a, b]) => [key(a), b]));
+  let best: Pt[] = [];
+  const seen = new Set<string>();
+  for (const [a] of edges.values()) {
+    if (seen.has(key(a))) continue;
+    const loop: Pt[] = [a];
+    seen.add(key(a));
+    for (let p = next.get(key(a)); p && !seen.has(key(p)); p = next.get(key(p))) {
+      loop.push(p);
+      seen.add(key(p));
+    }
+    if (loop.length > best.length) best = loop;
+  }
+  return best.length >= 3 ? toPath(best) : rectPath(x0, y0, x1 - x0, y1 - y0);
 }

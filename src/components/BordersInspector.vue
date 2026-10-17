@@ -104,6 +104,39 @@
           @update:model-value="(v) => setSide(i, v)"
         />
       </div>
+      <template v-if="hasCounts">
+        <div v-if="ALIGNED.has(current.style)" class="text-caption text-grey-8">
+          Units line up with the blocks inside: one per column along the top and bottom, one per row
+          down the sides.
+        </div>
+        <div v-else class="row" style="gap: 8px">
+          <q-input
+            class="col"
+            :model-value="current.blocks?.[0] ?? defaultCount(0)"
+            dense
+            outlined
+            type="number"
+            min="1"
+            max="100"
+            label="Units along top and bottom"
+            :readonly="readonly"
+            @update:model-value="(v) => setCount(0, v)"
+          />
+          <q-input
+            class="col"
+            :model-value="current.blocks?.[1] ?? defaultCount(1)"
+            dense
+            outlined
+            type="number"
+            min="1"
+            max="100"
+            label="Units down the sides"
+            :readonly="readonly"
+            @update:model-value="(v) => setCount(1, v)"
+          />
+        </div>
+        <div class="text-caption text-grey-8">Pieced borders take colors and fabrics.</div>
+      </template>
     </template>
   </div>
 </template>
@@ -111,6 +144,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
+import { borderCounts } from '@/model/layout/borders';
+import type { Bounds } from '@/model/layout/slots';
 import type { Border } from '@/model/schema/quilt';
 import { roundLen } from '@/model/units';
 
@@ -120,22 +155,57 @@ const props = defineProps<{
   units: string;
   readonly: boolean;
   setAside?: boolean;
+  /** The selected border's inside edge (the quilt plus the borders within it), for default counts. */
+  inner?: Bounds;
 }>();
 const emit = defineEmits<{
   change: [borders: Border[], coalesce: string];
   'update:selected': [i: number];
 }>();
 
-const GENERATED = {
+const STYLES: Record<Border['style'], string> = {
   'long-horizontal': 'Long horizontal',
   'long-vertical': 'Long vertical',
   mitered: 'Mitered',
-} as const;
-const styleLabel = (s: string) => GENERATED[s as keyof typeof GENERATED] ?? `${s} (coming soon)`;
-const styleOptions = [
-  ...Object.entries(GENERATED).map(([value, label]) => ({ value, label })),
-  { value: 'pieced', label: 'Pieced styles (coming soon)', disable: true },
-];
+  'corner-blocks': 'Corner blocks',
+  blocks: 'Blocks',
+  'half-drop-blocks': 'Half drop blocks',
+  'blocks-aligned-inside': 'Blocks aligned inside',
+  'half-drop-aligned': 'Half drop aligned',
+  'spaced-squares': 'Spaced squares',
+  'tile-squares': 'Tile squares',
+  'tile-on-point': 'Tile on point',
+  'tile-on-point-corners': 'Tile on point corners',
+  diamonds: 'Diamonds',
+  'half-drop-diamonds': 'Half drop diamonds',
+  'double-diamonds': 'Double diamonds',
+  'half-drop-double-diamonds': 'Half drop double diamonds',
+  'big-little-diamonds': 'Big & little diamonds',
+  'half-drop-big-little-diamonds': 'Half drop big & little diamonds',
+  'points-out': 'Points out',
+  'points-in': 'Points in',
+  'big-little-points-out': 'Big & little points out',
+  'big-little-points-in': 'Big & little points in',
+};
+const styleLabel = (s: string) => STYLES[s as Border['style']] ?? s;
+const styleOptions = Object.entries(STYLES).map(([value, label]) => ({ value, label }));
+/** Styles with units along the sides (counts); aligned ones follow the layout's columns and rows. */
+const PLAIN = new Set(['long-horizontal', 'long-vertical', 'mitered', 'corner-blocks']);
+const ALIGNED = new Set(['blocks-aligned-inside', 'half-drop-aligned']);
+const hasCounts = computed(() => !!current.value && !PLAIN.has(current.value.style));
+const defaultCount = (i: 0 | 1) =>
+  current.value && props.inner
+    ? borderCounts({ style: current.value.style, sides: current.value.sides }, props.inner)[i]
+    : 1;
+function setCount(i: 0 | 1, v: string | number | null) {
+  const n = Math.round(Number(v));
+  if (!current.value || !(n >= 1 && n <= 100)) return;
+  const blocks: [number, number] = [
+    ...(current.value.blocks ?? [defaultCount(0), defaultCount(1)]),
+  ];
+  blocks[i] = n;
+  update({ ...current.value, blocks }, `count${i}`);
+}
 
 const lock = ref<'all' | 'pairs' | 'each'>('all');
 const current = computed(() => props.borders[props.selected]);

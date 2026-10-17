@@ -93,7 +93,7 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over `RrqDoc`.
 
 - `schema/` — TypeBox schemas = TS types + validation + published JSON Schema
-  (`public/schemas/rrq.v5.json`; regenerate with `npm run schema`, a test fails on drift)
+  (`public/schemas/rrq.v6.json`; regenerate with `npm run schema`, a test fails on drift)
 - `io.ts` — `parseProject` (JSON → migrate → validate → duplicate ids → dangling refs + asset
   hashes reported), `serializeProject`. New version: bump `VERSION`, add `migrations[old]`.
 - `units.ts` — only real lengths scale; block geometry is normalized 0…1
@@ -107,11 +107,20 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - `coloring.ts` `paint` — copy-on-write quilt colorings (this / allIdentical / alternate)
 - `layout/` — one engine: `engine.ts` `tile(Tiling)` = bands of a repeating cell stepped by a, b, one
   affine `map`, `merges` (triangle grids), `clip` to the quilt (`clip.ts`, curved outlines too);
-  `presets.ts` (`horizontal`, `onPoint`, `strips`) return a `Tiling`; `strips.ts` strip ops (add/insert/
+  `presets.ts` (`horizontal`, `onPoint`, `strips`, spec 018 `variablePoint`, `onePatch`, `tumbling`;
+  `patternBands` = strip patterns shared with pieced borders in `borders.ts`) return a `Tiling`; `strips.ts` strip ops (add/insert/
   delete/swap/set, square fixes); `slots.ts` `Slot` has kind/shape/turns/
   alt/size/cut, `Generated` has edge/trim; `reconcile`/`applyLayout`/`convertLayout` on changes. Add
   a style = a preset + its id grammar in `specs/003-project-format/contracts/slot-ids.md`; test-only
   presets (`__tests__/model/layout-presets.ts`) prove the planned ones
+- `colorways.ts` — quilt colorways (palette swaps of the primary colorway, the quilt's own colors:
+  `from` fill key → `to` fill; `shownColorway` saved, `primaryName`; deleting the primary bakes the
+  next in); applied in `drawQuilt`, `quiltPieces`. `components/QuiltColorways.vue` (badge / row /
+  Design panel); in a non-primary colorway the Design Colors tab is `ColorwayMapping.vue` (each
+  primary color → its replacement). `components/PaletteSwapDialog.vue` (+
+  `composables/swap-options.ts`) = palette swap for block colorings and quilt colorways
+- `targets.ts` (+ `garments.ts`) — target sizes (beds, garments…) → outline; quilts store `target`
+  (choices + resolved outline); `components/TargetEditor.vue` (wizard + Layout tab `TargetSection`)
 - Fixture with every entity: `test/fixtures/everything.rrq`
 
 ## Editor (spec 006)

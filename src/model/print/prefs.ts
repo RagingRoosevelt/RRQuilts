@@ -53,6 +53,26 @@ export const PRINT_DEFAULTS = {
   lineWeight: 'thin' as 'thin' | 'medium' | 'thick',
   mirror: false,
   outline: false,
+  /** The quilt picture shows the quilt's reference overlay (when it's enabled in Layout), in the
+   *  quilt's tint with this fill strength (the outline always prints fully). */
+  showOverlay: false,
+  overlayOpacity: 0.3,
+  /** The quilt picture's size against its usual fit (0.75…1.5); never past true size, the page's
+   *  width, or its height less a caption. */
+  pictureSize: 1,
+  /** What the quilt picture page shows. */
+  picture: {
+    header: false,
+    title: true,
+    author: true,
+    projectName: true,
+    footer: false,
+    scaleSquare: true,
+    scale: true,
+    finished: true,
+    trimNote: true,
+    notes: true,
+  },
   blockSections: ['templates', 'rotary'] as BlockSection[],
   quiltSections: ['picture', 'blocks', 'yardage', 'rotary', 'templates'] as QuiltSection[],
 };

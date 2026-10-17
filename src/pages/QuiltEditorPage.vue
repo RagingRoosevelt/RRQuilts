@@ -170,6 +170,12 @@
       <!-- Inspector -->
       <div v-show="editor.sidebar" class="inspector q-pa-md scroll">
         <template v-if="editor.mode === 'design'">
+          <QuiltColorways
+            :quilt="quilt"
+            mode="panel"
+            :readonly="project.readOnly"
+            class="q-mb-sm"
+          />
           <div class="row items-center q-mb-xs" style="gap: 8px">
             <span class="text-caption">Apply to</span>
             <q-btn-toggle
@@ -184,21 +190,30 @@
             />
           </div>
           <div class="text-caption text-grey-7 q-mb-sm">{{ toolHint }}</div>
-          <PaletteTray sidebar />
+          <PaletteTray sidebar :no-blocks="!hasBlockSpaces">
+            <!-- A colorway other than the primary: its mapping instead of the palettes. -->
+            <template v-if="quilt.shownColorway" #colors>
+              <ColorwayMapping :quilt="quilt" :readonly="project.readOnly" />
+            </template>
+          </PaletteTray>
         </template>
-        <LayoutInspector
-          v-else-if="
-            editor.mode === 'layout' &&
-            (quilt.layout.style === 'straight-set' || quilt.layout.style === 'on-point' || strips)
-          "
-          :key="quilt.id"
-          :layout="quilt.layout"
-          :units="units"
-          :readonly="project.readOnly"
-          :has-borders="quilt.borders.length > 0"
-          :hint="layoutHint"
-          @change="(l, k) => changeLayout(l, quilt!.borders, k)"
-        />
+        <template v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'">
+          <LayoutInspector
+            :key="quilt.id"
+            :layout="quilt.layout"
+            :units="units"
+            :readonly="project.readOnly"
+            :has-borders="quilt.borders.length > 0"
+            :hint="layoutHint"
+            @change="(l, k) => changeLayout(l, quilt!.borders, k)"
+          />
+          <TargetSection
+            :target="quilt.target"
+            :units="units"
+            :readonly="project.readOnly"
+            @change="changeTarget"
+          />
+        </template>
         <BordersInspector
           v-else-if="editor.mode === 'borders'"
           v-model:selected="border"
@@ -206,6 +221,7 @@
           :units="units"
           :readonly="project.readOnly || bordersSetAside"
           :set-aside="bordersSetAside"
+          :inner="borderInner"
           @change="(b, k) => changeLayout(quilt!.layout, b, k)"
         />
         <DetailsPanel v-else-if="editor.mode === 'details'" kind="quilt" :id="quilt.id" />
@@ -216,11 +232,14 @@
 </template>
 
 <script setup lang="ts">
+import QuiltColorways from '@/components/QuiltColorways.vue';
+import ColorwayMapping from '@/components/ColorwayMapping.vue';
 import { useQuasar } from 'quasar';
 import HelpLink from '@/components/HelpLink.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BordersInspector from '@/components/BordersInspector.vue';
+import TargetSection from '@/components/TargetSection.vue';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import LayoutInspector from '@/components/LayoutInspector.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
@@ -229,10 +248,11 @@ import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
+import { takesBlock } from '@/editor/scope';
 import { STRIP_STYLES, stripOf, swapStrips, setStrip } from '@/model/layout/strips';
-import { applyLayout, generateFor, reconcile } from '@/model/layout/slots';
+import { applyLayout, generateFor, reconcile, type Bounds } from '@/model/layout/slots';
 import { PLAIN_BLOCK, slotGroup } from '@/model/plain';
-import type { Border, Layout, StripLayout, StripStyle } from '@/model/schema/quilt';
+import type { Border, Layout, QuiltTarget, StripLayout, StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 import type { Hit } from '@/render/hit';
 import { useEditorStore, type Tool } from '@/stores/editor';
@@ -389,11 +409,23 @@ const found = computed(() => {
 const sidebarLabel = computed(() => (editor.sidebar ? 'Hide sidebar' : 'Show sidebar'));
 const labelsLabel = computed(() => (editor.labels ? 'Hide block names' : 'Show block names'));
 
+const setsBordersAside = (l: Layout) =>
+  l.style === 'on-point' || l.style === 'variable-point'
+    ? l.edge.finish === 'none'
+    : l.style === 'one-patch' || l.style === 'baby-blocks' || l.style === 'variable-blocks'
+      ? l.edge === 'none'
+      : false;
+/** The selected border's inside edge: the quilt center grown by the borders within it. */
+const borderInner = computed((): Bounds => {
+  const [x0, y0, x1, y1] = generated.value.center;
+  const within = quilt.value!.borders.slice(0, border.value);
+  const sum = (i: number) => within.reduce((a, b) => a + b.sides[i]!, 0);
+  return [x0 - sum(0), y0 - sum(1), x1 + sum(2), y1 + sum(3)];
+});
+/** Some space takes a block (patch layouts and pieced strips take only colors and fabrics). */
+const hasBlockSpaces = computed(() => generated.value.slots.some(takesBlock));
 const bordersSetAside = computed(
-  () =>
-    quilt.value?.layout.style === 'on-point' &&
-    quilt.value.layout.edge.finish === 'none' &&
-    quilt.value.borders.length > 0,
+  () => !!quilt.value && setsBordersAside(quilt.value.layout) && quilt.value.borders.length > 0,
 );
 const fmt = (n: number) => `${Number(n.toFixed(3))}`;
 const dims = (b: [number, number, number, number]) =>
@@ -407,7 +439,11 @@ const hoverSize = computed(() => {
       slotGroup(s.id) as string
     ] ?? 'Border';
   if (s.kind === 'set') return 'Setting piece';
+  if (s.kind === 'patch') return 'Patch';
   if (s.kind === 'strip') return 'Strip piece';
+  // Pattern pieces (pieced borders and the like) have no width × height to speak of.
+  if (s.shape === 'piece' && s.kind !== 'border') return kind;
+  if (s.kind === 'border' && /:(?:[a-z]+\d|corner:[a-z]+:)/.test(s.id)) return 'Border piece';
   const [w, h] = s.kind === 'block' ? s.size : [Math.hypot(t[0], t[1]), Math.hypot(t[2], t[3])];
   return `${kind} ${fmt(w)} × ${fmt(h)} ${units.value}`;
 });
@@ -443,6 +479,29 @@ function onTap(hit: Hit) {
     const next = r.doc;
     project.change(() => next);
   }
+}
+
+/** Set or remove the quilt's target size outline. */
+function changeTarget(target: QuiltTarget | undefined, coalesce: string) {
+  const q = quilt.value;
+  if (!q || project.readOnly) return;
+  // Switching to a garment piece: it likely needs no borders, so offer to take them off.
+  const garment = (t?: QuiltTarget) => t?.input.choice === 'top' || t?.input.choice === 'pants';
+  if (garment(target) && !garment(q.target) && q.borders.length)
+    $q.dialog({
+      title: 'Remove the borders?',
+      message: "Garment pieces usually don't have borders. Remove this quilt's borders?",
+      ok: { label: 'Remove', flat: true, noCaps: true },
+      cancel: { label: 'Keep them', flat: true, noCaps: true },
+    }).onOk(() => changeLayout(q.layout, [], ''));
+  project.change(
+    (d) => {
+      const dq = d.project.quilts.find((x) => x.id === q.id)!;
+      if (target) dq.target = JSON.parse(JSON.stringify(target)) as QuiltTarget;
+      else delete dq.target;
+    },
+    coalesce ? { coalesce } : {},
+  );
 }
 
 function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
@@ -538,6 +597,12 @@ function changeLayout(layout: Layout, borders: Border[], coalesce: string) {
   }
   :global(.body--dark .inspector) {
     background: var(--q-dark-page);
+  }
+}
+/* Phones: nearly the whole width, so its menus fit. */
+@media (max-width: 599px) {
+  .inspector {
+    width: 95%;
   }
 }
 .sizes {

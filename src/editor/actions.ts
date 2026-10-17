@@ -1,5 +1,6 @@
 // What a tap does with the current tool. Pure: (document, tap, tool state) → new document and/or
 // a selection change. The editor page applies the result through project.change (one undo step).
+import { shownColorway, swapper } from '@/model/colorways';
 import { fillFor, paintOf } from './paint';
 import { produce } from 'immer';
 import { allPatches } from '@/model/blocks/patches';
@@ -84,13 +85,15 @@ export function applyTool(
       const targets = setTargets(spaces, hit.slotId, s.scope);
       if (!targets.length)
         return {
-          message: /^strip:[^:]+:u\d/.test(hit.slotId)
-            ? 'This is a pieced strip, so it takes fabric. Make it a block strip in the Layout tab to set blocks.'
-            : hit.slotId.startsWith('strip:')
-              ? 'Strip patterns take fabric, not blocks. Use Paint.'
-              : group === 'cs'
-                ? "This cornerstone isn't square, so it takes fabric. Use Paint."
-                : 'Sashing and borders take fabric, not blocks. Use Paint.',
+          message: hit.slotId.startsWith('p:')
+            ? 'Patches take colors and fabrics. Use Paint.'
+            : /^strip:[^:]+:u\d/.test(hit.slotId)
+              ? 'This is a pieced strip, so it takes fabric. Make it a block strip in the Layout tab to set blocks.'
+              : hit.slotId.startsWith('strip:')
+                ? 'Strip patterns take fabric, not blocks. Use Paint.'
+                : group === 'cs'
+                  ? "This cornerstone isn't square, so it takes fabric. Use Paint."
+                  : 'Sashing and borders take fabric, not blocks. Use Paint.',
         };
       return {
         doc: withQuilt(
@@ -135,12 +138,18 @@ export function applyTool(
     case 'find':
       return content ? { selectBlock: content.block } : {};
     case 'eyedropper': {
-      const paint = paintOf(fillAtHit());
+      const paint = paintOf(swapper(shownColorway(quilt))(fillAtHit()));
       return paint ? { selectColor: paint } : { message: 'No color or fabric here.' };
     }
     case 'paint':
     case 'spray':
     case 'swap': {
+      // Another colorway than the primary: its colors are set in its mapping (the Colors tab).
+      if (quilt.shownColorway)
+        return {
+          message:
+            "This colorway's colors are set in the Colors tab. Show the primary colorway to paint.",
+        };
       if (!s.color) return { message: 'Pick a color in the tray first.' };
       if (!content && !isPlainGroup(group)) return { message: 'Set a block here first.' };
       const fill: Fill = fillFor(s.color);

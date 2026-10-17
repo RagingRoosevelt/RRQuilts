@@ -52,8 +52,29 @@ export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
       } else if (q.layout.style === 'horizontal-strip' || q.layout.style === 'vertical-strip') {
         q.layout.length = len(q.layout.length);
         for (const st of q.layout.strips) st.width = len(st.width);
+      } else if (q.layout.style === 'variable-point') {
+        q.layout.width = len(q.layout.width);
+        q.layout.height = len(q.layout.height);
+        q.layout.sash = len(q.layout.sash);
+        q.layout.edge.float = len(q.layout.edge.float);
+      } else if (q.layout.style === 'one-patch') {
+        q.layout.width = len(q.layout.width);
+        q.layout.height = len(q.layout.height);
+      } else if (q.layout.style === 'baby-blocks' || q.layout.style === 'variable-blocks') {
+        q.layout.width = len(q.layout.width);
+        q.layout.top = len(q.layout.top);
+        q.layout.side = len(q.layout.side);
       }
       for (const b of q.borders) b.sides = b.sides.map(len) as typeof b.sides;
+      if (q.target) {
+        const t = q.target;
+        t.outline = t.outline.map(scalePair);
+        if (t.core) t.core = t.core.map(len) as typeof t.core;
+        const i = t.input;
+        if (i.custom) i.custom = scalePair(i.custom);
+        for (const k of ['drop', 'tuck', 'sleeveLength', 'inseam'] as const)
+          if (i[k] !== undefined) i[k] = len(i[k]);
+      }
       for (const c of Object.values(q.colorings)) scaleColoring(c, scalePair);
       for (const item of q.layers.flatMap((l) => l.items)) {
         item.x = len(item.x);

@@ -146,3 +146,25 @@ these units from neighboring patches and offer the method alongside the per-patc
 
 - **SC-001**: Printed templates and the scale square measure within 0.5 mm of size at 100% scale.
 - **SC-002**: Rotary cut sizes match standard quilting charts (e.g. 3″ finished HST → 3⅞″ squares).
+
+## Addendum 2026-10-16 (spec 018)
+
+- Quilt pieces that aren't blocks (patches, setting pieces, pieced border and strip pattern shapes)
+  that the cutting chart cuts from a template get template pages too, after the blocks', headed
+  "Templates: quilt pieces" and lettered Q…, with a page-wide key: the template pieces in place, each labeled with its letter. The option reads "Templates (blocks and quilt
+  pieces)".
+- A **Quilt picture** section in the print options (quilts, after Paper) has **Show reference
+  overlay** (print preference `showOverlay`, off by default) and its own **Fill** (`overlayOpacity`, 30%): the
+  quilt picture page then draws the quilt's reference overlay, when it's enabled in Layout, in the
+  quilt's tint and invert (shared with Layout, and editable here too; show and fill are print's own), and grows to show it.
+- Yardage: a fabric's chip shows its photo through a 6 mm square window on the middle half of the
+  photo (the middle half, scaled down to the chip), else its color; chips print even when the
+  browser leaves out backgrounds (`print-color-adjust: exact`).
+- Quilt picture › **Show on the page** (print preference `picture`): page header (off by default),
+  title (the quilt's name, H1-sized, with " • <project name>" when **Project name** is on) and author
+  (H2-sized) under the picture, page footer (off by default), scale square, scale (%), finished size, the note to trim
+  the edge, and the notes from Details; each can be left off the quilt picture page (other pages
+  keep theirs). "Designed in RRQuilts" is printed under the project name in the header, or under
+  the author when the header is off. A **Picture size** slider (`pictureSize`, 75 to 150% of the usual fit, default 100%) sizes
+  the quilt's picture, never past true size, the page's width, or its height less a caption. The
+  edge trim note checkbox shows only for quilts with pieces cut larger at the edge. The Reference overlay subsection follows.

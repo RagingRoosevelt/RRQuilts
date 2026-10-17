@@ -5,7 +5,9 @@ import { resolveColoring } from '@/model/coloring';
 import type { ColoringBody, Fill } from '@/model/schema/coloring';
 import type { Color, Fabric } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
-import type { Quilt } from '@/model/schema/quilt';
+import type { Quilt, QuiltTarget } from '@/model/schema/quilt';
+import { shownColorway, swapper } from '@/model/colorways';
+import { OVERLAY_TINT, overlayFill, placeTarget } from '@/model/targets';
 import { mul, type M } from './affine';
 import { blockPaths, toPath2D } from './paths';
 import { placementMatrix } from './placement';
@@ -28,6 +30,9 @@ export interface DrawOptions {
   selected?: Set<string>;
   /** Visual theme: patch outline and empty-space colors. */
   dark: boolean;
+  /** Draw the quilt's reference overlay when it's switched on (the editor, a Details download);
+   *  thumbnails and list downloads leave it out. */
+  target?: boolean;
 }
 
 const slotPaths = new WeakMap<Slot, Path2D>();
@@ -108,7 +113,10 @@ export function drawQuilt(
   o: DrawOptions,
 ) {
   const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
-  const fillOf = colorLookup(doc, [], { ctx, devicePerUnit: o.dpr * o.view.scale });
+  // The quilt's shown colorway swaps colors and fabrics as they're drawn.
+  const lookup = colorLookup(doc, [], { ctx, devicePerUnit: o.dpr * o.view.scale });
+  const swap = swapper(shownColorway(quilt));
+  const fillOf: typeof lookup = (f) => lookup(swap(f));
   const base: M = [
     o.dpr * o.view.scale,
     0,
@@ -167,6 +175,62 @@ export function drawQuilt(
     ctx.stroke(slotPath(slot));
   }
   if (o.labels) drawLabels(ctx, quilt, generated, blocks, base, o.dpr);
+  if (o.target && quilt.target?.visible) drawTarget(ctx, quilt.target, generated.bounds, px);
+}
+
+/** A target size (spec 006 FR-001a): a see-through, dashed outline centered on the quilt, with a
+ *  bed's mattress top dotted inside. */
+function drawTarget(
+  ctx: CanvasRenderingContext2D,
+  target: QuiltTarget,
+  bounds: [number, number, number, number],
+  px: number,
+) {
+  const p = placeTarget(target, bounds);
+  const path = new Path2D();
+  p.outline.forEach(([x, y], i) => (i ? path.lineTo(x, y) : path.moveTo(x, y)));
+  path.closePath();
+  ctx.save();
+  const tint = target.tint ?? OVERLAY_TINT;
+  ctx.fillStyle = overlayFill(tint, target.opacity);
+  if (target.invert) {
+    // Shade the quilt outside the shape, out to the quilt's edge.
+    const [x0, y0, x1, y1] = bounds;
+    const shade = new Path2D();
+    shade.rect(x0, y0, x1 - x0, y1 - y0);
+    shade.addPath(path);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x0, y0, x1 - x0, y1 - y0);
+    ctx.clip();
+    ctx.fill(shade, 'evenodd');
+    ctx.restore();
+  } else ctx.fill(path);
+  ctx.strokeStyle = tint;
+  ctx.lineWidth = 2 * px;
+  ctx.setLineDash([6 * px, 4 * px]);
+  ctx.stroke(path);
+  if (p.core) {
+    ctx.lineWidth = px;
+    ctx.setLineDash([2 * px, 3 * px]);
+    ctx.strokeRect(...p.core);
+  }
+  ctx.restore();
+}
+
+/** The quilt's bounds grown to take in a visible target outline. */
+export function boundsWithTarget(
+  quilt: Quilt,
+  bounds: [number, number, number, number],
+): [number, number, number, number] {
+  if (!quilt.target?.visible) return bounds;
+  const b = placeTarget(quilt.target, bounds).box;
+  return [
+    Math.min(bounds[0], b[0]),
+    Math.min(bounds[1], b[1]),
+    Math.max(bounds[2], b[2]),
+    Math.max(bounds[3], b[3]),
+  ];
 }
 
 /** Block names centered on their placements (screen-space text, skipped where too small). */

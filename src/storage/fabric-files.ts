@@ -133,7 +133,15 @@ export async function freeUnusedImages(docs: readonly LibraryDoc[], projects: re
       if (it.type === 'colors')
         for (const f of it.data.fabrics ?? []) fabricShas(f).forEach((s) => keep.add(s));
   const drafts = await idb.getAll<Draft>('drafts');
-  for (const p of [...projects, ...drafts.map((d) => d.doc)])
+  for (const p of projects)
     for (const f of p.project.palette.fabrics) fabricShas(f).forEach((s) => keep.add(s));
+  // Drafts may be from an older format (or damaged): read them carefully, keeping what they use.
+  for (const d of drafts) {
+    const fabrics = (d.doc as { project?: { palette?: { fabrics?: unknown } } }).project?.palette
+      ?.fabrics;
+    if (Array.isArray(fabrics))
+      for (const f of fabrics as RrqDoc['project']['palette']['fabrics'])
+        fabricShas(f).forEach((s) => keep.add(s));
+  }
   await pruneImages(keep);
 }

@@ -1,5 +1,11 @@
 <template>
   <div v-if="project.doc" class="column" style="gap: 12px">
+    <QuiltColorways
+      v-if="kind === 'quilt' && printQuilt"
+      :quilt="printQuilt"
+      mode="row"
+      :readonly="project.readOnly"
+    />
     <div>
       <div class="text-subtitle2">Print</div>
       <q-option-group
@@ -64,6 +70,97 @@
           :min="units === 'in' ? 0.125 : 0.3"
           @update:model-value="(v: number) => setUnit('margin', v)"
         />
+      </div>
+    </q-expansion-item>
+
+    <q-expansion-item
+      v-if="kind === 'quilt'"
+      :model-value="open('Quilt picture')"
+      dense
+      label="Quilt picture"
+      header-class="text-subtitle2"
+      class="op-section"
+      @update:model-value="(v) => setOpen('Quilt picture', v)"
+    >
+      <div class="column q-pa-sm" style="gap: 4px">
+        <div class="row items-center no-wrap q-pr-md q-mb-sm" style="gap: 12px">
+          <div>Picture size</div>
+          <q-slider
+            class="col"
+            :model-value="Math.round(prefs.pictureSize * 100)"
+            :min="75"
+            :max="150"
+            :step="5"
+            label
+            :label-value="`${Math.round(prefs.pictureSize * 100)}%`"
+            aria-label="Picture size"
+            @update:model-value="(v) => v !== null && set('pictureSize', v / 100)"
+          />
+        </div>
+        <FieldGroup label="Show on the page">
+          <div class="column">
+            <q-checkbox
+              v-for="item in pictureItems"
+              :key="item.key"
+              :model-value="prefs.picture[item.key]"
+              dense
+              :label="item.label"
+              class="q-py-xs"
+              @update:model-value="
+                (v: boolean) => set('picture', { ...prefs.picture, [item.key]: v })
+              "
+            />
+          </div>
+        </FieldGroup>
+        <FieldGroup label="Reference overlay" class="q-mt-sm">
+          <div class="text-caption text-grey-7 q-mb-xs">
+            When it's enabled in the Layout tab. Tint and Invert are shared with Layout, Show and
+            Fill are for print.
+          </div>
+        </FieldGroup>
+        <!-- Show (print's own), tint and invert (the quilt's, shared with Layout), then print's
+             own fill. -->
+        <div class="row items-center no-wrap" style="gap: 12px">
+          <q-toggle
+            :model-value="prefs.showOverlay"
+            dense
+            label="Show"
+            left-label
+            aria-label="Show reference overlay"
+            @update:model-value="(v: boolean) => set('showOverlay', v)"
+          />
+          <div>Tint</div>
+          <TintPicker
+            :model-value="quiltTarget?.tint ?? OVERLAY_TINT"
+            :disable="!prefs.showOverlay || !quiltTarget || project.readOnly"
+            @update:model-value="setTint"
+          />
+          <q-toggle
+            :model-value="!!quiltTarget?.invert"
+            dense
+            label="Invert"
+            left-label
+            :disable="!prefs.showOverlay || !quiltTarget || project.readOnly"
+            @update:model-value="setInvert"
+          >
+            <q-tooltip>Shade outside the shape, to the quilt's edge</q-tooltip>
+          </q-toggle>
+        </div>
+        <div class="row items-center no-wrap q-pr-md" style="gap: 12px">
+          <div>Fill</div>
+          <q-slider
+            class="col"
+            :model-value="Math.round(prefs.overlayOpacity * 100)"
+            :min="0"
+            :max="100"
+            :step="5"
+            label
+            :label-value="`${Math.round(prefs.overlayOpacity * 100)}%`"
+            :disable="!prefs.showOverlay"
+            aria-label="Printed overlay fill"
+            @update:model-value="(v) => v !== null && set('overlayOpacity', v / 100)"
+          />
+        </div>
       </div>
     </q-expansion-item>
 
@@ -302,7 +399,10 @@
 </template>
 
 <script setup lang="ts">
+import QuiltColorways from '@/components/QuiltColorways.vue';
+import TintPicker from '@/components/TintPicker.vue';
 import { computed, ref, watch } from 'vue';
+import FieldGroup from '@/components/FieldGroup.vue';
 import HelpLink from '@/components/HelpLink.vue';
 import LengthInput from '@/components/LengthInput.vue';
 import { generateFor } from '@/model/layout/slots';
@@ -317,6 +417,7 @@ import {
   type PrintTarget,
   type PrintPrefs,
 } from '@/model/print/prefs';
+import { OVERLAY_TINT } from '@/model/targets';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -328,6 +429,46 @@ const props = defineProps<{
 const emit = defineEmits<{ target: [target: PrintTarget] }>();
 
 const project = useProjectStore();
+const printQuilt = computed(() => project.doc?.project.quilts.find((q) => q.id === props.id));
+/** The quilt picture page's optional items. */
+const PICTURE_ITEMS = [
+  { key: 'title', label: 'Title (the quilt’s name)' },
+  { key: 'projectName', label: 'Project name (in the title)' },
+  { key: 'author', label: 'Author' },
+  { key: 'scale', label: 'Scale (%)' },
+  { key: 'finished', label: 'Finished size' },
+  { key: 'trimNote', label: 'Edge trim note' },
+  { key: 'notes', label: 'Notes (from Details)' },
+  { key: 'scaleSquare', label: 'Scale square (1″ or 2 cm)' },
+  { key: 'header', label: 'Page header' },
+  { key: 'footer', label: 'Page footer' },
+] as const;
+/** The edge trim note only for quilts with pieces cut larger at the edge (it's printed then). */
+const pictureItems = computed(() => {
+  const q = project.doc?.project.quilts.find((x) => x.id === props.id);
+  const trim = props.kind === 'quilt' && !!q && generateFor(q).trim;
+  return PICTURE_ITEMS.filter((it) => it.key !== 'trimNote' || trim);
+});
+/** The quilt's reference overlay: its tint is shared with the Layout tab. */
+const quiltTarget = computed(() =>
+  props.kind === 'quilt'
+    ? project.doc?.project.quilts.find((q) => q.id === props.id)?.target
+    : undefined,
+);
+function setInvert(invert: boolean) {
+  if (!quiltTarget.value || project.readOnly) return;
+  project.change((d) => {
+    const t = d.project.quilts.find((q) => q.id === props.id)?.target;
+    if (t) t.invert = invert;
+  });
+}
+function setTint(tint: string) {
+  if (!quiltTarget.value || project.readOnly) return;
+  project.change((d) => {
+    const t = d.project.quilts.find((q) => q.id === props.id)?.target;
+    if (t) t.tint = tint;
+  });
+}
 const app = useSettingsStore();
 const units = computed(() => project.doc!.units);
 const prefs = computed(() => printPrefs(app.settings.print));
@@ -372,7 +513,7 @@ const sectionOptions = computed(() =>
         { value: 'blocks', label: 'Block pages (picture, fabric, credits)' },
         { value: 'yardage', label: 'Yardage estimate' },
         { value: 'rotary', label: 'Rotary cutting chart' },
-        { value: 'templates', label: 'Templates (each block)' },
+        { value: 'templates', label: 'Templates (blocks and quilt pieces)' },
       ],
 );
 const sections = computed<string[]>(() =>

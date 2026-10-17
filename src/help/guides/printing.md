@@ -16,7 +16,8 @@ Both editors have a **Print** tab. It replaces the canvas with a preview of the 
 ## Print a quilt
 
 1. Open a quilt and choose its **Print** tab.
-2. Tick **Quilt picture**, **Block pages (picture, fabric, credits)**, **Yardage estimate**, **Rotary cutting chart** and/or **Templates (each block)**.
+2. Tick **Quilt picture**, **Block pages (picture, fabric, credits)**, **Yardage estimate**, **Rotary cutting chart** and/or **Templates (blocks and quilt pieces)**. Quilt pieces that need a template (one-patch shapes, setting pieces,
+   pieced border and strip shapes) come after the blocks' templates, lettered QA, QB, and so on, after a key showing where each one goes.
 3. Click **Print**.
 
 The browser print dialog opens. Print at 100% scale, not "fit to page", and check the scale square with a ruler. To make a PDF, pick **Save as PDF** as the printer.

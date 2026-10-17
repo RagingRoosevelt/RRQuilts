@@ -1,5 +1,6 @@
 // Library items in projects (spec 008): a library item is embedded only while something uses it,
 // keeps its identity (`id@version`), and is never edited in place.
+import { swapColorings } from './colorways';
 import { produce, type Draft } from 'immer';
 import { syncPalettes } from './project-palettes';
 import { newId } from './ids';
@@ -73,6 +74,7 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
     colorsIn([
       ...p.blocks.flatMap((b) => b.colorings),
       ...p.quilts.flatMap((q) => Object.values(q.colorings)),
+      ...swapColorings(p.quilts),
     ]),
   );
   if (lib) {
@@ -88,6 +90,7 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   const colorings = [
     ...p.blocks.flatMap((b) => b.colorings),
     ...p.quilts.flatMap((q) => Object.values(q.colorings)),
+    ...swapColorings(p.quilts),
   ];
   const usedFabrics = new Set(fabricsIn(colorings));
   if (lib?.fabric) {

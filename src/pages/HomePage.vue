@@ -99,7 +99,7 @@
     <QuiltWizard
       ref="wizard"
       :units="settings.settings.units"
-      @create="(l, b) => startQuilt(l, b, true)"
+      @create="(l, b, t) => startQuilt(l, b, t, true)"
     />
   </q-page>
 </template>
@@ -208,10 +208,7 @@ const looseDrafts = computed(() =>
 );
 const when = (t: number) => new Date(t).toLocaleString();
 function openDraft(d: Draft) {
-  confirmLeave(async () => {
-    await project.restoreDraft(d);
-    await router.push('/project');
-  });
+  confirmLeave(() => openWith(() => project.restoreDraft(d)));
 }
 async function discardDraft(d: Draft) {
   await project.discardDraft(d);
