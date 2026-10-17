@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, shallowRef } from 'vue';
-import { useRouter } from 'vue-router';
+import { useOpenProject } from '@/composables/open-project';
 import { lockedProjects } from '@/session/tab-lock';
 import { unsavedDrafts, type Draft } from '@/storage/drafts';
 import { useProjectStore } from '@/stores/project';
@@ -41,7 +41,7 @@ import { useProjectStore } from '@/stores/project';
 /** `manual`: opened on request (`show()`) instead of prompting at start when there's unsaved work. */
 const props = defineProps<{ manual?: boolean }>();
 const project = useProjectStore();
-const router = useRouter();
+const { openWith } = useOpenProject();
 // shallowRef: draft docs get frozen on restore; a deep-reactive proxy would break that.
 const drafts = shallowRef<Draft[]>([]);
 const open = ref(false);
@@ -73,8 +73,7 @@ defineExpose({ show });
 
 async function restore(d: Draft) {
   open.value = false;
-  await project.restoreDraft(d);
-  await router.push('/project');
+  await openWith(() => project.restoreDraft(d));
 }
 
 async function discard(d: Draft) {

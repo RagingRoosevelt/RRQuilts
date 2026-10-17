@@ -208,10 +208,7 @@ const looseDrafts = computed(() =>
 );
 const when = (t: number) => new Date(t).toLocaleString();
 function openDraft(d: Draft) {
-  confirmLeave(async () => {
-    await project.restoreDraft(d);
-    await router.push('/project');
-  });
+  confirmLeave(() => openWith(() => project.restoreDraft(d)));
 }
 async function discardDraft(d: Draft) {
   await project.discardDraft(d);
