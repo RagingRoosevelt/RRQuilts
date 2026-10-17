@@ -232,6 +232,7 @@ chart; editing controls are absent with a "edit on tablet or desktop" note.
 - Restoring a draft (unsaved work) opens it the way a file opens: `draftDoc` (src/storage/drafts.ts)
   runs it through `parseProject`, so drafts written by an older app version are migrated to the
   current format and checked, problems are reported as for a file, and a draft that can't be read
-  shows a message and is kept (never discarded). "Continue here" (taking over editing from another
+  shows a message (staying up) and is kept (never discarded), with **Download** to save it as an
+  .rrq to fix by hand. "Continue here" (taking over editing from another
   tab) brings the other tab's draft up to date the same way. The image clean-up reads drafts
   defensively (older or damaged drafts can't break it).

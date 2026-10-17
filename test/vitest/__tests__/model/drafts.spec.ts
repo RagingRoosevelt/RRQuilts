@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { VERSION } from '@/model/schema/project';
-import { draftDoc, type Draft } from '@/storage/drafts';
+import { draftDoc, draftText, UnreadableDraft, type Draft } from '@/storage/drafts';
 import { fixture } from './helpers';
 
 const draft = (doc: unknown): Draft =>
@@ -16,8 +16,11 @@ describe('drafts open like files (migrated, checked)', () => {
   });
 
   it("a draft that can't be read says so (and isn't lost)", async () => {
-    await expect(draftDoc(draft({ format: 'rrq', version: 1, project: 'nope' }))).rejects.toThrow(
-      /Couldn't open the unsaved changes of “Old work”/,
-    );
+    const bad = draft({ format: 'rrq', version: 1, project: 'nope' });
+    const err = await draftDoc(bad).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(UnreadableDraft);
+    expect((err as Error).message).toMatch(/Couldn't open the unsaved changes of “Old work”/);
+    // Offered as a file to fix by hand: the draft exactly as stored.
+    expect(JSON.parse(draftText((err as UnreadableDraft).draft))).toEqual(bad.doc);
   });
 });

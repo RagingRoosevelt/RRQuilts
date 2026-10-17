@@ -1,5 +1,7 @@
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
+import { draftText, UnreadableDraft } from '@/storage/drafts';
+import { exportFile } from '@/storage/files';
 
 /** Run an open action, report problems, and go to the project. */
 export function useOpenProject() {
@@ -18,7 +20,27 @@ export function useOpenProject() {
       }
       await router.push('/project');
     } catch (e) {
-      $q.notify({ type: 'negative', message: (e as Error).message });
+      // Unsaved work that can't be opened: kept, and offered as a file to fix by hand.
+      const d = e instanceof UnreadableDraft ? e.draft : undefined;
+      $q.notify({
+        type: 'negative',
+        message: (e as Error).message,
+        ...(d
+          ? {
+              caption: 'The unsaved changes are kept. Download them to fix the file by hand.',
+              timeout: 0,
+              actions: [
+                {
+                  label: 'Download',
+                  color: 'white',
+                  handler: () =>
+                    void exportFile(`${d.name} (unsaved changes)`, draftText(d), 'rrq'),
+                },
+                { label: 'Close', color: 'white' },
+              ],
+            }
+          : {}),
+      });
     }
   }
   return { openWith };
