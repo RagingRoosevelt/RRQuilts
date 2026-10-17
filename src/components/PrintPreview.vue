@@ -61,7 +61,10 @@
               </div>
               <div v-if="i === 0" class="ellipsis byline">{{ view.byline }}</div>
             </div>
-            <div class="text-grey-8">{{ doc.project.name }}</div>
+            <div class="text-grey-8 text-right">
+              {{ doc.project.name }}
+              <div v-if="s.kind === 'picture'" class="byline">Designed in RRQuilts</div>
+            </div>
           </header>
 
           <div class="content">
