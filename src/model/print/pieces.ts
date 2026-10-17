@@ -2,7 +2,7 @@
 import { placementMatrix } from '@/render/placement';
 import { allPatches } from '../blocks/patches';
 import { resolveColoring, fillKey } from '../coloring';
-import { shownVariant, swapColoring } from '../quilt-variants';
+import { shownColorway, swapColoring } from '../colorways';
 import {
   derivative,
   flattenLoop,
@@ -85,10 +85,10 @@ export function quiltPieces(
     const block = content && blocks.get(content.block);
     if (!content || !block || (blockId && block.id !== blockId)) return [];
     const [a, b, c, d, e, f] = placementMatrix(slot, content, block);
-    // As the quilt's shown color variant has it.
+    // As the quilt's shown colorway has it.
     const coloring = swapColoring(
       resolveColoring(quilt.colorings[content.coloring], block),
-      shownVariant(quilt),
+      shownColorway(quilt),
     );
     const at = ([x, y]: Pt): Pt => [a * x + c * y + e, b * x + d * y + f];
     const dir = ([x, y]: Pt): Pt => {

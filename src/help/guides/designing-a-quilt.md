@@ -161,18 +161,22 @@ The left rail holds the tools. Tooltips and a hint line above the tray say what 
 3. A placed block follows its block's coloring until you recolor a patch in the quilt. The change
    then applies only to the quilt.
 
-## Color variants
+## Colorways
 
-A quilt can have color variants, to try it in other colors, like a block's colorings. In the Design
-tab, **Color variants** shows each one. The first is the quilt's own colors. **Save as new variant**
-copies the one shown. In a later variant, painting a piece swaps its color for the new one
-everywhere in the quilt, in that variant only. Each variant can be renamed or deleted while another
-is left. Deleting the first makes the next one the quilt's own colors. The variant shown is saved
-with the quilt, and printing and pictures use it.
+A quilt can have colorways: the same quilt in other colors, the way a pattern comes in several
+fabric lines. In the Design tab, **Colorways** shows each one. The first is the primary colorway,
+which you paint as usual. **Save as new colorway** copies the one shown.
 
-On the project's Quilts tab, the count on a quilt's card picks the variant shown. The card's menu
-has **New color variant from palette swap**: pick a palette, and each color becomes its nearest
-color there. Change any you like, then **Add variant**.
+In any other colorway, the Colors tab lists each color of the primary colorway with a menu beside
+it. Pick what that color becomes in this colorway. Pieces are painted in the primary colorway, and
+every colorway follows the design: blocks you place or change show in all of them.
+
+Each colorway can be renamed or deleted while another is left. Deleting the primary makes the next
+one the primary. The colorway shown is saved with the quilt, and printing and pictures use it.
+
+On the project's Quilts tab, the count on a quilt's card picks the colorway shown. The card's menu
+has **New colorway from palette swap**: pick a palette, and each color becomes its nearest color
+there. Change any you like, then **Add colorway**.
 
 ## Apply to
 

@@ -9,7 +9,7 @@
       @update:model-value="(v) => set('name', v)"
       @blur="(e: Event) => set('name', (e.target as HTMLInputElement).value, true)"
     />
-    <QuiltVariants v-if="quilt" :quilt="quilt" mode="row" :readonly="ro" />
+    <QuiltColorways v-if="quilt" :quilt="quilt" mode="row" :readonly="ro" />
     <div
       v-if="kind === 'block' && target"
       class="text-caption text-grey-7"
@@ -174,7 +174,7 @@
 </template>
 
 <script setup lang="ts">
-import QuiltVariants from '@/components/QuiltVariants.vue';
+import QuiltColorways from '@/components/QuiltColorways.vue';
 import { saveQuiltImage } from '@/render/save-image';
 import { useLibraryStore } from '@/stores/library';
 // Details tab (spec 009): title, notes, author, license, and who to credit — for the project, a

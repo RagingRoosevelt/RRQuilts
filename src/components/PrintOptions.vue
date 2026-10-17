@@ -1,6 +1,6 @@
 <template>
   <div v-if="project.doc" class="column" style="gap: 12px">
-    <QuiltVariants
+    <QuiltColorways
       v-if="kind === 'quilt' && printQuilt"
       :quilt="printQuilt"
       mode="row"
@@ -399,7 +399,7 @@
 </template>
 
 <script setup lang="ts">
-import QuiltVariants from '@/components/QuiltVariants.vue';
+import QuiltColorways from '@/components/QuiltColorways.vue';
 import TintPicker from '@/components/TintPicker.vue';
 import { computed, ref, watch } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';

@@ -5982,11 +5982,11 @@
                   }
                 }
               },
-              "colorsName": {
+              "primaryName": {
                 "type": "string",
                 "maxLength": 100
               },
-              "variants": {
+              "colorways": {
                 "type": "array",
                 "items": {
                   "type": "object",
@@ -6071,7 +6071,7 @@
                 },
                 "maxItems": 100
               },
-              "shownVariant": {
+              "shownColorway": {
                 "type": "string",
                 "pattern": "^[a-z0-9]{1,32}$"
               }

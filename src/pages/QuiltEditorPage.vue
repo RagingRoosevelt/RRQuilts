@@ -170,7 +170,12 @@
       <!-- Inspector -->
       <div v-show="editor.sidebar" class="inspector q-pa-md scroll">
         <template v-if="editor.mode === 'design'">
-          <QuiltVariants :quilt="quilt" mode="panel" :readonly="project.readOnly" class="q-mb-sm" />
+          <QuiltColorways
+            :quilt="quilt"
+            mode="panel"
+            :readonly="project.readOnly"
+            class="q-mb-sm"
+          />
           <div class="row items-center q-mb-xs" style="gap: 8px">
             <span class="text-caption">Apply to</span>
             <q-btn-toggle
@@ -185,7 +190,12 @@
             />
           </div>
           <div class="text-caption text-grey-7 q-mb-sm">{{ toolHint }}</div>
-          <PaletteTray sidebar :no-blocks="!hasBlockSpaces" />
+          <PaletteTray sidebar :no-blocks="!hasBlockSpaces">
+            <!-- A colorway other than the primary: its mapping instead of the palettes. -->
+            <template v-if="quilt.shownColorway" #colors>
+              <ColorwayMapping :quilt="quilt" :readonly="project.readOnly" />
+            </template>
+          </PaletteTray>
         </template>
         <template v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'">
           <LayoutInspector
@@ -222,7 +232,8 @@
 </template>
 
 <script setup lang="ts">
-import QuiltVariants from '@/components/QuiltVariants.vue';
+import QuiltColorways from '@/components/QuiltColorways.vue';
+import ColorwayMapping from '@/components/ColorwayMapping.vue';
 import { useQuasar } from 'quasar';
 import HelpLink from '@/components/HelpLink.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';

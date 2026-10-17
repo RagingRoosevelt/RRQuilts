@@ -1,5 +1,5 @@
 <template>
-  <!-- A new block coloring or quilt color variant from a palette swap: pick a palette and each color
+  <!-- A new block coloring or quilt colorway from a palette swap: pick a palette and each color
        becomes its nearest there (or map each by hand), with before and after pictures. -->
   <q-dialog v-model="open">
     <q-card v-if="job" style="width: 520px; max-width: 95vw">
@@ -25,37 +25,13 @@
         />
       </q-card-section>
       <q-card-section class="column q-pt-none" style="gap: 8px">
-        <div v-for="c in job.used" :key="c.id" class="row items-center no-wrap" style="gap: 8px">
-          <div class="ps-swatch big" :style="optStyle(c)" />
-          <div class="ellipsis" style="width: 110px">{{ c.notecard.name }}</div>
-          <q-icon name="arrow_forward" />
-          <q-select
-            v-model="map[c.id]"
-            :options="options"
-            option-value="id"
-            :option-label="(o) => o.notecard.name"
-            emit-value
-            map-options
-            dense
-            outlined
-            class="col"
-          >
-            <template #prepend>
-              <div class="ps-swatch" :style="optStyle(options.find((o) => o.id === map[c.id]))" />
-            </template>
-            <template #option="{ itemProps, opt }">
-              <q-item v-bind="itemProps" dense>
-                <q-item-section side>
-                  <div class="ps-swatch" :style="optStyle(opt)" />
-                </q-item-section>
-                <q-item-section>
-                  {{ opt.notecard.name }}
-                  <span class="text-caption text-grey-7">{{ opt.from }}</span>
-                </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-        </div>
+        <PaintMapRow
+          v-for="c in job.used"
+          :key="c.id"
+          v-model="map[c.id]"
+          :from="c"
+          :options="options"
+        />
       </q-card-section>
       <!-- Before and after, half the width each (at most 500px tall). -->
       <q-card-section class="row no-wrap q-pt-none" style="gap: 12px">
@@ -77,7 +53,8 @@ import { castDraft, produce } from 'immer';
 import { computed, ref, shallowRef, toRaw } from 'vue';
 import { nearestColor } from '@/editor/color';
 import type { RrqDoc } from '@/model/schema/project';
-import { optStyle, useSwapOptions, type Opt } from '@/composables/swap-options';
+import PaintMapRow from '@/components/PaintMapRow.vue';
+import { useSwapOptions, type Opt } from '@/composables/swap-options';
 import { useProjectStore } from '@/stores/project';
 
 /** One swap: what's swapped, its picture now, and its picture after (`map`: paint id → paint id;
@@ -100,7 +77,7 @@ const to = ref<string | null>(null);
 const options = ref<Opt[]>([]);
 const map = ref<Record<string, string>>({});
 
-/** The chosen palette's name (the new coloring or variant takes it). */
+/** The chosen palette's name (the new coloring or colorway takes it). */
 const name = computed(
   () => swapPalettes.value.find((p) => p.id === to.value)?.label.split(' · ')[0],
 );
@@ -149,14 +126,6 @@ defineExpose({ show });
 </script>
 
 <style>
-/* Swatches (also in the select's menu, rendered in <body>, so not scoped). */
-.ps-swatch {
-  width: 18px;
-  height: 18px;
-  border-radius: 3px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  flex: none;
-}
 .ps-side {
   flex: 1 1 0;
   min-width: 0;

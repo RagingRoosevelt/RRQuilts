@@ -1,6 +1,6 @@
 // What a tap does with the current tool. Pure: (document, tap, tool state) → new document and/or
 // a selection change. The editor page applies the result through project.change (one undo step).
-import { setSwap, shownVariant, swapper } from '@/model/quilt-variants';
+import { shownColorway, swapper } from '@/model/colorways';
 import { fillFor, paintOf } from './paint';
 import { produce } from 'immer';
 import { allPatches } from '@/model/blocks/patches';
@@ -138,24 +138,19 @@ export function applyTool(
     case 'find':
       return content ? { selectBlock: content.block } : {};
     case 'eyedropper': {
-      const paint = paintOf(swapper(shownVariant(quilt))(fillAtHit()));
+      const paint = paintOf(swapper(shownColorway(quilt))(fillAtHit()));
       return paint ? { selectColor: paint } : { message: 'No color or fabric here.' };
     }
     case 'paint':
     case 'spray':
     case 'swap': {
+      // Another colorway than the primary: its colors are set in its mapping (the Colors tab).
+      if (quilt.shownColorway)
+        return {
+          message:
+            "This colorway's colors are set in the Colors tab. Show the primary colorway to paint.",
+        };
       if (!s.color) return { message: 'Pick a color in the tray first.' };
-      // A color variant is shown: painting swaps that color for the new one across the quilt.
-      const variant = shownVariant(quilt);
-      if (variant) {
-        const from = fillKey(fillAtHit());
-        if (from === 'none')
-          return {
-            message:
-              'Color variants swap colors already in the quilt. Show the first variant to paint here.',
-          };
-        return { doc: withQuilt(doc, setSwap(quilt, variant.id, from, fillFor(s.color))) };
-      }
       if (!content && !isPlainGroup(group)) return { message: 'Set a block here first.' };
       const fill: Fill = fillFor(s.color);
       let next = doc;

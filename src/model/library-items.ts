@@ -1,6 +1,6 @@
 // Library items in projects (spec 008): a library item is embedded only while something uses it,
 // keeps its identity (`id@version`), and is never edited in place.
-import { swapColorings } from './quilt-variants';
+import { swapColorings } from './colorways';
 import { produce, type Draft } from 'immer';
 import { syncPalettes } from './project-palettes';
 import { newId } from './ids';

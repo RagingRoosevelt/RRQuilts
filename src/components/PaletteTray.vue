@@ -126,6 +126,8 @@
       </template>
     </div>
 
+    <!-- Colors: the slot's content instead when given (a quilt colorway's mapping). -->
+    <slot v-else-if="$slots.colors" name="colors" />
     <div v-else class="strip q-pa-sm" style="gap: 4px">
       <q-btn
         v-if="!project.readOnly"

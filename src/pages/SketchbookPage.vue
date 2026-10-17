@@ -71,7 +71,7 @@
               :alt="q.notecard.name"
             />
           </button>
-          <QuiltVariants :quilt="q" :readonly="project.readOnly" />
+          <QuiltColorways :quilt="q" :readonly="project.readOnly" />
         </div>
         <div class="row items-center no-wrap">
           <FullName class="col" :name="q.notecard.name" />
@@ -88,8 +88,8 @@
                   <q-item v-close-popup clickable @click="duplicate(q.id)"
                     ><q-item-section>Duplicate as variation</q-item-section></q-item
                   >
-                  <q-item v-close-popup clickable @click="startSwapVariant(q)"
-                    ><q-item-section>New color variant from palette swap…</q-item-section></q-item
+                  <q-item v-close-popup clickable @click="startSwapColorway(q)"
+                    ><q-item-section>New colorway from palette swap…</q-item-section></q-item
                   >
                   <q-item v-close-popup clickable @click="quiltDetails(q.id)"
                     ><q-item-section>Details</q-item-section></q-item
@@ -1112,7 +1112,7 @@
 </template>
 
 <script setup lang="ts">
-import QuiltVariants from '@/components/QuiltVariants.vue';
+import QuiltColorways from '@/components/QuiltColorways.vue';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PaletteSwapDialog from '@/components/PaletteSwapDialog.vue';
 import {
@@ -1138,7 +1138,7 @@ import { attribution, copyBlock, newBlock, saveColoringAs } from '@/editor/block
 import { nearestColor } from '@/editor/color';
 import { paintsUsed, quiltColors, quiltPaints, replaceColors } from '@/editor/colors';
 import { fillKey } from '@/model/coloring';
-import { addVariant, setSwap, shownVariant, swapper, variantList } from '@/model/quilt-variants';
+import { addColorway, setSwap, shownColorway, swapper, colorwayList } from '@/model/colorways';
 import type { Quilt } from '@/model/schema/quilt';
 import { authorOf, effectiveLicense, licenseName, priorCredits } from '@/model/credits';
 import { newId } from '@/model/ids';
@@ -1533,11 +1533,11 @@ function swapped(b: Block, from: string, map: Record<string, string>, name?: str
   });
   return { block: next, id };
 }
-/** The quilt with a new color variant: the one shown, its colors as shown swapped by `map`. */
+/** The quilt with a new colorway: the one shown, its colors as shown swapped by `map`. */
 function swappedQuilt(q: Quilt, map: Record<string, string>, name?: string): Quilt {
-  const shown = swapper(shownVariant(q));
+  const shown = swapper(shownColorway(q));
   const id = newId();
-  let next = addVariant(q, id, name, shownVariant(q));
+  let next = addColorway(q, id, name, shownColorway(q));
   for (const p of quiltPaints(project.doc!, q)) {
     const from = fillFor(p);
     const now = paintOf(shown(from))!;
@@ -1545,14 +1545,14 @@ function swappedQuilt(q: Quilt, map: Record<string, string>, name?: string): Qui
   }
   return next;
 }
-function startSwapVariant(q: Quilt) {
-  const shown = swapper(shownVariant(q));
+function startSwapColorway(q: Quilt) {
+  const shown = swapper(shownColorway(q));
   const now = new Set([...quiltPaints(project.doc!, q)].map((p) => paintOf(shown(fillFor(p)))!));
-  const name = variantList(q).find((v) => v.id === shownVariant(q)?.id)?.name;
+  const name = colorwayList(q).find((v) => v.id === shownColorway(q)?.id)?.name;
   swapDialog.value?.show({
-    heading: 'New color variant from palette swap',
+    heading: 'New colorway from palette swap',
     title: `${q.notecard.name} (${name})`,
-    okLabel: 'Add variant',
+    okLabel: 'Add colorway',
     used: [...now].flatMap((p) => paintOpt(p) ?? []),
     before: quiltThumbnail(project.doc!, q, 500, $q.dark.isActive, true, true),
     preview: (map, n, doc) =>

@@ -6,7 +6,7 @@ import type { ColoringBody, Fill } from '@/model/schema/coloring';
 import type { Color, Fabric } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt, QuiltTarget } from '@/model/schema/quilt';
-import { shownVariant, swapper } from '@/model/quilt-variants';
+import { shownColorway, swapper } from '@/model/colorways';
 import { OVERLAY_TINT, overlayFill, placeTarget } from '@/model/targets';
 import { mul, type M } from './affine';
 import { blockPaths, toPath2D } from './paths';
@@ -113,9 +113,9 @@ export function drawQuilt(
   o: DrawOptions,
 ) {
   const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
-  // The quilt's shown color variant swaps colors and fabrics as they're drawn.
+  // The quilt's shown colorway swaps colors and fabrics as they're drawn.
   const lookup = colorLookup(doc, [], { ctx, devicePerUnit: o.dpr * o.view.scale });
-  const swap = swapper(shownVariant(quilt));
+  const swap = swapper(shownColorway(quilt));
   const fillOf: typeof lookup = (f) => lookup(swap(f));
   const base: M = [
     o.dpr * o.view.scale,

@@ -110,12 +110,12 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   alt/size/cut, `Generated` has edge/trim; `reconcile`/`applyLayout`/`convertLayout` on changes. Add
   a style = a preset + its id grammar in `specs/003-project-format/contracts/slot-ids.md`; test-only
   presets (`__tests__/model/layout-presets.ts`) prove the planned ones
-- `quilt-variants.ts` — quilt color variants (palette swaps `from` fill key → `to` fill; `shownVariant`
-  saved); applied in `drawQuilt`, `quiltPieces`; painting with one shown records swaps
-  (`editor/actions.ts`); the quilt's own colors are the first variant (`colorsName`; deleting it
-  bakes the next in); `components/QuiltVariants.vue` (badge / row / Design panel).
-  `components/PaletteSwapDialog.vue` (+ `composables/swap-options.ts`) = palette swap for block
-  colorings and quilt variants (Sketchbook card menus)
+- `colorways.ts` — quilt colorways (palette swaps of the primary colorway, the quilt's own colors:
+  `from` fill key → `to` fill; `shownColorway` saved, `primaryName`; deleting the primary bakes the
+  next in); applied in `drawQuilt`, `quiltPieces`. `components/QuiltColorways.vue` (badge / row /
+  Design panel); in a non-primary colorway the Design Colors tab is `ColorwayMapping.vue` (each
+  primary color → its replacement). `components/PaletteSwapDialog.vue` (+
+  `composables/swap-options.ts`) = palette swap for block colorings and quilt colorways
 - `targets.ts` (+ `garments.ts`) — target sizes (beds, garments…) → outline; quilts store `target`
   (choices + resolved outline); `components/TargetEditor.vue` (wizard + Layout tab `TargetSection`)
 - Fixture with every entity: `test/fixtures/everything.rrq`
