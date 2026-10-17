@@ -25,7 +25,24 @@
       <div v-if="target" class="text-caption text-grey-8">
         {{ target.label }}, {{ size }} {{ units }}
       </div>
-      <div v-if="target" class="row items-center no-wrap q-pl-sm q-pr-md" style="gap: 12px">
+      <!-- Tint and invert (both shared by Layout and print), then the fill. -->
+      <div v-if="target" class="row items-center no-wrap" style="gap: 12px">
+        <TintPicker
+          :model-value="target.tint ?? OVERLAY_TINT"
+          :disable="readonly || off"
+          @update:model-value="(t) => emit('change', { ...target!, tint: t }, '')"
+        />
+        <q-toggle
+          :model-value="!!target.invert"
+          dense
+          label="Invert"
+          :disable="readonly || off"
+          @update:model-value="(v) => emit('change', { ...target!, invert: v }, '')"
+        >
+          <q-tooltip>Shade outside the shape, to the quilt's edge</q-tooltip>
+        </q-toggle>
+      </div>
+      <div v-if="target" class="row items-center no-wrap q-pr-md" style="gap: 12px">
         <div class="text-caption">Fill</div>
         <q-slider
           class="col"
@@ -42,24 +59,12 @@
           "
         />
       </div>
-      <div v-if="target" class="row items-center no-wrap q-pl-sm" style="gap: 12px">
-        <div class="text-caption">Tint</div>
-        <input
-          type="color"
-          class="tint"
-          :value="target.tint ?? OVERLAY_TINT"
-          :disabled="readonly || off"
-          aria-label="Overlay tint"
-          @change="
-            (e) => emit('change', { ...target!, tint: (e.target as HTMLInputElement).value }, '')
-          "
-        />
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import TintPicker from '@/components/TintPicker.vue';
 import { computed } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import TargetEditor from '@/components/TargetEditor.vue';
@@ -100,13 +105,14 @@ function edit(next: TargetInput) {
   const shape = resolveTarget(next, props.units);
   if (!shape) return emit('change', undefined, '');
   // Typed fields coalesce into one undo step.
-  const { opacity, tint } = props.target ?? {};
+  const { opacity, tint, invert } = props.target ?? {};
   emit(
     'change',
     {
       visible: props.target?.visible ?? true,
       ...(opacity !== undefined ? { opacity } : {}),
       ...(tint !== undefined ? { tint } : {}),
+      ...(invert !== undefined ? { invert } : {}),
       input: next,
       ...shape,
     },
@@ -116,15 +122,6 @@ function edit(next: TargetInput) {
 </script>
 
 <style scoped>
-.tint {
-  width: 40px;
-  height: 24px;
-  padding: 0;
-  border: 1px solid rgba(128, 128, 128, 0.5);
-  border-radius: 4px;
-  background: none;
-  cursor: pointer;
-}
 .off {
   opacity: 0.45;
   pointer-events: none;

@@ -84,7 +84,25 @@
           @update:model-value="(v: boolean) => set('showOverlay', v)"
         />
         <div class="text-caption text-grey-7">
-          When it's enabled in the Layout tab, in its tint from there.
+          When it's enabled in the Layout tab. Tint and Invert are shared with Layout, Fill is for
+          print.
+        </div>
+        <!-- Tint and invert (the quilt's, shared with Layout), then print's own fill. -->
+        <div class="row items-center no-wrap" style="gap: 12px">
+          <TintPicker
+            :model-value="quiltTarget?.tint ?? OVERLAY_TINT"
+            :disable="!prefs.showOverlay || !quiltTarget || project.readOnly"
+            @update:model-value="setTint"
+          />
+          <q-toggle
+            :model-value="!!quiltTarget?.invert"
+            dense
+            label="Invert"
+            :disable="!prefs.showOverlay || !quiltTarget || project.readOnly"
+            @update:model-value="setInvert"
+          >
+            <q-tooltip>Shade outside the shape, to the quilt's edge</q-tooltip>
+          </q-toggle>
         </div>
         <div class="row items-center no-wrap q-pr-md" style="gap: 12px">
           <div class="text-caption">Fill</div>
@@ -339,6 +357,7 @@
 </template>
 
 <script setup lang="ts">
+import TintPicker from '@/components/TintPicker.vue';
 import { computed, ref, watch } from 'vue';
 import HelpLink from '@/components/HelpLink.vue';
 import LengthInput from '@/components/LengthInput.vue';
@@ -354,6 +373,7 @@ import {
   type PrintTarget,
   type PrintPrefs,
 } from '@/model/print/prefs';
+import { OVERLAY_TINT } from '@/model/targets';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -365,6 +385,26 @@ const props = defineProps<{
 const emit = defineEmits<{ target: [target: PrintTarget] }>();
 
 const project = useProjectStore();
+/** The quilt's reference overlay: its tint is shared with the Layout tab. */
+const quiltTarget = computed(() =>
+  props.kind === 'quilt'
+    ? project.doc?.project.quilts.find((q) => q.id === props.id)?.target
+    : undefined,
+);
+function setInvert(invert: boolean) {
+  if (!quiltTarget.value || project.readOnly) return;
+  project.change((d) => {
+    const t = d.project.quilts.find((q) => q.id === props.id)?.target;
+    if (t) t.invert = invert;
+  });
+}
+function setTint(tint: string) {
+  if (!quiltTarget.value || project.readOnly) return;
+  project.change((d) => {
+    const t = d.project.quilts.find((q) => q.id === props.id)?.target;
+    if (t) t.tint = tint;
+  });
+}
 const app = useSettingsStore();
 const units = computed(() => project.doc!.units);
 const prefs = computed(() => printPrefs(app.settings.print));

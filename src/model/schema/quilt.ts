@@ -224,6 +224,8 @@ export const QuiltTarget = Type.Object({
   opacity: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
   /** Outline and fill color, `#rrggbb` (default blue). */
   tint: Type.Optional(Type.String({ pattern: '^#[0-9a-fA-F]{6}$' })),
+  /** Shade outside the shape (to the quilt's edge) instead of inside it. */
+  invert: Type.Optional(Type.Boolean()),
   input: Type.Object({
     choice: Type.Union([Type.String({ maxLength: 100 }), Type.Null()]),
     region: Type.Union([Type.Literal('us'), Type.Literal('eu')]),

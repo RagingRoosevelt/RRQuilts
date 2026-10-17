@@ -156,4 +156,4 @@ these units from neighboring patches and offer the method alongside the per-patc
 - A **Quilt picture** section in the print options (quilts, after Paper) has **Show reference
   overlay** (print preference `showOverlay`, off by default) and its own **Fill** (`overlayOpacity`, 30%): the
   quilt picture page then draws the quilt's reference overlay, when it's enabled in Layout, in the
-  quilt's tint (shared with Layout; show and fill are print's own), and grows to show it.
+  quilt's tint and invert (shared with Layout, and editable here too; show and fill are print's own), and grows to show it.

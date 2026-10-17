@@ -455,9 +455,25 @@
                   :stroke-width="(stroke / s.scale) * 1.5"
                 />
                 <g v-if="s.overlay">
+                  <clipPath v-if="s.overlay.shade" :id="`quilt${i}`">
+                    <rect
+                      :x="s.overlay.quilt[0]"
+                      :y="s.overlay.quilt[1]"
+                      :width="s.overlay.quilt[2]"
+                      :height="s.overlay.quilt[3]"
+                    />
+                  </clipPath>
+                  <path
+                    v-if="s.overlay.shade"
+                    :d="s.overlay.shade"
+                    fill-rule="evenodd"
+                    :fill="s.overlay.fill"
+                    stroke="none"
+                    :clip-path="`url(#quilt${i})`"
+                  />
                   <path
                     :d="s.overlay.d"
-                    :fill="s.overlay.fill"
+                    :fill="s.overlay.shade ? 'none' : s.overlay.fill"
                     :stroke="s.overlay.tint"
                     :stroke-width="(stroke / s.scale) * 1.5"
                     :stroke-dasharray="`${(stroke / s.scale) * 8} ${(stroke / s.scale) * 5}`"
@@ -1003,7 +1019,17 @@ type Sheet = (
       edge?: string | undefined;
       trim?: boolean | undefined;
       /** The quilt's reference overlay (print option, when enabled in Layout). */
-      overlay?: { d: string; core: string | null; tint: string; fill: string } | undefined;
+      overlay?:
+        | {
+            d: string;
+            core: string | null;
+            tint: string;
+            fill: string;
+            /** Inverted: the quilt outside the shape (quilt rectangle + shape, even-odd). */
+            shade: string | null;
+            quilt: [number, number, number, number];
+          }
+        | undefined;
       x0: number;
       y0: number;
       w: number;
@@ -1122,6 +1148,15 @@ const logical = computed<Sheet[]>(() => {
                   ])
                 : null,
               tint: q!.target!.tint ?? OVERLAY_TINT,
+              shade: q!.target!.invert
+                ? d([
+                    [box[0], box[1]],
+                    [box[2], box[1]],
+                    [box[2], box[3]],
+                    [box[0], box[3]],
+                  ]) + d(placed.outline)
+                : null,
+              quilt: [box[0], box[1], box[2] - box[0], box[3] - box[1]],
               fill: overlayFill(q!.target!.tint, prefs.value.overlayOpacity),
             }
           : undefined,

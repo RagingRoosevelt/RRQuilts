@@ -189,7 +189,19 @@ function drawTarget(
   ctx.save();
   const tint = target.tint ?? OVERLAY_TINT;
   ctx.fillStyle = overlayFill(tint, target.opacity);
-  ctx.fill(path);
+  if (target.invert) {
+    // Shade the quilt outside the shape, out to the quilt's edge.
+    const [x0, y0, x1, y1] = bounds;
+    const shade = new Path2D();
+    shade.rect(x0, y0, x1 - x0, y1 - y0);
+    shade.addPath(path);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x0, y0, x1 - x0, y1 - y0);
+    ctx.clip();
+    ctx.fill(shade, 'evenodd');
+    ctx.restore();
+  } else ctx.fill(path);
   ctx.strokeStyle = tint;
   ctx.lineWidth = 2 * px;
   ctx.setLineDash([6 * px, 4 * px]);
