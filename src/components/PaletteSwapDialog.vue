@@ -57,13 +57,10 @@
           </q-select>
         </div>
       </q-card-section>
-      <q-card-section class="row justify-center q-pt-none" style="gap: 12px">
-        <div v-for="side in ['Before', 'After']" :key="side" class="column items-center">
-          <img
-            :src="side === 'After' ? after : job.before"
-            style="width: 160px; height: 160px"
-            alt=""
-          />
+      <!-- Before and after, half the width each (at most 500px tall). -->
+      <q-card-section class="row no-wrap q-pt-none" style="gap: 12px">
+        <div v-for="side in ['Before', 'After']" :key="side" class="ps-side column items-center">
+          <img :src="side === 'After' ? after : job.before" class="ps-picture" alt="" />
           <div class="text-caption">{{ side }}</div>
         </div>
       </q-card-section>
@@ -150,6 +147,16 @@ defineExpose({ show });
   border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.15);
   flex: none;
+}
+.ps-side {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.ps-picture {
+  display: block;
+  width: 100%;
+  max-height: 500px;
+  object-fit: contain;
 }
 .ps-swatch.big {
   width: 28px;

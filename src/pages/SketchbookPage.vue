@@ -1554,9 +1554,9 @@ function startSwapVariant(q: Quilt) {
     title: `${q.notecard.name} (${name})`,
     okLabel: 'Add variant',
     used: [...now].flatMap((p) => paintOpt(p) ?? []),
-    before: quiltThumbnail(project.doc!, q, 160, $q.dark.isActive, true),
+    before: quiltThumbnail(project.doc!, q, 500, $q.dark.isActive, true),
     preview: (map, n, doc) =>
-      quiltThumbnail(doc, swappedQuilt(q, map, n), 160, $q.dark.isActive, true),
+      quiltThumbnail(doc, swappedQuilt(q, map, n), 500, $q.dark.isActive, true),
     done: (map, n) =>
       project.change((d) => {
         const i = d.project.quilts.findIndex((x) => x.id === q.id);
@@ -1572,10 +1572,10 @@ function startSwapColoring(b: Block) {
     title: coloring.name ? `${b.notecard.name} (${coloring.name})` : b.notecard.name,
     okLabel: 'Add coloring',
     used: [...ids].flatMap((id) => paintOpt(id) ?? []),
-    before: thumb(b, 160, coloring.id),
+    before: thumb(b, 500, coloring.id),
     preview: (map, name, doc) => {
       const s = swapped(b, coloring.id, map, name);
-      return blockThumbnail(doc, s.block, 160, $q.dark.isActive, s.id, library.items.colors);
+      return blockThumbnail(doc, s.block, 500, $q.dark.isActive, s.id, library.items.colors);
     },
     done: (map, name) => {
       const { block, id } = swapped(b, coloring.id, map, name);
