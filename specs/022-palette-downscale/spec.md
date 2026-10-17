@@ -9,8 +9,8 @@
 **Input**: Owner, 2026-10-16: a palette's menu in Libraries offers downscaling its fabric images to a
 lower resolution (unless already at 256 px). To get the resolution back, the quilter re-adds their
 photos; fabrics whose original filename matches are replaced in place, keeping their ids, so quilts
-and blocks using them update. Filenames are kept only for My library palettes and dropped when a
-pack is made.
+and blocks using them update. Filenames and crops are kept only for My library palettes and dropped
+when a pack is made.
 
 Related: spec 014 (fabric images), spec 020 (import resolution: up to 2048 px).
 
@@ -77,7 +77,7 @@ names, sizes and crops, now with 1024 px images; a quilt using them shows the sh
   its main image, and delete the dropped images from the device only when nothing else uses them.
 - **FR-003**: Fabrics imported into My library palettes MUST record their source: file name, file
   hash, crop box (in the original image's pixels).
-- **FR-004**: The source MUST be removed whenever a fabric leaves My library: making or exporting a
+- **FR-004**: The source (file name, hash and crop alike) MUST be removed whenever a fabric leaves My library: making or exporting a
   pack, saving or copying into a project, sharing a palette file (`.rrqplt`). My library backups
   (`kind: "personal"`) keep it.
 - **FR-005**: Imports into a My library palette MUST match images to fabrics by file hash, else by
@@ -91,7 +91,8 @@ names, sizes and crops, now with 1024 px images; a quilt using them shows the sh
 - **SC-001**: Downscaling a 512 px palette to 256 px frees at least half of its images' storage.
 - **SC-002**: Re-adding the original folder restores every fabric of a downscaled palette in one
   import, with no quilt or block needing changes.
-- **SC-003**: No pack, project file or palette file made from My library contains a filename.
+- **SC-003**: No pack, project file or palette file made from My library contains a filename or
+  crop.
 
 ## Assumptions
 
