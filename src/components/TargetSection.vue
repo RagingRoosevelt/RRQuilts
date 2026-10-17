@@ -16,34 +16,27 @@
     <div class="text-caption text-grey-8">A size to aim for, drawn over the quilt</div>
     <!-- Switched off (Show): the settings stay as they are, greyed out, until it's on again. -->
     <div class="column" :class="{ off }" style="gap: 8px">
-      <TargetEditor
-        :model-value="input"
-        :units="units"
-        :readonly="readonly || off"
-        @update:model-value="edit"
-      />
-      <div v-if="target" class="text-caption text-grey-8">
-        {{ target.label }}, {{ size }} {{ units }}
-      </div>
-      <!-- Tint and invert (both shared by Layout and print), then the fill. -->
+      <!-- Invert and tint (both shared by Layout and print), then the fill; above the size. -->
       <div v-if="target" class="row items-center no-wrap" style="gap: 12px">
-        <TintPicker
-          :model-value="target.tint ?? OVERLAY_TINT"
-          :disable="readonly || off"
-          @update:model-value="(t) => emit('change', { ...target!, tint: t }, '')"
-        />
         <q-toggle
           :model-value="!!target.invert"
           dense
           label="Invert"
+          left-label
           :disable="readonly || off"
           @update:model-value="(v) => emit('change', { ...target!, invert: v }, '')"
         >
           <q-tooltip>Shade outside the shape, to the quilt's edge</q-tooltip>
         </q-toggle>
+        <div>Tint</div>
+        <TintPicker
+          :model-value="target.tint ?? OVERLAY_TINT"
+          :disable="readonly || off"
+          @update:model-value="(t) => emit('change', { ...target!, tint: t }, '')"
+        />
       </div>
       <div v-if="target" class="row items-center no-wrap q-pr-md" style="gap: 12px">
-        <div class="text-caption">Fill</div>
+        <div>Fill</div>
         <q-slider
           class="col"
           :model-value="Math.round((target.opacity ?? OVERLAY_OPACITY) * 100)"
@@ -58,6 +51,16 @@
             (v) => v !== null && emit('change', { ...target!, opacity: v / 100 }, 'target-opacity')
           "
         />
+      </div>
+      <hr v-if="target" class="split" />
+      <TargetEditor
+        :model-value="input"
+        :units="units"
+        :readonly="readonly || off"
+        @update:model-value="edit"
+      />
+      <div v-if="target" class="text-caption text-grey-8">
+        {{ target.label }}, {{ size }} {{ units }}
       </div>
     </div>
   </div>
@@ -122,6 +125,12 @@ function edit(next: TargetInput) {
 </script>
 
 <style scoped>
+.split {
+  width: 100%;
+  margin: 4px 0;
+  border: none;
+  border-top: 1px dashed rgba(128, 128, 128, 0.35);
+}
 .off {
   opacity: 0.45;
   pointer-events: none;

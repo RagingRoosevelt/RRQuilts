@@ -81,31 +81,34 @@
           :model-value="prefs.showOverlay"
           dense
           label="Show reference overlay"
+          left-label
           @update:model-value="(v: boolean) => set('showOverlay', v)"
         />
         <div class="text-caption text-grey-7">
           When it's enabled in the Layout tab. Tint and Invert are shared with Layout, Fill is for
           print.
         </div>
-        <!-- Tint and invert (the quilt's, shared with Layout), then print's own fill. -->
+        <!-- Invert and tint (the quilt's, shared with Layout), then print's own fill. -->
         <div class="row items-center no-wrap" style="gap: 12px">
-          <TintPicker
-            :model-value="quiltTarget?.tint ?? OVERLAY_TINT"
-            :disable="!prefs.showOverlay || !quiltTarget || project.readOnly"
-            @update:model-value="setTint"
-          />
           <q-toggle
             :model-value="!!quiltTarget?.invert"
             dense
             label="Invert"
+            left-label
             :disable="!prefs.showOverlay || !quiltTarget || project.readOnly"
             @update:model-value="setInvert"
           >
             <q-tooltip>Shade outside the shape, to the quilt's edge</q-tooltip>
           </q-toggle>
+          <div>Tint</div>
+          <TintPicker
+            :model-value="quiltTarget?.tint ?? OVERLAY_TINT"
+            :disable="!prefs.showOverlay || !quiltTarget || project.readOnly"
+            @update:model-value="setTint"
+          />
         </div>
         <div class="row items-center no-wrap q-pr-md" style="gap: 12px">
-          <div class="text-caption">Fill</div>
+          <div>Fill</div>
           <q-slider
             class="col"
             :model-value="Math.round(prefs.overlayOpacity * 100)"
