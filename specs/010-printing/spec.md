@@ -153,3 +153,6 @@ these units from neighboring patches and offer the method alongside the per-patc
   that the cutting chart cuts from a template get template pages too, after the blocks', headed
   "Templates: quilt pieces" and lettered Q… (no key). The option reads "Templates (blocks and quilt
   pieces)".
+- A **Quilt picture** section in the print options (quilts, after Paper) has **Show reference
+  overlay** (print preference `showOverlay`, off by default): the quilt picture page then draws the
+  quilt's reference overlay, when it's enabled in Layout, and grows to show it.

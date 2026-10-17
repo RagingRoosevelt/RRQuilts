@@ -68,6 +68,26 @@
     </q-expansion-item>
 
     <q-expansion-item
+      v-if="kind === 'quilt'"
+      :model-value="open('Quilt picture')"
+      dense
+      label="Quilt picture"
+      header-class="text-subtitle2"
+      class="op-section"
+      @update:model-value="(v) => setOpen('Quilt picture', v)"
+    >
+      <div class="column q-pa-sm" style="gap: 4px">
+        <q-checkbox
+          :model-value="prefs.showOverlay"
+          dense
+          label="Show reference overlay"
+          @update:model-value="(v: boolean) => set('showOverlay', v)"
+        />
+        <div class="text-caption text-grey-7">When it's enabled in the Layout tab.</div>
+      </div>
+    </q-expansion-item>
+
+    <q-expansion-item
       :model-value="open('Cutting')"
       dense
       label="Cutting"
