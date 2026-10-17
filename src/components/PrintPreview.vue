@@ -1930,10 +1930,13 @@ td {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
-/* Yardage: colors as large as fabric photos. */
+/* Yardage: colors and photos 10 mm, beside the name, which starts at the top of the row like the
+   amounts. */
 .chip.yardage {
-  width: 6mm;
-  height: 6mm;
+  float: left;
+  width: 10mm;
+  height: 10mm;
+  margin-right: 2mm;
 }
 .warn {
   color: #b00020;
