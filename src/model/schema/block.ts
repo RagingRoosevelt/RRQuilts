@@ -62,9 +62,17 @@ export const GridType = Type.Union([
 /** Editor state saved with the block (snap/grid/guides/tracing image); free-form for now. */
 export const Editor = Type.Object({});
 
+/** A shaped block (spec 026): absent = square or rectangle. `size` is the shape's bounding box. */
+export const BlockShape = Type.Union([
+  Type.Literal('triangle'),
+  Type.Literal('diamond60'),
+  Type.Literal('hexagon'),
+]);
+
 const blockBase = {
   ...itemBase,
   size: Size,
+  shape: Type.Optional(BlockShape),
   colorings: Type.Array(Coloring),
   foundation: Type.Optional(Foundation),
   editor: Type.Optional(Editor),
@@ -113,4 +121,5 @@ export type Segment = Type.Static<typeof Segment>;
 export type Drawing = Type.Static<typeof Drawing>;
 export type Patch = Type.Static<typeof Patch>;
 export type Block = Type.Static<typeof Block>;
+export type BlockShapeId = Type.Static<typeof BlockShape>;
 export type SeamBlock = Extract<Block, { kind: 'seam' }>;

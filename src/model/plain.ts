@@ -45,9 +45,12 @@ export const ensurePlainBlock = (doc: RrqDoc) =>
         });
       });
 
-/** Place the plain block in empty plain-piece slots (sharing one new empty coloring). */
+/** Place the plain block in empty plain-piece and block slots (sharing one new empty coloring). */
 export const ensureSlotContent = (quilt: Quilt, slotIds: string[]) => {
-  const empty = slotIds.filter((id) => isPlainGroup(slotGroup(id)) && !quilt.layers[0].slots[id]);
+  const empty = slotIds.filter(
+    (id) =>
+      (isPlainGroup(slotGroup(id)) || slotGroup(id) === 'block') && !quilt.layers[0].slots[id],
+  );
   if (!empty.length) return quilt;
   return produce(quilt, (q) => {
     let coloring: string;

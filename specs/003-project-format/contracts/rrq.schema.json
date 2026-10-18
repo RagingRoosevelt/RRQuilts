@@ -14,7 +14,7 @@
     },
     "version": {
       "type": "number",
-      "const": 6
+      "const": 7
     },
     "app": {
       "type": "string"
@@ -837,6 +837,22 @@
                     ],
                     "minItems": 2
                   },
+                  "shape": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "triangle"
+                      },
+                      {
+                        "type": "string",
+                        "const": "diamond60"
+                      },
+                      {
+                        "type": "string",
+                        "const": "hexagon"
+                      }
+                    ]
+                  },
                   "colorings": {
                     "type": "array",
                     "items": {
@@ -1451,6 +1467,22 @@
                     ],
                     "minItems": 2
                   },
+                  "shape": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "triangle"
+                      },
+                      {
+                        "type": "string",
+                        "const": "diamond60"
+                      },
+                      {
+                        "type": "string",
+                        "const": "hexagon"
+                      }
+                    ]
+                  },
                   "colorings": {
                     "type": "array",
                     "items": {
@@ -1926,6 +1958,22 @@
                       }
                     ],
                     "minItems": 2
+                  },
+                  "shape": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "triangle"
+                      },
+                      {
+                        "type": "string",
+                        "const": "diamond60"
+                      },
+                      {
+                        "type": "string",
+                        "const": "hexagon"
+                      }
+                    ]
                   },
                   "colorings": {
                     "type": "array",
@@ -2606,6 +2654,22 @@
                     ],
                     "minItems": 2
                   },
+                  "shape": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "triangle"
+                      },
+                      {
+                        "type": "string",
+                        "const": "diamond60"
+                      },
+                      {
+                        "type": "string",
+                        "const": "hexagon"
+                      }
+                    ]
+                  },
                   "colorings": {
                     "type": "array",
                     "items": {
@@ -3170,6 +3234,22 @@
                       }
                     ],
                     "minItems": 2
+                  },
+                  "shape": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "triangle"
+                      },
+                      {
+                        "type": "string",
+                        "const": "diamond60"
+                      },
+                      {
+                        "type": "string",
+                        "const": "hexagon"
+                      }
+                    ]
                   },
                   "colorings": {
                     "type": "array",
@@ -4916,8 +4996,16 @@
                     ],
                     "properties": {
                       "style": {
-                        "type": "string",
-                        "const": "variable-point"
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "variable-point"
+                          },
+                          {
+                            "type": "string",
+                            "const": "diamond-point"
+                          }
+                        ]
                       },
                       "cols": {
                         "type": "integer",
@@ -5047,6 +5135,75 @@
                             "const": "none"
                           }
                         ]
+                      },
+                      "flow": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 360
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "style",
+                      "shape",
+                      "cols",
+                      "rows",
+                      "width",
+                      "edge"
+                    ],
+                    "properties": {
+                      "style": {
+                        "type": "string",
+                        "const": "shaped-blocks"
+                      },
+                      "shape": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "triangles"
+                          },
+                          {
+                            "type": "string",
+                            "const": "diamonds"
+                          },
+                          {
+                            "type": "string",
+                            "const": "hexagons"
+                          }
+                        ]
+                      },
+                      "cols": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                      },
+                      "rows": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                      },
+                      "width": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "edge": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "trim"
+                          },
+                          {
+                            "type": "string",
+                            "const": "none"
+                          }
+                        ]
+                      },
+                      "flow": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 360
                       }
                     }
                   },
@@ -5107,6 +5264,11 @@
                             "const": "none"
                           }
                         ]
+                      },
+                      "flow": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 360
                       }
                     }
                   },
@@ -5355,7 +5517,15 @@
                                   },
                                   {
                                     "type": "number",
+                                    "const": 60
+                                  },
+                                  {
+                                    "type": "number",
                                     "const": 90
+                                  },
+                                  {
+                                    "type": "number",
+                                    "const": 120
                                   },
                                   {
                                     "type": "number",
@@ -5363,7 +5533,15 @@
                                   },
                                   {
                                     "type": "number",
+                                    "const": 240
+                                  },
+                                  {
+                                    "type": "number",
                                     "const": 270
+                                  },
+                                  {
+                                    "type": "number",
+                                    "const": 300
                                   }
                                 ]
                               },
@@ -6186,6 +6364,6 @@
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v6.json",
-  "title": "RRQuilts project (.rrq) v6"
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v7.json",
+  "title": "RRQuilts project (.rrq) v7"
 }

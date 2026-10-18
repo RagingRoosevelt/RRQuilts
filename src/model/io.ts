@@ -66,6 +66,19 @@ export const migrations: Migrations = {
     });
     return { ...doc, project: { ...project, quilts } };
   },
+  // v7 (spec 026): shaped blocks, 60° placement turns, Shaped Blocks and Diamond Point layouts, flow
+  // angles (all additive). Baby Blocks now hold blocks; older Baby Blocks quilts were painted
+  // patches, so they become Variable Patch (`variable-blocks`) with the same sizes and patch ids.
+  6: (doc) => {
+    const project = isObject(doc.project) ? doc.project : undefined;
+    if (!project || !Array.isArray(project.quilts)) return doc;
+    const quilts = project.quilts.map((q: unknown) =>
+      isObject(q) && isObject(q.layout) && q.layout.style === 'baby-blocks'
+        ? { ...q, layout: { ...q.layout, style: 'variable-blocks' } }
+        : q,
+    );
+    return { ...doc, project: { ...project, quilts } };
+  },
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */

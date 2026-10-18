@@ -7,6 +7,7 @@ import { paint, resolveColoring } from '@/model/coloring';
 import { produce } from 'immer';
 import { mul, orient, type M } from '@/render/affine';
 import { generateSlots } from '@/model/layout/slots';
+import { PLAIN_BLOCK } from '@/model/plain';
 import { createProject } from '@/model/new-project';
 import { expectFast } from '../timing';
 import type { RrqDoc } from '@/model/schema/project';
@@ -170,14 +171,27 @@ describe('editor actions', () => {
   });
 
   it('explains what is missing instead of failing', () => {
-    const { doc, ids, color } = setup();
+    const { doc, ids } = setup();
     expect(
       run(doc, ids, 'b:r1c1', { tool: 'set', scope: 'this', block: null, color: null }).message,
     ).toBeTruthy();
     expect(
-      run(doc, ids, 'b:r1c1', { tool: 'paint', scope: 'this', block: null, color: color('Red') })
-        .message,
-    ).toMatch(/block here/);
+      run(doc, ids, 'b:r1c1', { tool: 'paint', scope: 'this', block: null, color: null }).message,
+    ).toBeTruthy();
+  });
+
+  it('paints an empty block space plainly (spec 026)', () => {
+    const { doc, ids, color } = setup();
+    const d = run(doc, ids, 'b:r1c1', {
+      tool: 'paint',
+      scope: 'this',
+      block: null,
+      color: color('Red'),
+    }).doc!;
+    const c = q(d).layers[0].slots['b:r1c1']!;
+    expect(c.block).toBe(PLAIN_BLOCK);
+    expect(Object.values(q(d).colorings[c.coloring]!.fills)).toHaveLength(1);
+    expect(q(d).layers[0].slots['b:r1c2']).toBeUndefined();
   });
 
   it('sets and paints on a 900-block quilt in under 150 ms each', () => {
@@ -223,7 +237,7 @@ describe('editor actions', () => {
     const z = (x: M) => x.map((v) => v + 0) as M; // -0 → 0
     const m = (x: RrqDoc): M => {
       const c = q(x).layers[0].slots['b:r1c1']!;
-      return z(orient(c.rotation, c.flip));
+      return z(orient(c.rotation as 0 | 90 | 180 | 270, c.flip));
     };
     const H: M = [-1, 0, 0, 1, 1, 0]; // screen mirror left↔right in the unit square
     const V: M = [1, 0, 0, -1, 0, 1]; // screen mirror top↕bottom

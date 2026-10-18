@@ -16,10 +16,18 @@ import {
 } from '@/model/plain';
 import type { Fill } from '@/model/schema/coloring';
 import type { RrqDoc } from '@/model/schema/project';
-import type { Quilt } from '@/model/schema/quilt';
+import type { Quilt, Rotation } from '@/model/schema/quilt';
+import { SHAPE_NAME, SHAPE_TURN, type BlockShape } from '@/model/blocks/shape';
 import type { Hit } from '@/render/hit';
 import type { Tool } from '@/stores/editor';
-import { placementTargets, setTargets, sprayTargets, type Scope, type Space } from './scope';
+import {
+  placementTargets,
+  setTargets,
+  sprayTargets,
+  takesBlock,
+  type Scope,
+  type Space,
+} from './scope';
 
 export interface ToolState {
   tool: Tool;
@@ -34,7 +42,7 @@ export interface ToolState {
   library?: LibraryLookup;
 }
 
-type Orientation = { rotation: 0 | 90 | 180 | 270; flip: boolean };
+type Orientation = { rotation: Rotation; flip: boolean };
 const norm = (r: number) => (((r % 360) + 360) % 360) as Orientation['rotation'];
 /** Mirror as seen on screen. Placement = rotate(r) ∘ flip(f), so a screen mirror becomes (−r, !f). */
 const mirrorH = (o: Orientation): Orientation => ({ rotation: norm(-o.rotation), flip: !o.flip });
@@ -82,7 +90,16 @@ export function applyTool(
     case 'set': {
       const block = s.block ? (blocks.get(s.block) ?? s.library?.block(s.block)) : undefined;
       if (!block) return { message: 'Pick a block in the tray first.' };
-      const targets = setTargets(spaces, hit.slotId, s.scope);
+      const targets = setTargets(spaces, hit.slotId, s.scope, block.shape ?? null);
+      const here = spaces.find((x) => x.id === hit.slotId);
+      const spaceShape =
+        here?.shape && here.shape in SHAPE_NAME ? (here.shape as BlockShape) : null;
+      if (!targets.length && here && takesBlock(here))
+        return {
+          message: spaceShape
+            ? `This space takes ${SHAPE_NAME[spaceShape].toLowerCase()} blocks.`
+            : `${SHAPE_NAME[block.shape!]} blocks go in ${SHAPE_NAME[block.shape!].toLowerCase()} spaces (Shaped Blocks, Baby Blocks, Diamond Point).`,
+        };
       if (!targets.length)
         return {
           message: hit.slotId.startsWith('p:')
@@ -125,10 +142,15 @@ export function applyTool(
             for (const t of targets) {
               const c = q.layers[0].slots[t];
               if (!c) continue;
+              const shape = blockOf(c.block)?.shape;
               if (s.tool === 'erase') delete q.layers[0].slots[t];
+              // A triangle has no top↕bottom mirror that keeps its outline: mirror left↔right.
               else if (s.tool === 'flip')
-                Object.assign(c, s.flipAxis === 'v' ? mirrorV(c) : mirrorH(c));
-              else c.rotation = ((c.rotation + 90) % 360) as typeof c.rotation;
+                Object.assign(
+                  c,
+                  s.flipAxis === 'v' && shape !== 'triangle' ? mirrorV(c) : mirrorH(c),
+                );
+              else c.rotation = norm(c.rotation + (shape ? SHAPE_TURN[shape] : 90));
             }
             pruneColorings(q);
           }),
@@ -151,15 +173,22 @@ export function applyTool(
             "This colorway's colors are set in the Colors tab. Show the primary colorway to paint.",
         };
       if (!s.color) return { message: 'Pick a color in the tray first.' };
-      if (!content && !isPlainGroup(group)) return { message: 'Set a block here first.' };
+      // An empty block space takes a plain fill, as sashing does (spec 026).
+      const plainBlockSpace = group === 'block' && !content;
+      if (!content && !isPlainGroup(group) && !plainBlockSpace)
+        return { message: 'Set a block here first.' };
       const fill: Fill = fillFor(s.color);
       let next = doc;
-      if (isPlainGroup(group)) {
+      if (isPlainGroup(group) || plainBlockSpace) {
         next = ensurePlainBlock(next);
+        const alt = spaces.find((x) => x.id === hit.slotId)?.alt;
         const scopeIds =
           s.scope === 'this'
             ? [hit.slotId]
-            : spaces.filter((x) => slotGroup(x.id) === group).map((x) => x.id);
+            : spaces
+                .filter((x) => slotGroup(x.id) === group)
+                .filter((x) => !plainBlockSpace || s.scope === 'all' || x.alt === alt)
+                .map((x) => x.id);
         quilt = ensureSlotContent(quilt, scopeIds);
       }
       const match = fillAtHit();

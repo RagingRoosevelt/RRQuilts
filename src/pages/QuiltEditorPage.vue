@@ -423,7 +423,7 @@ const borderInner = computed((): Bounds => {
   return [x0 - sum(0), y0 - sum(1), x1 + sum(2), y1 + sum(3)];
 });
 /** Some space takes a block (patch layouts and pieced strips take only colors and fabrics). */
-const hasBlockSpaces = computed(() => generated.value.slots.some(takesBlock));
+const hasBlockSpaces = computed(() => generated.value.slots.some((s) => takesBlock(s)));
 const bordersSetAside = computed(
   () => !!quilt.value && setsBordersAside(quilt.value.layout) && quilt.value.borders.length > 0,
 );

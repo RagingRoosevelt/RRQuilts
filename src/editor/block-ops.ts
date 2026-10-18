@@ -11,6 +11,7 @@ import { deriveSeamPatches } from '@/model/blocks/derive';
 import { newId } from '@/model/ids';
 import { itemId } from '@/model/identity';
 import { variationName } from '@/model/new-quilt';
+import type { BlockShape } from '@/model/blocks/shape';
 import type { Block, SeamBlock } from '@/model/schema/block';
 import type { Units } from '@/model/schema/project';
 import type { Guide, NodeMode } from './draw-ops';
@@ -27,7 +28,7 @@ export interface BlockEditorSettings {
 export function editorSettings(block: Block, units: Units): BlockEditorSettings {
   const e = (block.editor ?? {}) as Partial<BlockEditorSettings>;
   return {
-    snap: { ...defaultSnap(units), ...e.snap },
+    snap: { ...defaultSnap(units, block.shape), ...e.snap },
     graph: { show: false, step: units === 'cm' ? 1 : 0.5, ...e.graph },
     guides: e.guides ?? [],
     showPatches: e.showPatches ?? true,
@@ -40,17 +41,20 @@ export function newBlock(
   units: Units,
   author = '',
   license = DEFAULT_LICENSE,
+  shape?: BlockShape,
 ): SeamBlock {
   const drawing = { nodes: [], segments: [] };
+  const patches = deriveSeamPatches(drawing, size, shape).patches;
   return {
     id: itemId(author),
     kind: 'seam',
     size,
+    ...(shape ? { shape } : {}),
     notecard: { name },
     drawing,
-    patches: deriveSeamPatches(drawing, size).patches.map((p) => ({ id: newId(), path: p.path })),
+    patches: patches.map((p) => ({ id: newId(), path: p.path })),
     colorings: [{ id: newId(), name: 'Coloring 1', fills: {} }],
-    editor: { snap: defaultSnap(units) },
+    editor: { snap: defaultSnap(units, shape) },
     ...(author ? { author } : {}),
     license,
   };

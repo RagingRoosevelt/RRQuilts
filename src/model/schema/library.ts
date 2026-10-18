@@ -6,7 +6,7 @@ import { Units } from './project';
 import { itemBase, Links, Socials } from './shared';
 
 export const LIBRARY_FORMAT = 'rrqlib';
-export const LIBRARY_VERSION = 3;
+export const LIBRARY_VERSION = 4;
 
 /**
  * A palette: a named set of colors and fabrics (spec 014); each keeps its own `id@version` so

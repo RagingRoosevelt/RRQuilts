@@ -8,6 +8,7 @@ import type { ColoringBody } from '@/model/schema/coloring';
 import { colorLookup, drawBlock, type View } from './draw';
 import type { RrqDoc } from '@/model/schema/project';
 import { arcGeom } from '@/model/geometry/path';
+import { lattice, SHAPE_OUTLINE } from '@/model/blocks/shape';
 
 export interface BlockDrawOptions {
   dpr: number;
@@ -51,6 +52,14 @@ export function drawBlockEditor(
   ctx.setTransform(k, 0, 0, k, o.dpr * o.view.tx, o.dpr * o.view.ty);
   const px = 1 / o.view.scale; // one CSS pixel in design units
   const ink = o.dark ? '#e8e8e8' : '#222';
+  // The block's outline: its shape (spec 026) or the square.
+  const outline = new Path2D();
+  if (block.shape) {
+    SHAPE_OUTLINE[block.shape].forEach(([x, y], i) =>
+      i ? outline.lineTo(x * w, y * h) : outline.moveTo(x * w, y * h),
+    );
+    outline.closePath();
+  } else outline.rect(0, 0, w, h);
 
   // Patches
   if (o.mode === 'color') {
@@ -61,11 +70,26 @@ export function drawBlockEditor(
     });
   } else {
     ctx.fillStyle = o.dark ? '#2f2f2f' : '#fbf8f1';
-    ctx.fillRect(0, 0, w, h);
+    ctx.fill(outline);
+  }
+
+  // A shaped block's triangle grid: faint lines inside the outline, as the snap points.
+  if (block.shape && o.mode === 'draw' && o.snap.grid) {
+    ctx.save();
+    ctx.clip(outline);
+    ctx.beginPath();
+    for (const [a, b] of lattice(block.shape, block.size, o.snap.perSide).lines()) {
+      ctx.moveTo(...a);
+      ctx.lineTo(...b);
+    }
+    ctx.lineWidth = px;
+    ctx.strokeStyle = o.dark ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.12)';
+    ctx.stroke();
+    ctx.restore();
   }
 
   // Graph paper
-  if (o.graph.show && o.graph.step > 0) {
+  if (o.graph.show && o.graph.step > 0 && !block.shape) {
     ctx.beginPath();
     for (let x = o.graph.step; x < w; x += o.graph.step) {
       ctx.moveTo(x, 0);
@@ -81,7 +105,7 @@ export function drawBlockEditor(
   }
 
   // Snap grid points (only when they'd be at least 6 px apart)
-  if (o.mode === 'draw' && o.snap.grid) {
+  if (o.mode === 'draw' && o.snap.grid && !block.shape) {
     const [gx, gy] = gridSpacing(o.snap, block.size);
     if (gx / px >= 6 && gy / px >= 6) {
       ctx.fillStyle = o.dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.25)';
@@ -109,7 +133,7 @@ export function drawBlockEditor(
   // Outline
   ctx.lineWidth = 2 * px;
   ctx.strokeStyle = ink;
-  ctx.strokeRect(0, 0, w, h);
+  ctx.stroke(outline);
 
   // Seams
   const d = o.liveDrawing ?? ('drawing' in block ? block.drawing : undefined);

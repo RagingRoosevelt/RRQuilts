@@ -15,7 +15,7 @@ import { Units, type RrqDoc } from './schema/project';
 import { Socials } from './schema/shared';
 
 export const BLOCK_FORMAT = 'rrqbl';
-export const BLOCK_VERSION = 1;
+export const BLOCK_VERSION = 2;
 
 export const BlockFile = Type.Object({
   format: Type.Literal(BLOCK_FORMAT),

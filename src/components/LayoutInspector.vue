@@ -62,9 +62,9 @@
           </div>
         </div>
       </FieldGroup>
-      <FieldGroup :label="layout.style === 'variable-point' ? 'Diamond size' : 'Block size'">
+      <FieldGroup :label="layout.style !== 'on-point' ? 'Diamond size' : 'Block size'">
         <div class="column" style="gap: 8px">
-          <template v-if="layout.style === 'variable-point'">
+          <template v-if="layout.style !== 'on-point'">
             <DiamondSize
               :width="layout.width"
               :height="layout.height"

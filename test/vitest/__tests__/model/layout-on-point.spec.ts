@@ -217,7 +217,9 @@ describe('On-Point printing', () => {
     const doc = ensurePlainBlock(fixture());
     const q = ensureSlotContent(
       quiltWith(l, []),
-      generateSlots(l, []).slots.map((s) => s.id),
+      generateSlots(l, [])
+        .slots.map((s) => s.id)
+        .filter((id) => !id.startsWith('b:')),
     );
     for (const p of quiltPieces(doc, q)) {
       expect(p.shown).toBeDefined();
