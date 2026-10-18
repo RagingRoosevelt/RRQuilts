@@ -108,7 +108,9 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - `layout/` — one engine: `engine.ts` `tile(Tiling)` = bands of a repeating cell stepped by a, b, one
   affine `map`, `merges` (triangle grids), `clip` to the quilt (`clip.ts`, curved outlines too);
   `presets.ts` (`horizontal`, `onPoint`, `strips`, spec 018 `variablePoint`, `onePatch`, `tumbling`;
-  `patternBands` = strip patterns shared with pieced borders in `borders.ts`) return a `Tiling`; `strips.ts` strip ops (add/insert/
+  `patternBands` = strip patterns shared with pieced borders in `borders.ts`; spec 026 `asBlocks` turns
+  patches into shaped block spaces for `shapedBlocks`, Baby Blocks and Diamond Point, `flowTiling` =
+  flow angle) return a `Tiling`; `strips.ts` strip ops (add/insert/
   delete/swap/set, square fixes); `slots.ts` `Slot` has kind/shape/turns/
   alt/size/cut, `Generated` has edge/trim; `reconcile`/`applyLayout`/`convertLayout` on changes. Add
   a style = a preset + its id grammar in `specs/003-project-format/contracts/slot-ids.md`; test-only
@@ -131,7 +133,12 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - `src/editor/` — `actions.ts` (pure: tap + tool → new doc), `scope.ts` (This/All/Alternate),
   `undo.ts` (Immer patch history), `color.ts`/`colors.ts`
 - `src/stores/editor.ts` — session tool/mode/scope/selection/view state
-- Plain sashes/cornerstones/borders use the hidden `plain` block (`src/model/plain.ts`)
+- Plain sashes/cornerstones/borders use the hidden `plain` block (`src/model/plain.ts`); so does a
+  painted empty block space (spec 026)
+- Shaped blocks (spec 026): `src/model/blocks/shape.ts` (triangle / diamond60 / hexagon: outline in
+  the size's unit square, leg↔size, `shapeOrient` turns, `fitShape` onto a space, triangle `lattice`);
+  `block.shape` fixed at creation; placement/derive/snap take it; Set matches shapes (`takesBlock`).
+  Starter shaped blocks: `content/shaped*.ts` (pieces in side-1 centered coordinates)
 - Starter blocks/colors: `src/content/starter.ts` (+ `grid.ts` grid-piece helpers, `four-patch.ts`, `five-patch.ts`, `seven-patch.ts`, `nine-patch.ts`, `letters.ts`, `strips.ts`, `medallions.ts`; `palette-colorings.ts` = each block recolored per themed palette) → built-in library (`builtinLibrary()`, ids
   `rrquilts.<name>`, deterministic inner ids so versions are stable), loaded at boot into
   `stores/library.ts`; `addStarterContent` only for tests

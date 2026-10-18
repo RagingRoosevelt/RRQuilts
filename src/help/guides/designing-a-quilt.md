@@ -13,8 +13,11 @@ size.
 ## Layout
 
 1. Open the **Layout** tab. **Style** is **Straight Set** (blocks in rows and columns), **On-Point**
-   (blocks turned 45°), **Variable Point**, **One Patch**, **Baby Blocks**, **Variable Blocks**, or
-   **Horizontal Strip** and **Vertical Strip** (see below). **Custom Set** is coming soon.
+   (blocks turned 45°), **Diamond Point**, **Variable Point**, **Shaped Blocks**, **One Patch**,
+   **Baby Blocks**, **Variable Patch**, or **Horizontal Strip** and **Vertical Strip** (see below).
+   **Custom Set** is coming soon. In **Start a quilt**, the **Blocks** and **Patches** buttons above
+   the pictures switch between layouts for blocks and layouts for patches. Straight Set, On-Point and
+   the strips are in both.
 2. Set **Columns** and **Rows** (1 to 100).
 3. Set the **Finished block size** (**Width** and **Height**). Switch on **Keep width and height
    equal** to keep blocks square.
@@ -55,10 +58,37 @@ blocks fills the spaces between them, and setting pieces finish the edge.
 Switching between **Straight Set** and **On-Point** keeps the blocks in the main grid. Blocks that
 only exist in one style are listed in a warning before they are removed.
 
+## Shaped block quilts
+
+**Shaped Blocks**, **Baby Blocks**, and **Diamond Point** hold triangle, 60° diamond, or hexagon
+blocks. Draw those in the block editor (see Drawing blocks). A space takes only a block of its shape.
+
+- **Shaped Blocks** repeats **Triangles**, **60° diamonds**, or **Hexagons** over the quilt. Set the
+  number across and down and the **Side** (for diamonds, the width across, which is the same as a
+  side).
+- **Baby Blocks** are cubes of three 60° diamond blocks. **Alternate** sets the tops, lefts, and
+  rights apart.
+- **Diamond Point** is like On-Point with 60° diamonds standing on their points. Set the **Leg**,
+  **Width**, or **Height** of a diamond and the other two are worked out. Setting pieces take colors
+  and fabrics.
+
+**Rotate** turns a shaped block by the steps its shape allows: a third of a turn for triangles, half
+a turn for diamonds, and a sixth for hexagons. **Flip** mirrors it left to right.
+
+Any block space also takes a color or fabric. Paint an empty space and the whole space takes it.
+Setting a block there later replaces it.
+
+## Flow angle
+
+Layouts of triangles, diamonds, or hexagons (Shaped Blocks, Baby Blocks, Variable Patch, and One
+Patch with those shapes) have a **Flow angle** slider. It turns the direction the rows run, from 0°
+to 360°. The slider settles on multiples of 15° when you drag near one. With **Trimmed straight**
+the quilt keeps its size and the turned rows are cut at its edge.
+
 ## Patch quilts
 
-**Variable Point**, **One Patch**, **Baby Blocks**, and **Variable Blocks** are made of patches. You
-color patches with colors and fabrics, not blocks. **Alternate** colors every other patch.
+**Variable Point**, **One Patch**, and **Variable Patch** are made of patches. You color patches
+with colors and fabrics, not blocks. **Alternate** colors every other patch.
 
 - **Variable Point** is like On-Point, but the diamonds can be taller or wider than they are across.
   Set the **Diamond width** and **Diamond height**, measured point to point through the diamond, or
@@ -68,11 +98,10 @@ color patches with colors and fabrics, not blocks. **Alternate** colors every ot
 - **One Patch** repeats one shape over the quilt. Pick the **Shape** (squares, rectangles, bricks,
   half-square triangles, triangles, 60° diamonds, hexagons, tumblers, clamshells, or octagons and
   squares), then the number of patches across and down and the patch size.
-- **Baby Blocks** are cubes made of three 60° diamonds. Set the cubes across and down and the
-  **Diamond side**. **Alternate** colors the tops, lefts, and rights apart, so three taps give the
-  cubes their light, medium, and dark faces.
-- **Variable Blocks** are cubes you can squash or stretch. Set the **Cube width**, the **Top
-  height**, and the **Side height**.
+- **Variable Patch** is a cube of three diamonds you can squash or stretch. Set the **Cube width**,
+  the **Top height**, and the **Side height**. **Alternate** colors the tops, lefts, and rights
+  apart, so three taps give the cubes their light, medium, and dark faces. Quilts made with Baby
+  Blocks in RRQuilts 0.4 open as Variable Patch, since their diamonds were patches.
 
 Where the rows don't end in a straight line, **Edge** chooses **Trimmed straight** (patches cut off
 along a straight edge) or **Whole patches** (a zigzag edge, bound along the shapes). With whole

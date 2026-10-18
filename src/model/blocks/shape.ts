@@ -96,6 +96,13 @@ export function shapeOrient(shape: BlockShape, rotation: number, flip: boolean):
   return mul(invert(toReal), mul(turn, mul(f, toReal)));
 }
 
+/** Share of the unit square a shape covers (triangle and diamond ½, hexagon ¾). */
+export const SHAPE_AREA: Record<BlockShape, number> = {
+  triangle: 0.5,
+  diamond60: 0.5,
+  hexagon: 0.75,
+};
+
 const area = (p: Pt[]) =>
   p.reduce((s, a, i) => {
     const b = p[(i + 1) % p.length]!;

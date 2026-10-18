@@ -1,6 +1,8 @@
 // Built-in starter content: 13 traditional blocks (plus the four-, five-, seven-, and nine-patch families in their own files) drawn originally as seam lines, 36 basic solid
 // colors, and five themed palettes, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
+import { shapeSize, type BlockShape } from '@/model/blocks/shape';
+import { SHAPED_BLOCKS, shapedStarter } from './shaped';
 import { produce } from 'immer';
 import { deriveSeamPatches } from '@/model/blocks/derive';
 import { pathPolygon, pointInPolygon } from '@/model/geometry/path';
@@ -139,8 +141,10 @@ export const STARTER_PALETTES: { name: string; colors: [string, [number, number,
 
 interface StarterBlock {
   name: string;
-  /** Finished size in inches (default 10). */
+  /** Finished size in inches (default 10); a shaped block's side. */
   size?: number;
+  /** Shaped blocks (spec 026). */
+  shape?: BlockShape;
   /** Category path in the built-in library ("Stars/Eight-point stars"). */
   category: string;
   seams: Seam[];
@@ -474,9 +478,11 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     ...LOG_CABIN_BLOCKS,
     ...STRIP_BLOCKS,
     ...MEDALLION_BLOCKS,
+    ...SHAPED_BLOCKS.map(shapedStarter),
   ].map((b) => ({
     name: b.name,
     size: b.size,
+    ...('shape' in b ? { shape: b.shape } : {}),
     category: b.category,
     seams: b.seams,
     base: C.Cream!,
@@ -527,7 +533,9 @@ function buildItems(): BuiltinItems {
     }),
   );
   const blocks = STARTER_BLOCKS.map((b): SeamBlock => {
-    const size: [number, number] = [b.size ?? 10, b.size ?? 10];
+    const size: [number, number] = b.shape
+      ? shapeSize(b.shape, 'leg', b.size ?? 4)
+      : [b.size ?? 10, b.size ?? 10];
     const nodes: { id: string; x: number; y: number }[] = [];
     const node = ([x, y]: P) => {
       const id = `n${nodes.length + 1}`;
@@ -540,7 +548,7 @@ function buildItems(): BuiltinItems {
         : { id: `s${i + 1}`, kind: 'line', from: node(sm[0]), to: node(sm[1]) },
     );
     const drawing = { nodes, segments };
-    const patches = deriveSeamPatches(drawing, size).patches.map((p, i) => ({
+    const patches = deriveSeamPatches(drawing, size, b.shape).patches.map((p, i) => ({
       id: `p${i + 1}`,
       path: p.path,
     }));
@@ -554,6 +562,7 @@ function buildItems(): BuiltinItems {
       id: libId(b.name),
       kind: 'seam',
       size,
+      ...(b.shape ? { shape: b.shape } : {}),
       notecard: { name: b.name, tags: ['starter'] },
       source: credit(b.name),
       revision: 1,
@@ -621,6 +630,10 @@ const STARTER_CATEGORIES = [
   'Symbols',
   'Symbols/Letters',
   'Symbols/Numbers',
+  'Shapes',
+  'Shapes/Triangles',
+  'Shapes/Diamonds',
+  'Shapes/Hexagons',
 ];
 const catId = (path: string) =>
   `rrquilts.category.${path

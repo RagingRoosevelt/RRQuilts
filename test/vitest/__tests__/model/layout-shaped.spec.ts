@@ -11,6 +11,7 @@ import { createProject } from '@/model/new-project';
 import type { Layout, Quilt } from '@/model/schema/quilt';
 import type { RrqDoc } from '@/model/schema/project';
 import { placementMatrix } from '@/render/placement';
+import { quiltPieces } from '@/model/print/pieces';
 
 const corners = (s: Slot) => flattenLoop(pathToSegs(s.outline, [1, 1]), 1e-6);
 const near = (a: Pt, b: Pt, tol = 1e-6) => Math.hypot(a[0] - b[0], a[1] - b[1]) < tol;
@@ -192,5 +193,24 @@ describe('placing shaped blocks', () => {
       },
     ).doc!;
     expect(d.project.quilts[0]!.layers[0].slots[at]!.rotation).toBe(120);
+  });
+
+  it('prints whole shaped blocks as their pieces, trimmed ones with what shows', () => {
+    const { doc, tri, spaces } = setup();
+    const d = applyTool(
+      doc,
+      'q',
+      spaces,
+      { slotId: spaces[0]!.id },
+      {
+        tool: 'set',
+        scope: 'all',
+        block: tri.id,
+        color: null,
+      },
+    ).doc!;
+    const pieces = quiltPieces(d, d.project.quilts[0]!);
+    expect(pieces).toHaveLength(spaces.length);
+    expect(pieces.every((p) => !p.shown && p.poly.length === 3)).toBe(true);
   });
 });
