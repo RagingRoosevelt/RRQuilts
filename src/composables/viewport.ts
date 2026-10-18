@@ -1,7 +1,8 @@
 // Shared canvas viewport: device-pixel sizing, redraw scheduling, zoom (wheel, pinch, buttons),
 // pan, and turning pointer input into taps / drags in world coordinates.
 // Drags go to the tool first (onDragStart returns true to claim); otherwise they pan when the
-// Pan tool is on, with touch, or with the right/middle mouse button. Two fingers always pinch/pan.
+// Pan tool is on or with the right/middle mouse button. One finger pans only with the Pan tool, so
+// a drag that just misses an item doesn't move the view. Two fingers always pinch/pan.
 import { onBeforeUnmount, onMounted, ref, type Ref } from 'vue';
 import { fitView, type View } from '@/render/draw';
 
@@ -123,7 +124,7 @@ export function useViewport(o: ViewportOptions) {
     if (start.mode === 'pending' && Math.hypot(p.x - start.x, p.y - start.y) > 6) {
       const wantsPan = o.panOnly() || e.buttons !== 1;
       if (!wantsPan && o.onDragStart?.(toWorld(start), e)) start.mode = 'drag';
-      else start.mode = wantsPan || e.pointerType === 'touch' ? 'pan' : 'none';
+      else start.mode = wantsPan ? 'pan' : 'none';
     }
     if (start.mode === 'pan') {
       const v = view();

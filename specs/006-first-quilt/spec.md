@@ -288,7 +288,9 @@ zoom, drag-pan, and Fit.
 **Canvas**
 
 - **FR-050**: The canvas MUST render the quilt from generated slots and block patches, with patch
-  outlines toggleable, unfilled patches hatched, and zoom/pan/fit by mouse, keyboard, and touch.
+  outlines toggleable, unfilled patches hatched, and zoom/pan/fit by mouse, keyboard, and touch. A one-finger drag pans only with the Pan tool
+  (or where no tool takes drags); two fingers always pinch and pan (owner, 2026-10-18), so drags meant
+  for items don't move the view.
 - **FR-051**: Hit-testing MUST resolve a tap to the space and patch under it at any zoom.
 
 ### Key Entities
