@@ -80,7 +80,9 @@ export function blockThumbnail(
     () => {
       const [c, ctx] = canvas(px);
       const s = (px - 8) / Math.max(...block.size);
-      ctx.setTransform(s, 0, 0, s, 4, 4);
+      // Centered: shaped and rectangular blocks don't fill the square.
+      const [ox, oy] = block.size.map((d) => (px - d * s) / 2) as [number, number];
+      ctx.setTransform(s, 0, 0, s, ox, oy);
       drawBlock(ctx, block, coloring, colorLookup(doc, libraryColors, { ctx, devicePerUnit: s }), {
         outlines: true,
         lineWidth: 1 / s,
