@@ -31,4 +31,4 @@
 
 ## Notes
 
-- Names (button, modes), read-only picks and chains are defaults in Clarifications; owner may revisit. FR-010 names the format bump, as other specs do.
+- Names (button, modes), manual palette dropdown behavior and chains are defaults in Clarifications; owner may revisit. FR-010 names the format bump, as other specs do.

@@ -15,6 +15,12 @@ picks it has at that moment. The quilt design's Colors list for a colorway gets 
 Manual / Automatic switch. Available from a quilt's menu in the project and from the Design tab's
 Colorways section, next to Save as new colorway. Name of the feature and button undecided.
 
+Owner, 2026-10-18 (follow-up): in Automatic mode the quilter can still override single picks: each
+source color keeps its dropdown, which defaults to an **Automatic** option and can be switched to any
+color or fabric of the chosen palette. In Manual mode the Design tab's Colors list gets a palette
+dropdown above the colors, choosing which palette the replacements are picked from. A label calls
+out the source colorway.
+
 Related: spec 019 (quilt colorways: palette swap dialog US1 acceptance 7, Colors list for a colorway
 acceptance 3, deleting the primary FR-005), spec 011 (palettes), spec 014 (fabrics match by average
 color).
@@ -26,9 +32,9 @@ color).
 - Defaults taken, owner may revisit:
   - **Names**: the menu item and button are **New colorway from palette…**; the modes are **Manual**
     and **Automatic**. "Automatic colorway" in help text.
-  - **Overrides**: in Automatic mode the picks are shown but not editable. Changing one pick means
-    switching to Manual (which keeps the current picks, then edits as today). Per-color overrides
-    are out of scope for now.
+  - **Manual-mode palette dropdown**: it narrows the replacement choices to one palette (or **All**,
+    today's list: the project's colors, fabrics and palettes). Changing it doesn't change picks
+    already made. It is remembered with the colorway, and switching to Automatic starts with it.
   - **Chains**: an automatic colorway's source can be any other colorway, automatic ones included,
     but never itself or anything that comes from it (no loops).
 
@@ -49,13 +55,15 @@ shows that piece as the nearest blue to green, with no other step.
 1. **Given** the dialog, **Then** it offers **Manual** (today's palette swap, a one-time copy) and
    **Automatic**, plus a **Source colorway** choice (any colorway of the quilt; default the one
    shown).
-2. **Given** Automatic, **When** a palette is picked, **Then** each source color shows its nearest
-   color or fabric in that palette, with before and after pictures, and the picks are not editable
-   (switch to Manual to edit them).
-3. **Given** OK, **Then** a new colorway, named for the palette, is added and shown.
-4. **Given** the dialog opened from the Design tab's Colorways section, **Then** it is the same
+2. **Given** Automatic, **When** a palette is picked, **Then** each source color is listed with a
+   dropdown set to **Automatic** (showing its nearest color or fabric in that palette), with before
+   and after pictures.
+3. **Given** Automatic, **When** a row's dropdown is changed to a color or fabric of the palette,
+   **Then** that color is overridden; **Automatic** puts it back to the nearest match.
+4. **Given** OK, **Then** a new colorway, named for the palette, is added and shown.
+5. **Given** the dialog opened from the Design tab's Colorways section, **Then** it is the same
    dialog, reached by a **New colorway from palette…** button next to **Save as new colorway**.
-5. **Given** a quilt card's menu, **Then** the existing palette swap item is this dialog under the
+6. **Given** a quilt card's menu, **Then** the existing palette swap item is this dialog under the
    same name.
 
 ### User Story 2 - The link stays live (Priority: P1)
@@ -69,21 +77,29 @@ shows that piece as the nearest blue to green, with no other step.
    matches follow the palette as it is now.
 3. **Given** a chain (A automatic from B, B automatic from the primary), **Then** a change to the
    primary flows through B to A.
+4. **Given** an override, **Then** it stays fixed while the rows set to **Automatic** follow changes.
+   If its source color is no longer in the source colorway, the override is dropped; if its pick
+   leaves the palette, that row goes back to **Automatic**.
 
-### User Story 3 - Switch modes in the Colors list (Priority: P2)
+### User Story 3 - Modes and palette in the Colors list (Priority: P2)
 
 **Acceptance Scenarios**:
 
 1. **Given** a colorway shown in the Design tab, **Then** its Colors list (spec 019) has a
    Manual / Automatic switch.
 2. **Given** Automatic is turned on for a manual colorway, **Then** the user picks a source
-   colorway and a palette (same choices as the dialog), and the list shows the computed picks,
-   read-only.
+   colorway and a palette (same choices as the dialog), and each row's dropdown shows **Automatic**
+   (its current nearest match) plus the palette's colors and fabrics to override with.
 3. **Given** Manual is turned on for an automatic colorway, **Then** it keeps the picks it shows at
-   that moment and they become editable as today; the link is gone.
-4. **Given** the primary colorway is shown, **Then** no switch is shown (the primary is the
+   that moment (overrides included) and they are edited as today; the link is gone.
+4. **Given** Manual mode, **Then** a palette dropdown above the colors chooses where replacements
+   come from: **All** (today's list) or one palette. The rows' dropdowns offer only that palette's
+   colors and fabrics; picks already made stay as they are.
+5. **Given** the primary colorway is shown, **Then** no switch is shown (the primary is the
    quilt's own colors).
-5. Each mode switch is one undoable change.
+6. **Given** either mode, **Then** a label above the rows names the source colorway (in Manual, the
+   primary colorway, whose colors the rows list).
+7. Each mode switch, override and palette change is one undoable change.
 
 ### User Story 4 - When the source or palette goes away (Priority: P2)
 
@@ -105,13 +121,15 @@ shows that piece as the nearest blue to green, with no other step.
 - **FR-001**: The palette swap dialog for quilt colorways MUST offer Manual and Automatic modes and
   a source colorway choice (default: the one shown). Manual behaves as spec 019 does today, from the
   chosen source.
-- **FR-002**: An automatic colorway MUST store its source colorway and its palette, not a fixed list
-  of picks. Its picks MUST be computed from the source's current colors and the palette's current
+- **FR-002**: An automatic colorway MUST store its source colorway, its palette and its overrides
+  (source color → pick), not a fixed list of picks. Its other picks MUST be computed from the source's current colors and the palette's current
   colors and fabrics every time it is drawn, printed or thumbnailed.
 - **FR-003**: Matching MUST use the same nearest-color rule as the manual palette swap (fabrics by
   their average color). Several source colors may match the same palette color.
-- **FR-004**: An automatic colorway's picks MUST be read-only; switching to Manual MUST keep the
-  current picks.
+- **FR-004**: In Automatic mode each source color's dropdown MUST default to **Automatic** (the
+  nearest match) and offer the palette's colors and fabrics as overrides. Overrides MUST be dropped
+  when their source color is gone and revert to Automatic when their pick leaves the palette.
+  Switching to Manual MUST keep the current picks, overrides included.
 - **FR-005**: Deleting an automatic colorway's source, or losing its palette (deleted, switched off,
   removed, emptied), MUST turn it into a manual colorway holding its current picks, so nothing looks
   different. The primary-delete rule (spec 019 FR-005) MUST settle automatic colorways first.
@@ -121,15 +139,17 @@ shows that piece as the nearest blue to green, with no other step.
 - **FR-008**: The Design tab's Colorways section MUST have a **New colorway from palette…** button
   next to **Save as new colorway**; the quilt card's menu item uses the same name.
 - **FR-009**: The Colors list of a non-primary colorway MUST have a Manual / Automatic switch
-  (User Story 3).
-- **FR-010**: Storing the source and palette is a project format change: version bump with a
+  (User Story 3). In Manual mode it MUST have a palette dropdown above the colors (**All** or one
+  palette) that limits the replacement choices without changing existing picks; the choice is saved
+  with the colorway. In both modes a label MUST name the source colorway.
+- **FR-010**: Storing the source, palette, overrides and manual palette choice is a project format change: version bump with a
   migration (spec 003), recorded in the format contract.
 
 ## Success Criteria *(mandatory)*
 
 - **SC-001**: A quilter makes an automatic colorway from a palette in under 30 seconds.
-- **SC-002**: After any recolor of the source, the automatic colorway's picture matches what a fresh
-  Manual swap with the same palette would produce, in 100% of checked cases.
+- **SC-002**: After any recolor of the source, every row set to **Automatic** shows what a fresh
+  swap with the same palette would suggest, in 100% of checked cases; overridden rows are unchanged.
 - **SC-003**: Deleting a source colorway or its palette changes no pixel of the automatic colorway's
   picture.
 - **SC-004**: A project with automatic colorways saved and reopened (also offline, on another
@@ -147,6 +167,5 @@ shows that piece as the nearest blue to green, with no other step.
 
 ## Out of Scope
 
-- Per-color overrides inside an automatic colorway.
 - Matching rules other than nearest color (e.g. by value order or hue rotation).
 - Automatic block colorings (block palette swap stays manual).
