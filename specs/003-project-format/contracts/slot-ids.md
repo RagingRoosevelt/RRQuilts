@@ -75,6 +75,21 @@ trimmed edges add partial patches at negative or past-the-end indices.
 | Octagon / the small square up and left of it | `p:i{i}j{j}o` / `p:i{i}j{j}s` | |
 | Tumbling-block face (top, left, right) | `p:i{i}j{j}{t|l|r}` | `p:i2j1t` |
 
+## Shaped block layouts (spec 026)
+
+Block versions of patch layouts use the patch id with `b:` in place of `p:`, so the same position has
+the same id apart from the prefix (switching between the twins drops what was placed, with the usual
+warning). Turning the grid (flow angle) doesn't change ids: they follow the grid, not the quilt.
+
+| Space | Id | Example |
+|---|---|---|
+| Shaped Blocks triangle, diamond or hexagon | One Patch id, `b:` | `b:i2j3u`, `b:i4j1` |
+| Baby Blocks diamond (top, left, right) | tumbling id, `b:` | `b:i2j1t` |
+| Diamond Point diamond (setting pieces and sashes keep their On-Point ids) | On-Point block id | `b:r2c3`, `b:m:r1c1` |
+
+Variable Patch (`variable-blocks`) keeps the `p:` tumbling ids; v6 Baby Blocks quilts become Variable
+Patch on opening (format v7).
+
 ## Pieced borders (spec 018)
 
 Border n's sides are pattern bands (the strip patterns above) running along the side from the

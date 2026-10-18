@@ -106,6 +106,26 @@ export function layoutDefaults(style: string, k: number) {
         height: r(3),
         edge: 'trim' as const,
       };
+    case 'shaped-blocks':
+      return {
+        style: 'shaped-blocks' as const,
+        shape: 'hexagons' as const,
+        cols: 6,
+        rows: 6,
+        width: r(4),
+        edge: 'trim' as const,
+      };
+    case 'diamond-point':
+      return {
+        style: 'diamond-point' as const,
+        cols: 4,
+        rows: 3,
+        width: r(6),
+        height: r(6) * Math.sqrt(3),
+        sash: 0,
+        corner: 'triangle' as const,
+        edge: { finish: 'float' as const, float: r(1) },
+      };
     case 'baby-blocks':
       return {
         style: 'baby-blocks' as const,

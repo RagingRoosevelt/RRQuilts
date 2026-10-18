@@ -11,7 +11,20 @@ import { PLAIN_BLOCK } from '../plain';
 import { flattenLoop, pathToSegs, signedArea, type Pt } from '../geometry/path';
 import { toPath } from './clip';
 import { tile } from './engine';
-import { horizontal, onePatch, onPoint, strips, tumbling, variablePoint } from './presets';
+import {
+  asBlocks,
+  flowTiling,
+  horizontal,
+  onePatch,
+  onPoint,
+  shapedBlocks,
+  strips,
+  tumbling,
+  variablePoint,
+} from './presets';
+
+/** One Patch shapes whose grid can be turned (spec 026 flow angle). */
+export const FLOWS: string[] = ['triangles', 'diamonds', 'hexagons'];
 
 export type SlotKind = 'block' | 'sash' | 'cs' | 'set' | 'border' | 'strip' | 'patch';
 /** `piece` = setting, partial, or irregular space: plain fill only. */
@@ -141,7 +154,7 @@ export function generateSlots(
         trim: false,
       };
     ({ slots, center, trim } = o);
-  } else if (layout.style === 'variable-point') {
+  } else if (layout.style === 'variable-point' || layout.style === 'diamond-point') {
     const o = variablePoint(layout);
     if (layout.edge.finish === 'none')
       return {
@@ -155,11 +168,20 @@ export function generateSlots(
     ({ slots, center, trim } = o);
   } else if (
     layout.style === 'one-patch' ||
+    layout.style === 'shaped-blocks' ||
     layout.style === 'baby-blocks' ||
     layout.style === 'variable-blocks'
   ) {
-    const t = layout.style === 'one-patch' ? onePatch(layout) : tumbling(layout);
-    slots = tile(t.tiling);
+    const t =
+      layout.style === 'one-patch'
+        ? onePatch(layout)
+        : layout.style === 'shaped-blocks'
+          ? shapedBlocks(layout)
+          : tumbling(layout);
+    // Baby Blocks hold diamond blocks (spec 026); Variable Patch stays patches.
+    const tiling = layout.style === 'baby-blocks' ? asBlocks(t.tiling, 'diamond60') : t.tiling;
+    const turns = layout.style !== 'one-patch' || FLOWS.includes(layout.shape);
+    slots = tile(turns ? flowTiling(tiling, layout.flow, t.center) : tiling);
     if (!t.center) {
       // No fill: whole patches; their outline is the quilt's edge and borders are set aside.
       const box = boundsOf(slots);
@@ -255,6 +277,8 @@ export type LayoutStyle =
   | 'vertical-strip'
   | 'variable-point'
   | 'one-patch'
+  | 'shaped-blocks'
+  | 'diamond-point'
   | 'baby-blocks'
   | 'variable-blocks';
 
@@ -275,6 +299,21 @@ export function convertLayout(layout: Layout, style: LayoutStyle, units: 'in' | 
   if (style === 'on-point' && layout.style === 'variable-point') {
     const { cols, rows, sash, corner, edge, width } = layout;
     return { style, cols, rows, sash, corner, edge, block: width * Math.SQRT1_2 };
+  }
+  // Each block layout and its patch twin (spec 026) keep counts, sizes, edge, and flow.
+  if (style === 'diamond-point' && layout.style === 'variable-point') {
+    const { cols, rows, sash, corner, edge, width } = layout;
+    return { style, cols, rows, sash, corner, edge, width, height: width * Math.sqrt(3) };
+  }
+  if (style === 'variable-point' && layout.style === 'diamond-point') return { ...layout, style };
+  if (style === 'shaped-blocks' && layout.style === 'one-patch' && FLOWS.includes(layout.shape)) {
+    const { cols, rows, width, edge, flow } = layout;
+    const shape = layout.shape as 'triangles' | 'diamonds' | 'hexagons';
+    return { style, shape, cols, rows, width, edge, ...(flow ? { flow } : {}) };
+  }
+  if (style === 'one-patch' && layout.style === 'shaped-blocks') {
+    const { shape, cols, rows, width, edge, flow } = layout;
+    return { style, shape, cols, rows, width, height: width, edge, ...(flow ? { flow } : {}) };
   }
   // Baby Blocks and Variable Blocks keep counts and sizes.
   if (
