@@ -11,7 +11,17 @@
         @update:model-value="(v) => emit('rename', String(v ?? ''))"
         @blur="(e: Event) => emit('rename', (e.target as HTMLInputElement).value.trim())"
       />
-      <div class="row no-wrap" style="gap: 8px">
+      <template v-if="block.shape">
+        <div class="text-caption text-grey-7">{{ SHAPE_NAME[block.shape] }} block</div>
+        <ShapeSize
+          :shape="block.shape"
+          :size="block.size"
+          :units="units"
+          :readonly="readonly"
+          @change="(s) => emit('resize', s)"
+        />
+      </template>
+      <div v-else class="row no-wrap" style="gap: 8px">
         <LengthInput
           class="col"
           :model-value="block.size[0]"
@@ -298,7 +308,19 @@
       header-class="text-subtitle2"
     >
       <div class="column q-pa-sm" style="gap: 8px">
+        <q-input
+          v-if="block.shape"
+          :model-value="settings.snap.perSide"
+          dense
+          outlined
+          type="number"
+          min="1"
+          label="Grid steps per side"
+          hint="A triangle grid; each side is cut into this many steps."
+          @update:model-value="(v) => setSnap({ perSide: clampInt(v) })"
+        />
         <q-btn-toggle
+          v-else
           :model-value="settings.snap.mode"
           dense
           no-caps
@@ -309,8 +331,9 @@
           ]"
           @update:model-value="(m) => setSnap({ mode: m })"
         />
+        <template v-if="block.shape" />
         <LengthInput
-          v-if="settings.snap.mode === 'step'"
+          v-else-if="settings.snap.mode === 'step'"
           :model-value="settings.snap.step"
           label="Snap every"
           :units="units"
@@ -362,13 +385,14 @@
           @update:model-value="(v) => setSnap({ seams: v })"
         />
         <q-toggle
+          v-if="!block.shape"
           :model-value="settings.graph.show"
           dense
           label="Graph paper"
           @update:model-value="(v) => emit('settings', { graph: { ...settings.graph, show: v } })"
         />
         <LengthInput
-          v-if="settings.graph.show"
+          v-if="settings.graph.show && !block.shape"
           :model-value="settings.graph.step"
           label="Graph paper spacing"
           :units="units"
@@ -392,6 +416,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
+import ShapeSize from '@/components/ShapeSize.vue';
+import { SHAPE_NAME } from '@/model/blocks/shape';
 import { attribution, type BlockEditorSettings, type SelectionOp } from '@/editor/block-ops';
 import type { SnapSettings } from '@/editor/snap';
 import type { SeamBlock } from '@/model/schema/block';

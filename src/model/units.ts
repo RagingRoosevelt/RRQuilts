@@ -52,7 +52,7 @@ export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
       } else if (q.layout.style === 'horizontal-strip' || q.layout.style === 'vertical-strip') {
         q.layout.length = len(q.layout.length);
         for (const st of q.layout.strips) st.width = len(st.width);
-      } else if (q.layout.style === 'variable-point') {
+      } else if (q.layout.style === 'variable-point' || q.layout.style === 'diamond-point') {
         q.layout.width = len(q.layout.width);
         q.layout.height = len(q.layout.height);
         q.layout.sash = len(q.layout.sash);
@@ -60,6 +60,8 @@ export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
       } else if (q.layout.style === 'one-patch') {
         q.layout.width = len(q.layout.width);
         q.layout.height = len(q.layout.height);
+      } else if (q.layout.style === 'shaped-blocks') {
+        q.layout.width = len(q.layout.width);
       } else if (q.layout.style === 'baby-blocks' || q.layout.style === 'variable-blocks') {
         q.layout.width = len(q.layout.width);
         q.layout.top = len(q.layout.top);

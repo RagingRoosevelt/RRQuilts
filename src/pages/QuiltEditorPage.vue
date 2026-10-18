@@ -410,9 +410,12 @@ const sidebarLabel = computed(() => (editor.sidebar ? 'Hide sidebar' : 'Show sid
 const labelsLabel = computed(() => (editor.labels ? 'Hide block names' : 'Show block names'));
 
 const setsBordersAside = (l: Layout) =>
-  l.style === 'on-point' || l.style === 'variable-point'
+  l.style === 'on-point' || l.style === 'variable-point' || l.style === 'diamond-point'
     ? l.edge.finish === 'none'
-    : l.style === 'one-patch' || l.style === 'baby-blocks' || l.style === 'variable-blocks'
+    : l.style === 'one-patch' ||
+        l.style === 'shaped-blocks' ||
+        l.style === 'baby-blocks' ||
+        l.style === 'variable-blocks'
       ? l.edge === 'none'
       : false;
 /** The selected border's inside edge: the quilt center grown by the borders within it. */

@@ -12,6 +12,19 @@
           :contracted="$q.screen.lt.sm"
         >
           <q-step name="blocks" title="Layout" icon="grid_on">
+            <!-- Block layouts or patch layouts (spec 026); some styles are in both. -->
+            <q-btn-toggle
+              v-model="mode"
+              class="q-mb-md"
+              spread
+              no-caps
+              unelevated
+              toggle-color="primary"
+              :options="[
+                { label: 'Blocks', value: 'blocks' },
+                { label: 'Patches', value: 'patches' },
+              ]"
+            />
             <!-- Style cards: each drawn by the layout engine; later styles join the list. -->
             <div class="styles q-mb-md" role="radiogroup" aria-label="Layout style">
               <button
@@ -65,10 +78,10 @@
               />
             </template>
             <template v-else>
-              <template v-if="style === 'one-patch'">
+              <template v-if="style === 'one-patch' || style === 'shaped-blocks'">
                 <div class="styles q-mb-md" role="radiogroup" aria-label="Patch shape">
                   <button
-                    v-for="c in shapeCards"
+                    v-for="c in style === 'shaped-blocks' ? blockShapeCards : shapeCards"
                     :key="c.value"
                     type="button"
                     role="radio"
@@ -99,10 +112,27 @@
                   toggle-color="primary"
                   :options="[
                     { label: 'Trimmed straight', value: 'trim' },
-                    { label: 'Whole patches', value: 'none' },
+                    {
+                      label: style === 'shaped-blocks' ? 'Whole blocks' : 'Whole patches',
+                      value: 'none',
+                    },
                   ]"
                 />
               </template>
+              <q-btn-toggle
+                v-if="style === 'baby-blocks' || style === 'variable-blocks'"
+                class="q-mb-md"
+                v-model="tile.edge"
+                spread
+                no-caps
+                unelevated
+                toggle-color="primary"
+                :options="[
+                  { label: 'Trimmed straight', value: 'trim' },
+                  { label: 'Whole cubes', value: 'none' },
+                ]"
+              />
+              <FlowAngle v-if="flows" v-model="tile.flow" class="q-mb-md" />
               <div class="column" style="gap: 16px">
                 <FieldGroup :label="countLabel">
                   <div class="row q-col-gutter-sm">
@@ -130,7 +160,15 @@
                 </FieldGroup>
                 <FieldGroup :label="sizeLabel">
                   <div class="row q-col-gutter-sm">
-                    <template v-if="style === 'variable-point'">
+                    <ShapeSize
+                      v-if="style === 'diamond-point'"
+                      class="col-12"
+                      shape="diamond60"
+                      :size="[tile.width, tile.width * Math.sqrt(3)]"
+                      :units="units"
+                      @change="(s) => (tile.width = s[0])"
+                    />
+                    <template v-else-if="style === 'variable-point'">
                       <DiamondSize
                         class="col-12"
                         :width="tile.width"
@@ -173,6 +211,14 @@
                         :min="0.25"
                       />
                     </template>
+                    <LengthInput
+                      v-else-if="style === 'shaped-blocks'"
+                      v-model="tile.width"
+                      class="col-12"
+                      :label="tile.shape === 'diamonds' ? 'Width (short diagonal = side)' : 'Side'"
+                      :units="units"
+                      :min="0.25"
+                    />
                     <template v-else-if="style === 'one-patch'">
                       <template v-if="twoSizes">
                         <LengthInput
@@ -295,6 +341,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
 import DiamondSize from '@/components/DiamondSize.vue';
+import FlowAngle from '@/components/FlowAngle.vue';
+import ShapeSize from '@/components/ShapeSize.vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import LengthInput from '@/components/LengthInput.vue';
 import TargetEditor from '@/components/TargetEditor.vue';
@@ -309,13 +357,14 @@ import {
 import StripsInspector from '@/components/StripsInspector.vue';
 import { layoutDefaults, onPointDefaults, stripDefaults } from '@/model/io';
 import { flattenLoop, pathToSegs } from '@/model/geometry/path';
-import { generateSlots } from '@/model/layout/slots';
+import { FLOWS, generateSlots } from '@/model/layout/slots';
 import type {
   Border,
   Layout,
   OnePatchLayout,
   PatchShape,
   QuiltTarget,
+  ShapedBlocksLayout,
   StripLayout,
   TumblingLayout,
   VariablePointLayout,
@@ -334,7 +383,11 @@ const step = ref('blocks');
 const steps = ['blocks', 'detail', 'sashing', 'borders'];
 const next = computed(() => steps[steps.indexOf(step.value) + 1]);
 const detailTitle = computed(() =>
-  isStrip.value ? 'Strips' : style.value === 'one-patch' ? 'Shape' : 'Size',
+  isStrip.value
+    ? 'Strips'
+    : style.value === 'one-patch' || style.value === 'shaped-blocks'
+      ? 'Shape'
+      : 'Size',
 );
 /** A size to aim at, drawn over the preview and saved with the quilt. */
 const targetInput = ref<TargetInput>({ choice: null, region: 'us' });
@@ -349,6 +402,12 @@ watch(isGarment, (g) => {
   else if (borderCount.value === 0) borderCount.value = 1;
 });
 const style = ref<Style>('straight-set');
+/** Block layouts or patch layouts (spec 026). */
+const mode = ref<'blocks' | 'patches'>('blocks');
+watch(mode, (m) => {
+  if (!STYLES.find((x) => x.value === style.value)!.modes.includes(m))
+    style.value = STYLES.find((x) => x.modes.includes(m))!.value;
+});
 const cols = ref(5);
 const rows = ref(5);
 const blockSize = ref(10);
@@ -378,7 +437,9 @@ const tile = reactive<{
   top: number;
   side: number;
   dside: number;
+  flow: number;
 }>({
+  flow: 0,
   shape: 'hexagons',
   edge: 'trim',
   width: 3,
@@ -393,6 +454,7 @@ function loadTile() {
   const d = layoutDefaults(style.value, k.value);
   if (!d) return;
   if ('shape' in d) tile.shape = d.shape;
+  tile.flow = 0;
   tile.edge = 'edge' in d && typeof d.edge === 'string' ? d.edge : 'trim';
   if ('width' in d) tile.width = d.width;
   if ('height' in d) tile.height = d.height;
@@ -402,66 +464,96 @@ function loadTile() {
 }
 watch(style, loadTile);
 const clampCount = (n: number) => Math.min(100, Math.max(1, Math.round(n || 1)));
+/** Styles with a turnable grid (spec 026 flow angle). */
+const flows = computed(
+  () =>
+    ['shaped-blocks', 'baby-blocks', 'variable-blocks'].includes(style.value) ||
+    (style.value === 'one-patch' && FLOWS.includes(tile.shape)),
+);
+const flow = () => (flows.value && tile.flow ? { flow: tile.flow } : {});
+const isBlockShape = (s: PatchShape): s is ShapedBlocksLayout['shape'] => FLOWS.includes(s);
 const stripLayout = ref<StripLayout>(stripDefaults(1));
 const isStrip = computed(() => style.value === 'strips');
 const layout = computed<Layout>(() =>
   isStrip.value
     ? stripLayout.value
-    : style.value === 'variable-point'
+    : style.value === 'diamond-point'
       ? {
-          ...(layoutDefaults('variable-point', k.value) as VariablePointLayout),
+          ...(layoutDefaults('diamond-point', k.value) as VariablePointLayout),
           cols: clampCount(cols.value),
           rows: clampCount(rows.value),
           width: tile.width,
-          height: tile.height,
+          height: tile.width * Math.sqrt(3),
           sash: sash.value,
         }
-      : style.value === 'one-patch'
+      : style.value === 'shaped-blocks'
         ? {
-            ...(layoutDefaults('one-patch', k.value) as OnePatchLayout),
-            shape: tile.shape,
+            ...(layoutDefaults('shaped-blocks', k.value) as ShapedBlocksLayout),
+            shape: isBlockShape(tile.shape) ? tile.shape : 'hexagons',
             cols: clampCount(cols.value),
             rows: clampCount(rows.value),
             width: tile.width,
-            height: twoSizes.value ? tile.height : tile.width,
-            edge: STRAIGHT.includes(tile.shape) ? 'trim' : tile.edge,
+            edge: tile.edge,
+            ...flow(),
           }
-        : style.value === 'baby-blocks'
+        : style.value === 'variable-point'
           ? {
-              ...(layoutDefaults('baby-blocks', k.value) as TumblingLayout),
+              ...(layoutDefaults('variable-point', k.value) as VariablePointLayout),
               cols: clampCount(cols.value),
               rows: clampCount(rows.value),
-              width: tile.dside * Math.sqrt(3),
-              top: tile.dside,
-              side: tile.dside,
-              edge: tile.edge,
+              width: tile.width,
+              height: tile.height,
+              sash: sash.value,
             }
-          : style.value === 'variable-blocks'
+          : style.value === 'one-patch'
             ? {
-                ...(layoutDefaults('variable-blocks', k.value) as TumblingLayout),
+                ...(layoutDefaults('one-patch', k.value) as OnePatchLayout),
+                shape: tile.shape,
                 cols: clampCount(cols.value),
                 rows: clampCount(rows.value),
                 width: tile.width,
-                top: tile.top,
-                side: tile.side,
-                edge: tile.edge,
+                height: twoSizes.value ? tile.height : tile.width,
+                edge: STRAIGHT.includes(tile.shape) ? 'trim' : tile.edge,
+                ...flow(),
               }
-            : style.value === 'on-point'
+            : style.value === 'baby-blocks'
               ? {
-                  ...onPointDefaults(props.units === 'cm' ? 2.5 : 1),
+                  ...(layoutDefaults('baby-blocks', k.value) as TumblingLayout),
                   cols: clampCount(cols.value),
                   rows: clampCount(rows.value),
-                  block: blockSize.value,
-                  sash: sash.value,
+                  width: tile.dside * Math.sqrt(3),
+                  top: tile.dside,
+                  side: tile.dside,
+                  edge: tile.edge,
+                  ...flow(),
                 }
-              : {
-                  style: 'straight-set',
-                  cols: clampCount(cols.value),
-                  rows: clampCount(rows.value),
-                  block: [blockSize.value, blockSize.value],
-                  sash: [sash.value, sash.value],
-                  sashBorder: sash.value > 0 && sashBorder.value,
-                },
+              : style.value === 'variable-blocks'
+                ? {
+                    ...(layoutDefaults('variable-blocks', k.value) as TumblingLayout),
+                    cols: clampCount(cols.value),
+                    rows: clampCount(rows.value),
+                    width: tile.width,
+                    top: tile.top,
+                    side: tile.side,
+                    edge: tile.edge,
+                    ...flow(),
+                  }
+                : style.value === 'on-point'
+                  ? {
+                      ...onPointDefaults(props.units === 'cm' ? 2.5 : 1),
+                      cols: clampCount(cols.value),
+                      rows: clampCount(rows.value),
+                      block: blockSize.value,
+                      sash: sash.value,
+                    }
+                  : {
+                      style: 'straight-set',
+                      cols: clampCount(cols.value),
+                      rows: clampCount(rows.value),
+                      block: [blockSize.value, blockSize.value],
+                      sash: [sash.value, sash.value],
+                      sashBorder: sash.value > 0 && sashBorder.value,
+                    },
 );
 const borders = computed<Border[]>(() =>
   Array.from({ length: Math.max(0, Math.min(5, Math.round(borderCount.value || 0))) }, () => ({
@@ -507,29 +599,37 @@ type Style =
   | 'strips'
   | 'variable-point'
   | 'one-patch'
+  | 'shaped-blocks'
+  | 'diamond-point'
   | 'baby-blocks'
   | 'variable-blocks';
-const onPointish = (st: Style) => st === 'on-point' || st === 'variable-point';
+const onPointish = (st: Style) =>
+  st === 'on-point' || st === 'variable-point' || st === 'diamond-point';
+const cubes = (st: Style) => st === 'baby-blocks' || st === 'variable-blocks';
 const hasSash = computed(() =>
-  ['straight-set', 'on-point', 'variable-point'].includes(style.value),
+  ['straight-set', 'on-point', 'variable-point', 'diamond-point'].includes(style.value),
 );
 const acrossLabel = computed(() =>
   onPointish(style.value)
     ? 'Blocks across'
     : style.value === 'one-patch'
       ? 'Patches across'
-      : style.value.endsWith('blocks')
+      : cubes(style.value)
         ? 'Cubes across'
-        : 'Columns',
+        : style.value === 'shaped-blocks'
+          ? 'Blocks across'
+          : 'Columns',
 );
 const downLabel = computed(() =>
   onPointish(style.value)
     ? 'Blocks down'
     : style.value === 'one-patch'
       ? 'Patches down'
-      : style.value.endsWith('blocks')
+      : cubes(style.value)
         ? 'Cubes down'
-        : 'Rows',
+        : style.value === 'shaped-blocks'
+          ? 'Blocks down'
+          : 'Rows',
 );
 const sampleOnePatch = (shape: PatchShape): Layout => ({
   ...(layoutDefaults('one-patch', 1) as OnePatchLayout),
@@ -551,10 +651,12 @@ const sampleStrips = (style: 'horizontal-strip' | 'vertical-strip'): Layout => (
   })),
 });
 /** Styles to pick from, each with a small sample. */
-const STYLES: { value: Style; label: string; sample: Layout }[] = [
+const BOTH: ('blocks' | 'patches')[] = ['blocks', 'patches'];
+const STYLES: { value: Style; label: string; sample: Layout; modes: ('blocks' | 'patches')[] }[] = [
   {
     value: 'straight-set',
     label: 'Straight Set',
+    modes: BOTH,
     sample: {
       style: 'straight-set',
       cols: 3,
@@ -567,12 +669,25 @@ const STYLES: { value: Style; label: string; sample: Layout }[] = [
   {
     value: 'on-point',
     label: 'On-Point',
+    modes: BOTH,
     sample: { ...onPointDefaults(1), block: 1, edge: { finish: 'exact', float: 0 } },
   },
-  { value: 'strips', label: 'Strips', sample: sampleStrips('horizontal-strip') },
+  { value: 'strips', label: 'Strips', sample: sampleStrips('horizontal-strip'), modes: BOTH },
+  {
+    value: 'diamond-point',
+    label: 'Diamond Point',
+    modes: ['blocks'],
+    sample: {
+      ...(layoutDefaults('diamond-point', 1) as VariablePointLayout),
+      width: 1,
+      height: Math.sqrt(3),
+      edge: { finish: 'exact', float: 0 },
+    },
+  },
   {
     value: 'variable-point',
     label: 'Variable Point',
+    modes: ['patches'],
     sample: {
       ...(layoutDefaults('variable-point', 1) as VariablePointLayout),
       width: 1,
@@ -580,10 +695,22 @@ const STYLES: { value: Style; label: string; sample: Layout }[] = [
       edge: { finish: 'exact', float: 0 },
     },
   },
-  { value: 'one-patch', label: 'One Patch', sample: sampleOnePatch('hexagons') },
+  {
+    value: 'shaped-blocks',
+    label: 'Shaped Blocks',
+    modes: ['blocks'],
+    sample: { ...sampleOnePatch('hexagons'), style: 'shaped-blocks' } as ShapedBlocksLayout,
+  },
+  {
+    value: 'one-patch',
+    label: 'One Patch',
+    sample: sampleOnePatch('hexagons'),
+    modes: ['patches'],
+  },
   {
     value: 'baby-blocks',
     label: 'Baby Blocks',
+    modes: ['blocks'],
     sample: {
       ...(layoutDefaults('baby-blocks', 1) as TumblingLayout),
       cols: 3,
@@ -595,7 +722,8 @@ const STYLES: { value: Style; label: string; sample: Layout }[] = [
   },
   {
     value: 'variable-blocks',
-    label: 'Variable Blocks',
+    label: 'Variable Patch',
+    modes: ['patches'],
     sample: {
       ...(layoutDefaults('variable-blocks', 1) as TumblingLayout),
       cols: 3,
@@ -612,12 +740,14 @@ const countLabel = computed(() =>
     ? 'Columns and rows'
     : style.value === 'one-patch'
       ? 'Patches'
-      : style.value.endsWith('blocks')
+      : cubes(style.value)
         ? 'Cubes'
         : 'Blocks',
 );
 const sizeLabel = computed(() =>
-  style.value === 'variable-point' || style.value === 'baby-blocks'
+  style.value === 'variable-point' ||
+  style.value === 'diamond-point' ||
+  style.value === 'baby-blocks'
     ? 'Diamond size'
     : style.value === 'variable-blocks'
       ? 'Cube size'
@@ -643,7 +773,9 @@ const shapeCards = SHAPES.map(([value, label]) => ({
   label,
   picture: picture(sampleOnePatch(value), [])!,
 }));
-const styleCards = STYLES.map((x) => ({ ...x, picture: picture(x.sample, [])! }));
+const blockShapeCards = shapeCards.filter((c) => FLOWS.includes(c.value));
+const allStyleCards = STYLES.map((x) => ({ ...x, picture: picture(x.sample, [])! }));
+const styleCards = computed(() => allStyleCards.filter((x) => x.modes.includes(mode.value)));
 
 const summary = computed(() => {
   const [x0, y0, x1, y1] = generated.value.bounds;
@@ -680,6 +812,7 @@ function create() {
 function show() {
   const cm = props.units === 'cm';
   step.value = 'blocks';
+  mode.value = 'blocks';
   style.value = 'straight-set';
   targetInput.value = {
     choice: null,

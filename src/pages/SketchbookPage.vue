@@ -1070,6 +1070,7 @@
       </q-card>
     </q-dialog>
     <PaletteSwapDialog ref="swapDialog" />
+    <NewBlockDialog ref="newBlockDlg" @create="createBlock" />
 
     <q-dialog :model-value="!!saveColors" @update:model-value="saveColors = null">
       <q-card v-if="saveColors" style="width: 380px; max-width: 95vw">
@@ -1115,6 +1116,8 @@
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PaletteSwapDialog from '@/components/PaletteSwapDialog.vue';
+import NewBlockDialog from '@/components/NewBlockDialog.vue';
+import type { BlockShape } from '@/model/blocks/shape';
 import {
   fabricOpt,
   optStyle,
@@ -1808,24 +1811,19 @@ async function editCopy(id: string) {
   void router.push(`/project/block/${copy.id}`);
 }
 
+const newBlockDlg = ref<InstanceType<typeof NewBlockDialog>>();
 function newBlockDialog() {
-  const units = project.doc!.units;
-  const s = units === 'cm' ? 25 : 10;
-  $q.dialog({
-    title: 'New block',
-    message: `Finished size ${s} × ${s} ${units} — you can change it in the block editor.`,
-    prompt: { model: `Block ${blocks.value.length + 1}`, type: 'text' },
-    cancel: true,
-  }).onOk((name: string) => void createBlock(name.trim() || 'Block', s));
+  newBlockDlg.value?.show(`Block ${blocks.value.length + 1}`, project.doc!.units);
 }
 
-async function createBlock(name: string, s: number) {
+async function createBlock(name: string, shape: BlockShape | undefined, size: [number, number]) {
   const b = newBlock(
     name,
-    [s, s],
+    size,
     project.doc!.units,
     await askAuthor(),
     project.doc!.project.license,
+    shape,
   );
   project.change((d) => void d.project.blocks.push(b));
   editor.blockMode = 'draw';
