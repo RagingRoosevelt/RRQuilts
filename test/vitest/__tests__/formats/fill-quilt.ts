@@ -89,10 +89,14 @@ export function fillQuilt(d0: Any, quiltId: string, kit: Kit, mode: FillMode = '
         }
       }
     } else {
-      // Few spaces in a group (sashing, borders): one color each. Many (patches): scrappy.
+      // Few spaces in a group (borders): one color each. Many (patches, pieced borders): scrappy.
       const g = slotGroup(s.id);
       if (!groups.has(g)) groups.set(g, groups.size);
-      const many = all.filter((x) => slotGroup(x.id) === g).length > 12;
+      // Sashing and cornerstones stay one color however many there are.
+      const many =
+        s.kind !== 'sash' &&
+        s.kind !== 'cs' &&
+        all.filter((x) => slotGroup(x.id) === g).length > 12;
       // Scattered (hashed), not cycled: a cycle in step with the row length paints stripes.
       const k = many ? scatter(i) : groups.get(g)!;
       tool(s, { tool: 'paint', color: kit.colors[k % kit.colors.length] });

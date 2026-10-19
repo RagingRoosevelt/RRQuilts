@@ -37,7 +37,7 @@ def picture(v) -> str:
     if not p:
         return '<figure class="none"><div>Not drawn</div></figure>'
     im = Image.open(p).convert("RGBA")
-    im.thumbnail((720, 720))
+    im.thumbnail((1080, 1080))
     flat = Image.new("RGB", im.size, (255, 255, 255))
     flat.paste(im, mask=im)
     b = io.BytesIO()
