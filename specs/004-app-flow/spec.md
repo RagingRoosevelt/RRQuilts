@@ -95,7 +95,7 @@ yardage totals appear under each.
 
 **Acceptance Scenarios**:
 
-1. **Given** a quilt or block coloring, **When** "Duplicate as variation" is tapped, **Then** a copy
+1. **Given** a quilt or block coloring, **When** "Create copy" is tapped, **Then** a copy
    appears next to the original and opens in the editor.
 2. **Given** 2–4 selected quilts, **When** compare is opened, **Then** they show side by side with
    finished size and yardage summary; tapping one opens it.
@@ -180,7 +180,7 @@ chart; editing controls are absent with a "edit on tablet or desktop" note.
 
 **Variations**
 
-- **FR-030**: "Duplicate as variation" MUST exist for quilts and block colorings.
+- **FR-030**: "Create copy" MUST exist for quilts and block colorings.
 - **FR-031**: A compare view MUST show 2–4 quilts side by side with finished size and yardage summary.
 
 **Devices & input**

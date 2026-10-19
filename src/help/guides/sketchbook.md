@@ -14,7 +14,7 @@ across the whole project.
 
 1. Choose **New quilt** to open the wizard (see [Getting started](/help/guides/getting-started)), or
    click a quilt's picture to open it.
-2. Use the three-dot **Actions** menu on a card for **Open**, **Duplicate as variation** (a copy to
+2. Use the three-dot **Actions** menu on a card for **Open**, **Create copy** (a copy to
    try other colors on), **Details**, **Move earlier**, **Move later**, and **Delete** (you can undo).
 3. Drag cards to reorder them.
 

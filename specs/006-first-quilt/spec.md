@@ -54,7 +54,7 @@ reopen the project: state matches.
    cards; Fabrics & Colors, Photos, and Threads tabs show their lists (colors only in this feature).
 2. **Given** a card, **When** the user opens it, **Then** its editor opens (quilt editor; blocks show
    a read-only preview until the block editor exists).
-3. **Given** a quilt card, **When** "Duplicate as variation" is chosen, **Then** a copy named
+3. **Given** a quilt card, **When** "Create copy" is chosen, **Then** a copy named
    "<name> (2)" appears next to it and opens.
 4. **Given** a card, **When** the user edits its notecard (name, notes), reorders by dragging, or
    deletes it, **Then** the change is saved; deleting a block used in a quilt is refused with the

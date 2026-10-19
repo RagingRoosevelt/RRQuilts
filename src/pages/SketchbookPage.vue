@@ -86,7 +86,7 @@
                 >
                 <template v-if="!project.readOnly">
                   <q-item v-close-popup clickable @click="duplicate(q.id)"
-                    ><q-item-section>Duplicate as variation</q-item-section></q-item
+                    ><q-item-section>Create copy</q-item-section></q-item
                   >
                   <q-item v-close-popup clickable @click="startSwapColorway(q)"
                     ><q-item-section>New colorway from palette swap…</q-item-section></q-item
