@@ -21,6 +21,9 @@ rendering, maybe a solver). Printed templates come with and without seam allowan
 cutting fabric; without, for the papers the fabric is pressed around, which also makes assembly
 easier. Stretch goal: STL cutting templates so quilters can make their own paper and fabric pieces.
 
+Owner, 2026-10-18 (clarification): EPP quilts aren't presumed to be rectangular or close to it, and
+may end up with no binding or border.
+
 Related: spec 003 (project format, versions and migrations), spec 006 (quilt editor), spec 007
 (block editor, snapping), spec 008 / 011 (library items, packs), spec 009 (credits, licenses),
 spec 010 (printing, templates, yardage), spec 014 (fabrics), spec 026 (shaped blocks: triangle,
@@ -42,6 +45,9 @@ justification).
 - **Snap**: a dragged piece's edge settles onto a nearby edge of equal length, end to end, so the
   two would be sewn together.
 - **Rosette / group**: pieces picked together to move, turn, copy or recolor as one.
+- **Outline**: an EPP quilt's edge is wherever its outer pieces end: any shape, often jagged
+  (a hexagon garden's zigzag edge). There is no quilt rectangle, and binding and borders are
+  optional, not assumed.
 - **Seam allowance**: the fabric margin around the paper, set per quilt (default 3/8 in or 1 cm).
 - **3D (later)**: a **net** is a 2D arrangement plus **joins**: callouts saying edge A of one piece
   is sewn to edge B of another, though they don't touch in 2D. Folding the net so every join closes
@@ -194,6 +200,9 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   highlighted before release.
 - **Mirror-image shapes** (e.g. a kite or a parallelogram): mirrored pieces print as their own
   templates (or flipped, with the template marked "reverse").
+- **No border or binding**: the default. Printing, yardage and the quilt's size use the pieces alone;
+  the size shown is the bounding box, labeled as such. Facing or turned edges are the quilter's
+  choice, not modeled.
 - **Gaps**: a design may leave holes; they're fine in 2D (appliqué onto a background is out of
   scope) and print as nothing.
 - **Shape edited after use**: pieces follow; snapped neighbors that no longer match are flagged, not
@@ -209,6 +218,10 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 
 - **FR-001**: The app MUST offer an EPP quilt type, separate from layout-engine quilts, with a base
   dimension and a seam allowance per quilt.
+- **FR-001a**: An EPP quilt MUST NOT assume a rectangular (or any) outline: its size is the bounds of
+  its pieces, its edge follows the outer pieces, and borders and binding are off by default. When a
+  quilter adds them, binding follows the jagged edge (or the quilter picks a straight trim line or
+  appliqué onto a background, both later), and yardage counts it only when on.
 - **FR-002**: EPP shapes MUST be simple closed polygons whose edge lengths are whole multiples of the
   quilt's base dimension (first release; relaxing this is later).
 - **FR-003**: Placing and dragging pieces MUST snap equal-length edges together end to end (and short
@@ -234,7 +247,7 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 
 - **EppShape**: id, notecard, outline (edge lengths in units and corner angles, or vertices in units),
   default fill, credits, license; a library item type alongside blocks and palettes.
-- **EppQuilt**: base dimension, seam allowance, pieces, groups, colorways; later `joins` and a 3D flag.
+- **EppQuilt**: base dimension, seam allowance, optional binding (off by default), pieces, groups, colorways; later `joins` and a 3D flag.
 - **Piece**: shape ref, position, turn, mirror, fill.
 - **Rosette**: a saved group of pieces (shape refs, relative positions, fills).
 - **Join** (later): two (piece, edge) pairs.
@@ -252,6 +265,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 ## Assumptions
 
 - Shapes are straight-sided in the first release (no curves); their corners can be any angle.
+- An EPP quilt has no target rectangle; the wizard's target sizes (spec 006) don't apply, though a
+  size to aim at may be shown as a guide.
 - An EPP quilt is a whole quilt; mixing EPP pieces into a layout-engine quilt (e.g. appliquéd
   rosettes on a background) is later.
 - Snap distance is in screen space (about the size of a fingertip), so it works zoomed in or out.
