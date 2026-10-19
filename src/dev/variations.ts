@@ -53,7 +53,7 @@ export const VARIATIONS: Variation[] = [
     title: 'Diamond blocks on a flow, whole shapes',
     added: 'Spec 026 flow angle',
     expect:
-      'The same 60° diamond block in every space, the whole grid turned 30°, the edge left zigzag (no trimming), outer pieces whole.',
+      'The same 60° diamond block in every space, the whole grid turned 30°, the edge left zigzag (no trimming), outer pieces whole. No border: borders are set aside while the edge is whole shapes (the Layout and Borders tabs say so).',
     style: 'shaped-blocks',
     layout: { shape: 'diamonds', cols: 5, rows: 5, width: 4, flow: 30, edge: 'none' },
     fill: 'one',

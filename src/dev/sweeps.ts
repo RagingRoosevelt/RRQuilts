@@ -17,7 +17,7 @@ const SWEEPS: Sweep[] = [
     id: 'S08',
     title: 'Shaped Blocks edges, trimmed or whole',
     expect:
-      'Each shape trimmed to a straight rectangle, then left whole with a zigzag edge; the blocks inside are the same in both.',
+      'Each shape trimmed to a straight rectangle with its border, then left whole with a zigzag edge and no border (borders are set aside, spec 016 FR-022); the blocks inside are the same in both.',
     base: { style: 'shaped-blocks', layout: { cols: 5, rows: 5, width: 4 } },
     steps: ['triangles', 'diamonds', 'hexagons'].flatMap((shape) => [
       { label: `${shape}, trimmed`, layout: { shape, edge: 'trim' } },
