@@ -103,6 +103,34 @@
       <q-btn flat icon="settings" label="Settings" no-caps @click="settingsOpen = true" />
     </div>
     <RestoreDrafts ref="backups" manual />
+    <!-- Gist text is the sharer's: shown as text, never as HTML. -->
+    <q-dialog :model-value="!!gistAsk" @update:model-value="gistAsk = null">
+      <q-card v-if="gistAsk" style="width: 460px; max-width: 95vw">
+        <q-card-section>
+          <h1 class="text-h6 q-my-none">Open from a gist?</h1>
+          <h2
+            v-if="gistAsk.files.length === 1"
+            class="text-subtitle1 text-weight-medium q-my-none q-mt-sm"
+          >
+            {{ gistAsk.files[0]!.name }}
+          </h2>
+          <q-option-group
+            v-else
+            v-model="gistAsk.pick"
+            :options="gistAsk.files.map((f, i) => ({ label: f.name, value: i }))"
+            class="q-mt-sm"
+          />
+          <h3 class="text-caption text-grey-7 q-my-none">
+            by {{ gistAsk.owner || 'an anonymous GitHub user' }}
+          </h3>
+          <p v-if="gistAsk.title" class="q-mt-sm q-mb-none gist-desc">{{ gistAsk.title }}</p>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn v-close-popup flat no-caps label="Cancel" />
+          <q-btn flat no-caps color="primary" label="Open" @click="openGistFile" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <QuiltWizard
       ref="wizard"
       :units="settings.settings.units"
@@ -198,9 +226,11 @@ function openGist() {
     ok: { label: 'Open', flat: true },
   }).onOk((v: string) => void fetchGist(gistId(v)!));
 }
+const gistFail = (e: unknown) =>
+  void $q.notify({ type: 'negative', message: e instanceof Error ? e.message : String(e) });
+/** The gist being asked about: who shared what, and the file picked (when it has several). */
+const gistAsk = ref<{ title: string; owner: string; files: GistFile[]; pick: number } | null>(null);
 async function fetchGist(id: string) {
-  const fail = (e: unknown) =>
-    void $q.notify({ type: 'negative', message: e instanceof Error ? e.message : String(e) });
   const wait = $q.notify({
     group: false,
     timeout: 0,
@@ -208,46 +238,33 @@ async function fetchGist(id: string) {
     message: 'Fetching the gist…',
   });
   try {
-    const { title, owner, files } = await gistProjects(id);
-    wait();
-    if (!files.length) return fail(new Error('That gist has no RRQuilts project files (.rrq).'));
-    const open = async (f: GistFile) => {
-      const done = $q.notify({
-        group: false,
-        timeout: 0,
-        spinner: true,
-        message: `Opening ${f.name}…`,
-      });
-      try {
-        const text = await gistText(f);
-        // Opened like a picked file with no place to save back to: Save asks where.
-        await openWith(() => project.openFile({ file: new File([text], f.name) }));
-      } catch (e) {
-        fail(e);
-      } finally {
-        done();
-      }
-    };
+    const g = await gistProjects(id);
+    if (!g.files.length) throw new Error('That gist has no RRQuilts project files (.rrq).');
     // Who shared it (GitHub's account name, not the link's) and what, before anything opens.
-    const what = `“${title || 'Untitled gist'}” by ${owner || 'an anonymous user'}`;
-    $q.dialog({
-      title: 'Open from a gist?',
-      message: files.length === 1 ? `${what}: ${files[0]!.name}` : `${what}. Which project?`,
-      ...(files.length > 1
-        ? {
-            options: {
-              type: 'radio',
-              model: '0',
-              items: files.map((f, i) => ({ label: f.name, value: String(i) })),
-            },
-          }
-        : {}),
-      cancel: true,
-      ok: { label: 'Open', flat: true },
-    }).onOk((i?: string) => void open(files[Number(i ?? 0)]!));
+    gistAsk.value = { ...g, pick: 0 };
   } catch (e) {
+    gistFail(e);
+  } finally {
     wait();
-    fail(e);
+  }
+}
+async function openGistFile() {
+  const f = gistAsk.value!.files[gistAsk.value!.pick]!;
+  gistAsk.value = null;
+  const done = $q.notify({
+    group: false,
+    timeout: 0,
+    spinner: true,
+    message: `Opening ${f.name}…`,
+  });
+  try {
+    const text = await gistText(f);
+    // Opened like a picked file with no place to save back to: Save asks where.
+    await openWith(() => project.openFile({ file: new File([text], f.name) }));
+  } catch (e) {
+    gistFail(e);
+  } finally {
+    done();
   }
 }
 
@@ -300,3 +317,10 @@ async function discardDraft(d: Draft) {
   drafts.value = drafts.value.filter((x) => x.id !== d.id);
 }
 </script>
+
+<style scoped>
+.gist-desc {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+</style>
