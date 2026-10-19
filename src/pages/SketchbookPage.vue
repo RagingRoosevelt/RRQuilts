@@ -122,17 +122,26 @@
     <template v-else-if="tab === 'blocks'">
       <!-- The Libraries page's block filters (no library management here). -->
       <div class="block-filters q-mb-md">
-        <template v-for="f in blockFilterFields" :key="f.key">
-          <FilterSelect
-            v-if="f.options.length"
-            v-model="bf[f.key]"
-            :options="f.options"
-            :label="f.label"
-          />
-        </template>
         <q-input v-model="bf.search" dense outlined clearable placeholder="Search names, notes">
           <template #prepend><q-icon name="search" /></template>
         </q-input>
+        <FilterCard v-if="blockFilterFields.some((f) => f.options.length)" label="Metadata">
+          <template v-for="f in blockFilterFields" :key="f.key">
+            <FilterSelect
+              v-if="f.options.length"
+              v-model="bf[f.key]"
+              :options="f.options"
+              :label="f.label"
+            />
+          </template>
+        </FilterCard>
+        <FilterCard label="Shape">
+          <BlockFilter
+            v-model:layout="bf.layout"
+            v-model:shape="bf.shape"
+            style="display: contents"
+          />
+        </FilterCard>
         <q-select
           v-model="groupBy"
           :options="GROUP_BY"
@@ -141,11 +150,7 @@
           dense
           outlined
           label="Group library blocks by"
-        />
-        <BlockFilter
-          v-model:layout="bf.layout"
-          v-model:shape="bf.shape"
-          style="display: contents"
+          style="max-width: 320px"
         />
       </div>
       <div class="text-subtitle2 q-mb-sm">My blocks</div>
@@ -1183,6 +1188,7 @@ import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
 import BlockFilter from '@/components/BlockFilter.vue';
 import FilterSelect from '@/components/FilterSelect.vue';
+import FilterCard from '@/components/FilterCard.vue';
 import { blockFits, type ShapeFilter } from '@/render/layout-samples';
 import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
@@ -2784,8 +2790,8 @@ watch(
   border: 1px solid rgba(128, 128, 128, 0.4);
 }
 .block-filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 </style>

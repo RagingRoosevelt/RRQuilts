@@ -299,17 +299,26 @@
           </div>
         </fieldset>
         <SlidePicker v-model="settings.settings.libraryType" :options="TYPE_OPTIONS" label="Type" />
-        <template v-for="f in filterFields" :key="f.key">
-          <FilterSelect
-            v-if="f.options.length"
-            v-model="filters[f.key]"
-            :options="f.options"
-            :label="f.label"
-          />
-        </template>
         <q-input v-model="search" dense outlined clearable placeholder="Search names, notes">
           <template #prepend><q-icon name="search" /></template>
         </q-input>
+        <FilterCard v-if="filterFields.some((f) => f.options.length)" label="Metadata">
+          <template v-for="f in filterFields" :key="f.key">
+            <FilterSelect
+              v-if="f.options.length"
+              v-model="filters[f.key]"
+              :options="f.options"
+              :label="f.label"
+            />
+          </template>
+        </FilterCard>
+        <FilterCard v-if="settings.settings.libraryType === 'block'" label="Shape">
+          <BlockFilter
+            v-model:layout="fitLayout"
+            v-model:shape="fitShape"
+            style="display: contents"
+          />
+        </FilterCard>
         <q-select
           v-if="settings.settings.libraryType === 'block'"
           v-model="settings.settings.libraryGroupBy"
@@ -320,32 +329,28 @@
           outlined
           label="Group blocks by"
         />
-        <BlockFilter
-          v-if="settings.settings.libraryType === 'block'"
-          v-model:layout="fitLayout"
-          v-model:shape="fitShape"
-        />
         <!-- Table of contents (Blocks view): each library and its sections; click to jump. -->
         <template
           v-if="settings.settings.libraryType === 'block' && groups.some((g) => g.blocks.length)"
         >
-          <q-separator />
-          <nav class="toc column" aria-label="Contents">
-            <template v-for="g in groups.filter((x) => x.blocks.length)" :key="g.v.doc.id">
-              <a href="#" class="toc-lib" @click.prevent="revealSection(g.v.doc.id)">{{
-                g.v.doc.name
-              }}</a>
-              <a
-                v-for="s in g.sections.filter((x) => x.label)"
-                :key="s.key"
-                href="#"
-                class="toc-sec"
-                :class="{ sub: s.parent }"
-                @click.prevent="revealSection(g.v.doc.id, s)"
-                >{{ s.label }} <span class="text-grey-6">{{ s.count }}</span></a
-              >
-            </template>
-          </nav>
+          <FilterCard :label="tocLabel">
+            <nav class="toc column" aria-label="Contents">
+              <template v-for="g in groups.filter((x) => x.blocks.length)" :key="g.v.doc.id">
+                <a href="#" class="toc-lib" @click.prevent="revealSection(g.v.doc.id)">{{
+                  g.v.doc.name
+                }}</a>
+                <a
+                  v-for="s in g.sections.filter((x) => x.label)"
+                  :key="s.key"
+                  href="#"
+                  class="toc-sec"
+                  :class="{ sub: s.parent }"
+                  @click.prevent="revealSection(g.v.doc.id, s)"
+                  >{{ s.label }} <span class="text-grey-6">{{ s.count }}</span></a
+                >
+              </template>
+            </nav>
+          </FilterCard>
         </template>
       </div>
 
@@ -1291,6 +1296,7 @@ import ColoringCount from '@/components/ColoringCount.vue';
 import BlockSections from '@/components/BlockSections.vue';
 import BlockFilter from '@/components/BlockFilter.vue';
 import FilterSelect from '@/components/FilterSelect.vue';
+import FilterCard from '@/components/FilterCard.vue';
 import { blockFits, type ShapeFilter } from '@/render/layout-samples';
 import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
@@ -1924,6 +1930,12 @@ const GROUP_BY = [
   { label: 'Tags', value: 'tags' },
   { label: 'Styles', value: 'styles' },
 ];
+/** The contents list's heading: what blocks are grouped by (libraries alone when by nothing). */
+const tocLabel = computed(() =>
+  settings.settings.libraryGroupBy === 'none'
+    ? 'Libraries'
+    : GROUP_BY.find((g) => g.value === settings.settings.libraryGroupBy)!.label,
+);
 const groups = computed(() =>
   withLibraryHeads(
     inScope.value

@@ -22,8 +22,9 @@ across the whole project.
 
 **My blocks** are the blocks stored in this project.
 
-Filters above the blocks work as on the Libraries page: **Category**, **Tags**, **Styles**, a search
-of names and notes, **Fits layout** (blocks that fit a quilt layout's spaces) and **Shape**. They narrow
+Filters above the blocks work as on the Libraries page: a search of names and notes, **Metadata**
+(**Category**, **Tags**, **Styles**) and **Shape** (**Fits layout**, for blocks that fit a quilt
+layout's spaces, and **Shape**). They narrow
 both My blocks and Library blocks. **Group library blocks by** sorts library blocks into sections by
 category, tag or style. While a filter is on, blocks can't be moved earlier or later.
 

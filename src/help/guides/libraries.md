@@ -22,10 +22,11 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
    If the open project uses colors or fabrics from a library you switch off, you can **Swap…** them
    for others (in the project's **Palettes** tab), **Copy to My library** to keep them, or
    **Cancel**.
-3. Use **Type** to show **Blocks**, **Palettes** or **All**, the search box, and the **Category**,
-   **Tags** and **Styles** filters. The filters offer only what the shown type uses.
+3. Use **Type** to show **Blocks**, **Palettes** or **All**, then the search box. Under **Metadata**,
+   the **Category**, **Tags** and **Styles** filters offer only what the shown type uses. In
+   **Blocks**, **Shape** has **Fits layout** (blocks that fit a quilt layout's spaces) and **Shape**.
 4. In **Blocks**, use **Group blocks by** to arrange blocks by **Nothing**, **Category**, **Tags** or
-   **Styles**.
+   **Styles**. The contents list below takes the same name.
 5. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)**. Palettes use **Export (.rrqplt)** instead, and their files carry their fabric images.
 6. Click a palette, or one of its swatches, to see its colors and fabrics large. In your own
    palettes, **+** adds a color, the picture button adds fabric images, and you can drop image files
