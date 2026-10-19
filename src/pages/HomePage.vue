@@ -145,6 +145,20 @@ onMounted(async () => {
     $q.notify({ message: 'Open a project first.', color: 'warning', textColor: 'dark' });
     void router.replace({ path: '/' });
   }
+  // A shared link (/?open_gist=<gist link or id>): asked first, never fetched unprompted.
+  const link = route.query.open_gist;
+  if (typeof link === 'string') {
+    await router.replace({ path: '/' }); // first: dialogs close when the route changes
+    const id = gistId(link);
+    if (!id) $q.notify({ type: 'negative', message: 'That link doesn’t point at a GitHub gist.' });
+    else
+      $q.dialog({
+        title: 'Open a project from this gist?',
+        message: `It will be fetched from GitHub: gist ${id}.`,
+        cancel: true,
+        ok: { label: 'Open', flat: true },
+      }).onOk(() => void fetchGist(id));
+  }
   if (supportsFileAccess())
     recent.value = (await recentProjects().catch(() => [])).filter((r) => r.handle);
   await loadDrafts(); // every browser: unsaved work is listed (Firefox has no recent files)
