@@ -142,6 +142,11 @@ chart; editing controls are absent with a "edit on tablet or desktop" note.
   image, print/export), each with its own URL; browser back/forward MUST move between them.
 - **FR-002**: Home MUST offer: Start a quilt, Open file (picker or drop anywhere), Recent projects
   (where re-opening is permitted), Samples, Library manager, Settings.
+- **FR-002a** (added 2026-10-19): Home MUST offer **Open from a gist** beside Open file: the user
+  pastes a GitHub gist link or id; the gist's `.rrq` files are listed (a choice when more than one)
+  and the picked one opens like a picked file with no file to save back to (Save asks where). Only
+  on request, never in the background; offline or unreachable is reported (constitution 1.12.0,
+  Principle II). **Restore unsaved project** sits below Recent projects.
 - **FR-003**: The sketchbook MUST show tabbed card grids (Quilts, Blocks, Fabrics & Colors, Photos,
   Threads; Embroidery when present) with notecards and actions (open, duplicate as variation, delete,
   sort by drag or sort mode).

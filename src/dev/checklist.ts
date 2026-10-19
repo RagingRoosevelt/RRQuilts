@@ -207,6 +207,12 @@ export const CHECKS: Check[] = [
     text: 'Quilts tab › Import quilts: pick quilts from this demo; they come in with their blocks and colors, and look the same. Undo removes them. Importing a project into itself adds copies named “(2)”.',
     file: 'demo-v6.rrq',
   },
+  {
+    id: 'TC-035',
+    group: G.small,
+    text: 'Home › Open from a gist: paste a gist link with one .rrq (opens), with several (asks which), with none or a wrong link (says so), offline (says so). Save then asks where. Restore unsaved project now sits below Recent projects.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

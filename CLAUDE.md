@@ -59,7 +59,8 @@ like sketchbook/worktable are fine).
 
 ## Rules
 
-- No server calls, no runtime CDN/font fetches — everything bundled and precached.
+- No server calls, no runtime CDN/font fetches — everything bundled and precached. Exceptions,
+  user-initiated only: resource repositories, and Open from a gist (`storage/gist.ts`, GitHub API).
 - History-mode routing (clean URLs). Deep links rely on SPA fallbacks: `docs/404.html`
   copy of `index.html` (Pages), `try_files` (nginx), Workbox `navigateFallback` (SW).
 - Warn before discarding unsaved work; SW update prompts, never auto-reloads.

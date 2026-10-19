@@ -37,10 +37,10 @@
         <q-btn
           outline
           class="col"
-          icon="restore"
-          label="Restore unsaved project"
+          icon="cloud_download"
+          label="Open from a gist"
           no-caps
-          @click="backups?.show()"
+          @click="openGist"
         />
       </div>
       <div class="text-caption text-grey-7">…or drop a .rrq file anywhere on this window.</div>
@@ -91,6 +91,13 @@
           </q-item-section>
         </q-item>
       </q-list>
+      <q-btn
+        outline
+        icon="restore"
+        label="Restore unsaved project"
+        no-caps
+        @click="backups?.show()"
+      />
 
       <q-btn flat icon="collections_bookmark" label="Libraries" no-caps to="/libraries" />
       <q-btn flat icon="settings" label="Settings" no-caps @click="settingsOpen = true" />
@@ -113,6 +120,7 @@ import { unsavedDrafts, type Draft } from '@/storage/drafts';
 import { useRoute, useRouter } from 'vue-router';
 import { pickProject, supportsFileAccess } from '@/storage/files';
 import { recentProjects, type RecentEntry } from '@/storage/recent';
+import { gistId, gistProjects, gistText, type GistFile } from '@/storage/gist';
 import { useProjectStore } from '@/stores/project';
 import { useOpenProject } from '@/composables/open-project';
 import { useStartQuilt } from '@/composables/start-quilt';
@@ -164,6 +172,68 @@ async function openPicked() {
     return null;
   });
   if (picked) await openWith(() => project.openFile(picked));
+}
+
+/** A project file from a GitHub gist (link or id); several in the gist: pick one. */
+function openGist() {
+  $q.dialog({
+    title: 'Open from a gist',
+    message: 'Paste the link to a GitHub gist that has an RRQuilts project file (.rrq).',
+    prompt: {
+      model: '',
+      type: 'text',
+      placeholder: 'https://gist.github.com/…',
+      isValid: (v: string) => !!gistId(v),
+    },
+    cancel: true,
+    ok: { label: 'Open', flat: true },
+  }).onOk((v: string) => void fetchGist(gistId(v)!));
+}
+async function fetchGist(id: string) {
+  const fail = (e: unknown) =>
+    void $q.notify({ type: 'negative', message: e instanceof Error ? e.message : String(e) });
+  const wait = $q.notify({
+    group: false,
+    timeout: 0,
+    spinner: true,
+    message: 'Fetching the gist…',
+  });
+  try {
+    const { files } = await gistProjects(id);
+    wait();
+    if (!files.length) return fail(new Error('That gist has no RRQuilts project files (.rrq).'));
+    const open = async (f: GistFile) => {
+      const done = $q.notify({
+        group: false,
+        timeout: 0,
+        spinner: true,
+        message: `Opening ${f.name}…`,
+      });
+      try {
+        const text = await gistText(f);
+        // Opened like a picked file with no place to save back to: Save asks where.
+        await openWith(() => project.openFile({ file: new File([text], f.name) }));
+      } catch (e) {
+        fail(e);
+      } finally {
+        done();
+      }
+    };
+    if (files.length === 1) return open(files[0]!);
+    $q.dialog({
+      title: 'Which project?',
+      options: {
+        type: 'radio',
+        model: '0',
+        items: files.map((f, i) => ({ label: f.name, value: String(i) })),
+      },
+      cancel: true,
+      ok: { label: 'Open', flat: true },
+    }).onOk((i: string) => void open(files[Number(i)]!));
+  } catch (e) {
+    wait();
+    fail(e);
+  }
 }
 
 function openRecent(r: RecentEntry) {

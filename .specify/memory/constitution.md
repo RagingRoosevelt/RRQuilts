@@ -1,6 +1,9 @@
 <!--
 Sync Impact Report
-- Version change: 1.10.0 → 1.11.0 (MINOR: File Formats — each release that ships a new format
+- Version change: 1.11.0 → 1.12.0 (MINOR: Principle II gains a second network exception —
+  opening a project file from a GitHub gist the user names, fetched once on request and then
+  local like any opened file.) Templates: ✅ CLAUDE.md (Rules)
+- Prior: 1.10.0 → 1.11.0 (MINOR: File Formats — each release that ships a new format
   version adds a sample file of it to test/fixtures/formats/, kept forever and opened by a test;
   project versions also add a demo project covering that version's new layouts, with PNGs of its
   quilts and blocks from that release's build.)
@@ -73,6 +76,9 @@ The app MUST be an installable Progressive Web App that works fully offline afte
   extra library content), including fetching a library pack the user turns on and the print-size
   images for fabrics in a printout the user starts. Fetched content is stored on-device and MUST remain usable offline;
   no core capability may depend on a repository being reachable.
+- Second exception: opening a project file from a GitHub gist the user names (link or id), fetched
+  once on that request and then held like any opened file. Opening from disk MUST stay available
+  offline; a gist that can't be reached is reported, never retried in the background.
 - Web app manifest with name, icons (incl. maskable), theme color, `display: standalone`.
 - App updates: new service worker is detected and the user is prompted to reload; the app
   MUST NOT silently reload over unsaved work.
@@ -280,4 +286,4 @@ This constitution supersedes other practices. Amendments are made via
 (MAJOR: principle removed/redefined; MINOR: principle/section added; PATCH: wording).
 Runtime development guidance lives in `CLAUDE.md`.
 
-**Version**: 1.11.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-19
+**Version**: 1.12.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-19
