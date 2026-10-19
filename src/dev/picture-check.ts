@@ -17,8 +17,9 @@ const stored = import.meta.glob<string>('/test/fixtures/formats/demo-v*/*.png', 
 
 /** Shown and measured at this size. */
 const SIDE = 480;
-/** A picture counts as changed when more than this share of its pixels moved visibly (0.3%). */
-const CHANGED = 0.003;
+/** Pictures with more than this share of pixels moved (0.1%) are flagged and listed first, for
+ *  the owner to inspect: it surfaces what to look at, it doesn't decide pass or fail. */
+const CHANGED = 0.001;
 
 export interface Comparison {
   /** Reference label (v6.07): pictures numbered by name, so it stays put between runs. */
