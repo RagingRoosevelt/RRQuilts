@@ -8,9 +8,9 @@
       <q-btn
         v-if="$q.screen.lt.md"
         flat
-        round
-        icon="menu"
-        aria-label="Filters"
+        no-caps
+        icon="filter_list"
+        label="Filters"
         :style="settings.settings.sidesSwapped ? { order: -1 } : undefined"
         @click="toggleFilters"
       />

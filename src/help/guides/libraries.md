@@ -13,7 +13,7 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
 ## Browse
 
 1. Choose **Libraries** in the header.
-2. In the **Libraries** list on the side (the menu button on phones), each library has a switch.
+2. In the **Libraries** list on the side (the **Filters** button on phones), each library has a switch.
    Libraries and packs that are off stay out of this page and your projects' trays and pickers
    (click an off pack's name to look at it). Click a library's name to
    show only it, and **Show all libraries** to see them all again. **Find a pack** at the top
