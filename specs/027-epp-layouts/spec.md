@@ -24,6 +24,10 @@ easier. Stretch goal: STL cutting templates so quilters can make their own paper
 Owner, 2026-10-18 (clarification): EPP quilts aren't presumed to be rectangular or close to it, and
 may end up with no binding or border.
 
+Owner, 2026-10-18 (addition): pieces can be scaled up or down while designing, so one quilt can mix
+for example a 1u and a 2u diamond: an integer slider from 1 to 4 above the EPP shapes in the shape
+picker part of the sidebar.
+
 Related: spec 003 (project format, versions and migrations), spec 006 (quilt editor), spec 007
 (block editor, snapping), spec 008 / 011 (library items, packs), spec 009 (credits, licenses),
 spec 010 (printing, templates, yardage), spec 014 (fabrics), spec 026 (shaped blocks: triangle,
@@ -40,8 +44,11 @@ justification).
 - **Base dimension** (unit): the finished length of one unit in this quilt, set by the quilter (for
   example 1 in, 1.5 in, 3 cm). A shape whose edges are 1 and 2 units is a 1 in × 2 in shape in a
   1 in quilt and twice that in a 2 in quilt.
-- **Piece**: one EPP shape placed in a quilt, with a position, a turn, an optional mirror, and one
-  fill (a color or a fabric).
+- **Piece**: one EPP shape placed in a quilt, with a position, a turn, an optional mirror, a
+  **scale** (a whole number, 1 to 4), and one fill (a color or a fabric).
+- **Scale**: multiplies every edge of a piece's shape: a 60° diamond with 1-unit edges at scale 2
+  has 2-unit edges. Scaled edges are still whole units, so pieces of different scales still snap
+  (a scale-1 edge runs along half of a scale-2 edge).
 - **Snap**: a dragged piece's edge settles onto a nearby edge of equal length, end to end, so the
   two would be sewn together.
 - **Rosette / group**: pieces picked together to move, turn, copy or recolor as one.
@@ -81,18 +88,23 @@ middle one, sharing a whole edge.
 **Acceptance Scenarios**:
 
 1. **Given** a shape picked in the library, **When** the quilter taps or drags into the design,
-   **Then** a piece is placed with the shape's own fill (or the current color or fabric).
-2. **Given** a piece dragged near another, **When** one of its edges comes within a snap distance of
+   **Then** a piece is placed with the shape's own fill (or the current color or fabric), at the
+   scale set on the **Scale** slider.
+2. **Given** the sidebar's shape picker, **Then** an integer **Scale** slider (1 to 4, default 1) sits
+   above the shapes; the shape thumbnails show the picked scale's size, and new pieces take it.
+   Selected pieces can be rescaled from the same slider (or their own setting), keeping one corner
+   in place, with undo.
+3. **Given** a piece dragged near another, **When** one of its edges comes within a snap distance of
    an edge of equal length, **Then** it turns and moves so the edges meet end to end; releasing
    keeps it there. Edges of different lengths don't snap to each other whole, but a short edge can
    snap to a run of a long edge at whole-unit steps.
-3. **Given** a piece snapped in place, **Then** turning offers only the turns that keep a shared edge
+4. **Given** a piece snapped in place, **Then** turning offers only the turns that keep a shared edge
    (for example 60° steps for a hexagon on a hexagon), and free turning is available off snap.
-4. **Given** pieces that would overlap, **Then** the overlap is shown (but allowed, so the quilter can
+5. **Given** pieces that would overlap, **Then** the overlap is shown (but allowed, so the quilter can
    rearrange), and printing warns about it.
-5. **Given** several pieces selected, **Then** they move, turn, mirror, copy, delete and recolor as a
+6. **Given** several pieces selected, **Then** they move, turn, mirror, copy, delete and recolor as a
    group, and a group can be saved as a **rosette** in the library for reuse.
-6. Undo and redo cover every change (spec 006).
+7. Undo and redo cover every change (spec 006).
 
 ---
 
@@ -145,7 +157,7 @@ parallelogram); place it and print it.
 
 **Acceptance Scenarios**:
 
-1. **Given** an EPP quilt, **When** printing, **Then** each shape used prints as templates at true
+1. **Given** an EPP quilt, **When** printing, **Then** each shape used (at each scale used) prints as templates at true
    size in two kinds: **paper templates** (finished size, no seam allowance), for the papers the
    fabric is pressed around and for assembly; and **fabric templates** (with the seam allowance
    around), for cutting fabric.
@@ -198,6 +210,10 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   template won't fit on a page.
 - **Snap ambiguity**: several edges in reach; the nearest edge wins, and the one it would join is
   highlighted before release.
+- **Scale and templates**: each shape-and-scale pair used prints as its own templates (a 2u diamond
+  is not a 1u diamond's template); counts are per shape, scale and fill.
+- **Rescaling in place**: a rescaled piece may overlap or lose its snapped neighbors; it is shown as
+  any overlap is, and the quilter rearranges.
 - **Mirror-image shapes** (e.g. a kite or a parallelogram): mirrored pieces print as their own
   templates (or flipped, with the template marked "reverse").
 - **No border or binding**: the default. Printing, yardage and the quilt's size use the pieces alone;
@@ -226,6 +242,9 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   quilt's base dimension (first release; relaxing this is later).
 - **FR-003**: Placing and dragging pieces MUST snap equal-length edges together end to end (and short
   edges along long ones at whole-unit steps), with free placement off snap.
+- **FR-003a**: Each piece MUST have a whole-number scale from 1 to 4 that multiplies its shape's
+  edges; the sidebar's shape picker MUST have a Scale slider (1 to 4) that sets new pieces' scale
+  and can rescale selected pieces. Snapping works across scales at whole-unit steps.
 - **FR-004**: Each piece MUST have exactly one fill: a color or a fabric.
 - **FR-005**: Pieces MUST support select, group, move, turn, mirror, copy, delete and recolor, with
   undo; groups can be saved as rosettes.
@@ -248,7 +267,7 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **EppShape**: id, notecard, outline (edge lengths in units and corner angles, or vertices in units),
   default fill, credits, license; a library item type alongside blocks and palettes.
 - **EppQuilt**: base dimension, seam allowance, optional binding (off by default), pieces, groups, colorways; later `joins` and a 3D flag.
-- **Piece**: shape ref, position, turn, mirror, fill.
+- **Piece**: shape ref, position, turn, mirror, scale (1-4), fill.
 - **Rosette**: a saved group of pieces (shape refs, relative positions, fills).
 - **Join** (later): two (piece, edge) pairs.
 
