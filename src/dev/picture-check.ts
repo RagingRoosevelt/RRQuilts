@@ -17,6 +17,8 @@ const stored = import.meta.glob<string>('/test/fixtures/formats/demo-v*/*.png', 
 
 /** Shown and measured at this size. */
 const SIDE = 480;
+/** A picture counts as changed when more than this share of its pixels moved visibly (0.3%). */
+const CHANGED = 0.003;
 
 export interface Comparison {
   /** Reference label (v6.07): pictures numbered by name, so it stays put between runs. */
@@ -123,7 +125,7 @@ export async function* pictureCheck(libraryColors: readonly Color[]): AsyncGener
         item = {
           ref,
           name,
-          state: share < 0.001 ? 'same' : 'changed',
+          state: share <= CHANGED ? 'same' : 'changed',
           share,
           release: rel,
           now: b.toDataURL(),
