@@ -1,12 +1,8 @@
-<title>Quilt Picture Check</title>
+<title>{{TITLE}}</title>
 <meta name="claude:viewport-fit-sides" content="cover" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link
-  rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
-/>
 <style>
-  /* Layout: a review sheet. Per format version, one card per picture: release, now, difference. */
+  /* Layout: a review sheet for testing by eye (make picture-check, make gallery): sections of
+     cards, each with a reference label the owner quotes back. */
   :root {
     --bg: #f3f4f6;
     --panel: #ffffff;
@@ -20,8 +16,9 @@
     --changed-bg: #fde7e4;
     --mat: #e9efe6;
     --mat-grid: #cfdacb;
-    --body: 'Libre Franklin', system-ui, sans-serif;
-    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    /* System fonts only: the page stays offline (opened from disk). */
+    --body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) {
@@ -194,6 +191,54 @@
   body.only-changed .pic.same {
     display: none;
   }
+  /* Gallery: picture beside what to expect. */
+  .var {
+    grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+    align-items: start;
+  }
+  @media (max-width: 700px) {
+    .var {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .var .about {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+  }
+  .var .added {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+  .var .expect {
+    margin: 0;
+    max-width: 65ch;
+  }
+  .var ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .var li {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    overflow-wrap: anywhere;
+  }
+  .var .error {
+    color: var(--changed);
+    background: var(--changed-bg);
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin: 0;
+  }
   input:focus-visible,
   a:focus-visible {
     outline: 2px solid var(--accent);
@@ -203,29 +248,26 @@
 
 <div class="wrap">
   <header>
-    <h1>Quilt Picture Check</h1>
-    <p class="lede">
-      The demo projects drawn by today's build ({{BUILD}}) beside the pictures saved when each
-      format version was released. Red in the difference column marks what moved. Tell Claude the
-      reference (like <span class="ref">v6.03</span>) of anything that looks wrong.
-    </p>
+    <h1>{{TITLE}}</h1>
+    <p class="lede">{{LEDE}}</p>
   </header>
   <div class="bar">
-    <span class="chip {{STATE}}">{{SUMMARY}}</span>
-    <label for="only"><input id="only" type="checkbox" /> Show changed only</label>
+    {{BAR}}
     <nav id="jump" class="bar"></nav>
   </div>
   {{SECTIONS}}
 </div>
 <script>
   const box = document.getElementById('only');
-  box.addEventListener('change', () => document.body.classList.toggle('only-changed', box.checked));
+  box?.addEventListener('change', () =>
+    document.body.classList.toggle('only-changed', box.checked),
+  );
   const jump = document.getElementById('jump');
   document.querySelectorAll('section h2').forEach((h, i) => {
-    h.id = 'version' + i;
+    h.id = 'section' + i;
     const a = document.createElement('a');
-    a.href = '#version' + i;
-    a.textContent = h.firstChild.textContent.trim().replace('Project format ', '');
+    a.href = '#section' + i;
+    a.textContent = h.dataset.short || h.firstChild.textContent.trim();
     jump.append(a);
   });
 </script>

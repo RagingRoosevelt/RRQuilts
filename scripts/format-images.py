@@ -6,7 +6,7 @@
     uv run scripts/format-images.py <release docs/ dir> test/fixtures/formats/project-v6.rrq ...
 
 Each project gets a folder next to it (project-v6/) with one PNG per quilt and block, saved with
-the app's Save image. Get a release's build with `git worktree add <dir> vX.Y.Z` (its docs/).
+the app's Save image (`--quilts-only`: quilts only). Get a release's build with `git worktree add <dir> vX.Y.Z` (its docs/).
 First run: `uv run --with playwright playwright install firefox`.
 """
 
@@ -20,7 +20,9 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
-docs, projects = Path(sys.argv[1]).resolve(), [Path(p).resolve() for p in sys.argv[2:]]
+args = [a for a in sys.argv[1:] if a != "--quilts-only"]
+quilts_only = "--quilts-only" in sys.argv
+docs, projects = Path(args[0]).resolve(), [Path(p).resolve() for p in args[1:]]
 root = Path(tempfile.mkdtemp())
 (root / "RRQuilts").symlink_to(docs)
 
@@ -79,6 +81,9 @@ with sync_playwright() as p:
         page.wait_for_timeout(2000)
         project = json.loads(rrq.read_text())["project"]
         save_all(page, out, {q["notecard"]["name"] for q in project["quilts"]})
+        if quilts_only:
+            page.close()
+            continue
         page.get_by_role("tab", name="Blocks").click()
         page.wait_for_timeout(1000)
         # Library sections draw their cards as they scroll into view.

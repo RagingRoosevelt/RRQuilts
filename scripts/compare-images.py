@@ -8,7 +8,7 @@
 Defaults: `docs` (run `make build` first) and `.cache/picture-check.html`. Every
 test/fixtures/formats/demo-vN.rrq is opened in that build and its quilts and blocks saved
 (scripts/format-images.py); each picture is shown beside its stored copy from demo-vN/ with a
-difference image, changed pictures first. Claude publishes the page for the owner to check.
+difference image, changed pictures first. The page stays local: open it from disk.
 """
 
 import base64
@@ -106,16 +106,29 @@ for d in demos:
         )
     n_changed = sum(r[0] for r in rows)
     sections.append(
-        f'<section><h2>Project format v{v} <small>{len(rows)} pictures, {n_changed} changed</small></h2>'
+        f'<section><h2 data-short="v{v}">Project format v{v} <small>{len(rows)} pictures, {n_changed} changed</small></h2>'
         + "".join(cards)
         + "</section>"
     )
 
-page = (repo / "scripts/compare-images.html").read_text()
+summary = f"{changed} of {total} pictures changed" if changed else f"All {total} pictures match"
+build = docs.relative_to(repo) if docs.is_relative_to(repo) else docs
 page = (
-    page.replace("{{SUMMARY}}", f"{changed} of {total} pictures changed" if changed else f"All {total} pictures match")
-    .replace("{{STATE}}", "changed" if changed else "same")
-    .replace("{{BUILD}}", html.escape(str(docs.relative_to(repo) if docs.is_relative_to(repo) else docs)))
+    (repo / "scripts/check-page.html")
+    .read_text()
+    .replace("{{TITLE}}", "Quilt Picture Check")
+    .replace(
+        "{{LEDE}}",
+        f"The demo projects drawn by today's build ({html.escape(str(build))}) beside the pictures "
+        "saved when each format version was released. Red in the difference column marks what "
+        'moved. Tell Claude the reference (like <span class="ref">v6.03</span>) of anything that '
+        "looks wrong.",
+    )
+    .replace(
+        "{{BAR}}",
+        f'<span class="chip {"changed" if changed else "same"}">{summary}</span>'
+        '<label for="only"><input id="only" type="checkbox"> Show changed only</label>',
+    )
     .replace("{{SECTIONS}}", "".join(sections))
 )
 out.parent.mkdir(parents=True, exist_ok=True)

@@ -42,8 +42,13 @@ like sketchbook/worktable are fine).
   by a test; `demo-vN.rrq` = a demo project with a quilt per layout capability each version added
   (`write-demo.spec.ts`), `demo-vN/` = PNGs of its quilts and blocks drawn by that release
   (`scripts/format-images.py`). A release that ships a new format version adds them (`scripts/release.md`).
-  `make picture-check` (host, needs `uv`) = all demos drawn now vs stored, one HTML page with
-  reference labels; publish it for the owner before releases and after format/layout/drawing changes.
+  `make picture-check` (host, needs `uv`) = all demos drawn now vs stored, one local HTML page with
+  reference labels; give the owner its file link (never publish it) before releases and after
+  format/layout/drawing changes.
+- Layout gallery (manual testing aid): `test/gallery/variations.ts` = quilts per layout and setting
+  with blocks/solids/mixes, each with what it should show; **newest first, new ids (G###) on top**
+  whenever a feature adds a layout capability or setting. `make gallery` (host, needs `uv`) builds
+  them with today's code into a local `.cache/gallery.html`; give the owner the file link, never publish it.
 
 ## Rules
 
