@@ -230,11 +230,35 @@ export function loadChecks(): Record<string, CheckState> {
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) ?? '{}') as unknown;
     return raw && typeof raw === 'object' && !Array.isArray(raw)
-      ? (raw as Record<string, CheckState>)
+      ? carryForward(raw as Record<string, CheckState>)
       : {};
   } catch {
     return {};
   }
+}
+
+/** Marks a release line that has taken over the previous line's results (once). */
+const CARRIED = '@carried';
+const newer = (a: string, b: string) => {
+  const [x, y] = [a, b].map((v) => v.split('.').map(Number));
+  for (let i = 0; i < 3; i++) if (x![i] !== y![i]) return (x![i] ?? 0) > (y![i] ?? 0);
+  return false;
+};
+/**
+ * A new release line starts from the newest earlier line's results, each still showing the build it
+ * was tested on, so testing carries on where it was. Once only: Start over then really starts over.
+ */
+export function carryForward(state: Record<string, CheckState>, version = VERSION) {
+  if (`${version}:${CARRIED}` in state) return state;
+  const lines = [...new Set(Object.keys(state).map((k) => k.split(':')[0]!))];
+  const prev = lines.filter((v) => newer(version, v)).sort((a, b) => (newer(a, b) ? -1 : 1))[0];
+  const carried = Object.fromEntries(
+    Object.entries(state)
+      .filter(([k]) => prev && k.startsWith(`${prev}:`) && !k.endsWith(CARRIED))
+      .map(([k, v]) => [`${version}:${k.slice(prev!.length + 1)}`, v]),
+  );
+  const marker = { status: 'ok', at: '', build: version } as CheckState;
+  return { ...carried, ...state, [`${version}:${CARRIED}`]: marker };
 }
 export function saveChecks(state: Record<string, CheckState>) {
   try {

@@ -165,7 +165,12 @@ function reset() {
   }).onOk(() =>
     // Other builds' progress stays.
     commit(
-      Object.fromEntries(Object.entries(state.value).filter(([k]) => !k.startsWith(`${VERSION}:`))),
+      Object.fromEntries(
+        Object.entries(state.value).filter(
+          // The carried-forward mark stays, or the old results would come back on reload.
+          ([k]) => !k.startsWith(`${VERSION}:`) || k.endsWith('@carried'),
+        ),
+      ),
     ),
   );
 }
