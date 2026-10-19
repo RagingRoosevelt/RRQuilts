@@ -195,6 +195,7 @@ import { isLibraryItem } from '@/model/library-items';
 import type { LibraryRef, Units } from '@/model/schema/project';
 import type { Credit } from '@/model/schema/shared';
 import { convertUnits } from '@/model/units';
+import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -234,8 +235,10 @@ const item = computed(() => {
 const quilt = computed(() =>
   props.kind === 'quilt' && target.value && 'layout' in target.value ? target.value : undefined,
 );
-/** A PNG of the quilt; the reference overlay only when it's switched on in Layout. */
-const downloadImage = () => quilt.value && saveQuiltImage(project.doc!, quilt.value, true);
+/** A PNG of the quilt; the reference overlay only when it's switched on in Layout, seam lines when
+ *  the editor shows them. */
+const downloadImage = () =>
+  quilt.value && saveQuiltImage(project.doc!, quilt.value, true, useEditorStore().outlines);
 const credits = computed(() => (target.value ? priorCredits(target.value) : []));
 const others = computed(() =>
   props.kind === 'quilt' && project.doc && target.value && 'layout' in target.value

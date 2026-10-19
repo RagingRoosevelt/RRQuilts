@@ -25,7 +25,7 @@ docs = Path(sys.argv[1] if len(sys.argv) > 1 else repo / "docs").resolve()
 work = repo / ".cache/gallery"
 shutil.rmtree(work / "gallery", ignore_errors=True)
 subprocess.run(
-    ["uv", "run", str(repo / "scripts/format-images.py"), "--quilts-only", str(docs), str(work / "gallery.rrq")],
+    ["uv", "run", str(repo / "scripts/format-images.py"), "--quilts-only", "--seams", str(docs), str(work / "gallery.rrq")],
     check=True,
 )
 pictures = list((work / "gallery").glob("*.png"))

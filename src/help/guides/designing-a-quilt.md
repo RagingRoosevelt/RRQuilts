@@ -8,7 +8,8 @@ Open a quilt from the sketchbook's **Quilts** tab (or create one from **Start a 
 editor has five tabs along the top named **Details**, **Layout**, **Borders**, **Design**, and
 **Print**. The **menu** button at the right hides or shows the sidebar. Two toggles on the left rail
 show or hide the seam lines and the block names, and the bar under the quilt reports its finished
-size.
+size. **Download image** in the **Details** tab saves the quilt's picture with seam lines when they
+are shown.
 
 ## Layout
 

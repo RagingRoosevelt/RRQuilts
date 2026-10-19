@@ -6,7 +6,8 @@
     uv run scripts/format-images.py <release docs/ dir> test/fixtures/formats/project-v6.rrq ...
 
 Each project gets a folder next to it (project-v6/) with one PNG per quilt and block, saved with
-the app's Save image (`--quilts-only`: quilts only). Get a release's build with `git worktree add <dir> vX.Y.Z` (its docs/).
+the app's Save image (`--quilts-only`: quilts only; `--seams`: quilts from the editor's Details tab,
+with seam lines). Get a release's build with `git worktree add <dir> vX.Y.Z` (its docs/).
 First run: `uv run --with playwright playwright install firefox`.
 """
 
@@ -20,8 +21,10 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
-args = [a for a in sys.argv[1:] if a != "--quilts-only"]
+FLAGS = {"--quilts-only", "--seams"}
+args = [a for a in sys.argv[1:] if a not in FLAGS]
 quilts_only = "--quilts-only" in sys.argv
+seams = "--seams" in sys.argv
 docs, projects = Path(args[0]).resolve(), [Path(p).resolve() for p in args[1:]]
 root = Path(tempfile.mkdtemp())
 (root / "RRQuilts").symlink_to(docs)
@@ -61,6 +64,23 @@ def save_all(page, out: Path, names: set[str]):
         page.wait_for_timeout(200)
 
 
+def save_with_seams(page, out: Path, quilts):
+    """Each quilt from the editor's Details tab, whose download draws seam lines as the editor
+    shows them (Show seam lines is on by default)."""
+    for q in quilts:
+        page.evaluate(
+            "id => { history.pushState({}, '', `${location.pathname.split('/project')[0]}/project/quilt/${id}`);"
+            " dispatchEvent(new PopStateEvent('popstate')); }",
+            q["id"],
+        )
+        page.get_by_role("tab", name="Details").click()
+        with page.expect_download() as d:
+            page.get_by_role("button", name="Download image").click()
+        dl = d.value
+        dl.save_as(out / dl.suggested_filename)
+        print("  ", dl.suggested_filename)
+
+
 with sync_playwright() as p:
     browser = p.firefox.launch()
     for rrq in projects:
@@ -80,7 +100,10 @@ with sync_playwright() as p:
         page.wait_for_url("**/project**")
         page.wait_for_timeout(2000)
         project = json.loads(rrq.read_text())["project"]
-        save_all(page, out, {q["notecard"]["name"] for q in project["quilts"]})
+        if seams:
+            save_with_seams(page, out, project["quilts"])
+        else:
+            save_all(page, out, {q["notecard"]["name"] for q in project["quilts"]})
         if quilts_only:
             page.close()
             continue

@@ -38,10 +38,12 @@ export function quiltThumbnail(
   dark = false,
   withTarget = false,
   shaped = false,
+  /** Seam lines on every piece, as the editor's Show seam lines. */
+  outlines = false,
 ) {
   return cached(
     quilt,
-    `${px}:${dark}:${withTarget}:${shaped}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
+    `${px}:${dark}:${withTarget}:${shaped}:${outlines}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
     () => {
       const g = generateFor(quilt);
       const bounds = withTarget ? boundsWithTarget(quilt, g.bounds) : g.bounds;
@@ -55,7 +57,7 @@ export function quiltThumbnail(
       drawQuilt(ctx, doc, quilt, g, {
         dpr: 1,
         view: fitView(bounds, w, h, shaped ? 0 : 6),
-        outlines: false,
+        outlines,
         dark,
         target: withTarget,
       });
