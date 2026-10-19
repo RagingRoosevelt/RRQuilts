@@ -5,6 +5,7 @@ import { computed, ref, shallowRef, toRaw } from 'vue';
 import { builtinDoc, builtinLibrary } from '@/content/starter';
 import { emptyPersonal, lookupOf, withSources, type LibraryView } from '@/model/library';
 import type { LibraryDoc } from '@/model/schema/library';
+import { cleanTags, FAVORITE, keptTags, setKept, sortTags, visibleTags } from '@/model/tags';
 import type { LibraryRef } from '@/model/schema/project';
 import type { LibraryWhere } from '@/model/library-refs';
 import { deletePack, loadLibraries, putMine, putPack } from '@/storage/libraries';
@@ -102,6 +103,45 @@ export const useLibraryStore = defineStore('library', () => {
     packs.value = [...packs.value.filter((p) => p.id !== doc.id), Object.freeze(doc)];
     await write(() => putPack(doc));
   }
+  // --- The quilter's tags (spec 029) ---
+  /** Tags kept in My library for items the quilter doesn't own, by item id. */
+  const kept = computed(() => keptTags(mine.value?.annotations));
+  /** Replace the kept tags of one item (none: forget it). */
+  async function setKeptTags(me: string, id: string, tags: readonly string[]) {
+    const doc = ensureMine(me);
+    const annotations = setKept(doc.annotations, id, tags);
+    const { annotations: _old, ...rest } = doc;
+    void _old;
+    await saveMine(annotations.length ? { ...rest, annotations } : rest);
+  }
+  /** Forget the kept tags of these items. */
+  async function dropKept(ids: readonly string[]) {
+    if (!mine.value?.annotations) return;
+    const gone = new Set(ids);
+    const annotations = mine.value.annotations.filter((a) => !gone.has(a.id));
+    const { annotations: _old, ...rest } = mine.value;
+    void _old;
+    await saveMine(annotations.length ? { ...rest, annotations } : rest);
+  }
+  /** Every tag in use in the libraries: the quilter's own, kept ones, and any a pack came with. */
+  const tagVocabulary = computed(() =>
+    // Favorite is always offered, first, even before it's used.
+    sortTags(
+      cleanTags([
+        FAVORITE,
+        ...allViews.value.flatMap((v) =>
+          v.doc.items.flatMap((i) => visibleTags(i.data.notecard.tags)),
+        ),
+        ...(mine.value?.annotations ?? []).flatMap((a) => a.tags),
+      ]),
+    ),
+  );
+  /** Kept tags whose items no installed library has (a removed pack's). */
+  const orphanedTags = computed(() => {
+    const have = new Set(allViews.value.flatMap((v) => v.doc.items.map((i) => i.data.id)));
+    return (mine.value?.annotations ?? []).filter((a) => !have.has(a.id));
+  });
+
   async function removePack(id: string) {
     packs.value = packs.value.filter((p) => p.id !== id);
     await write(() => deletePack(id));
@@ -376,6 +416,11 @@ export const useLibraryStore = defineStore('library', () => {
     saveMine,
     savePack,
     removePack,
+    kept,
+    setKeptTags,
+    dropKept,
+    tagVocabulary,
+    orphanedTags,
     connections,
     connect,
     installFromFile,

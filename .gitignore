@@ -16,3 +16,4 @@ coverage
 .DS_Store
 .thumbs.db
 npm-debug.log*
+.shaped-render

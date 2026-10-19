@@ -410,9 +410,12 @@ const sidebarLabel = computed(() => (editor.sidebar ? 'Hide sidebar' : 'Show sid
 const labelsLabel = computed(() => (editor.labels ? 'Hide block names' : 'Show block names'));
 
 const setsBordersAside = (l: Layout) =>
-  l.style === 'on-point' || l.style === 'variable-point'
+  l.style === 'on-point' || l.style === 'variable-point' || l.style === 'diamond-point'
     ? l.edge.finish === 'none'
-    : l.style === 'one-patch' || l.style === 'baby-blocks' || l.style === 'variable-blocks'
+    : l.style === 'one-patch' ||
+        l.style === 'shaped-blocks' ||
+        l.style === 'baby-blocks' ||
+        l.style === 'variable-blocks'
       ? l.edge === 'none'
       : false;
 /** The selected border's inside edge: the quilt center grown by the borders within it. */
@@ -423,7 +426,7 @@ const borderInner = computed((): Bounds => {
   return [x0 - sum(0), y0 - sum(1), x1 + sum(2), y1 + sum(3)];
 });
 /** Some space takes a block (patch layouts and pieced strips take only colors and fabrics). */
-const hasBlockSpaces = computed(() => generated.value.slots.some(takesBlock));
+const hasBlockSpaces = computed(() => generated.value.slots.some((s) => takesBlock(s)));
 const bordersSetAside = computed(
   () => !!quilt.value && setsBordersAside(quilt.value.layout) && quilt.value.borders.length > 0,
 );

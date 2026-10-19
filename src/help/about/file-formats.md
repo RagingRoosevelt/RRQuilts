@@ -22,7 +22,7 @@ upgrades them when you save.
 
 Anyone writing tools that read or make these files can use the published JSON Schemas:
 
-- [Project file (`.rrq`), version 6](../../schemas/rrq.v6.json)
+- [Project file (`.rrq`), version 7](../../schemas/rrq.v7.json)
 - [Bundled libraries list](../../schemas/bundled_libraries.v1.json)
 - [Current version of each format](../../schemas/formats.json)
 

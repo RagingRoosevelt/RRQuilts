@@ -17,12 +17,17 @@ async function fabricsReady(doc: RrqDoc) {
 const pngBytes = async (dataUrl: string) =>
   new Uint8Array(await (await fetch(dataUrl)).arrayBuffer());
 
-/** `withTarget`: include the reference overlay when it's switched on (the editor's Details tab;
- *  the project's quilt list leaves it out). */
-export async function saveQuiltImage(doc: RrqDoc, quilt: Quilt, withTarget = false) {
+/** `withTarget`: include the reference overlay when it's switched on, and `outlines`: seam lines
+ *  (both the editor's Details tab, as the editor shows them; the project's quilt list leaves them out). */
+export async function saveQuiltImage(
+  doc: RrqDoc,
+  quilt: Quilt,
+  withTarget = false,
+  outlines = false,
+) {
   await fabricsReady(doc);
   // A fresh object, so the thumbnail cache draws it anew (with the images now loaded).
-  const url = quiltThumbnail(doc, { ...quilt }, 2048, false, withTarget);
+  const url = quiltThumbnail(doc, { ...quilt }, 2048, false, withTarget, false, outlines);
   await exportFile(quilt.notecard.name, await pngBytes(url), 'png');
 }
 

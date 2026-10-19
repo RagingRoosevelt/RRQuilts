@@ -142,6 +142,7 @@
 </template>
 
 <script setup lang="ts">
+import { BORDER_STYLE_NAMES } from '@/model/layout/borders';
 import { computed, ref } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import { borderCounts } from '@/model/layout/borders';
@@ -163,32 +164,8 @@ const emit = defineEmits<{
   'update:selected': [i: number];
 }>();
 
-const STYLES: Record<Border['style'], string> = {
-  'long-horizontal': 'Long horizontal',
-  'long-vertical': 'Long vertical',
-  mitered: 'Mitered',
-  'corner-blocks': 'Corner blocks',
-  blocks: 'Blocks',
-  'half-drop-blocks': 'Half drop blocks',
-  'blocks-aligned-inside': 'Blocks aligned inside',
-  'half-drop-aligned': 'Half drop aligned',
-  'spaced-squares': 'Spaced squares',
-  'tile-squares': 'Tile squares',
-  'tile-on-point': 'Tile on point',
-  'tile-on-point-corners': 'Tile on point corners',
-  diamonds: 'Diamonds',
-  'half-drop-diamonds': 'Half drop diamonds',
-  'double-diamonds': 'Double diamonds',
-  'half-drop-double-diamonds': 'Half drop double diamonds',
-  'big-little-diamonds': 'Big & little diamonds',
-  'half-drop-big-little-diamonds': 'Half drop big & little diamonds',
-  'points-out': 'Points out',
-  'points-in': 'Points in',
-  'big-little-points-out': 'Big & little points out',
-  'big-little-points-in': 'Big & little points in',
-};
-const styleLabel = (s: string) => STYLES[s as Border['style']] ?? s;
-const styleOptions = Object.entries(STYLES).map(([value, label]) => ({ value, label }));
+const styleLabel = (s: string) => BORDER_STYLE_NAMES[s as Border['style']] ?? s;
+const styleOptions = Object.entries(BORDER_STYLE_NAMES).map(([value, label]) => ({ value, label }));
 /** Styles with units along the sides (counts); aligned ones follow the layout's columns and rows. */
 const PLAIN = new Set(['long-horizontal', 'long-vertical', 'mitered', 'corner-blocks']);
 const ALIGNED = new Set(['blocks-aligned-inside', 'half-drop-aligned']);

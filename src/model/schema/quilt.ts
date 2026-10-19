@@ -46,9 +46,10 @@ export const OtherLayout = Type.Object({
 });
 
 /** Variable Point (spec 018): On-Point with diamonds `width` × `height` through the block; the
- *  diamonds take colors and fabrics only. */
+ *  diamonds take colors and fabrics only. Diamond Point (spec 026): the same with 60° diamonds
+ *  (height = width·√3) that take diamond blocks. */
 export const VariablePointLayout = Type.Object({
-  style: Type.Literal('variable-point'),
+  style: Type.Union([Type.Literal('variable-point'), Type.Literal('diamond-point')]),
   cols: count,
   rows: count,
   width: Type.Number({ exclusiveMinimum: 0 }),
@@ -74,6 +75,9 @@ export const PatchShape = Type.Enum([
   'octagons',
 ]);
 
+/** Degrees the grid is turned (spec 026: triangles, diamonds, hexagons); absent = 0. */
+const flow = Type.Optional(Type.Number({ minimum: 0, maximum: 360 }));
+
 /** One Patch (spec 018): one shape repeated `cols` × `rows`; `width` (and `height` where the shape
  *  has one) is the patch's finished size. */
 export const OnePatchLayout = Type.Object({
@@ -84,10 +88,28 @@ export const OnePatchLayout = Type.Object({
   width: Type.Number({ exclusiveMinimum: 0 }),
   height: Type.Number({ exclusiveMinimum: 0 }),
   edge: PatchEdge,
+  flow,
+});
+
+/** Shaped Blocks (spec 026): One Patch's triangles, diamonds or hexagons as block spaces; `width` is
+ *  the side (diamonds: across). */
+export const ShapedBlocksLayout = Type.Object({
+  style: Type.Literal('shaped-blocks'),
+  shape: Type.Union([
+    Type.Literal('triangles'),
+    Type.Literal('diamonds'),
+    Type.Literal('hexagons'),
+  ]),
+  cols: count,
+  rows: count,
+  width: Type.Number({ exclusiveMinimum: 0 }),
+  edge: PatchEdge,
+  flow,
 });
 
 /** Baby Blocks and Variable Blocks (spec 018): cubes of three diamonds; `width` across a cube,
- *  `top` the top diamond's height, `side` the side diamonds' upright edge. */
+ *  `top` the top diamond's height, `side` the side diamonds' upright edge. Spec 026: Baby Blocks
+ *  (60° diamonds) are block spaces; Variable Blocks (shown as Variable Patch) are patches. */
 export const TumblingLayout = Type.Object({
   style: Type.Union([Type.Literal('baby-blocks'), Type.Literal('variable-blocks')]),
   cols: count,
@@ -96,6 +118,7 @@ export const TumblingLayout = Type.Object({
   top: Type.Number({ exclusiveMinimum: 0 }),
   side: Type.Number({ exclusiveMinimum: 0 }),
   edge: PatchEdge,
+  flow,
 });
 
 export const StripStyle = Type.Enum([
@@ -139,6 +162,7 @@ export const Layout = Type.Union([
   StripLayout,
   VariablePointLayout,
   OnePatchLayout,
+  ShapedBlocksLayout,
   TumblingLayout,
   OtherLayout,
 ]);
@@ -176,10 +200,22 @@ export const Border = Type.Object({
   blocks: Type.Optional(Type.Tuple([count, count])),
 });
 
+export const Rotation = Type.Union([
+  Type.Literal(0),
+  Type.Literal(60),
+  Type.Literal(90),
+  Type.Literal(120),
+  Type.Literal(180),
+  Type.Literal(240),
+  Type.Literal(270),
+  Type.Literal(300),
+]);
+
 export const SlotContent = Type.Object({
   block: ItemId,
   coloring: Id,
-  rotation: Type.Union([Type.Literal(0), Type.Literal(90), Type.Literal(180), Type.Literal(270)]),
+  /** Degrees clockwise: 90° steps in square spaces, the shape's turn in shaped ones (spec 026). */
+  rotation: Rotation,
   flip: Type.Boolean(),
 });
 
@@ -278,6 +314,8 @@ export type StripLayout = Type.Static<typeof StripLayout>;
 export type VariablePointLayout = Type.Static<typeof VariablePointLayout>;
 export type OnePatchLayout = Type.Static<typeof OnePatchLayout>;
 export type TumblingLayout = Type.Static<typeof TumblingLayout>;
+export type ShapedBlocksLayout = Type.Static<typeof ShapedBlocksLayout>;
+export type Rotation = Type.Static<typeof Rotation>;
 export type PatchShape = Type.Static<typeof PatchShape>;
 export type Strip = Type.Static<typeof Strip>;
 export type StripStyle = Type.Static<typeof StripStyle>;

@@ -13,13 +13,59 @@ export const Size = Type.Tuple([positive, positive]);
 const byte = Type.Integer({ minimum: 0, maximum: 255 });
 export const RGB = Type.Tuple([byte, byte, byte]);
 
+/**
+ * Techniques a block's author marks it with (spec 029): what it needs beyond ordinary machine
+ * piecing, and the faster methods it suits. Only what the data says; the app never guesses them.
+ */
+export const Technique = Type.Union([
+  Type.Literal('fpp'),
+  Type.Literal('applique'),
+  Type.Literal('hand'),
+  Type.Literal('strip'),
+  Type.Literal('quick-units'),
+  Type.Literal('stitch-flip'),
+]);
+export type Technique = Type.Static<typeof Technique>;
+/** Display names, in the order pickers list them. */
+export const TECHNIQUES: Record<Technique, string> = {
+  fpp: 'Foundation paper piecing',
+  applique: 'Appliqué',
+  hand: 'Hand sewing',
+  strip: 'Strip piecing',
+  'quick-units': 'Quick units',
+  'stitch-flip': 'Stitch and flip',
+};
+/** The two kinds (the Details tab's checklists, the filter's sections): what a block needs, and what
+ *  makes it faster. */
+export const TECHNIQUE_GROUPS: { label: string; hint: string; techniques: Technique[] }[] = [
+  {
+    label: 'Needs',
+    hint: 'Beyond ordinary machine piecing.',
+    techniques: ['fpp', 'applique', 'hand'],
+  },
+  {
+    label: 'Efficiency',
+    hint: 'Strip sets; half-square triangles, quarter-square triangles or flying geese several at a time; corners sewn on and flipped.',
+    techniques: ['strip', 'quick-units', 'stitch-flip'],
+  },
+];
+
+/** Technique filter options in list order, each with its section; only those `used`. */
+export const techniqueOptions = (used: ReadonlySet<string>) =>
+  TECHNIQUE_GROUPS.flatMap((g) =>
+    g.techniques
+      .filter((t) => used.has(t))
+      .map((t) => ({ label: TECHNIQUES[t], value: t, group: g.label })),
+  );
+
 export const Notecard = Type.Object({
   name: Type.String(),
   notes: Type.Optional(Type.String()),
   reference: Type.Optional(Type.String()),
+  /** The quilter's own filing words (spec 029: on items they own; others' are kept in My library). */
   tags: Type.Optional(Type.Array(Type.String())),
-  /** A user-managed kind of tag ("eight-point"), shown and searched apart from plain tags. */
-  styles: Type.Optional(Type.Array(Type.String())),
+  /** Set by the item's author (spec 029; replaced the free-text `styles`, which became tags). */
+  techniques: Type.Optional(Type.Array(Technique)),
   categories: Type.Optional(Type.Array(Type.String())),
 });
 

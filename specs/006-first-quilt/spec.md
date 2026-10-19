@@ -54,7 +54,7 @@ reopen the project: state matches.
    cards; Fabrics & Colors, Photos, and Threads tabs show their lists (colors only in this feature).
 2. **Given** a card, **When** the user opens it, **Then** its editor opens (quilt editor; blocks show
    a read-only preview until the block editor exists).
-3. **Given** a quilt card, **When** "Duplicate as variation" is chosen, **Then** a copy named
+3. **Given** a quilt card, **When** "Create copy" is chosen, **Then** a copy named
    "<name> (2)" appears next to it and opens.
 4. **Given** a card, **When** the user edits its notecard (name, notes), reorders by dragging, or
    deletes it, **Then** the change is saved; deleting a block used in a quilt is refused with the
@@ -288,7 +288,9 @@ zoom, drag-pan, and Fit.
 **Canvas**
 
 - **FR-050**: The canvas MUST render the quilt from generated slots and block patches, with patch
-  outlines toggleable, unfilled patches hatched, and zoom/pan/fit by mouse, keyboard, and touch.
+  outlines toggleable, unfilled patches hatched, and zoom/pan/fit by mouse, keyboard, and touch. A one-finger drag pans only with the Pan tool
+  (or where no tool takes drags); two fingers always pinch and pan (owner, 2026-10-18), so drags meant
+  for items don't move the view.
 - **FR-051**: Hit-testing MUST resolve a tap to the space and patch under it at any zoom.
 
 ### Key Entities

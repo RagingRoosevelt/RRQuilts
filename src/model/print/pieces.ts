@@ -1,4 +1,5 @@
 // The pieces to cut: every patch of a block at a finished size, or of a whole quilt as placed.
+import { SHAPE_AREA, type BlockShape } from '@/model/blocks/shape';
 import { placementMatrix } from '@/render/placement';
 import { allPatches } from '../blocks/patches';
 import { resolveColoring, fillKey } from '../coloring';
@@ -64,10 +65,11 @@ export function blockPieces(
   });
 }
 
-/** The space's outline covers less than the whole block square mapped into it. */
+/** The space's outline covers less than the whole block (square or shape) mapped into it. */
 function trimmed(slot: Slot) {
   const [a, b, c, d] = slot.transform;
-  const whole = Math.abs(a * d - b * c);
+  const share = slot.shape in SHAPE_AREA ? SHAPE_AREA[slot.shape as BlockShape] : 1;
+  const whole = Math.abs(a * d - b * c) * share;
   const seen = Math.abs(signedArea(flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3)));
   return seen < whole * (1 - 1e-6);
 }

@@ -1,4 +1,5 @@
 // Load/save .rrq files. Input is untrusted: parse, migrate, validate, then check integrity.
+import { upgradeNotecards } from './tags';
 import Value from 'typebox/value';
 import { findDuplicateIds, newId } from './ids';
 import type { Asset } from './schema/shared';
@@ -66,6 +67,21 @@ export const migrations: Migrations = {
     });
     return { ...doc, project: { ...project, quilts } };
   },
+  // v7 (spec 026): shaped blocks, 60° placement turns, Shaped Blocks and Diamond Point layouts, flow
+  // angles (all additive). Baby Blocks now hold blocks; older Baby Blocks quilts were painted
+  // patches, so they become Variable Patch (`variable-blocks`) with the same sizes and patch ids.
+  // v7: spec 026 Baby Blocks hold blocks (the old patch Baby Blocks is Variable Patch). Spec 029's
+  // notecard upgrade (styles become tags) runs on every load, in parseProject.
+  6: (doc) => {
+    const project = isObject(doc.project) ? doc.project : undefined;
+    if (!project || !Array.isArray(project.quilts)) return doc;
+    const quilts = project.quilts.map((q: unknown) =>
+      isObject(q) && isObject(q.layout) && q.layout.style === 'baby-blocks'
+        ? { ...q, layout: { ...q.layout, style: 'variable-blocks' } }
+        : q,
+    );
+    return { ...doc, project: { ...project, quilts } };
+  },
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */
@@ -92,6 +108,26 @@ export function layoutDefaults(style: string, k: number) {
         width: r(3),
         height: r(3),
         edge: 'trim' as const,
+      };
+    case 'shaped-blocks':
+      return {
+        style: 'shaped-blocks' as const,
+        shape: 'hexagons' as const,
+        cols: 6,
+        rows: 6,
+        width: r(4),
+        edge: 'trim' as const,
+      };
+    case 'diamond-point':
+      return {
+        style: 'diamond-point' as const,
+        cols: 4,
+        rows: 3,
+        width: r(6),
+        height: r(6) * Math.sqrt(3),
+        sash: 0,
+        corner: 'triangle' as const,
+        edge: { finish: 'float' as const, float: r(1) },
       };
     case 'baby-blocks':
       return {
@@ -196,6 +232,8 @@ export async function parseProject(
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
+  // Spec 029: styles become tags; techniques this version doesn't know are dropped.
+  raw = upgradeNotecards(raw);
   if (!Value.Check(RrqDoc, raw)) {
     return { ok: false, error: `Project file is damaged: ${firstError(raw)}` };
   }

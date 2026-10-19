@@ -97,7 +97,7 @@ const cursor = computed(() =>
 );
 const radius = () => 8 * vp.worldPerPx();
 const snapAt = (p: World, d: Drawing = drawing.value) =>
-  snap(p, d, size.value, props.settings.snap, radius());
+  snap(p, d, size.value, props.settings.snap, radius(), props.block.shape);
 const norm = (p: Pt): Endpoint => ({ x: p[0] / size.value[0], y: p[1] / size.value[1] });
 
 /** Selected single arc → its bulge handle position (design units). */

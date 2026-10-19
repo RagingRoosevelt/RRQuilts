@@ -123,6 +123,8 @@ const nav = computed(() => [
   ...(project.isOpen ? [{ to: '/project', icon: 'grid_view', label: 'Project' }] : []),
   { to: '/libraries', icon: 'collections_bookmark', label: 'Libraries' },
   { to: '/help', icon: 'help_outline', label: 'Help' },
+  // Testing aids: dev server only (routes.ts).
+  ...(import.meta.env.DEV ? [{ to: '/dev', icon: 'science', label: 'Tests' }] : []),
 ]);
 // Settings and unknown pages show Home in the compact menu.
 const current = computed(

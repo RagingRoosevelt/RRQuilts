@@ -129,6 +129,30 @@
       @blur="(e: Event) => set('notes', (e.target as HTMLInputElement).value, true)"
     />
 
+    <!-- Techniques the block's designer marks (spec 029): ticked = in the block's data. A library
+         block's are shown, not changed. -->
+    <div v-if="block" class="column" style="gap: 8px">
+      <template v-if="!ro && !isLibraryItem(block)">
+        <div v-for="g in TECHNIQUE_GROUPS" :key="g.label">
+          <div class="text-subtitle2">{{ g.label }}</div>
+          <div class="text-caption text-grey-7">{{ g.hint }}</div>
+          <q-checkbox
+            v-for="t in g.techniques"
+            :key="t"
+            dense
+            class="q-mr-md q-mt-xs"
+            :label="techniqueName(t)"
+            :model-value="(block.notecard.techniques ?? []).includes(t)"
+            @update:model-value="(on: boolean) => setTechnique(t, on)"
+          />
+        </div>
+      </template>
+      <div v-else>
+        <div class="text-subtitle2">Techniques</div>
+        <div class="text-body2">{{ techniqueNames || 'None marked' }}</div>
+      </div>
+    </div>
+
     <div v-if="quilt" class="row items-center" style="gap: 8px">
       <q-btn outline no-caps icon="download" label="Download image" @click="downloadImage" />
       <div v-if="quilt.target?.visible" class="text-caption text-grey-7 col">
@@ -176,6 +200,7 @@
 <script setup lang="ts">
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import { saveQuiltImage } from '@/render/save-image';
+import { TECHNIQUE_GROUPS, TECHNIQUES, type Technique } from '@/model/schema/shared';
 import { useLibraryStore } from '@/stores/library';
 // Details tab (spec 009): title, notes, author, license, and who to credit — for the project, a
 // quilt, or a block. Each field is its own coalesced undo step.
@@ -195,6 +220,7 @@ import { isLibraryItem } from '@/model/library-items';
 import type { LibraryRef, Units } from '@/model/schema/project';
 import type { Credit } from '@/model/schema/shared';
 import { convertUnits } from '@/model/units';
+import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -230,12 +256,35 @@ const item = computed(() => {
   );
 });
 
+/** The block (Details of a block): its technique. */
+const block = computed(() =>
+  props.kind === 'block' && target.value && 'size' in target.value ? target.value : undefined,
+);
+const techniqueNames = computed(() =>
+  (block.value?.notecard.techniques ?? []).map((x) => TECHNIQUES[x]).join(', '),
+);
+const techniqueName = (t: Technique) => TECHNIQUES[t];
+function setTechnique(t: Technique, on: boolean) {
+  project.change((d) => {
+    const b = d.project.blocks.find((x) => x.id === props.id);
+    if (!b) return;
+    const have = new Set(b.notecard.techniques ?? []);
+    if (on) have.add(t);
+    else have.delete(t);
+    // In list order, so the same choice is always stored the same way.
+    const list = (Object.keys(TECHNIQUES) as Technique[]).filter((x) => have.has(x));
+    if (list.length) b.notecard.techniques = list;
+    else delete b.notecard.techniques;
+  });
+}
 /** The quilt (Details of a quilt): its picture can be downloaded. */
 const quilt = computed(() =>
   props.kind === 'quilt' && target.value && 'layout' in target.value ? target.value : undefined,
 );
-/** A PNG of the quilt; the reference overlay only when it's switched on in Layout. */
-const downloadImage = () => quilt.value && saveQuiltImage(project.doc!, quilt.value, true);
+/** A PNG of the quilt; the reference overlay only when it's switched on in Layout, seam lines when
+ *  the editor shows them. */
+const downloadImage = () =>
+  quilt.value && saveQuiltImage(project.doc!, quilt.value, true, useEditorStore().outlines);
 const credits = computed(() => (target.value ? priorCredits(target.value) : []));
 const others = computed(() =>
   props.kind === 'quilt' && project.doc && target.value && 'layout' in target.value

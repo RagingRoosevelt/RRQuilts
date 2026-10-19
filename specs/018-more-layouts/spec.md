@@ -4,7 +4,10 @@
 
 **Created**: 2026-10-16
 
-**Status**: Implemented on `feat/more-layouts` (awaiting owner review)
+**Status**: Implemented on `feat/more-layouts` (awaiting owner review). Spec 026 later renamed
+Variable Blocks to **Variable Patch** and made Baby Blocks' diamonds block spaces (older Baby Blocks
+quilts open as Variable Patch); Variable Point and One Patch got block twins (Diamond Point, Shaped
+Blocks).
 
 **Input**: Owner request 2026-10-16: implement Variable Point, One Patch (no Photo Patchwork yet),
 Baby Blocks, Variable Blocks, and the pieced border styles. Decisions given up front: diamonds and

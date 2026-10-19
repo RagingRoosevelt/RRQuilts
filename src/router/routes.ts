@@ -43,6 +43,17 @@ const routes: RouteRecordRaw[] = [
     path: '/help/:section(guides|math|techniques|resources|about)/:topic?',
     component: () => import('@/pages/HelpPage.vue'),
   },
+  // Testing aids (layout gallery, picture check): dev server only. The build drops this branch and
+  // the page's chunk with it (`make build` checks that docs/ has none of it).
+  ...(import.meta.env.DEV
+    ? [
+        { path: '/dev', redirect: '/dev/checklist' },
+        {
+          path: '/dev/:view(checklist|gallery|borders|sweeps|extremes|blocks|print|pictures)',
+          component: () => import('@/pages/DevPage.vue'),
+        },
+      ]
+    : []),
   // Settings is a fly-over (MainLayout); old links open it over Home.
   { path: '/settings', redirect: '/' },
   { path: '/:catchAll(.*)*', component: () => import('@/pages/NotFoundPage.vue') },

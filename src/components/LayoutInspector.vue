@@ -11,10 +11,12 @@
         { label: 'On-Point', value: 'on-point' },
         { label: 'Horizontal Strip', value: 'horizontal-strip' },
         { label: 'Vertical Strip', value: 'vertical-strip' },
-        { label: 'Variable Point', value: 'variable-point' },
-        { label: 'One Patch', value: 'one-patch' },
-        { label: 'Baby Blocks', value: 'baby-blocks' },
-        { label: 'Variable Blocks', value: 'variable-blocks' },
+        { label: 'Diamond Point (blocks)', value: 'diamond-point' },
+        { label: 'Variable Point (patches)', value: 'variable-point' },
+        { label: 'Shaped Blocks (blocks)', value: 'shaped-blocks' },
+        { label: 'One Patch (patches)', value: 'one-patch' },
+        { label: 'Baby Blocks (blocks)', value: 'baby-blocks' },
+        { label: 'Variable Patch (patches)', value: 'variable-blocks' },
         ...soon,
       ]"
       emit-value
@@ -31,7 +33,13 @@
       :hint="hint"
       @change="(l, k) => emit('change', l, k)"
     />
-    <template v-else-if="layout.style === 'on-point' || layout.style === 'variable-point'">
+    <template
+      v-else-if="
+        layout.style === 'on-point' ||
+        layout.style === 'variable-point' ||
+        layout.style === 'diamond-point'
+      "
+    >
       <FieldGroup label="Blocks">
         <div class="column" style="gap: 8px">
           <div class="row q-col-gutter-sm">
@@ -62,9 +70,21 @@
           </div>
         </div>
       </FieldGroup>
-      <FieldGroup :label="layout.style === 'variable-point' ? 'Diamond size' : 'Block size'">
+      <FieldGroup :label="layout.style !== 'on-point' ? 'Diamond size' : 'Block size'">
         <div class="column" style="gap: 8px">
-          <template v-if="layout.style === 'variable-point'">
+          <template v-if="layout.style === 'diamond-point'">
+            <ShapeSize
+              shape="diamond60"
+              :size="[layout.width, layout.width * Math.sqrt(3)]"
+              :units="units"
+              :readonly="readonly"
+              @change="(s) => op({ width: s[0], height: s[1] }, 'width')"
+            />
+            <div class="text-caption text-grey-7">
+              60° diamonds take 60° diamond blocks. Setting pieces take colors and fabrics.
+            </div>
+          </template>
+          <template v-else-if="layout.style !== 'on-point'">
             <DiamondSize
               :width="layout.width"
               :height="layout.height"
@@ -155,23 +175,24 @@
     <template
       v-else-if="
         layout.style === 'one-patch' ||
+        layout.style === 'shaped-blocks' ||
         layout.style === 'baby-blocks' ||
         layout.style === 'variable-blocks'
       "
     >
       <q-select
-        v-if="layout.style === 'one-patch'"
+        v-if="layout.style === 'one-patch' || layout.style === 'shaped-blocks'"
         :model-value="layout.shape"
         dense
         outlined
         label="Shape"
-        :options="SHAPES"
+        :options="layout.style === 'shaped-blocks' ? BLOCK_SHAPES : SHAPES"
         emit-value
         map-options
         :readonly="readonly"
         @update:model-value="(v) => tile({ shape: v }, '')"
       />
-      <FieldGroup :label="layout.style === 'one-patch' ? 'Patches' : 'Cubes'">
+      <FieldGroup :label="countWord">
         <div class="column" style="gap: 8px">
           <div class="row q-col-gutter-sm">
             <q-input
@@ -180,7 +201,7 @@
               dense
               outlined
               type="number"
-              :label="layout.style === 'one-patch' ? 'Patches across' : 'Cubes across'"
+              :label="`${countWord} across`"
               min="1"
               max="100"
               :readonly="readonly"
@@ -192,7 +213,7 @@
               dense
               outlined
               type="number"
-              :label="layout.style === 'one-patch' ? 'Patches down' : 'Cubes down'"
+              :label="`${countWord} down`"
               min="1"
               max="100"
               :readonly="readonly"
@@ -205,13 +226,24 @@
         :label="
           layout.style === 'one-patch'
             ? 'Patch size'
-            : layout.style === 'baby-blocks'
-              ? 'Diamond size'
-              : 'Cube size'
+            : layout.style === 'shaped-blocks'
+              ? 'Block size'
+              : layout.style === 'baby-blocks'
+                ? 'Diamond size'
+                : 'Cube size'
         "
       >
         <div class="column" style="gap: 8px">
-          <template v-if="layout.style === 'one-patch'">
+          <LengthInput
+            v-if="layout.style === 'shaped-blocks'"
+            :model-value="layout.width"
+            :label="layout.shape === 'diamonds' ? 'Width (short diagonal = side)' : 'Side'"
+            :units="units"
+            :min="0.25"
+            :readonly="readonly"
+            @update:model-value="(v) => emit('change', { ...layout, width: v } as Layout, 'width')"
+          />
+          <template v-else-if="layout.style === 'one-patch'">
             <div v-if="twoSizes" class="row q-col-gutter-sm">
               <LengthInput
                 class="col-6"
@@ -300,9 +332,23 @@
           <div v-if="layout.edge === 'none' && hasBorders" class="text-caption text-grey-8">
             The quilt's edge follows the patches; borders are set aside.
           </div>
-          <div class="text-caption text-grey-7">Patches take colors and fabrics.</div>
+          <div class="text-caption text-grey-7">
+            {{
+              layout.style === 'shaped-blocks'
+                ? 'Each space takes a block of its shape, or a color or fabric.'
+                : layout.style === 'baby-blocks'
+                  ? 'Each diamond takes a 60° diamond block, or a color or fabric.'
+                  : 'Patches take colors and fabrics.'
+            }}
+          </div>
         </div>
       </FieldGroup>
+      <FlowAngle
+        v-if="flows"
+        :model-value="layout.flow"
+        :readonly="readonly"
+        @update:model-value="(v) => emit('change', { ...layout, flow: v } as Layout, 'flow')"
+      />
     </template>
     <template v-else-if="layout.style === 'straight-set'">
       <FieldGroup label="Columns and rows">
@@ -407,10 +453,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import DiamondSize from '@/components/DiamondSize.vue';
+import FlowAngle from '@/components/FlowAngle.vue';
+import ShapeSize from '@/components/ShapeSize.vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import LengthInput from '@/components/LengthInput.vue';
 import StripsInspector from '@/components/StripsInspector.vue';
-import { convertLayout } from '@/model/layout/slots';
+import { convertLayout, FLOWS } from '@/model/layout/slots';
 import { fmtLen } from '@/model/print/format';
 import type {
   HorizontalLayout,
@@ -476,6 +524,20 @@ const twoSizes = computed(
 );
 const oneSizeLabel = computed(() =>
   props.layout.style === 'one-patch' ? (ONE_SIZE_LABEL[props.layout.shape] ?? 'Size') : '',
+);
+const BLOCK_SHAPES = SHAPES.filter((s) => FLOWS.includes(s.value));
+const countWord = computed(() =>
+  props.layout.style === 'one-patch'
+    ? 'Patches'
+    : props.layout.style === 'shaped-blocks'
+      ? 'Blocks'
+      : 'Cubes',
+);
+/** Styles with a turnable grid (spec 026 flow angle). */
+const flows = computed(
+  () =>
+    ['shaped-blocks', 'baby-blocks', 'variable-blocks'].includes(props.layout.style) ||
+    (props.layout.style === 'one-patch' && FLOWS.includes(props.layout.shape)),
 );
 const patchEdgeOptions = [
   { label: 'Trimmed straight', value: 'trim' },

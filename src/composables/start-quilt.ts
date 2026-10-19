@@ -27,7 +27,7 @@ export function useStartQuilt() {
     project.change((d) => void d.project.quilts.push(quilt));
     editor.mode = 'design';
     // Layouts without block spaces (patches, pieced strips) start on Colors with Paint.
-    editor.tool = generateFor(quilt).slots.some(takesBlock) ? 'set' : 'paint';
+    editor.tool = generateFor(quilt).slots.some((s) => takesBlock(s)) ? 'set' : 'paint';
     editor.block =
       project.doc!.project.blocks.find((b) => !b.notecard.tags?.includes('system'))?.id ??
       useLibraryStore().items.blocks[0]?.id ??

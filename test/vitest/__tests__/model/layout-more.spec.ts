@@ -152,7 +152,11 @@ describe('format v6', () => {
         units: 'in',
         project: { quilts: [{ layout: { style } }] },
       }) as { project: { quilts: { layout: unknown }[] } };
-      expect(doc.project.quilts[0]!.layout, style).toEqual(layoutDefaults(style, 1));
+      // v7 (spec 026): old Baby Blocks were patches, so they open as Variable Patch.
+      const want = layoutDefaults(style, 1)!;
+      expect(doc.project.quilts[0]!.layout, style).toEqual(
+        style === 'baby-blocks' ? { ...want, style: 'variable-blocks' } : want,
+      );
     }
   });
   it('Variable Point floats the same distance on every side', () => {

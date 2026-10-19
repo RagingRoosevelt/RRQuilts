@@ -28,7 +28,7 @@
   indented), then — below a rule, "From other libraries" — every category the other libraries use
   that My library lacks, A–Z with subcategories indented (not grouped by library); picking one adds
   it to My library. New category… makes one of your own.
-- Q: Group blocks? → A: The sidebar's "Group blocks by" (Nothing, Category, Tags, Styles; remembered)
+- Q: Group blocks? → A: The sidebar's "Group blocks by" (Nothing, Category, Tags, Styles; remembered). Spec 029: Technique replaced Styles
   splits each library's blocks into sections: categories in the library's order then Uncategorized,
   tags or styles A–Z then "No tags"/"No styles" (a block with several shows under each).
 - Q: Which library items does a project's quilt editor offer? → A: The project's own blocks and
@@ -249,7 +249,9 @@ Packs with author and license; its blocks are read-only until copied.
   declined? }`). Packs and repositories never carry these fields.
 - **FR-007**: Amends spec 002 FR-003/FR-004: `categories` are `{ id, name }`, user-defined; an
   item's `category` is optional (absent = Uncategorized); `style` is not a category level but an
-  optional tag kind: `notecard.styles: string[]`, shown and searched apart from plain tags.
+  optional tag kind: `notecard.styles: string[]`, shown and searched apart from plain tags. Spec 029
+  replaced it with `notecard.techniques` (author-set, fixed list); the quilter's tags on others' items
+  are kept in My library (`annotations`).
 - **FR-008**: Amends spec 002 FR-005: item type `colors` = a color collection, `data` = `{ colors:
   Color[] }` (each color keeps its own `id@version`, so projects link single colors). Single `color`
   items are not used by My library.

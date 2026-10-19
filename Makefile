@@ -49,6 +49,9 @@ dev: node_modules/.package-lock.json ## Dev server on :9000 with live reload (PO
 
 build: node_modules/.package-lock.json ## Production build into docs/
 	$(RUN) npx quasar build -m pwa
+	@# The Tests tab (src/dev, DevPage) is dev-server only: none of it may reach the site.
+	@! grep -rlq -e 'Tell Claude the reference' -e 'Hexagon blocks, each different' docs \
+		|| { echo "docs/ contains dev-only Tests code (import.meta.env.DEV guard missing?)"; exit 1; }
 
 test: node_modules/.package-lock.json ## Run unit tests
 	$(RUN) npm run test:unit:ci

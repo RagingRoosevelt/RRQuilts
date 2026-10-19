@@ -8,6 +8,32 @@ import { polySlot, rectSlot, type Bounds, type Slot } from './slots';
 
 type Side = 'top' | 'right' | 'bottom' | 'left';
 
+/** Each border style's name, in the order the Borders tab lists them. */
+export const BORDER_STYLE_NAMES: Record<Border['style'], string> = {
+  'long-horizontal': 'Long horizontal',
+  'long-vertical': 'Long vertical',
+  mitered: 'Mitered',
+  'corner-blocks': 'Corner blocks',
+  blocks: 'Blocks',
+  'half-drop-blocks': 'Half drop blocks',
+  'blocks-aligned-inside': 'Blocks aligned inside',
+  'half-drop-aligned': 'Half drop aligned',
+  'spaced-squares': 'Spaced squares',
+  'tile-squares': 'Tile squares',
+  'tile-on-point': 'Tile on point',
+  'tile-on-point-corners': 'Tile on point corners',
+  diamonds: 'Diamonds',
+  'half-drop-diamonds': 'Half drop diamonds',
+  'double-diamonds': 'Double diamonds',
+  'half-drop-double-diamonds': 'Half drop double diamonds',
+  'big-little-diamonds': 'Big & little diamonds',
+  'half-drop-big-little-diamonds': 'Half drop big & little diamonds',
+  'points-out': 'Points out',
+  'points-in': 'Points in',
+  'big-little-points-out': 'Big & little points out',
+  'big-little-points-in': 'Big & little points in',
+};
+
 export function borderSlots(
   borders: Border[],
   center: Bounds,
