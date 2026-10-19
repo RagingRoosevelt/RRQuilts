@@ -166,7 +166,7 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   quilter's: on own items in the notecard, on others' in My library `annotations` (by item id; packs and
   `.rrqbl` exports drop tags); tag list = tags in use, `system` hidden. `model/blocks/construction.ts`
   reads curved/set-in seams, pieces, narrowest piece, difficulty from the drawing (Construction filters).
-  `components/TagsDialog.vue` (Libraries, Blocks tab); technique also in block Details
+  `components/TagsDialog.vue` (tags only: Libraries, Blocks tab); technique = Needs/Efficiency checklists in block Details (`TECHNIQUE_GROUPS`, never applied by the app); ⭐ `FAVORITE` tag always first, `FavoriteBadge.vue` on cards
 - Identity (`src/model/identity.ts`): shareable ids `<author-slug>.<random>`; `version` = 12-hex
   content hash (sizes hashed in inches), `revision` display counter; stamped on save
 - `.rrqbl` single-block files: `src/model/block-file.ts`; `.rrqplt` single palette (color-collection) files (spec 011;

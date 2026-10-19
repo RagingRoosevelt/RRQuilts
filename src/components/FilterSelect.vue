@@ -1,8 +1,9 @@
 <template>
-  <!-- A multi-pick filter dropdown with checkboxes; typing narrows its options. Empty = any. -->
+  <!-- A multi-pick filter dropdown with checkboxes; typing narrows its options. Empty = any.
+       Options with a `group` get a section label where the group changes. -->
   <q-select
     v-model="picked"
-    :options="options.filter((o) => o.label.toLowerCase().includes(needle))"
+    :options="shown"
     :label="label"
     dense
     outlined
@@ -16,7 +17,14 @@
     @clear="picked = []"
     @filter="(v: string, done: (fn: () => void) => void) => done(() => (needle = v.toLowerCase()))"
   >
-    <template #option="{ itemProps, opt, selected }">
+    <template #option="{ itemProps, opt, selected, index }">
+      <q-item-label
+        v-if="opt.group && opt.group !== shown[index - 1]?.group"
+        header
+        class="q-py-xs text-weight-medium"
+      >
+        {{ opt.group }}
+      </q-item-label>
       <q-item v-bind="itemProps" dense>
         <q-item-section side>
           <q-checkbox :model-value="selected" dense class="no-pointer-events" />
@@ -28,9 +36,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
-defineProps<{ label: string; options: { label: string; value: string }[] }>();
+const props = defineProps<{
+  label: string;
+  options: { label: string; value: string; group?: string }[];
+}>();
 const picked = defineModel<string[]>({ required: true });
 const needle = ref('');
+const shown = computed(() =>
+  props.options.filter((o) => o.label.toLowerCase().includes(needle.value)),
+);
 </script>

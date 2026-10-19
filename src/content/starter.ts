@@ -597,8 +597,6 @@ function buildItems(): BuiltinItems {
         }),
       ],
     };
-    // Spec 029: the built-in blocks are drawn for machine piecing.
-    block.notecard.techniques = ['machine'];
     return block;
   });
   return { colors, blocks };

@@ -7,7 +7,7 @@ and block v2)
 
 **Status**: Implemented
 
-**Input**: Owner, 2026-10-19 (later the same day: drop Hand piecing, and English paper piecing, which any block can be made with, so it tells blocks apart by nothing; EPP stays a quilt layout, spec 027): we're not making good use of styles and tags for blocks. Tags are owned
+**Input**: Owner, 2026-10-19. Later the same day: techniques only where they tell blocks apart (any block can be EPP'd or machine pieced), so Needs (FPP, appliqué, hand sewing) and Efficiency checklists in the block's Details, in the data only, never applied by the app; built-in blocks pre-apply no tags; a built-in ⭐ Favorite tag, first in tag lists, with a badge on cards. Originally: we're not making good use of styles and tags for blocks. Tags are owned
 by the user. Styles should be set by the block author, and be a technique instead: machine sewn,
 hand sewn, FPP, EPP, and so on. Tags live in the user's library, not in projects; the trouble is
 tags on things the user no longer has, which must not pile up forever unmanaged. Include
@@ -21,8 +21,14 @@ implementation.
 | Technique | Block author | fixed list, several allowed | yes; read-only on library blocks |
 | Tags | The quilter | free words | no; kept in the quilter's own data |
 
-- **Technique**: how the block's author meant it to be made: Machine piecing,
-  Foundation paper piecing, Appliqué. Replaces the free-text "styles".
+- **Technique**: what the block's designer marks it with, in two checklists. **Needs** (beyond
+  ordinary machine piecing): Foundation paper piecing, Appliqué, Hand sewing. **Efficiency** (faster
+  methods it suits): Strip piecing, Quick units (half-square triangles, quarter-square triangles or
+  flying geese several at a time), Stitch and flip. No technique means ordinary machine piecing.
+  Only what the data says: the app never applies one. Replaces the free-text "styles".
+- **Favorite**: one tag the app offers before it's used (never applied for you), listed first
+  wherever tags are picked or filtered, shown as ⭐ Favorite; blocks with it show a ⭐ badge in the
+  top right of their picture.
 - **Tags**: the quilter's own filing words. On blocks the quilter owns (My library, a project's own
   blocks) they are part of the block. On blocks the quilter can't edit (built-in, packs, web
   libraries) they are kept in My library, linked by the block's id (the same across versions).
@@ -41,13 +47,16 @@ A block's author marks how it is meant to be made; quilters filter by it.
 
 **Acceptance Scenarios**:
 
-1. **Given** a block in My library, **When** its owner opens **Tags & technique…**, **Then** they
-   pick any of the techniques; saved with the block, in backups, packs and block files.
-2. **Given** a built-in or pack block, **Then** its technique shows but can't be changed.
+1. **Given** the quilter's own block, **When** they open its **Details** tab, **Then** they tick
+   techniques in the **Needs** and **Efficiency** checklists: ticked is in the block's data,
+   unticked is not. Saved with the block, in backups, packs and block files.
+2. **Given** a built-in or pack block, **Then** its Details tab lists its techniques without
+   checkboxes.
 3. **Given** the Libraries page, the project's Blocks tab, **Then** a **Technique** filter lists the
-   techniques the shown blocks use, and Group by offers Technique.
-4. **Given** built-in blocks, **Then** each has a technique from its drawing: Machine piecing for
-   all.
+   techniques the shown blocks use, under **Needs** and **Efficiency** section labels, and Group by
+   offers Technique.
+4. **Given** built-in blocks, **Then** they carry no techniques and no tags until their data says
+   so (a test checks they come with no tags).
 
 ### User Story 2 - Old styles become tags (Priority: P1)
 
@@ -63,7 +72,8 @@ A block's author marks how it is meant to be made; quilters filter by it.
 **Acceptance Scenarios**:
 
 1. **Given** any block on the Libraries page (built-in, pack, or mine), **When** the quilter picks
-   **Tags…**, **Then** they add or remove tags; for their own blocks the tags are saved in the block,
+   **Tags…** (tags only; technique is in Details), **Then** they add or remove tags, ⭐ Favorite
+   offered first; for their own blocks the tags are saved in the block,
    for others' in My library.
 2. **Given** the project's Blocks tab, **When** the quilter tags a block there, **Then** a library
    block's tags go to My library, and the project's own block's tags to the block.

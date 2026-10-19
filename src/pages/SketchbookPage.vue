@@ -238,6 +238,7 @@
                   <button class="thumb" @click="openBlock(b.id)">
                     <img :src="thumb(b, 200, shownColoring(b))" :alt="b.notecard.name" />
                   </button>
+                  <FavoriteBadge v-if="tagsOfBlock(b).includes(FAVORITE)" />
                   <ColoringCount
                     :block="b"
                     :colorings="projectColorings(b, library.lookup)?.own"
@@ -361,7 +362,7 @@
                           <q-item-section avatar class="menu-icon"
                             ><q-icon name="sell"
                           /></q-item-section>
-                          <q-item-section>Tags & technique…</q-item-section>
+                          <q-item-section>Tags…</q-item-section>
                         </q-item>
                         <template v-if="!project.readOnly && !blockFiltering">
                           <q-item
@@ -442,6 +443,7 @@
                         <button class="thumb" @click="preview = b.id">
                           <img :src="thumb(b, 200, shownColoring(b))" :alt="b.notecard.name" />
                         </button>
+                        <FavoriteBadge v-if="tagsOfBlock(b).includes(FAVORITE)" />
                         <ColoringCount
                           :block="b"
                           :model-value="shownColoring(b)"
@@ -1289,9 +1291,19 @@ import { revealSection, useCollapsed } from '@/composables/block-sections';
 import { socialsOut } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
 import TagsDialog from '@/components/TagsDialog.vue';
+import FavoriteBadge from '@/components/FavoriteBadge.vue';
 import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
-import { TECHNIQUES, type Technique } from '@/model/schema/shared';
-import { cleanTags, INTERNAL_TAGS, tagsFor, visibleTags, type TagTarget } from '@/model/tags';
+import { techniqueOptions } from '@/model/schema/shared';
+import {
+  cleanTags,
+  FAVORITE,
+  INTERNAL_TAGS,
+  sortTags,
+  tagLabel,
+  tagsFor,
+  visibleTags,
+  type TagTarget,
+} from '@/model/tags';
 import { useAuthor } from '@/composables/author';
 import { useAskCategory } from '@/composables/category';
 import {
@@ -1442,25 +1454,19 @@ const anyOf = (picked: string[], have: readonly string[]) =>
 const tagsOfBlock = (b: Block) =>
   isLibraryItem(b) ? tagsFor(b.notecard.tags, [b.id], library.kept) : visibleTags(b.notecard.tags);
 const tagVocabulary = computed(() =>
-  cleanTags([
-    ...library.tagVocabulary,
-    ...blocks.value.flatMap((b) => visibleTags(b.notecard.tags)),
-  ]),
+  sortTags(
+    cleanTags([
+      ...library.tagVocabulary,
+      ...blocks.value.flatMap((b) => visibleTags(b.notecard.tags)),
+    ]),
+    true,
+  ),
 );
 const tagging = ref<{ block: Block; target: TagTarget } | null>(null);
 function tagBlock(b: Block) {
-  const own = !isLibraryItem(b);
-  tagging.value = {
-    block: b,
-    target: {
-      name: b.notecard.name,
-      tags: tagsOfBlock(b),
-      techniques: b.notecard.techniques ?? [],
-      editTechniques: own && !project.readOnly,
-    },
-  };
+  tagging.value = { block: b, target: { name: b.notecard.name, tags: tagsOfBlock(b) } };
 }
-function saveTags(v: { tags: string[]; techniques: Technique[] }) {
+function saveTags(tags: string[]) {
   const b = tagging.value!.block;
   tagging.value = null;
   if (isLibraryItem(b)) {
@@ -1469,7 +1475,7 @@ function saveTags(v: { tags: string[]; techniques: Technique[] }) {
     void library.setKeptTags(
       settings.settings.author,
       b.id,
-      v.tags.filter((t) => !theirs.has(t)),
+      tags.filter((t) => !theirs.has(t)),
     );
     return;
   }
@@ -1477,12 +1483,9 @@ function saveTags(v: { tags: string[]; techniques: Technique[] }) {
     const n = d.project.blocks.find((x) => x.id === b.id)?.notecard;
     if (!n) return;
     // Internal tags (the plain block's) stay as they are.
-    const internal = (n.tags ?? []).filter((t) => INTERNAL_TAGS.has(t));
-    const tags = [...internal, ...v.tags];
-    if (tags.length) n.tags = tags;
+    const all = [...(n.tags ?? []).filter((t) => INTERNAL_TAGS.has(t)), ...tags];
+    if (all.length) n.tags = all;
     else delete n.tags;
-    if (v.techniques.length) n.techniques = v.techniques;
-    else delete n.techniques;
   });
 }
 function blockShown(b: Block) {
@@ -1512,13 +1515,15 @@ function jumpTo(id: string) {
 const shownBlocks = computed(() => blocks.value.filter(blockShown));
 const blockFilterFields = computed(() => {
   const all = [...blocks.value, ...libBlocks.value];
-  const tagValues = [...new Set(all.flatMap(tagsOfBlock))]
-    .sort((a, b) => a.localeCompare(b))
-    .map((t) => ({ label: t, value: t }));
-  const usedTechniques = new Set(all.flatMap((b) => b.notecard.techniques ?? []));
-  const techniqueValues = Object.entries(TECHNIQUES)
-    .filter(([t]) => usedTechniques.has(t as Technique))
-    .map(([value, label]) => ({ label, value }));
+  // Favorite first, always listed.
+  const tagValues = sortTags(all.flatMap(tagsOfBlock), true).map((t) => ({
+    label: tagLabel(t),
+    value: t,
+  }));
+  // Spec 029: in its two sections (Needs, Efficiency), only those the blocks use.
+  const techniqueValues = techniqueOptions(
+    new Set(all.flatMap((b) => b.notecard.techniques ?? [])),
+  );
   // Categories the blocks use, with their parents.
   const used = new Set(all.map(blockCat));
   for (const c of libCats.value) if (used.has(c.id) && c.parent) used.add(c.parent);

@@ -1,6 +1,6 @@
 // Libraries (spec 011), framework-free: My library edits, linked copies, lookup over every library.
 // Library content is in inches; items get their `source` when looked up, not in storage.
-import { visibleTags } from './tags';
+import { sortTags, tagLabel, visibleTags } from './tags';
 import { TECHNIQUES, type Technique } from './schema/shared';
 import { produce } from 'immer';
 import { canonicalContent, contentVersion, itemId, stableStringify } from './identity';
@@ -696,11 +696,8 @@ export function blockSections(
   const keysOf = (b: Block): readonly string[] =>
     by === 'tags' ? tagsOf(b) : (b.notecard.techniques ?? []);
   const used = new Set(blocks.flatMap(keysOf));
-  const keys =
-    by === 'tags'
-      ? [...used].sort((a, b) => a.localeCompare(b))
-      : Object.keys(TECHNIQUES).filter((t) => used.has(t));
-  const label = (k: string) => (by === 'tags' ? k : TECHNIQUES[k as Technique]);
+  const keys = by === 'tags' ? sortTags(used) : Object.keys(TECHNIQUES).filter((t) => used.has(t));
+  const label = (k: string) => (by === 'tags' ? tagLabel(k) : TECHNIQUES[k as Technique]);
   const none = by === 'tags' ? 'No tags' : 'No technique';
   return [
     ...keys.map((k) =>

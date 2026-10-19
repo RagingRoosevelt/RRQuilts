@@ -129,20 +129,27 @@
       @blur="(e: Event) => set('notes', (e.target as HTMLInputElement).value, true)"
     />
 
-    <!-- How the block's author meant it to be made (spec 029); a library block's is read-only. -->
-    <div v-if="block">
-      <div class="text-subtitle2">Technique</div>
-      <q-option-group
-        v-if="!ro && !isLibraryItem(block)"
-        :model-value="block.notecard.techniques ?? []"
-        type="checkbox"
-        dense
-        inline
-        :options="TECHNIQUE_OPTIONS"
-        @update:model-value="setTechniques"
-      />
-      <div v-else class="text-body2">
-        {{ techniqueNames || 'Not given' }}
+    <!-- Techniques the block's designer marks (spec 029): ticked = in the block's data. A library
+         block's are shown, not changed. -->
+    <div v-if="block" class="column" style="gap: 8px">
+      <template v-if="!ro && !isLibraryItem(block)">
+        <div v-for="g in TECHNIQUE_GROUPS" :key="g.label">
+          <div class="text-subtitle2">{{ g.label }}</div>
+          <div class="text-caption text-grey-7">{{ g.hint }}</div>
+          <q-checkbox
+            v-for="t in g.techniques"
+            :key="t"
+            dense
+            class="q-mr-md q-mt-xs"
+            :label="techniqueName(t)"
+            :model-value="(block.notecard.techniques ?? []).includes(t)"
+            @update:model-value="(on: boolean) => setTechnique(t, on)"
+          />
+        </div>
+      </template>
+      <div v-else>
+        <div class="text-subtitle2">Techniques</div>
+        <div class="text-body2">{{ techniqueNames || 'None marked' }}</div>
       </div>
     </div>
 
@@ -193,7 +200,7 @@
 <script setup lang="ts">
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import { saveQuiltImage } from '@/render/save-image';
-import { TECHNIQUES, type Technique } from '@/model/schema/shared';
+import { TECHNIQUE_GROUPS, TECHNIQUES, type Technique } from '@/model/schema/shared';
 import { useLibraryStore } from '@/stores/library';
 // Details tab (spec 009): title, notes, author, license, and who to credit — for the project, a
 // quilt, or a block. Each field is its own coalesced undo step.
@@ -253,16 +260,19 @@ const item = computed(() => {
 const block = computed(() =>
   props.kind === 'block' && target.value && 'size' in target.value ? target.value : undefined,
 );
-const TECHNIQUE_OPTIONS = Object.entries(TECHNIQUES).map(([value, label]) => ({ value, label }));
 const techniqueNames = computed(() =>
   (block.value?.notecard.techniques ?? []).map((x) => TECHNIQUES[x]).join(', '),
 );
-function setTechniques(v: Technique[]) {
-  // In list order, so the same choice is always stored the same way.
-  const list = (Object.keys(TECHNIQUES) as Technique[]).filter((t) => v.includes(t));
+const techniqueName = (t: Technique) => TECHNIQUES[t];
+function setTechnique(t: Technique, on: boolean) {
   project.change((d) => {
     const b = d.project.blocks.find((x) => x.id === props.id);
     if (!b) return;
+    const have = new Set(b.notecard.techniques ?? []);
+    if (on) have.add(t);
+    else have.delete(t);
+    // In list order, so the same choice is always stored the same way.
+    const list = (Object.keys(TECHNIQUES) as Technique[]).filter((x) => have.has(x));
     if (list.length) b.notecard.techniques = list;
     else delete b.notecard.techniques;
   });

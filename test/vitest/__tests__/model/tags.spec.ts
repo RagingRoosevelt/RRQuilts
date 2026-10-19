@@ -4,7 +4,17 @@ import { blockFile } from '@/model/block-file';
 import { parseProject } from '@/model/io';
 import { packDoc, parseLibrary } from '@/model/library-file';
 import { emptyPersonal, notecardMatches } from '@/model/library';
-import { cleanTags, keptTags, setKept, upgradeNotecards, tagsFor, withoutTags } from '@/model/tags';
+import {
+  cleanTags,
+  FAVORITE,
+  keptTags,
+  setKept,
+  sortTags,
+  tagLabel,
+  tagsFor,
+  upgradeNotecards,
+  withoutTags,
+} from '@/model/tags';
 import { fixture } from './helpers';
 
 describe('styles become tags', () => {
@@ -39,9 +49,9 @@ describe('styles become tags', () => {
 
 describe('unknown techniques', () => {
   it('are dropped when a file opens, so it stays readable', () => {
-    const raw = { notecard: { name: 'A', techniques: ['machine', 'hand', 'epp', 7] } };
-    expect(upgradeNotecards(raw)).toEqual({ notecard: { name: 'A', techniques: ['machine'] } });
-    expect(upgradeNotecards({ notecard: { name: 'B', techniques: ['hand'] } })).toEqual({
+    const raw = { notecard: { name: 'A', techniques: ['machine', 'fpp', 'epp', 'hand', 7] } };
+    expect(upgradeNotecards(raw)).toEqual({ notecard: { name: 'A', techniques: ['fpp', 'hand'] } });
+    expect(upgradeNotecards({ notecard: { name: 'B', techniques: ['machine'] } })).toEqual({
       notecard: { name: 'B' },
     });
   });
@@ -93,5 +103,32 @@ describe('tags', () => {
     expect(doc.items[0]!.data.notecard.tags).toBeUndefined();
     expect(doc.items[0]!.data.notecard.techniques).toEqual(['fpp']);
     expect('annotations' in doc).toBe(false);
+  });
+});
+
+describe('built-in content', () => {
+  it('comes with no tags (tags are the quilter’s) and no techniques it doesn’t have in its data', async () => {
+    const { builtinItems, builtinDoc } = await import('@/content/starter');
+    const items = builtinItems();
+    const doc = builtinDoc(items);
+    const tagged = doc.items
+      .filter((i) => i.data.notecard.tags?.length)
+      .map((i) => i.data.notecard.name);
+    expect(tagged).toEqual([]);
+    expect(items.colors.filter((c) => c.notecard.tags?.length)).toEqual([]);
+  });
+});
+
+describe('Favorite', () => {
+  it('is listed first (always, when asked), A–Z after, shown with a star', () => {
+    expect(sortTags(['scraps', 'Christmas'])).toEqual(['Christmas', 'scraps']);
+    expect(sortTags(['scraps', 'Christmas'], true)).toEqual([FAVORITE, 'Christmas', 'scraps']);
+    expect(sortTags(['zig', FAVORITE, 'abc'])).toEqual([FAVORITE, 'abc', 'zig']);
+    expect(tagLabel(FAVORITE)).toBe('⭐ Favorite');
+    expect(tagLabel('scraps')).toBe('scraps');
+  });
+
+  it('joins a typed “favorite” instead of making a second one', () => {
+    expect(cleanTags(['favorite'], [FAVORITE])).toEqual([FAVORITE]);
   });
 });

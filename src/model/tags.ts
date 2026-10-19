@@ -1,10 +1,20 @@
 // Tags and techniques (spec 029). Tags are the quilter's own words: on items they own they're part
 // of the item; on others' (built-in, packs) they're kept in My library by item id (`annotations`).
 // The tag list is never stored: it's whatever tags are in use.
-import { TECHNIQUES, type Technique } from './schema/shared';
+import { TECHNIQUES } from './schema/shared';
 
 /** The app's own tags (the hidden plain block): never shown, offered, or filtered on. */
 export const INTERNAL_TAGS = new Set(['system']);
+
+/** The one tag the app offers before you've used it (never applied for you): always first. */
+export const FAVORITE = 'Favorite';
+export const tagLabel = (t: string) => (t === FAVORITE ? `⭐ ${FAVORITE}` : t);
+/** Tags in A–Z order with Favorite first; `always`: Favorite is listed even when unused. */
+export function sortTags(tags: Iterable<string>, always = false): string[] {
+  const set = new Set(tags);
+  const rest = [...set].filter((t) => t !== FAVORITE).sort((a, b) => a.localeCompare(b));
+  return set.has(FAVORITE) || always ? [FAVORITE, ...rest] : rest;
+}
 
 type Raw = Record<string, unknown>;
 const isObject = (v: unknown): v is Raw => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -73,9 +83,6 @@ export const visibleTags = (tags: readonly string[] | undefined) =>
 export interface TagTarget {
   name: string;
   tags: readonly string[];
-  techniques: readonly Technique[];
-  /** The quilter's own block: its technique can be changed (it's the author's). */
-  editTechniques: boolean;
 }
 
 export type Annotations = readonly { id: string; tags: readonly string[] }[];

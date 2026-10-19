@@ -5,7 +5,7 @@ import { computed, ref, shallowRef, toRaw } from 'vue';
 import { builtinDoc, builtinLibrary } from '@/content/starter';
 import { emptyPersonal, lookupOf, withSources, type LibraryView } from '@/model/library';
 import type { LibraryDoc } from '@/model/schema/library';
-import { cleanTags, keptTags, setKept, visibleTags } from '@/model/tags';
+import { cleanTags, FAVORITE, keptTags, setKept, sortTags, visibleTags } from '@/model/tags';
 import type { LibraryRef } from '@/model/schema/project';
 import type { LibraryWhere } from '@/model/library-refs';
 import { deletePack, loadLibraries, putMine, putPack } from '@/storage/libraries';
@@ -125,12 +125,16 @@ export const useLibraryStore = defineStore('library', () => {
   }
   /** Every tag in use in the libraries: the quilter's own, kept ones, and any a pack came with. */
   const tagVocabulary = computed(() =>
-    cleanTags([
-      ...allViews.value.flatMap((v) =>
-        v.doc.items.flatMap((i) => visibleTags(i.data.notecard.tags)),
-      ),
-      ...(mine.value?.annotations ?? []).flatMap((a) => a.tags),
-    ]),
+    // Favorite is always offered, first, even before it's used.
+    sortTags(
+      cleanTags([
+        FAVORITE,
+        ...allViews.value.flatMap((v) =>
+          v.doc.items.flatMap((i) => visibleTags(i.data.notecard.tags)),
+        ),
+        ...(mine.value?.annotations ?? []).flatMap((a) => a.tags),
+      ]),
+    ),
   );
   /** Kept tags whose items no installed library has (a removed pack's). */
   const orphanedTags = computed(() => {

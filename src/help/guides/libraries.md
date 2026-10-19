@@ -49,9 +49,15 @@ Tags stay yours: packs you make and block files you export leave them out. Sugge
 type come from the tags you already use, and a tag that differs only in capital letters joins the
 one you have.
 
-**Technique** says how a block is meant to be made: **Machine piecing**, **Foundation paper
-piecing** or **Appliqué**. The block's author sets it (on your own blocks: **Tags & technique…**, or
-the block editor's **Details** tab). Built-in blocks are for machine piecing.
+**Technique** is what a block's designer marks it with, in its **Details** tab (your own blocks
+only). **Needs** says what it takes beyond ordinary machine piecing: **Foundation paper piecing**,
+**Appliqué** or **Hand sewing**. **Efficiency** says which faster methods it suits: **Strip
+piecing**, **Quick units** (half-square triangles, quarter-square triangles or flying geese made
+several at a time) or **Stitch and flip** (corners sewn on and flipped). A block with no technique is
+ordinary machine piecing. The **Technique** filter lists them under the same two headings.
+
+**⭐ Favorite** is always first in the tag list, ready to use. Blocks you mark Favorite show a star
+in the top right of their picture.
 
 **Construction** filters read each block's drawing:
 

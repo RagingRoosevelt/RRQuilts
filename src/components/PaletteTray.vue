@@ -45,6 +45,7 @@
               @click="pickBlock(b)"
             >
               <img :src="thumb(b, shown(b))" :alt="b.notecard.name" />
+              <FavoriteBadge v-if="isFavorite(b)" small />
               <q-badge
                 v-if="b.colorVariant"
                 class="variant"
@@ -94,6 +95,7 @@
               @click="pickBlock(b)"
             >
               <img :src="thumb(b, shown(b))" :alt="b.notecard.name" />
+              <FavoriteBadge v-if="isFavorite(b)" small />
               <q-badge
                 v-if="b.colorVariant"
                 class="variant"
@@ -243,6 +245,8 @@ import type { RGB } from '@/editor/color';
 import { itemId } from '@/model/identity';
 import { useSettingsStore } from '@/stores/settings';
 import { blockThumbnail } from '@/render/thumbnail';
+import FavoriteBadge from '@/components/FavoriteBadge.vue';
+import { FAVORITE, tagsFor, visibleTags } from '@/model/tags';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { usePaletteOffer } from '@/composables/palette-offer';
@@ -262,6 +266,12 @@ const $q = useQuasar();
 const project = useProjectStore();
 const editor = useEditorStore();
 const library = useLibraryStore();
+/** Spec 029: tagged Favorite by the quilter (a library block's tag is kept in My library). */
+const isFavorite = (b: Block) =>
+  (isLibraryItem(b)
+    ? tagsFor(b.notecard.tags, [b.id], library.kept)
+    : visibleTags(b.notecard.tags)
+  ).includes(FAVORITE);
 const editorDialog = ref<InstanceType<typeof ColorEditor>>();
 const importDialog = ref<InstanceType<typeof FabricImportDialog>>();
 const editing = ref<string | null>(null);

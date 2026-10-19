@@ -491,6 +491,9 @@
                           :alt="b.notecard.name"
                         />
                       </button>
+                      <FavoriteBadge
+                        v-if="tagsFor(b.notecard.tags, [b.id], library.kept).includes(FAVORITE)"
+                      />
                       <ColoringCount
                         :block="b"
                         :model-value="shown.get(`${g.v.doc.id}:${b.id}`)"
@@ -522,7 +525,7 @@
                                 <q-item-section>Category…</q-item-section>
                               </q-item>
                               <q-item v-close-popup clickable @click="startTagging(b, true)">
-                                <q-item-section>Tags & technique…</q-item-section>
+                                <q-item-section>Tags…</q-item-section>
                               </q-item>
                             </template>
                             <template v-else>
@@ -1308,9 +1311,10 @@
 
 <script setup lang="ts">
 import TagsDialog from '@/components/TagsDialog.vue';
+import FavoriteBadge from '@/components/FavoriteBadge.vue';
 import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
-import { TECHNIQUES, type Technique } from '@/model/schema/shared';
-import { tagsFor, visibleTags, type TagTarget } from '@/model/tags';
+import { TECHNIQUES, techniqueOptions } from '@/model/schema/shared';
+import { FAVORITE, sortTags, tagLabel, tagsFor, visibleTags, type TagTarget } from '@/model/tags';
 import ColoringCount from '@/components/ColoringCount.vue';
 import BlockSections from '@/components/BlockSections.vue';
 import BlockFilter from '@/components/BlockFilter.vue';
@@ -1899,17 +1903,17 @@ const ofType = (i: LibraryItem) =>
 const typedItems = computed(() => inScope.value.flatMap((v) => v.doc.items.filter(ofType)));
 /** The quilter's tags on an item (spec 029): its own, and those kept in My library for it. */
 const tagsOfItem = (i: LibraryItem) => tagsFor(i.data.notecard.tags, [i.data.id], library.kept);
+// Favorite first, always listed.
 const tagValues = computed(() =>
-  [...new Set(typedItems.value.flatMap(tagsOfItem))]
-    .sort((a, b) => a.localeCompare(b))
-    .map((t) => ({ label: t, value: t })),
+  sortTags(typedItems.value.flatMap(tagsOfItem), true).map((t) => ({
+    label: tagLabel(t),
+    value: t,
+  })),
 );
-const techniqueValues = computed(() => {
-  const used = new Set(typedItems.value.flatMap((i) => i.data.notecard.techniques ?? []));
-  return Object.entries(TECHNIQUES)
-    .filter(([t]) => used.has(t as Technique))
-    .map(([value, label]) => ({ label, value }));
-});
+// Spec 029: in its two sections (Needs, Efficiency), only those the shown items use.
+const techniqueValues = computed(() =>
+  techniqueOptions(new Set(typedItems.value.flatMap((i) => i.data.notecard.techniques ?? []))),
+);
 const allCats = computed(() => [
   ...new Map(inScope.value.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
 ]);
@@ -2100,31 +2104,19 @@ async function pickCategory(id: string) {
   if (v !== null) await update((l) => setCategory(l, id, v));
 }
 
-/** Tagging an item: own items keep tags (and technique) in themselves; others' in My library. */
+/** Tagging an item: own items keep tags in themselves; others' in My library (spec 029). */
 const tagging = ref<{ id: string; mine: boolean; target: TagTarget } | null>(null);
 function startTagging(x: Block | ColorCollection, mine: boolean) {
   tagging.value = {
     id: x.id,
     mine,
-    target: {
-      name: x.notecard.name,
-      tags: tagsFor(x.notecard.tags, [x.id], library.kept),
-      techniques: x.notecard.techniques ?? [],
-      // Technique is a block's (palettes don't have one), set by its author.
-      editTechniques: mine && 'size' in x,
-    },
+    target: { name: x.notecard.name, tags: tagsFor(x.notecard.tags, [x.id], library.kept) },
   };
 }
-function saveTags(v: { tags: string[]; techniques: Technique[] }) {
+function saveTags(tags: string[]) {
   const t = tagging.value!;
   tagging.value = null;
-  if (t.mine)
-    void update((l) =>
-      setNotecard(l, t.id, {
-        tags: v.tags,
-        ...(t.target.editTechniques ? { techniques: v.techniques } : {}),
-      }),
-    );
+  if (t.mine) void update((l) => setNotecard(l, t.id, { tags }));
   else {
     // Tags a pack came with stay (they're the pack's); the quilter's are kept for the rest.
     const own = new Set(
@@ -2136,7 +2128,7 @@ function saveTags(v: { tags: string[]; techniques: Technique[] }) {
     void library.setKeptTags(
       me.value,
       t.id,
-      v.tags.filter((x) => !own.has(x)),
+      tags.filter((x) => !own.has(x)),
     );
   }
 }
