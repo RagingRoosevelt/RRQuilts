@@ -3,18 +3,19 @@
 // points for their default coloring.
 import { shapeSize, type BlockShape } from '@/model/blocks/shape';
 import { COLORS, type P } from './grid';
-import type { ShapedDef } from './shaped-kit';
+import type { CurvedDef, ShapedDef } from './shaped-kit';
 import { SHAPED_A } from './shaped-a';
 import { SHAPED_B } from './shaped-b';
 import { SHAPED_C } from './shaped-c';
+import { SHAPED_D } from './shaped-d';
 
 export interface ShapedStarter {
   name: string;
   shape: BlockShape;
   size: number;
   category: string;
-  /** Seams in the block's unit square. */
-  seams: [P, P][];
+  /** Seams in the block's unit square (arcs carry their sweep). */
+  seams: ([P, P] | [P, P, number])[];
   /** Color sample points in the unit square, with color names. */
   points: [number, number, string][];
 }
@@ -51,15 +52,20 @@ function sample(poly: P[]): P {
   return c;
 }
 
-/** A shaped definition as seams and sample points in the unit square (pointy-top hexagons). */
-export function shapedStarter(d: ShapedDef): ShapedStarter {
-  const turn = (p: P): P => (d.flat ? [-p[1], p[0]] : p); // flat-top → pointy-top
-  const [w, h] = shapeSize(d.shape, 'leg', 1);
-  const c = d.shape === 'triangle' ? [0.5, 2 / 3] : [0.5, 0.5];
-  const norm = (p: P): P => {
+/** Block coordinates (side 1, centered) → the unit square, flat-top hexagons turned pointy-top. */
+function normalizer(shape: BlockShape, flat?: boolean) {
+  const turn = (p: P): P => (flat ? [-p[1], p[0]] : p);
+  const [w, h] = shapeSize(shape, 'leg', 1);
+  const c = shape === 'triangle' ? [0.5, 2 / 3] : [0.5, 0.5];
+  return (p: P): P => {
     const [x, y] = turn(p);
     return [x / w + c[0]!, y / h + c[1]!];
   };
+}
+
+/** A shaped definition as seams and sample points in the unit square (pointy-top hexagons). */
+export function shapedStarter(d: ShapedDef): ShapedStarter {
+  const norm = normalizer(d.shape, d.flat);
   const pieces = d.pieces.map((p) => ({ poly: p.poly.map(norm), c: p.c }));
   // Every piece side, split where another piece's corner lies on it, once each.
   const all = pieces.flatMap((p) => p.poly);
@@ -93,4 +99,22 @@ export function shapedStarter(d: ShapedDef): ShapedStarter {
   };
 }
 
-export const SHAPED_BLOCKS: ShapedDef[] = [...SHAPED_A, ...SHAPED_B, ...SHAPED_C];
+/** A curved definition in the unit square (a turn keeps arc sweeps as they are). */
+export function curvedStarter(d: CurvedDef): ShapedStarter {
+  const norm = normalizer(d.shape, d.flat);
+  return {
+    name: d.name,
+    shape: d.shape,
+    size: d.leg,
+    category: d.category,
+    seams: d.seams.map(([a, b, s]) =>
+      s === undefined ? [norm(a), norm(b)] : [norm(a), norm(b), s],
+    ),
+    points: d.points.map(([p, c]) => {
+      const [x, y] = norm(p);
+      return [x, y, COLORS[c] ?? c];
+    }),
+  };
+}
+
+export const SHAPED_BLOCKS: ShapedDef[] = [...SHAPED_A, ...SHAPED_B, ...SHAPED_C, ...SHAPED_D];

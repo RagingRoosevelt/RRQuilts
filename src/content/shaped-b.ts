@@ -57,10 +57,10 @@ function cabin(
 export const SHAPED_B: ShapedDef[] = [
   {
     // Two rounds of strips around a small triangle, spiralling; the right strips are gray.
-    name: 'Round and Round Triangle',
+    name: 'Round and Round 60-Degree Triangle',
     shape: 'triangle',
     leg: 6,
-    category: 'Shapes/Triangles',
+    category: 'Strips/Log Cabin',
     pieces: cabin(
       'triangle',
       'spiral',
@@ -74,10 +74,10 @@ export const SHAPED_B: ShapedDef[] = [
   },
   {
     // Two spiral rounds around a diamond; the two upper strips of each round are dark.
-    name: 'Round and Round Diamond',
+    name: 'Round and Round 60-Degree Diamond',
     shape: 'diamond60',
     leg: 5,
-    category: 'Shapes/Diamonds',
+    category: 'Strips/Log Cabin',
     pieces: cabin(
       'diamond60',
       'spiral',
@@ -91,10 +91,10 @@ export const SHAPED_B: ShapedDef[] = [
   },
   {
     // Two rounds where opposite strips run full length: white upper left and lower right.
-    name: 'Symmetrical Diamond',
+    name: 'Symmetrical 60-Degree Diamond',
     shape: 'diamond60',
     leg: 5,
-    category: 'Shapes/Diamonds',
+    category: 'Strips/Log Cabin',
     pieces: cabin(
       'diamond60',
       'sym',
@@ -112,7 +112,7 @@ export const SHAPED_B: ShapedDef[] = [
     name: 'Symmetrical Parallelogram',
     shape: 'diamond60',
     leg: 4,
-    category: 'Shapes/Diamonds',
+    category: 'Strips/Log Cabin',
     pieces: cabin(
       'diamond60',
       'sym',
@@ -131,7 +131,7 @@ export const SHAPED_B: ShapedDef[] = [
     name: 'Round and Round Parallelogram',
     shape: 'diamond60',
     leg: 4,
-    category: 'Shapes/Diamonds',
+    category: 'Strips/Log Cabin',
     pieces: cabin(
       'diamond60',
       'spiral',
@@ -149,7 +149,7 @@ export const SHAPED_B: ShapedDef[] = [
     name: 'Round and Round Hexagon',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Strips/Log Cabin',
     flat: true,
     pieces: cabin(
       'hexagon',
@@ -170,7 +170,7 @@ export const SHAPED_B: ShapedDef[] = [
     name: 'Opposite Hexagon',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Strips/Log Cabin',
     flat: true,
     pieces: cabin(
       'hexagon',
@@ -191,7 +191,7 @@ export const SHAPED_B: ShapedDef[] = [
     name: 'Symmetrical Hexagon',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Strips/Log Cabin',
     flat: true,
     pieces: cabin(
       'hexagon',

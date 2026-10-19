@@ -161,7 +161,9 @@ For cutting lengths, see [Borders](/help/math/borders).
 ## Place blocks
 
 1. Open the **Design** tab. The sidebar shows the tray with **Blocks** and **Colors** tabs. Library
-   blocks appear only if ticked in the sketchbook's **Blocks** tab.
+   blocks appear only if ticked in the sketchbook's **Blocks** tab. Above the blocks, **Fits layout**
+   shows only blocks that fit a layout's spaces (pick one from the pictures), and **Shape** shows only
+   square, triangle, diamond or hexagon blocks. Clear a filter with its **x**.
 2. Click a block in the **Blocks** tab. If it has several colorings, a small number on its tile lets
    you choose which coloring to place.
 3. Pick the **Set block** tool (the first tool on the left rail) and tap a space in the quilt.

@@ -22,6 +22,13 @@
       </div>
       <!-- Sidebar: each library in collapsible category sections; strip: one run per source. -->
       <template v-if="sidebar">
+        <BlockFilter v-model:layout="filterLayout" v-model:shape="filterShape" class="q-mb-sm" />
+        <div
+          v-if="!blockSectionGroups.length && (filterLayout || filterShape)"
+          class="text-caption text-grey-7 q-pa-xs"
+        >
+          No blocks fit. Clear a filter to see more.
+        </div>
         <BlockSections
           v-for="g in blockSectionGroups"
           :key="g.lib"
@@ -243,6 +250,8 @@ import { fabricsIn, isLibraryItem, projectColorings, splitItems } from '@/model/
 import { blocksByLibrary, libraryGroups } from '@/model/library';
 import { projectPalettes } from '@/model/project-palettes';
 import BlockSections from '@/components/BlockSections.vue';
+import BlockFilter from '@/components/BlockFilter.vue';
+import { blockFits, type ShapeFilter } from '@/render/layout-samples';
 import { creditCopy } from '@/model/credits';
 import type { Color, Fabric } from '@/model/schema/palette';
 import { produce } from 'immer';
@@ -326,9 +335,13 @@ const blockGroups = computed(() => {
   return [{ label: 'Mine', items: mine }, ...libraryGroups(avail, library.views, 'blocks')];
 });
 /** Sidebar: Mine, then each library's available blocks in category sections. */
+const filterLayout = ref<string | null>(null);
+const filterShape = ref<ShapeFilter | null>(null);
+const fits = (b: Block) => blockFits(b.shape, filterLayout.value, filterShape.value);
 const blockSectionGroups = computed(() => {
-  const [mine, ...libs] = blockGroups.value;
-  const avail = new Map(libs.flatMap((g) => g.items).map((b) => [b.id, b]));
+  const [all, ...libs] = blockGroups.value;
+  const mine = { ...all!, items: all!.items.filter(fits) };
+  const avail = new Map(libs.flatMap((g) => g.items.filter(fits)).map((b) => [b.id, b]));
   const r = blocksByLibrary(library.views, [...avail.values()]);
   const out = r.groups.map((g) => ({ lib: `tray:${g.id}`, label: g.label, sections: g.sections }));
   const flat = (lib: string, label: string, bs: Block[]) => ({
@@ -338,7 +351,7 @@ const blockSectionGroups = computed(() => {
   });
   const other = r.other;
   return [
-    ...(mine!.items.length ? [flat('tray:mine', 'Mine', mine!.items)] : []),
+    ...(mine.items.length ? [flat('tray:mine', 'Mine', mine.items)] : []),
     ...out,
     ...(other.length ? [flat('tray:other', 'Other libraries', other)] : []),
   ];

@@ -138,7 +138,7 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - Shaped blocks (spec 026): `src/model/blocks/shape.ts` (triangle / diamond60 / hexagon: outline in
   the size's unit square, leg↔size, `shapeOrient` turns, `fitShape` onto a space, triangle `lattice`);
   `block.shape` fixed at creation; placement/derive/snap take it; Set matches shapes (`takesBlock`).
-  Starter shaped blocks: `content/shaped*.ts` (pieces in side-1 centered coordinates)
+  Starter shaped blocks: `content/shaped*.ts` (pieces in side-1 centered coordinates; curves as seams + points in `shaped-curves.ts`), filed by block type. Sidebar block filter: `BlockFilter.vue` + `render/layout-samples.ts` (wizard pictures, `blockFits`)
 - Starter blocks/colors: `src/content/starter.ts` (+ `grid.ts` grid-piece helpers, `four-patch.ts`, `five-patch.ts`, `seven-patch.ts`, `nine-patch.ts`, `letters.ts`, `strips.ts`, `medallions.ts`; `palette-colorings.ts` = each block recolored per themed palette) → built-in library (`builtinLibrary()`, ids
   `rrquilts.<name>`, deterministic inner ids so versions are stable), loaded at boot into
   `stores/library.ts`; `addStarterContent` only for tests

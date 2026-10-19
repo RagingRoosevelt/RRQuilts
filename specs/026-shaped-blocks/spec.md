@@ -40,7 +40,16 @@ takes a block also takes a patch (not the reverse). Decisions in Clarifications.
   (Madison Block, Hexagon Web I and II, Wonder of Egypt, Hexagon Whirligig, Arrowheads III, Round and
   Round triangle/diamond/hexagon, Symmetrical diamond/hexagon, Opposite Hexagon, Symmetrical and
   Round and Round Parallelogram adapted to 60° diamonds, Eisenhower Star, Hexagon Star, Tea Box,
-  Block Puzzle, Cosmos, Interlocked Star, Ozark Diamonds). Not Stop Sign (appliqué).
+  Block Puzzle, Cosmos, Interlocked Star, Ozark Diamonds). Not Stop Sign (appliqué). Added later:
+  Kentucky, Columbia, Old Glory (stars) and Hexagon Orange Peel (curves).
+- Starter shaped blocks are filed by type of block, not by shape: Mosaics (Madison Block, Hexagon
+  Web I and II, Hexagon Whirligig, Wonder of Egypt, Arrowheads III), Stars (Eisenhower Star, Hexagon
+  Star, Tea Box, Kentucky, Columbia, Old Glory, Block Puzzle, Cosmos, Ozark Diamonds, Interlocked
+  Star), Strips › Log Cabin (the Round and Round, Symmetrical and Opposite blocks, named "60-Degree"
+  as in the book), Curves (Hexagon Orange Peel).
+- The quilt editor's block sidebar has two filters: **Fits layout** (each block layout with its
+  picture; Shaped Blocks once per shape) and **Shape** (square, triangle, 60° diamond, hexagon, each
+  with its outline). Both cleared by default; together they show blocks passing both.
 
 ### Defaults taken (owner may revisit)
 
@@ -147,6 +156,9 @@ the hexagon spaces; a square block or a triangle block is refused with a hint; R
   (Variable Patch) with the same sizes and ids.
 - **FR-008**: Space ids stay position-based; Shaped Blocks and Baby Blocks use One Patch's and
   Variable Patch's ids with `b:` in place of `p:` (contracts/slot-ids.md).
+- **FR-009**: The quilt editor's block sidebar MUST offer a layout filter (each block layout with a
+  picture, showing only blocks whose shape its spaces take) and a shape filter (each shape with its
+  outline).
 
 ## Success Criteria *(mandatory)*
 

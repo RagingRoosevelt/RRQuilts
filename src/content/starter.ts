@@ -2,7 +2,8 @@
 // colors, and five themed palettes, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
 import { shapeSize, type BlockShape } from '@/model/blocks/shape';
-import { SHAPED_BLOCKS, shapedStarter } from './shaped';
+import { SHAPED_BLOCKS, curvedStarter, shapedStarter } from './shaped';
+import { SHAPED_CURVES } from './shaped-curves';
 import { produce } from 'immer';
 import { deriveSeamPatches } from '@/model/blocks/derive';
 import { pathPolygon, pointInPolygon } from '@/model/geometry/path';
@@ -479,6 +480,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     ...STRIP_BLOCKS,
     ...MEDALLION_BLOCKS,
     ...SHAPED_BLOCKS.map(shapedStarter),
+    ...SHAPED_CURVES.map(curvedStarter),
   ].map((b) => ({
     name: b.name,
     size: b.size,
@@ -630,10 +632,6 @@ const STARTER_CATEGORIES = [
   'Symbols',
   'Symbols/Letters',
   'Symbols/Numbers',
-  'Shapes',
-  'Shapes/Triangles',
-  'Shapes/Diamonds',
-  'Shapes/Hexagons',
 ];
 const catId = (path: string) =>
   `rrquilts.category.${path

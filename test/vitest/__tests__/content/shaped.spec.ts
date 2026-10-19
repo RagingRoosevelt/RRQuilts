@@ -4,6 +4,7 @@ import { writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { builtinItems } from '@/content/starter';
 import { SHAPED_BLOCKS } from '@/content/shaped';
+import { SHAPED_CURVES } from '@/content/shaped-curves';
 import { pathPolygon } from '@/model/geometry/path';
 
 const items = builtinItems();
@@ -12,7 +13,9 @@ const rgbOf = new Map(items.colors.map((c) => [c.id, c.rgb]));
 
 describe('built-in shaped blocks', () => {
   it('are all in the library', () => {
-    expect(blocks.map((b) => b.notecard.name)).toEqual(SHAPED_BLOCKS.map((d) => d.name));
+    expect(blocks.map((b) => b.notecard.name)).toEqual(
+      [...SHAPED_BLOCKS, ...SHAPED_CURVES].map((d) => d.name),
+    );
   });
 
   it.each(SHAPED_BLOCKS.map((d) => [d.name, d] as const))(
@@ -26,6 +29,15 @@ describe('built-in shaped blocks', () => {
         Object.values(b.colorings[0]!.fills).map((f) => 'color' in f && f.color),
       );
       expect(colored.size).toBeGreaterThan(1);
+    },
+  );
+
+  it.each(SHAPED_CURVES.map((d) => [d.name, d] as const))(
+    '%s: one patch per color point, all seams connected',
+    (name, d) => {
+      const b = blocks.find((x) => x.notecard.name === name)!;
+      expect(b.unconnected ?? []).toEqual([]);
+      expect(b.patches).toHaveLength(d.points.length);
     },
   );
 

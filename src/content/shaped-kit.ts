@@ -23,6 +23,19 @@ export interface ShapedDef {
   pieces: ShapedPiece[];
 }
 
+/** A block drawn as seams (lines, or arcs with a sweep in degrees, + = counterclockwise on screen)
+ *  and color points instead of pieces: for curves. Same coordinates as pieces. */
+export interface CurvedDef {
+  name: string;
+  shape: BlockShape;
+  leg: number;
+  category: string;
+  flat?: boolean;
+  seams: ([P, P] | [P, P, number])[];
+  /** Color sample points, one inside each patch. */
+  points: [P, string][];
+}
+
 /** √3 ÷ 2: the height of a triangle of side 1. */
 export const H = Math.sqrt(3) / 2;
 

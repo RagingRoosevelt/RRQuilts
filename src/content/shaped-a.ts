@@ -9,7 +9,7 @@ export const SHAPED_A: ShapedDef[] = [
     name: 'Hexagon Web I',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Mosaics',
     flat: true,
     pieces: [0, 1, 2, 3, 4, 5].flatMap((k) => {
       const [a, b] = [hexV(k), hexV(k + 1)];
@@ -24,7 +24,7 @@ export const SHAPED_A: ShapedDef[] = [
     name: 'Madison Block',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Mosaics',
     flat: true,
     pieces: (() => {
       const h = H / 2;
@@ -130,7 +130,7 @@ export const SHAPED_A: ShapedDef[] = [
     name: 'Hexagon Web II',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Mosaics',
     flat: true,
     pieces: (() => {
       const i = (k: number) => hexV(k, 0.5);
@@ -152,7 +152,7 @@ export const SHAPED_A: ShapedDef[] = [
     name: 'Wonder of Egypt',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Mosaics',
     flat: true,
     pieces: [0, 1, 2, 3, 4, 5].flatMap((k) => {
       const [a, b] = [hexV(k), hexV(k + 1)];
@@ -170,7 +170,7 @@ export const SHAPED_A: ShapedDef[] = [
     name: 'Hexagon Whirligig',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Mosaics',
     flat: true,
     pieces: [0, 1, 2, 3, 4, 5].flatMap((k) => {
       const [a, b] = [hexV(k), hexV(k + 1)];
@@ -186,7 +186,7 @@ export const SHAPED_A: ShapedDef[] = [
     name: 'Arrowheads III',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Mosaics',
     flat: true,
     pieces: (() => {
       const ks = [0, 1, 2, 3, 4, 5];

@@ -22,7 +22,7 @@ export const SHAPED_C: ShapedDef[] = [
     name: 'Eisenhower Star',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Stars',
     flat: true,
     pieces: K6.flatMap((k) => [
       { poly: [O, third(fv, k - 1), fv(k), third(fv, k)], c: k % 2 ? 'M' : 'N' },
@@ -34,7 +34,7 @@ export const SHAPED_C: ShapedDef[] = [
     name: 'Hexagon Star',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Stars',
     pieces: K6.flatMap((k) => [
       { poly: [O, pv(k), third(pv, k - 1)], c: 'M' },
       { poly: [O, pv(k), third(pv, k)], c: 'N' },
@@ -46,7 +46,7 @@ export const SHAPED_C: ShapedDef[] = [
     name: 'Tea Box',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Stars',
     pieces: K6.flatMap((k) => [
       { poly: [O, pv(k, 0.5), mid(pv, k), pv(k + 1, 0.5)], c: 'L' },
       { poly: [pv(k), mid(pv, k - 1), pv(k, 0.5), mid(pv, k)], c: 'N' },
@@ -57,7 +57,7 @@ export const SHAPED_C: ShapedDef[] = [
     name: 'Block Puzzle',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Stars',
     flat: true,
     pieces: (() => {
       const h = Math.sqrt(3) / 2;
@@ -87,7 +87,7 @@ export const SHAPED_C: ShapedDef[] = [
     name: 'Cosmos',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Stars',
     flat: true,
     pieces: K6.flatMap((k) => {
       const T = mid(fv, k);
@@ -106,7 +106,7 @@ export const SHAPED_C: ShapedDef[] = [
     name: 'Interlocked Star',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Stars',
     pieces: [
       // ring of triangles outside the inner hexagon
       ...[
@@ -147,7 +147,7 @@ export const SHAPED_C: ShapedDef[] = [
     name: 'Ozark Diamonds',
     shape: 'hexagon',
     leg: 4,
-    category: 'Shapes/Hexagons',
+    category: 'Stars',
     flat: true,
     pieces: [
       { poly: K6.map((k) => fv(k, 0.25)), c: 'N' },

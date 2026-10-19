@@ -355,8 +355,8 @@ import {
   type TargetInput,
 } from '@/model/targets';
 import StripsInspector from '@/components/StripsInspector.vue';
+import { picture, sampleOnePatch, STYLES, type Style } from '@/render/layout-samples';
 import { layoutDefaults, onPointDefaults, stripDefaults } from '@/model/io';
-import { flattenLoop, pathToSegs } from '@/model/geometry/path';
 import { FLOWS, generateSlots } from '@/model/layout/slots';
 import type {
   Border,
@@ -562,23 +562,6 @@ const borders = computed<Border[]>(() =>
   })),
 );
 const generated = computed(() => generateSlots(layout.value, borders.value));
-// ponytail: plain SVG paths, capped; a canvas would be needed to preview very large quilts.
-/** Outlines of a layout's spaces as SVG paths, or null when there are too many to draw. */
-function picture(l: Layout, b: Border[]) {
-  const g = generateSlots(l, b);
-  // ponytail: plain SVG paths, capped; a canvas would be needed to preview very large quilts.
-  if (g.slots.length > 6000) return null;
-  const [x0, y0, x1, y1] = g.bounds;
-  return {
-    box: `${x0} ${y0} ${x1 - x0} ${y1 - y0}`,
-    paths: g.slots.map((s) => ({
-      kind: s.kind,
-      d: `M${flattenLoop(pathToSegs(s.outline, [1, 1]), 0.05)
-        .map((p) => `${p[0]} ${p[1]}`)
-        .join('L')}Z`,
-    })),
-  };
-}
 const preview = computed(() => {
   const pic = picture(layout.value, borders.value);
   const t = targetShape.value;
@@ -593,16 +576,6 @@ const preview = computed(() => {
   return { ...pic, box: `${a} ${b} ${c - a} ${e - b}`, target: { d }, core };
 });
 
-type Style =
-  | 'straight-set'
-  | 'on-point'
-  | 'strips'
-  | 'variable-point'
-  | 'one-patch'
-  | 'shaped-blocks'
-  | 'diamond-point'
-  | 'baby-blocks'
-  | 'variable-blocks';
 const onPointish = (st: Style) =>
   st === 'on-point' || st === 'variable-point' || st === 'diamond-point';
 const cubes = (st: Style) => st === 'baby-blocks' || st === 'variable-blocks';
@@ -631,109 +604,6 @@ const downLabel = computed(() =>
           ? 'Blocks down'
           : 'Rows',
 );
-const sampleOnePatch = (shape: PatchShape): Layout => ({
-  ...(layoutDefaults('one-patch', 1) as OnePatchLayout),
-  shape,
-  cols: 3,
-  rows: 3,
-  width: 1,
-  height: 1,
-});
-const sampleStrips = (style: 'horizontal-strip' | 'vertical-strip'): Layout => ({
-  style,
-  length: 16,
-  strips: ['plain', 'blocks', 'plain', 'blocks'].map((st, i) => ({
-    id: `w${i}`,
-    style: st as 'plain' | 'blocks',
-    width: st === 'plain' ? 3 : 4,
-    along: 4,
-    across: 1,
-  })),
-});
-/** Styles to pick from, each with a small sample. */
-const BOTH: ('blocks' | 'patches')[] = ['blocks', 'patches'];
-const STYLES: { value: Style; label: string; sample: Layout; modes: ('blocks' | 'patches')[] }[] = [
-  {
-    value: 'straight-set',
-    label: 'Straight Set',
-    modes: BOTH,
-    sample: {
-      style: 'straight-set',
-      cols: 3,
-      rows: 3,
-      block: [1, 1],
-      sash: [0, 0],
-      sashBorder: false,
-    },
-  },
-  {
-    value: 'on-point',
-    label: 'On-Point',
-    modes: BOTH,
-    sample: { ...onPointDefaults(1), block: 1, edge: { finish: 'exact', float: 0 } },
-  },
-  { value: 'strips', label: 'Strips', sample: sampleStrips('horizontal-strip'), modes: BOTH },
-  {
-    value: 'diamond-point',
-    label: 'Diamond Point',
-    modes: ['blocks'],
-    sample: {
-      ...(layoutDefaults('diamond-point', 1) as VariablePointLayout),
-      width: 1,
-      height: Math.sqrt(3),
-      edge: { finish: 'exact', float: 0 },
-    },
-  },
-  {
-    value: 'variable-point',
-    label: 'Variable Point',
-    modes: ['patches'],
-    sample: {
-      ...(layoutDefaults('variable-point', 1) as VariablePointLayout),
-      width: 1,
-      height: 1.3,
-      edge: { finish: 'exact', float: 0 },
-    },
-  },
-  {
-    value: 'shaped-blocks',
-    label: 'Shaped Blocks',
-    modes: ['blocks'],
-    sample: { ...sampleOnePatch('hexagons'), style: 'shaped-blocks' } as ShapedBlocksLayout,
-  },
-  {
-    value: 'one-patch',
-    label: 'One Patch',
-    sample: sampleOnePatch('hexagons'),
-    modes: ['patches'],
-  },
-  {
-    value: 'baby-blocks',
-    label: 'Baby Blocks',
-    modes: ['blocks'],
-    sample: {
-      ...(layoutDefaults('baby-blocks', 1) as TumblingLayout),
-      cols: 3,
-      rows: 3,
-      width: Math.sqrt(3),
-      top: 1,
-      side: 1,
-    },
-  },
-  {
-    value: 'variable-blocks',
-    label: 'Variable Patch',
-    modes: ['patches'],
-    sample: {
-      ...(layoutDefaults('variable-blocks', 1) as TumblingLayout),
-      cols: 3,
-      rows: 3,
-      width: 2,
-      top: 1,
-      side: 1.4,
-    },
-  },
-];
 /** Card labels on the Size page: how many, and how big. */
 const countLabel = computed(() =>
   style.value === 'straight-set'
