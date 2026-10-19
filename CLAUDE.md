@@ -161,6 +161,12 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - Library items (spec 008, `src/model/library-items.ts`): `isLibraryItem` = has `source`, not
   `derived` → read-only. `project.change` runs `syncDraft` every edit: embeds referenced library
   blocks/colors, prunes unused ones (same undo step). `splitItems` = Mine vs Library for display
+- Tags and technique (spec 029, `model/tags.ts`): notecard `techniques` (fixed list, author's) replaced
+  free-text `styles` (`stylesToTags` upgrade in every parser and stored libraries); tags are the
+  quilter's: on own items in the notecard, on others' in My library `annotations` (by item id; packs and
+  `.rrqbl` exports drop tags); tag list = tags in use, `system` hidden. `model/blocks/construction.ts`
+  reads curved/set-in seams, pieces, narrowest piece, difficulty from the drawing (Construction filters).
+  `components/TagsDialog.vue` (Libraries, Blocks tab); technique also in block Details
 - Identity (`src/model/identity.ts`): shareable ids `<author-slug>.<random>`; `version` = 12-hex
   content hash (sizes hashed in inches), `revision` display counter; stamped on save
 - `.rrqbl` single-block files: `src/model/block-file.ts`; `.rrqplt` single palette (color-collection) files (spec 011;

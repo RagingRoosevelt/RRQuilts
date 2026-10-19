@@ -165,6 +165,16 @@
               style="display: contents"
             />
           </FilterCard>
+          <!-- Read from each block's drawing (spec 029). -->
+          <FilterCard label="Construction">
+            <FilterSelect
+              v-for="f in CONSTRUCTION_FILTERS"
+              :key="f.key"
+              v-model="bf[f.key]"
+              :options="f.options"
+              :label="f.label"
+            />
+          </FilterCard>
           <q-select
             v-model="groupBy"
             :options="GROUP_BY"
@@ -1279,6 +1289,7 @@ import { revealSection, useCollapsed } from '@/composables/block-sections';
 import { socialsOut } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
 import TagsDialog from '@/components/TagsDialog.vue';
+import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
 import { TECHNIQUES, type Technique } from '@/model/schema/shared';
 import { cleanTags, INTERNAL_TAGS, tagsFor, visibleTags, type TagTarget } from '@/model/tags';
 import { useAuthor } from '@/composables/author';
@@ -1396,6 +1407,8 @@ const bf = reactive({
   cats: [] as string[],
   tags: [] as string[],
   techniques: [] as string[],
+  seams: [] as string[],
+  difficulty: [] as string[],
   layout: null as string | null,
   shape: null as ShapeFilter | null,
 });
@@ -1420,7 +1433,7 @@ const blockFiltering = computed(
     !!bf.search ||
     !!bf.layout ||
     !!bf.shape ||
-    [bf.cats, bf.tags, bf.techniques].some((f) => f.length),
+    [bf.cats, bf.tags, bf.techniques, bf.seams, bf.difficulty].some((f) => f.length),
 );
 const anyOf = (picked: string[], have: readonly string[]) =>
   !picked.length || picked.some((x) => have.includes(x));
@@ -1478,6 +1491,8 @@ function blockShown(b: Block) {
     anyOf(withSubcategories(libCats.value, bf.cats), [blockCat(b)]) &&
     anyOf(bf.tags, tagsOfBlock(b)) &&
     anyOf(bf.techniques, b.notecard.techniques ?? []) &&
+    // A library block is in inches; the project's own in the project's units.
+    constructionMatches(b, bf, isLibraryItem(b) ? 'in' : (project.doc?.units ?? 'in')) &&
     notecardMatches(b.notecard, bf.search ?? '', tagsOfBlock(b))
   );
 }

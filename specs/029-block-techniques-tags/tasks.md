@@ -16,11 +16,11 @@
 
 ## Phase 3: Construction
 
-- [ ] T009 `blockConstruction` (curved, set-in, pieces, smallest piece, difficulty), cached; tests
-- [ ] T010 Seams and Difficulty filters (Libraries, Blocks tab)
+- [x] T009 `blockConstruction` (curved, set-in, pieces, smallest piece, difficulty), cached; tests
+- [x] T010 Seams and Difficulty filters (Libraries, Blocks tab)
 
 ## Phase 4: Content, tests aid, docs
 
-- [ ] T011 Built-in blocks: techniques from their drawings, no `starter` tag
-- [ ] T012 Tests › Blocks shows technique and construction
-- [ ] T013 Help (libraries, sketchbook), CLAUDE.md, spec 011 note
+- [x] T011 Built-in blocks: techniques from their drawings, no `starter` tag
+- [x] T012 Tests › Blocks shows technique and construction
+- [x] T013 Help (libraries, sketchbook), CLAUDE.md, spec 011 note

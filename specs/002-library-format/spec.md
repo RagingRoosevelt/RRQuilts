@@ -183,7 +183,7 @@ changelog note, commit, and see the update offered with that note.
   present, MUST reference one (absent = Uncategorized). (Amended by spec 011: styles are no longer a
   category level.)
 - **FR-004**: Each item MUST have `id` (unique within the document), `type`, optional `category`,
-  `notecard` (`name`, `notes`, `reference`, `tags`, optional `styles` — a user-managed kind of tag),
+  `notecard` (`name`, `notes`, `reference`, `tags`, optional `styles` — a user-managed kind of tag; spec 029 replaced it with `techniques`, a fixed list set by the author, and old styles became tags),
   optional `license`, optional `source` (`libraryId`, `itemId`, `revision` — for items copied from
   elsewhere), and `data`.
 - **FR-005**: Item `type` MUST be one of: block, motif, stencil, frame, fabric, color, colors (a color

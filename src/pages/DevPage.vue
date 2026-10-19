@@ -37,6 +37,7 @@
                 <strong>{{ b.name }}</strong>
                 <span class="ref">{{ b.ref }}</span>
                 <span v-if="b.shape" class="shape">{{ b.shape }}</span>
+                <span class="facts">{{ blockFacts(b.block) }}</span>
               </figcaption>
             </figure>
           </q-intersection>
@@ -150,6 +151,13 @@ import { GALLERY } from '@/dev/variations';
 import { serializeProject } from '@/model/io';
 import { createProject } from '@/model/new-project';
 import type { Block } from '@/model/schema/block';
+import { TECHNIQUES } from '@/model/schema/shared';
+import {
+  blockConstruction,
+  DIFFICULTIES,
+  SEAM_KINDS,
+  seamKinds,
+} from '@/model/blocks/construction';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
@@ -185,7 +193,8 @@ const TABS = [
     name: 'blocks',
     label: 'Blocks',
     icon: 'apps',
-    about: 'Every built-in block with seam lines, by category.',
+    about:
+      'Every built-in block with seam lines, by category, with its technique and what the app reads from its drawing (seams, pieces, narrowest piece, difficulty).',
   },
   {
     name: 'print',
@@ -256,6 +265,18 @@ watch(printPick, () => view.value === 'print' && void buildPrint());
 // --- Blocks ---
 const blockSearch = ref<string | null>('');
 const blockDoc = createProject('Blocks', 'in', 'tests');
+/** Spec 029: its technique, and what the app reads from its drawing. */
+function blockFacts(b: Block) {
+  const c = blockConstruction(b);
+  return [
+    (b.notecard.techniques ?? []).map((t) => TECHNIQUES[t]).join(', ') || 'no technique',
+    seamKinds(c)
+      .map((k) => SEAM_KINDS[k])
+      .join(', '),
+    `${c.pieces} pieces, narrowest ${c.smallest.toFixed(2)} in`,
+    DIFFICULTIES[c.difficulty],
+  ].join(' · ');
+}
 const blockPic = (b: Block) =>
   blockThumbnail(blockDoc, b, 240, false, undefined, library.items.colors);
 const blockList = computed(() => {
@@ -473,6 +494,11 @@ figcaption {
 }
 .shape {
   opacity: 0.7;
+}
+.facts {
+  width: 100%;
+  opacity: 0.75;
+  font-size: 0.75rem;
 }
 .checks {
   margin: 0 0 12px;

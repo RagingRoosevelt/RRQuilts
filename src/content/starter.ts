@@ -1,6 +1,7 @@
 // Built-in starter content: 13 traditional blocks (plus the four-, five-, seven-, and nine-patch families in their own files) drawn originally as seam lines, 36 basic solid
 // colors, and five themed palettes, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
+import { blockConstruction } from '@/model/blocks/construction';
 import { shapeSize, type BlockShape } from '@/model/blocks/shape';
 import { SHAPED_BLOCKS, curvedStarter, shapedStarter } from './shaped';
 import { SHAPED_CURVES } from './shaped-curves';
@@ -560,12 +561,12 @@ function buildItems(): BuiltinItems {
       const hit = b.points.find(([px, py]) => pointInPolygon([px, py], poly));
       fills[p.id] = { color: colors[hit ? hit[2] : b.base]!.id };
     }
-    return {
+    const block: SeamBlock = {
       id: libId(b.name),
       kind: 'seam',
       size,
       ...(b.shape ? { shape: b.shape } : {}),
-      notecard: { name: b.name, tags: ['starter'] },
+      notecard: { name: b.name },
       source: credit(b.name),
       revision: 1,
       drawing,
@@ -597,6 +598,14 @@ function buildItems(): BuiltinItems {
         }),
       ],
     };
+    // Spec 029: how it's meant to be made, from its drawing.
+    const c = blockConstruction(block);
+    block.notecard.techniques = [
+      'machine',
+      ...(c.setIn || c.curved ? (['hand'] as const) : []),
+      ...(b.shape && !c.curved ? (['epp'] as const) : []),
+    ];
+    return block;
   });
   return { colors, blocks };
 }

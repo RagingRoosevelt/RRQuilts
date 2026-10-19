@@ -336,6 +336,16 @@
             style="display: contents"
           />
         </FilterCard>
+        <!-- Read from each block's drawing (spec 029). -->
+        <FilterCard v-if="settings.settings.libraryType === 'block'" label="Construction">
+          <FilterSelect
+            v-for="f in CONSTRUCTION_FILTERS"
+            :key="f.key"
+            v-model="filters[f.key]"
+            :options="f.options"
+            :label="f.label"
+          />
+        </FilterCard>
         <q-select
           v-if="settings.settings.libraryType === 'block'"
           v-model="settings.settings.libraryGroupBy"
@@ -1298,6 +1308,7 @@
 
 <script setup lang="ts">
 import TagsDialog from '@/components/TagsDialog.vue';
+import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
 import { TECHNIQUES, type Technique } from '@/model/schema/shared';
 import { tagsFor, visibleTags, type TagTarget } from '@/model/tags';
 import ColoringCount from '@/components/ColoringCount.vue';
@@ -1429,7 +1440,7 @@ function toggleFilters() {
   filtersOpen.value = !filtersOpen.value;
 }
 const select = (id: string) => {
-  for (const k of ['cats', 'tags', 'techniques'] as const) filters[k] = [];
+  for (const k of ['cats', 'tags', 'techniques', 'seams', 'difficulty'] as const) filters[k] = [];
   search.value = '';
   hiddenLibs.value =
     id === 'mine' ? [] : library.allViews.map((v) => v.doc.id).filter((x) => x !== id);
@@ -1848,6 +1859,8 @@ const filters = reactive({
   cats: [] as string[],
   tags: [] as string[],
   techniques: [] as string[],
+  seams: [] as string[],
+  difficulty: [] as string[],
 });
 /** What's typed in each dropdown to narrow its options. */
 const filtering = computed(
@@ -1857,7 +1870,9 @@ const filtering = computed(
     !!hiddenLibs.value.length ||
     !!fitLayout.value ||
     !!fitShape.value ||
-    [filters.cats, filters.tags, filters.techniques].some((f) => f.length),
+    [filters.cats, filters.tags, filters.techniques, filters.seams, filters.difficulty].some(
+      (f) => f.length,
+    ),
 );
 /** Every library shown; My library always, as an empty one until something is saved there. */
 const inScope = computed(() =>
@@ -1940,7 +1955,10 @@ const matches = (i: LibraryItem) =>
   anyOf(withSubcategories(allCats.value, filters.cats), [i.category ?? '']) &&
   anyOf(filters.tags, tagsOfItem(i)) &&
   anyOf(filters.techniques, i.data.notecard.techniques ?? []) &&
-  (i.type !== 'block' || blockFits(i.data.shape, fitLayout.value, fitShape.value));
+  (i.type !== 'block'
+    ? !filters.seams.length && !filters.difficulty.length
+    : blockFits(i.data.shape, fitLayout.value, fitShape.value) &&
+      constructionMatches(i.data, filters));
 const GROUP_BY = [
   { label: 'Nothing', value: 'none' },
   { label: 'Category', value: 'category' },

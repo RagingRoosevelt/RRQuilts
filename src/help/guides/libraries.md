@@ -23,17 +23,44 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
    for others (in the project's **Palettes** tab), **Copy to My library** to keep them, or
    **Cancel**.
 3. Use **Type** to show **Blocks**, **Palettes** or **All**, then the search box. Under **Metadata**,
-   the **Category**, **Tags** and **Styles** filters offer only what the shown type uses. In
-   **Blocks**, **Shape** has **Fits layout** (blocks that fit a quilt layout's spaces) and **Shape**.
+   the **Category**, **Tags** and **Technique** filters offer only what the shown type uses. In
+   **Blocks**, **Shape** has **Fits layout** (blocks that fit a quilt layout's spaces) and **Shape**,
+   and **Construction** has **Seams** and **Difficulty** (see below).
 4. In **Blocks**, use **Group blocks by** to arrange blocks by **Nothing**, **Category**, **Tags** or
-   **Styles**. The contents list below takes the same name.
-5. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)**. Palettes use **Export (.rrqplt)** instead, and their files carry their fabric images.
+   **Technique**. The contents list below takes the same name.
+5. Open an item's **Actions** menu for **Preview**, **Tags…**, **Rename…**, **Category…**, **Copy to my library** or **Export (.rrqbl)**. Palettes use **Export (.rrqplt)** instead, and their files carry their fabric images.
 6. Click a palette, or one of its swatches, to see its colors and fabrics large. In your own
    palettes, **+** adds a color, the picture button adds fabric images, and you can drop image files
    on a palette or on this view. Click a name to rename it, then the check mark to save. **Change
    color** and the bin are under the name.
 
 Pack items cannot be renamed or changed. Use **Copy to my library** and edit the copy. The copy keeps credit for the original author ([Credits and licenses](/help/guides/credits-and-licenses)).
+
+## Tags and technique
+
+**Tags** are your own words for finding things, such as _Christmas_, _scraps_ or _for Mum_. You can
+tag any block or palette, including built-in ones and those in packs: choose **Tags…** in its
+**Actions** menu. Tags on your own items are saved with them. Tags on other people's items are kept
+in My library, so they are part of your backups, and they come back if you remove a pack and add it
+again later. When you remove a pack whose items you tagged, you are asked whether to keep those
+tags. Tags on items you no longer have are listed at the top of this page, with **Remove them**.
+
+Tags stay yours: packs you make and block files you export leave them out. Suggestions while you
+type come from the tags you already use, and a tag that differs only in capital letters joins the
+one you have.
+
+**Technique** says how a block is meant to be made: **Machine piecing**, **Hand piecing**,
+**Foundation paper piecing**, **English paper piecing** or **Appliqué**. The block's author sets it
+(on your own blocks: **Tags & technique…**, or the block editor's **Details** tab). Built-in blocks
+have one from their drawings.
+
+**Construction** filters read each block's drawing:
+
+- **Seams**: **Straight seams only**, **Curved seams**, or **Set-in seams** (a block that can't be
+  put together with straight seams right across each part needs a set-in or partial seam).
+- **Difficulty**: **Beginner** has straight seams, at most 16 pieces, and no piece narrower than
+  1½ in. **Advanced** has curved or set-in seams, more than 49 pieces, or a piece narrower than
+  ¾ in. Everything else is **Intermediate**.
 
 ## Put a project block or palette in My library
 
