@@ -122,6 +122,13 @@
     <template v-else-if="tab === 'blocks'">
       <div class="row no-wrap-md" style="gap: 16px">
         <!-- Filter sidebar, as on the Libraries page (no library management). Phones: flies over. -->
+        <div
+          v-if="sideOpen && $q.screen.lt.md"
+          class="fly-backdrop"
+          :style="{ '--fly-top': `${flyTop}px` }"
+          aria-hidden="true"
+          @click="sideOpen = false"
+        />
         <aside
           v-show="sideOpen || $q.screen.gt.sm"
           class="filter-side column no-wrap"
@@ -2890,6 +2897,12 @@ watch(
   padding-left: 34px !important;
 }
 @media (max-width: 1023px) {
+  .fly-backdrop {
+    position: fixed;
+    inset: var(--fly-top, 50px) 0 0 0;
+    z-index: 4;
+    background: rgba(0, 0, 0, 0.2);
+  }
   .row.no-wrap-md {
     flex-direction: column;
   }

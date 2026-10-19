@@ -21,6 +21,13 @@
 
     <div class="row no-wrap-md" style="gap: 16px">
       <div
+        v-if="filtersOpen && $q.screen.lt.md"
+        class="fly-backdrop"
+        :style="{ '--fly-top': `${flyTop}px` }"
+        aria-hidden="true"
+        @click="filtersOpen = false"
+      />
+      <div
         v-show="filtersOpen || $q.screen.gt.sm"
         class="libs column no-wrap"
         :class="{ left: settings.settings.sidesSwapped }"
@@ -2736,6 +2743,12 @@ function downloadPack() {
 }
 
 @media (max-width: 1023px) {
+  .fly-backdrop {
+    position: fixed;
+    inset: var(--fly-top, 50px) 0 0 0;
+    z-index: 4;
+    background: rgba(0, 0, 0, 0.2);
+  }
   .row.no-wrap-md {
     flex-direction: column;
   }
