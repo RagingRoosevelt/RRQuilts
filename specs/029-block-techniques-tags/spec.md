@@ -7,7 +7,7 @@ and block v2)
 
 **Status**: Implemented
 
-**Input**: Owner, 2026-10-19: we're not making good use of styles and tags for blocks. Tags are owned
+**Input**: Owner, 2026-10-19 (later the same day: drop Hand piecing): we're not making good use of styles and tags for blocks. Tags are owned
 by the user. Styles should be set by the block author, and be a technique instead: machine sewn,
 hand sewn, FPP, EPP, and so on. Tags live in the user's library, not in projects; the trouble is
 tags on things the user no longer has, which must not pile up forever unmanaged. Include
@@ -21,7 +21,7 @@ implementation.
 | Technique | Block author | fixed list, several allowed | yes; read-only on library blocks |
 | Tags | The quilter | free words | no; kept in the quilter's own data |
 
-- **Technique**: how the block's author meant it to be made: Machine piecing, Hand piecing,
+- **Technique**: how the block's author meant it to be made: Machine piecing,
   Foundation paper piecing, English paper piecing, Appliqué. Replaces the free-text "styles".
 - **Tags**: the quilter's own filing words. On blocks the quilter owns (My library, a project's own
   blocks) they are part of the block. On blocks the quilter can't edit (built-in, packs, web
@@ -42,13 +42,12 @@ A block's author marks how it is meant to be made; quilters filter by it.
 **Acceptance Scenarios**:
 
 1. **Given** a block in My library, **When** its owner opens **Tags & technique…**, **Then** they
-   pick any of the five techniques; saved with the block, in backups, packs and block files.
+   pick any of the four techniques; saved with the block, in backups, packs and block files.
 2. **Given** a built-in or pack block, **Then** its technique shows but can't be changed.
 3. **Given** the Libraries page, the project's Blocks tab, **Then** a **Technique** filter lists the
    techniques the shown blocks use, and Group by offers Technique.
 4. **Given** built-in blocks, **Then** each has a technique from its drawing: Machine piecing for
-   all; Hand piecing too where it has set-in or curved seams; English paper piecing too for shaped
-   blocks without curves.
+   all; English paper piecing too for shaped blocks without curves.
 
 ### User Story 2 - Old styles become tags (Priority: P1)
 
@@ -111,7 +110,7 @@ A block's author marks how it is meant to be made; quilters filter by it.
 
 ## Requirements *(mandatory)*
 
-- **FR-001**: Notecards MUST carry `techniques` (a list from the fixed five) in place of `styles`,
+- **FR-001**: Notecards MUST carry `techniques` (a list from the fixed four) in place of `styles`,
   in projects (v7), libraries (v4) and block files (v2), with no further version bump.
 - **FR-002**: Opening older files MUST turn `styles` into tags on the same item.
 - **FR-003**: Personal libraries MUST keep the quilter's tags on blocks they don't own, by id

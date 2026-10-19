@@ -1,1 +1,0 @@
-import{v as e,y as t}from"./project-C420n6-e.js";import{i as n}from"./index-BX_-BSek.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

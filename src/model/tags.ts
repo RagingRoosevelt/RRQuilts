@@ -1,7 +1,7 @@
 // Tags and techniques (spec 029). Tags are the quilter's own words: on items they own they're part
 // of the item; on others' (built-in, packs) they're kept in My library by item id (`annotations`).
 // The tag list is never stored: it's whatever tags are in use.
-import type { Technique } from './schema/shared';
+import { TECHNIQUES, type Technique } from './schema/shared';
 
 /** The app's own tags (the hidden plain block): never shown, offered, or filtered on. */
 export const INTERNAL_TAGS = new Set(['system']);
@@ -9,16 +9,19 @@ export const INTERNAL_TAGS = new Set(['system']);
 type Raw = Record<string, unknown>;
 const isObject = (v: unknown): v is Raw => typeof v === 'object' && v !== null && !Array.isArray(v);
 
+const KNOWN = new Set<string>(Object.keys(TECHNIQUES));
+
 /**
  * Upgrade (raw JSON, any format): every notecard's free-text `styles` (the quilter's own words, before
- * spec 029) become tags on the same item. Leaves data without styles as it is, so it's safe to run
- * on anything, any number of times.
+ * spec 029) become tags on the same item, and techniques this version doesn't know are dropped (a
+ * newer or test file stays readable). Leaves other data as it is, so it's safe to run on anything,
+ * any number of times.
  */
-export function stylesToTags<T>(raw: T): T {
-  if (Array.isArray(raw)) return raw.map(stylesToTags) as T;
+export function upgradeNotecards<T>(raw: T): T {
+  if (Array.isArray(raw)) return raw.map(upgradeNotecards) as T;
   if (!isObject(raw)) return raw;
   const out: Raw = {};
-  for (const [k, v] of Object.entries(raw)) out[k] = stylesToTags(v);
+  for (const [k, v] of Object.entries(raw)) out[k] = upgradeNotecards(v);
   const n = out.notecard;
   if (isObject(n) && 'styles' in n) {
     const { styles, ...rest } = n;
@@ -27,6 +30,12 @@ export function stylesToTags<T>(raw: T): T {
       ...(Array.isArray(styles) ? styles : []),
     ]);
     out.notecard = { ...rest, ...(tags.length ? { tags } : {}) };
+  }
+  const m = out.notecard;
+  if (isObject(m) && Array.isArray(m.techniques)) {
+    const { techniques, ...rest } = m;
+    const known = techniques.filter((t): t is string => typeof t === 'string' && KNOWN.has(t));
+    out.notecard = { ...rest, ...(known.length ? { techniques: known } : {}) };
   }
   return out as T;
 }

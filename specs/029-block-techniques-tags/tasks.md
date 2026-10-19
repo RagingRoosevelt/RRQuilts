@@ -3,7 +3,7 @@
 ## Phase 1: Format (rides project v7, library v4, block v2)
 
 - [x] T001 Notecard `techniques` (fixed list) replaces `styles`; `TECHNIQUES` labels in the model
-- [x] T002 `stylesToTags` upgrade for projects (v6→v7 step), libraries (< v4) and block files (< v2)
+- [x] T002 `upgradeNotecards` upgrade for projects (v6→v7 step), libraries (< v4) and block files (< v2)
 - [x] T003 Personal library `annotations` (block id → the quilter's tags); packs and block files leave tags out
 - [x] T004 Regenerate published JSON schemas; settings group-by `techniques`; tests
 

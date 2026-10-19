@@ -1,5 +1,5 @@
 // Load/save .rrq files. Input is untrusted: parse, migrate, validate, then check integrity.
-import { stylesToTags } from './tags';
+import { upgradeNotecards } from './tags';
 import Value from 'typebox/value';
 import { findDuplicateIds, newId } from './ids';
 import type { Asset } from './schema/shared';
@@ -70,10 +70,9 @@ export const migrations: Migrations = {
   // v7 (spec 026): shaped blocks, 60° placement turns, Shaped Blocks and Diamond Point layouts, flow
   // angles (all additive). Baby Blocks now hold blocks; older Baby Blocks quilts were painted
   // patches, so they become Variable Patch (`variable-blocks`) with the same sizes and patch ids.
-  // v7: spec 026 Baby Blocks hold blocks (the old patch Baby Blocks is Variable Patch), and spec 029
-  // notecard styles (the quilter's own words) become tags.
-  6: (raw) => {
-    const doc = stylesToTags(raw);
+  // v7: spec 026 Baby Blocks hold blocks (the old patch Baby Blocks is Variable Patch). Spec 029's
+  // notecard upgrade (styles become tags) runs on every load, in parseProject.
+  6: (doc) => {
     const project = isObject(doc.project) ? doc.project : undefined;
     if (!project || !Array.isArray(project.quilts)) return doc;
     const quilts = project.quilts.map((q: unknown) =>
@@ -233,6 +232,8 @@ export async function parseProject(
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
+  // Spec 029: styles become tags; techniques this version doesn't know are dropped.
+  raw = upgradeNotecards(raw);
   if (!Value.Check(RrqDoc, raw)) {
     return { ok: false, error: `Project file is damaged: ${firstError(raw)}` };
   }

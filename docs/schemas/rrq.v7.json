@@ -139,10 +139,6 @@
                             },
                             {
                               "type": "string",
-                              "const": "hand"
-                            },
-                            {
-                              "type": "string",
                               "const": "fpp"
                             },
                             {
@@ -397,10 +393,6 @@
                             },
                             {
                               "type": "string",
-                              "const": "hand"
-                            },
-                            {
-                              "type": "string",
                               "const": "fpp"
                             },
                             {
@@ -562,10 +554,6 @@
                             {
                               "type": "string",
                               "const": "machine"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hand"
                             },
                             {
                               "type": "string",
@@ -805,10 +793,6 @@
                             {
                               "type": "string",
                               "const": "machine"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hand"
                             },
                             {
                               "type": "string",
@@ -1459,10 +1443,6 @@
                             },
                             {
                               "type": "string",
-                              "const": "hand"
-                            },
-                            {
-                              "type": "string",
                               "const": "fpp"
                             },
                             {
@@ -1969,10 +1949,6 @@
                             {
                               "type": "string",
                               "const": "machine"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hand"
                             },
                             {
                               "type": "string",
@@ -2688,10 +2664,6 @@
                             },
                             {
                               "type": "string",
-                              "const": "hand"
-                            },
-                            {
-                              "type": "string",
                               "const": "fpp"
                             },
                             {
@@ -3287,10 +3259,6 @@
                             {
                               "type": "string",
                               "const": "machine"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hand"
                             },
                             {
                               "type": "string",
@@ -4535,10 +4503,6 @@
                         },
                         {
                           "type": "string",
-                          "const": "hand"
-                        },
-                        {
-                          "type": "string",
                           "const": "fpp"
                         },
                         {
@@ -4707,10 +4671,6 @@
                         {
                           "type": "string",
                           "const": "machine"
-                        },
-                        {
-                          "type": "string",
-                          "const": "hand"
                         },
                         {
                           "type": "string",
@@ -4891,10 +4851,6 @@
                         {
                           "type": "string",
                           "const": "machine"
-                        },
-                        {
-                          "type": "string",
-                          "const": "hand"
                         },
                         {
                           "type": "string",

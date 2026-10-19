@@ -4,7 +4,7 @@ import { blockFile } from '@/model/block-file';
 import { parseProject } from '@/model/io';
 import { packDoc, parseLibrary } from '@/model/library-file';
 import { emptyPersonal, notecardMatches } from '@/model/library';
-import { cleanTags, keptTags, setKept, stylesToTags, tagsFor, withoutTags } from '@/model/tags';
+import { cleanTags, keptTags, setKept, upgradeNotecards, tagsFor, withoutTags } from '@/model/tags';
 import { fixture } from './helpers';
 
 describe('styles become tags', () => {
@@ -13,11 +13,11 @@ describe('styles become tags', () => {
       a: { notecard: { name: 'A', tags: ['red'], styles: ['eight-point', 'Red'] } },
       list: [{ notecard: { name: 'B', styles: [] } }, { other: { styles: ['kept'] } }],
     };
-    expect(stylesToTags(raw)).toEqual({
+    expect(upgradeNotecards(raw)).toEqual({
       a: { notecard: { name: 'A', tags: ['red', 'eight-point'] } },
       list: [{ notecard: { name: 'B' } }, { other: { styles: ['kept'] } }],
     });
-    expect(stylesToTags(stylesToTags(raw))).toEqual(stylesToTags(raw));
+    expect(upgradeNotecards(upgradeNotecards(raw))).toEqual(upgradeNotecards(raw));
   });
 
   it('when a v6 project opens', async () => {
@@ -34,6 +34,16 @@ describe('styles become tags', () => {
     const lib = { ...emptyPersonal('me'), version: 3 } as Record<string, unknown>;
     const r = parseLibrary(JSON.stringify(lib));
     expect(r.ok).toBe(true);
+  });
+});
+
+describe('unknown techniques', () => {
+  it('are dropped when a file opens, so it stays readable', () => {
+    const raw = { notecard: { name: 'A', techniques: ['machine', 'hand', 7] } };
+    expect(upgradeNotecards(raw)).toEqual({ notecard: { name: 'A', techniques: ['machine'] } });
+    expect(upgradeNotecards({ notecard: { name: 'B', techniques: ['hand'] } })).toEqual({
+      notecard: { name: 'B' },
+    });
   });
 });
 
@@ -67,11 +77,11 @@ describe('tags', () => {
     const block = fixture().project.blocks[0]!;
     const tagged = {
       ...block,
-      notecard: { ...block.notecard, tags: ['mine'], techniques: ['hand' as const] },
+      notecard: { ...block.notecard, tags: ['mine'], techniques: ['fpp' as const] },
     };
     const f = blockFile(tagged, 'in', [], 'Me');
     expect(f.block.notecard.tags).toBeUndefined();
-    expect(f.block.notecard.techniques).toEqual(['hand']);
+    expect(f.block.notecard.techniques).toEqual(['fpp']);
     expect(withoutTags(block)).toEqual(withoutTags(withoutTags(block)));
 
     const mine = {
@@ -81,7 +91,7 @@ describe('tags', () => {
     };
     const { doc } = packDoc(mine, 'Me', { name: 'P', author: 'Me', license: 'CC-BY-4.0' });
     expect(doc.items[0]!.data.notecard.tags).toBeUndefined();
-    expect(doc.items[0]!.data.notecard.techniques).toEqual(['hand']);
+    expect(doc.items[0]!.data.notecard.techniques).toEqual(['fpp']);
     expect('annotations' in doc).toBe(false);
   });
 });

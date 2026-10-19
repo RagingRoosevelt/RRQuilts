@@ -598,13 +598,9 @@ function buildItems(): BuiltinItems {
         }),
       ],
     };
-    // Spec 029: how it's meant to be made, from its drawing.
+    // Spec 029: how it's meant to be made, from its drawing (EPP suits shaped blocks without curves).
     const c = blockConstruction(block);
-    block.notecard.techniques = [
-      'machine',
-      ...(c.setIn || c.curved ? (['hand'] as const) : []),
-      ...(b.shape && !c.curved ? (['epp'] as const) : []),
-    ];
+    block.notecard.techniques = ['machine', ...(b.shape && !c.curved ? (['epp'] as const) : [])];
     return block;
   });
   return { colors, blocks };

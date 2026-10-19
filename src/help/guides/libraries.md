@@ -49,7 +49,7 @@ Tags stay yours: packs you make and block files you export leave them out. Sugge
 type come from the tags you already use, and a tag that differs only in capital letters joins the
 one you have.
 
-**Technique** says how a block is meant to be made: **Machine piecing**, **Hand piecing**,
+**Technique** says how a block is meant to be made: **Machine piecing**,
 **Foundation paper piecing**, **English paper piecing** or **Appliqué**. The block's author sets it
 (on your own blocks: **Tags & technique…**, or the block editor's **Details** tab). Built-in blocks
 have one from their drawings.

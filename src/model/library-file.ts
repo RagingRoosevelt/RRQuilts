@@ -1,6 +1,6 @@
 // .rrqlib files (spec 002, amended by spec 011): read untrusted library documents item by item,
 // write backups (My library + installed packs) and packs (license-checked).
-import { stylesToTags, withoutTags } from './tags';
+import { upgradeNotecards, withoutTags } from './tags';
 import type { TSchema } from 'typebox';
 import Value from 'typebox/value';
 import { authorOf, noSharing, priorCredits, requiredLicense } from './credits';
@@ -49,7 +49,7 @@ export function parseLibraryValue(raw: unknown, nested = false): LibraryParse {
   if (raw.version > LIBRARY_VERSION)
     return fail('This library is from a newer RRQuilts. Update the app to open it.');
   // v4 (spec 029): notecard styles became tags.
-  raw = stylesToTags(raw);
+  raw = upgradeNotecards(raw);
   if (!isObject(raw)) return fail('Not an RRQuilts library file.');
   // Bad web page links don't spoil the library: they're dropped and listed.
   const badLinks = 'links' in raw && !Value.Check(Links, raw.links);
