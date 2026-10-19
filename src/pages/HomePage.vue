@@ -145,19 +145,14 @@ onMounted(async () => {
     $q.notify({ message: 'Open a project first.', color: 'warning', textColor: 'dark' });
     void router.replace({ path: '/' });
   }
-  // A shared link (/?open_gist=<gist link or id>): asked first, never fetched unprompted.
+  // A shared link (/?open_gist=<gist link or id>): the gist's details are fetched to show who
+  // shared what; its project opens only once the quilter says so.
   const link = route.query.open_gist;
   if (typeof link === 'string') {
     await router.replace({ path: '/' }); // first: dialogs close when the route changes
     const id = gistId(link);
     if (!id) $q.notify({ type: 'negative', message: 'That link doesn’t point at a GitHub gist.' });
-    else
-      $q.dialog({
-        title: 'Open a project from this gist?',
-        message: `It will be fetched from GitHub: gist ${id}.`,
-        cancel: true,
-        ok: { label: 'Open', flat: true },
-      }).onOk(() => void fetchGist(id));
+    else void fetchGist(id);
   }
   if (supportsFileAccess())
     recent.value = (await recentProjects().catch(() => [])).filter((r) => r.handle);
@@ -213,7 +208,7 @@ async function fetchGist(id: string) {
     message: 'Fetching the gist…',
   });
   try {
-    const { files } = await gistProjects(id);
+    const { title, owner, files } = await gistProjects(id);
     wait();
     if (!files.length) return fail(new Error('That gist has no RRQuilts project files (.rrq).'));
     const open = async (f: GistFile) => {
@@ -233,17 +228,23 @@ async function fetchGist(id: string) {
         done();
       }
     };
-    if (files.length === 1) return open(files[0]!);
+    // Who shared it (GitHub's account name, not the link's) and what, before anything opens.
+    const what = `“${title || 'Untitled gist'}” by ${owner || 'an anonymous user'}`;
     $q.dialog({
-      title: 'Which project?',
-      options: {
-        type: 'radio',
-        model: '0',
-        items: files.map((f, i) => ({ label: f.name, value: String(i) })),
-      },
+      title: 'Open from a gist?',
+      message: files.length === 1 ? `${what}: ${files[0]!.name}` : `${what}. Which project?`,
+      ...(files.length > 1
+        ? {
+            options: {
+              type: 'radio',
+              model: '0',
+              items: files.map((f, i) => ({ label: f.name, value: String(i) })),
+            },
+          }
+        : {}),
       cancel: true,
       ok: { label: 'Open', flat: true },
-    }).onOk((i: string) => void open(files[Number(i)]!));
+    }).onOk((i?: string) => void open(files[Number(i ?? 0)]!));
   } catch (e) {
     wait();
     fail(e);

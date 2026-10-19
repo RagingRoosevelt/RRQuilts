@@ -36,10 +36,13 @@ async function get(url: string): Promise<Response> {
   return r;
 }
 
-/** The gist's project files, by name. */
-export async function gistProjects(id: string): Promise<{ title: string; files: GistFile[] }> {
+/** The gist's description, owner (GitHub account) and project files. */
+export async function gistProjects(
+  id: string,
+): Promise<{ title: string; owner: string; files: GistFile[] }> {
   const j = (await (await get(`https://api.github.com/gists/${id}`)).json()) as {
     description?: unknown;
+    owner?: { login?: unknown } | null;
     files?: Record<string, { filename?: unknown; size?: unknown; raw_url?: unknown }>;
   };
   const files = Object.values(j.files ?? {})
@@ -55,7 +58,11 @@ export async function gistProjects(id: string): Promise<{ title: string; files: 
       size: Number(f.size) || 0,
       url: f.raw_url as string,
     }));
-  return { title: typeof j.description === 'string' ? j.description : '', files };
+  return {
+    title: typeof j.description === 'string' ? j.description : '',
+    owner: typeof j.owner?.login === 'string' ? j.owner.login : '',
+    files,
+  };
 }
 
 /** One file's text. */

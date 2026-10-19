@@ -56,13 +56,14 @@ The round save button in the header has a small colored dot:
 
 - On the home page choose **Open a project file** and pick a `.rrq` file, or drag a `.rrq` file
   onto the window.
-- **Open from a gist** opens a project someone shared as a GitHub gist. Paste the gist's link. If the
-  gist has more than one `.rrq` file, pick the one to open. This needs an internet connection, and
+- **Open from a gist** opens a project someone shared as a GitHub gist. Paste the gist's link. The
+  app shows the gist's name and the GitHub account that shared it, and the project opens when you
+  choose **Open**. If the gist has more than one `.rrq` file, pick the one to open. This needs an internet connection, and
   saving makes a file of your own (nothing is sent back to the gist).
 - To share a project as a link, put it in a GitHub gist and add the gist's link after
   `?open_gist=` on the app's address, for example
   `https://ragingroosevelt.github.io/RRQuilts/?open_gist=https://gist.github.com/you/1234abcd…`.
-  Opening the link asks before it fetches anything.
+  Opening the link shows the gist's name and owner, and asks before it opens the project.
 - **Recent projects** lists your latest ones. Click one to open it. This needs a browser that can reopen
   files, such as Chrome, Edge, or another Chromium-based browser on a computer ({{yours:file-access}}).
   Unsaved work is listed there too, in every browser.

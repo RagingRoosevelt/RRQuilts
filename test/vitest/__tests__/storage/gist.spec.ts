@@ -22,6 +22,8 @@ describe('open from a gist', () => {
         url === raw
           ? new Response('{"format":"rrq"}')
           : Response.json({
+              description: 'Red and gray',
+              owner: { login: 'quilter' },
               files: {
                 'q.rrq': { filename: 'q.rrq', size: 16, raw_url: raw },
                 'notes.md': { filename: 'notes.md', size: 4, raw_url: raw },
@@ -31,7 +33,8 @@ describe('open from a gist', () => {
       ),
     );
     vi.stubGlobal('fetch', fetch);
-    const { files } = await gistProjects(ID);
+    const { title, owner, files } = await gistProjects(ID);
+    expect([title, owner]).toEqual(['Red and gray', 'quilter']);
     expect(files.map((f) => f.name)).toEqual(['q.rrq']);
     expect(await gistText(files[0]!)).toBe('{"format":"rrq"}');
     expect(fetch.mock.calls[0]![0]).toBe(`https://api.github.com/gists/${ID}`);
