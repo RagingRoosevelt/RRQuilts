@@ -2,7 +2,8 @@
 Sync Impact Report
 - Version change: 1.10.0 → 1.11.0 (MINOR: File Formats — each release that ships a new format
   version adds a sample file of it to test/fixtures/formats/, kept forever and opened by a test;
-  project samples also get PNGs of their quilts and blocks from that release's build.)
+  project versions also add a demo project covering that version's new layouts, with PNGs of its
+  quilts and blocks from that release's build.)
   Templates: ✅ plan/spec/tasks templates (no change) ✅ scripts/release.md (sample step)
   ✅ CLAUDE.md (Data section)
 - Prior: 1.9.0 → 1.10.0 (MINOR: Development Workflow gains branch rules: changes reach
@@ -242,8 +243,9 @@ Minimum envelope (details defined per feature in `specs/`):
 - Unknown keys are preserved on round-trip where practical.
 - Every release that ships a new version of a file format MUST add a sample file of that version,
   written by the release's own code, to `test/fixtures/formats/` (`<format>-v<N>.<ext>`). A new
-  project version also gets a PNG of each of the sample's quilts and blocks, saved by that release's
-  build, for checking by eye that later versions still draw it the same. Samples are never
+  project version also adds a demo project: the previous demo plus a quilt for each layout
+  capability that version added, with a PNG of each of its quilts and blocks saved by that
+  release's build, for checking by eye that later versions still draw it the same. Samples are never
   rewritten; a test opens every one with the current code.
 
 ## Development Workflow

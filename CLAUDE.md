@@ -39,8 +39,9 @@ like sketchbook/worktable are fine).
 - All formats carry `{ "format": ..., "version": N }`. Bump `version` + add a migration
   for any schema change. Treat loaded files as untrusted: validate, never crash.
 - `test/fixtures/formats/`: one sample per released format version (`<format>-v<N>.<ext>`), opened
-  by a test; `project-vN/` holds PNGs of its quilts and blocks drawn by that release
-  (`scripts/format-images.py`). A release that ships a new format version adds both (`scripts/release.md`).
+  by a test; `demo-vN.rrq` = a demo project with a quilt per layout capability each version added
+  (`write-demo.spec.ts`), `demo-vN/` = PNGs of its quilts and blocks drawn by that release
+  (`scripts/format-images.py`). A release that ships a new format version adds them (`scripts/release.md`).
 
 ## Rules
 

@@ -14,7 +14,14 @@ const read = (f: string) => readFileSync(`${dir}/${f}`, 'utf8');
 describe('format samples', () => {
   it('has one for each format', () => {
     const kinds = new Set(files.map((f) => f.split('-v')[0]));
-    expect([...kinds].sort()).toEqual(['block', 'library', 'palette', 'project', 'settings']);
+    expect([...kinds].sort()).toEqual([
+      'block',
+      'demo',
+      'library',
+      'palette',
+      'project',
+      'settings',
+    ]);
   });
 
   it.each(files)('%s opens', async (f) => {

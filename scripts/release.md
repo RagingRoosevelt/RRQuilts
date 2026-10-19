@@ -52,9 +52,9 @@ where a step says so. Use the project's Makefile targets (see CLAUDE.md).
 6. **Set the version**: `package.json` `"version"` to `X.Y.Z` (nothing else in it).
    **Format samples**: if any file format's version is newer than its newest sample in
    `test/fixtures/formats/`, write samples with this release's code (see that folder's README) and
-   add only the new versions. For a new project version, also save its pictures with this
-   release's build: `make build`, then `uv run scripts/format-images.py docs
-test/fixtures/formats/project-vN.rrq`.
+   add only the new versions. For a new project version, also add the version's new layouts to
+   `ADDED` in `write-demo.spec.ts`, write `demo-vN.rrq`, and save its pictures with this release's
+   build (all in that README).
 7. **Commit** on the release branch: `make commit MSG="Release X.Y.Z"` (it runs the checks,
    including the test that the changelog and package.json versions match, and rebuilds `docs/`).
 8. **Bring `main` up to it and push**: `git checkout main && git merge --ff-only release/X.Y.Z`,

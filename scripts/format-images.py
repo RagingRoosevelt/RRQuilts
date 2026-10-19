@@ -12,7 +12,7 @@ First run: `uv run --with playwright playwright install firefox`.
 
 import functools
 import http.server
-import re
+import json
 import sys
 import tempfile
 import threading
@@ -36,10 +36,17 @@ threading.Thread(target=server.serve_forever, daemon=True).start()
 base = f"http://127.0.0.1:{server.server_port}/RRQuilts/"
 
 
-def save_all(page, out: Path, n: int):
-    """Save image from the first n cards' Actions menus on the current tab."""
-    for i in range(n):
-        page.get_by_role("button", name="Actions").nth(i).click()
+def save_all(page, out: Path, names: set[str]):
+    """Save image from the Actions menu of each card named in `names` (once each)."""
+    buttons = page.get_by_role("button", name="Actions")
+    for i in range(buttons.count()):
+        card = buttons.nth(i).locator("xpath=ancestor::*[.//img][1]")
+        lines = {x.strip() for x in card.inner_text().splitlines()}
+        name = next((n for n in names if n in lines), None)
+        if not name:
+            continue
+        names.discard(name)
+        buttons.nth(i).click()
         item = page.locator(".q-menu .q-item").filter(has_text="Save image")
         if not item.count():
             page.keyboard.press("Escape")
@@ -70,12 +77,16 @@ with sync_playwright() as p:
         fc.value.set_files(str(rrq))
         page.wait_for_url("**/project**")
         page.wait_for_timeout(2000)
-        count = lambda tab: int(re.search(r"\((\d+)\)", page.get_by_role("tab", name=tab).inner_text())[1])
-        save_all(page, out, count("Quilts"))
-        blocks = count("Blocks")  # the project's own; the library's follow them
+        project = json.loads(rrq.read_text())["project"]
+        save_all(page, out, {q["notecard"]["name"] for q in project["quilts"]})
         page.get_by_role("tab", name="Blocks").click()
         page.wait_for_timeout(1000)
-        save_all(page, out, blocks)
+        # Library sections draw their cards as they scroll into view.
+        for _ in range(60):
+            page.mouse.wheel(0, 800)
+            page.wait_for_timeout(100)
+        # Blocks in the project (own and from libraries), not the hidden plain block.
+        save_all(page, out, {b["notecard"]["name"] for b in project["blocks"] if b["id"] != "plain"})
         page.close()
     browser.close()
 server.shutdown()
