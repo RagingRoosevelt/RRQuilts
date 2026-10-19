@@ -18,7 +18,15 @@ that release's code, plus a quilt for each layout capability the version added (
 - v7 (at its release): Shaped Blocks, Hexagons on a Flow, Diamond Point, Baby Blocks of Blocks
 
 `demo-v<N>/` holds a PNG of each of its quilts and blocks, saved with the app's Save image by a
-release that writes that version. Compare them with what today's app draws.
+release that writes that version.
+
+## Picture check
+
+`make picture-check` builds the app, draws every demo with it, and writes
+`.cache/picture-check.html`: each picture as released, now, and the difference, with a reference
+label (`v6.07`, numbered by name so it stays put between runs), changed pictures first. Claude runs
+it and publishes the page for the owner before each release and after changes to file formats,
+migrations, layouts or quilt and block drawing; the owner names any wrong ones by reference.
 
 ## Each release that ships a new format version
 

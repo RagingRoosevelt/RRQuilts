@@ -27,7 +27,7 @@ RUN = docker run --rm $(TTY) -u $$(id -u):$$(id -g) \
 	-e RRQ_BASE="$(RRQ_BASE)" -e RRQ_POLL="$(POLL)" \
 	-v "$(CURDIR)":/app -w /app $(1) $(IMAGE)
 
-.PHONY: help image install dev build test lint format check serve clean commit push release ensure-clean ensure-docs-clean
+.PHONY: help image install dev build test lint format check serve clean commit push release picture-check ensure-clean ensure-docs-clean
 
 help: ## List targets
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -61,6 +61,9 @@ format: node_modules/.package-lock.json ## Auto-format files with Prettier
 	$(RUN) npm run format
 
 check: lint test build ## lint -> test -> build (stops at first failure)
+
+picture-check: build ## Demo projects drawn now vs at release → .cache/picture-check.html (host: uv)
+	uv run scripts/compare-images.py docs .cache/picture-check.html
 
 serve: ## Serve docs/ with nginx on :8080 under RRQ_BASE
 	docker build -q --target serve -t $(SERVE_IMG) . >/dev/null
