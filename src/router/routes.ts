@@ -48,7 +48,10 @@ const routes: RouteRecordRaw[] = [
   ...(import.meta.env.DEV
     ? [
         { path: '/dev', redirect: '/dev/gallery' },
-        { path: '/dev/:view(gallery|pictures)', component: () => import('@/pages/DevPage.vue') },
+        {
+          path: '/dev/:view(gallery|borders|sweeps|extremes|blocks|print|pictures)',
+          component: () => import('@/pages/DevPage.vue'),
+        },
       ]
     : []),
   // Settings is a fly-over (MainLayout); old links open it over Home.

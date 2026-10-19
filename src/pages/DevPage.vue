@@ -3,64 +3,77 @@
     <!-- Testing aids for the owner, dev server only (routes.ts, MainLayout: import.meta.env.DEV). -->
     <div class="row items-center q-mb-sm" style="gap: 16px">
       <h1 class="text-h5 q-my-none">Tests</h1>
-      <q-tabs v-model="view" dense no-caps active-color="primary" class="text-grey-8">
-        <q-route-tab name="gallery" to="/dev/gallery" label="Layout gallery" />
-        <q-route-tab name="pictures" to="/dev/pictures" label="Picture check" />
+      <q-tabs dense no-caps inline-label outside-arrows mobile-arrows class="col text-grey-8">
+        <q-route-tab
+          v-for="t in TABS"
+          :key="t.name"
+          :to="`/dev/${t.name}`"
+          :label="t.label"
+          :icon="t.icon"
+        />
       </q-tabs>
     </div>
+    <p class="lede">
+      {{ TABS.find((t) => t.name === view)!.about }} Tell Claude the reference of anything that
+      looks wrong.
+    </p>
 
-    <template v-if="view === 'gallery'">
-      <p class="lede">
-        Quilts built with each layout and its settings, with blocks, solids and mixes, drawn live by
-        this code with seam lines. Newest variations first. Check each picture against what it
-        should show, and tell Claude the reference (like <span class="ref">G012</span>) of anything
-        wrong. Add variations at the top of <code>src/dev/variations.ts</code>.
-      </p>
+    <template v-if="view === 'blocks'">
       <div class="bar">
-        <q-chip dense :color="failed ? 'negative' : 'positive'" text-color="white">
-          {{ gallery ? `${gallery.entries.length} variations` : 'Building…' }}
-          {{ failed ? `, ${failed} failed to build` : '' }}
-        </q-chip>
-        <a v-for="s in gallerySections" :key="s.added" :href="`#${s.anchor}`">{{ s.added }}</a>
+        <q-chip dense color="positive" text-color="white">{{ blockList.length }} blocks</q-chip>
+        <q-input v-model="blockSearch" dense outlined clearable placeholder="Find a block" />
+        <a v-for="g in blockGroups" :key="g.name" :href="`#${g.anchor}`">{{ g.name }}</a>
       </div>
-      <section v-for="s in gallerySections" :key="s.added" class="sec">
-        <h2 :id="s.anchor" class="text-h6">{{ s.added }}</h2>
-        <article v-for="v in s.entries" :id="v.id" :key="v.id" class="card var">
-          <figure>
-            <img v-if="pics[v.id]" :src="pics[v.id]" :alt="v.title" />
-            <div v-else class="none">{{ v.error ? 'Not drawn' : 'Drawing…' }}</div>
+      <section v-for="g in blockGroups" :key="g.name" class="sec">
+        <h2 :id="g.anchor" class="text-h6">
+          {{ g.name }} <small>{{ g.blocks.length }}</small>
+        </h2>
+        <div class="blocks">
+          <figure v-for="b in g.blocks" :id="b.ref" :key="b.ref" class="block">
+            <img v-if="blockPics[b.ref]" :src="blockPics[b.ref]" :alt="b.name" />
+            <div v-else class="none">…</div>
+            <figcaption>
+              <strong>{{ b.name }}</strong>
+              <span class="ref">{{ b.ref }}</span>
+              <span v-if="b.shape" class="shape">{{ b.shape }}</span>
+            </figcaption>
           </figure>
-          <div class="about">
-            <header>
-              <span class="ref">{{ v.id }}</span>
-              <h3>{{ v.title }}</h3>
-              <q-btn
-                v-if="v.quiltId"
-                flat
-                dense
-                no-caps
-                icon="open_in_new"
-                label="Open in editor"
-                @click="openInEditor(v.quiltId)"
-              />
-            </header>
-            <p class="expect"><strong>Expect:</strong> {{ v.expect }}</p>
-            <p v-if="v.error" class="error">Failed to build: {{ v.error }}</p>
-            <ul>
-              <li v-for="s2 in v.settings" :key="s2">{{ s2 }}</li>
-            </ul>
-          </div>
-        </article>
+        </div>
       </section>
     </template>
 
-    <template v-else>
-      <p class="lede">
-        The demo projects (<code>test/fixtures/formats</code>) drawn by this code beside the
-        pictures saved when each format version was released. Red in the difference column marks
-        what moved. Tell Claude the reference (like <span class="ref">v6.03</span>) of anything that
-        looks wrong.
-      </p>
+    <template v-else-if="view === 'print'">
+      <div class="bar">
+        <q-btn-toggle
+          v-model="printPick"
+          no-caps
+          unelevated
+          toggle-color="primary"
+          :options="printOptions"
+        />
+      </div>
+      <template v-if="printShown">
+        <h2 class="text-h6 q-my-sm">
+          <span class="ref">{{ printShown.ex.id }}</span> {{ printShown.entry.title }}
+          <small>(gallery {{ printShown.entry.id }})</small>
+        </h2>
+        <p class="q-mb-xs"><strong>Check:</strong></p>
+        <ul class="checks">
+          <li v-for="c in printShown.ex.check" :key="c">{{ c }}</li>
+        </ul>
+        <div class="print-box column">
+          <PrintPreview
+            :key="printShown.ex.id"
+            kind="quilt"
+            :id="printShown.entry.quiltId!"
+            :doc="printShown.entry.doc"
+          />
+        </div>
+      </template>
+      <p v-else>Building…</p>
+    </template>
+
+    <template v-else-if="view === 'pictures'">
       <div class="bar">
         <q-chip dense :color="changed ? 'negative' : 'positive'" text-color="white">
           {{
@@ -106,61 +119,119 @@
         </template>
       </section>
     </template>
+
+    <template v-else>
+      <DevQuiltCards
+        v-if="built[view]"
+        :key="view"
+        :entries="built[view]!"
+        :compact="view === 'borders' || view === 'sweeps'"
+        :timing="view === 'extremes'"
+        @open="openInEditor"
+      />
+      <p v-else>Building…</p>
+    </template>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, onMounted, reactive, ref, shallowRef, watch } from 'vue';
+import { computed, reactive, ref, shallowReactive, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { buildGallery, type GalleryEntry } from '@/dev/gallery';
+import DevQuiltCards from '@/components/DevQuiltCards.vue';
+import PrintPreview from '@/components/PrintPreview.vue';
+import { BORDERS } from '@/dev/borders';
+import { buildQuilts, type Built, type DevVariation } from '@/dev/build';
+import { EXTREMES } from '@/dev/extremes';
 import { pictureCheck, type Comparison, type Section } from '@/dev/picture-check';
+import { PRINT_EXAMPLES } from '@/dev/print-examples';
+import { SWEEP_QUILTS } from '@/dev/sweeps';
+import { GALLERY } from '@/dev/variations';
 import { serializeProject } from '@/model/io';
-import type { RrqDoc } from '@/model/schema/project';
-import { quiltThumbnail } from '@/render/thumbnail';
+import { createProject } from '@/model/new-project';
+import { blockThumbnail } from '@/render/thumbnail';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
+
+const TABS = [
+  {
+    name: 'gallery',
+    label: 'Layout gallery',
+    icon: 'grid_view',
+    about:
+      'Quilts built with each layout and its settings, drawn live with seam lines, newest first. Check each against what it should show. Add variations at the top of src/dev/variations.ts.',
+  },
+  {
+    name: 'borders',
+    label: 'Borders',
+    icon: 'crop_free',
+    about: 'Every border style on the same small quilt, generated from the Borders tab’s list.',
+  },
+  {
+    name: 'sweeps',
+    label: 'Sweeps',
+    icon: 'linear_scale',
+    about: 'One setting stepped through its range per row (src/dev/sweeps.ts).',
+  },
+  {
+    name: 'extremes',
+    label: 'Extremes',
+    icon: 'warning_amber',
+    about:
+      'Sizes, counts, units and turns at the edges of what a quilter would do, with build and draw times.',
+  },
+  {
+    name: 'blocks',
+    label: 'Blocks',
+    icon: 'apps',
+    about: 'Every built-in block with seam lines, by category.',
+  },
+  {
+    name: 'print',
+    label: 'Print',
+    icon: 'print',
+    about: 'The Print tab’s sheets for a few layout gallery quilts, with what to check on them.',
+  },
+  {
+    name: 'pictures',
+    label: 'Picture check',
+    icon: 'compare',
+    about:
+      'The demo projects (test/fixtures/formats) drawn by this code beside the pictures saved when each format version was released; red marks what moved.',
+  },
+] as const;
+type View = (typeof TABS)[number]['name'];
 
 const $q = useQuasar();
 const route = useRoute();
 const router = useRouter();
 const project = useProjectStore();
 const library = useLibraryStore();
-const view = computed(() => (route.params.view === 'pictures' ? 'pictures' : 'gallery'));
+const view = computed<View>(
+  () => TABS.find((t) => t.name === route.params.view)?.name ?? 'gallery',
+);
 
-// --- Layout gallery ---
-const gallery = shallowRef<{ doc: RrqDoc; entries: GalleryEntry[] } | null>(null);
-const pics = reactive<Record<string, string>>({});
-const failed = computed(() => gallery.value?.entries.filter((e) => e.error).length ?? 0);
-/** Sections follow the list's order (newest first), one per feature that added variations. */
-const gallerySections = computed(() => {
-  const out: { added: string; anchor: string; entries: GalleryEntry[] }[] = [];
-  for (const e of gallery.value?.entries ?? []) {
-    if (out.at(-1)?.added !== e.added)
-      out.push({ added: e.added, anchor: `s${out.length}`, entries: [] });
-    out.at(-1)!.entries.push(e);
-  }
-  return out;
-});
-
-async function loadGallery() {
-  if (gallery.value) return;
-  const g = await buildGallery();
-  gallery.value = g;
-  // One at a time, so the page stays responsive while they draw.
-  for (const e of g.entries) {
-    const q = g.doc.project.quilts.find((x) => x.id === e.quiltId);
-    if (q) pics[e.id] = quiltThumbnail(g.doc, q, 1080, false, false, true, true);
-    await new Promise((r) => setTimeout(r));
-  }
+// --- Built quilts (gallery, borders, sweeps, extremes; print uses the gallery) ---
+const LISTS: Partial<Record<View, readonly DevVariation[]>> = {
+  gallery: GALLERY,
+  borders: BORDERS,
+  sweeps: SWEEP_QUILTS,
+  extremes: EXTREMES,
+};
+const built = shallowReactive<Partial<Record<View, Built[]>>>({});
+const building = new Set<View>();
+async function build(v: View) {
+  if (built[v] || building.has(v) || !LISTS[v]) return;
+  building.add(v);
+  built[v] = await buildQuilts(LISTS[v]);
 }
 
-/** Opens the gallery as the project (unsaved work stays in its draft), at that quilt. */
-function openInEditor(quiltId: string) {
+/** Opens the quilt's test project (unsaved work stays in its draft), at that quilt. */
+function openInEditor(entry: Built) {
   const go = async () => {
-    const file = new File([serializeProject(gallery.value!.doc)], 'Layout Gallery.rrq');
+    const file = new File([serializeProject(entry.doc)], `${entry.doc.project.name}.rrq`);
     await project.openFile({ file });
-    await router.push(`/project/quilt/${quiltId}`);
+    await router.push(`/project/quilt/${entry.quiltId}`);
   };
   if (!project.dirty || project.readOnly) return void go();
   $q.dialog({
@@ -169,6 +240,61 @@ function openInEditor(quiltId: string) {
     cancel: true,
     ok: { label: 'Continue', flat: true },
   }).onOk(() => void go());
+}
+
+// --- Print ---
+const printPick = ref(PRINT_EXAMPLES[0]!.id);
+const printOptions = PRINT_EXAMPLES.map((p) => ({ value: p.id, label: p.id }));
+const printShown = computed(() => {
+  const ex = PRINT_EXAMPLES.find((p) => p.id === printPick.value)!;
+  const entry = built.gallery?.find((e) => e.id === ex.quilt && e.quiltId);
+  return entry ? { ex, entry } : undefined;
+});
+
+// --- Blocks ---
+const blockSearch = ref<string | null>('');
+const blockPics = reactive<Record<string, string>>({});
+const blockList = computed(() => {
+  const lib = library.builtin;
+  if (!lib) return [];
+  const cats = new Map(lib.categories.map((c) => [c.id, c]));
+  const catName = (id?: string) => {
+    const c = id ? cats.get(id) : undefined;
+    const parent = c?.parent ? cats.get(c.parent) : undefined;
+    return c ? (parent ? `${parent.name} › ${c.name}` : c.name) : 'Uncategorized';
+  };
+  return lib.items.flatMap((i) =>
+    i.type === 'block'
+      ? [
+          {
+            ref: i.data.id.replace(/^rrquilts\./, ''),
+            name: i.data.notecard.name,
+            group: catName(i.category),
+            shape: i.data.shape,
+            block: i.data,
+          },
+        ]
+      : [],
+  );
+});
+const blockGroups = computed(() => {
+  const q = (blockSearch.value ?? '').trim().toLowerCase();
+  const groups = new Map<string, typeof blockList.value>();
+  for (const b of blockList.value)
+    if (!q || b.name.toLowerCase().includes(q) || b.ref.includes(q))
+      groups.set(b.group, [...(groups.get(b.group) ?? []), b]);
+  return [...groups].map(([name, blocks], i) => ({ name, anchor: `c${i}`, blocks }));
+});
+let blocksDrawn = false;
+async function drawBlocks() {
+  if (blocksDrawn) return;
+  blocksDrawn = true;
+  while (!library.builtin) await new Promise((r) => setTimeout(r, 100));
+  const doc = createProject('Blocks', 'in', 'tests');
+  for (const b of blockList.value) {
+    blockPics[b.ref] = blockThumbnail(doc, b.block, 240, false, undefined, library.items.colors);
+    await new Promise((r) => setTimeout(r));
+  }
 }
 
 // --- Picture check ---
@@ -193,7 +319,6 @@ const pictures = (c: Comparison): [string, string | undefined][] => [
   ['Now', c.now],
   ...(c.diff ? ([['Difference', c.diff]] as [string, string][]) : []),
 ];
-
 async function loadCheck() {
   if (checkStarted) return;
   checkStarted = true;
@@ -207,9 +332,15 @@ async function loadCheck() {
   checkDone.value = true;
 }
 
-const load = () => void (view.value === 'gallery' ? loadGallery() : loadCheck());
-onMounted(load);
-watch(view, load);
+watch(
+  view,
+  (v) => {
+    if (v === 'pictures') void loadCheck();
+    else if (v === 'blocks') void drawBlocks();
+    else void build(v === 'print' ? 'gallery' : v);
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped>
@@ -218,8 +349,8 @@ watch(view, load);
   margin: 0 auto;
 }
 .lede {
-  max-width: 75ch;
-  color: rgba(128, 128, 128, 1);
+  max-width: 80ch;
+  opacity: 0.75;
 }
 .bar {
   display: flex;
@@ -238,7 +369,7 @@ watch(view, load);
   padding-bottom: 4px;
   border-bottom: 1px solid rgba(128, 128, 128, 0.3);
 }
-.sec h2 small {
+h2 small {
   font-size: 0.85rem;
   opacity: 0.7;
   margin-left: 8px;
@@ -271,7 +402,7 @@ watch(view, load);
 }
 .ref {
   font-family: ui-monospace, monospace;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   padding: 1px 8px;
   border: 1px solid rgba(128, 128, 128, 0.4);
   border-radius: 4px;
@@ -289,40 +420,6 @@ watch(view, load);
 .chip.new,
 .chip.missing {
   background: var(--q-negative);
-}
-.var {
-  grid-template-columns: minmax(0, 540px) minmax(0, 1fr);
-  align-items: start;
-}
-@media (max-width: 900px) {
-  .var {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-.about {
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-}
-.expect {
-  margin: 0;
-  max-width: 65ch;
-}
-.var ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.var li {
-  font-family: ui-monospace, monospace;
-  font-size: 0.8rem;
-  padding: 2px 8px;
-  border-radius: 4px;
-  border: 1px solid rgba(128, 128, 128, 0.35);
-  overflow-wrap: anywhere;
 }
 .error {
   color: var(--q-negative);
@@ -358,8 +455,40 @@ figure .none {
 }
 figcaption {
   font-size: 0.75rem;
-  opacity: 0.7;
+  opacity: 0.8;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+.blocks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+.block figcaption {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  align-items: center;
+}
+.block figcaption strong {
+  width: 100%;
+  font-size: 0.85rem;
+}
+.shape {
+  opacity: 0.7;
+}
+.checks {
+  margin: 0 0 12px;
+  max-width: 80ch;
+}
+/* The Print tab fills its box like the editor's canvas area. */
+.print-box {
+  height: 80vh;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
 }
 </style>

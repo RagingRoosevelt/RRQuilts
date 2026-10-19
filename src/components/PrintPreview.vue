@@ -612,6 +612,7 @@ import {
   type FabricNeed,
 } from '@/model/print/yardage';
 import type { Block } from '@/model/schema/block';
+import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
 import type { Credit } from '@/model/schema/shared';
 import { useEditorStore } from '@/stores/editor';
@@ -628,12 +629,14 @@ const props = defineProps<{
   printOnly?: boolean;
   /** Measured heights of the flowing pages (the print copy takes the screen copy's). */
   measured?: Record<number, { key: string; cost: number }[]> | undefined;
+  /** Another document than the open project (the dev-only Tests tab). */
+  doc?: RrqDoc | undefined;
 }>();
 const project = useProjectStore();
 const library = useLibraryStore();
 const app = useSettingsStore();
 
-const doc = computed(() => project.doc);
+const doc = computed(() => props.doc ?? project.doc);
 const units = computed(() => doc.value?.units ?? 'in');
 const prefs = computed(() => printPrefs(app.settings.print));
 const paper = computed(() => pick(PAPERS, prefs.value.paper[units.value]));

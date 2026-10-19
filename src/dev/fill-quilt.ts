@@ -50,7 +50,14 @@ function scatter(i: number) {
   return (h ^ (h >>> 16)) >>> 0;
 }
 
-export function fillQuilt(d0: Any, quiltId: string, kit: Kit, mode: FillMode = 'blocks') {
+/** `turns`: every third block turned once and every third flipped, to test placement. */
+export function fillQuilt(
+  d0: Any,
+  quiltId: string,
+  kit: Kit,
+  mode: FillMode = 'blocks',
+  opts: { turns?: boolean } = {},
+) {
   let d = d0;
   const q = d.project.quilts.find((x: Any) => x.id === quiltId);
   const all: Any[] = slots.generateSlots(q.layout, q.borders).slots;
@@ -73,9 +80,21 @@ export function fillQuilt(d0: Any, quiltId: string, kit: Kit, mode: FillMode = '
   let next = 0;
   let nth = 0;
   const groups = new Map<string, number>();
+  const sizes = new Map<string, number>();
+  for (const s of all) sizes.set(slotGroup(s.id), (sizes.get(slotGroup(s.id)) ?? 0) + 1);
+  // Huge quilts are filled the way a quilter would: All and Alternate, not space by space (which
+  // takes minutes over thousands of spaces).
+  const HUGE = 400;
+  const once = new Set<string>();
   all.forEach((s, i) => {
     if (isBlock(s)) {
       const k0 = nth++;
+      if (mode === 'one' && !opts.turns) {
+        if (once.has('one')) return;
+        for (const b of order)
+          if (tool(s, { tool: 'set', block: b.id, scope: 'all' })) return void once.add('one');
+        return;
+      }
       const solid = mode === 'solids' || (mode === 'mix' && (s.alt ?? k0) % 2 === 1);
       if (solid) {
         tool(s, { tool: 'paint', color: kit.colors[k0 % kit.colors.length] });
@@ -85,6 +104,8 @@ export function fillQuilt(d0: Any, quiltId: string, kit: Kit, mode: FillMode = '
         const j = (next + k) % order.length;
         if (tool(s, { tool: 'set', block: order[j].id })) {
           if (mode !== 'one') next = j + 1;
+          if (opts.turns && k0 % 3 === 1) tool(s, { tool: 'rotate' });
+          if (opts.turns && k0 % 3 === 2) tool(s, { tool: 'flip', flipAxis: 'h' });
           break;
         }
       }
@@ -93,10 +114,16 @@ export function fillQuilt(d0: Any, quiltId: string, kit: Kit, mode: FillMode = '
       const g = slotGroup(s.id);
       if (!groups.has(g)) groups.set(g, groups.size);
       // Sashing and cornerstones stay one color however many there are.
-      const many =
-        s.kind !== 'sash' &&
-        s.kind !== 'cs' &&
-        all.filter((x) => slotGroup(x.id) === g).length > 12;
+      const plain = s.kind === 'sash' || s.kind === 'cs';
+      const size = sizes.get(g)!;
+      if (!plain && size > HUGE) {
+        if (once.has(g)) return;
+        once.add(g);
+        tool(s, { tool: 'paint', color: kit.colors[0], scope: 'all' });
+        tool(s, { tool: 'paint', color: kit.colors[2], scope: 'alternate' });
+        return;
+      }
+      const many = !plain && size > 12;
       // Scattered (hashed), not cycled: a cycle in step with the row length paints stripes.
       const k = many ? scatter(i) : groups.get(g)!;
       tool(s, { tool: 'paint', color: kit.colors[k % kit.colors.length] });

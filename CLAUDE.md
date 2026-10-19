@@ -48,7 +48,11 @@ like sketchbook/worktable are fine).
   blocks/solids/mixes (`dev/fill-quilt.ts`), each with what it should show, drawn live with seams;
   **newest first, new ids (G###) on top** whenever a feature adds a layout capability or setting.
   **Picture check** (`/dev/pictures`): each demo sample drawn now vs its release PNGs, with
-  differences and reference labels (v6.07). Point the owner to them (localhost:9000/RRQuilts/dev/…)
+  differences and reference labels (v6.07). Also **Borders** (every style, generated from
+  `BORDER_STYLE_NAMES` in `model/layout/borders.ts`), **Sweeps** (`dev/sweeps.ts`: one setting
+  stepped through its range), **Extremes** (`dev/extremes.ts`, with build/draw times), **Blocks**
+  (every built-in block, named), **Print** (`dev/print-examples.ts`: PrintPreview with a `doc` prop
+  for gallery quilts). Quilt lists build through `dev/build.ts` (`DevQuiltCards.vue` shows them). Point the owner to them (localhost:9000/RRQuilts/dev/…)
   before releases and after format/layout/drawing changes; never publish them.
 
 ## Rules

@@ -2,6 +2,7 @@
 // its settings, with blocks, solids and mixes, drawn live with what each should show.
 // NEWEST FIRST: put new variations at the top with the next id (G###, never reused or renumbered),
 // and say in `added` which feature brought them.
+import type { DevVariation } from './build';
 import type { FillMode } from './fill-quilt';
 
 export interface Variation {
@@ -263,3 +264,6 @@ export const VARIATIONS: Variation[] = [
     layout: { sash: [2, 2] },
   },
 ];
+
+/** The gallery as Tests tab quilts, one section per feature. */
+export const GALLERY: DevVariation[] = VARIATIONS.map((v) => ({ ...v, group: v.added }));
