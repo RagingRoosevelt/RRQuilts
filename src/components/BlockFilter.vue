@@ -1,9 +1,9 @@
 <template>
-  <!-- Quilt editor block sidebar: show only blocks that fit a layout, or of one shape (spec 026). -->
-  <div class="row no-wrap" style="gap: 6px">
+  <!-- Block filters: only blocks that fit a layout, or of one shape (spec 026). Stacked; a grid parent
+       can lay them out as its own cells with `display: contents`. -->
+  <div class="column" style="gap: 8px">
     <q-select
       v-model="layout"
-      class="col"
       dense
       outlined
       options-dense
@@ -33,7 +33,6 @@
     </q-select>
     <q-select
       v-model="shape"
-      class="col"
       dense
       outlined
       options-dense

@@ -145,7 +145,7 @@
         <BlockFilter
           v-model:layout="bf.layout"
           v-model:shape="bf.shape"
-          style="grid-column: span 2"
+          style="display: contents"
         />
       </div>
       <div class="text-subtitle2 q-mb-sm">My blocks</div>
@@ -2785,7 +2785,7 @@ watch(
 }
 .block-filters {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 8px;
 }
 </style>
