@@ -123,7 +123,10 @@
           <h3 class="text-caption q-my-none byline">
             by {{ gistAsk.owner || 'an anonymous GitHub user' }}
           </h3>
-          <p v-if="gistAsk.title" class="q-mt-sm q-mb-none gist-desc">{{ gistAsk.title }}</p>
+          <fieldset v-if="gistAsk.title" class="gist-desc q-mt-md">
+            <legend>Author’s description</legend>
+            <p class="q-ma-none">{{ gistAsk.title }}</p>
+          </fieldset>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn v-close-popup flat no-caps label="Cancel" />
@@ -322,7 +325,19 @@ async function discardDraft(d: Draft) {
 .byline {
   opacity: 0.7; /* muted in light and dark alike */
 }
+/* Top border only, its label set into the line. */
 .gist-desc {
+  margin-inline: 0;
+  padding: 4px 0 0;
+  border: 0;
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
+}
+.gist-desc legend {
+  padding: 0 6px 0 0;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+.gist-desc p {
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
