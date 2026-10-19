@@ -22,6 +22,11 @@ across the whole project.
 
 **My blocks** are the blocks stored in this project.
 
+Filters above the blocks work as on the Libraries page: **Category**, **Tags**, **Styles**, a search
+of names and notes, **Fits layout** (blocks that fit a quilt layout's spaces) and **Shape**. They narrow
+both My blocks and Library blocks. **Group library blocks by** sorts library blocks into sections by
+category, tag or style. While a filter is on, blocks can't be moved earlier or later.
+
 1. **New block** asks for a name and opens the block editor ([Drawing blocks](/help/guides/drawing-blocks)).
 2. **Import blocks** reads blocks from a `.rrqbl` file or from another project. Tick the ones to add.
 3. A block's **Actions** menu offers **Edit**, **Edit a copy**, **Preview**, **Details**,

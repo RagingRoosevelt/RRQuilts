@@ -120,6 +120,34 @@
     </div>
 
     <template v-else-if="tab === 'blocks'">
+      <!-- The Libraries page's block filters (no library management here). -->
+      <div class="block-filters q-mb-md">
+        <template v-for="f in blockFilterFields" :key="f.key">
+          <FilterSelect
+            v-if="f.options.length"
+            v-model="bf[f.key]"
+            :options="f.options"
+            :label="f.label"
+          />
+        </template>
+        <q-input v-model="bf.search" dense outlined clearable placeholder="Search names, notes">
+          <template #prepend><q-icon name="search" /></template>
+        </q-input>
+        <q-select
+          v-model="groupBy"
+          :options="GROUP_BY"
+          emit-value
+          map-options
+          dense
+          outlined
+          label="Group library blocks by"
+        />
+        <BlockFilter
+          v-model:layout="bf.layout"
+          v-model:shape="bf.shape"
+          style="grid-column: span 2"
+        />
+      </div>
       <div class="text-subtitle2 q-mb-sm">My blocks</div>
       <div class="cards">
         <div v-if="!project.readOnly" class="stack">
@@ -133,10 +161,10 @@
           </button>
         </div>
         <!-- Cards are built as they come into view (and then kept), not all at once. -->
-        <q-intersection v-for="(b, i) in blocks" :key="b.id" once class="card-slot">
+        <q-intersection v-for="(b, i) in shownBlocks" :key="b.id" once class="card-slot">
           <div
             class="card"
-            :draggable="!project.readOnly"
+            :draggable="!project.readOnly && !blockFiltering"
             @dragstart="dragFrom = i"
             @dragover.prevent
             @drop="drop('blocks', i)"
@@ -259,7 +287,7 @@
                       /></q-item-section>
                       <q-item-section>Save image</q-item-section>
                     </q-item>
-                    <template v-if="!project.readOnly">
+                    <template v-if="!project.readOnly && !blockFiltering">
                       <q-item
                         v-close-popup
                         clickable
@@ -1153,6 +1181,9 @@ import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
+import BlockFilter from '@/components/BlockFilter.vue';
+import FilterSelect from '@/components/FilterSelect.vue';
+import { blockFits, type ShapeFilter } from '@/render/layout-samples';
 import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
 import { itemId } from '@/model/identity';
@@ -1209,6 +1240,10 @@ import {
   addToCollection,
   colorChanged,
   blocksByLibrary,
+  categoryTree,
+  notecardMatches,
+  withSubcategories,
+  type GroupBy,
   linkState,
   saveCollection,
   addFabrics,
@@ -1267,9 +1302,76 @@ const split = computed(() => {
 });
 const blocks = computed(() => split.value.mine);
 const libBlocks = computed(() => split.value.library);
+/** Block filters, as on the Libraries page: categories (with subcategories), tags, styles, words,
+ *  and the layout / shape filter (spec 026). Own blocks take their library source's category. */
+const bf = reactive({
+  search: '',
+  cats: [] as string[],
+  tags: [] as string[],
+  styles: [] as string[],
+  layout: null as string | null,
+  shape: null as ShapeFilter | null,
+});
+const groupBy = ref<GroupBy>('category');
+const GROUP_BY = [
+  { label: 'Nothing', value: 'none' },
+  { label: 'Category', value: 'category' },
+  { label: 'Tags', value: 'tags' },
+  { label: 'Styles', value: 'styles' },
+];
+const libCats = computed(() => [
+  ...new Map(library.views.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
+]);
+const catOf = computed(() => {
+  const m = new Map<string, string>();
+  for (const v of library.views) for (const i of v.doc.items) m.set(i.data.id, i.category ?? '');
+  return m;
+});
+const blockCat = (b: Block) => catOf.value.get(b.source?.itemId ?? b.id) ?? '';
+const blockFiltering = computed(
+  () =>
+    !!bf.search || !!bf.layout || !!bf.shape || [bf.cats, bf.tags, bf.styles].some((f) => f.length),
+);
+const anyOf = (picked: string[], have: string[]) =>
+  !picked.length || picked.some((x) => have.includes(x));
+function blockShown(b: Block) {
+  return (
+    blockFits(b.shape, bf.layout, bf.shape) &&
+    anyOf(withSubcategories(libCats.value, bf.cats), [blockCat(b)]) &&
+    anyOf(bf.tags, b.notecard.tags ?? []) &&
+    anyOf(bf.styles, b.notecard.styles ?? []) &&
+    notecardMatches(b.notecard, bf.search ?? '')
+  );
+}
+const shownBlocks = computed(() => blocks.value.filter(blockShown));
+const blockFilterFields = computed(() => {
+  const all = [...blocks.value, ...libBlocks.value];
+  const values = (f: 'tags' | 'styles') =>
+    [...new Set(all.flatMap((b) => b.notecard[f] ?? []))]
+      .sort()
+      .map((t) => ({ label: t, value: t }));
+  // Categories the blocks use, with their parents.
+  const used = new Set(all.map(blockCat));
+  for (const c of libCats.value) if (used.has(c.id) && c.parent) used.add(c.parent);
+  const cats = libCats.value.filter((c) => used.has(c.id));
+  return [
+    {
+      key: 'cats' as const,
+      label: 'Category',
+      options: cats.length
+        ? [
+            ...categoryTree(cats).map((c) => ({ label: c.label, value: c.id })),
+            ...(used.has('') ? [{ label: 'Uncategorized', value: '' }] : []),
+          ]
+        : [],
+    },
+    { key: 'tags' as const, label: 'Tags', options: values('tags') },
+    { key: 'styles' as const, label: 'Styles', options: values('styles') },
+  ];
+});
 /** Library blocks per library, in category sections (blocks no installed library has: Other). */
 const libGroups = computed(() => {
-  const r = blocksByLibrary(library.views, libBlocks.value);
+  const r = blocksByLibrary(library.views, libBlocks.value.filter(blockShown), groupBy.value);
   const out = r.groups.map((g) => ({ lib: g.id, label: g.label, sections: g.sections }));
   const other = r.other;
   return other.length
@@ -2680,5 +2782,10 @@ watch(
   height: 48px;
   border-radius: 6px;
   border: 1px solid rgba(128, 128, 128, 0.4);
+}
+.block-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
 }
 </style>

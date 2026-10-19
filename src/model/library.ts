@@ -610,7 +610,11 @@ export function libraryGroups<
  * `blocks` by library, in sections: a library's category sections, or for a library of packs
  * (spec 014) one section per pack under the library's name. Blocks no library has are left out.
  */
-export function blocksByLibrary(views: readonly LibraryView[], blocks: readonly Block[]) {
+export function blocksByLibrary(
+  views: readonly LibraryView[],
+  blocks: readonly Block[],
+  by: GroupBy = 'category',
+) {
   const byId = new Map(blocks.map((b) => [b.id, b]));
   const seen = new Set<string>();
   const out = new Map<string, { id: string; label: string; sections: BlockSection[] }>();
@@ -625,7 +629,7 @@ export function blocksByLibrary(views: readonly LibraryView[], blocks: readonly 
     g.sections.push(
       ...(v.doc.library
         ? [{ key: v.doc.id, label: v.doc.name, blocks: bs, count: bs.length }]
-        : blockSections(v.doc, bs, 'category')),
+        : blockSections(v.doc, bs, by)),
     );
     out.set(lib.id, g);
   }
@@ -701,12 +705,19 @@ export function blockSections(doc: LibraryDoc, blocks: Block[], by: GroupBy): Bl
 
 /** Search names, notes, tags, and styles (all words must match), optionally in one category. */
 export function searchItems(items: readonly LibraryItem[], text: string, category?: string) {
+  return items.filter(
+    (i) =>
+      (category === undefined || (i.category ?? '') === category) &&
+      notecardMatches(i.data.notecard, text),
+  );
+}
+
+/** Every word of `text` is in the notecard's name, notes, tags or styles. */
+export function notecardMatches(
+  n: { name: string; notes?: string; tags?: string[]; styles?: string[] },
+  text: string,
+) {
   const words = text.toLowerCase().split(/\s+/).filter(Boolean);
-  return items.filter((i) => {
-    if (category !== undefined && (i.category ?? '') !== category) return false;
-    if (!words.length) return true;
-    const n = i.data.notecard;
-    const hay = [n.name, n.notes, ...(n.tags ?? []), ...(n.styles ?? [])].join(' ').toLowerCase();
-    return words.every((w) => hay.includes(w));
-  });
+  const hay = [n.name, n.notes, ...(n.tags ?? []), ...(n.styles ?? [])].join(' ').toLowerCase();
+  return words.every((w) => hay.includes(w));
 }

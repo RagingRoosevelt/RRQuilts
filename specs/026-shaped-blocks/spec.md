@@ -158,7 +158,9 @@ the hexagon spaces; a square block or a triangle block is refused with a hint; R
   Variable Patch's ids with `b:` in place of `p:` (contracts/slot-ids.md).
 - **FR-009**: The quilt editor's block sidebar MUST offer a layout filter (each block layout with a
   picture, showing only blocks whose shape its spaces take) and a shape filter (each shape with its
-  outline).
+  outline). The Libraries page and the project's Blocks tab MUST offer the same filters; the Blocks
+  tab also gets the Libraries page's Category, Tags, Styles, search and Group by (not its library
+  management box).
 
 ## Success Criteria *(mandatory)*
 

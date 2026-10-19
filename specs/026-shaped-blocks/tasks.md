@@ -31,3 +31,4 @@
 
 - [x] T013 Starter shaped blocks by type of block (Mosaics, Stars, Strips/Log Cabin, Curves); Kentucky, Columbia, Old Glory, Hexagon Beauty, Hexagon Orange Peel (curved starter defs)
 - [x] T014 Block sidebar filters: Fits layout (pictures) and Shape (outlines); wizard pictures shared via `src/render/layout-samples.ts`
+- [x] T015 Same block filters on the Libraries page and the project's Blocks tab (`FilterSelect.vue`, `notecardMatches`, `blocksByLibrary` group-by)

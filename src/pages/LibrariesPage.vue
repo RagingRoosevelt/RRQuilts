@@ -300,35 +300,12 @@
         </fieldset>
         <SlidePicker v-model="settings.settings.libraryType" :options="TYPE_OPTIONS" label="Type" />
         <template v-for="f in filterFields" :key="f.key">
-          <q-select
+          <FilterSelect
             v-if="f.options.length"
             v-model="filters[f.key]"
-            :options="f.options.filter((o) => o.label.toLowerCase().includes(needle[f.key]))"
+            :options="f.options"
             :label="f.label"
-            dense
-            outlined
-            multiple
-            use-chips
-            use-input
-            input-debounce="0"
-            emit-value
-            map-options
-            clearable
-            @clear="filters[f.key] = []"
-            @filter="
-              (v: string, done: (fn: () => void) => void) =>
-                done(() => (needle[f.key] = v.toLowerCase()))
-            "
-          >
-            <template #option="{ itemProps, opt, selected }">
-              <q-item v-bind="itemProps" dense>
-                <q-item-section side>
-                  <q-checkbox :model-value="selected" dense class="no-pointer-events" />
-                </q-item-section>
-                <q-item-section>{{ opt.label }}</q-item-section>
-              </q-item>
-            </template>
-          </q-select>
+          />
         </template>
         <q-input v-model="search" dense outlined clearable placeholder="Search names, notes">
           <template #prepend><q-icon name="search" /></template>
@@ -342,6 +319,11 @@
           dense
           outlined
           label="Group blocks by"
+        />
+        <BlockFilter
+          v-if="settings.settings.libraryType === 'block'"
+          v-model:layout="fitLayout"
+          v-model:shape="fitShape"
         />
         <!-- Table of contents (Blocks view): each library and its sections; click to jump. -->
         <template
@@ -1307,6 +1289,9 @@
 <script setup lang="ts">
 import ColoringCount from '@/components/ColoringCount.vue';
 import BlockSections from '@/components/BlockSections.vue';
+import BlockFilter from '@/components/BlockFilter.vue';
+import FilterSelect from '@/components/FilterSelect.vue';
+import { blockFits, type ShapeFilter } from '@/render/layout-samples';
 import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
 import HelpLink from '@/components/HelpLink.vue';
@@ -1841,6 +1826,9 @@ const counts = (v: LibraryView) =>
 const mineCount = computed(() => library.mine?.items.length ?? 0);
 
 const search = ref('');
+/** Block filter (spec 026): blocks that fit a layout, or of one shape. */
+const fitLayout = ref<string | null>(null);
+const fitShape = ref<ShapeFilter | null>(null);
 /** Selected values per filter; empty = any. Category '' = uncategorized. */
 const filters = reactive({
   cats: [] as string[],
@@ -1848,12 +1836,13 @@ const filters = reactive({
   styles: [] as string[],
 });
 /** What's typed in each dropdown to narrow its options. */
-const needle = reactive({ cats: '', tags: '', styles: '' });
 const filtering = computed(
   // The Type picker is a view choice, not a filter (it always has a value).
   () =>
     !!search.value ||
     !!hiddenLibs.value.length ||
+    !!fitLayout.value ||
+    !!fitShape.value ||
     [filters.cats, filters.tags, filters.styles].some((f) => f.length),
 );
 /** Every library shown; My library always, as an empty one until something is saved there. */
@@ -1927,7 +1916,8 @@ const matches = (i: LibraryItem) =>
   (!settings.settings.libraryType || i.type === settings.settings.libraryType) &&
   anyOf(withSubcategories(allCats.value, filters.cats), [i.category ?? '']) &&
   anyOf(filters.tags, i.data.notecard.tags ?? []) &&
-  anyOf(filters.styles, i.data.notecard.styles ?? []);
+  anyOf(filters.styles, i.data.notecard.styles ?? []) &&
+  (i.type !== 'block' || blockFits(i.data.shape, fitLayout.value, fitShape.value));
 const GROUP_BY = [
   { label: 'Nothing', value: 'none' },
   { label: 'Category', value: 'category' },
