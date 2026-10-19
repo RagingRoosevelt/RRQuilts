@@ -28,6 +28,9 @@ Owner, 2026-10-18 (addition): pieces can be scaled up or down while designing, s
 for example a 1u and a 2u diamond: an integer slider from 1 to 4 above the EPP shapes in the shape
 picker part of the sidebar.
 
+Owner, 2026-10-18 (edge): the quilter switches the edge between a trimmed straight edge, no
+trimming, and a custom trim specified in the layout.
+
 Related: spec 003 (project format, versions and migrations), spec 006 (quilt editor), spec 007
 (block editor, snapping), spec 008 / 011 (library items, packs), spec 009 (credits, licenses),
 spec 010 (printing, templates, yardage), spec 014 (fabrics), spec 026 (shaped blocks: triangle,
@@ -52,9 +55,14 @@ justification).
 - **Snap**: a dragged piece's edge settles onto a nearby edge of equal length, end to end, so the
   two would be sewn together.
 - **Rosette / group**: pieces picked together to move, turn, copy or recolor as one.
-- **Outline**: an EPP quilt's edge is wherever its outer pieces end: any shape, often jagged
-  (a hexagon garden's zigzag edge). There is no quilt rectangle, and binding and borders are
-  optional, not assumed.
+- **Outline**: an EPP quilt has no assumed shape and no quilt rectangle; binding and borders are
+  optional, not assumed. Its edge is set by the **edge trim**:
+  - **No trimming** (default): the edge is wherever the outer pieces end, often jagged (a hexagon
+    garden's zigzag edge).
+  - **Straight trim**: a rectangle cuts across the outer pieces. It starts as the largest rectangle
+    the pieces fill with no gaps, and the quilter can move its sides in the Layout tab.
+  - **Custom trim**: a trim outline the quilter draws or edits in the Layout tab (straight sides and
+    arcs, like a quilt target outline); pieces outside it are cut away.
 - **Seam allowance**: the fabric margin around the paper, set per quilt (default 3/8 in or 1 cm).
 - **3D (later)**: a **net** is a 2D arrangement plus **joins**: callouts saying edge A of one piece
   is sewn to edge B of another, though they don't touch in 2D. Folding the net so every join closes
@@ -216,8 +224,12 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   any overlap is, and the quilter rearranges.
 - **Mirror-image shapes** (e.g. a kite or a parallelogram): mirrored pieces print as their own
   templates (or flipped, with the template marked "reverse").
-- **No border or binding**: the default. Printing, yardage and the quilt's size use the pieces alone;
-  the size shown is the bounding box, labeled as such. Facing or turned edges are the quilter's
+- **No border or binding**: the default. With no trimming, printing, yardage and the quilt's size use
+  the pieces alone; the size shown is the bounding box, labeled as such.
+- **Trim through gaps**: a straight or custom trim line that crosses a hole or an empty area leaves
+  the edge open there; the Layout tab warns about it.
+- **Pieces wholly outside the trim**: they're shown faded and left out of templates and counts,
+  with a note. Facing or turned edges are the quilter's
   choice, not modeled.
 - **Gaps**: a design may leave holes; they're fine in 2D (appliqué onto a background is out of
   scope) and print as nothing.
@@ -234,10 +246,14 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 
 - **FR-001**: The app MUST offer an EPP quilt type, separate from layout-engine quilts, with a base
   dimension and a seam allowance per quilt.
-- **FR-001a**: An EPP quilt MUST NOT assume a rectangular (or any) outline: its size is the bounds of
-  its pieces, its edge follows the outer pieces, and borders and binding are off by default. When a
-  quilter adds them, binding follows the jagged edge (or the quilter picks a straight trim line or
-  appliqué onto a background, both later), and yardage counts it only when on.
+- **FR-001a**: An EPP quilt MUST NOT assume a rectangular (or any) outline. Borders and binding are
+  off by default. The Layout tab MUST offer the edge trim: **No trimming** (edge follows the outer
+  pieces), **Straight trim** (an adjustable rectangle) or **Custom trim** (an outline set in the
+  Layout tab). The quilt's size, the drawing, borders and binding follow the chosen edge; yardage
+  counts binding and borders only when on.
+- **FR-001b**: Trimming MUST NOT change the templates: pieces are made whole (papers are whole
+  shapes) and trimmed after assembly, so templates and fabric counts are for whole pieces; the
+  print notes the trim line and its size.
 - **FR-002**: EPP shapes MUST be simple closed polygons whose edge lengths are whole multiples of the
   quilt's base dimension (first release; relaxing this is later).
 - **FR-003**: Placing and dragging pieces MUST snap equal-length edges together end to end (and short
@@ -266,7 +282,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 
 - **EppShape**: id, notecard, outline (edge lengths in units and corner angles, or vertices in units),
   default fill, credits, license; a library item type alongside blocks and palettes.
-- **EppQuilt**: base dimension, seam allowance, optional binding (off by default), pieces, groups, colorways; later `joins` and a 3D flag.
+- **EppQuilt**: base dimension, seam allowance, edge trim (none / straight rectangle / custom
+  outline), optional binding and borders (off by default), pieces, groups, colorways; later `joins` and a 3D flag.
 - **Piece**: shape ref, position, turn, mirror, scale (1-4), fill.
 - **Rosette**: a saved group of pieces (shape refs, relative positions, fills).
 - **Join** (later): two (piece, edge) pairs.
