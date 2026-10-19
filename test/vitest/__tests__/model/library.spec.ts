@@ -372,7 +372,7 @@ describe('library search', () => {
       produce(one, (d) => {
         d.data.id = `jane.b${i}`;
         d.data.notecard.name = `Block ${i}`;
-        d.data.notecard.styles = i % 2 ? ['eight-point'] : [];
+        d.data.notecard.tags = i % 2 ? ['eight-point'] : [];
       }),
     );
     expect(searchItems(items, 'eight point')).toHaveLength(250);

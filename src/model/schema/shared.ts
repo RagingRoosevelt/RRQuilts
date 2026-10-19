@@ -13,13 +13,32 @@ export const Size = Type.Tuple([positive, positive]);
 const byte = Type.Integer({ minimum: 0, maximum: 255 });
 export const RGB = Type.Tuple([byte, byte, byte]);
 
+/** How a block's author meant it to be made (spec 029); several may apply. */
+export const Technique = Type.Union([
+  Type.Literal('machine'),
+  Type.Literal('hand'),
+  Type.Literal('fpp'),
+  Type.Literal('epp'),
+  Type.Literal('applique'),
+]);
+export type Technique = Type.Static<typeof Technique>;
+/** Display names, in the order pickers list them. */
+export const TECHNIQUES: Record<Technique, string> = {
+  machine: 'Machine piecing',
+  hand: 'Hand piecing',
+  fpp: 'Foundation paper piecing',
+  epp: 'English paper piecing',
+  applique: 'Appliqué',
+};
+
 export const Notecard = Type.Object({
   name: Type.String(),
   notes: Type.Optional(Type.String()),
   reference: Type.Optional(Type.String()),
+  /** The quilter's own filing words (spec 029: on items they own; others' are kept in My library). */
   tags: Type.Optional(Type.Array(Type.String())),
-  /** A user-managed kind of tag ("eight-point"), shown and searched apart from plain tags. */
-  styles: Type.Optional(Type.Array(Type.String())),
+  /** Set by the item's author (spec 029; replaced the free-text `styles`, which became tags). */
+  techniques: Type.Optional(Type.Array(Technique)),
   categories: Type.Optional(Type.Array(Type.String())),
 });
 

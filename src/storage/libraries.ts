@@ -1,5 +1,6 @@
 // Libraries on this device (spec 011): My library and each installed pack, one record each.
 import type { LibraryDoc } from '@/model/schema/library';
+import { stylesToTags } from '@/model/tags';
 import { idb } from './idb';
 
 interface Row {
@@ -10,9 +11,10 @@ const MINE = 'mine';
 
 export async function loadLibraries() {
   const rows = await idb.getAll<Row>('libraries');
+  // Saved before spec 029: styles become tags (does nothing to newer ones).
   return {
-    mine: rows.find((r) => r.id === MINE)?.doc,
-    packs: rows.filter((r) => r.id.startsWith('pack:')).map((r) => r.doc),
+    mine: stylesToTags(rows.find((r) => r.id === MINE)?.doc),
+    packs: rows.filter((r) => r.id.startsWith('pack:')).map((r) => stylesToTags(r.doc)),
   };
 }
 export const putMine = (doc: LibraryDoc) => idb.put<Row>('libraries', { id: MINE, doc });

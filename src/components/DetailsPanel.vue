@@ -129,6 +129,23 @@
       @blur="(e: Event) => set('notes', (e.target as HTMLInputElement).value, true)"
     />
 
+    <!-- How the block's author meant it to be made (spec 029); a library block's is read-only. -->
+    <div v-if="block">
+      <div class="text-subtitle2">Technique</div>
+      <q-option-group
+        v-if="!ro && !isLibraryItem(block)"
+        :model-value="block.notecard.techniques ?? []"
+        type="checkbox"
+        dense
+        inline
+        :options="TECHNIQUE_OPTIONS"
+        @update:model-value="setTechniques"
+      />
+      <div v-else class="text-body2">
+        {{ techniqueNames || 'Not given' }}
+      </div>
+    </div>
+
     <div v-if="quilt" class="row items-center" style="gap: 8px">
       <q-btn outline no-caps icon="download" label="Download image" @click="downloadImage" />
       <div v-if="quilt.target?.visible" class="text-caption text-grey-7 col">
@@ -176,6 +193,7 @@
 <script setup lang="ts">
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import { saveQuiltImage } from '@/render/save-image';
+import { TECHNIQUES, type Technique } from '@/model/schema/shared';
 import { useLibraryStore } from '@/stores/library';
 // Details tab (spec 009): title, notes, author, license, and who to credit — for the project, a
 // quilt, or a block. Each field is its own coalesced undo step.
@@ -231,6 +249,24 @@ const item = computed(() => {
   );
 });
 
+/** The block (Details of a block): its technique. */
+const block = computed(() =>
+  props.kind === 'block' && target.value && 'size' in target.value ? target.value : undefined,
+);
+const TECHNIQUE_OPTIONS = Object.entries(TECHNIQUES).map(([value, label]) => ({ value, label }));
+const techniqueNames = computed(() =>
+  (block.value?.notecard.techniques ?? []).map((x) => TECHNIQUES[x]).join(', '),
+);
+function setTechniques(v: Technique[]) {
+  // In list order, so the same choice is always stored the same way.
+  const list = (Object.keys(TECHNIQUES) as Technique[]).filter((t) => v.includes(t));
+  project.change((d) => {
+    const b = d.project.blocks.find((x) => x.id === props.id);
+    if (!b) return;
+    if (list.length) b.notecard.techniques = list;
+    else delete b.notecard.techniques;
+  });
+}
 /** The quilt (Details of a quilt): its picture can be downloaded. */
 const quilt = computed(() =>
   props.kind === 'quilt' && target.value && 'layout' in target.value ? target.value : undefined,

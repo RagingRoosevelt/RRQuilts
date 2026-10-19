@@ -1,5 +1,7 @@
 // Libraries (spec 011), framework-free: My library edits, linked copies, lookup over every library.
 // Library content is in inches; items get their `source` when looked up, not in storage.
+import { visibleTags } from './tags';
+import { TECHNIQUES, type Technique } from './schema/shared';
 import { produce } from 'immer';
 import { canonicalContent, contentVersion, itemId, stableStringify } from './identity';
 import { creditCopy, settleCredits } from './credits';
@@ -276,7 +278,7 @@ export const removeItem = (lib: LibraryDoc, id: string): LibraryDoc => ({
   items: lib.items.filter((i) => i.data.id !== id),
 });
 
-/** Name, notes, tags, styles: not part of the content version. */
+/** Name, notes, tags, techniques: not part of the content version. */
 export const setNotecard = (
   lib: LibraryDoc,
   id: string,
@@ -285,7 +287,7 @@ export const setNotecard = (
   mapItem(lib, id, (i) =>
     produce(i, (d) => {
       Object.assign(d.data.notecard, patch);
-      for (const k of ['notes', 'tags', 'styles'] as const) {
+      for (const k of ['notes', 'tags', 'techniques'] as const) {
         const v = d.data.notecard[k];
         if (v === undefined || v === '' || (Array.isArray(v) && !v.length))
           delete d.data.notecard[k];
@@ -614,6 +616,7 @@ export function blocksByLibrary(
   views: readonly LibraryView[],
   blocks: readonly Block[],
   by: GroupBy = 'category',
+  tagsOf?: (b: Block) => readonly string[],
 ) {
   const byId = new Map(blocks.map((b) => [b.id, b]));
   const seen = new Set<string>();
@@ -629,7 +632,7 @@ export function blocksByLibrary(
     g.sections.push(
       ...(v.doc.library
         ? [{ key: v.doc.id, label: v.doc.name, blocks: bs, count: bs.length }]
-        : blockSections(v.doc, bs, by)),
+        : blockSections(v.doc, bs, by, tagsOf)),
     );
     out.set(lib.id, g);
   }
@@ -640,7 +643,7 @@ export function blocksByLibrary(
   return { groups: [...out.values()], other: blocks.filter((b) => !seen.has(b.id)) };
 }
 
-export type GroupBy = 'none' | 'category' | 'tags' | 'styles';
+export type GroupBy = 'none' | 'category' | 'tags' | 'techniques';
 export interface BlockSection {
   /** Unique within the library; a subcategory's is "Parent / Child". */
   key: string;
@@ -654,10 +657,16 @@ export interface BlockSection {
 
 /**
  * A library's blocks in sections: categories in the library's order, each top-level one holding
- * its own blocks then its subcategories (then Uncategorized); or tags/styles A–Z (then None; a
- * block with several shows under each). `none`: one unlabelled section.
+ * its own blocks then its subcategories (then Uncategorized); or tags A–Z / techniques in list order
+ * (then None; a block with several shows under each). `none`: one unlabelled section. `tagsOf`: the
+ * quilter's tags on a block (spec 029: with those kept in My library); default its own.
  */
-export function blockSections(doc: LibraryDoc, blocks: Block[], by: GroupBy): BlockSection[] {
+export function blockSections(
+  doc: LibraryDoc,
+  blocks: Block[],
+  by: GroupBy,
+  tagsOf: (b: Block) => readonly string[] = (b) => visibleTags(b.notecard.tags),
+): BlockSection[] {
   const sec = (key: string, label: string, bs: Block[], parent?: string): BlockSection => ({
     key,
     label,
@@ -684,14 +693,20 @@ export function blockSections(doc: LibraryDoc, blocks: Block[], by: GroupBy): Bl
     const none = blocks.filter((b) => !known.has(catOf.get(b.id) ?? ''));
     return none.length ? [...out, sec('Uncategorized', 'Uncategorized', none)] : out;
   }
-  const keysOf = (b: Block) => b.notecard[by] ?? [];
-  const keys = [...new Set(blocks.flatMap(keysOf))].sort();
-  const none = `No ${by}`;
+  const keysOf = (b: Block): readonly string[] =>
+    by === 'tags' ? tagsOf(b) : (b.notecard.techniques ?? []);
+  const used = new Set(blocks.flatMap(keysOf));
+  const keys =
+    by === 'tags'
+      ? [...used].sort((a, b) => a.localeCompare(b))
+      : Object.keys(TECHNIQUES).filter((t) => used.has(t));
+  const label = (k: string) => (by === 'tags' ? k : TECHNIQUES[k as Technique]);
+  const none = by === 'tags' ? 'No tags' : 'No technique';
   return [
     ...keys.map((k) =>
       sec(
         k,
-        k,
+        label(k),
         blocks.filter((b) => keysOf(b).includes(k)),
       ),
     ),
@@ -703,21 +718,30 @@ export function blockSections(doc: LibraryDoc, blocks: Block[], by: GroupBy): Bl
   ].filter((x) => x.count);
 }
 
-/** Search names, notes, tags, and styles (all words must match), optionally in one category. */
-export function searchItems(items: readonly LibraryItem[], text: string, category?: string) {
+/** Search names, notes, tags, and techniques (all words must match), optionally in one category. */
+export function searchItems(
+  items: readonly LibraryItem[],
+  text: string,
+  category?: string,
+  tagsOf?: (i: LibraryItem) => readonly string[],
+) {
   return items.filter(
     (i) =>
       (category === undefined || (i.category ?? '') === category) &&
-      notecardMatches(i.data.notecard, text),
+      notecardMatches(i.data.notecard, text, tagsOf?.(i)),
   );
 }
 
-/** Every word of `text` is in the notecard's name, notes, tags or styles. */
+/** Every word of `text` is in the notecard's name, notes, tags (`tags`: the quilter's, spec 029) or
+ *  technique names. */
 export function notecardMatches(
-  n: { name: string; notes?: string; tags?: string[]; styles?: string[] },
+  n: { name: string; notes?: string; tags?: string[]; techniques?: Technique[] },
   text: string,
+  tags: readonly string[] = visibleTags(n.tags),
 ) {
   const words = text.toLowerCase().split(/\s+/).filter(Boolean);
-  const hay = [n.name, n.notes, ...(n.tags ?? []), ...(n.styles ?? [])].join(' ').toLowerCase();
+  const hay = [n.name, n.notes, ...tags, ...(n.techniques ?? []).map((t) => TECHNIQUES[t])]
+    .join(' ')
+    .toLowerCase();
   return words.every((w) => hay.includes(w));
 }

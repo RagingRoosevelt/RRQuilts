@@ -24,7 +24,7 @@ export interface Settings {
   /** Quilt editor Design sidebar: last tab. */
   trayTab: 'blocks' | 'colors';
   /** Libraries page: blocks in sections by category, tag, or style. */
-  libraryGroupBy: 'none' | 'category' | 'tags' | 'styles';
+  libraryGroupBy: 'none' | 'category' | 'tags' | 'techniques';
   /** Project (sketchbook) page: last tab. */
   projectTab: 'quilts' | 'blocks' | 'colors' | 'photos' | 'threads' | 'details';
   /** Your socials (GitHub, a pattern shop, …): a known or free-text type and a handle (or link). */
@@ -142,7 +142,8 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   sidesSwapped: (v) => typeof v === 'boolean',
   osAccent: (v) => typeof v === 'boolean',
   trayTab: (v) => v === 'blocks' || v === 'colors',
-  libraryGroupBy: (v) => v === 'none' || v === 'category' || v === 'tags' || v === 'styles',
+  // 'styles' (before spec 029) falls back to the default.
+  libraryGroupBy: (v) => v === 'none' || v === 'category' || v === 'tags' || v === 'techniques',
   libraryType: (v) => v === 'block' || v === 'colors' || v === '',
   socials: (v) =>
     Array.isArray(v) &&

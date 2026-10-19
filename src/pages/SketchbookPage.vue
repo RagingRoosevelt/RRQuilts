@@ -342,6 +342,17 @@
                           /></q-item-section>
                           <q-item-section>Save image</q-item-section>
                         </q-item>
+                        <q-item
+                          v-if="!project.readOnly"
+                          v-close-popup
+                          clickable
+                          @click="tagBlock(b)"
+                        >
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="sell"
+                          /></q-item-section>
+                          <q-item-section>Tags & technique…</q-item-section>
+                        </q-item>
                         <template v-if="!project.readOnly && !blockFiltering">
                           <q-item
                             v-close-popup
@@ -489,6 +500,12 @@
                                   ><q-icon name="image"
                                 /></q-item-section>
                                 <q-item-section>Save image</q-item-section>
+                              </q-item>
+                              <q-item v-close-popup clickable @click="tagBlock(b)">
+                                <q-item-section avatar class="menu-icon"
+                                  ><q-icon name="sell"
+                                /></q-item-section>
+                                <q-item-section>Tags…</q-item-section>
                               </q-item>
                               <q-item
                                 v-if="otherVersions.has(b.id) && !project.readOnly"
@@ -1196,6 +1213,13 @@
       </q-card>
     </q-dialog>
     <QuiltWizard ref="wizard" :units="project.doc.units" @create="startQuilt" />
+    <!-- Tags (and technique on the project's own blocks), spec 029 -->
+    <TagsDialog
+      :target="tagging?.target ?? null"
+      :vocabulary="tagVocabulary"
+      @close="tagging = null"
+      @save="saveTags"
+    />
   </q-page>
 </template>
 
@@ -1254,6 +1278,9 @@ import { useLibraryStore } from '@/stores/library';
 import { revealSection, useCollapsed } from '@/composables/block-sections';
 import { socialsOut } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
+import TagsDialog from '@/components/TagsDialog.vue';
+import { TECHNIQUES, type Technique } from '@/model/schema/shared';
+import { cleanTags, INTERNAL_TAGS, tagsFor, visibleTags, type TagTarget } from '@/model/tags';
 import { useAuthor } from '@/composables/author';
 import { useAskCategory } from '@/composables/category';
 import {
@@ -1368,7 +1395,7 @@ const bf = reactive({
   search: '',
   cats: [] as string[],
   tags: [] as string[],
-  styles: [] as string[],
+  techniques: [] as string[],
   layout: null as string | null,
   shape: null as ShapeFilter | null,
 });
@@ -1377,7 +1404,7 @@ const GROUP_BY = [
   { label: 'Nothing', value: 'none' },
   { label: 'Category', value: 'category' },
   { label: 'Tags', value: 'tags' },
-  { label: 'Styles', value: 'styles' },
+  { label: 'Technique', value: 'techniques' },
 ];
 const libCats = computed(() => [
   ...new Map(library.views.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
@@ -1390,17 +1417,68 @@ const catOf = computed(() => {
 const blockCat = (b: Block) => catOf.value.get(b.source?.itemId ?? b.id) ?? '';
 const blockFiltering = computed(
   () =>
-    !!bf.search || !!bf.layout || !!bf.shape || [bf.cats, bf.tags, bf.styles].some((f) => f.length),
+    !!bf.search ||
+    !!bf.layout ||
+    !!bf.shape ||
+    [bf.cats, bf.tags, bf.techniques].some((f) => f.length),
 );
-const anyOf = (picked: string[], have: string[]) =>
+const anyOf = (picked: string[], have: readonly string[]) =>
   !picked.length || picked.some((x) => have.includes(x));
+/** The quilter's tags (spec 029): a library block's are kept in My library by its id; the
+ *  project's own blocks carry theirs. */
+const tagsOfBlock = (b: Block) =>
+  isLibraryItem(b) ? tagsFor(b.notecard.tags, [b.id], library.kept) : visibleTags(b.notecard.tags);
+const tagVocabulary = computed(() =>
+  cleanTags([
+    ...library.tagVocabulary,
+    ...blocks.value.flatMap((b) => visibleTags(b.notecard.tags)),
+  ]),
+);
+const tagging = ref<{ block: Block; target: TagTarget } | null>(null);
+function tagBlock(b: Block) {
+  const own = !isLibraryItem(b);
+  tagging.value = {
+    block: b,
+    target: {
+      name: b.notecard.name,
+      tags: tagsOfBlock(b),
+      techniques: b.notecard.techniques ?? [],
+      editTechniques: own && !project.readOnly,
+    },
+  };
+}
+function saveTags(v: { tags: string[]; techniques: Technique[] }) {
+  const b = tagging.value!.block;
+  tagging.value = null;
+  if (isLibraryItem(b)) {
+    // Tags a library block came with stay (they're its library's); the quilter's are kept.
+    const theirs = new Set(visibleTags(b.notecard.tags));
+    void library.setKeptTags(
+      settings.settings.author,
+      b.id,
+      v.tags.filter((t) => !theirs.has(t)),
+    );
+    return;
+  }
+  project.change((d) => {
+    const n = d.project.blocks.find((x) => x.id === b.id)?.notecard;
+    if (!n) return;
+    // Internal tags (the plain block's) stay as they are.
+    const internal = (n.tags ?? []).filter((t) => INTERNAL_TAGS.has(t));
+    const tags = [...internal, ...v.tags];
+    if (tags.length) n.tags = tags;
+    else delete n.tags;
+    if (v.techniques.length) n.techniques = v.techniques;
+    else delete n.techniques;
+  });
+}
 function blockShown(b: Block) {
   return (
     blockFits(b.shape, bf.layout, bf.shape) &&
     anyOf(withSubcategories(libCats.value, bf.cats), [blockCat(b)]) &&
-    anyOf(bf.tags, b.notecard.tags ?? []) &&
-    anyOf(bf.styles, b.notecard.styles ?? []) &&
-    notecardMatches(b.notecard, bf.search ?? '')
+    anyOf(bf.tags, tagsOfBlock(b)) &&
+    anyOf(bf.techniques, b.notecard.techniques ?? []) &&
+    notecardMatches(b.notecard, bf.search ?? '', tagsOfBlock(b))
   );
 }
 /** Phones: the filter sidebar flies over the page, just under the app's header. */
@@ -1419,10 +1497,13 @@ function jumpTo(id: string) {
 const shownBlocks = computed(() => blocks.value.filter(blockShown));
 const blockFilterFields = computed(() => {
   const all = [...blocks.value, ...libBlocks.value];
-  const values = (f: 'tags' | 'styles') =>
-    [...new Set(all.flatMap((b) => b.notecard[f] ?? []))]
-      .sort()
-      .map((t) => ({ label: t, value: t }));
+  const tagValues = [...new Set(all.flatMap(tagsOfBlock))]
+    .sort((a, b) => a.localeCompare(b))
+    .map((t) => ({ label: t, value: t }));
+  const usedTechniques = new Set(all.flatMap((b) => b.notecard.techniques ?? []));
+  const techniqueValues = Object.entries(TECHNIQUES)
+    .filter(([t]) => usedTechniques.has(t as Technique))
+    .map(([value, label]) => ({ label, value }));
   // Categories the blocks use, with their parents.
   const used = new Set(all.map(blockCat));
   for (const c of libCats.value) if (used.has(c.id) && c.parent) used.add(c.parent);
@@ -1438,13 +1519,18 @@ const blockFilterFields = computed(() => {
           ]
         : [],
     },
-    { key: 'tags' as const, label: 'Tags', options: values('tags') },
-    { key: 'styles' as const, label: 'Styles', options: values('styles') },
+    { key: 'tags' as const, label: 'Tags', options: tagValues },
+    { key: 'techniques' as const, label: 'Technique', options: techniqueValues },
   ];
 });
 /** Library blocks per library, in category sections (blocks no installed library has: Other). */
 const libGroups = computed(() => {
-  const r = blocksByLibrary(library.views, libBlocks.value.filter(blockShown), groupBy.value);
+  const r = blocksByLibrary(
+    library.views,
+    libBlocks.value.filter(blockShown),
+    groupBy.value,
+    tagsOfBlock,
+  );
   const out = r.groups.map((g) => ({ lib: g.id, label: g.label, sections: g.sections }));
   const other = r.other;
   return other.length

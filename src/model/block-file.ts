@@ -1,5 +1,6 @@
 // Single-block files (.rrqbl): one block plus the colors its own colorings use. Imported blocks are
 // the user's own (editable); the original author stays credited (constitution Principle VI).
+import { stylesToTags, withoutTags } from './tags';
 import { produce } from 'immer';
 import Type from 'typebox';
 import Value from 'typebox/value';
@@ -52,7 +53,8 @@ export function blockFile(
     units,
     ...(author ? { author } : {}),
     ...(author && socials.length ? { authorSocials: socials } : {}),
-    block,
+    // The quilter's tags stay home (spec 029); technique travels.
+    block: withoutTags(block),
     colors,
   };
 }
@@ -74,6 +76,8 @@ export function parseBlockFile(
   if (typeof r.version === 'number' && r.version > BLOCK_VERSION) {
     return { ok: false, error: 'This block is from a newer RRQuilts. Update the app to open it.' };
   }
+  // v2 (spec 029): notecard styles became tags.
+  raw = stylesToTags(raw);
   if (!Value.Check(BlockFile, raw)) {
     const e = [...Value.Errors(BlockFile, raw)][0];
     return {

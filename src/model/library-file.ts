@@ -1,5 +1,6 @@
 // .rrqlib files (spec 002, amended by spec 011): read untrusted library documents item by item,
 // write backups (My library + installed packs) and packs (license-checked).
+import { stylesToTags, withoutTags } from './tags';
 import type { TSchema } from 'typebox';
 import Value from 'typebox/value';
 import { authorOf, noSharing, priorCredits, requiredLicense } from './credits';
@@ -47,6 +48,9 @@ export function parseLibraryValue(raw: unknown, nested = false): LibraryParse {
     return fail('Library file has an invalid version.');
   if (raw.version > LIBRARY_VERSION)
     return fail('This library is from a newer RRQuilts. Update the app to open it.');
+  // v4 (spec 029): notecard styles became tags.
+  raw = stylesToTags(raw);
+  if (!isObject(raw)) return fail('Not an RRQuilts library file.');
   // Bad web page links don't spoil the library: they're dropped and listed.
   const badLinks = 'links' in raw && !Value.Check(Links, raw.links);
   if (badLinks) raw = Object.fromEntries(Object.entries(raw).filter(([k]) => k !== 'links'));
@@ -156,13 +160,16 @@ export interface PackMeta {
  */
 export function packDoc(mine: LibraryDoc, me: string, meta: PackMeta) {
   const excluded: string[] = [];
-  const items = mine.items.filter((i) => {
-    if (meta.only && !meta.only.includes(i.data.id)) return false;
-    const theirs = (authorOf(i.data) ?? '') !== me;
-    const keep = !(theirs && noSharing(i.data.license));
-    if (!keep) excluded.push(i.data.notecard.name);
-    return keep;
-  });
+  const items = mine.items
+    .filter((i) => {
+      if (meta.only && !meta.only.includes(i.data.id)) return false;
+      const theirs = (authorOf(i.data) ?? '') !== me;
+      const keep = !(theirs && noSharing(i.data.license));
+      if (!keep) excluded.push(i.data.notecard.name);
+      return keep;
+    })
+    // The maker's tags are their private filing (spec 029); technique travels.
+    .map((i) => ({ ...i, data: withoutTags(i.data) }) as LibraryItem);
   const sources = items.flatMap((i) => [
     { ...(i.data.license ? { license: i.data.license } : {}), name: i.data.notecard.name },
     ...priorCredits(i.data),

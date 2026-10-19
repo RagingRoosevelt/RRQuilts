@@ -1,4 +1,5 @@
 // Load/save .rrq files. Input is untrusted: parse, migrate, validate, then check integrity.
+import { stylesToTags } from './tags';
 import Value from 'typebox/value';
 import { findDuplicateIds, newId } from './ids';
 import type { Asset } from './schema/shared';
@@ -69,7 +70,10 @@ export const migrations: Migrations = {
   // v7 (spec 026): shaped blocks, 60° placement turns, Shaped Blocks and Diamond Point layouts, flow
   // angles (all additive). Baby Blocks now hold blocks; older Baby Blocks quilts were painted
   // patches, so they become Variable Patch (`variable-blocks`) with the same sizes and patch ids.
-  6: (doc) => {
+  // v7: spec 026 Baby Blocks hold blocks (the old patch Baby Blocks is Variable Patch), and spec 029
+  // notecard styles (the quilter's own words) become tags.
+  6: (raw) => {
+    const doc = stylesToTags(raw);
     const project = isObject(doc.project) ? doc.project : undefined;
     if (!project || !Array.isArray(project.quilts)) return doc;
     const quilts = project.quilts.map((q: unknown) =>

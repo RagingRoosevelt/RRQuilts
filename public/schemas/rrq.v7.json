@@ -129,10 +129,31 @@
                           "type": "string"
                         }
                       },
-                      "styles": {
+                      "techniques": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "machine"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hand"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fpp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "epp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "applique"
+                            }
+                          ]
                         }
                       },
                       "categories": {
@@ -366,10 +387,31 @@
                           "type": "string"
                         }
                       },
-                      "styles": {
+                      "techniques": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "machine"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hand"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fpp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "epp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "applique"
+                            }
+                          ]
                         }
                       },
                       "categories": {
@@ -513,10 +555,31 @@
                           "type": "string"
                         }
                       },
-                      "styles": {
+                      "techniques": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "machine"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hand"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fpp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "epp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "applique"
+                            }
+                          ]
                         }
                       },
                       "categories": {
@@ -735,10 +798,31 @@
                           "type": "string"
                         }
                       },
-                      "styles": {
+                      "techniques": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "machine"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hand"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fpp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "epp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "applique"
+                            }
+                          ]
                         }
                       },
                       "categories": {
@@ -1365,10 +1449,31 @@
                           "type": "string"
                         }
                       },
-                      "styles": {
+                      "techniques": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "machine"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hand"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fpp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "epp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "applique"
+                            }
+                          ]
                         }
                       },
                       "categories": {
@@ -1857,10 +1962,31 @@
                           "type": "string"
                         }
                       },
-                      "styles": {
+                      "techniques": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "machine"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hand"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fpp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "epp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "applique"
+                            }
+                          ]
                         }
                       },
                       "categories": {
@@ -2552,10 +2678,31 @@
                           "type": "string"
                         }
                       },
-                      "styles": {
+                      "techniques": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "machine"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hand"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fpp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "epp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "applique"
+                            }
+                          ]
                         }
                       },
                       "categories": {
@@ -3133,10 +3280,31 @@
                           "type": "string"
                         }
                       },
-                      "styles": {
+                      "techniques": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "machine"
+                            },
+                            {
+                              "type": "string",
+                              "const": "hand"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fpp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "epp"
+                            },
+                            {
+                              "type": "string",
+                              "const": "applique"
+                            }
+                          ]
                         }
                       },
                       "categories": {
@@ -4357,10 +4525,31 @@
                       "type": "string"
                     }
                   },
-                  "styles": {
+                  "techniques": {
                     "type": "array",
                     "items": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "machine"
+                        },
+                        {
+                          "type": "string",
+                          "const": "hand"
+                        },
+                        {
+                          "type": "string",
+                          "const": "fpp"
+                        },
+                        {
+                          "type": "string",
+                          "const": "epp"
+                        },
+                        {
+                          "type": "string",
+                          "const": "applique"
+                        }
+                      ]
                     }
                   },
                   "categories": {
@@ -4511,10 +4700,31 @@
                       "type": "string"
                     }
                   },
-                  "styles": {
+                  "techniques": {
                     "type": "array",
                     "items": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "machine"
+                        },
+                        {
+                          "type": "string",
+                          "const": "hand"
+                        },
+                        {
+                          "type": "string",
+                          "const": "fpp"
+                        },
+                        {
+                          "type": "string",
+                          "const": "epp"
+                        },
+                        {
+                          "type": "string",
+                          "const": "applique"
+                        }
+                      ]
                     }
                   },
                   "categories": {
@@ -4674,10 +4884,31 @@
                       "type": "string"
                     }
                   },
-                  "styles": {
+                  "techniques": {
                     "type": "array",
                     "items": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "machine"
+                        },
+                        {
+                          "type": "string",
+                          "const": "hand"
+                        },
+                        {
+                          "type": "string",
+                          "const": "fpp"
+                        },
+                        {
+                          "type": "string",
+                          "const": "epp"
+                        },
+                        {
+                          "type": "string",
+                          "const": "applique"
+                        }
+                      ]
                     }
                   },
                   "categories": {
