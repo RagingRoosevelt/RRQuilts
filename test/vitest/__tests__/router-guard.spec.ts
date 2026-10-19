@@ -28,12 +28,4 @@ describe('open-project guard', () => {
       expect(projectGuard(resolve(p), false)).toBe(true);
     }
   });
-
-  it('sends gist links to Home, open project or not', () => {
-    for (const open of [false, true])
-      expect(projectGuard({ ...resolve('/project'), query: { open_gist: 'abc' } }, open)).toEqual({
-        path: '/',
-        query: { open_gist: 'abc' },
-      });
-  });
 });

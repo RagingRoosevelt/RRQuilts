@@ -147,7 +147,7 @@ chart; editing controls are absent with a "edit on tablet or desktop" note.
   and the picked one opens like a picked file with no file to save back to (Save asks where). Only
   on request, never in the background; offline or unreachable is reported (constitution 1.12.0,
   Principle II). **Restore unsaved project** sits below Recent projects.
-  A link `/?open_gist=<gist link or id>` (also accepted on `/project…`, sent to Home) asks
+  A link `/?open_gist=<gist link or id>` asks
   "Open a project from this gist?" and then does the same; nothing is fetched before the user agrees.
 - **FR-003**: The sketchbook MUST show tabbed card grids (Quilts, Blocks, Fabrics & Colors, Photos,
   Threads; Embroidery when present) with notecards and actions (open, duplicate as variation, delete,

@@ -59,15 +59,11 @@ const routes: RouteRecordRaw[] = [
   { path: '/:catchAll(.*)*', component: () => import('@/pages/NotFoundPage.vue') },
 ];
 
-/** Project screens need an open project; otherwise go home with a notice. A gist link
- *  (`?open_gist=`) is opened from Home, whichever page it names. */
+/** Project screens need an open project; otherwise go home with a notice. */
 export function projectGuard(
-  to: { meta: { requiresProject?: boolean }; query?: Record<string, unknown> },
+  to: { meta: { requiresProject?: boolean } },
   projectOpen: boolean,
 ): true | RouteLocationRaw {
-  const gist = to.query?.open_gist;
-  if (to.meta.requiresProject && typeof gist === 'string')
-    return { path: '/', query: { open_gist: gist } };
   return to.meta.requiresProject && !projectOpen
     ? { path: '/', query: { notice: 'open-project' } }
     : true;

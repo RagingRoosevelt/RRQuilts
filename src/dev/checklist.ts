@@ -210,7 +210,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-035',
     group: G.small,
-    text: 'Home › Open from a gist: paste a gist link with one .rrq (opens), with several (asks which), with none or a wrong link (says so), offline (says so). Save then asks where. Restore unsaved project now sits below Recent projects. The link /?open_gist=<gist link> (and /project?open_gist=…) asks first, then opens it.',
+    text: 'Home › Open from a gist: paste a gist link with one .rrq (opens), with several (asks which), with none or a wrong link (says so), offline (says so). Save then asks where. Restore unsaved project now sits below Recent projects. The link /?open_gist=<gist link> asks first, then opens it.',
     to: '/',
   },
 ];

@@ -1,0 +1,1 @@
+import{v as e,y as t}from"./project-D3lyAPKS.js";import{i as n}from"./index-BNZE0V7J.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};
