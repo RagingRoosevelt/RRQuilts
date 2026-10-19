@@ -1,10 +1,21 @@
-// Manual testing checklist (Tests tab, dev server only). Each check shows as <build>-TC-### (the
-// build under test: the app version) and its progress is kept under that id, so every build is
-// tested afresh. Ids (TC-###) are stable: reword an item freely, but give a changed check a new id.
-/** The build under test. */
-export const BUILD = import.meta.env.APP_VERSION;
-/** A check's full id, as shown and as its progress is kept: 0.4.0-TC-001. */
-export const checkId = (c: Check) => `${BUILD}-${c.id}`;
+// Manual testing checklist (Tests tab, dev server only). Each check shows as <build>-TC-###: the
+// build is the release plus the commit after it (0.4.0+7ed7f8d; plain 0.4.0 on the release itself).
+// Progress is kept per release line, so it survives new commits, and each result remembers the build
+// it was tested on. Ids (TC-###) are stable: reword an item freely, but give a changed check a new id.
+/** The release line progress is kept under. */
+export const VERSION = import.meta.env.APP_VERSION;
+/** The exact build being tested, from the dev server (the version alone if it can't say). */
+export async function fetchBuild(): Promise<string> {
+  try {
+    const r = await fetch(`${import.meta.env.BASE_URL}__dev/build`);
+    const j = (await r.json()) as { build?: unknown };
+    return typeof j.build === 'string' && j.build ? j.build : VERSION;
+  } catch {
+    return VERSION;
+  }
+}
+/** Where a check's progress is kept: per release line. */
+export const stateKey = (c: Check) => `${VERSION}:${c.id}`;
 
 export interface Check {
   /** TC-###. */
@@ -13,7 +24,20 @@ export interface Check {
   text: string;
   /** Where to test it (an app route). */
   to?: string;
+  /** A sample file to try it with (test/fixtures/formats/<file>), offered for download. */
+  file?: string;
 }
+
+const samples = import.meta.glob<string>(
+  '/test/fixtures/formats/*.{rrq,rrqlib,rrqbl,rrqplt,rrqconf}',
+  {
+    query: '?url',
+    import: 'default',
+    eager: true,
+  },
+);
+/** A sample's download address (undefined if there's no such file). */
+export const sampleUrl = (file: string) => samples[`/test/fixtures/formats/${file}`];
 
 const G = {
   files: 'Old files (format v7)',
@@ -28,12 +52,14 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-001',
     group: G.files,
-    text: 'Open a real project saved by 0.4.0: it looks the same; save it and reopen it.',
+    text: 'Open a project saved by 0.4.0 (yours, or this demo written by 0.4.0): it looks the same; save it and reopen it.',
+    file: 'demo-v6.rrq',
   },
   {
     id: 'TC-002',
     group: G.files,
-    text: 'A 0.4.0 project with the old Baby Blocks opens as Variable Patch.',
+    text: 'In the same 0.4.0 demo, the quilt named “Baby Blocks” (patches) opens with the layout Variable Patch, looking as before.',
+    file: 'demo-v6.rrq',
   },
   {
     id: 'TC-003',
@@ -177,7 +203,13 @@ export const CHECKS: Check[] = [
   },
 ];
 
-export type CheckState = { status: 'ok' | 'problem'; note?: string; at: string };
+/** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
+export type CheckState = {
+  status: 'ok' | 'iterate' | 'problem';
+  note?: string;
+  at: string;
+  build: string;
+};
 
 /** Kept apart from the app's own data (settings are `rrq.settings`). */
 const KEY = 'rrq.dev.checklist';
