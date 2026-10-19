@@ -120,354 +120,401 @@
     </div>
 
     <template v-else-if="tab === 'blocks'">
-      <!-- The Libraries page's block filters (no library management here). -->
-      <div class="block-filters q-mb-md">
-        <q-input v-model="bf.search" dense outlined clearable placeholder="Search names, notes">
-          <template #prepend><q-icon name="search" /></template>
-        </q-input>
-        <FilterCard v-if="blockFilterFields.some((f) => f.options.length)" label="Metadata">
-          <template v-for="f in blockFilterFields" :key="f.key">
-            <FilterSelect
-              v-if="f.options.length"
-              v-model="bf[f.key]"
-              :options="f.options"
-              :label="f.label"
+      <div class="row no-wrap-md" style="gap: 16px">
+        <!-- Filter sidebar, as on the Libraries page (no library management). Phones: flies over. -->
+        <aside
+          v-show="sideOpen || $q.screen.gt.sm"
+          class="filter-side column no-wrap"
+          :class="{ left: settings.settings.sidesSwapped }"
+          :style="{ gap: '8px', '--fly-top': `${flyTop}px` }"
+        >
+          <div v-if="$q.screen.lt.md" class="row justify-end">
+            <q-btn
+              flat
+              round
+              dense
+              icon="close"
+              aria-label="Close filters"
+              @click="sideOpen = false"
             />
-          </template>
-        </FilterCard>
-        <FilterCard label="Shape">
-          <BlockFilter
-            v-model:layout="bf.layout"
-            v-model:shape="bf.shape"
-            style="display: contents"
-          />
-        </FilterCard>
-        <q-select
-          v-model="groupBy"
-          :options="GROUP_BY"
-          emit-value
-          map-options
-          dense
-          outlined
-          label="Group library blocks by"
-          style="max-width: 320px"
-        />
-      </div>
-      <div class="text-subtitle2 q-mb-sm">My blocks</div>
-      <div class="cards">
-        <div v-if="!project.readOnly" class="stack">
-          <button class="card add" @click="newBlockDialog">
-            <q-icon name="add" size="md" />
-            <div>New block</div>
-          </button>
-          <button class="card add" @click="importBlocksFile">
-            <q-icon name="upload_file" size="md" />
-            <div>Import blocks<br /><span class="text-caption">.rrqbl or a project</span></div>
-          </button>
-        </div>
-        <!-- Cards are built as they come into view (and then kept), not all at once. -->
-        <q-intersection v-for="(b, i) in shownBlocks" :key="b.id" once class="card-slot">
-          <div
-            class="card"
-            :draggable="!project.readOnly && !blockFiltering"
-            @dragstart="dragFrom = i"
-            @dragover.prevent
-            @drop="drop('blocks', i)"
-          >
-            <div class="relative-position">
-              <button class="thumb" @click="openBlock(b.id)">
-                <img :src="thumb(b, 200, shownColoring(b))" :alt="b.notecard.name" />
-              </button>
-              <ColoringCount
-                :block="b"
-                :colorings="projectColorings(b, library.lookup)?.own"
-                :model-value="shownColoring(b)"
-                :thumb="(id) => thumb(b, 64, id)"
-                @update:model-value="(id) => editor.coloringOf.set(b.id, id)"
-              />
-            </div>
-            <q-badge
-              v-if="b.colorVariant"
-              class="variant cursor-pointer"
-              color="secondary"
-              role="button"
-              @click="showOriginal(b)"
-            >
-              <q-icon name="palette" size="14px" class="q-mr-xs" />Color variant
-              <q-tooltip>Your coloring of a library block — show the original</q-tooltip>
-            </q-badge>
-            <div class="row items-center no-wrap">
-              <FullName class="col" :name="b.notecard.name">
-                <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
-                  <q-tooltip>Placed in a quilt</q-tooltip>
-                </q-icon>
-                <q-icon
-                  v-if="linkOf(b) === 'synced'"
-                  name="collections_bookmark"
-                  color="primary"
-                  size="xs"
-                >
-                  <q-tooltip>In {{ MY_LIBRARY }}</q-tooltip>
-                </q-icon>
-                <q-icon v-if="linkOf(b) === 'changed'" name="sync" color="warning" size="xs">
-                  <q-tooltip>Changed since {{ MY_LIBRARY }} — Sync to my library</q-tooltip>
-                </q-icon>
-              </FullName>
-              <q-btn flat round dense icon="more_vert" aria-label="Actions">
-                <q-menu>
-                  <q-list dense style="min-width: 160px">
-                    <q-item
-                      v-if="linkOf(b) === 'changed'"
-                      v-close-popup
-                      clickable
-                      @click="syncToMine(b)"
-                    >
-                      <q-item-section avatar class="menu-icon"
-                        ><q-icon name="sync" /></q-item-section
-                      ><q-item-section>Sync to my library</q-item-section>
-                    </q-item>
-                    <q-item
-                      v-else-if="!linkOf(b) || linkOf(b) === 'gone'"
-                      v-close-popup
-                      clickable
-                      @click="addToMine(b)"
-                    >
-                      <q-item-section avatar class="menu-icon"
-                        ><q-icon name="library_add" /></q-item-section
-                      ><q-item-section>Add to my library…</q-item-section>
-                    </q-item>
-                    <template v-if="!project.readOnly">
-                      <q-item
-                        v-close-popup
-                        clickable
-                        :disable="b.kind !== 'seam'"
-                        @click="openBlock(b.id)"
-                      >
-                        <q-item-section avatar class="menu-icon"
-                          ><q-icon name="edit" /></q-item-section
-                        ><q-item-section>Edit</q-item-section>
-                      </q-item>
-                      <q-item
-                        v-close-popup
-                        clickable
-                        :disable="b.kind !== 'seam'"
-                        @click="editCopy(b.id)"
-                      >
-                        <q-item-section avatar class="menu-icon"
-                          ><q-icon name="content_copy" /></q-item-section
-                        ><q-item-section>Edit a copy</q-item-section>
-                      </q-item>
-                      <q-item v-close-popup clickable @click="startSwapColoring(b)">
-                        <q-item-section avatar class="menu-icon"
-                          ><q-icon name="palette" /></q-item-section
-                        ><q-item-section>New coloring from palette swap…</q-item-section>
-                      </q-item>
-                    </template>
-                    <q-item v-close-popup clickable @click="preview = b.id">
-                      <q-item-section avatar class="menu-icon"
-                        ><q-icon name="visibility"
-                      /></q-item-section>
-                      <q-item-section>Preview</q-item-section>
-                    </q-item>
-                    <q-item v-close-popup clickable @click="blockDetails(b.id)">
-                      <q-item-section avatar class="menu-icon"
-                        ><q-icon name="info" /></q-item-section
-                      ><q-item-section>Details</q-item-section>
-                    </q-item>
-                    <q-item v-close-popup clickable @click="exportBlock(b)">
-                      <q-item-section avatar class="menu-icon"
-                        ><q-icon name="file_download"
-                      /></q-item-section>
-                      <q-item-section>Export (.rrqbl)</q-item-section>
-                    </q-item>
-                    <q-item
-                      v-close-popup
-                      clickable
-                      @click="
-                        saveBlockImage(project.doc!, b, shownColoring(b), library.items.colors)
-                      "
-                    >
-                      <q-item-section avatar class="menu-icon"
-                        ><q-icon name="image"
-                      /></q-item-section>
-                      <q-item-section>Save image</q-item-section>
-                    </q-item>
-                    <template v-if="!project.readOnly && !blockFiltering">
-                      <q-item
-                        v-close-popup
-                        clickable
-                        :disable="i === 0"
-                        @click="moveItem('blocks', i, -1)"
-                        ><q-item-section avatar class="menu-icon"
-                          ><q-icon name="arrow_back" /></q-item-section
-                        ><q-item-section>Move earlier</q-item-section></q-item
-                      >
-                      <q-item
-                        v-close-popup
-                        clickable
-                        :disable="i === blocks.length - 1"
-                        @click="moveItem('blocks', i, 1)"
-                        ><q-item-section avatar class="menu-icon"
-                          ><q-icon name="arrow_forward" /></q-item-section
-                        ><q-item-section>Move later</q-item-section></q-item
-                      >
-                      <q-item v-close-popup clickable @click="deleteBlock(b.id)"
-                        ><q-item-section avatar
-                          ><q-icon name="delete" color="negative" /></q-item-section
-                        ><q-item-section class="text-negative">Delete</q-item-section></q-item
-                      >
-                    </template>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </div>
           </div>
-        </q-intersection>
-      </div>
-
-      <div v-if="settings.settings.hideLibraryBlocks" class="text-caption text-grey-7 q-mt-lg">
-        Library blocks are turned off in Settings › Project.
-      </div>
-      <template v-else>
-        <div class="text-subtitle2 q-mt-lg">Library blocks</div>
-        <div class="text-caption text-grey-7 q-mb-sm">
-          Select block availability when designing your quilts; your own blocks are always
-          available.
-        </div>
-        <template v-for="group in libGroups" :key="group.lib">
-          <BlockSections :sections="group.sections" :lib="group.lib" :title="group.label">
-            <template #actions="{ blocks: bs }">
-              <q-checkbox
-                v-if="!project.readOnly"
-                dense
-                size="sm"
-                :model-value="pickState(bs)"
-                :toggle-indeterminate="false"
-                :aria-label="pickState(bs) === true ? 'Deselect all' : 'Select all'"
-                @update:model-value="pickAll(bs, pickState(bs) !== true)"
-              >
-                <q-tooltip>{{ pickState(bs) === true ? 'Deselect all' : 'Select all' }}</q-tooltip>
-              </q-checkbox>
+          <q-input v-model="bf.search" dense outlined clearable placeholder="Search names, notes">
+            <template #prepend><q-icon name="search" /></template>
+          </q-input>
+          <FilterCard v-if="blockFilterFields.some((f) => f.options.length)" label="Metadata">
+            <template v-for="f in blockFilterFields" :key="f.key">
+              <FilterSelect
+                v-if="f.options.length"
+                v-model="bf[f.key]"
+                :options="f.options"
+                :label="f.label"
+              />
             </template>
-            <template #default="{ block: b }">
-              <!-- The id is on the place (always there) so "Show the original" can scroll to it. -->
-              <q-intersection :id="`lib-block-${b.id}`" once class="card-slot">
-                <div class="card" :class="{ picked: isPicked(b.id), flash: flashed === b.id }">
+          </FilterCard>
+          <FilterCard label="Shape">
+            <BlockFilter
+              v-model:layout="bf.layout"
+              v-model:shape="bf.shape"
+              style="display: contents"
+            />
+          </FilterCard>
+          <q-select
+            v-model="groupBy"
+            :options="GROUP_BY"
+            emit-value
+            map-options
+            dense
+            outlined
+            label="Group library blocks by"
+          />
+          <!-- Contents: My blocks, then each library and its sections; click to jump. -->
+          <FilterCard :label="tocLabel">
+            <nav class="toc column" aria-label="Contents">
+              <a href="#" class="toc-lib" @click.prevent="jumpTo('my-blocks')"
+                >My blocks <span class="text-grey-6">{{ shownBlocks.length }}</span></a
+              >
+              <template v-if="!settings.settings.hideLibraryBlocks">
+                <template v-for="g in libGroups" :key="g.lib">
+                  <a href="#" class="toc-lib" @click.prevent="revealSection(g.lib)">{{
+                    g.label
+                  }}</a>
+                  <a
+                    v-for="sec in g.sections.filter((x) => x.label)"
+                    :key="sec.key"
+                    href="#"
+                    class="toc-sec"
+                    :class="{ sub: sec.parent }"
+                    @click.prevent="revealSection(g.lib, sec)"
+                    >{{ sec.label }} <span class="text-grey-6">{{ sec.count }}</span></a
+                  >
+                </template>
+              </template>
+            </nav>
+          </FilterCard>
+        </aside>
+        <div class="col" style="min-width: 0">
+          <div v-if="$q.screen.lt.md" class="row justify-end">
+            <q-btn flat no-caps icon="filter_list" label="Filters" @click="toggleSide" />
+          </div>
+          <div id="my-blocks" class="text-subtitle2 q-mb-sm anchor">My blocks</div>
+          <div class="cards">
+            <div v-if="!project.readOnly" class="stack">
+              <button class="card add" @click="newBlockDialog">
+                <q-icon name="add" size="md" />
+                <div>New block</div>
+              </button>
+              <button class="card add" @click="importBlocksFile">
+                <q-icon name="upload_file" size="md" />
+                <div>Import blocks<br /><span class="text-caption">.rrqbl or a project</span></div>
+              </button>
+            </div>
+            <!-- Cards are built as they come into view (and then kept), not all at once. -->
+            <q-intersection v-for="(b, i) in shownBlocks" :key="b.id" once class="card-slot">
+              <div
+                class="card"
+                :draggable="!project.readOnly && !blockFiltering"
+                @dragstart="dragFrom = i"
+                @dragover.prevent
+                @drop="drop('blocks', i)"
+              >
+                <div class="relative-position">
+                  <button class="thumb" @click="openBlock(b.id)">
+                    <img :src="thumb(b, 200, shownColoring(b))" :alt="b.notecard.name" />
+                  </button>
+                  <ColoringCount
+                    :block="b"
+                    :colorings="projectColorings(b, library.lookup)?.own"
+                    :model-value="shownColoring(b)"
+                    :thumb="(id) => thumb(b, 64, id)"
+                    @update:model-value="(id) => editor.coloringOf.set(b.id, id)"
+                  />
+                </div>
+                <q-badge
+                  v-if="b.colorVariant"
+                  class="variant cursor-pointer"
+                  color="secondary"
+                  role="button"
+                  @click="showOriginal(b)"
+                >
+                  <q-icon name="palette" size="14px" class="q-mr-xs" />Color variant
+                  <q-tooltip>Your coloring of a library block — show the original</q-tooltip>
+                </q-badge>
+                <div class="row items-center no-wrap">
+                  <FullName class="col" :name="b.notecard.name">
+                    <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
+                      <q-tooltip>Placed in a quilt</q-tooltip>
+                    </q-icon>
+                    <q-icon
+                      v-if="linkOf(b) === 'synced'"
+                      name="collections_bookmark"
+                      color="primary"
+                      size="xs"
+                    >
+                      <q-tooltip>In {{ MY_LIBRARY }}</q-tooltip>
+                    </q-icon>
+                    <q-icon v-if="linkOf(b) === 'changed'" name="sync" color="warning" size="xs">
+                      <q-tooltip>Changed since {{ MY_LIBRARY }} — Sync to my library</q-tooltip>
+                    </q-icon>
+                  </FullName>
+                  <q-btn flat round dense icon="more_vert" aria-label="Actions">
+                    <q-menu>
+                      <q-list dense style="min-width: 160px">
+                        <q-item
+                          v-if="linkOf(b) === 'changed'"
+                          v-close-popup
+                          clickable
+                          @click="syncToMine(b)"
+                        >
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="sync" /></q-item-section
+                          ><q-item-section>Sync to my library</q-item-section>
+                        </q-item>
+                        <q-item
+                          v-else-if="!linkOf(b) || linkOf(b) === 'gone'"
+                          v-close-popup
+                          clickable
+                          @click="addToMine(b)"
+                        >
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="library_add" /></q-item-section
+                          ><q-item-section>Add to my library…</q-item-section>
+                        </q-item>
+                        <template v-if="!project.readOnly">
+                          <q-item
+                            v-close-popup
+                            clickable
+                            :disable="b.kind !== 'seam'"
+                            @click="openBlock(b.id)"
+                          >
+                            <q-item-section avatar class="menu-icon"
+                              ><q-icon name="edit" /></q-item-section
+                            ><q-item-section>Edit</q-item-section>
+                          </q-item>
+                          <q-item
+                            v-close-popup
+                            clickable
+                            :disable="b.kind !== 'seam'"
+                            @click="editCopy(b.id)"
+                          >
+                            <q-item-section avatar class="menu-icon"
+                              ><q-icon name="content_copy" /></q-item-section
+                            ><q-item-section>Edit a copy</q-item-section>
+                          </q-item>
+                          <q-item v-close-popup clickable @click="startSwapColoring(b)">
+                            <q-item-section avatar class="menu-icon"
+                              ><q-icon name="palette" /></q-item-section
+                            ><q-item-section>New coloring from palette swap…</q-item-section>
+                          </q-item>
+                        </template>
+                        <q-item v-close-popup clickable @click="preview = b.id">
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="visibility"
+                          /></q-item-section>
+                          <q-item-section>Preview</q-item-section>
+                        </q-item>
+                        <q-item v-close-popup clickable @click="blockDetails(b.id)">
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="info" /></q-item-section
+                          ><q-item-section>Details</q-item-section>
+                        </q-item>
+                        <q-item v-close-popup clickable @click="exportBlock(b)">
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="file_download"
+                          /></q-item-section>
+                          <q-item-section>Export (.rrqbl)</q-item-section>
+                        </q-item>
+                        <q-item
+                          v-close-popup
+                          clickable
+                          @click="
+                            saveBlockImage(project.doc!, b, shownColoring(b), library.items.colors)
+                          "
+                        >
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="image"
+                          /></q-item-section>
+                          <q-item-section>Save image</q-item-section>
+                        </q-item>
+                        <template v-if="!project.readOnly && !blockFiltering">
+                          <q-item
+                            v-close-popup
+                            clickable
+                            :disable="i === 0"
+                            @click="moveItem('blocks', i, -1)"
+                            ><q-item-section avatar class="menu-icon"
+                              ><q-icon name="arrow_back" /></q-item-section
+                            ><q-item-section>Move earlier</q-item-section></q-item
+                          >
+                          <q-item
+                            v-close-popup
+                            clickable
+                            :disable="i === blocks.length - 1"
+                            @click="moveItem('blocks', i, 1)"
+                            ><q-item-section avatar class="menu-icon"
+                              ><q-icon name="arrow_forward" /></q-item-section
+                            ><q-item-section>Move later</q-item-section></q-item
+                          >
+                          <q-item v-close-popup clickable @click="deleteBlock(b.id)"
+                            ><q-item-section avatar
+                              ><q-icon name="delete" color="negative" /></q-item-section
+                            ><q-item-section class="text-negative">Delete</q-item-section></q-item
+                          >
+                        </template>
+                      </q-list>
+                    </q-menu>
+                  </q-btn>
+                </div>
+              </div>
+            </q-intersection>
+          </div>
+
+          <div v-if="settings.settings.hideLibraryBlocks" class="text-caption text-grey-7 q-mt-lg">
+            Library blocks are turned off in Settings › Project.
+          </div>
+          <template v-else>
+            <div class="text-subtitle2 q-mt-lg">Library blocks</div>
+            <div class="text-caption text-grey-7 q-mb-sm">
+              Select block availability when designing your quilts; your own blocks are always
+              available.
+            </div>
+            <template v-for="group in libGroups" :key="group.lib">
+              <BlockSections :sections="group.sections" :lib="group.lib" :title="group.label">
+                <template #actions="{ blocks: bs }">
                   <q-checkbox
-                    class="pick-box"
-                    :model-value="isPicked(b.id)"
-                    :disable="project.readOnly || inUse(b.id)"
-                    :color="inUse(b.id) ? 'grey-8' : 'primary'"
-                    :aria-label="`Use ${b.notecard.name} in this project`"
-                    @update:model-value="(v: boolean) => pick(b.id, v)"
+                    v-if="!project.readOnly"
+                    dense
+                    size="sm"
+                    :model-value="pickState(bs)"
+                    :toggle-indeterminate="false"
+                    :aria-label="pickState(bs) === true ? 'Deselect all' : 'Select all'"
+                    @update:model-value="pickAll(bs, pickState(bs) !== true)"
                   >
                     <q-tooltip>{{
-                      inUse(b.id) ? 'Placed in a quilt' : 'Use in this project'
+                      pickState(bs) === true ? 'Deselect all' : 'Select all'
                     }}</q-tooltip>
                   </q-checkbox>
-                  <div class="relative-position">
-                    <button class="thumb" @click="preview = b.id">
-                      <img :src="thumb(b, 200, shownColoring(b))" :alt="b.notecard.name" />
-                    </button>
-                    <ColoringCount
-                      :block="b"
-                      :model-value="shownColoring(b)"
-                      :thumb="(id) => thumb(b, 64, id)"
-                      @update:model-value="(id) => editor.coloringOf.set(b.id, id)"
-                    />
-                  </div>
-                  <div class="row items-center no-wrap">
-                    <FullName class="col" :name="b.notecard.name">
-                      <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
-                        <q-tooltip>Placed in a quilt</q-tooltip>
-                      </q-icon>
-                      <q-icon
-                        v-if="otherVersions.has(b.id)"
-                        name="update"
-                        color="warning"
-                        size="xs"
+                </template>
+                <template #default="{ block: b }">
+                  <!-- The id is on the place (always there) so "Show the original" can scroll to it. -->
+                  <q-intersection :id="`lib-block-${b.id}`" once class="card-slot">
+                    <div class="card" :class="{ picked: isPicked(b.id), flash: flashed === b.id }">
+                      <q-checkbox
+                        class="pick-box"
+                        :model-value="isPicked(b.id)"
+                        :disable="project.readOnly || inUse(b.id)"
+                        :color="inUse(b.id) ? 'grey-8' : 'primary'"
+                        :aria-label="`Use ${b.notecard.name} in this project`"
+                        @update:model-value="(v: boolean) => pick(b.id, v)"
                       >
-                        <q-tooltip
-                          >Your library has revision
-                          {{ otherVersions.get(b.id)!.library.revision }} — see Switch
-                          version…</q-tooltip
-                        >
-                      </q-icon>
-                    </FullName>
-                    <q-btn flat round dense icon="more_vert" aria-label="Actions">
-                      <q-menu>
-                        <q-list dense style="min-width: 160px">
-                          <q-item
-                            v-if="!project.readOnly"
-                            v-close-popup
-                            clickable
-                            :disable="b.kind !== 'seam'"
-                            @click="editLibrary(b)"
+                        <q-tooltip>{{
+                          inUse(b.id) ? 'Placed in a quilt' : 'Use in this project'
+                        }}</q-tooltip>
+                      </q-checkbox>
+                      <div class="relative-position">
+                        <button class="thumb" @click="preview = b.id">
+                          <img :src="thumb(b, 200, shownColoring(b))" :alt="b.notecard.name" />
+                        </button>
+                        <ColoringCount
+                          :block="b"
+                          :model-value="shownColoring(b)"
+                          :thumb="(id) => thumb(b, 64, id)"
+                          @update:model-value="(id) => editor.coloringOf.set(b.id, id)"
+                        />
+                      </div>
+                      <div class="row items-center no-wrap">
+                        <FullName class="col" :name="b.notecard.name">
+                          <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
+                            <q-tooltip>Placed in a quilt</q-tooltip>
+                          </q-icon>
+                          <q-icon
+                            v-if="otherVersions.has(b.id)"
+                            name="update"
+                            color="warning"
+                            size="xs"
                           >
-                            <q-item-section avatar class="menu-icon"
-                              ><q-icon name="content_copy"
-                            /></q-item-section>
-                            <q-item-section>Edit (make a copy)</q-item-section>
-                          </q-item>
-                          <q-item
-                            v-if="!project.readOnly"
-                            v-close-popup
-                            clickable
-                            :disable="b.kind !== 'seam'"
-                            @click="colorVariant(b)"
-                          >
-                            <q-item-section avatar class="menu-icon"
-                              ><q-icon name="palette"
-                            /></q-item-section>
-                            <q-item-section>Create a coloration variant</q-item-section>
-                          </q-item>
-                          <q-item
-                            v-close-popup
-                            clickable
-                            @click="
-                              saveBlockImage(
-                                project.doc!,
-                                b,
-                                shownColoring(b),
-                                library.items.colors,
-                              )
-                            "
-                          >
-                            <q-item-section avatar class="menu-icon"
-                              ><q-icon name="image"
-                            /></q-item-section>
-                            <q-item-section>Save image</q-item-section>
-                          </q-item>
-                          <q-item
-                            v-if="otherVersions.has(b.id) && !project.readOnly"
-                            v-close-popup
-                            clickable
-                            @click="project.mismatches = [otherVersions.get(b.id)!]"
-                          >
-                            <q-item-section>Switch version…</q-item-section>
-                          </q-item>
-                          <q-item v-close-popup clickable @click="preview = b.id">
-                            <q-item-section avatar class="menu-icon"
-                              ><q-icon name="visibility"
-                            /></q-item-section>
-                            <q-item-section>Preview</q-item-section>
-                          </q-item>
-                          <q-item v-close-popup clickable @click="exportBlock(b)">
-                            <q-item-section avatar class="menu-icon"
-                              ><q-icon name="file_download"
-                            /></q-item-section>
-                            <q-item-section>Export (.rrqbl)</q-item-section>
-                          </q-item>
-                        </q-list>
-                      </q-menu>
-                    </q-btn>
-                  </div>
-                </div>
-              </q-intersection>
+                            <q-tooltip
+                              >Your library has revision
+                              {{ otherVersions.get(b.id)!.library.revision }} — see Switch
+                              version…</q-tooltip
+                            >
+                          </q-icon>
+                        </FullName>
+                        <q-btn flat round dense icon="more_vert" aria-label="Actions">
+                          <q-menu>
+                            <q-list dense style="min-width: 160px">
+                              <q-item
+                                v-if="!project.readOnly"
+                                v-close-popup
+                                clickable
+                                :disable="b.kind !== 'seam'"
+                                @click="editLibrary(b)"
+                              >
+                                <q-item-section avatar class="menu-icon"
+                                  ><q-icon name="content_copy"
+                                /></q-item-section>
+                                <q-item-section>Edit (make a copy)</q-item-section>
+                              </q-item>
+                              <q-item
+                                v-if="!project.readOnly"
+                                v-close-popup
+                                clickable
+                                :disable="b.kind !== 'seam'"
+                                @click="colorVariant(b)"
+                              >
+                                <q-item-section avatar class="menu-icon"
+                                  ><q-icon name="palette"
+                                /></q-item-section>
+                                <q-item-section>Create a coloration variant</q-item-section>
+                              </q-item>
+                              <q-item
+                                v-close-popup
+                                clickable
+                                @click="
+                                  saveBlockImage(
+                                    project.doc!,
+                                    b,
+                                    shownColoring(b),
+                                    library.items.colors,
+                                  )
+                                "
+                              >
+                                <q-item-section avatar class="menu-icon"
+                                  ><q-icon name="image"
+                                /></q-item-section>
+                                <q-item-section>Save image</q-item-section>
+                              </q-item>
+                              <q-item
+                                v-if="otherVersions.has(b.id) && !project.readOnly"
+                                v-close-popup
+                                clickable
+                                @click="project.mismatches = [otherVersions.get(b.id)!]"
+                              >
+                                <q-item-section>Switch version…</q-item-section>
+                              </q-item>
+                              <q-item v-close-popup clickable @click="preview = b.id">
+                                <q-item-section avatar class="menu-icon"
+                                  ><q-icon name="visibility"
+                                /></q-item-section>
+                                <q-item-section>Preview</q-item-section>
+                              </q-item>
+                              <q-item v-close-popup clickable @click="exportBlock(b)">
+                                <q-item-section avatar class="menu-icon"
+                                  ><q-icon name="file_download"
+                                /></q-item-section>
+                                <q-item-section>Export (.rrqbl)</q-item-section>
+                              </q-item>
+                            </q-list>
+                          </q-menu>
+                        </q-btn>
+                      </div>
+                    </div>
+                  </q-intersection>
+                </template>
+              </BlockSections>
             </template>
-          </BlockSections>
-        </template>
-      </template>
+          </template>
+        </div>
+      </div>
     </template>
 
     <DetailsPanel v-else-if="tab === 'details'" kind="project" />
@@ -1348,6 +1395,19 @@ function blockShown(b: Block) {
     anyOf(bf.styles, b.notecard.styles ?? []) &&
     notecardMatches(b.notecard, bf.search ?? '')
   );
+}
+/** Phones: the filter sidebar flies over the page, just under the app's header. */
+const sideOpen = ref(false);
+const flyTop = ref(50);
+function toggleSide() {
+  flyTop.value = document.querySelector('.q-header')?.getBoundingClientRect().bottom ?? 50;
+  sideOpen.value = !sideOpen.value;
+}
+const tocLabel = computed(() =>
+  groupBy.value === 'none' ? 'Libraries' : GROUP_BY.find((g) => g.value === groupBy.value)!.label,
+);
+function jumpTo(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 const shownBlocks = computed(() => blocks.value.filter(blockShown));
 const blockFilterFields = computed(() => {
@@ -2789,9 +2849,69 @@ watch(
   border-radius: 6px;
   border: 1px solid rgba(128, 128, 128, 0.4);
 }
-.block-filters {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* Filter sidebar: as the Libraries page's. */
+.filter-side {
+  width: 260px;
+  flex: none;
+  align-self: flex-start;
+  position: sticky;
+  top: 67px;
+  max-height: calc(100vh - 83px);
+  overflow-y: auto;
+  padding-top: 2px;
+  order: 1;
+}
+.filter-side.left {
+  order: -1;
+}
+.anchor {
+  scroll-margin-top: 64px;
+}
+.toc {
+  gap: 2px;
+}
+.toc a {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.toc a:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+.toc-lib {
+  font-weight: 600;
+  margin-top: 6px;
+}
+.toc-sec {
+  padding-left: 18px !important;
+}
+.toc-sec.sub {
+  padding-left: 34px !important;
+}
+@media (max-width: 1023px) {
+  .row.no-wrap-md {
+    flex-direction: column;
+  }
+  .filter-side {
+    position: fixed;
+    top: var(--fly-top, 50px);
+    height: calc(100dvh - var(--fly-top, 50px));
+    right: 0;
+    width: min(300px, 85vw);
+    max-height: none;
+    z-index: 5;
+    padding: 12px;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.25);
+  }
+  .filter-side.left {
+    right: auto;
+    left: 0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.25);
+  }
+  :global(.body--dark .filter-side) {
+    background: var(--q-dark-page);
+  }
 }
 </style>

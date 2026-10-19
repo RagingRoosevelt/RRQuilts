@@ -22,7 +22,7 @@
     <div class="row no-wrap-md" style="gap: 16px">
       <div
         v-show="filtersOpen || $q.screen.gt.sm"
-        class="libs column"
+        class="libs column no-wrap"
         :class="{ left: settings.settings.sidesSwapped }"
         :style="{ gap: '8px', '--fly-top': `${flyTop}px` }"
       >
