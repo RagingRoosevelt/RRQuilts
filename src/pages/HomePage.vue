@@ -120,7 +120,7 @@
             :options="gistAsk.files.map((f, i) => ({ label: f.name, value: i }))"
             class="q-mt-sm"
           />
-          <h3 class="text-caption text-grey-7 q-my-none">
+          <h3 class="text-caption q-my-none byline">
             by {{ gistAsk.owner || 'an anonymous GitHub user' }}
           </h3>
           <p v-if="gistAsk.title" class="q-mt-sm q-mb-none gist-desc">{{ gistAsk.title }}</p>
@@ -319,6 +319,9 @@ async function discardDraft(d: Draft) {
 </script>
 
 <style scoped>
+.byline {
+  opacity: 0.7; /* muted in light and dark alike */
+}
 .gist-desc {
   white-space: pre-line;
   overflow-wrap: anywhere;
