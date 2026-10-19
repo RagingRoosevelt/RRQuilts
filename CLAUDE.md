@@ -42,13 +42,14 @@ like sketchbook/worktable are fine).
   by a test; `demo-vN.rrq` = a demo project with a quilt per layout capability each version added
   (`write-demo.spec.ts`), `demo-vN/` = PNGs of its quilts and blocks drawn by that release
   (`scripts/format-images.py`). A release that ships a new format version adds them (`scripts/release.md`).
-  `make picture-check` (host, needs `uv`) = all demos drawn now vs stored, one local HTML page with
-  reference labels; give the owner its file link (never publish it) before releases and after
-  format/layout/drawing changes.
-- Layout gallery (manual testing aid): `test/gallery/variations.ts` = quilts per layout and setting
-  with blocks/solids/mixes, each with what it should show; **newest first, new ids (G###) on top**
-  whenever a feature adds a layout capability or setting. `make gallery` (host, needs `uv`) builds
-  them with today's code into a local `.cache/gallery.html`; give the owner the file link, never publish it.
+- **Tests tab** (testing aids, `make dev` only: route and nav behind `import.meta.env.DEV`;
+  `make build` fails if any of it reaches `docs/`): `pages/DevPage.vue` + `src/dev/`.
+  **Layout gallery** (`/dev/gallery`): `dev/variations.ts` = quilts per layout and setting with
+  blocks/solids/mixes (`dev/fill-quilt.ts`), each with what it should show, drawn live with seams;
+  **newest first, new ids (G###) on top** whenever a feature adds a layout capability or setting.
+  **Picture check** (`/dev/pictures`): each demo sample drawn now vs its release PNGs, with
+  differences and reference labels (v6.07). Point the owner to them (localhost:9000/RRQuilts/dev/…)
+  before releases and after format/layout/drawing changes; never publish them.
 
 ## Rules
 

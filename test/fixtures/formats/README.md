@@ -22,12 +22,12 @@ release that writes that version.
 
 ## Picture check
 
-`make picture-check` builds the app, draws every demo with it, and writes
-`.cache/picture-check.html`: each picture as released, now, and the difference, with a reference
-label (`v6.07`, numbered by name so it stays put between runs), changed pictures first. Claude runs
-it and gives the owner the local file link before each release and after changes to file formats,
-migrations, layouts or quilt and block drawing; the owner names any wrong ones by reference. The
-page stays on this machine (never published or uploaded).
+The dev server's **Tests › Picture check** (`make dev`, `/dev/pictures`; not in the built site)
+opens every demo, draws its quilts and blocks as Save image does, and shows each beside its release
+picture with the difference and a reference label (`v6.07`, numbered by name so it stays put between
+runs), changed pictures first. Claude points the owner to it before each release and after changes
+to file formats, migrations, layouts or quilt and block drawing; the owner names any wrong ones by
+reference.
 
 ## Each release that ships a new format version
 

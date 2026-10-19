@@ -1,8 +1,8 @@
-// Layout gallery (manual testing aid): quilts built with each layout and its settings, with blocks,
-// solids and mixes, rendered by `make gallery` into one local page that says what each should show.
+// Layout gallery (manual testing aid, dev server only: Tests tab): quilts built with each layout and
+// its settings, with blocks, solids and mixes, drawn live with what each should show.
 // NEWEST FIRST: put new variations at the top with the next id (G###, never reused or renumbered),
 // and say in `added` which feature brought them.
-import type { FillMode } from '../vitest/__tests__/formats/fill-quilt';
+import type { FillMode } from './fill-quilt';
 
 export interface Variation {
   id: string;

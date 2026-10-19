@@ -10,7 +10,7 @@ import { createProject } from '@/model/new-project';
 import { createQuilt } from '@/model/new-quilt';
 import { VERSION } from '@/model/schema/project';
 import * as slots from '@/model/layout/slots';
-import { fillQuilt, starterKit } from './fill-quilt';
+import { fillQuilt, starterKit } from '@/dev/fill-quilt';
 
 const dir = process.env.FORMAT_DEMO;
 
