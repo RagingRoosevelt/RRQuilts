@@ -17,7 +17,6 @@ export const RGB = Type.Tuple([byte, byte, byte]);
 export const Technique = Type.Union([
   Type.Literal('machine'),
   Type.Literal('fpp'),
-  Type.Literal('epp'),
   Type.Literal('applique'),
 ]);
 export type Technique = Type.Static<typeof Technique>;
@@ -25,7 +24,6 @@ export type Technique = Type.Static<typeof Technique>;
 export const TECHNIQUES: Record<Technique, string> = {
   machine: 'Machine piecing',
   fpp: 'Foundation paper piecing',
-  epp: 'English paper piecing',
   applique: 'Appliqué',
 };
 

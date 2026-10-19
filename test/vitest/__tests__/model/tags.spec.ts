@@ -39,7 +39,7 @@ describe('styles become tags', () => {
 
 describe('unknown techniques', () => {
   it('are dropped when a file opens, so it stays readable', () => {
-    const raw = { notecard: { name: 'A', techniques: ['machine', 'hand', 7] } };
+    const raw = { notecard: { name: 'A', techniques: ['machine', 'hand', 'epp', 7] } };
     expect(upgradeNotecards(raw)).toEqual({ notecard: { name: 'A', techniques: ['machine'] } });
     expect(upgradeNotecards({ notecard: { name: 'B', techniques: ['hand'] } })).toEqual({
       notecard: { name: 'B' },
@@ -68,8 +68,8 @@ describe('tags', () => {
   });
 
   it('are searched with technique names', () => {
-    const n = { name: 'Star', techniques: ['epp' as const] };
-    expect(notecardMatches(n, 'english paper')).toBe(true);
+    const n = { name: 'Star', techniques: ['fpp' as const] };
+    expect(notecardMatches(n, 'foundation paper')).toBe(true);
     expect(notecardMatches(n, 'favourite', ['favourite'])).toBe(true);
   });
 

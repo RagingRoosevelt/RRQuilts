@@ -1,7 +1,6 @@
 // Built-in starter content: 13 traditional blocks (plus the four-, five-, seven-, and nine-patch families in their own files) drawn originally as seam lines, 36 basic solid
 // colors, and five themed palettes, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
-import { blockConstruction } from '@/model/blocks/construction';
 import { shapeSize, type BlockShape } from '@/model/blocks/shape';
 import { SHAPED_BLOCKS, curvedStarter, shapedStarter } from './shaped';
 import { SHAPED_CURVES } from './shaped-curves';
@@ -598,9 +597,8 @@ function buildItems(): BuiltinItems {
         }),
       ],
     };
-    // Spec 029: how it's meant to be made, from its drawing (EPP suits shaped blocks without curves).
-    const c = blockConstruction(block);
-    block.notecard.techniques = ['machine', ...(b.shape && !c.curved ? (['epp'] as const) : [])];
+    // Spec 029: the built-in blocks are drawn for machine piecing.
+    block.notecard.techniques = ['machine'];
     return block;
   });
   return { colors, blocks };

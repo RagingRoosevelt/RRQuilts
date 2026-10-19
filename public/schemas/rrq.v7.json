@@ -143,10 +143,6 @@
                             },
                             {
                               "type": "string",
-                              "const": "epp"
-                            },
-                            {
-                              "type": "string",
                               "const": "applique"
                             }
                           ]
@@ -397,10 +393,6 @@
                             },
                             {
                               "type": "string",
-                              "const": "epp"
-                            },
-                            {
-                              "type": "string",
                               "const": "applique"
                             }
                           ]
@@ -558,10 +550,6 @@
                             {
                               "type": "string",
                               "const": "fpp"
-                            },
-                            {
-                              "type": "string",
-                              "const": "epp"
                             },
                             {
                               "type": "string",
@@ -797,10 +785,6 @@
                             {
                               "type": "string",
                               "const": "fpp"
-                            },
-                            {
-                              "type": "string",
-                              "const": "epp"
                             },
                             {
                               "type": "string",
@@ -1447,10 +1431,6 @@
                             },
                             {
                               "type": "string",
-                              "const": "epp"
-                            },
-                            {
-                              "type": "string",
                               "const": "applique"
                             }
                           ]
@@ -1953,10 +1933,6 @@
                             {
                               "type": "string",
                               "const": "fpp"
-                            },
-                            {
-                              "type": "string",
-                              "const": "epp"
                             },
                             {
                               "type": "string",
@@ -2668,10 +2644,6 @@
                             },
                             {
                               "type": "string",
-                              "const": "epp"
-                            },
-                            {
-                              "type": "string",
                               "const": "applique"
                             }
                           ]
@@ -3263,10 +3235,6 @@
                             {
                               "type": "string",
                               "const": "fpp"
-                            },
-                            {
-                              "type": "string",
-                              "const": "epp"
                             },
                             {
                               "type": "string",
@@ -4507,10 +4475,6 @@
                         },
                         {
                           "type": "string",
-                          "const": "epp"
-                        },
-                        {
-                          "type": "string",
                           "const": "applique"
                         }
                       ]
@@ -4675,10 +4639,6 @@
                         {
                           "type": "string",
                           "const": "fpp"
-                        },
-                        {
-                          "type": "string",
-                          "const": "epp"
                         },
                         {
                           "type": "string",
@@ -4855,10 +4815,6 @@
                         {
                           "type": "string",
                           "const": "fpp"
-                        },
-                        {
-                          "type": "string",
-                          "const": "epp"
                         },
                         {
                           "type": "string",
