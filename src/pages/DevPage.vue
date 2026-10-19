@@ -18,7 +18,9 @@
       looks wrong.
     </p>
 
-    <template v-if="view === 'blocks'">
+    <DevChecklist v-if="view === 'checklist'" />
+
+    <template v-else-if="view === 'blocks'">
       <div class="bar">
         <q-chip dense color="positive" text-color="white">{{ blockList.length }} blocks</q-chip>
         <q-input v-model="blockSearch" dense outlined clearable placeholder="Find a block" />
@@ -139,6 +141,7 @@
 import { useQuasar } from 'quasar';
 import { computed, ref, shallowReactive, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import DevChecklist from '@/components/DevChecklist.vue';
 import DevQuiltCards from '@/components/DevQuiltCards.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import { BORDERS } from '@/dev/borders';
@@ -163,6 +166,13 @@ import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
 
 const TABS = [
+  {
+    name: 'checklist',
+    label: 'Checklist',
+    icon: 'checklist',
+    about:
+      'Things to try by hand before a release, with progress kept in this browser only (src/dev/checklist.ts).',
+  },
   {
     name: 'gallery',
     label: 'Layout gallery',
@@ -218,7 +228,7 @@ const router = useRouter();
 const project = useProjectStore();
 const library = useLibraryStore();
 const view = computed<View>(
-  () => TABS.find((t) => t.name === route.params.view)?.name ?? 'gallery',
+  () => TABS.find((t) => t.name === route.params.view)?.name ?? 'checklist',
 );
 
 // --- Built quilts (gallery, borders, sweeps, extremes; print uses the gallery) ---

@@ -47,9 +47,9 @@ const routes: RouteRecordRaw[] = [
   // the page's chunk with it (`make build` checks that docs/ has none of it).
   ...(import.meta.env.DEV
     ? [
-        { path: '/dev', redirect: '/dev/gallery' },
+        { path: '/dev', redirect: '/dev/checklist' },
         {
-          path: '/dev/:view(gallery|borders|sweeps|extremes|blocks|print|pictures)',
+          path: '/dev/:view(checklist|gallery|borders|sweeps|extremes|blocks|print|pictures)',
           component: () => import('@/pages/DevPage.vue'),
         },
       ]

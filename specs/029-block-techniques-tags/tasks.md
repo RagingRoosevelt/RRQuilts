@@ -31,3 +31,4 @@
 - [x] T015 Details tab checklists; Tags dialog is tags only; filter sections Needs / Efficiency
 - [x] T016 Built-in content carries no tags (test)
 - [x] T017 ⭐ Favorite: always offered and first; badge on block cards (Libraries, Blocks tab, quilt sidebar)
+- [x] T018 Tests › Checklist (first tab): manual checks as <build>-TC-###, progress per build in localStorage `rrq.dev.checklist`, Copy results

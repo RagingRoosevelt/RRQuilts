@@ -42,7 +42,9 @@ like sketchbook/worktable are fine).
   by a test; `demo-vN.rrq` = a demo project with a quilt per layout capability each version added
   (`write-demo.spec.ts`), `demo-vN/` = PNGs of its quilts and blocks drawn by that release
   (`scripts/format-images.py`). A release that ships a new format version adds them (`scripts/release.md`).
-- **Tests tab** (testing aids, `make dev` only: route and nav behind `import.meta.env.DEV`;
+- **Tests tab** (testing aids, `make dev` only; first tab **Checklist**: `dev/checklist.ts` manual checks shown as
+  `<build>-TC-###` (build = app version), progress per build in localStorage `rrq.dev.checklist` (apart from
+  app data), **Copy results** for pasting back; add checks for new features; route and nav behind `import.meta.env.DEV`;
   `make build` fails if any of it reaches `docs/`): `pages/DevPage.vue` + `src/dev/`.
   **Layout gallery** (`/dev/gallery`): `dev/variations.ts` = quilts per layout and setting with
   blocks/solids/mixes (`dev/fill-quilt.ts`), each with what it should show, drawn live with seams;
