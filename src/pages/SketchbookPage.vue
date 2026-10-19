@@ -51,10 +51,16 @@
     <q-separator class="q-mb-md" />
 
     <div v-if="tab === 'quilts'" class="cards">
-      <button v-if="!project.readOnly" class="card add" @click="wizard?.show()">
-        <q-icon name="add" size="lg" />
-        <div>New quilt</div>
-      </button>
+      <div v-if="!project.readOnly" class="stack">
+        <button class="card add" @click="wizard?.show()">
+          <q-icon name="add" size="md" />
+          <div>New quilt</div>
+        </button>
+        <button class="card add" @click="importQuiltsFile">
+          <q-icon name="upload_file" size="md" />
+          <div>Import quilts<br /><span class="text-caption">from a project</span></div>
+        </button>
+      </div>
       <div
         v-for="(q, i) in quilts"
         :key="q.id"
@@ -970,27 +976,35 @@
     <q-dialog :model-value="!!picking" @update:model-value="picking = null">
       <q-card v-if="picking" style="width: 640px; max-width: 95vw">
         <q-card-section>
-          <div class="text-h6">Import blocks from "{{ picking.from.project.name }}"</div>
-          <div class="text-caption text-grey-7">Pick the blocks to add to My blocks.</div>
+          <div class="text-h6">
+            Import {{ picking.kind }} from "{{ picking.from.project.name }}"
+          </div>
+          <div class="text-caption text-grey-7">
+            {{
+              picking.kind === 'blocks'
+                ? 'Pick the blocks to add to My blocks.'
+                : 'Pick the quilts to add to this project. The blocks, colors and fabrics they use come with them.'
+            }}
+          </div>
         </q-card-section>
         <q-card-section class="q-pt-none picks">
           <button
             v-for="c in picking.choices"
-            :key="c.block.id"
+            :key="c.id"
             class="pick"
-            :class="{ active: picking.picked.includes(c.block.id) }"
+            :class="{ active: picking.picked.includes(c.id) }"
             :disabled="c.here"
-            @click="togglePick(c.block.id)"
+            @click="togglePick(c.id)"
           >
-            <img :src="blockThumbnail(picking.from, c.block, 96, $q.dark.isActive)" alt="" />
+            <img :src="c.img()" alt="" />
             <q-checkbox
-              :model-value="c.here || picking.picked.includes(c.block.id)"
+              :model-value="c.here || picking.picked.includes(c.id)"
               :disable="c.here"
               dense
               size="xs"
-              :label="c.block.notecard.name"
+              :label="c.name"
               class="text-caption"
-              @update:model-value="togglePick(c.block.id)"
+              @update:model-value="togglePick(c.id)"
               @click.stop
             />
             <div v-if="c.here" class="text-caption text-grey-7">Already here</div>
@@ -1001,7 +1015,7 @@
             flat
             no-caps
             label="All"
-            @click="picking.picked = picking.choices.filter((c) => !c.here).map((c) => c.block.id)"
+            @click="picking.picked = picking.choices.filter((c) => !c.here).map((c) => c.id)"
           />
           <q-btn flat no-caps label="None" @click="picking.picked = []" />
           <q-btn v-close-popup flat no-caps label="Cancel" />
@@ -1254,7 +1268,7 @@ import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { ColorCollection } from '@/model/schema/library';
 import { swatchStyle } from '@/render/fabric-images';
 import { useQuasar } from 'quasar';
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
@@ -1330,7 +1344,8 @@ import {
 } from '@/model/project-palettes';
 import { collectionFile } from '@/model/collection-file';
 import type { LibraryDoc } from '@/model/schema/library';
-import { absorbFabrics, embedFabrics } from '@/storage/fabric-files';
+import { absorbFabrics, absorbImages, embedFabrics } from '@/storage/fabric-files';
+import { importProjectQuilts } from '@/model/import-quilts';
 import {
   fabricToUnits,
   isLibraryItem,
@@ -2507,10 +2522,11 @@ function importBlockText(text: string) {
   $q.notify({ type: 'positive', message: `Imported "${r.file.block.notecard.name}".` });
 }
 
-/** Another project's blocks to pick from; only the picked ones come in (one undo step). */
+/** Another project's blocks or quilts to pick from; only the picked ones come in (one undo step). */
 const picking = ref<{
   from: RrqDoc;
-  choices: ReturnType<typeof projectBlockChoices>;
+  kind: 'blocks' | 'quilts';
+  choices: { id: string; name: string; here: boolean; img: () => string }[];
   picked: string[];
 } | null>(null);
 
@@ -2527,8 +2543,37 @@ async function importProjectBlocksText(text: string) {
   }
   picking.value = {
     from: r.doc,
-    choices,
+    kind: 'blocks',
+    choices: choices.map((c) => ({
+      id: c.block.id,
+      name: c.block.notecard.name,
+      here: c.here,
+      img: () => blockThumbnail(r.doc, c.block, 96, $q.dark.isActive),
+    })),
     picked: choices.filter((c) => !c.here).map((c) => c.block.id),
+  };
+}
+
+/** A project file's quilts to pick from, all picked to start. */
+async function importQuiltsFile() {
+  const file = await pickFile(['rrq']);
+  if (!file) return;
+  const r = await parseProject(await file.text());
+  if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
+  if (!r.doc.project.quilts.length)
+    return void $q.notify({ message: `No quilts in "${r.doc.project.name}".` });
+  // Fabric images are stored on this device once, as when the project is opened.
+  const from = await absorbImages(r.doc);
+  picking.value = {
+    from,
+    kind: 'quilts',
+    choices: from.project.quilts.map((q) => ({
+      id: q.id,
+      name: q.notecard.name,
+      here: false,
+      img: () => quiltThumbnail(from, q, 96, $q.dark.isActive),
+    })),
+    picked: from.project.quilts.map((q) => q.id),
   };
 }
 
@@ -2540,6 +2585,21 @@ function togglePick(id: string) {
 function importPicked() {
   const p = picking.value!;
   picking.value = null;
+  if (p.kind === 'quilts') {
+    const res = importProjectQuilts(
+      project.doc!,
+      toRaw(p.from),
+      settings.settings.author,
+      p.picked,
+    );
+    if (!res.added) return;
+    project.change(() => res.doc);
+    $q.notify({
+      type: 'positive',
+      message: `Imported ${res.added} quilt${res.added > 1 ? 's' : ''} from "${p.from.project.name}" (undo removes ${res.added > 1 ? 'them' : 'it'}).`,
+    });
+    return;
+  }
   const res = importProjectBlocks(project.doc!, p.from, settings.settings.author, p.picked);
   if (!res.added) return;
   project.change(() => res.doc);

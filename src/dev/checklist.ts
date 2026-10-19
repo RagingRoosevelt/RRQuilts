@@ -201,6 +201,12 @@ export const CHECKS: Check[] = [
     group: G.small,
     text: 'Details › Download image includes seam lines when Show seam lines is on; Sketchbook Save image has none.',
   },
+  {
+    id: 'TC-034',
+    group: G.small,
+    text: 'Quilts tab › Import quilts: pick quilts from this demo; they come in with their blocks and colors, and look the same. Undo removes them. Importing a project into itself adds copies named “(2)”.',
+    file: 'demo-v6.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

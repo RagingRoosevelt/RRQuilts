@@ -181,6 +181,11 @@ chart; editing controls are absent with a "edit on tablet or desktop" note.
 **Variations**
 
 - **FR-030**: "Create copy" MUST exist for quilts and block colorings.
+- **FR-030a** (added 2026-10-19): **Import quilts** (Quilts tab, under New quilt) MUST copy picked
+  quilts from another project file into the open project, with the blocks, colors, fabrics and
+  threads they use. Items already here (same id) are reused; an own block with the same id but a
+  different design comes in as a copy (new id, "(2)" name) and the quilts use it. Quilt ids and names
+  that clash get new ones. Lengths convert to the project's units. One undo step.
 - **FR-031**: A compare view MUST show 2–4 quilts side by side with finished size and yardage summary.
 
 **Devices & input**

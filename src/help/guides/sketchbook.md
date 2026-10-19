@@ -14,9 +14,13 @@ across the whole project.
 
 1. Choose **New quilt** to open the wizard (see [Getting started](/help/guides/getting-started)), or
    click a quilt's picture to open it.
-2. Use the three-dot **Actions** menu on a card for **Open**, **Create copy** (a copy to
+2. **Import quilts** reads another project file (`.rrq`). Tick the quilts to add to this project.
+   The blocks, colors and fabrics they use come with them. Anything already here is shared, and a
+   block that differs from your version of it comes in as a copy. Undo removes
+   the whole import.
+3. Use the three-dot **Actions** menu on a card for **Open**, **Create copy** (a copy to
    try other colors on), **Details**, **Move earlier**, **Move later**, and **Delete** (you can undo).
-3. Drag cards to reorder them.
+4. Drag cards to reorder them.
 
 ## Blocks
 
