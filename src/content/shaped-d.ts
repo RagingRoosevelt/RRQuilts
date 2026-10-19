@@ -1,5 +1,5 @@
 // Shaped blocks, batch D (traditional designs, drawn for RRQuilts).
-import { H, type P, type ShapedDef, type ShapedPiece } from './shaped-kit';
+import { H, hexV, type P, type ShapedDef, type ShapedPiece } from './shaped-kit';
 
 /** Lattice point: x in grid sides, r in grid rows (flat-top hexagon of side 1, grid side `s`). */
 const lat =
@@ -370,5 +370,21 @@ export const SHAPED_D: ShapedDef[] = [
       ],
       cg,
     ),
+  },
+  {
+    // Inner hexagon (radius 2/3) cut into six triangles, dark and white; a ring of six trapezoids, light and medium.
+    name: 'Hexagon Beauty',
+    shape: 'hexagon',
+    leg: 4,
+    category: 'Mosaics',
+    flat: true,
+    pieces: [0, 1, 2, 3, 4, 5].flatMap((k): ShapedPiece[] => {
+      const a = hexV(k, 2 / 3);
+      const b = hexV((k + 1) % 6, 2 / 3);
+      return [
+        { poly: [[0, 0], a, b], c: [4, 0, 2].includes(k) ? 'D' : 'L' },
+        { poly: [a, hexV(k), hexV((k + 1) % 6), b], c: [4, 0, 2].includes(k) ? 'M' : 'N' },
+      ];
+    }),
   },
 ];

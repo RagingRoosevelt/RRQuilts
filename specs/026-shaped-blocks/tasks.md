@@ -29,5 +29,5 @@
 
 ## Phase 6: Follow-ups
 
-- [x] T013 Starter shaped blocks by type of block (Mosaics, Stars, Strips/Log Cabin, Curves); Kentucky, Columbia, Old Glory, Hexagon Orange Peel (curved starter defs)
+- [x] T013 Starter shaped blocks by type of block (Mosaics, Stars, Strips/Log Cabin, Curves); Kentucky, Columbia, Old Glory, Hexagon Beauty, Hexagon Orange Peel (curved starter defs)
 - [x] T014 Block sidebar filters: Fits layout (pictures) and Shape (outlines); wizard pictures shared via `src/render/layout-samples.ts`
