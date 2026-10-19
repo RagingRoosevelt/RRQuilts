@@ -36,6 +36,7 @@ describe('open from a gist', () => {
     const { title, owner, files } = await gistProjects(ID);
     expect([title, owner]).toEqual(['Red and gray', 'quilter']);
     expect(files.map((f) => f.name)).toEqual(['q.rrq']);
+    expect(files[0]!.page).toBe(`https://gist.github.com/${ID}#file-q-rrq`);
     expect(await gistText(files[0]!)).toBe('{"format":"rrq"}');
     expect(fetch.mock.calls[0]![0]).toBe(`https://api.github.com/gists/${ID}`);
   });

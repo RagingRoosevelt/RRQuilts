@@ -112,14 +112,28 @@
             v-if="gistAsk.files.length === 1"
             class="text-subtitle1 text-weight-medium q-my-none q-mt-sm"
           >
-            {{ gistAsk.files[0]!.name }}
+            {{ gistAsk.files[0]!.name
+            }}<a
+              :href="gistAsk.files[0]!.page"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="gist-link"
+              aria-label="See it on GitHub"
+              title="See it on GitHub"
+              ><q-icon name="open_in_new" size="16px"
+            /></a>
           </h2>
-          <q-option-group
-            v-else
-            v-model="gistAsk.pick"
-            :options="gistAsk.files.map((f, i) => ({ label: f.name, value: i }))"
-            class="q-mt-sm"
-          />
+          <div v-for="(f, i) in gistAsk.files" v-else :key="f.url" class="row items-center no-wrap">
+            <q-radio v-model="gistAsk.pick" :val="i" :label="f.name" /><a
+              :href="f.page"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="gist-link"
+              aria-label="See it on GitHub"
+              title="See it on GitHub"
+              ><q-icon name="open_in_new" size="16px"
+            /></a>
+          </div>
           <h3 class="text-caption q-my-none byline">
             by {{ gistAsk.owner || 'an anonymous GitHub user' }}
           </h3>
@@ -324,6 +338,15 @@ async function discardDraft(d: Draft) {
 <style scoped>
 .byline {
   opacity: 0.7; /* muted in light and dark alike */
+}
+.gist-link {
+  color: inherit;
+  opacity: 0.7;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+.gist-link:hover {
+  opacity: 1;
 }
 /* Top border only, its label set into the line. */
 .gist-desc {

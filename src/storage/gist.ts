@@ -16,6 +16,8 @@ export interface GistFile {
   size: number;
   /** Raw address (the content in the listing is cut off for big files). */
   url: string;
+  /** The file on the gist's page, for people to look at. */
+  page: string;
 }
 
 /** Big enough for projects with embedded fabric images; anything larger isn't one of ours. */
@@ -43,8 +45,14 @@ export async function gistProjects(
   const j = (await (await get(`https://api.github.com/gists/${id}`)).json()) as {
     description?: unknown;
     owner?: { login?: unknown } | null;
+    html_url?: unknown;
     files?: Record<string, { filename?: unknown; size?: unknown; raw_url?: unknown }>;
   };
+  // GitHub's own page for the gist (never a link from the response that leads elsewhere).
+  const page =
+    typeof j.html_url === 'string' && j.html_url.startsWith('https://gist.github.com/')
+      ? j.html_url
+      : `https://gist.github.com/${id}`;
   const files = Object.values(j.files ?? {})
     .filter(
       (f) =>
@@ -57,6 +65,8 @@ export async function gistProjects(
       name: f.filename as string,
       size: Number(f.size) || 0,
       url: f.raw_url as string,
+      // GitHub's anchor for a file: "file-" + the name, lowercased, other characters as "-".
+      page: `${page}#file-${(f.filename as string).toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
     }));
   return {
     title: typeof j.description === 'string' ? j.description : '',
