@@ -1,5 +1,5 @@
 // Builds the Tests tab's quilts (dev server only): each variation a quilt, filled as a quilter would,
-// with its key settings in words. Layout gallery, border matrix, setting sweeps and extremes all use it.
+// with its key settings in words, each as its own project. Gallery, borders, sweeps and extremes use it.
 import { produce } from 'immer';
 import { BORDER_STYLE_NAMES } from '@/model/layout/borders';
 import { convertLayout, generateSlots, type LayoutStyle } from '@/model/layout/slots';
@@ -91,49 +91,42 @@ function settings(v: DevVariation, blockSpaces: number) {
 
 let kit: Promise<Kit> | undefined;
 
-/** One project per unit system; each variation is a quilt in it. Failures are kept, not thrown. */
-export async function buildQuilts(variations: readonly DevVariation[]): Promise<Built[]> {
+/** The variation as its own one-quilt project, built when asked for (cards build as they scroll
+ *  into view). Failures are kept, not thrown. */
+export async function buildOne(v: DevVariation): Promise<Built> {
   const k = await (kit ??= starterKit());
-  const docs: Partial<Record<Units, RrqDoc>> = {};
-  const out: Omit<Built, 'doc'>[] = [];
-  const unitsOf: Units[] = [];
-  for (const v of variations) {
-    const units = v.units ?? 'in';
-    let doc = (docs[units] ??= createProject(`Tests (${units})`, units, 'tests'));
-    const t0 = performance.now();
-    let error: string | undefined;
-    let quiltId: string | undefined;
-    let blockSpaces = 0;
-    try {
-      const layout: Layout = {
-        ...convertLayout(startFor(units), v.style as LayoutStyle, units),
-        ...v.layout,
-      };
-      const quilt = createQuilt(
-        `${v.id} ${v.title}`,
-        layout,
-        (v.borders ?? plainBorder(units)) as Border[],
-      );
-      // Throws on settings the layout can't draw.
-      blockSpaces = generateSlots(quilt.layout, quilt.borders).slots.filter(
-        (s) => s.kind === 'block',
-      ).length;
-      doc = produce(doc, (d) => void d.project.quilts.push(quilt));
-      doc = fillQuilt(doc, quilt.id, k, v.fill, { turns: !!v.turns });
-      docs[units] = doc;
-      quiltId = quilt.id;
-    } catch (e) {
-      error = (e as Error).message;
-    }
-    out.push({
-      ...v,
-      settings: settings(v, blockSpaces),
-      ms: performance.now() - t0,
-      ...(quiltId ? { quiltId } : {}),
-      ...(error ? { error } : {}),
-    });
-    unitsOf.push(units);
+  const units = v.units ?? 'in';
+  let doc = createProject(`${v.id} ${v.title}`, units, 'tests');
+  const t0 = performance.now();
+  let error: string | undefined;
+  let quiltId: string | undefined;
+  let blockSpaces = 0;
+  try {
+    const layout: Layout = {
+      ...convertLayout(startFor(units), v.style as LayoutStyle, units),
+      ...v.layout,
+    };
+    const quilt = createQuilt(
+      `${v.id} ${v.title}`,
+      layout,
+      (v.borders ?? plainBorder(units)) as Border[],
+    );
+    // Throws on settings the layout can't draw.
+    blockSpaces = generateSlots(quilt.layout, quilt.borders).slots.filter(
+      (s) => s.kind === 'block',
+    ).length;
+    doc = produce(doc, (d) => void d.project.quilts.push(quilt));
+    doc = fillQuilt(doc, quilt.id, k, v.fill, { turns: !!v.turns });
+    quiltId = quilt.id;
+  } catch (e) {
+    error = (e as Error).message;
   }
-  // Every entry points at its project's final version (all its quilts).
-  return out.map((e, i) => ({ ...e, doc: docs[unitsOf[i]!]! }));
+  return {
+    ...v,
+    doc,
+    settings: settings(v, blockSpaces),
+    ms: performance.now() - t0,
+    ...(quiltId ? { quiltId } : {}),
+    ...(error ? { error } : {}),
+  };
 }

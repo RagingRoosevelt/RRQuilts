@@ -1,10 +1,11 @@
 <template>
-  <!-- Tests tab (dev server only): built quilts in sections, each with its reference and what to
-       expect. Compact: small cards in a grid (sweeps, borders). -->
+  <!-- Tests tab (dev server only): quilts in sections, each with its reference and what to expect.
+       Each card builds and draws its quilt when it first scrolls into view (as the project's block
+       list does). Compact: small cards in a grid (sweeps, borders). -->
   <div>
     <div class="bar">
       <q-chip dense :color="failed ? 'negative' : 'positive'" text-color="white">
-        {{ entries.length }} quilts{{ failed ? `, ${failed} failed to build` : '' }}
+        {{ variations.length }} quilts{{ failed ? `, ${failed} failed to build` : '' }}
       </q-chip>
       <a v-for="s in sections" :key="s.group" :href="`#${s.anchor}`">{{ s.group }}</a>
     </div>
@@ -12,90 +13,102 @@
       <h2 :id="s.anchor" class="text-h6">{{ s.group }}</h2>
       <p v-if="s.note" class="expect"><strong>Expect:</strong> {{ s.note }}</p>
       <div :class="compact ? 'grid' : 'list'">
-        <article
+        <q-intersection
           v-for="v in s.entries"
           :id="v.id"
           :key="v.id"
-          class="card"
-          :class="[compact ? 'small' : 'var', { bad: v.error }]"
+          once
+          :class="compact ? 'slot-small' : 'slot'"
+          @visibility="(on: boolean) => on && void load(v)"
         >
-          <figure>
-            <img v-if="pics[v.id]" :src="pics[v.id]" :alt="v.title" />
-            <div v-else class="none">{{ v.error ? 'Not drawn' : 'Drawing…' }}</div>
-          </figure>
-          <div class="about">
-            <header>
-              <span class="ref">{{ v.id }}</span>
-              <h3>{{ v.title }}</h3>
-              <q-btn
-                v-if="v.quiltId"
-                flat
-                dense
-                round
-                size="sm"
-                icon="open_in_new"
-                :aria-label="`Open ${v.title} in the editor`"
-                @click="emit('open', v)"
-              >
-                <q-tooltip>Open in editor</q-tooltip>
-              </q-btn>
-            </header>
-            <p v-if="v.expect" class="expect"><strong>Expect:</strong> {{ v.expect }}</p>
-            <p v-if="v.error" class="error">Failed to build: {{ v.error }}</p>
-            <ul v-if="!compact">
-              <li v-for="x in v.settings" :key="x">{{ x }}</li>
-            </ul>
-            <p v-if="timing" class="time">{{ timeText(v) }}</p>
-          </div>
-        </article>
+          <article class="card" :class="[compact ? 'small' : 'var', { bad: built[v.id]?.error }]">
+            <figure>
+              <img v-if="pics[v.id]" :src="pics[v.id]" :alt="v.title" />
+              <div v-else class="none">{{ built[v.id]?.error ? 'Not drawn' : 'Drawing…' }}</div>
+            </figure>
+            <div class="about">
+              <header>
+                <span class="ref">{{ v.id }}</span>
+                <h3>{{ v.title }}</h3>
+                <q-btn
+                  v-if="built[v.id]?.quiltId"
+                  flat
+                  dense
+                  round
+                  size="sm"
+                  icon="open_in_new"
+                  :aria-label="`Open ${v.title} in the editor`"
+                  @click="emit('open', built[v.id]!)"
+                >
+                  <q-tooltip>Open in editor</q-tooltip>
+                </q-btn>
+              </header>
+              <p v-if="v.expect" class="expect"><strong>Expect:</strong> {{ v.expect }}</p>
+              <p v-if="built[v.id]?.error" class="error">
+                Failed to build: {{ built[v.id]!.error }}
+              </p>
+              <ul v-if="!compact && built[v.id]">
+                <li v-for="x in built[v.id]!.settings" :key="x">{{ x }}</li>
+              </ul>
+              <p v-if="timing && built[v.id]" class="time">{{ timeText(v.id) }}</p>
+            </div>
+          </article>
+        </q-intersection>
       </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive } from 'vue';
-import type { Built } from '@/dev/build';
+import { computed, reactive, shallowReactive } from 'vue';
+import { buildOne, type Built, type DevVariation } from '@/dev/build';
 import { quiltThumbnail } from '@/render/thumbnail';
 
-const props = defineProps<{ entries: Built[]; compact?: boolean; timing?: boolean }>();
+const props = defineProps<{
+  variations: readonly DevVariation[];
+  compact?: boolean;
+  timing?: boolean;
+}>();
 const emit = defineEmits<{ open: [entry: Built] }>();
 
+const built = shallowReactive<Record<string, Built>>({});
 const pics = reactive<Record<string, string>>({});
-const timeText = (v: Built) =>
-  `Built in ${Math.round(v.ms)} ms` +
-  (drawMs[v.id] === undefined ? '' : `, drawn in ${Math.round(drawMs[v.id]!)} ms`);
 const drawMs = reactive<Record<string, number>>({});
-const failed = computed(() => props.entries.filter((e) => e.error).length);
+const failed = computed(() => Object.values(built).filter((b) => b.error).length);
+const timeText = (id: string) =>
+  `Built in ${Math.round(built[id]!.ms)} ms` +
+  (drawMs[id] === undefined ? '' : `, drawn in ${Math.round(drawMs[id])} ms`);
+
 /** Sections in list order, one per group. */
 const sections = computed(() => {
-  const out: { group: string; note?: string; anchor: string; entries: Built[] }[] = [];
-  for (const e of props.entries) {
-    if (out.at(-1)?.group !== e.group)
+  const out: { group: string; note?: string; anchor: string; entries: DevVariation[] }[] = [];
+  for (const v of props.variations) {
+    if (out.at(-1)?.group !== v.group)
       out.push({
-        group: e.group,
-        ...(e.note ? { note: e.note } : {}),
+        group: v.group,
+        ...(v.note ? { note: v.note } : {}),
         anchor: `g${out.length}`,
         entries: [],
       });
-    out.at(-1)!.entries.push(e);
+    out.at(-1)!.entries.push(v);
   }
   return out;
 });
 
-// One at a time, so the page stays responsive while they draw.
-onMounted(async () => {
-  const px = props.compact ? 600 : 1080;
-  for (const e of props.entries) {
-    const q = e.doc.project.quilts.find((x) => x.id === e.quiltId);
-    if (q) {
-      const t0 = performance.now();
-      pics[e.id] = quiltThumbnail(e.doc, q, px, false, false, true, true);
-      drawMs[e.id] = performance.now() - t0;
-    }
-    await new Promise((r) => setTimeout(r));
-  }
-});
+const started = new Set<string>();
+async function load(v: DevVariation) {
+  if (started.has(v.id)) return;
+  started.add(v.id);
+  const b = await buildOne(v);
+  built[v.id] = b;
+  const q = b.doc.project.quilts.find((x) => x.id === b.quiltId);
+  if (!q) return;
+  // Let the card show its settings before the (slower) drawing.
+  await new Promise((r) => setTimeout(r));
+  const t0 = performance.now();
+  pics[v.id] = quiltThumbnail(b.doc, q, props.compact ? 600 : 1080, false, false, true, true);
+  drawMs[v.id] = performance.now() - t0;
+}
 </script>
 
 <style scoped>
@@ -124,6 +137,13 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
   gap: 12px;
+}
+/* Room held for a card before it scrolls into view, so only the visible ones build. */
+.slot {
+  min-height: 560px;
+}
+.slot-small {
+  min-height: 330px;
 }
 .card {
   border: 1px solid rgba(128, 128, 128, 0.3);

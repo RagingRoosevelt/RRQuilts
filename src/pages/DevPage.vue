@@ -29,15 +29,17 @@
           {{ g.name }} <small>{{ g.blocks.length }}</small>
         </h2>
         <div class="blocks">
-          <figure v-for="b in g.blocks" :id="b.ref" :key="b.ref" class="block">
-            <img v-if="blockPics[b.ref]" :src="blockPics[b.ref]" :alt="b.name" />
-            <div v-else class="none">…</div>
-            <figcaption>
-              <strong>{{ b.name }}</strong>
-              <span class="ref">{{ b.ref }}</span>
-              <span v-if="b.shape" class="shape">{{ b.shape }}</span>
-            </figcaption>
-          </figure>
+          <!-- Drawn when it first scrolls into view, as the project's block list does. -->
+          <q-intersection v-for="b in g.blocks" :id="b.ref" :key="b.ref" once class="block-slot">
+            <figure class="block">
+              <img :src="blockPic(b.block)" :alt="b.name" />
+              <figcaption>
+                <strong>{{ b.name }}</strong>
+                <span class="ref">{{ b.ref }}</span>
+                <span v-if="b.shape" class="shape">{{ b.shape }}</span>
+              </figcaption>
+            </figure>
+          </q-intersection>
         </div>
       </section>
     </template>
@@ -122,26 +124,24 @@
 
     <template v-else>
       <DevQuiltCards
-        v-if="built[view]"
         :key="view"
-        :entries="built[view]!"
+        :variations="LISTS[view] ?? []"
         :compact="view === 'borders' || view === 'sweeps'"
         :timing="view === 'extremes'"
         @open="openInEditor"
       />
-      <p v-else>Building…</p>
     </template>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, reactive, ref, shallowReactive, watch } from 'vue';
+import { computed, ref, shallowReactive, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DevQuiltCards from '@/components/DevQuiltCards.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import { BORDERS } from '@/dev/borders';
-import { buildQuilts, type Built, type DevVariation } from '@/dev/build';
+import { buildOne, type Built, type DevVariation } from '@/dev/build';
 import { EXTREMES } from '@/dev/extremes';
 import { pictureCheck, type Comparison, type Section } from '@/dev/picture-check';
 import { PRINT_EXAMPLES } from '@/dev/print-examples';
@@ -149,6 +149,7 @@ import { SWEEP_QUILTS } from '@/dev/sweeps';
 import { GALLERY } from '@/dev/variations';
 import { serializeProject } from '@/model/io';
 import { createProject } from '@/model/new-project';
+import type { Block } from '@/model/schema/block';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
@@ -218,13 +219,6 @@ const LISTS: Partial<Record<View, readonly DevVariation[]>> = {
   sweeps: SWEEP_QUILTS,
   extremes: EXTREMES,
 };
-const built = shallowReactive<Partial<Record<View, Built[]>>>({});
-const building = new Set<View>();
-async function build(v: View) {
-  if (built[v] || building.has(v) || !LISTS[v]) return;
-  building.add(v);
-  built[v] = await buildQuilts(LISTS[v]);
-}
 
 /** Opens the quilt's test project (unsaved work stays in its draft), at that quilt. */
 function openInEditor(entry: Built) {
@@ -245,15 +239,25 @@ function openInEditor(entry: Built) {
 // --- Print ---
 const printPick = ref(PRINT_EXAMPLES[0]!.id);
 const printOptions = PRINT_EXAMPLES.map((p) => ({ value: p.id, label: p.id }));
+/** Only the picked example's quilt is built. */
+const printBuilt = shallowReactive<Record<string, Built>>({});
 const printShown = computed(() => {
   const ex = PRINT_EXAMPLES.find((p) => p.id === printPick.value)!;
-  const entry = built.gallery?.find((e) => e.id === ex.quilt && e.quiltId);
-  return entry ? { ex, entry } : undefined;
+  const entry = printBuilt[ex.id];
+  return entry?.quiltId ? { ex, entry } : undefined;
 });
+async function buildPrint() {
+  const ex = PRINT_EXAMPLES.find((p) => p.id === printPick.value)!;
+  if (printBuilt[ex.id]) return;
+  printBuilt[ex.id] = await buildOne(GALLERY.find((v) => v.id === ex.quilt)!);
+}
+watch(printPick, () => view.value === 'print' && void buildPrint());
 
 // --- Blocks ---
 const blockSearch = ref<string | null>('');
-const blockPics = reactive<Record<string, string>>({});
+const blockDoc = createProject('Blocks', 'in', 'tests');
+const blockPic = (b: Block) =>
+  blockThumbnail(blockDoc, b, 240, false, undefined, library.items.colors);
 const blockList = computed(() => {
   const lib = library.builtin;
   if (!lib) return [];
@@ -285,18 +289,6 @@ const blockGroups = computed(() => {
       groups.set(b.group, [...(groups.get(b.group) ?? []), b]);
   return [...groups].map(([name, blocks], i) => ({ name, anchor: `c${i}`, blocks }));
 });
-let blocksDrawn = false;
-async function drawBlocks() {
-  if (blocksDrawn) return;
-  blocksDrawn = true;
-  while (!library.builtin) await new Promise((r) => setTimeout(r, 100));
-  const doc = createProject('Blocks', 'in', 'tests');
-  for (const b of blockList.value) {
-    blockPics[b.ref] = blockThumbnail(doc, b.block, 240, false, undefined, library.items.colors);
-    await new Promise((r) => setTimeout(r));
-  }
-}
-
 // --- Picture check ---
 const sections = ref<Section[]>([]);
 const onlyChanged = ref(false);
@@ -336,8 +328,7 @@ watch(
   view,
   (v) => {
     if (v === 'pictures') void loadCheck();
-    else if (v === 'blocks') void drawBlocks();
-    else void build(v === 'print' ? 'gallery' : v);
+    else if (v === 'print') void buildPrint();
   },
   { immediate: true },
 );
@@ -463,6 +454,9 @@ figcaption {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 12px;
+}
+.block-slot {
+  min-height: 210px;
 }
 .block figcaption {
   text-transform: none;

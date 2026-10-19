@@ -52,7 +52,7 @@ like sketchbook/worktable are fine).
   `BORDER_STYLE_NAMES` in `model/layout/borders.ts`), **Sweeps** (`dev/sweeps.ts`: one setting
   stepped through its range), **Extremes** (`dev/extremes.ts`, with build/draw times), **Blocks**
   (every built-in block, named), **Print** (`dev/print-examples.ts`: PrintPreview with a `doc` prop
-  for gallery quilts). Quilt lists build through `dev/build.ts` (`DevQuiltCards.vue` shows them). Point the owner to them (localhost:9000/RRQuilts/dev/…)
+  for gallery quilts). Each quilt builds as its own project when its card scrolls into view (`dev/build.ts` `buildOne`, `DevQuiltCards.vue` with `q-intersection once`, as the project block list); blocks draw the same way. Point the owner to them (localhost:9000/RRQuilts/dev/…)
   before releases and after format/layout/drawing changes; never publish them.
 
 ## Rules
