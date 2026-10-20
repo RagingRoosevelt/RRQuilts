@@ -90,6 +90,9 @@
                 <q-item v-close-popup clickable @click="saveQuiltImage(project.doc!, q)"
                   ><q-item-section>Save image</q-item-section></q-item
                 >
+                <q-item v-close-popup clickable @click="printQuilt(q.id)"
+                  ><q-item-section>Print</q-item-section></q-item
+                >
                 <template v-if="!project.readOnly">
                   <q-item v-close-popup clickable @click="duplicate(q.id)"
                     ><q-item-section>Create copy</q-item-section></q-item
@@ -330,11 +333,17 @@
                           v-close-popup
                           clickable
                           :disable="b.kind !== 'seam'"
-                          @click="openBlock(b.id)"
+                          @click="openInEditor(b)"
                         >
                           <q-item-section avatar class="menu-icon"
                             ><q-icon name="edit" /></q-item-section
                           ><q-item-section>Open in block editor</q-item-section>
+                        </q-item>
+                        <q-item v-close-popup clickable @click="printBlock(b)">
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="print"
+                          /></q-item-section>
+                          <q-item-section>Print</q-item-section>
                         </q-item>
                         <q-item v-close-popup clickable @click="blockDetails(b.id)">
                           <q-item-section avatar class="menu-icon"
@@ -541,6 +550,23 @@
                                   ><q-icon name="visibility"
                                 /></q-item-section>
                                 <q-item-section>Preview</q-item-section>
+                              </q-item>
+                              <q-item
+                                v-close-popup
+                                clickable
+                                :disable="b.kind !== 'seam'"
+                                @click="openInEditor(b)"
+                              >
+                                <q-item-section avatar class="menu-icon"
+                                  ><q-icon name="edit"
+                                /></q-item-section>
+                                <q-item-section>Open in block editor</q-item-section>
+                              </q-item>
+                              <q-item v-close-popup clickable @click="printBlock(b)">
+                                <q-item-section avatar class="menu-icon"
+                                  ><q-icon name="print"
+                                /></q-item-section>
+                                <q-item-section>Print</q-item-section>
                               </q-item>
                               <q-item v-close-popup clickable @click="exportBlock(b)">
                                 <q-item-section avatar class="menu-icon"
@@ -1047,8 +1073,9 @@
             {{ attribution(previewBlock) }}
           </div>
         </q-card-section>
-        <q-card-actions v-if="!isLibraryItem(previewBlock)" align="right">
+        <q-card-actions align="right">
           <q-btn
+            v-if="!isLibraryItem(previewBlock)"
             v-close-popup
             flat
             no-caps
@@ -1064,7 +1091,7 @@
             color="primary"
             icon="edit"
             label="Open in block editor"
-            @click="openBlock(previewBlock.id)"
+            @click="openInEditor(previewBlock)"
           />
         </q-card-actions>
       </q-card>
@@ -1428,6 +1455,7 @@ import {
   visibleTags,
   type TagTarget,
 } from '@/model/tags';
+import { useLibraryBlockActions } from '@/composables/library-block-actions';
 import { useAuthor } from '@/composables/author';
 import { useAskCategory } from '@/composables/category';
 import {
@@ -1465,8 +1493,6 @@ import {
   versionMismatches,
   projectColorings,
   coloringSections,
-  toUnits,
-  useMyCopy,
 } from '@/model/library-items';
 import { exportFile, pickFile } from '@/storage/files';
 import { importCollectionColors, parseCollectionFile } from '@/model/collection-file';
@@ -1502,6 +1528,7 @@ const otherVersions = computed(
 );
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
+const { editLibrary, colorVariant } = useLibraryBlockActions();
 const inUseDialog = ref<{
   id: string;
   quilt: string;
@@ -2306,32 +2333,6 @@ async function createBlock(name: string, shape: BlockShape | undefined, size: [n
   void router.push(`/project/block/${b.id}`);
 }
 
-/** Library blocks are read-only: editing makes your copy, optionally used in their place. */
-async function editLibrary(lib: Block) {
-  const copy = copyBlock(
-    toUnits(lib, project.doc!.units),
-    blocks.value.map((x) => x.notecard.name),
-    await askAuthor(),
-    project.doc!.project.license,
-  );
-  const users = quiltsUsing(lib.id);
-  const go = (replace: boolean) => {
-    project.change(() => useMyCopy(project.doc!, lib.id, copy, replace));
-    editor.blockMode = 'draw';
-    void router.push(`/project/block/${copy.id}`);
-  };
-  if (!users.length) return go(false);
-  $q.dialog({
-    title: `Use your copy of "${lib.notecard.name}"?`,
-    message: `It's used in ${users.map((q) => `"${q.notecard.name}"`).join(', ')}. Your copy can replace it there (colors are kept).`,
-    persistent: true,
-    ok: { label: 'Use my copy there', flat: true },
-    cancel: { label: 'Keep the library block', flat: true },
-  })
-    .onOk(() => go(true))
-    .onCancel(() => go(false));
-}
-
 /** Scroll to a color variant's library block, opening the sections it's in. */
 const flashed = ref<string>();
 function showOriginal(v: Block) {
@@ -2361,24 +2362,6 @@ function showOriginal(v: Block) {
 }
 
 /** Your own coloring of a library block, in My blocks: same drawing, locked. */
-async function colorVariant(lib: Block) {
-  const v = produce(
-    copyBlock(
-      toUnits(lib, project.doc!.units),
-      blocks.value.map((x) => x.notecard.name),
-      await askAuthor(),
-      project.doc!.project.license,
-    ),
-    (c) => {
-      c.colorVariant = true;
-      c.notecard.name = lib.notecard.name; // same name as its original; the badge tells them apart
-    },
-  );
-  project.change((d) => void d.project.blocks.push(v));
-  editor.blockMode = 'color';
-  void router.push(`/project/block/${v.id}`);
-}
-
 // --- My library (spec 011) ---
 const linkOf = (b: Block) => linkState(library.mine ?? undefined, b, project.doc!.units);
 
@@ -2873,6 +2856,21 @@ function duplicate(id: string) {
 
 function quiltDetails(id: string) {
   editor.mode = 'details';
+  void router.push(`/project/quilt/${id}`);
+}
+/** The block editor: your own block to edit, a library block to look at (read-only there). */
+function openInEditor(b: Block) {
+  if (!isLibraryItem(b)) return openBlock(b.id);
+  editor.blockMode = 'draw';
+  void router.push(`/project/block/${b.id}`);
+}
+/** Straight to the editor's Print tab (a library block's read-only view prints too). */
+function printBlock(b: Block) {
+  editor.blockMode = 'print';
+  void router.push(`/project/block/${b.id}`);
+}
+function printQuilt(id: string) {
+  editor.mode = 'print';
   void router.push(`/project/quilt/${id}`);
 }
 function blockDetails(id: string) {

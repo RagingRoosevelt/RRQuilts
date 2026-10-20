@@ -91,10 +91,28 @@ export const CHECKS: Check[] = [
     to: '/dev/print',
   },
   {
-    id: 'TC-082',
+    id: 'TC-083',
     group: G.small,
-    text: 'Project › Blocks tab, one of your own blocks: its ⋮ menu has Open in block editor right after Preview (no separate Edit any more), and its preview (click the picture) has an Open in block editor button next to Details. Both open the block editor; a block used in quilts still warns once first. Library blocks have neither (Edit a copy as before).',
+    text: 'Project › Blocks tab: every block’s ⋮ menu (your own and library blocks) has Open in block editor right after Preview, then Print. Previews have Open in block editor (and Print on the Libraries page). Your own block opens to edit as before.',
     to: '/',
+  },
+  {
+    id: 'TC-084',
+    group: G.small,
+    text: 'Open a library block in the block editor: a banner says it’s read-only and offers Create a coloration variant and Edit (make a copy). Draw and Color tools don’t change it; Details shows its title, author, license and notes fixed (tags still editable), technique checkboxes greyed with a lock line saying why; Print shows its sheets.',
+    to: '/',
+  },
+  {
+    id: 'TC-085',
+    group: G.small,
+    text: 'Create a coloration variant of a library block twice (from the sketchbook menu or the editor banner): the second time opens the variant you already have instead of making another.',
+    to: '/',
+  },
+  {
+    id: 'TC-086',
+    group: G.small,
+    text: 'Print in menus: a block’s menu › Print opens the block editor on its Print tab; a quilt’s menu (Quilts tab) › Print opens the quilt editor on Print. Libraries page: a block’s menu has Open in block editor and Print while a project is open (greyed, “Open a project first”, when none is).',
+    to: '/libraries',
   },
 ];
 

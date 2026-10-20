@@ -22,6 +22,29 @@
         <q-tooltip>{{ sidebarLabel }}</q-tooltip>
       </q-btn>
     </div>
+    <!-- A library block opens read-only (spec 008): change it through your own copy or variant. -->
+    <q-banner v-if="libraryView && !project.readOnly" dense class="lib-banner">
+      <template #avatar><q-icon name="lock" /></template>
+      {{ anyBlock!.notecard.name }} is a library block, so it opens read-only.
+      <template #action>
+        <q-btn
+          flat
+          dense
+          no-caps
+          icon="palette"
+          label="Create a coloration variant"
+          @click="colorVariant(block)"
+        />
+        <q-btn
+          flat
+          dense
+          no-caps
+          icon="content_copy"
+          label="Edit (make a copy)"
+          @click="editLibrary(block)"
+        />
+      </template>
+    </q-banner>
 
     <div
       class="row col no-wrap"
@@ -65,7 +88,7 @@
             dense
             :icon="t.icon"
             :aria-label="t.label"
-            :disable="project.readOnly && !['pan', 'select', 'eyedropper'].includes(t.id)"
+            :disable="ro && !['pan', 'select', 'eyedropper'].includes(t.id)"
             @click="editor.blockTool = t.id"
           >
             <q-tooltip anchor="center right" self="center left">{{ t.label }}</q-tooltip>
@@ -77,18 +100,19 @@
         v-if="editor.blockMode === 'print'"
         kind="block"
         :id="block.id"
+        :doc="viewDoc"
         :target="printTarget"
       />
       <div v-else class="col relative-position">
         <BlockCanvas
           v-model:view="view"
           v-model:selection="selection"
-          :doc="project.doc"
+          :doc="viewDoc"
           :block="block"
           :coloring-id="coloringId"
           :settings="settings"
           :unconnected="unconnected"
-          :readonly="project.readOnly"
+          :readonly="ro"
           @drawing="applyDrawing"
           @patch="onPatch"
           @pointer="(i) => (pointer = i)"
@@ -105,10 +129,16 @@
           v-if="editor.blockMode === 'print'"
           kind="block"
           :id="block.id"
+          :doc="viewDoc"
           :coloring-id="coloringId"
           @target="(t) => (printTarget = t)"
         />
-        <DetailsPanel v-else-if="editor.blockMode === 'details'" kind="block" :id="block.id" />
+        <DetailsPanel
+          v-else-if="editor.blockMode === 'details'"
+          kind="block"
+          :id="block.id"
+          :doc="viewDoc"
+        />
         <BlockInspector
           v-else-if="editor.blockMode === 'draw'"
           :block="block"
@@ -116,7 +146,7 @@
           :selection="selection"
           :tool="editor.blockTool"
           :units="units"
-          :readonly="project.readOnly"
+          :readonly="ro"
           @rename="rename"
           @resize="resize"
           @settings="saveSettings"
@@ -150,7 +180,7 @@
                       <div class="text-caption ellipsis">{{ c.name ?? `Coloring ${i + 1}` }}</div>
                     </button>
                     <!-- Each coloring's own Rename and Delete (a library's colorings have neither). -->
-                    <div v-if="!project.readOnly && !isLibraryColoring(c.id)" class="row no-wrap">
+                    <div v-if="!ro && !isLibraryColoring(c.id)" class="row no-wrap">
                       <q-btn
                         flat
                         round
@@ -179,7 +209,7 @@
                   </div>
                 </div>
               </template>
-              <div v-if="!project.readOnly" class="row" style="gap: 6px">
+              <div v-if="!ro" class="row" style="gap: 6px">
                 <q-btn
                   dense
                   outline
@@ -249,7 +279,8 @@ import {
 } from '@/editor/draw-ops';
 import { applySeamEdit } from '@/model/blocks/edit';
 import { usePaletteOffer } from '@/composables/palette-offer';
-import { isLibraryItem, projectColorings } from '@/model/library-items';
+import { isLibraryItem, projectColorings, toUnits } from '@/model/library-items';
+import { useLibraryBlockActions } from '@/composables/library-block-actions';
 import type { Pt } from '@/model/geometry/path';
 import type { Block, Drawing } from '@/model/schema/block';
 import type { RrqDoc } from '@/model/schema/project';
@@ -286,20 +317,32 @@ watch(
 );
 const fill = (offset: number) => ({ height: `calc(100vh - ${offset}px)` });
 
-const anyBlock = computed(() => project.doc?.project.blocks.find((b) => b.id === route.params.id));
+/** A library block that isn't in the project (opened from the sketchbook's or Libraries' library
+ *  blocks): shown read-only, in the project's units, as if it were. */
+const libBlock = computed(() => {
+  const doc = project.doc;
+  if (!doc || doc.project.blocks.some((b) => b.id === route.params.id)) return undefined;
+  const b = library.allViews.flatMap((v) => v.blocks).find((x) => x.id === route.params.id);
+  return b && toUnits(b, doc.units);
+});
+const anyBlock = computed(
+  () => project.doc?.project.blocks.find((b) => b.id === route.params.id) ?? libBlock.value,
+);
+/** The project, with the library block in it when it isn't (never saved: views only). */
+const viewDoc = computed(() => {
+  const doc = project.doc!;
+  const b = libBlock.value;
+  return b ? { ...doc, project: { ...doc.project, blocks: [...doc.project.blocks, b] } } : doc;
+});
+const libraryView = computed(() => !!anyBlock.value && isLibraryItem(anyBlock.value));
+const ro = computed(() => project.readOnly || libraryView.value);
+const { editLibrary, colorVariant } = useLibraryBlockActions();
 const block = computed(() => (anyBlock.value?.kind === 'seam' ? anyBlock.value : undefined));
 const notSeam = computed(() => !!anyBlock.value && !block.value);
 watch(
   anyBlock,
   (b) => {
     if (project.doc && !b) void router.replace('/project');
-    // Library blocks are read-only (spec 008): "Edit" in the sketchbook makes your copy.
-    if (b && isLibraryItem(b)) {
-      $q.notify({
-        message: 'Library blocks are read-only. Use Edit in the sketchbook to make your copy.',
-      });
-      void router.replace('/project');
-    }
   },
   { immediate: true },
 );
@@ -566,7 +609,7 @@ function removeColoring(id: string) {
 // --- Keyboard ---
 function onKey(e: KeyboardEvent) {
   if ((e.target as HTMLElement | null)?.closest('input, textarea')) return;
-  if (!block.value || project.readOnly || editor.blockMode !== 'draw') return;
+  if (!block.value || ro.value || editor.blockMode !== 'draw') return;
   if ((e.key === 'Delete' || e.key === 'Backspace') && selection.value.size) {
     e.preventDefault();
     onOp({ kind: 'delete' });
@@ -585,6 +628,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 </script>
 
 <style scoped>
+.lib-banner {
+  background: rgba(128, 128, 128, 0.12);
+}
 .editor {
   overflow: hidden;
   min-width: 0;

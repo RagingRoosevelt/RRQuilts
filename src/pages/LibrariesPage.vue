@@ -525,6 +525,26 @@
                             >
                               <q-item-section>Preview</q-item-section>
                             </q-item>
+                            <q-item
+                              v-if="b.kind === 'seam'"
+                              v-close-popup
+                              clickable
+                              :disable="!project.doc"
+                              @click="openInEditor(b.id)"
+                            >
+                              <q-item-section>Open in block editor</q-item-section>
+                              <q-tooltip v-if="!project.doc">Open a project first</q-tooltip>
+                            </q-item>
+                            <q-item
+                              v-if="b.kind === 'seam'"
+                              v-close-popup
+                              clickable
+                              :disable="!project.doc"
+                              @click="openInEditor(b.id, 'print')"
+                            >
+                              <q-item-section>Print</q-item-section>
+                              <q-tooltip v-if="!project.doc">Open a project first</q-tooltip>
+                            </q-item>
                             <template v-if="g.mine">
                               <q-item
                                 v-close-popup
@@ -760,6 +780,31 @@
             {{ tagLine(previewBlock) }}
           </div>
         </q-card-section>
+        <!-- The block editor lives in a project: offered while one is open (read-only there). -->
+        <q-card-actions v-if="previewBlock.kind === 'seam'" align="right">
+          <q-btn
+            v-close-popup
+            flat
+            no-caps
+            icon="print"
+            label="Print"
+            :disable="!project.doc"
+            @click="openInEditor(previewBlock.id, 'print')"
+          />
+          <q-btn
+            v-close-popup
+            flat
+            no-caps
+            color="primary"
+            icon="edit"
+            label="Open in block editor"
+            :disable="!project.doc"
+            @click="openInEditor(previewBlock.id)"
+          />
+          <q-tooltip v-if="!project.doc"
+            >The block editor opens in a project: open one first.</q-tooltip
+          >
+        </q-card-actions>
       </q-card>
       <q-card v-else-if="previewCollection" style="width: min(80vw, 512px); max-width: none">
         <DialogClose />
@@ -1412,6 +1457,7 @@ import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { Fabric } from '@/model/schema/palette';
 import { retryMissing, swatchStyle } from '@/render/fabric-images';
 import { useLibraryStore } from '@/stores/library';
+import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 import { useRoute, useRouter } from 'vue-router';
 import { paintsUsed, replaceColors } from '@/editor/colors';
@@ -2081,6 +2127,12 @@ const previewing = ref<{ lib: string; id: string; at?: number } | null>(null);
 /** The preview's coloring (undefined: the block's first); reset when the preview changes. */
 const previewColoring = ref<string>();
 watch(previewing, () => (previewColoring.value = undefined));
+/** A library block in the open project's block editor, read-only (a My library block too: edit
+ *  its linked copy to change it). */
+function openInEditor(id: string, tab: 'draw' | 'print' = 'draw') {
+  useEditorStore().blockMode = tab;
+  void router.push(`/project/block/${id}`);
+}
 const previewLib = computed(() => library.allViews.find((v) => v.doc.id === previewing.value?.lib));
 const previewMine = computed(() => previewLib.value?.doc.kind === 'personal');
 const previewBlock = computed(() =>
