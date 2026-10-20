@@ -55,7 +55,7 @@ Today, adding a fabric image to a palette under a name already in that palette a
 2. **Given** a library block or a color variation of one (a coloring, not a copy), **Then** its
    technique shows as a read-only list, not checkboxes (only the block's designer sets technique).
 
-## Part F - Palette filters in the project (TC-038 note)
+## Part F - Palette filters in the project (TC-038 note) · done on 0.6.0 (TC-055; spec 033's Color card to join when built)
 
 1. **Given** the project's Palettes tab, **Then** it has the same filter sidebar as Libraries ›
    Palettes (search, Tags with Favorite first, Category, and spec 033's Color filter when it exists),

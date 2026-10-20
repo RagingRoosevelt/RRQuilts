@@ -326,6 +326,12 @@ export const CHECKS: Check[] = [
     text: 'Block editor › Details: a Tags field (add ⭐ Favorite or your own words; a library block’s tags are kept in My library) and Category (a My library block or its linked copy: Change… files it; a library block shows its library’s category; a project-only block says to add it to My library). Technique checkboxes only on blocks you designed; a library block, or a copy or color variation of someone else’s, shows them as a list.',
     to: '/',
   },
+  {
+    id: 'TC-055',
+    group: G.filters,
+    text: 'Project › Palettes tab: a filter sidebar (on phones behind Filters) with a search box, Tags (⭐ Favorite first) and Category (when palettes are filed in categories). They narrow both the project’s palettes and the library palettes listed; project palettes count as uncategorized.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
