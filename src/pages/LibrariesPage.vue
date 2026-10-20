@@ -2129,7 +2129,7 @@ const previewColoring = ref<string>();
 watch(previewing, () => (previewColoring.value = undefined));
 /** A library block in the open project's block editor, read-only (a My library block too: edit
  *  its linked copy to change it). */
-function openInEditor(id: string, tab: 'color' | 'print' = 'color') {
+function openInEditor(id: string, tab: 'details' | 'print' = 'details') {
   useEditorStore().blockMode = tab;
   void router.push(`/project/block/${id}`);
 }

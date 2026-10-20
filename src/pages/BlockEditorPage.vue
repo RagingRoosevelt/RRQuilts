@@ -12,7 +12,7 @@
           icon="draw"
           label="Draw"
         />
-        <q-tab name="color" icon="palette" label="Color" />
+        <q-tab v-if="!libraryView" name="color" icon="palette" label="Color" />
         <q-tab name="print" icon="print" label="Print" />
       </q-tabs>
       <HelpLink v-bind="BLOCK_HELP[editor.blockMode] ?? BLOCK_HELP.draw!" />
@@ -354,8 +354,10 @@ watch(
 
 // Color variants keep their library block's drawing; a library block's isn't drawn here either.
 watchEffect(() => {
-  if ((anyBlock.value?.colorVariant || libraryView.value) && editor.blockMode === 'draw')
-    editor.blockMode = 'color';
+  // A library block: Details and Print only (the banner's buttons make one you can change).
+  if (libraryView.value && (editor.blockMode === 'draw' || editor.blockMode === 'color'))
+    editor.blockMode = 'details';
+  else if (anyBlock.value?.colorVariant && editor.blockMode === 'draw') editor.blockMode = 'color';
 });
 const offerPalette = usePaletteOffer();
 /** The Help topic for each editor tab. */

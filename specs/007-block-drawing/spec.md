@@ -158,8 +158,8 @@ existing seam's midpoint; zoomed to 800% the ends coincide.
   from the sketchbook; opening a block used in quilts shows a one-time notice with the usage count.
   "Open in block editor" sits right after "Preview" in a block's menu (own and library blocks; on
   the Libraries page too, while a project is open), then "Print" (straight to the Print tab; quilts
-  have Print too), and block previews have the same buttons. A library block opens read-only, like a
-  color variant without its Draw tab (Details, Color, Print): nothing paints, Details is fixed except
+  have Print too), and block previews have the same buttons. A library block opens read-only with
+  Details and Print only (no Draw or Color: the banner's buttons make a version to change), Details is fixed except
   the quilter's tags, and techniques show as text with the reason (no checkboxes, as for color
   variants and read-only projects); a banner offers "Create a coloration variant" and "Edit (make a copy)". A project keeps one
   coloration variant per library block: creating another opens the existing one (0.6.1, owner
