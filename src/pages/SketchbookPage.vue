@@ -651,7 +651,8 @@
                 @click.stop="openProjectPalette(pp.palette.id, pp.colors.length + j)"
               />
             </button>
-            <q-btn flat round dense icon="more_vert" aria-label="Actions">
+            <!-- At the top, beside the first row of swatches, however many rows there are. -->
+            <q-btn flat round dense class="self-start" icon="more_vert" aria-label="Actions">
               <q-menu>
                 <q-list dense style="min-width: 190px">
                   <q-item v-close-popup clickable @click="openProjectPalette(pp.palette.id, 0)">
