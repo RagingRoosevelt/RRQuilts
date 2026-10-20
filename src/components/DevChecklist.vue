@@ -203,10 +203,12 @@ function copyResults() {
     ['Needs iteration', by('iterate').flatMap(withNote)],
   ] as const;
   // Passed and skipped: their test case numbers, so each is accounted for.
-  const ids = (s: string) =>
-    by(s)
-      .map((c) => checkId(c))
-      .join(', ') || 'none';
+  // Plain numbers; a check tested on another build than this one says which.
+  const short = (c: Check) => {
+    const b = state.value[stateKey(c)]?.build ?? build.value;
+    return b === build.value ? c.id : `${c.id} (${b})`;
+  };
+  const ids = (s: string) => by(s).map(short).join(', ') || 'none';
   // Each text block with its section and the check just before it (or the section's start), in
   // page order.
   const placed = notes.value
