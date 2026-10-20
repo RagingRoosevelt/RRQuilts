@@ -531,12 +531,12 @@
                               <q-item v-close-popup clickable @click="pickCategory(b.id)">
                                 <q-item-section>Category…</q-item-section>
                               </q-item>
-                              <q-item v-close-popup clickable @click="startTagging(b, true)">
+                              <q-item v-close-popup clickable @click="startTagging(b)">
                                 <q-item-section>Tags…</q-item-section>
                               </q-item>
                             </template>
                             <template v-else>
-                              <q-item v-close-popup clickable @click="startTagging(b, false)">
+                              <q-item v-close-popup clickable @click="startTagging(b)">
                                 <q-item-section>Tags…</q-item-section>
                               </q-item>
                               <q-item v-close-popup clickable @click="copyMine(g.v, b.id)">
@@ -604,6 +604,10 @@
                 @drop.prevent="g.mine && dropImages($event, c.id)"
               >
                 <legend class="ellipsis">
+                  <FavoriteBadge
+                    v-if="tagsFor(c.notecard.tags, [c.id], library.kept).includes(FAVORITE)"
+                    inline
+                  />
                   {{ c.notecard.name }}
                   <span class="text-caption text-grey-7"
                     >· {{ c.colors.length + (c.fabrics?.length ?? 0) }}
@@ -657,12 +661,12 @@
                         <q-item v-close-popup clickable @click="pickCategory(c.id)">
                           <q-item-section>Category…</q-item-section>
                         </q-item>
-                        <q-item v-close-popup clickable @click="startTagging(c, true)">
+                        <q-item v-close-popup clickable @click="startTagging(c)">
                           <q-item-section>Tags…</q-item-section>
                         </q-item>
                       </template>
                       <template v-else>
-                        <q-item v-close-popup clickable @click="startTagging(c, false)">
+                        <q-item v-close-popup clickable @click="startTagging(c)">
                           <q-item-section>Tags…</q-item-section>
                         </q-item>
                         <q-item v-close-popup clickable @click="copyMine(g.v, c.id)">
@@ -1315,7 +1319,7 @@ import TagsDialog from '@/components/TagsDialog.vue';
 import FavoriteBadge from '@/components/FavoriteBadge.vue';
 import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
 import { TECHNIQUES, techniqueOptions } from '@/model/schema/shared';
-import { FAVORITE, sortTags, tagLabel, tagsFor, visibleTags, type TagTarget } from '@/model/tags';
+import { FAVORITE, sortTags, tagLabel, tagsFor, type TagTarget } from '@/model/tags';
 import ColoringCount from '@/components/ColoringCount.vue';
 import BlockSections from '@/components/BlockSections.vue';
 import BlockFilter from '@/components/BlockFilter.vue';
@@ -2102,32 +2106,17 @@ async function pickCategory(id: string) {
 }
 
 /** Tagging an item: own items keep tags in themselves; others' in My library (spec 029). */
-const tagging = ref<{ id: string; mine: boolean; target: TagTarget } | null>(null);
-function startTagging(x: Block | ColorCollection, mine: boolean) {
+const tagging = ref<{ id: string; target: TagTarget } | null>(null);
+function startTagging(x: Block | ColorCollection) {
   tagging.value = {
     id: x.id,
-    mine,
     target: { name: x.notecard.name, tags: tagsFor(x.notecard.tags, [x.id], library.kept) },
   };
 }
 function saveTags(tags: string[]) {
   const t = tagging.value!;
   tagging.value = null;
-  if (t.mine) void update((l) => setNotecard(l, t.id, { tags }));
-  else {
-    // Tags a pack came with stay (they're the pack's); the quilter's are kept for the rest.
-    const own = new Set(
-      visibleTags(
-        library.allViews.flatMap((w) => w.doc.items).find((i) => i.data.id === t.id)?.data.notecard
-          .tags,
-      ),
-    );
-    void library.setKeptTags(
-      me.value,
-      t.id,
-      tags.filter((x) => !own.has(x)),
-    );
-  }
+  void library.setTags(me.value, t.id, tags);
 }
 
 const managing = ref(false);

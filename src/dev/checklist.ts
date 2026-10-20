@@ -272,6 +272,12 @@ export const CHECKS: Check[] = [
     text: 'Libraries: the Blocks / Palettes / All switch sits in the page header right after the title’s help icon (on a phone, on its own line under the title). Palette cards’ ⋮ button sits at the top of the card even when the swatches wrap onto several rows (Libraries and the sketchbook’s Palettes tab).',
     to: '/libraries',
   },
+  {
+    id: 'TC-038',
+    group: G.tags,
+    text: 'Favorite palettes: on Libraries › Palettes, a palette’s menu › Tags… › ⭐ Favorite shows ⭐ before its name; in a project’s Palettes tab the tag button on a library palette row does the same; a picked favorite palette shows ⭐ in the quilt editor’s color tray. The Tags filter finds it. Works for a My library palette (its own tag) and a built-in one.',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

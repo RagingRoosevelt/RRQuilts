@@ -767,6 +767,7 @@
                 The last palette stays picked until you have colors of your own
               </q-tooltip>
               <div class="q-px-sm" style="width: 160px">
+                <FavoriteBadge v-if="tagsOfPalette(c).includes(FAVORITE)" inline />
                 {{ c.notecard.name }}
                 <span class="text-caption text-grey-7"
                   >· {{ c.colors.length + (c.fabrics?.length ?? 0) }}</span
@@ -790,6 +791,18 @@
                   @click="showPalette(c, c.colors.length + i)"
                 />
               </div>
+              <q-btn
+                flat
+                round
+                dense
+                size="sm"
+                icon="sell"
+                aria-label="Tags"
+                class="self-start"
+                @click="tagPalette(c)"
+              >
+                <q-tooltip>Tags… (⭐ Favorite)</q-tooltip>
+              </q-btn>
             </div>
           </fieldset>
         </template>
@@ -1476,13 +1489,20 @@ const tagVocabulary = computed(() =>
     true,
   ),
 );
-const tagging = ref<{ block: Block; target: TagTarget } | null>(null);
+const tagging = ref<{ block?: Block; palette?: string; target: TagTarget } | null>(null);
 function tagBlock(b: Block) {
   tagging.value = { block: b, target: { name: b.notecard.name, tags: tagsOfBlock(b) } };
 }
+/** A library palette's tags (kept in My library, or its own if it's in My library). */
+const tagsOfPalette = (c: ColorCollection) => tagsFor(c.notecard.tags, [c.id], library.kept);
+function tagPalette(c: ColorCollection) {
+  tagging.value = { palette: c.id, target: { name: c.notecard.name, tags: tagsOfPalette(c) } };
+}
 function saveTags(tags: string[]) {
-  const b = tagging.value!.block;
+  const { block: b, palette } = tagging.value!;
   tagging.value = null;
+  if (palette) return void library.setTags(settings.settings.author, palette, tags);
+  if (!b) return;
   if (isLibraryItem(b)) {
     // Tags a library block came with stay (they're its library's); the quilter's are kept.
     const theirs = new Set(visibleTags(b.notecard.tags));

@@ -28,7 +28,11 @@ implementation.
   Only what the data says: the app never applies one. Replaces the free-text "styles".
 - **Favorite**: one tag the app offers before it's used (never applied for you), listed first
   wherever tags are picked or filtered, shown as ⭐ Favorite; blocks with it show a ⭐ badge in the
-  top right of their picture.
+  top right of their picture. (2026-10-20) Library palettes get the same: Tags… on their menu (and a
+  tag button on the sketchbook's library palette rows), kept as for blocks (on My library's own
+  palettes, in My library for others'), and a ⭐ before the palette's name on its card, in the
+  sketchbook and in the quilt editor's color tray. A project's own palettes have no tags yet (their
+  notecard holds only a name: adding tags is a project format change).
 - **Tags**: the quilter's own filing words. On blocks the quilter owns (My library, a project's own
   blocks) they are part of the block. On blocks the quilter can't edit (built-in, packs, web
   libraries) they are kept in My library, linked by the block's id (the same across versions).
