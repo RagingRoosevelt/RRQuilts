@@ -790,6 +790,7 @@
             :palettes="
               ownPalettes.map((x) => ({ id: x.palette.id, name: x.palette.notecard.name }))
             "
+            :existing="(id?: string) => ownPalettes.find((x) => x.palette.id === id)?.fabrics ?? []"
             @done="fabricsAdded"
           />
           <div
@@ -1846,7 +1847,13 @@ function dropImages(e: DragEvent, id: string) {
 }
 function fabricsAdded(fabrics: Fabric[], to?: { id: string } | { name: string }) {
   project.change((d) => {
-    d.project.palette.fabrics.push(...fabrics);
+    // One already here by id is a replacement ("Use the new one"): its image changes in place.
+    const all = d.project.palette.fabrics;
+    for (const f of fabrics) {
+      const at = all.findIndex((x) => x.id === f.id);
+      if (at >= 0) all[at] = f;
+      else all.push(f);
+    }
     const id =
       to && 'name' in to
         ? addPalette(d, itemId(settings.settings.author), to.name)

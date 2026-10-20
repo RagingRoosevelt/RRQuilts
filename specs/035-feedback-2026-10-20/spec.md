@@ -23,7 +23,7 @@ Today, importing quilts whose id is already in the project adds copies named "(2
 5. **Given** same name but different id, **Then** it's not a clash (names may repeat); it still gets
    "(2)".
 
-## Part B - Adding a fabric whose name is taken (TC-036 note)
+## Part B - Adding a fabric whose name is taken (TC-036 note) · done on 0.6.0 (TC-057)
 
 Today, adding a fabric image to a palette under a name already in that palette adds a second one.
 

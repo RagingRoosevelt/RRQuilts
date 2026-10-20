@@ -406,6 +406,16 @@ describe('fabrics in My library palettes (spec 014)', () => {
     ]);
     expect(after.data.revision).toBe(2);
     expect(after.data.version).not.toBe(item.data.version);
+    // Spec 035 B: one with an id already there replaces it in place ("Use the new one").
+    const newer = { ...fab('me.a'), notecard: { name: 'me.a (new image)' } };
+    const c = await addFabrics(b.lib, { id: a.id }, [newer], 'Me');
+    const last = c.lib.items[0]!;
+    expect(
+      last.type === 'colors' && last.data.fabrics?.map((f) => [f.id, f.notecard.name]),
+    ).toEqual([
+      ['me.a', 'me.a (new image)'],
+      ['me.b', 'me.b'],
+    ]);
   });
 });
 

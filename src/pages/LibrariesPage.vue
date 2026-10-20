@@ -1309,7 +1309,13 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <FabricImportDialog ref="fabricDialog" units="in" :palettes="myPalettes" @done="fabricsAdded" />
+    <FabricImportDialog
+      ref="fabricDialog"
+      units="in"
+      :palettes="myPalettes"
+      :existing="myPaletteFabrics"
+      @done="fabricsAdded"
+    />
   </q-page>
 </template>
 
@@ -2588,6 +2594,11 @@ const myPalettes = computed(() =>
     i.type === 'colors' ? [{ id: i.data.id, name: i.data.notecard.name }] : [],
   ),
 );
+/** A My library palette's fabrics (same-named ones are asked about: spec 035 B). */
+const myPaletteFabrics = (id?: string) => {
+  const i = library.mine?.items.find((x) => x.type === 'colors' && x.data.id === id);
+  return i?.type === 'colors' ? (i.data.fabrics ?? []) : [];
+};
 async function fabricsAdded(fabrics: Fabric[], palette?: { id: string } | { name: string }) {
   if (!palette) return;
   await update(async (l) => (await addFabrics(l, palette, fabrics, me.value)).lib);

@@ -235,7 +235,12 @@
       </template>
     </div>
     <ColorEditor ref="editorDialog" @done="saveColor" />
-    <FabricImportDialog ref="importDialog" :units="doc.units" @done="addFabrics" />
+    <FabricImportDialog
+      ref="importDialog"
+      :units="doc.units"
+      :existing="() => doc.project.palette.fabrics.filter((f) => !isLibraryItem(f))"
+      @done="addFabrics"
+    />
   </div>
 </template>
 
@@ -492,7 +497,15 @@ function chooseColoring(blockId: string, coloringId: string) {
 }
 /** Imported fabric images join the project's palette (spec 014). */
 function addFabrics(fabrics: Fabric[]) {
-  project.change((d) => void d.project.palette.fabrics.push(...fabrics));
+  project.change((d) => {
+    // One already here by id is a replacement ("Use the new one").
+    const all = d.project.palette.fabrics;
+    for (const f of fabrics) {
+      const at = all.findIndex((x) => x.id === f.id);
+      if (at >= 0) all[at] = f;
+      else all.push(f);
+    }
+  });
 }
 function removeFabric(id: string) {
   const used = fabricsIn([

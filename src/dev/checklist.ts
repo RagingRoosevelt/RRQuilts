@@ -81,7 +81,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-007',
     group: G.shaped,
-    text: 'Wizard: Blocks / Patches switch; Shaped Blocks, Diamond Point and Baby Blocks cards.',
+    text: 'Wizard: Blocks / Patches switch; Shaped Blocks, Diamond Point and Baby Blocks cards (every card keeps its height when the switch changes its label).',
   },
   {
     id: 'TC-008',
@@ -91,7 +91,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-009',
     group: G.shaped,
-    text: 'Quilt editor: Set refuses a block of the wrong shape; Rotate turns in steps that fit.',
+    text: 'Quilt editor: Set refuses a block of the wrong shape (switch off Compatible with this layout in the Blocks sidebar to see those blocks); Rotate turns in steps that fit.',
   },
   { id: 'TC-010', group: G.shaped, text: 'Quilt editor: Paint works on an empty block space.' },
   {
@@ -145,7 +145,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-020',
     group: G.filters,
-    text: 'Quilt sidebar: Fits layout and Shape filters with pictures.',
+    text: 'Quilt sidebar: the Shape filter with pictures, and the Compatible with this layout switch in place of Fits layout (see TC-053).',
   },
   {
     id: 'TC-021',
@@ -162,7 +162,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-024',
     group: G.tags,
-    text: 'Details tab of your own block: Techniques and Efficiency checklists save; a library block lists them without checkboxes.',
+    text: 'Details tab of a block you designed: Techniques and Efficiency checklists save; a library block, or a copy or color variation of someone else’s, lists them without checkboxes (see TC-054).',
   },
   {
     id: 'TC-025',
@@ -177,7 +177,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-027',
     group: G.tags,
-    text: 'Remove a pack with tagged items: asked whether to keep tags; the leftover row offers Remove them.',
+    text: 'Remove a pack with tagged items: “Remove pack “name”?” explains the tag associations and offers “Save tag associations after removing pack”; kept ones show in a leftover row that offers Remove them. (Tags on your own My library palettes live in the palette: removing a pack doesn’t touch them.)',
   },
   {
     id: 'TC-028',
@@ -187,7 +187,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-029',
     group: G.tags,
-    text: 'Make a pack and export a block (.rrqbl): neither carries tags; techniques travel.',
+    text: 'Make a pack and export a block (.rrqbl): neither carries tags; techniques travel, and so do fabric colorings (see TC-050).',
   },
   {
     id: 'TC-030',
@@ -204,7 +204,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-034',
     group: G.small,
-    text: 'Quilts tab › Import quilts: pick quilts from this demo; they come in with their blocks and colors, and look the same. Undo removes them. Importing a project into itself adds copies named “(2)”.',
+    text: 'Quilts tab › Import quilts: pick quilts from this demo; they come in with their blocks and colors, and look the same. Undo removes them. Importing a project into itself asks, for each quilt already here, which to keep (see TC-056).',
     file: 'demo-v6.rrq',
   },
   {
@@ -336,6 +336,13 @@ export const CHECKS: Check[] = [
     id: 'TC-056',
     group: G.small,
     text: 'Quilts tab › Import quilts from a project that has a quilt already here (e.g. import this demo into itself): a dialog shows this project’s quilt and the file’s side by side with Keep this one · Keep both · Use the file’s, one clash at a time (Do the same for the rest answers the others). Keep both adds a copy named “(2)”; Use the file’s replaces it in place; Keep this one skips it. One undo removes the import.',
+    to: '/',
+    file: 'demo-v6.rrq',
+  },
+  {
+    id: 'TC-057',
+    group: G.small,
+    text: 'Adding fabric images to a palette (project palette menu › Add fabric images, the quilt editor’s tray, or a My library palette) where one’s name is already in that palette: a dialog shows the one in the palette and the new image side by side, Keep the original · Keep both · Use the new one. Use the new one swaps the image in place (quilts using that fabric change picture); Keep the original leaves the new one out.',
     to: '/',
   },
 ];

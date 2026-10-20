@@ -13,12 +13,14 @@
       </q-card-section>
       <q-card-section class="row items-center no-wrap pair">
         <figure class="col">
-          <img :src="current.left.img" :alt="current.left.label" />
+          <img v-if="current.left.img" :src="current.left.img" :alt="current.left.label" />
+          <div v-else class="swatch" :style="current.left.swatch?.()" />
           <figcaption>{{ current.left.label }}</figcaption>
         </figure>
         <SlidePicker v-model="choice" :options="options" label="Keep which" class="pick" />
         <figure class="col">
-          <img :src="current.right.img" :alt="current.right.label" />
+          <img v-if="current.right.img" :src="current.right.img" :alt="current.right.label" />
+          <div v-else class="swatch" :style="current.right.swatch?.()" />
           <figcaption>{{ current.right.label }}</figcaption>
         </figure>
       </q-card-section>
@@ -45,10 +47,16 @@ import DialogClose from './DialogClose.vue';
 import SlidePicker from './SlidePicker.vue';
 
 export type KeepChoice = 'left' | 'both' | 'right';
+/** One side: a picture, or a swatch style (a fabric; a function, so it updates as images load). */
+export interface KeepSide {
+  label: string;
+  img?: string;
+  swatch?: () => Record<string, string>;
+}
 export interface KeepItem {
   title: string;
-  left: { label: string; img: string };
-  right: { label: string; img: string };
+  left: KeepSide;
+  right: KeepSide;
 }
 
 const props = defineProps<{
@@ -103,6 +111,12 @@ figure img {
 figcaption {
   font-size: 0.8rem;
   opacity: 0.8;
+}
+.swatch {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 4px;
+  border-radius: 6px;
 }
 .pick {
   flex: 0 0 240px;

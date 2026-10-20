@@ -525,8 +525,12 @@ export async function addFabrics(
   }
   const item = lib.items.find((i) => i.type === 'colors' && i.data.id === target.id);
   if (item?.type !== 'colors') return { lib, id: target.id };
+  // One already in the palette by id is a replacement ("Use the new one"): same place, new image.
+  const replaced = new Map(fresh.map((f) => [f.id, f]));
+  const kept = (item.data.fabrics ?? []).map((f) => replaced.get(f.id) ?? f);
+  const have = new Set(kept.map((f) => f.id));
   const data = await asLibraryData(
-    { ...item.data, fabrics: [...(item.data.fabrics ?? []), ...fresh] },
+    { ...item.data, fabrics: [...kept, ...fresh.filter((f) => !have.has(f.id))] },
     (item.data.revision ?? 1) + 1,
   );
   return { lib: mapItem(lib, target.id, () => ({ ...item, data })), id: target.id };

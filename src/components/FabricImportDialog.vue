@@ -121,9 +121,18 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+  <KeepWhichDialog
+    :items="keepWhich?.items ?? null"
+    title="A fabric with this name is in the palette"
+    :labels="['Keep the original', 'Keep both', 'Use the new one']"
+    @done="(c) => keepWhich?.done(c)"
+    @cancel="keepWhich?.done(null)"
+  />
 </template>
 
 <script setup lang="ts">
+import KeepWhichDialog, { type KeepChoice, type KeepItem } from './KeepWhichDialog.vue';
+import { swatchStyle } from '@/render/fabric-images';
 import DialogClose from './DialogClose.vue';
 import { ref, watch } from 'vue';
 import CropBox, { type Rect } from '@/components/CropBox.vue';
@@ -137,12 +146,28 @@ const props = defineProps<{
   units: Units;
   /** When given (My library), the user picks one of these palettes or names a new one. */
   palettes?: { id: string; name: string }[] | undefined;
+  /**
+   * The fabrics already in the palette they're going to (its id; none: the project's own), to ask
+   * about same-named ones (spec 035 B). "Use the new one" hands it back under the old one's id.
+   */
+  existing?: ((palette: string | undefined) => readonly Fabric[]) | undefined;
 }>();
 const emit = defineEmits<{
   done: [fabrics: Fabric[], palette: { id: string } | { name: string } | undefined];
 }>();
 
 const NEW = { label: 'New palette…', value: '__new__' };
+const keepWhich = ref<{ items: KeepItem[]; done: (c: KeepChoice[] | null) => void } | null>(null);
+const askKeepWhich = (items: KeepItem[]) =>
+  new Promise<KeepChoice[] | null>((resolve) => {
+    keepWhich.value = {
+      items,
+      done: (c) => {
+        keepWhich.value = null;
+        resolve(c);
+      },
+    };
+  });
 const app = useSettingsStore();
 const open = ref(false);
 type Item = {
@@ -304,6 +329,30 @@ async function finish() {
   }
   busy.value = false;
   if (!fabrics.length) return;
+  const into = props.palettes ? (palette.value === NEW.value ? null : palette.value) : undefined;
+  const here = into === null ? [] : (props.existing?.(into) ?? []);
+  const same = (a: Fabric, b: Fabric) =>
+    a.notecard.name.trim().toLowerCase() === b.notecard.name.trim().toLowerCase();
+  const clashes = fabrics.flatMap((f) => {
+    const h = here.find((x) => same(x, f));
+    return h ? [{ f, h }] : [];
+  });
+  if (clashes.length) {
+    const choices = await askKeepWhich(
+      clashes.map(({ f, h }) => ({
+        title: f.notecard.name,
+        left: { label: 'The one in the palette', swatch: () => swatchStyle(h) },
+        right: { label: 'The new image', swatch: () => swatchStyle(f) },
+      })),
+    );
+    if (!choices) return; // back to the dialog
+    clashes.forEach(({ f, h }, i) => {
+      const at = fabrics.indexOf(f);
+      if (choices[i] === 'left') fabrics.splice(at, 1);
+      if (choices[i] === 'right') fabrics[at] = { ...f, id: h.id };
+    });
+    if (!fabrics.length) return close();
+  }
   emit(
     'done',
     fabrics,
