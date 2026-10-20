@@ -36,7 +36,7 @@ While a filter is on, blocks can't be moved earlier or later.
 
 1. **New block** asks for a name and opens the block editor ([Drawing blocks](/help/guides/drawing-blocks)).
 2. **Import blocks** reads blocks from a `.rrqbl` file or from another project. Tick the ones to add.
-3. A block's **Actions** menu offers **Edit**, **Edit a copy**, **Preview**, **Details**, **Tags…**,
+3. A block's **Actions** menu offers **Edit a copy**, **Preview**, **Open in block editor**, **Details**, **Tags…**,
    **Export (.rrqbl)**, **Move earlier / later**, **Delete**, plus **Add to my library…** or **Sync to my library** for the My library
    links. Small icons on a card show that the block is
    placed in a quilt, is in My library, or has changed since it was saved there.

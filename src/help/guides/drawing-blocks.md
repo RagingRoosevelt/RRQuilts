@@ -6,7 +6,7 @@ summary: Draw a block from seams (lines and arcs) and let the app find the patch
 
 A block is a square or rectangle, or a triangle, 60° diamond, or hexagon, drawn with **seams**. Wherever seams close a shape, the app
 finds a **patch** that you can color. Start from **New block** in the sketchbook's **Blocks** tab,
-or **Edit** one of your blocks. The block editor has four tabs named **Details**, **Draw**, **Color**, and
+or open one of your blocks with **Open in block editor** (its menu, or its preview). The block editor has four tabs named **Details**, **Draw**, **Color**, and
 **Print**. Library blocks are read-only. Use **Edit (make a copy)** in the sketchbook.
 
 ## Pick a shape

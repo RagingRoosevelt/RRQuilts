@@ -308,16 +308,6 @@
                             v-close-popup
                             clickable
                             :disable="b.kind !== 'seam'"
-                            @click="openBlock(b.id)"
-                          >
-                            <q-item-section avatar class="menu-icon"
-                              ><q-icon name="edit" /></q-item-section
-                            ><q-item-section>Edit</q-item-section>
-                          </q-item>
-                          <q-item
-                            v-close-popup
-                            clickable
-                            :disable="b.kind !== 'seam'"
                             @click="editCopy(b.id)"
                           >
                             <q-item-section avatar class="menu-icon"
@@ -335,6 +325,16 @@
                             ><q-icon name="visibility"
                           /></q-item-section>
                           <q-item-section>Preview</q-item-section>
+                        </q-item>
+                        <q-item
+                          v-close-popup
+                          clickable
+                          :disable="b.kind !== 'seam'"
+                          @click="openBlock(b.id)"
+                        >
+                          <q-item-section avatar class="menu-icon"
+                            ><q-icon name="edit" /></q-item-section
+                          ><q-item-section>Open in block editor</q-item-section>
                         </q-item>
                         <q-item v-close-popup clickable @click="blockDetails(b.id)">
                           <q-item-section avatar class="menu-icon"
@@ -1055,6 +1055,16 @@
             icon="info"
             label="Details"
             @click="blockDetails(previewBlock.id)"
+          />
+          <q-btn
+            v-if="previewBlock.kind === 'seam'"
+            v-close-popup
+            flat
+            no-caps
+            color="primary"
+            icon="edit"
+            label="Open in block editor"
+            @click="openBlock(previewBlock.id)"
           />
         </q-card-actions>
       </q-card>

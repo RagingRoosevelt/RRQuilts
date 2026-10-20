@@ -90,6 +90,12 @@ export const CHECKS: Check[] = [
     text: 'Print P1 to P4: sheets as their checks say; cut sizes match the Help calculators.',
     to: '/dev/print',
   },
+  {
+    id: 'TC-082',
+    group: G.small,
+    text: 'Project › Blocks tab, one of your own blocks: its ⋮ menu has Open in block editor right after Preview (no separate Edit any more), and its preview (click the picture) has an Open in block editor button next to Details. Both open the block editor; a block used in quilts still warns once first. Library blocks have neither (Edit a copy as before).',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -154,8 +154,10 @@ existing seam's midpoint; zoomed to 800% the ends coincide.
   `/project/block/:id`.
 - **FR-002**: Block settings (inspector): name, finished width/height, snap grid, snap toggles,
   graph paper, show patches, show unconnected.
-- **FR-003**: "New block", "Edit", and "Edit a copy" MUST be available from the sketchbook; "Edit"
-  on a block used in quilts shows a one-time notice with the usage count.
+- **FR-003**: "New block", "Open in block editor" (was "Edit"), and "Edit a copy" MUST be available
+  from the sketchbook; opening a block used in quilts shows a one-time notice with the usage count.
+  "Open in block editor" sits right after "Preview" in a block's menu, and the preview of one of the
+  quilter's own blocks has the same button (0.6.1, owner 2026-10-20).
 
 **Drawing (seam-line)**
 
