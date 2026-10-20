@@ -8,7 +8,7 @@
 
 **Input**: Owner's test results, 2026-10-20 (Tests › Checklist notes). Each part below stands alone.
 
-## Part A - Importing a quilt that's already there (TC-034)
+## Part A - Importing a quilt that's already there (TC-034) · done on 0.6.0 (TC-056)
 
 Today, importing quilts whose id is already in the project adds copies named "(2)".
 

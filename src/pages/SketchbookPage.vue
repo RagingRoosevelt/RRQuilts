@@ -1327,6 +1327,13 @@
     </q-dialog>
     <QuiltWizard ref="wizard" :units="project.doc.units" @create="startQuilt" />
     <!-- Tags (and technique on the project's own blocks), spec 029 -->
+    <KeepWhichDialog
+      :items="keepWhich?.items ?? null"
+      title="This quilt is already here"
+      :labels="['Keep this one', 'Keep both', 'Use the file’s']"
+      @done="(c) => keepWhich?.done(c)"
+      @cancel="stopKeepWhich"
+    />
     <TagsDialog
       :target="tagging?.target ?? null"
       :vocabulary="tagVocabulary"
@@ -1393,6 +1400,7 @@ import { revealSection, useCollapsed } from '@/composables/block-sections';
 import { socialsOut } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
 import TagsDialog from '@/components/TagsDialog.vue';
+import KeepWhichDialog, { type KeepChoice, type KeepItem } from '@/components/KeepWhichDialog.vue';
 import FavoriteBadge from '@/components/FavoriteBadge.vue';
 import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
 import { techniqueOptions } from '@/model/schema/shared';
@@ -2749,16 +2757,61 @@ function togglePick(id: string) {
   p.picked = p.picked.includes(id) ? p.picked.filter((x) => x !== id) : [...p.picked, id];
 }
 
-function importPicked() {
+/** Quilts already in this project (same id) that an import brings again: which to keep (spec 035 A). */
+const keepWhich = ref<{ items: KeepItem[]; done: (c: KeepChoice[]) => void } | null>(null);
+function askKeepWhich(items: KeepItem[]) {
+  return new Promise<KeepChoice[] | null>((resolve) => {
+    keepWhich.value = {
+      items,
+      done: (c) => {
+        keepWhich.value = null;
+        resolve(c);
+      },
+    };
+    stopKeepWhich = () => {
+      keepWhich.value = null;
+      resolve(null);
+    };
+  });
+}
+let stopKeepWhich = () => {};
+
+async function importPicked() {
   const p = picking.value!;
   picking.value = null;
   if (p.kind === 'quilts') {
-    const res = importProjectQuilts(
-      project.doc!,
-      toRaw(p.from),
-      settings.settings.author,
-      p.picked,
-    );
+    const from = toRaw(p.from);
+    const here = new Map(quilts.value.map((q) => [q.id, q]));
+    const clashes = p.picked.filter((id) => here.has(id));
+    let ids = p.picked;
+    const replace = new Set<string>();
+    if (clashes.length) {
+      const dark = $q.dark.isActive;
+      const choices = await askKeepWhich(
+        clashes.map((id) => {
+          const mine = here.get(id)!;
+          const theirs = from.project.quilts.find((q) => q.id === id)!;
+          return {
+            title: theirs.notecard.name,
+            left: {
+              label: `This project: ${mine.notecard.name}`,
+              img: quiltThumbnail(project.doc!, mine, 240, dark),
+            },
+            right: {
+              label: `The file: ${theirs.notecard.name}`,
+              img: quiltThumbnail(from, theirs, 240, dark),
+            },
+          };
+        }),
+      );
+      if (!choices) return;
+      clashes.forEach((id, i) => {
+        if (choices[i] === 'left') ids = ids.filter((x) => x !== id);
+        if (choices[i] === 'right') replace.add(id);
+      });
+      if (!ids.length) return;
+    }
+    const res = importProjectQuilts(project.doc!, from, settings.settings.author, ids, replace);
     if (!res.added) return;
     project.change(() => res.doc);
     $q.notify({

@@ -332,6 +332,12 @@ export const CHECKS: Check[] = [
     text: 'Project › Palettes tab: a filter sidebar (on phones behind Filters) with a search box, Tags (⭐ Favorite first) and Category (when palettes are filed in categories). They narrow both the project’s palettes and the library palettes listed; project palettes count as uncategorized.',
     to: '/',
   },
+  {
+    id: 'TC-056',
+    group: G.small,
+    text: 'Quilts tab › Import quilts from a project that has a quilt already here (e.g. import this demo into itself): a dialog shows this project’s quilt and the file’s side by side with Keep this one · Keep both · Use the file’s, one clash at a time (Do the same for the rest answers the others). Keep both adds a copy named “(2)”; Use the file’s replaces it in place; Keep this one skips it. One undo removes the import.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
