@@ -80,8 +80,8 @@ Today, adding a fabric image to a palette under a name already in that palette a
    the backlog.
 5. Libraries sidebar: space on both sides of the line between libraries; **Get updates** (was Check
    for updates), its buttons on one line (TC-079).
-6. Tests › Checklist: text left by removed checks shows under "Notes on removed checks" and stays out
-   of Copy results (TC-080).
+6. Tests › Checklist: text left by a removed check is dropped with it (a check is removed once its
+   round is addressed), so Copy results never says "?, somewhere" (TC-080).
 
 ## Assumptions
 

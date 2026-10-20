@@ -2,7 +2,7 @@
 // build is the release plus the commit after it (0.4.0+7ed7f8d; plain 0.4.0 on the release itself).
 // Progress is kept per release line, so it survives new commits, and each result remembers the build
 // it was tested on. Ids (TC-###) are stable: reword an item freely, but give a changed check a new id.
-// After a test round, checks that worked are removed (the Tests pages stay); never reuse an id. A
+// After a test round, checks that worked are removed (the Tests pages stay), with their notes; never reuse an id. A
 // check for a fix, or one reworked after a note, quotes that note in `last`.
 /** The release line progress is kept under. */
 export const VERSION = import.meta.env.APP_VERSION;
@@ -100,7 +100,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-080',
     group: G.tests,
-    text: 'Text you left next to a check that has since been removed shows at the bottom of this page under “Notes on removed checks” (remove one with ×, or Remove all) and is left out of Copy results: no more “?, somewhere” lines.',
+    text: 'Text you left next to a check that has since been removed is gone (it was addressed with that check): Copy results has no “?, somewhere” lines.',
     to: '/dev/checklist',
   },
 ];
@@ -181,6 +181,8 @@ export function loadNotes(): ChecklistNote[] {
           )
           // '' was the end of the list before each group had its own end.
           .map((n) => (n.before ? n : { ...n, before: `after:${CHECKS.at(-1)!.id}` }))
+          // A check is removed once its round is addressed: its notes go with it.
+          .filter((n) => CHECKS.some((c) => `after:${c.id}` === n.before || c.id === n.before))
       : [];
   } catch {
     return [];
