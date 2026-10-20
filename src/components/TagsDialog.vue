@@ -2,6 +2,7 @@
   <!-- The quilter's tags on an item (spec 029). Techniques are the block designer's, in Details. -->
   <q-dialog :model-value="!!target" @update:model-value="(v) => !v && emit('close')">
     <q-card v-if="target" style="width: 420px; max-width: 95vw">
+      <DialogClose />
       <q-card-section class="text-h6">
         Tags
         <div class="text-caption text-grey-7">{{ target.name }}</div>
@@ -33,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from './DialogClose.vue';
 import { ref, watch } from 'vue';
 import { cleanTags, tagLabel, type TagTarget } from '@/model/tags';
 

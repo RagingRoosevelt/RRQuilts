@@ -1,6 +1,7 @@
 <template>
   <q-dialog v-model="open">
     <q-card class="wizard">
+      <DialogClose />
       <div class="body">
         <q-stepper
           v-model="step"
@@ -339,6 +340,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from './DialogClose.vue';
 import { computed, reactive, ref, watch } from 'vue';
 import DiamondSize from '@/components/DiamondSize.vue';
 import FlowAngle from '@/components/FlowAngle.vue';

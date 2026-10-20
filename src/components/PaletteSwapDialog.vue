@@ -3,6 +3,7 @@
        becomes its nearest there (or map each by hand), with before and after pictures. -->
   <q-dialog v-model="open">
     <q-card v-if="job" style="width: 520px; max-width: 95vw">
+      <DialogClose />
       <q-card-section>
         <div class="text-h6">{{ job.heading }}</div>
         <div class="text-caption text-grey-7">
@@ -49,6 +50,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from './DialogClose.vue';
 import { castDraft, produce } from 'immer';
 import { computed, ref, shallowRef, toRaw } from 'vue';
 import { nearestColor } from '@/editor/color';

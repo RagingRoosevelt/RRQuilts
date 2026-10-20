@@ -3,6 +3,7 @@
        everything can be changed later in Settings. -->
   <q-dialog v-model="open" persistent>
     <q-card class="welcome">
+      <DialogClose @click="finish" />
       <q-card-section class="text-h6">Welcome to RRQuilts</q-card-section>
       <q-stepper
         v-model="step"
@@ -107,6 +108,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from './DialogClose.vue';
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';

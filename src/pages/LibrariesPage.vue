@@ -689,16 +689,8 @@
     <!-- Preview / collection colors -->
     <q-dialog :model-value="!!previewing" @update:model-value="previewing = null">
       <q-card v-if="previewBlock" style="width: 560px; max-width: 95vw">
+        <DialogClose />
         <q-card-section>
-          <q-btn
-            v-close-popup
-            flat
-            round
-            dense
-            icon="close"
-            aria-label="Close"
-            class="float-right"
-          />
           <div class="text-h6">{{ previewBlock.notecard.name }}</div>
           <div class="text-caption text-grey-7">
             {{ previewBlock.size.map((n) => roundLen(n, 'in')).join(' × ') }} in
@@ -753,16 +745,8 @@
         </q-card-section>
       </q-card>
       <q-card v-else-if="previewCollection" style="width: min(80vw, 512px); max-width: none">
+        <DialogClose />
         <q-card-section>
-          <q-btn
-            v-close-popup
-            flat
-            round
-            dense
-            icon="close"
-            aria-label="Close"
-            class="float-right"
-          />
           <PaletteTitle :palette="previewCollection" :license="itemLicense(previewCollection)" />
         </q-card-section>
         <PalettePreview
@@ -792,6 +776,7 @@
     <!-- Categories -->
     <q-dialog v-model="managing">
       <q-card style="width: 400px; max-width: 95vw">
+        <DialogClose />
         <q-card-section class="text-h6">Categories</q-card-section>
         <q-list dense separator>
           <q-item v-for="c in categoryTree(library.mine?.categories ?? [])" :key="c.id">
@@ -840,6 +825,7 @@
     <!-- Back up -->
     <q-dialog :model-value="!!backingUp" @update:model-value="backingUp = null">
       <q-card v-if="backingUp" style="width: 400px; max-width: 95vw">
+        <DialogClose />
         <q-card-section class="text-h6">Back up libraries</q-card-section>
         <q-card-section class="column">
           <q-checkbox v-model="backingUp.mine" :label="`${MY_LIBRARY} (${mineCount})`" />
@@ -870,6 +856,7 @@
     <!-- Restore -->
     <q-dialog :model-value="!!restoring" persistent>
       <q-card v-if="restoring" style="width: 460px; max-width: 95vw">
+        <DialogClose @click="restoring = null" />
         <q-card-section class="text-h6">Restore a backup</q-card-section>
         <q-card-section class="column" style="gap: 8px">
           <div>
@@ -912,6 +899,7 @@
     <!-- Share as pack -->
     <q-dialog v-model="shareOpen">
       <q-card style="width: 480px; max-width: 95vw">
+        <DialogClose />
         <q-card-section class="text-h6">Make a pack</q-card-section>
         <q-card-section class="column" style="gap: 8px">
           <q-input v-model="share.name" dense outlined label="Name" />
@@ -1052,6 +1040,7 @@
     <!-- Add a library from the web -->
     <q-dialog v-model="adding.open">
       <q-card style="width: 480px; max-width: 90vw">
+        <DialogClose />
         <q-card-section class="text-h6">{{
           adding.fromLink ? 'Add this library?' : 'Add a library from the web'
         }}</q-card-section>
@@ -1092,6 +1081,7 @@
     <!-- Importing a library file: which of its packs to add -->
     <q-dialog :model-value="!!picking" persistent>
       <q-card v-if="picking" style="width: 520px; max-width: 92vw">
+        <DialogClose @click="picking = null" />
         <q-card-section class="text-h6"
           >Import {{ picking.r.library?.name ?? 'library' }}</q-card-section
         >
@@ -1189,6 +1179,7 @@
     <!-- A connected library's update -->
     <q-dialog :model-value="!!updating" persistent>
       <q-card v-if="updating" style="width: 480px; max-width: 90vw">
+        <DialogClose @click="updating = null" />
         <q-card-section class="text-h6">{{ updating.index.name }} has an update</q-card-section>
         <q-card-section class="q-pt-none" style="max-height: 60vh; overflow: auto">
           <!-- What changes on this device, before anything is downloaded or removed. -->
@@ -1282,6 +1273,7 @@
     <!-- Turning off a library or pack the open project uses -->
     <q-dialog :model-value="!!turningOff" @update:model-value="turningOff = null">
       <q-card v-if="turningOff" style="width: 460px; max-width: 95vw">
+        <DialogClose />
         <q-card-section class="text-h6">{{ turningOff.name }} is in use</q-card-section>
         <q-card-section class="q-pt-none">
           The open project, {{ project.doc?.project.name }}, uses {{ turningOff.paints }} color{{
@@ -1310,6 +1302,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from '@/components/DialogClose.vue';
 import TagsDialog from '@/components/TagsDialog.vue';
 import FavoriteBadge from '@/components/FavoriteBadge.vue';
 import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';

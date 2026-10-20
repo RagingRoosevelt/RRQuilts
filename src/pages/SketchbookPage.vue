@@ -799,6 +799,7 @@
     <!-- Synchronizing when both sides changed: each difference, project's or library's. -->
     <q-dialog :model-value="!!merging" @update:model-value="merging = null">
       <q-card v-if="merging" style="width: 520px; max-width: 95vw">
+        <DialogClose />
         <q-card-section>
           <div class="text-h6">Synchronize “{{ merging.pp.palette.notecard.name }}”</div>
           <div class="text-caption text-grey-7">
@@ -862,13 +863,13 @@
     <!-- A palette's colors and fabrics, one large (as in Libraries). -->
     <q-dialog :model-value="!!shownPalette" @update:model-value="shownPalette = null">
       <q-card v-if="shownPalette && shownData" style="width: min(80vw, 512px); max-width: none">
+        <DialogClose />
         <q-card-section class="row items-start no-wrap">
           <PaletteTitle
             class="col"
             :palette="shownData"
             :license="shownData.license ?? shownData.source?.license"
           />
-          <q-btn v-close-popup flat round dense icon="close" aria-label="Close" />
         </q-card-section>
         <!-- A project palette is edited here, like a My library palette on the Libraries page. -->
         <PalettePreview
@@ -888,16 +889,8 @@
 
     <q-dialog :model-value="!!preview" @update:model-value="preview = null">
       <q-card v-if="previewBlock" style="width: 560px; max-width: 95vw">
+        <DialogClose />
         <q-card-section>
-          <q-btn
-            v-close-popup
-            flat
-            round
-            dense
-            icon="close"
-            aria-label="Close"
-            class="float-right"
-          />
           <div class="text-h6">{{ previewBlock.notecard.name }}</div>
           <div class="text-caption text-grey-7">
             {{ previewBlock.size.map((n) => roundLen(n, project.doc!.units)).join(' × ') }}
@@ -975,6 +968,7 @@
     </q-dialog>
     <q-dialog :model-value="!!picking" @update:model-value="picking = null">
       <q-card v-if="picking" style="width: 640px; max-width: 95vw">
+        <DialogClose />
         <q-card-section>
           <div class="text-h6">
             Import {{ picking.kind }} from "{{ picking.from.project.name }}"
@@ -1031,6 +1025,7 @@
     </q-dialog>
     <q-dialog :model-value="!!editingInUse" @update:model-value="editingInUse = null">
       <q-card v-if="editingInUse" style="width: 420px; max-width: 95vw">
+        <DialogClose />
         <q-card-section class="text-h6">This block is in use</q-card-section>
         <q-card-section class="q-pt-none">
           Changes will update {{ editingInUse.quilts.length }} quilt{{
@@ -1046,6 +1041,7 @@
     </q-dialog>
     <q-dialog :model-value="!!inUseDialog" @update:model-value="inUseDialog = null">
       <q-card v-if="inUseDialog" style="width: 420px; max-width: 95vw">
+        <DialogClose />
         <q-card-section>
           <div class="text-h6">This block is placed in a quilt</div>
           <div v-for="w in inUseDialog.where" :key="w.quilt" class="q-mt-sm">
@@ -1081,6 +1077,7 @@
     <!-- Unpicking a palette whose colors are in use: swap them for colors that stay available. -->
     <q-dialog :model-value="!!unpicking" @update:model-value="unpicking = null">
       <q-card v-if="unpicking" style="width: 520px; max-width: 95vw">
+        <DialogClose />
         <q-card-section>
           <template v-if="unpicking">
             <div class="text-h6">
@@ -1204,6 +1201,7 @@
 
     <q-dialog :model-value="!!saveColors" @update:model-value="saveColors = null">
       <q-card v-if="saveColors" style="width: 380px; max-width: 95vw">
+        <DialogClose />
         <q-card-section class="q-gutter-sm">
           <div class="text-h6">Save to my library</div>
           <div class="text-grey-7">
@@ -1250,6 +1248,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from '@/components/DialogClose.vue';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PaletteSwapDialog from '@/components/PaletteSwapDialog.vue';

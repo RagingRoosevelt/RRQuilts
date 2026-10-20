@@ -225,6 +225,11 @@ export const CHECKS: Check[] = [
     text: 'Text between checks (this page): hover the line between two checks (always shown on touch), click + and type; it stays after a reload. Every section has a + after its last check too. Copy results lists the text under “Text between checks”, in page order, each labeled with its section and the check just before it (“Shaped blocks, after 0.5.0-TC-005: …”, or “at the start”); Start over clears it.',
     to: '/dev/checklist',
   },
+  {
+    id: 'TC-036',
+    group: G.small,
+    text: 'Every dialog and wizard has an X in its top right corner that closes it: try the welcome wizard (closes it like Skip), New quilt, New block, a color, Open from a gist, a delete confirmation, and the Libraries dialogs. A title never runs under the X.',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -157,6 +157,9 @@ chart; editing controls are absent with a "edit on tablet or desktop" note.
   is opened) MUST return to the sketchbook tab it was left on; opening any other project MUST start
   on Quilts, or on Blocks when it has no quilts. The device remembers the last project.
 - **FR-004**: Only one editor is open at a time.
+- **FR-004a** (added 2026-10-20): Every dialog and wizard MUST have a close X in its top right
+  corner. It does what Esc does (or the dialog's own Cancel, Skip or Later); where Cancel is itself a
+  choice (a persistent question), the X closes without choosing.
 
 **Editor layout**
 

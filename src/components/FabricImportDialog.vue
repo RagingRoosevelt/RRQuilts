@@ -9,6 +9,7 @@
       @dragleave.self="dropping = false"
       @drop.prevent="onDrop"
     >
+      <DialogClose @click="close" />
       <q-card-section class="text-h6">Add fabric images</q-card-section>
       <q-card-section class="column q-pt-none" style="gap: 12px">
         <div class="row" style="gap: 8px">
@@ -123,6 +124,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from './DialogClose.vue';
 import { ref, watch } from 'vue';
 import CropBox, { type Rect } from '@/components/CropBox.vue';
 import { fabricFrom, imageFiles, nameFromFile, processImage } from '@/editor/fabric-import';
