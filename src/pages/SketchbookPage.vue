@@ -1364,9 +1364,8 @@ import {
   addToCollection,
   colorChanged,
   blocksByLibrary,
-  categoryTree,
+  categoryFilter,
   notecardMatches,
-  withSubcategories,
   type GroupBy,
   linkState,
   saveCollection,
@@ -1505,7 +1504,7 @@ function saveTags(tags: string[]) {
 function blockShown(b: Block) {
   return (
     blockFits(b.shape, bf.layout, bf.shape) &&
-    anyOf(withSubcategories(libCats.value, bf.cats), [blockCat(b)]) &&
+    anyOf(catFilter.value.ids(bf.cats), [blockCat(b)]) &&
     anyOf(bf.tags, tagsOfBlock(b)) &&
     anyOf(bf.techniques, b.notecard.techniques ?? []) &&
     // A library block is in inches; the project's own in the project's units.
@@ -1527,6 +1526,10 @@ function jumpTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 const shownBlocks = computed(() => blocks.value.filter(blockShown));
+/** Category filter: every library's categories merged by name; only those the blocks use. */
+const catFilter = computed(() =>
+  categoryFilter(libCats.value, new Set([...blocks.value, ...libBlocks.value].map(blockCat))),
+);
 const blockFilterFields = computed(() => {
   const all = [...blocks.value, ...libBlocks.value];
   // Favorite first, always listed.
@@ -1538,20 +1541,12 @@ const blockFilterFields = computed(() => {
   const techniqueValues = techniqueOptions(
     new Set(all.flatMap((b) => b.notecard.techniques ?? [])),
   );
-  // Categories the blocks use, with their parents.
-  const used = new Set(all.map(blockCat));
-  for (const c of libCats.value) if (used.has(c.id) && c.parent) used.add(c.parent);
-  const cats = libCats.value.filter((c) => used.has(c.id));
+  const cats = catFilter.value.options;
   return [
     {
       key: 'cats' as const,
       label: 'Category',
-      options: cats.length
-        ? [
-            ...categoryTree(cats).map((c) => ({ label: c.label, value: c.id })),
-            ...(used.has('') ? [{ label: 'Uncategorized', value: '' }] : []),
-          ]
-        : [],
+      options: cats.some((o) => o.value) ? cats : [],
     },
     { key: 'tags' as const, label: 'Tags', options: tagValues },
     { key: 'techniques' as const, label: 'Technique', options: techniqueValues },

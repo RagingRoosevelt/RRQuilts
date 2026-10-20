@@ -1343,6 +1343,7 @@ import {
   withSources,
   blockSections,
   categoryTree,
+  categoryFilter,
   copyToMine,
   deleteCategory,
   ensureCategory,
@@ -1351,7 +1352,6 @@ import {
   renameCategory,
   searchItems,
   setCategory,
-  withSubcategories,
   setCollectionColors,
   addNewColor,
   saveCollection,
@@ -1910,9 +1910,30 @@ const techniqueValues = computed(() =>
 const allCats = computed(() => [
   ...new Map(inScope.value.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
 ]);
-// Switching Blocks / Palettes / All: drop filter picks the new type doesn't offer.
+const TYPE_OPTIONS = [
+  { label: 'Blocks', value: 'block' },
+  { label: 'Palettes', value: 'colors' },
+  { label: 'All', value: '' },
+];
+/** Category filter: every library's categories merged by name; only those the items use. */
+const catFilter = computed(() =>
+  categoryFilter(allCats.value, new Set(typedItems.value.map((i) => i.category ?? ''))),
+);
+const filterFields = computed(() => {
+  const cats = catFilter.value.options;
+  return [
+    {
+      key: 'cats' as const,
+      label: 'Category',
+      options: cats.some((o) => o.value) ? cats : [],
+    },
+    { key: 'tags' as const, label: 'Tags', options: tagValues.value },
+    { key: 'techniques' as const, label: 'Technique', options: techniqueValues.value },
+  ];
+});
+// Picks the filters no longer offer go (switching Blocks / Palettes / All, a category deleted).
 watch(
-  () => settings.settings.libraryType,
+  () => filterFields.value.map((f) => f.options.map((o) => o.value).join('\n')).join('\t'),
   () => {
     for (const f of filterFields.value) {
       const ok = new Set(f.options.map((o) => o.value));
@@ -1920,36 +1941,11 @@ watch(
     }
   },
 );
-const TYPE_OPTIONS = [
-  { label: 'Blocks', value: 'block' },
-  { label: 'Palettes', value: 'colors' },
-  { label: 'All', value: '' },
-];
-const filterFields = computed(() => {
-  // Categories the shown items use, with their parents.
-  const used = new Set(typedItems.value.map((i) => i.category ?? ''));
-  for (const c of allCats.value) if (used.has(c.id) && c.parent) used.add(c.parent);
-  const cats = allCats.value.filter((c) => used.has(c.id));
-  return [
-    {
-      key: 'cats' as const,
-      label: 'Category',
-      options: cats.length
-        ? [
-            ...categoryTree(cats).map((c) => ({ label: c.label, value: c.id })),
-            ...(used.has('') ? [{ label: 'Uncategorized', value: '' }] : []),
-          ]
-        : [],
-    },
-    { key: 'tags' as const, label: 'Tags', options: tagValues.value },
-    { key: 'techniques' as const, label: 'Technique', options: techniqueValues.value },
-  ];
-});
 const anyOf = (picked: string[], have: string[]) =>
   !picked.length || picked.some((x) => have.includes(x));
 const matches = (i: LibraryItem) =>
   (!settings.settings.libraryType || i.type === settings.settings.libraryType) &&
-  anyOf(withSubcategories(allCats.value, filters.cats), [i.category ?? '']) &&
+  anyOf(catFilter.value.ids(filters.cats), [i.category ?? '']) &&
   anyOf(filters.tags, tagsOfItem(i)) &&
   anyOf(filters.techniques, i.data.notecard.techniques ?? []) &&
   (i.type !== 'block'
@@ -2146,8 +2142,6 @@ function deleteCat(id: string, name: string) {
     cancel: true,
     ok: { label: 'Delete', color: 'negative', flat: true },
   }).onOk(() => {
-    const gone = withSubcategories(library.mine?.categories ?? [], [id]);
-    filters.cats = filters.cats.filter((c) => !gone.includes(c));
     void update((l) => deleteCategory(l, id));
   });
 }

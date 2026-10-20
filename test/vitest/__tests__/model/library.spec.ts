@@ -13,6 +13,7 @@ import {
   addBlock,
   addCategory,
   addToCollection,
+  categoryFilter,
   categoryTree,
   colorChanged,
   copyToMine,
@@ -405,5 +406,28 @@ describe('fabrics in My library palettes (spec 014)', () => {
     ]);
     expect(after.data.revision).toBe(2);
     expect(after.data.version).not.toBe(item.data.version);
+  });
+});
+
+describe('category filter', () => {
+  it('merges libraries by name and groups subcategories under their category', () => {
+    const cats = [
+      { id: 'a.stars', name: 'Stars' },
+      { id: 'a.eight', name: 'Eight-point', parent: 'a.stars' },
+      { id: 'a.basics', name: 'Basics' },
+      { id: 'b.stars', name: 'stars' },
+      { id: 'b.eight', name: 'Eight-Point', parent: 'b.stars' },
+      { id: 'b.unused', name: 'Unused' },
+    ];
+    const f = categoryFilter(cats, new Set(['a.eight', 'b.eight', 'a.basics', '']));
+    expect(f.options).toEqual([
+      { label: 'Basics', value: 'basics' },
+      { label: 'Uncategorized', value: '' },
+      { label: 'Stars', value: 'stars', group: 'Stars', header: true },
+      { label: 'Eight-point', value: 'stars/eight-point', group: 'Stars' },
+    ]);
+    expect(f.ids(['stars'])).toEqual(['a.stars', 'b.stars']);
+    expect(f.ids(['stars/eight-point', ''])).toEqual(['a.eight', 'b.eight', '']);
+    expect(f.ids(['gone'])).toEqual([]);
   });
 });
