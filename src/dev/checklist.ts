@@ -213,6 +213,12 @@ export const CHECKS: Check[] = [
     text: 'Home › Open from a gist: paste a gist link with one .rrq (opens), with several (asks which), with none or a wrong link (says so), offline (says so). Save then asks where. Restore unsaved project now sits below Recent projects. Before opening, the dialog names the gist and its GitHub owner. The link /?open_gist=<gist link> does the same.',
     to: '/',
   },
+  {
+    id: 'TC-040',
+    group: G.tests,
+    text: 'Text between checks (this page): hover the line between two checks (always shown on touch), click + and type; it stays after a reload. Every section has a + after its last check too. Copy results lists the text under “Text between checks” (Before TC-0xx / After TC-0xx); Start over clears it.',
+    to: '/dev/checklist',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
