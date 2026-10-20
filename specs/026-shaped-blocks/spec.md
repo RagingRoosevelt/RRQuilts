@@ -56,6 +56,11 @@ takes a block also takes a patch (not the reverse). Decisions in Clarifications.
   Off the lattice: Basics (Sunburst Triangle), Images (Sailboat), Images › Animals (Peacock Fan),
   Medallions (Framed Triangle), Strips › Strips (Slanted Rails), Curves (Rising Sun Triangle, a curved
   seam), Stars (Spike Star, a set-in seam).
+- (2026-10-20) A **Fractals** category (top level; RagingRoosevelt's designs, CC BY-SA 4.0, built in
+  for now, maybe a pack later): Sierpinski Carpet, Vicsek Cross, Cantor Bars, Hilbert Curve (square,
+  each row's runs as strips), Sierpinski Triangle (moved from Mosaics; each gap one piece), Sierpinski
+  Diamond, Koch Snowflake (hexagon; its background is set in). Built-in blocks may carry their own
+  author and license.
 - The quilt editor's block sidebar has two filters: **Fits layout** (each block layout with its
   picture; Shaped Blocks once per shape) and **Shape** (square, triangle, 60° diamond, hexagon, each
   with its outline). Both cleared by default; together they show blocks passing both.

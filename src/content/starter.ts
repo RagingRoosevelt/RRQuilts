@@ -4,6 +4,7 @@
 import { shapeSize, type BlockShape } from '@/model/blocks/shape';
 import { SHAPED_BLOCKS, curvedStarter, shapedStarter } from './shaped';
 import { SHAPED_CURVES } from './shaped-curves';
+import { FRACTAL_BLOCKS, FRACTAL_CREDIT, FRACTAL_SHAPED } from './fractals';
 import { produce } from 'immer';
 import { deriveSeamPatches } from '@/model/blocks/derive';
 import { pathPolygon, pointInPolygon } from '@/model/geometry/path';
@@ -142,6 +143,9 @@ export const STARTER_PALETTES: { name: string; colors: [string, [number, number,
 
 interface StarterBlock {
   name: string;
+  /** A block with its own designer and license (else the built-in library's). */
+  author?: string;
+  license?: string;
   /** Finished size in inches (default 10); a shaped block's side. */
   size?: number;
   /** Shaped blocks (spec 026). */
@@ -241,6 +245,30 @@ const logs = [
   [0, 0, 1, 8],
 ] as const;
 const logColors = [C.Cream, C.Linen, C.Indigo, C.Navy];
+
+/** A grid or shaped-kit block as a starter block (color letters to built-in colors). */
+function fromKit(
+  b: {
+    name: string;
+    size: number;
+    shape?: BlockShape;
+    category: string;
+    seams: Seam[];
+    points: [number, number, string][];
+  },
+  by: { author?: string; license?: string } = {},
+): StarterBlock {
+  return {
+    name: b.name,
+    size: b.size,
+    ...(b.shape ? { shape: b.shape } : {}),
+    category: b.category,
+    ...by,
+    seams: b.seams,
+    base: C.Cream!,
+    points: b.points.map(([x, y, color]): [number, number, number] => [x, y, C[color]!]),
+  };
+}
 
 export const STARTER_BLOCKS: StarterBlock[] = [
   {
@@ -482,15 +510,11 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     ...MEDALLION_BLOCKS,
     ...SHAPED_BLOCKS.map(shapedStarter),
     ...SHAPED_CURVES.map(curvedStarter),
-  ].map((b) => ({
-    name: b.name,
-    size: b.size,
-    ...('shape' in b ? { shape: b.shape } : {}),
-    category: b.category,
-    seams: b.seams,
-    base: C.Cream!,
-    points: b.points.map(([x, y, color]): [number, number, number] => [x, y, C[color]!]),
-  })),
+  ].map((b) => fromKit(b)),
+  // Fractals: RagingRoosevelt's designs, CC BY-SA (they may move to a pack of their own later).
+  ...[...FRACTAL_BLOCKS, ...FRACTAL_SHAPED.map(shapedStarter)].map((b) =>
+    fromKit(b, FRACTAL_CREDIT),
+  ),
 ];
 
 // --- Built-in library (spec 008) ---------------------------------------------------------------
@@ -534,14 +558,14 @@ const libId = (name: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')}`;
-const credit = (name: string) => ({
+const credit = (name: string, by: { author?: string; license?: string } = {}) => ({
   libraryId: LIBRARY_ID,
   itemId: libId(FORMER[name] ?? name),
   revision: 1,
   name,
   library: STARTER_LIBRARY.name,
-  author: STARTER_LIBRARY.author,
-  license: STARTER_LIBRARY.license,
+  author: by.author ?? STARTER_LIBRARY.author,
+  license: by.license ?? STARTER_LIBRARY.license,
 });
 
 export interface BuiltinItems {
@@ -600,7 +624,7 @@ function buildItems(): BuiltinItems {
       size,
       ...(b.shape ? { shape: b.shape } : {}),
       notecard: { name: b.name },
-      source: credit(b.name),
+      source: credit(b.name, b),
       revision: 1,
       drawing,
       patches,
@@ -664,6 +688,7 @@ const STARTER_CATEGORIES = [
   'Stars/Four-point stars',
   'Stars/Eight-point stars',
   'Curves',
+  'Fractals',
   'Symbols',
   'Symbols/Letters',
   'Symbols/Numbers',

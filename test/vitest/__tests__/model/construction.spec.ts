@@ -36,6 +36,10 @@ describe('block construction', () => {
       'Sunburst Triangle',
       'Framed Triangle',
       'Sailboat',
+      // Fractals: grid rows and halved triangles.
+      'Sierpinski Carpet',
+      'Hilbert Curve',
+      'Sierpinski Diamond',
     ])
       expect(named(n).setIn, n).toBe(false);
   });
@@ -51,6 +55,8 @@ describe('block construction', () => {
       'Three Kites',
       'Triangle Pinwheel',
       'Spike Star',
+      // The background is set in around its jagged edge.
+      'Koch Snowflake',
     ])
       expect(named(n).setIn, n).toBe(true);
   });
