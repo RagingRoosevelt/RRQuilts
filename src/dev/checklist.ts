@@ -214,6 +214,23 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
+    id: 'TC-036',
+    group: G.small,
+    text: 'Every dialog and wizard has an X in its top right corner that closes it: try the welcome wizard (closes it like Skip), New quilt, New block, a color, Open from a gist, a delete confirmation, and the Libraries dialogs. A title never runs under the X.',
+  },
+  {
+    id: 'TC-037',
+    group: G.shaped,
+    text: 'Libraries › built-in: 21 new 60° triangle blocks (Four Triangles, Triangle Nine-Patch, Trip Around the Triangle, Thousand Pyramids, Sierpinski Triangle, Hexagon Triangle, Triangle Star, Rail Triangle, Flying Geese Triangle, Arrowhead Strips, Twisted Triangle, Christmas Tree, Three Kites, Triangle Pinwheel, and off the lattice: Sunburst Triangle, Peacock Fan, Framed Triangle, Slanted Rails, Sailboat, Rising Sun Triangle (curved), Spike Star) in Basics, Nine-patch, Mosaics, Stars, Strips, Medallions, Images, Animals, Plants and Curves. Put a few in a Shaped Blocks quilt (triangles). Seams filter: only Three Kites, Triangle Pinwheel and Spike Star show as set-in; Rising Sun as curved.',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-038',
+    group: G.tags,
+    text: 'Favorite palettes: on Libraries › Palettes, a palette’s menu › Tags… › ⭐ Favorite shows ⭐ before its name; in a project’s Palettes tab the tag button on a library palette row does the same; a picked favorite palette shows ⭐ in the quilt editor’s color tray. The Tags filter finds it. Works for a My library palette (its own tag) and a built-in one.',
+    to: '/libraries',
+  },
+  {
     id: 'TC-039',
     group: G.small,
     text: 'Which tab a project opens on: reopen the project you had open last (from Recent, a file, a gist or Restore): it opens on the tab you left it on. Open a different project: it opens on Quilts, or on Blocks if it has no quilts yet. A new empty project opens on Blocks.',
@@ -224,11 +241,6 @@ export const CHECKS: Check[] = [
     group: G.tests,
     text: 'Text between checks (this page): hover the line between two checks (always shown on touch), click + and type; it stays after a reload. Every section has a + after its last check too. Copy results lists the text under “Text between checks”, in page order, each labeled with its section and the check just before it (“Shaped blocks, after 0.5.0-TC-005: …”, or “at the start”); Start over clears it.',
     to: '/dev/checklist',
-  },
-  {
-    id: 'TC-036',
-    group: G.small,
-    text: 'Every dialog and wizard has an X in its top right corner that closes it: try the welcome wizard (closes it like Skip), New quilt, New block, a color, Open from a gist, a delete confirmation, and the Libraries dialogs. A title never runs under the X.',
   },
   {
     id: 'TC-041',
@@ -255,27 +267,15 @@ export const CHECKS: Check[] = [
     to: '/libraries',
   },
   {
-    id: 'TC-037',
-    group: G.shaped,
-    text: 'Libraries › built-in: 21 new 60° triangle blocks (Four Triangles, Triangle Nine-Patch, Trip Around the Triangle, Thousand Pyramids, Sierpinski Triangle, Hexagon Triangle, Triangle Star, Rail Triangle, Flying Geese Triangle, Arrowhead Strips, Twisted Triangle, Christmas Tree, Three Kites, Triangle Pinwheel, and off the lattice: Sunburst Triangle, Peacock Fan, Framed Triangle, Slanted Rails, Sailboat, Rising Sun Triangle (curved), Spike Star) in Basics, Nine-patch, Mosaics, Stars, Strips, Medallions, Images, Animals, Plants and Curves. Put a few in a Shaped Blocks quilt (triangles). Seams filter: only Three Kites, Triangle Pinwheel and Spike Star show as set-in; Rising Sun as curved.',
-    to: '/libraries',
-  },
-  {
-    id: 'TC-046',
-    group: G.shaped,
-    text: 'Libraries › Category › Fractals: Sierpinski Carpet, Vicsek Cross, Cantor Bars, Hilbert Curve, Sierpinski Triangle (moved here from Mosaics; its light gaps are single pieces), Sierpinski Diamond, Koch Snowflake. Each shows RagingRoosevelt as author and CC BY-SA 4.0 in Details. None shows as set-in in the Seams filter (Koch Snowflake: a big center triangle and three wings, each spike sewn log cabin style).',
-    to: '/libraries',
-  },
-  {
     id: 'TC-045',
     group: G.small,
     text: 'Libraries: the Blocks / Palettes / All switch sits in the page header right after the title’s help icon (on a phone, on its own line under the title). Palette cards’ ⋮ button sits at the top of the card even when the swatches wrap onto several rows (Libraries and the sketchbook’s Palettes tab).',
     to: '/libraries',
   },
   {
-    id: 'TC-038',
-    group: G.tags,
-    text: 'Favorite palettes: on Libraries › Palettes, a palette’s menu › Tags… › ⭐ Favorite shows ⭐ before its name; in a project’s Palettes tab the tag button on a library palette row does the same; a picked favorite palette shows ⭐ in the quilt editor’s color tray. The Tags filter finds it. Works for a My library palette (its own tag) and a built-in one.',
+    id: 'TC-046',
+    group: G.shaped,
+    text: 'Libraries › Category › Fractals: Sierpinski Carpet, Vicsek Cross, Cantor Bars, Hilbert Curve, Sierpinski Triangle (moved here from Mosaics; its light gaps are single pieces), Sierpinski Diamond, Koch Snowflake. Each shows RagingRoosevelt as author and CC BY-SA 4.0 in Details. None shows as set-in in the Seams filter (Koch Snowflake: a big center triangle and three wings, each spike sewn log cabin style).',
     to: '/libraries',
   },
 ];
@@ -330,5 +330,41 @@ export function saveChecks(state: Record<string, CheckState>) {
     localStorage.setItem(KEY, JSON.stringify(state));
   } catch {
     // Storage blocked: progress lasts until the page closes.
+  }
+}
+
+/** Free text the tester puts between checks: before check `before` (TC-###), or at the end of a
+ *  group (`after:TC-###`, its last check). */
+export interface ChecklistNote {
+  id: string;
+  before: string;
+  text: string;
+}
+const NOTES_KEY = 'rrq.dev.checklist.notes';
+export function loadNotes(): ChecklistNote[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(NOTES_KEY) ?? '[]') as unknown;
+    return Array.isArray(raw)
+      ? raw
+          .filter(
+            (n): n is ChecklistNote =>
+              !!n &&
+              typeof n === 'object' &&
+              typeof (n as ChecklistNote).id === 'string' &&
+              typeof (n as ChecklistNote).before === 'string' &&
+              typeof (n as ChecklistNote).text === 'string',
+          )
+          // '' was the end of the list before each group had its own end.
+          .map((n) => (n.before ? n : { ...n, before: `after:${CHECKS.at(-1)!.id}` }))
+      : [];
+  } catch {
+    return [];
+  }
+}
+export function saveNotes(notes: ChecklistNote[]) {
+  try {
+    localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+  } catch {
+    // Storage blocked: notes last until the page closes.
   }
 }
