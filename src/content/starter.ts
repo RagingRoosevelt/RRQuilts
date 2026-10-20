@@ -272,14 +272,6 @@ function fromKit(
 
 export const STARTER_BLOCKS: StarterBlock[] = [
   {
-    // One patch, no seams: a plain square (alternate blocks, blocks between on point).
-    name: 'Plain Block',
-    category: 'Basics',
-    seams: [],
-    base: C.Cream!,
-    points: [],
-  },
-  {
     name: 'Four Patch',
     category: 'N-Patch/Four-patch',
     seams: cross,

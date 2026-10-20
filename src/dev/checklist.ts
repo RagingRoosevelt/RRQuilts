@@ -162,12 +162,12 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-024',
     group: G.tags,
-    text: 'Details tab of your own block: Needs and Efficiency checklists save; a library block lists them without checkboxes.',
+    text: 'Details tab of your own block: Techniques and Efficiency checklists save; a library block lists them without checkboxes.',
   },
   {
     id: 'TC-025',
     group: G.tags,
-    text: 'Technique filter shows Needs and Efficiency sections; Group by Technique works.',
+    text: 'Technique filter shows Techniques and Efficiency sections; Group by Technique works.',
   },
   {
     id: 'TC-026',
@@ -251,7 +251,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-042',
     group: G.filters,
-    text: 'Category filter (Libraries and the sketchbook’s Blocks sidebar): categories with the same name in My library and the built-in library show once. A category with subcategories is a labeled line with a checkbox before its name, its subcategories listed under it (not indented). Ticking that checkbox ticks the whole group; unticking one subcategory unticks it; ticking the last one ticks it again. Chips show only while the list is closed. Technique’s Needs/Efficiency are labeled lines too. The Libraries page opens without errors and switching Blocks/Palettes/All drops picks the filter no longer offers.',
+    text: 'Category filter (Libraries and the sketchbook’s Blocks sidebar): categories with the same name in My library and the built-in library show once. A category with subcategories is a labeled line with a checkbox before its name, its subcategories listed under it (not indented). Ticking that checkbox ticks the whole group; unticking one subcategory unticks it; ticking the last one ticks it again. Chips show only while the list is closed. Technique’s Techniques/Efficiency are labeled lines too. The Libraries page opens without errors and switching Blocks/Palettes/All drops picks the filter no longer offers.',
     to: '/libraries',
   },
   {
@@ -276,6 +276,18 @@ export const CHECKS: Check[] = [
     id: 'TC-046',
     group: G.shaped,
     text: 'Libraries › Category › Fractals: Sierpinski Carpet, Vicsek Cross, Cantor Bars, Hilbert Curve, Sierpinski Triangle (moved here from Mosaics; its light gaps are single pieces), Sierpinski Diamond, Koch Snowflake. Each shows RagingRoosevelt as author and CC BY-SA 4.0 in Details. None shows as set-in in the Seams filter (Koch Snowflake: a big center triangle and three wings, each spike sewn log cabin style).',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-047',
+    group: G.tags,
+    text: 'Technique’s first section is now called Techniques (was Needs): in a block’s Details, the Technique filter’s section line, and Help (Libraries, Drawing blocks).',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-048',
+    group: G.small,
+    text: 'The built-in library no longer has Plain Block (Basics): paint an empty block space instead. A project that used it still opens with its copy.',
     to: '/libraries',
   },
 ];

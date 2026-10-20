@@ -1558,7 +1558,7 @@ const blockFilterFields = computed(() => {
     label: tagLabel(t),
     value: t,
   }));
-  // Spec 029: in its two sections (Needs, Efficiency), only those the blocks use.
+  // Spec 029: in its two sections (Techniques, Efficiency), only those the blocks use.
   const techniqueValues = techniqueOptions(
     new Set(all.flatMap((b) => b.notecard.techniques ?? [])),
   );

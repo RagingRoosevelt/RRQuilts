@@ -50,7 +50,7 @@ type come from the tags you already use, and a tag that differs only in capital 
 one you have.
 
 **Technique** is what a block's designer marks it with, in its **Details** tab (your own blocks
-only). **Needs** says what it takes beyond ordinary machine piecing: **Foundation paper piecing**,
+only). **Techniques** says what it takes beyond ordinary machine piecing: **Foundation paper piecing**,
 **Appliqué** or **Hand sewing**. **Efficiency** says which faster methods it suits: **Strip
 piecing**, **Quick units** (half-square triangles, quarter-square triangles or flying geese made
 several at a time) or **Stitch and flip** (corners sewn on and flipped). A block with no technique is

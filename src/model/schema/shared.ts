@@ -39,7 +39,7 @@ export const TECHNIQUES: Record<Technique, string> = {
  *  makes it faster. */
 export const TECHNIQUE_GROUPS: { label: string; hint: string; techniques: Technique[] }[] = [
   {
-    label: 'Needs',
+    label: 'Techniques',
     hint: 'Beyond ordinary machine piecing.',
     techniques: ['fpp', 'applique', 'hand'],
   },

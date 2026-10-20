@@ -84,7 +84,6 @@ describe('starter content', () => {
 
   it('uses more than one color in every pieced block', () => {
     for (const b of doc.project.blocks) {
-      if (b.notecard.name === 'Plain Block') continue; // one patch, one color
       const colors = new Set(
         Object.values(b.colorings[0]!.fills).map((f) => ('color' in f ? f.color : '')),
       );

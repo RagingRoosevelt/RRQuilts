@@ -21,7 +21,8 @@ implementation.
 | Technique | Block author | fixed list, several allowed | yes; read-only on library blocks |
 | Tags | The quilter | free words | no; kept in the quilter's own data |
 
-- **Technique**: what the block's designer marks it with, in two checklists. **Needs** (beyond
+- **Technique**: what the block's designer marks it with, in two checklists. **Techniques** (named
+  Needs until 2026-10-20; beyond
   ordinary machine piecing): Foundation paper piecing, Appliqué, Hand sewing. **Efficiency** (faster
   methods it suits): Strip piecing, Quick units (half-square triangles, quarter-square triangles or
   flying geese several at a time), Stitch and flip. No technique means ordinary machine piecing.
@@ -52,12 +53,12 @@ A block's author marks how it is meant to be made; quilters filter by it.
 **Acceptance Scenarios**:
 
 1. **Given** the quilter's own block, **When** they open its **Details** tab, **Then** they tick
-   techniques in the **Needs** and **Efficiency** checklists: ticked is in the block's data,
+   techniques in the **Techniques** and **Efficiency** checklists: ticked is in the block's data,
    unticked is not. Saved with the block, in backups, packs and block files.
 2. **Given** a built-in or pack block, **Then** its Details tab lists its techniques without
    checkboxes.
 3. **Given** the Libraries page, the project's Blocks tab, **Then** a **Technique** filter lists the
-   techniques the shown blocks use, under **Needs** and **Efficiency** section labels, and Group by
+   techniques the shown blocks use, under **Techniques** and **Efficiency** section labels, and Group by
    offers Technique.
 4. **Given** built-in blocks, **Then** they carry no techniques and no tags until their data says
    so (a test checks they come with no tags).

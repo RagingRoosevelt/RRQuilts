@@ -1915,7 +1915,7 @@ const tagValues = computed(() =>
     value: t,
   })),
 );
-// Spec 029: in its two sections (Needs, Efficiency), only those the shown items use.
+// Spec 029: in its two sections (Techniques, Efficiency), only those the shown items use.
 const techniqueValues = computed(() =>
   techniqueOptions(new Set(typedItems.value.flatMap((i) => i.data.notecard.techniques ?? []))),
 );
