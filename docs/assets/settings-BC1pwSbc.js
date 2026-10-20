@@ -1,0 +1,1 @@
+import{v as e,y as t}from"./project-CpNTRgco.js";import{i as n}from"./index-BCbz_-HH.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

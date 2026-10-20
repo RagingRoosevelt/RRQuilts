@@ -47,6 +47,15 @@ takes a block also takes a patch (not the reverse). Decisions in Clarifications.
   Star, Tea Box, Kentucky, Columbia, Old Glory, Block Puzzle, Cosmos, Ozark Diamonds, Interlocked
   Star), Strips › Log Cabin (the Round and Round, Symmetrical and Opposite blocks, named "60-Degree"
   as in the book), Curves (Hexagon Orange Peel).
+- (2026-10-20) 60° triangle blocks drawn for RRQuilts, mostly on a triangle lattice so they sew in
+  straight rows: Basics (Four Triangles, Triangle Pinwheel), N-Patch › Nine-patch (Triangle
+  Nine-Patch), Mosaics (Trip Around the Triangle, Thousand Pyramids, Sierpinski Triangle, Hexagon
+  Triangle), Stars (Triangle Star, Three Kites), Strips › Strips (Rail Triangle, Flying Geese
+  Triangle, Arrowhead Strips), Medallions (Twisted Triangle), Images › Plants (Christmas Tree). All
+  but Three Kites (a set-in seam) and Triangle Pinwheel (a partial seam) sew with straight seams.
+  Off the lattice: Basics (Sunburst Triangle), Images (Sailboat), Images › Animals (Peacock Fan),
+  Medallions (Framed Triangle), Strips › Strips (Slanted Rails), Curves (Rising Sun Triangle, a curved
+  seam), Stars (Spike Star, a set-in seam).
 - The quilt editor's block sidebar has two filters: **Fits layout** (each block layout with its
   picture; Shaped Blocks once per shape) and **Shape** (square, triangle, 60° diamond, hexagon, each
   with its outline). Both cleared by default; together they show blocks passing both.

@@ -29,6 +29,13 @@ describe('block construction', () => {
       'Opposite Hexagon',
       'Basic Log Cabin',
       'Grape Vine',
+      // 60° triangle blocks on a triangle lattice sew in straight rows.
+      'Triangle Star',
+      'Twisted Triangle',
+      // Fans, strips, a frame and a picture: each piece sews on along one straight seam.
+      'Sunburst Triangle',
+      'Framed Triangle',
+      'Sailboat',
     ])
       expect(named(n).setIn, n).toBe(false);
   });
@@ -36,7 +43,15 @@ describe('block construction', () => {
   it('partial-seam and mitered blocks need set-in seams', () => {
     // Bright Hopes is the classic partial-seam block (Double Strips is two of it); Tea Box's units
     // meet along a seam that turns.
-    for (const n of ['Bright Hopes', 'Double Strips', 'Mitered Frame Medallion', 'Tea Box'])
+    for (const n of [
+      'Bright Hopes',
+      'Double Strips',
+      'Mitered Frame Medallion',
+      'Tea Box',
+      'Three Kites',
+      'Triangle Pinwheel',
+      'Spike Star',
+    ])
       expect(named(n).setIn, n).toBe(true);
   });
 

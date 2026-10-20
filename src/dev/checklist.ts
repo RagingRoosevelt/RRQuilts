@@ -254,6 +254,12 @@ export const CHECKS: Check[] = [
     text: 'Renamed built-in blocks: lettered variants now use the book’s numbers (King’s Crown II, Hourglass II and III, Nine-Patch Variation I and II, Grandmother’s Own III and IV, Red Cross I, …). A project saved before with one of them (e.g. demo-v6.rrq if it uses one, or your own) still opens and the block stays a library block (it may offer the renamed version as an update).',
     to: '/libraries',
   },
+  {
+    id: 'TC-037',
+    group: G.shaped,
+    text: 'Libraries › built-in: 21 new 60° triangle blocks (Four Triangles, Triangle Nine-Patch, Trip Around the Triangle, Thousand Pyramids, Sierpinski Triangle, Hexagon Triangle, Triangle Star, Rail Triangle, Flying Geese Triangle, Arrowhead Strips, Twisted Triangle, Christmas Tree, Three Kites, Triangle Pinwheel, and off the lattice: Sunburst Triangle, Peacock Fan, Framed Triangle, Slanted Rails, Sailboat, Rising Sun Triangle (curved), Spike Star) in Basics, Nine-patch, Mosaics, Stars, Strips, Medallions, Images, Animals, Plants and Curves. Put a few in a Shaped Blocks quilt (triangles). Seams filter: only Three Kites, Triangle Pinwheel and Spike Star show as set-in; Rising Sun as curved.',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
