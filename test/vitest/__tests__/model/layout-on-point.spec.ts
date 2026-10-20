@@ -299,6 +299,14 @@ describe('Blocks at edge positions move that side in (Exact, Floating)', () => {
       expect(held.anchor![i]).toBeCloseTo(v + (i % 2 ? 0 : shift), 9),
     );
   });
+  it('Exact never moves the edge: a block at an edge position leaves bounds and blocks put', () => {
+    const l = op({ cols: 3, rows: 3, block: 6, finish: 'exact' });
+    const plain = generateSlots(l, []);
+    const held = generateSlots(l, [], new Map([['m:r1c0', 'set:m:r1c0']]));
+    expect(held.bounds).toEqual(plain.bounds);
+    const at = (g: Generated) => g.slots.find((x) => x.id === 'b:r1c1')!.transform;
+    expect(at(held)).toEqual(at(plain));
+  });
 });
 
 describe('cutting chart', () => {

@@ -99,7 +99,7 @@ export function layoutDefaults(style: string, k: number) {
         height: r(16),
         sash: 0,
         corner: 'triangle' as const,
-        edge: { finish: 'float' as const, float: r(1) },
+        edge: { finish: 'exact' as const, float: r(1) },
       };
     case 'one-patch':
       return {
@@ -129,7 +129,7 @@ export function layoutDefaults(style: string, k: number) {
         height: r(6) * Math.sqrt(3),
         sash: 0,
         corner: 'triangle' as const,
-        edge: { finish: 'float' as const, float: r(1) },
+        edge: { finish: 'exact' as const, float: r(1) },
       };
     case 'baby-blocks':
       return {
@@ -178,7 +178,7 @@ export const onPointDefaults = (k: number) => ({
   block: 12 * k,
   sash: 0,
   corner: 'triangle' as const,
-  edge: { finish: 'float' as const, float: 1 * k },
+  edge: { finish: 'exact' as const, float: 1 * k },
 });
 
 export type ParseResult =

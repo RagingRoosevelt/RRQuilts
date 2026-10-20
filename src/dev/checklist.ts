@@ -91,13 +91,6 @@ export const CHECKS: Check[] = [
     to: '/dev/print',
   },
   {
-    id: 'TC-058',
-    last: 'In the jacket back quilt when I add or remove that left-most block the position of the reference overlay changes.',
-    group: G.small,
-    text: "An On-Point quilt with Floating edge and a target overlay (Layout › Target size, e.g. a jacket back): set a block in a left (or top) setting triangle, then remove it. The quilt's edge on that side moves in and out (the float is taken away while a block is there), but the overlay stays in the same place over the blocks.",
-    to: '/',
-  },
-  {
     id: 'TC-069',
     group: G.tags,
     last: "I'm not seeing checkboxes anymore for blocks I designed myself. / When editing a \"make a copy of a library block\" block, the techniques, etc aren't editable. / Hovering over the label for techniques and efficiency checkboxes when it is not possible to change should produce a tooltip indicating why they aren't editable.",
@@ -158,6 +151,13 @@ export const CHECKS: Check[] = [
     group: G.small,
     last: 'The text for the three-way-switch overruns its slot. Maybe a label over the switch that says "keep which?" and the positions say "existing", "both", "new"? And if both are selected, the file one shows the new name it\'ll come in as. We also should have a scrollable list of all the images coming in. Default to keeping existing copy and discard the incoming one.',
     text: 'Adding fabric images whose names are already in the palette: one scrolling list, the palette’s fabric and the new image side by side, “Keep which?” reading Existing · Both · New, starting on Existing (the new one is left out). Both shows the name the new one gets (“Name (2)”) and it comes in under that name.',
+    to: '/',
+  },
+  {
+    id: 'TC-078',
+    group: G.small,
+    last: 'Still trimming down to where the tip of the block is vs having the straight edge going out for the extended mode that would be trimmed. / At the block points. If we cut 1" beyond, then there\'s nothing to fill in the gap.',
+    text: "New On-Point (and Variable Point, Diamond Point) quilts start with Edge: Exact. Set a block into a left setting triangle, then remove it: the quilt's edge stays at the block points both times, and a target overlay doesn't move. Switching to Floating offers a 1″ float. Older quilts keep their finish.",
     to: '/',
   },
 ];
