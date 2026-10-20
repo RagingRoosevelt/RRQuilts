@@ -624,6 +624,9 @@ function buildItems(): BuiltinItems {
       size,
       ...(b.shape ? { shape: b.shape } : {}),
       notecard: { name: b.name },
+      // Its own designer and license, where it has them (else the library's apply).
+      ...(b.author ? { author: b.author } : {}),
+      ...(b.license ? { license: b.license } : {}),
       source: credit(b.name, b),
       revision: 1,
       drawing,
