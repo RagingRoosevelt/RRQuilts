@@ -44,7 +44,8 @@ blocks fills the spaces between them, and setting pieces finish the edge.
    At the quilt's corners, choose **Corner triangle** for one triangle in each corner, or **Seam**
    to split each corner in two, continuing the line of the side triangles.
 4. **Edge** decides what happens where the diamonds meet the edge of the quilt.
-   - **Exact** puts the block points right on the edge, with setting triangles in the gaps.
+   - **Exact** puts the block points right on the edge, with setting triangles in the gaps. New
+     quilts start here, and the edge stays put when you set a block into a setting triangle.
    - **Floating** cuts the setting triangles larger, so the blocks float inside the edge. Trim the
      quilt top to its final size after piecing. **Float** sets how much extra the triangles get.
    - **Trimmed blocks** uses partial blocks along the edge. They are cut by the edge, but they are

@@ -190,7 +190,7 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
 **Edge finish** (spec 001 FR-029e)
 
 - **FR-020**: A layout with an uneven edge MUST offer Exact, Floating (with a float amount), Trimmed
-  blocks, and No fill. New On-Point quilts start Floating with a 1″ float.
+  blocks, and No fill. New On-Point, Variable Point and Diamond Point quilts start Exact (float amount 1″, used when Floating is chosen). *Changed 2026-10-20 (owner): Exact keeps the edge at the block points whether or not edge positions hold blocks.*
 - **FR-021**: Setting pieces MUST be plain spaces that color like patches, are included in yardage,
   and print with cut sizes and grain along the outer edge. The cutting chart doesn't warn that their
   sizes are off the rounding grid (setting triangles are cut slightly large on purpose).

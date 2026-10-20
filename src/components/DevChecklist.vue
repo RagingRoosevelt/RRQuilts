@@ -16,9 +16,41 @@
         {{ g.name }}
         <small>{{ g.checks.filter((c) => state[stateKey(c)]).length }}/{{ g.checks.length }}</small>
       </h2>
-      <template v-for="c in g.checks" :key="c.id">
+      <!-- A line with a + between checks (on hover; always on touch) adds a block of text there. -->
+      <template v-for="{ before, c } in slotsOf(g)" :key="before">
+        <div class="gap">
+          <button
+            type="button"
+            class="add"
+            :aria-label="`Add text ${where(before).toLowerCase()}`"
+            @click="addNote(before)"
+          >
+            <q-icon name="add" size="14px" />
+          </button>
+          <hr />
+        </div>
+        <div v-for="n in notes.filter((x) => x.before === before)" :key="n.id" class="note">
+          <q-input
+            :model-value="n.text"
+            dense
+            outlined
+            autogrow
+            :autofocus="n.id === fresh"
+            placeholder="Text"
+            @update:model-value="(v) => setText(n.id, String(v ?? ''))"
+          />
+          <q-btn
+            flat
+            dense
+            round
+            size="sm"
+            icon="close"
+            aria-label="Remove"
+            @click="removeNote(n.id)"
+          />
+        </div>
         <div
-          v-if="!openOnly || state[stateKey(c)]?.status !== 'ok'"
+          v-if="c && (!openOnly || state[stateKey(c)]?.status !== 'ok')"
           :id="checkId(c)"
           class="check"
           :class="state[stateKey(c)]?.status"
@@ -34,6 +66,7 @@
               class="q-ml-xs"
               >Download {{ c.file }}</a
             >
+            <div v-if="c.last" class="last">Your note last time: “{{ c.last }}”</div>
             <q-input
               v-if="
                 state[stateKey(c)]?.status === 'problem' || state[stateKey(c)]?.status === 'iterate'
@@ -72,10 +105,13 @@ import {
   fetchBuild,
   sampleUrl,
   loadChecks,
+  loadNotes,
   saveChecks,
+  saveNotes,
   stateKey,
   VERSION,
   type Check,
+  type ChecklistNote,
   type CheckState,
 } from '@/dev/checklist';
 
@@ -111,6 +147,28 @@ const groups = computed(() => {
   return out;
 });
 
+/** Gaps to add text in: before each check, and after the last check of each group. */
+const slotsOf = (g: { checks: Check[] }) => [
+  ...g.checks.map((c) => ({ before: c.id, c })),
+  { before: `after:${g.checks.at(-1)!.id}`, c: undefined },
+];
+const where = (b: string) => (b.startsWith('after:') ? `After ${b.slice(6)}` : `Before ${b}`);
+const notes = ref<ChecklistNote[]>(loadNotes());
+/** The note just added (it takes the focus). */
+const fresh = ref<string | null>(null);
+function commitNotes(next: ChecklistNote[]) {
+  notes.value = next;
+  saveNotes(next);
+}
+function addNote(before: string) {
+  const n = { id: crypto.randomUUID(), before, text: '' };
+  fresh.value = n.id;
+  commitNotes([...notes.value, n]);
+}
+const setText = (id: string, text: string) =>
+  commitNotes(notes.value.map((n) => (n.id === id ? { ...n, text } : n)));
+const removeNote = (id: string) => commitNotes(notes.value.filter((n) => n.id !== id));
+
 function commit(next: Record<string, CheckState>) {
   state.value = next;
   saveChecks(next);
@@ -132,7 +190,8 @@ function setNote(id: string, note: string) {
   const old = state.value[id];
   if (old) commit({ ...state.value, [id]: { ...old, note } });
 }
-/** Plain text to paste back to Claude: problems (with notes) first, then works, then not tested. */
+/** Plain text to paste back to Claude: which passed and which weren't tested (by number), then problems
+ *  and checks to iterate with their notes, then the text between checks. */
 function copyResults() {
   const line = (c: Check) => `- ${checkId(c)} ${c.text}`;
   const by = (s: string) => CHECKS.filter((c) => (state.value[stateKey(c)]?.status ?? '') === s);
@@ -143,13 +202,39 @@ function copyResults() {
   const sections = [
     ['Problems', by('problem').flatMap(withNote)],
     ['Needs iteration', by('iterate').flatMap(withNote)],
-    ['Works', by('ok').map(line)],
-    ['Not tested', by('').map(line)],
   ] as const;
+  // Passed and skipped: their test case numbers, so each is accounted for.
+  // Plain numbers; a check tested on another build than this one says which.
+  const short = (c: Check) => {
+    const b = state.value[stateKey(c)]?.build ?? build.value;
+    return b === build.value ? c.id : `${c.id} (${b})`;
+  };
+  const ids = (s: string) => by(s).map(short).join(', ') || 'none';
+  // Each text block with its section and the check just before it (or the section's start), in
+  // page order.
+  const placed = notes.value
+    .filter((n) => n.text.trim())
+    .map((n) => {
+      const after = n.before.startsWith('after:');
+      const i = CHECKS.findIndex((c) => c.id === (after ? n.before.slice(6) : n.before));
+      const c = CHECKS[i];
+      const prev = after ? c : CHECKS[i - 1]?.group === c?.group ? CHECKS[i - 1] : undefined;
+      const at = prev ? `after ${checkId(prev)}` : 'at the start';
+      return {
+        pos: i + (after ? 0.5 : -0.5),
+        line: `- ${c!.group}, ${at}: ${n.text.trim().replace(/\n/g, '\n  ')}`,
+      };
+    })
+    .sort((x, y) => x.pos - y.pos);
+  const texts = placed.map((x) => x.line);
   const text = [
     `Test results, build ${build.value} (${new Date().toISOString().slice(0, 10)})`,
     `Works ${by('ok').length} · Needs iteration ${by('iterate').length} · Problems ${by('problem').length} · Not tested ${by('').length}`,
+    '',
+    `Works: ${ids('ok')}`,
+    `Not tested: ${ids('')}`,
     ...sections.flatMap(([title, lines]) => (lines.length ? ['', `${title}:`, ...lines] : [])),
+    ...(texts.length ? ['', 'Text between checks:', ...texts] : []),
   ].join('\n');
   copyToClipboard(text).then(
     () => $q.notify({ message: 'Results copied. Paste them to Claude.', timeout: 2000 }),
@@ -159,10 +244,11 @@ function copyResults() {
 function reset() {
   $q.dialog({
     title: 'Start over?',
-    message: `Every check for ${VERSION} goes back to Not tested, and its notes are cleared.`,
+    message: `Every check for ${VERSION} goes back to Not tested, and its notes and the text between checks are cleared.`,
     cancel: true,
     ok: { label: 'Start over', color: 'negative', flat: true },
-  }).onOk(() =>
+  }).onOk(() => {
+    commitNotes([]);
     // Other builds' progress stays.
     commit(
       Object.fromEntries(
@@ -171,8 +257,8 @@ function reset() {
           ([k]) => !k.startsWith(`${VERSION}:`) || k.endsWith('@carried'),
         ),
       ),
-    ),
-  );
+    );
+  });
 }
 </script>
 
@@ -186,7 +272,7 @@ function reset() {
 }
 .sec {
   display: grid;
-  gap: 8px;
+  gap: 2px;
   margin-bottom: 24px;
 }
 .sec h2 {
@@ -236,5 +322,63 @@ function reset() {
 }
 .text {
   max-width: 80ch;
+}
+.last {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  font-style: italic;
+  opacity: 0.75;
+}
+.note {
+  display: flex;
+  gap: 4px;
+  align-items: start;
+  max-width: calc(80ch + 120px);
+}
+.note > :first-child {
+  flex: 1;
+}
+/* Gaps between checks: a rule with a + badge at its start (as the strip list's). */
+.gap {
+  height: 14px;
+  display: flex;
+  align-items: center;
+}
+.gap hr {
+  flex: 1;
+  margin: 0 0 0 4px;
+  border: none;
+  border-top: 2px solid var(--q-primary);
+}
+.add {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--q-primary);
+  color: #fff;
+  cursor: pointer;
+}
+.gap hr,
+.gap .add {
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.gap:hover hr,
+.gap:hover .add,
+.gap:focus-within hr,
+.gap:focus-within .add {
+  opacity: 1;
+}
+@media (hover: none) {
+  .gap .add {
+    opacity: 1;
+  }
+  .gap hr {
+    opacity: 0.35;
+  }
 }
 </style>

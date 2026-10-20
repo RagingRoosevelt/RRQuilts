@@ -4,7 +4,7 @@ import { sortTags, tagLabel, visibleTags } from './tags';
 import { TECHNIQUES, type Technique } from './schema/shared';
 import { produce } from 'immer';
 import { canonicalContent, contentVersion, itemId, stableStringify } from './identity';
-import { creditCopy, settleCredits } from './credits';
+import { creditCopy, noSharing, settleCredits } from './credits';
 import type { LibraryLookup } from './library-items';
 import type { Block } from './schema/block';
 import {
@@ -80,6 +80,33 @@ async function ownColors(doc: RrqDoc, block: Block, kept: readonly Color[] = [])
   return colors.length ? { colors } : {};
 }
 
+/**
+ * The fabrics a block's colorings use, as library content (sizes in inches), so they travel with it;
+ * fabrics whose license forbids sharing stay behind (spec 014). `kept`: ones it already carries.
+ */
+async function blockFabrics(doc: RrqDoc, block: Block, kept: readonly Fabric[] = []) {
+  const used = new Set(
+    block.colorings.flatMap((c) =>
+      Object.values(c.fills).flatMap((f) => ('fabric' in f ? [f.fabric] : [])),
+    ),
+  );
+  const k = doc.units === 'cm' ? 1 / 2.54 : 1;
+  const here = doc.project.palette.fabrics.filter(
+    (f) => used.has(f.id) && !noSharing(f.license ?? f.source?.license),
+  );
+  const fabrics = await Promise.all(
+    here.map((f) =>
+      asLibraryData({ ...f, size: [f.size[0] * k, f.size[1] * k] as [number, number] }, 1),
+    ),
+  );
+  fabrics.push(...kept.filter((f) => used.has(f.id) && !fabrics.some((x) => x.id === f.id)));
+  return fabrics.length ? { fabrics } : {};
+}
+
+/** A library item's fabrics: a palette's, or (v5) those a block carries. */
+export const itemFabrics = (i: LibraryItem): Fabric[] =>
+  (i.type === 'colors' ? i.data.fabrics : i.fabrics) ?? [];
+
 const findBlock = (lib: LibraryDoc, id: string) =>
   lib.items.find(
     (i): i is Extract<LibraryItem, { type: 'block' }> => i.type === 'block' && i.data.id === id,
@@ -105,6 +132,7 @@ export async function addBlock(
     ...(category ? { category } : {}),
     data,
     ...(await ownColors(doc, block)),
+    ...(await blockFabrics(doc, block)),
   };
   return {
     lib: { ...lib, items: [...lib.items.filter((i) => i.data.id !== data.id), item] },
@@ -159,6 +187,7 @@ export async function syncBlock(
     ...(item.category ? { category: item.category } : {}),
     data,
     ...(await ownColors(doc, block, item.colors)),
+    ...(await blockFabrics(doc, block, item.fabrics)),
   };
   return {
     lib: { ...lib, items: lib.items.map((i) => (i === item ? next : i)) },
@@ -196,13 +225,15 @@ export async function saveCollection(
   colorIds: string[],
   me: string,
   category?: string,
+  /** The quilter's tags on the project palette it's saved from (both are theirs). */
+  tags: readonly string[] = [],
 ) {
   const picked = doc.project.palette.colors.filter((c) => colorIds.includes(c.id));
   const colors = await Promise.all(picked.map((c) => asLibraryData(c, 1)));
   const data = await asLibraryData<ColorCollection>(
     {
       id: itemId(me),
-      notecard: { name },
+      notecard: { name, ...(tags.length ? { tags: [...tags] } : {}) },
       ...(me ? { author: me } : {}),
       ...(doc.project.license ? { license: doc.project.license } : {}),
       colors,
@@ -343,6 +374,53 @@ export function categoryTree(cats: readonly Category[]) {
     ]);
 }
 
+/**
+ * The Category filter (spec 011): every library's categories merged by name, either case
+ * (subcategories by their category's name and their own). Only the categories `used` (ids items are
+ * filed under; '' = uncategorized) and their parents are offered: plain ones first, then each
+ * category with subcategories as a group: its `header` (items filed in the category itself;
+ * checking it checks the group), then its subcategories. `ids`: the category ids picked keys cover.
+ */
+export function categoryFilter(cats: readonly Category[], used: ReadonlySet<string>) {
+  const byId = new Map(cats.map((c) => [c.id, c]));
+  const parentOf = (c: Category) => (c.parent ? byId.get(c.parent) : undefined);
+  const shown = new Set(used);
+  for (const c of cats) if (used.has(c.id) && c.parent) shown.add(c.parent);
+  const norm = (n: string) => n.trim().toLowerCase();
+  const covers = new Map<string, string[]>();
+  const cover = (key: string, id: string) => covers.set(key, [...(covers.get(key) ?? []), id]);
+  const tops = new Map<string, { name: string; subs: Map<string, string> }>();
+  const topOf = (c: Category) => {
+    const key = norm(c.name);
+    if (!tops.has(key)) tops.set(key, { name: c.name, subs: new Map() });
+    return { key, top: tops.get(key)! };
+  };
+  for (const c of cats) {
+    if (!shown.has(c.id)) continue;
+    const p = parentOf(c);
+    if (!p) {
+      cover(topOf(c).key, c.id);
+      continue;
+    }
+    const { key, top } = topOf(p);
+    const sub = `${key}/${norm(c.name)}`;
+    if (!top.subs.has(sub)) top.subs.set(sub, c.name);
+    cover(sub, c.id);
+  }
+  const plain = [...tops].filter(([, t]) => !t.subs.size);
+  const grouped = [...tops].filter(([, t]) => t.subs.size);
+  const options: { label: string; value: string; group?: string; header?: boolean }[] = [
+    ...plain.map(([key, t]) => ({ label: t.name, value: key })),
+    ...(used.has('') ? [{ label: 'Uncategorized', value: '' }] : []),
+    ...grouped.flatMap(([key, t]) => [
+      { label: t.name, value: key, group: t.name, header: true },
+      ...[...t.subs].map(([sub, name]) => ({ label: name, value: sub, group: t.name })),
+    ]),
+  ];
+  covers.set('', ['']);
+  return { options, ids: (keys: readonly string[]) => keys.flatMap((k) => covers.get(k) ?? []) };
+}
+
 /** A category and its subcategories (picking a top-level category matches both levels). */
 export const withSubcategories = (cats: readonly Category[], ids: readonly string[]) => [
   ...ids,
@@ -447,8 +525,12 @@ export async function addFabrics(
   }
   const item = lib.items.find((i) => i.type === 'colors' && i.data.id === target.id);
   if (item?.type !== 'colors') return { lib, id: target.id };
+  // One already in the palette by id is a replacement ("Use the new one"): same place, new image.
+  const replaced = new Map(fresh.map((f) => [f.id, f]));
+  const kept = (item.data.fabrics ?? []).map((f) => replaced.get(f.id) ?? f);
+  const have = new Set(kept.map((f) => f.id));
   const data = await asLibraryData(
-    { ...item.data, fabrics: [...(item.data.fabrics ?? []), ...fresh] },
+    { ...item.data, fabrics: [...kept, ...fresh.filter((f) => !have.has(f.id))] },
     (item.data.revision ?? 1) + 1,
   );
   return { lib: mapItem(lib, target.id, () => ({ ...item, data })), id: target.id };
@@ -520,7 +602,8 @@ export async function copyToMine(
           1,
         );
   const colors = item.type === 'block' && item.colors ? { colors: item.colors } : {};
-  const copy = { type: item.type, data, ...colors } as LibraryItem;
+  const fabrics = item.type === 'block' && item.fabrics ? { fabrics: item.fabrics } : {};
+  const copy = { type: item.type, data, ...colors, ...fabrics } as LibraryItem;
   return { ...lib, items: [...lib.items, copy] };
 }
 
@@ -544,10 +627,12 @@ export function withSources(lib: LibraryDoc) {
   const blocks: Block[] = [];
   const collections: ColorCollection[] = [];
   const blockColors: Color[] = [];
+  const blockFabricList: Fabric[] = [];
   for (const i of lib.items) {
     if (i.type === 'block') {
       blocks.push(stamp(i.data));
       blockColors.push(...(i.colors ?? []).map(stamp));
+      blockFabricList.push(...(i.fabrics ?? []).map(stamp));
     } else
       collections.push({
         ...i.data,
@@ -560,7 +645,8 @@ export function withSources(lib: LibraryDoc) {
     blocks,
     collections,
     colors: [...collections.flatMap((c) => c.colors), ...blockColors],
-    fabrics: collections.flatMap((c) => c.fabrics ?? []),
+    // Palette fabrics first, then those only a block carries.
+    fabrics: [...collections.flatMap((c) => c.fabrics ?? []), ...blockFabricList],
   };
 }
 export type LibraryView = ReturnType<typeof withSources> & { doc: LibraryDoc };

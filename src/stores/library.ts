@@ -3,7 +3,13 @@
 import { defineStore } from 'pinia';
 import { computed, ref, shallowRef, toRaw } from 'vue';
 import { builtinDoc, builtinLibrary } from '@/content/starter';
-import { emptyPersonal, lookupOf, withSources, type LibraryView } from '@/model/library';
+import {
+  emptyPersonal,
+  lookupOf,
+  setNotecard,
+  withSources,
+  type LibraryView,
+} from '@/model/library';
 import type { LibraryDoc } from '@/model/schema/library';
 import { cleanTags, FAVORITE, keptTags, setKept, sortTags, visibleTags } from '@/model/tags';
 import type { LibraryRef } from '@/model/schema/project';
@@ -72,6 +78,7 @@ export const useLibraryStore = defineStore('library', () => {
     return {
       blocks: views.value.flatMap((v) => v.blocks).filter(once),
       colors: views.value.flatMap((v) => v.colors).filter(once),
+      fabrics: views.value.flatMap((v) => v.fabrics).filter(once),
     };
   });
 
@@ -113,6 +120,25 @@ export const useLibraryStore = defineStore('library', () => {
     const { annotations: _old, ...rest } = doc;
     void _old;
     await saveMine(annotations.length ? { ...rest, annotations } : rest);
+  }
+  /**
+   * The quilter's tags on a library item: on My library's own items they're the item's; on others'
+   * they're kept in My library (tags a pack came with stay the pack's).
+   */
+  async function setTags(me: string, id: string, tags: readonly string[]) {
+    if (mine.value?.items.some((i) => i.data.id === id))
+      return saveMine(setNotecard(ensureMine(me), id, { tags: [...tags] }));
+    const own = new Set(
+      visibleTags(
+        allViews.value.flatMap((v) => v.doc.items).find((i) => i.data.id === id)?.data.notecard
+          .tags,
+      ),
+    );
+    await setKeptTags(
+      me,
+      id,
+      tags.filter((t) => !own.has(t)),
+    );
   }
   /** Forget the kept tags of these items. */
   async function dropKept(ids: readonly string[]) {
@@ -418,6 +444,7 @@ export const useLibraryStore = defineStore('library', () => {
     removePack,
     kept,
     setKeptTags,
+    setTags,
     dropKept,
     tagVocabulary,
     orphanedTags,

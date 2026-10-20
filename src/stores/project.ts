@@ -23,6 +23,7 @@ import { useLibraryStore } from './library';
 import { createHistory } from '@/editor/undo';
 import { createAutosave } from '@/session/autosave';
 import { socialsOut } from '@/settings/socials';
+import { openedProject } from '@/settings/settings';
 import { useSettingsStore } from '@/stores/settings';
 import {
   acquireEditLock,
@@ -113,6 +114,7 @@ export const useProjectStore = defineStore('project', () => {
     opts: { handle?: FileSystemFileHandle | null; saved: boolean; dirty: boolean },
   ) {
     await close();
+    openedProject(useSettingsStore().settings, next.project.id, next.project.quilts.length > 0);
     doc.value = freeze(next, true);
     handle.value = opts.handle ?? null;
     savedOnce.value = opts.saved;

@@ -38,13 +38,19 @@ like sketchbook/worktable are fine).
 - Only our own formats (`.rrq*`); other quilt software formats are deliberately unsupported.
 - All formats carry `{ "format": ..., "version": N }`. Bump `version` + add a migration
   for any schema change. Treat loaded files as untrusted: validate, never crash.
+- A new `.rrqlib` (or index) version must also go into the library template
+  (`~/Code/rrquilts-library-template`, `tools/common.py` `FORMATS`, plus build/validate for new
+  fields): library repos' weekly check sees the app's `formats.json` and `tools/upgrade.py` pulls
+  the template's tools. Then upgrade our own library repos (`libraries/<maker>`,
+  `~/Code/rrquilts-fractal-blocks` (RagingRoosevelt's Novelty, RagingRoosevelt/rrquilts-novelty-blocks, offered
+  in `bundled_libraries.json`; the fabric brands wait in `bundled_libraries.json.draft`)).
 - `test/fixtures/formats/`: one sample per released format version (`<format>-v<N>.<ext>`), opened
   by a test; `demo-vN.rrq` = a demo project with a quilt per layout capability each version added
   (`write-demo.spec.ts`), `demo-vN/` = PNGs of its quilts and blocks drawn by that release
   (`scripts/format-images.py`). A release that ships a new format version adds them (`scripts/release.md`).
 - **Tests tab** (testing aids, `make dev` only; first tab **Checklist**: `dev/checklist.ts` manual checks shown as
   `<build>-TC-###` (build = version + commit after the release, from a dev-only `__dev/build` endpoint reading .git), Not tested / Works / Needs iteration / Problem with notes, sample files to download; progress per release line in localStorage `rrq.dev.checklist` (apart from
-  app data), **Copy results** for pasting back; add checks for new features; route and nav behind `import.meta.env.DEV`;
+  app data), text blocks between checks (+ in each gap, `rrq.dev.checklist.notes`), **Copy results** for pasting back; add checks for new features; a check for a fix or a reworked check gets a new id and quotes the owner's note in `last`; checks that worked are removed after a round; route and nav behind `import.meta.env.DEV`;
   `make build` fails if any of it reaches `docs/`): `pages/DevPage.vue` + `src/dev/`.
   **Layout gallery** (`/dev/gallery`): `dev/variations.ts` = quilts per layout and setting with
   blocks/solids/mixes (`dev/fill-quilt.ts`), each with what it should show, drawn live with seams;
@@ -112,7 +118,7 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over `RrqDoc`.
 
 - `schema/` — TypeBox schemas = TS types + validation + published JSON Schema
-  (`public/schemas/rrq.v7.json`; regenerate with `npm run schema`, a test fails on drift)
+  (`public/schemas/rrq.v8.json`; regenerate with `npm run schema`, a test fails on drift)
 - `io.ts` — `parseProject` (JSON → migrate → validate → duplicate ids → dangling refs + asset
   hashes reported), `serializeProject`. New version: bump `VERSION`, add `migrations[old]`.
 - `units.ts` — only real lengths scale; block geometry is normalized 0…1

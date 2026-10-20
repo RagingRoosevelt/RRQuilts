@@ -8,6 +8,7 @@ import { SHAPED_A } from './shaped-a';
 import { SHAPED_B } from './shaped-b';
 import { SHAPED_C } from './shaped-c';
 import { SHAPED_D } from './shaped-d';
+import { SHAPED_E } from './shaped-e';
 
 export interface ShapedStarter {
   name: string;
@@ -117,4 +118,10 @@ export function curvedStarter(d: CurvedDef): ShapedStarter {
   };
 }
 
-export const SHAPED_BLOCKS: ShapedDef[] = [...SHAPED_A, ...SHAPED_B, ...SHAPED_C, ...SHAPED_D];
+export const SHAPED_BLOCKS: ShapedDef[] = [
+  ...SHAPED_A,
+  ...SHAPED_B,
+  ...SHAPED_C,
+  ...SHAPED_D,
+  ...SHAPED_E,
+];

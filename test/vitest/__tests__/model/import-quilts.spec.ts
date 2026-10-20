@@ -64,4 +64,16 @@ describe('import quilts from a project', () => {
     ).toHaveLength(1);
     expect((await reopen(doc)).report).toEqual([]);
   });
+
+  it('replaces a quilt in place when the quilter chose the file’s', async () => {
+    const from = await demo();
+    const q = from.project.quilts[1]!;
+    const renamed = produce(from, (d) => {
+      d.project.quilts[1]!.notecard.name = 'From the file';
+    });
+    const { doc } = importProjectQuilts(from, renamed, 'Sam', [q.id], new Set([q.id]));
+    expect(doc.project.quilts).toHaveLength(from.project.quilts.length);
+    expect(doc.project.quilts[1]!.id).toBe(q.id);
+    expect(doc.project.quilts[1]!.notecard.name).toBe('From the file');
+  });
 });

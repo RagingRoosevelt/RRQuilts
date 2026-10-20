@@ -58,7 +58,7 @@ const vp = useViewport({
   canvas,
   getView: () => props.view,
   setView: (v) => emit('update:view', v),
-  bounds: () => boundsWithTarget(props.quilt, props.generated.bounds),
+  bounds: () => boundsWithTarget(props.quilt, props.generated.bounds, props.generated.anchor),
   panOnly: () => props.panOnly,
   draw(ctx, view, dpr) {
     const c = canvas.value!;

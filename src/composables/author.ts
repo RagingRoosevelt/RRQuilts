@@ -23,6 +23,8 @@ export function useAuthor() {
         persistent: true,
       })
         .onOk((name: string) => done(name))
-        .onCancel(() => done(''));
+        .onCancel(() => done(''))
+        // Closed with the X: no name for now, asked again next time.
+        .onDismiss(() => resolve(s.author));
     });
 }

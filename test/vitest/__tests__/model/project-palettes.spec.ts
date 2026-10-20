@@ -54,3 +54,20 @@ describe('project palettes (format v3)', () => {
     expect(doc.project.palette.collections![0]!.colors).toEqual([]);
   });
 });
+
+describe('project palette tags (format v8)', () => {
+  it('keeps a palette’s tags through save and open, and opens v7 files', async () => {
+    const { parseProject, serializeProject } = await import('@/model/io');
+    const doc = produce(createProject('t', 'in'), (d) => {
+      addPalette(d, 'pal', 'Mine');
+      d.project.palette.collections!.find((p) => p.id === 'pal')!.notecard.tags = ['Favorite'];
+    });
+    const r = await parseProject(serializeProject(doc));
+    expect(
+      r.ok && r.doc.project.palette.collections!.find((p) => p.id === 'pal')!.notecard.tags,
+    ).toEqual(['Favorite']);
+    const v7 = JSON.parse(serializeProject(doc)) as { version: number };
+    v7.version = 7;
+    expect((await parseProject(JSON.stringify(v7))).ok).toBe(true);
+  });
+});

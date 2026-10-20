@@ -1,6 +1,7 @@
 // Zipped `.rrqlib` files (spec 002 FR-053, spec 014): a library's `library.json` index and its packs
 // (or one `rrqlib.json`), with fabric images as files beside each pack. Images are checked against
 // their hashes and kept in the device image store, a library's only for the packs chosen.
+import { itemFabrics } from '@/model/library';
 import { parseLibraryValue } from '@/model/library-file';
 import type { LibraryBackup, LibraryDoc } from '@/model/schema/library';
 import type { Fabric } from '@/model/schema/palette';
@@ -80,9 +81,7 @@ export async function readLibraryZip(bytes: Uint8Array<ArrayBuffer>): Promise<Zi
     for (const id of packIds) {
       const doc = docs.get(id);
       if (!doc) continue;
-      const sizes = doc.items.flatMap((i) =>
-        i.type === 'colors' ? (i.data.fabrics ?? []).flatMap((f) => f.sizes ?? []) : [],
-      );
+      const sizes = doc.items.flatMap((i) => itemFabrics(i).flatMap((f) => f.sizes ?? []));
       const havePx = Math.max(0, ...sizes.filter((s) => here.has(s.sha256)).map((s) => s.px));
       const inZip = (images.get(id) ?? []).map((x) => x.s);
       out[id] = {
@@ -115,8 +114,7 @@ export async function readLibraryZip(bytes: Uint8Array<ArrayBuffer>): Promise<Zi
     // Images beside the document (a backup's packs too), stored once chosen.
     for (const d of [r.doc, ...(r.doc.packs ?? [])])
       for (const item of d.items) {
-        if (item.type !== 'colors') continue;
-        for (const f of item.data.fabrics ?? [])
+        for (const f of itemFabrics(item))
           for (const s of f.sizes ?? []) {
             const e = s.path && byName.get(dir + s.path);
             if (!e) continue; // a size this zip doesn't carry (e.g. 1024 in a Standard zip)
@@ -161,9 +159,9 @@ export async function writeLibraryZip(
     ...d,
     items: await Promise.all(
       d.items.map(async (item) => {
-        if (item.type !== 'colors' || !item.data.fabrics?.length) return item;
+        if (!itemFabrics(item).length) return item;
         const fabrics = await Promise.all(
-          item.data.fabrics.map(async (f) => ({
+          itemFabrics(item).map(async (f) => ({
             ...f,
             sizes: await Promise.all(
               (f.sizes ?? []).map(async (s) => {
@@ -176,7 +174,9 @@ export async function writeLibraryZip(
             ),
           })),
         );
-        return { ...item, data: { ...item.data, fabrics } };
+        return item.type === 'colors'
+          ? { ...item, data: { ...item.data, fabrics } }
+          : { ...item, fabrics };
       }),
     ),
   });

@@ -1,6 +1,7 @@
 <template>
   <q-dialog v-model="open" persistent>
     <q-card style="min-width: 320px; max-width: 480px">
+      <DialogClose />
       <q-card-section>
         <div class="text-h6">Restore unsaved work?</div>
         <div class="text-body2 text-grey-7">
@@ -32,6 +33,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from './DialogClose.vue';
 import { onMounted, ref, shallowRef } from 'vue';
 import { useOpenProject } from '@/composables/open-project';
 import { lockedProjects } from '@/session/tab-lock';

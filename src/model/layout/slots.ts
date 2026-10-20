@@ -58,6 +58,11 @@ export interface Generated {
   center: Bounds;
   /** Whole quilt including borders. */
   bounds: Bounds;
+  /**
+   * What a target overlay centers on: `bounds` as if no On-Point edge position held a block (a
+   * held block takes its side's float away, which would slide the overlay). Absent: `bounds`.
+   */
+  anchor?: Bounds;
   /** Styles stored in the file whose generators aren't available yet. */
   unsupported: string[];
   /** The quilt's outer edge (binding runs along it). */
@@ -133,6 +138,7 @@ export function generateSlots(
   let slots: Slot[] = [];
   let center: Bounds = [0, 0, 0, 0];
   let trim = false;
+  let anchor: Bounds | undefined;
   if (layout.style === 'straight-set') {
     const h = horizontal(layout);
     slots = tile(h.tiling);
@@ -153,7 +159,7 @@ export function generateSlots(
         edge: o.edge,
         trim: false,
       };
-    ({ slots, center, trim } = o);
+    ({ slots, center, trim, anchor } = o);
   } else if (layout.style === 'variable-point' || layout.style === 'diamond-point') {
     const o = variablePoint(layout);
     if (layout.edge.finish === 'none')
@@ -165,7 +171,7 @@ export function generateSlots(
         edge: o.edge,
         trim: false,
       };
-    ({ slots, center, trim } = o);
+    ({ slots, center, trim, anchor } = o);
   } else if (
     layout.style === 'one-patch' ||
     layout.style === 'shaped-blocks' ||
@@ -209,6 +215,17 @@ export function generateSlots(
     slots: [...slots, ...b.slots],
     center,
     bounds: b.bounds,
+    // Borders grow the anchor as they grow the center.
+    ...(anchor
+      ? {
+          anchor: [
+            x0 + anchor[0] - center[0],
+            y0 + anchor[1] - center[1],
+            x1 + anchor[2] - center[2],
+            y1 + anchor[3] - center[3],
+          ] as Bounds,
+        }
+      : {}),
     unsupported,
     edge: rectPath(x0, y0, x1 - x0, y1 - y0),
     trim,

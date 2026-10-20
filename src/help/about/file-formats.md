@@ -13,7 +13,7 @@ upgrades them when you save.
 | File       | Holds                                                                                                                                                                          |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `.rrq`     | One project: its quilts, blocks, palettes, fabrics and settings. Your own fabric images are inside. Library fabric images are referenced, unless you include them when saving. |
-| `.rrqbl`   | One block, with the colors its colorings use.                                                                                                                                  |
+| `.rrqbl`   | One block, with the colors and fabric images its colorings use.                                                                                                                |
 | `.rrqplt`  | One palette: its colors and fabric images.                                                                                                                                     |
 | `.rrqlib`  | A library: a backup of My library and installed packs, or a pack to share. It's a zip when it holds fabric images.                                                             |
 | `.rrqconf` | Your settings, exported from **Settings**.                                                                                                                                     |
@@ -22,7 +22,7 @@ upgrades them when you save.
 
 Anyone writing tools that read or make these files can use the published JSON Schemas:
 
-- [Project file (`.rrq`), version 7](../../schemas/rrq.v7.json)
+- [Project file (`.rrq`), version 8](../../schemas/rrq.v8.json)
 - [Bundled libraries list](../../schemas/bundled_libraries.v1.json)
 - [Current version of each format](../../schemas/formats.json)
 

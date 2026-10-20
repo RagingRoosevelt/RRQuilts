@@ -2,6 +2,7 @@
   <!-- Shown after opening a project whose library items differ from the installed library (spec 008). -->
   <q-dialog :model-value="open" persistent>
     <q-card style="width: 560px; max-width: 95vw">
+      <DialogClose @click="all('project')" />
       <q-card-section>
         <div class="text-h6">Library updates available</div>
         <div class="text-body2">
@@ -58,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from './DialogClose.vue';
 import { useQuasar } from 'quasar';
 import { computed, reactive, ref, watch } from 'vue';
 import { toUnits } from '@/model/library-items';

@@ -58,7 +58,8 @@ export const Font = Type.Object({
  */
 export const ProjectPalette = Type.Object({
   id: ItemId,
-  notecard: Type.Object({ name: Type.String() }),
+  /** v8: the quilter's own tags (spec 029; Favorite among them), as on own blocks. */
+  notecard: Type.Object({ name: Type.String(), tags: Type.Optional(Type.Array(Type.String())) }),
   colors: Type.Array(ItemId),
   fabrics: Type.Array(ItemId),
   /**

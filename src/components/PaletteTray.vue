@@ -22,9 +22,23 @@
       </div>
       <!-- Sidebar: each library in collapsible category sections; strip: one run per source. -->
       <template v-if="sidebar">
-        <BlockFilter v-model:layout="filterLayout" v-model:shape="filterShape" class="q-mb-sm" />
+        <!-- Only blocks this quilt's block spaces take (spec 035 C); off, all show, and the Shape
+             filter (which it makes moot) comes back. -->
+        <q-toggle
+          v-if="fitsQuilt"
+          v-model="app.settings.compatibleBlocks"
+          dense
+          class="q-my-sm"
+          label="Compatible with this layout"
+        />
+        <BlockFilter
+          v-if="!compatibleOnly"
+          v-model:shape="filterShape"
+          hide-layout
+          class="q-mb-sm"
+        />
         <div
-          v-if="!blockSectionGroups.length && (filterLayout || filterShape)"
+          v-if="!blockSectionGroups.length && (compatibleOnly || filterShape)"
           class="text-caption text-grey-7 q-pa-xs"
         >
           No blocks fit. Clear a filter to see more.
@@ -228,7 +242,12 @@
       </template>
     </div>
     <ColorEditor ref="editorDialog" @done="saveColor" />
-    <FabricImportDialog ref="importDialog" :units="doc.units" @done="addFabrics" />
+    <FabricImportDialog
+      ref="importDialog"
+      :units="doc.units"
+      :existing="() => doc.project.palette.fabrics.filter((f) => !isLibraryItem(f))"
+      @done="addFabrics"
+    />
   </div>
 </template>
 
@@ -287,6 +306,8 @@ const props = withDefaults(
     sidebar?: boolean;
     /** The quilt has no spaces for blocks: Blocks says so, and it opens on Colors. */
     noBlocks?: boolean;
+    /** Whether the quilt has a space that takes this block (its shape). */
+    fitsQuilt?: (b: Block) => boolean;
   }>(),
   { colorsOnly: false, sidebar: false, noBlocks: false },
 );
@@ -345,9 +366,10 @@ const blockGroups = computed(() => {
   return [{ label: 'Mine', items: mine }, ...libraryGroups(avail, library.views, 'blocks')];
 });
 /** Sidebar: Mine, then each library's available blocks in category sections. */
-const filterLayout = ref<string | null>(null);
 const filterShape = ref<ShapeFilter | null>(null);
-const fits = (b: Block) => blockFits(b.shape, filterLayout.value, filterShape.value);
+const compatibleOnly = computed(() => !!props.fitsQuilt && app.settings.compatibleBlocks);
+const fits = (b: Block) =>
+  compatibleOnly.value ? props.fitsQuilt!(b) : blockFits(b.shape, null, filterShape.value);
 const blockSectionGroups = computed(() => {
   const [all, ...libs] = blockGroups.value;
   const mine = { ...all!, items: all!.items.filter(fits) };
@@ -394,7 +416,8 @@ const colorTree = computed(() => {
           // A library's packs (spec 014) group together under the library's name.
           lib: v.doc.library?.id ?? v.doc.id,
           libName: v.doc.library?.name ?? v.doc.name,
-          label: c.notecard.name,
+          // Spec 029: a palette the quilter tagged Favorite shows its star.
+          label: `${tagsFor(c.notecard.tags, [c.id], library.kept).includes(FAVORITE) ? '⭐ ' : ''}${c.notecard.name}`,
           items: recentFirst(items),
           fabrics: c.fabrics ?? [],
           mine: false,
@@ -424,7 +447,7 @@ const colorTree = computed(() => {
       lib: 'project',
       label: 'Project palettes',
       groups: projectPalettes(doc.value).map((pp) => ({
-        label: pp.palette.notecard.name,
+        label: `${visibleTags(pp.palette.notecard.tags).includes(FAVORITE) ? '⭐ ' : ''}${pp.palette.notecard.name}`,
         items: recentFirst(pp.colors),
         fabrics: pp.fabrics,
         mine: true,
@@ -481,7 +504,15 @@ function chooseColoring(blockId: string, coloringId: string) {
 }
 /** Imported fabric images join the project's palette (spec 014). */
 function addFabrics(fabrics: Fabric[]) {
-  project.change((d) => void d.project.palette.fabrics.push(...fabrics));
+  project.change((d) => {
+    // One already here by id is a replacement ("Use the new one").
+    const all = d.project.palette.fabrics;
+    for (const f of fabrics) {
+      const at = all.findIndex((x) => x.id === f.id);
+      if (at >= 0) all[at] = f;
+      else all.push(f);
+    }
+  });
 }
 function removeFabric(id: string) {
   const used = fabricsIn([

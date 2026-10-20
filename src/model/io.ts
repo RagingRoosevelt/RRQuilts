@@ -82,6 +82,8 @@ export const migrations: Migrations = {
     );
     return { ...doc, project: { ...project, quilts } };
   },
+  // v8: project palettes may carry the quilter's tags (an optional field: nothing to change).
+  7: (doc) => doc,
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */
@@ -97,7 +99,7 @@ export function layoutDefaults(style: string, k: number) {
         height: r(16),
         sash: 0,
         corner: 'triangle' as const,
-        edge: { finish: 'float' as const, float: r(1) },
+        edge: { finish: 'exact' as const, float: r(1) },
       };
     case 'one-patch':
       return {
@@ -127,7 +129,7 @@ export function layoutDefaults(style: string, k: number) {
         height: r(6) * Math.sqrt(3),
         sash: 0,
         corner: 'triangle' as const,
-        edge: { finish: 'float' as const, float: r(1) },
+        edge: { finish: 'exact' as const, float: r(1) },
       };
     case 'baby-blocks':
       return {
@@ -176,7 +178,7 @@ export const onPointDefaults = (k: number) => ({
   block: 12 * k,
   sash: 0,
   corner: 'triangle' as const,
-  edge: { finish: 'float' as const, float: 1 * k },
+  edge: { finish: 'exact' as const, float: 1 * k },
 });
 
 export type ParseResult =

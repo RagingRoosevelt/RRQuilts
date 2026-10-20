@@ -106,6 +106,7 @@
     <!-- Gist text is the sharer's: shown as text, never as HTML. -->
     <q-dialog :model-value="!!gistAsk" @update:model-value="gistAsk = null">
       <q-card v-if="gistAsk" style="width: 460px; max-width: 95vw">
+        <DialogClose />
         <q-card-section>
           <h1 class="text-h6 q-my-none">Open from a gist?</h1>
           <h2
@@ -157,6 +158,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from '@/components/DialogClose.vue';
 import HelpLink from '@/components/HelpLink.vue';
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref, shallowRef } from 'vue';

@@ -1,4 +1,4 @@
-// Single-block files (.rrqbl): one block plus the colors its own colorings use. Imported blocks are
+// Single-block files (.rrqbl): one block plus the colors and (v3) fabrics its colorings use. Imported blocks are
 // the user's own (editable); the original author stays credited (constitution Principle VI).
 import { upgradeNotecards, withoutTags } from './tags';
 import { produce } from 'immer';
@@ -11,12 +11,12 @@ import { isLibraryItem } from './library-items';
 import { createProject } from './new-project';
 import { variationName } from './new-quilt';
 import { Block } from './schema/block';
-import { Color } from './schema/palette';
+import { Color, Fabric } from './schema/palette';
 import { Units, type RrqDoc } from './schema/project';
 import { Socials } from './schema/shared';
 
 export const BLOCK_FORMAT = 'rrqbl';
-export const BLOCK_VERSION = 2;
+export const BLOCK_VERSION = 3;
 
 export const BlockFile = Type.Object({
   format: Type.Literal(BLOCK_FORMAT),
@@ -27,6 +27,8 @@ export const BlockFile = Type.Object({
   authorSocials: Type.Optional(Socials),
   block: Block,
   colors: Type.Array(Color),
+  /** v3: fabrics its colorings use, images embedded (so it opens anywhere). */
+  fabrics: Type.Optional(Type.Array(Fabric)),
 });
 export type BlockFile = Type.Static<typeof BlockFile>;
 
@@ -37,16 +39,32 @@ const colorIdsOf = (b: Block) =>
     ),
   );
 
-/** `palette`: colors to draw from (project + library); only those the block uses are kept. */
+/** The fabrics a block's colorings use, by id. */
+export const fabricIdsOf = (b: Block) =>
+  new Set(
+    b.colorings.flatMap((c) =>
+      Object.values(c.fills).flatMap((f) => ('fabric' in f ? [f.fabric] : [])),
+    ),
+  );
+
+/**
+ * `palette`: colors to draw from (project + library); only those the block uses are kept. `fabrics`
+ * likewise (with images embedded by the caller, in the file's units).
+ */
 export function blockFile(
   block: Block,
   units: Units,
   palette: readonly Color[],
   author: string,
   socials: Socials = [],
+  fabricPalette: readonly Fabric[] = [],
 ): BlockFile {
   const used = colorIdsOf(block);
   const colors = [...new Map(palette.filter((c) => used.has(c.id)).map((c) => [c.id, c])).values()];
+  const usedFabrics = fabricIdsOf(block);
+  const fabrics = [
+    ...new Map(fabricPalette.filter((f) => usedFabrics.has(f.id)).map((f) => [f.id, f])).values(),
+  ];
   return {
     format: BLOCK_FORMAT,
     version: BLOCK_VERSION,
@@ -56,6 +74,7 @@ export function blockFile(
     // The quilter's tags stay home (spec 029); technique travels.
     block: withoutTags(block),
     colors,
+    ...(fabrics.length ? { fabrics } : {}),
   };
 }
 
@@ -86,7 +105,7 @@ export function parseBlockFile(
     };
   }
   const empty = createProject();
-  const palette = { ...empty.project.palette, colors: raw.colors };
+  const palette = { ...empty.project.palette, colors: raw.colors, fabrics: raw.fabrics ?? [] };
   const dup = findDuplicateIds({
     ...empty,
     project: { ...empty.project, palette, blocks: [raw.block] },
@@ -114,6 +133,9 @@ export function importBlock(
   const k = file.units === doc.units ? 1 : doc.units === 'cm' ? 2.54 : 1 / 2.54;
   const haveColors = new Set(doc.project.palette.colors.map((c) => c.id));
   const known = new Set([...haveColors, ...file.colors.map((c) => c.id)]);
+  const haveFabrics = new Set(doc.project.palette.fabrics.map((f) => f.id));
+  const fileFabrics = file.fabrics ?? [];
+  const knownFabrics = new Set([...haveFabrics, ...fileFabrics.map((f) => f.id)]);
   const block = produce(file.block, (b) => {
     b.size = [b.size[0] * k, b.size[1] * k];
     if (existing) {
@@ -133,18 +155,31 @@ export function importBlock(
     for (const c of b.colorings) {
       for (const [pid, f] of Object.entries(c.fills))
         if ('color' in f && !known.has(f.color)) delete c.fills[pid];
-      for (const [pid, f] of Object.entries(c.fills)) if ('fabric' in f) delete c.fills[pid]; // ponytail: fabrics aren't in .rrqbl yet
+      for (const [pid, f] of Object.entries(c.fills))
+        if ('fabric' in f && !knownFabrics.has(f.fabric)) delete c.fills[pid];
     }
   });
   const next = produce(doc, (d) => {
     d.project.blocks.push(block);
     d.project.palette.colors.push(...file.colors.filter((c) => !haveColors.has(c.id)));
+    d.project.palette.fabrics.push(
+      ...fileFabrics
+        .filter((f) => !haveFabrics.has(f.id))
+        .map((f) => ({ ...f, size: [f.size[0] * k, f.size[1] * k] as [number, number] })),
+    );
   });
   return { doc: next, blockId: block.id };
 }
 
 const fileFor = (b: Block, from: RrqDoc) =>
-  blockFile(b, from.units, from.project.palette.colors, from.project.author ?? '');
+  blockFile(
+    b,
+    from.units,
+    from.project.palette.colors,
+    from.project.author ?? '',
+    [],
+    from.project.palette.fabrics,
+  );
 
 /**
  * Blocks of another (already parsed) project that could be imported, and whether each is already

@@ -27,12 +27,17 @@ function remap<T>(v: T, map: ReadonlyMap<string, string>): T {
 
 const LISTS = ['colors', 'fabrics', 'threads'] as const;
 
-/** Import the chosen quilts (`ids`) of another (parsed) project. `me`: author for copied blocks. */
+/**
+ * Import the chosen quilts (`ids`) of another (parsed) project. `me`: author for copied blocks.
+ * `replace`: ids of quilts already here that the file's version replaces in place (the quilter
+ * chose "Use the file's"); other clashing ids come in as copies ("Keep both").
+ */
 export function importProjectQuilts(
   doc: RrqDoc,
   from0: RrqDoc,
   me: string,
   ids: Iterable<string>,
+  replace: ReadonlySet<string> = new Set(),
 ): { doc: RrqDoc; added: number } {
   const from = from0.units === doc.units ? from0 : convertUnits(from0, doc.units);
   const chosen = new Set(ids);
@@ -89,7 +94,12 @@ export function importProjectQuilts(
     }
     for (const q of quilts) {
       const copy = remap(structuredClone(q), map);
-      if (p.quilts.some((x) => x.id === copy.id)) copy.id = newId();
+      const at = p.quilts.findIndex((x) => x.id === copy.id);
+      if (at >= 0 && replace.has(copy.id)) {
+        p.quilts[at] = copy;
+        continue;
+      }
+      if (at >= 0) copy.id = newId();
       if (p.quilts.some((x) => x.notecard.name === copy.notecard.name))
         copy.notecard.name = variationName(
           copy.notecard.name,

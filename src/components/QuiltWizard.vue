@@ -1,6 +1,7 @@
 <template>
   <q-dialog v-model="open">
     <q-card class="wizard">
+      <DialogClose />
       <div class="body">
         <q-stepper
           v-model="step"
@@ -46,6 +47,13 @@
                     vector-effect="non-scaling-stroke"
                   />
                 </svg>
+                <!-- Shaped Blocks takes several shapes: a badge for each (it isn't hexagons only). -->
+                <span v-if="c.value === 'shaped-blocks'" class="shape-badges" aria-hidden="true">
+                  <svg v-for="sh in BADGE_SHAPES" :key="sh" viewBox="-0.1 -0.1 1.2 1.2">
+                    <polygon :points="SHAPE_OUTLINE[sh].map((p) => p.join(',')).join(' ')" />
+                  </svg>
+                  <q-tooltip>Triangles, diamonds or hexagons</q-tooltip>
+                </span>
                 <div class="text-caption">{{ c.label }}</div>
               </button>
             </div>
@@ -339,6 +347,8 @@
 </template>
 
 <script setup lang="ts">
+import { SHAPE_OUTLINE, type BlockShape } from '@/model/blocks/shape';
+import DialogClose from './DialogClose.vue';
 import { computed, reactive, ref, watch } from 'vue';
 import DiamondSize from '@/components/DiamondSize.vue';
 import FlowAngle from '@/components/FlowAngle.vue';
@@ -645,6 +655,8 @@ const shapeCards = SHAPES.map(([value, label]) => ({
 }));
 const blockShapeCards = shapeCards.filter((c) => FLOWS.includes(c.value));
 const allStyleCards = STYLES.map((x) => ({ ...x, picture: picture(x.sample, [])! }));
+/** The block shapes a Shaped Blocks quilt takes (spec 026), shown on its card. */
+const BADGE_SHAPES: BlockShape[] = ['triangle', 'diamond60', 'hexagon'];
 const styleCards = computed(() => allStyleCards.filter((x) => x.modes.includes(mode.value)));
 
 const summary = computed(() => {
@@ -750,6 +762,7 @@ defineExpose({ show });
   gap: 8px;
 }
 .style-card {
+  position: relative;
   width: 88px;
   padding: 6px 4px 2px;
   border: 2px solid transparent;
@@ -767,6 +780,25 @@ defineExpose({ show });
 .style-card svg {
   width: 64px;
   height: 64px;
+}
+.shape-badges {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: flex;
+  gap: 1px;
+}
+.shape-badges svg {
+  width: 11px;
+  height: 11px;
+}
+.shape-badges polygon {
+  fill: var(--q-primary);
+  opacity: 0.8;
+}
+/* Labels take two lines' room, so a card keeps its height when its label changes (Blocks / Patches). */
+.style-card .text-caption {
+  min-height: calc(2 * 1.25rem);
 }
 .preview-art path {
   stroke: #9e9e9e;

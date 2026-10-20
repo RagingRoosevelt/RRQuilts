@@ -58,6 +58,6 @@ the shapes you draw, see [Half-square triangles](/help/math/half-square-triangle
 ## Details and Print
 
 **Details** holds the title, author, license, notes, and the block's **Technique** checklists:
-**Needs** and **Efficiency** (see [Libraries](/help/guides/libraries)). **Print** makes templates for the block
+**Techniques** and **Efficiency** (see [Libraries](/help/guides/libraries)). **Print** makes templates for the block
 ([Printing](/help/guides/printing)). Edits and copies of someone else's block credit them
 automatically ([Credits and licenses](/help/guides/credits-and-licenses)).

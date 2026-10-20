@@ -224,32 +224,45 @@ const x = (x0: number, y0: number): Seam[] => [
   ],
 ];
 
-// Log cabin on an 8-unit grid: center, then three rounds of logs (light top/right, dark bottom/left).
+// Log cabin on an 8-unit grid: center, then three rounds of logs (light top/right, dark bottom/left),
+// in sewing order: each runs the whole side of what's sewn so far, over the end of the log before it.
 const logs = [
-  [2, 2, 5, 3],
+  [3, 2, 5, 3],
   [5, 2, 6, 5],
   [3, 5, 6, 6],
-  [2, 3, 3, 6],
-  [1, 1, 6, 2],
+  [2, 2, 3, 6],
+  [2, 1, 6, 2],
   [6, 1, 7, 6],
   [2, 6, 7, 7],
-  [1, 2, 2, 7],
-  [0, 0, 7, 1],
+  [1, 1, 2, 7],
+  [1, 0, 7, 1],
   [7, 0, 8, 7],
   [1, 7, 8, 8],
-  [0, 1, 1, 8],
+  [0, 0, 1, 8],
 ] as const;
 const logColors = [C.Cream, C.Linen, C.Indigo, C.Navy];
 
-export const STARTER_BLOCKS: StarterBlock[] = [
-  {
-    // One patch, no seams: a plain square (alternate blocks, blocks between on point).
-    name: 'Plain Block',
-    category: 'Basics',
-    seams: [],
+/** A grid or shaped-kit block as a starter block (color letters to built-in colors). */
+function fromKit(b: {
+  name: string;
+  size: number;
+  shape?: BlockShape;
+  category: string;
+  seams: Seam[];
+  points: [number, number, string][];
+}): StarterBlock {
+  return {
+    name: b.name,
+    size: b.size,
+    ...(b.shape ? { shape: b.shape } : {}),
+    category: b.category,
+    seams: b.seams,
     base: C.Cream!,
-    points: [],
-  },
+    points: b.points.map(([x, y, color]): [number, number, number] => [x, y, C[color]!]),
+  };
+}
+
+export const STARTER_BLOCKS: StarterBlock[] = [
   {
     name: 'Four Patch',
     category: 'N-Patch/Four-patch',
@@ -481,20 +494,45 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     ...MEDALLION_BLOCKS,
     ...SHAPED_BLOCKS.map(shapedStarter),
     ...SHAPED_CURVES.map(curvedStarter),
-  ].map((b) => ({
-    name: b.name,
-    size: b.size,
-    ...('shape' in b ? { shape: b.shape } : {}),
-    category: b.category,
-    seams: b.seams,
-    base: C.Cream!,
-    points: b.points.map(([x, y, color]): [number, number, number] => [x, y, C[color]!]),
-  })),
+  ].map(fromKit),
 ];
 
 // --- Built-in library (spec 008) ---------------------------------------------------------------
 
 export const LIBRARY_ID = 'rrquilts-starter';
+/** Blocks renamed to the reference book's names (lettered variants to its numbers, 2026-10-20):
+ *  each keeps the id its former name gave it, so projects and annotations still find it. */
+const FORMER: Record<string, string> = {
+  'Double Irish Chain I': 'Double Irish Chain A',
+  'Double Irish Chain II': 'Double Irish Chain B',
+  "King's Crown II": "King's Crown B",
+  'Providence Block II': 'Providence Block B',
+  "Joseph's Coat II": "Joseph's Coat B",
+  'Mexican Cross I': 'Mexican Cross A',
+  "Grandmother's Own III": "Grandmother's Own C",
+  "Grandmother's Own IV": "Grandmother's Own D",
+  "Grandmother's Cross II": "Grandmother's Cross B",
+  'Dove in a Window II': 'Dove in a Window B',
+  'Red Cross I': 'Red Cross A',
+  'Nine-Patch Variation I': 'Nine-Patch Variation A',
+  'Nine-Patch Variation II': 'Nine-Patch Variation B',
+  'Basketweave I': 'Basketweave A',
+  'Tree Everlasting I': 'Tree Everlasting A',
+  'Hourglass II': 'Hourglass B',
+  'Hourglass III': 'Hourglass C',
+  'Handy Andy II': 'Handy Andy B',
+  'Flying Dutchman II': 'Flying Dutchman B',
+  'Arizona II': 'Arizona B',
+  'Attic Window I': 'Attic Window A',
+  'Steps to the Altar II': 'Steps to the Altar B',
+  'Railroad II': 'Railroad B',
+  'Rolling Pinwheel II': 'Rolling Pinwheel B',
+  'Shoofly II': 'Shoofly B',
+  'Double Pinwheel III': 'Double Pinwheel C',
+  'Greek Cross II': 'Greek Cross B',
+  'New Album I': 'New Album A',
+  'Single Wedding Ring II': 'Single Wedding Ring B',
+};
 const libId = (name: string) =>
   `rrquilts.${name
     .toLowerCase()
@@ -502,7 +540,7 @@ const libId = (name: string) =>
     .replace(/^-+|-+$/g, '')}`;
 const credit = (name: string) => ({
   libraryId: LIBRARY_ID,
-  itemId: libId(name),
+  itemId: libId(FORMER[name] ?? name),
   revision: 1,
   name,
   library: STARTER_LIBRARY.name,
@@ -561,7 +599,7 @@ function buildItems(): BuiltinItems {
       fills[p.id] = { color: colors[hit ? hit[2] : b.base]!.id };
     }
     const block: SeamBlock = {
-      id: libId(b.name),
+      id: libId(FORMER[b.name] ?? b.name),
       kind: 'seam',
       size,
       ...(b.shape ? { shape: b.shape } : {}),

@@ -34,7 +34,7 @@
           <!-- Drawn when it first scrolls into view, as the project's block list does. -->
           <q-intersection v-for="b in g.blocks" :id="b.ref" :key="b.ref" once class="block-slot">
             <figure class="block">
-              <img :src="blockPic(b.block)" :alt="b.name" />
+              <img :src="blockPic(b.block, b.doc)" :alt="b.name" />
               <figcaption>
                 <strong>{{ b.name }}</strong>
                 <span class="ref">{{ b.ref }}</span>
@@ -163,6 +163,8 @@ import {
 } from '@/model/blocks/construction';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useLibraryStore } from '@/stores/library';
+import { isLibraryItem } from '@/model/library-items';
+import type { RrqDoc } from '@/model/schema/project';
 import { useProjectStore } from '@/stores/project';
 
 const TABS = [
@@ -287,8 +289,9 @@ function blockFacts(b: Block) {
     DIFFICULTIES[c.difficulty],
   ].join(' · ');
 }
-const blockPic = (b: Block) =>
-  blockThumbnail(blockDoc, b, 240, false, undefined, library.items.colors);
+/** Drawn in its own project (a project's blocks) or a blank one with the libraries' colors. */
+const blockPic = (b: Block, doc?: RrqDoc) =>
+  blockThumbnail(doc ?? blockDoc, b, 240, false, undefined, library.items.colors);
 const blockList = computed(() => {
   const lib = library.builtin;
   if (!lib) return [];
@@ -298,19 +301,29 @@ const blockList = computed(() => {
     const parent = c?.parent ? cats.get(c.parent) : undefined;
     return c ? (parent ? `${parent.name} › ${c.name}` : c.name) : 'Uncategorized';
   };
-  return lib.items.flatMap((i) =>
-    i.type === 'block'
-      ? [
-          {
-            ref: i.data.id.replace(/^rrquilts\./, ''),
-            name: i.data.notecard.name,
-            group: catName(i.category),
-            shape: i.data.shape,
-            block: i.data,
-          },
-        ]
-      : [],
+  const entry = (block: Block, group: string, doc?: RrqDoc) => ({
+    ref: block.id.replace(/^rrquilts\./, ''),
+    name: block.notecard.name,
+    group,
+    shape: block.shape,
+    block,
+    doc,
+  });
+  // Your own first: the open project's blocks, then My library's, then the built-in library.
+  const doc = project.doc;
+  const own = doc
+    ? doc.project.blocks
+        .filter((b) => !isLibraryItem(b) && !b.notecard.tags?.includes('system'))
+        .map((b) => entry(b, `This project (${doc.project.name})`, doc))
+    : [];
+  const mine = (library.mine?.items ?? []).flatMap((i) =>
+    i.type === 'block' ? [entry(i.data, 'My library')] : [],
   );
+  return [
+    ...own,
+    ...mine,
+    ...lib.items.flatMap((i) => (i.type === 'block' ? [entry(i.data, catName(i.category))] : [])),
+  ];
 });
 const blockGroups = computed(() => {
   const q = (blockSearch.value ?? '').trim().toLowerCase();

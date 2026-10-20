@@ -153,7 +153,13 @@ chart; editing controls are absent with a "edit on tablet or desktop" note.
 - **FR-003**: The sketchbook MUST show tabbed card grids (Quilts, Blocks, Fabrics & Colors, Photos,
   Threads; Embroidery when present) with notecards and actions (open, duplicate as variation, delete,
   sort by drag or sort mode).
+- **FR-003a** (added 2026-10-19): Opening the project that was open last (by project id, however it
+  is opened) MUST return to the sketchbook tab it was left on; opening any other project MUST start
+  on Quilts, or on Blocks when it has no quilts. The device remembers the last project.
 - **FR-004**: Only one editor is open at a time.
+- **FR-004a** (added 2026-10-20): Every dialog and wizard MUST have a close X in its top right
+  corner. It does what Esc does (or the dialog's own Cancel, Skip or Later); where Cancel is itself a
+  choice (a persistent question), the X closes without choosing.
 
 **Editor layout**
 

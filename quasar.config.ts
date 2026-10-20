@@ -40,7 +40,7 @@ function devBuild(): string {
 }
 
 export default defineConfig(() => ({
-  boot: ['settings'],
+  boot: ['settings', 'dialogs'],
   css: ['app.css'],
   // Fonts/icons are bundled locally, so they work offline.
   extras: ['roboto-font', 'material-icons'],
