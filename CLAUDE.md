@@ -42,7 +42,8 @@ like sketchbook/worktable are fine).
   (`~/Code/rrquilts-library-template`, `tools/common.py` `FORMATS`, plus build/validate for new
   fields): library repos' weekly check sees the app's `formats.json` and `tools/upgrade.py` pulls
   the template's tools. Then upgrade our own library repos (`libraries/<maker>`,
-  `~/Code/rrquilts-fractal-blocks` (Novelty Blocks, RagingRoosevelt/rrquilts-novelty-blocks)).
+  `~/Code/rrquilts-fractal-blocks` (Novelty Blocks, RagingRoosevelt/rrquilts-novelty-blocks, offered
+  in `bundled_libraries.json`; the fabric brands wait in `bundled_libraries.json.draft`)).
 - `test/fixtures/formats/`: one sample per released format version (`<format>-v<N>.<ext>`), opened
   by a test; `demo-vN.rrq` = a demo project with a quilt per layout capability each version added
   (`write-demo.spec.ts`), `demo-vN/` = PNGs of its quilts and blocks drawn by that release
