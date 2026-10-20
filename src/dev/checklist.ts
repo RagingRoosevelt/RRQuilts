@@ -345,6 +345,12 @@ export const CHECKS: Check[] = [
     text: 'Adding fabric images to a palette (project palette menu › Add fabric images, the quilt editor’s tray, or a My library palette) where one’s name is already in that palette: a dialog shows the one in the palette and the new image side by side, Keep the original · Keep both · Use the new one. Use the new one swaps the image in place (quilts using that fabric change picture); Keep the original leaves the new one out.',
     to: '/',
   },
+  {
+    id: 'TC-058',
+    group: G.small,
+    text: "An On-Point quilt with Floating edge and a target overlay (Layout › Target size, e.g. a jacket back): set a block in a left (or top) setting triangle, then remove it. The quilt's edge on that side moves in and out (the float is taken away while a block is there), but the overlay stays in the same place over the blocks.",
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

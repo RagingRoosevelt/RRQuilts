@@ -285,6 +285,20 @@ describe('Blocks at edge positions move that side in (Exact, Floating)', () => {
             expect(sample(g), at).toBe(0);
           }
   });
+
+  it('the target overlay stays put over the blocks (its anchor keeps every float)', () => {
+    const l = op({ cols: 3, rows: 3, block: 6, finish: 'float' });
+    const plain = generateSlots(l, []);
+    const held = generateSlots(l, [], new Map([['m:r1c0', 'set:m:r1c0']]));
+    // Same block, moved with the quilt's edge; the anchor moves with it.
+    const at = (g: Generated) => g.slots.find((x) => x.id === 'b:r1c1')!.transform;
+    const shift = at(held)[4] - at(plain)[4];
+    expect(shift).toBeCloseTo(-1, 9); // the left float is gone
+    expect(plain.anchor).toEqual(plain.bounds);
+    plain.anchor!.forEach((v, i) =>
+      expect(held.anchor![i]).toBeCloseTo(v + (i % 2 ? 0 : shift), 9),
+    );
+  });
 });
 
 describe('cutting chart', () => {

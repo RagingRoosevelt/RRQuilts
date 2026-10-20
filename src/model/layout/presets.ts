@@ -138,6 +138,8 @@ export function onPoint(
 ): {
   slots: Slot[];
   center: Bounds;
+  /** The quilt as if no edge position held a block (every float kept), in the same coordinates. */
+  anchor: Bounds;
   edge: PathCommand[];
   trim: boolean;
 } {
@@ -298,9 +300,14 @@ export function onPoint(
       }
   }
 
+  // Held blocks take their side's float away and move the quilt's edge; the anchor doesn't move
+  // with them (a target overlay centers on it, so it stays put over the blocks).
+  const fv = f / stretch;
+  const anchor: Bounds = [fL - f, fT - fv, W + fL + f, H + fT + fv];
   return {
     slots,
     center: quilt,
+    anchor,
     edge: finish === 'none' ? zigzag() : rectPath(0, 0, quilt[2], quilt[3]),
     trim: finish === 'float' || finish === 'trim' || held.size > 0,
   };
@@ -762,9 +769,11 @@ export function variablePoint(l: VariablePointLayout) {
     };
   });
   const [x0, y0, x1, y1] = o.center;
+  const [a0, b0, a1, b1] = o.anchor;
   return {
     slots,
     center: [x0, y0 * k, x1, y1 * k] as Bounds,
+    anchor: [a0, b0 * k, a1, b1 * k] as Bounds,
     edge: mapPath(o.edge, m),
     trim: o.trim,
   };

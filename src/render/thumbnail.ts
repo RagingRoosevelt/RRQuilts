@@ -46,7 +46,7 @@ export function quiltThumbnail(
     `${px}:${dark}:${withTarget}:${shaped}:${outlines}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
     () => {
       const g = generateFor(quilt);
-      const bounds = withTarget ? boundsWithTarget(quilt, g.bounds) : g.bounds;
+      const bounds = withTarget ? boundsWithTarget(quilt, g.bounds, g.anchor) : g.bounds;
       const [bw, bh] = [bounds[2] - bounds[0], bounds[3] - bounds[1]];
       const [w, h] = !shaped
         ? [px, px]
