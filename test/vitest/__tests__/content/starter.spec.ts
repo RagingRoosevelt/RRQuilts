@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addStarterContent, builtinLibrary, STARTER_BLOCKS } from '@/content/starter';
+import { addStarterContent, builtinItems, builtinLibrary, STARTER_BLOCKS } from '@/content/starter';
 import { contentVersion } from '@/model/identity';
 import { parseProject, serializeProject } from '@/model/io';
 import { allPatches } from '@/model/blocks/patches';
@@ -125,5 +125,13 @@ describe('starter content', () => {
     const star = lib.blocks.find((x) => x.id === 'rrquilts.ohio-star')!;
     const inCm = { ...star, size: [25.4, 25.4] as [number, number] };
     expect(await contentVersion(inCm, 'cm')).toBe(star.version);
+  });
+});
+
+describe('renamed built-in blocks', () => {
+  it('keep the id their former name gave them', () => {
+    const b = builtinItems().blocks.find((x) => x.notecard.name === "King's Crown II")!;
+    expect(b.id).toBe('rrquilts.king-s-crown-b');
+    expect(b.source?.itemId).toBe(b.id);
   });
 });

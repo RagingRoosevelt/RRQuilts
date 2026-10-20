@@ -40,13 +40,13 @@ export const FIVE_PATCH_DEFS: GridDef[] = [
     pieces: cells(['L L K L L', 'L N K N L', 'K K M K K', 'L N K N L', 'L L K L L']),
   },
   {
-    name: 'Double Irish Chain A',
+    name: 'Double Irish Chain I',
     size: 10,
     n: 5,
     pieces: cells(['M D L D M', 'D M D M D', 'L D M D L', 'D M D M D', 'M D L D M']),
   },
   {
-    name: 'Double Irish Chain B',
+    name: 'Double Irish Chain II',
     size: 10,
     n: 5,
     pieces: cells(['M L L L M', 'L L L L L', 'L L L L L', 'L L L L L', 'M L L L M']),
@@ -88,7 +88,7 @@ export const FIVE_PATCH_DEFS: GridDef[] = [
     ]),
   },
   {
-    name: "King's Crown B",
+    name: "King's Crown II",
     size: 10,
     n: 5,
     pieces: cells(['L L L L M', 'L D L /DM /ML', 'L L /DM /ML L', 'L /DM /ML L L', 'M /ML L L L']),
@@ -328,7 +328,7 @@ export const FIVE_PATCH_DEFS: GridDef[] = [
     open: 'v 1 0, v 3 0, v 5 0, v 7 0, v 9 0, v 1 1, v 3 1, v 5 1, v 7 1, v 9 1, v 1 2, v 3 2, v 5 2, v 7 2, v 9 2, v 1 3, v 3 3, v 5 3, v 7 3, v 9 3, v 1 4, v 3 4, v 5 4, v 7 4, v 9 4, v 1 5, v 3 5, v 5 5, v 7 5, v 9 5, v 1 6, v 3 6, v 5 6, v 7 6, v 9 6, v 1 7, v 3 7, v 5 7, v 7 7, v 9 7, v 1 8, v 3 8, v 5 8, v 7 8, v 9 8, v 1 9, v 3 9, v 5 9, v 7 9, v 9 9, h 0 1, h 1 1, h 2 1, h 3 1, h 4 1, h 5 1, h 6 1, h 7 1, h 8 1, h 9 1, h 2 3, h 3 3, h 4 3, h 5 3, h 6 3, h 7 3, h 0 4, h 1 4, h 8 4, h 9 4, h 2 5, h 3 5, h 4 5, h 5 5, h 6 5, h 7 5, h 0 6, h 1 6, h 8 6, h 9 6, h 2 7, h 3 7, h 4 7, h 5 7, h 6 7, h 7 7, h 0 9, h 1 9, h 2 9, h 3 9, h 4 9, h 5 9, h 6 9, h 7 9, h 8 9, h 9 9',
   },
   {
-    name: 'Providence Block B',
+    name: 'Providence Block II',
     size: 15,
     n: 5,
     pieces: cells([
@@ -538,7 +538,7 @@ export const FIVE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: "Joseph's Coat B",
+    name: "Joseph's Coat II",
     size: 15,
     n: 10,
     pieces: [
@@ -1190,7 +1190,7 @@ export const FIVE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: 'Mexican Cross A',
+    name: 'Mexican Cross I',
     size: 15,
     n: 10,
     pieces: cells([
@@ -4404,7 +4404,7 @@ export const FIVE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: "Grandmother's Own C",
+    name: "Grandmother's Own III",
     size: 15,
     n: 5,
     pieces: [
@@ -4416,7 +4416,7 @@ export const FIVE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: "Grandmother's Cross B",
+    name: "Grandmother's Cross II",
     size: 15,
     n: 5,
     pieces: [

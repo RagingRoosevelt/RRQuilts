@@ -26,9 +26,14 @@ function ring(O: P[], I: P[], style: Style, cs: string[], full = 0): ShapedPiece
     const c = cs[j]!;
     if (style === 'miter') return { poly: [at(O, j), at(O, j + 1), at(I, j + 1), at(I, j)], c };
     if (style === 'spiral') {
-      // Strip j covers its start corner; the strip before it stops at its inner edge.
-      const e = (k: number) => meet(lineI(k), lineO(k - 1));
-      return { poly: [at(O, j), e(j + 1), at(I, j + 1), at(I, j), e(j)], c };
+      // Log cabin order: strip j is sewn on after strip j - 1 and runs the whole side, over that
+      // strip's end; the first stops at the last strip's line, and the last covers both corners.
+      const first: P = meet(lineO(0), lineI(n - 1));
+      const start: P[] = j === 0 ? [first] : [at(O, j)];
+      const end: P[] = j === n - 1 ? [at(O, 0), first] : [meet(lineO(j), lineI(j + 1))];
+      const inner =
+        j === 0 ? [at(I, 1), at(I, 0)] : [at(I, j + 1), at(I, j), meet(lineI(j), lineO(j - 1))];
+      return { poly: [...start, ...end, ...inner], c };
     }
     // sym: the strips on one pair of opposite sides run full length, the others fit between.
     const w = (k: number, side: number) => meet(lineI(k), lineO(side));

@@ -587,7 +587,7 @@ export const SEVEN_PATCH_DEFS: GridDef[] = [
     ]),
   },
   {
-    name: 'Dove in a Window B',
+    name: 'Dove in a Window II',
     size: 14,
     n: 7,
     pieces: cells([
