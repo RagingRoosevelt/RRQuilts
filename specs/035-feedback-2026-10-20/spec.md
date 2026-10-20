@@ -76,10 +76,12 @@ Today, adding a fabric image to a palette under a name already in that palette a
    tags then wait in My library by id). Switching a pack off doesn't ask: nothing is lost (TC-070).
 2. A colorway's mapping in the Design sidebar never scrolls sideways, whatever the names (TC-072).
 3. Project › Blocks › Library blocks shows "N of M selected" over the shown blocks (TC-073).
-4. Built-in blocks carry techniques in their data (`content/techniques.ts`, proposed once from the
-   pieces, edited by hand), so Libraries' Technique filter has something to offer (TC-074).
-5. Libraries sidebar: space between libraries; **Get updates** (was Check for updates), its buttons
-   on one line (TC-075).
+4. Techniques on the built-in blocks: tabled (owner, round 3: better heuristics first). Spec 038 on
+   the backlog.
+5. Libraries sidebar: space on both sides of the line between libraries; **Get updates** (was Check
+   for updates), its buttons on one line (TC-079).
+6. Tests › Checklist: text left by removed checks shows under "Notes on removed checks" and stays out
+   of Copy results (TC-080).
 
 ## Assumptions
 

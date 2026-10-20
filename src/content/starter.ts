@@ -20,8 +20,6 @@ import { NINE_PATCH_BLOCKS } from './nine-patch';
 import { PALETTE_COLORINGS } from './palette-colorings';
 import { LOG_CABIN_BLOCKS, STRIP_BLOCKS } from './strips';
 import { SEVEN_PATCH_BLOCKS } from './seven-patch';
-import { BUILTIN_TECHNIQUES } from './techniques';
-import { TECHNIQUES, type Technique } from '@/model/schema/shared';
 
 type P = [number, number];
 
@@ -605,7 +603,7 @@ function buildItems(): BuiltinItems {
       kind: 'seam',
       size,
       ...(b.shape ? { shape: b.shape } : {}),
-      notecard: { name: b.name, ...techniquesOf(b.name) },
+      notecard: { name: b.name },
       source: credit(b.name),
       revision: 1,
       drawing,
@@ -640,14 +638,6 @@ function buildItems(): BuiltinItems {
     return block;
   });
   return { colors, blocks };
-}
-
-/** A built-in block's techniques (content/techniques.ts), in list order. */
-function techniquesOf(name: string): { techniques?: Technique[] } {
-  const t = (Object.keys(TECHNIQUES) as Technique[]).filter((k) =>
-    BUILTIN_TECHNIQUES[k]?.includes(name),
-  );
-  return t.length ? { techniques: t } : {};
 }
 
 /** The built-in library with content versions (computed once at startup). */

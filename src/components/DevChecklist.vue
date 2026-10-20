@@ -94,6 +94,26 @@
         </div>
       </template>
     </section>
+    <!-- Text left by checks that have since been removed (already reported in that round): shown
+         here so it can be cleared, and left out of Copy results. -->
+    <section v-if="stray.length" class="sec">
+      <h2 class="text-h6">
+        Notes on removed checks
+        <q-btn flat dense no-caps size="sm" label="Remove all" @click="removeStray" />
+      </h2>
+      <div v-for="n in stray" :key="n.id" class="note">
+        <div class="col text-body2" style="white-space: pre-line">{{ n.text }}</div>
+        <q-btn
+          flat
+          dense
+          round
+          size="sm"
+          icon="close"
+          aria-label="Remove"
+          @click="removeNote(n.id)"
+        />
+      </div>
+    </section>
   </div>
 </template>
 
@@ -168,6 +188,11 @@ function addNote(before: string) {
 const setText = (id: string, text: string) =>
   commitNotes(notes.value.map((n) => (n.id === id ? { ...n, text } : n)));
 const removeNote = (id: string) => commitNotes(notes.value.filter((n) => n.id !== id));
+/** Where a note sits: the check it's before or after (gone when that check was removed). */
+const anchorOf = (n: ChecklistNote) =>
+  CHECKS.find((c) => c.id === (n.before.startsWith('after:') ? n.before.slice(6) : n.before));
+const stray = computed(() => notes.value.filter((n) => !anchorOf(n)));
+const removeStray = () => commitNotes(notes.value.filter((n) => anchorOf(n)));
 
 function commit(next: Record<string, CheckState>) {
   state.value = next;
@@ -213,16 +238,16 @@ function copyResults() {
   // Each text block with its section and the check just before it (or the section's start), in
   // page order.
   const placed = notes.value
-    .filter((n) => n.text.trim())
+    .filter((n) => n.text.trim() && anchorOf(n))
     .map((n) => {
       const after = n.before.startsWith('after:');
       const i = CHECKS.findIndex((c) => c.id === (after ? n.before.slice(6) : n.before));
       const c = CHECKS[i];
       const prev = after ? c : CHECKS[i - 1]?.group === c?.group ? CHECKS[i - 1] : undefined;
-      const at = !c ? 'somewhere' : prev ? `after ${checkId(prev)}` : 'at the start';
+      const at = prev ? `after ${checkId(prev)}` : 'at the start';
       return {
         pos: i + (after ? 0.5 : -0.5),
-        line: `- ${c?.group ?? '?'}, ${at}: ${n.text.trim().replace(/\n/g, '\n  ')}`,
+        line: `- ${c!.group}, ${at}: ${n.text.trim().replace(/\n/g, '\n  ')}`,
       };
     })
     .sort((x, y) => x.pos - y.pos);

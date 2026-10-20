@@ -2854,9 +2854,10 @@ function downloadPack() {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* A very slight line between libraries. */
+/* A very slight line between libraries, with room on both sides of it. */
 .lib-checks > * + * {
   border-top: 1px solid rgba(128, 128, 128, 0.15);
+  padding-top: 6px;
 }
 .lib-checks .q-checkbox {
   min-height: 50px;
