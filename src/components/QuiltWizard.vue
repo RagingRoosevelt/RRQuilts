@@ -770,6 +770,10 @@ defineExpose({ show });
   width: 64px;
   height: 64px;
 }
+/* Labels take two lines' room, so a card keeps its height when its label changes (Blocks / Patches). */
+.style-card .text-caption {
+  min-height: calc(2 * 1.25rem);
+}
 .preview-art path {
   stroke: #9e9e9e;
   stroke-width: 1;

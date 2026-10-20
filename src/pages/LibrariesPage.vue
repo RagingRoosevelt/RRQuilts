@@ -2506,8 +2506,11 @@ function removePack(doc: LibraryDoc) {
   const ids = new Set(doc.items.map((i) => i.data.id));
   const tagged = (library.mine?.annotations ?? []).filter((a) => ids.has(a.id)).map((a) => a.id);
   $q.dialog({
-    title: `Remove “${doc.name}”?`,
-    message: 'Projects that use its items keep their copies.',
+    title: `Remove pack “${doc.name}”?`,
+    message: tagged.length
+      ? `Projects that use its items keep their copies.\n\nThis pack has tags attached (on ${tagged.length} ${tagged.length === 1 ? 'item' : 'items'}). Should the tag associations be kept in case you add the pack back?`
+      : 'Projects that use its items keep their copies.',
+    style: 'white-space: pre-line',
     ...(tagged.length
       ? {
           options: {
@@ -2515,7 +2518,7 @@ function removePack(doc: LibraryDoc) {
             model: ['keep'],
             items: [
               {
-                label: `Keep my tags on its ${tagged.length} tagged ${tagged.length === 1 ? 'item' : 'items'}, in case I add it again`,
+                label: 'Save tag associations after removing pack',
                 value: 'keep',
               },
             ],

@@ -25,7 +25,7 @@ defineProps<{ small?: boolean; inline?: boolean }>();
   /* The spot blurs the block behind the star, fading out to its edge. */
   backdrop-filter: blur(3px);
   mask-image: radial-gradient(closest-side, #000 70%, transparent);
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
 }
 .fav.small {
   top: -2px;
