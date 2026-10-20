@@ -45,7 +45,11 @@ const SITES: Record<string, { hosts: string[]; paths: string[]; icon: string }> 
   Etsy: { hosts: ['etsy.com'], paths: ['/shop/:h', '/people/:h'], icon: fabEtsy },
   Printables: { hosts: ['printables.com'], paths: ['/@:h', '/social/:h'], icon: printablesIcon },
   Thingiverse: { hosts: ['thingiverse.com'], paths: ['/:h'], icon: thingiverseIcon },
-  Threadloop: { hosts: ['threadloop.com'], paths: ['/@:h', '/:h'], icon: 'checkroom' },
+  Threadloop: {
+    hosts: ['threadloop.app', 'threadloop.com'],
+    paths: ['/members/:h', '/@:h'],
+    icon: 'checkroom',
+  },
   'Sewing Pattern Review': {
     hosts: ['sewingpatternreview.com'],
     paths: ['/members/:h', '/:h'],

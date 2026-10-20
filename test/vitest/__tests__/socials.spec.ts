@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toHandle } from '@/settings/socials';
+import { socialLink, toHandle } from '@/settings/socials';
 
 describe('socials', () => {
   it('reduces known sites’ links to handles; keeps Website and custom types as typed', () => {
@@ -14,5 +14,17 @@ describe('socials', () => {
     expect(toHandle('Website', 'https://jane.example/quilts')).toBe('https://jane.example/quilts');
     expect(toHandle('My guild', 'https://guild.example/jane')).toBe('https://guild.example/jane');
     expect(toHandle('GitHub', 'https://gitlab.com/jane')).toBe('https://gitlab.com/jane');
+    expect(toHandle('Threadloop', 'https://threadloop.app/members/ragingroosevelt')).toBe(
+      'ragingroosevelt',
+    );
+    expect(toHandle('Printables', 'https://www.printables.com/@RagingRoosevelt')).toBe(
+      'RagingRoosevelt',
+    );
+    expect(toHandle('Ravelry', 'https://www.ravelry.com/people/RagingRoosevelt')).toBe(
+      'RagingRoosevelt',
+    );
+    expect(socialLink({ type: 'Threadloop', handle: 'ragingroosevelt' })).toBe(
+      'https://threadloop.app/members/ragingroosevelt',
+    );
   });
 });

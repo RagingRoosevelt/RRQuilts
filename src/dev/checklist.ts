@@ -111,6 +111,12 @@ export const CHECKS: Check[] = [
     text: 'A library block open read-only: the banner’s Create a coloration variant lands on the variant’s Color tab (new or existing variant); Edit (make a copy) lands on the copy’s Draw tab.',
     to: '/',
   },
+  {
+    id: 'TC-090',
+    group: G.small,
+    text: 'Settings › You › socials: add Threadloop by pasting https://threadloop.app/members/<name>: it becomes the handle, and its icon links back to that page (threadloop.app/members/…). Printables (printables.com/@name) and Ravelry (ravelry.com/people/name) links reduce to handles too.',
+    to: '/settings',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
