@@ -224,20 +224,21 @@ const x = (x0: number, y0: number): Seam[] => [
   ],
 ];
 
-// Log cabin on an 8-unit grid: center, then three rounds of logs (light top/right, dark bottom/left).
+// Log cabin on an 8-unit grid: center, then three rounds of logs (light top/right, dark bottom/left),
+// in sewing order: each runs the whole side of what's sewn so far, over the end of the log before it.
 const logs = [
-  [2, 2, 5, 3],
+  [3, 2, 5, 3],
   [5, 2, 6, 5],
   [3, 5, 6, 6],
-  [2, 3, 3, 6],
-  [1, 1, 6, 2],
+  [2, 2, 3, 6],
+  [2, 1, 6, 2],
   [6, 1, 7, 6],
   [2, 6, 7, 7],
-  [1, 2, 2, 7],
-  [0, 0, 7, 1],
+  [1, 1, 2, 7],
+  [1, 0, 7, 1],
   [7, 0, 8, 7],
   [1, 7, 8, 8],
-  [0, 1, 1, 8],
+  [0, 0, 1, 8],
 ] as const;
 const logColors = [C.Cream, C.Linen, C.Indigo, C.Navy];
 
