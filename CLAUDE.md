@@ -79,6 +79,7 @@ Project principles: `.specify/memory/constitution.md` (authoritative).
 Flow: `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`.
 New specs/stories/bug write-ups outside the feature in progress: `specs/backlog` branch in the
 `../Kits Quilts specs` worktree (constitution, Development Workflow); never commit to `main`.
+Every release ends by merging `main` into `specs/backlog` and pushing it (`scripts/release.md`).
 
 ## Commands
 

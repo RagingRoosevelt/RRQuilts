@@ -68,4 +68,8 @@ where a step says so. Use the project's Makefile targets (see CLAUDE.md).
    Check it reached GitHub: `git ls-remote --tags origin vX.Y.Z` must print it.
 10. **Check it's live**: `https://theodorelindsey.io/RRQuilts/` serves the new build within a minute
     or two (Help › About shows the version).
-11. Tell the user it's released, with the tag name.
+11. **Bring `specs/backlog` up to date** (worktree `../Kits Quilts specs`): `git merge main` there,
+    so drafted specs sit on top of what was released. A spec that exists on both (drafted on the
+    backlog, then built and marked done on the release) keeps `main`'s version. Then
+    `git push origin specs/backlog`. Check: `git rev-list --count specs/backlog..main` prints 0.
+12. Tell the user it's released, with the tag name.
