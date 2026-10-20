@@ -25,6 +25,8 @@ export interface Settings {
   trayTab: 'blocks' | 'colors';
   /** Libraries page: blocks in sections by category, tag, or style. */
   libraryGroupBy: 'none' | 'category' | 'tags' | 'techniques';
+  /** Quilt editor block sidebar: only blocks the quilt's layout takes. */
+  compatibleBlocks: boolean;
   /** Project (sketchbook) page: last tab. */
   projectTab: 'quilts' | 'blocks' | 'colors' | 'photos' | 'threads' | 'details';
   /** Id of the project opened last: reopening it keeps `projectTab`, another starts fresh. */
@@ -100,6 +102,7 @@ export const defaults = (): Settings => ({
   hideLibraryBlocks: false,
   hideLibraryPalettes: false,
   hideSyncedMine: true,
+  compatibleBlocks: true,
   projectTab: 'quilts',
   lastProject: '',
   print: {},
@@ -166,6 +169,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   projectTab: (v) =>
     typeof v === 'string' &&
     ['quilts', 'blocks', 'colors', 'photos', 'threads', 'details'].includes(v),
+  compatibleBlocks: (v) => typeof v === 'boolean',
   lastProject: (v) => typeof v === 'string' && v.length <= 200,
   print: (v) => isObject(v),
   fabricImages: (v) => v === 'standins' || v === 'blank' || v === 'colors',

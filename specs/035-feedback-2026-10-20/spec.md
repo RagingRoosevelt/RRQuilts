@@ -33,7 +33,7 @@ Today, adding a fabric image to a palette under a name already in that palette a
 2. **Given** Use the new one, **Then** the existing fabric keeps its id (so quilts using it change
    picture) and takes the new image and size.
 
-## Part C - Show only blocks that fit (TC-009, TC-020)
+## Part C - Show only blocks that fit (TC-009, TC-020) · done on 0.6.0 (TC-053)
 
 1. **Given** the quilt editor's block sidebar, **Then** the **Fits layout** filter is replaced by a
    switch **Compatible with this layout** (on by default): on, only blocks the quilt's layout can take

@@ -22,9 +22,16 @@
       </div>
       <!-- Sidebar: each library in collapsible category sections; strip: one run per source. -->
       <template v-if="sidebar">
-        <BlockFilter v-model:layout="filterLayout" v-model:shape="filterShape" class="q-mb-sm" />
+        <!-- Only blocks this quilt's block spaces take (spec 035 C); off, all show. -->
+        <q-toggle
+          v-if="fitsQuilt"
+          v-model="app.settings.compatibleBlocks"
+          dense
+          label="Compatible with this layout"
+        />
+        <BlockFilter v-model:shape="filterShape" hide-layout class="q-mb-sm" />
         <div
-          v-if="!blockSectionGroups.length && (filterLayout || filterShape)"
+          v-if="!blockSectionGroups.length && (compatibleOnly || filterShape)"
           class="text-caption text-grey-7 q-pa-xs"
         >
           No blocks fit. Clear a filter to see more.
@@ -287,6 +294,8 @@ const props = withDefaults(
     sidebar?: boolean;
     /** The quilt has no spaces for blocks: Blocks says so, and it opens on Colors. */
     noBlocks?: boolean;
+    /** Whether the quilt has a space that takes this block (its shape). */
+    fitsQuilt?: (b: Block) => boolean;
   }>(),
   { colorsOnly: false, sidebar: false, noBlocks: false },
 );
@@ -345,9 +354,10 @@ const blockGroups = computed(() => {
   return [{ label: 'Mine', items: mine }, ...libraryGroups(avail, library.views, 'blocks')];
 });
 /** Sidebar: Mine, then each library's available blocks in category sections. */
-const filterLayout = ref<string | null>(null);
 const filterShape = ref<ShapeFilter | null>(null);
-const fits = (b: Block) => blockFits(b.shape, filterLayout.value, filterShape.value);
+const compatibleOnly = computed(() => !!props.fitsQuilt && app.settings.compatibleBlocks);
+const fits = (b: Block) =>
+  (!compatibleOnly.value || props.fitsQuilt!(b)) && blockFits(b.shape, null, filterShape.value);
 const blockSectionGroups = computed(() => {
   const [all, ...libs] = blockGroups.value;
   const mine = { ...all!, items: all!.items.filter(fits) };

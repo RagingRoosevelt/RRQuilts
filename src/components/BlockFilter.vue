@@ -3,6 +3,7 @@
        can lay them out as its own cells with `display: contents`. -->
   <div class="column" style="gap: 8px">
     <q-select
+      v-if="!hideLayout"
       v-model="layout"
       dense
       outlined
@@ -60,6 +61,8 @@
 import { SHAPE_NAME, SHAPE_OUTLINE, shapeSize, type BlockShape } from '@/model/blocks/shape';
 import { BLOCK_LAYOUTS, type ShapeFilter } from '@/render/layout-samples';
 
+/** `hideLayout`: no Fits layout (the quilt editor knows its layout: it has its own switch). */
+defineProps<{ hideLayout?: boolean }>();
 const layout = defineModel<string | null>('layout', { default: null });
 const shape = defineModel<ShapeFilter | null>('shape', { default: null });
 

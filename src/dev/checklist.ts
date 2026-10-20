@@ -314,6 +314,12 @@ export const CHECKS: Check[] = [
     text: 'Tests › Blocks: with a project open, its own blocks come first (“This project (name)”), then My library’s blocks, then the built-in library by category; each drawn with its colors.',
     to: '/dev/blocks',
   },
+  {
+    id: 'TC-053',
+    group: G.filters,
+    text: 'Quilt editor › Design › Blocks sidebar: Fits layout is gone; a “Compatible with this layout” switch (on by default) shows only blocks this quilt’s spaces take (square blocks in a Straight Set, the right shapes in a Shaped Blocks quilt). Switched off, every block shows, and tapping an incompatible one with Set says why. The switch is remembered. The Shape filter is still there.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
