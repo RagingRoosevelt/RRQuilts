@@ -399,6 +399,7 @@
 </template>
 
 <script setup lang="ts">
+import type { RrqDoc } from '@/model/schema/project';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import TintPicker from '@/components/TintPicker.vue';
 import { computed, ref, watch } from 'vue';
@@ -425,6 +426,8 @@ const props = defineProps<{
   kind: 'block' | 'quilt';
   id: string;
   coloringId?: string | undefined;
+  /** The document to print from (the block editor's read-only view of a library block). */
+  doc?: RrqDoc | undefined;
 }>();
 const emit = defineEmits<{ target: [target: PrintTarget] }>();
 
@@ -525,7 +528,9 @@ const setSections = (v: string[]) =>
     : set('quiltSections', v as PrintPrefs['quiltSections']);
 
 // Block size: its own, as used in a quilt (counts from that quilt), or custom.
-const block = computed(() => project.doc!.project.blocks.find((b) => b.id === props.id));
+const block = computed(() =>
+  (props.doc ?? project.doc)!.project.blocks.find((b) => b.id === props.id),
+);
 const fmtSize = (s: [number, number]) =>
   `${fmtLen(s[0], units.value)} × ${fmtLen(s[1], units.value)}`;
 const quiltSizes = computed(() =>

@@ -36,14 +36,17 @@ While a filter is on, blocks can't be moved earlier or later.
 
 1. **New block** asks for a name and opens the block editor ([Drawing blocks](/help/guides/drawing-blocks)).
 2. **Import blocks** reads blocks from a `.rrqbl` file or from another project. Tick the ones to add.
-3. A block's **Actions** menu offers **Edit**, **Edit a copy**, **Preview**, **Details**, **Tags…**,
+3. A block's **Actions** menu offers **Edit a copy**, **Preview**, **Open in block editor**, **Print**, **Details**, **Tags…**,
    **Export (.rrqbl)**, **Move earlier / later**, **Delete**, plus **Add to my library…** or **Sync to my library** for the My library
    links. Small icons on a card show that the block is
    placed in a quilt, is in My library, or has changed since it was saved there.
 4. **Library blocks** lists blocks from the built-in set and your libraries, grouped by library and
    category. Tick the ones to use in this project's quilts. You can't edit them directly. **Edit
    (make a copy)** makes your own copy, and **Create a coloration variant** keeps the drawing but
-   lets you recolor it ([Block colorings](/help/guides/block-colorings)).
+   lets you recolor it ([Block colorings](/help/guides/block-colorings)). A project has one
+   coloration variant per library block: asking again adds a new coloring to the one you have. **Open in block
+   editor** and **Print** show a library block in the block editor, read-only, with both of those
+   buttons at the top. A quilt's menu has **Print** too.
 
 Deleting a block that is placed in a quilt asks first. It can also remove it from those quilts.
 Libraries themselves are covered in [Libraries](/help/guides/libraries).
