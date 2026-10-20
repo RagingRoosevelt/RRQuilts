@@ -79,6 +79,11 @@ with sync_playwright() as p:
         fc.value.set_files(str(rrq))
         page.wait_for_url("**/project**")
         page.wait_for_timeout(2000)
+        # A notice on open (e.g. library updates for blocks redrawn since): close it unanswered.
+        close = page.locator(".q-dialog button[aria-label=Close]")
+        if close.count():
+            close.first.click()
+            page.wait_for_timeout(500)
         project = json.loads(rrq.read_text())["project"]
         save_all(page, out, {q["notecard"]["name"] for q in project["quilts"]})
         if quilts_only:

@@ -43,6 +43,7 @@ const ADDED: Record<number, Add[]> = {
     { name: 'Diamond Point', style: 'diamond-point' },
     { name: 'Baby Blocks of Blocks', style: 'baby-blocks' },
   ],
+  8: [], // v8 added palette tags, no layouts
 };
 
 it.skipIf(!dir)('write the demo project', async () => {

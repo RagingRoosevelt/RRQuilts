@@ -2,6 +2,30 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.6.0 (2026-10-20)
+
+### New features
+
+- 21 new 60° triangle blocks in the built-in library, for Shaped Blocks quilts.
+- A new library, RagingRoosevelt's Novelty, is listed on the Libraries page. Its Fractals and Memes packs download when you switch them on.
+- Tag your project's palettes and star your favorite palettes, including library palettes. The project's Palettes tab has the same filters as the Libraries page.
+- Edit a block's tags and category in its Details tab.
+- The quilt editor's block list shows only blocks that fit the quilt's layout. Switch off "Compatible with this layout" to see them all.
+- When imported quilts or fabric images are already in the project, you see both side by side and choose which to keep, or keep both.
+- Removing a pack, a library, or a tagged item asks whether to keep your tags in case it comes back.
+- Select every block of a library at once in the project's Blocks tab, with a count of how many are selected.
+- Categories with the same name in different libraries show once in the filter, and ticking a category ticks all of its subcategories.
+- New On-Point, Variable Point and Diamond Point quilts start with an Exact edge, so the edge stays at the block points.
+- Every dialog has a close button, and a project reopens on the tab you left it on.
+- Plain Block is gone from the built-in library. Paint an empty block space instead.
+
+### Fixes
+
+- Exported blocks, packs and backups keep colorings made with fabric images.
+- The reference overlay stays in place when you set a block into an On-Point setting triangle.
+- Several built-in blocks are redrawn to match how they are sewn, and the Seams filter is more accurate. Lettered variants now use numbers (King's Crown II). Projects that use them still open.
+- Projects, libraries, and block files from older versions open and are upgraded.
+
 ## 0.5.0 (2026-10-19)
 
 ### New features

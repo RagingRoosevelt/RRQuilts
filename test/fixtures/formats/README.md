@@ -16,6 +16,7 @@ that release's code, plus a quilt for each layout capability the version added (
 - v5: On Point, Strips
 - v6: Variable Point, One Patch, Baby Blocks, Variable Blocks, Pieced Border
 - v7: Shaped Blocks, Hexagons on a Flow, Diamond Point, Baby Blocks of Blocks
+- v8: no new layouts (it added palette tags)
 
 `demo-v<N>/` holds a PNG of each of its quilts and blocks, saved with the app's Save image by a
 release that writes that version.
@@ -51,5 +52,7 @@ uv run scripts/format-images.py docs test/fixtures/formats/demo-vN.rrq
 - project v1 to v5: the `everything.rrq` fixture as committed at each version (migration tests).
 - project v6, library v3, block v1, palette v1, settings v1: written by release v0.4.0's code.
 - project v7, library v4, block v2: written by release v0.5.0's code.
-- demo v4, v5, v6, v7: written by releases v0.1.0, v0.3.0, v0.4.0 and v0.5.0. Pictures: v4 by v0.2.0
-  (v0.1.0 had no Save image; both write v4), v5 by v0.3.0, v6 by v0.4.0, v7 by v0.5.0.
+- project v8, library v5, block v3: written by release v0.6.0's code.
+- demo v4, v5, v6, v7, v8: written by releases v0.1.0, v0.3.0, v0.4.0, v0.5.0 and v0.6.0. Pictures:
+  v4 by v0.2.0 (v0.1.0 had no Save image; both write v4), v5 by v0.3.0, v6 by v0.4.0, v7 by v0.5.0,
+  v8 by v0.6.0.
