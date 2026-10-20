@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   defaults,
+  openedProject,
   loadSettings,
   parseConf,
   saveSettings,
@@ -76,5 +77,18 @@ describe('.rrqconf export/import', () => {
       settings: { ...defaults(), units: 'cm' },
       invalid: ['theme'],
     });
+  });
+});
+
+describe('tab on opening a project', () => {
+  it('keeps the tab for the same project; another starts on quilts, or blocks if none', () => {
+    const s = defaults();
+    openedProject(s, 'a', false);
+    expect(s.projectTab).toBe('blocks');
+    s.projectTab = 'colors';
+    openedProject(s, 'a', true);
+    expect(s.projectTab).toBe('colors');
+    openedProject(s, 'b', true);
+    expect([s.lastProject, s.projectTab]).toEqual(['b', 'quilts']);
   });
 });
