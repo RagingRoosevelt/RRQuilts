@@ -53,6 +53,9 @@ takes a block also takes a patch (not the reverse). Decisions in Clarifications.
   Triangle), Stars (Triangle Star, Three Kites), Strips › Strips (Rail Triangle, Flying Geese
   Triangle, Arrowhead Strips), Medallions (Twisted Triangle), Images › Plants (Christmas Tree). All
   but Three Kites (a set-in seam) and Triangle Pinwheel (a partial seam) sew with straight seams.
+  Off the lattice: Basics (Sunburst Triangle), Images (Sailboat), Images › Animals (Peacock Fan),
+  Medallions (Framed Triangle), Strips › Strips (Slanted Rails), Curves (Rising Sun Triangle, a curved
+  seam), Stars (Spike Star, a set-in seam).
 - The quilt editor's block sidebar has two filters: **Fits layout** (each block layout with its
   picture; Shaped Blocks once per shape) and **Shape** (square, triangle, 60° diamond, hexagon, each
   with its outline). Both cleared by default; together they show blocks passing both.

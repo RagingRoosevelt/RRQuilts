@@ -216,7 +216,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-037',
     group: G.shaped,
-    text: 'Libraries › built-in: 14 new 60° triangle blocks (Four Triangles, Triangle Nine-Patch, Trip Around the Triangle, Thousand Pyramids, Sierpinski Triangle, Hexagon Triangle, Triangle Star, Rail Triangle, Flying Geese Triangle, Arrowhead Strips, Twisted Triangle, Christmas Tree, Three Kites, Triangle Pinwheel) in Basics, Nine-patch, Mosaics, Stars, Strips, Medallions and Plants. Put a few in a Shaped Blocks quilt (triangles). Seams filter: only Three Kites and Triangle Pinwheel show as set-in.',
+    text: 'Libraries › built-in: 21 new 60° triangle blocks (Four Triangles, Triangle Nine-Patch, Trip Around the Triangle, Thousand Pyramids, Sierpinski Triangle, Hexagon Triangle, Triangle Star, Rail Triangle, Flying Geese Triangle, Arrowhead Strips, Twisted Triangle, Christmas Tree, Three Kites, Triangle Pinwheel, and off the lattice: Sunburst Triangle, Peacock Fan, Framed Triangle, Slanted Rails, Sailboat, Rising Sun Triangle (curved), Spike Star) in Basics, Nine-patch, Mosaics, Stars, Strips, Medallions, Images, Animals, Plants and Curves. Put a few in a Shaped Blocks quilt (triangles). Seams filter: only Three Kites, Triangle Pinwheel and Spike Star show as set-in; Rising Sun as curved.',
     to: '/libraries',
   },
 ];

@@ -32,6 +32,10 @@ describe('block construction', () => {
       // 60° triangle blocks on a triangle lattice sew in straight rows.
       'Triangle Star',
       'Twisted Triangle',
+      // Fans, strips, a frame and a picture: each piece sews on along one straight seam.
+      'Sunburst Triangle',
+      'Framed Triangle',
+      'Sailboat',
     ])
       expect(named(n).setIn, n).toBe(false);
   });
@@ -46,6 +50,7 @@ describe('block construction', () => {
       'Tea Box',
       'Three Kites',
       'Triangle Pinwheel',
+      'Spike Star',
     ])
       expect(named(n).setIn, n).toBe(true);
   });

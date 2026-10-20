@@ -107,6 +107,82 @@ const pa = meet([c, a], [A, B]);
 const pb = meet([a, b], [B, C]);
 const pc = meet([b, c], [C, A]);
 
+// --- Beyond the lattice: fans, strips, a frame, a picture --------------------------------------
+
+const MAB = lerp(A, B, 0.5);
+const MCA = lerp(C, A, 0.5);
+const MBC = lerp(B, C, 0.5);
+
+/** A fan of wedges from `hub` along the path `path`, each leg cut into `parts`. */
+function fan(hub: P, path: P[], parts: number, cs: string[]): ShapedPiece[] {
+  const stops = path.flatMap((p, k) =>
+    k === 0 ? [p] : Array.from({ length: parts }, (_, i) => lerp(path[k - 1]!, p, (i + 1) / parts)),
+  );
+  return stops
+    .slice(0, -1)
+    .map((p, k) => ({ poly: [hub, p, stops[k + 1]!], c: cs[k % cs.length]! }));
+}
+
+// Framed Triangle: a center triangle, then one round of strips in log cabin order.
+const inner = [A, B, C].map((v) => lerp(O, v, 0.5)) as [P, P, P];
+const line = (p: P, q: P): [P, P] => [p, q];
+const frame: ShapedPiece[] = (() => {
+  const [a, b, c] = inner;
+  // First strip on the bottom (b-c), then the left (c-a) over its end, then the right over both.
+  const s1: P[] = [b, c, meet(line(c, a), line(B, C)), meet(line(a, b), line(B, C))];
+  const s2: P[] = [c, a, meet(line(a, b), line(C, A)), C, meet(line(c, a), line(B, C))];
+  const s3: P[] = [a, b, meet(line(a, b), line(B, C)), B, A, meet(line(a, b), line(C, A))];
+  return [
+    { poly: inner, c: 'K' },
+    { poly: s1, c: 'N' },
+    { poly: s2, c: 'M' },
+    { poly: s3, c: 'D' },
+  ];
+})();
+
+// Slanted Rails: stripes parallel to the left side, from the left side to the bottom right corner.
+const slanted: ShapedPiece[] = ['D', 'L', 'N', 'L', 'M'].map((c, k, all) => {
+  const t0 = k / all.length;
+  const t1 = (k + 1) / all.length;
+  const p0 = lerp(A, B, t0); // on the right side
+  const q0 = lerp(C, B, t0); // on the bottom
+  const p1 = lerp(A, B, t1);
+  const q1 = lerp(C, B, t1);
+  return { poly: k === all.length - 1 ? [p0, B, q0] : [p0, p1, q1, q0], c };
+});
+
+// Sailboat: water along the bottom, the hull in the next row, two sails split by the mast.
+const sail: ShapedPiece[] = (() => {
+  const row = (t: number): [P, P] => [lerp(A, C, t), lerp(A, B, t)]; // left, right at height t
+  const [w0l, w0r] = row(1);
+  const [w1l, w1r] = row(0.84);
+  const [h1l, h1r] = row(0.68);
+  const hull = (t: number, k: number): P => lerp(...row(t), k);
+  const mast = hull(0.68, 0.55);
+  return [
+    { poly: [w1l, w1r, w0r, w0l], c: 'N' },
+    { poly: [h1l, hull(0.68, 0.2), hull(0.84, 0.3), w1l], c: 'L' },
+    { poly: [hull(0.68, 0.2), hull(0.68, 0.85), hull(0.84, 0.75), hull(0.84, 0.3)], c: 'D' },
+    { poly: [hull(0.68, 0.85), h1r, w1r, hull(0.84, 0.75)], c: 'L' },
+    // Above the hull: left of the mast a mainsail, right of it a jib.
+    { poly: [h1l, hull(0.68, 0.25), A], c: 'L' },
+    { poly: [hull(0.68, 0.25), mast, A], c: 'K' },
+    { poly: [mast, hull(0.68, 0.8), A], c: 'M' },
+    { poly: [hull(0.68, 0.8), h1r, A], c: 'L' },
+  ];
+})();
+
+// Spike Star: three long kites from the center to the corners, background triangles between.
+const spikeQ = (m: P) => lerp(O, m, 0.5);
+const spikes: ShapedPiece[] = [
+  { poly: [O, spikeQ(MAB), A, spikeQ(MCA)], c: 'K' },
+  { poly: [O, spikeQ(MBC), B, spikeQ(MAB)], c: 'K' },
+  { poly: [O, spikeQ(MCA), C, spikeQ(MBC)], c: 'K' },
+  { poly: [A, B, spikeQ(MAB)], c: 'L' },
+  { poly: [B, C, spikeQ(MBC)], c: 'L' },
+  { poly: [C, A, spikeQ(MCA)], c: 'L' },
+];
+
 export const SHAPED_E: ShapedDef[] = [
   {
     // The triangle cut into four: three corners and an upside-down center.
@@ -265,5 +341,53 @@ export const SHAPED_E: ShapedDef[] = [
       { poly: [pb, C, pc, c, b], c: 'D' },
       { poly: [pc, A, pa, a, c], c: 'M' },
     ],
+  },
+  {
+    // Rays fan out from the middle of the bottom edge to both sides and the tip.
+    name: 'Sunburst Triangle',
+    shape: 'triangle',
+    leg: 6,
+    category: 'Basics',
+    pieces: fan(MBC, [B, A, C], 3, ['P', 'K', 'Q', 'K']),
+  },
+  {
+    // A peacock's tail: feathers fan from the top point to the bottom edge.
+    name: 'Peacock Fan',
+    shape: 'triangle',
+    leg: 6,
+    category: 'Images/Animals',
+    pieces: fan(A, [C, B], 5, ['S', 'N', 'D', 'N', 'S']),
+  },
+  {
+    // A center triangle framed by three strips, each over the end of the one before.
+    name: 'Framed Triangle',
+    shape: 'triangle',
+    leg: 6,
+    category: 'Medallions',
+    pieces: frame,
+  },
+  {
+    // Stripes parallel to one side, narrowing to the far corner.
+    name: 'Slanted Rails',
+    shape: 'triangle',
+    leg: 6,
+    category: 'Strips/Strips',
+    pieces: slanted,
+  },
+  {
+    // Water, a hull, and two sails either side of the mast.
+    name: 'Sailboat',
+    shape: 'triangle',
+    leg: 8,
+    category: 'Images',
+    pieces: sail,
+  },
+  {
+    // Three long spikes meet in the middle: a set-in (Y) seam at the center.
+    name: 'Spike Star',
+    shape: 'triangle',
+    leg: 6,
+    category: 'Stars',
+    pieces: spikes,
   },
 ];
