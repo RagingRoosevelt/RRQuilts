@@ -275,7 +275,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-046',
     group: G.shaped,
-    text: 'Fractals are no longer built in (Libraries › Category has no Fractals). Libraries lists Novelty Blocks (offered with the app, not downloaded yet). Show packs: Fractals is off; switch it on and it downloads (needs the repository pushed; before that, Libraries › Import ~/Code/rrquilts-fractal-blocks/packs/rrquilts-novelty-blocks-fractals/rrqlib.json). The Fractals pack has with category Fractals: Sierpinski Carpet, Vicsek Cross, Cantor Bars, Hilbert Curve, Sierpinski Triangle (its light gaps are single pieces), Sierpinski Diamond, Koch Snowflake. Each shows RagingRoosevelt as author and CC BY-SA 4.0 in Details. None shows as set-in in the Seams filter (Koch Snowflake: a big center triangle and three wings, each spike sewn log cabin style).',
+    text: 'Fractals are no longer built in (Libraries › Category has no Fractals). Libraries lists Novelty Blocks (offered with the app, not downloaded yet). Show packs: Fractals is off; switch it on and it downloads. The Fractals pack has with category Fractals: Sierpinski Carpet, Vicsek Cross, Cantor Bars, Hilbert Curve, Sierpinski Triangle (its light gaps are single pieces), Sierpinski Diamond, Koch Snowflake. Each shows RagingRoosevelt as author and CC BY-SA 4.0 in Details. None shows as set-in in the Seams filter (Koch Snowflake: a big center triangle and three wings, each spike sewn log cabin style).',
     to: '/libraries',
   },
   {
