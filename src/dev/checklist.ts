@@ -219,6 +219,12 @@ export const CHECKS: Check[] = [
     text: 'Which tab a project opens on: reopen the project you had open last (from Recent, a file, a gist or Restore): it opens on the tab you left it on. Open a different project: it opens on Quilts, or on Blocks if it has no quilts yet. A new empty project opens on Blocks.',
     to: '/',
   },
+  {
+    id: 'TC-040',
+    group: G.tests,
+    text: 'Text between checks (this page): hover the line between two checks (always shown on touch), click + and type; it stays after a reload. Every section has a + after its last check too. Copy results lists the text under “Text between checks”, in page order, each labeled with its section and the check just before it (“Shaped blocks, after 0.5.0-TC-005: …”, or “at the start”); Start over clears it.',
+    to: '/dev/checklist',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
