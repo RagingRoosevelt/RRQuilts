@@ -59,7 +59,7 @@ takes a block also takes a patch (not the reverse). Decisions in Clarifications.
 - (2026-10-20) A **Fractals** category (top level; RagingRoosevelt's designs, CC BY-SA 4.0, built in
   for now, maybe a pack later): Sierpinski Carpet, Vicsek Cross, Cantor Bars, Hilbert Curve (square,
   each row's runs as strips), Sierpinski Triangle (moved from Mosaics; each gap one piece), Sierpinski
-  Diamond, Koch Snowflake (hexagon, on a triangle grid: sewn in rows, each row's run of one color a piece). Built-in blocks may carry their own
+  Diamond, Koch Snowflake (hexagon: the big first triangle one piece, a wing on each side of five triangles: the medium first-step point and four light triangles each with a small spike, sewn log cabin style). Built-in blocks may carry their own
   author and license.
 - The quilt editor's block sidebar has two filters: **Fits layout** (each block layout with its
   picture; Shaped Blocks once per shape) and **Shape** (square, triangle, 60° diamond, hexagon, each

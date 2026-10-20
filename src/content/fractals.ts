@@ -125,91 +125,59 @@ export const FRACTAL_BLOCKS = gridBlocks(FRACTAL_DEFS, 'Fractals');
 
 // --- Shaped fractals ---------------------------------------------------------------------------
 
-/** One Koch step: on each side's middle third, a triangle pointing out of the polygon. */
-function kochStep(poly: P[]): P[] {
-  return poly.flatMap((a, i) => {
-    const b = poly[(i + 1) % poly.length]!;
-    const [p, q, m] = [lerp(a, b, 1 / 3), lerp(a, b, 2 / 3), lerp(a, b, 0.5)];
-    const h = Math.hypot(q[0] - p[0], q[1] - p[1]) * (Math.sqrt(3) / 2);
-    let n: P = [-(q[1] - p[1]), q[0] - p[0]];
-    const k = Math.hypot(n[0], n[1]);
-    n = [n[0] / k, n[1] / k];
-    if (inside(poly, [m[0] + n[0] * 1e-6, m[1] + n[1] * 1e-6])) n = [-n[0], -n[1]];
-    return [a, p, [m[0] + n[0] * h, m[1] + n[1] * h], q];
-  });
+/**
+ * A light triangle with one small spike on its side v0-v1, pointing toward v2, sewn log cabin style:
+ * the spike, the light piece on one side of it, then the other (each cut along a spike side's line).
+ */
+function spikeUnit(v0: P, v1: P, v2: P): ShapedPiece[] {
+  const [b1, b2] = [lerp(v0, v1, 1 / 3), lerp(v0, v1, 2 / 3)];
+  const base = lerp(v0, v1, 0.5);
+  const tip: P = [base[0] + (v2[0] - base[0]) / 3, base[1] + (v2[1] - base[1]) / 3];
+  const x = lerp(v1, v2, 2 / 3);
+  return [
+    { poly: [b1, b2, tip], c: 'M' },
+    { poly: [tip, b2, v1, x], c: 'L' },
+    { poly: [v0, b1, tip, x, v2], c: 'L' },
+  ];
 }
 
 /**
- * A Koch snowflake two steps deep on a triangle grid inside a flat-top hexagon (side 1 = 6 grid
- * steps): its tips touch the middle of each side. Shaded by step (dark first triangle, medium
- * step-one points, light step-two points) and sewn in rows: each row's run of one color is one piece.
+ * A Koch snowflake two steps deep in a flat-top hexagon, sewn as the quilter would: the big first
+ * triangle (its corners on the middles of every other side) is one piece, and each of its sides gets
+ * a wing (the rest of the hexagon on that side): a row of five triangles, the middle one the
+ * medium first-step point, the other four light with a small second-step spike, each sewn log cabin
+ * style. Wings are sewn on their own, then joined to the big triangle along one straight seam.
  */
 function koch(): ShapedPiece[] {
   const u = 1 / 6;
   const h = (u * Math.sqrt(3)) / 2;
-  // The first triangle: side 9 steps, tip on the top side's middle, centered on the hexagon's.
-  const s0: P[] = [
+  const big: P[] = [
     [0, -6 * h],
     [4.5 * u, 3 * h],
     [-4.5 * u, 3 * h],
   ];
-  const s1 = kochStep(s0);
-  const s2 = kochStep(s1);
-  const colorAt = (c: P) => (inside(s0, c) ? 'D' : inside(s1, c) ? 'N' : inside(s2, c) ? 'M' : 'L');
-  const hex = corners('hexagon', true);
-  const out: ShapedPiece[] = [];
-  for (let j = 0; j < 12; j++) {
-    const [y0, y1] = [(j - 6) * h, (j - 5) * h];
-    // Grid points on the row's top line; the bottom line is offset half a step.
-    const off = (((j - 6) % 2) + 2) % 2 === 0 ? 0 : u / 2;
-    const tris: { poly: P[]; c: string; x: number }[] = [];
-    for (let i = -8; i <= 8; i++) {
-      const x = off + i * u;
-      const up: P[] = [
-        [x, y0],
-        [x + u / 2, y1],
-        [x - u / 2, y1],
-      ];
-      const down: P[] = [
-        [x, y0],
-        [x + u, y0],
-        [x + u / 2, y1],
-      ];
-      for (const t of [up, down]) {
-        const c: P = [(t[0]![0] + t[1]![0] + t[2]![0]) / 3, (t[0]![1] + t[1]![1] + t[2]![1]) / 3];
-        if (inside(hex, c)) tris.push({ poly: t, c: colorAt(c), x: c[0] });
-      }
-    }
-    tris.sort((p, q) => p.x - q.x);
-    // Runs of one color along the row become one piece (a trapezoid, or a triangle).
-    for (let k = 0; k < tris.length;) {
-      let e = k;
-      while (e + 1 < tris.length && tris[e + 1]!.c === tris[k]!.c) e++;
-      const pts = tris.slice(k, e + 1).flatMap((t) => t.poly);
-      const xs = (y: number) => pts.filter((p) => Math.abs(p[1] - y) < 1e-9).map((p) => p[0]);
-      const [top, bot] = [xs(y0), xs(y1)];
-      const poly: P[] = [
-        [Math.min(...top), y0],
-        ...(Math.max(...top) - Math.min(...top) > 1e-9 ? [[Math.max(...top), y0] as P] : []),
-        [Math.max(...bot), y1],
-        ...(Math.max(...bot) - Math.min(...bot) > 1e-9 ? [[Math.min(...bot), y1] as P] : []),
-      ];
-      out.push({ poly, c: tris[k]!.c });
-      k = e + 1;
-    }
-  }
-  return out;
-}
-
-/** Ray casting: is `p` inside the polygon `poly`? */
-function inside(poly: P[], [x, y]: P) {
-  let inside = false;
-  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    const [xi, yi] = poly[i]!;
-    const [xj, yj] = poly[j]!;
-    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
-  }
-  return inside;
+  /** The point making an equilateral triangle with a-b, away from the middle. */
+  const out = (a: P, b: P): P => {
+    const m = lerp(a, b, 0.5);
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]) * (Math.sqrt(3) / 2);
+    let n: P = [-(b[1] - a[1]), b[0] - a[0]];
+    const k = Math.hypot(n[0], n[1]);
+    n = [n[0] / k, n[1] / k];
+    if (n[0] * m[0] + n[1] * m[1] < 0) n = [-n[0], -n[1]];
+    return [m[0] + n[0] * len, m[1] + n[1] * len];
+  };
+  const wing = (p: P, q: P): ShapedPiece[] => {
+    const [p1, p2] = [lerp(p, q, 1 / 3), lerp(p, q, 2 / 3)];
+    const [o1, o2, o3] = [out(p, p1), out(p1, p2), out(p2, q)];
+    return [
+      ...spikeUnit(p, p1, o1),
+      ...spikeUnit(p1, o2, o1),
+      { poly: [p1, p2, o2], c: 'N' },
+      ...spikeUnit(o2, p2, o3),
+      ...spikeUnit(p2, q, o3),
+    ];
+  };
+  return [{ poly: big, c: 'D' }, ...big.flatMap((p, i) => wing(p, big[(i + 1) % 3]!))];
 }
 
 const [dTop, dRight, dBottom, dLeft] = corners('diamond60') as [P, P, P, P];
