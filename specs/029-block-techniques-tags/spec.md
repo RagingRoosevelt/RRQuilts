@@ -35,7 +35,7 @@ implementation.
 - **Tag list**: every tag in use, worked out when needed and never stored, so a tag no longer used
   anywhere disappears by itself.
 - **Construction**: what the app reads from a block's drawing, for filtering, never stored or edited:
-  curved seams, set-in seams (a seam that can't be sewn as straight lines right across), piece count,
+  curved seams, set-in seams (no order of sewing a unit to the rest along one straight seam, again and again, puts it together; 2026-10-20: was "straight lines right across", which missed strips sewn on last and star wedges), piece count,
   smallest piece, and a difficulty from those.
 - **Internal tags** (`system` on the hidden plain block) are the app's, never shown or offered.
 

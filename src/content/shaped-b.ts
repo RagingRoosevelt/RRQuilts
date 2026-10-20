@@ -17,7 +17,15 @@ function meet([a, b]: [P, P], [c, d]: [P, P]): P {
 type Style = 'miter' | 'spiral' | 'sym';
 
 /** One ring between outline `O` and the smaller outline `I`: a strip per side, colors `cs`. */
-function ring(O: P[], I: P[], style: Style, cs: string[], full = 0): ShapedPiece[] {
+/** `order`: each side's place in the sewing order (log cabin style; default: around, from side 0). */
+function ring(
+  O: P[],
+  I: P[],
+  style: Style,
+  cs: string[],
+  full = 0,
+  order?: number[],
+): ShapedPiece[] {
   const n = O.length;
   const at = (a: P[], j: number) => a[((j % n) + n) % n]!;
   const lineI = (j: number): [P, P] => [at(I, j), at(I, j + 1)];
@@ -25,10 +33,21 @@ function ring(O: P[], I: P[], style: Style, cs: string[], full = 0): ShapedPiece
   return O.map((_, j): ShapedPiece => {
     const c = cs[j]!;
     if (style === 'miter') return { poly: [at(O, j), at(O, j + 1), at(I, j + 1), at(I, j)], c };
-    if (style === 'spiral') {
-      // Strip j covers its start corner; the strip before it stops at its inner edge.
-      const e = (k: number) => meet(lineI(k), lineO(k - 1));
-      return { poly: [at(O, j), e(j + 1), at(I, j + 1), at(I, j), e(j)], c };
+    if (style === 'spiral' || order) {
+      // Log cabin order: each strip runs the whole side of what's sewn so far, over the ends of the
+      // neighbors sewn before it, and stops at the line of those sewn after it.
+      const t = order ?? O.map((_, k) => k);
+      const before = (k: number) => t[((k % n) + n) % n]! < t[j]!;
+      const start: P[] = before(j - 1) ? [at(O, j)] : [meet(lineO(j), lineI(j - 1))];
+      const end: P[] = before(j + 1)
+        ? [at(O, j + 1), meet(lineI(j), lineO(j + 1))]
+        : [meet(lineO(j), lineI(j + 1))];
+      const inner: P[] = [
+        at(I, j + 1),
+        at(I, j),
+        ...(before(j - 1) ? [meet(lineI(j), lineO(j - 1))] : []),
+      ];
+      return { poly: [...start, ...end, ...inner], c };
     }
     // sym: the strips on one pair of opposite sides run full length, the others fit between.
     const w = (k: number, side: number) => meet(lineI(k), lineO(side));
@@ -46,10 +65,11 @@ function cabin(
   mid: string,
   full = 0,
   flat = false,
+  order?: number[],
 ): ShapedPiece[] {
   const base = corners(shape, flat);
   const pieces = rings.flatMap((cs, r) =>
-    ring(scale(base, steps[r]!), scale(base, steps[r + 1]!), style, cs, full),
+    ring(scale(base, steps[r]!), scale(base, steps[r + 1]!), style, cs, full, order),
   );
   return [...pieces, { poly: scale(base, steps[rings.length]!), c: mid }];
 }
@@ -166,12 +186,14 @@ export const SHAPED_B: ShapedDef[] = [
     ),
   },
   {
-    // Three spiral rounds; half the sides (top and left) are dark, the other half light.
+    // Three rounds; the top and left sides dark, the bottom and right light.
     name: 'Opposite Hexagon',
     shape: 'hexagon',
     leg: 4,
     category: 'Strips/Log Cabin',
     flat: true,
+    // Sewn in opposite pairs, courthouse steps style: top and bottom, then upper left and lower
+    // right, then lower left and upper right (sides: 0 lower right, 1 bottom, … 4 top, 5 upper right).
     pieces: cabin(
       'hexagon',
       'spiral',
@@ -184,6 +206,7 @@ export const SHAPED_B: ShapedDef[] = [
       'L',
       0,
       true,
+      [3, 1, 4, 2, 0, 5],
     ),
   },
   {

@@ -9,13 +9,13 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     pieces: cells(['D L D', 'L D L', 'D L D']),
   },
   {
-    name: 'Red Cross A',
+    name: 'Red Cross I',
     size: 9,
     n: 3,
     pieces: cells(['L M L', 'M D M', 'L M L']),
   },
   {
-    name: 'Nine-Patch Variation A',
+    name: 'Nine-Patch Variation I',
     size: 9,
     n: 3,
     pieces: cells(['L M M', 'M L M', 'M M L']),
@@ -33,7 +33,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     pieces: cells(['L M D', 'M L M', 'D M L']),
   },
   {
-    name: 'Basketweave A',
+    name: 'Basketweave I',
     size: 9,
     n: 3,
     pieces: cells(['M M D', 'D L D', 'D M M']),
@@ -287,7 +287,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ]),
   },
   {
-    name: 'Tree Everlasting A',
+    name: 'Tree Everlasting I',
     size: 9,
     n: 3,
     pieces: cells(['/LD /LD /LD', '/LD /LD /LD', '/LD /LD /LD']),
@@ -306,7 +306,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ]),
   },
   {
-    name: 'Hourglass B',
+    name: 'Hourglass II',
     size: 9,
     n: 3,
     pieces: cells(['M N \\ML', 'N L N', '\\LM N M']),
@@ -808,7 +808,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: 'Nine-Patch Variation B',
+    name: 'Nine-Patch Variation II',
     size: 12,
     n: 6,
     pieces: cells([
@@ -893,7 +893,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: 'Hourglass C',
+    name: 'Hourglass III',
     size: 12,
     n: 6,
     pieces: [
@@ -1593,7 +1593,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: 'Handy Andy B',
+    name: 'Handy Andy II',
     size: 12,
     n: 6,
     pieces: cells([
@@ -2333,7 +2333,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ]),
   },
   {
-    name: "Grandmother's Own D",
+    name: "Grandmother's Own IV",
     size: 12,
     n: 6,
     pieces: [
@@ -2795,7 +2795,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: 'Flying Dutchman B',
+    name: 'Flying Dutchman II',
     size: 12,
     n: 6,
     pieces: [
@@ -3064,7 +3064,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: 'Arizona B',
+    name: 'Arizona II',
     size: 12,
     n: 6,
     pieces: [
@@ -3139,7 +3139,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     pieces: cells(['M /LD M', '/LD M /DL', 'M /DL M']),
   },
   {
-    name: 'Attic Window A',
+    name: 'Attic Window I',
     size: 9,
     n: 3,
     pieces: cells(['K /KN M', '/KM L /MK', 'M /NK K']),
@@ -3741,7 +3741,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: 'Steps to the Altar B',
+    name: 'Steps to the Altar II',
     size: 12,
     n: 6,
     pieces: [
@@ -3783,7 +3783,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: 'Railroad B',
+    name: 'Railroad II',
     size: 12,
     n: 6,
     pieces: cells([
@@ -4416,7 +4416,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ]),
   },
   {
-    name: 'Rolling Pinwheel B',
+    name: 'Rolling Pinwheel II',
     size: 12,
     n: 6,
     pieces: [
@@ -4482,13 +4482,13 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     pieces: cells(['/ML L \\ML', 'L L L', '\\LM L /LM']),
   },
   {
-    name: 'Shoofly B',
+    name: 'Shoofly II',
     size: 9,
     n: 3,
     pieces: cells(['/LM L \\LM', 'L M L', '\\ML L /ML']),
   },
   {
-    name: 'Double Pinwheel C',
+    name: 'Double Pinwheel III',
     size: 12,
     n: 6,
     pieces: [
@@ -4583,7 +4583,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: 'Greek Cross B',
+    name: 'Greek Cross II',
     size: 9,
     n: 3,
     pieces: [
@@ -5480,7 +5480,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ],
   },
   {
-    name: 'New Album A',
+    name: 'New Album I',
     size: 12,
     n: 6,
     pieces: [
@@ -6815,7 +6815,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ]),
   },
   {
-    name: 'Single Wedding Ring B',
+    name: 'Single Wedding Ring II',
     size: 12,
     n: 6,
     pieces: cells([

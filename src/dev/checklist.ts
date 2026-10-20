@@ -242,6 +242,18 @@ export const CHECKS: Check[] = [
     text: 'Category filter (Libraries and the sketchbook’s Blocks sidebar): categories with the same name in My library and the built-in library show once. A category with subcategories is a labeled line with a checkbox before its name, its subcategories listed under it (not indented). Ticking that checkbox ticks the whole group; unticking one subcategory unticks it; ticking the last one ticks it again. Chips show only while the list is closed. Technique’s Needs/Efficiency are labeled lines too. The Libraries page opens without errors and switching Blocks/Palettes/All drops picks the filter no longer offers.',
     to: '/libraries',
   },
+  {
+    id: 'TC-043',
+    group: G.shaped,
+    text: 'Seams filter › Set-in seams: the Round and Round blocks, Opposite Hexagon and Basic Log Cabin are no longer listed (their strips run the full side, sewn in order); Double Strips, Bright Hopes, Tea Box and Mitered Frame Medallion still are. Redrawn to match the book: Basic Log Cabin, Opposite Hexagon (strips in opposite pairs), Grape Vine, Mare’s Nest, Wedding Rings.',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-044',
+    group: G.shaped,
+    text: 'Renamed built-in blocks: lettered variants now use the book’s numbers (King’s Crown II, Hourglass II and III, Nine-Patch Variation I and II, Grandmother’s Own III and IV, Red Cross I, …). A project saved before with one of them (e.g. demo-v6.rrq if it uses one, or your own) still opens and the block stays a library block (it may offer the renamed version as an update).',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
