@@ -162,7 +162,8 @@ existing seam's midpoint; zoomed to 800% the ends coincide.
   Details and Print only (no Draw or Color: the banner's buttons make a version to change), Details is fixed except
   the quilter's tags, and techniques show as text with the reason (no checkboxes, as for color
   variants and read-only projects); a banner offers "Create a coloration variant" and "Edit (make a copy)". A project keeps one
-  coloration variant per library block: creating another opens the existing one (0.6.1, owner
+  coloration variant per library block: creating another adds a new coloring (a copy of the library
+  block's first) to the existing one and opens it there (0.6.1, owner
   2026-10-20).
 
 **Drawing (seam-line)**

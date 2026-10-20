@@ -91,29 +91,18 @@ export const CHECKS: Check[] = [
     to: '/dev/print',
   },
   {
-    id: 'TC-083',
-    group: G.small,
-    text: 'Project › Blocks tab: every block’s ⋮ menu (your own and library blocks) has Open in block editor right after Preview, then Print. Previews have Open in block editor (and Print on the Libraries page). Your own block opens to edit as before.',
-    to: '/',
-  },
-  {
-    id: 'TC-084',
+    id: 'TC-088',
     last: "The supposedly read only library blocks have checkable check boxes for techniques and stuff in the block detail tab. / Color variant details are also editable (techniques, efficiency shouldn't be). / Let's drop the design tab for library blocks like we do for color variation blocks. / Let's also hide the color tab when looking at a library block.",
     group: G.small,
     text: 'Open a library block in the block editor: a banner says it’s read-only and offers Create a coloration variant and Edit (make a copy). Its tabs are Details and Print only (no Draw or Color); it opens on Details. Details: title, author, license and notes fixed (tags still editable); Techniques and Efficiency show as text (or None marked) with a lock line saying why, no checkboxes. A color variant’s Details shows its techniques the same way.',
     to: '/',
   },
   {
-    id: 'TC-085',
+    id: 'TC-087',
     group: G.small,
-    text: 'Create a coloration variant of a library block twice (from the sketchbook menu or the editor banner): the second time opens the variant you already have instead of making another.',
+    last: "It opens up the coloration variant editor but didn't create a new variation, just opened to the existing one.",
+    text: 'Create a coloration variant of a library block, then ask for one again (sketchbook menu or the editor banner): the same variant opens with a new coloring added (a copy of the library block’s first coloring) and selected, ready to recolor. No second variant block appears in Blocks.',
     to: '/',
-  },
-  {
-    id: 'TC-086',
-    group: G.small,
-    text: 'Print in menus: a block’s menu › Print opens the block editor on its Print tab; a quilt’s menu (Quilts tab) › Print opens the quilt editor on Print. Libraries page: a block’s menu has Open in block editor and Print while a project is open (greyed, “Open a project first”, when none is).',
-    to: '/libraries',
   },
 ];
 

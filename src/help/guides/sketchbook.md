@@ -44,7 +44,7 @@ While a filter is on, blocks can't be moved earlier or later.
    category. Tick the ones to use in this project's quilts. You can't edit them directly. **Edit
    (make a copy)** makes your own copy, and **Create a coloration variant** keeps the drawing but
    lets you recolor it ([Block colorings](/help/guides/block-colorings)). A project has one
-   coloration variant per library block: asking again opens the one you have. **Open in block
+   coloration variant per library block: asking again adds a new coloring to the one you have. **Open in block
    editor** and **Print** show a library block in the block editor, read-only, with both of those
    buttons at the top. A quilt's menu has **Print** too.
 
