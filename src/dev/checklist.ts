@@ -90,25 +90,6 @@ export const CHECKS: Check[] = [
     text: 'Print P1 to P4: sheets as their checks say; cut sizes match the Help calculators.',
     to: '/dev/print',
   },
-  {
-    id: 'TC-079',
-    group: G.small,
-    last: 'We need a bit more spacing (maybe 0.25rem or something?)',
-    text: 'Libraries sidebar: libraries have room above and below the faint line between them; a web library’s buttons read All off · Get updates · Disconnect on one line.',
-    to: '/libraries',
-  },
-  {
-    id: 'TC-080',
-    group: G.tests,
-    text: 'Text you left next to a check that has since been removed is gone (it was addressed with that check): Copy results has no “?, somewhere” lines.',
-    to: '/dev/checklist',
-  },
-  {
-    id: 'TC-081',
-    group: G.small,
-    text: 'Color swap menus (a colorway’s mapping in Design › Colors, and the palette swap dialog): fold or unfold a library or palette, close the menu, open it again (or another row’s menu): it opens folded the way you left it. Only the very first opening folds things for you. Reloading the page starts fresh.',
-    to: '/',
-  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
