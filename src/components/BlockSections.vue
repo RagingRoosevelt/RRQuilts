@@ -17,6 +17,8 @@
         >
       </button>
     </h3>
+    <!-- The library's own actions (all its blocks), as each category has. -->
+    <slot v-if="title" name="actions" :blocks="sections.flatMap((x) => x.blocks)" />
     <q-btn
       v-if="sections.some((x) => x.label)"
       v-bind="

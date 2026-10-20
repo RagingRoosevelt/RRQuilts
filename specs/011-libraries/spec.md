@@ -34,7 +34,8 @@
 - Q: Which library items does a project's quilt editor offer? → A: The project's own blocks and
   colors always; library blocks and palettes only once picked (checkboxes in the project's Blocks
   tab, library blocks grouped by library then category with collapsible library/category/
-  subcategory sections; and in Fabrics & Colors, palettes listed per library). Picks are saved in
+  subcategory sections, each library, category and subcategory with a select-all checkbox (the
+  library's added 2026-10-20); and in Fabrics & Colors, palettes listed per library). Picks are saved in
   the project (`libraryBlocks`, `libraryPalettes`); blocks already placed stay available. Tray
   palettes are labelled "Palette · Library"; library colors in use outside picked palettes show
   under "In use". Block previews show a button per coloring to switch between them.
