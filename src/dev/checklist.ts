@@ -302,6 +302,12 @@ export const CHECKS: Check[] = [
     text: 'Fabrics travel with blocks (block files 3, library files 5): paint a block’s coloring with fabrics (your own and a library palette’s). Export the block (.rrqbl) and import it into another project: the fabric patches come back. Add the block to My library, then Make pack with it and add the pack elsewhere (or restore a backup): the fabrics are there too. Import blocks from another project file: same.',
     to: '/',
   },
+  {
+    id: 'TC-051',
+    group: G.shaped,
+    text: 'New quilt wizard: the Shaped Blocks card shows small triangle, diamond and hexagon badges in its top right corner (hover: Triangles, diamonds or hexagons); the cards keep one height.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
