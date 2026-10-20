@@ -115,7 +115,7 @@ export const CHECKS: Check[] = [
     id: 'TC-090',
     group: G.small,
     text: 'Settings › You › socials: add Threadloop by pasting https://threadloop.app/members/<name>: it becomes the handle, and its icon links back to that page (threadloop.app/members/…). Printables (printables.com/@name) and Ravelry (ravelry.com/people/name) links reduce to handles too.',
-    to: '/settings',
+    to: '/',
   },
 ];
 
