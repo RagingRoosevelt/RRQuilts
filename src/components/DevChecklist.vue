@@ -17,12 +17,12 @@
         <small>{{ g.checks.filter((c) => state[stateKey(c)]).length }}/{{ g.checks.length }}</small>
       </h2>
       <!-- A line with a + between checks (on hover; always on touch) adds a block of text there. -->
-      <template v-for="{ before, c } in slotsOf(g)" :key="before || 'end'">
+      <template v-for="{ before, c } in slotsOf(g)" :key="before">
         <div class="gap">
           <button
             type="button"
             class="add"
-            :aria-label="before ? `Add text before ${before}` : 'Add text at the end'"
+            :aria-label="`Add text ${where(before).toLowerCase()}`"
             @click="addNote(before)"
           >
             <q-icon name="add" size="14px" />
@@ -146,11 +146,12 @@ const groups = computed(() => {
   return out;
 });
 
-/** Gaps to add text in: before each check, and after the last check of the last group. */
+/** Gaps to add text in: before each check, and after the last check of each group. */
 const slotsOf = (g: { checks: Check[] }) => [
   ...g.checks.map((c) => ({ before: c.id, c })),
-  ...(g === groups.value.at(-1) ? [{ before: '', c: undefined }] : []),
+  { before: `after:${g.checks.at(-1)!.id}`, c: undefined },
 ];
+const where = (b: string) => (b.startsWith('after:') ? `After ${b.slice(6)}` : `Before ${b}`);
 const notes = ref<ChecklistNote[]>(loadNotes());
 /** The note just added (it takes the focus). */
 const fresh = ref<string | null>(null);
@@ -202,7 +203,6 @@ function copyResults() {
     ['Works', by('ok').map(line)],
     ['Not tested', by('').map(line)],
   ] as const;
-  const where = (b: string) => (b ? `Before ${b}` : 'At the end');
   const texts = notes.value
     .filter((n) => n.text.trim())
     .map((n) => `- ${where(n.before)}: ${n.text.trim().replace(/\n/g, '\n  ')}`);

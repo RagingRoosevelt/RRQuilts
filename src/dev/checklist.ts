@@ -268,7 +268,8 @@ export function saveChecks(state: Record<string, CheckState>) {
   }
 }
 
-/** Free text the tester puts between checks: before check `before` (TC-###; '' = after the last). */
+/** Free text the tester puts between checks: before check `before` (TC-###), or at the end of a
+ *  group (`after:TC-###`, its last check). */
 export interface ChecklistNote {
   id: string;
   before: string;
@@ -279,14 +280,17 @@ export function loadNotes(): ChecklistNote[] {
   try {
     const raw = JSON.parse(localStorage.getItem(NOTES_KEY) ?? '[]') as unknown;
     return Array.isArray(raw)
-      ? raw.filter(
-          (n): n is ChecklistNote =>
-            !!n &&
-            typeof n === 'object' &&
-            typeof (n as ChecklistNote).id === 'string' &&
-            typeof (n as ChecklistNote).before === 'string' &&
-            typeof (n as ChecklistNote).text === 'string',
-        )
+      ? raw
+          .filter(
+            (n): n is ChecklistNote =>
+              !!n &&
+              typeof n === 'object' &&
+              typeof (n as ChecklistNote).id === 'string' &&
+              typeof (n as ChecklistNote).before === 'string' &&
+              typeof (n as ChecklistNote).text === 'string',
+          )
+          // '' was the end of the list before each group had its own end.
+          .map((n) => (n.before ? n : { ...n, before: `after:${CHECKS.at(-1)!.id}` }))
       : [];
   } catch {
     return [];
