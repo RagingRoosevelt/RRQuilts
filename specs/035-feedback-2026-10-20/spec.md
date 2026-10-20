@@ -82,6 +82,9 @@ Today, adding a fabric image to a palette under a name already in that palette a
    for updates), its buttons on one line (TC-079).
 6. Tests › Checklist: text left by a removed check is dropped with it (a check is removed once its
    round is addressed), so Copy results never says "?, somewhere" (TC-080).
+7. Color swap menus (colorway mapping, palette swap) keep which libraries and palettes are folded
+   between openings, shared by all rows, until the page reloads; only the first opening folds for
+   the quilter (TC-081).
 
 ## Assumptions
 
