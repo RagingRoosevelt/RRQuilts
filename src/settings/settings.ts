@@ -24,9 +24,13 @@ export interface Settings {
   /** Quilt editor Design sidebar: last tab. */
   trayTab: 'blocks' | 'colors';
   /** Libraries page: blocks in sections by category, tag, or style. */
-  libraryGroupBy: 'none' | 'category' | 'tags' | 'styles';
+  libraryGroupBy: 'none' | 'category' | 'tags' | 'techniques';
+  /** Quilt editor block sidebar: only blocks the quilt's layout takes. */
+  compatibleBlocks: boolean;
   /** Project (sketchbook) page: last tab. */
   projectTab: 'quilts' | 'blocks' | 'colors' | 'photos' | 'threads' | 'details';
+  /** Id of the project opened last: reopening it keeps `projectTab`, another starts fresh. */
+  lastProject: string;
   /** Your socials (GitHub, a pattern shop, …): a known or free-text type and a handle (or link). */
   socials: Social[];
   /** Project Blocks / Palettes tabs leave out the library lists (Settings › Project). */
@@ -98,7 +102,9 @@ export const defaults = (): Settings => ({
   hideLibraryBlocks: false,
   hideLibraryPalettes: false,
   hideSyncedMine: true,
+  compatibleBlocks: true,
   projectTab: 'quilts',
+  lastProject: '',
   print: {},
   fabricImages: 'standins',
   showHelp: true,
@@ -142,7 +148,8 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   sidesSwapped: (v) => typeof v === 'boolean',
   osAccent: (v) => typeof v === 'boolean',
   trayTab: (v) => v === 'blocks' || v === 'colors',
-  libraryGroupBy: (v) => v === 'none' || v === 'category' || v === 'tags' || v === 'styles',
+  // 'styles' (before spec 029) falls back to the default.
+  libraryGroupBy: (v) => v === 'none' || v === 'category' || v === 'tags' || v === 'techniques',
   libraryType: (v) => v === 'block' || v === 'colors' || v === '',
   socials: (v) =>
     Array.isArray(v) &&
@@ -162,6 +169,8 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   projectTab: (v) =>
     typeof v === 'string' &&
     ['quilts', 'blocks', 'colors', 'photos', 'threads', 'details'].includes(v),
+  compatibleBlocks: (v) => typeof v === 'boolean',
+  lastProject: (v) => typeof v === 'string' && v.length <= 200,
   print: (v) => isObject(v),
   fabricImages: (v) => v === 'standins' || v === 'blank' || v === 'colors',
   showHelp: (v) => typeof v === 'boolean',
@@ -219,6 +228,14 @@ export function saveSettings(
   } catch {
     return false;
   }
+}
+
+/** Opening project `id`: the same one again keeps the tab it was left on; another starts on its
+ *  quilts, or its blocks if it has none. */
+export function openedProject(s: Settings, id: string, hasQuilts: boolean) {
+  if (s.lastProject === id) return;
+  s.lastProject = id;
+  s.projectTab = hasQuilts ? 'quilts' : 'blocks';
 }
 
 export const toConf = (settings: Settings, app: string): ConfDoc => ({

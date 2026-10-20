@@ -3,6 +3,7 @@ import { arrange, type Face, type InputSeg } from '../geometry/arrangement';
 import type { Pt, Seg } from '../geometry/path';
 import type { Drawing } from '../schema/block';
 import type { Path, PathCommand } from '../schema/shared';
+import { SHAPE_OUTLINE, type BlockShape } from './shape';
 
 export interface DerivedPatch {
   path: Path;
@@ -17,19 +18,30 @@ export interface Derivation {
 }
 
 const OUTLINE = ['#top', '#right', '#bottom', '#left'];
+const SQUARE: [number, number][] = [
+  [0, 0],
+  [1, 0],
+  [1, 1],
+  [0, 1],
+];
 
 /** Tolerance in design units: well below anything a quilter can cut or see. */
 export const epsFor = (size: [number, number]) => 1e-6 * Math.max(size[0], size[1]);
 
-export function deriveSeamPatches(drawing: Drawing, size: [number, number]): Derivation {
+/** `shape`: a shaped block's outline (spec 026); absent = the square. */
+export function deriveSeamPatches(
+  drawing: Drawing,
+  size: [number, number],
+  shape?: BlockShape,
+): Derivation {
   const [w, h] = size;
   const toDesign = (x: number, y: number): Pt => [x * w, y * h];
   const nodes = new Map(drawing.nodes.map((n) => [n.id, toDesign(n.x, n.y)]));
-  const corners: Pt[] = [toDesign(0, 0), toDesign(1, 0), toDesign(1, 1), toDesign(0, 1)];
+  const corners: Pt[] = (shape ? SHAPE_OUTLINE[shape] : SQUARE).map(([x, y]) => toDesign(x, y));
 
   const input: InputSeg[] = corners.map((a, i) => ({
-    id: OUTLINE[i] ?? '#',
-    seg: { kind: 'line', a, b: corners[(i + 1) % 4]! },
+    id: (shape ? `#${i}` : OUTLINE[i]) ?? '#',
+    seg: { kind: 'line', a, b: corners[(i + 1) % corners.length]! },
     outline: true,
   }));
   const broken: string[] = [];

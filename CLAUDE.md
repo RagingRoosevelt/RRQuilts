@@ -38,10 +38,35 @@ like sketchbook/worktable are fine).
 - Only our own formats (`.rrq*`); other quilt software formats are deliberately unsupported.
 - All formats carry `{ "format": ..., "version": N }`. Bump `version` + add a migration
   for any schema change. Treat loaded files as untrusted: validate, never crash.
+- A new `.rrqlib` (or index) version must also go into the library template
+  (`~/Code/rrquilts-library-template`, `tools/common.py` `FORMATS`, plus build/validate for new
+  fields): library repos' weekly check sees the app's `formats.json` and `tools/upgrade.py` pulls
+  the template's tools. Then upgrade our own library repos (`libraries/<maker>`,
+  `~/Code/rrquilts-fractal-blocks` (RagingRoosevelt's Novelty, RagingRoosevelt/rrquilts-novelty-blocks, offered
+  in `bundled_libraries.json`; the fabric brands wait in `bundled_libraries.json.draft`)).
+- `test/fixtures/formats/`: one sample per released format version (`<format>-v<N>.<ext>`), opened
+  by a test; `demo-vN.rrq` = a demo project with a quilt per layout capability each version added
+  (`write-demo.spec.ts`), `demo-vN/` = PNGs of its quilts and blocks drawn by that release
+  (`scripts/format-images.py`). A release that ships a new format version adds them (`scripts/release.md`).
+- **Tests tab** (testing aids, `make dev` only; first tab **Checklist**: `dev/checklist.ts` manual checks shown as
+  `<build>-TC-###` (build = version + commit after the release, from a dev-only `__dev/build` endpoint reading .git), Not tested / Works / Needs iteration / Problem with notes, sample files to download; progress per release line in localStorage `rrq.dev.checklist` (apart from
+  app data), text blocks between checks (+ in each gap, `rrq.dev.checklist.notes`), **Copy results** for pasting back; add checks for new features; a check for a fix or a reworked check gets a new id and quotes the owner's note in `last`; checks that worked are removed after a round; route and nav behind `import.meta.env.DEV`;
+  `make build` fails if any of it reaches `docs/`): `pages/DevPage.vue` + `src/dev/`.
+  **Layout gallery** (`/dev/gallery`): `dev/variations.ts` = quilts per layout and setting with
+  blocks/solids/mixes (`dev/fill-quilt.ts`), each with what it should show, drawn live with seams;
+  **newest first, new ids (G###) on top** whenever a feature adds a layout capability or setting.
+  **Picture check** (`/dev/pictures`): each demo sample drawn now vs its release PNGs, with
+  differences and reference labels (v6.07). Also **Borders** (every style, generated from
+  `BORDER_STYLE_NAMES` in `model/layout/borders.ts`), **Sweeps** (`dev/sweeps.ts`: one setting
+  stepped through its range), **Extremes** (`dev/extremes.ts`, with build/draw times), **Blocks**
+  (every built-in block, named), **Print** (`dev/print-examples.ts`: PrintPreview with a `doc` prop
+  for gallery quilts). Each quilt builds as its own project when its card scrolls into view (`dev/build.ts` `buildOne`, `DevQuiltCards.vue` with `q-intersection once`, as the project block list); blocks draw the same way. Point the owner to them (localhost:9000/RRQuilts/dev/…)
+  before releases and after format/layout/drawing changes; never publish them.
 
 ## Rules
 
-- No server calls, no runtime CDN/font fetches — everything bundled and precached.
+- No server calls, no runtime CDN/font fetches — everything bundled and precached. Exceptions,
+  user-initiated only: resource repositories, and Open from a gist (`storage/gist.ts`, GitHub API).
 - History-mode routing (clean URLs). Deep links rely on SPA fallbacks: `docs/404.html`
   copy of `index.html` (Pages), `try_files` (nginx), Workbox `navigateFallback` (SW).
 - Warn before discarding unsaved work; SW update prompts, never auto-reloads.
@@ -93,7 +118,7 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over `RrqDoc`.
 
 - `schema/` — TypeBox schemas = TS types + validation + published JSON Schema
-  (`public/schemas/rrq.v6.json`; regenerate with `npm run schema`, a test fails on drift)
+  (`public/schemas/rrq.v8.json`; regenerate with `npm run schema`, a test fails on drift)
 - `io.ts` — `parseProject` (JSON → migrate → validate → duplicate ids → dangling refs + asset
   hashes reported), `serializeProject`. New version: bump `VERSION`, add `migrations[old]`.
 - `units.ts` — only real lengths scale; block geometry is normalized 0…1
@@ -108,7 +133,9 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - `layout/` — one engine: `engine.ts` `tile(Tiling)` = bands of a repeating cell stepped by a, b, one
   affine `map`, `merges` (triangle grids), `clip` to the quilt (`clip.ts`, curved outlines too);
   `presets.ts` (`horizontal`, `onPoint`, `strips`, spec 018 `variablePoint`, `onePatch`, `tumbling`;
-  `patternBands` = strip patterns shared with pieced borders in `borders.ts`) return a `Tiling`; `strips.ts` strip ops (add/insert/
+  `patternBands` = strip patterns shared with pieced borders in `borders.ts`; spec 026 `asBlocks` turns
+  patches into shaped block spaces for `shapedBlocks`, Baby Blocks and Diamond Point, `flowTiling` =
+  flow angle) return a `Tiling`; `strips.ts` strip ops (add/insert/
   delete/swap/set, square fixes); `slots.ts` `Slot` has kind/shape/turns/
   alt/size/cut, `Generated` has edge/trim; `reconcile`/`applyLayout`/`convertLayout` on changes. Add
   a style = a preset + its id grammar in `specs/003-project-format/contracts/slot-ids.md`; test-only
@@ -131,13 +158,24 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - `src/editor/` — `actions.ts` (pure: tap + tool → new doc), `scope.ts` (This/All/Alternate),
   `undo.ts` (Immer patch history), `color.ts`/`colors.ts`
 - `src/stores/editor.ts` — session tool/mode/scope/selection/view state
-- Plain sashes/cornerstones/borders use the hidden `plain` block (`src/model/plain.ts`)
+- Plain sashes/cornerstones/borders use the hidden `plain` block (`src/model/plain.ts`); so does a
+  painted empty block space (spec 026)
+- Shaped blocks (spec 026): `src/model/blocks/shape.ts` (triangle / diamond60 / hexagon: outline in
+  the size's unit square, leg↔size, `shapeOrient` turns, `fitShape` onto a space, triangle `lattice`);
+  `block.shape` fixed at creation; placement/derive/snap take it; Set matches shapes (`takesBlock`).
+  Starter shaped blocks: `content/shaped*.ts` (pieces in side-1 centered coordinates; curves as seams + points in `shaped-curves.ts`), filed by block type. Sidebar block filter: `BlockFilter.vue` + `render/layout-samples.ts` (wizard pictures, `blockFits`)
 - Starter blocks/colors: `src/content/starter.ts` (+ `grid.ts` grid-piece helpers, `four-patch.ts`, `five-patch.ts`, `seven-patch.ts`, `nine-patch.ts`, `letters.ts`, `strips.ts`, `medallions.ts`; `palette-colorings.ts` = each block recolored per themed palette) → built-in library (`builtinLibrary()`, ids
   `rrquilts.<name>`, deterministic inner ids so versions are stable), loaded at boot into
   `stores/library.ts`; `addStarterContent` only for tests
 - Library items (spec 008, `src/model/library-items.ts`): `isLibraryItem` = has `source`, not
   `derived` → read-only. `project.change` runs `syncDraft` every edit: embeds referenced library
   blocks/colors, prunes unused ones (same undo step). `splitItems` = Mine vs Library for display
+- Tags and technique (spec 029, `model/tags.ts`): notecard `techniques` (fixed list, author's) replaced
+  free-text `styles` (`upgradeNotecards` upgrade in every parser and stored libraries); tags are the
+  quilter's: on own items in the notecard, on others' in My library `annotations` (by item id; packs and
+  `.rrqbl` exports drop tags); tag list = tags in use, `system` hidden. `model/blocks/construction.ts`
+  reads curved/set-in seams, pieces, narrowest piece, difficulty from the drawing (Construction filters).
+  `components/TagsDialog.vue` (tags only: Libraries, Blocks tab); technique = Needs/Efficiency checklists in block Details (`TECHNIQUE_GROUPS`, never applied by the app); ⭐ `FAVORITE` tag always first, `FavoriteBadge.vue` on cards
 - Identity (`src/model/identity.ts`): shareable ids `<author-slug>.<random>`; `version` = 12-hex
   content hash (sizes hashed in inches), `revision` display counter; stamped on save
 - `.rrqbl` single-block files: `src/model/block-file.ts`; `.rrqplt` single palette (color-collection) files (spec 011;
@@ -164,6 +202,8 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   `topics.ts` loads them (bundled, offline); `calc.ts` calculators run the print code (`cutFor`,
   `yardage.ts`) so help math matches printouts. `pages/HelpPage.vue` at `/help/<section>/<topic>`;
   `components/HelpLink.vue` = "?" links from editors/print. A test checks calc names and topic links
+- Help › About › Roadmap (`about/roadmap.md`): the owner's picks of backlog specs per target version (their
+  tracker: `~/Obsidian/NotesVault/Projects/RRQuilts_todo.md`, Roadmap candidates); update it at each release
 
 ## Fabric images (spec 014)
 

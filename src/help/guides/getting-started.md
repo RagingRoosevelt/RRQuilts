@@ -56,6 +56,14 @@ The round save button in the header has a small colored dot:
 
 - On the home page choose **Open a project file** and pick a `.rrq` file, or drag a `.rrq` file
   onto the window.
+- **Open from a gist** opens a project someone shared as a GitHub gist. Paste the gist's link. The
+  app shows the gist's name and the GitHub account that shared it, and the project opens when you
+  choose **Open**. If the gist has more than one `.rrq` file, pick the one to open. This needs an internet connection, and
+  saving makes a file of your own (nothing is sent back to the gist).
+- To share a project as a link, put it in a GitHub gist and add the gist's link after
+  `?open_gist=` on the app's address, for example
+  `https://ragingroosevelt.github.io/RRQuilts/?open_gist=https://gist.github.com/you/1234abcd…`.
+  Opening the link shows the gist's name and owner, and asks before it opens the project.
 - **Recent projects** lists your latest ones. Click one to open it. This needs a browser that can reopen
   files, such as Chrome, Edge, or another Chromium-based browser on a computer ({{yours:file-access}}).
   Unsaved work is listed there too, in every browser.
@@ -73,7 +81,7 @@ is crash insurance and not a save, because clearing site data can erase it.
    is listed as **Not saved to a file yet**. Click it to open it, or the bin to discard it.
 2. Clicking a recent project that has unsaved changes asks whether to open those changes or the
    saved file. Opening the file discards the changes.
-3. **Restore unsaved project** on the home page also lists all unsaved work.
+3. **Restore unsaved project**, below the recent projects on the home page, also lists all unsaved work.
 4. Once it's open, press save to put the work in a file.
 
 ## Offline use

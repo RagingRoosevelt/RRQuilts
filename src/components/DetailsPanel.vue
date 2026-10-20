@@ -129,6 +129,72 @@
       @blur="(e: Event) => set('notes', (e.target as HTMLInputElement).value, true)"
     />
 
+    <!-- The quilter's tags (spec 029) and the library category it's filed under (spec 035 E). -->
+    <template v-if="block">
+      <q-select
+        :model-value="blockTags"
+        label="Tags"
+        hint="Your own words for finding it. Only you see them."
+        :options="tagOptions"
+        :option-label="tagLabel"
+        dense
+        outlined
+        multiple
+        use-chips
+        use-input
+        hide-dropdown-icon
+        input-debounce="0"
+        new-value-mode="add-unique"
+        :readonly="ro"
+        @update:model-value="(v: string[]) => setBlockTags(v ?? [])"
+      />
+      <div class="row items-center no-wrap" style="gap: 8px">
+        <div class="col">
+          <div class="text-subtitle2">Category</div>
+          <div class="text-body2">
+            {{ libraryEntry ? libraryEntry.path || 'Uncategorized' : 'Not in a library' }}
+          </div>
+          <div v-if="!libraryEntry" class="text-caption text-grey-7">
+            Add it to My library (sketchbook) to file it in a category.
+          </div>
+          <div v-else-if="!libraryEntry.mine" class="text-caption text-grey-7">
+            Filed by its library ({{ libraryEntry.library }}).
+          </div>
+        </div>
+        <q-btn
+          v-if="libraryEntry?.mine && !ro"
+          flat
+          dense
+          no-caps
+          icon="folder"
+          label="Change…"
+          @click="changeCategory"
+        />
+      </div>
+    </template>
+
+    <!-- Techniques (spec 029): ticked = in the block's data. The quilter's own blocks, copies they
+         edit included, can change them; a library block or a color variation shows them greyed,
+         with a tooltip saying why. -->
+    <div v-if="block" class="column" style="gap: 8px">
+      <div v-for="g in TECHNIQUE_GROUPS" :key="g.label">
+        <div class="text-subtitle2">{{ g.label }}</div>
+        <div class="text-caption text-grey-7">{{ g.hint }}</div>
+        <q-checkbox
+          v-for="t in g.techniques"
+          :key="t"
+          dense
+          class="q-mr-md q-mt-xs"
+          :label="techniqueName(t)"
+          :disable="!!techniqueLock"
+          :model-value="(block.notecard.techniques ?? []).includes(t)"
+          @update:model-value="(on: boolean) => setTechnique(t, on)"
+        >
+          <q-tooltip v-if="techniqueLock">{{ techniqueLock }}</q-tooltip>
+        </q-checkbox>
+      </div>
+    </div>
+
     <div v-if="quilt" class="row items-center" style="gap: 8px">
       <q-btn outline no-caps icon="download" label="Download image" @click="downloadImage" />
       <div v-if="quilt.target?.visible" class="text-caption text-grey-7 col">
@@ -176,6 +242,7 @@
 <script setup lang="ts">
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import { saveQuiltImage } from '@/render/save-image';
+import { TECHNIQUE_GROUPS, TECHNIQUES, type Technique } from '@/model/schema/shared';
 import { useLibraryStore } from '@/stores/library';
 // Details tab (spec 009): title, notes, author, license, and who to credit — for the project, a
 // quilt, or a block. Each field is its own coalesced undo step.
@@ -192,9 +259,13 @@ import {
   quiltLock,
 } from '@/model/credits';
 import { isLibraryItem } from '@/model/library-items';
+import { setCategory } from '@/model/library';
+import { cleanTags, sortTags, tagLabel, tagsFor, visibleTags } from '@/model/tags';
+import { useAskCategory } from '@/composables/category';
 import type { LibraryRef, Units } from '@/model/schema/project';
 import type { Credit } from '@/model/schema/shared';
 import { convertUnits } from '@/model/units';
+import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -230,13 +301,106 @@ const item = computed(() => {
   );
 });
 
+/** The block (Details of a block): its technique. */
+const block = computed(() =>
+  props.kind === 'block' && target.value && 'size' in target.value ? target.value : undefined,
+);
+const techniqueName = (t: Technique) => TECHNIQUES[t];
+function setTechnique(t: Technique, on: boolean) {
+  project.change((d) => {
+    const b = d.project.blocks.find((x) => x.id === props.id);
+    if (!b) return;
+    const have = new Set(b.notecard.techniques ?? []);
+    if (on) have.add(t);
+    else have.delete(t);
+    // In list order, so the same choice is always stored the same way.
+    const list = (Object.keys(TECHNIQUES) as Technique[]).filter((x) => have.has(x));
+    if (list.length) b.notecard.techniques = list;
+    else delete b.notecard.techniques;
+  });
+}
 /** The quilt (Details of a quilt): its picture can be downloaded. */
 const quilt = computed(() =>
   props.kind === 'quilt' && target.value && 'layout' in target.value ? target.value : undefined,
 );
-/** A PNG of the quilt; the reference overlay only when it's switched on in Layout. */
-const downloadImage = () => quilt.value && saveQuiltImage(project.doc!, quilt.value, true);
+/** A PNG of the quilt; the reference overlay only when it's switched on in Layout, seam lines when
+ *  the editor shows them. */
+const downloadImage = () =>
+  quilt.value && saveQuiltImage(project.doc!, quilt.value, true, useEditorStore().outlines);
 const credits = computed(() => (target.value ? priorCredits(target.value) : []));
+/** Why the block's techniques can't be changed here (none: they can). */
+const techniqueLock = computed(() => {
+  const b = block.value;
+  if (!b) return '';
+  if (ro.value) return 'This project is open read-only.';
+  if (isLibraryItem(b))
+    return 'A library block keeps its designer’s techniques. Edit a copy to change them.';
+  if (b.colorVariant) return 'A color variation has the techniques of the block it recolors.';
+  return '';
+});
+// --- Tags and category (spec 035 E) ---
+const blockTags = computed(() => {
+  const b = block.value;
+  if (!b) return [];
+  return isLibraryItem(b)
+    ? tagsFor(b.notecard.tags, [b.id], libStore.kept)
+    : visibleTags(b.notecard.tags);
+});
+const tagOptions = computed(() =>
+  sortTags(
+    cleanTags([
+      ...libStore.tagVocabulary,
+      ...(project.doc?.project.blocks ?? []).flatMap((x) => visibleTags(x.notecard.tags)),
+    ]),
+    true,
+  ),
+);
+function setBlockTags(tags: string[]) {
+  const b = block.value;
+  if (!b) return;
+  const clean = cleanTags(tags, tagOptions.value);
+  if (isLibraryItem(b)) return void libStore.setTags(me.value, b.id, clean);
+  project.change((d) => {
+    const x = d.project.blocks.find((y) => y.id === b.id);
+    if (!x) return;
+    // The app's own tags (the plain block's) stay as they are.
+    const internal = (x.notecard.tags ?? []).filter((t) => !visibleTags([t]).length);
+    const next = [...internal, ...clean];
+    if (next.length) x.notecard.tags = next;
+    else delete x.notecard.tags;
+  });
+}
+/** The library item it is, or is a linked copy of (My library), and that item's category. */
+const libraryEntry = computed(() => {
+  const b = block.value;
+  if (!b) return undefined;
+  const linked = b.source?.derived && b.source.libraryId === libStore.mine?.id;
+  const id = isLibraryItem(b) ? b.id : linked ? b.source!.itemId : undefined;
+  if (!id) return undefined;
+  for (const v of libStore.allViews) {
+    const item = v.doc.items.find((i) => i.data.id === id);
+    if (!item) continue;
+    const cats = new Map(v.doc.categories.map((c) => [c.id, c]));
+    const c = item.category ? cats.get(item.category) : undefined;
+    const parent = c?.parent ? cats.get(c.parent) : undefined;
+    return {
+      id,
+      mine: v.doc.kind === 'personal',
+      library: v.doc.name,
+      category: item.category ?? '',
+      path: c ? (parent ? `${parent.name} › ${c.name}` : c.name) : '',
+    };
+  }
+  return undefined;
+});
+const askCategory = useAskCategory();
+async function changeCategory() {
+  const e = libraryEntry.value;
+  if (!e?.mine) return;
+  const v = await askCategory('Category', e.category, 'block');
+  if (v === null) return;
+  await libStore.saveMine(setCategory(libStore.ensureMine(me.value), e.id, v));
+}
 const others = computed(() =>
   props.kind === 'quilt' && project.doc && target.value && 'layout' in target.value
     ? blocksByOthers(project.doc, target.value, me.value)

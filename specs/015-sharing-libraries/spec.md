@@ -184,7 +184,7 @@ A library maintainer publishes a repository, its releases, and a gallery page.
 - **FR-013**: Backups and restores MUST behave as US4; images MUST be freed as US5.
 - **FR-014**: Make pack MUST take links and the items to include (US6).
 - **FR-015**: Imported libraries without a connection MUST have All off and Remove; web libraries
-  All off, Check for updates, and Disconnect.
+  All off, Get updates, and Disconnect.
 - **FR-017**: A pack file MUST carry its fabric images (a zipped `.rrqlib`, as backups are), so a
   palette with fabrics arrives complete. *Not yet built: packs are written as plain JSON without
   images (found 2026-10-15).*

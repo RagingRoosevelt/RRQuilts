@@ -14,17 +14,29 @@ across the whole project.
 
 1. Choose **New quilt** to open the wizard (see [Getting started](/help/guides/getting-started)), or
    click a quilt's picture to open it.
-2. Use the three-dot **Actions** menu on a card for **Open**, **Duplicate as variation** (a copy to
+2. **Import quilts** reads another project file (`.rrq`). Tick the quilts to add to this project.
+   The blocks, colors and fabrics they use come with them. Anything already here is shared, and a
+   block that differs from your version of it comes in as a copy. Undo removes
+   the whole import.
+3. Use the three-dot **Actions** menu on a card for **Open**, **Create copy** (a copy to
    try other colors on), **Details**, **Move earlier**, **Move later**, and **Delete** (you can undo).
-3. Drag cards to reorder them.
+4. Drag cards to reorder them.
 
 ## Blocks
 
 **My blocks** are the blocks stored in this project.
 
+The sidebar beside the blocks (on a phone, the **Filters** button) works as on the Libraries page: a search of names and notes, **Metadata**
+(**Category**, **Tags**, **Technique**), **Shape** (**Fits layout**, for blocks that fit a quilt
+layout's spaces, and **Shape**) and **Construction** (**Seams**, **Difficulty**). They narrow
+both My blocks and Library blocks. **Group library blocks by** sorts library blocks into sections by
+category, tag or technique, and the contents list below it jumps to My blocks or a library section.
+See [Libraries](/help/guides/libraries) for tags, technique and construction.
+While a filter is on, blocks can't be moved earlier or later.
+
 1. **New block** asks for a name and opens the block editor ([Drawing blocks](/help/guides/drawing-blocks)).
 2. **Import blocks** reads blocks from a `.rrqbl` file or from another project. Tick the ones to add.
-3. A block's **Actions** menu offers **Edit**, **Edit a copy**, **Preview**, **Details**,
+3. A block's **Actions** menu offers **Edit**, **Edit a copy**, **Preview**, **Details**, **Tags…**,
    **Export (.rrqbl)**, **Move earlier / later**, **Delete**, plus **Add to my library…** or **Sync to my library** for the My library
    links. Small icons on a card show that the block is
    placed in a quilt, is in My library, or has changed since it was saved there.

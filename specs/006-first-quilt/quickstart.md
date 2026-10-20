@@ -22,7 +22,7 @@ Manual (`make dev`; desktop and a tablet if available):
    redoes; buttons in the mode bar match.
 8. **Canvas**: wheel zoom at the cursor, right-drag or Pan tool to move, Fit button; on a tablet
    pinch and two-finger pan; hover shows the space size; finished/center size always shown.
-9. **Sketchbook**: quilt cards with thumbnails; Duplicate as variation → "Quilt 1 (2)" opens;
+9. **Sketchbook**: quilt cards with thumbnails; Create copy → "Quilt 1 (2)" opens;
    Notecard edit; Move earlier/later and drag; delete a quilt (undo restores); delete a block that
    is in use → refused with the quilt names.
 10. **Save/reopen**: Ctrl+S, reload, reopen from Recent → everything as left.

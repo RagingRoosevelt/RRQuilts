@@ -13,26 +13,59 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
 ## Browse
 
 1. Choose **Libraries** in the header.
-2. In the **Libraries** list on the side (the menu button on phones), each library has a switch.
+2. In the **Libraries** list on the side (the **Filters** button on phones), each library has a switch.
    Libraries and packs that are off stay out of this page and your projects' trays and pickers
    (click an off pack's name to look at it). Click a library's name to
    show only it, and **Show all libraries** to see them all again. **Find a pack** at the top
    searches every library's packs. A library of packs has **All off** under its name, and
-   **Check for updates** and **Disconnect** when it's from the web (**Remove** when imported). Its arrow folds the list of packs away.
+   **Get updates** and **Disconnect** when it's from the web (**Remove** when imported). Its arrow folds the list of packs away.
    If the open project uses colors or fabrics from a library you switch off, you can **Swap…** them
    for others (in the project's **Palettes** tab), **Copy to My library** to keep them, or
    **Cancel**.
-3. Use **Type** to show **Blocks**, **Palettes** or **All**, the search box, and the **Category**,
-   **Tags** and **Styles** filters. The filters offer only what the shown type uses.
+3. Use **Type** to show **Blocks**, **Palettes** or **All**, then the search box. Under **Metadata**,
+   the **Category**, **Tags** and **Technique** filters offer only what the shown type uses. In
+   **Blocks**, **Shape** has **Fits layout** (blocks that fit a quilt layout's spaces) and **Shape**,
+   and **Construction** has **Seams** and **Difficulty** (see below).
 4. In **Blocks**, use **Group blocks by** to arrange blocks by **Nothing**, **Category**, **Tags** or
-   **Styles**.
-5. Open an item's **Actions** menu for **Preview**, **Rename…**, **Category…**, **Tags & styles…**, **Copy to my library** or **Export (.rrqbl)**. Palettes use **Export (.rrqplt)** instead, and their files carry their fabric images.
+   **Technique**. The contents list below takes the same name.
+5. Open an item's **Actions** menu for **Preview**, **Tags…**, **Rename…**, **Category…**, **Copy to my library** or **Export (.rrqbl)**. Palettes use **Export (.rrqplt)** instead, and their files carry their fabric images.
 6. Click a palette, or one of its swatches, to see its colors and fabrics large. In your own
    palettes, **+** adds a color, the picture button adds fabric images, and you can drop image files
    on a palette or on this view. Click a name to rename it, then the check mark to save. **Change
    color** and the bin are under the name.
 
 Pack items cannot be renamed or changed. Use **Copy to my library** and edit the copy. The copy keeps credit for the original author ([Credits and licenses](/help/guides/credits-and-licenses)).
+
+## Tags and technique
+
+**Tags** are your own words for finding things, such as _Christmas_, _scraps_ or _for Mum_. You can
+tag any block or palette, including built-in ones and those in packs: choose **Tags…** in its
+**Actions** menu. Tags on your own items are saved with them. Tags on other people's items are kept
+in My library, so they are part of your backups, and they come back if you remove a pack and add it
+again later. When you remove a pack whose items you tagged, you are asked whether to keep those
+tags. Tags on items you no longer have are listed at the top of this page, with **Remove them**.
+
+Tags stay yours: packs you make and block files you export leave them out. Suggestions while you
+type come from the tags you already use, and a tag that differs only in capital letters joins the
+one you have.
+
+**Technique** is what a block's designer marks it with, in its **Details** tab (your own blocks
+only). **Techniques** says what it takes beyond ordinary machine piecing: **Foundation paper piecing**,
+**Appliqué** or **Hand sewing**. **Efficiency** says which faster methods it suits: **Strip
+piecing**, **Quick units** (half-square triangles, quarter-square triangles or flying geese made
+several at a time) or **Stitch and flip** (corners sewn on and flipped). A block with no technique is
+ordinary machine piecing. The **Technique** filter lists them under the same two headings.
+
+**⭐ Favorite** is always first in the tag list, ready to use. Blocks you mark Favorite show a star
+in the top right of their picture.
+
+**Construction** filters read each block's drawing:
+
+- **Seams**: **Straight seams only**, **Curved seams**, or **Set-in seams** (a block that can't be
+  put together with straight seams right across each part needs a set-in or partial seam).
+- **Difficulty**: **Beginner** has straight seams, at most 16 pieces, and no piece narrower than
+  1½ in. **Advanced** has curved or set-in seams, more than 49 pieces, or a piece narrower than
+  ¾ in. Everything else is **Intermediate**.
 
 ## Put a project block or palette in My library
 
@@ -107,7 +140,7 @@ Libraries can also live in a git repository, such as one on GitHub.
    filled in, and asks before connecting.
 3. Open the library's name in the side panel and switch on the packs you want. Each pack downloads
    when you first switch it on, with images at the size set in **Settings › Fabrics**.
-4. Click **Check for updates** under the library's name. Before anything changes you see which colors and
+4. Click **Get updates** under the library's name. Before anything changes you see which colors and
    fabrics in your packs are new, removed or changed, and any packs the library no longer has.
    **Update** downloads the new versions and removes what the library dropped (projects keep what
    they use). **Skip this update** waits for the next one. **Cancel** decides later.

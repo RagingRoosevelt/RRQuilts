@@ -2,6 +2,47 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.6.0 (2026-10-20)
+
+### New features
+
+- 21 new 60° triangle blocks in the built-in library, for Shaped Blocks quilts.
+- A new library, RagingRoosevelt's Novelty, is listed on the Libraries page. Its Fractals and Memes packs download when you switch them on.
+- Tag your project's palettes and star your favorite palettes, including library palettes. The project's Palettes tab has the same filters as the Libraries page.
+- Edit a block's tags and category in its Details tab.
+- The quilt editor's block list shows only blocks that fit the quilt's layout. Switch off "Compatible with this layout" to see them all.
+- When imported quilts or fabric images are already in the project, you see both side by side and choose which to keep, or keep both.
+- Removing a pack, a library, or a tagged item asks whether to keep your tags in case it comes back.
+- Select every block of a library at once in the project's Blocks tab, with a count of how many are selected.
+- Categories with the same name in different libraries show once in the filter, and ticking a category ticks all of its subcategories.
+- New On-Point, Variable Point and Diamond Point quilts start with an Exact edge, so the edge stays at the block points.
+- Every dialog has a close button, and a project reopens on the tab you left it on.
+- Plain Block is gone from the built-in library. Paint an empty block space instead.
+
+### Fixes
+
+- Exported blocks, packs and backups keep colorings made with fabric images.
+- The reference overlay stays in place when you set a block into an On-Point setting triangle.
+- Several built-in blocks are redrawn to match how they are sewn, and the Seams filter is more accurate. Lettered variants now use numbers (King's Crown II). Projects that use them still open.
+- Projects, libraries, and block files from older versions open and are upgraded.
+
+## 0.5.0 (2026-10-19)
+
+### New features
+
+- Shaped blocks. Draw triangle, 60° diamond, and hexagon blocks, and set them in the Shaped Blocks, Baby Blocks, and Diamond Point layouts. A flow angle turns the whole layout. Starter shaped blocks are in the built-in library.
+- Find blocks with a filter sidebar on the Libraries page and the project's Blocks tab. Search, then narrow by shape, by the layouts a block fits, by seams (straight, curved, set-in), or by difficulty.
+- In a block's Details tab, mark what it needs (foundation paper piecing, appliqué, hand sewing) and the faster methods it suits (strip piecing, quick units, stitch and flip). Filter and group blocks by technique.
+- Tag any block with your own words, built-in and pack blocks too, and star your favorites. Tags stay in your own library and are never shared in packs or block files. Styles from older files become tags.
+- Import quilts from another project, with the blocks, colors, and fabrics they use.
+- Open a project shared as a GitHub gist, from the home page or a link ending in `?open_gist=` and the gist's address. The app shows who shared it before it opens.
+- A quilt picture downloaded from its Details tab includes seam lines when they are shown.
+
+### Fixes
+
+- Dragging one finger over a quilt or block only pans with the Pan tool, so painting and drawing by touch no longer move the view.
+- Projects, libraries, and block files from older versions open and are upgraded.
+
 ## 0.4.0 (2026-10-16)
 
 ### New features

@@ -82,3 +82,32 @@ describe('.rrqbl block files', () => {
     ).toBe(false);
   });
 });
+
+describe('.rrqbl v3: fabrics travel with the block', () => {
+  it('carries the fabrics its colorings use, and the import keeps those fills', () => {
+    const src = addStarterContent(createProject());
+    const star = src.project.blocks.find((b) => b.id === 'rrquilts.ohio-star')!;
+    const fabric = {
+      id: 'jane.fab',
+      notecard: { name: 'Print' },
+      image: { sha256: 'a'.repeat(64), type: 'image/webp' },
+      size: [8, 8] as [number, number],
+      average: [10, 20, 30] as [number, number, number],
+    };
+    const patch = Object.keys(star.colorings[0]!.fills)[0]!;
+    const painted = produce(star, (b) => {
+      b.colorings[0]!.fills[patch] = { fabric: fabric.id, offset: [0, 0], rotation: 0 };
+    });
+    const text = serializeBlock(painted, 'in', src.project.palette.colors, 'Jane', [], [fabric]);
+    const parsed = parseBlockFile(text);
+    if (!parsed.ok) throw new Error(parsed.error);
+    expect(parsed.file.fabrics?.map((f) => f.id)).toEqual(['jane.fab']);
+    if (!parsed.ok) return;
+    const { doc, blockId } = importBlock(createProject('x', 'cm'), parsed.file, 'Sam');
+    const b = doc.project.blocks.find((x) => x.id === blockId)!;
+    expect(b.colorings[0]!.fills[patch]).toMatchObject({ fabric: 'jane.fab' });
+    expect(doc.project.palette.fabrics.map((f) => [f.id, f.size])).toEqual([
+      ['jane.fab', [8 * 2.54, 8 * 2.54]],
+    ]);
+  });
+});

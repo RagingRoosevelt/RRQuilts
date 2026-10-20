@@ -95,7 +95,7 @@ yardage totals appear under each.
 
 **Acceptance Scenarios**:
 
-1. **Given** a quilt or block coloring, **When** "Duplicate as variation" is tapped, **Then** a copy
+1. **Given** a quilt or block coloring, **When** "Create copy" is tapped, **Then** a copy
    appears next to the original and opens in the editor.
 2. **Given** 2–4 selected quilts, **When** compare is opened, **Then** they show side by side with
    finished size and yardage summary; tapping one opens it.
@@ -142,10 +142,24 @@ chart; editing controls are absent with a "edit on tablet or desktop" note.
   image, print/export), each with its own URL; browser back/forward MUST move between them.
 - **FR-002**: Home MUST offer: Start a quilt, Open file (picker or drop anywhere), Recent projects
   (where re-opening is permitted), Samples, Library manager, Settings.
+- **FR-002a** (added 2026-10-19): Home MUST offer **Open from a gist** beside Open file: the user
+  pastes a GitHub gist link or id; the gist's `.rrq` files are listed (a choice when more than one)
+  and the picked one opens like a picked file with no file to save back to (Save asks where). Only
+  on request, never in the background; offline or unreachable is reported (constitution 1.12.0,
+  Principle II). **Restore unsaved project** sits below Recent projects.
+  Both ways fetch the gist's details first and ask "Open from a gist?", naming its description and
+  owner (the GitHub account, not the link's user part) and its project(s); the project file is
+  fetched only on Open. A link `/?open_gist=<gist link or id>` does the same.
 - **FR-003**: The sketchbook MUST show tabbed card grids (Quilts, Blocks, Fabrics & Colors, Photos,
   Threads; Embroidery when present) with notecards and actions (open, duplicate as variation, delete,
   sort by drag or sort mode).
+- **FR-003a** (added 2026-10-19): Opening the project that was open last (by project id, however it
+  is opened) MUST return to the sketchbook tab it was left on; opening any other project MUST start
+  on Quilts, or on Blocks when it has no quilts. The device remembers the last project.
 - **FR-004**: Only one editor is open at a time.
+- **FR-004a** (added 2026-10-20): Every dialog and wizard MUST have a close X in its top right
+  corner. It does what Esc does (or the dialog's own Cancel, Skip or Later); where Cancel is itself a
+  choice (a persistent question), the X closes without choosing.
 
 **Editor layout**
 
@@ -180,7 +194,12 @@ chart; editing controls are absent with a "edit on tablet or desktop" note.
 
 **Variations**
 
-- **FR-030**: "Duplicate as variation" MUST exist for quilts and block colorings.
+- **FR-030**: "Create copy" MUST exist for quilts and block colorings.
+- **FR-030a** (added 2026-10-19): **Import quilts** (Quilts tab, under New quilt) MUST copy picked
+  quilts from another project file into the open project, with the blocks, colors, fabrics and
+  threads they use. Items already here (same id) are reused; an own block with the same id but a
+  different design comes in as a copy (new id, "(2)" name) and the quilts use it. Quilt ids and names
+  that clash get new ones. Lengths convert to the project's units. One undo step.
 - **FR-031**: A compare view MUST show 2–4 quilts side by side with finished size and yardage summary.
 
 **Devices & input**

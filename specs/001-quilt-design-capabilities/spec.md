@@ -730,7 +730,8 @@ and its Files-app integration (phones) work by hand.
   block within its space MUST keep the space's outline, so the choices follow the shape's symmetry:
   90° steps for squares, 60° for hexagons, 120° for triangles, 180° for rectangles, 60° diamonds,
   and spools, and none for clamshells (which only flip left to right). How the layout turns its
-  spaces (FR-029a) is separate from this. *Added 2026-10-15.*
+  spaces (FR-029a) is separate from this. *Added 2026-10-15.* *Triangle, 60° diamond and hexagon
+  blocks, with Shaped Blocks, Baby Blocks and Diamond Point as their layouts: spec 026.*
 - **FR-061**: Drawing aids MUST include snap grid (horizontal/vertical counts), snap to grid/nodes/
   lines/whole patch/aligned segments, auto-join, graph paper overlay, guides (convert/clear), and
   fill-closed-patches preview.

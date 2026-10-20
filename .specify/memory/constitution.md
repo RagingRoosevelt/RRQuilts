@@ -1,6 +1,15 @@
 <!--
 Sync Impact Report
-- Version change: 1.9.0 → 1.10.0 (MINOR: Development Workflow gains branch rules: changes reach
+- Version change: 1.11.0 → 1.12.0 (MINOR: Principle II gains a second network exception —
+  opening a project file from a GitHub gist the user names, fetched once on request and then
+  local like any opened file.) Templates: ✅ CLAUDE.md (Rules)
+- Prior: 1.10.0 → 1.11.0 (MINOR: File Formats — each release that ships a new format
+  version adds a sample file of it to test/fixtures/formats/, kept forever and opened by a test;
+  project versions also add a demo project covering that version's new layouts, with PNGs of its
+  quilts and blocks from that release's build.)
+  Templates: ✅ plan/spec/tasks templates (no change) ✅ scripts/release.md (sample step)
+  ✅ CLAUDE.md (Data section)
+- Prior: 1.9.0 → 1.10.0 (MINOR: Development Workflow gains branch rules: changes reach
   `main` only by merging a feature/fix/release branch; new specs, stories, requirements and bug
   write-ups not part of the feature in progress go on `specs/backlog` in its own worktree, committed
   with plain `git commit`. The footer, left at 1.8.1 by the 1.9.0 amendment, is corrected.)
@@ -67,6 +76,9 @@ The app MUST be an installable Progressive Web App that works fully offline afte
   extra library content), including fetching a library pack the user turns on and the print-size
   images for fabrics in a printout the user starts. Fetched content is stored on-device and MUST remain usable offline;
   no core capability may depend on a repository being reachable.
+- Second exception: opening a project file from a GitHub gist the user names (link or id), fetched
+  once on that request and then held like any opened file. Opening from disk MUST stay available
+  offline; a gist that can't be reached is reported, never retried in the background.
 - Web app manifest with name, icons (incl. maskable), theme color, `display: standalone`.
 - App updates: new service worker is detected and the user is prompted to reload; the app
   MUST NOT silently reload over unsaved work.
@@ -235,6 +247,12 @@ Minimum envelope (details defined per feature in `specs/`):
 - Schema + migrations live in one module per format; covered by unit tests
   (round-trip, each migration step, malformed input).
 - Unknown keys are preserved on round-trip where practical.
+- Every release that ships a new version of a file format MUST add a sample file of that version,
+  written by the release's own code, to `test/fixtures/formats/` (`<format>-v<N>.<ext>`). A new
+  project version also adds a demo project: the previous demo plus a quilt for each layout
+  capability that version added, with a PNG of each of its quilts and blocks saved by that
+  release's build, for checking by eye that later versions still draw it the same. Samples are never
+  rewritten; a test opens every one with the current code.
 
 ## Development Workflow
 
@@ -268,4 +286,4 @@ This constitution supersedes other practices. Amendments are made via
 (MAJOR: principle removed/redefined; MINOR: principle/section added; PATCH: wording).
 Runtime development guidance lives in `CLAUDE.md`.
 
-**Version**: 1.10.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-16
+**Version**: 1.12.0 | **Ratified**: 2026-10-10 | **Last Amended**: 2026-10-19

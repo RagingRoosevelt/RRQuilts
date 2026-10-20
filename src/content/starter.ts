@@ -1,6 +1,9 @@
 // Built-in starter content: 13 traditional blocks (plus the four-, five-, seven-, and nine-patch families in their own files) drawn originally as seam lines, 36 basic solid
 // colors, and five themed palettes, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
+import { shapeSize, type BlockShape } from '@/model/blocks/shape';
+import { SHAPED_BLOCKS, curvedStarter, shapedStarter } from './shaped';
+import { SHAPED_CURVES } from './shaped-curves';
 import { produce } from 'immer';
 import { deriveSeamPatches } from '@/model/blocks/derive';
 import { pathPolygon, pointInPolygon } from '@/model/geometry/path';
@@ -139,8 +142,10 @@ export const STARTER_PALETTES: { name: string; colors: [string, [number, number,
 
 interface StarterBlock {
   name: string;
-  /** Finished size in inches (default 10). */
+  /** Finished size in inches (default 10); a shaped block's side. */
   size?: number;
+  /** Shaped blocks (spec 026). */
+  shape?: BlockShape;
   /** Category path in the built-in library ("Stars/Eight-point stars"). */
   category: string;
   seams: Seam[];
@@ -219,32 +224,45 @@ const x = (x0: number, y0: number): Seam[] => [
   ],
 ];
 
-// Log cabin on an 8-unit grid: center, then three rounds of logs (light top/right, dark bottom/left).
+// Log cabin on an 8-unit grid: center, then three rounds of logs (light top/right, dark bottom/left),
+// in sewing order: each runs the whole side of what's sewn so far, over the end of the log before it.
 const logs = [
-  [2, 2, 5, 3],
+  [3, 2, 5, 3],
   [5, 2, 6, 5],
   [3, 5, 6, 6],
-  [2, 3, 3, 6],
-  [1, 1, 6, 2],
+  [2, 2, 3, 6],
+  [2, 1, 6, 2],
   [6, 1, 7, 6],
   [2, 6, 7, 7],
-  [1, 2, 2, 7],
-  [0, 0, 7, 1],
+  [1, 1, 2, 7],
+  [1, 0, 7, 1],
   [7, 0, 8, 7],
   [1, 7, 8, 8],
-  [0, 1, 1, 8],
+  [0, 0, 1, 8],
 ] as const;
 const logColors = [C.Cream, C.Linen, C.Indigo, C.Navy];
 
-export const STARTER_BLOCKS: StarterBlock[] = [
-  {
-    // One patch, no seams: a plain square (alternate blocks, blocks between on point).
-    name: 'Plain Block',
-    category: 'Basics',
-    seams: [],
+/** A grid or shaped-kit block as a starter block (color letters to built-in colors). */
+function fromKit(b: {
+  name: string;
+  size: number;
+  shape?: BlockShape;
+  category: string;
+  seams: Seam[];
+  points: [number, number, string][];
+}): StarterBlock {
+  return {
+    name: b.name,
+    size: b.size,
+    ...(b.shape ? { shape: b.shape } : {}),
+    category: b.category,
+    seams: b.seams,
     base: C.Cream!,
-    points: [],
-  },
+    points: b.points.map(([x, y, color]): [number, number, number] => [x, y, C[color]!]),
+  };
+}
+
+export const STARTER_BLOCKS: StarterBlock[] = [
   {
     name: 'Four Patch',
     category: 'N-Patch/Four-patch',
@@ -474,19 +492,47 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     ...LOG_CABIN_BLOCKS,
     ...STRIP_BLOCKS,
     ...MEDALLION_BLOCKS,
-  ].map((b) => ({
-    name: b.name,
-    size: b.size,
-    category: b.category,
-    seams: b.seams,
-    base: C.Cream!,
-    points: b.points.map(([x, y, color]): [number, number, number] => [x, y, C[color]!]),
-  })),
+    ...SHAPED_BLOCKS.map(shapedStarter),
+    ...SHAPED_CURVES.map(curvedStarter),
+  ].map(fromKit),
 ];
 
 // --- Built-in library (spec 008) ---------------------------------------------------------------
 
 export const LIBRARY_ID = 'rrquilts-starter';
+/** Blocks renamed to the reference book's names (lettered variants to its numbers, 2026-10-20):
+ *  each keeps the id its former name gave it, so projects and annotations still find it. */
+const FORMER: Record<string, string> = {
+  'Double Irish Chain I': 'Double Irish Chain A',
+  'Double Irish Chain II': 'Double Irish Chain B',
+  "King's Crown II": "King's Crown B",
+  'Providence Block II': 'Providence Block B',
+  "Joseph's Coat II": "Joseph's Coat B",
+  'Mexican Cross I': 'Mexican Cross A',
+  "Grandmother's Own III": "Grandmother's Own C",
+  "Grandmother's Own IV": "Grandmother's Own D",
+  "Grandmother's Cross II": "Grandmother's Cross B",
+  'Dove in a Window II': 'Dove in a Window B',
+  'Red Cross I': 'Red Cross A',
+  'Nine-Patch Variation I': 'Nine-Patch Variation A',
+  'Nine-Patch Variation II': 'Nine-Patch Variation B',
+  'Basketweave I': 'Basketweave A',
+  'Tree Everlasting I': 'Tree Everlasting A',
+  'Hourglass II': 'Hourglass B',
+  'Hourglass III': 'Hourglass C',
+  'Handy Andy II': 'Handy Andy B',
+  'Flying Dutchman II': 'Flying Dutchman B',
+  'Arizona II': 'Arizona B',
+  'Attic Window I': 'Attic Window A',
+  'Steps to the Altar II': 'Steps to the Altar B',
+  'Railroad II': 'Railroad B',
+  'Rolling Pinwheel II': 'Rolling Pinwheel B',
+  'Shoofly II': 'Shoofly B',
+  'Double Pinwheel III': 'Double Pinwheel C',
+  'Greek Cross II': 'Greek Cross B',
+  'New Album I': 'New Album A',
+  'Single Wedding Ring II': 'Single Wedding Ring B',
+};
 const libId = (name: string) =>
   `rrquilts.${name
     .toLowerCase()
@@ -494,7 +540,7 @@ const libId = (name: string) =>
     .replace(/^-+|-+$/g, '')}`;
 const credit = (name: string) => ({
   libraryId: LIBRARY_ID,
-  itemId: libId(name),
+  itemId: libId(FORMER[name] ?? name),
   revision: 1,
   name,
   library: STARTER_LIBRARY.name,
@@ -527,7 +573,9 @@ function buildItems(): BuiltinItems {
     }),
   );
   const blocks = STARTER_BLOCKS.map((b): SeamBlock => {
-    const size: [number, number] = [b.size ?? 10, b.size ?? 10];
+    const size: [number, number] = b.shape
+      ? shapeSize(b.shape, 'leg', b.size ?? 4)
+      : [b.size ?? 10, b.size ?? 10];
     const nodes: { id: string; x: number; y: number }[] = [];
     const node = ([x, y]: P) => {
       const id = `n${nodes.length + 1}`;
@@ -540,7 +588,7 @@ function buildItems(): BuiltinItems {
         : { id: `s${i + 1}`, kind: 'line', from: node(sm[0]), to: node(sm[1]) },
     );
     const drawing = { nodes, segments };
-    const patches = deriveSeamPatches(drawing, size).patches.map((p, i) => ({
+    const patches = deriveSeamPatches(drawing, size, b.shape).patches.map((p, i) => ({
       id: `p${i + 1}`,
       path: p.path,
     }));
@@ -550,11 +598,12 @@ function buildItems(): BuiltinItems {
       const hit = b.points.find(([px, py]) => pointInPolygon([px, py], poly));
       fills[p.id] = { color: colors[hit ? hit[2] : b.base]!.id };
     }
-    return {
-      id: libId(b.name),
+    const block: SeamBlock = {
+      id: libId(FORMER[b.name] ?? b.name),
       kind: 'seam',
       size,
-      notecard: { name: b.name, tags: ['starter'] },
+      ...(b.shape ? { shape: b.shape } : {}),
+      notecard: { name: b.name },
       source: credit(b.name),
       revision: 1,
       drawing,
@@ -586,6 +635,7 @@ function buildItems(): BuiltinItems {
         }),
       ],
     };
+    return block;
   });
   return { colors, blocks };
 }

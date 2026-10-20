@@ -13,6 +13,7 @@ import {
   addBlock,
   addCategory,
   addToCollection,
+  categoryFilter,
   categoryTree,
   colorChanged,
   copyToMine,
@@ -372,7 +373,7 @@ describe('library search', () => {
       produce(one, (d) => {
         d.data.id = `jane.b${i}`;
         d.data.notecard.name = `Block ${i}`;
-        d.data.notecard.styles = i % 2 ? ['eight-point'] : [];
+        d.data.notecard.tags = i % 2 ? ['eight-point'] : [];
       }),
     );
     expect(searchItems(items, 'eight point')).toHaveLength(250);
@@ -405,5 +406,64 @@ describe('fabrics in My library palettes (spec 014)', () => {
     ]);
     expect(after.data.revision).toBe(2);
     expect(after.data.version).not.toBe(item.data.version);
+    // Spec 035 B: one with an id already there replaces it in place ("Use the new one").
+    const newer = { ...fab('me.a'), notecard: { name: 'me.a (new image)' } };
+    const c = await addFabrics(b.lib, { id: a.id }, [newer], 'Me');
+    const last = c.lib.items[0]!;
+    expect(
+      last.type === 'colors' && last.data.fabrics?.map((f) => [f.id, f.notecard.name]),
+    ).toEqual([
+      ['me.a', 'me.a (new image)'],
+      ['me.b', 'me.b'],
+    ]);
+  });
+});
+
+describe('category filter', () => {
+  it('merges libraries by name and groups subcategories under their category', () => {
+    const cats = [
+      { id: 'a.stars', name: 'Stars' },
+      { id: 'a.eight', name: 'Eight-point', parent: 'a.stars' },
+      { id: 'a.basics', name: 'Basics' },
+      { id: 'b.stars', name: 'stars' },
+      { id: 'b.eight', name: 'Eight-Point', parent: 'b.stars' },
+      { id: 'b.unused', name: 'Unused' },
+    ];
+    const f = categoryFilter(cats, new Set(['a.eight', 'b.eight', 'a.basics', '']));
+    expect(f.options).toEqual([
+      { label: 'Basics', value: 'basics' },
+      { label: 'Uncategorized', value: '' },
+      { label: 'Stars', value: 'stars', group: 'Stars', header: true },
+      { label: 'Eight-point', value: 'stars/eight-point', group: 'Stars' },
+    ]);
+    expect(f.ids(['stars'])).toEqual(['a.stars', 'b.stars']);
+    expect(f.ids(['stars/eight-point', ''])).toEqual(['a.eight', 'b.eight', '']);
+    expect(f.ids(['gone'])).toEqual([]);
+  });
+});
+
+describe('library format v5: a block carries its fabrics', () => {
+  it('Add to my library keeps the fabrics its colorings use, and the library lists them', async () => {
+    const b0 = newBlock('Printy', [10, 10], 'cm', 'Sam');
+    const fabric = {
+      id: 'sam.fab',
+      notecard: { name: 'Print' },
+      image: { sha256: 'b'.repeat(64), type: 'image/webp' },
+      size: [25.4, 25.4] as [number, number],
+      average: [1, 2, 3] as [number, number, number],
+    };
+    const doc = produce(createProject('p', 'cm'), (d) => {
+      const b = structuredClone(b0);
+      const patch = Object.keys(b.colorings[0]!.fills)[0] ?? 'p1';
+      b.colorings[0]!.fills[patch] = { fabric: fabric.id, offset: [0, 0], rotation: 0 };
+      d.project.blocks.push(b);
+      d.project.palette.fabrics.push(fabric);
+    });
+    const { lib } = await addBlock(emptyPersonal('Sam'), doc, b0.id);
+    const item = lib.items.find((i) => i.data.id === b0.id)!;
+    const fabrics = item.type === 'block' ? (item.fabrics ?? []) : [];
+    expect(fabrics.map((f) => f.id)).toEqual(['sam.fab']);
+    expect(fabrics[0]!.size[0]).toBeCloseTo(10); // in inches, as library content is
+    expect(withSources(lib).fabrics.map((f) => f.id)).toContain('sam.fab');
   });
 });

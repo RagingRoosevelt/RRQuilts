@@ -11,8 +11,36 @@ const distDir = 'docs';
 const appVersion = (JSON.parse(readFileSync('package.json', 'utf8')) as { version: string })
   .version;
 
+/**
+ * The build under test, for the dev-only Tests checklist: the version, plus the commit when it isn't
+ * the release's own tag (0.4.0+7ed7f8d). Read from .git directly (the container has no git);
+ * anything unreadable gives the plain version.
+ */
+function devBuild(): string {
+  try {
+    const git = (f: string) => readFileSync(join('.git', f), 'utf8').trim();
+    const ref = (name: string) => {
+      try {
+        return git(name);
+      } catch {
+        const line = git('packed-refs')
+          .split('\n')
+          .find((l) => l.endsWith(` ${name}`));
+        return line?.split(' ')[0] ?? '';
+      }
+    };
+    const head = git('HEAD');
+    const sha = head.startsWith('ref: ') ? ref(head.slice(5)) : head;
+    if (!sha) return appVersion;
+    const tag = ref(`refs/tags/v${appVersion}`);
+    return tag === sha ? appVersion : `${appVersion}+${sha.slice(0, 7)}`;
+  } catch {
+    return appVersion;
+  }
+}
+
 export default defineConfig(() => ({
-  boot: ['settings'],
+  boot: ['settings', 'dialogs'],
   css: ['app.css'],
   // Fonts/icons are bundled locally, so they work offline.
   extras: ['roboto-font', 'material-icons'],
@@ -41,6 +69,21 @@ export default defineConfig(() => ({
       ],
     ],
     extendViteConf(viteConf) {
+      // Dev server only: the Tests checklist asks which build it's testing (fresh each time, so it
+      // follows new commits without a restart). Not part of any build.
+      viteConf.plugins = [
+        ...(viteConf.plugins ?? []),
+        {
+          name: 'rrq-dev-build',
+          apply: 'serve',
+          configureServer(server) {
+            server.middlewares.use(`${base}__dev/build`, (_req, res) => {
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ version: appVersion, build: devBuild() }));
+            });
+          },
+        },
+      ];
       viteConf.server = {
         ...viteConf.server,
         watch: {

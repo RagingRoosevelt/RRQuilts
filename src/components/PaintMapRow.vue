@@ -67,8 +67,15 @@
   </div>
 </template>
 
+<script lang="ts">
+import { reactive as r } from 'vue';
+// ponytail: module state, so folds last until reload; localStorage if they should outlive it.
+const folds = r(new Set<string>());
+let folded = false;
+</script>
+
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { optStyle, type Opt } from '@/composables/swap-options';
 
 const props = defineProps<{
@@ -102,12 +109,18 @@ function pick(id: string) {
   open.value = false;
   emit('update:modelValue', id);
 }
-/** Folded sections and palettes (by top name or key). */
-const shut = reactive(new Set<string>());
-const toggle = (k: string) => (shut.has(k) ? shut.delete(k) : shut.add(k));
-/** On opening: In use and wherever the current pick is stay open; with more than a couple of
- *  palettes the rest start folded, so the list is short. */
+/** Folded sections and palettes (by top name or key), shared by every swap menu and kept between
+ *  openings (this session). */
+const shut = folds;
+const toggle = (k: string) => {
+  folded = true;
+  return shut.has(k) ? shut.delete(k) : shut.add(k);
+};
+/** First opening: In use and wherever the current pick is stay open; with more than a couple of
+ *  palettes the rest start folded, so the list is short. Later openings keep what was folded. */
 function foldAll() {
+  if (folded) return;
+  folded = true;
   shut.clear();
   const subs = groups.value.flatMap((g) => g.subs.map((s) => ({ g, s })));
   if (subs.length <= 2) return;

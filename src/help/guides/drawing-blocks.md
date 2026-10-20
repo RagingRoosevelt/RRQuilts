@@ -4,16 +4,25 @@ order: 40
 summary: Draw a block from seams (lines and arcs) and let the app find the patches.
 ---
 
-A block is a square or rectangle drawn with **seams**. Wherever seams close a shape, the app
+A block is a square or rectangle, or a triangle, 60° diamond, or hexagon, drawn with **seams**. Wherever seams close a shape, the app
 finds a **patch** that you can color. Start from **New block** in the sketchbook's **Blocks** tab,
 or **Edit** one of your blocks. The block editor has four tabs named **Details**, **Draw**, **Color**, and
 **Print**. Library blocks are read-only. Use **Edit (make a copy)** in the sketchbook.
+
+## Pick a shape
+
+**New block** asks for a name and a shape: **Square**, **Triangle**, **60° diamond**, or
+**Hexagon**. The shape stays with the block. To draw the same design in another shape, start a new
+block. Shaped blocks go in layouts with spaces of their shape (see Designing a quilt).
 
 ## Set the size
 
 In the **Draw** sidebar, **Block name**, **Width**, and **Height** set the finished size, in the
 project's units. If you change the proportions of a block with curved seams, the curves change
 shape too.
+
+A shaped block keeps its proportions. Choose **Leg** (the length of a side), **Width**, or
+**Height** and type it. The other two are shown, worked out from it.
 
 ## Draw seams
 
@@ -28,6 +37,9 @@ Pick a tool on the left rail and drag on the block:
 Points snap to guides so seams stay tidy. Open **Snapping & graph paper** in the sidebar to choose
 **Step** (**Snap every**) or **Divisions** (**Across** / **Down**). Turn **Snap to grid points**, **Snap to nodes**, and
 **Snap to seams** on or off, and show **Graph paper**.
+
+Shaped blocks snap to a triangle grid instead. **Grid steps per side** cuts each side of the shape
+into that many steps, and the grid's lines run at 60° to each other through the shape's corners.
 
 ## Select and edit
 
@@ -45,6 +57,7 @@ the shapes you draw, see [Half-square triangles](/help/math/half-square-triangle
 
 ## Details and Print
 
-**Details** holds the title, author, license, and notes. **Print** makes templates for the block
+**Details** holds the title, author, license, notes, and the block's **Technique** checklists:
+**Techniques** and **Efficiency** (see [Libraries](/help/guides/libraries)). **Print** makes templates for the block
 ([Printing](/help/guides/printing)). Edits and copies of someone else's block credit them
 automatically ([Credits and licenses](/help/guides/credits-and-licenses)).

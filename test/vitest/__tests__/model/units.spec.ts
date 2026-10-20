@@ -53,6 +53,6 @@ describe('units', () => {
     expect(out.block).toBeCloseTo(12 * 2.54);
     expect(out.sash).toBeCloseTo(1.5 * 2.54);
     expect(out.edge.float).toBeCloseTo(2.54);
-    expect(out.edge.finish).toBe('float');
+    expect(out.edge.finish).toBe('exact');
   });
 });

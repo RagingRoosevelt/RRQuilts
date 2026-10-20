@@ -54,7 +54,7 @@ reopen the project: state matches.
    cards; Fabrics & Colors, Photos, and Threads tabs show their lists (colors only in this feature).
 2. **Given** a card, **When** the user opens it, **Then** its editor opens (quilt editor; blocks show
    a read-only preview until the block editor exists).
-3. **Given** a quilt card, **When** "Duplicate as variation" is chosen, **Then** a copy named
+3. **Given** a quilt card, **When** "Create copy" is chosen, **Then** a copy named
    "<name> (2)" appears next to it and opens.
 4. **Given** a card, **When** the user edits its notecard (name, notes), reorders by dragging, or
    deletes it, **Then** the change is saved; deleting a block used in a quilt is refused with the
@@ -229,7 +229,7 @@ zoom, drag-pan, and Fit.
   (and mattress rectangle) in project units, so the outline still draws if the size lists change;
   unit conversion converts it. Older quilts have none. The Layout tab's **Reference overlay** section (Layout and Reference overlay are its two sections; each layout's settings are grouped under divider lines with the group's name set into them, as on the wizard's Size page)
   adds, changes, shows or hides (Show), sets its **Fill** (0 to 100%, default 30%, the target's optional `opacity`; the outline always shows fully) and **Tint** (outline and fill color, optional `tint`, default blue; Quasar's color picker, not the browser's) and **Invert** (optional `invert`: shade outside the shape, out to the quilt's edge), or removes (None) it, with the same controls as the wizard;
-  the editor draws it centered on the quilt, and Fit includes it. Quilt thumbnails show it while it's enabled in Layout; the project quilt list's image download always leaves it out; the quilt editor's Details tab has **Download image**, which includes it only when it's enabled in Layout. Settings › Quilt and block design › Reference overlay
+  the editor draws it centered on the quilt (an On-Point quilt's edge without the blocks set at edge positions: setting one takes that side's float away, and the overlay stays where it was over the blocks), and Fit includes it. Quilt thumbnails show it while it's enabled in Layout; the project quilt list's image download always leaves it out; the quilt editor's Details tab has **Download image**, which includes it only when it's enabled in Layout. Settings › Quilt and block design › Reference overlay
   (owner, 2026-10-16) holds the size lists choice (Auto by units, US, European) and the quilter's
   own top, pants, and bed (setting `overlayDefaults`, lengths in inches), where those targets start;
   each is unset until set there or first used in the wizard (the wizard saves it when a quilt is
@@ -288,7 +288,9 @@ zoom, drag-pan, and Fit.
 **Canvas**
 
 - **FR-050**: The canvas MUST render the quilt from generated slots and block patches, with patch
-  outlines toggleable, unfilled patches hatched, and zoom/pan/fit by mouse, keyboard, and touch.
+  outlines toggleable, unfilled patches hatched, and zoom/pan/fit by mouse, keyboard, and touch. A one-finger drag pans only with the Pan tool
+  (or where no tool takes drags); two fingers always pinch and pan (owner, 2026-10-18), so drags meant
+  for items don't move the view.
 - **FR-051**: Hit-testing MUST resolve a tap to the space and patch under it at any zoom.
 
 ### Key Entities

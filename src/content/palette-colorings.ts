@@ -309,14 +309,14 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Red=Hot Coral,Denim=Neon Blue,Sky=Electric Cyan',
     'Cream=Muslin,Red=Turkey Red,Denim=Prussian Blue,Sky=Double Pink',
   ],
-  'Double Irish Chain A': [
+  'Double Irish Chain I': [
     'Indigo=Lilac,Sky=Powder Blue,Cream=Lemon Chiffon',
     'Indigo=Midnight,Sky=Deep Teal,Cream=Slate',
     'Indigo=Sapphire,Sky=Amethyst,Cream=Aquamarine',
     'Indigo=Neon Purple,Sky=Electric Cyan,Cream=Neon Yellow',
     'Indigo=Prussian Blue,Sky=Double Pink,Cream=Muslin',
   ],
-  'Double Irish Chain B': [
+  'Double Irish Chain II': [
     'Cream=Lemon Chiffon,Sky=Powder Blue',
     'Cream=Slate,Sky=Deep Teal',
     'Cream=Aquamarine,Sky=Amethyst',
@@ -344,7 +344,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Indigo=Neon Purple,Cream=Electric Cyan,Sky=Neon Green',
     'Indigo=Madder Brown,Cream=Muslin,Sky=Poison Green',
   ],
-  "King's Crown B": [
+  "King's Crown II": [
     'Cream=Seafoam,Sky=Blush,Indigo=Powder Blue',
     'Cream=Slate,Sky=Aubergine,Indigo=Graphite',
     'Cream=Citrine,Sky=Amethyst,Indigo=Sapphire',
@@ -484,7 +484,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Indigo=Neon Purple',
     'Cream=Shirting,Indigo=Prussian Blue',
   ],
-  'Providence Block B': [
+  'Providence Block II': [
     'Cream=Pistachio,Red=Peach,Indigo=Periwinkle,Sky=Lilac',
     'Cream=Graphite,Red=Oxblood,Indigo=Midnight,Sky=Hunter',
     'Cream=Aquamarine,Red=Ruby,Indigo=Emerald,Sky=Topaz',
@@ -568,7 +568,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Indigo=Neon Purple',
     'Cream=Shirting,Indigo=Prussian Blue',
   ],
-  "Joseph's Coat B": [
+  "Joseph's Coat II": [
     'Cream=Pistachio,Indigo=Periwinkle,Sky=Lilac,Red=Peach',
     'Cream=Graphite,Indigo=Midnight,Sky=Hunter,Red=Oxblood',
     'Cream=Aquamarine,Indigo=Emerald,Sky=Topaz,Red=Ruby',
@@ -582,7 +582,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Rose=Neon Pink,Sky=Neon Blue,Red=Hot Coral,Indigo=Neon Purple,Cream=Neon Green',
     'Rose=Double Pink,Sky=Cheddar,Red=Turkey Red,Indigo=Prussian Blue,Cream=Shirting',
   ],
-  'Mexican Cross A': [
+  'Mexican Cross I': [
     'Sky=Powder Blue,Cream=Lemon Chiffon,Red=Blush',
     'Sky=Deep Teal,Cream=Slate,Red=Oxblood',
     'Sky=Aquamarine,Cream=Citrine,Red=Ruby',
@@ -820,14 +820,14 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Sky=Neon Green',
     'Cream=Shirting,Sky=Double Pink',
   ],
-  "Grandmother's Own C": [
+  "Grandmother's Own III": [
     'Sky=Pistachio,Indigo=Lilac,Cream=Lemon Chiffon',
     'Sky=Deep Teal,Indigo=Midnight,Cream=Slate',
     'Sky=Aquamarine,Indigo=Sapphire,Cream=Citrine',
     'Sky=Electric Cyan,Indigo=Neon Purple,Cream=Neon Yellow',
     'Sky=Cheddar,Indigo=Prussian Blue,Cream=Muslin',
   ],
-  "Grandmother's Cross B": [
+  "Grandmother's Cross II": [
     'Indigo=Periwinkle,Sky=Seafoam,Cream=Lemon Chiffon',
     'Indigo=Midnight,Sky=Hunter,Cream=Slate',
     'Indigo=Sapphire,Sky=Amethyst,Cream=Aquamarine',
@@ -932,7 +932,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Indigo=Neon Blue',
     'Cream=Shirting,Indigo=Prussian Blue',
   ],
-  'Dove in a Window B': [
+  'Dove in a Window II': [
     'Indigo=Lilac,Sky=Pistachio,Cream=Lemon Chiffon,Red=Peach',
     'Indigo=Midnight,Sky=Deep Teal,Cream=Slate,Red=Oxblood',
     'Indigo=Sapphire,Sky=Aquamarine,Cream=Citrine,Red=Ruby',
@@ -946,14 +946,14 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Indigo=Neon Blue,Cream=Neon Yellow',
     'Indigo=Prussian Blue,Cream=Shirting',
   ],
-  'Red Cross A': [
+  'Red Cross I': [
     'Cream=Lemon Chiffon,Sky=Pistachio,Indigo=Lilac',
     'Cream=Slate,Sky=Deep Teal,Indigo=Midnight',
     'Cream=Citrine,Sky=Aquamarine,Indigo=Sapphire',
     'Cream=Neon Yellow,Sky=Electric Cyan,Indigo=Neon Purple',
     'Cream=Muslin,Sky=Cheddar,Indigo=Prussian Blue',
   ],
-  'Nine-Patch Variation A': [
+  'Nine-Patch Variation I': [
     'Sky=Seafoam,Cream=Lemon Chiffon',
     'Sky=Hunter,Cream=Slate',
     'Sky=Amethyst,Cream=Aquamarine',
@@ -974,7 +974,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Sky=Neon Green,Cream=Neon Yellow,Indigo=Neon Blue',
     'Sky=Double Pink,Cream=Shirting,Indigo=Prussian Blue',
   ],
-  'Basketweave A': [
+  'Basketweave I': [
     'Sky=Pistachio,Indigo=Lilac,Cream=Lemon Chiffon',
     'Sky=Deep Teal,Indigo=Midnight,Cream=Slate',
     'Sky=Aquamarine,Indigo=Sapphire,Cream=Citrine',
@@ -1079,7 +1079,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Indigo=Neon Purple,Cream=Neon Yellow',
     'Indigo=Prussian Blue,Cream=Shirting',
   ],
-  'Tree Everlasting A': [
+  'Tree Everlasting I': [
     'Cream=Seafoam,Indigo=Periwinkle',
     'Cream=Slate,Indigo=Midnight',
     'Cream=Aquamarine,Indigo=Emerald',
@@ -1093,7 +1093,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Sky=Neon Orange',
     'Cream=Shirting,Sky=Cheddar',
   ],
-  'Hourglass B': [
+  'Hourglass II': [
     'Denim=Periwinkle,Sky=Powder Blue,Cream=Lemon Chiffon',
     'Denim=Hunter,Sky=Deep Teal,Cream=Slate',
     'Denim=Garnet,Sky=Aquamarine,Cream=Citrine',
@@ -1163,7 +1163,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Sky=Electric Cyan,Indigo=Neon Purple',
     'Cream=Shirting,Sky=Poison Green,Indigo=Prussian Blue',
   ],
-  'Nine-Patch Variation B': [
+  'Nine-Patch Variation II': [
     'Sky=Lemon Chiffon,Cream=Seafoam',
     'Sky=Aubergine,Cream=Slate',
     'Sky=Amethyst,Cream=Aquamarine',
@@ -1177,7 +1177,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Sky=Neon Orange',
     'Cream=Shirting,Sky=Cheddar',
   ],
-  'Hourglass C': [
+  'Hourglass III': [
     'Sky=Powder Blue,Cream=Lemon Chiffon',
     'Sky=Deep Teal,Cream=Slate',
     'Sky=Aquamarine,Cream=Citrine',
@@ -1289,7 +1289,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Indigo=Neon Purple',
     'Cream=Shirting,Indigo=Prussian Blue',
   ],
-  'Handy Andy B': [
+  'Handy Andy II': [
     'Sky=Lemon Chiffon,Cream=Seafoam,Denim=Lilac,Red=Peach,Rose=Blush',
     'Sky=Aubergine,Cream=Slate,Denim=Deep Teal,Red=Oxblood,Rose=Espresso',
     'Sky=Amethyst,Cream=Aquamarine,Denim=Sapphire,Red=Ruby,Rose=Citrine',
@@ -1352,7 +1352,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Indigo=Neon Purple,Sky=Electric Cyan,Red=Hot Coral,Gold=Neon Orange,Teal=Neon Green',
     'Cream=Shirting,Indigo=Prussian Blue,Sky=Double Pink,Red=Turkey Red,Gold=Cheddar,Teal=Poison Green',
   ],
-  "Grandmother's Own D": [
+  "Grandmother's Own IV": [
     'Indigo=Periwinkle,Sky=Seafoam,Cream=Lemon Chiffon',
     'Indigo=Midnight,Sky=Aubergine,Cream=Slate',
     'Indigo=Ruby,Sky=Aquamarine,Cream=Citrine',
@@ -1401,7 +1401,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Sky=Neon Pink,Red=Neon Orange,Indigo=Neon Blue,Cream=Neon Yellow',
     'Sky=Cheddar,Red=Turkey Red,Indigo=Madder Brown,Cream=Muslin',
   ],
-  'Flying Dutchman B': [
+  'Flying Dutchman II': [
     'Cream=Lemon Chiffon,Indigo=Lilac',
     'Cream=Slate,Indigo=Midnight',
     'Cream=Aquamarine,Indigo=Sapphire',
@@ -1471,7 +1471,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Indigo=Neon Blue,Sky=Neon Pink,Cream=Neon Yellow',
     'Indigo=Madder Brown,Sky=Cheddar,Cream=Muslin',
   ],
-  'Arizona B': [
+  'Arizona II': [
     'Cream=Lemon Chiffon,Indigo=Lilac,Sky=Powder Blue',
     'Cream=Slate,Indigo=Midnight,Sky=Deep Teal',
     'Cream=Aquamarine,Indigo=Sapphire,Sky=Citrine',
@@ -1506,7 +1506,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Sky=Electric Cyan,Indigo=Neon Purple,Cream=Neon Yellow',
     'Sky=Double Pink,Indigo=Prussian Blue,Cream=Shirting',
   ],
-  'Attic Window A': [
+  'Attic Window I': [
     'Red=Blush,Sky=Seafoam,Denim=Powder Blue,Cream=Lemon Chiffon',
     'Red=Espresso,Sky=Aubergine,Denim=Deep Teal,Cream=Slate',
     'Red=Emerald,Sky=Aquamarine,Denim=Sapphire,Cream=Citrine',
@@ -1527,14 +1527,14 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Sky=Neon Pink',
     'Cream=Muslin,Sky=Cheddar',
   ],
-  'Steps to the Altar B': [
+  'Steps to the Altar II': [
     'Cream=Lemon Chiffon,Red=Peach,Rose=Blush,Sky=Powder Blue,Denim=Periwinkle',
     'Cream=Slate,Red=Oxblood,Rose=Aubergine,Sky=Deep Teal,Denim=Graphite',
     'Cream=Aquamarine,Red=Ruby,Rose=Amethyst,Sky=Citrine,Denim=Emerald',
     'Cream=Neon Yellow,Red=Hot Coral,Rose=Neon Pink,Sky=Electric Cyan,Denim=Neon Blue',
     'Cream=Shirting,Red=Turkey Red,Rose=Madder Brown,Sky=Double Pink,Denim=Poison Green',
   ],
-  'Railroad B': [
+  'Railroad II': [
     'Cream=Lemon Chiffon,Indigo=Periwinkle',
     'Cream=Slate,Indigo=Midnight',
     'Cream=Citrine,Indigo=Ruby',
@@ -1688,7 +1688,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Sky=Neon Green',
     'Cream=Muslin,Sky=Double Pink',
   ],
-  'Rolling Pinwheel B': [
+  'Rolling Pinwheel II': [
     'Cream=Lemon Chiffon,Red=Blush,Sky=Powder Blue,Denim=Seafoam',
     'Cream=Slate,Red=Oxblood,Sky=Deep Teal,Denim=Graphite',
     'Cream=Citrine,Red=Ruby,Sky=Aquamarine,Denim=Amethyst',
@@ -1723,14 +1723,14 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Sky=Electric Cyan',
     'Cream=Muslin,Sky=Cheddar',
   ],
-  'Shoofly B': [
+  'Shoofly II': [
     'Cream=Lemon Chiffon,Sky=Seafoam',
     'Cream=Slate,Sky=Hunter',
     'Cream=Citrine,Sky=Aquamarine',
     'Cream=Neon Yellow,Sky=Neon Green',
     'Cream=Muslin,Sky=Double Pink',
   ],
-  'Double Pinwheel C': [
+  'Double Pinwheel III': [
     'Cream=Lemon Chiffon,Indigo=Periwinkle',
     'Cream=Slate,Indigo=Midnight',
     'Cream=Citrine,Indigo=Sapphire',
@@ -1744,7 +1744,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Neon Yellow,Sky=Neon Green',
     'Cream=Muslin,Sky=Double Pink',
   ],
-  'Greek Cross B': [
+  'Greek Cross II': [
     'Cream=Lemon Chiffon,Denim=Seafoam,Red=Blush',
     'Cream=Slate,Denim=Graphite,Red=Oxblood',
     'Cream=Citrine,Denim=Amethyst,Red=Ruby',
@@ -1807,7 +1807,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Sky=Electric Cyan,Cream=Neon Yellow,Red=Hot Coral,Denim=Neon Blue',
     'Sky=Cheddar,Cream=Muslin,Red=Turkey Red,Denim=Poison Green',
   ],
-  'New Album A': [
+  'New Album I': [
     'Sky=Seafoam,Denim=Powder Blue,Cream=Lemon Chiffon,Red=Peach',
     'Sky=Hunter,Denim=Deep Teal,Cream=Slate,Red=Oxblood',
     'Sky=Aquamarine,Denim=Emerald,Cream=Citrine,Red=Ruby',
@@ -1870,7 +1870,7 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Indigo=Neon Purple,Cream=Neon Yellow',
     'Indigo=Prussian Blue,Cream=Muslin',
   ],
-  'Single Wedding Ring B': [
+  'Single Wedding Ring II': [
     'Cream=Lemon Chiffon,Indigo=Periwinkle',
     'Cream=Slate,Indigo=Midnight',
     'Cream=Citrine,Indigo=Sapphire',

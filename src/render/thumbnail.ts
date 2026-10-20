@@ -38,13 +38,15 @@ export function quiltThumbnail(
   dark = false,
   withTarget = false,
   shaped = false,
+  /** Seam lines on every piece, as the editor's Show seam lines. */
+  outlines = false,
 ) {
   return cached(
     quilt,
-    `${px}:${dark}:${withTarget}:${shaped}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
+    `${px}:${dark}:${withTarget}:${shaped}:${outlines}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
     () => {
       const g = generateFor(quilt);
-      const bounds = withTarget ? boundsWithTarget(quilt, g.bounds) : g.bounds;
+      const bounds = withTarget ? boundsWithTarget(quilt, g.bounds, g.anchor) : g.bounds;
       const [bw, bh] = [bounds[2] - bounds[0], bounds[3] - bounds[1]];
       const [w, h] = !shaped
         ? [px, px]
@@ -55,7 +57,7 @@ export function quiltThumbnail(
       drawQuilt(ctx, doc, quilt, g, {
         dpr: 1,
         view: fitView(bounds, w, h, shaped ? 0 : 6),
-        outlines: false,
+        outlines,
         dark,
         target: withTarget,
       });
@@ -80,7 +82,9 @@ export function blockThumbnail(
     () => {
       const [c, ctx] = canvas(px);
       const s = (px - 8) / Math.max(...block.size);
-      ctx.setTransform(s, 0, 0, s, 4, 4);
+      // Centered: shaped and rectangular blocks don't fill the square.
+      const [ox, oy] = block.size.map((d) => (px - d * s) / 2) as [number, number];
+      ctx.setTransform(s, 0, 0, s, ox, oy);
       drawBlock(ctx, block, coloring, colorLookup(doc, libraryColors, { ctx, devicePerUnit: s }), {
         outlines: true,
         lineWidth: 1 / s,

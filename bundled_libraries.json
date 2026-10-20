@@ -1,0 +1,12 @@
+{
+  "$schema": "./public/schemas/bundled_libraries.v1.json",
+  "format": "rrq-bundled-libraries",
+  "version": 1,
+  "libraries": [
+    {
+      "name": "RagingRoosevelt's Novelty",
+      "url": "https://github.com/RagingRoosevelt/rrquilts-novelty-blocks",
+      "description": "Quilt blocks for fun: fractals, memes and more. By RagingRoosevelt, CC BY-SA 4.0."
+    }
+  ]
+}

@@ -22,6 +22,27 @@
       </div>
       <!-- Sidebar: each library in collapsible category sections; strip: one run per source. -->
       <template v-if="sidebar">
+        <!-- Only blocks this quilt's block spaces take (spec 035 C); off, all show, and the Shape
+             filter (which it makes moot) comes back. -->
+        <q-toggle
+          v-if="fitsQuilt"
+          v-model="app.settings.compatibleBlocks"
+          dense
+          class="q-my-sm"
+          label="Compatible with this layout"
+        />
+        <BlockFilter
+          v-if="!compatibleOnly"
+          v-model:shape="filterShape"
+          hide-layout
+          class="q-mb-sm"
+        />
+        <div
+          v-if="!blockSectionGroups.length && (compatibleOnly || filterShape)"
+          class="text-caption text-grey-7 q-pa-xs"
+        >
+          No blocks fit. Clear a filter to see more.
+        </div>
         <BlockSections
           v-for="g in blockSectionGroups"
           :key="g.lib"
@@ -38,6 +59,7 @@
               @click="pickBlock(b)"
             >
               <img :src="thumb(b, shown(b))" :alt="b.notecard.name" />
+              <FavoriteBadge v-if="isFavorite(b)" small />
               <q-badge
                 v-if="b.colorVariant"
                 class="variant"
@@ -87,6 +109,7 @@
               @click="pickBlock(b)"
             >
               <img :src="thumb(b, shown(b))" :alt="b.notecard.name" />
+              <FavoriteBadge v-if="isFavorite(b)" small />
               <q-badge
                 v-if="b.colorVariant"
                 class="variant"
@@ -219,7 +242,12 @@
       </template>
     </div>
     <ColorEditor ref="editorDialog" @done="saveColor" />
-    <FabricImportDialog ref="importDialog" :units="doc.units" @done="addFabrics" />
+    <FabricImportDialog
+      ref="importDialog"
+      :units="doc.units"
+      :existing="() => doc.project.palette.fabrics.filter((f) => !isLibraryItem(f))"
+      @done="addFabrics"
+    />
   </div>
 </template>
 
@@ -236,6 +264,8 @@ import type { RGB } from '@/editor/color';
 import { itemId } from '@/model/identity';
 import { useSettingsStore } from '@/stores/settings';
 import { blockThumbnail } from '@/render/thumbnail';
+import FavoriteBadge from '@/components/FavoriteBadge.vue';
+import { FAVORITE, tagsFor, visibleTags } from '@/model/tags';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { usePaletteOffer } from '@/composables/palette-offer';
@@ -243,6 +273,8 @@ import { fabricsIn, isLibraryItem, projectColorings, splitItems } from '@/model/
 import { blocksByLibrary, libraryGroups } from '@/model/library';
 import { projectPalettes } from '@/model/project-palettes';
 import BlockSections from '@/components/BlockSections.vue';
+import BlockFilter from '@/components/BlockFilter.vue';
+import { blockFits, type ShapeFilter } from '@/render/layout-samples';
 import { creditCopy } from '@/model/credits';
 import type { Color, Fabric } from '@/model/schema/palette';
 import { produce } from 'immer';
@@ -253,6 +285,12 @@ const $q = useQuasar();
 const project = useProjectStore();
 const editor = useEditorStore();
 const library = useLibraryStore();
+/** Spec 029: tagged Favorite by the quilter (a library block's tag is kept in My library). */
+const isFavorite = (b: Block) =>
+  (isLibraryItem(b)
+    ? tagsFor(b.notecard.tags, [b.id], library.kept)
+    : visibleTags(b.notecard.tags)
+  ).includes(FAVORITE);
 const editorDialog = ref<InstanceType<typeof ColorEditor>>();
 const importDialog = ref<InstanceType<typeof FabricImportDialog>>();
 const editing = ref<string | null>(null);
@@ -268,6 +306,8 @@ const props = withDefaults(
     sidebar?: boolean;
     /** The quilt has no spaces for blocks: Blocks says so, and it opens on Colors. */
     noBlocks?: boolean;
+    /** Whether the quilt has a space that takes this block (its shape). */
+    fitsQuilt?: (b: Block) => boolean;
   }>(),
   { colorsOnly: false, sidebar: false, noBlocks: false },
 );
@@ -326,9 +366,14 @@ const blockGroups = computed(() => {
   return [{ label: 'Mine', items: mine }, ...libraryGroups(avail, library.views, 'blocks')];
 });
 /** Sidebar: Mine, then each library's available blocks in category sections. */
+const filterShape = ref<ShapeFilter | null>(null);
+const compatibleOnly = computed(() => !!props.fitsQuilt && app.settings.compatibleBlocks);
+const fits = (b: Block) =>
+  compatibleOnly.value ? props.fitsQuilt!(b) : blockFits(b.shape, null, filterShape.value);
 const blockSectionGroups = computed(() => {
-  const [mine, ...libs] = blockGroups.value;
-  const avail = new Map(libs.flatMap((g) => g.items).map((b) => [b.id, b]));
+  const [all, ...libs] = blockGroups.value;
+  const mine = { ...all!, items: all!.items.filter(fits) };
+  const avail = new Map(libs.flatMap((g) => g.items.filter(fits)).map((b) => [b.id, b]));
   const r = blocksByLibrary(library.views, [...avail.values()]);
   const out = r.groups.map((g) => ({ lib: `tray:${g.id}`, label: g.label, sections: g.sections }));
   const flat = (lib: string, label: string, bs: Block[]) => ({
@@ -338,7 +383,7 @@ const blockSectionGroups = computed(() => {
   });
   const other = r.other;
   return [
-    ...(mine!.items.length ? [flat('tray:mine', 'Mine', mine!.items)] : []),
+    ...(mine.items.length ? [flat('tray:mine', 'Mine', mine.items)] : []),
     ...out,
     ...(other.length ? [flat('tray:other', 'Other libraries', other)] : []),
   ];
@@ -371,7 +416,8 @@ const colorTree = computed(() => {
           // A library's packs (spec 014) group together under the library's name.
           lib: v.doc.library?.id ?? v.doc.id,
           libName: v.doc.library?.name ?? v.doc.name,
-          label: c.notecard.name,
+          // Spec 029: a palette the quilter tagged Favorite shows its star.
+          label: `${tagsFor(c.notecard.tags, [c.id], library.kept).includes(FAVORITE) ? '⭐ ' : ''}${c.notecard.name}`,
           items: recentFirst(items),
           fabrics: c.fabrics ?? [],
           mine: false,
@@ -401,7 +447,7 @@ const colorTree = computed(() => {
       lib: 'project',
       label: 'Project palettes',
       groups: projectPalettes(doc.value).map((pp) => ({
-        label: pp.palette.notecard.name,
+        label: `${visibleTags(pp.palette.notecard.tags).includes(FAVORITE) ? '⭐ ' : ''}${pp.palette.notecard.name}`,
         items: recentFirst(pp.colors),
         fabrics: pp.fabrics,
         mine: true,
@@ -458,7 +504,15 @@ function chooseColoring(blockId: string, coloringId: string) {
 }
 /** Imported fabric images join the project's palette (spec 014). */
 function addFabrics(fabrics: Fabric[]) {
-  project.change((d) => void d.project.palette.fabrics.push(...fabrics));
+  project.change((d) => {
+    // One already here by id is a replacement ("Use the new one").
+    const all = d.project.palette.fabrics;
+    for (const f of fabrics) {
+      const at = all.findIndex((x) => x.id === f.id);
+      if (at >= 0) all[at] = f;
+      else all.push(f);
+    }
+  });
 }
 function removeFabric(id: string) {
   const used = fabricsIn([

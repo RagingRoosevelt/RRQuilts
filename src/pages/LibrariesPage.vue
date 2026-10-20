@@ -1,16 +1,24 @@
 <template>
   <q-page padding>
     <!-- The filters button sits on the sidebar's side, like the editors' menu button. -->
-    <div class="row items-center no-wrap q-mb-sm">
-      <h1 class="page-title col row items-center no-wrap">
+    <div class="row items-center q-mb-sm">
+      <h1 class="page-title row items-center no-wrap">
         Libraries <HelpLink topic="guides/libraries" label="Libraries" />
       </h1>
+      <!-- What the page shows: blocks, palettes or both. -->
+      <SlidePicker
+        v-model="settings.settings.libraryType"
+        :options="TYPE_OPTIONS"
+        label="Type"
+        class="type-pick"
+      />
+      <q-space />
       <q-btn
         v-if="$q.screen.lt.md"
         flat
-        round
-        icon="menu"
-        aria-label="Filters"
+        no-caps
+        icon="filter_list"
+        label="Filters"
         :style="settings.settings.sidesSwapped ? { order: -1 } : undefined"
         @click="toggleFilters"
       />
@@ -18,11 +26,28 @@
     <q-banner v-if="!library.stored" dense class="bg-warning text-dark q-mb-md">
       This browser isn't keeping your libraries (storage is blocked). Back up before closing.
     </q-banner>
+    <!-- Spec 029: tags kept for items no installed library has (a removed pack's). -->
+    <q-banner v-if="library.orphanedTags.length" dense rounded class="q-mb-md orphans">
+      Your tags on {{ library.orphanedTags.length }}
+      {{ library.orphanedTags.length === 1 ? 'item' : 'items' }} you no longer have:
+      {{ [...new Set(library.orphanedTags.flatMap((a) => a.tags))].join(', ') }}. They come back if
+      you add the library again.
+      <template #action>
+        <q-btn flat no-caps label="Remove them" @click="removeOrphanTags" />
+      </template>
+    </q-banner>
 
     <div class="row no-wrap-md" style="gap: 16px">
       <div
+        v-if="filtersOpen && $q.screen.lt.md"
+        class="fly-backdrop"
+        :style="{ '--fly-top': `${flyTop}px` }"
+        aria-hidden="true"
+        @click="filtersOpen = false"
+      />
+      <div
         v-show="filtersOpen || $q.screen.gt.sm"
-        class="libs column"
+        class="libs column no-wrap"
         :class="{ left: settings.settings.sidesSwapped }"
         :style="{ gap: '8px', '--fly-top': `${flyTop}px` }"
       >
@@ -67,6 +92,7 @@
           <div
             v-if="collapse.isOpen('sidebar:libraries')"
             class="lib-checks column no-wrap q-px-sm"
+            style="gap: 6px"
           >
             <div v-if="!shownGroups.length" class="text-caption text-grey-7 q-pa-xs">
               No packs match.
@@ -138,7 +164,11 @@
                     }}</q-item-label>
                   </q-item-section>
                 </template>
-                <div v-if="g.connection || g.packs.length > 1" class="row q-pb-xs" style="gap: 4px">
+                <div
+                  v-if="g.connection || g.packs.length > 1"
+                  class="row no-wrap q-pb-xs"
+                  style="gap: 2px"
+                >
                   <q-btn
                     flat
                     dense
@@ -156,7 +186,7 @@
                     no-caps
                     size="sm"
                     icon="update"
-                    label="Check for updates"
+                    label="Get updates"
                     :loading="checking"
                     @click="checkUpdate(g.connection)"
                   />
@@ -298,41 +328,36 @@
             </div>
           </div>
         </fieldset>
-        <SlidePicker v-model="settings.settings.libraryType" :options="TYPE_OPTIONS" label="Type" />
-        <template v-for="f in filterFields" :key="f.key">
-          <q-select
-            v-if="f.options.length"
-            v-model="filters[f.key]"
-            :options="f.options.filter((o) => o.label.toLowerCase().includes(needle[f.key]))"
-            :label="f.label"
-            dense
-            outlined
-            multiple
-            use-chips
-            use-input
-            input-debounce="0"
-            emit-value
-            map-options
-            clearable
-            @clear="filters[f.key] = []"
-            @filter="
-              (v: string, done: (fn: () => void) => void) =>
-                done(() => (needle[f.key] = v.toLowerCase()))
-            "
-          >
-            <template #option="{ itemProps, opt, selected }">
-              <q-item v-bind="itemProps" dense>
-                <q-item-section side>
-                  <q-checkbox :model-value="selected" dense class="no-pointer-events" />
-                </q-item-section>
-                <q-item-section>{{ opt.label }}</q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-        </template>
         <q-input v-model="search" dense outlined clearable placeholder="Search names, notes">
           <template #prepend><q-icon name="search" /></template>
         </q-input>
+        <FilterCard v-if="filterFields.some((f) => f.options.length)" label="Metadata">
+          <template v-for="f in filterFields" :key="f.key">
+            <FilterSelect
+              v-if="f.options.length"
+              v-model="filters[f.key]"
+              :options="f.options"
+              :label="f.label"
+            />
+          </template>
+        </FilterCard>
+        <FilterCard v-if="settings.settings.libraryType === 'block'" label="Shape">
+          <BlockFilter
+            v-model:layout="fitLayout"
+            v-model:shape="fitShape"
+            style="display: contents"
+          />
+        </FilterCard>
+        <!-- Read from each block's drawing (spec 029). -->
+        <FilterCard v-if="settings.settings.libraryType === 'block'" label="Construction">
+          <FilterSelect
+            v-for="f in CONSTRUCTION_FILTERS"
+            :key="f.key"
+            v-model="filters[f.key]"
+            :options="f.options"
+            :label="f.label"
+          />
+        </FilterCard>
         <q-select
           v-if="settings.settings.libraryType === 'block'"
           v-model="settings.settings.libraryGroupBy"
@@ -347,23 +372,24 @@
         <template
           v-if="settings.settings.libraryType === 'block' && groups.some((g) => g.blocks.length)"
         >
-          <q-separator />
-          <nav class="toc column" aria-label="Contents">
-            <template v-for="g in groups.filter((x) => x.blocks.length)" :key="g.v.doc.id">
-              <a href="#" class="toc-lib" @click.prevent="revealSection(g.v.doc.id)">{{
-                g.v.doc.name
-              }}</a>
-              <a
-                v-for="s in g.sections.filter((x) => x.label)"
-                :key="s.key"
-                href="#"
-                class="toc-sec"
-                :class="{ sub: s.parent }"
-                @click.prevent="revealSection(g.v.doc.id, s)"
-                >{{ s.label }} <span class="text-grey-6">{{ s.count }}</span></a
-              >
-            </template>
-          </nav>
+          <FilterCard :label="tocLabel">
+            <nav class="toc column" aria-label="Contents">
+              <template v-for="g in groups.filter((x) => x.blocks.length)" :key="g.v.doc.id">
+                <a href="#" class="toc-lib" @click.prevent="revealSection(g.v.doc.id)">{{
+                  g.v.doc.name
+                }}</a>
+                <a
+                  v-for="s in g.sections.filter((x) => x.label)"
+                  :key="s.key"
+                  href="#"
+                  class="toc-sec"
+                  :class="{ sub: s.parent }"
+                  @click.prevent="revealSection(g.v.doc.id, s)"
+                  >{{ s.label }} <span class="text-grey-6">{{ s.count }}</span></a
+                >
+              </template>
+            </nav>
+          </FilterCard>
         </template>
       </div>
 
@@ -477,6 +503,9 @@
                           :alt="b.notecard.name"
                         />
                       </button>
+                      <FavoriteBadge
+                        v-if="tagsFor(b.notecard.tags, [b.id], library.kept).includes(FAVORITE)"
+                      />
                       <ColoringCount
                         :block="b"
                         :model-value="shown.get(`${g.v.doc.id}:${b.id}`)"
@@ -507,13 +536,18 @@
                               <q-item v-close-popup clickable @click="pickCategory(b.id)">
                                 <q-item-section>Category…</q-item-section>
                               </q-item>
-                              <q-item v-close-popup clickable @click="startTagging(b.id)">
-                                <q-item-section>Tags & styles…</q-item-section>
+                              <q-item v-close-popup clickable @click="startTagging(b)">
+                                <q-item-section>Tags…</q-item-section>
                               </q-item>
                             </template>
-                            <q-item v-else v-close-popup clickable @click="copyMine(g.v, b.id)">
-                              <q-item-section>Copy to my library</q-item-section>
-                            </q-item>
+                            <template v-else>
+                              <q-item v-close-popup clickable @click="startTagging(b)">
+                                <q-item-section>Tags…</q-item-section>
+                              </q-item>
+                              <q-item v-close-popup clickable @click="copyMine(g.v, b.id)">
+                                <q-item-section>Copy to my library</q-item-section>
+                              </q-item>
+                            </template>
                             <q-item v-close-popup clickable @click="exportBlock(b)">
                               <q-item-section>Export (.rrqbl)</q-item-section>
                             </q-item>
@@ -575,6 +609,10 @@
                 @drop.prevent="g.mine && dropImages($event, c.id)"
               >
                 <legend class="ellipsis">
+                  <FavoriteBadge
+                    v-if="tagsFor(c.notecard.tags, [c.id], library.kept).includes(FAVORITE)"
+                    inline
+                  />
                   {{ c.notecard.name }}
                   <span class="text-caption text-grey-7"
                     >· {{ c.colors.length + (c.fabrics?.length ?? 0) }}
@@ -610,7 +648,8 @@
                     :title="x.notecard.name + (x.approximate ? ' (size ≈)' : '')"
                   />
                 </button>
-                <q-btn flat round dense icon="more_vert" aria-label="Actions">
+                <!-- At the top, beside the first row of swatches, however many rows there are. -->
+                <q-btn flat round dense class="self-start" icon="more_vert" aria-label="Actions">
                   <q-menu>
                     <q-list dense style="min-width: 170px">
                       <q-item
@@ -627,13 +666,18 @@
                         <q-item v-close-popup clickable @click="pickCategory(c.id)">
                           <q-item-section>Category…</q-item-section>
                         </q-item>
-                        <q-item v-close-popup clickable @click="startTagging(c.id)">
-                          <q-item-section>Tags & styles…</q-item-section>
+                        <q-item v-close-popup clickable @click="startTagging(c)">
+                          <q-item-section>Tags…</q-item-section>
                         </q-item>
                       </template>
-                      <q-item v-else v-close-popup clickable @click="copyMine(g.v, c.id)">
-                        <q-item-section>Copy to my library</q-item-section>
-                      </q-item>
+                      <template v-else>
+                        <q-item v-close-popup clickable @click="startTagging(c)">
+                          <q-item-section>Tags…</q-item-section>
+                        </q-item>
+                        <q-item v-close-popup clickable @click="copyMine(g.v, c.id)">
+                          <q-item-section>Copy to my library</q-item-section>
+                        </q-item>
+                      </template>
                       <q-item v-close-popup clickable @click="exportCollection(c)">
                         <q-item-section>Export (.rrqplt)</q-item-section>
                       </q-item>
@@ -662,16 +706,8 @@
     <!-- Preview / collection colors -->
     <q-dialog :model-value="!!previewing" @update:model-value="previewing = null">
       <q-card v-if="previewBlock" style="width: 560px; max-width: 95vw">
+        <DialogClose />
         <q-card-section>
-          <q-btn
-            v-close-popup
-            flat
-            round
-            dense
-            icon="close"
-            aria-label="Close"
-            class="float-right"
-          />
           <div class="text-h6">{{ previewBlock.notecard.name }}</div>
           <div class="text-caption text-grey-7">
             {{ previewBlock.size.map((n) => roundLen(n, 'in')).join(' × ') }} in
@@ -726,16 +762,8 @@
         </q-card-section>
       </q-card>
       <q-card v-else-if="previewCollection" style="width: min(80vw, 512px); max-width: none">
+        <DialogClose />
         <q-card-section>
-          <q-btn
-            v-close-popup
-            flat
-            round
-            dense
-            icon="close"
-            aria-label="Close"
-            class="float-right"
-          />
           <PaletteTitle :palette="previewCollection" :license="itemLicense(previewCollection)" />
         </q-card-section>
         <PalettePreview
@@ -754,39 +782,18 @@
       </q-card>
     </q-dialog>
 
-    <!-- Tags & styles -->
-    <q-dialog :model-value="!!tagging" @update:model-value="tagging = null">
-      <q-card v-if="tagging" style="width: 400px; max-width: 95vw">
-        <q-card-section class="text-h6">Tags & styles</q-card-section>
-        <q-card-section class="column" style="gap: 8px">
-          <q-select
-            v-for="f in ['tags', 'styles'] as const"
-            :key="f"
-            v-model="tagging[f]"
-            :label="f === 'tags' ? 'Tags' : 'Styles'"
-            :hint="f === 'styles' ? 'e.g. eight-point, log cabin' : undefined"
-            :options="tagOptions"
-            dense
-            outlined
-            multiple
-            use-chips
-            use-input
-            hide-dropdown-icon
-            input-debounce="0"
-            new-value-mode="add-unique"
-            @filter="(v: string, done: (fn: () => void) => void) => filterTags(f, v, done)"
-          />
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn v-close-popup flat no-caps label="Cancel" />
-          <q-btn flat no-caps color="primary" label="Save" @click="saveTags" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <!-- Tags (and technique on own blocks), spec 029 -->
+    <TagsDialog
+      :target="tagging?.target ?? null"
+      :vocabulary="library.tagVocabulary"
+      @close="tagging = null"
+      @save="saveTags"
+    />
 
     <!-- Categories -->
     <q-dialog v-model="managing">
       <q-card style="width: 400px; max-width: 95vw">
+        <DialogClose />
         <q-card-section class="text-h6">Categories</q-card-section>
         <q-list dense separator>
           <q-item v-for="c in categoryTree(library.mine?.categories ?? [])" :key="c.id">
@@ -835,6 +842,7 @@
     <!-- Back up -->
     <q-dialog :model-value="!!backingUp" @update:model-value="backingUp = null">
       <q-card v-if="backingUp" style="width: 400px; max-width: 95vw">
+        <DialogClose />
         <q-card-section class="text-h6">Back up libraries</q-card-section>
         <q-card-section class="column">
           <q-checkbox v-model="backingUp.mine" :label="`${MY_LIBRARY} (${mineCount})`" />
@@ -865,6 +873,7 @@
     <!-- Restore -->
     <q-dialog :model-value="!!restoring" persistent>
       <q-card v-if="restoring" style="width: 460px; max-width: 95vw">
+        <DialogClose @click="restoring = null" />
         <q-card-section class="text-h6">Restore a backup</q-card-section>
         <q-card-section class="column" style="gap: 8px">
           <div>
@@ -907,6 +916,7 @@
     <!-- Share as pack -->
     <q-dialog v-model="shareOpen">
       <q-card style="width: 480px; max-width: 95vw">
+        <DialogClose />
         <q-card-section class="text-h6">Make a pack</q-card-section>
         <q-card-section class="column" style="gap: 8px">
           <q-input v-model="share.name" dense outlined label="Name" />
@@ -1047,6 +1057,7 @@
     <!-- Add a library from the web -->
     <q-dialog v-model="adding.open">
       <q-card style="width: 480px; max-width: 90vw">
+        <DialogClose />
         <q-card-section class="text-h6">{{
           adding.fromLink ? 'Add this library?' : 'Add a library from the web'
         }}</q-card-section>
@@ -1087,6 +1098,7 @@
     <!-- Importing a library file: which of its packs to add -->
     <q-dialog :model-value="!!picking" persistent>
       <q-card v-if="picking" style="width: 520px; max-width: 92vw">
+        <DialogClose @click="picking = null" />
         <q-card-section class="text-h6"
           >Import {{ picking.r.library?.name ?? 'library' }}</q-card-section
         >
@@ -1184,6 +1196,7 @@
     <!-- A connected library's update -->
     <q-dialog :model-value="!!updating" persistent>
       <q-card v-if="updating" style="width: 480px; max-width: 90vw">
+        <DialogClose @click="updating = null" />
         <q-card-section class="text-h6">{{ updating.index.name }} has an update</q-card-section>
         <q-card-section class="q-pt-none" style="max-height: 60vh; overflow: auto">
           <!-- What changes on this device, before anything is downloaded or removed. -->
@@ -1277,6 +1290,7 @@
     <!-- Turning off a library or pack the open project uses -->
     <q-dialog :model-value="!!turningOff" @update:model-value="turningOff = null">
       <q-card v-if="turningOff" style="width: 460px; max-width: 95vw">
+        <DialogClose />
         <q-card-section class="text-h6">{{ turningOff.name }} is in use</q-card-section>
         <q-card-section class="q-pt-none">
           The open project, {{ project.doc?.project.name }}, uses {{ turningOff.paints }} color{{
@@ -1300,13 +1314,29 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <FabricImportDialog ref="fabricDialog" units="in" :palettes="myPalettes" @done="fabricsAdded" />
+    <FabricImportDialog
+      ref="fabricDialog"
+      units="in"
+      :palettes="myPalettes"
+      :existing="myPaletteFabrics"
+      @done="fabricsAdded"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
+import DialogClose from '@/components/DialogClose.vue';
+import TagsDialog from '@/components/TagsDialog.vue';
+import FavoriteBadge from '@/components/FavoriteBadge.vue';
+import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
+import { TECHNIQUES, techniqueOptions } from '@/model/schema/shared';
+import { FAVORITE, sortTags, tagLabel, tagsFor, visibleTags, type TagTarget } from '@/model/tags';
 import ColoringCount from '@/components/ColoringCount.vue';
 import BlockSections from '@/components/BlockSections.vue';
+import BlockFilter from '@/components/BlockFilter.vue';
+import FilterSelect from '@/components/FilterSelect.vue';
+import FilterCard from '@/components/FilterCard.vue';
+import { blockFits, type ShapeFilter } from '@/render/layout-samples';
 import { roundLen } from '@/model/units';
 import ColorEditor from '@/components/ColorEditor.vue';
 import HelpLink from '@/components/HelpLink.vue';
@@ -1327,7 +1357,7 @@ import {
   watch,
 } from 'vue';
 import { useAuthor } from '@/composables/author';
-import { serializeBlock } from '@/model/block-file';
+import { fabricIdsOf, serializeBlock } from '@/model/block-file';
 import { collectionFile, parseCollectionFile } from '@/model/collection-file';
 import { DEFAULT_LICENSE, LICENSES, authorOf, licenseName, priorCredits } from '@/model/credits';
 import {
@@ -1336,6 +1366,7 @@ import {
   withSources,
   blockSections,
   categoryTree,
+  categoryFilter,
   copyToMine,
   deleteCategory,
   ensureCategory,
@@ -1344,7 +1375,6 @@ import {
   renameCategory,
   searchItems,
   setCategory,
-  withSubcategories,
   setCollectionColors,
   addNewColor,
   saveCollection,
@@ -1430,7 +1460,7 @@ function toggleFilters() {
   filtersOpen.value = !filtersOpen.value;
 }
 const select = (id: string) => {
-  for (const k of ['cats', 'tags', 'styles'] as const) filters[k] = [];
+  for (const k of ['cats', 'tags', 'techniques', 'seams', 'difficulty'] as const) filters[k] = [];
   search.value = '';
   hiddenLibs.value =
     id === 'mine' ? [] : library.allViews.map((v) => v.doc.id).filter((x) => x !== id);
@@ -1815,17 +1845,22 @@ async function connectBundled(g: PackGroup) {
 function disconnect(g: PackGroup) {
   const c = g.connection;
   const verb = c ? 'Disconnect' : 'Remove';
-  $q.dialog({
-    title: `${verb} ${g.name}?`,
-    message: `Its ${c ? 'downloaded' : 'imported'} packs are removed from this device. Projects keep the items they use.`,
-    cancel: true,
-    ok: { label: verb, color: 'negative', flat: true },
-  }).onOk(() => {
-    // A library offered with the app stays out of the list on this device once disconnected.
-    if (c && bundled.some((b) => sameUrl(b.url, c.url)))
-      settings.settings.bundledHidden = [...settings.settings.bundledHidden, c.url];
-    void library.removeLibrary(g.key.slice(4));
-  });
+  const tagged = keptOf(library.packs.filter((p) => `lib:${p.library?.id}` === g.key));
+  askRemove(
+    {
+      title: `${verb} ${g.name}?`,
+      message: `Its ${c ? 'downloaded' : 'imported'} packs are removed from this device. Projects keep the items they use.`,
+      ok: verb,
+      tagged: tagged.length,
+    },
+    (keep) => {
+      // A library offered with the app stays out of the list on this device once disconnected.
+      if (c && bundled.some((b) => sameUrl(b.url, c.url)))
+        settings.settings.bundledHidden = [...settings.settings.bundledHidden, c.url];
+      void library.removeLibrary(g.key.slice(4));
+      if (!keep) void library.dropKept(tagged);
+    },
+  );
 }
 
 const isPack = (v: LibraryView) => library.packs.some((p) => p.id === v.doc.id);
@@ -1841,20 +1876,28 @@ const counts = (v: LibraryView) =>
 const mineCount = computed(() => library.mine?.items.length ?? 0);
 
 const search = ref('');
+/** Block filter (spec 026): blocks that fit a layout, or of one shape. */
+const fitLayout = ref<string | null>(null);
+const fitShape = ref<ShapeFilter | null>(null);
 /** Selected values per filter; empty = any. Category '' = uncategorized. */
 const filters = reactive({
   cats: [] as string[],
   tags: [] as string[],
-  styles: [] as string[],
+  techniques: [] as string[],
+  seams: [] as string[],
+  difficulty: [] as string[],
 });
 /** What's typed in each dropdown to narrow its options. */
-const needle = reactive({ cats: '', tags: '', styles: '' });
 const filtering = computed(
   // The Type picker is a view choice, not a filter (it always has a value).
   () =>
     !!search.value ||
     !!hiddenLibs.value.length ||
-    [filters.cats, filters.tags, filters.styles].some((f) => f.length),
+    !!fitLayout.value ||
+    !!fitShape.value ||
+    [filters.cats, filters.tags, filters.techniques, filters.seams, filters.difficulty].some(
+      (f) => f.length,
+    ),
 );
 /** Every library shown; My library always, as an empty one until something is saved there. */
 const inScope = computed(() =>
@@ -1879,16 +1922,46 @@ const inScope = computed(() =>
 const ofType = (i: LibraryItem) =>
   !settings.settings.libraryType || i.type === settings.settings.libraryType;
 const typedItems = computed(() => inScope.value.flatMap((v) => v.doc.items.filter(ofType)));
-const values = (f: 'tags' | 'styles') =>
-  [...new Set(typedItems.value.flatMap((i) => i.data.notecard[f] ?? []))]
-    .sort()
-    .map((t) => ({ label: t, value: t }));
+/** The quilter's tags on an item (spec 029): its own, and those kept in My library for it. */
+const tagsOfItem = (i: LibraryItem) => tagsFor(i.data.notecard.tags, [i.data.id], library.kept);
+// Favorite first, always listed.
+const tagValues = computed(() =>
+  sortTags(typedItems.value.flatMap(tagsOfItem), true).map((t) => ({
+    label: tagLabel(t),
+    value: t,
+  })),
+);
+// Spec 029: in its two sections (Techniques, Efficiency), only those the shown items use.
+const techniqueValues = computed(() =>
+  techniqueOptions(new Set(typedItems.value.flatMap((i) => i.data.notecard.techniques ?? []))),
+);
 const allCats = computed(() => [
   ...new Map(inScope.value.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
 ]);
-// Switching Blocks / Palettes / All: drop filter picks the new type doesn't offer.
+const TYPE_OPTIONS = [
+  { label: 'Blocks', value: 'block' },
+  { label: 'Palettes', value: 'colors' },
+  { label: 'All', value: '' },
+];
+/** Category filter: every library's categories merged by name; only those the items use. */
+const catFilter = computed(() =>
+  categoryFilter(allCats.value, new Set(typedItems.value.map((i) => i.category ?? ''))),
+);
+const filterFields = computed(() => {
+  const cats = catFilter.value.options;
+  return [
+    {
+      key: 'cats' as const,
+      label: 'Category',
+      options: cats.some((o) => o.value) ? cats : [],
+    },
+    { key: 'tags' as const, label: 'Tags', options: tagValues.value },
+    { key: 'techniques' as const, label: 'Technique', options: techniqueValues.value },
+  ];
+});
+// Picks the filters no longer offer go (switching Blocks / Palettes / All, a category deleted).
 watch(
-  () => settings.settings.libraryType,
+  () => filterFields.value.map((f) => f.options.map((o) => o.value).join('\n')).join('\t'),
   () => {
     for (const f of filterFields.value) {
       const ok = new Set(f.options.map((o) => o.value));
@@ -1896,50 +1969,35 @@ watch(
     }
   },
 );
-const TYPE_OPTIONS = [
-  { label: 'Blocks', value: 'block' },
-  { label: 'Palettes', value: 'colors' },
-  { label: 'All', value: '' },
-];
-const filterFields = computed(() => {
-  // Categories the shown items use, with their parents.
-  const used = new Set(typedItems.value.map((i) => i.category ?? ''));
-  for (const c of allCats.value) if (used.has(c.id) && c.parent) used.add(c.parent);
-  const cats = allCats.value.filter((c) => used.has(c.id));
-  return [
-    {
-      key: 'cats' as const,
-      label: 'Category',
-      options: cats.length
-        ? [
-            ...categoryTree(cats).map((c) => ({ label: c.label, value: c.id })),
-            ...(used.has('') ? [{ label: 'Uncategorized', value: '' }] : []),
-          ]
-        : [],
-    },
-    { key: 'tags' as const, label: 'Tags', options: values('tags') },
-    { key: 'styles' as const, label: 'Styles', options: values('styles') },
-  ];
-});
 const anyOf = (picked: string[], have: string[]) =>
   !picked.length || picked.some((x) => have.includes(x));
 const matches = (i: LibraryItem) =>
   (!settings.settings.libraryType || i.type === settings.settings.libraryType) &&
-  anyOf(withSubcategories(allCats.value, filters.cats), [i.category ?? '']) &&
-  anyOf(filters.tags, i.data.notecard.tags ?? []) &&
-  anyOf(filters.styles, i.data.notecard.styles ?? []);
+  anyOf(catFilter.value.ids(filters.cats), [i.category ?? '']) &&
+  anyOf(filters.tags, tagsOfItem(i)) &&
+  anyOf(filters.techniques, i.data.notecard.techniques ?? []) &&
+  (i.type !== 'block'
+    ? !filters.seams.length && !filters.difficulty.length
+    : blockFits(i.data.shape, fitLayout.value, fitShape.value) &&
+      constructionMatches(i.data, filters));
 const GROUP_BY = [
   { label: 'Nothing', value: 'none' },
   { label: 'Category', value: 'category' },
   { label: 'Tags', value: 'tags' },
-  { label: 'Styles', value: 'styles' },
+  { label: 'Technique', value: 'techniques' },
 ];
+/** The contents list's heading: what blocks are grouped by (libraries alone when by nothing). */
+const tocLabel = computed(() =>
+  settings.settings.libraryGroupBy === 'none'
+    ? 'Libraries'
+    : GROUP_BY.find((g) => g.value === settings.settings.libraryGroupBy)!.label,
+);
 const groups = computed(() =>
   withLibraryHeads(
     inScope.value
       .map((v) => {
         const ids = new Set(
-          searchItems(v.doc.items, search.value ?? '')
+          searchItems(v.doc.items, search.value ?? '', undefined, tagsOfItem)
             .filter(matches)
             .map((i) => i.data.id),
         );
@@ -1948,7 +2006,9 @@ const groups = computed(() =>
           v,
           mine: v.doc.kind === 'personal',
           blocks,
-          sections: blockSections(v.doc, blocks, settings.settings.libraryGroupBy),
+          sections: blockSections(v.doc, blocks, settings.settings.libraryGroupBy, (b) =>
+            tagsFor(b.notecard.tags, [b.id], library.kept),
+          ),
           collections: v.collections.filter((c) => ids.has(c.id)),
         };
       })
@@ -2011,7 +2071,10 @@ const creditLine = (x: Block) =>
     .map((c) => `${c.name ?? 'earlier work'} by ${c.author ?? 'anonymous'}`)
     .join('; ');
 const tagLine = (x: Block) =>
-  [...(x.notecard.styles ?? []).map((s) => `style: ${s}`), ...(x.notecard.tags ?? [])].join(' · ');
+  [
+    ...(x.notecard.techniques ?? []).map((t) => TECHNIQUES[t]),
+    ...tagsFor(x.notecard.tags, [x.id], library.kept),
+  ].join(' · ');
 
 /** What the preview shows; `at`: a palette's color or fabric to show first. */
 const previewing = ref<{ lib: string; id: string; at?: number } | null>(null);
@@ -2044,12 +2107,20 @@ function rename(id: string, name: string) {
   );
 }
 function remove(id: string) {
-  $q.dialog({
-    title: 'Delete from my library?',
-    message: 'Projects that use it keep their copy.',
-    cancel: true,
-    ok: { label: 'Delete', color: 'negative', flat: true },
-  }).onOk(() => void update((l) => removeItem(l, id)));
+  // Its own tags can be kept in My library, as a pack's are, in case it comes back.
+  const tags = visibleTags(library.mine?.items.find((i) => i.data.id === id)?.data.notecard.tags);
+  askRemove(
+    {
+      title: 'Delete from my library?',
+      message: 'Projects that use it keep their copy.',
+      ok: 'Delete',
+      tagged: tags.length ? 1 : 0,
+    },
+    (keep) =>
+      void update((l) => removeItem(l, id)).then(() =>
+        keep ? library.setKeptTags(me.value, id, tags) : undefined,
+      ),
+  );
 }
 const askCategory = useAskCategory();
 async function pickCategory(id: string) {
@@ -2058,25 +2129,18 @@ async function pickCategory(id: string) {
   if (v !== null) await update((l) => setCategory(l, id, v));
 }
 
-const tagging = ref<{ id: string; tags: string[]; styles: string[] } | null>(null);
-const tagOptions = ref<string[]>([]);
-// Existing tags/styles from every library, matched as you type; Enter adds a new one.
-function filterTags(f: 'tags' | 'styles', typed: string, done: (fn: () => void) => void) {
-  const q = typed.trim().toLowerCase();
-  const all = new Set(
-    library.allViews.flatMap((v) => v.doc.items.flatMap((i) => i.data.notecard[f] ?? [])),
-  );
-  done(() => (tagOptions.value = [...all].filter((t) => t.toLowerCase().includes(q)).sort()));
+/** Tagging an item: own items keep tags in themselves; others' in My library (spec 029). */
+const tagging = ref<{ id: string; target: TagTarget } | null>(null);
+function startTagging(x: Block | ColorCollection) {
+  tagging.value = {
+    id: x.id,
+    target: { name: x.notecard.name, tags: tagsFor(x.notecard.tags, [x.id], library.kept) },
+  };
 }
-function startTagging(id: string) {
-  const n = library.mine!.items.find((i) => i.data.id === id)!.data.notecard;
-  tagging.value = { id, tags: [...(n.tags ?? [])], styles: [...(n.styles ?? [])] };
-}
-function saveTags() {
-  const { id, tags, styles } = tagging.value!;
+function saveTags(tags: string[]) {
+  const t = tagging.value!;
   tagging.value = null;
-  const clean = (l: string[]) => [...new Set(l.map((x) => x.trim()).filter(Boolean))];
-  void update((l) => setNotecard(l, id, { tags: clean(tags), styles: clean(styles) }));
+  void library.setTags(me.value, t.id, tags);
 }
 
 const managing = ref(false);
@@ -2099,8 +2163,6 @@ function deleteCat(id: string, name: string) {
     cancel: true,
     ok: { label: 'Delete', color: 'negative', flat: true },
   }).onOk(() => {
-    const gone = withSubcategories(library.mine?.categories ?? [], [id]);
-    filters.cats = filters.cats.filter((c) => !gone.includes(c));
     void update((l) => deleteCategory(l, id));
   });
 }
@@ -2191,10 +2253,23 @@ async function copyMine(v: LibraryView, id: string) {
 }
 
 // --- Files ---
-function exportBlock(b: Block) {
+async function exportBlock(b: Block) {
+  // The fabrics it uses go along with their images (as in a palette file).
+  const used = fabricIdsOf(b);
+  const fabrics = await embedFabrics(
+    library.items.fabrics.filter((f) => used.has(f.id)),
+    settings.settings.saveSize,
+  );
   void exportFile(
     b.notecard.name,
-    serializeBlock(b, 'in', library.items.colors, me.value, socialsOut(settings.settings.socials)),
+    serializeBlock(
+      b,
+      'in',
+      library.items.colors,
+      me.value,
+      socialsOut(settings.settings.socials),
+      fabrics,
+    ),
     'rrqbl',
   );
 }
@@ -2463,16 +2538,57 @@ function installPack(doc: LibraryDoc, skipped: string[]) {
   }).onOk(() => void install());
 }
 
-function removePack(doc: LibraryDoc) {
+/**
+ * Removing items that carry the quilter's tags (spec 029): ask whether the tag associations stay
+ * (kept in My library, by item id, so the items get them back if they return). `keep` gets the
+ * answer.
+ */
+function askRemove(
+  o: { title: string; message: string; ok: string; tagged: number },
+  then: (keep: boolean) => void,
+) {
   $q.dialog({
-    title: `Remove “${doc.name}”?`,
-    message: 'Projects that use its items keep their copies.',
+    title: o.title,
+    message: o.tagged
+      ? `${o.message}\n\nThis has tags attached (on ${o.tagged} ${o.tagged === 1 ? 'item' : 'items'}). Should the tag associations be kept in case you add it back?`
+      : o.message,
+    style: 'white-space: pre-line',
+    ...(o.tagged
+      ? {
+          options: {
+            type: 'checkbox',
+            model: ['keep'],
+            items: [{ label: 'Save tag associations after removing', value: 'keep' }],
+          },
+        }
+      : {}),
     cancel: true,
-    ok: { label: 'Remove', color: 'negative', flat: true },
-  }).onOk(() => {
-    select('mine');
-    void library.removePack(doc.id);
-  });
+    ok: { label: o.ok, color: 'negative', flat: true },
+  }).onOk((keep?: string[]) => then(!!keep?.includes('keep')));
+}
+/** Of these library items, the ones with kept tags (others' items: tags live in My library). */
+const keptOf = (docs: readonly LibraryDoc[]) => {
+  const ids = new Set(docs.flatMap((d) => d.items.map((i) => i.data.id)));
+  return (library.mine?.annotations ?? []).filter((a) => ids.has(a.id)).map((a) => a.id);
+};
+function removePack(doc: LibraryDoc) {
+  const tagged = keptOf([doc]);
+  askRemove(
+    {
+      title: `Remove pack “${doc.name}”?`,
+      message: 'Projects that use its items keep their copies.',
+      ok: 'Remove',
+      tagged: tagged.length,
+    },
+    (keep) => {
+      select('mine');
+      void library.removePack(doc.id);
+      if (!keep) void library.dropKept(tagged);
+    },
+  );
+}
+function removeOrphanTags() {
+  void library.dropKept(library.orphanedTags.map((a) => a.id));
 }
 
 const backingUp = ref<{ mine: boolean; packs: boolean } | null>(null);
@@ -2513,6 +2629,11 @@ const myPalettes = computed(() =>
     i.type === 'colors' ? [{ id: i.data.id, name: i.data.notecard.name }] : [],
   ),
 );
+/** A My library palette's fabrics (same-named ones are asked about: spec 035 B). */
+const myPaletteFabrics = (id?: string) => {
+  const i = library.mine?.items.find((x) => x.type === 'colors' && x.data.id === id);
+  return i?.type === 'colors' ? (i.data.fabrics ?? []) : [];
+};
 async function fabricsAdded(fabrics: Fabric[], palette?: { id: string } | { name: string }) {
   if (!palette) return;
   await update(async (l) => (await addFabrics(l, palette, fabrics, me.value)).lib);
@@ -2664,6 +2785,18 @@ function downloadPack() {
 </script>
 
 <style scoped>
+.type-pick {
+  flex: 0 1 260px;
+  margin: 0 8px 0 16px;
+}
+/* Phones: under the title, full width. */
+@media (max-width: 599px) {
+  .type-pick {
+    order: 3;
+    flex: 1 1 100%;
+    margin: 8px 0 0;
+  }
+}
 /* A card's place before it's built (when scrolled into view): about a card's height, so the page
    doesn't jump as cards appear. */
 .card-slot:not(:has(.card)) {
@@ -2721,9 +2854,10 @@ function downloadPack() {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* A very slight line between libraries. */
+/* A very slight line between libraries, with room on both sides of it. */
 .lib-checks > * + * {
   border-top: 1px solid rgba(128, 128, 128, 0.15);
+  padding-top: 6px;
 }
 .lib-checks .q-checkbox {
   min-height: 50px;
@@ -2734,6 +2868,12 @@ function downloadPack() {
 }
 
 @media (max-width: 1023px) {
+  .fly-backdrop {
+    position: fixed;
+    inset: var(--fly-top, 50px) 0 0 0;
+    z-index: 4;
+    background: rgba(0, 0, 0, 0.2);
+  }
   .row.no-wrap-md {
     flex-direction: column;
   }

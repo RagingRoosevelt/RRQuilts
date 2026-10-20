@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { COLLECTION_VERSION } from '@/model/collection-file';
 import { describe, expect, it } from 'vitest';
 import { RrqDoc } from '@/model/schema/project';
 import { BundledLibraries } from '@/model/schema/bundled';
@@ -6,7 +7,7 @@ import Value from 'typebox/value';
 
 // The published JSON Schema is the TypeBox schema serialized. `npm run schema` rewrites the files.
 const targets = [
-  'public/schemas/rrq.v6.json',
+  'public/schemas/rrq.v8.json',
   'specs/003-project-format/contracts/rrq.schema.json',
 ];
 const generated = JSON.stringify(RrqDoc, null, 2) + '\n';
@@ -39,6 +40,7 @@ describe('published format versions (template repositories check these)', () => 
       rrq: VERSION,
       rrqlib: LIBRARY_VERSION,
       'rrqlib-index': 1,
+      rrqplt: COLLECTION_VERSION,
     });
   });
 });

@@ -175,7 +175,8 @@ export function drawQuilt(
     ctx.stroke(slotPath(slot));
   }
   if (o.labels) drawLabels(ctx, quilt, generated, blocks, base, o.dpr);
-  if (o.target && quilt.target?.visible) drawTarget(ctx, quilt.target, generated.bounds, px);
+  if (o.target && quilt.target?.visible)
+    drawTarget(ctx, quilt.target, generated.bounds, generated.anchor ?? generated.bounds, px);
 }
 
 /** A target size (spec 006 FR-001a): a see-through, dashed outline centered on the quilt, with a
@@ -184,9 +185,10 @@ function drawTarget(
   ctx: CanvasRenderingContext2D,
   target: QuiltTarget,
   bounds: [number, number, number, number],
+  anchor: [number, number, number, number],
   px: number,
 ) {
-  const p = placeTarget(target, bounds);
+  const p = placeTarget(target, anchor);
   const path = new Path2D();
   p.outline.forEach(([x, y], i) => (i ? path.lineTo(x, y) : path.moveTo(x, y)));
   path.closePath();
@@ -218,13 +220,14 @@ function drawTarget(
   ctx.restore();
 }
 
-/** The quilt's bounds grown to take in a visible target outline. */
+/** The quilt's bounds grown to take in a visible target outline (placed on `anchor`). */
 export function boundsWithTarget(
   quilt: Quilt,
   bounds: [number, number, number, number],
+  anchor: [number, number, number, number] = bounds,
 ): [number, number, number, number] {
   if (!quilt.target?.visible) return bounds;
-  const b = placeTarget(quilt.target, bounds).box;
+  const b = placeTarget(quilt.target, anchor).box;
   return [
     Math.min(bounds[0], b[0]),
     Math.min(bounds[1], b[1]),

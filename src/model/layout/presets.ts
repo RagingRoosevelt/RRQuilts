@@ -1,10 +1,12 @@
 // Layout styles as engine presets: stored layout parameters → Tiling (engine.ts).
-import { IDENTITY, mul, type M } from '../geometry/affine';
+import { apply, IDENTITY, invert, mul, type M } from '../geometry/affine';
+import { fitShape, SHAPE_OUTLINE, type BlockShape } from '../blocks/shape';
 import type { Pt } from '../geometry/path';
 import type {
   HorizontalLayout,
   OnePatchLayout,
   OnPointLayout,
+  ShapedBlocksLayout,
   StripLayout,
   StripStyle,
   TumblingLayout,
@@ -12,7 +14,7 @@ import type {
 } from '../schema/quilt';
 import type { PathCommand } from '../schema/shared';
 import { clipByLine, clipPolygon, toPath } from './clip';
-import { mapPath, tile, type Band, type CellPiece, type Tiling } from './engine';
+import { mapPath, tile, TURNS, type Band, type CellPiece, type Tiling } from './engine';
 import { squareBlocks, stripWidth } from './strips';
 import { rectPath, type Bounds, type Slot, type SlotKind } from './slots';
 
@@ -136,6 +138,8 @@ export function onPoint(
 ): {
   slots: Slot[];
   center: Bounds;
+  /** The quilt as if no edge position held a block (every float kept), in the same coordinates. */
+  anchor: Bounds;
   edge: PathCommand[];
   trim: boolean;
 } {
@@ -296,9 +300,14 @@ export function onPoint(
       }
   }
 
+  // Held blocks take their side's float away and move the quilt's edge; the anchor doesn't move
+  // with them (a target overlay centers on it, so it stays put over the blocks).
+  const fv = f / stretch;
+  const anchor: Bounds = [fL - f, fT - fv, W + fL + f, H + fT + fv];
   return {
     slots,
     center: quilt,
+    anchor,
     edge: finish === 'none' ? zigzag() : rectPath(0, 0, quilt[2], quilt[3]),
     trim: finish === 'float' || finish === 'trim' || held.size > 0,
   };
@@ -719,6 +728,9 @@ const ring = (n: number, r: number, cx: number, cy: number, turn: number): Pt[] 
  * patch (fabric only until diamond-shaped blocks exist).
  */
 export function variablePoint(l: VariablePointLayout) {
+  // Diamond Point (spec 026): 60° diamonds that take diamond blocks.
+  const blocks = l.style === 'diamond-point';
+  if (blocks) l = { ...l, height: l.width * Math.sqrt(3) };
   const k = l.height / l.width;
   const o = onPoint(
     {
@@ -734,18 +746,34 @@ export function variablePoint(l: VariablePointLayout) {
     k,
   );
   const m: M = [1, 0, 0, k, 0, 0];
-  const slots = o.slots.map((s): Slot => ({
-    ...s,
-    id: s.id.replace(/^b:/, 'p:'),
-    kind: s.kind === 'sash' ? 'sash' : 'patch',
-    outline: mapPath(s.outline, m),
-    transform: mul(m, s.transform),
-    ...(s.cut ? { cut: mapPath(s.cut, m) } : {}),
-  }));
+  const slots = o.slots.map((s): Slot => {
+    const transform = mul(m, s.transform);
+    const fit =
+      blocks && s.kind === 'block'
+        ? fitShape(
+            'diamond60',
+            UNIT_CORNERS.map((p) => apply(transform, p)),
+          )
+        : undefined;
+    return {
+      ...s,
+      ...(fit
+        ? { shape: 'diamond60' as const, turns: TURNS.diamond60, transform: fit }
+        : {
+            id: s.id.replace(/^b:/, 'p:'),
+            kind: s.kind === 'sash' ? 'sash' : 'patch',
+            transform,
+          }),
+      outline: mapPath(s.outline, m),
+      ...(s.cut ? { cut: mapPath(s.cut, m) } : {}),
+    };
+  });
   const [x0, y0, x1, y1] = o.center;
+  const [a0, b0, a1, b1] = o.anchor;
   return {
     slots,
     center: [x0, y0 * k, x1, y1 * k] as Bounds,
+    anchor: [a0, b0 * k, a1, b1 * k] as Bounds,
     edge: mapPath(o.edge, m),
     trim: o.trim,
   };
@@ -1098,4 +1126,97 @@ export function tumbling(l: TumblingLayout): { tiling: Tiling; center: Bounds | 
   // Trimmed straight through the top cubes' side corners.
   const rect: Bounds = [0, T / 2, C * W, T / 2 + R * step];
   return { tiling: { bands, ...(trim ? { clip: rect } : {}) }, center: trim ? rect : null };
+}
+
+const UNIT_CORNERS: Pt[] = [
+  [0, 0],
+  [1, 0],
+  [1, 1],
+  [0, 1],
+];
+
+const BLOCK_SHAPE: Record<ShapedBlocksLayout['shape'], BlockShape> = {
+  triangles: 'triangle',
+  diamonds: 'diamond60',
+  hexagons: 'hexagon',
+};
+
+/**
+ * A tiling's patches as block spaces of `shape` (spec 026): each laid out by `fitShape` (the block's
+ * unit square onto the patch, never mirrored), with the shape's outline and `b:` ids in place of
+ * `p:`. A patch that isn't that shape stays a patch.
+ */
+export function asBlocks(t: Tiling, shape: BlockShape): Tiling {
+  const outline = toPath(SHAPE_OUTLINE[shape]);
+  return {
+    ...t,
+    bands: t.bands.map((band) => ({
+      ...band,
+      cell: band.cell.map((p): CellPiece => {
+        const pts = (p.outline ?? []).flatMap((c): Pt[] =>
+          c[0] === 'M' || c[0] === 'L' ? [apply(p.transform, [c[1], c[2]])] : [],
+        );
+        const fit = fitShape(shape, pts);
+        if (!fit) return p;
+        return {
+          ...p,
+          kind: 'block',
+          shape,
+          turns: TURNS[shape],
+          transform: fit,
+          outline,
+          id: (i, j) => p.id(i, j)?.replace(/^p:/, 'b:') ?? null,
+        };
+      }),
+    })),
+  };
+}
+
+/** Shaped Blocks (spec 026): One Patch's triangles, diamonds or hexagons as block spaces. */
+export function shapedBlocks(l: ShapedBlocksLayout): { tiling: Tiling; center: Bounds | null } {
+  const o = onePatch({
+    style: 'one-patch',
+    shape: l.shape,
+    cols: l.cols,
+    rows: l.rows,
+    width: l.width,
+    height: l.width,
+    edge: l.edge,
+  });
+  return { tiling: asBlocks(o.tiling, BLOCK_SHAPE[l.shape]), center: o.center };
+}
+
+/**
+ * Turn a tiling's grid by `degrees` (spec 026 flow angle) about the middle of `rect`. Trimmed
+ * (`rect` is the quilt): every band is widened to cover the turned quilt, then clipped to it as
+ * before. Whole patches (no `rect`): the patches turn about the origin and the quilt follows them.
+ */
+export function flowTiling(t: Tiling, degrees: number | undefined, rect: Bounds | null): Tiling {
+  if (!degrees || degrees % 360 === 0) return t;
+  const r = (degrees * Math.PI) / 180;
+  const [c, s] = [Math.cos(r), Math.sin(r)];
+  const [cx, cy] = rect ? [(rect[0] + rect[2]) / 2, (rect[1] + rect[3]) / 2] : [0, 0];
+  const turn: M = [c, s, -s, c, cx - c * cx + s * cy, cy - s * cx - c * cy];
+  const map = mul(turn, t.map ?? IDENTITY);
+  if (!rect) return { ...t, map };
+  // The quilt's corners in the grid's own (unturned) coordinates.
+  const back = invert(map);
+  const corners = [
+    [rect[0], rect[1]],
+    [rect[2], rect[1]],
+    [rect[2], rect[3]],
+    [rect[0], rect[3]],
+  ].map((p) => apply(back, p as Pt));
+  const bands = t.bands.map((band): Band => {
+    const basis: M = [band.a[0], band.a[1], band.b[0], band.b[1], 0, 0];
+    const ij = corners.map((p) => apply(invert(basis), p));
+    const lo = (k: 0 | 1) => Math.floor(Math.min(...ij.map((q) => q[k]))) - 2;
+    const hi = (k: 0 | 1) => Math.ceil(Math.max(...ij.map((q) => q[k]))) + 2;
+    return {
+      ...band,
+      i: [Math.min(band.i[0], lo(0)), Math.max(band.i[1], hi(0))],
+      j: [Math.min(band.j[0], lo(1)), Math.max(band.j[1], hi(1))],
+    };
+  });
+  return { ...t, map, bands };
 }

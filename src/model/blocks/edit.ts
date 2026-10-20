@@ -17,7 +17,7 @@ export function applySeamEdit(doc: RrqDoc, blockId: string, drawing: Drawing): S
   const original = doc.project.blocks.find((b) => b.id === blockId);
   if (original?.kind !== 'seam') throw new Error(`Block ${blockId} is not a seam-line block.`);
   const size = original.size;
-  const derived = deriveSeamPatches(drawing, size);
+  const derived = deriveSeamPatches(drawing, size, original.shape);
   const old = original.patches.map((p) => ({ id: p.id, poly: pathPolygon(p.path, size) }));
   const oldIds = new Set(old.map((p) => p.id));
   const assignments = assignIds(old, derived.patches);
