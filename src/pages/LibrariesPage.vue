@@ -2,7 +2,7 @@
   <q-page padding>
     <!-- The filters button sits on the sidebar's side, like the editors' menu button. -->
     <div class="row items-center q-mb-sm">
-      <h1 class="page-title col row items-center no-wrap">
+      <h1 class="page-title row items-center no-wrap">
         Libraries <HelpLink topic="guides/libraries" label="Libraries" />
       </h1>
       <!-- What the page shows: blocks, palettes or both. -->
@@ -12,6 +12,7 @@
         label="Type"
         class="type-pick"
       />
+      <q-space />
       <q-btn
         v-if="$q.screen.lt.md"
         flat
@@ -2742,7 +2743,7 @@ function downloadPack() {
 <style scoped>
 .type-pick {
   flex: 0 1 260px;
-  margin: 0 8px;
+  margin: 0 8px 0 16px;
 }
 /* Phones: under the title, full width. */
 @media (max-width: 599px) {

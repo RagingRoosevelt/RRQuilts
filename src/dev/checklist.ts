@@ -213,6 +213,12 @@ export const CHECKS: Check[] = [
     text: 'Home › Open from a gist: paste a gist link with one .rrq (opens), with several (asks which), with none or a wrong link (says so), offline (says so). Save then asks where. Restore unsaved project now sits below Recent projects. Before opening, the dialog names the gist and its GitHub owner. The link /?open_gist=<gist link> does the same.',
     to: '/',
   },
+  {
+    id: 'TC-045',
+    group: G.small,
+    text: 'Libraries: the Blocks / Palettes / All switch sits in the page header right after the title’s help icon (on a phone, on its own line under the title). Palette cards’ ⋮ button sits at the top of the card even when the swatches wrap onto several rows (Libraries and the sketchbook’s Palettes tab).',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
