@@ -18,7 +18,7 @@ The **Libraries** screen (header, next to **Project**) holds reusable blocks and
    (click an off pack's name to look at it). Click a library's name to
    show only it, and **Show all libraries** to see them all again. **Find a pack** at the top
    searches every library's packs. A library of packs has **All off** under its name, and
-   **Check for updates** and **Disconnect** when it's from the web (**Remove** when imported). Its arrow folds the list of packs away.
+   **Get updates** and **Disconnect** when it's from the web (**Remove** when imported). Its arrow folds the list of packs away.
    If the open project uses colors or fabrics from a library you switch off, you can **Swap…** them
    for others (in the project's **Palettes** tab), **Copy to My library** to keep them, or
    **Cancel**.
@@ -140,7 +140,7 @@ Libraries can also live in a git repository, such as one on GitHub.
    filled in, and asks before connecting.
 3. Open the library's name in the side panel and switch on the packs you want. Each pack downloads
    when you first switch it on, with images at the size set in **Settings › Fabrics**.
-4. Click **Check for updates** under the library's name. Before anything changes you see which colors and
+4. Click **Get updates** under the library's name. Before anything changes you see which colors and
    fabrics in your packs are new, removed or changed, and any packs the library no longer has.
    **Update** downloads the new versions and removes what the library dropped (projects keep what
    they use). **Skip this update** waits for the next one. **Cancel** decides later.

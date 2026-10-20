@@ -408,9 +408,12 @@
           </div>
           <template v-else>
             <div class="text-subtitle2 q-mt-lg">Library blocks</div>
-            <div class="text-caption text-grey-7 q-mb-sm">
+            <div class="text-caption text-grey-7">
               Select block availability when designing your quilts; your own blocks are always
               available.
+            </div>
+            <div class="text-caption q-mb-sm">
+              {{ pickedCount }} of {{ shownLib.length }} selected
             </div>
             <template v-for="group in libGroups" :key="group.lib">
               <BlockSections :sections="group.sections" :lib="group.lib" :title="group.label">
@@ -1331,7 +1334,7 @@
     <KeepWhichDialog
       :items="keepWhich?.items ?? null"
       title="This quilt is already here"
-      :labels="['Keep this one', 'Keep both', 'Use the file’s']"
+      :labels="['Project', 'Both', 'Import']"
       @done="(c) => keepWhich?.done(c)"
       @cancel="stopKeepWhich"
     />
@@ -1679,14 +1682,12 @@ const blockFilterFields = computed(() => {
     { key: 'techniques' as const, label: 'Technique', options: techniqueValues },
   ];
 });
+/** Library blocks the filters let through, and how many of them are picked. */
+const shownLib = computed(() => libBlocks.value.filter(blockShown));
+const pickedCount = computed(() => shownLib.value.filter((b) => isPicked(b.id)).length);
 /** Library blocks per library, in category sections (blocks no installed library has: Other). */
 const libGroups = computed(() => {
-  const r = blocksByLibrary(
-    library.views,
-    libBlocks.value.filter(blockShown),
-    groupBy.value,
-    tagsOfBlock,
-  );
+  const r = blocksByLibrary(library.views, shownLib.value, groupBy.value, tagsOfBlock);
   const out = r.groups.map((g) => ({ lib: g.id, label: g.label, sections: g.sections }));
   const other = r.other;
   return other.length
@@ -2794,10 +2795,16 @@ async function importPicked() {
     const replace = new Set<string>();
     if (clashes.length) {
       const dark = $q.dark.isActive;
+      // ponytail: names assume every earlier clash is kept as both; the import picks the final one.
+      const taken = quilts.value.map((q) => q.notecard.name);
       const choices = await askKeepWhich(
         clashes.map((id) => {
           const mine = here.get(id)!;
           const theirs = from.project.quilts.find((q) => q.id === id)!;
+          const bothName = taken.includes(theirs.notecard.name)
+            ? variationName(theirs.notecard.name, taken)
+            : theirs.notecard.name;
+          taken.push(bothName);
           return {
             title: theirs.notecard.name,
             left: {
@@ -2807,6 +2814,7 @@ async function importPicked() {
             right: {
               label: `The file: ${theirs.notecard.name}`,
               img: quiltThumbnail(from, theirs, 240, dark),
+              bothName,
             },
           };
         }),

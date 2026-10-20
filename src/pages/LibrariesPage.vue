@@ -92,6 +92,7 @@
           <div
             v-if="collapse.isOpen('sidebar:libraries')"
             class="lib-checks column no-wrap q-px-sm"
+            style="gap: 6px"
           >
             <div v-if="!shownGroups.length" class="text-caption text-grey-7 q-pa-xs">
               No packs match.
@@ -163,7 +164,11 @@
                     }}</q-item-label>
                   </q-item-section>
                 </template>
-                <div v-if="g.connection || g.packs.length > 1" class="row q-pb-xs" style="gap: 4px">
+                <div
+                  v-if="g.connection || g.packs.length > 1"
+                  class="row no-wrap q-pb-xs"
+                  style="gap: 2px"
+                >
                   <q-btn
                     flat
                     dense
@@ -181,7 +186,7 @@
                     no-caps
                     size="sm"
                     icon="update"
-                    label="Check for updates"
+                    label="Get updates"
                     :loading="checking"
                     @click="checkUpdate(g.connection)"
                   />
@@ -1325,7 +1330,7 @@ import TagsDialog from '@/components/TagsDialog.vue';
 import FavoriteBadge from '@/components/FavoriteBadge.vue';
 import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
 import { TECHNIQUES, techniqueOptions } from '@/model/schema/shared';
-import { FAVORITE, sortTags, tagLabel, tagsFor, type TagTarget } from '@/model/tags';
+import { FAVORITE, sortTags, tagLabel, tagsFor, visibleTags, type TagTarget } from '@/model/tags';
 import ColoringCount from '@/components/ColoringCount.vue';
 import BlockSections from '@/components/BlockSections.vue';
 import BlockFilter from '@/components/BlockFilter.vue';
@@ -1840,17 +1845,22 @@ async function connectBundled(g: PackGroup) {
 function disconnect(g: PackGroup) {
   const c = g.connection;
   const verb = c ? 'Disconnect' : 'Remove';
-  $q.dialog({
-    title: `${verb} ${g.name}?`,
-    message: `Its ${c ? 'downloaded' : 'imported'} packs are removed from this device. Projects keep the items they use.`,
-    cancel: true,
-    ok: { label: verb, color: 'negative', flat: true },
-  }).onOk(() => {
-    // A library offered with the app stays out of the list on this device once disconnected.
-    if (c && bundled.some((b) => sameUrl(b.url, c.url)))
-      settings.settings.bundledHidden = [...settings.settings.bundledHidden, c.url];
-    void library.removeLibrary(g.key.slice(4));
-  });
+  const tagged = keptOf(library.packs.filter((p) => `lib:${p.library?.id}` === g.key));
+  askRemove(
+    {
+      title: `${verb} ${g.name}?`,
+      message: `Its ${c ? 'downloaded' : 'imported'} packs are removed from this device. Projects keep the items they use.`,
+      ok: verb,
+      tagged: tagged.length,
+    },
+    (keep) => {
+      // A library offered with the app stays out of the list on this device once disconnected.
+      if (c && bundled.some((b) => sameUrl(b.url, c.url)))
+        settings.settings.bundledHidden = [...settings.settings.bundledHidden, c.url];
+      void library.removeLibrary(g.key.slice(4));
+      if (!keep) void library.dropKept(tagged);
+    },
+  );
 }
 
 const isPack = (v: LibraryView) => library.packs.some((p) => p.id === v.doc.id);
@@ -2097,12 +2107,20 @@ function rename(id: string, name: string) {
   );
 }
 function remove(id: string) {
-  $q.dialog({
-    title: 'Delete from my library?',
-    message: 'Projects that use it keep their copy.',
-    cancel: true,
-    ok: { label: 'Delete', color: 'negative', flat: true },
-  }).onOk(() => void update((l) => removeItem(l, id)));
+  // Its own tags can be kept in My library, as a pack's are, in case it comes back.
+  const tags = visibleTags(library.mine?.items.find((i) => i.data.id === id)?.data.notecard.tags);
+  askRemove(
+    {
+      title: 'Delete from my library?',
+      message: 'Projects that use it keep their copy.',
+      ok: 'Delete',
+      tagged: tags.length ? 1 : 0,
+    },
+    (keep) =>
+      void update((l) => removeItem(l, id)).then(() =>
+        keep ? library.setKeptTags(me.value, id, tags) : undefined,
+      ),
+  );
 }
 const askCategory = useAskCategory();
 async function pickCategory(id: string) {
@@ -2520,37 +2538,54 @@ function installPack(doc: LibraryDoc, skipped: string[]) {
   }).onOk(() => void install());
 }
 
-function removePack(doc: LibraryDoc) {
-  // Spec 029: the quilter's tags on its items can stay, in case the pack comes back.
-  const ids = new Set(doc.items.map((i) => i.data.id));
-  const tagged = (library.mine?.annotations ?? []).filter((a) => ids.has(a.id)).map((a) => a.id);
+/**
+ * Removing items that carry the quilter's tags (spec 029): ask whether the tag associations stay
+ * (kept in My library, by item id, so the items get them back if they return). `keep` gets the
+ * answer.
+ */
+function askRemove(
+  o: { title: string; message: string; ok: string; tagged: number },
+  then: (keep: boolean) => void,
+) {
   $q.dialog({
-    title: `Remove pack “${doc.name}”?`,
-    message: tagged.length
-      ? `Projects that use its items keep their copies.\n\nThis pack has tags attached (on ${tagged.length} ${tagged.length === 1 ? 'item' : 'items'}). Should the tag associations be kept in case you add the pack back?`
-      : 'Projects that use its items keep their copies.',
+    title: o.title,
+    message: o.tagged
+      ? `${o.message}\n\nThis has tags attached (on ${o.tagged} ${o.tagged === 1 ? 'item' : 'items'}). Should the tag associations be kept in case you add it back?`
+      : o.message,
     style: 'white-space: pre-line',
-    ...(tagged.length
+    ...(o.tagged
       ? {
           options: {
             type: 'checkbox',
             model: ['keep'],
-            items: [
-              {
-                label: 'Save tag associations after removing pack',
-                value: 'keep',
-              },
-            ],
+            items: [{ label: 'Save tag associations after removing', value: 'keep' }],
           },
         }
       : {}),
     cancel: true,
-    ok: { label: 'Remove', color: 'negative', flat: true },
-  }).onOk((keep?: string[]) => {
-    select('mine');
-    void library.removePack(doc.id);
-    if (tagged.length && !keep?.includes('keep')) void library.dropKept(tagged);
-  });
+    ok: { label: o.ok, color: 'negative', flat: true },
+  }).onOk((keep?: string[]) => then(!!keep?.includes('keep')));
+}
+/** Of these library items, the ones with kept tags (others' items: tags live in My library). */
+const keptOf = (docs: readonly LibraryDoc[]) => {
+  const ids = new Set(docs.flatMap((d) => d.items.map((i) => i.data.id)));
+  return (library.mine?.annotations ?? []).filter((a) => ids.has(a.id)).map((a) => a.id);
+};
+function removePack(doc: LibraryDoc) {
+  const tagged = keptOf([doc]);
+  askRemove(
+    {
+      title: `Remove pack “${doc.name}”?`,
+      message: 'Projects that use its items keep their copies.',
+      ok: 'Remove',
+      tagged: tagged.length,
+    },
+    (keep) => {
+      select('mine');
+      void library.removePack(doc.id);
+      if (!keep) void library.dropKept(tagged);
+    },
+  );
 }
 function removeOrphanTags() {
   void library.dropKept(library.orphanedTags.map((a) => a.id));

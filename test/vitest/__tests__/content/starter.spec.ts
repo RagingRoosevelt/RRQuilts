@@ -134,3 +134,15 @@ describe('renamed built-in blocks', () => {
     expect(b.source?.itemId).toBe(b.id);
   });
 });
+
+describe('built-in techniques (spec 029)', () => {
+  it('name built-in blocks, which carry them', async () => {
+    const { BUILTIN_TECHNIQUES } = await import('@/content/techniques');
+    const blocks = builtinItems().blocks;
+    const names = new Set(blocks.map((b) => b.notecard.name));
+    for (const list of Object.values(BUILTIN_TECHNIQUES))
+      for (const n of list) expect(names, n).toContain(n);
+    const rail = blocks.find((b) => b.notecard.name === 'Rail Fence')!;
+    expect(rail.notecard.techniques).toContain('strip');
+  });
+});

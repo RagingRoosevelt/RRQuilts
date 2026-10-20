@@ -9,7 +9,9 @@
     @keydown.left.prevent="step(-1)"
     @keydown.right.prevent="step(1)"
   >
+    <!-- No thumb when nothing is picked (e.g. "all" over rows that differ). -->
     <div
+      v-show="options.some((o) => o.value === modelValue)"
       class="thumb"
       :style="{
         width: `calc((100% - 6px) / ${options.length})`,

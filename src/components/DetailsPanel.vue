@@ -173,27 +173,25 @@
       </div>
     </template>
 
-    <!-- Techniques the block's designer marks (spec 029): ticked = in the block's data. Someone
-         else's block (a library block, or a copy or color variation of one) shows them, unchanged. -->
+    <!-- Techniques (spec 029): ticked = in the block's data. The quilter's own blocks, copies they
+         edit included, can change them; a library block or a color variation shows them greyed,
+         with a tooltip saying why. -->
     <div v-if="block" class="column" style="gap: 8px">
-      <template v-if="!ro && ownDesign">
-        <div v-for="g in TECHNIQUE_GROUPS" :key="g.label">
-          <div class="text-subtitle2">{{ g.label }}</div>
-          <div class="text-caption text-grey-7">{{ g.hint }}</div>
-          <q-checkbox
-            v-for="t in g.techniques"
-            :key="t"
-            dense
-            class="q-mr-md q-mt-xs"
-            :label="techniqueName(t)"
-            :model-value="(block.notecard.techniques ?? []).includes(t)"
-            @update:model-value="(on: boolean) => setTechnique(t, on)"
-          />
-        </div>
-      </template>
-      <div v-else>
-        <div class="text-subtitle2">Techniques</div>
-        <div class="text-body2">{{ techniqueNames || 'None marked' }}</div>
+      <div v-for="g in TECHNIQUE_GROUPS" :key="g.label">
+        <div class="text-subtitle2">{{ g.label }}</div>
+        <div class="text-caption text-grey-7">{{ g.hint }}</div>
+        <q-checkbox
+          v-for="t in g.techniques"
+          :key="t"
+          dense
+          class="q-mr-md q-mt-xs"
+          :label="techniqueName(t)"
+          :disable="!!techniqueLock"
+          :model-value="(block.notecard.techniques ?? []).includes(t)"
+          @update:model-value="(on: boolean) => setTechnique(t, on)"
+        >
+          <q-tooltip v-if="techniqueLock">{{ techniqueLock }}</q-tooltip>
+        </q-checkbox>
       </div>
     </div>
 
@@ -307,9 +305,6 @@ const item = computed(() => {
 const block = computed(() =>
   props.kind === 'block' && target.value && 'size' in target.value ? target.value : undefined,
 );
-const techniqueNames = computed(() =>
-  (block.value?.notecard.techniques ?? []).map((x) => TECHNIQUES[x]).join(', '),
-);
 const techniqueName = (t: Technique) => TECHNIQUES[t];
 function setTechnique(t: Technique, on: boolean) {
   project.change((d) => {
@@ -333,10 +328,16 @@ const quilt = computed(() =>
 const downloadImage = () =>
   quilt.value && saveQuiltImage(project.doc!, quilt.value, true, useEditorStore().outlines);
 const credits = computed(() => (target.value ? priorCredits(target.value) : []));
-/** The quilter designed it: not a library block, and nobody earlier to credit. */
-const ownDesign = computed(
-  () => !!block.value && !isLibraryItem(block.value) && !priorCredits(block.value).length,
-);
+/** Why the block's techniques can't be changed here (none: they can). */
+const techniqueLock = computed(() => {
+  const b = block.value;
+  if (!b) return '';
+  if (ro.value) return 'This project is open read-only.';
+  if (isLibraryItem(b))
+    return 'A library block keeps its designer’s techniques. Edit a copy to change them.';
+  if (b.colorVariant) return 'A color variation has the techniques of the block it recolors.';
+  return '';
+});
 // --- Tags and category (spec 035 E) ---
 const blockTags = computed(() => {
   const b = block.value;

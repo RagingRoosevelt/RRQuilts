@@ -124,13 +124,14 @@
   <KeepWhichDialog
     :items="keepWhich?.items ?? null"
     title="A fabric with this name is in the palette"
-    :labels="['Keep the original', 'Keep both', 'Use the new one']"
+    :labels="['Existing', 'Both', 'New']"
     @done="(c) => keepWhich?.done(c)"
     @cancel="keepWhich?.done(null)"
   />
 </template>
 
 <script setup lang="ts">
+import { variationName } from '@/model/new-quilt';
 import KeepWhichDialog, { type KeepChoice, type KeepItem } from './KeepWhichDialog.vue';
 import { swatchStyle } from '@/render/fabric-images';
 import DialogClose from './DialogClose.vue';
@@ -338,11 +339,18 @@ async function finish() {
     return h ? [{ f, h }] : [];
   });
   if (clashes.length) {
+    // Kept both: the new one takes the next free "Name (2)".
+    const taken = [...here, ...fabrics].map((x) => x.notecard.name);
+    const bothNames = clashes.map(({ f }) => {
+      const n = variationName(f.notecard.name, taken);
+      taken.push(n);
+      return n;
+    });
     const choices = await askKeepWhich(
-      clashes.map(({ f, h }) => ({
+      clashes.map(({ f, h }, i) => ({
         title: f.notecard.name,
         left: { label: 'The one in the palette', swatch: () => swatchStyle(h) },
-        right: { label: 'The new image', swatch: () => swatchStyle(f) },
+        right: { label: 'The new image', swatch: () => swatchStyle(f), bothName: bothNames[i]! },
       })),
     );
     if (!choices) return; // back to the dialog
@@ -350,6 +358,8 @@ async function finish() {
       const at = fabrics.indexOf(f);
       if (choices[i] === 'left') fabrics.splice(at, 1);
       if (choices[i] === 'right') fabrics[at] = { ...f, id: h.id };
+      if (choices[i] === 'both')
+        fabrics[at] = { ...f, notecard: { ...f.notecard, name: bothNames[i]! } };
     });
     if (!fabrics.length) return close();
   }

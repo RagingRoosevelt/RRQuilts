@@ -22,14 +22,21 @@
       </div>
       <!-- Sidebar: each library in collapsible category sections; strip: one run per source. -->
       <template v-if="sidebar">
-        <!-- Only blocks this quilt's block spaces take (spec 035 C); off, all show. -->
+        <!-- Only blocks this quilt's block spaces take (spec 035 C); off, all show, and the Shape
+             filter (which it makes moot) comes back. -->
         <q-toggle
           v-if="fitsQuilt"
           v-model="app.settings.compatibleBlocks"
           dense
+          class="q-my-sm"
           label="Compatible with this layout"
         />
-        <BlockFilter v-model:shape="filterShape" hide-layout class="q-mb-sm" />
+        <BlockFilter
+          v-if="!compatibleOnly"
+          v-model:shape="filterShape"
+          hide-layout
+          class="q-mb-sm"
+        />
         <div
           v-if="!blockSectionGroups.length && (compatibleOnly || filterShape)"
           class="text-caption text-grey-7 q-pa-xs"
@@ -362,7 +369,7 @@ const blockGroups = computed(() => {
 const filterShape = ref<ShapeFilter | null>(null);
 const compatibleOnly = computed(() => !!props.fitsQuilt && app.settings.compatibleBlocks);
 const fits = (b: Block) =>
-  (!compatibleOnly.value || props.fitsQuilt!(b)) && blockFits(b.shape, null, filterShape.value);
+  compatibleOnly.value ? props.fitsQuilt!(b) : blockFits(b.shape, null, filterShape.value);
 const blockSectionGroups = computed(() => {
   const [all, ...libs] = blockGroups.value;
   const mine = { ...all!, items: all!.items.filter(fits) };

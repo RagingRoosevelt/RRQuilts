@@ -1,7 +1,7 @@
 <template>
   <!-- A colorway's colors, in place of the Design tab's palettes: each color of the primary colorway
        and what it is in this one. -->
-  <div class="column q-pa-sm" style="gap: 8px">
+  <div class="column no-wrap q-pa-sm" style="gap: 8px">
     <div class="text-caption text-grey-7">
       {{ colorway?.name }}: pick what each color of {{ primary }} becomes. Show {{ primary }} to
       paint pieces.
