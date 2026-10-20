@@ -98,8 +98,9 @@ export const CHECKS: Check[] = [
   },
   {
     id: 'TC-084',
+    last: "The supposedly read only library blocks have checkable check boxes for techniques and stuff in the block detail tab. / Color variant details are also editable (techniques, efficiency shouldn't be). / Let's drop the design tab for library blocks like we do for color variation blocks.",
     group: G.small,
-    text: 'Open a library block in the block editor: a banner says it’s read-only and offers Create a coloration variant and Edit (make a copy). Draw and Color tools don’t change it; Details shows its title, author, license and notes fixed (tags still editable), technique checkboxes greyed with a lock line saying why; Print shows its sheets.',
+    text: 'Open a library block in the block editor: a banner says it’s read-only and offers Create a coloration variant and Edit (make a copy). Its tabs are Details, Color, Print (no Draw, like a color variant), and painting doesn’t change it. Details: title, author, license and notes fixed (tags still editable); Techniques and Efficiency show as text (or None marked) with a lock line saying why, no checkboxes. A color variant’s Details shows its techniques the same way.',
     to: '/',
   },
   {

@@ -2861,7 +2861,7 @@ function quiltDetails(id: string) {
 /** The block editor: your own block to edit, a library block to look at (read-only there). */
 function openInEditor(b: Block) {
   if (!isLibraryItem(b)) return openBlock(b.id);
-  editor.blockMode = 'draw';
+  editor.blockMode = 'color';
   void router.push(`/project/block/${b.id}`);
 }
 /** Straight to the editor's Print tab (a library block's read-only view prints too). */

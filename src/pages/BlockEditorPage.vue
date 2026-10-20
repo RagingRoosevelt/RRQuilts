@@ -6,7 +6,12 @@
     >
       <q-tabs v-model="editor.blockMode" dense no-caps inline-label class="col">
         <q-tab name="details" icon="info" label="Details" />
-        <q-tab v-if="!anyBlock?.colorVariant" name="draw" icon="draw" label="Draw" />
+        <q-tab
+          v-if="!anyBlock?.colorVariant && !libraryView"
+          name="draw"
+          icon="draw"
+          label="Draw"
+        />
         <q-tab name="color" icon="palette" label="Color" />
         <q-tab name="print" icon="print" label="Print" />
       </q-tabs>
@@ -347,9 +352,10 @@ watch(
   { immediate: true },
 );
 
-// Color variants keep their library block's drawing.
+// Color variants keep their library block's drawing; a library block's isn't drawn here either.
 watchEffect(() => {
-  if (anyBlock.value?.colorVariant && editor.blockMode === 'draw') editor.blockMode = 'color';
+  if ((anyBlock.value?.colorVariant || libraryView.value) && editor.blockMode === 'draw')
+    editor.blockMode = 'color';
 });
 const offerPalette = usePaletteOffer();
 /** The Help topic for each editor tab. */

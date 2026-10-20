@@ -174,17 +174,19 @@
     </template>
 
     <!-- Techniques (spec 029): ticked = in the block's data. The quilter's own blocks, copies they
-         edit included, can change them; a library block or a color variation shows them greyed,
-         with a tooltip saying why. -->
+         edit included, can change them. Fixed ones (a library block, a color variation, a
+         read-only project) show what's marked as text, with the reason. -->
     <div v-if="block" class="column" style="gap: 8px">
-      <div
-        v-if="techniqueLock"
-        class="row items-center no-wrap text-caption text-grey-7"
-        style="gap: 4px"
-      >
-        <q-icon name="lock" size="14px" />{{ techniqueLock }}
-      </div>
-      <div v-for="g in TECHNIQUE_GROUPS" :key="g.label">
+      <template v-if="techniqueLock">
+        <div v-for="g in TECHNIQUE_GROUPS" :key="g.label">
+          <div class="text-subtitle2">{{ g.label }}</div>
+          <div class="text-body2">{{ markedIn(g.techniques) || 'None marked' }}</div>
+        </div>
+        <div class="row items-center no-wrap text-caption text-grey-7" style="gap: 4px">
+          <q-icon name="lock" size="14px" />{{ techniqueLock }}
+        </div>
+      </template>
+      <div v-for="g in TECHNIQUE_GROUPS" v-else :key="g.label">
         <div class="text-subtitle2">{{ g.label }}</div>
         <div class="text-caption text-grey-7">{{ g.hint }}</div>
         <q-checkbox
@@ -193,12 +195,9 @@
           dense
           class="q-mr-md q-mt-xs"
           :label="techniqueName(t)"
-          :disable="!!techniqueLock"
           :model-value="(block.notecard.techniques ?? []).includes(t)"
           @update:model-value="(on: boolean) => setTechnique(t, on)"
-        >
-          <q-tooltip v-if="techniqueLock">{{ techniqueLock }}</q-tooltip>
-        </q-checkbox>
+        />
       </div>
     </div>
 
@@ -322,6 +321,12 @@ const block = computed(() =>
  *  library's; the quilter's tags on it still can). */
 const fixed = computed(() => ro.value || (!!block.value && isLibraryItem(block.value)));
 const techniqueName = (t: Technique) => TECHNIQUES[t];
+/** The block's marked techniques among these, by name. */
+const markedIn = (ts: Technique[]) =>
+  ts
+    .filter((t) => block.value?.notecard.techniques?.includes(t))
+    .map(techniqueName)
+    .join(', ');
 function setTechnique(t: Technique, on: boolean) {
   project.change((d) => {
     const b = d.project.blocks.find((x) => x.id === props.id);
