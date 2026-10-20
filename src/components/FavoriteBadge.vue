@@ -1,15 +1,15 @@
 <template>
-  <!-- Spec 029: a block the quilter tagged Favorite. Top right of its picture, on a soft blurred
-       spot like the card's checkbox. -->
-  <span class="fav" :class="{ small }" role="img" aria-label="Favorite">
+  <!-- Spec 029: a block or palette the quilter tagged Favorite. Top right of a block's picture, on a
+       soft blurred spot like the card's checkbox; `inline` before a palette's name. -->
+  <span class="fav" :class="{ small, inline }" role="img" aria-label="Favorite">
     ⭐
     <q-tooltip>Favorite</q-tooltip>
   </span>
 </template>
 
 <script setup lang="ts">
-/** `small`: on the quilt sidebar's tiles. */
-defineProps<{ small?: boolean }>();
+/** `small`: on the quilt sidebar's tiles. `inline`: in a line of text (a palette's name). */
+defineProps<{ small?: boolean; inline?: boolean }>();
 </script>
 
 <style scoped>
@@ -32,5 +32,13 @@ defineProps<{ small?: boolean }>();
   right: -2px;
   padding: 4px 5px;
   font-size: 11px;
+}
+.fav.inline {
+  position: static;
+  padding: 0 2px 0 0;
+  font-size: 0.9em;
+  backdrop-filter: none;
+  mask-image: none;
+  filter: none;
 }
 </style>

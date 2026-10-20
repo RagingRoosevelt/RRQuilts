@@ -394,7 +394,8 @@ const colorTree = computed(() => {
           // A library's packs (spec 014) group together under the library's name.
           lib: v.doc.library?.id ?? v.doc.id,
           libName: v.doc.library?.name ?? v.doc.name,
-          label: c.notecard.name,
+          // Spec 029: a palette the quilter tagged Favorite shows its star.
+          label: `${tagsFor(c.notecard.tags, [c.id], library.kept).includes(FAVORITE) ? '⭐ ' : ''}${c.notecard.name}`,
           items: recentFirst(items),
           fabrics: c.fabrics ?? [],
           mine: false,
