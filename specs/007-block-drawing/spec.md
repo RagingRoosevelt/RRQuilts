@@ -154,8 +154,17 @@ existing seam's midpoint; zoomed to 800% the ends coincide.
   `/project/block/:id`.
 - **FR-002**: Block settings (inspector): name, finished width/height, snap grid, snap toggles,
   graph paper, show patches, show unconnected.
-- **FR-003**: "New block", "Edit", and "Edit a copy" MUST be available from the sketchbook; "Edit"
-  on a block used in quilts shows a one-time notice with the usage count.
+- **FR-003**: "New block", "Open in block editor" (was "Edit"), and "Edit a copy" MUST be available
+  from the sketchbook; opening a block used in quilts shows a one-time notice with the usage count.
+  "Open in block editor" sits right after "Preview" in a block's menu (own and library blocks; on
+  the Libraries page too, while a project is open), then "Print" (straight to the Print tab; quilts
+  have Print too), and block previews have the same buttons. A library block opens read-only with
+  Details and Print only (no Draw or Color: the banner's buttons make a version to change), Details is fixed except
+  the quilter's tags, and techniques show as text with the reason (no checkboxes, as for color
+  variants and read-only projects); a banner offers "Create a coloration variant" and "Edit (make a copy)". A project keeps one
+  coloration variant per library block: creating another adds a new coloring (a copy of the library
+  block's first) to the existing one and opens it there (0.6.1, owner
+  2026-10-20).
 
 **Drawing (seam-line)**
 

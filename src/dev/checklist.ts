@@ -90,6 +90,33 @@ export const CHECKS: Check[] = [
     text: 'Print P1 to P4: sheets as their checks say; cut sizes match the Help calculators.',
     to: '/dev/print',
   },
+  {
+    id: 'TC-088',
+    last: "The supposedly read only library blocks have checkable check boxes for techniques and stuff in the block detail tab. / Color variant details are also editable (techniques, efficiency shouldn't be). / Let's drop the design tab for library blocks like we do for color variation blocks. / Let's also hide the color tab when looking at a library block.",
+    group: G.small,
+    text: 'Open a library block in the block editor: a banner says it’s read-only and offers Create a coloration variant and Edit (make a copy). Its tabs are Details and Print only (no Draw or Color); it opens on Details. Details: title, author, license and notes fixed (tags still editable); Techniques and Efficiency show as text (or None marked) with a lock line saying why, no checkboxes. A color variant’s Details shows its techniques the same way.',
+    to: '/',
+  },
+  {
+    id: 'TC-087',
+    group: G.small,
+    last: "It opens up the coloration variant editor but didn't create a new variation, just opened to the existing one.",
+    text: 'Create a coloration variant of a library block, then ask for one again (sketchbook menu or the editor banner): the same variant opens with a new coloring added (a copy of the library block’s first coloring) and selected, ready to recolor. No second variant block appears in Blocks.',
+    to: '/',
+  },
+  {
+    id: 'TC-089',
+    group: G.small,
+    last: 'When in read only mode and clicking on the "create a coloration variant", that should land you on the color tab of the coloration variant.',
+    text: 'A library block open read-only: the banner’s Create a coloration variant lands on the variant’s Color tab (new or existing variant); Edit (make a copy) lands on the copy’s Draw tab.',
+    to: '/',
+  },
+  {
+    id: 'TC-090',
+    group: G.small,
+    text: 'Settings › You › socials: add Threadloop by pasting https://threadloop.app/members/<name>: it becomes the handle, and its icon links back to that page (threadloop.app/members/…). Printables (printables.com/@name) and Ravelry (ravelry.com/people/name) links reduce to handles too.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
