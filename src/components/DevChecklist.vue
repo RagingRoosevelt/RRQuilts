@@ -189,7 +189,8 @@ function setNote(id: string, note: string) {
   const old = state.value[id];
   if (old) commit({ ...state.value, [id]: { ...old, note } });
 }
-/** Plain text to paste back to Claude: problems (with notes) first, then works, then not tested. */
+/** Plain text to paste back to Claude: which passed and which weren't tested (by number), then problems
+ *  and checks to iterate with their notes, then the text between checks. */
 function copyResults() {
   const line = (c: Check) => `- ${checkId(c)} ${c.text}`;
   const by = (s: string) => CHECKS.filter((c) => (state.value[stateKey(c)]?.status ?? '') === s);
@@ -200,9 +201,12 @@ function copyResults() {
   const sections = [
     ['Problems', by('problem').flatMap(withNote)],
     ['Needs iteration', by('iterate').flatMap(withNote)],
-    ['Works', by('ok').map(line)],
-    ['Not tested', by('').map(line)],
   ] as const;
+  // Passed and skipped: their test case numbers, so each is accounted for.
+  const ids = (s: string) =>
+    by(s)
+      .map((c) => checkId(c))
+      .join(', ') || 'none';
   // Each text block with its section and the check just before it (or the section's start), in
   // page order.
   const placed = notes.value
@@ -223,6 +227,9 @@ function copyResults() {
   const text = [
     `Test results, build ${build.value} (${new Date().toISOString().slice(0, 10)})`,
     `Works ${by('ok').length} · Needs iteration ${by('iterate').length} · Problems ${by('problem').length} · Not tested ${by('').length}`,
+    '',
+    `Works: ${ids('ok')}`,
+    `Not tested: ${ids('')}`,
     ...sections.flatMap(([title, lines]) => (lines.length ? ['', `${title}:`, ...lines] : [])),
     ...(texts.length ? ['', 'Text between checks:', ...texts] : []),
   ].join('\n');
