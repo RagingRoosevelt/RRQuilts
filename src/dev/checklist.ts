@@ -213,6 +213,18 @@ export const CHECKS: Check[] = [
     text: 'Home › Open from a gist: paste a gist link with one .rrq (opens), with several (asks which), with none or a wrong link (says so), offline (says so). Save then asks where. Restore unsaved project now sits below Recent projects. Before opening, the dialog names the gist and its GitHub owner. The link /?open_gist=<gist link> does the same.',
     to: '/',
   },
+  {
+    id: 'TC-043',
+    group: G.shaped,
+    text: 'Seams filter › Set-in seams: the Round and Round blocks, Opposite Hexagon and Basic Log Cabin are no longer listed (their strips run the full side, sewn in order); Double Strips, Bright Hopes, Tea Box and Mitered Frame Medallion still are. Redrawn to match the book: Basic Log Cabin, Opposite Hexagon (strips in opposite pairs), Grape Vine, Mare’s Nest, Wedding Rings.',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-044',
+    group: G.shaped,
+    text: 'Renamed built-in blocks: lettered variants now use the book’s numbers (King’s Crown II, Hourglass II and III, Nine-Patch Variation I and II, Grandmother’s Own III and IV, Red Cross I, …). A project saved before with one of them (e.g. demo-v6.rrq if it uses one, or your own) still opens and the block stays a library block (it may offer the renamed version as an update).',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
