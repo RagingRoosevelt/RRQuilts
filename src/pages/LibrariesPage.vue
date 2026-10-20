@@ -1917,16 +1917,6 @@ const techniqueValues = computed(() =>
 const allCats = computed(() => [
   ...new Map(inScope.value.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),
 ]);
-// Picks the filters no longer offer go (switching Blocks / Palettes / All, a category deleted).
-watch(
-  () => filterFields.value.map((f) => f.options.map((o) => o.value).join('\n')).join('\t'),
-  () => {
-    for (const f of filterFields.value) {
-      const ok = new Set(f.options.map((o) => o.value));
-      filters[f.key] = filters[f.key].filter((x) => ok.has(x));
-    }
-  },
-);
 const TYPE_OPTIONS = [
   { label: 'Blocks', value: 'block' },
   { label: 'Palettes', value: 'colors' },
@@ -1948,6 +1938,16 @@ const filterFields = computed(() => {
     { key: 'techniques' as const, label: 'Technique', options: techniqueValues.value },
   ];
 });
+// Picks the filters no longer offer go (switching Blocks / Palettes / All, a category deleted).
+watch(
+  () => filterFields.value.map((f) => f.options.map((o) => o.value).join('\n')).join('\t'),
+  () => {
+    for (const f of filterFields.value) {
+      const ok = new Set(f.options.map((o) => o.value));
+      filters[f.key] = filters[f.key].filter((x) => ok.has(x));
+    }
+  },
+);
 const anyOf = (picked: string[], have: string[]) =>
   !picked.length || picked.some((x) => have.includes(x));
 const matches = (i: LibraryItem) =>
