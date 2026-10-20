@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { COLLECTION_VERSION } from '@/model/collection-file';
 import { describe, expect, it } from 'vitest';
 import { RrqDoc } from '@/model/schema/project';
 import { BundledLibraries } from '@/model/schema/bundled';
@@ -39,6 +40,7 @@ describe('published format versions (template repositories check these)', () => 
       rrq: VERSION,
       rrqlib: LIBRARY_VERSION,
       'rrqlib-index': 1,
+      rrqplt: COLLECTION_VERSION,
     });
   });
 });
