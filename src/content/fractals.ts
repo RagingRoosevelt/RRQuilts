@@ -2,7 +2,7 @@
 // grid with each row's same-colored run as one strip, so they sew in rows; the shaped ones use the
 // shaped-block kit.
 import { gridBlocks, rect, type GridDef, type Piece } from './grid';
-import { corners, hexV, lerp, type P, type ShapedDef, type ShapedPiece } from './shaped-kit';
+import { corners, lerp, type P, type ShapedDef, type ShapedPiece } from './shaped-kit';
 import { sierpinski } from './shaped-e';
 
 /** An n × n block from a color per cell: each row's runs of one color become one strip. */
@@ -125,42 +125,80 @@ export const FRACTAL_BLOCKS = gridBlocks(FRACTAL_DEFS, 'Fractals');
 
 // --- Shaped fractals ---------------------------------------------------------------------------
 
-/** A Koch snowflake two steps deep, its six points on the hexagon's corners (flat-top). */
-function koch(): ShapedPiece[] {
-  // A little inside the hexagon: at full size the small points would touch its sides.
-  const k = 0.88;
-  const r = k / Math.sqrt(3); // the star's inner corners
-  const at = (deg: number, rad: number): P => [
-    rad * Math.cos((deg * Math.PI) / 180),
-    rad * Math.sin((deg * Math.PI) / 180),
-  ];
-  // The six-point star (step one): tips toward the corners, notches between.
-  const star: P[] = Array.from({ length: 12 }, (_, i) => at(i * 30, i % 2 ? r : k));
-  // Step two: a small triangle out from the middle third of each of the star's 12 sides.
-  const bumps: P[][] = star.map((a, i) => {
-    const b = star[(i + 1) % 12]!;
+/** One Koch step: on each side's middle third, a triangle pointing out of the polygon. */
+function kochStep(poly: P[]): P[] {
+  return poly.flatMap((a, i) => {
+    const b = poly[(i + 1) % poly.length]!;
     const [p, q, m] = [lerp(a, b, 1 / 3), lerp(a, b, 2 / 3), lerp(a, b, 0.5)];
     const h = Math.hypot(q[0] - p[0], q[1] - p[1]) * (Math.sqrt(3) / 2);
-    // The side's normal, turned to point out of the star.
     let n: P = [-(q[1] - p[1]), q[0] - p[0]];
     const k = Math.hypot(n[0], n[1]);
     n = [n[0] / k, n[1] / k];
-    if (inside(star, [m[0] + n[0] * 1e-3, m[1] + n[1] * 1e-3])) n = [-n[0], -n[1]];
-    return [p, [m[0] + n[0] * h, m[1] + n[1] * h], q];
+    if (inside(poly, [m[0] + n[0] * 1e-6, m[1] + n[1] * 1e-6])) n = [-n[0], -n[1]];
+    return [a, p, [m[0] + n[0] * h, m[1] + n[1] * h], q];
   });
-  const outline = star.flatMap((a, i) => [a, ...bumps[i]!]);
-  // The background between two neighboring points: the hexagon's side, a seam in to the next tip,
-  // the snowflake's edge back (tip t is outline[8t]), and a seam out to the corner.
-  const background = (t: number): ShapedPiece => {
-    const path = outline.slice(8 * t, 8 * t + 9);
-    if (t === 5) path[8] = outline[0]!;
-    return { poly: [hexV(t), hexV(t + 1), ...path.reverse()], c: 'L' };
-  };
-  return [
-    { poly: star, c: 'N' },
-    ...bumps.map((b) => ({ poly: b, c: 'M' })),
-    ...[0, 1, 2, 3, 4, 5].map(background),
+}
+
+/**
+ * A Koch snowflake two steps deep on a triangle grid inside a flat-top hexagon (side 1 = 6 grid
+ * steps): its tips touch the middle of each side. Shaded by step (dark first triangle, medium
+ * step-one points, light step-two points) and sewn in rows: each row's run of one color is one piece.
+ */
+function koch(): ShapedPiece[] {
+  const u = 1 / 6;
+  const h = (u * Math.sqrt(3)) / 2;
+  // The first triangle: side 9 steps, tip on the top side's middle, centered on the hexagon's.
+  const s0: P[] = [
+    [0, -6 * h],
+    [4.5 * u, 3 * h],
+    [-4.5 * u, 3 * h],
   ];
+  const s1 = kochStep(s0);
+  const s2 = kochStep(s1);
+  const colorAt = (c: P) => (inside(s0, c) ? 'D' : inside(s1, c) ? 'N' : inside(s2, c) ? 'M' : 'L');
+  const hex = corners('hexagon', true);
+  const out: ShapedPiece[] = [];
+  for (let j = 0; j < 12; j++) {
+    const [y0, y1] = [(j - 6) * h, (j - 5) * h];
+    // Grid points on the row's top line; the bottom line is offset half a step.
+    const off = (((j - 6) % 2) + 2) % 2 === 0 ? 0 : u / 2;
+    const tris: { poly: P[]; c: string; x: number }[] = [];
+    for (let i = -8; i <= 8; i++) {
+      const x = off + i * u;
+      const up: P[] = [
+        [x, y0],
+        [x + u / 2, y1],
+        [x - u / 2, y1],
+      ];
+      const down: P[] = [
+        [x, y0],
+        [x + u, y0],
+        [x + u / 2, y1],
+      ];
+      for (const t of [up, down]) {
+        const c: P = [(t[0]![0] + t[1]![0] + t[2]![0]) / 3, (t[0]![1] + t[1]![1] + t[2]![1]) / 3];
+        if (inside(hex, c)) tris.push({ poly: t, c: colorAt(c), x: c[0] });
+      }
+    }
+    tris.sort((p, q) => p.x - q.x);
+    // Runs of one color along the row become one piece (a trapezoid, or a triangle).
+    for (let k = 0; k < tris.length;) {
+      let e = k;
+      while (e + 1 < tris.length && tris[e + 1]!.c === tris[k]!.c) e++;
+      const pts = tris.slice(k, e + 1).flatMap((t) => t.poly);
+      const xs = (y: number) => pts.filter((p) => Math.abs(p[1] - y) < 1e-9).map((p) => p[0]);
+      const [top, bot] = [xs(y0), xs(y1)];
+      const poly: P[] = [
+        [Math.min(...top), y0],
+        ...(Math.max(...top) - Math.min(...top) > 1e-9 ? [[Math.max(...top), y0] as P] : []),
+        [Math.max(...bot), y1],
+        ...(Math.max(...bot) - Math.min(...bot) > 1e-9 ? [[Math.min(...bot), y1] as P] : []),
+      ];
+      out.push({ poly, c: tris[k]!.c });
+      k = e + 1;
+    }
+  }
+  return out;
 }
 
 /** Ray casting: is `p` inside the polygon `poly`? */

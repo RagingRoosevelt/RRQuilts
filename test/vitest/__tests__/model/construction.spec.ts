@@ -40,6 +40,7 @@ describe('block construction', () => {
       'Sierpinski Carpet',
       'Hilbert Curve',
       'Sierpinski Diamond',
+      'Koch Snowflake',
     ])
       expect(named(n).setIn, n).toBe(false);
   });
@@ -55,8 +56,6 @@ describe('block construction', () => {
       'Three Kites',
       'Triangle Pinwheel',
       'Spike Star',
-      // The background is set in around its jagged edge.
-      'Koch Snowflake',
     ])
       expect(named(n).setIn, n).toBe(true);
   });
