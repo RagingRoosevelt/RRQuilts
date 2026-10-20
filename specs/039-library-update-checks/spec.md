@@ -40,6 +40,18 @@ on request).
 3. **Given** settings are exported (`.rrqconf`) and imported on another device, **Then** the choice
    travels with them.
 
+### User Story 1b - Choose it when first welcomed (Priority: P1)
+
+Owner, 2026-10-20: the setting is also offered in the welcome wizard.
+
+1. **Given** the welcome wizard (first visit: You, Units, Your sizes, Help), **Then** a **Libraries**
+   step before Help offers the same choice, with Never selected and the same note about the network.
+   Next keeps Never unless the quilter picks a period (choosing one there is the same request as in
+   Settings).
+2. **Given** Skip or the close X, **Then** the setting stays Never.
+3. **Given** someone who already finished the welcome, **Then** they aren't asked again; the choice
+   is in Settings.
+
 ### User Story 2 - Hear about updates (Priority: P1)
 
 1. **Given** a period is chosen and a check is due (the last check for that library is older than
@@ -85,6 +97,7 @@ on request).
   scheduled check.
 - **FR-006**: The constitution's Principle II MUST be amended to allow update checks the quilter
   scheduled, with the same "no core capability depends on it" rule.
+- **FR-008**: The welcome wizard MUST offer the setting (default Never) as its own step.
 - **FR-007**: Help (Settings guide, Libraries guide) MUST explain the setting and that it uses the
   network.
 
