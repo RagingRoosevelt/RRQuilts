@@ -266,6 +266,12 @@ export const CHECKS: Check[] = [
     text: 'Libraries › Category › Fractals: Sierpinski Carpet, Vicsek Cross, Cantor Bars, Hilbert Curve, Sierpinski Triangle (moved here from Mosaics; its light gaps are single pieces), Sierpinski Diamond, Koch Snowflake. Each shows RagingRoosevelt as author and CC BY-SA 4.0 in Details. None shows as set-in in the Seams filter (Koch Snowflake: a big center triangle and three wings, each spike sewn log cabin style).',
     to: '/libraries',
   },
+  {
+    id: 'TC-045',
+    group: G.small,
+    text: 'Libraries: the Blocks / Palettes / All switch sits in the page header right after the title’s help icon (on a phone, on its own line under the title). Palette cards’ ⋮ button sits at the top of the card even when the swatches wrap onto several rows (Libraries and the sketchbook’s Palettes tab).',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

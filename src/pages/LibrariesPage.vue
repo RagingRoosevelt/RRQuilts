@@ -1,10 +1,18 @@
 <template>
   <q-page padding>
     <!-- The filters button sits on the sidebar's side, like the editors' menu button. -->
-    <div class="row items-center no-wrap q-mb-sm">
-      <h1 class="page-title col row items-center no-wrap">
+    <div class="row items-center q-mb-sm">
+      <h1 class="page-title row items-center no-wrap">
         Libraries <HelpLink topic="guides/libraries" label="Libraries" />
       </h1>
+      <!-- What the page shows: blocks, palettes or both. -->
+      <SlidePicker
+        v-model="settings.settings.libraryType"
+        :options="TYPE_OPTIONS"
+        label="Type"
+        class="type-pick"
+      />
+      <q-space />
       <q-btn
         v-if="$q.screen.lt.md"
         flat
@@ -315,7 +323,6 @@
             </div>
           </div>
         </fieldset>
-        <SlidePicker v-model="settings.settings.libraryType" :options="TYPE_OPTIONS" label="Type" />
         <q-input v-model="search" dense outlined clearable placeholder="Search names, notes">
           <template #prepend><q-icon name="search" /></template>
         </q-input>
@@ -632,7 +639,8 @@
                     :title="x.notecard.name + (x.approximate ? ' (size ≈)' : '')"
                   />
                 </button>
-                <q-btn flat round dense icon="more_vert" aria-label="Actions">
+                <!-- At the top, beside the first row of swatches, however many rows there are. -->
+                <q-btn flat round dense class="self-start" icon="more_vert" aria-label="Actions">
                   <q-menu>
                     <q-list dense style="min-width: 170px">
                       <q-item
@@ -2726,6 +2734,18 @@ function downloadPack() {
 </script>
 
 <style scoped>
+.type-pick {
+  flex: 0 1 260px;
+  margin: 0 8px 0 16px;
+}
+/* Phones: under the title, full width. */
+@media (max-width: 599px) {
+  .type-pick {
+    order: 3;
+    flex: 1 1 100%;
+    margin: 8px 0 0;
+  }
+}
 /* A card's place before it's built (when scrolled into view): about a card's height, so the page
    doesn't jump as cards appear. */
 .card-slot:not(:has(.card)) {
