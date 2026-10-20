@@ -320,6 +320,12 @@ export const CHECKS: Check[] = [
     text: 'Quilt editor › Design › Blocks sidebar: Fits layout is gone; a “Compatible with this layout” switch (on by default) shows only blocks this quilt’s spaces take (square blocks in a Straight Set, the right shapes in a Shaped Blocks quilt). Switched off, every block shows, and tapping an incompatible one with Set says why. The switch is remembered. The Shape filter is still there.',
     to: '/',
   },
+  {
+    id: 'TC-054',
+    group: G.tags,
+    text: 'Block editor › Details: a Tags field (add ⭐ Favorite or your own words; a library block’s tags are kept in My library) and Category (a My library block or its linked copy: Change… files it; a library block shows its library’s category; a project-only block says to add it to My library). Technique checkboxes only on blocks you designed; a library block, or a copy or color variation of someone else’s, shows them as a list.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

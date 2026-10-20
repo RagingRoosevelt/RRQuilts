@@ -47,7 +47,7 @@ Today, adding a fabric image to a palette under a name already in that palette a
 1. **Given** the new-quilt wizard's Shaped Blocks card, **Then** it shows small badges for the shapes
    it offers (triangle, diamond, hexagon), so it's clear it isn't hexagons only.
 
-## Part E - Tags and category in a block's Details (TC-024)
+## Part E - Tags and category in a block's Details (TC-024) · done on 0.6.0 (TC-054)
 
 1. **Given** a block's Details tab (block editor), **Then** it shows the block's **Tags** (editable, as
    the Tags dialog) and **Category** (editable for the quilter's own blocks; for a library block, its
