@@ -66,6 +66,7 @@
               class="q-ml-xs"
               >Download {{ c.file }}</a
             >
+            <div v-if="c.last" class="last">Your note last time: “{{ c.last }}”</div>
             <q-input
               v-if="
                 state[stateKey(c)]?.status === 'problem' || state[stateKey(c)]?.status === 'iterate'
@@ -321,6 +322,12 @@ function reset() {
 }
 .text {
   max-width: 80ch;
+}
+.last {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  font-style: italic;
+  opacity: 0.75;
 }
 .note {
   display: flex;
