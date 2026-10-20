@@ -21,6 +21,19 @@
     @clear="picked = []"
     @filter="(v: string, done: (fn: () => void) => void) => done(() => (needle = v.toLowerCase()))"
   >
+    <!-- A group's own pick (its checkbox) gets no chip: its subcategories' chips show it. -->
+    <template #selected-item="{ opt, removeAtIndex, index, tabindex }">
+      <q-chip
+        v-if="!opt.header"
+        dense
+        removable
+        :tabindex="tabindex"
+        class="q-my-none q-ml-xs q-mr-none"
+        @remove="removeAtIndex(index)"
+      >
+        {{ opt.label }}
+      </q-chip>
+    </template>
     <template #option="{ itemProps, opt, selected, index }">
       <!-- A group's own option (picks all of it) is its rule, with the checkbox before its name. -->
       <q-item
