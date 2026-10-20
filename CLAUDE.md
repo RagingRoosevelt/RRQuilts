@@ -202,6 +202,8 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   `topics.ts` loads them (bundled, offline); `calc.ts` calculators run the print code (`cutFor`,
   `yardage.ts`) so help math matches printouts. `pages/HelpPage.vue` at `/help/<section>/<topic>`;
   `components/HelpLink.vue` = "?" links from editors/print. A test checks calc names and topic links
+- Help › About › Roadmap (`about/roadmap.md`): the owner's picks of backlog specs per target version (their
+  tracker: `~/Obsidian/NotesVault/Projects/RRQuilts_todo.md`, Roadmap candidates); update it at each release
 
 ## Fabric images (spec 014)
 

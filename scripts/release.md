@@ -49,6 +49,8 @@ where a step says so. Use the project's Makefile targets (see CLAUDE.md).
    The entry appears in the app at Help › About › Changelog.
 
 5. **Show the user** the entry, and wait for their OK or edits.
+   Then update Help › About › Roadmap (`src/help/about/roadmap.md`): drop what this release
+   delivered, and ask the user whether the next versions' plans changed.
 6. **Set the version**: `package.json` `"version"` to `X.Y.Z` (nothing else in it).
    **Format samples**: if any file format's version is newer than its newest sample in
    `test/fixtures/formats/`, write samples with this release's code (see that folder's README) and

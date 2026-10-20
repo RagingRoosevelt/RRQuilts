@@ -203,6 +203,9 @@ Screens link to the help that explains them.
   forms), the file formats with links to their published schemas (relative, so they work on any
   host), and the **Changelog**: the project's `CHANGELOG.md`, bundled, written per release for
   quilters (New features, Fixes, Known issues) by `make release` (added 2026-10-15).
+  It also has a **Roadmap** (`src/help/about/roadmap.md`): planned features grouped by target
+  version, in plain words, from the owner's picks among the drafted specs on `specs/backlog`; kept
+  current at each release (added 2026-10-20).
 - **FR-023**: Help "?" buttons MUST follow the **Show help buttons** setting (default on).
 - **FR-021**: Each calculator MUST appear as a slightly raised card; inputs that belong together
   (length × width) stay on one line where space allows; length fields use the app's −/+ buttons
