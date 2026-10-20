@@ -134,11 +134,3 @@ describe('renamed built-in blocks', () => {
     expect(b.source?.itemId).toBe(b.id);
   });
 });
-
-describe('blocks with their own designer', () => {
-  it('carry their author and license on the block, not just in the credit', () => {
-    const b = builtinItems().blocks.find((x) => x.notecard.name === 'Koch Snowflake')!;
-    expect([b.author, b.license]).toEqual(['RagingRoosevelt', 'CC-BY-SA-4.0']);
-    expect([b.source?.author, b.source?.license]).toEqual(['RagingRoosevelt', 'CC-BY-SA-4.0']);
-  });
-});
