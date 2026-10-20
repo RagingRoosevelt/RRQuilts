@@ -2,6 +2,19 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.6.1 (2026-10-20)
+
+### New features
+
+- Open any block in the block editor from its menu or its preview, right after Preview.
+- Print a block or a quilt straight from its menu.
+
+### Fixes
+
+- Library blocks open in the block editor read-only, with buttons to make your own copy or a coloration variant.
+- A project keeps one coloration variant per library block. Making another adds a new coloring to the one you have.
+- Threadloop profile links (threadloop.app/members/…) are recognized in your socials.
+
 ## 0.6.0 (2026-10-20)
 
 ### New features
