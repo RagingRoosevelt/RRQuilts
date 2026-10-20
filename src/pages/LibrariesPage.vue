@@ -1346,7 +1346,7 @@ import {
   watch,
 } from 'vue';
 import { useAuthor } from '@/composables/author';
-import { serializeBlock } from '@/model/block-file';
+import { fabricIdsOf, serializeBlock } from '@/model/block-file';
 import { collectionFile, parseCollectionFile } from '@/model/collection-file';
 import { DEFAULT_LICENSE, LICENSES, authorOf, licenseName, priorCredits } from '@/model/credits';
 import {
@@ -2229,10 +2229,23 @@ async function copyMine(v: LibraryView, id: string) {
 }
 
 // --- Files ---
-function exportBlock(b: Block) {
+async function exportBlock(b: Block) {
+  // The fabrics it uses go along with their images (as in a palette file).
+  const used = fabricIdsOf(b);
+  const fabrics = await embedFabrics(
+    library.items.fabrics.filter((f) => used.has(f.id)),
+    settings.settings.saveSize,
+  );
   void exportFile(
     b.notecard.name,
-    serializeBlock(b, 'in', library.items.colors, me.value, socialsOut(settings.settings.socials)),
+    serializeBlock(
+      b,
+      'in',
+      library.items.colors,
+      me.value,
+      socialsOut(settings.settings.socials),
+      fabrics,
+    ),
     'rrqbl',
   );
 }

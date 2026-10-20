@@ -431,3 +431,29 @@ describe('category filter', () => {
     expect(f.ids(['gone'])).toEqual([]);
   });
 });
+
+describe('library format v5: a block carries its fabrics', () => {
+  it('Add to my library keeps the fabrics its colorings use, and the library lists them', async () => {
+    const b0 = newBlock('Printy', [10, 10], 'cm', 'Sam');
+    const fabric = {
+      id: 'sam.fab',
+      notecard: { name: 'Print' },
+      image: { sha256: 'b'.repeat(64), type: 'image/webp' },
+      size: [25.4, 25.4] as [number, number],
+      average: [1, 2, 3] as [number, number, number],
+    };
+    const doc = produce(createProject('p', 'cm'), (d) => {
+      const b = structuredClone(b0);
+      const patch = Object.keys(b.colorings[0]!.fills)[0] ?? 'p1';
+      b.colorings[0]!.fills[patch] = { fabric: fabric.id, offset: [0, 0], rotation: 0 };
+      d.project.blocks.push(b);
+      d.project.palette.fabrics.push(fabric);
+    });
+    const { lib } = await addBlock(emptyPersonal('Sam'), doc, b0.id);
+    const item = lib.items.find((i) => i.data.id === b0.id)!;
+    const fabrics = item.type === 'block' ? (item.fabrics ?? []) : [];
+    expect(fabrics.map((f) => f.id)).toEqual(['sam.fab']);
+    expect(fabrics[0]!.size[0]).toBeCloseTo(10); // in inches, as library content is
+    expect(withSources(lib).fabrics.map((f) => f.id)).toContain('sam.fab');
+  });
+});

@@ -1343,6 +1343,7 @@ import { useAskCategory } from '@/composables/category';
 import {
   importBlock,
   importProjectBlocks,
+  fabricIdsOf,
   parseBlockFile,
   projectBlockChoices,
   serializeBlock,
@@ -2516,10 +2517,16 @@ async function importCollectionFile() {
   });
 }
 
-function exportBlock(b: Block) {
+async function exportBlock(b: Block) {
   const palette = [...project.doc!.project.palette.colors, ...library.items.colors];
   const author = settings.settings.author;
   const stamped = { ...b, license: effectiveLicense(b, project.doc!) };
+  // The fabrics it uses go along with their images (as in a palette file).
+  const used = fabricIdsOf(b);
+  const fabrics = await embedFabrics(
+    project.doc!.project.palette.fabrics.filter((f) => used.has(f.id)),
+    settings.settings.saveSize,
+  );
   void exportFile(
     b.notecard.name,
     serializeBlock(
@@ -2528,6 +2535,7 @@ function exportBlock(b: Block) {
       palette,
       author,
       socialsOut(settings.settings.socials),
+      fabrics,
     ),
     'rrqbl',
   );
@@ -2540,7 +2548,7 @@ async function importBlocksFile() {
   const text = await file.text();
   if (file.name.toLowerCase().endsWith('.rrq') || formatOf(text) === 'rrq')
     await importProjectBlocksText(text);
-  else importBlockText(text);
+  else await importBlockText(text);
 }
 
 function formatOf(text: string): unknown {
@@ -2551,13 +2559,17 @@ function formatOf(text: string): unknown {
   }
 }
 
-function importBlockText(text: string) {
+async function importBlockText(text: string) {
   const r = parseBlockFile(text);
   if (!r.ok) {
     $q.notify({ type: 'negative', message: r.error });
     return;
   }
-  const res = importBlock(project.doc!, r.file, settings.settings.author);
+  // Its fabrics' images go into this device's store; the fabrics keep references.
+  const file = r.file.fabrics
+    ? { ...r.file, fabrics: await absorbFabrics(r.file.fabrics) }
+    : r.file;
+  const res = importBlock(project.doc!, file, settings.settings.author);
   if (res.doc === project.doc) {
     $q.notify({ message: `"${r.file.block.notecard.name}" is already in this project.` });
     return;
@@ -2575,11 +2587,13 @@ const picking = ref<{
 } | null>(null);
 
 async function importProjectBlocksText(text: string) {
-  const r = await parseProject(text);
-  if (!r.ok) {
-    $q.notify({ type: 'negative', message: r.error });
+  const r0 = await parseProject(text);
+  if (!r0.ok) {
+    $q.notify({ type: 'negative', message: r0.error });
     return;
   }
+  // Its fabrics' images go into this device's store, so imported blocks show them.
+  const r = { ...r0, doc: await absorbImages(r0.doc) };
   const choices = projectBlockChoices(project.doc!, r.doc, (id) => !!library.lookup.block(id));
   if (!choices.some((c) => !c.here)) {
     $q.notify({ message: `No new blocks in "${r.doc.project.name}".` });

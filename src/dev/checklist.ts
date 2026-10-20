@@ -296,6 +296,12 @@ export const CHECKS: Check[] = [
     text: 'Project palettes take tags (project format 8): in a project’s Palettes tab, a project palette’s menu › Tags… › ⭐ Favorite shows ⭐ before its name, and in the quilt editor’s color tray. Save the project and reopen it: the tag is still there. Save to my library carries the tags to the new My library palette. A file saved by 0.5.0 still opens.',
     to: '/',
   },
+  {
+    id: 'TC-050',
+    group: G.tags,
+    text: 'Fabrics travel with blocks (block files 3, library files 5): paint a block’s coloring with fabrics (your own and a library palette’s). Export the block (.rrqbl) and import it into another project: the fabric patches come back. Add the block to My library, then Make pack with it and add the pack elsewhere (or restore a backup): the fabrics are there too. Import blocks from another project file: same.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

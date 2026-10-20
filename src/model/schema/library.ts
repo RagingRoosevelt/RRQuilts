@@ -6,7 +6,7 @@ import { Units } from './project';
 import { itemBase, Links, Socials } from './shared';
 
 export const LIBRARY_FORMAT = 'rrqlib';
-export const LIBRARY_VERSION = 4;
+export const LIBRARY_VERSION = 5;
 
 /**
  * A palette: a named set of colors and fabrics (spec 014); each keeps its own `id@version` so
@@ -27,6 +27,8 @@ export const LibraryItem = Type.Union([
     data: Block,
     /** Colors its colorings use that aren't library colors (as in `.rrqbl`). */
     colors: Type.Optional(Type.Array(Color)),
+    /** v5: fabrics its colorings use (their images go along in zips), as in `.rrqbl`. */
+    fabrics: Type.Optional(Type.Array(Fabric)),
   }),
   Type.Object({ type: Type.Literal('colors'), ...category, data: ColorCollection }),
 ]);

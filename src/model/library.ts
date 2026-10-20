@@ -4,7 +4,7 @@ import { sortTags, tagLabel, visibleTags } from './tags';
 import { TECHNIQUES, type Technique } from './schema/shared';
 import { produce } from 'immer';
 import { canonicalContent, contentVersion, itemId, stableStringify } from './identity';
-import { creditCopy, settleCredits } from './credits';
+import { creditCopy, noSharing, settleCredits } from './credits';
 import type { LibraryLookup } from './library-items';
 import type { Block } from './schema/block';
 import {
@@ -80,6 +80,33 @@ async function ownColors(doc: RrqDoc, block: Block, kept: readonly Color[] = [])
   return colors.length ? { colors } : {};
 }
 
+/**
+ * The fabrics a block's colorings use, as library content (sizes in inches), so they travel with it;
+ * fabrics whose license forbids sharing stay behind (spec 014). `kept`: ones it already carries.
+ */
+async function blockFabrics(doc: RrqDoc, block: Block, kept: readonly Fabric[] = []) {
+  const used = new Set(
+    block.colorings.flatMap((c) =>
+      Object.values(c.fills).flatMap((f) => ('fabric' in f ? [f.fabric] : [])),
+    ),
+  );
+  const k = doc.units === 'cm' ? 1 / 2.54 : 1;
+  const here = doc.project.palette.fabrics.filter(
+    (f) => used.has(f.id) && !noSharing(f.license ?? f.source?.license),
+  );
+  const fabrics = await Promise.all(
+    here.map((f) =>
+      asLibraryData({ ...f, size: [f.size[0] * k, f.size[1] * k] as [number, number] }, 1),
+    ),
+  );
+  fabrics.push(...kept.filter((f) => used.has(f.id) && !fabrics.some((x) => x.id === f.id)));
+  return fabrics.length ? { fabrics } : {};
+}
+
+/** A library item's fabrics: a palette's, or (v5) those a block carries. */
+export const itemFabrics = (i: LibraryItem): Fabric[] =>
+  (i.type === 'colors' ? i.data.fabrics : i.fabrics) ?? [];
+
 const findBlock = (lib: LibraryDoc, id: string) =>
   lib.items.find(
     (i): i is Extract<LibraryItem, { type: 'block' }> => i.type === 'block' && i.data.id === id,
@@ -105,6 +132,7 @@ export async function addBlock(
     ...(category ? { category } : {}),
     data,
     ...(await ownColors(doc, block)),
+    ...(await blockFabrics(doc, block)),
   };
   return {
     lib: { ...lib, items: [...lib.items.filter((i) => i.data.id !== data.id), item] },
@@ -159,6 +187,7 @@ export async function syncBlock(
     ...(item.category ? { category: item.category } : {}),
     data,
     ...(await ownColors(doc, block, item.colors)),
+    ...(await blockFabrics(doc, block, item.fabrics)),
   };
   return {
     lib: { ...lib, items: lib.items.map((i) => (i === item ? next : i)) },
@@ -569,7 +598,8 @@ export async function copyToMine(
           1,
         );
   const colors = item.type === 'block' && item.colors ? { colors: item.colors } : {};
-  const copy = { type: item.type, data, ...colors } as LibraryItem;
+  const fabrics = item.type === 'block' && item.fabrics ? { fabrics: item.fabrics } : {};
+  const copy = { type: item.type, data, ...colors, ...fabrics } as LibraryItem;
   return { ...lib, items: [...lib.items, copy] };
 }
 
@@ -593,10 +623,12 @@ export function withSources(lib: LibraryDoc) {
   const blocks: Block[] = [];
   const collections: ColorCollection[] = [];
   const blockColors: Color[] = [];
+  const blockFabricList: Fabric[] = [];
   for (const i of lib.items) {
     if (i.type === 'block') {
       blocks.push(stamp(i.data));
       blockColors.push(...(i.colors ?? []).map(stamp));
+      blockFabricList.push(...(i.fabrics ?? []).map(stamp));
     } else
       collections.push({
         ...i.data,
@@ -609,7 +641,8 @@ export function withSources(lib: LibraryDoc) {
     blocks,
     collections,
     colors: [...collections.flatMap((c) => c.colors), ...blockColors],
-    fabrics: collections.flatMap((c) => c.fabrics ?? []),
+    // Palette fabrics first, then those only a block carries.
+    fabrics: [...collections.flatMap((c) => c.fabrics ?? []), ...blockFabricList],
   };
 }
 export type LibraryView = ReturnType<typeof withSources> & { doc: LibraryDoc };

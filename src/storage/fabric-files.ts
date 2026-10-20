@@ -3,6 +3,7 @@
 // 256 px only when the project asks to include them and their license allows sharing.
 import { noSharing } from '@/model/credits';
 import { isLibraryItem } from '@/model/library-items';
+import { itemFabrics } from '@/model/library';
 import type { Fabric } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Asset } from '@/model/schema/shared';
@@ -130,8 +131,7 @@ export async function freeUnusedImages(docs: readonly LibraryDoc[], projects: re
   const keep = new Set<string>();
   for (const d of docs)
     for (const it of d.items)
-      if (it.type === 'colors')
-        for (const f of it.data.fabrics ?? []) fabricShas(f).forEach((s) => keep.add(s));
+      for (const f of itemFabrics(it)) fabricShas(f).forEach((s) => keep.add(s));
   const drafts = await idb.getAll<Draft>('drafts');
   for (const p of projects)
     for (const f of p.project.palette.fabrics) fabricShas(f).forEach((s) => keep.add(s));
