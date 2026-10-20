@@ -154,6 +154,9 @@ chart; editing controls are absent with a "edit on tablet or desktop" note.
   Threads; Embroidery when present) with notecards and actions (open, duplicate as variation, delete,
   sort by drag or sort mode).
 - **FR-004**: Only one editor is open at a time.
+- **FR-004a** (added 2026-10-20): Every dialog and wizard MUST have a close X in its top right
+  corner. It does what Esc does (or the dialog's own Cancel, Skip or Later); where Cancel is itself a
+  choice (a persistent question), the X closes without choosing.
 
 **Editor layout**
 

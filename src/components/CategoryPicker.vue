@@ -3,6 +3,7 @@
        libraries use (A–Z, subcategories indented), and New category…. -->
   <q-dialog ref="dialogRef" @hide="onDialogHide">
     <q-card style="width: 380px; max-width: 95vw">
+      <DialogClose />
       <q-card-section class="text-h6">{{ title }}</q-card-section>
       <q-list dense style="max-height: 60vh; overflow: auto">
         <template v-for="(it, i) in items" :key="i">
@@ -25,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from './DialogClose.vue';
 import { useDialogPluginComponent } from 'quasar';
 import { ref } from 'vue';
 

@@ -1,6 +1,7 @@
 <template>
   <q-dialog v-model="open" @show="nameInput?.select()">
     <q-card style="width: 340px; max-width: 95vw">
+      <DialogClose />
       <q-card-section class="column no-wrap" style="gap: 8px">
         <div class="text-h6">{{ title }}</div>
         <div class="swatch" :style="{ background: hex }" />
@@ -63,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from './DialogClose.vue';
 import type { QInput } from 'quasar';
 import { computed, ref } from 'vue';
 import { fromHex, toHex, type RGB } from '@/editor/color';

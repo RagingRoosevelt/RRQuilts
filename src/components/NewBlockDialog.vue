@@ -2,6 +2,7 @@
   <!-- New block: a name and a shape (spec 026). The shape can't change later. -->
   <q-dialog v-model="open">
     <q-card style="width: 420px; max-width: 95vw">
+      <DialogClose />
       <q-card-section class="text-h6">New block</q-card-section>
       <q-card-section class="column q-pt-none" style="gap: 12px">
         <q-input v-model="name" dense outlined autofocus label="Name" @keyup.enter="ok" />
@@ -46,6 +47,7 @@
 </template>
 
 <script setup lang="ts">
+import DialogClose from './DialogClose.vue';
 import { ref } from 'vue';
 import ShapeSize from '@/components/ShapeSize.vue';
 import { SHAPE_NAME, SHAPE_OUTLINE, shapeSize, type BlockShape } from '@/model/blocks/shape';
