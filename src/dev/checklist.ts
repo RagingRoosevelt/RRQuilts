@@ -104,6 +104,13 @@ export const CHECKS: Check[] = [
     text: 'Create a coloration variant of a library block, then ask for one again (sketchbook menu or the editor banner): the same variant opens with a new coloring added (a copy of the library block’s first coloring) and selected, ready to recolor. No second variant block appears in Blocks.',
     to: '/',
   },
+  {
+    id: 'TC-089',
+    group: G.small,
+    last: 'When in read only mode and clicking on the "create a coloration variant", that should land you on the color tab of the coloration variant.',
+    text: 'A library block open read-only: the banner’s Create a coloration variant lands on the variant’s Color tab (new or existing variant); Edit (make a copy) lands on the copy’s Draw tab.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

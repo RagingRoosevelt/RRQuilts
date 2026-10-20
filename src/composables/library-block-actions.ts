@@ -27,6 +27,13 @@ export function useLibraryBlockActions() {
       ].includes(id),
     );
 
+  /** Open a block on a tab. The tab is set after arriving: from a library block's read-only view
+   *  (Details and Print only) it would otherwise be switched back before the route changes. */
+  async function open(id: string, tab: 'draw' | 'color') {
+    await router.push(`/project/block/${id}`);
+    editor.blockMode = tab;
+  }
+
   /** Your copy, optionally used in its place in the quilts that use it; opens it to draw. */
   async function editLibrary(lib: Block) {
     const copy = copyBlock(
@@ -38,8 +45,7 @@ export function useLibraryBlockActions() {
     const users = quiltsUsing(lib.id);
     const go = (replace: boolean) => {
       project.change(() => useMyCopy(project.doc!, lib.id, copy, replace));
-      editor.blockMode = 'draw';
-      void router.push(`/project/block/${copy.id}`);
+      void open(copy.id, 'draw');
     };
     if (!users.length) return go(false);
     $q.dialog({
@@ -75,8 +81,7 @@ export function useLibraryBlockActions() {
         if (i >= 0) d.project.blocks[i] = next;
       });
       editor.coloringOf.set(have.id, r.id);
-      editor.blockMode = 'color';
-      void router.push(`/project/block/${have.id}`);
+      void open(have.id, 'color');
       return;
     }
     const v = produce(
@@ -92,8 +97,7 @@ export function useLibraryBlockActions() {
       },
     );
     project.change((d) => void d.project.blocks.push(v));
-    editor.blockMode = 'color';
-    void router.push(`/project/block/${v.id}`);
+    void open(v.id, 'color');
   }
 
   return { editLibrary, colorVariant };
