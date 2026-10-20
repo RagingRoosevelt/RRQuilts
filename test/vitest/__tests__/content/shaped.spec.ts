@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { builtinItems } from '@/content/starter';
 import { SHAPED_BLOCKS } from '@/content/shaped';
 import { SHAPED_CURVES } from '@/content/shaped-curves';
+import { FRACTAL_SHAPED } from '@/content/fractals';
 import { pathPolygon } from '@/model/geometry/path';
 
 const items = builtinItems();
@@ -14,11 +15,11 @@ const rgbOf = new Map(items.colors.map((c) => [c.id, c.rgb]));
 describe('built-in shaped blocks', () => {
   it('are all in the library', () => {
     expect(blocks.map((b) => b.notecard.name)).toEqual(
-      [...SHAPED_BLOCKS, ...SHAPED_CURVES].map((d) => d.name),
+      [...SHAPED_BLOCKS, ...SHAPED_CURVES, ...FRACTAL_SHAPED].map((d) => d.name),
     );
   });
 
-  it.each(SHAPED_BLOCKS.map((d) => [d.name, d] as const))(
+  it.each([...SHAPED_BLOCKS, ...FRACTAL_SHAPED].map((d) => [d.name, d] as const))(
     '%s: one patch per piece, all seams connected, each colored',
     (name, d) => {
       const b = blocks.find((x) => x.notecard.name === name)!;
