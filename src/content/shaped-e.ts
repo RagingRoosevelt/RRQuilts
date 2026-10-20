@@ -81,7 +81,18 @@ function star(n: number, ci: number, cj: number) {
 
 const RAIL = ['D', 'N', 'M', 'L'];
 const starAt = star(6, 2, 2);
-const sierpinski = (i: number, j: number) => (i & j) === 0;
+/** A Sierpinski gasket `depth` steps deep: each step leaves the middle (upside down, light) as one
+ *  piece and repeats in the three corners; the smallest corners are dark. */
+function sierpinski(a: P, b: P, c: P, depth: number): ShapedPiece[] {
+  if (depth === 0) return [{ poly: [a, b, c], c: 'D' }];
+  const [ab, bc, ca] = [lerp(a, b, 0.5), lerp(b, c, 0.5), lerp(c, a, 0.5)];
+  return [
+    { poly: [ab, bc, ca], c: 'L' },
+    ...sierpinski(a, ab, ca, depth - 1),
+    ...sierpinski(ab, b, bc, depth - 1),
+    ...sierpinski(ca, bc, c, depth - 1),
+  ];
+}
 
 /** A triangle inside another, its corners a third of the way along each side (turned). */
 function twist(a: P, b: P, c: P): [P, P, P] {
@@ -222,12 +233,12 @@ export const SHAPED_E: ShapedDef[] = [
     pieces: lattice(6, (i, j, up) => (up ? ['N', 'K', 'S', 'P'][(i * 3 + j * 2) % 4]! : 'L')),
   },
   {
-    // Pascal's triangle, odd places dark: a Sierpinski gasket eight rows deep.
+    // A Sierpinski gasket three steps deep: each light gap is one piece, 27 dark corners.
     name: 'Sierpinski Triangle',
     shape: 'triangle',
     leg: 8,
     category: 'Mosaics',
-    pieces: lattice(8, (i, j, up) => (up && sierpinski(i, j) ? 'D' : 'L')),
+    pieces: sierpinski(A, B, C, 3),
   },
   {
     // Six triangles round the middle make a hexagon; three corners finish the triangle.
