@@ -213,6 +213,18 @@ export const CHECKS: Check[] = [
     text: 'Home › Open from a gist: paste a gist link with one .rrq (opens), with several (asks which), with none or a wrong link (says so), offline (says so). Save then asks where. Restore unsaved project now sits below Recent projects. Before opening, the dialog names the gist and its GitHub owner. The link /?open_gist=<gist link> does the same.',
     to: '/',
   },
+  {
+    id: 'TC-041',
+    group: G.filters,
+    text: 'Sketchbook › Blocks › Library blocks: the library heading (e.g. Built-In) has a checkbox like each category: it ticks or clears every block of that library.',
+    to: '/',
+  },
+  {
+    id: 'TC-042',
+    group: G.filters,
+    text: 'Category filter (Libraries and the sketchbook’s Blocks sidebar): categories with the same name in My library and the built-in library show once. A category with subcategories is a labeled line with a checkbox before its name, its subcategories listed under it (not indented). Ticking that checkbox ticks the whole group; unticking one subcategory unticks it; ticking the last one ticks it again. Chips show only while the list is closed. Technique’s Needs/Efficiency are labeled lines too. The Libraries page opens without errors and switching Blocks/Palettes/All drops picks the filter no longer offers.',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
