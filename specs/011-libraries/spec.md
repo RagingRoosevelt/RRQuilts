@@ -102,6 +102,11 @@ category; preview it (larger picture, author, license, notes).
    Libraries section of checkboxes (all checked by default; expanded; scrolls past five), and
    searchable checkbox dropdowns for Type, Category, Tags, and Styles showing the picks as pills:
    any picked value matches within a dropdown, all dropdowns must match.
+   (2026-10-20, here and in the sketchbook's block filter) The pills show only while a dropdown is
+   closed. Category merges every library's categories by name (either case); a category with
+   subcategories is a rule labeled with its name, a checkbox before the name, and its subcategories
+   listed under it, not indented. That checkbox (the category's own blocks) checks or clears the
+   whole group; unchecking one subcategory unchecks it, and checking the last one checks it.
 3. **Given** an item, **When** previewed, **Then** it shows the larger picture (or the collection's
    swatches), author, license, notes, and credits (as the sketchbook Preview does).
 

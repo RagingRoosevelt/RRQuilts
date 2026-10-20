@@ -343,6 +343,53 @@ export function categoryTree(cats: readonly Category[]) {
     ]);
 }
 
+/**
+ * The Category filter (spec 011): every library's categories merged by name, either case
+ * (subcategories by their category's name and their own). Only the categories `used` (ids items are
+ * filed under; '' = uncategorized) and their parents are offered: plain ones first, then each
+ * category with subcategories as a group: its `header` (items filed in the category itself;
+ * checking it checks the group), then its subcategories. `ids`: the category ids picked keys cover.
+ */
+export function categoryFilter(cats: readonly Category[], used: ReadonlySet<string>) {
+  const byId = new Map(cats.map((c) => [c.id, c]));
+  const parentOf = (c: Category) => (c.parent ? byId.get(c.parent) : undefined);
+  const shown = new Set(used);
+  for (const c of cats) if (used.has(c.id) && c.parent) shown.add(c.parent);
+  const norm = (n: string) => n.trim().toLowerCase();
+  const covers = new Map<string, string[]>();
+  const cover = (key: string, id: string) => covers.set(key, [...(covers.get(key) ?? []), id]);
+  const tops = new Map<string, { name: string; subs: Map<string, string> }>();
+  const topOf = (c: Category) => {
+    const key = norm(c.name);
+    if (!tops.has(key)) tops.set(key, { name: c.name, subs: new Map() });
+    return { key, top: tops.get(key)! };
+  };
+  for (const c of cats) {
+    if (!shown.has(c.id)) continue;
+    const p = parentOf(c);
+    if (!p) {
+      cover(topOf(c).key, c.id);
+      continue;
+    }
+    const { key, top } = topOf(p);
+    const sub = `${key}/${norm(c.name)}`;
+    if (!top.subs.has(sub)) top.subs.set(sub, c.name);
+    cover(sub, c.id);
+  }
+  const plain = [...tops].filter(([, t]) => !t.subs.size);
+  const grouped = [...tops].filter(([, t]) => t.subs.size);
+  const options: { label: string; value: string; group?: string; header?: boolean }[] = [
+    ...plain.map(([key, t]) => ({ label: t.name, value: key })),
+    ...(used.has('') ? [{ label: 'Uncategorized', value: '' }] : []),
+    ...grouped.flatMap(([key, t]) => [
+      { label: t.name, value: key, group: t.name, header: true },
+      ...[...t.subs].map(([sub, name]) => ({ label: name, value: sub, group: t.name })),
+    ]),
+  ];
+  covers.set('', ['']);
+  return { options, ids: (keys: readonly string[]) => keys.flatMap((k) => covers.get(k) ?? []) };
+}
+
 /** A category and its subcategories (picking a top-level category matches both levels). */
 export const withSubcategories = (cats: readonly Category[], ids: readonly string[]) => [
   ...ids,
