@@ -267,3 +267,35 @@ export function saveChecks(state: Record<string, CheckState>) {
     // Storage blocked: progress lasts until the page closes.
   }
 }
+
+/** Free text the tester puts between checks: before check `before` (TC-###; '' = after the last). */
+export interface ChecklistNote {
+  id: string;
+  before: string;
+  text: string;
+}
+const NOTES_KEY = 'rrq.dev.checklist.notes';
+export function loadNotes(): ChecklistNote[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(NOTES_KEY) ?? '[]') as unknown;
+    return Array.isArray(raw)
+      ? raw.filter(
+          (n): n is ChecklistNote =>
+            !!n &&
+            typeof n === 'object' &&
+            typeof (n as ChecklistNote).id === 'string' &&
+            typeof (n as ChecklistNote).before === 'string' &&
+            typeof (n as ChecklistNote).text === 'string',
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
+export function saveNotes(notes: ChecklistNote[]) {
+  try {
+    localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+  } catch {
+    // Storage blocked: notes last until the page closes.
+  }
+}
