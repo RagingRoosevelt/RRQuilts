@@ -213,6 +213,12 @@ export const CHECKS: Check[] = [
     text: 'Home › Open from a gist: paste a gist link with one .rrq (opens), with several (asks which), with none or a wrong link (says so), offline (says so). Save then asks where. Restore unsaved project now sits below Recent projects. Before opening, the dialog names the gist and its GitHub owner. The link /?open_gist=<gist link> does the same.',
     to: '/',
   },
+  {
+    id: 'TC-038',
+    group: G.tags,
+    text: 'Favorite palettes: on Libraries › Palettes, a palette’s menu › Tags… › ⭐ Favorite shows ⭐ before its name; in a project’s Palettes tab the tag button on a library palette row does the same; a picked favorite palette shows ⭐ in the quilt editor’s color tray. The Tags filter finds it. Works for a My library palette (its own tag) and a built-in one.',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
