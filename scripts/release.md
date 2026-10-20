@@ -6,7 +6,13 @@ where a step says so. Use the project's Makefile targets (see CLAUDE.md).
 1. **Check the state.** `git status` must be clean. Changes never go straight onto `main`: they reach
    it from a feature branch. If the work to release is still on a feature branch, merge it into
    `main` with `git checkout main && git merge --no-ff <branch>` (ask the user which branch if it's
-   unclear), then make the release branch: `git checkout -b release/X.Y.Z`.
+   unclear).
+   **Then bring in the specs backlog**, so every release carries the drafted specs: in the
+   `../Kits Quilts specs` worktree, `git merge main` (a spec on both, drafted on the backlog and then
+   built and marked done in this release, keeps `main`'s version) and `git push origin specs/backlog`;
+   back here, `git merge --no-ff specs/backlog -m "Merge specs/backlog"`. Check:
+   `git rev-list --count main..specs/backlog` prints 0.
+   Then make the release branch: `git checkout -b release/X.Y.Z`.
 2. **Find what changed.** The last release is the newest tag matching `v*`
    (`git describe --tags --abbrev=0 --match 'v*'`; none means everything is new). Read
    `git log <tag>..HEAD` (or the whole log) and the current `CHANGELOG.md`.
