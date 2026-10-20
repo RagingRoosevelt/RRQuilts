@@ -308,6 +308,12 @@ export const CHECKS: Check[] = [
     text: 'New quilt wizard: the Shaped Blocks card shows small triangle, diamond and hexagon badges in its top right corner (hover: Triangles, diamonds or hexagons); the cards keep one height.',
     to: '/',
   },
+  {
+    id: 'TC-052',
+    group: G.tests,
+    text: 'Tests › Blocks: with a project open, its own blocks come first (“This project (name)”), then My library’s blocks, then the built-in library by category; each drawn with its colors.',
+    to: '/dev/blocks',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

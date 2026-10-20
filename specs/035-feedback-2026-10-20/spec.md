@@ -61,7 +61,7 @@ Today, adding a fabric image to a palette under a name already in that palette a
    Palettes (search, Tags with Favorite first, Category, and spec 033's Color filter when it exists),
    applied to the project's palettes and the library palettes listed there.
 
-## Part G - Tests pages show your own blocks (TC-040 note)
+## Part G - Tests pages show your own blocks (TC-040 note) · done on 0.6.0 (TC-052)
 
 1. **Given** the Tests › Blocks page, **Then** besides every built-in block it shows **My library**
    blocks and the **open project's** own blocks (each in its own section), drawn the same way.
