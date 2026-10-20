@@ -1,6 +1,6 @@
 # Bug: exported blocks and packs drop fabric colorings
 
-**Reported**: 2026-10-20 (owner, TC-029) · **Status**: Open (documented only, not fixed) · **Area**:
+**Reported**: 2026-10-20 (owner, TC-029) · **Status**: Fixed on branch `0.6.0` (block files v3, library v5) · **Area**:
 block files (`.rrqbl`, spec 011), packs (`.rrqlib`, spec 014)
 
 ## What happens
