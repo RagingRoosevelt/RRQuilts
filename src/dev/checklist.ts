@@ -2,6 +2,7 @@
 // build is the release plus the commit after it (0.4.0+7ed7f8d; plain 0.4.0 on the release itself).
 // Progress is kept per release line, so it survives new commits, and each result remembers the build
 // it was tested on. Ids (TC-###) are stable: reword an item freely, but give a changed check a new id.
+// After a test round, checks that worked are removed (the Tests pages stay); never reuse an id.
 /** The release line progress is kept under. */
 export const VERSION = import.meta.env.APP_VERSION;
 /** The exact build being tested, from the dev server (the version alone if it can't say). */
@@ -40,7 +41,7 @@ const samples = import.meta.glob<string>(
 export const sampleUrl = (file: string) => samples[`/test/fixtures/formats/${file}`];
 
 const G = {
-  files: 'Old files (format v7)',
+  files: 'Every release',
   shaped: 'Shaped blocks',
   tests: 'Tests pages',
   filters: 'Filters and sidebars',
@@ -50,50 +51,21 @@ const G = {
 
 export const CHECKS: Check[] = [
   {
-    id: 'TC-001',
-    group: G.files,
-    text: 'Open a project saved by 0.4.0 (yours, or this demo written by 0.4.0): it looks the same; save it and reopen it.',
-    file: 'demo-v6.rrq',
-  },
-  {
-    id: 'TC-002',
-    group: G.files,
-    text: 'In the same 0.4.0 demo, the quilt named “Baby Blocks” (patches) opens with the layout Variable Patch, looking as before.',
-    file: 'demo-v6.rrq',
-  },
-  {
     id: 'TC-003',
     group: G.files,
     text: 'Picture check: every picture matches (look at any flagged in red).',
     to: '/dev/pictures',
   },
   {
-    id: 'TC-004',
-    group: G.shaped,
-    text: 'Block editor: new triangle, 60° diamond and hexagon blocks, sized by leg, width and height.',
-  },
-  {
-    id: 'TC-005',
-    group: G.shaped,
-    text: 'Drawing snaps to the triangle grid and to the shape’s corners and edges.',
-  },
-  { id: 'TC-006', group: G.shaped, text: 'Edit a copy of a shaped block.' },
-  {
     id: 'TC-007',
     group: G.shaped,
     text: 'Wizard: Blocks / Patches switch; Shaped Blocks, Diamond Point and Baby Blocks cards (every card keeps its height when the switch changes its label).',
-  },
-  {
-    id: 'TC-008',
-    group: G.shaped,
-    text: 'Flow angle slider (wizard and Layout tab): 1° steps, sticks every 15°.',
   },
   {
     id: 'TC-009',
     group: G.shaped,
     text: 'Quilt editor: Set refuses a block of the wrong shape (switch off Compatible with this layout in the Blocks sidebar to see those blocks); Rotate turns in steps that fit.',
   },
-  { id: 'TC-010', group: G.shaped, text: 'Quilt editor: Paint works on an empty block space.' },
   {
     id: 'TC-011',
     group: G.tests,
@@ -126,38 +98,9 @@ export const CHECKS: Check[] = [
     to: '/dev/print',
   },
   {
-    id: 'TC-017',
-    group: G.filters,
-    text: 'Libraries sidebar: search, Metadata, Shape, Construction, Group by, contents below.',
-    to: '/libraries',
-  },
-  {
-    id: 'TC-018',
-    group: G.filters,
-    text: 'Project Blocks tab: the same sidebar; dragging and Move earlier/later off while filtering.',
-    to: '/project',
-  },
-  {
-    id: 'TC-019',
-    group: G.filters,
-    text: 'Phone width: Filters button opens the sidebar over the page; tapping outside closes it.',
-  },
-  {
     id: 'TC-020',
     group: G.filters,
     text: 'Quilt sidebar: the Shape filter with pictures, and the Compatible with this layout switch in place of Fits layout (see TC-053).',
-  },
-  {
-    id: 'TC-021',
-    group: G.tags,
-    text: 'Tag a built-in block on the Libraries page; the tag shows and filters in a project too.',
-    to: '/libraries',
-  },
-  { id: 'TC-022', group: G.tags, text: 'Tag one of the project’s own blocks (Blocks tab, Tags…).' },
-  {
-    id: 'TC-023',
-    group: G.tags,
-    text: '⭐ Favorite is first when tagging and filtering; favorite blocks show the star badge (Libraries, Blocks tab, quilt sidebar).',
   },
   {
     id: 'TC-024',
@@ -170,36 +113,14 @@ export const CHECKS: Check[] = [
     text: 'Technique filter shows Techniques and Efficiency sections; Group by Technique works.',
   },
   {
-    id: 'TC-026',
-    group: G.tags,
-    text: 'Construction filters (Seams, Difficulty) narrow the blocks.',
-  },
-  {
     id: 'TC-027',
     group: G.tags,
     text: 'Remove a pack with tagged items: “Remove pack “name”?” explains the tag associations and offers “Save tag associations after removing pack”; kept ones show in a leftover row that offers Remove them. (Tags on your own My library palettes live in the palette: removing a pack doesn’t touch them.)',
   },
   {
-    id: 'TC-028',
-    group: G.tags,
-    text: 'Back up My library and restore it: tags on others’ items come back.',
-  },
-  {
     id: 'TC-029',
     group: G.tags,
     text: 'Make a pack and export a block (.rrqbl): neither carries tags; techniques travel, and so do fabric colorings (see TC-050).',
-  },
-  {
-    id: 'TC-030',
-    group: G.small,
-    text: 'Touch: one-finger drag pans only with the Pan tool; painting and drawing still work.',
-  },
-  { id: 'TC-031', group: G.small, text: 'Block thumbnails are centered.' },
-  { id: 'TC-032', group: G.small, text: 'Sketchbook Create copy makes “Name (2)” and opens it.' },
-  {
-    id: 'TC-033',
-    group: G.small,
-    text: 'Details › Download image includes seam lines when Show seam lines is on; Sketchbook Save image has none.',
   },
   {
     id: 'TC-034',
@@ -208,68 +129,9 @@ export const CHECKS: Check[] = [
     file: 'demo-v6.rrq',
   },
   {
-    id: 'TC-035',
-    group: G.small,
-    text: 'Home › Open from a gist: paste a gist link with one .rrq (opens), with several (asks which), with none or a wrong link (says so), offline (says so). Save then asks where. Restore unsaved project now sits below Recent projects. Before opening, the dialog names the gist and its GitHub owner. The link /?open_gist=<gist link> does the same.',
-    to: '/',
-  },
-  {
-    id: 'TC-036',
-    group: G.small,
-    text: 'Every dialog and wizard has an X in its top right corner that closes it: try the welcome wizard (closes it like Skip), New quilt, New block, a color, Open from a gist, a delete confirmation, and the Libraries dialogs. A title never runs under the X.',
-  },
-  {
-    id: 'TC-037',
-    group: G.shaped,
-    text: 'Libraries › built-in: 21 new 60° triangle blocks (Four Triangles, Triangle Nine-Patch, Trip Around the Triangle, Thousand Pyramids, Sierpinski Triangle, Hexagon Triangle, Triangle Star, Rail Triangle, Flying Geese Triangle, Arrowhead Strips, Twisted Triangle, Christmas Tree, Three Kites, Triangle Pinwheel, and off the lattice: Sunburst Triangle, Peacock Fan, Framed Triangle, Slanted Rails, Sailboat, Rising Sun Triangle (curved), Spike Star) in Basics, Nine-patch, Mosaics, Stars, Strips, Medallions, Images, Animals, Plants and Curves. Put a few in a Shaped Blocks quilt (triangles). Seams filter: only Three Kites, Triangle Pinwheel and Spike Star show as set-in; Rising Sun as curved.',
-    to: '/libraries',
-  },
-  {
     id: 'TC-038',
     group: G.tags,
     text: 'Favorite palettes: on Libraries › Palettes, a palette’s menu › Tags… › ⭐ Favorite shows ⭐ before its name; in a project’s Palettes tab the tag button on a library palette row does the same; a picked favorite palette shows ⭐ in the quilt editor’s color tray. The Tags filter finds it. Works for a My library palette (its own tag) and a built-in one.',
-    to: '/libraries',
-  },
-  {
-    id: 'TC-039',
-    group: G.small,
-    text: 'Which tab a project opens on: reopen the project you had open last (from Recent, a file, a gist or Restore): it opens on the tab you left it on. Open a different project: it opens on Quilts, or on Blocks if it has no quilts yet. A new empty project opens on Blocks.',
-    to: '/',
-  },
-  {
-    id: 'TC-040',
-    group: G.tests,
-    text: 'Text between checks (this page): hover the line between two checks (always shown on touch), click + and type; it stays after a reload. Every section has a + after its last check too. Copy results lists the text under “Text between checks”, in page order, each labeled with its section and the check just before it (“Shaped blocks, after 0.5.0-TC-005: …”, or “at the start”); Start over clears it.',
-    to: '/dev/checklist',
-  },
-  {
-    id: 'TC-041',
-    group: G.filters,
-    text: 'Sketchbook › Blocks › Library blocks: the library heading (e.g. Built-In) has a checkbox like each category: it ticks or clears every block of that library.',
-    to: '/',
-  },
-  {
-    id: 'TC-042',
-    group: G.filters,
-    text: 'Category filter (Libraries and the sketchbook’s Blocks sidebar): categories with the same name in My library and the built-in library show once. A category with subcategories is a labeled line with a checkbox before its name, its subcategories listed under it (not indented). Ticking that checkbox ticks the whole group; unticking one subcategory unticks it; ticking the last one ticks it again. Chips show only while the list is closed. Technique’s Techniques/Efficiency are labeled lines too. The Libraries page opens without errors and switching Blocks/Palettes/All drops picks the filter no longer offers.',
-    to: '/libraries',
-  },
-  {
-    id: 'TC-043',
-    group: G.shaped,
-    text: 'Seams filter › Set-in seams: the Round and Round blocks, Opposite Hexagon and Basic Log Cabin are no longer listed (their strips run the full side, sewn in order); Double Strips, Bright Hopes, Tea Box and Mitered Frame Medallion still are. Redrawn to match the book: Basic Log Cabin, Opposite Hexagon (strips in opposite pairs), Grape Vine, Mare’s Nest, Wedding Rings.',
-    to: '/libraries',
-  },
-  {
-    id: 'TC-044',
-    group: G.shaped,
-    text: 'Renamed built-in blocks: lettered variants now use the book’s numbers (King’s Crown II, Hourglass II and III, Nine-Patch Variation I and II, Grandmother’s Own III and IV, Red Cross I, …). A project saved before with one of them (e.g. demo-v6.rrq if it uses one, or your own) still opens and the block stays a library block (it may offer the renamed version as an update).',
-    to: '/libraries',
-  },
-  {
-    id: 'TC-045',
-    group: G.small,
-    text: 'Libraries: the Blocks / Palettes / All switch sits in the page header right after the title’s help icon (on a phone, on its own line under the title). Palette cards’ ⋮ button sits at the top of the card even when the swatches wrap onto several rows (Libraries and the sketchbook’s Palettes tab).',
     to: '/libraries',
   },
   {
