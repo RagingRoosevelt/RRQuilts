@@ -290,6 +290,12 @@ export const CHECKS: Check[] = [
     text: 'The built-in library no longer has Plain Block (Basics): paint an empty block space instead. A project that used it still opens with its copy.',
     to: '/libraries',
   },
+  {
+    id: 'TC-049',
+    group: G.tags,
+    text: 'Project palettes take tags (project format 8): in a project’s Palettes tab, a project palette’s menu › Tags… › ⭐ Favorite shows ⭐ before its name, and in the quilt editor’s color tray. Save the project and reopen it: the tag is still there. Save to my library carries the tags to the new My library palette. A file saved by 0.5.0 still opens.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

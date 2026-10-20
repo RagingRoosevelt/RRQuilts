@@ -196,13 +196,15 @@ export async function saveCollection(
   colorIds: string[],
   me: string,
   category?: string,
+  /** The quilter's tags on the project palette it's saved from (both are theirs). */
+  tags: readonly string[] = [],
 ) {
   const picked = doc.project.palette.colors.filter((c) => colorIds.includes(c.id));
   const colors = await Promise.all(picked.map((c) => asLibraryData(c, 1)));
   const data = await asLibraryData<ColorCollection>(
     {
       id: itemId(me),
-      notecard: { name },
+      notecard: { name, ...(tags.length ? { tags: [...tags] } : {}) },
       ...(me ? { author: me } : {}),
       ...(doc.project.license ? { license: doc.project.license } : {}),
       colors,

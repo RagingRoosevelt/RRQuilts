@@ -32,8 +32,9 @@ implementation.
   top right of their picture. (2026-10-20) Library palettes get the same: Tags… on their menu (and a
   tag button on the sketchbook's library palette rows), kept as for blocks (on My library's own
   palettes, in My library for others'), and a ⭐ before the palette's name on its card, in the
-  sketchbook and in the quilt editor's color tray. A project's own palettes have no tags yet (their
-  notecard holds only a name: adding tags is a project format change).
+  sketchbook and in the quilt editor's color tray. A project's own palettes carry their tags in
+  their notecard (project format v8): Tags… on their menu, the same ⭐, and the tags go along when the
+  palette is saved to My library.
 - **Tags**: the quilter's own filing words. On blocks the quilter owns (My library, a project's own
   blocks) they are part of the block. On blocks the quilter can't edit (built-in, packs, web
   libraries) they are kept in My library, linked by the block's id (the same across versions).

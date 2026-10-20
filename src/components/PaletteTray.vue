@@ -425,7 +425,7 @@ const colorTree = computed(() => {
       lib: 'project',
       label: 'Project palettes',
       groups: projectPalettes(doc.value).map((pp) => ({
-        label: pp.palette.notecard.name,
+        label: `${visibleTags(pp.palette.notecard.tags).includes(FAVORITE) ? '⭐ ' : ''}${pp.palette.notecard.name}`,
         items: recentFirst(pp.colors),
         fabrics: pp.fabrics,
         mine: true,

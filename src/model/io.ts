@@ -82,6 +82,8 @@ export const migrations: Migrations = {
     );
     return { ...doc, project: { ...project, quilts } };
   },
+  // v8: project palettes may carry the quilter's tags (an optional field: nothing to change).
+  7: (doc) => doc,
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */

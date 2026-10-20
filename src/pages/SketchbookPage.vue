@@ -609,6 +609,10 @@
             @drop.prevent="dropImages($event, pp.palette.id)"
           >
             <legend class="ellipsis">
+              <FavoriteBadge
+                v-if="visibleTags(pp.palette.notecard.tags).includes(FAVORITE)"
+                inline
+              />
               {{ pp.palette.notecard.name }}
               <span class="text-caption text-grey-7"
                 >· {{ pp.colors.length + pp.fabrics.length }}</span
@@ -666,6 +670,9 @@
                     </q-item>
                     <q-item v-close-popup clickable @click="renameProjectPalette(pp.palette.id)">
                       <q-item-section>Rename…</q-item-section>
+                    </q-item>
+                    <q-item v-close-popup clickable @click="tagProjectPalette(pp.palette)">
+                      <q-item-section>Tags…</q-item-section>
                     </q-item>
                     <!-- Synced with My library: sync or unlink; otherwise save it there. -->
                     <template v-if="paletteLinks.get(pp.palette.id)">
@@ -1389,7 +1396,7 @@ import {
   syncColor,
   syncConflict,
 } from '@/model/library';
-import type { Color, Fabric } from '@/model/schema/palette';
+import type { Color, Fabric, ProjectPalette } from '@/model/schema/palette';
 
 const $q = useQuasar();
 const router = useRouter();
@@ -1485,11 +1492,24 @@ const tagVocabulary = computed(() =>
     cleanTags([
       ...library.tagVocabulary,
       ...blocks.value.flatMap((b) => visibleTags(b.notecard.tags)),
+      ...ownPalettes.value.flatMap((x) => visibleTags(x.palette.notecard.tags)),
     ]),
     true,
   ),
 );
-const tagging = ref<{ block?: Block; palette?: string; target: TagTarget } | null>(null);
+const tagging = ref<{
+  block?: Block;
+  palette?: string;
+  projectPalette?: string;
+  target: TagTarget;
+} | null>(null);
+/** A project palette's tags are its own (spec 029, format v8). */
+function tagProjectPalette(p: ProjectPalette) {
+  tagging.value = {
+    projectPalette: p.id,
+    target: { name: p.notecard.name, tags: visibleTags(p.notecard.tags) },
+  };
+}
 function tagBlock(b: Block) {
   tagging.value = { block: b, target: { name: b.notecard.name, tags: tagsOfBlock(b) } };
 }
@@ -1499,9 +1519,17 @@ function tagPalette(c: ColorCollection) {
   tagging.value = { palette: c.id, target: { name: c.notecard.name, tags: tagsOfPalette(c) } };
 }
 function saveTags(tags: string[]) {
-  const { block: b, palette } = tagging.value!;
+  const { block: b, palette, projectPalette } = tagging.value!;
   tagging.value = null;
   if (palette) return void library.setTags(settings.settings.author, palette, tags);
+  if (projectPalette)
+    return project.change((d) => {
+      const pp = d.project.palette.collections?.find((x) => x.id === projectPalette);
+      if (!pp) return;
+      const clean = cleanTags(tags);
+      if (clean.length) pp.notecard.tags = clean;
+      else delete pp.notecard.tags;
+    });
   if (!b) return;
   if (isLibraryItem(b)) {
     // Tags a library block came with stay (they're its library's); the quilter's are kept.
@@ -2309,6 +2337,7 @@ async function savePickedColors({ to, name, from }: { to: string; name: string; 
       picked,
       author,
       category,
+      visibleTags(pp?.palette.notecard.tags),
     ));
     id = lib.items.at(-1)!.data.id;
   }
