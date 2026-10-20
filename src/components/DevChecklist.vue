@@ -203,9 +203,23 @@ function copyResults() {
     ['Works', by('ok').map(line)],
     ['Not tested', by('').map(line)],
   ] as const;
-  const texts = notes.value
+  // Each text block with its section and the check just before it (or the section's start), in
+  // page order.
+  const placed = notes.value
     .filter((n) => n.text.trim())
-    .map((n) => `- ${where(n.before)}: ${n.text.trim().replace(/\n/g, '\n  ')}`);
+    .map((n) => {
+      const after = n.before.startsWith('after:');
+      const i = CHECKS.findIndex((c) => c.id === (after ? n.before.slice(6) : n.before));
+      const c = CHECKS[i];
+      const prev = after ? c : CHECKS[i - 1]?.group === c?.group ? CHECKS[i - 1] : undefined;
+      const at = !c ? 'somewhere' : prev ? `after ${checkId(prev)}` : 'at the start';
+      return {
+        pos: i + (after ? 0.5 : -0.5),
+        line: `- ${c?.group ?? '?'}, ${at}: ${n.text.trim().replace(/\n/g, '\n  ')}`,
+      };
+    })
+    .sort((x, y) => x.pos - y.pos);
+  const texts = placed.map((x) => x.line);
   const text = [
     `Test results, build ${build.value} (${new Date().toISOString().slice(0, 10)})`,
     `Works ${by('ok').length} · Needs iteration ${by('iterate').length} · Problems ${by('problem').length} · Not tested ${by('').length}`,

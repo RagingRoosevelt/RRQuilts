@@ -216,7 +216,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-040',
     group: G.tests,
-    text: 'Text between checks (this page): hover the line between two checks (always shown on touch), click + and type; it stays after a reload. Every section has a + after its last check too. Copy results lists the text under “Text between checks” (Before TC-0xx / After TC-0xx); Start over clears it.',
+    text: 'Text between checks (this page): hover the line between two checks (always shown on touch), click + and type; it stays after a reload. Every section has a + after its last check too. Copy results lists the text under “Text between checks”, in page order, each labeled with its section and the check just before it (“Shaped blocks, after 0.5.0-TC-005: …”, or “at the start”); Start over clears it.',
     to: '/dev/checklist',
   },
 ];
