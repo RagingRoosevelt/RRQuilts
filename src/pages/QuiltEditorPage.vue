@@ -10,6 +10,7 @@
         <q-tab name="layout" icon="grid_on" label="Layout" />
         <q-tab name="borders" icon="crop_square" label="Borders" />
         <q-tab name="design" icon="palette" label="Design" />
+        <q-tab v-if="quilt.data?.on" name="data" icon="calendar_month" label="Data" />
         <q-tab name="print" icon="print" label="Print" />
       </q-tabs>
       <HelpLink v-bind="QUILT_HELP[editor.mode] ?? QUILT_HELP.design!" />
@@ -158,6 +159,7 @@
           :labels="editor.labels"
           :selected="found"
           :pan-only="panOnly"
+          :data-marks="dataMarks"
           @tap="onTap"
           @hover="(h) => (hover = h)"
         />
@@ -197,7 +199,22 @@
             </template>
           </PaletteTray>
         </template>
+        <DataInspector
+          v-else-if="editor.mode === 'data'"
+          :quilt="quilt"
+          :readonly="project.readOnly"
+        />
         <template v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'">
+          <q-toggle
+            :model-value="!!quilt.data?.on"
+            label="Data quilt"
+            :disable="project.readOnly"
+            class="q-mb-xs"
+            @update:model-value="setDataQuilt"
+          />
+          <div class="text-caption text-grey-7 q-mb-md">
+            Colors pieces from data, such as a year of temperatures: adds the Data tab.
+          </div>
           <LayoutInspector
             :key="quilt.id"
             :layout="quilt.layout"
@@ -240,6 +257,13 @@ import HelpLink from '@/components/HelpLink.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BordersInspector from '@/components/BordersInspector.vue';
+import DataInspector from '@/components/DataInspector.vue';
+import { castDraft } from 'immer';
+import { plainFill, resolveColoring } from '@/model/coloring';
+import { newDataPlan, nextYearDay, toggleUnit } from '@/model/data-quilt';
+import type { Fill } from '@/model/schema/coloring';
+import { quiltDataMarks } from '@/render/data-overlay';
+import { PLAIN_PATCH } from '@/model/plain';
 import TargetSection from '@/components/TargetSection.vue';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import LayoutInspector from '@/components/LayoutInspector.vue';
@@ -335,6 +359,7 @@ const QUILT_HELP: Record<string, { topic: string; label: string }> = {
   layout: { topic: 'guides/designing-a-quilt', label: 'Designing a quilt' },
   borders: { topic: 'math/borders', label: 'Borders' },
   design: { topic: 'guides/designing-a-quilt', label: 'Designing a quilt' },
+  data: { topic: 'guides/data-quilts', label: 'Data quilts' },
   print: { topic: 'guides/printing', label: 'Printing' },
 };
 const labelOf = (t: { id: Tool; label: string }) =>
@@ -353,8 +378,77 @@ const strips = computed<StripLayout | null>(() => {
 const panOnly = computed(
   () =>
     !(editor.mode === 'layout' && strips.value) &&
+    !(editor.mode === 'data' && editor.dataTap !== 'none') &&
     (editor.mode !== 'design' || editor.tool === 'pan'),
 );
+/** Data tab (spec 025): unit names and year days, with their order lines. */
+const dataMarks = computed(() =>
+  editor.mode === 'data' && quilt.value && project.doc
+    ? quiltDataMarks(project.doc, quilt.value, generated.value)
+    : null,
+);
+// The Data tab goes when the quilt stops being a data quilt.
+watch(
+  () => !!quilt.value?.data?.on,
+  (on) => !on && editor.mode === 'data' && (editor.mode = 'layout'),
+);
+/** The Layout tab's Data quilt switch: a first plan when turned on; off keeps it. */
+function setDataQuilt(on: boolean) {
+  const q = quilt.value;
+  if (!q || project.readOnly) return;
+  project.change((d) => {
+    const dq = d.project.quilts.find((x) => x.id === q.id)!;
+    if (dq.data) dq.data.on = on;
+    else if (on) dq.data = newDataPlan(units.value, new Date().getFullYear() + 1);
+  });
+  if (on) editor.mode = 'data';
+}
+function onDataTap(hit: Hit) {
+  const q = quilt.value;
+  const plan = q?.data;
+  if (!q || !plan || !project.doc || project.readOnly) return;
+  const say = (message: string) => $q.notify({ message, timeout: 1500 });
+  if (editor.dataTap === 'units') {
+    const s = generated.value.slots.find((x) => x.id === hit.slotId);
+    if (!s || s.kind !== 'block' || !takesBlock(s))
+      return say(`${plan.plan === 'weeks' ? 'Weeks' : 'Months'} go on block spaces.`);
+    const next = toggleUnit(plan, hit.slotId);
+    if (!next) return say('Every number is placed.');
+    project.change((d) => {
+      d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(next);
+    });
+    return;
+  }
+  if (editor.dataTap !== 'days') return;
+  const blocks = project.doc.project.blocks;
+  const content = q.layers[0].slots[hit.slotId];
+  const block = content && blocks.find((b) => b.id === content.block);
+  const current = content
+    ? resolveColoring(q.colorings[content.coloring], block)?.fills[hit.patchId ?? PLAIN_PATCH]
+    : undefined;
+  const slot = editor.data.slot;
+  let fill: Fill | null;
+  if (current && 'data' in current && current.data.year && (current.data.slot ?? 0) === slot)
+    fill = current.under ?? null; // tapped again: its number back
+  else {
+    const n = nextYearDay(q, blocks, slot);
+    if (!n) return say('Every day of the period is placed.');
+    const under = plainFill(current);
+    fill = { data: { n, year: true, ...(slot ? { slot } : {}) }, ...(under ? { under } : {}) };
+  }
+  const r = applyTool(project.doc, q.id, generated.value.slots, hit, {
+    ...editor.$state,
+    tool: 'paint',
+    scope: 'this',
+    fill,
+    library: library.lookup,
+  });
+  if (r.message) say(r.message);
+  if (r.doc) {
+    const next = r.doc;
+    project.change(() => next);
+  }
+}
 const styleLabel = computed(
   () => STRIP_STYLES.find((x) => x.value === editor.stripStyle)?.label ?? '',
 );
@@ -474,6 +568,7 @@ function onStripTap(hit: Hit, l: StripLayout) {
 function onTap(hit: Hit) {
   if (!project.doc || !quilt.value) return;
   if (editor.mode === 'layout') return strips.value ? onStripTap(hit, strips.value) : undefined;
+  if (editor.mode === 'data') return onDataTap(hit);
   const r = applyTool(project.doc, quilt.value.id, generated.value.slots, hit, {
     ...editor.$state,
     library: library.lookup,

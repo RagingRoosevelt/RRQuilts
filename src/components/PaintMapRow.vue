@@ -2,21 +2,28 @@
   <!-- One color (or fabric) and what it becomes: the palette swap dialog's rows and a colorway's
        mapping. The replacement is picked from a grid of swatches in sections, as the palette tray. -->
   <div ref="rowEl" class="row items-center no-wrap" style="gap: 8px">
-    <!-- `stacked` (narrow places, the Design sidebar): the swatch above its name. -->
-    <div v-if="stacked" class="column items-center ps-from">
-      <div class="ps-swatch big" :style="optStyle(from)" />
-      <div class="ellipsis text-caption" style="max-width: 100%">{{ from.notecard.name }}</div>
-    </div>
-    <template v-else>
-      <div class="ps-swatch big" :style="optStyle(from)" />
-      <div class="ellipsis" style="width: 110px">{{ from.notecard.name }}</div>
+    <!-- `stacked` (narrow places, the Design sidebar): the swatch above its name. No `from`: just
+         the picker (a data quilt's scale, spec 025). -->
+    <template v-if="from">
+      <div v-if="stacked" class="column items-center ps-from">
+        <div class="ps-swatch big" :style="optStyle(from)" />
+        <div class="ellipsis text-caption" style="max-width: 100%">{{ from.notecard.name }}</div>
+      </div>
+      <template v-else>
+        <div class="ps-swatch big" :style="optStyle(from)" />
+        <div class="ellipsis" style="width: 110px">{{ from.notecard.name }}</div>
+      </template>
+      <q-icon name="arrow_forward" />
     </template>
-    <q-icon name="arrow_forward" />
     <button
       type="button"
       class="ps-field col row items-center no-wrap"
       :disabled="readonly"
-      :aria-label="`${from.notecard.name} becomes ${current?.notecard.name ?? 'nothing'}`"
+      :aria-label="
+        from
+          ? `${from.notecard.name} becomes ${current?.notecard.name ?? 'nothing'}`
+          : `${label ?? 'Color'}: ${current?.notecard.name ?? 'none'}`
+      "
       @click="open = !open"
     >
       <div class="ps-swatch field" :style="optStyle(current)" />
@@ -79,7 +86,9 @@ import { computed, ref } from 'vue';
 import { optStyle, type Opt } from '@/composables/swap-options';
 
 const props = defineProps<{
-  from: Opt;
+  from?: Opt | undefined;
+  /** Without `from`: what the picker is for (its accessible name). */
+  label?: string;
   modelValue: string | undefined;
   options: Opt[];
   readonly?: boolean;

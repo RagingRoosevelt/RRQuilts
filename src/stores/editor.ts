@@ -6,7 +6,7 @@ import type { DataOrder, DataSet } from '@/model/data-paint';
 import type { StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 
-export type Mode = 'layout' | 'borders' | 'design' | 'print' | 'details';
+export type Mode = 'layout' | 'borders' | 'design' | 'data' | 'print' | 'details';
 export type Tool =
   'set' | 'rotate' | 'flip' | 'erase' | 'find' | 'paint' | 'spray' | 'swap' | 'eyedropper' | 'pan';
 
@@ -73,6 +73,8 @@ export const useEditorStore = defineStore('editor', () => {
     numbers: true,
     line: true,
   });
+  /** Data tab (spec 025): what tapping the quilt does. */
+  const dataTap = ref<'none' | 'units' | 'days'>('none');
 
   function useColor(id: string) {
     color.value = id;
@@ -107,6 +109,7 @@ export const useEditorStore = defineStore('editor', () => {
     grid,
     coloringOf,
     data,
+    dataTap,
     useColor,
   };
 });

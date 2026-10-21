@@ -6,7 +6,7 @@ import { resolveColoring } from './coloring';
 import { sampleSeries } from './data-samples';
 import type { Block } from './schema/block';
 import type { ColoringBody, DataPaint, Fill, PlainFill } from './schema/coloring';
-import type { DataPlan, ValueSlot } from './schema/data-quilt';
+import type { DataPlan, DataPreset, ValueSlot } from './schema/data-quilt';
 import type { Quilt } from './schema/quilt';
 
 const DAY = 86_400_000;
@@ -83,9 +83,11 @@ export function sampleValue(plan: DataPlan, key: string, slot: number): Value {
   if (sim.source === 'builtin') {
     const s = sampleSeries().find((x) => x.id === sim.series[slot]);
     const v = s?.values[yearDay(key)];
-    return v !== undefined && s?.unit === '°F' && plan.slots[slot]?.unit === '°C'
-      ? Math.round(((v - 32) * 5) / 9)
-      : v;
+    const to = plan.slots[slot]?.unit;
+    if (v === undefined) return v;
+    if (s?.unit === '°F' && to === '°C') return Math.round(((v - 32) * 5) / 9);
+    if (s?.unit === 'in' && to === 'cm') return Math.round(v * 254) / 100;
+    return v;
   }
   let byDay = monthDays.get(sim.values);
   if (!byDay) {
@@ -240,4 +242,220 @@ export function applyPicks(q: Draft<Quilt>, blocks: readonly Block[], newId: () 
       q.layers.some((l) => l.items.some((i) => i.coloring === c));
     if (old && !used(old)) delete q.colorings[old];
   }
+}
+
+// --- Setting a plan up (spec 025 User Stories 2 and 3) ---
+
+const col = (name: string): PlainFill => ({ color: `rrquilts.${name}` });
+const ranges = (edges: number[], colors: string[]) =>
+  colors.map((c, i) => ({ from: edges[i]!, to: edges[i + 1]!, fill: col(c) }));
+const COLD_HOT = [
+  'navy',
+  'blue',
+  'sky',
+  'aqua',
+  'mint',
+  'green',
+  'chartreuse',
+  'yellow',
+  'orange',
+  'red',
+  'barn-red',
+];
+
+/** A value slot from a preset, with suggested ranges or categories (built-in colors). */
+export function presetSlot(preset: DataPreset, units: 'in' | 'cm', label?: string): ValueSlot {
+  const base = { preset, ranges: [], categories: [] };
+  switch (preset) {
+    case 'temperature':
+      return units === 'cm'
+        ? {
+            ...base,
+            label: label ?? 'High',
+            kind: 'number',
+            unit: '°C',
+            ranges: ranges([-50, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 60], COLD_HOT),
+          }
+        : {
+            ...base,
+            label: label ?? 'High',
+            kind: 'number',
+            unit: '°F',
+            ranges: ranges([-60, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 140], COLD_HOT),
+          };
+    case 'mood':
+      return {
+        ...base,
+        label: label ?? 'Mood',
+        kind: 'category',
+        categories: [
+          ['awful', 'Awful', 'charcoal'],
+          ['low', 'Low', 'denim'],
+          ['okay', 'Okay', 'sage'],
+          ['good', 'Good', 'gold'],
+          ['great', 'Great', 'orange'],
+        ].map(([id, name, c]) => ({ id: id!, name: name!, fill: col(c!) })),
+      };
+    case 'daylight':
+      return {
+        ...base,
+        label: label ?? 'Daylight',
+        kind: 'number',
+        unit: 'h',
+        ranges: ranges(
+          [0, 9, 10, 11, 12, 13, 14, 15, 24],
+          ['navy', 'indigo', 'blue', 'sky', 'butter', 'yellow', 'gold', 'orange'],
+        ),
+      };
+    case 'rainfall':
+      return units === 'cm'
+        ? {
+            ...base,
+            label: label ?? 'Rainfall',
+            kind: 'number',
+            unit: 'cm',
+            ranges: ranges(
+              [0, 0.03, 0.25, 1.25, 2.5, 50],
+              ['cream', 'sky', 'blue', 'indigo', 'navy'],
+            ),
+          }
+        : {
+            ...base,
+            label: label ?? 'Rainfall',
+            kind: 'number',
+            unit: 'in',
+            ranges: ranges([0, 0.01, 0.1, 0.5, 1, 20], ['cream', 'sky', 'blue', 'indigo', 'navy']),
+          };
+    default:
+      return {
+        ...base,
+        label: label ?? 'Value',
+        kind: 'number',
+        ranges: ranges([0, 10, 20, 30], ['cream', 'sage', 'forest']),
+      };
+  }
+}
+
+/** The sample series that suits a preset (the second temperature slot: the daily low). */
+export function presetSeries(preset: DataPreset | undefined, nth = 0): string | null {
+  if (preset === 'temperature') return nth ? 'low' : 'high';
+  return preset === 'mood' || preset === 'daylight' || preset === 'rainfall' ? preset : null;
+}
+
+/** A new plan: Months from 1 January of `year`, a daily high temperature, shown with the sample. */
+export function newDataPlan(units: 'in' | 'cm', year: number): DataPlan {
+  return {
+    on: true,
+    plan: 'months',
+    start: `${year}-01-01`,
+    slots: [presetSlot('temperature', units)],
+    units: {},
+    picks: {},
+    seed: 0,
+    unused: 'filler',
+    waiting: 'designed',
+    filler: col('black'),
+    show: 'simulation',
+    sim: { source: 'builtin', set: 'sample', series: ['high'] },
+    entries: {},
+  };
+}
+
+/** Units in a plan: 12 months or 52 weeks (none for Days). */
+export const unitCount = (plan: DataPlan) =>
+  plan.plan === 'months' ? 12 : plan.plan === 'weeks' ? 52 : 0;
+
+/** The smallest unit number no space has yet. */
+export function nextUnit(plan: DataPlan): number | undefined {
+  const have = new Set(Object.values(plan.units));
+  for (let n = 1; n <= unitCount(plan); n++) if (!have.has(n)) return n;
+  return undefined;
+}
+
+/** Number a space with the next unit, or take its number back. Undefined: all numbers used. */
+export function toggleUnit(plan: DataPlan, slotId: string): DataPlan | undefined {
+  if (plan.units[slotId]) {
+    const { [slotId]: _gone, ...units } = plan.units;
+    void _gone;
+    return { ...plan, units };
+  }
+  const n = nextUnit(plan);
+  return n === undefined ? undefined : { ...plan, units: { ...plan.units, [slotId]: n } };
+}
+
+/** Number spaces in the order given (numbered ones kept), until the numbers run out. */
+export function numberUnits(plan: DataPlan, ids: readonly string[]): DataPlan {
+  let out = plan;
+  for (const id of ids) {
+    if (out.units[id]) continue;
+    const n = nextUnit(out);
+    if (n === undefined) break;
+    out = { ...out, units: { ...out.units, [id]: n } };
+  }
+  return out;
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/** A unit's name: its month (from the period start) or week number. */
+export function unitLabel(plan: DataPlan, unit: number) {
+  if (plan.plan !== 'months') return `W${unit}`;
+  return MONTHS[(new Date(parse(plan.start)).getUTCMonth() + unit - 1) % 12]!;
+}
+
+/** What the Data tab reports (FR-004 and the edge cases): numbers twice, numbers missing, days
+ *  without a place, spaces with day places but no unit. */
+export function dataReport(q: Quilt, blocks: readonly Block[]): string[] {
+  const plan = q.data;
+  if (!plan) return [];
+  const out: string[] = [];
+  const byId = new Map(blocks.map((b) => [b.id, b]));
+  const count = new Map<number, number>();
+  for (const u of Object.values(plan.units)) count.set(u, (count.get(u) ?? 0) + 1);
+  const twice = [...count].filter(([, n]) => n > 1).map(([u]) => unitLabel(plan, u));
+  if (twice.length) out.push(`On more than one space: ${twice.join(', ')}.`);
+  const units = unitCount(plan);
+  const missing = Array.from({ length: units }, (_, i) => i + 1).filter((u) => !count.has(u));
+  if (units && missing.length && missing.length < units)
+    out.push(`No space yet for ${missing.map((u) => unitLabel(plan, u)).join(', ')}.`);
+  const days = new Set<number>();
+  let unnumbered = 0;
+  for (const [slotId, s] of Object.entries(q.layers[0].slots)) {
+    const fills = resolveColoring(q.colorings[s.coloring], byId.get(s.block))?.fills ?? {};
+    let local = false;
+    for (const f of Object.values(fills)) {
+      if (!('data' in f)) continue;
+      const d = dayOf(plan, plan.units[slotId], f.data);
+      if (typeof d === 'number') days.add(d);
+      if (!f.data.year) local = true;
+    }
+    if (local && !plan.units[slotId] && plan.plan !== 'days') unnumbered++;
+  }
+  if (unnumbered)
+    out.push(
+      `${unnumbered} space${unnumbered > 1 ? 's have' : ' has'} day places but no ${plan.plan === 'weeks' ? 'week' : 'month'} number.`,
+    );
+  const n = periodLength(plan.start);
+  const without = Array.from({ length: n }, (_, i) => i + 1).filter((d) => !days.has(d));
+  if (days.size && without.length)
+    out.push(
+      `${without.length} day${without.length > 1 ? 's have' : ' has'} no place: ${without
+        .slice(0, 4)
+        .map((d) => dayDate(plan.start, d))
+        .join(', ')}${without.length > 4 ? '…' : ''}.`,
+    );
+  return out;
+}
+
+/** The next year day not yet placed for value `slot` anywhere in the quilt. */
+export function nextYearDay(q: Quilt, blocks: readonly Block[], slot: number): number | undefined {
+  const byId = new Map(blocks.map((b) => [b.id, b]));
+  const have = new Set<number>();
+  for (const s of Object.values(q.layers[0].slots))
+    for (const f of Object.values(
+      resolveColoring(q.colorings[s.coloring], byId.get(s.block))?.fills ?? {},
+    ))
+      if ('data' in f && f.data.year && (f.data.slot ?? 0) === slot) have.add(f.data.n);
+  const n = q.data ? periodLength(q.data.start) : 366;
+  for (let d = 1; d <= n; d++) if (!have.has(d)) return d;
+  return undefined;
 }

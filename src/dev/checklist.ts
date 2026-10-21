@@ -171,6 +171,24 @@ export const CHECKS: Check[] = [
     text: 'Data places (spec 025), block editor › Color › Data places: turn on Number pieces, Days 1–31. Paint numbers pieces 1, 2, 3… in the order tapped (gray, with numbers and an order line); tap a numbered piece to take its number back (its color returns, Next shows it). Spray with Rows, Columns or Snake numbers every piece of the tapped piece’s color in that order. Value B numbers a second set (its own line). Eyedropper on a numbered piece picks its set and value. Picking a color turns numbering off. Undo undoes each.',
     to: '/',
   },
+  {
+    id: 'TC-100',
+    group: G.small,
+    text: 'Data quilts (spec 025): Start a quilt with Data quilt on (12 months): it opens on a Data tab (Months, period from next 1 January, Sample data). An existing quilt: Layout › Data quilt switch adds the Data tab; switching it off hides the tab and the pieces show their designed colors; on again keeps the settings.',
+    to: '/',
+  },
+  {
+    id: 'TC-101',
+    group: G.small,
+    text: 'Data tab › Where the days go: Months, then Rows / Columns / Snake numbers the block spaces Jan to Dec with an order line (tap one to take its number back). Pick a block with day places (numbered in the block editor) for each month length: every numbered space shows it in the sample year’s colors; days a month doesn’t reach show the filler (or as designed). With two blocks for a length, Shuffle changes which space gets which.',
+    to: '/',
+  },
+  {
+    id: 'TC-102',
+    group: G.small,
+    text: 'Data tab › Values: change Kind (Temperature, Mood, Hours of daylight, Rainfall, Custom) and the ranges or categories and their colors: the quilt recolors at once. Add a value (a second temperature becomes Low with the daily low sample). Year days: tap pieces or sashes to give them day 1, 2, 3… of the period (labels Y1, Y2 and a line); tap again to take back. Warnings list months on two spaces, missing months and days without a place.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

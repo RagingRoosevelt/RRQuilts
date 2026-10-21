@@ -13,6 +13,25 @@
           :contracted="$q.screen.lt.sm"
         >
           <q-step name="blocks" title="Layout" icon="grid_on">
+            <!-- Data quilt (spec 025): pieces colored from a year of data; set up in its Data tab. -->
+            <div class="row items-center q-mb-sm" style="gap: 12px">
+              <q-toggle v-model="dataOn" dense label="Data quilt" />
+              <SlidePicker
+                v-if="dataOn"
+                v-model="dataPlan"
+                class="col"
+                :options="[
+                  { value: 'months', label: '12 months' },
+                  { value: 'weeks', label: '52 weeks' },
+                  { value: 'days', label: '365 days' },
+                ]"
+                label="Data plan"
+              />
+            </div>
+            <div v-if="dataOn" class="text-caption text-grey-7 q-mb-md">
+              Each day's data colors its place, such as a year of temperatures. Pick a layout with a
+              block space per month or week, or patches for days; the Data tab does the rest.
+            </div>
             <!-- Block layouts or patch layouts (spec 026); some styles are in both. -->
             <q-btn-toggle
               v-model="mode"
@@ -347,6 +366,9 @@
 </template>
 
 <script setup lang="ts">
+import type { DataPlan } from '@/model/schema/data-quilt';
+import SlidePicker from '@/components/SlidePicker.vue';
+
 import { SHAPE_OUTLINE, type BlockShape } from '@/model/blocks/shape';
 import DialogClose from './DialogClose.vue';
 import { computed, reactive, ref, watch } from 'vue';
@@ -384,11 +406,13 @@ import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{ units: 'in' | 'cm' }>();
 const emit = defineEmits<{
-  create: [layout: Layout, borders: Border[], target?: QuiltTarget];
+  create: [layout: Layout, borders: Border[], target?: QuiltTarget, data?: DataPlan['plan']];
 }>();
 
 const open = ref(false);
 const step = ref('blocks');
+const dataOn = ref(false);
+const dataPlan = ref<string>('months');
 // Layout and target size first; the chosen layout's own settings next (spec 006 FR-001a).
 const steps = ['blocks', 'detail', 'sashing', 'borders'];
 const next = computed(() => steps[steps.indexOf(step.value) + 1]);
@@ -687,6 +711,7 @@ function create() {
     JSON.parse(JSON.stringify(layout.value)) as Layout,
     borders.value,
     target && (JSON.parse(JSON.stringify(target)) as QuiltTarget),
+    dataOn.value ? (dataPlan.value as DataPlan['plan']) : undefined,
   );
 }
 
@@ -695,6 +720,8 @@ function show() {
   const cm = props.units === 'cm';
   step.value = 'blocks';
   mode.value = 'blocks';
+  dataOn.value = false;
+  dataPlan.value = 'months';
   style.value = 'straight-set';
   targetInput.value = {
     choice: null,

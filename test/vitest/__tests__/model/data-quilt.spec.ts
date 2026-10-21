@@ -4,6 +4,14 @@ import { Value } from 'typebox/value';
 import {
   applyPicks,
   dataFill,
+  dataReport,
+  newDataPlan,
+  nextUnit,
+  nextYearDay,
+  numberUnits,
+  presetSlot,
+  toggleUnit,
+  unitLabel,
   dayDate,
   dayOf,
   periodLength,
@@ -11,7 +19,7 @@ import {
   slotColoring,
 } from '@/model/data-quilt';
 import { Quilt } from '@/model/schema/quilt';
-import type { DataPlan, ValueSlot } from '@/model/schema/data-quilt';
+import { DataPlan, type ValueSlot } from '@/model/schema/data-quilt';
 import type { Block } from '@/model/schema/block';
 import { fixture } from './helpers';
 
@@ -161,5 +169,58 @@ describe('month picks', () => {
     // Stable until shuffled.
     const again = produce(next, (d) => applyPicks(d, blocks, () => 'zz'));
     expect(again).toBe(next);
+  });
+});
+
+describe('setting a plan up', () => {
+  it('a new plan and every preset are valid; ranges run on without gaps', () => {
+    for (const units of ['in', 'cm'] as const) {
+      const p = newDataPlan(units, 2027);
+      for (const preset of ['temperature', 'mood', 'daylight', 'rainfall', 'custom'] as const) {
+        const s = presetSlot(preset, units);
+        p.slots = [s];
+        expect(Value.Check(DataPlan, p)).toBe(true);
+        s.ranges.slice(1).forEach((r, i) => expect(r.from).toBe(s.ranges[i]!.to));
+      }
+    }
+    expect(scaleFill(presetSlot('temperature', 'in'), 75)).toEqual({ color: 'rrquilts.yellow' });
+  });
+
+  it('unit numbers: next free, take back, number many in order', () => {
+    let p = plan();
+    p = toggleUnit(p, 's1')!;
+    p = toggleUnit(p, 's2')!;
+    expect(p.units).toEqual({ s1: 1, s2: 2 });
+    p = toggleUnit(p, 's1')!;
+    expect(nextUnit(p)).toBe(1);
+    p = numberUnits(p, ['s3', 's2', 's4']);
+    expect(p.units).toEqual({ s2: 2, s3: 1, s4: 3 });
+    expect(unitLabel(p, 3)).toBe('Mar');
+    expect(unitLabel({ ...p, start: '2027-09-01' }, 5)).toBe('Jan');
+    const full = numberUnits(
+      { ...p, units: {} },
+      Array.from({ length: 14 }, (_, i) => `x${i}`),
+    );
+    expect(Object.keys(full.units)).toHaveLength(12);
+    expect(toggleUnit(full, 'more')).toBeUndefined();
+  });
+
+  it('the report: numbers twice, missing months, unnumbered spaces, days without a place', () => {
+    const { q, slotId } = dataQuilt(plan());
+    q.data!.units = { [slotId]: 3, other: 3 };
+    const r = dataReport(q, []);
+    expect(r.join(' ')).toMatch(/more than one space: Mar/);
+    expect(r.join(' ')).toMatch(/No space yet for Jan, Feb, Apr/);
+    expect(r.join(' ')).toMatch(/364 days have no place/);
+    q.data!.units = {};
+    expect(dataReport(q, []).join(' ')).toMatch(/1 space has day places but no month number/);
+  });
+
+  it('next year day counts the whole quilt', () => {
+    const { q, slotId } = dataQuilt(plan());
+    const s = q.layers[0].slots[slotId]!;
+    q.colorings[s.coloring]!.fills.c = { data: { n: 1, year: true } };
+    expect(nextYearDay(q, [], 0)).toBe(2);
+    expect(nextYearDay(q, [], 1)).toBe(1);
   });
 });

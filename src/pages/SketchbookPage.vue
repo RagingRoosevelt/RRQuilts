@@ -1377,7 +1377,11 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <QuiltWizard ref="wizard" :units="project.doc.units" @create="startQuilt" />
+    <QuiltWizard
+      ref="wizard"
+      :units="project.doc.units"
+      @create="(l, b, t, d) => startQuilt(l, b, t, false, d)"
+    />
     <!-- Tags (and technique on the project's own blocks), spec 029 -->
     <KeepWhichDialog
       :items="keepWhich?.items ?? null"
