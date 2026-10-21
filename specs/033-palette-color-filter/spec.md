@@ -1,6 +1,6 @@
 # Feature Specification: Filter Palettes by Hue, Value and Saturation
 
-**Feature Branch**: `TBD` (no feature branch yet)
+**Feature Branch**: `0.7.0`
 
 **Created**: 2026-10-20
 
