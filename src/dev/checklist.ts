@@ -165,6 +165,12 @@ export const CHECKS: Check[] = [
     text: 'Auto mapping ends safely: switch it to Manual (colors stay, rows editable as before; Pick from limits choices to one palette); delete the colorway it follows, or delete its project palette: it becomes Manual with the same picture. Save, reopen: same pictures. A project saved by 0.6.1 still opens.',
     to: '/',
   },
+  {
+    id: 'TC-099',
+    group: G.small,
+    text: 'Data places (spec 025), block editor › Color › Data places: turn on Number pieces, Days 1–31. Paint numbers pieces 1, 2, 3… in the order tapped (gray, with numbers and an order line); tap a numbered piece to take its number back (its color returns, Next shows it). Spray with Rows, Columns or Snake numbers every piece of the tapped piece’s color in that order. Value B numbers a second set (its own line). Eyedropper on a numbered piece picks its set and value. Picking a color turns numbering off. Undo undoes each.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

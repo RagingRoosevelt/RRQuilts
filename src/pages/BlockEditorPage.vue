@@ -235,6 +235,15 @@
           >
             <PaletteTray colors-only sidebar />
           </q-expansion-item>
+          <q-expansion-item
+            :model-value="open('Data places')"
+            dense
+            label="Data places"
+            header-class="text-subtitle2"
+            @update:model-value="(v) => setOpen('Data places', v)"
+          >
+            <DataPaintPanel :fills="shownFills" :readonly="ro" />
+          </q-expansion-item>
           <div class="text-caption text-grey-7">
             Paint taps a patch; Spray recolors every patch of the same color; Eyedropper picks one
             up.
@@ -249,7 +258,7 @@
 </template>
 
 <script setup lang="ts">
-import { produce } from 'immer';
+import { castDraft, produce } from 'immer';
 import HelpLink from '@/components/HelpLink.vue';
 import { useQuasar } from 'quasar';
 import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
@@ -271,7 +280,10 @@ import {
   type BlockEditorSettings,
   type SelectionOp,
 } from '@/editor/block-ops';
-import { detachColoring, fillKey } from '@/model/coloring';
+import { detachColoring, fillKey, plainFill } from '@/model/coloring';
+import { numberPiece, numberPieces, pieceSpots, readingOrder } from '@/model/data-paint';
+import type { Fill } from '@/model/schema/coloring';
+import DataPaintPanel from '@/components/DataPaintPanel.vue';
 import { fillFor, paintOf } from '@/editor/paint';
 import {
   addNodes,
@@ -409,6 +421,10 @@ const coloringId = computed(() => {
   // A color variant opens on its first project coloring, as its card shows it.
   return projectColorings(b, library.lookup)?.own[0]?.id ?? b.colorings[0]?.id;
 });
+/** The shown coloring's fills (for the Data places panel's next number). */
+const shownFills = computed(
+  () => block.value?.colorings.find((c) => c.id === coloringId.value)?.fills ?? {},
+);
 const view = computed<View | undefined>({
   get: () => (block.value ? editor.views.get(`block:${block.value.id}`) : undefined),
   set: (v) => {
@@ -555,24 +571,27 @@ function onPatch(patchId: string) {
   const cid = coloringId.value!;
   const current = b.colorings.find((c) => c.id === cid)?.fills[patchId];
   if (editor.blockTool === 'eyedropper') {
+    if (current && 'data' in current) {
+      // A data paint: number with its set and value slot.
+      Object.assign(editor.data, {
+        on: true,
+        set: current.data.year ? 'year' : current.data.n > 7 ? '31' : editor.data.set,
+        slot: current.data.slot ?? 0,
+      });
+      return;
+    }
     const paint = paintOf(current);
     if (paint) editor.useColor(paint);
     return;
   }
+  if (editor.data.on) return numberPatch(patchId, current);
   if (!editor.color) {
     $q.notify({ message: 'Pick a color in the tray first.', timeout: 1500 });
     return;
   }
   const fill = fillFor(editor.color);
   // A library coloring is read-only: painting it starts a project copy (same undo step).
-  let base: Block = b;
-  let target = cid;
-  if (coloringId.value && isLibraryColoring(coloringId.value)) {
-    const r = saveColoringAs(b, cid);
-    const name = b.colorings.find((c) => c.id === cid)?.name;
-    base = renameColoring(r.block, r.id, `${name ?? 'Coloring'} (project)`);
-    target = r.id;
-  }
+  const { base, target } = editable();
   project.change(() =>
     withBlock(project.doc!, () =>
       produce(base, (x) => {
@@ -587,6 +606,44 @@ function onPatch(patchId: string) {
     ),
   );
   editor.coloringOf.set(b.id, target);
+}
+
+/** Data places (spec 025): Paint numbers one piece, Spray every piece of its color in order. */
+function numberPatch(patchId: string, current: Fill | undefined) {
+  const b = block.value!;
+  const { base, target } = editable();
+  const { set, slot, order } = editor.data;
+  let full = false;
+  project.change(() =>
+    withBlock(project.doc!, () =>
+      produce(base, (x) => {
+        const c = x.colorings.find((k) => k.id === target)!;
+        let next: Record<string, Fill> | undefined;
+        if (editor.blockTool === 'paint') next = numberPiece(c.fills, patchId, set, slot);
+        else {
+          const key = fillKey(plainFill(current));
+          const ids = b.patches
+            .map((p) => p.id)
+            .filter((id) => fillKey(plainFill(c.fills[id])) === key);
+          next = numberPieces(c.fills, readingOrder(pieceSpots(b), ids, order), set, slot);
+        }
+        if (next) c.fills = castDraft(next);
+        else full = true;
+      }),
+    ),
+  );
+  editor.coloringOf.set(b.id, target);
+  if (full) $q.notify({ message: 'Every number of this set is placed.', timeout: 1500 });
+}
+
+/** The coloring to change: a library coloring is read-only, so a project copy of it. */
+function editable(): { base: Block; target: string } {
+  const b = block.value!;
+  const cid = coloringId.value!;
+  if (!isLibraryColoring(cid)) return { base: b, target: cid };
+  const r = saveColoringAs(b, cid);
+  const name = b.colorings.find((c) => c.id === cid)?.name;
+  return { base: renameColoring(r.block, r.id, `${name ?? 'Coloring'} (project)`), target: r.id };
 }
 
 function saveAsNew() {

@@ -172,6 +172,7 @@ const vp = useViewport({
       snapPoint: snapPoint.value,
       bulge: liveDrawing.value ? null : bulge.value,
       liveDrawing: liveDrawing.value,
+      dataOverlay: editor.data.numbers ? { line: editor.data.line } : null,
     });
   },
 
@@ -349,6 +350,8 @@ watch(
     editor.blockTool,
     $q.dark.isActive,
     imagesTick.value, // fabric images arriving (spec 014)
+    editor.data.numbers,
+    editor.data.line,
   ],
   vp.schedule,
 );

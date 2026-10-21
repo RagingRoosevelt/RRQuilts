@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive, ref } from 'vue';
 import type { Scope } from '@/editor/scope';
+import type { DataOrder, DataSet } from '@/model/data-paint';
 import type { StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 
@@ -55,9 +56,27 @@ export const useEditorStore = defineStore('editor', () => {
   const grid = ref<[number, number]>([3, 3]);
   /** Current coloring per block (block editor + which coloring "Set" uses in quilts). */
   const coloringOf = reactive(new Map<string, string>());
+  /** Data paints (spec 025): numbering on (Paint and Spray number pieces instead of coloring),
+   *  which numbers, which value slot, Spray's order, and the overlay. */
+  const data = reactive<{
+    on: boolean;
+    set: DataSet;
+    slot: number;
+    order: DataOrder;
+    numbers: boolean;
+    line: boolean;
+  }>({
+    on: false,
+    set: '31',
+    slot: 0,
+    order: 'rows',
+    numbers: true,
+    line: true,
+  });
 
   function useColor(id: string) {
     color.value = id;
+    data.on = false; // a color picked: painting colors again
     // Most recent first; the tray sorts by it only when the setting asks (recentColorsFirst).
     recentColors.value = [id, ...recentColors.value.filter((c) => c !== id)].slice(0, 12);
   }
@@ -87,6 +106,7 @@ export const useEditorStore = defineStore('editor', () => {
     arcSign,
     grid,
     coloringOf,
+    data,
     useColor,
   };
 });

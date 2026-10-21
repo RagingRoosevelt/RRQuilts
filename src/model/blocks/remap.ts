@@ -57,7 +57,7 @@ function rasterize(polys: Pt[][]): Int32Array {
   return labels;
 }
 
-function interiorPoint(poly: Pt[]): Pt {
+export function interiorPoint(poly: Pt[]): Pt {
   const c: Pt = [
     poly.reduce((s, p) => s + p[0], 0) / poly.length,
     poly.reduce((s, p) => s + p[1], 0) / poly.length,
