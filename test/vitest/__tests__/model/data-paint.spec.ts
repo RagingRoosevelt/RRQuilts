@@ -57,3 +57,23 @@ describe('data places (spec 025 US1)', () => {
     expect(readingOrder(at, ids, 'columns')).toEqual(['tl', 'bl', 'tm', 'bm', 'tr', 'br']);
   });
 });
+
+describe('CSV into data values (spec 025 US4, US5)', () => {
+  it('reads rows, dates and values; skips what isn’t a date', async () => {
+    const { parseCsv, parseDate, guessDateColumn, csvValues, hasHeader } =
+      await import('@/model/data-csv');
+    const rows = parseCsv(
+      'Day;High;Mood\n2027-01-01;31;"Good"\n1/2/2027;28,5;Low\nnot a date;3;x\n2027-02-30;1;y\n',
+    );
+    expect(rows[1]).toEqual(['2027-01-01', '31', 'Good']);
+    expect(parseDate('3/5/2027')).toBe('2027-03-05');
+    expect(parseDate('2027/3/5')).toBe('2027-03-05');
+    expect(parseDate('2027-02-30')).toBeUndefined();
+    expect(guessDateColumn(rows)).toBe(0);
+    expect(hasHeader(rows, 0)).toBe(true);
+    const r = csvValues(rows, 0, [1, 2]);
+    expect(r.values).toEqual({ '2027-01-01': [31, 'Good'], '2027-01-02': [28.5, 'Low'] });
+    expect([r.read, r.skipped]).toEqual([2, 2]);
+    expect(csvValues(parseCsv('2027-01-01,72°F'), 0, [1]).values['2027-01-01']).toEqual([72]);
+  });
+});

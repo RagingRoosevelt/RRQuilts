@@ -201,6 +201,7 @@
         </template>
         <DataInspector
           v-else-if="editor.mode === 'data'"
+          ref="dataInspector"
           :quilt="quilt"
           :readonly="project.readOnly"
         />
@@ -260,7 +261,7 @@ import BordersInspector from '@/components/BordersInspector.vue';
 import DataInspector from '@/components/DataInspector.vue';
 import { castDraft } from 'immer';
 import { plainFill, resolveColoring } from '@/model/coloring';
-import { newDataPlan, nextYearDay, toggleUnit } from '@/model/data-quilt';
+import { dayDate, dayOf, newDataPlan, nextYearDay, toggleUnit } from '@/model/data-quilt';
 import type { Fill } from '@/model/schema/coloring';
 import { quiltDataMarks } from '@/render/data-overlay';
 import { PLAIN_PATCH } from '@/model/plain';
@@ -378,9 +379,10 @@ const strips = computed<StripLayout | null>(() => {
 const panOnly = computed(
   () =>
     !(editor.mode === 'layout' && strips.value) &&
-    !(editor.mode === 'data' && editor.dataTap !== 'none') &&
+    editor.mode !== 'data' &&
     (editor.mode !== 'design' || editor.tool === 'pan'),
 );
+const dataInspector = ref<InstanceType<typeof DataInspector>>();
 /** Data tab (spec 025): unit names and year days, with their order lines. */
 const dataMarks = computed(() =>
   editor.mode === 'data' && quilt.value && project.doc
@@ -419,13 +421,19 @@ function onDataTap(hit: Hit) {
     });
     return;
   }
-  if (editor.dataTap !== 'days') return;
   const blocks = project.doc.project.blocks;
   const content = q.layers[0].slots[hit.slotId];
   const block = content && blocks.find((b) => b.id === content.block);
   const current = content
     ? resolveColoring(q.colorings[content.coloring], block)?.fills[hit.patchId ?? PLAIN_PATCH]
     : undefined;
+  if (editor.dataTap === 'none') {
+    // A day's piece: its row in the table of entries.
+    const day =
+      current && 'data' in current ? dayOf(plan, plan.units[hit.slotId], current.data) : null;
+    if (typeof day === 'number') dataInspector.value?.openDay(dayDate(plan.start, day));
+    return;
+  }
   const slot = editor.data.slot;
   let fill: Fill | null;
   if (current && 'data' in current && current.data.year && (current.data.slot ?? 0) === slot)

@@ -34,6 +34,81 @@
       :class="{ 'no-pointer': readonly }"
       @update:model-value="(v) => edit((p) => ({ ...p, show: v as DataPlan['show'] }))"
     />
+    <div class="row items-center no-wrap" style="gap: 6px">
+      <q-select
+        :model-value="plan.sim.source"
+        :options="[
+          { value: 'builtin', label: 'Built-in sample year' },
+          ...(csvSample ? [{ value: 'csv', label: csvSample.name }] : []),
+        ]"
+        emit-value
+        map-options
+        dense
+        outlined
+        class="col"
+        style="min-width: 0"
+        label="Sample data"
+        :readonly="readonly"
+        @update:model-value="setSampleSource"
+      />
+      <q-btn
+        flat
+        dense
+        no-caps
+        icon="upload_file"
+        label="CSV…"
+        :disable="readonly"
+        aria-label="Sample data from a CSV"
+        @click="csv?.show(true)"
+      />
+    </div>
+    <div class="column" style="gap: 4px">
+      <div class="text-caption">
+        Real data: {{ enteredCount }} of {{ days }} days entered<template v-if="missingCount">
+          , {{ missingCount }} missing up to today</template
+        >.
+      </div>
+      <div class="row" style="gap: 6px">
+        <q-btn
+          dense
+          outline
+          no-caps
+          size="sm"
+          icon="today"
+          label="Today’s entry"
+          @click="todayEntry"
+        />
+        <q-btn
+          dense
+          outline
+          no-caps
+          size="sm"
+          icon="table_rows"
+          label="Table"
+          @click="entriesDlg?.show()"
+        />
+        <q-btn
+          v-if="missingCount"
+          dense
+          outline
+          no-caps
+          size="sm"
+          icon="error_outline"
+          label="Missing"
+          @click="entriesDlg?.show(undefined, true)"
+        />
+        <q-btn
+          dense
+          outline
+          no-caps
+          size="sm"
+          icon="upload_file"
+          label="Import"
+          :disable="readonly"
+          @click="csv?.show(false)"
+        />
+      </div>
+    </div>
 
     <q-separator />
     <div class="text-subtitle2">Where the days go</div>
@@ -343,6 +418,8 @@
     />
     <div class="text-caption text-grey-7 q-mt-n-sm">Filler color or fabric.</div>
 
+    <DataCsvDialog ref="csv" :slots="plan.slots" @sample="setCsvSample" @entries="importEntries" />
+    <DataEntriesDialog ref="entriesDlg" :plan="plan" :readonly="readonly" @set="setEntry" />
     <template v-if="report.length">
       <q-separator />
       <div
@@ -359,7 +436,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { useQuasar } from 'quasar';
+import { computed, ref } from 'vue';
+import DataCsvDialog from '@/components/DataCsvDialog.vue';
+import DataEntriesDialog from '@/components/DataEntriesDialog.vue';
 import PaintMapRow from '@/components/PaintMapRow.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { useSwapOptions } from '@/composables/swap-options';
@@ -381,7 +461,7 @@ import { sampleSeries } from '@/model/data-samples';
 import { newId } from '@/model/ids';
 import { generateFor } from '@/model/layout/slots';
 import type { PlainFill } from '@/model/schema/coloring';
-import type { DataPlan, DataPreset, ValueSlot } from '@/model/schema/data-quilt';
+import type { DataPlan, DataPreset, DayValues, ValueSlot } from '@/model/schema/data-quilt';
 import type { Quilt } from '@/model/schema/quilt';
 import { takesBlock } from '@/editor/scope';
 import { useEditorStore } from '@/stores/editor';
@@ -389,6 +469,7 @@ import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
 
 const props = defineProps<{ quilt: Quilt; readonly?: boolean }>();
+const $q = useQuasar();
 const project = useProjectStore();
 const editor = useEditorStore();
 const library = useLibraryStore();
@@ -461,6 +542,75 @@ const nextYearLabel = computed(() =>
     : 'every day is placed',
 );
 const report = computed(() => dataReport(props.quilt, project.doc?.project.blocks ?? []));
+
+const csv = ref<InstanceType<typeof DataCsvDialog>>();
+const entriesDlg = ref<InstanceType<typeof DataEntriesDialog>>();
+/** The loaded CSV sample (kept while the built-in one is shown). */
+const keptCsv = ref<{ name: string; values: DayValues } | null>(null);
+const csvSample = computed(() =>
+  plan.value?.sim.source === 'csv' ? plan.value.sim : keptCsv.value,
+);
+const today = () => new Date().toISOString().slice(0, 10);
+const allDates = computed(() =>
+  Array.from({ length: days.value }, (_, i) => dayDate(plan.value!.start, i + 1)),
+);
+const hasAll = (d: string) =>
+  plan.value!.slots.every((_, i) => (plan.value!.entries[d]?.[i] ?? null) !== null);
+const enteredCount = computed(
+  () => allDates.value.filter((d) => plan.value!.entries[d]?.some((v) => v !== null)).length,
+);
+const missingCount = computed(
+  () => allDates.value.filter((d) => d <= today() && !hasAll(d)).length,
+);
+
+function setSampleSource(v: 'builtin' | 'csv') {
+  const p = plan.value!;
+  if (v === p.sim.source) return;
+  if (v === 'csv' && keptCsv.value) return setCsvSample(keptCsv.value.name, keptCsv.value.values);
+  if (p.sim.source === 'csv') keptCsv.value = { name: p.sim.name, values: p.sim.values };
+  edit((x) => ({
+    ...x,
+    sim: {
+      source: 'builtin',
+      set: 'sample',
+      series: x.slots.map((s, i) =>
+        presetSeries(s.preset, x.slots.slice(0, i).filter((y) => y.preset === s.preset).length),
+      ),
+    },
+  }));
+}
+function setCsvSample(name: string, values: DayValues) {
+  edit((p) => ({ ...p, sim: { source: 'csv', name, values } }));
+}
+/** Imported days take the new values (a slot left empty keeps what was there). */
+function importEntries(values: DayValues) {
+  edit((p) => {
+    const entries = { ...p.entries };
+    for (const [d, v] of Object.entries(values)) {
+      const was = entries[d] ?? [];
+      entries[d] = p.slots.map((_, i) => v[i] ?? was[i] ?? null);
+    }
+    return { ...p, entries };
+  });
+}
+function setEntry(date: string, slot: number, value: number | string | null) {
+  edit((p) => {
+    const row = p.slots.map((_, i) => (i === slot ? value : (p.entries[date]?.[i] ?? null)));
+    const entries = { ...p.entries };
+    if (row.every((v) => v === null)) delete entries[date];
+    else entries[date] = row;
+    return { ...p, entries };
+  }, `entry:${date}:${slot}`);
+}
+function todayEntry() {
+  const d = today();
+  if (!allDates.value.includes(d))
+    return void $q.notify({ message: 'Today isn’t in this quilt’s period.', timeout: 1500 });
+  entriesDlg.value?.show(d);
+}
+/** Open the table on a day (tapping a day's piece on the quilt). */
+const openDay = (d: string) => entriesDlg.value?.show(d);
+defineExpose({ openDay });
 
 /** Change the plan (one undo step; `coalesce` merges typing into one). */
 function edit(fn: (p: DataPlan) => DataPlan, coalesce?: string) {

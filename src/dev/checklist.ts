@@ -189,6 +189,18 @@ export const CHECKS: Check[] = [
     text: 'Data tab › Values: change Kind (Temperature, Mood, Hours of daylight, Rainfall, Custom) and the ranges or categories and their colors: the quilt recolors at once. Add a value (a second temperature becomes Low with the daily low sample). Year days: tap pieces or sashes to give them day 1, 2, 3… of the period (labels Y1, Y2 and a line); tap again to take back. Warnings list months on two spaces, missing months and days without a place.',
     to: '/',
   },
+  {
+    id: 'TC-103',
+    group: G.small,
+    text: 'Data tab › Sample data › CSV…: open a CSV file (or paste rows: date, then values); the date column is found and each value is matched by its label; rows without a date are counted as skipped. Use as sample data: the quilt shows it (a 2019 sample matches a 2027 quilt by day of the year). Switch back to the built-in sample year and to the CSV again.',
+    to: '/',
+  },
+  {
+    id: 'TC-104',
+    group: G.small,
+    text: 'Real data: Import (CSV or pasted rows) fills those days; Table lists every day with a field per value (numbers, or a list for Mood); typing a value recolors its piece; Missing lists days without an entry up to today; Today’s entry opens today (or says today isn’t in the period). With Where the days go on Off, tapping a day’s piece opens the table on that day. Days without an entry show as designed, the sample, or the filler, as chosen.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
