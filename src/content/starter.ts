@@ -151,7 +151,43 @@ interface StarterBlock {
   seams: Seam[];
   base: number;
   points: [number, number, number][];
+  /** Width × height in inches when not square (data strips). */
+  dims?: [number, number];
+  /** Data places (spec 025): x, y, day number; the piece there keeps its color under it. */
+  days?: [number, number, number][];
 }
+
+/** A data block (spec 025): `n` equal upright bars, days 1…`used` numbered, the rest black. */
+const dataBars = (
+  name: string,
+  category: string,
+  n: number,
+  used: number,
+  dims: [number, number],
+): StarterBlock => ({
+  name,
+  category,
+  dims,
+  seams: Array.from({ length: n - 1 }, (_, i): Seam => [
+    [(i + 1) / n, 0],
+    [(i + 1) / n, 1],
+  ]),
+  base: C.Cream!,
+  points: Array.from({ length: n - used }, (_, i): [number, number, number] => [
+    (used + i + 0.5) / n,
+    0.5,
+    C.Black!,
+  ]),
+  days: Array.from({ length: used }, (_, i): [number, number, number] => [
+    (i + 0.5) / n,
+    0.5,
+    i + 1,
+  ]),
+});
+const DATA_BLOCKS: StarterBlock[] = [
+  ...[31, 30, 29, 28].map((d) => dataBars(`Month Strip ${d}`, 'Data/Months', 31, d, [31, 6])),
+  dataBars('Week Row', 'Data/Weeks', 7, 7, [7, 7]),
+];
 
 const t = 1 / 3;
 const rect = (x0: number, y0: number, x1: number, y1: number, k = 8): Seam[] => {
@@ -495,6 +531,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     ...SHAPED_BLOCKS.map(shapedStarter),
     ...SHAPED_CURVES.map(curvedStarter),
   ].map(fromKit),
+  ...DATA_BLOCKS,
 ];
 
 // --- Built-in library (spec 008) ---------------------------------------------------------------
@@ -575,7 +612,7 @@ function buildItems(): BuiltinItems {
   const blocks = STARTER_BLOCKS.map((b): SeamBlock => {
     const size: [number, number] = b.shape
       ? shapeSize(b.shape, 'leg', b.size ?? 4)
-      : [b.size ?? 10, b.size ?? 10];
+      : (b.dims ?? [b.size ?? 10, b.size ?? 10]);
     const nodes: { id: string; x: number; y: number }[] = [];
     const node = ([x, y]: P) => {
       const id = `n${nodes.length + 1}`;
@@ -592,11 +629,16 @@ function buildItems(): BuiltinItems {
       id: `p${i + 1}`,
       path: p.path,
     }));
-    const fills: Record<string, { color: string }> = {};
+    const fills: Record<
+      string,
+      { color: string } | { data: { n: number }; under: { color: string } }
+    > = {};
     for (const p of patches) {
       const poly = pathPolygon(p.path, size);
       const hit = b.points.find(([px, py]) => pointInPolygon([px, py], poly));
-      fills[p.id] = { color: colors[hit ? hit[2] : b.base]!.id };
+      const color = { color: colors[hit ? hit[2] : b.base]!.id };
+      const day = b.days?.find(([px, py]) => pointInPolygon([px, py], poly));
+      fills[p.id] = day ? { data: { n: day[2] }, under: color } : color;
     }
     const block: SeamBlock = {
       id: libId(FORMER[b.name] ?? b.name),
@@ -626,7 +668,7 @@ function buildItems(): BuiltinItems {
                   fills: Object.fromEntries(
                     Object.entries(fills).map(([p, f]) => [
                       p,
-                      { color: swap.get(f.color) ?? f.color },
+                      'data' in f ? f : { color: swap.get(f.color) ?? f.color },
                     ]),
                   ),
                 },
@@ -671,6 +713,9 @@ const STARTER_CATEGORIES = [
   'Symbols',
   'Symbols/Letters',
   'Symbols/Numbers',
+  'Data',
+  'Data/Months',
+  'Data/Weeks',
 ];
 const catId = (path: string) =>
   `rrquilts.category.${path

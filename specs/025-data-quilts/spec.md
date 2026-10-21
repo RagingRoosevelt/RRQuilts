@@ -4,8 +4,15 @@
 
 **Created**: 2026-10-18 · **Reworked**: 2026-10-21 (data paints model)
 
-**Status**: Draft, settled with the owner 2026-10-21; implementation on `0.7.0` (quilt-as-you-go
-printing still open)
+**Status**: Built on `0.7.0` (2026-10-21) except User Story 7 (quilt-as-you-go printing, open).
+Built: data paints and numbering in the block editor (Color › Data places), the Data quilt switch
+(Layout) and wizard option, the Data tab (plan, period, unit and year-day numbering with order
+lines, month and week block picks with Shuffle, value slots with presets and scales, filler,
+unused places, waiting days, warnings), sample data (built-in year, CSV), real entries (table,
+Missing, Today's entry, import, tap a piece for its row), print legend and worst-case yardage
+(most days expected per range), built-in Month Strip 28 to 31 and Week Row, help (Guides › Data
+quilts). Not built: a data block's own day list per value beyond A to D labels; reordering
+categories (add, rename, recolor, remove only).
 
 **Input**: Owner, 2026-10-18: a temperature / mood / weather / rainfall / data quilt tool, a new
 kind of quilt. The quilter picks what is recorded and maps values to colors or fabrics; units (months)

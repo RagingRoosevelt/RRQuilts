@@ -11,8 +11,8 @@
     <SlidePicker
       v-model="editor.data.set"
       :options="[
-        { value: '31', label: 'Days 1–31' },
-        { value: '7', label: '1–7' },
+        { value: '31', label: '1 to 31' },
+        { value: '7', label: '1 to 7' },
         { value: 'year', label: 'Year' },
       ]"
       label="Numbers"

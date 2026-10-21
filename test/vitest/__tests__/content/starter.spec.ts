@@ -84,6 +84,8 @@ describe('starter content', () => {
 
   it('uses more than one color in every pieced block', () => {
     for (const b of doc.project.blocks) {
+      // Data blocks (spec 025) are day places, colored by data.
+      if (Object.values(b.colorings[0]!.fills).some((f) => 'data' in f)) continue;
       const colors = new Set(
         Object.values(b.colorings[0]!.fills).map((f) => ('color' in f ? f.color : '')),
       );

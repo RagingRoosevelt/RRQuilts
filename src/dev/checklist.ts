@@ -168,7 +168,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-099',
     group: G.small,
-    text: 'Data places (spec 025), block editor › Color › Data places: turn on Number pieces, Days 1–31. Paint numbers pieces 1, 2, 3… in the order tapped (gray, with numbers and an order line); tap a numbered piece to take its number back (its color returns, Next shows it). Spray with Rows, Columns or Snake numbers every piece of the tapped piece’s color in that order. Value B numbers a second set (its own line). Eyedropper on a numbered piece picks its set and value. Picking a color turns numbering off. Undo undoes each.',
+    text: 'Data places (spec 025), block editor › Color › Data places: turn on Number pieces, 1 to 31. Paint numbers pieces 1, 2, 3… in the order tapped (gray, with numbers and an order line); tap a numbered piece to take its number back (its color returns, Next shows it). Spray with Rows, Columns or Snake numbers every piece of the tapped piece’s color in that order. Value B numbers a second set (its own line). Eyedropper on a numbered piece picks its set and value. Picking a color turns numbering off. Undo undoes each.',
     to: '/',
   },
   {
@@ -205,6 +205,12 @@ export const CHECKS: Check[] = [
     id: 'TC-105',
     group: G.small,
     text: 'Print a data quilt: the quilt picture has a legend under it (each value with its colors: under 10 °F, 10 to 20 °F… 100 °F and up). Yardage says it is a worst case and counts each range’s most days expected: Data tab › Yardage lists each range with its days in the sample as the placeholder; typing a number changes the printed yardage. Places with no month number yet don’t show in yardage.',
+    to: '/',
+  },
+  {
+    id: 'TC-106',
+    group: G.small,
+    text: 'Built-in data blocks: the block tray’s Data category has Month Strip 28, 29, 30, 31 (31 bars, the days past the month black) and Week Row. Pick them in a data quilt’s Data tab › Month blocks (or Week blocks): February shows Month Strip 28 (29 in a leap year). Help › Guides › Data quilts reads right (the Data tab’s ? opens it).',
     to: '/',
   },
 ];
