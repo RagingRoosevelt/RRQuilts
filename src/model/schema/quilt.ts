@@ -1,5 +1,6 @@
 import Type from 'typebox';
 import { ColoringBody, Fill } from './coloring';
+import { DataPlan } from './data-quilt';
 import { Id, ItemId, Size, Vec2, itemBase } from './shared';
 
 const count = Type.Integer({ minimum: 1, maximum: 100 });
@@ -318,6 +319,8 @@ export const Quilt = Type.Object({
   primaryName: Type.Optional(Type.String({ maxLength: 100 })),
   colorways: Type.Optional(Type.Array(Colorway, { maxItems: 100 })),
   shownColorway: Type.Optional(Id),
+  /** Data quilt (spec 025, v9). */
+  data: Type.Optional(DataPlan),
 });
 
 export type HorizontalLayout = Type.Static<typeof HorizontalLayout>;

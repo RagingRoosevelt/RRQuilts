@@ -1,6 +1,7 @@
 // Picking a block coloring whose colors come from a library palette the project hasn't turned on:
 // offer to turn that palette on, so its colors show in the color trays.
 import { useQuasar } from 'quasar';
+import { plainFill } from '@/model/coloring';
 import type { Block } from '@/model/schema/block';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
@@ -22,9 +23,9 @@ export function usePaletteOffer() {
       ...collections.filter((c) => picked.has(c.id)).flatMap((c) => c.colors.map((x) => x.id)),
     ]);
     const missing = new Set(
-      Object.values(coloring.fills).flatMap((f) =>
-        'color' in f && !offered.has(f.color) ? [f.color] : [],
-      ),
+      Object.values(coloring.fills)
+        .map(plainFill)
+        .flatMap((f) => (f && 'color' in f && !offered.has(f.color) ? [f.color] : [])),
     );
     if (!missing.size) return;
     // The palette covering most of the missing colors.

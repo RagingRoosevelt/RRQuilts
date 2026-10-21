@@ -5,6 +5,7 @@
 import { fillKey, resolveColoring } from './coloring';
 import { nearestColor, type RGB } from './color-distance';
 import { swapper } from './colorways';
+import { dataColorings } from './data-quilt';
 import type { Block } from './schema/block';
 import type { Fill } from './schema/coloring';
 import type { Colorway, Quilt } from './schema/quilt';
@@ -21,8 +22,12 @@ export function primaryFills(q: Quilt, blocks: readonly Block[]): Map<string, Fi
   const out = new Map<string, Fill>();
   for (const s of Object.values(q.layers[0].slots)) {
     const r = resolveColoring(q.colorings[s.coloring], byId.get(s.block));
-    for (const f of Object.values(r?.fills ?? {})) if (!out.has(fillKey(f))) out.set(fillKey(f), f);
+    for (const f of Object.values(r?.fills ?? {}))
+      if (!('data' in f) && !out.has(fillKey(f))) out.set(fillKey(f), f);
   }
+  // A data quilt's scale colors (spec 025).
+  for (const c of dataColorings([q]))
+    for (const f of Object.values(c.fills)) if (!out.has(fillKey(f))) out.set(fillKey(f), f);
   return out;
 }
 

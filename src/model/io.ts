@@ -3,6 +3,8 @@ import { upgradeNotecards } from './tags';
 import Value from 'typebox/value';
 import { findDuplicateIds, newId } from './ids';
 import type { Asset } from './schema/shared';
+import { plainFill } from './coloring';
+import { dataBlocks, dataColorings } from './data-quilt';
 import type { ColoringBody } from './schema/coloring';
 import { FORMAT, RrqDoc, VERSION } from './schema/project';
 
@@ -267,7 +269,8 @@ export function danglingReferences(doc: RrqDoc): string[] {
   const out: string[] = [];
 
   const checkColoring = (c: ColoringBody, where: string) => {
-    for (const fill of Object.values(c.fills)) {
+    for (const fill of Object.values(c.fills).map(plainFill)) {
+      if (!fill) continue;
       if ('fabric' in fill && !fabrics.has(fill.fabric))
         out.push(`${where}: missing fabric ${fill.fabric}`);
       if ('color' in fill && !colors.has(fill.color))
@@ -286,6 +289,9 @@ export function danglingReferences(doc: RrqDoc): string[] {
   for (const q of p.quilts) {
     const where = `quilt ${q.id}`;
     for (const c of Object.values(q.colorings)) checkColoring(c, where);
+    for (const c of dataColorings([q])) checkColoring(c, `${where} data`);
+    for (const id of dataBlocks(q))
+      if (!blocks.has(id)) out.push(`${where} data: missing block ${id}`);
     for (const [slot, s] of Object.entries(q.layers[0].slots)) {
       if (!blocks.has(s.block)) out.push(`${where} ${slot}: missing block ${s.block}`);
       if (!(s.coloring in q.colorings))

@@ -1,6 +1,8 @@
 // Library items in projects (spec 008): a library item is embedded only while something uses it,
 // keeps its identity (`id@version`), and is never edited in place.
+import { plainFill } from './coloring';
 import { swapColorings } from './colorways';
+import { applyPicks, dataBlocks, dataColorings } from './data-quilt';
 import { castDraft, current, produce, type Draft } from 'immer';
 import { refreshAuto, type PaletteSwatch } from './colorway-auto';
 import { projectPalettes, syncPalettes } from './project-palettes';
@@ -37,16 +39,25 @@ export const toUnits = (b: Block, units: RrqDoc['units']): Block =>
   units === 'cm' ? { ...b, size: [b.size[0] * 2.54, b.size[1] * 2.54] } : b;
 
 export const colorsIn = (colorings: ColoringBody[]) =>
-  colorings.flatMap((c) => Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])));
+  colorings.flatMap((c) =>
+    Object.values(c.fills).flatMap((x) => {
+      const f = plainFill(x);
+      return f && 'color' in f ? [f.color] : [];
+    }),
+  );
 export const fabricsIn = (colorings: ColoringBody[]) =>
   colorings.flatMap((c) =>
-    Object.values(c.fills).flatMap((f) => ('fabric' in f ? [f.fabric] : [])),
+    Object.values(c.fills).flatMap((x) => {
+      const f = plainFill(x);
+      return f && 'fabric' in f ? [f.fabric] : [];
+    }),
   );
 
 export const blocksUsed = (p: RrqDoc['project']) =>
   new Set(
     p.quilts.flatMap((q) => [
       ...Object.values(q.layers[0].slots).map((s) => s.block),
+      ...dataBlocks(q),
       ...q.layers.flatMap((l) => l.items.flatMap((i) => (i.ref ? [i.ref] : []))),
     ]),
   );
@@ -71,6 +82,8 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
       b.colorVariant && b.source && (lib?.block(b.source.itemId)?.notecard.name ?? b.source.name);
     if (name && b.notecard.name !== name) b.notecard.name = name;
   }
+  // Data quilts (spec 025): numbered spaces show their month or week picks.
+  for (const q of p.quilts) applyPicks(q, p.blocks, newId);
   const usedBlocks = blocksUsed(p);
   const keptBlocks = p.blocks.filter((b) => !isLibraryItem(b) || usedBlocks.has(b.id));
   if (keptBlocks.length !== p.blocks.length) p.blocks = keptBlocks;
@@ -81,6 +94,7 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
       ...p.blocks.flatMap((b) => b.colorings),
       ...p.quilts.flatMap((q) => Object.values(q.colorings)),
       ...swapColorings(p.quilts),
+      ...dataColorings(p.quilts),
     ]),
   );
   if (lib) {
@@ -97,6 +111,7 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
     ...p.blocks.flatMap((b) => b.colorings),
     ...p.quilts.flatMap((q) => Object.values(q.colorings)),
     ...swapColorings(p.quilts),
+    ...dataColorings(p.quilts),
   ];
   const usedFabrics = new Set(fabricsIn(colorings));
   if (lib?.fabric) {
@@ -133,7 +148,10 @@ function refreshAutoMappings(d: Draft<RrqDoc>, lib?: LibraryLookup) {
     const c = lib.collection(id);
     return c && swatches(c.colors, c.fabrics ?? []);
   };
-  const rgbOf = (f: Fill) => ('color' in f ? color(f.color)?.rgb : fabric(f.fabric)?.average);
+  const rgbOf = (x: Fill) => {
+    const f = plainFill(x);
+    return !f ? undefined : 'color' in f ? color(f.color)?.rgb : fabric(f.fabric)?.average;
+  };
   p.quilts.forEach((q, i) => {
     const next = refreshAuto(doc.project.quilts[i]!, doc.project.blocks, paletteOf, rgbOf);
     if (next !== doc.project.quilts[i] && next.colorways)

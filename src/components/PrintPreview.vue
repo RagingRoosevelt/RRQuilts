@@ -568,7 +568,7 @@ import {
 } from 'vue';
 import HelpLink from '@/components/HelpLink.vue';
 import TemplatePiece from '@/components/TemplatePiece.vue';
-import { resolveColoring } from '@/model/coloring';
+import { slotColoring } from '@/model/data-quilt';
 import {
   authorOf,
   blockLock,
@@ -921,10 +921,7 @@ const view = computed<View | undefined>(() => {
     const slot = g.slots.find((s) => quilt.layers[0].slots[s.id]?.block === block.id);
     if (slot) {
       size = slot.size;
-      keyColoring = resolveColoring(
-        quilt.colorings[quilt.layers[0].slots[slot.id]!.coloring],
-        block,
-      ) as typeof keyColoring;
+      keyColoring = slotColoring(quilt, slot.id, block) as typeof keyColoring;
     }
     pieces = quiltPieces(dd, quilt, block.id);
   } else {
@@ -1396,7 +1393,7 @@ function quiltBlocks() {
         quilt,
         block,
         size,
-        coloring: resolveColoring(quilt.colorings[content.coloring], block),
+        coloring: slotColoring(quilt, slot.id, block),
         number: seen.size,
       },
     ];

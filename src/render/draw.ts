@@ -1,7 +1,7 @@
 // Draw a quilt on a 2-D canvas. View maps quilt units → CSS pixels; `dpr` scales to device pixels.
 import type { Generated, Slot } from '@/model/layout/slots';
 import type { Block } from '@/model/schema/block';
-import { resolveColoring } from '@/model/coloring';
+import { slotColoring } from '@/model/data-quilt';
 import type { ColoringBody, Fill } from '@/model/schema/coloring';
 import type { Color, Fabric } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
@@ -60,6 +60,9 @@ function hatch(ctx: CanvasRenderingContext2D, dark: boolean) {
   return hatchCache.pattern ?? '#ddd';
 }
 
+/** A data paint's place before it's worked out (spec 025). */
+export const DATA_PLACE = 'rgb(200,206,214)';
+
 /**
  * Fill → fill style. `extra`: library colors/fabrics not (yet) in the project, e.g. for library
  * blocks. With `canvas`, fabrics draw as true-scale image patterns (spec 014); without, as their
@@ -77,6 +80,8 @@ export function colorLookup(
   const fabrics = new Map([...extraFabrics, ...doc.project.palette.fabrics].map((f) => [f.id, f]));
   return (f: Fill | undefined): string | CanvasPattern | undefined => {
     if (!f) return undefined;
+    // A data paint not worked out (no data plan, no unit): a place, not a color (spec 025).
+    if ('data' in f) return DATA_PLACE;
     if ('color' in f) return colors.get(f.color);
     const fab = fabrics.get(f.fabric);
     if (!fab) return undefined;
@@ -143,7 +148,7 @@ export function drawQuilt(
     if (block.id === PLAIN_BLOCK) {
       // Plain pieces (sashes, setting pieces, borders) fill their own outline, whatever block
       // square the space maps (a setting piece's square is the turned block before cutting).
-      const coloring = resolveColoring(quilt.colorings[content.coloring], block);
+      const coloring = slotColoring(quilt, slot.id, block);
       ctx.fillStyle = fillOf(coloring?.fills[PLAIN_PATCH]) ?? hatch(ctx, o.dark);
       ctx.fill(outline);
       if (o.outlines) {
@@ -158,7 +163,7 @@ export function drawQuilt(
     const m = placementMatrix(slot, content, block);
     ctx.setTransform(...mul(base, m));
     const unitsPerPx = px / Math.sqrt(Math.abs(m[0] * m[3] - m[1] * m[2]));
-    drawBlock(ctx, block, resolveColoring(quilt.colorings[content.coloring], block), fillOf, {
+    drawBlock(ctx, block, slotColoring(quilt, slot.id, block), fillOf, {
       outlines: o.outlines,
       lineWidth: unitsPerPx,
       dark: o.dark,

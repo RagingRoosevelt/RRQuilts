@@ -2,7 +2,8 @@
 import { SHAPE_AREA, type BlockShape } from '@/model/blocks/shape';
 import { placementMatrix } from '@/render/placement';
 import { allPatches } from '../blocks/patches';
-import { resolveColoring, fillKey } from '../coloring';
+import { fillKey } from '../coloring';
+import { slotColoring } from '../data-quilt';
 import { shownColorway, swapColoring } from '../colorways';
 import {
   derivative,
@@ -88,10 +89,7 @@ export function quiltPieces(
     if (!content || !block || (blockId && block.id !== blockId)) return [];
     const [a, b, c, d, e, f] = placementMatrix(slot, content, block);
     // As the quilt's shown colorway has it.
-    const coloring = swapColoring(
-      resolveColoring(quilt.colorings[content.coloring], block),
-      shownColorway(quilt),
-    );
+    const coloring = swapColoring(slotColoring(quilt, slot.id, block), shownColorway(quilt));
     const at = ([x, y]: Pt): Pt => [a * x + c * y + e, b * x + d * y + f];
     const dir = ([x, y]: Pt): Pt => {
       const v: Pt = [a * x + c * y, b * x + d * y];

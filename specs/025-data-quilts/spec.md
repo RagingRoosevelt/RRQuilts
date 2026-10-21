@@ -30,8 +30,9 @@ server calls; offline first).
 
 ## Concepts
 
-- **Data quilt**: an ordinary quilt (any layout, sashing, borders) with a **data plan**. Pieces
-  painted with data paints get their colors from the data; everything else is designed as usual.
+- **Data quilt**: an ordinary quilt (any layout, sashing, borders) with a **data plan**, turned on
+  by a **Data quilt** switch in the Layout tab, which adds a **Data** tab. Pieces painted with data
+  paints get their colors from the data; everything else is designed as usual.
 - **Data plan** (the quilt's math): **Months** (12 units, days 1–31 in each), **Weeks** (52 units of
   7 days from the period start), or **Days** (one piece per day, 1–366). Plus the **period**: a start
   date, one year long (365 or 366 days, by whether it holds a 29 February).
@@ -46,9 +47,11 @@ server calls; offline first).
 - **Unit paints**: numbers painted on whole block spaces in the quilt: **Unit 1–12** (Months) or
   **Unit 1–52** (Weeks). A space's unit plus a piece's local day gives the date: unit 3 + day 5 =
   the 5th day of the period's third month.
-- **Data block**: a block whose pieces hold local day paints. A **month block family** is a set of
-  data blocks for 28, 29, 30 and 31-day months; placed in a unit space, the quilt shows the family
-  member that fits that month.
+- **Data block**: a block whose pieces hold local day paints.
+- **Month blocks** (Months plan): in the quilt's Data tab, the designer picks blocks for each month
+  length (28, 29, 30, 31 days), one or more per length. Each unit space gets a block for its month's
+  length; with several, one is picked at random and kept until the quilter shuffles. **Week blocks**
+  (Weeks plan) work the same with one list. (Owner, 2026-10-21.)
 - **Fill policy** (unused places): what a place shows when its month is shorter than the block
   (a 31-day block in a 30-day month): a **filler** color or fabric, or **as designed**.
 - **Waiting days**: what a day without an entry shows, the designer's choice: **as designed**, the
@@ -64,7 +67,8 @@ server calls; offline first).
 A designer draws a month strip of 31 small pieces and numbers them in order.
 
 **Independent Test**: In the block editor, open the Data paints, pick 1–31 and click 31 pieces in
-turn; the order line runs through them 1 to 31. Copy it as the 30, 29 and 28-day variants.
+turn; the order line runs through them 1 to 31. Copies with 30, 29 and 28 places make the other
+lengths.
 
 **Acceptance Scenarios**:
 
@@ -75,35 +79,35 @@ turn; the order line runs through them 1 to 31. Copy it as the 30, 29 and 28-day
    A is used), and an **order line** connecting piece centers in number order, one line per slot.
 3. **Given** a selection of pieces, **Then** **Pattern fill** numbers them in one go: by rows, by
    columns, or snake (rows alternating direction), starting from the next free number.
-4. **Given** a data block, **Then** it can be made a month block family: the designer marks which
-   member is for 28, 29, 30 and 31 days (from copies of the block). A family appears as one block in
-   the sidebar.
-5. **Given** a data block shown without data (sidebar, block editor), **Then** its data pieces draw in
+4. **Given** a data block shown without data (sidebar, block editor), **Then** its data pieces draw in
    a neutral data color with their numbers, so they read as places, not colors.
 
 ### User Story 2 - Set up a data quilt (Priority: P1)
 
 **Independent Test**: New › Data quilt; pick Months, start 1 January 2027, slots High and Low as
-Temperature; then a 3 × 4 horizontal layout. Paint Unit 1–12 on the 12 spaces in order and place the
-month block family. The quilt shows 365 days in the simulation's colors.
+Temperature; then a 3 × 4 horizontal layout. Paint Unit 1–12 on the 12 spaces in order and pick the
+built-in month strips in the Data tab. The quilt shows 365 days in the simulation's colors.
 
 **Acceptance Scenarios**:
 
 1. **Given** the New menu, **Then** **Data quilt** opens a wizard: plan (Months, Weeks, Days),
    period start, value slots (a preset per slot: Temperature, Mood, Daylight hours, Rainfall,
    Custom), then the regular layout steps.
-2. **Given** a quilt's Data tab, **Then** the plan, period, slots and scales can be changed later;
-   any quilt can be given a data plan there, and losing it turns data pieces back to placeholders.
+2. **Given** any quilt's Layout tab, **Then** a **Data quilt** switch adds the Data tab, where the
+   plan, period, slots, scales and month or week blocks are set; switching it off keeps the settings
+   (until saved without them) and turns data pieces back to placeholders.
 3. **Given** the Months or Weeks plan, **Then** the quilt editor's Data palette offers the unit
    paints (Unit 1–12 or 1–52, number in order) for block spaces, and year day paints for pieces.
 4. **Given** the Days plan, **Then** year day paints go on pieces (a One Patch quilt, a big block),
    with number in order and pattern fill over the quilt.
 5. **Given** the quilt, **Then** the order line can show over it: units in order, and days in order
    within and across them, so gaps and jumps show.
-6. **Given** a Months plan with month block families, **Then** each unit space shows the member for
-   its month's length (February 29 days in a leap year).
-7. **Given** a Months plan whose block has more places than a month (no family, or a member
-   missing), **Then** the unused places follow the fill policy (filler or as designed).
+6. **Given** a Months plan with month blocks picked, **Then** each unit space shows a block for its
+   month's length (February's 29-day pick in a leap year); with several picks for a length, each
+   space keeps its random pick, and **Shuffle** picks again.
+7. **Given** a length with no pick, **Then** the next longer length's blocks are used and their
+   unused places follow the fill policy (filler or as designed); a unit space with no pick at all
+   keeps the block placed in it.
 8. **Given** a Weeks plan, **Then** week N is days 7N−6 to 7N of the period; days 365 and 366 have
    no unit, and go where the designer painted year day 365 and 366 (a sash, a cornerstone, a border
    piece).
@@ -183,8 +187,10 @@ month block family. The quilt shows 365 days in the simulation's colors.
   Data pieces are never painted by hand while they hold a data paint.
 - **FR-006**: Data colors MUST be worked out from the design, the shown data and the scales whenever
   the project changes, so drawing, thumbnails, colorways, printing and yardage see ordinary fills.
-- **FR-007**: Month block families MUST pick the member for each month's length; a family with no
-  member for a length uses the next longer member and the fill policy.
+- **FR-007**: Month blocks MUST be picked per length in the Data tab (one or more each); a unit
+  space shows a pick for its month's length, chosen at random among several and kept (stable across
+  saves) until Shuffle; a length with no pick uses the next longer length and the fill policy. Week
+  blocks work the same with one list.
 - **FR-008**: Number in order, pattern fill (rows, columns, snake) and the order line MUST be
   available in the block editor and the quilt editor.
 - **FR-009**: The quilt MUST save its plan, slots, scales, entries, simulation choice and loaded
@@ -224,7 +230,7 @@ month block family. The quilt shows 365 days in the simulation's colors.
 ## Open Questions
 
 - Quilt-as-you-go printouts (User Story 7).
-- Which built-in data blocks ship first (a month strip family and a week row are planned).
+- Built-in data blocks: a month strip (28, 29, 30, 31) and a week row first. (Owner, 2026-10-21.)
 
 ## Out of Scope (for now)
 

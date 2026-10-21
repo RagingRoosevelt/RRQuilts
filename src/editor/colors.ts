@@ -1,7 +1,8 @@
 // Project color operations (framework-free, used inside project.change recipes).
 import type { Draft } from 'immer';
 import type { ColoringBody } from '@/model/schema/coloring';
-import { resolveColoring } from '@/model/coloring';
+import { resolveColoring, plainFill } from '@/model/coloring';
+import { dataColorings } from '@/model/data-quilt';
 import { isLibraryItem } from '@/model/library-items';
 import type { RrqDoc } from '@/model/schema/project';
 import { fillFor, paintOf } from './paint';
@@ -14,14 +15,20 @@ function allColorings(d: RrqDoc | Draft<RrqDoc>): ColoringBody[] {
 }
 
 export const colorInUse = (doc: RrqDoc, id: string) =>
-  allColorings(doc).some((c) => Object.values(c.fills).some((f) => 'color' in f && f.color === id));
+  allColorings(doc).some((c) =>
+    Object.values(c.fills).some((x) => {
+      const f = plainFill(x);
+      return f && 'color' in f && f.color === id;
+    }),
+  );
 
 /** Remove a color; patches using it become unfilled. */
 export function deleteColor(d: Draft<RrqDoc>, id: string) {
   d.project.palette.colors = d.project.palette.colors.filter((c) => c.id !== id);
   for (const c of allColorings(d)) {
     for (const [patch, f] of Object.entries(c.fills))
-      if ('color' in f && f.color === id) delete c.fills[patch];
+      if ('data' in f && f.under && 'color' in f.under && f.under.color === id) delete f.under;
+      else if ('color' in f && f.color === id) delete c.fills[patch];
   }
 }
 
@@ -34,10 +41,14 @@ function ownColorings(d: RrqDoc | Draft<RrqDoc>): ColoringBody[] {
 }
 
 const colorsOf = (cs: readonly ColoringBody[]) =>
-  cs.flatMap((c) => Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])));
+  cs.flatMap((c) =>
+    Object.values(c.fills)
+      .map(plainFill)
+      .flatMap((f) => (f && 'color' in f ? [f.color] : [])),
+  );
 /** Paint ids (colors, and `fabric:<id>` for fabrics) the colorings use. */
 const paintsOf = (cs: readonly ColoringBody[]) =>
-  cs.flatMap((c) => Object.values(c.fills).map((f) => paintOf(f)!));
+  cs.flatMap((c) => Object.values(c.fills).flatMap((f) => ('data' in f ? [] : [paintOf(f)!])));
 
 /** Colors the user painted: in the project's own blocks and in quilt colorings. */
 export const colorsPainted = (doc: RrqDoc) => new Set(colorsOf(ownColorings(doc)));
@@ -45,10 +56,12 @@ export const colorsPainted = (doc: RrqDoc) => new Set(colorsOf(ownColorings(doc)
 /** What each placed slot shows: its quilt coloring over its block's (library blocks included). */
 function shown(doc: RrqDoc | Draft<RrqDoc>, quilt: RrqDoc['project']['quilts'][number]) {
   const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
-  return Object.values(quilt.layers[0].slots).flatMap((s) => {
-    const r = resolveColoring(quilt.colorings[s.coloring], blocks.get(s.block));
-    return r ? [r] : [];
-  });
+  return Object.values(quilt.layers[0].slots)
+    .flatMap((s) => {
+      const r = resolveColoring(quilt.colorings[s.coloring], blocks.get(s.block));
+      return r ? [r] : [];
+    })
+    .concat(dataColorings([quilt]));
 }
 
 /** Colors a quilt shows, its library blocks' designer colors included. */

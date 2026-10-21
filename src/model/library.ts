@@ -1,5 +1,6 @@
 // Libraries (spec 011), framework-free: My library edits, linked copies, lookup over every library.
 // Library content is in inches; items get their `source` when looked up, not in storage.
+import { plainFill } from './coloring';
 import { sortTags, tagLabel, visibleTags } from './tags';
 import { TECHNIQUES, type Technique } from './schema/shared';
 import { produce } from 'immer';
@@ -69,7 +70,9 @@ const link = (lib: LibraryDoc, data: { id: string; version?: string; revision?: 
 async function ownColors(doc: RrqDoc, block: Block, kept: readonly Color[] = []) {
   const used = new Set(
     block.colorings.flatMap((c) =>
-      Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])),
+      Object.values(c.fills)
+        .map(plainFill)
+        .flatMap((f) => (f && 'color' in f ? [f.color] : [])),
     ),
   );
   const own = doc.project.palette.colors.filter(
@@ -87,7 +90,9 @@ async function ownColors(doc: RrqDoc, block: Block, kept: readonly Color[] = [])
 async function blockFabrics(doc: RrqDoc, block: Block, kept: readonly Fabric[] = []) {
   const used = new Set(
     block.colorings.flatMap((c) =>
-      Object.values(c.fills).flatMap((f) => ('fabric' in f ? [f.fabric] : [])),
+      Object.values(c.fills)
+        .map(plainFill)
+        .flatMap((f) => (f && 'fabric' in f ? [f.fabric] : [])),
     ),
   );
   const k = doc.units === 'cm' ? 1 / 2.54 : 1;

@@ -18,8 +18,10 @@ export const roundLen = (v: number, units: Units) => {
 type Pair = [number, number];
 
 function scaleColoring(c: ColoringBody, scalePair: (p: Pair) => Pair) {
-  for (const fill of Object.values(c.fills))
-    if ('fabric' in fill) fill.offset = scalePair(fill.offset);
+  for (const f of Object.values(c.fills)) {
+    const fill = 'data' in f ? f.under : f;
+    if (fill && 'fabric' in fill) fill.offset = scalePair(fill.offset);
+  }
 }
 
 /** Returns a converted copy; the input is not modified. */
@@ -78,6 +80,12 @@ export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
           if (i[k] !== undefined) i[k] = len(i[k]);
       }
       for (const c of Object.values(q.colorings)) scaleColoring(c, scalePair);
+      // A data quilt's scale fabrics (spec 025).
+      const d = q.data;
+      const fabs = d
+        ? [...d.slots.flatMap((s) => [...s.ranges, ...s.categories]).map((x) => x.fill), d.filler]
+        : [];
+      for (const f of fabs) if (f && 'fabric' in f) f.offset = scalePair(f.offset);
       for (const item of q.layers.flatMap((l) => l.items)) {
         item.x = len(item.x);
         item.y = len(item.y);
