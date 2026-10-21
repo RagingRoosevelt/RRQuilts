@@ -14,7 +14,7 @@
     },
     "version": {
       "type": "number",
-      "const": 8
+      "const": 9
     },
     "app": {
       "type": "string"
@@ -6525,6 +6525,89 @@
                         }
                       },
                       "maxItems": 1000
+                    },
+                    "auto": {
+                      "type": "object",
+                      "required": [
+                        "palette"
+                      ],
+                      "properties": {
+                        "source": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]{1,32}$"
+                        },
+                        "palette": {
+                          "type": "string",
+                          "maxLength": 200
+                        },
+                        "overrides": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "from",
+                              "to"
+                            ],
+                            "properties": {
+                              "from": {
+                                "type": "string",
+                                "maxLength": 200
+                              },
+                              "to": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "fabric",
+                                      "offset",
+                                      "rotation"
+                                    ],
+                                    "properties": {
+                                      "fabric": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                      },
+                                      "offset": {
+                                        "type": "array",
+                                        "additionalItems": false,
+                                        "items": [
+                                          {
+                                            "type": "number"
+                                          },
+                                          {
+                                            "type": "number"
+                                          }
+                                        ],
+                                        "minItems": 2
+                                      },
+                                      "rotation": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "color"
+                                    ],
+                                    "properties": {
+                                      "color": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "maxItems": 1000
+                        }
+                      }
+                    },
+                    "palette": {
+                      "type": "string",
+                      "maxLength": 200
                     }
                   }
                 },
@@ -6645,6 +6728,6 @@
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v8.json",
-  "title": "RRQuilts project (.rrq) v8"
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v9.json",
+  "title": "RRQuilts project (.rrq) v9"
 }

@@ -147,6 +147,24 @@ export const CHECKS: Check[] = [
     text: 'Project › Palettes tab: the same Color card in its filter sidebar narrows your project palettes and the library palettes, dimming (or hiding) the swatches that don’t match. Reload: filters start clear.',
     to: '/',
   },
+  {
+    id: 'TC-096',
+    group: G.small,
+    text: 'Quilt editor › Design › Colorways: New colorway from palette… (also the quilt card’s menu) has Manual · Auto mapping. Auto mapping, pick a palette, Add colorway: the new colorway shows each color as its nearest in that palette; its Colors tab says Auto mapping, Follows (the colorway it came from) and Palette, each row Automatic.',
+    to: '/',
+  },
+  {
+    id: 'TC-097',
+    group: G.small,
+    text: 'Auto mapping stays live: show the primary and repaint a piece a new color; back in the auto colorway, that piece shows the new color’s nearest in the palette. Pick a row by hand: it says Picked by hand, and Automatic puts it back. Change Follows or Palette: the matches change. Undo undoes each.',
+    to: '/',
+  },
+  {
+    id: 'TC-098',
+    group: G.small,
+    text: 'Auto mapping ends safely: switch it to Manual (colors stay, rows editable as before; Pick from limits choices to one palette); delete the colorway it follows, or delete its project palette: it becomes Manual with the same picture. Save, reopen: same pictures. A project saved by 0.6.1 still opens.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

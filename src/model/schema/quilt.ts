@@ -284,12 +284,24 @@ export const QuiltTarget = Type.Object({
 
 /** A colorway of a quilt (a palette swap of its primary colorway): every piece colored `from` (a
  *  fill key, e.g. "color:<id>") shows `to` instead. Edits to the quilt show in every colorway. */
+const Swap = Type.Object({ from: Type.String({ maxLength: 200 }), to: Fill });
 export const Colorway = Type.Object({
   id: Id,
   name: Type.String({ maxLength: 100 }),
-  swaps: Type.Array(Type.Object({ from: Type.String({ maxLength: 200 }), to: Fill }), {
-    maxItems: 1000,
-  }),
+  /** The picks shown. For an auto mapping (spec 024) they're worked out from `auto` on every change. */
+  swaps: Type.Array(Swap, { maxItems: 1000 }),
+  /** Auto mapping (spec 024, v9): each color of the source colorway (none: the primary) becomes its
+   *  nearest color or fabric in `palette` (a project or library palette id), except `overrides`
+   *  (by the primary's fill key, as `swaps`). */
+  auto: Type.Optional(
+    Type.Object({
+      source: Type.Optional(Id),
+      palette: Type.String({ maxLength: 200 }),
+      overrides: Type.Optional(Type.Array(Swap, { maxItems: 1000 })),
+    }),
+  ),
+  /** Manual mode: the palette its replacement choices come from (none: all). */
+  palette: Type.Optional(Type.String({ maxLength: 200 })),
 });
 
 export const Quilt = Type.Object({

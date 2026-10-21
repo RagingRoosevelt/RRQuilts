@@ -84,6 +84,8 @@ export const migrations: Migrations = {
   },
   // v8: project palettes may carry the quilter's tags (an optional field: nothing to change).
   7: (doc) => doc,
+  // v9 (spec 024): colorways may carry an auto mapping and a manual palette; nothing to change.
+  8: (doc) => doc,
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */

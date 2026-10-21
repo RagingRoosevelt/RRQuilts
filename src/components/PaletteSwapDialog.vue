@@ -10,6 +10,26 @@
           Pick a palette: each color of {{ job.title }} becomes its nearest color or fabric there,
           and you can change any of them.
         </div>
+        <!-- Quilt colorways (spec 024): Manual is a one-time swap; Auto mapping keeps following
+             the source colorway's colors and the palette. -->
+        <template v-if="job.auto">
+          <SlidePicker
+            v-model="mode"
+            :options="[
+              { value: 'manual', label: 'Manual' },
+              { value: 'auto', label: 'Auto mapping' },
+            ]"
+            label="Mode"
+            class="q-mt-sm"
+          />
+          <div class="text-caption text-grey-7 q-mt-xs">
+            {{
+              mode === 'auto'
+                ? `Keeps following ${job.title}: when its colors or the palette change, the matches change too. Colors you pick by hand stay.`
+                : 'A one-time copy: later changes to the colors don’t carry over.'
+            }}
+          </div>
+        </template>
         <q-select
           :model-value="to"
           :options="swapPalettes"
@@ -43,7 +63,15 @@
       </q-card-section>
       <q-card-actions align="right">
         <q-btn v-close-popup flat no-caps label="Cancel" />
-        <q-btn v-close-popup flat no-caps color="primary" :label="job.okLabel" @click="ok" />
+        <q-btn
+          v-close-popup
+          flat
+          no-caps
+          color="primary"
+          :label="job.okLabel"
+          :disable="mode === 'auto' && !to"
+          @click="ok"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -51,6 +79,7 @@
 
 <script setup lang="ts">
 import DialogClose from './DialogClose.vue';
+import SlidePicker from './SlidePicker.vue';
 import { castDraft, produce } from 'immer';
 import { computed, ref, shallowRef, toRaw } from 'vue';
 import { nearestColor } from '@/editor/color';
@@ -69,6 +98,10 @@ type Job = {
   before: string;
   preview: (map: Record<string, string>, name: string | undefined, doc: RrqDoc) => string;
   done: (map: Record<string, string>, name: string | undefined) => void;
+  /** Quilt colorways: an Auto mapping instead (palette id; overrides: source paint → pick). */
+  auto?: {
+    done: (palette: string, overrides: Record<string, string>, name: string | undefined) => void;
+  };
 };
 
 const project = useProjectStore();
@@ -86,6 +119,7 @@ const name = computed(
 
 function show(j: Job) {
   job.value = j;
+  mode.value = 'manual';
   pick(null);
   open.value = true;
 }
@@ -122,7 +156,25 @@ const after = computed(() => {
       : project.doc!;
   return job.value.preview({ ...map.value }, name.value, doc);
 });
-const ok = () => job.value?.done({ ...map.value }, name.value);
+const mode = ref<'manual' | 'auto'>('manual');
+/** Each color's nearest in the chosen palette (Auto mapping keeps only the picks that differ). */
+const nearest = computed(() => {
+  const pal = swapPalettes.value.find((p) => p.id === to.value);
+  return Object.fromEntries(
+    (job.value?.used ?? []).map((c) => [c.id, (pal && nearestColor(c.rgb, pal.colors)?.id) ?? '']),
+  );
+});
+function ok() {
+  const j = job.value;
+  if (!j) return;
+  if (mode.value === 'auto' && j.auto && to.value) {
+    const overrides = Object.fromEntries(
+      Object.entries(map.value).filter(([k, v]) => v !== nearest.value[k]),
+    );
+    return j.auto.done(to.value.replace(/^project:/, ''), overrides, name.value);
+  }
+  j.done({ ...map.value }, name.value);
+}
 
 defineExpose({ show });
 </script>

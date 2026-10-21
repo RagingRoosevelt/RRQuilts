@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-18
 
-**Status**: Draft (spec only; not implemented)
+**Status**: Implemented on `0.7.0` (2026-10-20; project format v9). An auto mapping's `swaps` are worked out in `syncDraft` on every project change (model `colorway-auto.ts`), so drawing, printing and embedding read them like any colorway's; a library palette update shows at the next change. Not built: the dialog's own Source choice (it follows the colorway shown; the Colors tab's Follows changes it later) and the notice when a palette is lost.
 
 **Input**: Owner, 2026-10-18: a quilt can make a new colorway from an existing one (primary or not)
 and a chosen palette, matching each of the source colorway's colors to its closest in the palette.

@@ -98,7 +98,7 @@
                     ><q-item-section>Create copy</q-item-section></q-item
                   >
                   <q-item v-close-popup clickable @click="startSwapColorway(q)"
-                    ><q-item-section>New colorway from palette swap…</q-item-section></q-item
+                    ><q-item-section>New colorway from palette…</q-item-section></q-item
                   >
                   <q-item v-close-popup clickable @click="quiltDetails(q.id)"
                     ><q-item-section>Details</q-item-section></q-item
@@ -1432,9 +1432,7 @@ import { useStartQuilt } from '@/composables/start-quilt';
 import { allPatches } from '@/model/blocks/patches';
 import { attribution, copyBlock, newBlock, saveColoringAs } from '@/editor/block-ops';
 import { nearestColor } from '@/editor/color';
-import { paintsUsed, quiltColors, quiltPaints, replaceColors } from '@/editor/colors';
-import { fillKey } from '@/model/coloring';
-import { addColorway, setSwap, shownColorway, swapper, colorwayList } from '@/model/colorways';
+import { paintsUsed, quiltColors, replaceColors } from '@/editor/colors';
 import type { Quilt } from '@/model/schema/quilt';
 import { authorOf, effectiveLicense, licenseName, priorCredits } from '@/model/credits';
 import { newId } from '@/model/ids';
@@ -1476,6 +1474,7 @@ import {
   type TagTarget,
 } from '@/model/tags';
 import { useLibraryBlockActions } from '@/composables/library-block-actions';
+import { useColorwaySwap } from '@/composables/colorway-swap';
 import { useAuthor } from '@/composables/author';
 import { useAskCategory } from '@/composables/category';
 import {
@@ -2086,36 +2085,8 @@ function swapped(b: Block, from: string, map: Record<string, string>, name?: str
   return { block: next, id };
 }
 /** The quilt with a new colorway: the one shown, its colors as shown swapped by `map`. */
-function swappedQuilt(q: Quilt, map: Record<string, string>, name?: string): Quilt {
-  const shown = swapper(shownColorway(q));
-  const id = newId();
-  let next = addColorway(q, id, name, shownColorway(q));
-  for (const p of quiltPaints(project.doc!, q)) {
-    const from = fillFor(p);
-    const now = paintOf(shown(from))!;
-    if (map[now] && map[now] !== now) next = setSwap(next, id, fillKey(from), fillFor(map[now]));
-  }
-  return next;
-}
-function startSwapColorway(q: Quilt) {
-  const shown = swapper(shownColorway(q));
-  const now = new Set([...quiltPaints(project.doc!, q)].map((p) => paintOf(shown(fillFor(p)))!));
-  const name = colorwayList(q).find((v) => v.id === shownColorway(q)?.id)?.name;
-  swapDialog.value?.show({
-    heading: 'New colorway from palette swap',
-    title: `${q.notecard.name} (${name})`,
-    okLabel: 'Add colorway',
-    used: [...now].flatMap((p) => paintOpt(p) ?? []),
-    before: quiltThumbnail(project.doc!, q, 500, $q.dark.isActive, true, true),
-    preview: (map, n, doc) =>
-      quiltThumbnail(doc, swappedQuilt(q, map, n), 500, $q.dark.isActive, true, true),
-    done: (map, n) =>
-      project.change((d) => {
-        const i = d.project.quilts.findIndex((x) => x.id === q.id);
-        if (i >= 0) d.project.quilts[i] = castDraft(swappedQuilt(q, map, n));
-      }),
-  });
-}
+const { startSwapColorway: swapColorway } = useColorwaySwap();
+const startSwapColorway = (q: Quilt) => swapColorway(swapDialog.value, q);
 function startSwapColoring(b: Block) {
   const coloring = b.colorings.find((c) => c.id === shownColoring(b)) ?? b.colorings[0]!;
   const ids = new Set(Object.values(coloring.fills).map((f) => paintOf(f)!));

@@ -207,9 +207,18 @@ every colorway follows the design: blocks you place or change show in all of the
 Each colorway can be renamed or deleted while another is left. Deleting the primary makes the next
 one the primary. The colorway shown is saved with the quilt, and printing and pictures use it.
 
-On the project's Quilts tab, the count on a quilt's card picks the colorway shown. The card's menu
-has **New colorway from palette swap**: pick a palette, and each color becomes its nearest color
-there. Change any you like, then **Add colorway**.
+On the project's Quilts tab, the count on a quilt's card picks the colorway shown.
+
+**New colorway from palette…** is on the card's menu and beside **Save as new colorway**. Pick a
+palette, and each color of the colorway shown becomes its nearest color or fabric there. Change any
+you like, then **Add colorway**. Choose **Manual** for a one-time copy, or **Auto mapping** to keep
+it following: when the colors it follows or the palette change, its matches change too.
+
+An auto-mapped colorway's Colors tab says what it **Follows** (the primary or another colorway) and
+which **Palette** it maps to. Pick a color by hand to keep it, and **Automatic** puts it back.
+Switching to **Manual** keeps the colors it shows. If the colorway it follows or its palette is
+deleted, it keeps its colors as a manual colorway. In **Manual**, **Pick from** limits the choices
+to one palette.
 
 ## Apply to
 

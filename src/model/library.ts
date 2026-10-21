@@ -656,15 +656,18 @@ export function lookupOf(views: readonly LibraryView[]): LibraryLookup {
   const blocks = new Map<string, Block>();
   const colors = new Map<string, Color>();
   const fabrics = new Map<string, Fabric>();
+  const collections = new Map<string, ColorCollection>();
   for (const v of [...views].reverse()) {
     for (const b of v.blocks) blocks.set(b.id, b);
     for (const c of [...v.colors].reverse()) colors.set(c.id, c);
     for (const f of v.fabrics) fabrics.set(f.id, f);
+    for (const c of v.collections) collections.set(c.id, c);
   }
   return {
     block: (id) => blocks.get(id),
     color: (id) => colors.get(id),
     fabric: (id) => fabrics.get(id),
+    collection: (id) => collections.get(id),
   };
 }
 

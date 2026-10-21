@@ -104,8 +104,10 @@ function removeOwnColors(q: Quilt, blocks: readonly Block[]): Quilt {
     }
     colorings[s.coloring] = { ...colorings[s.coloring]!, fills };
   }
-  // The others swap from the new colors (two colors that became one take the first's swap).
-  const colorways = rest.map((w): Colorway => {
+  // The others swap from the new colors (two colors that became one take the first's swap). An
+  // auto mapping (spec 024) keeps the picks it shows and becomes manual, so nothing looks different.
+  const colorways = rest.map(({ auto: _auto, ...w }): Colorway => {
+    void _auto;
     const swapW = swapper(w);
     const swaps: Colorway['swaps'] = [];
     const seen = new Set<string>();

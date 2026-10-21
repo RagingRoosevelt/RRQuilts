@@ -2,7 +2,7 @@
   <!-- A quilt's colorways (palette swaps of its primary colorway), as a block's colorings: `badge` is the count on a
        card's thumbnail, its menu picks the colorway shown; `row` shows the quilt as shown, its
        colorway's name, and the badge; `panel` is the Design sidebar's section (pick, Rename, Delete,
-       Save as new colorway). New colorways from a palette swap: the quilt card's menu. -->
+       Save as new colorway, New colorway from palette…, also on the quilt card's menu). -->
   <q-expansion-item
     v-if="mode === 'panel'"
     default-opened
@@ -46,9 +46,19 @@
           </div>
         </div>
       </div>
-      <div v-if="!readonly" class="row">
+      <div v-if="!readonly" class="row" style="gap: 8px">
         <q-btn dense outline no-caps icon="add" label="Save as new colorway" @click="make" />
+        <!-- Spec 024: the same dialog as the quilt card's menu (Manual or Auto mapping). -->
+        <q-btn
+          dense
+          outline
+          no-caps
+          icon="palette"
+          label="New colorway from palette…"
+          @click="startSwapColorway(swapDialog, quilt)"
+        />
       </div>
+      <PaletteSwapDialog ref="swapDialog" />
       <div v-if="choices.length > 1" class="text-caption text-grey-7">
         The first is the primary colorway: paint it as usual. In the others, the Colors tab maps
         each of its colors to a replacement.
@@ -70,7 +80,7 @@
 
 <script setup lang="ts">
 import { ClosePopup, QMenu, useQuasar } from 'quasar';
-import { computed, defineComponent, h, withDirectives } from 'vue';
+import { computed, defineComponent, h, ref, withDirectives } from 'vue';
 import { newId } from '@/model/ids';
 import {
   addColorway,
@@ -82,7 +92,11 @@ import {
 import type { Quilt } from '@/model/schema/quilt';
 import { quiltThumbnail } from '@/render/thumbnail';
 import { useProjectStore } from '@/stores/project';
+import PaletteSwapDialog from './PaletteSwapDialog.vue';
+import { useColorwaySwap } from '@/composables/colorway-swap';
 
+const swapDialog = ref<InstanceType<typeof PaletteSwapDialog>>();
+const { startSwapColorway } = useColorwaySwap();
 const props = withDefaults(
   defineProps<{ quilt: Quilt; mode?: 'row' | 'badge' | 'panel'; readonly?: boolean }>(),
   { mode: 'badge', readonly: false },
