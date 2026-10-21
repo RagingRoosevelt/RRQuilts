@@ -117,6 +117,24 @@ export const CHECKS: Check[] = [
     text: 'Settings › You › socials: add Threadloop by pasting https://threadloop.app/members/<name>: it becomes the handle, and its icon links back to that page (threadloop.app/members/…). Printables (printables.com/@name) and Ravelry (ravelry.com/people/name) links reduce to handles too.',
     to: '/',
   },
+  {
+    id: 'TC-091',
+    group: G.small,
+    text: 'Libraries › Palettes: a palette’s ⋮ › Sort by › Hue: its swatches run red to purple with grays last; Value: light to dark; Saturation: vivid to muted; Name: A to Z; Reverse flips any of them. Other palettes stay as they were. Library and pack palettes sort too.',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-092',
+    group: G.small,
+    text: 'The same sort shows everywhere that palette appears: its card, its preview (click a swatch; Previous/Next follow the sorted order), the project’s Palettes tab (project palettes’ ⋮, the sort button on Library palettes rows) and the quilt editor’s color tray. Reload: still sorted. Export the palette: the file keeps its saved order.',
+    to: '/',
+  },
+  {
+    id: 'TC-093',
+    group: G.small,
+    text: 'Settings › Quilt and block design › Sorted palettes lists each sorted palette (name, where it is, its sort) with Clear. Delete a sorted project palette, remove a pack with a sorted palette, or delete a sorted My library palette: it leaves the list.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

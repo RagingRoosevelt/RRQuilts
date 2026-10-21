@@ -648,24 +648,18 @@
                   >
                     Empty: click to add colors or fabric images
                   </span>
+                  <!-- Colors and fabrics (spec 014: the print over its average color), in the
+                       order picked for this palette (spec 032). -->
                   <span
-                    v-for="(x, i) in c.colors"
-                    :key="x.id"
+                    v-for="(s, k) in swatches(c.id, c.colors, c.fabrics)"
+                    :key="s.item.id"
                     class="chip"
-                    :style="{ background: css(x) }"
-                    :title="x.notecard.name"
-                    @click.stop="previewing = { lib: g.v.doc.id, id: c.id, at: i }"
-                  />
-                  <!-- Fabrics (spec 014): the print over its average color. -->
-                  <span
-                    v-for="(x, i) in c.fabrics ?? []"
-                    :key="x.id"
-                    class="chip"
-                    :style="swatchStyle(x)"
-                    @click.stop="
-                      previewing = { lib: g.v.doc.id, id: c.id, at: c.colors.length + i }
+                    :style="s.kind === 'color' ? { background: css(s.item) } : swatchStyle(s.item)"
+                    :title="
+                      s.item.notecard.name +
+                      (s.kind === 'fabric' && s.item.approximate ? ' (size ≈)' : '')
                     "
-                    :title="x.notecard.name + (x.approximate ? ' (size ≈)' : '')"
+                    @click.stop="previewing = { lib: g.v.doc.id, id: c.id, at: k }"
                   />
                 </button>
                 <!-- At the top, beside the first row of swatches, however many rows there are. -->
@@ -698,6 +692,7 @@
                           <q-item-section>Copy to my library</q-item-section>
                         </q-item>
                       </template>
+                      <PaletteSortMenu :id="c.id" />
                       <q-item v-close-popup clickable @click="exportCollection(c)">
                         <q-item-section>Export (.rrqplt)</q-item-section>
                       </q-item>
@@ -814,6 +809,7 @@
         <PalettePreview
           v-model:at="swatchAt"
           :palette="previewCollection"
+          :sort-id="previewCollection.id"
           :editable="previewMine"
           images
           @add="startColor(previewCollection!.id)"
@@ -1453,6 +1449,8 @@ import {
 } from '@/storage/library-zip';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PalettePreview from '@/components/PalettePreview.vue';
+import PaletteSortMenu from '@/components/PaletteSortMenu.vue';
+import { usePaletteSort } from '@/composables/palette-sort';
 import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { Fabric } from '@/model/schema/palette';
 import { retryMissing, swatchStyle } from '@/render/fabric-images';
@@ -1479,6 +1477,7 @@ const $q = useQuasar();
 const library = useLibraryStore();
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
+const { swatches, forget: forgetSorts } = usePaletteSort();
 const me = computed(() => settings.settings.author);
 
 /** Problems found while reading a file, listed in dialogs. */
@@ -1903,6 +1902,11 @@ function disconnect(g: PackGroup) {
       // A library offered with the app stays out of the list on this device once disconnected.
       if (c && bundled.some((b) => sameUrl(b.url, c.url)))
         settings.settings.bundledHidden = [...settings.settings.bundledHidden, c.url];
+      forgetSorts(
+        library.packs
+          .filter((p) => `lib:${p.library?.id}` === g.key)
+          .flatMap((p) => p.items.map((i) => i.data.id)),
+      );
       void library.removeLibrary(g.key.slice(4));
       if (!keep) void library.dropKept(tagged);
     },
@@ -2169,7 +2173,7 @@ function remove(id: string) {
       tagged: tags.length ? 1 : 0,
     },
     (keep) =>
-      void update((l) => removeItem(l, id)).then(() =>
+      void update((l) => (forgetSorts([id]), removeItem(l, id))).then(() =>
         keep ? library.setKeptTags(me.value, id, tags) : undefined,
       ),
   );
@@ -2634,6 +2638,7 @@ function removePack(doc: LibraryDoc) {
     },
     (keep) => {
       select('mine');
+      forgetSorts(doc.items.map((i) => i.data.id));
       void library.removePack(doc.id);
       if (!keep) void library.dropKept(tagged);
     },

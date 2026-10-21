@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-20
 
-**Status**: Draft (spec only; not implemented)
+**Status**: Implemented on `0.7.0` (2026-10-20). FR-006 has nothing to act on yet: swatches can't be dragged to reorder (when that comes, it switches the view back to Saved order first). Swap menus (colorway mapping, palette swap) keep the saved order.
 
 **Input**: Owner, 2026-10-20: being able to sort palettes by hue, value, etc. on an individual,
 remembered basis.

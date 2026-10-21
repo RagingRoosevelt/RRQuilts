@@ -718,20 +718,16 @@
                     Empty: click to add colors or fabric images
                   </span>
                   <span
-                    v-for="(x, j) in pp.colors"
-                    :key="x.id"
+                    v-for="(s, k) in swatches(pp.palette.id, pp.colors, pp.fabrics)"
+                    :key="s.item.id"
                     class="chip"
-                    :style="{ background: `rgb(${x.rgb.join(',')})` }"
-                    :title="x.notecard.name"
-                    @click.stop="openProjectPalette(pp.palette.id, j)"
-                  />
-                  <span
-                    v-for="(x, j) in pp.fabrics"
-                    :key="x.id"
-                    class="chip"
-                    :style="swatchStyle(x)"
-                    :title="x.notecard.name"
-                    @click.stop="openProjectPalette(pp.palette.id, pp.colors.length + j)"
+                    :style="
+                      s.kind === 'color'
+                        ? { background: `rgb(${s.item.rgb.join(',')})` }
+                        : swatchStyle(s.item)
+                    "
+                    :title="s.item.notecard.name"
+                    @click.stop="openProjectPalette(pp.palette.id, k)"
                   />
                 </button>
                 <!-- At the top, beside the first row of swatches, however many rows there are. -->
@@ -787,6 +783,7 @@
                           <q-item-section>Save to my library…</q-item-section>
                         </q-item>
                       </template>
+                      <PaletteSortMenu :id="pp.palette.id" />
                       <q-item
                         v-close-popup
                         clickable
@@ -878,20 +875,16 @@
                   </div>
                   <div class="row col" style="gap: 3px">
                     <button
-                      v-for="(x, i) in c.colors"
-                      :key="x.id"
+                      v-for="(s, k) in swatches(c.id, c.colors, c.fabrics)"
+                      :key="s.item.id"
                       class="mini-swatch lib-swatch"
-                      :style="{ background: `rgb(${x.rgb.join(',')})` }"
-                      :title="x.notecard.name"
-                      @click="showPalette(c, i)"
-                    />
-                    <button
-                      v-for="(x, i) in c.fabrics ?? []"
-                      :key="x.id"
-                      class="mini-swatch lib-swatch"
-                      :style="swatchStyle(x)"
-                      :title="x.notecard.name"
-                      @click="showPalette(c, c.colors.length + i)"
+                      :style="
+                        s.kind === 'color'
+                          ? { background: `rgb(${s.item.rgb.join(',')})` }
+                          : swatchStyle(s.item)
+                      "
+                      :title="s.item.notecard.name"
+                      @click="showPalette(c, k)"
                     />
                   </div>
                   <q-btn
@@ -905,6 +898,20 @@
                     @click="tagPalette(c)"
                   >
                     <q-tooltip>Tags… (⭐ Favorite)</q-tooltip>
+                  </q-btn>
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    size="sm"
+                    icon="sort"
+                    aria-label="Sort"
+                    class="self-start"
+                  >
+                    <q-tooltip>Sort its swatches</q-tooltip>
+                    <q-menu
+                      ><q-list dense><PaletteSortMenu :id="c.id" /></q-list
+                    ></q-menu>
                   </q-btn>
                 </div>
               </fieldset>
@@ -994,6 +1001,7 @@
         <PalettePreview
           v-model:at="shownPalette.at"
           :palette="shownData"
+          :sort-id="shownPalette.project ?? shownData.id"
           :editable="!!shownPalette.project && !project.readOnly"
           images
           @add="newProjectColor(shownPalette.project)"
@@ -1400,6 +1408,8 @@ import {
 } from '@/composables/swap-options';
 import { fillFor, paintOf } from '@/editor/paint';
 import PalettePreview from '@/components/PalettePreview.vue';
+import PaletteSortMenu from '@/components/PaletteSortMenu.vue';
+import { usePaletteSort } from '@/composables/palette-sort';
 import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { ColorCollection } from '@/model/schema/library';
 import { swatchStyle } from '@/render/fabric-images';
@@ -1529,6 +1539,7 @@ const otherVersions = computed(
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
 const { editLibrary, colorVariant } = useLibraryBlockActions();
+const { swatches, forget: forgetSorts } = usePaletteSort();
 const inUseDialog = ref<{
   id: string;
   quilt: string;
@@ -1808,7 +1819,7 @@ const shownPaletteLibs = computed(() =>
 /** The palette preview: a palette and which of its colors or fabrics is shown large. */
 type Shown = Pick<
   ColorCollection,
-  'notecard' | 'colors' | 'fabrics' | 'author' | 'source' | 'license'
+  'id' | 'notecard' | 'colors' | 'fabrics' | 'author' | 'source' | 'license'
 >;
 /** `project`: one of the project's own palettes (editable, read from the project as it changes). */
 const shownPalette = ref<{ palette?: Shown; project?: string; at: number } | null>(null);
@@ -1817,7 +1828,14 @@ const shownData = computed((): Shown | undefined => {
   const sp = shownPalette.value;
   if (!sp?.project) return sp?.palette;
   const pp = ownPalettes.value.find((x) => x.palette.id === sp.project);
-  return pp && { notecard: pp.palette.notecard, colors: pp.colors, fabrics: pp.fabrics };
+  return (
+    pp && {
+      id: pp.palette.id,
+      notecard: pp.palette.notecard,
+      colors: pp.colors,
+      fabrics: pp.fabrics,
+    }
+  );
 });
 
 // --- The project's own palettes (format v3) ---
@@ -2109,6 +2127,7 @@ function removal(d: Draft<RrqDoc>, u: NonNullable<typeof unpicking.value>) {
 }
 function applyRemoval(u: NonNullable<typeof unpicking.value>) {
   project.change((d) => removal(d, u));
+  if (u.projectPalette) forgetSorts([u.projectPalette]);
   if (u.packsOff) {
     const off = new Set([...settings.settings.packsOff, ...u.packsOff]);
     settings.settings.packsOff = [...off];

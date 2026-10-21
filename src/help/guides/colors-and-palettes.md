@@ -47,6 +47,17 @@ fabrics' images, at the size chosen in **Settings › Fabrics**.
 
 Library colors are read-only. Right-click one in the tray and choose **Edit a copy…** to make your own version. If the list is empty, check **Settings › Project**, where **Hide library palettes from projects** hides it.
 
+## Sort a palette
+
+A palette's **Actions** menu has **Sort by**: **Saved order**, **Hue**, **Value** (light to dark),
+**Saturation** (vivid to muted) or **Name**, and **Reverse**. In the **Library palettes** list, use
+the sort button beside the tags button. The palette then shows that way on its card, in its preview
+and in the editor trays. Colors you add take their place in the sort.
+
+Sorting only changes how the palette looks on this device. The palette itself keeps its order, so
+saving, exporting or sharing it is unchanged. Library and pack palettes can be sorted too. **Settings
+› Quilt and block design › Sorted palettes** lists every sorted palette, each with **Clear**.
+
 ## Paint a quilt
 
 1. Open a quilt and choose its **Design** tab.
