@@ -58,6 +58,15 @@ Sorting only changes how the palette looks on this device. The palette itself ke
 saving, exporting or sharing it is unchanged. Library and pack palettes can be sorted too. **Settings
 › Quilt and block design › Sorted palettes** lists every sorted palette, each with **Clear**.
 
+## Find palettes by color
+
+The filter sidebar on the Libraries page (Palettes or All) and in the project's **Palettes** tab has
+a **Color** card. Switch on **Hue** and slide to the color you want, with **±** for how wide a range
+around it. **Value** (dark to light) and **Saturation** (muted to vivid) take a range too. A palette
+stays when one of its swatches is in every range you set. Its other swatches are dimmed, or hidden
+with **Only matching swatches**. Grays have no hue, so a hue never finds them. Fabrics count by
+their average color.
+
 ## Paint a quilt
 
 1. Open a quilt and choose its **Design** tab.

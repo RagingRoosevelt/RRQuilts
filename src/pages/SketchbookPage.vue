@@ -633,6 +633,7 @@
               label="Tags"
             />
           </FilterCard>
+          <ColorFilterCard v-model="colorF" />
         </aside>
         <div class="col" style="min-width: 0">
           <div v-if="$q.screen.lt.md" class="row justify-end q-mb-sm">
@@ -718,9 +719,10 @@
                     Empty: click to add colors or fabric images
                   </span>
                   <span
-                    v-for="(s, k) in swatches(pp.palette.id, pp.colors, pp.fabrics)"
+                    v-for="(s, k) in cardSwatches(pp.palette.id, pp.colors, pp.fabrics)"
                     :key="s.item.id"
                     class="chip"
+                    :class="{ dim: !colorMatch(s) }"
                     :style="
                       s.kind === 'color'
                         ? { background: `rgb(${s.item.rgb.join(',')})` }
@@ -875,9 +877,10 @@
                   </div>
                   <div class="row col" style="gap: 3px">
                     <button
-                      v-for="(s, k) in swatches(c.id, c.colors, c.fabrics)"
+                      v-for="(s, k) in cardSwatches(c.id, c.colors, c.fabrics)"
                       :key="s.item.id"
                       class="mini-swatch lib-swatch"
+                      :class="{ dim: !colorMatch(s) }"
                       :style="
                         s.kind === 'color'
                           ? { background: `rgb(${s.item.rgb.join(',')})` }
@@ -1409,7 +1412,14 @@ import {
 import { fillFor, paintOf } from '@/editor/paint';
 import PalettePreview from '@/components/PalettePreview.vue';
 import PaletteSortMenu from '@/components/PaletteSortMenu.vue';
-import { usePaletteSort } from '@/composables/palette-sort';
+import { usePaletteSort, type Swatch } from '@/composables/palette-sort';
+import ColorFilterCard from '@/components/ColorFilterCard.vue';
+import {
+  colorFilter,
+  colorFilterOn,
+  paletteMatches,
+  swatchMatches,
+} from '@/model/palette-color-filter';
 import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { ColorCollection } from '@/model/schema/library';
 import { swatchStyle } from '@/render/fabric-images';
@@ -1799,19 +1809,38 @@ const palTagOptions = computed(() =>
     true,
   ).map((t) => ({ label: tagLabel(t), value: t })),
 );
-const palMatches = (name: string, tags: string[], cat: string) =>
+/** Spec 033: palettes with a swatch in the Color card's ranges. */
+const colorF = reactive(colorFilter());
+const colorMatch = (s: Swatch) =>
+  !colorFilterOn(colorF) || swatchMatches(s.kind === 'color' ? s.item.rgb : s.item.average, colorF);
+/** A palette's chips: sorted (spec 032), the Color card's non-matches hidden if asked. */
+const cardSwatches = (id: string, colors?: readonly Color[], fabrics?: readonly Fabric[]) =>
+  swatches(id, colors, fabrics).filter((s) => !colorF.onlyMatching || colorMatch(s));
+const rgbsOf = (colors: readonly Color[] = [], fabrics: readonly Fabric[] = []) => [
+  ...colors.map((c) => c.rgb),
+  ...fabrics.map((f) => f.average),
+];
+const palMatches = (name: string, tags: string[], cat: string, rgbs: ReturnType<typeof rgbsOf>) =>
+  paletteMatches(rgbs, colorF) &&
   (!pf.search || name.toLowerCase().includes(pf.search.toLowerCase())) &&
   anyOf(pf.tags, tags) &&
   anyOf(palCatFilter.value.ids(pf.cats), [cat]);
 const shownOwnPalettes = computed(() =>
-  ownPalettes.value.filter((pp) => palMatches(pp.palette.notecard.name, ownPaletteTags(pp), '')),
+  ownPalettes.value.filter((pp) =>
+    palMatches(pp.palette.notecard.name, ownPaletteTags(pp), '', rgbsOf(pp.colors, pp.fabrics)),
+  ),
 );
 const shownPaletteLibs = computed(() =>
   paletteLibs.value
     .map((g) => ({
       ...g,
       collections: g.collections.filter((c) =>
-        palMatches(c.notecard.name, tagsOfPalette(c), catOf.value.get(c.id) ?? ''),
+        palMatches(
+          c.notecard.name,
+          tagsOfPalette(c),
+          catOf.value.get(c.id) ?? '',
+          rgbsOf(c.colors, c.fabrics),
+        ),
       ),
     }))
     .filter((g) => g.collections.length),
@@ -3217,6 +3246,10 @@ watch(
   color: inherit;
   text-align: left;
   cursor: pointer;
+}
+.chip.dim,
+.lib-swatch.dim {
+  opacity: 0.25;
 }
 .chip {
   display: inline-block;

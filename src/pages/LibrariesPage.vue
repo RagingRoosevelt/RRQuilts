@@ -341,6 +341,7 @@
             />
           </template>
         </FilterCard>
+        <ColorFilterCard v-if="settings.settings.libraryType !== 'block'" v-model="colorF" />
         <FilterCard v-if="settings.settings.libraryType === 'block'" label="Shape">
           <BlockFilter
             v-model:layout="fitLayout"
@@ -651,9 +652,10 @@
                   <!-- Colors and fabrics (spec 014: the print over its average color), in the
                        order picked for this palette (spec 032). -->
                   <span
-                    v-for="(s, k) in swatches(c.id, c.colors, c.fabrics)"
+                    v-for="(s, k) in cardSwatches(c)"
                     :key="s.item.id"
                     class="chip"
+                    :class="{ dim: !colorMatch(s) }"
                     :style="s.kind === 'color' ? { background: css(s.item) } : swatchStyle(s.item)"
                     :title="
                       s.item.notecard.name +
@@ -1450,7 +1452,14 @@ import {
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PalettePreview from '@/components/PalettePreview.vue';
 import PaletteSortMenu from '@/components/PaletteSortMenu.vue';
-import { usePaletteSort } from '@/composables/palette-sort';
+import { usePaletteSort, type Swatch } from '@/composables/palette-sort';
+import ColorFilterCard from '@/components/ColorFilterCard.vue';
+import {
+  colorFilter,
+  colorFilterOn,
+  paletteMatches,
+  swatchMatches,
+} from '@/model/palette-color-filter';
 import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { Fabric } from '@/model/schema/palette';
 import { retryMissing, swatchStyle } from '@/render/fabric-images';
@@ -1507,6 +1516,7 @@ function toggleFilters() {
 const select = (id: string) => {
   for (const k of ['cats', 'tags', 'techniques', 'seams', 'difficulty'] as const) filters[k] = [];
   search.value = '';
+  Object.assign(colorF, colorFilter());
   hiddenLibs.value =
     id === 'mine' ? [] : library.allViews.map((v) => v.doc.id).filter((x) => x !== id);
 };
@@ -1947,7 +1957,8 @@ const filtering = computed(
     !!fitShape.value ||
     [filters.cats, filters.tags, filters.techniques, filters.seams, filters.difficulty].some(
       (f) => f.length,
-    ),
+    ) ||
+    (settings.settings.libraryType !== 'block' && colorFilterOn(colorF)),
 );
 /** Every library shown; My library always, as an empty one until something is saved there. */
 const inScope = computed(() =>
@@ -2021,8 +2032,20 @@ watch(
 );
 const anyOf = (picked: string[], have: string[]) =>
   !picked.length || picked.some((x) => have.includes(x));
+/** Spec 033: palettes with a swatch in the Color card's ranges (blocks aren't filtered by it). */
+const colorF = reactive(colorFilter());
+const swatchRgb = (s: Swatch) => (s.kind === 'color' ? s.item.rgb : s.item.average);
+const colorMatch = (s: Swatch) => !colorFilterOn(colorF) || swatchMatches(swatchRgb(s), colorF);
+/** A palette card's swatches: sorted (spec 032), the Color card's non-matches hidden if asked. */
+const cardSwatches = (c: ColorCollection) =>
+  swatches(c.id, c.colors, c.fabrics).filter((s) => !colorF.onlyMatching || colorMatch(s));
 const matches = (i: LibraryItem) =>
   (!settings.settings.libraryType || i.type === settings.settings.libraryType) &&
+  (i.type !== 'colors' ||
+    paletteMatches(
+      [...i.data.colors.map((c) => c.rgb), ...(i.data.fabrics ?? []).map((f) => f.average)],
+      colorF,
+    )) &&
   anyOf(catFilter.value.ids(filters.cats), [i.category ?? '']) &&
   anyOf(filters.tags, tagsOfItem(i)) &&
   anyOf(filters.techniques, i.data.notecard.techniques ?? []) &&
@@ -3058,6 +3081,9 @@ function downloadPack() {
   height: 28px;
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.2);
+}
+.chip.dim {
+  opacity: 0.25;
 }
 .chip.big {
   width: 32px;

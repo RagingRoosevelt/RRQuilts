@@ -135,6 +135,18 @@ export const CHECKS: Check[] = [
     text: 'Settings › Quilt and block design › Sorted palettes lists each sorted palette (name, where it is, its sort) with Clear. Delete a sorted project palette, remove a pack with a sorted palette, or delete a sorted My library palette: it leaves the list.',
     to: '/',
   },
+  {
+    id: 'TC-094',
+    group: G.filters,
+    text: 'Libraries › Palettes (or All): the sidebar’s Color card. Hue on: slide to blue, ± 25°: only palettes with a blue swatch stay, their other swatches dimmed; Only matching swatches hides them instead. Hue near 0° (red) also finds pinks past 360°. Value 70 to 100 finds palettes with light swatches; Saturation 0 to 25 finds muted ones; grays never match a hue. Switch to Blocks: the card goes and blocks aren’t filtered.',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-095',
+    group: G.filters,
+    text: 'Project › Palettes tab: the same Color card in its filter sidebar narrows your project palettes and the library palettes, dimming (or hiding) the swatches that don’t match. Reload: filters start clear.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
