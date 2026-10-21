@@ -1,6 +1,6 @@
 # Feature Specification: Data Quilts (Temperature, Mood, Rainfall, Any Data)
 
-**Feature Branch**: `TBD` (no feature branch yet)
+**Feature Branch**: `0.7.0`
 
 **Created**: 2026-10-18
 
@@ -85,21 +85,20 @@ accept the suggested ranges. The quilt appears with 365 blank day pieces in 12 m
    piece recolors from the mapping.
 2. **Given** entries with no value, **Then** they show the blank fill, and a count of filled vs. total
    entries is shown.
-3. [NEEDS CLARIFICATION: how data is entered, for example tapping a piece and typing a value, a
-   table of dates and values, pasting or importing a column of values (CSV), or all of these.]
+3. Values are entered in a **table of dates** (every entry with its date and value, missing ones
+   marked, editable) and by **pasting a column or importing a CSV** (date, value), matched to entries
+   by date, else by order. Tapping a piece selects its row in the table. (Owner, 2026-10-20.)
 
 ### User Story 4 - Keep a quilt going over the year (Priority: P2, to be settled)
 
 **Acceptance Scenarios**:
 
 1. **Given** a quilt in progress, **Then** the quilter sees which entries are missing up to today.
-2. [NEEDS CLARIFICATION: what help the app gives over time, for example a "today's entry" shortcut
-   on opening, reminders (needs device notifications, which an offline app can only do while
-   installed), or nothing beyond the missing-entries view.]
-3. [NEEDS CLARIFICATION: whether weather data can be fetched from a weather service. Constitution
-   I/II allow no runtime server calls except user-started resource fetches, so this needs a
-   constitution amendment (a user-started, optional fetch that works without it), or stays manual
-   and import-only.]
+2. The app shows which entries are missing up to today and offers a **Today's entry** shortcut; no
+   reminders. (Owner, 2026-10-20.)
+3. Weather data stays typed or imported in 0.7.0. Later: an optional, user-started fetch from a good,
+   free, key-less weather API, with the constitution amendment it needs (a later spec). (Owner,
+   2026-10-20.)
 
 ### User Story 5 - Print and make it (Priority: P2)
 
@@ -173,9 +172,8 @@ year ends.
 
 ## Open Questions (to settle during implementation)
 
-- Data entry methods (User Story 3).
-- Help collecting data over time, reminders (User Story 4).
-- Weather service connection and its constitution amendment (User Story 4).
+- Settled 2026-10-20: data entry (table, paste/CSV), help over time (missing view, Today's entry),
+  weather fetch later.
 - The set of 12-unit data layouts and unit designs (strips, stars, grids, wheels, custom blocks),
   with picture cards; how a custom block's day order is set in the block editor.
 - Quilt-as-you-go printouts: per-day vs. per-unit sheets, and the joining method (User Story 6).
