@@ -13,11 +13,19 @@ const Value = Type.Union([Type.Number(), Type.String({ maxLength: 40 }), Type.Nu
 /** Values by date, one per value slot (A–D, in order). */
 export const DayValues = Type.Record(DateKey, Type.Array(Value, { maxItems: 4 }));
 
-export const DataRange = Type.Object({ from: Type.Number(), to: Type.Number(), fill: PlainFill });
+/** `most`: the most days expected in it, for worst-case yardage (absent: its days in the sample). */
+const most = Type.Optional(Type.Integer({ minimum: 0, maximum: 366 }));
+export const DataRange = Type.Object({
+  from: Type.Number(),
+  to: Type.Number(),
+  fill: PlainFill,
+  most,
+});
 export const DataCategory = Type.Object({
   id: Id,
   name: Type.String({ maxLength: 60 }),
   fill: PlainFill,
+  most,
 });
 
 export const DataPreset = Type.Enum(['temperature', 'mood', 'daylight', 'rainfall', 'custom']);

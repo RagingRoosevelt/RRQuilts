@@ -380,6 +380,41 @@
     />
 
     <q-separator />
+    <q-expansion-item
+      dense
+      label="Yardage: most days expected"
+      header-class="text-subtitle2 q-px-none"
+    >
+      <div class="text-caption text-grey-7 q-mb-sm">
+        Printed yardage counts this many days for each range or category, each in the largest piece
+        of its value. Empty: its days in the sample.
+      </div>
+      <div v-for="(s, i) in plan.slots" :key="i" class="column q-mb-sm" style="gap: 4px">
+        <div class="text-caption text-weight-medium">{{ s.label }}</div>
+        <div
+          v-for="(e, j) in scaleEntries(s)"
+          :key="j"
+          class="row items-center no-wrap"
+          style="gap: 6px"
+        >
+          <span class="swatch" :style="swatch(e.fill)" />
+          <span class="col ellipsis text-caption">{{ e.text }}</span>
+          <q-input
+            :model-value="e.most ?? ''"
+            type="number"
+            dense
+            outlined
+            class="num"
+            :placeholder="String(counts[i]?.[j] ?? 0)"
+            :aria-label="`Most days for ${e.text}`"
+            :readonly="readonly"
+            @update:model-value="(v) => setMost(i, j, v)"
+          />
+        </div>
+      </div>
+    </q-expansion-item>
+
+    <q-separator />
     <div class="text-subtitle2">Places without data</div>
     <SlidePicker
       v-if="plan.plan !== 'days'"
@@ -442,7 +477,7 @@ import DataCsvDialog from '@/components/DataCsvDialog.vue';
 import DataEntriesDialog from '@/components/DataEntriesDialog.vue';
 import PaintMapRow from '@/components/PaintMapRow.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
-import { useSwapOptions } from '@/composables/swap-options';
+import { optStyle, useSwapOptions } from '@/composables/swap-options';
 import { fillFor, paintOf } from '@/editor/paint';
 import { plainFill } from '@/model/coloring';
 import { readingOrder, SLOT_NAMES, type DataOrder } from '@/model/data-paint';
@@ -455,6 +490,8 @@ import {
   periodLength,
   presetSeries,
   presetSlot,
+  sampleCounts,
+  scaleEntries,
   unitLabel,
 } from '@/model/data-quilt';
 import { sampleSeries } from '@/model/data-samples';
@@ -473,7 +510,7 @@ const $q = useQuasar();
 const project = useProjectStore();
 const editor = useEditorStore();
 const library = useLibraryStore();
-const { swapOptions } = useSwapOptions();
+const { swapOptions, paintOpt } = useSwapOptions();
 
 const plan = computed(() => props.quilt.data);
 const days = computed(() => (plan.value ? periodLength(plan.value.start) : 0));
@@ -542,6 +579,26 @@ const nextYearLabel = computed(() =>
     : 'every day is placed',
 );
 const report = computed(() => dataReport(props.quilt, project.doc?.project.blocks ?? []));
+
+/** Each slot's days per scale entry in the sample (the yardage default). */
+const counts = computed(() =>
+  plan.value ? plan.value.slots.map((_, i) => sampleCounts(plan.value!, i)) : [],
+);
+const swatch = (f: PlainFill) => optStyle(paintOpt(paintOf(f)!));
+function setMost(i: number, j: number, v: string | number | null) {
+  const n = v === '' || v === null ? undefined : Math.max(0, Math.min(366, Math.round(Number(v))));
+  if (n !== undefined && !Number.isFinite(n)) return;
+  const s = plan.value!.slots[i]!;
+  const put = <T extends { most?: number }>(x: T): T => {
+    const { most: _m, ...rest } = x;
+    void _m;
+    return (n === undefined ? rest : { ...rest, most: n }) as T;
+  };
+  if (s.kind === 'number')
+    setSlot(i, { ranges: s.ranges.map((r, k) => (k === j ? put(r) : r)) }, `most${i}.${j}`);
+  else
+    setSlot(i, { categories: s.categories.map((c, k) => (k === j ? put(c) : c)) }, `most${i}.${j}`);
+}
 
 const csv = ref<InstanceType<typeof DataCsvDialog>>();
 const entriesDlg = ref<InstanceType<typeof DataEntriesDialog>>();
@@ -785,6 +842,13 @@ function removeSlot(i: number) {
 .slot :deep(.col),
 .slot :deep(.col-5) {
   min-width: 0;
+}
+.swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex: none;
+  border: 1px solid rgba(0, 0, 0, 0.2);
 }
 .slot {
   border: 1px solid rgba(128, 128, 128, 0.3);

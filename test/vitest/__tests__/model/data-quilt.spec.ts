@@ -224,3 +224,28 @@ describe('setting a plan up', () => {
     expect(nextYearDay(q, [], 1)).toBe(1);
   });
 });
+
+describe('worst-case yardage (spec 025 US6)', () => {
+  it('each range counts its most days (default: its days in the sample) in the largest place', async () => {
+    const { dataYardagePieces } = await import('@/model/print/data-yardage');
+    const { quiltPieces } = await import('@/model/print/pieces');
+    const doc = structuredClone(fixture());
+    const q = doc.project.quilts[0]!;
+    const [slotId, s] = Object.entries(q.layers[0].slots).find(([, x]) =>
+      doc.project.blocks.find((b) => b.id === x.block && 'patches' in b && b.patches.length > 1),
+    )!;
+    const block = doc.project.blocks.find((b) => b.id === s.block)!;
+    const patch = ('patches' in block ? block.patches : [])[0]!.id;
+    q.colorings[s.coloring] = { fills: { [patch]: { data: { n: 5 } } } };
+    q.data = { ...plan({ show: 'simulation', slots: [temp] }), units: { [slotId]: 3 } };
+    const off = quiltPieces(doc, { ...q, data: { ...q.data, on: false } });
+    const worst = dataYardagePieces(doc, q);
+    const keys = new Set(temp.ranges.map((r) => `color:${(r.fill as { color: string }).color}`));
+    // Every slot holding this coloring has one place; the data places become 365 days' worth.
+    const places = worst.filter((p) => keys.has(p.fill)).length;
+    expect(places).toBe(365);
+    expect(worst.length).toBe(off.filter((p) => !p.fill.startsWith('data:')).length + 365);
+    q.data.slots = [{ ...temp, ranges: temp.ranges.map((r) => ({ ...r, most: 10 })) }];
+    expect(dataYardagePieces(doc, q).filter((p) => keys.has(p.fill)).length).toBe(30);
+  });
+});

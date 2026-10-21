@@ -459,3 +459,35 @@ export function nextYearDay(q: Quilt, blocks: readonly Block[], slot: number): n
   for (let d = 1; d <= n; d++) if (!have.has(d)) return d;
   return undefined;
 }
+
+/** A slot's scale entries in order, each with its text (`60 to 70 °F`, `Good`). */
+export function scaleEntries(s: ValueSlot): { fill: PlainFill; text: string; most?: number }[] {
+  const u = s.unit ? ` ${s.unit}` : '';
+  const most = (x: { most?: number }) => (x.most !== undefined ? { most: x.most } : {});
+  const n = s.ranges.length;
+  // The end ranges hold everything past them (values outside go to the nearest).
+  const text = (r: ValueSlot['ranges'][number], i: number) =>
+    n > 1 && i === 0
+      ? `under ${r.to}${u}`
+      : n > 1 && i === n - 1
+        ? `${r.from}${u} and up`
+        : `${r.from} to ${r.to}${u}`;
+  return s.kind === 'number'
+    ? s.ranges.map((r, i) => ({ fill: r.fill, text: text(r, i), ...most(r) }))
+    : s.categories.map((c) => ({ fill: c.fill, text: c.name, ...most(c) }));
+}
+
+/** How many days of the period fall in each of a slot's scale entries in the sample data. */
+export function sampleCounts(plan: DataPlan, slot: number): number[] {
+  const s = plan.slots[slot];
+  if (!s) return [];
+  const entries = scaleEntries(s);
+  const counts = entries.map(() => 0);
+  const n = periodLength(plan.start);
+  for (let d = 1; d <= n; d++) {
+    const f = scaleFill(s, sampleValue(plan, dayDate(plan.start, d), slot));
+    const i = f ? entries.findIndex((e) => e.fill === f) : -1;
+    if (i >= 0) counts[i]!++;
+  }
+  return counts;
+}

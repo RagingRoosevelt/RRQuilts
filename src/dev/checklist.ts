@@ -201,6 +201,12 @@ export const CHECKS: Check[] = [
     text: 'Real data: Import (CSV or pasted rows) fills those days; Table lists every day with a field per value (numbers, or a list for Mood); typing a value recolors its piece; Missing lists days without an entry up to today; Today’s entry opens today (or says today isn’t in the period). With Where the days go on Off, tapping a day’s piece opens the table on that day. Days without an entry show as designed, the sample, or the filler, as chosen.',
     to: '/',
   },
+  {
+    id: 'TC-105',
+    group: G.small,
+    text: 'Print a data quilt: the quilt picture has a legend under it (each value with its colors: under 10 °F, 10 to 20 °F… 100 °F and up). Yardage says it is a worst case and counts each range’s most days expected: Data tab › Yardage lists each range with its days in the sample as the placeholder; typing a number changes the printed yardage. Places with no month number yet don’t show in yardage.',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
