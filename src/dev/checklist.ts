@@ -289,6 +289,13 @@ export const CHECKS: Check[] = [
     last: '"let\'s use a consisten block numbering (ordered left-to-right, top-to-bottom) for the labels on the blocks that we\'re dragging" / "let\'s have both the block label and the month label show up on the quilt. the month label moves between blocks as they are dragged"',
     to: '/',
   },
+  {
+    id: 'TC-123',
+    group: G.small,
+    text: 'Design › Blocks list: hovering a placed card outlines its block space on the quilt (gone when the pointer leaves); clicking a card keeps its space outlined until another card is clicked, while moving over the quilt still shows the space under the pointer.',
+    last: '"hovering or clicking one of the draggable items should highlight that block in the canvas"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

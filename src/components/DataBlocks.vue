@@ -80,6 +80,9 @@
             :draggable="!readonly && !!r.space"
             @dragstart="(e: DragEvent) => dragStart(e, r.k)"
             @dragend="editor.dataHot = null"
+            @mouseenter="r.space && !dragFrom && (editor.dataHot = r.space)"
+            @mouseleave="!dragFrom && (editor.dataHot = null)"
+            @click="editor.dataSel = r.space"
           >
             <!-- The block its space shows (or, not placed yet, one from its pool), uncolored. -->
             <img v-if="thumb(r.k, r.space)" :src="thumb(r.k, r.space)" class="thumb" alt="" />

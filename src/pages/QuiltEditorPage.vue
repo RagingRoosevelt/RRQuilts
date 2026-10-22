@@ -153,7 +153,7 @@
           :doc="project.doc"
           :quilt="quilt"
           :generated="generated"
-          :hover="editor.dataHot ?? hover?.slotId ?? null"
+          :hover="editor.dataHot ?? hover?.slotId ?? (quilt.data?.on ? editor.dataSel : null)"
           :outlines="editor.outlines"
           :labels="editor.labels"
           :selected="found"

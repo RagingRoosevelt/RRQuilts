@@ -90,6 +90,8 @@ export const useEditorStore = defineStore('editor', () => {
   const dataNext = ref(1);
   /** The block space of the number being dragged in the list, highlighted on the quilt. */
   const dataHot = ref<string | null>(null);
+  /** The block space of the card last clicked in the list (stays highlighted). */
+  const dataSel = ref<string | null>(null);
 
   function useColor(id: string) {
     color.value = id;
@@ -126,6 +128,7 @@ export const useEditorStore = defineStore('editor', () => {
     data,
     dataNext,
     dataHot,
+    dataSel,
     useColor,
   };
 });
