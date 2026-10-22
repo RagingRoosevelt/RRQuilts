@@ -277,6 +277,11 @@ strip type. The quilt shows 365 days in the simulation's colors.
   overlay tint: data blocks (opposite), other spaces that take blocks (+120°; setting and cut-down
   edge pieces too), patch-only parts (+240°). The block editor's Color tab glows the hovered patch
   the same way.
+- **FR-018**: Built-in data blocks: Month Strip, Week Strip (was Week Row), Day Square, and corner
+  versions with day 1 at the top left corner: Curved (quarter rings), Cornered (nested right
+  angles) and Fan (equal-angle wedges) Month and Week Strips; month ones with 30/29/28 variants.
+  Color variants follow their block's drawing (the project's copy, else the library's), also when a
+  project opens.
 
 ## Success Criteria *(mandatory)*
 

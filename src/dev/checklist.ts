@@ -112,7 +112,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-162',
     group: G.small,
-    text: 'Print a Weeks data quilt that uses a week block with a 1-day variant (or a Months quilt with the Month Strip): the block pages print every variant shown, Week Row and Week Row (1 day), Month Strip and Month Strip (30 days), (28 days).',
+    text: 'Print a Weeks data quilt that uses a week block with a 1-day variant (or a Months quilt with the Month Strip): the block pages print every variant shown, Week Strip and Week Strip (1 day), Month Strip and Month Strip (30 days), (28 days).',
     last: '"there is only one of the variants of the week block I used visible in the printout"',
     to: '/',
   },
@@ -184,6 +184,20 @@ export const CHECKS: Check[] = [
     group: G.small,
     text: 'Data quilt with a second colorway shown: Design › Data › Values shows each value’s Sample (by its Kind) above its color mapping. Pick another sample there: the quilt recolors, and showing the primary colorway, its Sample has changed too (one choice for all colorways).',
     last: '"we lost the ability to pick the data set we\'re using to simulate with in the non-primary colorways of a quilt. all colorways should share the settings for the simulation data"',
+    to: '/',
+  },
+  {
+    id: 'TC-175',
+    group: G.small,
+    text: 'Libraries › Blocks › Data (or search "strip", "fan"): Week Row is now Week Strip, and there are Curved Month Strip and Curved Week Strip (quarter rings round the top left corner), Cornered Month Strip and Cornered Week Strip (nested right angles), and Month Fan and Week Fan (straight lines from the corner at equal angles to the far edges), day 1 at the corner. The month ones have 30, 29 and 28-day variants with the days past the month in black. Place each in a data quilt: days number and color as with the Month Strip.',
+    last: '"can you make a version of the built in month strip and week row (rename to week strip) that flow around a 90 degree corner? let\'s do two versions, one using concentric arcs and the other using right angle paths." / "can you do another corner variantion for months and weeks that\'s a fan of colors? so all lines share a common point on a corner and then extend with equal spacing strait until they reach the edge?"',
+    to: '/',
+  },
+  {
+    id: 'TC-176',
+    group: G.small,
+    text: 'Open Temperature Quilt Demos(4).rrq: it opens (no "Proxy object could not be cloned"), and the Month Strip color variant in Blocks is square like the Month Strip, its colors kept; the project counts as changed (save to keep it). A color variant follows its block’s drawing: as the project holds it, else as the library has it.',
+    last: '"I have a "month strip" color variant that displays in my blocks list... the month strip block is square and the color variant in my blocks list is rectangular" / "trying to open my old file I get Proxy object could not be cloned."',
     to: '/',
   },
 ];

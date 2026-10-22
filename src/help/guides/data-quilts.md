@@ -74,8 +74,11 @@ block is listed with the day blocks. Unless you pick a day block, the days left 
 take the 1-day variant of the week block in use.
 
 The built-in library has a square **Month Strip** with 30, 29, and 28-day variants (31 bars each,
-the days past the month in black), a **Week Row** of 7 bars, and a **Day Square** with one place, all filed
-under **Data**.
+the days past the month in black), a **Week Strip** of 7 bars, and a **Day Square** with one place,
+all filed under **Data**. Months and weeks also come with their strips turning a corner, day 1 at
+the top left: **Curved Month Strip** and **Curved Week Strip** in quarter rings, **Cornered Month
+Strip** and **Cornered Week Strip** in nested right angles, and **Month Fan** and **Week Fan** as
+wedges fanning out from the corner.
 
 To find data blocks, use the **Data** filter in the project's **Blocks** tab and in the libraries.
 The project's **Quilts** tab can show only data quilts or only the others.
