@@ -7,36 +7,34 @@ import { pathPolygon, pointInPolygon, type Pt } from './geometry/path';
 import type { Block } from './schema/block';
 import type { DataPaint, Fill } from './schema/coloring';
 
-/** Which numbers: a month block's days, a week block's, or the period's (year days). */
-export type DataSet = '31' | '7' | 'year';
+/** Which numbers: a month block's days or a week block's. */
+export type DataSet = '31' | '7';
 export type DataOrder = 'rows' | 'columns' | 'snake';
-export const SET_MAX: Record<DataSet, number> = { '31': 31, '7': 7, year: 366 };
+export const SET_MAX: Record<DataSet, number> = { '31': 31, '7': 7 };
 export const SLOT_NAMES = ['A', 'B', 'C', 'D'] as const;
 
 type Fills = Readonly<Record<string, Fill>>;
 
-const inSet = (p: DataPaint, set: DataSet, slot: number) =>
-  !!p.year === (set === 'year') && (p.slot ?? 0) === slot;
+// Both sets are one run of numbers: the set only caps how far numbering goes.
+const inSlot = (p: DataPaint, slot: number) => (p.slot ?? 0) === slot;
 
-/** Numbers of `set` and `slot` already painted. */
-const used = (fills: Fills, set: DataSet, slot: number) =>
+/** Numbers of `slot` already painted. */
+const used = (fills: Fills, slot: number) =>
   new Set(
-    Object.values(fills).flatMap((f) =>
-      'data' in f && inSet(f.data, set, slot) ? [f.data.n] : [],
-    ),
+    Object.values(fills).flatMap((f) => ('data' in f && inSlot(f.data, slot) ? [f.data.n] : [])),
   );
 
 /** The smallest number of `set` not yet painted for `slot` (undefined: all used). */
 export function nextNumber(fills: Fills, set: DataSet, slot: number): number | undefined {
-  const have = used(fills, set, slot);
+  const have = used(fills, slot);
   for (let n = 1; n <= SET_MAX[set]; n++) if (!have.has(n)) return n;
   return undefined;
 }
 
-const paint = (n: number, set: DataSet, slot: number, over: Fill | undefined): Fill => {
+const paint = (n: number, slot: number, over: Fill | undefined): Fill => {
   const under = plainFill(over);
   return {
-    data: { n, ...(set === 'year' ? { year: true } : {}), ...(slot ? { slot } : {}) },
+    data: { n, ...(slot ? { slot } : {}) },
     ...(under ? { under } : {}),
   };
 };
@@ -49,14 +47,14 @@ const paint = (n: number, set: DataSet, slot: number, over: Fill | undefined): F
 export function numberPiece(fills: Fills, id: string, set: DataSet, slot: number) {
   const f = fills[id];
   const out = { ...fills };
-  if (f && 'data' in f && inSet(f.data, set, slot)) {
+  if (f && 'data' in f && inSlot(f.data, slot)) {
     if (f.under) out[id] = f.under;
     else delete out[id];
     return out;
   }
   const n = nextNumber(fills, set, slot);
   if (n === undefined) return undefined;
-  out[id] = paint(n, set, slot, f);
+  out[id] = paint(n, slot, f);
   return out;
 }
 
@@ -65,10 +63,10 @@ export function numberPieces(fills: Fills, ids: readonly string[], set: DataSet,
   let out: Record<string, Fill> = { ...fills };
   for (const id of ids) {
     const f = out[id];
-    if (f && 'data' in f && inSet(f.data, set, slot)) continue;
+    if (f && 'data' in f && inSlot(f.data, slot)) continue;
     const n = nextNumber(out, set, slot);
     if (n === undefined) break;
-    out = { ...out, [id]: paint(n, set, slot, f) };
+    out = { ...out, [id]: paint(n, slot, f) };
   }
   return out;
 }
@@ -136,6 +134,5 @@ export function readingOrder(
     .map((x) => x.id);
 }
 
-/** Label for a numbered piece: `5`, `5B` past slot A, `Y5` for a year day. */
-export const paintLabel = (p: DataPaint) =>
-  `${p.year ? 'Y' : ''}${p.n}${p.slot ? SLOT_NAMES[p.slot] : ''}`;
+/** Label for a numbered piece: `5`, `5B` past slot A. */
+export const paintLabel = (p: DataPaint) => `${p.n}${p.slot ? SLOT_NAMES[p.slot] : ''}`;

@@ -1039,9 +1039,6 @@
                                           "minimum": 1,
                                           "maximum": 366
                                         },
-                                        "year": {
-                                          "type": "boolean"
-                                        },
                                         "slot": {
                                           "type": "integer",
                                           "minimum": 0,
@@ -1769,9 +1766,6 @@
                                           "minimum": 1,
                                           "maximum": 366
                                         },
-                                        "year": {
-                                          "type": "boolean"
-                                        },
                                         "slot": {
                                           "type": "integer",
                                           "minimum": 0,
@@ -2360,9 +2354,6 @@
                                           "type": "integer",
                                           "minimum": 1,
                                           "maximum": 366
-                                        },
-                                        "year": {
-                                          "type": "boolean"
                                         },
                                         "slot": {
                                           "type": "integer",
@@ -3156,9 +3147,6 @@
                                           "minimum": 1,
                                           "maximum": 366
                                         },
-                                        "year": {
-                                          "type": "boolean"
-                                        },
                                         "slot": {
                                           "type": "integer",
                                           "minimum": 0,
@@ -3836,9 +3824,6 @@
                                           "type": "integer",
                                           "minimum": 1,
                                           "maximum": 366
-                                        },
-                                        "year": {
-                                          "type": "boolean"
                                         },
                                         "slot": {
                                           "type": "integer",
@@ -6094,9 +6079,6 @@
                                         "minimum": 1,
                                         "maximum": 366
                                       },
-                                      "year": {
-                                        "type": "boolean"
-                                      },
                                       "slot": {
                                         "type": "integer",
                                         "minimum": 0,
@@ -6987,9 +6969,6 @@
                                         "minimum": 1,
                                         "maximum": 366
                                       },
-                                      "year": {
-                                        "type": "boolean"
-                                      },
                                       "slot": {
                                         "type": "integer",
                                         "minimum": 0,
@@ -7139,9 +7118,6 @@
                                             "minimum": 1,
                                             "maximum": 366
                                           },
-                                          "year": {
-                                            "type": "boolean"
-                                          },
                                           "slot": {
                                             "type": "integer",
                                             "minimum": 0,
@@ -7224,7 +7200,7 @@
                   "plan",
                   "start",
                   "slots",
-                  "units",
+                  "order",
                   "picks",
                   "seed",
                   "unused",
@@ -7446,19 +7422,32 @@
                     "minItems": 1,
                     "maxItems": 4
                   },
-                  "units": {
-                    "type": "object",
-                    "patternProperties": {
-                      "^.*$": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 52
-                      }
-                    }
+                  "order": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 200
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "maxItems": 366
                   },
                   "picks": {
                     "type": "object",
                     "properties": {
+                      "1": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                        },
+                        "maxItems": 50
+                      },
                       "7": {
                         "type": "array",
                         "items": {

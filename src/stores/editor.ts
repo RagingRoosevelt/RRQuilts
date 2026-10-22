@@ -6,9 +6,22 @@ import type { DataOrder, DataSet } from '@/model/data-paint';
 import type { StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 
-export type Mode = 'layout' | 'borders' | 'design' | 'data' | 'print' | 'details';
+export type Mode = 'layout' | 'borders' | 'design' | 'print' | 'details';
+/** `number`: a data quilt's brush, placing numbers on block spaces; `entry`: its Data tab, a tap
+ *  on a day's piece opens that day's entry (spec 025). */
 export type Tool =
-  'set' | 'rotate' | 'flip' | 'erase' | 'find' | 'paint' | 'spray' | 'swap' | 'eyedropper' | 'pan';
+  | 'set'
+  | 'rotate'
+  | 'flip'
+  | 'erase'
+  | 'find'
+  | 'paint'
+  | 'spray'
+  | 'swap'
+  | 'eyedropper'
+  | 'pan'
+  | 'number'
+  | 'entry';
 
 export type BlockMode = 'draw' | 'color' | 'print' | 'details';
 export type BlockTool =
@@ -73,8 +86,8 @@ export const useEditorStore = defineStore('editor', () => {
     numbers: true,
     line: true,
   });
-  /** Data tab (spec 025): what tapping the quilt does. */
-  const dataTap = ref<'none' | 'units' | 'days'>('none');
+  /** A data quilt's next number to place (1-based, spec 025). */
+  const dataNext = ref(1);
 
   function useColor(id: string) {
     color.value = id;
@@ -109,7 +122,7 @@ export const useEditorStore = defineStore('editor', () => {
     grid,
     coloringOf,
     data,
-    dataTap,
+    dataNext,
     useColor,
   };
 });

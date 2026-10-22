@@ -6,13 +6,12 @@ const ColorFill = Type.Object({ color: ItemId });
 
 /**
  * A data paint (spec 025, v9): a place for one day's value in a data quilt. `n` is the local day
- * (1–31 in a month block, 1–7 in a week block) or, with `year`, the day of the period (1–366);
+ * (1–31 in a month block, 1–7 in a week block, 1 in a day block);
  * `slot` is the value slot (0–3 = A–D, absent = A). `under` is the color painted before, shown
  * where the design says "as designed".
  */
 export const DataPaint = Type.Object({
   n: Type.Integer({ minimum: 1, maximum: 366 }),
-  year: Type.Optional(Type.Boolean()),
   slot: Type.Optional(Type.Integer({ minimum: 0, maximum: 3 })),
 });
 const DataFill = Type.Object({

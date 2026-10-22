@@ -575,7 +575,7 @@ function onPatch(patchId: string) {
       // A data paint: number with its set and value slot.
       Object.assign(editor.data, {
         on: true,
-        set: current.data.year ? 'year' : current.data.n > 7 ? '31' : editor.data.set,
+        set: current.data.n > 7 ? '31' : editor.data.set,
         slot: current.data.slot ?? 0,
       });
       return;

@@ -12,18 +12,24 @@ color each value gets. The app fills in the colors from the data.
 
 Start a quilt with **Data quilt** turned on in the first step of the wizard, and pick **12 months**,
 **52 weeks**, or **365 days**. To make an existing quilt a data quilt, turn on **Data quilt** in its
-**Layout** tab. Either way the quilt gets a **Data** tab.
+**Layout** tab. Either way the quilt opens in the **Design** tab, where the tray has three tabs.
+
+| Tab    | What it holds                                                    |
+| ------ | ---------------------------------------------------------------- |
+| Blocks | the numbered list of block spaces and the block pools            |
+| Colors | the usual colors and fabrics, for sashing, borders, and the rest |
+| Data   | the plan, the period, the data, and the colors for each value    |
 
 The plan says how days are grouped.
 
-| Plan   | Days are placed by                                                                       |
+| Plan   | Each number stands for                                                                   |
 | ------ | ---------------------------------------------------------------------------------------- |
-| Months | a block in each month's space, with places for days 1 to 31                              |
-| Weeks  | a block in each week's space, with places for days 1 to 7, counted from the period start |
-| Days   | numbering pieces with days of the year directly                                          |
+| Months | a month, 12 numbers                                                                      |
+| Weeks  | 7 days counted from the period start, 52 numbers, then one number for each day left over |
+| Days   | one day, a number for every day of the period                                            |
 
 The period is one year from **Period starts**. A Months period starts on the 1st of a month. A
-period that holds 29 February has 366 days.
+period that holds 29 February has 366 days, so a Weeks plan then has two days left over.
 
 ## Number the places in a block
 
@@ -46,34 +52,49 @@ so a skipped or misplaced number shows. A numbered piece keeps the color it had.
 **Value** picks A, B, C, or D. Use B, C, and D when a day records more than one value, such as a
 high and a low temperature. Each value has its own numbers and its own order line.
 
+A block for a single day needs only one numbered piece.
+
 The built-in library has **Month Strip** blocks for 28, 29, 30, and 31 days (31 bars each, the days
-past the month in black) and a **Week Row** of 7 bars, filed under **Data**.
+past the month in black), a **Week Row** of 7 bars, and a **Day Square** with one place, all filed
+under **Data**.
 
-## Place the months or weeks
+## Place the numbers
 
-In the **Data** tab, set **Where the days go** to **Months** (or **Weeks**) and tap the block
-spaces in order: January, February, and so on. **Rows**, **Columns**, and **Snake** number every
-block space at once. Tap a numbered space again to take its number back.
+The **Blocks** tab lists every number of the plan, 001 for January (or the first week or day) and on
+from there. With **Place numbers** on, tap block spaces on the quilt. Each gets the highlighted
+number, which then moves on to the next number not yet placed. Tap a number in the list to place from
+there. Numbers already placed are skipped. Tap a placed space to take its number back.
 
-Under **Month blocks**, pick the blocks for 31, 30, 29, and 28-day months. Each numbered space shows
-a block for its month's length. With more than one block for a length, each space gets one of them at
-random, and **Shuffle** picks again. A length with no block uses the next longer one, and its extra
-places show the filler or their own color, as set under **Places without data**.
+**Fill empty numbers** puts every block space without a number on the empty numbers, by **Rows**,
+**Columns**, or **Snake**. **Clear** takes every number back.
 
-**Year days** numbers pieces anywhere in the quilt with days of the year: every day in a Days plan,
-or the days a Weeks plan leaves over (52 weeks are 364 days, so days 365 and 366 need a place of
-their own, such as a cornerstone).
+A number's place in the list is its label. Drag a placed number to another row, or use the arrows
+beside it, and the rows between move along. The quilt shows each space's number with a line
+through them in order.
 
-The tab lists anything that needs attention, such as a month on two spaces or days without a place.
+Each number shows a block from the pool for its days. A Months plan has pools for 31, 30, 29, and
+28-day months, Weeks has a pool for weeks and one for the days left over, and Days has one pool. A
+pool takes only blocks with at least that many day places, so January always draws from the 31-day
+pool. With more than one block in a pool, each space gets one of them at random, and **Shuffle**
+picks again. A block with more places than its number needs shows the filler or their own color in
+the places past the last day, as set under **Places past a number’s days**.
+
+The tab lists anything that needs attention, such as numbers not placed yet, a pool with no block,
+or days without a place.
 
 ## Map values to colors
 
 Each value has a **Label** and a **Kind**. Temperature, Hours of daylight, and Rainfall map ranges
 of numbers to colors. Mood maps each choice to a color. Custom starts with three number ranges.
 
-A range holds values from its first number up to (not including) its second. A value past the first
-or last range takes that end range's color. Change a range's numbers, color, or fabric, add or remove
-ranges, and the quilt recolors as you go. **Add a value** adds B, C, and D.
+The values are in the **Data** tab. A range holds values from its first number up to (not
+including) its second. A value past the first or last range takes that end range's color. Change a
+range's numbers, color, or fabric, add or remove ranges, and the quilt recolors as you go. **Add a
+value** adds B, C, and D.
+
+In a colorway other than the primary, each range or category shows its primary color and what it
+becomes in this colorway. Pick a replacement there. Show the primary colorway to change the values
+themselves.
 
 ## Preview with sample data
 
@@ -91,7 +112,7 @@ Switch **Show** to **Real data**. Then:
 - **Missing** lists days up to today without an entry.
 - **Import** reads a CSV file or pasted rows into the table. Days already entered take the new values.
 
-With **Where the days go** on **Off**, tapping a day's piece opens its row. **Days without an entry**
+With the **Data** tab open, tapping a day's piece opens its row. **Days without an entry**
 sets what a day shows until it has a value: its own color, the sample value, or the filler.
 
 ## Print it

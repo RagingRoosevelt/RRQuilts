@@ -187,6 +187,7 @@ const dataBars = (
 const DATA_BLOCKS: StarterBlock[] = [
   ...[31, 30, 29, 28].map((d) => dataBars(`Month Strip ${d}`, 'Data/Months', 31, d, [31, 6])),
   dataBars('Week Row', 'Data/Weeks', 7, 7, [7, 7]),
+  dataBars('Day Square', 'Data/Days', 1, 1, [1, 1]),
 ];
 
 const t = 1 / 3;
@@ -716,6 +717,7 @@ const STARTER_CATEGORIES = [
   'Data',
   'Data/Months',
   'Data/Weeks',
+  'Data/Days',
 ];
 const catId = (path: string) =>
   `rrquilts.category.${path

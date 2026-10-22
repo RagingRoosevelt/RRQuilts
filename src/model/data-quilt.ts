@@ -6,7 +6,7 @@ import { resolveColoring } from './coloring';
 import { sampleSeries } from './data-samples';
 import type { Block } from './schema/block';
 import type { ColoringBody, DataPaint, Fill, PlainFill } from './schema/coloring';
-import type { DataPlan, DataPreset, ValueSlot } from './schema/data-quilt';
+import type { DataPlan, DataPreset, Pool, ValueSlot } from './schema/data-quilt';
 import type { Quilt } from './schema/quilt';
 
 const DAY = 86_400_000;
@@ -32,35 +32,57 @@ export function monthLength(start: string, unit: number) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + unit, 0)).getUTCDate();
 }
 
-/** Days in each unit (months: 28–31; weeks: 7). */
-export const unitLength = (plan: DataPlan, unit: number) =>
-  plan.plan === 'months' ? monthLength(plan.start, unit) : 7;
+/** How many numbers the plan's list holds: 12 months; 52 weeks then the days they leave over;
+ *  or a number per day. */
+export function numberCount(plan: DataPlan) {
+  const n = periodLength(plan.start);
+  return plan.plan === 'months' ? 12 : plan.plan === 'weeks' ? 52 + n - 364 : n;
+}
+
+/** Number `k` (1-based): its first period day, how many days it holds, and the pool its blocks
+ *  come from (the days it needs). */
+export function numberInfo(
+  plan: DataPlan,
+  k: number,
+): { first: number; len: number; pool: Pool } | undefined {
+  if (!Number.isInteger(k) || k < 1 || k > numberCount(plan)) return undefined;
+  if (plan.plan === 'months') {
+    const s = new Date(parse(plan.start));
+    const first =
+      Math.round(
+        (Date.UTC(s.getUTCFullYear(), s.getUTCMonth() + k - 1, 1) - parse(plan.start)) / DAY,
+      ) + 1;
+    const len = monthLength(plan.start, k);
+    return { first, len, pool: String(len) as Pool };
+  }
+  if (plan.plan === 'weeks' && k <= 52) return { first: 7 * (k - 1) + 1, len: 7, pool: '7' };
+  return { first: plan.plan === 'weeks' ? 364 + k - 52 : k, len: 1, pool: '1' };
+}
 
 /**
- * The period day (1-based) a paint stands for in a space numbered `unit`; `undefined` for a place
- * its unit doesn't reach (unused), `null` when it can't be told (a local paint with no unit).
+ * The period day (1-based) a paint stands for in a space holding number `k`; `undefined` for a
+ * place past the number's days (unused), `null` for a space with no number.
  */
 export function dayOf(
   plan: DataPlan,
-  unit: number | undefined,
+  k: number | undefined,
   p: DataPaint,
 ): number | undefined | null {
-  const n = periodLength(plan.start);
-  if (p.year) return p.n <= n ? p.n : undefined;
-  if (plan.plan === 'days' || !unit) return null;
-  let i: number;
-  if (plan.plan === 'weeks') {
-    if (p.n > 7 || unit > 52) return undefined;
-    i = 7 * (unit - 1) + p.n;
-  } else {
-    if (unit > 12 || p.n > monthLength(plan.start, unit)) return undefined;
-    const s = new Date(parse(plan.start));
-    i =
-      Math.round(
-        (Date.UTC(s.getUTCFullYear(), s.getUTCMonth() + unit - 1, p.n) - parse(plan.start)) / DAY,
-      ) + 1;
+  if (!k) return null;
+  const info = numberInfo(plan, k);
+  return info && p.n <= info.len ? info.first + p.n - 1 : undefined;
+}
+
+const numbers = new WeakMap<object, Map<string, number>>();
+/** The number (1-based) each placed space holds. */
+export function numberOf(plan: DataPlan, slotId: string): number | undefined {
+  let m = numbers.get(plan.order);
+  if (!m) {
+    m = new Map();
+    plan.order.forEach((id, i) => id && !m!.has(id) && m!.set(id, i + 1));
+    numbers.set(plan.order, m);
   }
-  return i >= 1 && i <= n ? i : undefined;
+  return m.get(slotId);
 }
 
 /** Day of the calendar year (0–364) of a date, 29 February reading 28 February. */
@@ -166,7 +188,7 @@ export function slotColoring(
   if (!m) cache.set(quilt, (m = new Map()));
   const hit = m.get(slotId);
   if (hit && hit.block === block) return hit.body;
-  const unit = plan.units[slotId];
+  const unit = numberOf(plan, slotId);
   const fills: Record<string, Fill> = {};
   for (const [k, f] of Object.entries(c.fills)) {
     const r = 'data' in f ? dataFill(plan, unit, f) : f;
@@ -193,7 +215,7 @@ export const dataColorings = (quilts: readonly Quilt[]): ColoringBody[] =>
     return [{ fills: Object.fromEntries(fills.map((f, i) => [i, f])) }];
   });
 
-/** Blocks a quilt's month or week picks name. */
+/** Blocks a quilt's pools name. */
 export const dataBlocks = (q: Quilt): string[] =>
   Object.values(q.data?.picks ?? {}).flatMap((ids) => ids ?? []);
 
@@ -204,32 +226,53 @@ function pickIndex(seed: number, slotId: string, n: number) {
   return (h >>> 0) % n;
 }
 
-/** The blocks a unit can take: its length's picks, else the next longer length's. */
-export function picksFor(plan: DataPlan, unit: number): readonly string[] {
-  if (plan.plan === 'weeks') return plan.picks['7'] ?? [];
-  if (plan.plan !== 'months') return [];
-  for (let len = monthLength(plan.start, unit); len <= 31; len++) {
-    const p = plan.picks[String(len) as '28'];
-    if (p?.length) return p;
-  }
-  return [];
+/** Day places in a block (distinct numbers of value A in its first coloring). */
+export function placesIn(b: Block): number {
+  const ns = new Set<number>();
+  for (const f of Object.values(b.colorings[0]?.fills ?? {}))
+    if ('data' in f && !f.data.slot) ns.add(f.data.n);
+  return ns.size;
 }
 
+/** Pool sizes: the day places a pool's blocks need at least. */
+export const POOL_DAYS: Record<Pool, number> = {
+  '31': 31,
+  '30': 30,
+  '29': 29,
+  '28': 28,
+  '7': 7,
+  '1': 1,
+};
+
+/** The pools a plan's numbers draw from, longest first. */
+export const poolsOf = (plan: DataPlan): Pool[] =>
+  plan.plan === 'months'
+    ? ['31', '30', '29', '28']
+    : plan.plan === 'weeks'
+      ? ['7', ...(numberCount(plan) > 52 ? (['1'] as Pool[]) : [])]
+      : ['1'];
+
 /**
- * Put each numbered space's pick in it (spec 025 FR-007), keeping its turn and flip; a new block
- * gets a coloring that follows the block's first. Spaces with no picks keep what they hold.
+ * Put a block from each placed number's pool in its space (spec 025 FR-007), keeping its turn and
+ * flip; a new block gets a coloring that follows the block's first. Only blocks with enough day
+ * places count. A number whose pool is empty leaves its space as it is.
  */
 export function applyPicks(q: Draft<Quilt>, blocks: readonly Block[], newId: () => string) {
   const plan = q.data;
   if (!plan?.on) return;
   const byId = new Map(blocks.map((b) => [b.id, b]));
   const slots = q.layers[0].slots;
-  for (const [slotId, unit] of Object.entries(plan.units)) {
-    const list = picksFor(plan, unit).filter((id) => byId.has(id));
-    if (!list.length) continue;
+  plan.order.forEach((slotId, i) => {
+    const info = slotId ? numberInfo(plan, i + 1) : undefined;
+    if (!slotId || !info) return;
+    const list = (plan.picks[info.pool] ?? []).filter((id) => {
+      const b = byId.get(id);
+      return b && placesIn(b) >= info.len;
+    });
+    if (!list.length) return;
     const id = list[pickIndex(plan.seed, slotId, list.length)]!;
     const now = slots[slotId];
-    if (now?.block === id) continue;
+    if (now?.block === id) return;
     let coloring: string;
     do coloring = newId();
     while (coloring in q.colorings);
@@ -241,7 +284,7 @@ export function applyPicks(q: Draft<Quilt>, blocks: readonly Block[], newId: () 
       Object.values(slots).some((s) => s.coloring === c) ||
       q.layers.some((l) => l.items.some((i) => i.coloring === c));
     if (old && !used(old)) delete q.colorings[old];
-  }
+  });
 }
 
 // --- Setting a plan up (spec 025 User Stories 2 and 3) ---
@@ -349,7 +392,7 @@ export function newDataPlan(units: 'in' | 'cm', year: number): DataPlan {
     plan: 'months',
     start: `${year}-01-01`,
     slots: [presetSlot('temperature', units)],
-    units: {},
+    order: Array<null>(12).fill(null),
     picks: {},
     seed: 0,
     unused: 'filler',
@@ -361,79 +404,123 @@ export function newDataPlan(units: 'in' | 'cm', year: number): DataPlan {
   };
 }
 
-/** Units in a plan: 12 months or 52 weeks (none for Days). */
-export const unitCount = (plan: DataPlan) =>
-  plan.plan === 'months' ? 12 : plan.plan === 'weeks' ? 52 : 0;
+/** The list sized for the plan and period (numbers past the end dropped, new ones empty). */
+export function fitOrder(plan: DataPlan): DataPlan {
+  const n = numberCount(plan);
+  if (plan.order.length === n) return plan;
+  return { ...plan, order: Array.from({ length: n }, (_, i) => plan.order[i] ?? null) };
+}
 
-/** The smallest unit number no space has yet. */
-export function nextUnit(plan: DataPlan): number | undefined {
-  const have = new Set(Object.values(plan.units));
-  for (let n = 1; n <= unitCount(plan); n++) if (!have.has(n)) return n;
+/** The first unplaced number from `from` on, wrapping round (undefined: all placed). */
+export function nextFree(plan: DataPlan, from = 1): number | undefined {
+  const n = numberCount(plan);
+  for (let i = 0; i < n; i++) {
+    const k = ((from - 1 + i) % n) + 1;
+    if (!plan.order[k - 1]) return k;
+  }
   return undefined;
 }
 
-/** Number a space with the next unit, or take its number back. Undefined: all numbers used. */
-export function toggleUnit(plan: DataPlan, slotId: string): DataPlan | undefined {
-  if (plan.units[slotId]) {
-    const { [slotId]: _gone, ...units } = plan.units;
-    void _gone;
-    return { ...plan, units };
-  }
-  const n = nextUnit(plan);
-  return n === undefined ? undefined : { ...plan, units: { ...plan.units, [slotId]: n } };
+/** Place number `k` on a space (a space holds one number: its old one is freed). */
+export function placeNumber(plan: DataPlan, slotId: string, k: number): DataPlan {
+  const order = fitOrder(plan).order.map((id) => (id === slotId ? null : id));
+  order[k - 1] = slotId;
+  return { ...plan, order };
 }
 
-/** Number spaces in the order given (numbered ones kept), until the numbers run out. */
-export function numberUnits(plan: DataPlan, ids: readonly string[]): DataPlan {
-  let out = plan;
+/** Take a space's number back (the number becomes empty). */
+export const takeBack = (plan: DataPlan, slotId: string): DataPlan => ({
+  ...plan,
+  order: plan.order.map((id) => (id === slotId ? null : id)),
+});
+
+/** Put spaces on the empty numbers in the order given (placed spaces kept), until they run out. */
+export function fillNumbers(plan: DataPlan, ids: readonly string[]): DataPlan {
+  const out = fitOrder(plan);
+  const order = [...out.order];
+  const placed = new Set(order);
+  let k = 0;
   for (const id of ids) {
-    if (out.units[id]) continue;
-    const n = nextUnit(out);
-    if (n === undefined) break;
-    out = { ...out, units: { ...out.units, [id]: n } };
+    if (placed.has(id)) continue;
+    while (k < order.length && order[k]) k++;
+    if (k >= order.length) break;
+    order[k] = id;
   }
-  return out;
+  return { ...out, order };
 }
+
+/** Move number `from` to position `to` (1-based); the ones between shift, so their labels do. */
+export function moveNumber(plan: DataPlan, from: number, to: number): DataPlan {
+  const order = [...fitOrder(plan).order];
+  const [x] = order.splice(from - 1, 1);
+  order.splice(to - 1, 0, x ?? null);
+  return { ...plan, order };
+}
+
+/** A number's label: 001, 002, … */
+export const numberLabel = (k: number) => String(k).padStart(3, '0');
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-/** A unit's name: its month (from the period start) or week number. */
-export function unitLabel(plan: DataPlan, unit: number) {
-  if (plan.plan !== 'months') return `W${unit}`;
-  return MONTHS[(new Date(parse(plan.start)).getUTCMonth() + unit - 1) % 12]!;
+const short = (key: string) => {
+  const d = new Date(parse(key));
+  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`;
+};
+/** What a number stands for: its month, its week's first day, or its day. */
+export function numberName(plan: DataPlan, k: number) {
+  const info = numberInfo(plan, k);
+  if (!info) return '';
+  if (plan.plan === 'months')
+    return MONTHS[(new Date(parse(plan.start)).getUTCMonth() + k - 1) % 12]!;
+  const from = short(dayDate(plan.start, info.first));
+  return info.len === 7 ? `Week of ${from}` : from;
 }
 
-/** What the Data tab reports (FR-004 and the edge cases): numbers twice, numbers missing, days
- *  without a place, spaces with day places but no unit. */
+/** What the tab reports (FR-004 and the edge cases): numbers not placed, pools with no block that
+ *  fits, spaces with day places but no number, days without a place. */
 export function dataReport(q: Quilt, blocks: readonly Block[]): string[] {
   const plan = q.data;
   if (!plan) return [];
   const out: string[] = [];
   const byId = new Map(blocks.map((b) => [b.id, b]));
-  const count = new Map<number, number>();
-  for (const u of Object.values(plan.units)) count.set(u, (count.get(u) ?? 0) + 1);
-  const twice = [...count].filter(([, n]) => n > 1).map(([u]) => unitLabel(plan, u));
-  if (twice.length) out.push(`On more than one space: ${twice.join(', ')}.`);
-  const units = unitCount(plan);
-  const missing = Array.from({ length: units }, (_, i) => i + 1).filter((u) => !count.has(u));
-  if (units && missing.length && missing.length < units)
-    out.push(`No space yet for ${missing.map((u) => unitLabel(plan, u)).join(', ')}.`);
+  const count = numberCount(plan);
+  const empty = Array.from({ length: count }, (_, i) => i + 1).filter((k) => !plan.order[k - 1]);
+  if (empty.length && empty.length < count)
+    out.push(
+      `${empty.length} number${empty.length > 1 ? 's' : ''} not placed yet: ${empty
+        .slice(0, 6)
+        .map(numberLabel)
+        .join(', ')}${empty.length > 6 ? '…' : ''}.`,
+    );
+  const needed = new Set<Pool>();
+  plan.order.forEach((id, i) => {
+    const info = id ? numberInfo(plan, i + 1) : undefined;
+    if (info) needed.add(info.pool);
+  });
+  for (const pool of poolsOf(plan))
+    if (
+      needed.has(pool) &&
+      !(plan.picks[pool] ?? []).some((id) => {
+        const b = byId.get(id);
+        return b && placesIn(b) >= POOL_DAYS[pool];
+      })
+    )
+      out.push(`The ${pool}-day pool has no block yet.`);
   const days = new Set<number>();
   let unnumbered = 0;
   for (const [slotId, s] of Object.entries(q.layers[0].slots)) {
     const fills = resolveColoring(q.colorings[s.coloring], byId.get(s.block))?.fills ?? {};
-    let local = false;
+    const k = numberOf(plan, slotId);
+    let places = false;
     for (const f of Object.values(fills)) {
       if (!('data' in f)) continue;
-      const d = dayOf(plan, plan.units[slotId], f.data);
+      places = true;
+      const d = dayOf(plan, k, f.data);
       if (typeof d === 'number') days.add(d);
-      if (!f.data.year) local = true;
     }
-    if (local && !plan.units[slotId] && plan.plan !== 'days') unnumbered++;
+    if (places && !k) unnumbered++;
   }
   if (unnumbered)
-    out.push(
-      `${unnumbered} space${unnumbered > 1 ? 's have' : ' has'} day places but no ${plan.plan === 'weeks' ? 'week' : 'month'} number.`,
-    );
+    out.push(`${unnumbered} space${unnumbered > 1 ? 's have' : ' has'} day places but no number.`);
   const n = periodLength(plan.start);
   const without = Array.from({ length: n }, (_, i) => i + 1).filter((d) => !days.has(d));
   if (days.size && without.length)
@@ -444,20 +531,6 @@ export function dataReport(q: Quilt, blocks: readonly Block[]): string[] {
         .join(', ')}${without.length > 4 ? '…' : ''}.`,
     );
   return out;
-}
-
-/** The next year day not yet placed for value `slot` anywhere in the quilt. */
-export function nextYearDay(q: Quilt, blocks: readonly Block[], slot: number): number | undefined {
-  const byId = new Map(blocks.map((b) => [b.id, b]));
-  const have = new Set<number>();
-  for (const s of Object.values(q.layers[0].slots))
-    for (const f of Object.values(
-      resolveColoring(q.colorings[s.coloring], byId.get(s.block))?.fills ?? {},
-    ))
-      if ('data' in f && f.data.year && (f.data.slot ?? 0) === slot) have.add(f.data.n);
-  const n = q.data ? periodLength(q.data.start) : 366;
-  for (let d = 1; d <= n; d++) if (!have.has(d)) return d;
-  return undefined;
 }
 
 /** A slot's scale entries in order, each with its text (`60 to 70 °F`, `Good`). */

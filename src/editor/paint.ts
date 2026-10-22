@@ -7,14 +7,14 @@ const FABRIC = 'fabric:';
 
 export const fabricPaint = (fabricId: string) => FABRIC + fabricId;
 
-const DATA = /^data:(y?)(\d+)(?:\.(\d))?$/;
+const DATA = /^data:(\d+)(?:\.(\d))?$/;
 
 /** A data paint id (spec 025, `dataKey`) as its fill. */
 export const dataFillFor = (paint: string): Fill | undefined => {
   const m = DATA.exec(paint);
   if (!m) return undefined;
-  const slot = Number(m[3] ?? 0);
-  return { data: { n: Number(m[2]), ...(m[1] ? { year: true } : {}), ...(slot ? { slot } : {}) } };
+  const slot = Number(m[2] ?? 0);
+  return { data: { n: Number(m[1]), ...(slot ? { slot } : {}) } };
 };
 
 export const fillFor = (paint: string): Fill =>

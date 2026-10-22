@@ -13,7 +13,6 @@
       :options="[
         { value: '31', label: '1 to 31' },
         { value: '7', label: '1 to 7' },
-        { value: 'year', label: 'Year' },
       ]"
       label="Numbers"
     />
@@ -71,10 +70,6 @@ const next = computed(() => nextNumber(props.fills, editor.data.set, editor.data
 const label = computed(() =>
   next.value === undefined
     ? ''
-    : paintLabel({
-        n: next.value,
-        ...(editor.data.set === 'year' ? { year: true } : {}),
-        ...(editor.data.slot ? { slot: editor.data.slot } : {}),
-      }),
+    : paintLabel({ n: next.value, ...(editor.data.slot ? { slot: editor.data.slot } : {}) }),
 );
 </script>

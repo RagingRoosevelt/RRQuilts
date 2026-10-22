@@ -10,9 +10,15 @@
     >
       <q-tab name="blocks" label="Blocks" />
       <q-tab name="colors" label="Colors" />
+      <q-tab v-if="data" name="data" label="Data" />
     </q-tabs>
 
-    <div v-if="tab === 'blocks' && noBlocks" class="q-pa-md text-caption text-grey-8">
+    <!-- A data quilt (spec 025): its numbered list and block pools instead of the blocks, and its
+         Data tab. -->
+    <div v-if="data && tab !== 'colors'" class="col scroll q-pa-sm">
+      <slot :name="tab" />
+    </div>
+    <div v-else-if="tab === 'blocks' && noBlocks" class="q-pa-md text-caption text-grey-8">
       This quilt layout doesn't support blocks. Its pieces take colors and fabrics: use the Colors
       tab.
     </div>
@@ -310,24 +316,32 @@ const props = withDefaults(
     noBlocks?: boolean;
     /** Whether the quilt has a space that takes this block (its shape). */
     fitsQuilt?: (b: Block) => boolean;
+    /** A data quilt: the `blocks` and `data` slots fill the Blocks and Data tabs. */
+    data?: boolean;
   }>(),
-  { colorsOnly: false, sidebar: false, noBlocks: false },
+  { colorsOnly: false, sidebar: false, noBlocks: false, data: false },
 );
 const app = useSettingsStore();
 const tab = computed({
   get: () =>
     props.colorsOnly || ['paint', 'spray', 'swap', 'eyedropper'].includes(editor.tool)
       ? 'colors'
-      : 'blocks',
-  set: (t: 'blocks' | 'colors') => {
-    editor.tool = t === 'colors' ? 'paint' : 'set';
-    if (props.sidebar) app.settings.trayTab = t;
+      : props.data && editor.tool === 'entry'
+        ? 'data'
+        : 'blocks',
+  set: (t: 'blocks' | 'colors' | 'data') => {
+    editor.tool = t === 'colors' ? 'paint' : t === 'data' ? 'entry' : props.data ? 'number' : 'set';
+    if (props.sidebar && t !== 'data') app.settings.trayTab = t;
   },
 });
 onMounted(() => {
+  if (!props.data && (editor.tool === 'number' || editor.tool === 'entry')) editor.tool = 'set';
   // A quilt without block spaces opens on Colors (without changing the remembered tab).
   if (props.noBlocks) {
     if (tab.value === 'blocks') editor.tool = 'paint';
+  } else if (props.data) {
+    // Opening a data quilt: off any tool it has no use for (Set, the other quilt's numbers).
+    if (editor.tool === 'set') editor.tool = 'number';
   } else if (props.sidebar && !props.colorsOnly && tab.value !== app.settings.trayTab)
     tab.value = app.settings.trayTab;
 });

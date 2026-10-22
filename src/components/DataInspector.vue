@@ -1,6 +1,7 @@
 <template>
-  <!-- A data quilt's plan (spec 025): plan and period, what the quilt shows, numbering spaces and
-       year days, month or week blocks, value slots and their scales, places without data. -->
+  <!-- A data quilt's Data tab (spec 025): plan and period, what the quilt shows, value slots and
+       their scales (in a colorway other than the primary: what each scale color becomes), yardage,
+       places without data. Numbers and block pools are in the Blocks tab (DataBlocks). -->
   <div v-if="plan" class="column no-wrap" style="gap: 12px">
     <SlidePicker
       :model-value="plan.plan"
@@ -111,108 +112,33 @@
     </div>
 
     <q-separator />
-    <div class="text-subtitle2">Where the days go</div>
-    <SlidePicker
-      v-model="editor.dataTap"
-      :options="tapOptions"
-      label="Tap the quilt to"
-      :class="{ 'no-pointer': readonly }"
-    />
-    <template v-if="editor.dataTap === 'units'">
-      <div class="text-caption" aria-live="polite">
-        Next: {{ next ? unitLabel(plan, next) : 'every number is placed' }}. Tap a numbered space to
-        take its number back.
-      </div>
-      <div class="row items-center" style="gap: 6px">
-        <span class="text-caption">Number every block space</span>
-        <q-btn
-          v-for="o in ORDERS"
-          :key="o.value"
-          dense
-          outline
-          no-caps
-          size="sm"
-          :label="o.label"
-          :disable="readonly"
-          @click="numberAll(o.value)"
-        />
-        <q-btn
-          dense
-          flat
-          no-caps
-          size="sm"
-          icon="clear"
-          label="Clear"
-          :disable="readonly || !Object.keys(plan.units).length"
-          @click="edit((p) => ({ ...p, units: {} }))"
-        />
-      </div>
-    </template>
-    <template v-else-if="editor.dataTap === 'days'">
-      <div class="row items-center no-wrap" style="gap: 8px">
-        <span class="text-caption">Value</span>
-        <q-btn-toggle
-          :model-value="editor.data.slot"
-          :options="slotOptions"
-          dense
-          no-caps
-          unelevated
-          toggle-color="primary"
-          aria-label="Value slot"
-          @update:model-value="(v: number) => (editor.data.slot = v)"
-        />
-      </div>
-      <div class="text-caption">
-        Tap pieces to give them the next day of the period ({{ nextYearLabel }}); tap one again to
-        take it back. Year days go on any piece: the days a plan's blocks don't reach, or every day
-        in a Days plan.
-      </div>
-    </template>
-
-    <template v-if="plan.plan !== 'days'">
-      <q-separator />
-      <div class="row items-center">
-        <div class="text-subtitle2 col">
-          {{ plan.plan === 'months' ? 'Month blocks' : 'Week blocks' }}
-        </div>
-        <q-btn
-          flat
-          dense
-          no-caps
-          size="sm"
-          icon="shuffle"
-          label="Shuffle"
-          :disable="readonly"
-          @click="edit((p) => ({ ...p, seed: p.seed + 1 }))"
-        />
-      </div>
-      <div class="text-caption text-grey-7">
-        Numbered spaces show a block for their
-        {{ plan.plan === 'months' ? "month's length" : 'week' }}; with several, each space gets one
-        at random. Blocks with day places are listed.
-      </div>
-      <q-select
-        v-for="len in lengths"
-        :key="len"
-        :model-value="plan.picks[len] ?? []"
-        :options="blockOptions"
-        option-value="id"
-        option-label="label"
-        emit-value
-        map-options
-        multiple
-        use-chips
-        dense
-        outlined
-        :label="len === '7' ? 'Week blocks' : `${len}-day months`"
-        :readonly="readonly"
-        @update:model-value="(ids: string[]) => setPicks(len, ids)"
-      />
-    </template>
-
-    <q-separator />
     <div class="text-subtitle2">Values</div>
-    <div v-for="(s, i) in plan.slots" :key="i" class="slot column no-wrap" style="gap: 6px">
+    <template v-if="colorway">
+      <div class="text-caption text-grey-7">
+        {{ colorway.name }}: pick what each color of {{ primaryName }} becomes. Show
+        {{ primaryName }} to change the values and their colors.
+      </div>
+      <div v-for="(s, i) in plan.slots" :key="i" class="slot column no-wrap" style="gap: 6px">
+        <div class="text-caption text-weight-medium">{{ SLOT_NAMES[i] }}: {{ s.label }}</div>
+        <div v-for="(e, j) in scaleEntries(s)" :key="j" class="column" style="gap: 2px">
+          <span class="text-caption">{{ e.text }}</span>
+          <PaintMapRow
+            :from="paintOpt(paintOf(e.fill)!)"
+            :model-value="paintOf(swap(e.fill))"
+            :options="fillOptions"
+            :readonly="readonly"
+            stacked
+            @update:model-value="(to) => mapTo(e.fill, to)"
+          />
+        </div>
+      </div>
+    </template>
+    <div
+      v-for="(s, i) in colorway ? [] : plan.slots"
+      :key="i"
+      class="slot column no-wrap"
+      style="gap: 6px"
+    >
       <div class="row items-center no-wrap" style="gap: 6px">
         <q-badge color="primary" :label="SLOT_NAMES[i]" />
         <q-input
@@ -369,7 +295,7 @@
       </template>
     </div>
     <q-btn
-      v-if="plan.slots.length < 4 && !readonly"
+      v-if="plan.slots.length < 4 && !readonly && !colorway"
       dense
       outline
       no-caps
@@ -417,18 +343,17 @@
     <q-separator />
     <div class="text-subtitle2">Places without data</div>
     <SlidePicker
-      v-if="plan.plan !== 'days'"
       :model-value="plan.unused"
       :options="[
         { value: 'filler', label: 'Filler' },
         { value: 'designed', label: 'As designed' },
       ]"
-      :label="plan.plan === 'months' ? 'Days a month doesn’t reach' : 'Places past the week'"
+      label="Places past a number’s days"
       :class="{ 'no-pointer': readonly }"
       @update:model-value="(v) => edit((p) => ({ ...p, unused: v as DataPlan['unused'] }))"
     />
     <div class="text-caption text-grey-7 q-mt-n-sm">
-      {{ plan.plan === 'months' ? 'Day 31 in a 30-day month, say.' : '' }}
+      Day 31 of a 31-place block showing a 30-day month, say.
     </div>
     <SlidePicker
       :model-value="plan.waiting"
@@ -455,23 +380,12 @@
 
     <DataCsvDialog ref="csv" :slots="plan.slots" @sample="setCsvSample" @entries="importEntries" />
     <DataEntriesDialog ref="entriesDlg" :plan="plan" :readonly="readonly" @set="setEntry" />
-    <template v-if="report.length">
-      <q-separator />
-      <div
-        v-for="r in report"
-        :key="r"
-        class="row no-wrap items-start text-caption"
-        style="gap: 6px"
-      >
-        <q-icon name="warning" color="warning" size="16px" />
-        <span>{{ r }}</span>
-      </div>
-    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
+import { castDraft } from 'immer';
 import { computed, ref } from 'vue';
 import DataCsvDialog from '@/components/DataCsvDialog.vue';
 import DataEntriesDialog from '@/components/DataEntriesDialog.vue';
@@ -480,63 +394,42 @@ import SlidePicker from '@/components/SlidePicker.vue';
 import { optStyle, useSwapOptions } from '@/composables/swap-options';
 import { fillFor, paintOf } from '@/editor/paint';
 import { plainFill } from '@/model/coloring';
-import { readingOrder, SLOT_NAMES, type DataOrder } from '@/model/data-paint';
+import { fillKey } from '@/model/coloring';
+import { colorwayList, setSwap, shownColorway, swapper } from '@/model/colorways';
+import { SLOT_NAMES } from '@/model/data-paint';
 import {
-  dataReport,
   dayDate,
-  nextUnit,
-  nextYearDay,
-  numberUnits,
+  fitOrder,
   periodLength,
   presetSeries,
   presetSlot,
   sampleCounts,
   scaleEntries,
-  unitLabel,
 } from '@/model/data-quilt';
 import { sampleSeries } from '@/model/data-samples';
 import { newId } from '@/model/ids';
-import { generateFor } from '@/model/layout/slots';
 import type { PlainFill } from '@/model/schema/coloring';
 import type { DataPlan, DataPreset, DayValues, ValueSlot } from '@/model/schema/data-quilt';
 import type { Quilt } from '@/model/schema/quilt';
-import { takesBlock } from '@/editor/scope';
-import { useEditorStore } from '@/stores/editor';
-import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
 
 const props = defineProps<{ quilt: Quilt; readonly?: boolean }>();
 const $q = useQuasar();
 const project = useProjectStore();
-const editor = useEditorStore();
-const library = useLibraryStore();
 const { swapOptions, paintOpt } = useSwapOptions();
 
 const plan = computed(() => props.quilt.data);
 const days = computed(() => (plan.value ? periodLength(plan.value.start) : 0));
 const end = computed(() => (plan.value ? dayDate(plan.value.start, days.value) : ''));
-const next = computed(() => (plan.value ? nextUnit(plan.value) : undefined));
 const planHint = computed(
   () =>
     ({
-      months: '12 month blocks, each with places for days 1 to 31.',
+      months: 'A numbered block space per month, its block from the pool for its days.',
       weeks:
-        '52 week blocks of 7 days from the period start; days 365 and 366 go on pieces you number as year days.',
-      days: 'A place for each day of the period, numbered as year days on pieces.',
+        'A numbered block space per week of 7 days from the period start, then one per day left over (day 365, and 366 in a leap period).',
+      days: 'A numbered block space per day of the period.',
     })[plan.value?.plan ?? 'months'],
 );
-const tapOptions = computed(() => [
-  { value: 'none', label: 'Off' },
-  ...(plan.value?.plan !== 'days'
-    ? [{ value: 'units', label: plan.value?.plan === 'weeks' ? 'Weeks' : 'Months' }]
-    : []),
-  { value: 'days', label: 'Year days' },
-]);
-const ORDERS: { value: DataOrder; label: string }[] = [
-  { value: 'rows', label: 'Rows' },
-  { value: 'columns', label: 'Columns' },
-  { value: 'snake', label: 'Snake' },
-];
 const PRESETS: { value: DataPreset; label: string }[] = [
   { value: 'temperature', label: 'Temperature' },
   { value: 'mood', label: 'Mood' },
@@ -548,37 +441,22 @@ const seriesOptions = computed(() => [
   { value: null, label: 'None' },
   ...sampleSeries().map((s) => ({ value: s.id, label: s.label })),
 ]);
-const lengths = computed((): ('28' | '29' | '30' | '31' | '7')[] =>
-  plan.value?.plan === 'weeks' ? ['7'] : ['31', '30', '29', '28'],
-);
 const fillOptions = computed(() => swapOptions());
-const slotOptions = computed(() =>
-  (plan.value?.slots ?? []).map((_, i) => ({ label: SLOT_NAMES[i] ?? '', value: i })),
-);
 const plain = (id: string): PlainFill => plainFill(fillFor(id))!;
 
-/** Blocks with day places (own and in libraries), each with how many places it has. */
-const blockOptions = computed(() => {
-  const seen = new Set<string>();
-  const doc = project.doc;
-  return [...(doc?.project.blocks ?? []), ...library.items.blocks].flatMap((b) => {
-    if (seen.has(b.id)) return [];
-    seen.add(b.id);
-    const fills = b.colorings[0]?.fills ?? {};
-    const n = Object.values(fills).filter((f) => 'data' in f && !f.data.year).length;
-    return n ? [{ id: b.id, label: `${b.notecard.name} (${n})` }] : [];
+/** A colorway other than the primary, shown: the scales show what their colors become. */
+const colorway = computed(() => shownColorway(props.quilt));
+const primaryName = computed(() => colorwayList(props.quilt)[0]!.name);
+const swap = computed(() => swapper(colorway.value));
+function mapTo(from: PlainFill, to: string) {
+  const id = colorway.value?.id;
+  if (!id || props.readonly) return;
+  project.change((d) => {
+    const i = d.project.quilts.findIndex((x) => x.id === props.quilt.id);
+    if (i >= 0)
+      d.project.quilts[i] = castDraft(setSwap(props.quilt, id, fillKey(from), fillFor(to)));
   });
-});
-
-const nextYear = computed(() =>
-  nextYearDay(props.quilt, project.doc?.project.blocks ?? [], editor.data.slot),
-);
-const nextYearLabel = computed(() =>
-  nextYear.value && plan.value
-    ? `next: day ${nextYear.value}, ${dayDate(plan.value.start, nextYear.value)}`
-    : 'every day is placed',
-);
-const report = computed(() => dataReport(props.quilt, project.doc?.project.blocks ?? []));
+}
 
 /** Each slot's days per scale entry in the sample (the yardage default). */
 const counts = computed(() =>
@@ -684,38 +562,14 @@ function edit(fn: (p: DataPlan) => DataPlan, coalesce?: string) {
 function setPlan(v: string) {
   edit((p) => {
     const plan = v as DataPlan['plan'];
-    const max = plan === 'months' ? 12 : plan === 'weeks' ? 52 : 0;
-    const units = Object.fromEntries(Object.entries(p.units).filter(([, u]) => u <= max));
     const start = plan === 'months' ? `${p.start.slice(0, 8)}01` : p.start;
-    return { ...p, plan, units, start };
+    return fitOrder({ ...p, plan, start });
   });
-  if (v === 'days' && editor.dataTap === 'units') editor.dataTap = 'days';
 }
 function setStart(v: string | number | null) {
   const s = String(v ?? '');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return;
-  edit((p) => ({ ...p, start: p.plan === 'months' ? `${s.slice(0, 8)}01` : s }));
-}
-function setPicks(len: '28' | '29' | '30' | '31' | '7', ids: string[]) {
-  edit((p) => {
-    const picks = { ...p.picks };
-    if (ids.length) picks[len] = ids;
-    else delete picks[len];
-    return { ...p, picks };
-  });
-}
-function numberAll(order: DataOrder) {
-  const g = generateFor(props.quilt);
-  const [x0, y0, x1, y1] = g.bounds;
-  const spots = new Map(
-    g.slots
-      .filter((s) => s.kind === 'block' && takesBlock(s))
-      .map((s): [string, [number, number]] => {
-        const [a, b, c, d, e, f] = s.transform;
-        return [s.id, [((a + c) / 2 + e - x0) / (x1 - x0), ((b + d) / 2 + f - y0) / (y1 - y0)]];
-      }),
-  );
-  edit((p) => numberUnits(p, readingOrder(spots, [...spots.keys()], order)));
+  edit((p) => fitOrder({ ...p, start: p.plan === 'months' ? `${s.slice(0, 8)}01` : s }));
 }
 const slots = (p: DataPlan, i: number, patch: Partial<ValueSlot>) =>
   p.slots.map((s, k) => (k === i ? { ...s, ...patch } : s));

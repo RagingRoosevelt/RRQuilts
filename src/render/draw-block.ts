@@ -216,7 +216,7 @@ export function drawBlockEditor(
             {
               p: [p[0] * w, p[1] * h] as Pt,
               label: paintLabel(f.data),
-              group: `${f.data.year ? 'y' : ''}${f.data.slot ?? 0}`,
+              group: String(f.data.slot ?? 0),
               order: f.data.n,
             },
           ]

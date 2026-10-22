@@ -1,6 +1,6 @@
 // A quilt's data plan (spec 025, v9): what each day records, how values map to fills, where days
-// sit (unit numbers on block spaces, month or week block picks), the real entries and the sample
-// data shown while designing.
+// sit (the numbered list of block spaces, block pools), the real entries and the sample data shown
+// while designing.
 import Type from 'typebox';
 import { PlainFill } from './coloring';
 import { Id, ItemId } from './shared';
@@ -66,19 +66,24 @@ export const DataPlan = Type.Object({
   /** First day of the one-year period (Months: the 1st of a month). */
   start: DateKey,
   slots: Type.Array(ValueSlot, { minItems: 1, maxItems: 4 }),
-  /** Unit numbers (1–12 months, 1–52 weeks) by block space (slot) id. */
-  units: Type.Record(Type.String(), Type.Integer({ minimum: 1, maximum: 52 })),
-  /** Blocks a unit space shows, by days in its unit (28–31 for months, 7 for weeks). */
+  /** The numbered list: the block space (slot) id holding each number, in order (index 0 = 001),
+   *  null while not placed. Months 12, Weeks 52 then the leftover days, Days one per day. */
+  order: Type.Array(Type.Union([Type.String({ maxLength: 200 }), Type.Null()]), {
+    maxItems: 366,
+  }),
+  /** Block pools by the day places a number needs (28–31 for months, 7 for weeks, 1 for days). */
   picks: Type.Object({
     '28': Type.Optional(Picks),
     '29': Type.Optional(Picks),
     '30': Type.Optional(Picks),
     '31': Type.Optional(Picks),
     '7': Type.Optional(Picks),
+    '1': Type.Optional(Picks),
   }),
-  /** Seed for picking among several blocks of a length (Shuffle changes it). */
+  /** Seed for picking among several blocks of a pool (Shuffle changes it). */
   seed: Type.Integer({ minimum: 0 }),
-  /** Places a short unit doesn't reach: the filler, or as designed. */
+  /** Places past a number's days (a block with more places than it needs): the filler, or as
+   *  designed. */
   unused: Type.Union([Type.Literal('filler'), Type.Literal('designed')]),
   /** Days without an entry (Real data): as designed, the sample value, or the filler. */
   waiting: Type.Union([
@@ -97,3 +102,4 @@ export type ValueSlot = Type.Static<typeof ValueSlot>;
 export type DataSim = Type.Static<typeof DataSim>;
 export type DayValues = Type.Static<typeof DayValues>;
 export type DataPreset = Type.Static<typeof DataPreset>;
+export type Pool = keyof DataPlan['picks'];

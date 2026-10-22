@@ -5,13 +5,16 @@ import {
   applyPicks,
   dataFill,
   dataReport,
+  fillNumbers,
+  moveNumber,
   newDataPlan,
-  nextUnit,
-  nextYearDay,
-  numberUnits,
+  nextFree,
+  numberCount,
+  numberLabel,
+  numberName,
+  placeNumber,
   presetSlot,
-  toggleUnit,
-  unitLabel,
+  takeBack,
   dayDate,
   dayOf,
   periodLength,
@@ -49,7 +52,7 @@ const plan = (p: Partial<DataPlan> = {}): DataPlan => ({
   plan: 'months',
   start: '2027-01-01',
   slots: [temp, mood],
-  units: {},
+  order: [],
   picks: {},
   seed: 0,
   unused: 'filler',
@@ -78,12 +81,23 @@ describe('data quilt days (spec 025)', () => {
     expect(dayOf(plan({ start: '2027-09-01' }), 5, { n: 1 })).toBe(123); // January 1st
   });
 
-  it('weeks: 7-day runs from the start; year days anywhere', () => {
+  it('weeks: 7-day runs from the start, then a number per day left over', () => {
     const p = plan({ plan: 'weeks' });
+    expect(numberCount(p)).toBe(53);
     expect(dayOf(p, 52, { n: 7 })).toBe(364);
     expect(dayOf(p, 1, { n: 8 })).toBeUndefined();
-    expect(dayOf(p, undefined, { n: 365, year: true })).toBe(365);
-    expect(dayOf(p, undefined, { n: 366, year: true })).toBeUndefined();
+    expect(dayOf(p, 53, { n: 1 })).toBe(365);
+    expect(dayOf(p, 53, { n: 2 })).toBeUndefined();
+    const leap = plan({ plan: 'weeks', start: '2027-03-01' });
+    expect(numberCount(leap)).toBe(54);
+    expect(dayOf(leap, 54, { n: 1 })).toBe(366);
+  });
+
+  it('days: a number per day', () => {
+    const p = plan({ plan: 'days' });
+    expect(numberCount(p)).toBe(365);
+    expect(dayOf(p, 10, { n: 1 })).toBe(10);
+    expect(dayOf(p, 10, { n: 2 })).toBeUndefined();
   });
 });
 
@@ -122,13 +136,13 @@ describe('data quilt scales', () => {
   });
 });
 
-/** The fixture's first quilt, its first space numbered 3 and painted day 5. */
+/** The fixture's first quilt, its first space holding number 3 and painted day 5. */
 function dataQuilt(p: DataPlan): { q: Quilt; slotId: string } {
   const q = structuredClone<Quilt>(fixture().project.quilts[0]!);
   const slotId = Object.keys(q.layers[0].slots)[0]!;
   const s = q.layers[0].slots[slotId]!;
   q.colorings[s.coloring] = { fills: { a: { data: { n: 5 } }, b: { color: 'cream' } } };
-  q.data = { ...p, units: { [slotId]: 3 } };
+  q.data = { ...p, order: [null, null, slotId] };
   return { q, slotId };
 }
 
@@ -147,24 +161,32 @@ describe('slotColoring', () => {
   });
 });
 
-describe('month picks', () => {
-  const block = (id: string): Block => ({ ...structuredClone(fixture().project.blocks[0]!), id });
-  const blocks = ['m28', 'm29', 'm31a', 'm31b'].map(block);
+describe('block pools', () => {
+  /** A block with `n` day places. */
+  const block = (id: string, n: number): Block => {
+    const b = structuredClone(fixture().project.blocks[0]!);
+    b.colorings[0]!.fills = Object.fromEntries(
+      Array.from({ length: n }, (_, i) => [`p${i}`, { data: { n: i + 1 } }]),
+    );
+    return { ...b, id };
+  };
+  const blocks = [block('m28', 28), block('m29', 29), block('m31a', 31), block('m31b', 31)];
 
-  it('each numbered space shows a pick for its length, else the next longer', () => {
+  it('each placed number shows a block from the pool for its days; a block too small is passed over', () => {
     const { q, slotId } = dataQuilt(plan({ start: '2028-01-01' }));
     const ids = [slotId, 'u2', 'u3', 'u4'];
-    const units = Object.fromEntries(ids.map((id, i) => [id, [2, 4, 1, 3][i]!]));
     const next = produce(q, (d) => {
-      d.data!.units = units;
-      d.data!.picks = { '28': ['m28'], '29': ['m29'], '31': ['m31a', 'm31b'] };
+      // Numbers 2 (Feb 2028), 4 (Apr), 1 (Jan), 3 (Mar).
+      d.data!.order = [ids[2]!, ids[0]!, ids[3]!, ids[1]!];
+      d.data!.picks = { '29': ['m28', 'm29'], '31': ['m31a', 'm31b'] };
       let n = 0;
       applyPicks(d, blocks, () => `c${n++}`);
     });
-    const at = (i: number) => next.layers[0].slots[ids[i]!]!.block;
-    expect(at(0)).toBe('m29'); // February 2028
-    expect(['m31a', 'm31b']).toContain(at(1)); // April: no 30, so 31
+    const at = (i: number) => next.layers[0].slots[ids[i]!]?.block;
+    expect(at(0)).toBe('m29'); // m28 has too few places for the 29 pool
+    expect(at(1)).toBeUndefined(); // April: the 30 pool is empty
     expect(['m31a', 'm31b']).toContain(at(2));
+    expect(['m31a', 'm31b']).toContain(at(3));
     expect(next.colorings[next.layers[0].slots[slotId]!.coloring]).toBeDefined();
     // Stable until shuffled.
     const again = produce(next, (d) => applyPicks(d, blocks, () => 'zz'));
@@ -186,42 +208,41 @@ describe('setting a plan up', () => {
     expect(scaleFill(presetSlot('temperature', 'in'), 75)).toEqual({ color: 'rrquilts.yellow' });
   });
 
-  it('unit numbers: next free, take back, number many in order', () => {
-    let p = plan();
-    p = toggleUnit(p, 's1')!;
-    p = toggleUnit(p, 's2')!;
-    expect(p.units).toEqual({ s1: 1, s2: 2 });
-    p = toggleUnit(p, 's1')!;
-    expect(nextUnit(p)).toBe(1);
-    p = numberUnits(p, ['s3', 's2', 's4']);
-    expect(p.units).toEqual({ s2: 2, s3: 1, s4: 3 });
-    expect(unitLabel(p, 3)).toBe('Mar');
-    expect(unitLabel({ ...p, start: '2027-09-01' }, 5)).toBe('Jan');
-    const full = numberUnits(
-      { ...p, units: {} },
+  it('the numbered list: place, take back, skip placed, fill, reorder', () => {
+    let p = plan({ order: Array<null>(12).fill(null) });
+    p = placeNumber(p, 's1', 1);
+    p = placeNumber(p, 's3', 3);
+    expect(nextFree(p, 1)).toBe(2);
+    expect(nextFree(p, 3)).toBe(4); // 3 placed: skipped
+    p = placeNumber(p, 's1', 5); // a space holds one number
+    expect(p.order.slice(0, 5)).toEqual([null, null, 's3', null, 's1']);
+    p = takeBack(p, 's3');
+    expect(nextFree(p, 3)).toBe(3);
+    p = fillNumbers(p, ['s1', 'a', 'b']);
+    expect(p.order.slice(0, 5)).toEqual(['a', 'b', null, null, 's1']);
+    p = moveNumber(p, 5, 1); // s1 becomes 001, the rest move down
+    expect(p.order.slice(0, 5)).toEqual(['s1', 'a', 'b', null, null]);
+    expect(p.order).toHaveLength(12);
+    expect(numberLabel(7)).toBe('007');
+    expect(numberName(p, 3)).toBe('Mar');
+    expect(numberName({ ...p, start: '2027-09-01' }, 5)).toBe('Jan');
+    expect(numberName(plan({ plan: 'weeks' }), 2)).toBe('Week of Jan 8');
+    const full = fillNumbers(
+      p,
       Array.from({ length: 14 }, (_, i) => `x${i}`),
     );
-    expect(Object.keys(full.units)).toHaveLength(12);
-    expect(toggleUnit(full, 'more')).toBeUndefined();
+    expect(nextFree(full)).toBeUndefined();
   });
 
-  it('the report: numbers twice, missing months, unnumbered spaces, days without a place', () => {
+  it('the report: numbers not placed, empty pools, unnumbered spaces, days without a place', () => {
     const { q, slotId } = dataQuilt(plan());
-    q.data!.units = { [slotId]: 3, other: 3 };
-    const r = dataReport(q, []);
-    expect(r.join(' ')).toMatch(/more than one space: Mar/);
-    expect(r.join(' ')).toMatch(/No space yet for Jan, Feb, Apr/);
-    expect(r.join(' ')).toMatch(/364 days have no place/);
-    q.data!.units = {};
-    expect(dataReport(q, []).join(' ')).toMatch(/1 space has day places but no month number/);
-  });
-
-  it('next year day counts the whole quilt', () => {
-    const { q, slotId } = dataQuilt(plan());
-    const s = q.layers[0].slots[slotId]!;
-    q.colorings[s.coloring]!.fills.c = { data: { n: 1, year: true } };
-    expect(nextYearDay(q, [], 0)).toBe(2);
-    expect(nextYearDay(q, [], 1)).toBe(1);
+    q.data!.order = [null, null, slotId, ...Array<null>(9).fill(null)];
+    const r = dataReport(q, []).join(' ');
+    expect(r).toMatch(/11 numbers not placed yet: 001, 002, 004/);
+    expect(r).toMatch(/The 31-day pool has no block yet/);
+    expect(r).toMatch(/364 days have no place/);
+    q.data!.order = [];
+    expect(dataReport(q, []).join(' ')).toMatch(/1 space has day places but no number/);
   });
 });
 
@@ -237,7 +258,7 @@ describe('worst-case yardage (spec 025 US6)', () => {
     const block = doc.project.blocks.find((b) => b.id === s.block)!;
     const patch = ('patches' in block ? block.patches : [])[0]!.id;
     q.colorings[s.coloring] = { fills: { [patch]: { data: { n: 5 } } } };
-    q.data = { ...plan({ show: 'simulation', slots: [temp] }), units: { [slotId]: 3 } };
+    q.data = { ...plan({ show: 'simulation', slots: [temp] }), order: [null, null, slotId] };
     const off = quiltPieces(doc, { ...q, data: { ...q.data, on: false } });
     const worst = dataYardagePieces(doc, q);
     const keys = new Set(temp.ranges.map((r) => `color:${(r.fill as { color: string }).color}`));

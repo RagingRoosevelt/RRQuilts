@@ -21,11 +21,11 @@ describe('data places (spec 025 US1)', () => {
     f = numberPiece(f, 'a', '31', 0)!;
     expect(f.a).toEqual(gray);
     expect(nextNumber(f, '31', 0)).toBe(1);
-    // Other sets and slots count apart.
+    // Other slots count apart.
     expect(nextNumber(f, '31', 1)).toBe(1);
-    f = numberPiece(f, 'c', 'year', 1)!;
-    expect(f.c).toEqual({ data: { n: 1, year: true, slot: 1 }, under: gray });
-    expect(paintLabel({ n: 1, year: true, slot: 1 })).toBe('Y1B');
+    f = numberPiece(f, 'c', '31', 1)!;
+    expect(f.c).toEqual({ data: { n: 1, slot: 1 }, under: gray });
+    expect(paintLabel({ n: 1, slot: 1 })).toBe('1B');
   });
 
   it('a full set refuses another number', () => {

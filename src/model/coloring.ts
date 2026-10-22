@@ -53,9 +53,8 @@ export const detachColoring = (doc: RrqDoc, blockId: string, coloringId: string)
 /** Patch ids of a block (to recolor unfilled patches, which have no fill entry). */
 export type PatchesOf = (blockId: string) => string[];
 
-/** A data paint's id (spec 025): `data:` + `y` for a year day + the number + `.slot` past A. */
-export const dataKey = (p: DataPaint) =>
-  `data:${p.year ? 'y' : ''}${p.n}${p.slot ? `.${p.slot}` : ''}`;
+/** A data paint's id (spec 025): `data:` + the number + `.slot` past A. */
+export const dataKey = (p: DataPaint) => `data:${p.n}${p.slot ? `.${p.slot}` : ''}`;
 
 export const fillKey = (f: Fill | undefined) =>
   !f
