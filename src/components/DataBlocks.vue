@@ -167,7 +167,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
-import { takesBlock } from '@/editor/scope';
 import { readingOrder, type DataOrder } from '@/model/data-paint';
 import {
   dataReport,
@@ -183,7 +182,7 @@ import {
 import { useDataTypes } from '@/composables/data-types';
 import type { Block, DataKind } from '@/model/schema/block';
 import { generateFor } from '@/model/layout/slots';
-import { blockSpaceNumbers } from '@/render/data-overlay';
+import { blockSpaceNumbers, isWholeBlockSpace } from '@/render/data-overlay';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useQuasar } from 'quasar';
 import type { DataPlan } from '@/model/schema/data-quilt';
@@ -309,12 +308,10 @@ const spots = computed(() => {
   const g = generated.value;
   const [x0, y0, x1, y1] = g.bounds;
   return new Map(
-    g.slots
-      .filter((s) => s.kind === 'block' && takesBlock(s))
-      .map((s): [string, [number, number]] => {
-        const [a, b, c, d, e, f] = s.transform;
-        return [s.id, [((a + c) / 2 + e - x0) / (x1 - x0), ((b + d) / 2 + f - y0) / (y1 - y0)]];
-      }),
+    g.slots.filter(isWholeBlockSpace).map((s): [string, [number, number]] => {
+      const [a, b, c, d, e, f] = s.transform;
+      return [s.id, [((a + c) / 2 + e - x0) / (x1 - x0), ((b + d) / 2 + f - y0) / (y1 - y0)]];
+    }),
   );
 });
 /** Each block space's number, left to right and top to bottom (as on the quilt). */

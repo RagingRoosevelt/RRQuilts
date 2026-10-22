@@ -4,8 +4,10 @@ import { takesBlock } from '@/editor/scope';
 import { resolveColoring } from '@/model/coloring';
 import { pieceSpots, readingOrder } from '@/model/data-paint';
 import { numberLabel, numberOf } from '@/model/data-quilt';
-import type { Pt } from '@/model/geometry/path';
-import type { Generated } from '@/model/layout/slots';
+import type { Generated, Slot } from '@/model/layout/slots';
+import { SHAPE_OUTLINE, type BlockShape } from '@/model/blocks/shape';
+import { pathPolygon, type Pt } from '@/model/geometry/path';
+import { area } from '@/model/print/polygon';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
 import { placementMatrix } from './placement';
@@ -76,16 +78,25 @@ export function drawDataOverlay(
   ctx.restore();
 }
 
-/** Block spaces numbered left to right, top to bottom (1-based): the Blocks tab's "Block N". */
+/** A block space a data block can go in: whole, not cut down at the quilt's edge (its outline as
+ *  big as its shape). */
+export function isWholeBlockSpace(s: Slot): boolean {
+  if (s.kind !== 'block' || !takesBlock(s)) return false;
+  const [a, b, c, d] = s.transform;
+  const unit = SHAPE_OUTLINE[s.shape as BlockShape];
+  const whole = Math.abs(a * d - b * c) * (unit ? area(unit) : 1);
+  return area(pathPolygon(s.outline, [1, 1])) >= whole * 0.99;
+}
+
+/** Whole block spaces numbered left to right, top to bottom (1-based): the Blocks tab's "Block N",
+ *  and where a data quilt's numbers can go. */
 export function blockSpaceNumbers(generated: Generated): Map<string, number> {
   const [x0, y0, x1, y1] = generated.bounds;
   const spots = new Map(
-    generated.slots
-      .filter((s) => s.kind === 'block' && takesBlock(s))
-      .map((s): [string, Pt] => {
-        const [a, b, c, d, e, f] = s.transform;
-        return [s.id, [((a + c) / 2 + e - x0) / (x1 - x0), ((b + d) / 2 + f - y0) / (y1 - y0)]];
-      }),
+    generated.slots.filter(isWholeBlockSpace).map((s): [string, Pt] => {
+      const [a, b, c, d, e, f] = s.transform;
+      return [s.id, [((a + c) / 2 + e - x0) / (x1 - x0), ((b + d) / 2 + f - y0) / (y1 - y0)]];
+    }),
   );
   return new Map(readingOrder(spots, [...spots.keys()], 'rows').map((id, i) => [id, i + 1]));
 }

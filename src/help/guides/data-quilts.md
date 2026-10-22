@@ -28,6 +28,10 @@ The plan says how days are grouped. Change it under **Data quilt** in the quilt'
 | Weeks  | 7 days counted from the period start, 52 numbers, then one number for each day left over |
 | Days   | one day, a number for every day of the period                                            |
 
+With **Data quilt** on, the wizard's size step and the quilt's **Layout** tab say how many whole
+block spaces the layout has and how many the plan needs. Blocks cut down at the quilt's edge don't
+count, and they can't take a number.
+
 The period is one year from **Period starts**. A Months period starts on the 1st of a month. A
 period that holds 29 February has 366 days, so a Weeks plan then has two days left over.
 

@@ -215,6 +215,13 @@
           </PaletteTray>
         </template>
         <template v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'">
+          <DataSpaceCount
+            v-if="quilt.data?.on"
+            :generated="generated"
+            :plan="quilt.data.plan"
+            :need="numberCount(quilt.data)"
+            class="q-mb-md"
+          />
           <LayoutInspector
             :key="quilt.id"
             :layout="quilt.layout"
@@ -258,6 +265,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BordersInspector from '@/components/BordersInspector.vue';
 import DataBlocks from '@/components/DataBlocks.vue';
+import DataSpaceCount from '@/components/DataSpaceCount.vue';
 import { useDataTypes } from '@/composables/data-types';
 import DataInspector from '@/components/DataInspector.vue';
 import { castDraft } from 'immer';
@@ -266,12 +274,13 @@ import {
   dayDate,
   dayOf,
   nextFree,
+  numberCount,
   numberInfo,
   numberOf,
   placeNumber,
   takeBack,
 } from '@/model/data-quilt';
-import { quiltDataMarks, quiltDayPaths } from '@/render/data-overlay';
+import { blockSpaceNumbers, quiltDataMarks, quiltDayPaths } from '@/render/data-overlay';
 import { PLAIN_PATCH } from '@/model/plain';
 import TargetSection from '@/components/TargetSection.vue';
 import DetailsPanel from '@/components/DetailsPanel.vue';
@@ -408,8 +417,7 @@ const highlight = computed(() => {
   const id = hover.value?.slotId ?? null;
   const dataTool = quilt.value?.data?.on && (editor.tool === 'number' || editor.tool === 'entry');
   if (!dataTool) return id;
-  const s = id ? generated.value.slots.find((x) => x.id === id) : undefined;
-  return s?.kind === 'block' && takesBlock(s) ? id : editor.dataSel;
+  return id && blockSpaceNumbers(generated.value).has(id) ? id : editor.dataSel;
 });
 /** A data quilt's numbers on their block spaces, joined in order (spec 025). */
 const dataMarks = computed(() =>
@@ -449,8 +457,8 @@ function onDataTap(hit: Hit) {
     return;
   }
   if (project.readOnly) return;
-  const s = generated.value.slots.find((x) => x.id === hit.slotId);
-  if (!s || s.kind !== 'block' || !takesBlock(s)) return say('Numbers go on block spaces.');
+  if (!blockSpaceNumbers(generated.value).has(hit.slotId))
+    return say('Numbers go on whole block spaces, not ones cut down at the edge.');
   const had = numberOf(plan, hit.slotId);
   let next: typeof plan;
   const kindOf = (k: number) => numberInfo(plan, k)?.kind ?? 'month';

@@ -84,6 +84,13 @@
           </q-step>
           <q-step name="detail" :title="detailTitle" :icon="isStrip ? 'view_stream' : 'straighten'">
             <div class="text-subtitle1 q-mb-md">{{ styleLabel }}</div>
+            <DataSpaceCount
+              v-if="dataOn"
+              :generated="generated"
+              :plan="dataPlan as DataPlan['plan']"
+              :need="dataNeed"
+              class="q-mb-md"
+            />
             <template v-if="isStrip">
               <q-btn-toggle
                 v-model="stripLayout.style"
@@ -366,6 +373,8 @@
 </template>
 
 <script setup lang="ts">
+import DataSpaceCount from '@/components/DataSpaceCount.vue';
+import { newDataPlan, numberCount } from '@/model/data-quilt';
 import type { DataPlan } from '@/model/schema/data-quilt';
 import SlidePicker from '@/components/SlidePicker.vue';
 
@@ -413,6 +422,13 @@ const open = ref(false);
 const step = ref('blocks');
 const dataOn = ref(false);
 const dataPlan = ref<string>('months');
+/** Numbers the data plan needs (next year's period, as the quilt gets). */
+const dataNeed = computed(() =>
+  numberCount({
+    ...newDataPlan(props.units, new Date().getFullYear() + 1),
+    plan: dataPlan.value as DataPlan['plan'],
+  }),
+);
 // Layout and target size first; the chosen layout's own settings next (spec 006 FR-001a).
 const steps = ['blocks', 'detail', 'sashing', 'borders'];
 const next = computed(() => steps[steps.indexOf(step.value) + 1]);

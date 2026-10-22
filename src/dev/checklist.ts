@@ -345,6 +345,13 @@ export const CHECKS: Check[] = [
     last: '"let\'s use the same hr-labeled seperator that we use for other sections for the data tab of the design workbench"',
     to: '/',
   },
+  {
+    id: 'TC-139',
+    group: G.small,
+    text: 'Room for data blocks: in the new-quilt wizard with Data quilt on, the size step says how many whole block spaces there are and how many the plan needs (a 5 × 5 Straight Set: 25, 12 needed for the months, 13 left over; short shows a warning). The quilt’s Layout tab says the same and updates as columns and rows change. A layout with blocks cut down at the edge (Shaped Blocks, Half Drop strips) leaves those out of the count, out of Block N on the quilt, and they can’t take a number.',
+    last: "\"when i've picked data quilt mode, the quilt design wizard's size tab and the quilt workbench's layout tab should show the number of blocks that are available to place data blocks. the cut-down edge blocks don't count towards the data block count\"",
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
