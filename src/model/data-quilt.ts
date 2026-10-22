@@ -285,6 +285,19 @@ export function applyPicks(q: Draft<Quilt>, blocks: readonly Block[], newId: () 
       q.layers.some((l) => l.items.some((i) => i.coloring === c));
     if (old && !used(old)) delete q.colorings[old];
   });
+  // A space whose number was taken back (one by one, Clear, a shorter list) gives its pool block up.
+  // ponytail: any unnumbered space holding a pool block is emptied, even one set before the
+  // quilt became a data quilt; Set is off in data quilts, so only numbering puts them there.
+  const placed = new Set(plan.order);
+  const pooled = new Set(dataBlocks(q));
+  for (const [id, s] of Object.entries(slots)) {
+    if (placed.has(id) || !pooled.has(s.block)) continue;
+    delete slots[id];
+    const inUse =
+      Object.values(slots).some((x) => x.coloring === s.coloring) ||
+      q.layers.some((l) => l.items.some((i) => i.coloring === s.coloring));
+    if (!inUse) delete q.colorings[s.coloring];
+  }
 }
 
 // --- Setting a plan up (spec 025 User Stories 2 and 3) ---

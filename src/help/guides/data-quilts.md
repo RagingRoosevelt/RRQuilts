@@ -66,7 +66,8 @@ number, which then moves on to the next number not yet placed. Tap a number in t
 there. Numbers already placed are skipped. Tap a placed space to take its number back.
 
 **Fill empty numbers** puts every block space without a number on the empty numbers, by **Rows**,
-**Columns**, or **Snake**. **Clear** takes every number back.
+**Columns**, or **Snake**. **Clear** takes every number back. A space whose number is taken back
+is emptied of its pool block.
 
 Beside each label is a card for the block space holding it: an uncolored picture of its block and
 the space's number, **Block 1**, **Block 2**, and so on, counted left to right and top to bottom.

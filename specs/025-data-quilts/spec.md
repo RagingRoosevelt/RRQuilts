@@ -242,7 +242,8 @@ strips for the four pools. The quilt shows 365 days in the simulation's colors.
 
 - Leap years: a period holding 29 February has 366 days; Months draws February from the 29-day pool;
   Weeks gets a second left-over number and Days a 366th.
-- A space holds one number: placing another number on it frees its old one. A day number used twice
+- A space holds one number: placing another number on it frees its old one. A space left without a
+  number (taken back, Clear, a shorter list) gives up its pool block and is empty again. A day number used twice
   in a block: both pieces show that day.
 - Changing the plan or period resizes the list (numbers past the end dropped, new ones empty).
 - A slot removed: its paints become placeholders until repainted or the slot is added back.

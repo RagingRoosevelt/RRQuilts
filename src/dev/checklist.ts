@@ -310,6 +310,13 @@ export const CHECKS: Check[] = [
     last: '"when dragging, the drop zone should be visulized by a glow from the bottom border of the block above and the top border of the block below where the block being dragged will land"',
     to: '/',
   },
+  {
+    id: 'TC-126',
+    group: G.small,
+    text: 'Taking numbers back empties their spaces: with pools filled and every month placed, Clear removes all the month blocks from the quilt (spaces empty again, labels gone); tapping one placed space with Place numbers empties just that space; switching Plan from Weeks to Months empties the spaces past Dec. Undo brings them back.',
+    last: '"pressing clear clears the mapping to months, but doesn\'t seem to clear the blocks from the quilt layout"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

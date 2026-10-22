@@ -191,6 +191,13 @@ describe('block pools', () => {
     // Stable until shuffled.
     const again = produce(next, (d) => applyPicks(d, blocks, () => 'zz'));
     expect(again).toBe(next);
+    // A number taken back (or Clear) empties its space.
+    const cleared = produce(next, (d) => {
+      d.data!.order = [null, null, null, null];
+      applyPicks(d, blocks, () => 'zz');
+    });
+    for (const id of ids) expect(cleared.layers[0].slots[id]).toBeUndefined();
+    expect(cleared.colorings[next.layers[0].slots[slotId]!.coloring]).toBeUndefined();
   });
 });
 
