@@ -355,8 +355,9 @@ export function convertLayout(layout: Layout, style: LayoutStyle, units: 'in' | 
   if (layout.style === 'on-point')
     return {
       style: 'straight-set',
-      cols: layout.cols,
-      rows: layout.rows,
+      // A half row has no meaning in a straight set: it becomes a whole one.
+      cols: Math.ceil(layout.cols),
+      rows: Math.ceil(layout.rows),
       block: [layout.block, layout.block],
       sash: [layout.sash, layout.sash],
       sashBorder: false,

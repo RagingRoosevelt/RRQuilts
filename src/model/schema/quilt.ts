@@ -4,6 +4,8 @@ import { DataPlan } from './data-quilt';
 import { Id, ItemId, Size, Vec2, itemBase } from './shared';
 
 const count = Type.Integer({ minimum: 1, maximum: 100 });
+/** On-Point and Variable/Diamond Point counts: whole or half (a half row is a short row). */
+const halfCount = Type.Number({ minimum: 1, maximum: 100, multipleOf: 0.5 });
 const length = Type.Number({ minimum: 0 });
 
 /** Horizontal layout: rows × cols of blocks, optional sashing and sash border. */
@@ -33,8 +35,8 @@ export const EdgeFinish = Type.Object({
  *  between them; `block` is the finished side. */
 export const OnPointLayout = Type.Object({
   style: Type.Literal('on-point'),
-  cols: count,
-  rows: count,
+  cols: halfCount,
+  rows: halfCount,
   block: Type.Number({ exclusiveMinimum: 0 }),
   sash: length,
   corner: Type.Union([Type.Literal('triangle'), Type.Literal('seam')]),
@@ -51,8 +53,8 @@ export const OtherLayout = Type.Object({
  *  (height = width·√3) that take diamond blocks. */
 export const VariablePointLayout = Type.Object({
   style: Type.Union([Type.Literal('variable-point'), Type.Literal('diamond-point')]),
-  cols: count,
-  rows: count,
+  cols: halfCount,
+  rows: halfCount,
   width: Type.Number({ exclusiveMinimum: 0 }),
   height: Type.Number({ exclusiveMinimum: 0 }),
   sash: length,

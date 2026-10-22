@@ -176,6 +176,7 @@
                       dense
                       outlined
                       type="number"
+                      :step="halves ? 0.5 : 1"
                       min="1"
                       max="100"
                       :label="acrossLabel"
@@ -186,6 +187,7 @@
                       dense
                       outlined
                       type="number"
+                      :step="halves ? 0.5 : 1"
                       min="1"
                       max="100"
                       :label="downLabel"
@@ -514,6 +516,11 @@ function loadTile() {
 }
 watch(style, loadTile);
 const clampCount = (n: number) => Math.min(100, Math.max(1, Math.round(n || 1)));
+/** On-Point and Variable/Diamond Point counts go in halves (a half row is a short row). */
+const halves = computed(() =>
+  ['on-point', 'variable-point', 'diamond-point'].includes(style.value),
+);
+const halfCount = (n: number) => Math.min(100, Math.max(1, Math.round((n || 1) * 2) / 2));
 /** Styles with a turnable grid (spec 026 flow angle). */
 const flows = computed(
   () =>
@@ -530,8 +537,8 @@ const layout = computed<Layout>(() =>
     : style.value === 'diamond-point'
       ? {
           ...(layoutDefaults('diamond-point', k.value) as VariablePointLayout),
-          cols: clampCount(cols.value),
-          rows: clampCount(rows.value),
+          cols: halfCount(cols.value),
+          rows: halfCount(rows.value),
           width: tile.width,
           height: tile.width * Math.sqrt(3),
           sash: sash.value,
@@ -549,8 +556,8 @@ const layout = computed<Layout>(() =>
         : style.value === 'variable-point'
           ? {
               ...(layoutDefaults('variable-point', k.value) as VariablePointLayout),
-              cols: clampCount(cols.value),
-              rows: clampCount(rows.value),
+              cols: halfCount(cols.value),
+              rows: halfCount(rows.value),
               width: tile.width,
               height: tile.height,
               sash: sash.value,
@@ -591,8 +598,8 @@ const layout = computed<Layout>(() =>
                 : style.value === 'on-point'
                   ? {
                       ...onPointDefaults(props.units === 'cm' ? 2.5 : 1),
-                      cols: clampCount(cols.value),
-                      rows: clampCount(rows.value),
+                      cols: halfCount(cols.value),
+                      rows: halfCount(rows.value),
                       block: blockSize.value,
                       sash: sash.value,
                     }

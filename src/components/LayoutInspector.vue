@@ -78,11 +78,12 @@
               dense
               outlined
               type="number"
+              step="0.5"
               label="Blocks across"
               min="1"
               max="100"
               :readonly="readonly"
-              @update:model-value="(v) => setCount('cols', v)"
+              @update:model-value="(v) => setCount('cols', v, true)"
             />
             <q-input
               class="col-6"
@@ -90,11 +91,12 @@
               dense
               outlined
               type="number"
+              step="0.5"
               label="Blocks down"
               min="1"
               max="100"
               :readonly="readonly"
-              @update:model-value="(v) => setCount('rows', v)"
+              @update:model-value="(v) => setCount('rows', v, true)"
             />
           </div>
         </div>
@@ -592,8 +594,9 @@ const pair = (k: 'block' | 'sash') => {
 const squareBlock = ref(props.layout.style !== 'straight-set' || pair('block'));
 const squareSash = ref(props.layout.style !== 'straight-set' || pair('sash'));
 
-function setCount(key: 'cols' | 'rows', v: string | number | null) {
-  const n = Math.round(Number(v));
+/** `half`: On-Point and Variable/Diamond Point take halves (a half row is a short row). */
+function setCount(key: 'cols' | 'rows', v: string | number | null, half = false) {
+  const n = half ? Math.round(Number(v) * 2) / 2 : Math.round(Number(v));
   if (n >= 1 && n <= 100) emit('change', { ...props.layout, [key]: n }, key);
 }
 

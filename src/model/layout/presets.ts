@@ -149,13 +149,20 @@ export function onPoint(
   // A block at an edge position is trimmed there: the edge on that side moves in to the block
   // points (no float), and the block gets its sashing.
   const held = finish === 'exact' || finish === 'float' ? edgeBlocks : new Map<string, string>();
+  // Counts may end in a half (spec 016): a half row is the short row after the last long one.
+  // Every position is placed by its center, in blocks from main(1,1): main (r, c) at (c−1, r−1),
+  // the block between (`m:`) at (c−½, r−½). Whole blocks lie within (0…C−1, 0…R−1); the ring half
+  // a block outside is setting pieces, trimmed blocks, or nothing.
+  const [Ex, Ey] = [C - 1, R - 1];
+  const centerOf = ({ main, r, c }: { main: boolean; r: number; c: number }): Pt =>
+    main ? [c - 1, r - 1] : [c - 0.5, r - 0.5];
+  const sidesOf = ([x, y]: Pt) => [y < 0, x > Ex, y > Ey, x < 0]; // top, right, bottom, left
   const sides = [false, false, false, false]; // top, right, bottom, left hold blocks
   for (const at of held.keys()) {
-    const [, r, c] = /r(\d+)c(\d+)/.exec(at)!.map(Number) as [number, number, number];
-    if (r === 0) sides[0] = true;
-    if (c === l.cols) sides[1] = true;
-    if (r === l.rows) sides[2] = true;
-    if (c === 0) sides[3] = true;
+    const [, m, r, c] = /^(m:)?r(\d+)c(\d+)/.exec(at)!;
+    sidesOf(centerOf({ main: !m, r: Number(r), c: Number(c) })).forEach((t, i) => {
+      if (t) sides[i] = true;
+    });
   }
   const fs = sides.map((t, i) => (t ? 0 : i % 2 ? f : f / stretch)) as [
     number,
@@ -174,8 +181,9 @@ export function onPoint(
 
   // Lattice (x right-down, y left-down on screen, cell origin = top point) → quilt.
   const L = (x: number, y: number): Pt => [k * (x - y), k * (x + y)];
-  // main(1,1) (p = 1, q = R) has its center at (h + fL, h + fT).
-  const O: Pt = [h + fL - D / 2 - (D * R) / 2, h + fT - k * s - D / 2 + (D * R) / 2];
+  // main(1,1) (p = 1, q = Rn) has its center at (h + fL, h + fT); lattice indexes are whole.
+  const Rn = Math.ceil(R);
+  const O: Pt = [h + fL - D / 2 - (D * Rn) / 2, h + fT - k * s - D / 2 + (D * Rn) / 2];
   const cellTransform = (lx: number, ly: number, w: number, hh: number): M => {
     const [ox, oy] = L(lx, ly);
     return [k * w, k * w, -k * hh, k * hh, O[0] + ox, O[1] + oy];
@@ -183,7 +191,7 @@ export function onPoint(
 
   type Pos = { main: boolean; r: number; c: number };
   const pos = (p: number, q: number): Pos => {
-    const s1 = p + q - R;
+    const s1 = p + q - Rn;
     if (s1 % 2 !== 0) {
       const c = (s1 + 1) / 2;
       return { main: true, r: p + 1 - c, c };
@@ -191,16 +199,11 @@ export function onPoint(
     const c = s1 / 2;
     return { main: false, r: p - c, c };
   };
-  const status = ({ main, r, c }: Pos): 'core' | 'ring' | 'out' =>
-    main
-      ? r >= 1 && r <= R && c >= 1 && c <= C
-        ? 'core'
-        : 'out'
-      : r >= 1 && r < R && c >= 1 && c < C
-        ? 'core'
-        : r >= 0 && r <= R && c >= 0 && c <= C
-          ? 'ring'
-          : 'out';
+  const status = (x: Pos): 'core' | 'ring' | 'out' => {
+    const [cx, cy] = centerOf(x);
+    if (cx >= 0 && cx <= Ex && cy >= 0 && cy <= Ey) return 'core';
+    return cx >= -0.5 && cx <= Ex + 0.5 && cy >= -0.5 && cy <= Ey + 0.5 ? 'ring' : 'out';
+  };
   const code = ({ main, r, c }: Pos) => `${main ? '' : 'm:'}r${r}c${c}`;
   const blockish = (p: number, q: number) => {
     const x = pos(p, q);
@@ -257,7 +260,7 @@ export function onPoint(
       ),
     );
   }
-  const span = R + C + 1;
+  const span = Rn + Math.ceil(C) + 1;
   const slots = tile({
     bands: [{ cell, a: L(P, 0), b: L(0, -P), i: [-1, span], j: [-1, span] }],
     ...(finish === 'none' ? {} : { clip: quilt }),
@@ -270,7 +273,7 @@ export function onPoint(
       for (let q = -1; q <= span; q++) {
         const x = pos(p, q);
         if (status(x) !== 'ring' || held.has(code(x))) continue;
-        const [top, bottom, left, right] = [x.r === 0, x.r === R, x.c === 0, x.c === C];
+        const [top, right, bottom, left] = sidesOf(centerOf(x));
         const [x0, x1] = [top || left ? -g : 0, bottom || right ? s + g : s];
         const [y0, y1] = [top || right ? -g : 0, bottom || left ? s + g : s];
         const at = (lx: number, ly: number): Pt => {
@@ -314,25 +317,23 @@ export function onPoint(
 
   /** Tips of the outer blocks' sashing frames and the V's between them, clockwise from top-left. */
   function zigzag(): PathCommand[] {
-    const x = (c: number) => h + (c - 1) * D;
-    const y = (r: number) => h + (r - 1) * D;
-    const pts: Pt[] = [];
-    for (let c = 1; c <= C; c++) {
-      pts.push([x(c), 0]);
-      if (c < C) pts.push([x(c) + D / 2, D / 2]);
-    }
-    for (let r = 1; r <= R; r++) {
-      pts.push([W, y(r)]);
-      if (r < R) pts.push([W - D / 2, y(r) + D / 2]);
-    }
-    for (let c = C; c >= 1; c--) {
-      pts.push([x(c), H]);
-      if (c > 1) pts.push([x(c) - D / 2, H - D / 2]);
-    }
-    for (let r = R; r >= 1; r--) {
-      pts.push([0, y(r)]);
-      if (r > 1) pts.push([D / 2, y(r) - D / 2]);
-    }
+    // In half-block steps along each side: the outermost whole block's tip at each step (a long
+    // row's tips and the V's between them). Counts ending in a half end on a short row.
+    // ponytail: with sashing and a half count, a corner gets a small notch; no quilt needs it yet.
+    const steps = (n: number) => Array.from({ length: Math.round(2 * n) + 1 }, (_, t) => t / 2);
+    const whole = (v: number) => Number.isInteger(v);
+    const low = (v: number) => (whole(v) ? 0 : 0.5);
+    const high = (v: number, e: number) => (whole(v) ? Math.floor(e) : Math.floor(e - 0.5) + 0.5);
+    const pts: Pt[] = [
+      ...steps(Ex).map((x): Pt => [h + x * D, low(x) * D]),
+      ...steps(Ey).map((y): Pt => [2 * h + high(y, Ex) * D, h + y * D]),
+      ...steps(Ex)
+        .reverse()
+        .map((x): Pt => [h + x * D, 2 * h + high(x, Ey) * D]),
+      ...steps(Ey)
+        .reverse()
+        .map((y): Pt => [low(y) * D, h + y * D]),
+    ];
     return toPath(pts);
   }
 }

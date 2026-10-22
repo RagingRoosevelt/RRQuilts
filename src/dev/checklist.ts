@@ -380,6 +380,13 @@ export const CHECKS: Check[] = [
     last: '"let\'s drop the "move earlier" and "move later" for quilts. we should be able to drag/drop them to rearrange. use the highlighting on the right side of the quilt card to the left and the left side of the quilt card to the right to show where the quilt will land"',
     to: '/',
   },
+  {
+    id: 'TC-144',
+    group: G.small,
+    text: 'Half rows: an On-Point quilt’s Layout tab › Blocks across and Blocks down step by ½. 5 × 5½ ends at the bottom on a short row (4 blocks) with setting triangles below; 6 adds the next long row. 5½ across adds a short column at the right. Same in the new-quilt wizard, and for Diamond Point and Variable Point. With Whole blocks to the edge (no setting pieces), the zigzag edge ends on the short row. Switching a 5½ On-Point to Straight Set gives 6. Tests › Layout gallery G025 to G027.',
+    last: '"can we add support for on-point and diamond-point quilts to be able to add half-row increments?" / "a half increment would add just the short row. and then another half increment would add the next corresponding long row. same idea for diamond point"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

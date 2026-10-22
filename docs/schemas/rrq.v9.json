@@ -7361,14 +7361,16 @@
                         "const": "on-point"
                       },
                       "cols": {
-                        "type": "integer",
+                        "type": "number",
                         "minimum": 1,
-                        "maximum": 100
+                        "maximum": 100,
+                        "multipleOf": 0.5
                       },
                       "rows": {
-                        "type": "integer",
+                        "type": "number",
                         "minimum": 1,
-                        "maximum": 100
+                        "maximum": 100,
+                        "multipleOf": 0.5
                       },
                       "block": {
                         "type": "number",
@@ -7529,14 +7531,16 @@
                         ]
                       },
                       "cols": {
-                        "type": "integer",
+                        "type": "number",
                         "minimum": 1,
-                        "maximum": 100
+                        "maximum": 100,
+                        "multipleOf": 0.5
                       },
                       "rows": {
-                        "type": "integer",
+                        "type": "number",
                         "minimum": 1,
-                        "maximum": 100
+                        "maximum": 100,
+                        "multipleOf": 0.5
                       },
                       "width": {
                         "type": "number",

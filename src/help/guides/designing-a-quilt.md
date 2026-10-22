@@ -37,7 +37,9 @@ Choose **On-Point** as the **Style** to turn the blocks 45° so they sit as diam
 blocks fills the spaces between them, and setting pieces finish the edge.
 
 1. **Blocks across** and **Blocks down** count the main blocks. Between them the layout adds a
-   second set of blocks, so a 3 by 3 layout also holds 2 by 2 in between.
+   second set of blocks, so a 3 by 3 layout also holds 2 by 2 in between. The counts go in halves:
+   3½ down ends on the short row after the third long row, one block fewer across, and 4 adds the
+   next long row. Diamond Point and Variable Point count the same way.
 2. **Finished block size** is the finished side of a block. The width of a block on point, corner to
    corner, is shown under it. It is the side times about 1.41.
 3. **Sashing width** frames every block, with cornerstones where the strips cross. Use 0 for none.

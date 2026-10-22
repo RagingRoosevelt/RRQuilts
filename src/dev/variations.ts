@@ -30,6 +30,33 @@ const strip = (id: string, style: string, width: number, along = 4, across = 1) 
 
 export const VARIATIONS: Variation[] = [
   {
+    id: 'G027',
+    title: 'On-Point, 3½ × 4½ blocks',
+    added: 'On-Point half rows (0.7.0)',
+    expect:
+      'An on-point grid ending on a short row at the bottom and a short column at the right: the last row and column of whole blocks have one block fewer than the long ones, and setting triangles run along all four sides. The quilt is half a block diagonal wider and taller than 3 × 4.',
+    style: 'on-point',
+    layout: { cols: 3.5, rows: 4.5 },
+  },
+  {
+    id: 'G026',
+    title: 'On-Point half rows, whole blocks to the edge',
+    added: 'On-Point half rows (0.7.0)',
+    expect:
+      'An on-point grid of 3 × 2½ with no setting triangles: the edge zigzags along the outer blocks, ending at the bottom on a short row of 2 blocks.',
+    style: 'on-point',
+    layout: { cols: 3, rows: 2.5, edge: { finish: 'none', float: 0 } },
+  },
+  {
+    id: 'G025',
+    title: 'Diamond Point, 4 × 3½',
+    added: 'On-Point half rows (0.7.0)',
+    expect:
+      '60° diamond blocks on point ending on a short row at the bottom (3 diamonds), setting triangles around it.',
+    style: 'diamond-point',
+    layout: { cols: 4, rows: 3.5 },
+  },
+  {
     id: 'G024',
     title: 'Hexagon blocks, each different',
     added: 'Spec 026 shaped blocks',
