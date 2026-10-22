@@ -220,6 +220,20 @@ export const dataBlocks = (q: Quilt): string[] => [...new Set(Object.values(q.da
 /** Days a data block's kind holds (a month block's own drawing: 31). */
 export const KIND_DAYS: Record<DataKind, number> = { day: 1, week: 7, month: 31 };
 
+/** The block lists' Data block filter (spec 025): data blocks by kind, or the others. */
+export const DATA_FILTER = {
+  key: 'data' as const,
+  label: 'Data block',
+  options: [
+    { value: 'none', label: 'Not a data block' },
+    { value: 'day', label: 'Day' },
+    { value: 'week', label: 'Week' },
+    { value: 'month', label: 'Month' },
+  ],
+};
+export const dataKindMatches = (b: Block, picked: readonly string[]) =>
+  !picked.length || picked.includes(b.data?.kind ?? 'none');
+
 /** A variant's block id: the data block's id and its days. */
 export const variantId = (id: string, days: number) => `${id}-v${days}`;
 

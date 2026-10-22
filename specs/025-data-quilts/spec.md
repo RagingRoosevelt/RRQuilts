@@ -5,7 +5,11 @@
 **Created**: 2026-10-18 · **Reworked**: 2026-10-21 (data paints model; then the numbered list,
 block pools and the Design tab; then data block types with variants)
 
-**Status**: Third rework (data block types) in progress on `0.7.0`, 2026-10-21. Before it: built on `0.7.0` (2026-10-21) except User Story 7 (quilt-as-you-go printing, open).
+**Status**: Third rework (data block types) built on `0.7.0`, 2026-10-21: data blocks with kind and
+month variants (block Details, new-block window, variant picker, Day numerals palette), quilt type
+picker, Data quilt switch in the quilt Details tab, data filters, library format 6 and block file
+format 4 (library template on its `rrqlib-6` branch; library repos upgrade at release). Before it:
+built on `0.7.0` (2026-10-21) except User Story 7 (quilt-as-you-go printing, open).
 Built: data paints and numbering in the block editor (Color › Data places), the Data quilt switch
 (Layout) and wizard option, the Design tab of a data quilt (Blocks: the numbered list with one
 brush, Fill empty numbers, reordering, data block types, warnings; Data: period,

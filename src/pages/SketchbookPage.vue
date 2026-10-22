@@ -50,6 +50,19 @@
     </div>
     <q-separator class="q-mb-md" />
 
+    <!-- Data quilts (spec 025) or the others. -->
+    <SlidePicker
+      v-if="tab === 'quilts'"
+      v-model="quiltKind"
+      :options="[
+        { value: 'all', label: 'All quilts' },
+        { value: 'data', label: 'Data quilts' },
+        { value: 'other', label: 'Other quilts' },
+      ]"
+      label="Show"
+      class="q-mb-md"
+      style="max-width: 420px"
+    />
     <div v-if="tab === 'quilts'" class="cards">
       <div v-if="!project.readOnly" class="stack">
         <button class="card add" @click="wizard?.show()">
@@ -63,6 +76,7 @@
       </div>
       <div
         v-for="(q, i) in quilts"
+        v-show="quiltKind === 'all' || (quiltKind === 'data') === !!q.data?.on"
         :key="q.id"
         class="card"
         :draggable="!project.readOnly"
@@ -182,6 +196,13 @@
               v-model="bf[f.key]"
               :options="f.options"
               :label="f.label"
+            />
+          </FilterCard>
+          <FilterCard label="Data">
+            <FilterSelect
+              v-model="bf.data"
+              :options="DATA_FILTER.options"
+              :label="DATA_FILTER.label"
             />
           </FilterCard>
           <q-select
@@ -1450,6 +1471,7 @@ import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
 import BlockFilter from '@/components/BlockFilter.vue';
 import FilterSelect from '@/components/FilterSelect.vue';
+import SlidePicker from '@/components/SlidePicker.vue';
 import FilterCard from '@/components/FilterCard.vue';
 import { blockFits, type ShapeFilter } from '@/render/layout-samples';
 import { roundLen } from '@/model/units';
@@ -1466,6 +1488,7 @@ import TagsDialog from '@/components/TagsDialog.vue';
 import KeepWhichDialog, { type KeepChoice, type KeepItem } from '@/components/KeepWhichDialog.vue';
 import FavoriteBadge from '@/components/FavoriteBadge.vue';
 import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
+import { DATA_FILTER, dataKindMatches } from '@/model/data-quilt';
 import { techniqueOptions } from '@/model/schema/shared';
 import {
   cleanTags,
@@ -1568,6 +1591,7 @@ const dragFrom = ref<number | null>(null);
 const wizard = ref<InstanceType<typeof QuiltWizard>>();
 
 const quilts = computed(() => project.doc!.project.quilts);
+const quiltKind = ref<'all' | 'data' | 'other'>('all');
 const split = computed(() => {
   const own = project.doc!.project.blocks.filter((b) => !b.notecard.tags?.includes('system'));
   // My-library items this project has a linked copy of show once, as that copy in My blocks.
@@ -1597,6 +1621,7 @@ const bf = reactive({
   techniques: [] as string[],
   seams: [] as string[],
   difficulty: [] as string[],
+  data: [] as string[],
   layout: null as string | null,
   shape: null as ShapeFilter | null,
 });
@@ -1621,7 +1646,7 @@ const blockFiltering = computed(
     !!bf.search ||
     !!bf.layout ||
     !!bf.shape ||
-    [bf.cats, bf.tags, bf.techniques, bf.seams, bf.difficulty].some((f) => f.length),
+    [bf.cats, bf.tags, bf.techniques, bf.seams, bf.difficulty, bf.data].some((f) => f.length),
 );
 const anyOf = (picked: string[], have: readonly string[]) =>
   !picked.length || picked.some((x) => have.includes(x));
@@ -1698,6 +1723,7 @@ function blockShown(b: Block) {
     anyOf(catFilter.value.ids(bf.cats), [blockCat(b)]) &&
     anyOf(bf.tags, tagsOfBlock(b)) &&
     anyOf(bf.techniques, b.notecard.techniques ?? []) &&
+    dataKindMatches(b, bf.data) &&
     // A library block is in inches; the project's own in the project's units.
     constructionMatches(b, bf, isLibraryItem(b) ? 'in' : (project.doc?.units ?? 'in')) &&
     notecardMatches(b.notecard, bf.search ?? '', tagsOfBlock(b))

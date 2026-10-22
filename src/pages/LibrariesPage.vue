@@ -359,6 +359,13 @@
             :label="f.label"
           />
         </FilterCard>
+        <FilterCard v-if="settings.settings.libraryType === 'block'" label="Data">
+          <FilterSelect
+            v-model="filters.data"
+            :options="DATA_FILTER.options"
+            :label="DATA_FILTER.label"
+          />
+        </FilterCard>
         <q-select
           v-if="settings.settings.libraryType === 'block'"
           v-model="settings.settings.libraryGroupBy"
@@ -1372,6 +1379,7 @@ import DialogClose from '@/components/DialogClose.vue';
 import TagsDialog from '@/components/TagsDialog.vue';
 import FavoriteBadge from '@/components/FavoriteBadge.vue';
 import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
+import { DATA_FILTER, dataKindMatches } from '@/model/data-quilt';
 import { TECHNIQUES, techniqueOptions } from '@/model/schema/shared';
 import { FAVORITE, sortTags, tagLabel, tagsFor, visibleTags, type TagTarget } from '@/model/tags';
 import ColoringCount from '@/components/ColoringCount.vue';
@@ -1946,6 +1954,7 @@ const filters = reactive({
   techniques: [] as string[],
   seams: [] as string[],
   difficulty: [] as string[],
+  data: [] as string[],
 });
 /** What's typed in each dropdown to narrow its options. */
 const filtering = computed(
@@ -1955,9 +1964,14 @@ const filtering = computed(
     !!hiddenLibs.value.length ||
     !!fitLayout.value ||
     !!fitShape.value ||
-    [filters.cats, filters.tags, filters.techniques, filters.seams, filters.difficulty].some(
-      (f) => f.length,
-    ) ||
+    [
+      filters.cats,
+      filters.tags,
+      filters.techniques,
+      filters.seams,
+      filters.difficulty,
+      filters.data,
+    ].some((f) => f.length) ||
     (settings.settings.libraryType !== 'block' && colorFilterOn(colorF)),
 );
 /** Every library shown; My library always, as an empty one until something is saved there. */
@@ -2050,9 +2064,10 @@ const matches = (i: LibraryItem) =>
   anyOf(filters.tags, tagsOfItem(i)) &&
   anyOf(filters.techniques, i.data.notecard.techniques ?? []) &&
   (i.type !== 'block'
-    ? !filters.seams.length && !filters.difficulty.length
+    ? !filters.seams.length && !filters.difficulty.length && !filters.data.length
     : blockFits(i.data.shape, fitLayout.value, fitShape.value) &&
-      constructionMatches(i.data, filters));
+      constructionMatches(i.data, filters) &&
+      dataKindMatches(i.data, filters.data));
 const GROUP_BY = [
   { label: 'Nothing', value: 'none' },
   { label: 'Category', value: 'category' },

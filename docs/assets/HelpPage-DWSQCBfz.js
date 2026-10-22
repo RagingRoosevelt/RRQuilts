@@ -1,4 +1,4 @@
-import{o as e,t,y as n}from"./project-DnVnZPcG.js";import{$ as r,G as i,H as a,Mt as o,Nt as s,Q as c,W as l,X as u,b as d,ct as f,f as p,g as m,h,kt as g,m as _,mt as v,p as y,s as b,st as x,x as S,y as C,z as w}from"./create-1s3Rzb7I.js";import{H as T,n as E,t as ee,y as te}from"./_plugin-vue_export-helper-CR9-uGE4.js";import{_ as ne,i as re,n as ie,t as D}from"./QCard-COE3_gKp.js";import{a as ae}from"./render-14VoT2U0.js";import{D as oe,F as se,I as ce,L as le,T as ue,r as de,s as fe,w as pe}from"./units-BryEJsbf.js";import{Et as me,mt as O}from"./index-4QIqAo1l.js";import{n as he,t as ge}from"./QTabs-DdFxHYU8.js";import{t as _e}from"./QPage-GR1f5I2A.js";import{n as ve,r as k,t as A}from"./format-C8k1oA74.js";import{a as j,b as ye,i as be,n as xe,o as Se,r as Ce,t as we,v as Te}from"./yardage-BywRRAWB.js";import{t as Ee}from"./QMarkupTable-vBrm_cnd.js";var De=e=>Te[e].filter(e=>!e.fatQuarter);function Oe(e,t,n){let r=Te[e].find(e=>e.id===n)??De(e)[0];return{units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:r.usable,fabric:r,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}}var ke=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),M=(e,t)=>ke([[0,0],[e,0],[e,t],[0,t]]),Ae=e=>ke([[0,0],[e,0],[0,e]]),je=e=>ke([[0,0],[e,0],[e/2,e/2]]),Me=(e,t)=>ke([[0,0],[e,0],[e-t,t],[t,t]]),N=(e,t)=>ve(e,t.units),P=(e,t)=>e.cut[0]===e.cut[1]?`${N(e.cut[0],t)} square`:`${N(e.cut[0],t)} × ${N(e.cut[1],t)}`,F=(e,t)=>({in:e,cm:t}),Ne={square:{title:`Square`,inputs:[{key:`f`,label:`Finished side`,start:F(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:P(j(M(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:F(6,15)},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:P(j(M(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished leg`,start:F(3,8)}],rows:({f:e},t)=>{let n=j(Ae(e),t.seam,t.step),r=k((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${P(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${N(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${N(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:F(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${P(j(je(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:F(4,10),link:{key:`h`,factor:.5}},{key:`h`,label:`Finished height`,start:F(2,5),link:{key:`w`,factor:2}}],rows:({w:e},t)=>{let n=e/2,r=j(je(e),t.seam,t.step),i=j(Ae(n),t.seam,t.step);return[{label:`Stitch and flip (1)`,value:`${P(j(M(e,n),t.seam,t.step),t)} rectangle + 2 × ${P(j(M(n,n),t.seam,t.step),t)}`},{label:`Four at a time (4)`,value:`1 × ${P(r,t)} + 4 × ${P(i,t)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${P(r,t)}; sky: 2 halves of a ${P(i,t)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit side`,start:F(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:P(j(M(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${P(j(Ae(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block side`,start:F(10,25)},{key:`n`,label:`Blocks across`,start:F(3,3),count:!0},{key:`m`,label:`Blocks down`,start:F(2,2),count:!0}],rows:({f:e,n:t,m:n},r)=>{let i=e*Math.SQRT2,a=Math.max(1,Math.round(t)),o=Math.max(1,Math.round(n)),s=2*(a-1)+2*(o-1);return[{label:`Finished quilt`,value:`${N(a*i,r)} × ${N(o*i,r)}`},{label:`Block diagonal`,value:N(i,r)},{label:`Blocks`,value:String(a*o+(a-1)*(o-1))},{label:`Side setting triangles`,value:`${Math.ceil(s/4)} × ${P(j(je(i),r.seam,r.step),r)}, cut both diagonals (${s} needed)`},{label:`Corner setting triangles`,value:`2 × ${P(j(Ae(e/Math.SQRT2),r.seam,r.step),r)}, cut once (4 corners)`}]}},border:{title:`Borders`,inputs:[{key:`w`,label:`Finished width, no border`,start:F(48,120)},{key:`h`,label:`Finished height, no border`,start:F(60,150)},{key:`b`,label:`Finished border width`,start:F(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${P(j(M(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${P(j(M(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${P(j(Me(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${P(j(Me(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(48,120)},{key:`h`,label:`Quilt height`,start:F(48,120)}],rows:({w:e,h:t},n)=>{let r=Ce(2*(e+t),n.bindingWidth,we[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${N(n.bindingWidth,n)} wide`},{label:`Total length`,value:N(2*(e+t)+we[n.units],n)},{label:`Fabric`,value:A(r.length,n.units)}]}},backing:{title:`Backing`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(60,150)},{key:`h`,label:`Quilt height`,start:F(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:A(xe(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${N(n.overhang,n)} each side`}]},yardage:{title:`Patches from yardage`,widths:`any`,inputs:[{key:`n`,label:`How many patches`,start:F(40,40),count:!0},{key:`w`,label:`Finished length`,start:F(3,8),newLine:!0},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({n:e,w:t,h:n},r)=>{let i=Array.from({length:Math.max(1,Math.round(e))},()=>M(t,n)),a=Se(i,r.seam,r.step,r.usable),o=be(a,r.fabric,r.fabricStep)[0];return[{label:`Strips`,value:`${a[0].strips} × ${N(a[0].stripWidth,r)} (${a[0].perStrip} per strip)`},r.fabric.fatQuarter?{label:`Fat quarters`,value:String(o.fatQuarters)}:{label:`Fabric (${N(r.usable,r)} usable)`,value:A(o.length,r.units)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:F(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:N(e,t)},{label:`Cut (rounded up)`,value:N(k(e,t.step),t)}]}},Pe={class:`text-subtitle2`},Fe={class:`text-caption text-grey-7`},Ie={key:0,class:`full-width`},Le={class:`text-grey-8`},Re={class:`text-weight-medium`},ze=ee(S({__name:`HelpCalc`,props:{name:{}},setup(e){let r=e,i=t(),o=n(),l=p(()=>Ne[r.name]),g=p(()=>i.doc?.units??o.settings.units),S=f(De(g.value)[0].id);u(g,e=>S.value=De(e)[0].id);let T=p(()=>Oe(g.value,ye(o.settings.print),S.value)),E=x(Object.fromEntries((l.value?.inputs??[]).map(e=>[e.key,e.start[g.value]])));function ee(e,t){E[e.key]=t,e.link&&(E[e.link.key]=t*e.link.factor)}let ne=p(()=>{let e=l.value;return!e||e.inputs.some(e=>!(E[e.key]>0))?[]:e.rows(E,T.value)});return(t,n)=>l.value?(w(),_(D,{key:0,bordered:``,class:`help-calc q-my-md shadow-2`},{default:c(()=>[d(ie,{class:`q-pb-sm`},{default:c(()=>[y(`div`,Pe,[d(te,{name:`calculate`,class:`q-mr-xs`}),C(s(l.value.title)+` calculator `,1)]),y(`div`,Fe,` Seam allowance `+s(v(ve)(T.value.seam,g.value))+` · cut sizes rounded up to `+s(T.value.step?v(ve)(T.value.step,g.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),d(ie,{class:`inputs row q-pt-none`},{default:c(()=>[l.value.widths?(w(),_(de,{key:0,modelValue:S.value,"onUpdate:modelValue":n[0]||=e=>S.value=e,options:(l.value.widths===`any`?v(Te)[g.value]:v(De)(g.value)).map(e=>({label:e.label,value:e.id})),"emit-value":``,"map-options":``,outlined:``,dense:``,label:`Fabric width`,style:{width:`200px`}},null,8,[`modelValue`,`options`])):h(``,!0),(w(!0),m(b,null,a(l.value.inputs,e=>(w(),m(b,{key:e.key},[e.newLine?(w(),m(`div`,Ie)):h(``,!0),e.count||e.raw?(w(),_(re,{key:1,modelValue:E[e.key],"onUpdate:modelValue":t=>E[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(w(),_(O,{key:2,"model-value":E[e.key],"onUpdate:modelValue":t=>ee(e,t),units:g.value,min:.25,label:e.label,style:{width:`240px`}},null,8,[`model-value`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),d(Ee,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:c(()=>[y(`tbody`,null,[(w(!0),m(b,null,a(ne.value,e=>(w(),m(`tr`,{key:e.label},[y(`td`,Le,s(e.label),1),y(`td`,Re,s(e.value),1)]))),128))])]),_:1})]),_:1})):(w(),_(me,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:c(()=>[C(`Unknown calculator “`+s(e.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-5c7e7680`]]),Be=`---
+import{o as e,t,y as n}from"./project-BIBeEYKe.js";import{$ as r,G as i,H as a,Mt as o,Nt as s,Q as c,W as l,X as u,b as d,ct as f,f as p,g as m,h,kt as g,m as _,mt as v,p as y,s as b,st as x,x as S,y as C,z as w}from"./create-1s3Rzb7I.js";import{H as T,n as E,t as ee,y as te}from"./_plugin-vue_export-helper-CR9-uGE4.js";import{_ as ne,i as re,n as ie,t as D}from"./QCard-COE3_gKp.js";import{a as ae}from"./render-14VoT2U0.js";import{D as oe,F as se,I as ce,L as le,T as ue,r as de,s as fe,w as pe}from"./units-BlxYIUfe.js";import{Et as me,mt as O}from"./index-D3NNmd4h.js";import{n as he,t as ge}from"./QTabs-Cb_ymic2.js";import{t as _e}from"./QPage-GR1f5I2A.js";import{n as ve,r as k,t as A}from"./format-C8k1oA74.js";import{a as j,b as ye,i as be,n as xe,o as Se,r as Ce,t as we,v as Te}from"./yardage-BywRRAWB.js";import{t as Ee}from"./QMarkupTable-vBrm_cnd.js";var De=e=>Te[e].filter(e=>!e.fatQuarter);function Oe(e,t,n){let r=Te[e].find(e=>e.id===n)??De(e)[0];return{units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:r.usable,fabric:r,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}}var ke=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),M=(e,t)=>ke([[0,0],[e,0],[e,t],[0,t]]),Ae=e=>ke([[0,0],[e,0],[0,e]]),je=e=>ke([[0,0],[e,0],[e/2,e/2]]),Me=(e,t)=>ke([[0,0],[e,0],[e-t,t],[t,t]]),N=(e,t)=>ve(e,t.units),P=(e,t)=>e.cut[0]===e.cut[1]?`${N(e.cut[0],t)} square`:`${N(e.cut[0],t)} × ${N(e.cut[1],t)}`,F=(e,t)=>({in:e,cm:t}),Ne={square:{title:`Square`,inputs:[{key:`f`,label:`Finished side`,start:F(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:P(j(M(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:F(6,15)},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:P(j(M(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished leg`,start:F(3,8)}],rows:({f:e},t)=>{let n=j(Ae(e),t.seam,t.step),r=k((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${P(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${N(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${N(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:F(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${P(j(je(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:F(4,10),link:{key:`h`,factor:.5}},{key:`h`,label:`Finished height`,start:F(2,5),link:{key:`w`,factor:2}}],rows:({w:e},t)=>{let n=e/2,r=j(je(e),t.seam,t.step),i=j(Ae(n),t.seam,t.step);return[{label:`Stitch and flip (1)`,value:`${P(j(M(e,n),t.seam,t.step),t)} rectangle + 2 × ${P(j(M(n,n),t.seam,t.step),t)}`},{label:`Four at a time (4)`,value:`1 × ${P(r,t)} + 4 × ${P(i,t)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${P(r,t)}; sky: 2 halves of a ${P(i,t)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit side`,start:F(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:P(j(M(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${P(j(Ae(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block side`,start:F(10,25)},{key:`n`,label:`Blocks across`,start:F(3,3),count:!0},{key:`m`,label:`Blocks down`,start:F(2,2),count:!0}],rows:({f:e,n:t,m:n},r)=>{let i=e*Math.SQRT2,a=Math.max(1,Math.round(t)),o=Math.max(1,Math.round(n)),s=2*(a-1)+2*(o-1);return[{label:`Finished quilt`,value:`${N(a*i,r)} × ${N(o*i,r)}`},{label:`Block diagonal`,value:N(i,r)},{label:`Blocks`,value:String(a*o+(a-1)*(o-1))},{label:`Side setting triangles`,value:`${Math.ceil(s/4)} × ${P(j(je(i),r.seam,r.step),r)}, cut both diagonals (${s} needed)`},{label:`Corner setting triangles`,value:`2 × ${P(j(Ae(e/Math.SQRT2),r.seam,r.step),r)}, cut once (4 corners)`}]}},border:{title:`Borders`,inputs:[{key:`w`,label:`Finished width, no border`,start:F(48,120)},{key:`h`,label:`Finished height, no border`,start:F(60,150)},{key:`b`,label:`Finished border width`,start:F(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${P(j(M(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${P(j(M(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${P(j(Me(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${P(j(Me(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(48,120)},{key:`h`,label:`Quilt height`,start:F(48,120)}],rows:({w:e,h:t},n)=>{let r=Ce(2*(e+t),n.bindingWidth,we[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${N(n.bindingWidth,n)} wide`},{label:`Total length`,value:N(2*(e+t)+we[n.units],n)},{label:`Fabric`,value:A(r.length,n.units)}]}},backing:{title:`Backing`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(60,150)},{key:`h`,label:`Quilt height`,start:F(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:A(xe(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${N(n.overhang,n)} each side`}]},yardage:{title:`Patches from yardage`,widths:`any`,inputs:[{key:`n`,label:`How many patches`,start:F(40,40),count:!0},{key:`w`,label:`Finished length`,start:F(3,8),newLine:!0},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({n:e,w:t,h:n},r)=>{let i=Array.from({length:Math.max(1,Math.round(e))},()=>M(t,n)),a=Se(i,r.seam,r.step,r.usable),o=be(a,r.fabric,r.fabricStep)[0];return[{label:`Strips`,value:`${a[0].strips} × ${N(a[0].stripWidth,r)} (${a[0].perStrip} per strip)`},r.fabric.fatQuarter?{label:`Fat quarters`,value:String(o.fatQuarters)}:{label:`Fabric (${N(r.usable,r)} usable)`,value:A(o.length,r.units)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:F(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:N(e,t)},{label:`Cut (rounded up)`,value:N(k(e,t.step),t)}]}},Pe={class:`text-subtitle2`},Fe={class:`text-caption text-grey-7`},Ie={key:0,class:`full-width`},Le={class:`text-grey-8`},Re={class:`text-weight-medium`},ze=ee(S({__name:`HelpCalc`,props:{name:{}},setup(e){let r=e,i=t(),o=n(),l=p(()=>Ne[r.name]),g=p(()=>i.doc?.units??o.settings.units),S=f(De(g.value)[0].id);u(g,e=>S.value=De(e)[0].id);let T=p(()=>Oe(g.value,ye(o.settings.print),S.value)),E=x(Object.fromEntries((l.value?.inputs??[]).map(e=>[e.key,e.start[g.value]])));function ee(e,t){E[e.key]=t,e.link&&(E[e.link.key]=t*e.link.factor)}let ne=p(()=>{let e=l.value;return!e||e.inputs.some(e=>!(E[e.key]>0))?[]:e.rows(E,T.value)});return(t,n)=>l.value?(w(),_(D,{key:0,bordered:``,class:`help-calc q-my-md shadow-2`},{default:c(()=>[d(ie,{class:`q-pb-sm`},{default:c(()=>[y(`div`,Pe,[d(te,{name:`calculate`,class:`q-mr-xs`}),C(s(l.value.title)+` calculator `,1)]),y(`div`,Fe,` Seam allowance `+s(v(ve)(T.value.seam,g.value))+` · cut sizes rounded up to `+s(T.value.step?v(ve)(T.value.step,g.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),d(ie,{class:`inputs row q-pt-none`},{default:c(()=>[l.value.widths?(w(),_(de,{key:0,modelValue:S.value,"onUpdate:modelValue":n[0]||=e=>S.value=e,options:(l.value.widths===`any`?v(Te)[g.value]:v(De)(g.value)).map(e=>({label:e.label,value:e.id})),"emit-value":``,"map-options":``,outlined:``,dense:``,label:`Fabric width`,style:{width:`200px`}},null,8,[`modelValue`,`options`])):h(``,!0),(w(!0),m(b,null,a(l.value.inputs,e=>(w(),m(b,{key:e.key},[e.newLine?(w(),m(`div`,Ie)):h(``,!0),e.count||e.raw?(w(),_(re,{key:1,modelValue:E[e.key],"onUpdate:modelValue":t=>E[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(w(),_(O,{key:2,"model-value":E[e.key],"onUpdate:modelValue":t=>ee(e,t),units:g.value,min:.25,label:e.label,style:{width:`240px`}},null,8,[`model-value`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),d(Ee,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:c(()=>[y(`tbody`,null,[(w(!0),m(b,null,a(ne.value,e=>(w(),m(`tr`,{key:e.label},[y(`td`,Le,s(e.label),1),y(`td`,Re,s(e.value),1)]))),128))])]),_:1})]),_:1})):(w(),_(me,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:c(()=>[C(`Unknown calculator “`+s(e.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-5c7e7680`]]),Be=`---
 title: File formats
 order: 30
 summary: The files RRQuilts reads and writes, and their published schemas.
@@ -306,15 +306,15 @@ color each value gets. The app fills in the colors from the data.
 
 Start a quilt with **Data quilt** turned on in the first step of the wizard, and pick **12 months**,
 **52 weeks**, or **365 days**. To make an existing quilt a data quilt, turn on **Data quilt** in its
-**Layout** tab. Either way the quilt opens in the **Design** tab, where the tray has three tabs.
+**Details** tab. Its **Design** tab then has three tabs in the tray.
 
 | Tab    | What it holds                                                    |
 | ------ | ---------------------------------------------------------------- |
-| Blocks | the numbered list of block spaces and the block pools            |
+| Blocks | the data block types and the numbered list of block spaces       |
 | Colors | the usual colors and fabrics, for sashing, borders, and the rest |
 | Data   | the period, the data, and the colors for each value              |
 
-The plan says how days are grouped. Change it under **Data quilt** in the **Layout** tab.
+The plan says how days are grouped. Change it under **Data quilt** in the quilt's **Details** tab.
 
 | Plan   | Each number stands for                                                                   |
 | ------ | ---------------------------------------------------------------------------------------- |
@@ -325,61 +325,69 @@ The plan says how days are grouped. Change it under **Data quilt** in the **Layo
 The period is one year from **Period starts**. A Months period starts on the 1st of a month. A
 period that holds 29 February has 366 days, so a Weeks plan then has two days left over.
 
-## Number the places in a block
+## Make a data block
 
-A data block is an ordinary block whose pieces are numbered as day places.
+A data block is a block a data quilt places for each month, week, or day. Its pieces carry day
+numerals that say which day colors them.
 
-1. Open the block in the block editor and choose **Color**.
-2. Open **Data places** and turn on **Number pieces**.
-3. Pick **1 to 31** for a month block or **1 to 7** for a week block.
-4. With **Paint**, tap pieces in order. Each gets the next free number. Tap a numbered piece again to
-   take its number back.
+1. Make a block with **Data block** turned on in the new block window, or turn it on in a block's
+   **Details** tab.
+2. Pick its type under **Data block type**: **Day**, **Week**, or **Month**.
+3. Draw it as usual in the **Draw** tab.
+4. In the **Color** tab, open **Day numerals**. Drag a numeral onto a patch, or pick a numeral and
+   tap patches. With **Next numeral after each tap** on, the next numeral is picked for you.
 
-To number many pieces at once, color them all one color first, then pick **Rows**, **Columns**, or
-**Snake** under **Spray order** and tap one of them with **Spray**. Every piece of that color is
-numbered in that order, starting from the next free number.
-
-**Show numbers** and **Show order line** draw the numbers and a line through the pieces in order,
-so a skipped or misplaced number shows. A numbered piece keeps the color it had. That color is what
-**As designed** shows.
+A month block has numerals 1 to 31, a week block 1 to 7, and a day block only 1. A numeral can go
+on more than one patch, so one day can color several pieces. Tap a patch that has the picked
+numeral to take it off. Numerals not on any patch yet show faded. A numbered patch keeps the color
+it had underneath. That color is what **As designed** shows.
 
 **Value** picks A, B, C, or D. Use B, C, and D when a day records more than one value, such as a
-high and a low temperature. Each value has its own numbers and its own order line.
+high and a low temperature. Each value has its own numerals and its own order line. **Show
+numerals** and **Show order line** draw the numerals and a line through the patches in order.
 
-A block for a single day needs only one numbered piece.
+### Variants for shorter months
 
-The built-in library has **Month Strip** blocks for 28, 29, 30, and 31 days (31 bars each, the days
+A month block's own drawing is for 31 days. At the top of the **Draw** and **Color** tabs,
+**Variant** adds a 30, 29, or 28-day variant, which starts as a copy of the 31-day drawing. Pick a
+variant to draw and number it on its own. A month shows the variant with the fewest days that still
+covers it: February takes the 28-day variant (the 29 in a leap year), and a 30-day month without a
+30-day variant takes the 31. Places past a month's last day show the filler or their own color, as
+set under **Places past a number’s days**.
+
+The built-in library has a **Month Strip** with 30, 29, and 28-day variants (31 bars each, the days
 past the month in black), a **Week Row** of 7 bars, and a **Day Square** with one place, all filed
 under **Data**.
 
+To find data blocks, use the **Data** filter in the project's **Blocks** tab and in the libraries.
+The project's **Quilts** tab can show only data quilts or only the others.
+
 ## Place the numbers
 
-The **Blocks** tab lists every number of the plan. Months go by name (Jan, Feb, and so on from the
-period start), weeks and days by number (001, 002, and on). With **Place numbers** on, tap block spaces on the quilt. Each gets the highlighted
-number, which then moves on to the next number not yet placed. Tap a number in the list to place from
-there. Numbers already placed are skipped. Tap a placed space to take its number back.
+At the top of the **Blocks** tab, pick a block type. A Months plan lists month blocks, Weeks lists
+week blocks and day blocks for the days left over, and Days lists day blocks.
+
+The tab then lists every number of the plan. Months go by name (Jan, Feb, and so on from the period
+start), weeks and days by number (001, 002, and on). With **Place numbers** on, tap block spaces on
+the quilt. Each gets the highlighted number and the picked type, and the highlight moves on to the
+next number not yet placed. Tap a number in the list to place from there. Numbers already placed are
+skipped. Tap a placed space to take its number back, or pick another type first and tap it to change
+its type.
 
 **Fill empty numbers** puts every block space without a number on the empty numbers, by **Rows**,
-**Columns**, or **Snake**. **Clear** takes every number back. A space whose number is taken back
-is emptied of its pool block.
+**Columns**, or **Snake**, with the picked type. **Clear** takes every number back. A space whose
+number is taken back is emptied.
 
 Beside each label is a card for the block space holding it: an uncolored picture of its block and
 the space's number, **Block 1**, **Block 2**, and so on, counted left to right and top to bottom.
 Drag a card to another label, or use the arrows on it, and the cards between move along. The labels
-stay where they are, so each moved block takes its new label, and its picture changes to a block
-from the new label's pool. While you drag, the card's block space lights up on the quilt. The quilt
-shows every block space's number, and each placed space's label under it, joined by a line in
-order. A lighter arrow inside each placed block runs through its days in order.
+stay where they are, so each moved block takes its new label, and the variant for its new month.
+While you drag, the card's block space lights up on the quilt. The quilt shows every block space's
+number, and each placed space's label under it, joined by a line in order. A lighter arrow inside
+each placed block runs through its days in order.
 
-Each number shows a block from the pool for its days. A Months plan has pools for 31, 30, 29, and
-28-day months, Weeks has a pool for weeks and one for the days left over, and Days has one pool. A
-pool takes only blocks with at least that many day places, so January always draws from the 31-day
-pool. With more than one block in a pool, each space gets one of them at random, and **Shuffle**
-picks again. A block with more places than its number needs shows the filler or their own color in
-the places past the last day, as set under **Places past a number’s days**.
-
-The tab lists anything that needs attention, such as numbers not placed yet, a pool with no block,
-or days without a place.
+The tab lists anything that needs attention, such as numbers not placed yet or days without a
+place.
 
 ## Map values to colors
 
