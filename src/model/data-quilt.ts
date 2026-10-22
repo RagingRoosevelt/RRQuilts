@@ -620,6 +620,8 @@ export function sampleCounts(plan: DataPlan, slot: number): number[] {
  * date before validation: unit numbers by space (`units`) become the numbered list (`order`); the
  * block pools (`picks`, `seed`) go, and placed spaces start without a type (tapping one with a type
  * picked gives it one). Raw JSON in, raw JSON out.
+ * ponytail: temporary, for the owner's test files; format 9 never shipped these shapes. Remove it
+ * (and its call in io.ts and its test) before the 0.7.0 release.
  */
 export function upgradeDataPlans(raw: unknown): unknown {
   const quilts = (raw as { project?: { quilts?: unknown } })?.project?.quilts;
