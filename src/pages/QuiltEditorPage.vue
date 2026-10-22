@@ -225,6 +225,22 @@
             Colors pieces from data, such as a year of temperatures: the Design tab places numbered
             blocks and maps values to colors.
           </div>
+          <template v-if="quilt.data?.on">
+            <SlidePicker
+              :model-value="quilt.data.plan"
+              :options="[
+                { value: 'months', label: 'Months' },
+                { value: 'weeks', label: 'Weeks' },
+                { value: 'days', label: 'Days' },
+              ]"
+              label="Plan"
+              :class="{ 'no-pointer': project.readOnly }"
+              @update:model-value="setDataPlan"
+            />
+            <div class="text-caption text-grey-7 q-mt-xs q-mb-md">
+              {{ PLAN_HINTS[quilt.data.plan] }}
+            </div>
+          </template>
           <LayoutInspector
             :key="quilt.id"
             :layout="quilt.layout"
@@ -274,6 +290,7 @@ import { resolveColoring } from '@/model/coloring';
 import {
   dayDate,
   dayOf,
+  fitOrder,
   newDataPlan,
   nextFree,
   numberOf,
@@ -289,6 +306,7 @@ import PaletteTray from '@/components/PaletteTray.vue';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
+import SlidePicker from '@/components/SlidePicker.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
 import { takesBlock } from '@/editor/scope';
@@ -437,6 +455,23 @@ function setDataQuilt(on: boolean) {
     editor.tool = 'number';
     editor.dataNext = 1;
   }
+}
+const PLAN_HINTS = {
+  months: 'A numbered block space per month, its block from the pool for its days.',
+  weeks:
+    'A numbered block space per week of 7 days from the period start, then one per day left over (day 365, and 366 in a leap period).',
+  days: 'A numbered block space per day of the period.',
+};
+/** Months, Weeks or Days: the numbered list resized (a Months period starts on the 1st). */
+function setDataPlan(v: string) {
+  const q = quilt.value;
+  if (!q?.data || project.readOnly) return;
+  const plan = v as 'months' | 'weeks' | 'days';
+  const start = plan === 'months' ? `${q.data.start.slice(0, 8)}01` : q.data.start;
+  const next = fitOrder({ ...q.data, plan, start });
+  project.change((d) => {
+    d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(next);
+  });
 }
 /** Data quilt taps: the brush places the highlighted number (or takes a space's back); in the
  *  Data tab a day's piece opens its entry. */

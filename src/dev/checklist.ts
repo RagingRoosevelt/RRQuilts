@@ -201,14 +201,14 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-110',
     group: G.small,
-    text: 'Block pools (Design › Blocks): Months shows 31, 30, 29 and 28-day pools; each lists only blocks with at least that many day places (Month Strip 31 in all four, Month Strip 28 only in the 28 pool). January takes a block from the 31 pool only; a placed number whose pool is empty keeps its space as it was and a warning names the pool. Shuffle changes which block each space gets. Design › Data › Weeks: the list runs 001 to 052 then 053 (Dec 31, from the Days pool; 054 too in a period holding 29 February). Days: 365 numbers, all from the Days pool (Day Square fits).',
+    text: 'Block pools (Design › Blocks): Months shows 31, 30, 29 and 28-day pools; each lists only blocks with at least that many day places (Month Strip 31 in all four, Month Strip 28 only in the 28 pool). January takes a block from the 31 pool only; a placed number whose pool is empty keeps its space as it was and a warning names the pool. Shuffle changes which block each space gets. Layout › Plan › Weeks: the list runs 001 to 052 then 053 (Dec 31, from the Days pool; 054 too in a period holding 29 February). Days: 365 numbers, all from the Days pool (Day Square fits).',
     last: "\"we only allow inclusion in a pool if the block has at least as many slots as the pool is for. then when we pick which block to use in each slot, we're drawing from a pool that corresponds to the number of day slots we need to cover. if we're placing a block january, then we'd only pick from the 31 day pool\"",
     to: '/',
   },
   {
     id: 'TC-111',
     group: G.small,
-    text: 'Design › Data (right of Colors): plan, period, sample or real data, Values (Kind, ranges or categories and their colors: the quilt recolors at once), Yardage, places without data. Save as new colorway and show it: Values lists each range or category with its primary color and a picker for what it becomes; picking one recolors only that colorway. Show the primary again: the ranges are editable again.',
+    text: 'Design › Data (right of Colors): period, sample or real data, Values (Kind, ranges or categories and their colors: the quilt recolors at once), Yardage, places without data. Save as new colorway and show it: Values lists each range or category with its primary color and a picker for what it becomes; picking one recolors only that colorway. Show the primary again: the ranges are editable again.',
     last: '"let\'s add a data tab to the right of the color tab that will hold the value mapping" / "for non-primary color ways, the picked color ranges and primary color for that range are shown, as well as a dropdown for the mapped color."',
     to: '/',
   },
@@ -224,6 +224,20 @@ export const CHECKS: Check[] = [
     group: G.small,
     text: 'Built-in data blocks: the Data category has Month Strip 28, 29, 30, 31, Week Row and Day Square (one place). In a Months quilt pick Month Strip 31 for the 31 pool and Month Strip 28 for the 28 pool: February shows Month Strip 28. Help › Guides › Data quilts describes the number list, pools and the Data tab, with no year days.',
     last: 'Day Square added for the Days pool ("Days mode works the same way as Months and Weeks", agreed: "that sounds right. let\'s proceed").',
+    to: '/',
+  },
+  {
+    id: 'TC-114',
+    group: G.small,
+    text: 'Layout tab of a data quilt: Plan (Months, Weeks, Days) sits under the Data quilt switch, with a line saying what each number stands for; it is hidden while the switch is off. Switching to Weeks makes Design › Blocks list 001 to 053; back to Months keeps the first 12 placed and the period starts on the 1st. Design › Data no longer shows Plan. Undo undoes the switch.',
+    last: '"the selection for months/weeks/days should live under the data switch in layouts"',
+    to: '/',
+  },
+  {
+    id: 'TC-115',
+    group: G.small,
+    text: 'Quilt editor › Layout › Style: each style in the list shows the same picture as its card in the new-quilt wizard (Horizontal and Vertical Strip each their own), and the chosen style’s picture shows in the field. Check it in dark mode too.',
+    last: '"the layout dropdown should show the same icons as we use in the wizard" / "the layout dropdown in the layout workbench of quilt design"',
     to: '/',
   },
 ];

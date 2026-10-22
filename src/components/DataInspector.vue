@@ -1,20 +1,8 @@
 <template>
-  <!-- A data quilt's Data tab (spec 025): plan and period, what the quilt shows, value slots and
+  <!-- A data quilt's Data tab (spec 025): period (the plan is in the Layout tab), what the quilt shows, value slots and
        their scales (in a colorway other than the primary: what each scale color becomes), yardage,
        places without data. Numbers and block pools are in the Blocks tab (DataBlocks). -->
   <div v-if="plan" class="column no-wrap" style="gap: 12px">
-    <SlidePicker
-      :model-value="plan.plan"
-      :options="[
-        { value: 'months', label: 'Months' },
-        { value: 'weeks', label: 'Weeks' },
-        { value: 'days', label: 'Days' },
-      ]"
-      label="Plan"
-      :class="{ 'no-pointer': readonly }"
-      @update:model-value="setPlan"
-    />
-    <div class="text-caption text-grey-7">{{ planHint }}</div>
     <q-input
       :model-value="plan.start"
       type="date"
@@ -421,15 +409,6 @@ const { swapOptions, paintOpt } = useSwapOptions();
 const plan = computed(() => props.quilt.data);
 const days = computed(() => (plan.value ? periodLength(plan.value.start) : 0));
 const end = computed(() => (plan.value ? dayDate(plan.value.start, days.value) : ''));
-const planHint = computed(
-  () =>
-    ({
-      months: 'A numbered block space per month, its block from the pool for its days.',
-      weeks:
-        'A numbered block space per week of 7 days from the period start, then one per day left over (day 365, and 366 in a leap period).',
-      days: 'A numbered block space per day of the period.',
-    })[plan.value?.plan ?? 'months'],
-);
 const PRESETS: { value: DataPreset; label: string }[] = [
   { value: 'temperature', label: 'Temperature' },
   { value: 'mood', label: 'Mood' },
@@ -558,13 +537,6 @@ function edit(fn: (p: DataPlan) => DataPlan, coalesce?: string) {
     },
     coalesce ? { coalesce: `data:${props.quilt.id}:${coalesce}` } : {},
   );
-}
-function setPlan(v: string) {
-  edit((p) => {
-    const plan = v as DataPlan['plan'];
-    const start = plan === 'months' ? `${p.start.slice(0, 8)}01` : p.start;
-    return fitOrder({ ...p, plan, start });
-  });
 }
 function setStart(v: string | number | null) {
   const s = String(v ?? '');

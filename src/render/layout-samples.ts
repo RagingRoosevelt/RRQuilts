@@ -49,7 +49,7 @@ export const sampleOnePatch = (shape: PatchShape): Layout => ({
   width: 1,
   height: 1,
 });
-const sampleStrips = (style: 'horizontal-strip' | 'vertical-strip'): Layout => ({
+export const sampleStrips = (style: 'horizontal-strip' | 'vertical-strip'): Layout => ({
   style,
   length: 16,
   strips: ['plain', 'blocks', 'plain', 'blocks'].map((st, i) => ({

@@ -18,9 +18,9 @@ Start a quilt with **Data quilt** turned on in the first step of the wizard, and
 | ------ | ---------------------------------------------------------------- |
 | Blocks | the numbered list of block spaces and the block pools            |
 | Colors | the usual colors and fabrics, for sashing, borders, and the rest |
-| Data   | the plan, the period, the data, and the colors for each value    |
+| Data   | the period, the data, and the colors for each value              |
 
-The plan says how days are grouped.
+The plan says how days are grouped. Change it under **Data quilt** in the **Layout** tab.
 
 | Plan   | Each number stands for                                                                   |
 | ------ | ---------------------------------------------------------------------------------------- |

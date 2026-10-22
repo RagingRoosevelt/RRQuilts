@@ -8,7 +8,7 @@ block pools and the Design tab)
 **Status**: Built on `0.7.0` (2026-10-21) except User Story 7 (quilt-as-you-go printing, open).
 Built: data paints and numbering in the block editor (Color › Data places), the Data quilt switch
 (Layout) and wizard option, the Design tab of a data quilt (Blocks: the numbered list with one
-brush, Fill empty numbers, reordering, block pools with Shuffle, warnings; Data: plan, period,
+brush, Fill empty numbers, reordering, block pools with Shuffle, warnings; Data: period,
 value slots with presets and scales, the colorway mapping of scale colors, filler, unused places,
 waiting days), sample data (built-in year, CSV), real entries (table, Missing, Today's entry,
 import, tap a piece for its row), print legend and worst-case yardage (most days expected per
@@ -116,7 +116,8 @@ strips for the four pools. The quilt shows 365 days in the simulation's colors.
 1. **Given** the New menu, **Then** **Data quilt** opens a wizard: plan (Months, Weeks, Days),
    period start, value slots (a preset per slot: Temperature, Mood, Daylight hours, Rainfall,
    Custom), then the regular layout steps.
-2. **Given** any quilt's Layout tab, **Then** a **Data quilt** switch turns the Design tab's tray into
+2. **Given** any quilt's Layout tab, **Then** a **Data quilt** switch, with the plan (Months, Weeks,
+   Days) picked under it (owner, 2026-10-21), turns the Design tab's tray into
    Blocks (numbered list, pools), Colors and Data; switching it off keeps the settings (until saved
    without them) and turns data pieces back to placeholders.
 3. **Given** the Blocks tab, **Then** **Place numbers** is one brush: tapping a block space places

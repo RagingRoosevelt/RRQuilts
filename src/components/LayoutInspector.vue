@@ -24,7 +24,36 @@
       option-disable="disable"
       :readonly="readonly"
       @update:model-value="(v) => emit('change', convertLayout(layout, v, lu), '')"
-    />
+    >
+      <!-- The wizard's picture of each style. -->
+      <template #option="{ opt, itemProps }">
+        <q-item v-bind="itemProps">
+          <q-item-section avatar>
+            <svg v-if="PICS[opt.value]" :viewBox="PICS[opt.value]!.box" class="preview-art">
+              <path
+                v-for="(p, i) in PICS[opt.value]!.paths"
+                :key="i"
+                :d="p.d"
+                :class="p.kind"
+                vector-effect="non-scaling-stroke"
+              />
+            </svg>
+          </q-item-section>
+          <q-item-section>{{ opt.label }}</q-item-section>
+        </q-item>
+      </template>
+      <template v-if="PICS[layout.style]" #prepend>
+        <svg :viewBox="PICS[layout.style]!.box" class="preview-art">
+          <path
+            v-for="(p, i) in PICS[layout.style]!.paths"
+            :key="i"
+            :d="p.d"
+            :class="p.kind"
+            vector-effect="non-scaling-stroke"
+          />
+        </svg>
+      </template>
+    </q-select>
     <StripsInspector
       v-if="layout.style === 'horizontal-strip' || layout.style === 'vertical-strip'"
       :layout="layout"
@@ -459,6 +488,7 @@ import FieldGroup from '@/components/FieldGroup.vue';
 import LengthInput from '@/components/LengthInput.vue';
 import StripsInspector from '@/components/StripsInspector.vue';
 import { convertLayout, FLOWS } from '@/model/layout/slots';
+import { picture, sampleStrips, STYLES } from '@/render/layout-samples';
 import { fmtLen } from '@/model/print/format';
 import type {
   HorizontalLayout,
@@ -544,6 +574,12 @@ const patchEdgeOptions = [
   { label: 'Whole patches', value: 'none' },
 ];
 
+/** Each style's picture, as the wizard draws it. */
+const PICS: Record<string, ReturnType<typeof picture>> = {
+  ...Object.fromEntries(STYLES.map((s) => [s.value, picture(s.sample, [])])),
+  'horizontal-strip': picture(sampleStrips('horizontal-strip'), []),
+  'vertical-strip': picture(sampleStrips('vertical-strip'), []),
+};
 const soon = ['Custom Set'].map((label) => ({
   label: `${label} (coming soon)`,
   value: label,
@@ -569,3 +605,31 @@ function setPair(key: 'block' | 'sash', i: 0 | 1, v: number, locked: boolean) {
   emit('change', { ...l, [key]: p }, `${key}`);
 }
 </script>
+
+<style scoped>
+.preview-art {
+  width: 36px;
+  height: 28px;
+  flex: none;
+}
+.preview-art path {
+  stroke: #9e9e9e;
+  stroke-width: 1;
+  fill: #fafafa;
+}
+.preview-art path.sash,
+.preview-art path.cs {
+  fill: #cfd8dc;
+}
+.preview-art path.set {
+  fill: #e3ecf5;
+}
+:global(.body--dark .preview-art path) {
+  stroke: #757575;
+  fill: #2b2b2b;
+}
+:global(.body--dark .preview-art path.sash),
+:global(.body--dark .preview-art path.cs) {
+  fill: #3a3f44;
+}
+</style>
