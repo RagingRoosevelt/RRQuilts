@@ -275,6 +275,20 @@ export const CHECKS: Check[] = [
     last: '"when you\'re dragging a block slot in the blocks interface, it should highlight the block on the quilt that you\'ve selected"',
     to: '/',
   },
+  {
+    id: 'TC-121',
+    group: G.small,
+    text: 'Design › Blocks list: each row is a fixed label (Jan… or 001…, a week’s first day or the date beside it) and a card: an uncolored picture of the block its space shows (a faded one from its pool when not placed, with Not placed) and Block N. No checkmarks. Drag a card onto another label: only the card moves, the labels stay; the moved block’s picture changes to one from its new label’s pool (Feb to Jan: Month Strip 28 becomes 31). Hover a card for its arrows.',
+    last: '"let\'s have the draggable element be a card with a uncolored representative of one of the blocks that is in the pool for it\'s source (before drag), updating thumbnail after being droped" / "the month labels shouldn\'t move as part of the draggable objects. they should be statically located labels that don\'t move"',
+    to: '/',
+  },
+  {
+    id: 'TC-122',
+    group: G.small,
+    text: 'Quilt labels in a data quilt’s Design tab: every block space shows Block 1, Block 2… (left to right, top to bottom, same as the cards), and each placed space its month (or 001…) under it on the order line. Drag a card: the month label moves to the other space, the block numbers stay.',
+    last: '"let\'s use a consisten block numbering (ordered left-to-right, top-to-bottom) for the labels on the blocks that we\'re dragging" / "let\'s have both the block label and the month label show up on the quilt. the month label moves between blocks as they are dragged"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

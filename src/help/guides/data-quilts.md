@@ -68,9 +68,13 @@ there. Numbers already placed are skipped. Tap a placed space to take its number
 **Fill empty numbers** puts every block space without a number on the empty numbers, by **Rows**,
 **Columns**, or **Snake**. **Clear** takes every number back.
 
-A number's place in the list is its label. Drag a placed number to another row, or use the arrows
-beside it, and the rows between move along. While you drag, its block space lights up on the
-quilt. The quilt shows each space's label with a line through them in order.
+Beside each label is a card for the block space holding it: an uncolored picture of its block and
+the space's number, **Block 1**, **Block 2**, and so on, counted left to right and top to bottom.
+Drag a card to another label, or use the arrows on it, and the cards between move along. The labels
+stay where they are, so each moved block takes its new label, and its picture changes to a block
+from the new label's pool. While you drag, the card's block space lights up on the quilt. The quilt
+shows every block space's number, and each placed space's label under it, joined by a line in
+order.
 
 Each number shows a block from the pool for its days. A Months plan has pools for 31, 30, 29, and
 28-day months, Weeks has a pool for weeks and one for the days left over, and Days has one pool. A

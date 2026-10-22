@@ -54,50 +54,63 @@
       :items="rows"
       class="numbers"
       style="max-height: 40vh"
-      :virtual-scroll-item-size="32"
+      :virtual-scroll-item-size="56"
     >
       <template #default="{ item: r }">
+        <!-- A fixed label (the month, week or day) and, beside it, the card of the block space
+             holding it: only the card moves when dragged. -->
         <div
           :key="r.k"
-          class="number row items-center no-wrap q-px-xs"
+          class="number row items-center no-wrap"
           :class="{ current: r.k === next, drop: r.k === dropAt }"
-          :draggable="!readonly && !!r.space"
           role="button"
-          :aria-label="`${r.text}${r.space ? ', placed' : ''}`"
+          :aria-label="`${r.text}${r.space ? `, block ${spaceNo.get(r.space)}` : ', not placed'}`"
           @click="pick(r.k)"
-          @dragstart="(e: DragEvent) => dragStart(e, r.k)"
-          @dragend="editor.dataHot = null"
           @dragover.prevent="dropAt = r.k"
           @dragleave="dropAt === r.k && (dropAt = null)"
           @drop.prevent="drop(r.k)"
         >
-          <span class="label">{{ r.label }}</span>
-          <span class="col ellipsis text-caption">{{ r.name === r.label ? '' : r.name }}</span>
-          <q-icon v-if="r.space" name="check" size="16px" color="positive">
-            <q-tooltip>Placed</q-tooltip>
-          </q-icon>
-          <span v-if="r.space && !readonly" class="moves">
-            <q-btn
-              flat
-              round
-              dense
-              size="xs"
-              icon="arrow_upward"
-              aria-label="Move up"
-              :disable="r.k === 1"
-              @click.stop="move(r.k, r.k - 1)"
-            />
-            <q-btn
-              flat
-              round
-              dense
-              size="xs"
-              icon="arrow_downward"
-              aria-label="Move down"
-              :disable="r.k === rows.length"
-              @click.stop="move(r.k, r.k + 1)"
-            />
-          </span>
+          <div class="label column">
+            <span>{{ r.label }}</span>
+            <span v-if="r.name !== r.label" class="text-caption ellipsis">{{ r.name }}</span>
+          </div>
+          <div
+            class="card col row items-center no-wrap"
+            :class="{ placed: !!r.space }"
+            :draggable="!readonly && !!r.space"
+            @dragstart="(e: DragEvent) => dragStart(e, r.k)"
+            @dragend="editor.dataHot = null"
+          >
+            <!-- The block its space shows (or, not placed yet, one from its pool), uncolored. -->
+            <img v-if="thumb(r.k, r.space)" :src="thumb(r.k, r.space)" class="thumb" alt="" />
+            <span v-else class="thumb" />
+            <!-- Which block space: counted left to right, top to bottom, whatever the order. -->
+            <span class="col ellipsis text-caption" :class="{ 'text-grey-6': !r.space }">{{
+              r.space ? `Block ${spaceNo.get(r.space)}` : 'Not placed'
+            }}</span>
+            <span v-if="r.space && !readonly" class="moves">
+              <q-btn
+                flat
+                round
+                dense
+                size="xs"
+                icon="arrow_upward"
+                aria-label="Move up"
+                :disable="r.k === 1"
+                @click.stop="move(r.k, r.k - 1)"
+              />
+              <q-btn
+                flat
+                round
+                dense
+                size="xs"
+                icon="arrow_downward"
+                aria-label="Move down"
+                :disable="r.k === rows.length"
+                @click.stop="move(r.k, r.k + 1)"
+              />
+            </span>
+          </div>
         </div>
       </template>
     </q-virtual-scroll>
@@ -166,12 +179,16 @@ import {
   nextFree,
   numberCount,
   numberLabel,
+  numberInfo,
   numberName,
   placesIn,
   POOL_DAYS,
   poolsOf,
 } from '@/model/data-quilt';
 import { generateFor } from '@/model/layout/slots';
+import { blockSpaceNumbers } from '@/render/data-overlay';
+import { blockThumbnail } from '@/render/thumbnail';
+import { useQuasar } from 'quasar';
 import type { DataPlan, Pool } from '@/model/schema/data-quilt';
 import type { Quilt } from '@/model/schema/quilt';
 import { useEditorStore } from '@/stores/editor';
@@ -216,6 +233,23 @@ const rows = computed(() => {
 });
 /** The highlighted number: the brush's next, moved on past placed ones. */
 const next = computed(() => (plan.value ? nextFree(plan.value, editor.dataNext) : undefined));
+const $q = useQuasar();
+/** An uncolored picture of the block number `k` shows: its space's block, else its pool's first. */
+function thumb(k: number, space: string | null) {
+  const doc = project.doc;
+  const p = plan.value;
+  if (!doc || !p) return undefined;
+  let id = space ? props.quilt.layers[0].slots[space]?.block : undefined;
+  if (!id) {
+    const info = numberInfo(p, k);
+    id =
+      info && (p.picks[info.pool] ?? []).find((x) => optionsFor(info.pool).some((o) => o.id === x));
+  }
+  const b =
+    id &&
+    (doc.project.blocks.find((x) => x.id === id) ?? library.items.blocks.find((x) => x.id === id));
+  return b ? blockThumbnail(doc, b, 80, $q.dark.isActive, null) : undefined;
+}
 const report = computed(() => dataReport(props.quilt, project.doc?.project.blocks ?? []));
 
 /** Blocks with enough day places for a pool (own and in libraries). */
@@ -266,10 +300,12 @@ function drop(k: number) {
   dragFrom.value = dropAt.value = editor.dataHot = null;
   if (from && from !== k) move(from, k);
 }
-function fillAll(order: DataOrder) {
-  const g = generateFor(props.quilt);
+/** Block spaces' centers, as fractions of the quilt. */
+const generated = computed(() => generateFor(props.quilt));
+const spots = computed(() => {
+  const g = generated.value;
   const [x0, y0, x1, y1] = g.bounds;
-  const spots = new Map(
+  return new Map(
     g.slots
       .filter((s) => s.kind === 'block' && takesBlock(s))
       .map((s): [string, [number, number]] => {
@@ -277,7 +313,11 @@ function fillAll(order: DataOrder) {
         return [s.id, [((a + c) / 2 + e - x0) / (x1 - x0), ((b + d) / 2 + f - y0) / (y1 - y0)]];
       }),
   );
-  edit((p) => fillNumbers(p, readingOrder(spots, [...spots.keys()], order)));
+});
+/** Each block space's number, left to right and top to bottom (as on the quilt). */
+const spaceNo = computed(() => blockSpaceNumbers(generated.value));
+function fillAll(order: DataOrder) {
+  edit((p) => fillNumbers(p, readingOrder(spots.value, [...spots.value.keys()], order)));
 }
 // A list sized for another plan or period (switched in the Data tab) is fitted on the next edit;
 // the highlight starts at the first number not placed.
@@ -289,34 +329,61 @@ watch(
 
 <style scoped>
 .number {
-  height: 32px;
-  gap: 6px;
+  height: 56px;
+  gap: 8px;
+  padding: 2px 4px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 .number.current {
   background: rgba(25, 118, 210, 0.16);
   font-weight: 600;
 }
-.number.drop {
-  box-shadow: inset 0 2px 0 #1976d2;
+.number.drop .card {
+  box-shadow: 0 0 0 2px #1976d2;
+}
+.label {
+  width: 64px;
+  flex: none;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.card {
+  height: 50px;
+  gap: 8px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px dashed rgba(128, 128, 128, 0.45);
+}
+.card.placed {
+  border-style: solid;
+  cursor: grab;
+  background: var(--q-card-bg, #fff);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+:global(.body--dark .card.placed) {
+  background: #2a2a2a;
+}
+.thumb {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  object-fit: contain;
+}
+.card:not(.placed) .thumb {
+  opacity: 0.4;
 }
 .moves {
   opacity: 0;
 }
-.number:hover .moves,
-.number:focus-within .moves {
+.card:hover .moves,
+.card:focus-within .moves {
   opacity: 1;
 }
 @media (hover: none) {
   .moves {
     opacity: 1;
   }
-}
-.label {
-  font-variant-numeric: tabular-nums;
-  width: 34px;
-  flex: none;
 }
 .numbers :deep(.q-virtual-scroll__content) {
   display: block;

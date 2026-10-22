@@ -1,5 +1,7 @@
 // Data paints' overlay (spec 025): each numbered piece's label, and an order line through the
 // pieces of each group (a value slot) in number order, drawn in the current transform.
+import { takesBlock } from '@/editor/scope';
+import { readingOrder } from '@/model/data-paint';
 import { numberLabel, numberOf } from '@/model/data-quilt';
 import type { Pt } from '@/model/geometry/path';
 import type { Generated } from '@/model/layout/slots';
@@ -12,6 +14,10 @@ export interface DataMark {
   group: string;
   /** Place along the line. */
   order: number;
+  /** Label moved down this many CSS pixels (two labels at one spot). */
+  dy?: number;
+  /** A quieter label (smaller, no line). */
+  muted?: boolean;
 }
 
 const LINE = ['#1565c0', '#e65100', '#2e7d32', '#6a1b9a'];
@@ -27,7 +33,7 @@ export function drawDataOverlay(
   ctx.save();
   if (o.line) {
     const groups = new Map<string, DataMark[]>();
-    for (const m of marks) groups.set(m.group, [...(groups.get(m.group) ?? []), m]);
+    for (const m of marks) if (m.group) groups.set(m.group, [...(groups.get(m.group) ?? []), m]);
     [...groups.values()].forEach((g, i) => {
       g.sort((a, b) => a.order - b.order);
       ctx.beginPath();
@@ -54,29 +60,48 @@ export function drawDataOverlay(
   ctx.lineWidth = 3 * dev;
   ctx.strokeStyle = o.dark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.9)';
   ctx.fillStyle = o.dark ? '#fff' : '#111';
+  const font = ctx.font;
   for (const m of marks) {
     const q = t.transformPoint({ x: m.p[0], y: m.p[1] });
-    ctx.strokeText(m.label, q.x, q.y);
-    ctx.fillText(m.label, q.x, q.y);
+    const y = q.y + (m.dy ?? 0) * dev;
+    ctx.font = m.muted ? `500 ${11 * dev}px sans-serif` : font;
+    ctx.globalAlpha = m.muted ? 0.75 : 1;
+    ctx.strokeText(m.label, q.x, y);
+    ctx.fillText(m.label, q.x, y);
   }
+  ctx.globalAlpha = 1;
   ctx.restore();
 }
 
-/** A data quilt's marks (spec 025): each placed space's number, joined in number order. */
+/** Block spaces numbered left to right, top to bottom (1-based): the Blocks tab's "Block N". */
+export function blockSpaceNumbers(generated: Generated): Map<string, number> {
+  const [x0, y0, x1, y1] = generated.bounds;
+  const spots = new Map(
+    generated.slots
+      .filter((s) => s.kind === 'block' && takesBlock(s))
+      .map((s): [string, Pt] => {
+        const [a, b, c, d, e, f] = s.transform;
+        return [s.id, [((a + c) / 2 + e - x0) / (x1 - x0), ((b + d) / 2 + f - y0) / (y1 - y0)]];
+      }),
+  );
+  return new Map(readingOrder(spots, [...spots.keys()], 'rows').map((id, i) => [id, i + 1]));
+}
+
+/** A data quilt's marks (spec 025): each block space's number, and each placed space's month
+ *  (week, day) under it, those joined in order. */
 export function quiltDataMarks(quilt: Quilt, generated: Generated): DataMark[] {
   const plan = quilt.data;
   if (!plan) return [];
-  return generated.slots.flatMap((slot) => {
-    const k = numberOf(plan, slot.id);
-    if (!k) return [];
+  const no = blockSpaceNumbers(generated);
+  return generated.slots.flatMap((slot): DataMark[] => {
+    const n = no.get(slot.id);
+    if (!n) return [];
     const [a, b, c, d, e, f] = slot.transform;
+    const p: Pt = [(a + c) / 2 + e, (b + d) / 2 + f];
+    const k = numberOf(plan, slot.id);
     return [
-      {
-        p: [(a + c) / 2 + e, (b + d) / 2 + f] as Pt,
-        label: numberLabel(plan, k),
-        group: 'n',
-        order: k,
-      },
+      { p, label: `Block ${n}`, group: '', order: n, dy: -15, muted: true },
+      ...(k ? [{ p, label: numberLabel(plan, k), group: 'n', order: k }] : []),
     ];
   });
 }
