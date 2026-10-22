@@ -1,10 +1,11 @@
-import { produce } from 'immer';
+import { castDraft, produce } from 'immer';
 import { describe, expect, it } from 'vitest';
 import { builtinLibrary } from '@/content/starter';
 import { copyBlock } from '@/editor/block-ops';
 import { allPatches } from '@/model/blocks/patches';
 import { contentVersion } from '@/model/identity';
 import {
+  followColorVariants,
   isLibraryItem,
   splitItems,
   syncLibraryItems,
@@ -55,6 +56,36 @@ describe('library items in projects', () => {
       lookup,
     );
     expect(d.project.blocks[0]!.notecard.name).toBe('Ohio Star');
+  });
+  it('color variants follow their library block when it is redrawn, keeping their colors', async () => {
+    const { doc, lookup } = await setup();
+    const strip = lookup.block('rrquilts.month-strip')!;
+    // A variant made when the strip was 31 × 6, with a coloring of its own.
+    const v = produce(copyBlock(strip, [strip.notecard.name]), (b) => {
+      b.colorVariant = true;
+      b.size = [31, 6];
+      b.colorings[0]!.fills.p1 = { color: 'rrquilts.red' };
+    });
+    const d = syncLibraryItems(
+      produce(doc, (x) => void x.project.blocks.push(v)),
+      lookup,
+    );
+    const after = d.project.blocks.find((b) => b.id === v.id)!;
+    expect(after.size).toEqual(strip.size);
+    expect(after.colorings[0]!.fills.p1).toEqual({ color: 'rrquilts.red' });
+  });
+  it('color variants follow the block as the project holds it (opening a project)', async () => {
+    const { doc, lookup } = await setup();
+    const strip = lookup.block('rrquilts.month-strip')!;
+    const v = produce(copyBlock(strip, [strip.notecard.name]), (b) => {
+      b.colorVariant = true;
+      b.size = [31, 6];
+    });
+    const held = produce(doc, (x) => {
+      x.project.blocks.push(castDraft(strip), v);
+    });
+    const d = produce(held, (x) => followColorVariants(x, lookup));
+    expect(d.project.blocks.find((b) => b.id === v.id)!.size).toEqual(strip.size);
   });
   it('new projects contain no library items; using one embeds it and the colors it needs', async () => {
     const { doc, lookup } = await setup();

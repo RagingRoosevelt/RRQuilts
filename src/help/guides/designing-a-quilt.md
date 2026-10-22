@@ -212,11 +212,12 @@ one the primary. The colorway shown is saved with the quilt, and printing and pi
 On the project's Quilts tab, the count on a quilt's card picks the colorway shown.
 
 **New colorway from palette…** is on the card's menu and beside **Save as new colorway**. Pick a
-palette, and each color of the colorway shown becomes its nearest color or fabric there. Change any
+palette (the list shows each palette's swatches), and each color of the primary colorway becomes its
+nearest color or fabric there, whichever colorway is shown. Change any
 you like, then **Add colorway**. Choose **Manual** for a one-time copy, or **Auto mapping** to keep
 it following: when the colors it follows or the palette change, its matches change too.
 
-An auto-mapped colorway's Colors tab says what it **Follows** (the primary or another colorway) and
+An auto-mapped colorway's Colors tab says what it **Follows** (the primary colorway) and
 which **Palette** it maps to. Pick a color by hand to keep it, and **Automatic** puts it back.
 Switching to **Manual** keeps the colors it shows. If the colorway it follows or its palette is
 deleted, it keeps its colors as a manual colorway. In **Manual**, **Pick from** limits the choices

@@ -59,45 +59,43 @@ export function useLibraryBlockActions() {
       .onCancel(() => go(false));
   }
 
-  /** A color variant: the library block's drawing with colorings of your own; opens it to color.
-   *  One per library block in a project: if there is one, the new coloring goes there (a copy of
-   *  the library block's first coloring), and it opens on that coloring. */
+  /** A color variant: the library block's drawing with colorings of your own. One per library block
+   *  in a project (made the first time); each ask adds a new coloring to it (a copy of the library
+   *  block's first coloring) and opens the Color tab on that coloring. */
   async function colorVariant(lib: Block) {
-    const have = project.doc!.project.blocks.find(
+    let have = project.doc!.project.blocks.find(
       (b) => b.colorVariant && !isLibraryItem(b) && b.source?.itemId === lib.id,
     );
-    if (have) {
-      const r = saveColoringAs(have, lib.colorings[0]?.id ?? have.colorings[0]!.id);
-      // The library's coloring may not be in the variant (renamed or removed there): start from its fills.
-      const fills = lib.colorings[0]?.fills;
-      const next = fills
-        ? produce(
-            r.block,
-            (b) => void (b.colorings.find((c) => c.id === r.id)!.fills = { ...fills }),
-          )
-        : r.block;
-      project.change((d) => {
-        const i = d.project.blocks.findIndex((b) => b.id === have.id);
-        if (i >= 0) d.project.blocks[i] = next;
-      });
-      editor.coloringOf.set(have.id, r.id);
-      void open(have.id, 'color');
-      return;
+    if (!have) {
+      const v = produce(
+        copyBlock(
+          toUnits(lib, project.doc!.units),
+          names(),
+          await askAuthor(),
+          project.doc!.project.license,
+        ),
+        (c) => {
+          c.colorVariant = true;
+          c.notecard.name = lib.notecard.name; // same name as its original; the badge tells them apart
+        },
+      );
+      project.change((d) => void d.project.blocks.push(v));
+      have = v;
     }
-    const v = produce(
-      copyBlock(
-        toUnits(lib, project.doc!.units),
-        names(),
-        await askAuthor(),
-        project.doc!.project.license,
-      ),
-      (c) => {
-        c.colorVariant = true;
-        c.notecard.name = lib.notecard.name; // same name as its original; the badge tells them apart
-      },
-    );
-    project.change((d) => void d.project.blocks.push(v));
-    void open(v.id, 'color');
+    // Always a new coloring to recolor: a copy of the library block's first one.
+    const r = saveColoringAs(have, lib.colorings[0]?.id ?? have.colorings[0]!.id);
+    // The library's coloring may not be in the variant (renamed or removed there): start from its fills.
+    const fills = lib.colorings[0]?.fills;
+    const next = fills
+      ? produce(r.block, (b) => void (b.colorings.find((c) => c.id === r.id)!.fills = { ...fills }))
+      : r.block;
+    const id = have.id;
+    project.change((d) => {
+      const i = d.project.blocks.findIndex((b) => b.id === id);
+      if (i >= 0) d.project.blocks[i] = next;
+    });
+    editor.coloringOf.set(id, r.id);
+    void open(id, 'color');
   }
 
   return { editLibrary, colorVariant };

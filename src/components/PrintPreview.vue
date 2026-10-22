@@ -1431,8 +1431,9 @@ function quiltBlocks() {
   return generateFor(quilt).slots.flatMap((slot) => {
     const content = quilt.layers[0].slots[slot.id];
     const block = content && dd.project.blocks.find((b) => b.id === content.block);
-    if (!content || !block || seen.has(block.id) || block.notecard.tags?.includes('system'))
-      return [];
+    // Hidden blocks stay out, but a data block's variants (Month Strip (30 days)) print.
+    const hidden = block?.notecard.tags?.includes('system') && !block.data?.of;
+    if (!content || !block || seen.has(block.id) || hidden) return [];
     seen.add(block.id);
     const size = slot.size;
     return [

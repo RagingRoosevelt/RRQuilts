@@ -35,6 +35,62 @@ export const fabricToUnits = (f: Fabric, units: RrqDoc['units']): Fabric =>
   units === 'cm' ? { ...f, size: [f.size[0] * 2.54, f.size[1] * 2.54] } : f;
 
 /** A library block (inches) in project units. */
+/** What a block's drawing is made of (not its name, credits or colorings). */
+const DRAWN = [
+  'size',
+  'shape',
+  'drawing',
+  'patches',
+  'unconnected',
+  'grid',
+  'stitches',
+  'background',
+  'data',
+] as const;
+
+/**
+ * Color variants carry their library block's name, and its drawing (theirs is locked): the block
+ * as the project holds it (so a declined library update stays declined), else as the library has
+ * it. A redrawn block redraws them, their own colorings kept, new patches colored as its first.
+ */
+export function followColorVariants(
+  d: Draft<RrqDoc>,
+  lib: { block(id: string): Block | undefined } | undefined,
+) {
+  const p = d.project;
+  for (const b of p.blocks) {
+    if (!b.colorVariant || !b.source) continue;
+    const id = b.source.itemId;
+    const own = p.blocks.find((x) => x.id === id);
+    // The project's copy is a draft here: a plain copy of it to read from.
+    const origin = (own && (isDraft(own) ? current(own) : own)) ?? lib?.block(id);
+    const name = origin?.notecard.name ?? b.source.name;
+    if (name && b.notecard.name !== name) b.notecard.name = name;
+    if (origin && origin.kind === b.kind) followDrawing(b, toUnits(origin, d.units));
+  }
+}
+
+/** A color variant redrawn as its library block `o` is now (spec 008: its drawing is locked). */
+function followDrawing(b: Draft<Block>, o: Block) {
+  const bb = b as Record<string, unknown>;
+  const oo = o as Record<string, unknown>;
+  let changed = false;
+  for (const k of DRAWN) {
+    if (JSON.stringify(bb[k]) === JSON.stringify(oo[k])) continue;
+    changed = true;
+    if (oo[k] === undefined) delete bb[k];
+    else bb[k] = structuredClone(oo[k]);
+  }
+  if (!changed) return;
+  const ids = [
+    ...('patches' in o ? o.patches.map((x) => x.id) : []),
+    ...(o.data?.variants ?? []).flatMap((v) => v.patches.map((x) => x.id)),
+  ];
+  const first = o.colorings[0]?.fills ?? {};
+  for (const c of b.colorings)
+    for (const id of ids) if (!(id in c.fills) && first[id]) c.fills[id] = castDraft(first[id]);
+}
+
 export const toUnits = (b: Block, units: RrqDoc['units']): Block =>
   units === 'cm' ? { ...b, size: [b.size[0] * 2.54, b.size[1] * 2.54] } : b;
 
@@ -76,19 +132,21 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
       if (b) p.blocks.push(toUnits(b, d.units));
     }
   }
-  // Color variants carry their library block's name.
-  for (const b of p.blocks) {
-    const name =
-      b.colorVariant && b.source && (lib?.block(b.source.itemId)?.notecard.name ?? b.source.name);
-    if (name && b.notecard.name !== name) b.notecard.name = name;
-  }
+  followColorVariants(d, lib);
   // Data quilts (spec 025): placed spaces show their type's variant for their number's days.
   syncVariants(p.blocks, p.quilts);
   p.quilts.forEach((q, i) => {
     if (!q.data?.on) return;
-    // A quilt swapped in whole by the edit (a layout change) is frozen, not a draft: copy it so
-    // its blocks can be placed.
+    // A quilt (a layout change) or a part of it (a new plan) swapped in whole by the edit isn't a
+    // draft and may be frozen: copy it so its blocks can be placed.
     const live = isDraft(q) ? q : (p.quilts[i] = castDraft(structuredClone(q)));
+    // ponytail: a part that isn't a draft was swapped in, and may hold frozen pieces: copy it all.
+    const thaw = <T>(v: T): T =>
+      v && typeof v === 'object' && !isDraft(v) ? (castDraft(structuredClone(v)) as T) : v;
+    if (live.data) live.data = thaw(live.data);
+    live.colorings = thaw(live.colorings);
+    live.layers[0] = thaw(live.layers[0]);
+    live.layers[0].slots = thaw(live.layers[0].slots);
     applyPicks(live, p.blocks, newId);
   });
   const withVariants = pruneVariants(p.blocks, p.quilts);

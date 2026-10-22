@@ -1,7 +1,9 @@
 <template>
   <!-- A data block's numeral palette (spec 025): day numerals 1 to N to drag onto patches, or pick
        one and tap patches; a numeral may go on several patches. -->
-  <div class="column q-pb-md" style="gap: 8px">
+  <!-- A grid, not a flex column: in a flex column the numerals' auto-fill grid is sized as if it
+       were one numeral wide, leaving a tall empty box under the buttons. -->
+  <div class="panel q-pb-md">
     <div class="row items-center no-wrap" style="gap: 8px">
       <span class="text-caption">Value</span>
       <q-btn-toggle
@@ -45,7 +47,7 @@
       size="sm"
       icon="clear"
       label="Clear all numerals"
-      class="self-start"
+      class="start"
       :disable="!anyNumeral"
       @click="emit('clear')"
     />
@@ -99,9 +101,18 @@ function drag(e: DragEvent, n: number) {
 </script>
 
 <style scoped>
+.panel {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.start {
+  justify-self: start;
+}
 .numerals {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  grid-auto-rows: 32px;
   gap: 4px;
 }
 .numeral {

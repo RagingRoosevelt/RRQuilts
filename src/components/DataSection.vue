@@ -1,7 +1,7 @@
 <template>
   <!-- Details tab (spec 025): a quilt's Data quilt switch and plan, or a block's Data block switch
        and kind. -->
-  <FieldGroup :label="quilt ? 'Data quilt' : 'Data block'" heading>
+  <FieldGroup :label="quilt ? 'Data quilt' : 'Data block'" heading class="q-my-md">
     <q-toggle
       :model-value="on"
       dense
@@ -56,11 +56,12 @@
 
 <script setup lang="ts">
 import { castDraft } from 'immer';
+import { useQuasar } from 'quasar';
 import { computed } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { plainFill } from '@/model/coloring';
-import { fitOrder, newDataPlan, VARIANT_DAYS } from '@/model/data-quilt';
+import { newDataPlan, replan, VARIANT_DAYS } from '@/model/data-quilt';
 import type { Block, DataKind } from '@/model/schema/block';
 import type { DataPlan } from '@/model/schema/data-quilt';
 import type { Quilt } from '@/model/schema/quilt';
@@ -74,6 +75,7 @@ const props = defineProps<{
 }>();
 const project = useProjectStore();
 const editor = useEditorStore();
+const $q = useQuasar();
 
 const PLAN_HINTS: Record<DataPlan['plan'], string> = {
   months: 'A numbered block space per month, showing its month block’s variant for its days.',
@@ -153,12 +155,20 @@ function setKind(v: string) {
 function setPlan(v: string) {
   const q = props.quilt;
   if (!q?.data || props.readonly) return;
-  const plan = v as DataPlan['plan'];
-  const start = plan === 'months' ? `${q.data.start.slice(0, 8)}01` : q.data.start;
-  const next = fitOrder({ ...q.data, plan, start });
-  project.change((d) => {
-    d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(next);
-  });
+  const blocks = new Map(project.doc!.project.blocks.map((b) => [b.id, b]));
+  const { plan: next, lost } = replan(q.data, v as DataPlan['plan'], blocks);
+  const go = () =>
+    project.change((d) => {
+      d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(next);
+    });
+  if (!lost) return go();
+  // Placed blocks that can't stay (past the new count, or a type of another kind) go: ask first.
+  $q.dialog({
+    title: `Switch to ${v[0]!.toUpperCase()}${v.slice(1)}?`,
+    message: `${lost} placed block${lost > 1 ? 's' : ''} can't stay in a ${v} plan and will be taken off the quilt (Undo brings them back).`,
+    ok: { label: 'Switch', flat: true, noCaps: true },
+    cancel: { label: 'Cancel', flat: true, noCaps: true },
+  }).onOk(go);
 }
 </script>
 

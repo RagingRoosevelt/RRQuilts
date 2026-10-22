@@ -30,15 +30,9 @@
             }}
           </div>
         </template>
-        <q-select
+        <PaletteSelect
           :model-value="to"
           :options="swapPalettes"
-          option-value="id"
-          option-label="label"
-          emit-value
-          map-options
-          dense
-          outlined
           clearable
           label="Palette"
           class="q-mt-sm"
@@ -85,6 +79,7 @@ import { computed, ref, shallowRef, toRaw } from 'vue';
 import { nearestColor } from '@/editor/color';
 import type { RrqDoc } from '@/model/schema/project';
 import PaintMapRow from '@/components/PaintMapRow.vue';
+import PaletteSelect from '@/components/PaletteSelect.vue';
 import { useSwapOptions, type Opt } from '@/composables/swap-options';
 import { useProjectStore } from '@/stores/project';
 
@@ -112,10 +107,9 @@ const to = ref<string | null>(null);
 const options = ref<Opt[]>([]);
 const map = ref<Record<string, string>>({});
 
+const chosen = computed(() => swapPalettes.value.find((p) => p.id === to.value));
 /** The chosen palette's name (the new coloring or colorway takes it). */
-const name = computed(
-  () => swapPalettes.value.find((p) => p.id === to.value)?.label.split(' · ')[0],
-);
+const name = computed(() => chosen.value?.label.split(' · ')[0]);
 
 function show(j: Job) {
   job.value = j;

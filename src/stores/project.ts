@@ -17,6 +17,7 @@ import {
   keepAsMine,
   swapToLibraryVersion,
   syncDraft,
+  followColorVariants,
   syncLibraryItems,
   versionMismatches,
 } from '@/model/library-items';
@@ -117,6 +118,10 @@ export const useProjectStore = defineStore('project', () => {
   ) {
     await close();
     openedProject(useSettingsStore().settings, next.project.id, next.project.quilts.length > 0);
+    // Color variants redrawn since (their library block changed): a change worth saving.
+    const followed = produce(next, (d) => followColorVariants(d, useLibraryStore().lookup));
+    if (followed !== next) opts = { ...opts, dirty: true };
+    next = followed;
     doc.value = freeze(next, true);
     handle.value = opts.handle ?? null;
     savedOnce.value = opts.saved;
