@@ -240,6 +240,41 @@ export const CHECKS: Check[] = [
     last: '"the layout dropdown should show the same icons as we use in the wizard" / "the layout dropdown in the layout workbench of quilt design"',
     to: '/',
   },
+  {
+    id: 'TC-116',
+    group: G.small,
+    text: 'Design › Data › Values ranges: the first range reads "under" with only its end, the last only its start with "and up", the ones between from and to. Changing a range’s end moves the next one’s start (and a start moves the one before’s end). Values far past either end take the end range’s color. A single range reads "all". Labels in the color pickers, the print legend and Yardage match.',
+    last: '"the values map shouldn\'t have a max value for the last entry or a min value for the first entry"',
+    to: '/',
+  },
+  {
+    id: 'TC-117',
+    group: G.small,
+    text: 'Design › Data › Values: right under the heading, a small bar chart per value shows the sample’s days in each range or category, in its color (hover a bar: its range and days). Changing a range, Kind or the sample (built-in series, CSV) redraws it. Empty bins keep a sliver.',
+    last: '"we should show a small histogram of values, with bins matching the current value bins" / "let\'s put that right below the "values" section label"',
+    to: '/',
+  },
+  {
+    id: 'TC-118',
+    group: G.small,
+    text: 'Section dividers: Layout tab’s Data quilt switch and Plan sit in a "Data quilt" section with the same labelled line as Layout. Design › Data has Period, Data, Values, Yardage (Most days expected), Places without data; Design › Blocks has Numbers and Block pools (Shuffle on its line), all with that labelled line.',
+    last: '"the data quilt switch and format picker should be in a section with a hr-based label" / "let\'s use the same hr-labeled seperator that we use for other sections for the data tab of the design workbench"',
+    to: '/',
+  },
+  {
+    id: 'TC-119',
+    group: G.small,
+    text: 'Month labels: in a Months plan the list and the quilt label each number by its month (Jan, Feb… from the period start; a September start begins with Sep); warnings name months too. Weeks and Days still read 001, 002…, with the week’s first day or the date beside them in the list.',
+    last: '"let\'s use the month names as labels instead of 001, 002, 003, etc"',
+    to: '/',
+  },
+  {
+    id: 'TC-120',
+    group: G.small,
+    text: 'Design › Blocks: start dragging a placed number in the list: its block space is highlighted on the quilt until you drop it (or let go outside the list).',
+    last: '"when you\'re dragging a block slot in the blocks interface, it should highlight the block on the quilt that you\'ve selected"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

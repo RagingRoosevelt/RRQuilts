@@ -2,6 +2,7 @@
   <!-- A data quilt's Blocks tab (spec 025): the numbered list placed on block spaces with one brush,
        and the block pools each number draws its block from. -->
   <div v-if="plan" class="column no-wrap" style="gap: 10px">
+    <FieldGroup label="Numbers" heading />
     <div class="row items-center no-wrap" style="gap: 8px">
       <q-btn
         :unelevated="editor.tool === 'number'"
@@ -15,7 +16,7 @@
         @click="editor.tool = 'number'"
       />
       <div class="col text-caption" aria-live="polite">
-        <template v-if="next">Next: {{ numberLabel(next) }} {{ numberName(plan, next) }}</template>
+        <template v-if="next">Next: {{ rows[next - 1]?.text }}</template>
         <template v-else>Every number is placed.</template>
       </div>
     </div>
@@ -62,15 +63,16 @@
           :class="{ current: r.k === next, drop: r.k === dropAt }"
           :draggable="!readonly && !!r.space"
           role="button"
-          :aria-label="`${numberLabel(r.k)} ${r.name}${r.space ? ', placed' : ''}`"
+          :aria-label="`${r.text}${r.space ? ', placed' : ''}`"
           @click="pick(r.k)"
           @dragstart="(e: DragEvent) => dragStart(e, r.k)"
+          @dragend="editor.dataHot = null"
           @dragover.prevent="dropAt = r.k"
           @dragleave="dropAt === r.k && (dropAt = null)"
           @drop.prevent="drop(r.k)"
         >
-          <span class="label">{{ numberLabel(r.k) }}</span>
-          <span class="col ellipsis text-caption">{{ r.name }}</span>
+          <span class="label">{{ r.label }}</span>
+          <span class="col ellipsis text-caption">{{ r.name === r.label ? '' : r.name }}</span>
           <q-icon v-if="r.space" name="check" size="16px" color="positive">
             <q-tooltip>Placed</q-tooltip>
           </q-icon>
@@ -100,20 +102,20 @@
       </template>
     </q-virtual-scroll>
 
-    <q-separator />
-    <div class="row items-center">
-      <div class="text-subtitle2 col">Block pools</div>
-      <q-btn
-        flat
-        dense
-        no-caps
-        size="sm"
-        icon="shuffle"
-        label="Shuffle"
-        :disable="readonly"
-        @click="edit((p) => ({ ...p, seed: p.seed + 1 }))"
-      />
-    </div>
+    <FieldGroup label="Block pools" heading>
+      <template #aside>
+        <q-btn
+          flat
+          dense
+          no-caps
+          size="sm"
+          icon="shuffle"
+          label="Shuffle"
+          :disable="readonly"
+          @click="edit((p) => ({ ...p, seed: p.seed + 1 }))"
+        />
+      </template>
+    </FieldGroup>
     <div class="text-caption text-grey-7">
       Each number shows a block from the pool for its days, picked at random when a pool has
       several. A pool takes blocks with at least that many day places.
@@ -153,6 +155,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import FieldGroup from '@/components/FieldGroup.vue';
 import { takesBlock } from '@/editor/scope';
 import { readingOrder, type DataOrder } from '@/model/data-paint';
 import {
@@ -199,11 +202,17 @@ const pools = computed(() => (plan.value ? poolsOf(plan.value) : []));
 const rows = computed(() => {
   const p = plan.value;
   if (!p) return [];
-  return Array.from({ length: numberCount(p) }, (_, i) => ({
-    k: i + 1,
-    name: numberName(p, i + 1),
-    space: p.order[i] ?? null,
-  }));
+  return Array.from({ length: numberCount(p) }, (_, i) => {
+    const name = numberName(p, i + 1);
+    const label = numberLabel(p, i + 1);
+    return {
+      k: i + 1,
+      name,
+      label,
+      text: name === label ? label : `${label} ${name}`,
+      space: p.order[i] ?? null,
+    };
+  });
 });
 /** The highlighted number: the brush's next, moved on past placed ones. */
 const next = computed(() => (plan.value ? nextFree(plan.value, editor.dataNext) : undefined));
@@ -249,11 +258,12 @@ const dragFrom = ref<number | null>(null);
 const dropAt = ref<number | null>(null);
 function dragStart(e: DragEvent, k: number) {
   dragFrom.value = k;
+  editor.dataHot = plan.value?.order[k - 1] ?? null;
   e.dataTransfer?.setData('text/plain', String(k));
 }
 function drop(k: number) {
   const from = dragFrom.value;
-  dragFrom.value = dropAt.value = null;
+  dragFrom.value = dropAt.value = editor.dataHot = null;
   if (from && from !== k) move(from, k);
 }
 function fillAll(order: DataOrder) {

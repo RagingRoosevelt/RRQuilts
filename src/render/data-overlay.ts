@@ -71,7 +71,12 @@ export function quiltDataMarks(quilt: Quilt, generated: Generated): DataMark[] {
     if (!k) return [];
     const [a, b, c, d, e, f] = slot.transform;
     return [
-      { p: [(a + c) / 2 + e, (b + d) / 2 + f] as Pt, label: numberLabel(k), group: 'n', order: k },
+      {
+        p: [(a + c) / 2 + e, (b + d) / 2 + f] as Pt,
+        label: numberLabel(plan, k),
+        group: 'n',
+        order: k,
+      },
     ];
   });
 }

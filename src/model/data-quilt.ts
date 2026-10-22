@@ -457,14 +457,15 @@ export function moveNumber(plan: DataPlan, from: number, to: number): DataPlan {
   return { ...plan, order };
 }
 
-/** A number's label: 001, 002, … */
-export const numberLabel = (k: number) => String(k).padStart(3, '0');
-
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const short = (key: string) => {
   const d = new Date(parse(key));
   return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`;
 };
+/** A number's label: its month's name (Months), else 001, 002, … */
+export const numberLabel = (plan: DataPlan, k: number) =>
+  plan.plan === 'months' ? numberName(plan, k) : String(k).padStart(3, '0');
+
 /** What a number stands for: its month, its week's first day, or its day. */
 export function numberName(plan: DataPlan, k: number) {
   const info = numberInfo(plan, k);
@@ -488,7 +489,7 @@ export function dataReport(q: Quilt, blocks: readonly Block[]): string[] {
     out.push(
       `${empty.length} number${empty.length > 1 ? 's' : ''} not placed yet: ${empty
         .slice(0, 6)
-        .map(numberLabel)
+        .map((k) => numberLabel(plan, k))
         .join(', ')}${empty.length > 6 ? '…' : ''}.`,
     );
   const needed = new Set<Pool>();
@@ -544,7 +545,9 @@ export function scaleEntries(s: ValueSlot): { fill: PlainFill; text: string; mos
       ? `under ${r.to}${u}`
       : n > 1 && i === n - 1
         ? `${r.from}${u} and up`
-        : `${r.from} to ${r.to}${u}`;
+        : n === 1
+          ? 'all values'
+          : `${r.from} to ${r.to}${u}`;
   return s.kind === 'number'
     ? s.ranges.map((r, i) => ({ fill: r.fill, text: text(r, i), ...most(r) }))
     : s.categories.map((c) => ({ fill: c.fill, text: c.name, ...most(c) }));

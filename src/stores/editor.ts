@@ -88,6 +88,8 @@ export const useEditorStore = defineStore('editor', () => {
   });
   /** A data quilt's next number to place (1-based, spec 025). */
   const dataNext = ref(1);
+  /** The block space of the number being dragged in the list, highlighted on the quilt. */
+  const dataHot = ref<string | null>(null);
 
   function useColor(id: string) {
     color.value = id;
@@ -123,6 +125,7 @@ export const useEditorStore = defineStore('editor', () => {
     coloringOf,
     data,
     dataNext,
+    dataHot,
     useColor,
   };
 });

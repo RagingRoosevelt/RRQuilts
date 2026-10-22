@@ -153,7 +153,7 @@
           :doc="project.doc"
           :quilt="quilt"
           :generated="generated"
-          :hover="hover?.slotId ?? null"
+          :hover="editor.dataHot ?? hover?.slotId ?? null"
           :outlines="editor.outlines"
           :labels="editor.labels"
           :selected="found"
@@ -214,33 +214,35 @@
           </PaletteTray>
         </template>
         <template v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'">
-          <q-toggle
-            :model-value="!!quilt.data?.on"
-            label="Data quilt"
-            :disable="project.readOnly"
-            class="q-mb-xs"
-            @update:model-value="setDataQuilt"
-          />
-          <div class="text-caption text-grey-7 q-mb-md">
-            Colors pieces from data, such as a year of temperatures: the Design tab places numbered
-            blocks and maps values to colors.
-          </div>
-          <template v-if="quilt.data?.on">
-            <SlidePicker
-              :model-value="quilt.data.plan"
-              :options="[
-                { value: 'months', label: 'Months' },
-                { value: 'weeks', label: 'Weeks' },
-                { value: 'days', label: 'Days' },
-              ]"
-              label="Plan"
-              :class="{ 'no-pointer': project.readOnly }"
-              @update:model-value="setDataPlan"
+          <FieldGroup label="Data quilt" heading class="q-mb-lg">
+            <q-toggle
+              :model-value="!!quilt.data?.on"
+              label="Data quilt"
+              :disable="project.readOnly"
+              class="q-mb-xs"
+              @update:model-value="setDataQuilt"
             />
-            <div class="text-caption text-grey-7 q-mt-xs q-mb-md">
-              {{ PLAN_HINTS[quilt.data.plan] }}
+            <div class="text-caption text-grey-7" :class="{ 'q-mb-md': quilt.data?.on }">
+              Colors pieces from data, such as a year of temperatures: the Design tab places
+              numbered blocks and maps values to colors.
             </div>
-          </template>
+            <template v-if="quilt.data?.on">
+              <SlidePicker
+                :model-value="quilt.data.plan"
+                :options="[
+                  { value: 'months', label: 'Months' },
+                  { value: 'weeks', label: 'Weeks' },
+                  { value: 'days', label: 'Days' },
+                ]"
+                label="Plan"
+                :class="{ 'no-pointer': project.readOnly }"
+                @update:model-value="setDataPlan"
+              />
+              <div class="text-caption text-grey-7 q-mt-xs">
+                {{ PLAN_HINTS[quilt.data.plan] }}
+              </div>
+            </template>
+          </FieldGroup>
           <LayoutInspector
             :key="quilt.id"
             :layout="quilt.layout"
@@ -305,6 +307,7 @@ import LayoutInspector from '@/components/LayoutInspector.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
+import FieldGroup from '@/components/FieldGroup.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';

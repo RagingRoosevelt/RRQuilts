@@ -60,8 +60,8 @@ under **Data**.
 
 ## Place the numbers
 
-The **Blocks** tab lists every number of the plan, 001 for January (or the first week or day) and on
-from there. With **Place numbers** on, tap block spaces on the quilt. Each gets the highlighted
+The **Blocks** tab lists every number of the plan. Months go by name (Jan, Feb, and so on from the
+period start), weeks and days by number (001, 002, and on). With **Place numbers** on, tap block spaces on the quilt. Each gets the highlighted
 number, which then moves on to the next number not yet placed. Tap a number in the list to place from
 there. Numbers already placed are skipped. Tap a placed space to take its number back.
 
@@ -69,8 +69,8 @@ there. Numbers already placed are skipped. Tap a placed space to take its number
 **Columns**, or **Snake**. **Clear** takes every number back.
 
 A number's place in the list is its label. Drag a placed number to another row, or use the arrows
-beside it, and the rows between move along. The quilt shows each space's number with a line
-through them in order.
+beside it, and the rows between move along. While you drag, its block space lights up on the
+quilt. The quilt shows each space's label with a line through them in order.
 
 Each number shows a block from the pool for its days. A Months plan has pools for 31, 30, 29, and
 28-day months, Weeks has a pool for weeks and one for the days left over, and Days has one pool. A
@@ -87,9 +87,11 @@ or days without a place.
 Each value has a **Label** and a **Kind**. Temperature, Hours of daylight, and Rainfall map ranges
 of numbers to colors. Mood maps each choice to a color. Custom starts with three number ranges.
 
-The values are in the **Data** tab. A range holds values from its first number up to (not
-including) its second. A value past the first or last range takes that end range's color. Change a
-range's numbers, color, or fabric, add or remove ranges, and the quilt recolors as you go. **Add a
+The values are in the **Data** tab, under a small chart of how many days of the sample fall in each
+range or category. The first range holds every value under its end, and the last every value from
+its start. A range between holds values from its first number up to (not including) its second.
+Ranges stay joined, so changing where one ends moves where the next starts. Change a range's
+numbers, color, or fabric, add or remove ranges, and the quilt recolors as you go. **Add a
 value** adds B, C, and D.
 
 In a colorway other than the primary, each range or category shows its primary color and what it
@@ -119,5 +121,5 @@ sets what a day shows until it has a value: its own color, the sample value, or 
 
 The printed quilt picture has a legend of each value's colors. Yardage can't know your data ahead of
 time, so it counts a worst case. Each range or category counts its **most days expected**, each in
-the largest piece of its value. Set those numbers under **Yardage: most days expected** in the
+the largest piece of its value. Set those numbers under **Yardage** › **Most days expected** in the
 **Data** tab. Left empty, each takes its number of days in the sample.

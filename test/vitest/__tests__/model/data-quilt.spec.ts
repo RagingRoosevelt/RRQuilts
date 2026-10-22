@@ -223,7 +223,8 @@ describe('setting a plan up', () => {
     p = moveNumber(p, 5, 1); // s1 becomes 001, the rest move down
     expect(p.order.slice(0, 5)).toEqual(['s1', 'a', 'b', null, null]);
     expect(p.order).toHaveLength(12);
-    expect(numberLabel(7)).toBe('007');
+    expect(numberLabel(p, 7)).toBe('Jul');
+    expect(numberLabel(plan({ plan: 'weeks' }), 7)).toBe('007');
     expect(numberName(p, 3)).toBe('Mar');
     expect(numberName({ ...p, start: '2027-09-01' }, 5)).toBe('Jan');
     expect(numberName(plan({ plan: 'weeks' }), 2)).toBe('Week of Jan 8');
@@ -238,7 +239,7 @@ describe('setting a plan up', () => {
     const { q, slotId } = dataQuilt(plan());
     q.data!.order = [null, null, slotId, ...Array<null>(9).fill(null)];
     const r = dataReport(q, []).join(' ');
-    expect(r).toMatch(/11 numbers not placed yet: 001, 002, 004/);
+    expect(r).toMatch(/11 numbers not placed yet: Jan, Feb, Apr/);
     expect(r).toMatch(/The 31-day pool has no block yet/);
     expect(r).toMatch(/364 days have no place/);
     q.data!.order = [];

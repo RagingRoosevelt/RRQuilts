@@ -3,6 +3,7 @@
        their scales (in a colorway other than the primary: what each scale color becomes), yardage,
        places without data. Numbers and block pools are in the Blocks tab (DataBlocks). -->
   <div v-if="plan" class="column no-wrap" style="gap: 12px">
+    <FieldGroup label="Period" heading />
     <q-input
       :model-value="plan.start"
       type="date"
@@ -13,6 +14,7 @@
       @update:model-value="setStart"
     />
     <div class="text-caption text-grey-7 q-mt-n-sm">Ends {{ end }}, {{ days }} days.</div>
+    <FieldGroup label="Data" heading />
     <SlidePicker
       :model-value="plan.show"
       :options="[
@@ -99,8 +101,21 @@
       </div>
     </div>
 
-    <q-separator />
-    <div class="text-subtitle2">Values</div>
+    <FieldGroup label="Values" heading />
+    <!-- The sample's days per range or category (the current bins), a small bar chart per value. -->
+    <div v-for="(s, i) in plan.slots" :key="`h${i}`" class="column" style="gap: 2px">
+      <div class="text-caption text-grey-7">{{ s.label }}: days in the sample</div>
+      <div class="histogram row no-wrap items-end" role="img" :aria-label="histLabel(i)">
+        <div
+          v-for="(e, j) in scaleEntries(s)"
+          :key="j"
+          class="bar col"
+          :style="{ ...swatch(e.fill), height: `${barHeight(i, j)}%` }"
+        >
+          <q-tooltip>{{ e.text }}: {{ counts[i]?.[j] ?? 0 }} days</q-tooltip>
+        </div>
+      </div>
+    </div>
     <template v-if="colorway">
       <div class="text-caption text-grey-7">
         {{ colorway.name }}: pick what each color of {{ primaryName }} becomes. Show
@@ -179,7 +194,12 @@
       </div>
       <template v-if="s.kind === 'number'">
         <div v-for="(r, j) in s.ranges" :key="j" class="row items-center no-wrap" style="gap: 4px">
+          <!-- The first range takes everything under its end, the last everything from its start. -->
+          <span v-if="j === 0" class="num text-caption text-right">{{
+            s.ranges.length > 1 ? 'under' : 'all'
+          }}</span>
           <q-input
+            v-else
             :model-value="r.from"
             type="number"
             dense
@@ -189,8 +209,11 @@
             :readonly="readonly"
             @update:model-value="(v) => setRange(i, j, { from: Number(v) }, `r${i}.${j}`)"
           />
-          <span class="text-caption">to</span>
+          <span v-if="j > 0" class="text-caption">{{
+            j === s.ranges.length - 1 ? 'and up' : 'to'
+          }}</span>
           <q-input
+            v-if="j < s.ranges.length - 1"
             :model-value="r.to"
             type="number"
             dense
@@ -204,7 +227,7 @@
             class="col"
             :model-value="paintOf(r.fill)"
             :options="fillOptions"
-            :label="`${r.from} to ${r.to}`"
+            :label="scaleEntries(s)[j]?.text ?? ''"
             :readonly="readonly"
             @update:model-value="(id) => setRange(i, j, { fill: plain(id) })"
           />
@@ -293,12 +316,8 @@
       @click="addSlot"
     />
 
-    <q-separator />
-    <q-expansion-item
-      dense
-      label="Yardage: most days expected"
-      header-class="text-subtitle2 q-px-none"
-    >
+    <FieldGroup label="Yardage" heading />
+    <q-expansion-item dense label="Most days expected" header-class="q-px-none">
       <div class="text-caption text-grey-7 q-mb-sm">
         Printed yardage counts this many days for each range or category, each in the largest piece
         of its value. Empty: its days in the sample.
@@ -328,8 +347,7 @@
       </div>
     </q-expansion-item>
 
-    <q-separator />
-    <div class="text-subtitle2">Places without data</div>
+    <FieldGroup label="Places without data" heading />
     <SlidePicker
       :model-value="plan.unused"
       :options="[
@@ -377,6 +395,7 @@ import { castDraft } from 'immer';
 import { computed, ref } from 'vue';
 import DataCsvDialog from '@/components/DataCsvDialog.vue';
 import DataEntriesDialog from '@/components/DataEntriesDialog.vue';
+import FieldGroup from '@/components/FieldGroup.vue';
 import PaintMapRow from '@/components/PaintMapRow.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { optStyle, useSwapOptions } from '@/composables/swap-options';
@@ -442,6 +461,18 @@ const counts = computed(() =>
   plan.value ? plan.value.slots.map((_, i) => sampleCounts(plan.value!, i)) : [],
 );
 const swatch = (f: PlainFill) => optStyle(paintOpt(paintOf(f)!));
+/** A bar's height against the slot's tallest (an empty bin keeps a sliver, so its color shows). */
+function barHeight(i: number, j: number) {
+  const c = counts.value[i] ?? [];
+  const max = Math.max(1, ...c);
+  return Math.max(4, ((c[j] ?? 0) / max) * 100);
+}
+const histLabel = (i: number) => {
+  const s = plan.value!.slots[i]!;
+  return scaleEntries(s)
+    .map((e, j) => `${e.text}: ${counts.value[i]?.[j] ?? 0} days`)
+    .join(', ');
+};
 function setMost(i: number, j: number, v: string | number | null) {
   const n = v === '' || v === null ? undefined : Math.max(0, Math.min(366, Math.round(Number(v))));
   if (n !== undefined && !Number.isFinite(n)) return;
@@ -557,7 +588,22 @@ function setScale(i: number, patch: Partial<ValueSlot>) {
 function setRange(i: number, j: number, patch: Partial<ValueSlot['ranges'][number]>, c?: string) {
   if (Object.values(patch).some((v) => typeof v === 'number' && !Number.isFinite(v))) return;
   const s = plan.value!.slots[i]!;
-  setSlot(i, { ranges: s.ranges.map((r, k) => (k === j ? { ...r, ...patch } : r)) }, c);
+  // Ranges stay joined: a range's start is the one before's end.
+  setSlot(
+    i,
+    {
+      ranges: s.ranges.map((r, k) =>
+        k === j
+          ? { ...r, ...patch }
+          : k === j - 1 && patch.from !== undefined
+            ? { ...r, to: patch.from }
+            : k === j + 1 && patch.to !== undefined
+              ? { ...r, from: patch.to }
+              : r,
+      ),
+    },
+    c,
+  );
 }
 function setCategory(
   i: number,
@@ -680,6 +726,16 @@ function removeSlot(i: number) {
   border: 1px solid rgba(128, 128, 128, 0.3);
   border-radius: 6px;
   padding: 8px;
+}
+.histogram {
+  height: 40px;
+  gap: 2px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.5);
+}
+.bar {
+  min-width: 0;
+  border-radius: 2px 2px 0 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
 }
 .no-pointer {
   pointer-events: none;
