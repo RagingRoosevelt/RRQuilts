@@ -1,74 +1,49 @@
-// Numbering pieces with data paints (spec 025 User Story 1): the next free number, painting and
-// taking back one piece, numbering many in rows / columns / snake order, and where each piece's
-// number sits (for the overlay and the order line).
+// Day numerals on a data block's pieces (spec 025 User Story 1): putting one on and taking it off,
+// counting them, reading order (rows / columns / snake), and where each piece's numeral sits (for
+// the overlay and the order line).
 import { interiorPoint } from './blocks/remap';
 import { plainFill } from './coloring';
 import { pathPolygon, pointInPolygon, type Pt } from './geometry/path';
 import type { Block } from './schema/block';
 import type { DataPaint, Fill } from './schema/coloring';
 
-/** Which numbers: a month block's days or a week block's. */
-export type DataSet = '31' | '7';
 export type DataOrder = 'rows' | 'columns' | 'snake';
-export const SET_MAX: Record<DataSet, number> = { '31': 31, '7': 7 };
 export const SLOT_NAMES = ['A', 'B', 'C', 'D'] as const;
 
 type Fills = Readonly<Record<string, Fill>>;
 
-// Both sets are one run of numbers: the set only caps how far numbering goes.
 const inSlot = (p: DataPaint, slot: number) => (p.slot ?? 0) === slot;
 
-/** Numbers of `slot` already painted. */
-const used = (fills: Fills, slot: number) =>
-  new Set(
-    Object.values(fills).flatMap((f) => ('data' in f && inSlot(f.data, slot) ? [f.data.n] : [])),
-  );
-
-/** The smallest number of `set` not yet painted for `slot` (undefined: all used). */
-export function nextNumber(fills: Fills, set: DataSet, slot: number): number | undefined {
-  const have = used(fills, slot);
-  for (let n = 1; n <= SET_MAX[set]; n++) if (!have.has(n)) return n;
-  return undefined;
-}
-
-const paint = (n: number, slot: number, over: Fill | undefined): Fill => {
-  const under = plainFill(over);
-  return {
-    data: { n, ...(slot ? { slot } : {}) },
-    ...(under ? { under } : {}),
-  };
-};
-
 /**
- * Number in order: a piece without this set's number gets the next one (over its color); one
- * that has it gives it back (its color returns). Returns the new fills, or undefined when the set
- * is full.
+ * Put day numeral `n` of value `slot` on a patch, over its color; the same numeral already there
+ * comes off (its color returns). A numeral may sit on any number of patches.
  */
-export function numberPiece(fills: Fills, id: string, set: DataSet, slot: number) {
+export function putNumeral(
+  fills: Fills,
+  id: string,
+  n: number,
+  slot: number,
+): Record<string, Fill> {
   const f = fills[id];
   const out = { ...fills };
-  if (f && 'data' in f && inSlot(f.data, slot)) {
+  if (f && 'data' in f && inSlot(f.data, slot) && f.data.n === n) {
     if (f.under) out[id] = f.under;
     else delete out[id];
     return out;
   }
-  const n = nextNumber(fills, set, slot);
-  if (n === undefined) return undefined;
-  out[id] = paint(n, slot, f);
+  const under = plainFill(f);
+  out[id] = { data: { n, ...(slot ? { slot } : {}) }, ...(under ? { under } : {}) };
   return out;
 }
 
-/** Number `ids` in the order given, each the next free number (ones already numbered are kept). */
-export function numberPieces(fills: Fills, ids: readonly string[], set: DataSet, slot: number) {
-  let out: Record<string, Fill> = { ...fills };
+/** How many of the patches `ids` each numeral of value `slot` is on. */
+export function numeralCounts(fills: Fills, ids: readonly string[], slot: number) {
+  const m = new Map<number, number>();
   for (const id of ids) {
-    const f = out[id];
-    if (f && 'data' in f && inSlot(f.data, slot)) continue;
-    const n = nextNumber(out, set, slot);
-    if (n === undefined) break;
-    out = { ...out, [id]: paint(n, slot, f) };
+    const f = fills[id];
+    if (f && 'data' in f && inSlot(f.data, slot)) m.set(f.data.n, (m.get(f.data.n) ?? 0) + 1);
   }
-  return out;
+  return m;
 }
 
 /** A piece's area centroid when it's inside the piece, else a point inside (concave pieces). */

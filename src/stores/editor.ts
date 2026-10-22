@@ -2,7 +2,6 @@
 import { defineStore } from 'pinia';
 import { computed, reactive, ref } from 'vue';
 import type { Scope } from '@/editor/scope';
-import type { DataOrder, DataSet } from '@/model/data-paint';
 import type { DataKind } from '@/model/schema/block';
 import type { StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
@@ -70,23 +69,18 @@ export const useEditorStore = defineStore('editor', () => {
   const grid = ref<[number, number]>([3, 3]);
   /** Current coloring per block (block editor + which coloring "Set" uses in quilts). */
   const coloringOf = reactive(new Map<string, string>());
-  /** Data paints (spec 025): numbering on (Paint and Spray number pieces instead of coloring),
-   *  which numbers, which value slot, Spray's order, and the overlay. */
-  const data = reactive<{
-    on: boolean;
-    set: DataSet;
-    slot: number;
-    order: DataOrder;
-    numbers: boolean;
-    line: boolean;
-  }>({
+  /** A data block's numerals (spec 025): numbering on (a tap puts the picked numeral on instead of
+   *  a color), the numeral and value, moving on after each tap, and the overlay. */
+  const data = reactive({
     on: false,
-    set: '31',
+    numeral: 1,
     slot: 0,
-    order: 'rows',
+    advance: true,
     numbers: true,
     line: true,
   });
+  /** The month data block variant shown in the block editor (days; null: its own, the 31). */
+  const blockVariant = ref<number | null>(null);
   /** A data quilt's next number to place (1-based, spec 025). */
   const dataNext = ref(1);
   /** The block space of the number being dragged in the list, highlighted on the quilt. */
@@ -133,6 +127,7 @@ export const useEditorStore = defineStore('editor', () => {
     grid,
     coloringOf,
     data,
+    blockVariant,
     dataNext,
     dataHot,
     dataSel,

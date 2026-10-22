@@ -120,6 +120,7 @@
           :readonly="ro"
           @drawing="applyDrawing"
           @patch="onPatch"
+          @numeral="(p, n) => numeralPatch(p, n)"
           @pointer="(i) => (pointer = i)"
         />
         <div class="readout q-pa-xs text-caption">
@@ -144,8 +145,17 @@
           :id="block.id"
           :doc="viewDoc"
         />
+        <DataVariants
+          v-if="
+            stored?.data?.kind === 'month' &&
+            (editor.blockMode === 'draw' || editor.blockMode === 'color')
+          "
+          :block="stored!"
+          :readonly="ro"
+          class="q-mb-md"
+        />
         <BlockInspector
-          v-else-if="editor.blockMode === 'draw'"
+          v-if="editor.blockMode === 'draw'"
           :block="block"
           :settings="settings"
           :selection="selection"
@@ -157,7 +167,7 @@
           @settings="saveSettings"
           @op="onOp"
         />
-        <div v-else class="column">
+        <div v-else-if="editor.blockMode === 'color'" class="column">
           <q-expansion-item
             :model-value="open('Colorings')"
             dense
@@ -227,6 +237,21 @@
             </div>
           </q-expansion-item>
           <q-expansion-item
+            v-if="stored?.data"
+            :model-value="open('Day numerals')"
+            dense
+            label="Day numerals"
+            header-class="text-subtitle2"
+            @update:model-value="(v) => setOpen('Day numerals', v)"
+          >
+            <DataNumerals
+              :fills="shownFills"
+              :patches="block.patches.map((p) => p.id)"
+              :count="numeralCount"
+              :readonly="ro"
+            />
+          </q-expansion-item>
+          <q-expansion-item
             :model-value="open('Colors')"
             dense
             label="Colors"
@@ -234,15 +259,6 @@
             @update:model-value="(v) => setOpen('Colors', v)"
           >
             <PaletteTray colors-only sidebar />
-          </q-expansion-item>
-          <q-expansion-item
-            :model-value="open('Data places')"
-            dense
-            label="Data places"
-            header-class="text-subtitle2"
-            @update:model-value="(v) => setOpen('Data places', v)"
-          >
-            <DataPaintPanel :fills="shownFills" :readonly="ro" />
           </q-expansion-item>
           <div class="text-caption text-grey-7">
             Paint taps a patch; Spray recolors every patch of the same color; Eyedropper picks one
@@ -280,10 +296,11 @@ import {
   type BlockEditorSettings,
   type SelectionOp,
 } from '@/editor/block-ops';
-import { detachColoring, fillKey, plainFill } from '@/model/coloring';
-import { numberPiece, numberPieces, pieceSpots, readingOrder } from '@/model/data-paint';
-import type { Fill } from '@/model/schema/coloring';
-import DataPaintPanel from '@/components/DataPaintPanel.vue';
+import { detachColoring, fillKey } from '@/model/coloring';
+import { putNumeral } from '@/model/data-paint';
+import DataNumerals from '@/components/DataNumerals.vue';
+import DataVariants from '@/components/DataVariants.vue';
+import { KIND_DAYS } from '@/model/data-quilt';
 import { fillFor, paintOf } from '@/editor/paint';
 import {
   addNodes,
@@ -354,8 +371,36 @@ const viewDoc = computed(() => {
 const libraryView = computed(() => !!anyBlock.value && isLibraryItem(anyBlock.value));
 const ro = computed(() => project.readOnly || libraryView.value);
 const { editLibrary, colorVariant } = useLibraryBlockActions();
-const block = computed(() => (anyBlock.value?.kind === 'seam' ? anyBlock.value : undefined));
-const notSeam = computed(() => !!anyBlock.value && !block.value);
+const stored = computed(() => (anyBlock.value?.kind === 'seam' ? anyBlock.value : undefined));
+/** A month data block's picked variant (spec 025), when it has it. */
+const variantDays = computed(() =>
+  stored.value?.data?.variants?.some((v) => v.days === editor.blockVariant)
+    ? editor.blockVariant!
+    : undefined,
+);
+/** The block as shown and edited: a variant's drawing in place of its own when one is picked. */
+const block = computed(() => {
+  const b = stored.value;
+  const v = b && b.data?.variants?.find((x) => x.days === variantDays.value);
+  if (!b || !v) return b;
+  const { unconnected: _u, ...rest } = b;
+  void _u;
+  return {
+    ...rest,
+    drawing: v.drawing,
+    patches: v.patches,
+    ...(v.unconnected ? { unconnected: v.unconnected } : {}),
+  };
+});
+/** Numerals the shown drawing takes: its variant's days, else its kind's. */
+const numeralCount = computed(
+  () => variantDays.value ?? KIND_DAYS[stored.value?.data?.kind ?? 'month'],
+);
+watch(
+  () => stored.value?.id,
+  () => (editor.blockVariant = null),
+);
+const notSeam = computed(() => !!anyBlock.value && !stored.value);
 watch(
   anyBlock,
   (b) => {
@@ -471,7 +516,7 @@ function applyDrawing(drawing: Drawing, editorPatch?: Partial<BlockEditorSetting
   const id = block.value!.id;
   const nextEditor = editorPatch && { ...settings.value, ...editorPatch };
   project.change(() => {
-    const r = applySeamEdit(project.doc!, id, drawing);
+    const r = applySeamEdit(project.doc!, id, drawing, variantDays.value);
     return withBlock(r.doc, (b) =>
       markDerived(
         nextEditor ? { ...b, editor: nextEditor } : b,
@@ -502,7 +547,11 @@ function resize(size: [number, number]) {
         const b = d.project.blocks.find((x) => x.id === id)!;
         b.size = size;
       });
-      return applySeamEdit(sized, id, block.value!.drawing).doc;
+      // Every drawing of a data block (its own and its variants) re-derives at the new size.
+      let out = applySeamEdit(sized, id, stored.value!.drawing).doc;
+      for (const v of stored.value!.data?.variants ?? [])
+        out = applySeamEdit(out, id, v.drawing, v.days).doc;
+      return out;
     },
     { coalesce: 'block-size' },
   );
@@ -572,10 +621,10 @@ function onPatch(patchId: string) {
   const current = b.colorings.find((c) => c.id === cid)?.fills[patchId];
   if (editor.blockTool === 'eyedropper') {
     if (current && 'data' in current) {
-      // A data paint: number with its set and value slot.
+      // A numeral: pick it up with its value.
       Object.assign(editor.data, {
         on: true,
-        set: current.data.n > 7 ? '31' : editor.data.set,
+        numeral: current.data.n,
         slot: current.data.slot ?? 0,
       });
       return;
@@ -584,7 +633,7 @@ function onPatch(patchId: string) {
     if (paint) editor.useColor(paint);
     return;
   }
-  if (editor.data.on) return numberPatch(patchId, current);
+  if (editor.data.on && stored.value?.data) return numeralPatch(patchId, editor.data.numeral, true);
   if (!editor.color) {
     $q.notify({ message: 'Pick a color in the tray first.', timeout: 1500 });
     return;
@@ -608,37 +657,30 @@ function onPatch(patchId: string) {
   editor.coloringOf.set(b.id, target);
 }
 
-/** Data places (spec 025): Paint numbers one piece, Spray every piece of its color in order. */
-function numberPatch(patchId: string, current: Fill | undefined) {
-  const b = block.value!;
+/** A data block's numeral on a patch (spec 025): on over its color, or off when it's there; a tap
+ *  moves on to the next numeral when asked. */
+function numeralPatch(patchId: string, n: number, tap = false) {
+  if (ro.value) return;
+  const b = stored.value!;
   const { base, target } = editable();
-  const { set, slot, order } = editor.data;
-  let full = false;
+  const slot = editor.data.slot;
+  const was = base.colorings.find((k) => k.id === target)?.fills[patchId];
+  const taking = !!was && 'data' in was && was.data.n === n && (was.data.slot ?? 0) === slot;
   project.change(() =>
     withBlock(project.doc!, () =>
       produce(base, (x) => {
         const c = x.colorings.find((k) => k.id === target)!;
-        let next: Record<string, Fill> | undefined;
-        if (editor.blockTool === 'paint') next = numberPiece(c.fills, patchId, set, slot);
-        else {
-          const key = fillKey(plainFill(current));
-          const ids = b.patches
-            .map((p) => p.id)
-            .filter((id) => fillKey(plainFill(c.fills[id])) === key);
-          next = numberPieces(c.fills, readingOrder(pieceSpots(b), ids, order), set, slot);
-        }
-        if (next) c.fills = castDraft(next);
-        else full = true;
+        c.fills = castDraft(putNumeral(c.fills, patchId, n, slot));
       }),
     ),
   );
   editor.coloringOf.set(b.id, target);
-  if (full) $q.notify({ message: 'Every number of this set is placed.', timeout: 1500 });
+  if (tap && !taking && editor.data.advance && n < numeralCount.value) editor.data.numeral = n + 1;
 }
 
 /** The coloring to change: a library coloring is read-only, so a project copy of it. */
 function editable(): { base: Block; target: string } {
-  const b = block.value!;
+  const b = stored.value!;
   const cid = coloringId.value!;
   if (!isLibraryColoring(cid)) return { base: b, target: cid };
   const r = saveColoringAs(b, cid);
@@ -647,7 +689,7 @@ function editable(): { base: Block; target: string } {
 }
 
 function saveAsNew() {
-  const r = saveColoringAs(block.value!, coloringId.value!);
+  const r = saveColoringAs(stored.value!, coloringId.value!);
   project.change(() => withBlock(project.doc!, () => r.block));
   editor.coloringOf.set(block.value!.id, r.id);
 }

@@ -1,44 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import {
-  nextNumber,
-  numberPiece,
-  numberPieces,
-  paintLabel,
-  readingOrder,
-} from '@/model/data-paint';
+import { numeralCounts, paintLabel, putNumeral, readingOrder } from '@/model/data-paint';
 import type { Pt } from '@/model/geometry/path';
 import type { Fill } from '@/model/schema/coloring';
 
 const gray: Fill = { color: 'gray' };
 
 describe('data places (spec 025 US1)', () => {
-  it('number in order: the next free number, over the color; tapping again takes it back', () => {
+  it('numerals: on over the color, on several patches, off again', () => {
     let f: Record<string, Fill> = { a: gray, b: gray, c: gray };
-    f = numberPiece(f, 'a', '31', 0)!;
-    f = numberPiece(f, 'b', '31', 0)!;
-    expect(f.a).toEqual({ data: { n: 1 }, under: gray });
-    expect(f.b).toEqual({ data: { n: 2 }, under: gray });
-    f = numberPiece(f, 'a', '31', 0)!;
+    f = putNumeral(f, 'a', 5, 0);
+    f = putNumeral(f, 'b', 5, 0);
+    expect(f.a).toEqual({ data: { n: 5 }, under: gray });
+    expect(numeralCounts(f, ['a', 'b', 'c'], 0).get(5)).toBe(2);
+    f = putNumeral(f, 'b', 6, 0); // another numeral replaces it
+    expect(f.b).toEqual({ data: { n: 6 }, under: gray });
+    f = putNumeral(f, 'a', 5, 0); // the same numeral comes off
     expect(f.a).toEqual(gray);
-    expect(nextNumber(f, '31', 0)).toBe(1);
-    // Other slots count apart.
-    expect(nextNumber(f, '31', 1)).toBe(1);
-    f = numberPiece(f, 'c', '31', 1)!;
+    f = putNumeral(f, 'c', 1, 1);
     expect(f.c).toEqual({ data: { n: 1, slot: 1 }, under: gray });
+    expect(numeralCounts(f, ['a', 'b', 'c'], 0).get(1)).toBeUndefined();
     expect(paintLabel({ n: 1, slot: 1 })).toBe('1B');
-  });
-
-  it('a full set refuses another number', () => {
-    const f = Object.fromEntries(
-      [1, 2, 3, 4, 5, 6, 7].map((n): [string, Fill] => [`p${n}`, { data: { n } }]),
-    );
-    expect(numberPiece({ ...f, x: gray }, 'x', '7', 0)).toBeUndefined();
-  });
-
-  it('numbering many keeps those numbered, fills the gaps in order', () => {
-    const f = numberPieces({ a: gray, b: { data: { n: 1 } }, c: gray }, ['a', 'b', 'c'], '7', 0);
-    expect(f.a).toEqual({ data: { n: 2 }, under: gray });
-    expect(f.c).toEqual({ data: { n: 3 }, under: gray });
   });
 
   it('reading order: rows, columns, snake', () => {

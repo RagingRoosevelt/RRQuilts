@@ -73,7 +73,12 @@ export function interiorPoint(poly: Pt[]): Pt {
   return poly[0]!;
 }
 
-export function assignIds(oldPatches: OldPatch[], fresh: DerivedPatch[]): Assignment[] {
+export function assignIds(
+  oldPatches: OldPatch[],
+  fresh: DerivedPatch[],
+  /** Ids new patches must not take (a data block's other drawings). */
+  taken: ReadonlySet<string> = new Set(),
+): Assignment[] {
   const oldPolys = oldPatches.map((p) => p.poly);
   const newPolys = fresh.map((p) => p.poly);
   const counts = new Map<string, number>(); // `${new}:${old}` → samples
@@ -108,7 +113,7 @@ export function assignIds(oldPatches: OldPatch[], fresh: DerivedPatch[]): Assign
       claimedOld.add(o);
     }
   }
-  const used = new Set(oldPatches.map((p) => p.id));
+  const used = new Set([...oldPatches.map((p) => p.id), ...taken]);
   for (const a of out) {
     if (a.id) continue;
     do a.id = newId();

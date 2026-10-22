@@ -9,6 +9,8 @@
       @pointerleave="vp.handlers.pointerleave"
       @wheel.prevent="vp.handlers.wheel"
       @contextmenu.prevent
+      @dragover="onDragOver"
+      @drop="onDrop"
     />
     <div class="zoom column" style="gap: 4px">
       <q-btn round dense size="sm" icon="add" aria-label="Zoom in" @click="vp.zoomBy(1.25)" />
@@ -63,6 +65,8 @@ const emit = defineEmits<{
   'update:selection': [ids: Set<string>];
   drawing: [d: Drawing];
   patch: [patchId: string];
+  /** A day numeral dropped on a patch (spec 025). */
+  numeral: [patchId: string, n: number];
   pointer: [info: { p: Pt; length: number | null } | null];
 }>();
 
@@ -127,6 +131,19 @@ function nodeAt(p: Pt): string | null {
   }
   return best?.id ?? null;
 }
+const NUMERAL = 'application/x-rrq-numeral';
+/** A dragged numeral can land on a patch. */
+function onDragOver(e: DragEvent) {
+  if (e.dataTransfer?.types.includes(NUMERAL)) e.preventDefault();
+}
+function onDrop(e: DragEvent) {
+  const n = Number(e.dataTransfer?.getData(NUMERAL));
+  if (!n) return;
+  e.preventDefault();
+  const patch = patchAt(vp.worldAt(e));
+  if (patch) emit('numeral', patch, n);
+}
+
 function patchAt(p: Pt): string | null {
   const n: Pt = [p[0] / size.value[0], p[1] / size.value[1]];
   let hit: string | null = null;

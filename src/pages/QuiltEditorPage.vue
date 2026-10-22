@@ -215,35 +215,6 @@
           </PaletteTray>
         </template>
         <template v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'">
-          <FieldGroup label="Data quilt" heading class="q-mb-lg">
-            <q-toggle
-              :model-value="!!quilt.data?.on"
-              label="Data quilt"
-              :disable="project.readOnly"
-              class="q-mb-xs"
-              @update:model-value="setDataQuilt"
-            />
-            <div class="text-caption text-grey-7" :class="{ 'q-mb-md': quilt.data?.on }">
-              Colors pieces from data, such as a year of temperatures: the Design tab places
-              numbered blocks and maps values to colors.
-            </div>
-            <template v-if="quilt.data?.on">
-              <SlidePicker
-                :model-value="quilt.data.plan"
-                :options="[
-                  { value: 'months', label: 'Months' },
-                  { value: 'weeks', label: 'Weeks' },
-                  { value: 'days', label: 'Days' },
-                ]"
-                label="Plan"
-                :class="{ 'no-pointer': project.readOnly }"
-                @update:model-value="setDataPlan"
-              />
-              <div class="text-caption text-grey-7 q-mt-xs">
-                {{ PLAN_HINTS[quilt.data.plan] }}
-              </div>
-            </template>
-          </FieldGroup>
           <LayoutInspector
             :key="quilt.id"
             :layout="quilt.layout"
@@ -294,8 +265,6 @@ import { resolveColoring } from '@/model/coloring';
 import {
   dayDate,
   dayOf,
-  fitOrder,
-  newDataPlan,
   nextFree,
   numberInfo,
   numberOf,
@@ -310,9 +279,7 @@ import LayoutInspector from '@/components/LayoutInspector.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
-import FieldGroup from '@/components/FieldGroup.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
-import SlidePicker from '@/components/SlidePicker.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
 import { takesBlock } from '@/editor/scope';
@@ -464,38 +431,6 @@ watch(
     if (on && ['set', 'erase', 'find'].includes(editor.tool)) editor.tool = 'number';
   },
 );
-/** The Layout tab's Data quilt switch: a first plan when turned on; off keeps it. */
-function setDataQuilt(on: boolean) {
-  const q = quilt.value;
-  if (!q || project.readOnly) return;
-  project.change((d) => {
-    const dq = d.project.quilts.find((x) => x.id === q.id)!;
-    if (dq.data) dq.data.on = on;
-    else if (on) dq.data = newDataPlan(units.value, new Date().getFullYear() + 1);
-  });
-  if (on) {
-    editor.mode = 'design';
-    editor.tool = 'number';
-    editor.dataNext = 1;
-  }
-}
-const PLAN_HINTS = {
-  months: 'A numbered block space per month, its block from the pool for its days.',
-  weeks:
-    'A numbered block space per week of 7 days from the period start, then one per day left over (day 365, and 366 in a leap period).',
-  days: 'A numbered block space per day of the period.',
-};
-/** Months, Weeks or Days: the numbered list resized (a Months period starts on the 1st). */
-function setDataPlan(v: string) {
-  const q = quilt.value;
-  if (!q?.data || project.readOnly) return;
-  const plan = v as 'months' | 'weeks' | 'days';
-  const start = plan === 'months' ? `${q.data.start.slice(0, 8)}01` : q.data.start;
-  const next = fitOrder({ ...q.data, plan, start });
-  project.change((d) => {
-    d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(next);
-  });
-}
 /** Data quilt taps: the brush places the highlighted number (or takes a space's back); in the
  *  Data tab a day's piece opens its entry. */
 function onDataTap(hit: Hit) {

@@ -1442,7 +1442,7 @@ import { authorOf, effectiveLicense, licenseName, priorCredits } from '@/model/c
 import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
 import { describeSlot } from '@/model/plain';
-import type { Block } from '@/model/schema/block';
+import type { Block, DataKind } from '@/model/schema/block';
 import { saveBlockImage, saveQuiltImage } from '@/render/save-image';
 import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
@@ -2341,8 +2341,13 @@ function newBlockDialog() {
   newBlockDlg.value?.show(`Block ${blocks.value.length + 1}`, project.doc!.units);
 }
 
-async function createBlock(name: string, shape: BlockShape | undefined, size: [number, number]) {
-  const b = newBlock(
+async function createBlock(
+  name: string,
+  shape: BlockShape | undefined,
+  size: [number, number],
+  data: DataKind | undefined,
+) {
+  const made = newBlock(
     name,
     size,
     project.doc!.units,
@@ -2350,6 +2355,7 @@ async function createBlock(name: string, shape: BlockShape | undefined, size: [n
     project.doc!.project.license,
     shape,
   );
+  const b = data ? { ...made, data: { kind: data } } : made;
   project.change((d) => void d.project.blocks.push(b));
   editor.blockMode = 'draw';
   editor.blockTool = 'line';

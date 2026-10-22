@@ -2,6 +2,33 @@
   <!-- A data quilt's Blocks tab (spec 025): the numbered list placed on block spaces with one brush,
        and the data block types it places. -->
   <div v-if="plan" class="column no-wrap" style="gap: 10px">
+    <FieldGroup label="Block types" heading />
+    <div class="text-caption text-grey-7">
+      Pick a type, then place numbers with it. A placed space keeps its type and shows the variant
+      for its month's days. Tap a placed space with another type picked to change its type.
+    </div>
+    <template v-for="kind in kinds" :key="kind">
+      <div class="text-caption text-weight-medium">{{ KIND_LABEL[kind] }}</div>
+      <div v-if="ofKind(kind).length" class="types row" style="gap: 6px">
+        <button
+          v-for="b in ofKind(kind)"
+          :key="b.id"
+          type="button"
+          class="type column items-center"
+          :class="{ active: typeFor(kind) === b.id }"
+          :aria-pressed="typeFor(kind) === b.id"
+          :title="b.notecard.name"
+          @click="pickType(kind, b.id)"
+        >
+          <img :src="typeThumb(b)" alt="" />
+          <span class="text-caption ellipsis">{{ b.notecard.name }}</span>
+        </button>
+      </div>
+      <div v-else class="text-caption text-grey-7">
+        No {{ kind }} data blocks yet: turn on Data block in a block’s Details tab.
+      </div>
+    </template>
+
     <FieldGroup label="Numbers" heading />
     <div class="row items-center no-wrap" style="gap: 8px">
       <q-btn
@@ -121,33 +148,6 @@
         </div>
       </template>
     </q-virtual-scroll>
-
-    <FieldGroup label="Block types" heading />
-    <div class="text-caption text-grey-7">
-      Pick a type, then place numbers with it. A placed space keeps its type and shows the variant
-      for its month's days. Tap a placed space with another type picked to change its type.
-    </div>
-    <template v-for="kind in kinds" :key="kind">
-      <div class="text-caption text-weight-medium">{{ KIND_LABEL[kind] }}</div>
-      <div v-if="ofKind(kind).length" class="types row" style="gap: 6px">
-        <button
-          v-for="b in ofKind(kind)"
-          :key="b.id"
-          type="button"
-          class="type column items-center"
-          :class="{ active: typeFor(kind) === b.id }"
-          :aria-pressed="typeFor(kind) === b.id"
-          :title="b.notecard.name"
-          @click="pickType(kind, b.id)"
-        >
-          <img :src="typeThumb(b)" alt="" />
-          <span class="text-caption ellipsis">{{ b.notecard.name }}</span>
-        </button>
-      </div>
-      <div v-else class="text-caption text-grey-7">
-        No {{ kind }} data blocks yet: turn on Data block in a block’s Details tab.
-      </div>
-    </template>
 
     <template v-if="report.length">
       <q-separator />
