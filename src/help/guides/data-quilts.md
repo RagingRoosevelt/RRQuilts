@@ -75,7 +75,7 @@ Drag a card to another label, or use the arrows on it, and the cards between mov
 stay where they are, so each moved block takes its new label, and its picture changes to a block
 from the new label's pool. While you drag, the card's block space lights up on the quilt. The quilt
 shows every block space's number, and each placed space's label under it, joined by a line in
-order.
+order. A lighter arrow inside each placed block runs through its days in order.
 
 Each number shows a block from the pool for its days. A Months plan has pools for 31, 30, 29, and
 28-day months, Weeks has a pool for weeks and one for the days left over, and Days has one pool. A

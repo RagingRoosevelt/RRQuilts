@@ -1,11 +1,14 @@
 // Data paints' overlay (spec 025): each numbered piece's label, and an order line through the
 // pieces of each group (a value slot) in number order, drawn in the current transform.
 import { takesBlock } from '@/editor/scope';
-import { readingOrder } from '@/model/data-paint';
+import { resolveColoring } from '@/model/coloring';
+import { pieceSpots, readingOrder } from '@/model/data-paint';
 import { numberLabel, numberOf } from '@/model/data-quilt';
 import type { Pt } from '@/model/geometry/path';
 import type { Generated } from '@/model/layout/slots';
+import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
+import { placementMatrix } from './placement';
 
 export interface DataMark {
   p: Pt;
@@ -104,4 +107,59 @@ export function quiltDataMarks(quilt: Quilt, generated: Generated): DataMark[] {
       ...(k ? [{ p, label: numberLabel(plan, k), group: 'n', order: k }] : []),
     ];
   });
+}
+
+/** Each placed data block's day places (value A) in day order, in quilt units: where its days run. */
+export function quiltDayPaths(doc: RrqDoc, quilt: Quilt, generated: Generated): Pt[][] {
+  const plan = quilt.data;
+  if (!plan) return [];
+  const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
+  return generated.slots.flatMap((slot) => {
+    const content = quilt.layers[0].slots[slot.id];
+    const block = content && blocks.get(content.block);
+    if (!content || !block || !numberOf(plan, slot.id)) return [];
+    const fills = resolveColoring(quilt.colorings[content.coloring], block)?.fills ?? {};
+    const at = pieceSpots(block);
+    const m = placementMatrix(slot, content, block);
+    const days = Object.entries(fills)
+      .flatMap(([id, f]) =>
+        'data' in f && !f.data.slot && at.has(id) ? [{ n: f.data.n, s: at.get(id)! }] : [],
+      )
+      .sort((a, b) => a.n - b.n)
+      .map(({ s }): Pt => {
+        const [x, y] = [s[0] * block.size[0], s[1] * block.size[1]];
+        return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+      });
+    return days.length > 1 ? [days] : [];
+  });
+}
+
+/** Light arrows along the day paths (under the month trace). `px` = one CSS pixel. */
+export function drawDayArrows(
+  ctx: CanvasRenderingContext2D,
+  paths: readonly Pt[][],
+  px: number,
+  dark: boolean,
+) {
+  if (!paths.length) return;
+  ctx.save();
+  ctx.strokeStyle = ctx.fillStyle = dark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.35)';
+  ctx.lineWidth = 1.25 * px;
+  ctx.lineJoin = 'round';
+  for (const p of paths) {
+    ctx.beginPath();
+    p.forEach((q, i) => (i ? ctx.lineTo(...q) : ctx.moveTo(...q)));
+    ctx.stroke();
+    // The head, at the last day, pointing on from the day before.
+    const [a, b] = [p.at(-2)!, p.at(-1)!];
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    const h = 6 * px;
+    ctx.beginPath();
+    ctx.moveTo(...b);
+    ctx.lineTo(b[0] - h * Math.cos(ang - 0.45), b[1] - h * Math.sin(ang - 0.45));
+    ctx.lineTo(b[0] - h * Math.cos(ang + 0.45), b[1] - h * Math.sin(ang + 0.45));
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
 }

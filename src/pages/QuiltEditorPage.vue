@@ -159,6 +159,7 @@
           :selected="found"
           :pan-only="panOnly"
           :data-marks="dataMarks"
+          :day-paths="dayPaths"
           @tap="onTap"
           @hover="(h) => (hover = h)"
         />
@@ -299,7 +300,7 @@ import {
   placeNumber,
   takeBack,
 } from '@/model/data-quilt';
-import { quiltDataMarks } from '@/render/data-overlay';
+import { quiltDataMarks, quiltDayPaths } from '@/render/data-overlay';
 import { PLAIN_PATCH } from '@/model/plain';
 import TargetSection from '@/components/TargetSection.vue';
 import DetailsPanel from '@/components/DetailsPanel.vue';
@@ -444,6 +445,12 @@ const highlight = computed(() => {
 const dataMarks = computed(() =>
   editor.mode === 'design' && quilt.value?.data?.on
     ? quiltDataMarks(quilt.value, generated.value)
+    : null,
+);
+/** Each placed data block's days in order (light arrows under the month trace). */
+const dayPaths = computed(() =>
+  editor.mode === 'design' && quilt.value?.data?.on && project.doc
+    ? quiltDayPaths(project.doc, quilt.value, generated.value)
     : null,
 );
 // Off a data quilt: off its tools.

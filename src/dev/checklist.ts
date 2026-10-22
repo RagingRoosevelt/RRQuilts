@@ -324,6 +324,13 @@ export const CHECKS: Check[] = [
     last: '"we don\'t need non-data blocks to be highlighted"',
     to: '/',
   },
+  {
+    id: 'TC-128',
+    group: G.small,
+    text: 'Day arrows: in a data quilt’s Design tab, each placed block has a thin, light arrow through its day places from day 1 to its last day, the head on the last day (February’s Month Strip 28 stops before its black bars). It sits under the stronger month trace and follows a block’s turn and flip. Try a block whose days don’t run along its middle (number one in the block editor in snake order) to see it apart from the trace. Dark mode too.',
+    last: '"let\'s draw an arrow on each data block connecting each data block in their order. it should be light compared to the trace we\'re drawing for the months" (answered: days inside each block)',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
