@@ -59,7 +59,7 @@ type of block".
    | Metadata › Technique | `technique`      | technique ids from the fixed list, repeatable               |
    | Shape                | `shape`          | block shape ids (`square`, `triangle`, `diamond60`, ...)    |
    | Construction         | `construction`   | the Construction choices' ids (`curved`, `set-in`, ...)     |
-   | Data                 | `data`           | `none`, `day`, `week`, `month`                              |
+   | Data                 | `data`           | `none`, `any`, `day`, `week`, `month`                       |
    | Color (palettes)     | `hue`, `range`   | degrees 0 to 359, ± degrees; `only=1` for matching swatches |
    | Quilts › Show        | `quilts`         | `all`, `data`, `other`                                      |
    | Libraries sidebar    | `library`        | a library or pack id: show only it (as clicking its name)   |
@@ -76,7 +76,7 @@ type of block".
 ### User Story 3 - Help links to a kind of block (Priority: P2)
 
 1. **Given** the Data quilts guide, **When** "data blocks" (a marked link) is clicked with a project
-   open, **Then** the project's Blocks tab opens filtered to data blocks (`data=day,week,month`, any
+   open, **Then** the project's Blocks tab opens filtered to data blocks (`data=any`, any
    data block). With no project open, Libraries › Blocks opens with the same filter.
 2. Help Markdown gets one form for this, e.g. `[data blocks](view:blocks?data=any)`, which
    `HelpPage` turns into the project or libraries link at click time (a project may open or close
