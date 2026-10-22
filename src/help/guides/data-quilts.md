@@ -126,7 +126,8 @@ numbers, color, or fabric, add or remove ranges, and the quilt recolors as you g
 value** adds B, C, and D.
 
 In a colorway other than the primary, each range or category shows its primary color and what it
-becomes in this colorway. Pick a replacement there. Show the primary colorway to change the values
+becomes in this colorway. Pick a replacement there. Each value's **Sample** shows there too. The sample data is
+the quilt's, so every colorway shows the same days. Show the primary colorway to change the values
 themselves.
 
 ## Preview with sample data

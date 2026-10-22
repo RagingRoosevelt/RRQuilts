@@ -110,6 +110,19 @@
         </div>
         <div v-for="(s, i) in plan.slots" :key="i" class="slot column no-wrap" style="gap: 6px">
           <div class="text-caption text-weight-medium">{{ SLOT_NAMES[i] }}: {{ s.label }}</div>
+          <!-- The sample is the quilt's, shared by every colorway. -->
+          <q-select
+            v-if="plan.sim.source === 'builtin'"
+            :model-value="plan.sim.series[i] ?? null"
+            :options="seriesOptions(s.preset)"
+            emit-value
+            map-options
+            dense
+            outlined
+            label="Sample"
+            :readonly="readonly"
+            @update:model-value="(v: string | null) => setSeries(i, v)"
+          />
           <!-- The sample's days per range or category (the current bins), at the top of its value. -->
           <div class="column" style="gap: 2px">
             <div class="text-caption text-grey-7">Days in the sample</div>

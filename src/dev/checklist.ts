@@ -179,6 +179,13 @@ export const CHECKS: Check[] = [
     last: '"we should make the swatch preview images larger in both the dropdown and when the dropdown selection is shown. I think 22x22 would match what we\'re doing in the mapping dropdowns right below?" / "we need to mak that update in the sidebar version of this dropdown too"',
     to: '/',
   },
+  {
+    id: 'TC-174',
+    group: G.small,
+    text: 'Data quilt with a second colorway shown: Design › Data › Values shows each value’s Sample (by its Kind) above its color mapping. Pick another sample there: the quilt recolors, and showing the primary colorway, its Sample has changed too (one choice for all colorways).',
+    last: '"we lost the ability to pick the data set we\'re using to simulate with in the non-primary colorways of a quilt. all colorways should share the settings for the simulation data"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
