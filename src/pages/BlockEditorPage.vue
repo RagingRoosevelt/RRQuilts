@@ -249,6 +249,7 @@
               :patches="block.patches.map((p) => p.id)"
               :count="numeralCount"
               :readonly="ro"
+              @clear="clearAllNumerals"
             />
           </q-expansion-item>
           <q-expansion-item
@@ -297,7 +298,7 @@ import {
   type SelectionOp,
 } from '@/editor/block-ops';
 import { detachColoring, fillKey } from '@/model/coloring';
-import { putNumeral } from '@/model/data-paint';
+import { clearNumerals, putNumeral } from '@/model/data-paint';
 import DataNumerals from '@/components/DataNumerals.vue';
 import DataVariants from '@/components/DataVariants.vue';
 import { KIND_DAYS } from '@/model/data-quilt';
@@ -676,6 +677,22 @@ function numeralPatch(patchId: string, n: number, tap = false) {
   );
   editor.coloringOf.set(b.id, target);
   if (tap && !taking && editor.data.advance && n < numeralCount.value) editor.data.numeral = n + 1;
+}
+
+/** Clear numerals: the picked value's numerals off the shown drawing, in this coloring. */
+function clearAllNumerals() {
+  if (ro.value) return;
+  const { base, target } = editable();
+  const ids = block.value!.patches.map((p) => p.id);
+  project.change(() =>
+    withBlock(project.doc!, () =>
+      produce(base, (x) => {
+        const c = x.colorings.find((k) => k.id === target)!;
+        c.fills = castDraft(clearNumerals(c.fills, ids, editor.data.slot));
+      }),
+    ),
+  );
+  editor.coloringOf.set(base.id, target);
 }
 
 /** The coloring to change: a library coloring is read-only, so a project copy of it. */

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { numeralCounts, paintLabel, putNumeral, readingOrder } from '@/model/data-paint';
+import {
+  clearNumerals,
+  numeralCounts,
+  paintLabel,
+  putNumeral,
+  readingOrder,
+} from '@/model/data-paint';
 import type { Pt } from '@/model/geometry/path';
 import type { Fill } from '@/model/schema/coloring';
 
@@ -20,6 +26,11 @@ describe('data places (spec 025 US1)', () => {
     expect(f.c).toEqual({ data: { n: 1, slot: 1 }, under: gray });
     expect(numeralCounts(f, ['a', 'b', 'c'], 0).get(1)).toBeUndefined();
     expect(paintLabel({ n: 1, slot: 1 })).toBe('1B');
+    // Clear: value A's numerals off the given patches only.
+    const c = clearNumerals({ ...f, d: { data: { n: 2 } } }, ['b', 'c'], 0);
+    expect(c.b).toEqual(gray);
+    expect(c.c).toEqual(f.c); // value B stays
+    expect(c.d).toEqual({ data: { n: 2 } }); // not among the patches
   });
 
   it('reading order: rows, columns, snake', () => {

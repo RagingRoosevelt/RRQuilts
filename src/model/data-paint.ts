@@ -36,6 +36,18 @@ export function putNumeral(
   return out;
 }
 
+/** Every numeral of value `slot` taken off the patches `ids` (their colors come back). */
+export function clearNumerals(fills: Fills, ids: readonly string[], slot: number) {
+  const out = { ...fills };
+  for (const id of ids) {
+    const f = out[id];
+    if (!f || !('data' in f) || !inSlot(f.data, slot)) continue;
+    if (f.under) out[id] = f.under;
+    else delete out[id];
+  }
+  return out;
+}
+
 /** How many of the patches `ids` each numeral of value `slot` is on. */
 export function numeralCounts(fills: Fills, ids: readonly string[], slot: number) {
   const m = new Map<number, number>();

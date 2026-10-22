@@ -352,6 +352,13 @@ export const CHECKS: Check[] = [
     last: "\"when i've picked data quilt mode, the quilt design wizard's size tab and the quilt workbench's layout tab should show the number of blocks that are available to place data blocks. the cut-down edge blocks don't count towards the data block count\"",
     to: '/',
   },
+  {
+    id: 'TC-140',
+    group: G.small,
+    text: 'Block editor › Color › Day numerals › Clear numerals: takes every numeral of the picked value off the shown drawing in this coloring, and the patches show their colors again. With a variant picked, only that variant is cleared (the 31 keeps its numerals); value B’s numerals stay when A is picked. Greyed out with no numerals placed. Undo brings them back.',
+    last: '"let\'s add a clear for the block design numeral assignments"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -37,6 +37,18 @@
       Drag a numeral onto a patch, or pick one and tap patches. Tap a patch with that numeral to
       take it off. A numeral can go on several patches. Faded numerals aren't on any patch yet.
     </div>
+    <q-btn
+      v-if="!readonly"
+      dense
+      flat
+      no-caps
+      size="sm"
+      icon="clear"
+      label="Clear numerals"
+      class="self-start"
+      :disable="!counts.size"
+      @click="emit('clear')"
+    />
     <q-toggle v-model="editor.data.advance" dense label="Next numeral after each tap" />
     <q-toggle v-model="editor.data.numbers" dense label="Show numerals" />
     <q-toggle
@@ -62,6 +74,7 @@ const props = defineProps<{
   count: number;
   readonly?: boolean;
 }>();
+const emit = defineEmits<{ clear: [] }>();
 const editor = useEditorStore();
 const counts = computed(() => numeralCounts(props.fills, props.patches, editor.data.slot));
 const label = (n: number) =>
