@@ -373,6 +373,13 @@ export const CHECKS: Check[] = [
     last: '"take a look at Quilt 22. go to layout and change the number of blocks down to 5 instead of 6. quilt size doesn\'t change"',
     to: '/',
   },
+  {
+    id: 'TC-143',
+    group: G.small,
+    text: 'Project › Quilts: a quilt’s ⋮ menu has no Move earlier or Move later. Drag a quilt card over another: the right edge of the card to the left of where it will land and the left edge of the card to its right glow (Quilt 1 over Quilt 2: Quilt 2’s right, Quilt 3’s left). Drop: it lands there. Dragging left lands before the card it’s over. Letting go elsewhere clears the glow. Undo undoes the move.',
+    last: '"let\'s drop the "move earlier" and "move later" for quilts. we should be able to drag/drop them to rearrange. use the highlighting on the right side of the quilt card to the left and the left side of the quilt card to the right to show where the quilt will land"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -79,9 +79,14 @@
         v-show="quiltKind === 'all' || (quiltKind === 'data') === !!q.data?.on"
         :key="q.id"
         class="card"
+        :class="{
+          'glow-right': quiltGap !== null && i === quiltGap,
+          'glow-left': quiltGap !== null && i === quiltGap + 1,
+        }"
         :draggable="!project.readOnly"
         @dragstart="dragFrom = i"
-        @dragover.prevent
+        @dragover.prevent="quiltDropAt = i"
+        @dragend="dragFrom = quiltDropAt = null"
         @drop="drop('quilts', i)"
       >
         <div class="relative-position">
@@ -116,20 +121,6 @@
                   >
                   <q-item v-close-popup clickable @click="quiltDetails(q.id)"
                     ><q-item-section>Details</q-item-section></q-item
-                  >
-                  <q-item
-                    v-close-popup
-                    clickable
-                    :disable="i === 0"
-                    @click="moveItem('quilts', i, -1)"
-                    ><q-item-section>Move earlier</q-item-section></q-item
-                  >
-                  <q-item
-                    v-close-popup
-                    clickable
-                    :disable="i === quilts.length - 1"
-                    @click="moveItem('quilts', i, 1)"
-                    ><q-item-section>Move later</q-item-section></q-item
                   >
                   <q-item v-close-popup clickable @click="deleteQuilt(q.id)"
                     ><q-item-section class="text-negative">Delete</q-item-section></q-item
@@ -1592,6 +1583,14 @@ const wizard = ref<InstanceType<typeof QuiltWizard>>();
 
 const quilts = computed(() => project.doc!.project.quilts);
 const quiltKind = ref<'all' | 'data' | 'other'>('all');
+/** Where a dragged quilt card will land: the card it's over, and the gap as the index of the card
+ *  left of it (dragged right, the quilt goes after the card; left, before it). */
+const quiltDropAt = ref<number | null>(null);
+const quiltGap = computed(() => {
+  const [from, at] = [dragFrom.value, quiltDropAt.value];
+  if (tab.value !== 'quilts' || from === null || at === null || from === at) return null;
+  return from < at ? at : at - 1;
+});
 const split = computed(() => {
   const own = project.doc!.project.blocks.filter((b) => !b.notecard.tags?.includes('system'));
   // My-library items this project has a linked copy of show once, as that copy in My blocks.
@@ -2947,6 +2946,7 @@ function moveItem(list: 'quilts' | 'blocks', from: number, delta: number) {
   });
 }
 function drop(list: 'quilts' | 'blocks', to: number) {
+  quiltDropAt.value = null;
   if (dragFrom.value === null || dragFrom.value === to) return;
   moveItem(list, dragFrom.value, to - dragFrom.value);
   dragFrom.value = null;
@@ -3394,5 +3394,14 @@ watch(
   :global(.body--dark .filter-side) {
     background: var(--q-dark-page);
   }
+}
+/* Where a dragged quilt card will land: the facing edges of the cards either side glow. */
+.card.glow-right {
+  box-shadow: 6px 0 10px -3px rgba(25, 118, 210, 0.9);
+  border-right: 2px solid #1976d2;
+}
+.card.glow-left {
+  box-shadow: -6px 0 10px -3px rgba(25, 118, 210, 0.9);
+  border-left: 2px solid #1976d2;
 }
 </style>
