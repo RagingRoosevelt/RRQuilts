@@ -90,6 +90,13 @@ export const CHECKS: Check[] = [
     text: 'Print P1 to P4: sheets as their checks say; cut sizes match the Help calculators.',
     to: '/dev/print',
   },
+  {
+    id: 'TC-177',
+    group: G.small,
+    text: 'Quilt editor › Design › Flip on an On-Point quilt: left↔right mirrors each block across the quilt’s up-down line (as seen on screen), not along the block’s turned diagonal; tap the tool again for top↕bottom, across the quilt’s left-right line. A Straight Set quilt flips as before, also on blocks turned with Rotate. Shaped blocks in turned layouts mirror across the quilt where their shape allows it.',
+    last: "\"the flip horizontal / vertical tool flips according to a block's native axis. but if you're in a layout like on point, the flip should actually be according to the quilt's native axis, not the block. so when the quilt and block share a native axis, even in those cases it should still be the quilt's native axis\"",
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
