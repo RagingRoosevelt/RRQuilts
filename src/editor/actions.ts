@@ -40,6 +40,8 @@ export interface ToolState {
   coloringOf?: ReadonlyMap<string, string>;
   /** Library blocks can be set without being in the project yet (they embed on change). */
   library?: LibraryLookup;
+  /** Paint this fill instead of `color`'s (a data paint over its color, spec 025); null clears. */
+  fill?: Fill | null;
 }
 
 type Orientation = { rotation: Rotation; flip: boolean };
@@ -172,12 +174,12 @@ export function applyTool(
           message:
             "This colorway's colors are set in the Colors tab. Show the primary colorway to paint.",
         };
-      if (!s.color) return { message: 'Pick a color in the tray first.' };
+      if (!s.color && s.fill === undefined) return { message: 'Pick a color in the tray first.' };
       // An empty block space takes a plain fill, as sashing does (spec 026).
       const plainBlockSpace = group === 'block' && !content;
       if (!content && !isPlainGroup(group) && !plainBlockSpace)
         return { message: 'Set a block here first.' };
-      const fill: Fill = fillFor(s.color);
+      const fill = s.fill !== undefined ? (s.fill ?? undefined) : fillFor(s.color!);
       let next = doc;
       if (isPlainGroup(group) || plainBlockSpace) {
         next = ensurePlainBlock(next);

@@ -19,8 +19,11 @@ across the whole project.
    block that differs from your version of it comes in as a copy. Undo removes
    the whole import.
 3. Use the three-dot **Actions** menu on a card for **Open**, **Create copy** (a copy to
-   try other colors on), **Details**, **Move earlier**, **Move later**, and **Delete** (you can undo).
-4. Drag cards to reorder them.
+   try other colors on), **Export quilt…**, **Details**, and **Delete** (you can undo). **Export
+   quilt…** saves a project file holding just that quilt and the blocks, colors and fabrics it uses.
+   Open it as a project, or bring the quilt into another project with **Import quilts**.
+4. Drag cards to reorder them. While you drag, the edges either side of where the quilt will land
+   light up.
 
 ## Blocks
 

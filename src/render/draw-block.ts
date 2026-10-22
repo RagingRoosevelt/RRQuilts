@@ -6,6 +6,8 @@ import type { Pt, Seg } from '@/model/geometry/path';
 import type { Block, Drawing } from '@/model/schema/block';
 import type { ColoringBody } from '@/model/schema/coloring';
 import { colorLookup, drawBlock, type View } from './draw';
+import { drawDataOverlay, type DataMark } from './data-overlay';
+import { paintLabel, pieceSpots } from '@/model/data-paint';
 import type { RrqDoc } from '@/model/schema/project';
 import { arcGeom } from '@/model/geometry/path';
 import { lattice, SHAPE_OUTLINE } from '@/model/blocks/shape';
@@ -30,6 +32,8 @@ export interface BlockDrawOptions {
   bulge?: Pt | null;
   /** While dragging: the drawing as it will be on release (seams follow live). */
   liveDrawing?: Drawing | null;
+  /** Color mode: data paints' numbers, and their order line (spec 025). */
+  dataOverlay?: { line: boolean } | null;
 }
 
 function segPath(p: Path2D, g: Seg) {
@@ -201,5 +205,23 @@ export function drawBlockEditor(
     ctx.arc(pt[0], pt[1], 5 * px, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
+  }
+
+  if (o.mode === 'color' && o.dataOverlay && o.coloring) {
+    const at = pieceSpots(block);
+    const marks: DataMark[] = Object.entries(o.coloring.fills).flatMap(([id, f]) => {
+      const p = at.get(id);
+      return p && 'data' in f
+        ? [
+            {
+              p: [p[0] * w, p[1] * h] as Pt,
+              label: paintLabel(f.data),
+              group: String(f.data.slot ?? 0),
+              order: f.data.n,
+            },
+          ]
+        : [];
+    });
+    drawDataOverlay(ctx, marks, px, { line: o.dataOverlay.line, dark: o.dark });
   }
 }

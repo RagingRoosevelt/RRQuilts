@@ -217,6 +217,13 @@ sit in the main on-point spaces in the same rows and columns; switch back → st
   raised with a migration (files with the placeholder On-Point style get default parameters), and
   the published schema regenerated.
 - **FR-031**: Generated spaces MUST NOT be stored; only the layout parameters and placed content are.
+- **FR-032** (0.7.0, owner 2026-10-21): On-Point, Variable Point and Diamond Point counts MAY end in
+  a half. Each half step adds one row of diamonds: "increasing the size by one row down adds a short
+  row and a long row. a half increment would add just the short row. and then another half increment
+  would add the next corresponding long row." Across works the same with columns. Whole blocks are
+  the positions whose centers lie within the counted area; setting pieces lie half a block outside
+  it. Slot ids don't change (a half row's blocks are `b:m:` ids; its setting pieces are main ids).
+  Converting to Straight Set rounds a half up. Format 9 allows halves (not yet released).
 
 ### Key Entities
 

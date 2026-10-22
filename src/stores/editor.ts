@@ -2,12 +2,26 @@
 import { defineStore } from 'pinia';
 import { computed, reactive, ref } from 'vue';
 import type { Scope } from '@/editor/scope';
+import type { DataKind } from '@/model/schema/block';
 import type { StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 
 export type Mode = 'layout' | 'borders' | 'design' | 'print' | 'details';
+/** `number`: a data quilt's brush, placing numbers on block spaces; `entry`: its Data tab, a tap
+ *  on a day's piece opens that day's entry (spec 025). */
 export type Tool =
-  'set' | 'rotate' | 'flip' | 'erase' | 'find' | 'paint' | 'spray' | 'swap' | 'eyedropper' | 'pan';
+  | 'set'
+  | 'rotate'
+  | 'flip'
+  | 'erase'
+  | 'find'
+  | 'paint'
+  | 'spray'
+  | 'swap'
+  | 'eyedropper'
+  | 'pan'
+  | 'number'
+  | 'entry';
 
 export type BlockMode = 'draw' | 'color' | 'print' | 'details';
 export type BlockTool =
@@ -55,9 +69,34 @@ export const useEditorStore = defineStore('editor', () => {
   const grid = ref<[number, number]>([3, 3]);
   /** Current coloring per block (block editor + which coloring "Set" uses in quilts). */
   const coloringOf = reactive(new Map<string, string>());
+  /** A data block's numerals (spec 025): numbering on (a tap puts the picked numeral on instead of
+   *  a color), the numeral and value, moving on after each tap, and the overlay. */
+  const data = reactive({
+    on: false,
+    numeral: 1,
+    slot: 0,
+    advance: true,
+    numbers: true,
+    line: true,
+  });
+  /** The month data block variant shown in the block editor (days; null: its own, the 31). */
+  const blockVariant = ref<number | null>(null);
+  /** A data quilt's next number to place (1-based, spec 025). */
+  const dataNext = ref(1);
+  /** The block space of the number being dragged in the list, highlighted on the quilt. */
+  const dataHot = ref<string | null>(null);
+  /** The block space of the card last clicked in the list (stays highlighted). */
+  const dataSel = ref<string | null>(null);
+  /** The data block type picked to place, per kind. */
+  const dataType = reactive<Record<DataKind, string | null>>({
+    day: null,
+    week: null,
+    month: null,
+  });
 
   function useColor(id: string) {
     color.value = id;
+    data.on = false; // a color picked: painting colors again
     // Most recent first; the tray sorts by it only when the setting asks (recentColorsFirst).
     recentColors.value = [id, ...recentColors.value.filter((c) => c !== id)].slice(0, 12);
   }
@@ -87,6 +126,12 @@ export const useEditorStore = defineStore('editor', () => {
     arcSign,
     grid,
     coloringOf,
+    data,
+    blockVariant,
+    dataNext,
+    dataHot,
+    dataSel,
+    dataType,
     useColor,
   };
 });

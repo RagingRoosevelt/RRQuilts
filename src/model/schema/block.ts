@@ -1,6 +1,6 @@
 import Type from 'typebox';
 import { Coloring } from './coloring';
-import { Id, Path, Size, Vec2, itemBase } from './shared';
+import { Id, ItemId, Path, Size, Vec2, itemBase } from './shared';
 
 // Block geometry is normalized: 0…1 across the block's width and height.
 
@@ -69,6 +69,27 @@ export const BlockShape = Type.Union([
   Type.Literal('hexagon'),
 ]);
 
+/** A data block's shorter variant (spec 025): its own drawing, numbered 1 to `days`. Month blocks
+ *  take 30, 29, 28 and 1; week blocks 1 (for a single day: a Weeks plan's days left over). */
+export const DataVariant = Type.Object({
+  days: Type.Union([Type.Literal(28), Type.Literal(29), Type.Literal(30), Type.Literal(1)]),
+  drawing: Drawing,
+  patches: Type.Array(Patch),
+  unconnected: Type.Optional(Type.Array(Id)),
+});
+
+/**
+ * A data block (spec 025): a type a data quilt places, by kind. A month block's own drawing is its
+ * 31-day variant, a week block's its 7-day one; `variants` add shorter ones. `of`/`days`: a variant the app made from block `of`
+ * to show in a quilt (hidden, rebuilt on every change).
+ */
+export const DataBlockInfo = Type.Object({
+  kind: Type.Union([Type.Literal('day'), Type.Literal('week'), Type.Literal('month')]),
+  variants: Type.Optional(Type.Array(DataVariant, { maxItems: 4 })),
+  of: Type.Optional(ItemId),
+  days: Type.Optional(Type.Integer({ minimum: 1, maximum: 30 })),
+});
+
 const blockBase = {
   ...itemBase,
   size: Size,
@@ -78,6 +99,7 @@ const blockBase = {
   editor: Type.Optional(Editor),
   /** A recoloring of a library block: the drawing is locked, only colorings change. */
   colorVariant: Type.Optional(Type.Boolean()),
+  data: Type.Optional(DataBlockInfo),
 };
 
 const seamPart = {
@@ -123,3 +145,6 @@ export type Patch = Type.Static<typeof Patch>;
 export type Block = Type.Static<typeof Block>;
 export type BlockShapeId = Type.Static<typeof BlockShape>;
 export type SeamBlock = Extract<Block, { kind: 'seam' }>;
+export type DataBlockInfo = Type.Static<typeof DataBlockInfo>;
+export type DataVariant = Type.Static<typeof DataVariant>;
+export type DataKind = DataBlockInfo['kind'];

@@ -1,4 +1,6 @@
 import { useRouter } from 'vue-router';
+import { fitOrder, newDataPlan } from '@/model/data-quilt';
+import type { DataPlan } from '@/model/schema/data-quilt';
 import { DEFAULT_LICENSE } from '@/model/credits';
 import { takesBlock } from '@/editor/scope';
 import { generateFor } from '@/model/layout/slots';
@@ -14,7 +16,13 @@ export function useStartQuilt() {
   const router = useRouter();
   const project = useProjectStore();
   const editor = useEditorStore();
-  return async (layout: Layout, borders: Border[], target?: QuiltTarget, fresh = false) => {
+  return async (
+    layout: Layout,
+    borders: Border[],
+    target?: QuiltTarget,
+    fresh = false,
+    data?: DataPlan['plan'],
+  ) => {
     if (fresh || !project.isOpen) await project.newProject();
     const n = project.doc!.project.quilts.length + 1;
     const author = useSettingsStore().settings.author;
@@ -23,6 +31,15 @@ export function useStartQuilt() {
       ...(target ? { target } : {}),
       ...(author ? { author } : {}),
       license: project.doc!.project.license ?? DEFAULT_LICENSE,
+      // A data quilt (spec 025): next year's plan, set up in the Design tab.
+      ...(data
+        ? {
+            data: fitOrder({
+              ...newDataPlan(project.doc!.units, new Date().getFullYear() + 1),
+              plan: data,
+            }),
+          }
+        : {}),
     };
     project.change((d) => void d.project.quilts.push(quilt));
     editor.mode = 'design';
@@ -32,6 +49,10 @@ export function useStartQuilt() {
       project.doc!.project.blocks.find((b) => !b.notecard.tags?.includes('system'))?.id ??
       useLibraryStore().items.blocks[0]?.id ??
       null;
+    if (data) {
+      editor.tool = 'number';
+      editor.dataNext = 1;
+    }
     await router.push(`/project/quilt/${quilt.id}`);
   };
 }

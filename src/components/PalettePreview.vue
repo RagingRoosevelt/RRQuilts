@@ -79,7 +79,7 @@
               dense
               icon="palette"
               aria-label="Change color"
-              @click="emit('edit', at)"
+              @click="emit('edit', shownSwatch!.si)"
             >
               <q-tooltip>Change color</q-tooltip>
             </q-btn>
@@ -89,7 +89,7 @@
               dense
               icon="delete"
               :aria-label="shownSwatch!.kind === 'color' ? 'Remove color' : 'Remove fabric'"
-              @click="emit('remove', at)"
+              @click="emit('remove', shownSwatch!.si)"
             />
           </template>
         </div>
@@ -129,6 +129,7 @@
 </template>
 
 <script setup lang="ts">
+import { usePaletteSort } from '@/composables/palette-sort';
 import { computed, ref, watch } from 'vue';
 import { roundLen } from '@/model/units';
 import type { ColorCollection } from '@/model/schema/library';
@@ -143,6 +144,9 @@ const props = defineProps<{
   editable?: boolean;
   /** Fabric images can be added and removed too (project palettes). */
   images?: boolean;
+  /** The palette's id: its swatches show in the order picked for it (spec 032). `at` is then a
+   *  place in that order; edit, remove and rename still name the saved place (colors, then fabrics). */
+  sortId?: string;
 }>();
 const emit = defineEmits<{
   'update:at': [i: number];
@@ -154,11 +158,16 @@ const emit = defineEmits<{
   rename: [i: number, name: string];
 }>();
 
-type Swatch = { kind: 'color'; item: Color } | { kind: 'fabric'; item: Fabric };
-const swatches = computed((): Swatch[] => [
-  ...props.palette.colors.map((item) => ({ kind: 'color' as const, item })),
-  ...(props.palette.fabrics ?? []).map((item) => ({ kind: 'fabric' as const, item })),
-]);
+type Swatch = ({ kind: 'color'; item: Color } | { kind: 'fabric'; item: Fabric }) & {
+  /** Its saved place: colors first, then fabrics. */
+  si: number;
+};
+const sorting = usePaletteSort();
+const swatches = computed((): Swatch[] => {
+  const n = props.palette.colors.length;
+  const all = sorting.swatches(props.sortId ?? '', props.palette.colors, props.palette.fabrics);
+  return all.map((x) => ({ ...x, si: x.kind === 'color' ? x.i : n + x.i }));
+});
 watch(swatches, (l) => {
   if (props.at > l.length - 1) emit('update:at', Math.max(0, l.length - 1));
 });
@@ -172,7 +181,8 @@ watch(
 function saveName() {
   const name = naming.value?.trim();
   naming.value = null;
-  if (name && name !== shownSwatch.value?.item.notecard.name) emit('rename', props.at, name);
+  if (name && name !== shownSwatch.value?.item.notecard.name)
+    emit('rename', shownSwatch.value!.si, name);
 }
 function onDrop(e: DragEvent) {
   dropping.value = false;

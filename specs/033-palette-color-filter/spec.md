@@ -1,10 +1,10 @@
 # Feature Specification: Filter Palettes by Hue, Value and Saturation
 
-**Feature Branch**: `TBD` (no feature branch yet)
+**Feature Branch**: `0.7.0`
 
 **Created**: 2026-10-20
 
-**Status**: Draft (spec only; not implemented)
+**Status**: Implemented on `0.7.0` (2026-10-20). Saturation is LCh chroma scaled so sRGB's most vivid colors reach 100; below 8 a swatch has no hue. The hue strip cuts a range that wraps past 0°/360° at its end (the filter itself wraps).
 
 **Input**: Owner, 2026-10-20: a palette-only filter by hue (pick a hue and an angle range around it),
 or by value range, or by saturation range.

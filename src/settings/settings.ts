@@ -6,6 +6,7 @@ export type Units = 'in' | 'cm';
 
 import type { OverlayDefaults } from '@/model/targets';
 import type { Social } from './socials';
+import { validSortPrefs, type SortPref } from '@/model/palette-sort';
 
 export interface Settings {
   theme: Theme;
@@ -42,6 +43,8 @@ export interface Settings {
   libraryType: 'block' | 'colors' | '';
   /** Labels of inspector sections the user collapsed. */
   collapsedSections: string[];
+  /** How each palette's swatches show (spec 032), by palette id; none = saved order. */
+  paletteSorts: Record<string, SortPref>;
   /** Print preferences (spec 010), merged with defaults where used (`printPrefs`). */
   print: Record<string, unknown>;
   /** Fabric images (spec 014): show with average-color stand-ins while loading, blank while
@@ -93,6 +96,7 @@ export const defaults = (): Settings => ({
   authorAsked: false,
   welcomeDone: false,
   collapsedSections: [],
+  paletteSorts: {},
   sidesSwapped: false,
   osAccent: true,
   trayTab: 'blocks',
@@ -180,6 +184,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   packsOff: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   bundledHidden: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   collapsedSections: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
+  paletteSorts: validSortPrefs,
 };
 
 const isObject = (v: unknown): v is Record<string, unknown> =>

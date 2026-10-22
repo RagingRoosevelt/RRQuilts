@@ -1,5 +1,6 @@
 // Single-block files (.rrqbl): one block plus the colors and (v3) fabrics its colorings use. Imported blocks are
 // the user's own (editable); the original author stays credited (constitution Principle VI).
+import { plainFill } from './coloring';
 import { upgradeNotecards, withoutTags } from './tags';
 import { produce } from 'immer';
 import Type from 'typebox';
@@ -16,7 +17,8 @@ import { Units, type RrqDoc } from './schema/project';
 import { Socials } from './schema/shared';
 
 export const BLOCK_FORMAT = 'rrqbl';
-export const BLOCK_VERSION = 3;
+/** v4: data blocks (spec 025). */
+export const BLOCK_VERSION = 4;
 
 export const BlockFile = Type.Object({
   format: Type.Literal(BLOCK_FORMAT),
@@ -35,7 +37,9 @@ export type BlockFile = Type.Static<typeof BlockFile>;
 const colorIdsOf = (b: Block) =>
   new Set(
     b.colorings.flatMap((c) =>
-      Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])),
+      Object.values(c.fills)
+        .map(plainFill)
+        .flatMap((f) => (f && 'color' in f ? [f.color] : [])),
     ),
   );
 
@@ -43,7 +47,9 @@ const colorIdsOf = (b: Block) =>
 export const fabricIdsOf = (b: Block) =>
   new Set(
     b.colorings.flatMap((c) =>
-      Object.values(c.fills).flatMap((f) => ('fabric' in f ? [f.fabric] : [])),
+      Object.values(c.fills)
+        .map(plainFill)
+        .flatMap((f) => (f && 'fabric' in f ? [f.fabric] : [])),
     ),
   );
 
@@ -153,10 +159,12 @@ export function importBlock(
     if (!b.author && file.author && !b.credits?.length) b.author = file.author;
     b.license ??= doc.project.license ?? DEFAULT_LICENSE;
     for (const c of b.colorings) {
-      for (const [pid, f] of Object.entries(c.fills))
-        if ('color' in f && !known.has(f.color)) delete c.fills[pid];
-      for (const [pid, f] of Object.entries(c.fills))
-        if ('fabric' in f && !knownFabrics.has(f.fabric)) delete c.fills[pid];
+      for (const [pid, x] of Object.entries(c.fills)) {
+        const f = plainFill(x);
+        const gone = !!f && ('color' in f ? !known.has(f.color) : !knownFabrics.has(f.fabric));
+        if (gone && 'data' in x) delete x.under;
+        else if (gone) delete c.fills[pid];
+      }
     }
   });
   const next = produce(doc, (d) => {

@@ -1,8 +1,11 @@
 import Type from 'typebox';
 import { ColoringBody, Fill } from './coloring';
+import { DataPlan } from './data-quilt';
 import { Id, ItemId, Size, Vec2, itemBase } from './shared';
 
 const count = Type.Integer({ minimum: 1, maximum: 100 });
+/** On-Point and Variable/Diamond Point counts: whole or half (a half row is a short row). */
+const halfCount = Type.Number({ minimum: 1, maximum: 100, multipleOf: 0.5 });
 const length = Type.Number({ minimum: 0 });
 
 /** Horizontal layout: rows × cols of blocks, optional sashing and sash border. */
@@ -32,8 +35,8 @@ export const EdgeFinish = Type.Object({
  *  between them; `block` is the finished side. */
 export const OnPointLayout = Type.Object({
   style: Type.Literal('on-point'),
-  cols: count,
-  rows: count,
+  cols: halfCount,
+  rows: halfCount,
   block: Type.Number({ exclusiveMinimum: 0 }),
   sash: length,
   corner: Type.Union([Type.Literal('triangle'), Type.Literal('seam')]),
@@ -50,8 +53,8 @@ export const OtherLayout = Type.Object({
  *  (height = width·√3) that take diamond blocks. */
 export const VariablePointLayout = Type.Object({
   style: Type.Union([Type.Literal('variable-point'), Type.Literal('diamond-point')]),
-  cols: count,
-  rows: count,
+  cols: halfCount,
+  rows: halfCount,
   width: Type.Number({ exclusiveMinimum: 0 }),
   height: Type.Number({ exclusiveMinimum: 0 }),
   sash: length,
@@ -284,12 +287,24 @@ export const QuiltTarget = Type.Object({
 
 /** A colorway of a quilt (a palette swap of its primary colorway): every piece colored `from` (a
  *  fill key, e.g. "color:<id>") shows `to` instead. Edits to the quilt show in every colorway. */
+const Swap = Type.Object({ from: Type.String({ maxLength: 200 }), to: Fill });
 export const Colorway = Type.Object({
   id: Id,
   name: Type.String({ maxLength: 100 }),
-  swaps: Type.Array(Type.Object({ from: Type.String({ maxLength: 200 }), to: Fill }), {
-    maxItems: 1000,
-  }),
+  /** The picks shown. For an auto mapping (spec 024) they're worked out from `auto` on every change. */
+  swaps: Type.Array(Swap, { maxItems: 1000 }),
+  /** Auto mapping (spec 024, v9): each color of the source colorway (none: the primary) becomes its
+   *  nearest color or fabric in `palette` (a project or library palette id), except `overrides`
+   *  (by the primary's fill key, as `swaps`). */
+  auto: Type.Optional(
+    Type.Object({
+      source: Type.Optional(Id),
+      palette: Type.String({ maxLength: 200 }),
+      overrides: Type.Optional(Type.Array(Swap, { maxItems: 1000 })),
+    }),
+  ),
+  /** Manual mode: the palette its replacement choices come from (none: all). */
+  palette: Type.Optional(Type.String({ maxLength: 200 })),
 });
 
 export const Quilt = Type.Object({
@@ -306,6 +321,8 @@ export const Quilt = Type.Object({
   primaryName: Type.Optional(Type.String({ maxLength: 100 })),
   colorways: Type.Optional(Type.Array(Colorway, { maxItems: 100 })),
   shownColorway: Type.Optional(Id),
+  /** Data quilt (spec 025, v9). */
+  data: Type.Optional(DataPlan),
 });
 
 export type HorizontalLayout = Type.Static<typeof HorizontalLayout>;

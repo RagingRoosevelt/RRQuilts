@@ -152,7 +152,7 @@
     <QuiltWizard
       ref="wizard"
       :units="settings.settings.units"
-      @create="(l, b, t) => startQuilt(l, b, t, true)"
+      @create="(l, b, t, d) => startQuilt(l, b, t, true, d)"
     />
   </q-page>
 </template>

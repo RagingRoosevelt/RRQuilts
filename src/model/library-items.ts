@@ -1,16 +1,20 @@
 // Library items in projects (spec 008): a library item is embedded only while something uses it,
 // keeps its identity (`id@version`), and is never edited in place.
+import { plainFill } from './coloring';
 import { swapColorings } from './colorways';
-import { produce, type Draft } from 'immer';
-import { syncPalettes } from './project-palettes';
+import { applyPicks, dataBlocks, dataColorings, pruneVariants, syncVariants } from './data-quilt';
+import { castDraft, current, isDraft, produce, type Draft } from 'immer';
+import { refreshAuto, type PaletteSwatch } from './colorway-auto';
+import { projectPalettes, syncPalettes } from './project-palettes';
 import { newId } from './ids';
 import { allPatches } from './blocks/patches';
 import { assignIds, remapColoring } from './blocks/remap';
 import { pathPolygon } from './geometry/path';
 import { variationName } from './new-quilt';
 import type { Block } from './schema/block';
-import type { ColoringBody } from './schema/coloring';
+import type { ColoringBody, Fill } from './schema/coloring';
 import type { Color, Fabric } from './schema/palette';
+import type { ColorCollection } from './schema/library';
 import type { RrqDoc } from './schema/project';
 
 type Sourced = { source?: { libraryId: string; derived?: boolean | undefined } | undefined };
@@ -22,6 +26,8 @@ export interface LibraryLookup {
   color(id: string): Color | undefined;
   /** Library fabrics (spec 014); optional so plain lookups (tests, files) needn't provide it. */
   fabric?(id: string): Fabric | undefined;
+  /** Library palettes (spec 024 auto mapping); optional likewise. */
+  collection?(id: string): ColorCollection | undefined;
 }
 
 /** A library fabric (sizes in inches, like library blocks) in project units. */
@@ -33,16 +39,25 @@ export const toUnits = (b: Block, units: RrqDoc['units']): Block =>
   units === 'cm' ? { ...b, size: [b.size[0] * 2.54, b.size[1] * 2.54] } : b;
 
 export const colorsIn = (colorings: ColoringBody[]) =>
-  colorings.flatMap((c) => Object.values(c.fills).flatMap((f) => ('color' in f ? [f.color] : [])));
+  colorings.flatMap((c) =>
+    Object.values(c.fills).flatMap((x) => {
+      const f = plainFill(x);
+      return f && 'color' in f ? [f.color] : [];
+    }),
+  );
 export const fabricsIn = (colorings: ColoringBody[]) =>
   colorings.flatMap((c) =>
-    Object.values(c.fills).flatMap((f) => ('fabric' in f ? [f.fabric] : [])),
+    Object.values(c.fills).flatMap((x) => {
+      const f = plainFill(x);
+      return f && 'fabric' in f ? [f.fabric] : [];
+    }),
   );
 
 export const blocksUsed = (p: RrqDoc['project']) =>
   new Set(
     p.quilts.flatMap((q) => [
       ...Object.values(q.layers[0].slots).map((s) => s.block),
+      ...dataBlocks(q),
       ...q.layers.flatMap((l) => l.items.flatMap((i) => (i.ref ? [i.ref] : []))),
     ]),
   );
@@ -67,14 +82,28 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
       b.colorVariant && b.source && (lib?.block(b.source.itemId)?.notecard.name ?? b.source.name);
     if (name && b.notecard.name !== name) b.notecard.name = name;
   }
+  // Data quilts (spec 025): placed spaces show their type's variant for their number's days.
+  syncVariants(p.blocks, p.quilts);
+  p.quilts.forEach((q, i) => {
+    if (!q.data?.on) return;
+    // A quilt swapped in whole by the edit (a layout change) is frozen, not a draft: copy it so
+    // its blocks can be placed.
+    const live = isDraft(q) ? q : (p.quilts[i] = castDraft(structuredClone(q)));
+    applyPicks(live, p.blocks, newId);
+  });
+  const withVariants = pruneVariants(p.blocks, p.quilts);
+  if (withVariants.length !== p.blocks.length) p.blocks = withVariants;
   const usedBlocks = blocksUsed(p);
   const keptBlocks = p.blocks.filter((b) => !isLibraryItem(b) || usedBlocks.has(b.id));
   if (keptBlocks.length !== p.blocks.length) p.blocks = keptBlocks;
+  // Auto mapping (spec 024): worked out from the source colors and the palette as they are now.
+  refreshAutoMappings(d, lib);
   const usedColors = new Set(
     colorsIn([
       ...p.blocks.flatMap((b) => b.colorings),
       ...p.quilts.flatMap((q) => Object.values(q.colorings)),
       ...swapColorings(p.quilts),
+      ...dataColorings(p.quilts),
     ]),
   );
   if (lib) {
@@ -91,6 +120,7 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
     ...p.blocks.flatMap((b) => b.colorings),
     ...p.quilts.flatMap((q) => Object.values(q.colorings)),
     ...swapColorings(p.quilts),
+    ...dataColorings(p.quilts),
   ];
   const usedFabrics = new Set(fabricsIn(colorings));
   if (lib?.fabric) {
@@ -102,6 +132,40 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   }
   const keptFabrics = p.palette.fabrics.filter((f) => !isLibraryItem(f) || usedFabrics.has(f.id));
   if (keptFabrics.length !== p.palette.fabrics.length) p.palette.fabrics = keptFabrics;
+}
+
+function refreshAutoMappings(d: Draft<RrqDoc>, lib?: LibraryLookup) {
+  const p = d.project;
+  if (!p.quilts.some((q) => q.colorways?.some((v) => v.auto))) return;
+  const doc = current(d);
+  const own = new Map(projectPalettes(doc).map((pp) => [pp.palette.id, pp]));
+  const color = (id: string) =>
+    doc.project.palette.colors.find((c) => c.id === id) ?? lib?.color(id);
+  const fabric = (id: string) =>
+    doc.project.palette.fabrics.find((f) => f.id === id) ?? lib?.fabric?.(id);
+  const swatches = (colors: readonly Color[], fabrics: readonly Fabric[]): PaletteSwatch[] => [
+    ...colors.map((c) => ({ fill: { color: c.id }, rgb: c.rgb })),
+    ...fabrics.map((f) => ({
+      fill: { fabric: f.id, offset: [0, 0] as [number, number], rotation: 0 },
+      rgb: f.average,
+    })),
+  ];
+  const paletteOf = (id: string) => {
+    const pp = own.get(id);
+    if (pp) return swatches(pp.colors, pp.fabrics);
+    if (!lib?.collection) return null; // libraries not known here: leave it
+    const c = lib.collection(id);
+    return c && swatches(c.colors, c.fabrics ?? []);
+  };
+  const rgbOf = (x: Fill) => {
+    const f = plainFill(x);
+    return !f ? undefined : 'color' in f ? color(f.color)?.rgb : fabric(f.fabric)?.average;
+  };
+  p.quilts.forEach((q, i) => {
+    const next = refreshAuto(doc.project.quilts[i]!, doc.project.blocks, paletteOf, rgbOf);
+    if (next !== doc.project.quilts[i] && next.colorways)
+      p.quilts[i]!.colorways = castDraft(next.colorways);
+  });
 }
 
 export const syncLibraryItems = (doc: RrqDoc, lib?: LibraryLookup): RrqDoc =>

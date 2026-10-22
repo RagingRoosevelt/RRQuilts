@@ -237,6 +237,32 @@
               v-model="store.settings.recentColorsFirst"
               label="Sort colors and fabrics in palette by most recent use"
             />
+            <!-- Spec 032: palettes shown in a sort of their own (a palette's menu › Sort by). -->
+            <SettingsCard label="Sorted palettes" class="q-mt-md">
+              <div v-if="!sorted.length" class="text-caption text-grey-8">
+                None. A palette's menu has Sort by: hue, value, saturation or name, just for how it
+                shows on this device.
+              </div>
+              <div
+                v-for="p in sorted"
+                :key="p.id"
+                class="row items-center no-wrap"
+                style="gap: 8px"
+              >
+                <div class="col ellipsis">
+                  {{ p.name }} <span class="text-caption text-grey-7">· {{ p.where }}</span>
+                </div>
+                <span class="text-caption">{{ p.sort }}</span>
+                <q-btn
+                  flat
+                  dense
+                  no-caps
+                  size="sm"
+                  label="Clear"
+                  @click="sorting.setPref(p.id, undefined)"
+                />
+              </div>
+            </SettingsCard>
             <SettingsCard label="Reference overlay" class="q-mt-md">
               <div class="text-caption text-grey-8 q-mb-sm">
                 Where a target size starts in the new quilt wizard and the Layout tab.
@@ -308,9 +334,32 @@ import { parseConf, toConf } from '@/settings/settings';
 import { exportFile, pickFile } from '@/storage/files';
 import { SOCIAL_TYPES, socialIcon, socialLink, toHandle } from '@/settings/socials';
 import { useSettingsStore } from '@/stores/settings';
+import { useLibraryStore } from '@/stores/library';
+import { useProjectStore } from '@/stores/project';
+import { usePaletteSort } from '@/composables/palette-sort';
+import { SORT_KEYS } from '@/model/palette-sort';
 
 const $q = useQuasar();
 const store = useSettingsStore();
+const sorting = usePaletteSort();
+const library = useLibraryStore();
+const project = useProjectStore();
+/** Palettes with a sort, named where the app can see them (other projects' palettes can't be). */
+const sorted = computed(() =>
+  Object.entries(store.settings.paletteSorts).map(([id, pref]) => {
+    const lib = library.allViews.find((v) => v.collections.some((c) => c.id === id));
+    const own = project.doc?.project.palette.collections?.find((c) => c.id === id);
+    const name =
+      lib?.collections.find((c) => c.id === id)?.notecard.name ?? own?.notecard.name ?? 'A palette';
+    const where = lib
+      ? (lib.doc.library?.name ?? lib.doc.name)
+      : own
+        ? 'this project'
+        : 'another project';
+    const label = SORT_KEYS.find((k) => k.value === pref.key)?.label ?? pref.key;
+    return { id, name, where, sort: pref.reverse ? `${label}, reversed` : label };
+  }),
+);
 /** Drag to reorder (the handle at the left of each row); edits in progress follow their entry. */
 const dragFrom = ref<number | null>(null);
 const dragOver = ref<number | null>(null);

@@ -5,7 +5,7 @@
 import { current, isDraft, produce, type Draft } from 'immer';
 import { newId } from './ids';
 import type { Block } from './schema/block';
-import type { ColoringBody, Fill } from './schema/coloring';
+import type { ColoringBody, DataPaint, Fill, PlainFill } from './schema/coloring';
 import type { RrqDoc } from './schema/project';
 import type { Quilt } from './schema/quilt';
 
@@ -53,8 +53,21 @@ export const detachColoring = (doc: RrqDoc, blockId: string, coloringId: string)
 /** Patch ids of a block (to recolor unfilled patches, which have no fill entry). */
 export type PatchesOf = (blockId: string) => string[];
 
+/** A data paint's id (spec 025): `data:` + the number + `.slot` past A. */
+export const dataKey = (p: DataPaint) => `data:${p.n}${p.slot ? `.${p.slot}` : ''}`;
+
 export const fillKey = (f: Fill | undefined) =>
-  !f ? 'none' : 'color' in f ? `color:${f.color}` : `fabric:${f.fabric}`;
+  !f
+    ? 'none'
+    : 'data' in f
+      ? dataKey(f.data)
+      : 'color' in f
+        ? `color:${f.color}`
+        : `fabric:${f.fabric}`;
+
+/** The color or fabric a fill shows by itself (a data paint: the one painted under it). */
+export const plainFill = (f: Fill | undefined): PlainFill | undefined =>
+  f && 'data' in f ? f.under : f;
 
 /** Set a patch's fill as an override; clearing one the base fills records it in `cleared`. */
 const setFill = (

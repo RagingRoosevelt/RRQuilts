@@ -6,7 +6,8 @@ import { Units } from './project';
 import { itemBase, Links, Socials } from './shared';
 
 export const LIBRARY_FORMAT = 'rrqlib';
-export const LIBRARY_VERSION = 5;
+/** v6: data blocks (spec 025: data paints, kind, month variants). */
+export const LIBRARY_VERSION = 6;
 
 /**
  * A palette: a named set of colors and fabrics (spec 014); each keeps its own `id@version` so

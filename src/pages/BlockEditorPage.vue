@@ -120,6 +120,7 @@
           :readonly="ro"
           @drawing="applyDrawing"
           @patch="onPatch"
+          @numeral="(p, n) => numeralPatch(p, n)"
           @pointer="(i) => (pointer = i)"
         />
         <div class="readout q-pa-xs text-caption">
@@ -144,8 +145,17 @@
           :id="block.id"
           :doc="viewDoc"
         />
+        <DataVariants
+          v-if="
+            (stored?.data?.kind === 'month' || stored?.data?.kind === 'week') &&
+            (editor.blockMode === 'draw' || editor.blockMode === 'color')
+          "
+          :block="stored!"
+          :readonly="ro"
+          class="q-mb-md"
+        />
         <BlockInspector
-          v-else-if="editor.blockMode === 'draw'"
+          v-if="editor.blockMode === 'draw'"
           :block="block"
           :settings="settings"
           :selection="selection"
@@ -157,7 +167,7 @@
           @settings="saveSettings"
           @op="onOp"
         />
-        <div v-else class="column">
+        <div v-else-if="editor.blockMode === 'color'" class="column">
           <q-expansion-item
             :model-value="open('Colorings')"
             dense
@@ -227,6 +237,22 @@
             </div>
           </q-expansion-item>
           <q-expansion-item
+            v-if="stored?.data"
+            :model-value="open('Day numerals')"
+            dense
+            label="Day numerals"
+            header-class="text-subtitle2"
+            @update:model-value="(v) => setOpen('Day numerals', v)"
+          >
+            <DataNumerals
+              :fills="shownFills"
+              :patches="block.patches.map((p) => p.id)"
+              :count="numeralCount"
+              :readonly="ro"
+              @clear="clearAllNumerals"
+            />
+          </q-expansion-item>
+          <q-expansion-item
             :model-value="open('Colors')"
             dense
             label="Colors"
@@ -249,7 +275,7 @@
 </template>
 
 <script setup lang="ts">
-import { produce } from 'immer';
+import { castDraft, produce } from 'immer';
 import HelpLink from '@/components/HelpLink.vue';
 import { useQuasar } from 'quasar';
 import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
@@ -272,6 +298,10 @@ import {
   type SelectionOp,
 } from '@/editor/block-ops';
 import { detachColoring, fillKey } from '@/model/coloring';
+import { clearNumerals, putNumeral } from '@/model/data-paint';
+import DataNumerals from '@/components/DataNumerals.vue';
+import DataVariants from '@/components/DataVariants.vue';
+import { KIND_DAYS } from '@/model/data-quilt';
 import { fillFor, paintOf } from '@/editor/paint';
 import {
   addNodes,
@@ -342,8 +372,36 @@ const viewDoc = computed(() => {
 const libraryView = computed(() => !!anyBlock.value && isLibraryItem(anyBlock.value));
 const ro = computed(() => project.readOnly || libraryView.value);
 const { editLibrary, colorVariant } = useLibraryBlockActions();
-const block = computed(() => (anyBlock.value?.kind === 'seam' ? anyBlock.value : undefined));
-const notSeam = computed(() => !!anyBlock.value && !block.value);
+const stored = computed(() => (anyBlock.value?.kind === 'seam' ? anyBlock.value : undefined));
+/** A month data block's picked variant (spec 025), when it has it. */
+const variantDays = computed(() =>
+  stored.value?.data?.variants?.some((v) => v.days === editor.blockVariant)
+    ? editor.blockVariant!
+    : undefined,
+);
+/** The block as shown and edited: a variant's drawing in place of its own when one is picked. */
+const block = computed(() => {
+  const b = stored.value;
+  const v = b && b.data?.variants?.find((x) => x.days === variantDays.value);
+  if (!b || !v) return b;
+  const { unconnected: _u, ...rest } = b;
+  void _u;
+  return {
+    ...rest,
+    drawing: v.drawing,
+    patches: v.patches,
+    ...(v.unconnected ? { unconnected: v.unconnected } : {}),
+  };
+});
+/** Numerals the shown drawing takes: its variant's days, else its kind's. */
+const numeralCount = computed(
+  () => variantDays.value ?? KIND_DAYS[stored.value?.data?.kind ?? 'month'],
+);
+watch(
+  () => stored.value?.id,
+  () => (editor.blockVariant = null),
+);
+const notSeam = computed(() => !!anyBlock.value && !stored.value);
 watch(
   anyBlock,
   (b) => {
@@ -409,6 +467,10 @@ const coloringId = computed(() => {
   // A color variant opens on its first project coloring, as its card shows it.
   return projectColorings(b, library.lookup)?.own[0]?.id ?? b.colorings[0]?.id;
 });
+/** The shown coloring's fills (for the Data places panel's next number). */
+const shownFills = computed(
+  () => block.value?.colorings.find((c) => c.id === coloringId.value)?.fills ?? {},
+);
 const view = computed<View | undefined>({
   get: () => (block.value ? editor.views.get(`block:${block.value.id}`) : undefined),
   set: (v) => {
@@ -455,7 +517,7 @@ function applyDrawing(drawing: Drawing, editorPatch?: Partial<BlockEditorSetting
   const id = block.value!.id;
   const nextEditor = editorPatch && { ...settings.value, ...editorPatch };
   project.change(() => {
-    const r = applySeamEdit(project.doc!, id, drawing);
+    const r = applySeamEdit(project.doc!, id, drawing, variantDays.value);
     return withBlock(r.doc, (b) =>
       markDerived(
         nextEditor ? { ...b, editor: nextEditor } : b,
@@ -486,7 +548,11 @@ function resize(size: [number, number]) {
         const b = d.project.blocks.find((x) => x.id === id)!;
         b.size = size;
       });
-      return applySeamEdit(sized, id, block.value!.drawing).doc;
+      // Every drawing of a data block (its own and its variants) re-derives at the new size.
+      let out = applySeamEdit(sized, id, stored.value!.drawing).doc;
+      for (const v of stored.value!.data?.variants ?? [])
+        out = applySeamEdit(out, id, v.drawing, v.days).doc;
+      return out;
     },
     { coalesce: 'block-size' },
   );
@@ -555,24 +621,27 @@ function onPatch(patchId: string) {
   const cid = coloringId.value!;
   const current = b.colorings.find((c) => c.id === cid)?.fills[patchId];
   if (editor.blockTool === 'eyedropper') {
+    if (current && 'data' in current) {
+      // A numeral: pick it up with its value.
+      Object.assign(editor.data, {
+        on: true,
+        numeral: current.data.n,
+        slot: current.data.slot ?? 0,
+      });
+      return;
+    }
     const paint = paintOf(current);
     if (paint) editor.useColor(paint);
     return;
   }
+  if (editor.data.on && stored.value?.data) return numeralPatch(patchId, editor.data.numeral, true);
   if (!editor.color) {
     $q.notify({ message: 'Pick a color in the tray first.', timeout: 1500 });
     return;
   }
   const fill = fillFor(editor.color);
   // A library coloring is read-only: painting it starts a project copy (same undo step).
-  let base: Block = b;
-  let target = cid;
-  if (coloringId.value && isLibraryColoring(coloringId.value)) {
-    const r = saveColoringAs(b, cid);
-    const name = b.colorings.find((c) => c.id === cid)?.name;
-    base = renameColoring(r.block, r.id, `${name ?? 'Coloring'} (project)`);
-    target = r.id;
-  }
+  const { base, target } = editable();
   project.change(() =>
     withBlock(project.doc!, () =>
       produce(base, (x) => {
@@ -589,8 +658,55 @@ function onPatch(patchId: string) {
   editor.coloringOf.set(b.id, target);
 }
 
+/** A data block's numeral on a patch (spec 025): on over its color, or off when it's there; a tap
+ *  moves on to the next numeral when asked. */
+function numeralPatch(patchId: string, n: number, tap = false) {
+  if (ro.value) return;
+  const b = stored.value!;
+  const { base, target } = editable();
+  const slot = editor.data.slot;
+  const was = base.colorings.find((k) => k.id === target)?.fills[patchId];
+  const taking = !!was && 'data' in was && was.data.n === n && (was.data.slot ?? 0) === slot;
+  project.change(() =>
+    withBlock(project.doc!, () =>
+      produce(base, (x) => {
+        const c = x.colorings.find((k) => k.id === target)!;
+        c.fills = castDraft(putNumeral(c.fills, patchId, n, slot));
+      }),
+    ),
+  );
+  editor.coloringOf.set(b.id, target);
+  if (tap && !taking && editor.data.advance && n < numeralCount.value) editor.data.numeral = n + 1;
+}
+
+/** Clear all numerals: every day label (all values) off the shown drawing, in this coloring. */
+function clearAllNumerals() {
+  if (ro.value) return;
+  const { base, target } = editable();
+  const ids = block.value!.patches.map((p) => p.id);
+  project.change(() =>
+    withBlock(project.doc!, () =>
+      produce(base, (x) => {
+        const c = x.colorings.find((k) => k.id === target)!;
+        c.fills = castDraft(clearNumerals(c.fills, ids));
+      }),
+    ),
+  );
+  editor.coloringOf.set(base.id, target);
+}
+
+/** The coloring to change: a library coloring is read-only, so a project copy of it. */
+function editable(): { base: Block; target: string } {
+  const b = stored.value!;
+  const cid = coloringId.value!;
+  if (!isLibraryColoring(cid)) return { base: b, target: cid };
+  const r = saveColoringAs(b, cid);
+  const name = b.colorings.find((c) => c.id === cid)?.name;
+  return { base: renameColoring(r.block, r.id, `${name ?? 'Coloring'} (project)`), target: r.id };
+}
+
 function saveAsNew() {
-  const r = saveColoringAs(block.value!, coloringId.value!);
+  const r = saveColoringAs(stored.value!, coloringId.value!);
   project.change(() => withBlock(project.doc!, () => r.block));
   editor.coloringOf.set(block.value!.id, r.id);
 }

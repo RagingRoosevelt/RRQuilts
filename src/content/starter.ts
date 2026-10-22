@@ -8,7 +8,7 @@ import { produce } from 'immer';
 import { deriveSeamPatches } from '@/model/blocks/derive';
 import { pathPolygon, pointInPolygon } from '@/model/geometry/path';
 import { contentVersion } from '@/model/identity';
-import type { SeamBlock, Segment } from '@/model/schema/block';
+import type { DataKind, SeamBlock, Segment } from '@/model/schema/block';
 import { LIBRARY_FORMAT, LIBRARY_VERSION, type LibraryDoc } from '@/model/schema/library';
 import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
@@ -151,7 +151,52 @@ interface StarterBlock {
   seams: Seam[];
   base: number;
   points: [number, number, number][];
+  /** Width × height in inches when not square (data strips). */
+  dims?: [number, number];
+  /** Data places (spec 025): x, y, day number; the piece there keeps its color under it. */
+  days?: [number, number, number][];
+  /** A data block (spec 025) of this kind. */
+  data?: DataKind;
+  /** A shorter variant of the named month data block, not a block of its own. */
+  variantOf?: [name: string, days: 28 | 29 | 30];
 }
+
+/** A data block (spec 025): `n` equal upright bars, days 1…`used` numbered, the rest black. */
+const dataBars = (
+  name: string,
+  category: string,
+  n: number,
+  used: number,
+  dims: [number, number],
+): StarterBlock => ({
+  name,
+  category,
+  dims,
+  seams: Array.from({ length: n - 1 }, (_, i): Seam => [
+    [(i + 1) / n, 0],
+    [(i + 1) / n, 1],
+  ]),
+  base: C.Cream!,
+  points: Array.from({ length: n - used }, (_, i): [number, number, number] => [
+    (used + i + 0.5) / n,
+    0.5,
+    C.Black!,
+  ]),
+  days: Array.from({ length: used }, (_, i): [number, number, number] => [
+    (i + 0.5) / n,
+    0.5,
+    i + 1,
+  ]),
+});
+const DATA_BLOCKS: StarterBlock[] = [
+  { ...dataBars('Month Strip', 'Data/Months', 31, 31, [31, 6]), data: 'month' },
+  ...([30, 29, 28] as const).map((d): StarterBlock => ({
+    ...dataBars(`Month Strip ${d}`, 'Data/Months', 31, d, [31, 6]),
+    variantOf: ['Month Strip', d],
+  })),
+  { ...dataBars('Week Row', 'Data/Weeks', 7, 7, [7, 7]), data: 'week' },
+  { ...dataBars('Day Square', 'Data/Days', 1, 1, [1, 1]), data: 'day' },
+];
 
 const t = 1 / 3;
 const rect = (x0: number, y0: number, x1: number, y1: number, k = 8): Seam[] => {
@@ -495,6 +540,7 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     ...SHAPED_BLOCKS.map(shapedStarter),
     ...SHAPED_CURVES.map(curvedStarter),
   ].map(fromKit),
+  ...DATA_BLOCKS,
 ];
 
 // --- Built-in library (spec 008) ---------------------------------------------------------------
@@ -575,7 +621,7 @@ function buildItems(): BuiltinItems {
   const blocks = STARTER_BLOCKS.map((b): SeamBlock => {
     const size: [number, number] = b.shape
       ? shapeSize(b.shape, 'leg', b.size ?? 4)
-      : [b.size ?? 10, b.size ?? 10];
+      : (b.dims ?? [b.size ?? 10, b.size ?? 10]);
     const nodes: { id: string; x: number; y: number }[] = [];
     const node = ([x, y]: P) => {
       const id = `n${nodes.length + 1}`;
@@ -592,11 +638,16 @@ function buildItems(): BuiltinItems {
       id: `p${i + 1}`,
       path: p.path,
     }));
-    const fills: Record<string, { color: string }> = {};
+    const fills: Record<
+      string,
+      { color: string } | { data: { n: number }; under: { color: string } }
+    > = {};
     for (const p of patches) {
       const poly = pathPolygon(p.path, size);
       const hit = b.points.find(([px, py]) => pointInPolygon([px, py], poly));
-      fills[p.id] = { color: colors[hit ? hit[2] : b.base]!.id };
+      const color = { color: colors[hit ? hit[2] : b.base]!.id };
+      const day = b.days?.find(([px, py]) => pointInPolygon([px, py], poly));
+      fills[p.id] = day ? { data: { n: day[2] }, under: color } : color;
     }
     const block: SeamBlock = {
       id: libId(FORMER[b.name] ?? b.name),
@@ -606,6 +657,7 @@ function buildItems(): BuiltinItems {
       notecard: { name: b.name },
       source: credit(b.name),
       revision: 1,
+      ...(b.data ? { data: { kind: b.data } } : {}),
       drawing,
       patches,
       colorings: [
@@ -626,7 +678,7 @@ function buildItems(): BuiltinItems {
                   fills: Object.fromEntries(
                     Object.entries(fills).map(([p, f]) => [
                       p,
-                      { color: swap.get(f.color) ?? f.color },
+                      'data' in f ? f : { color: swap.get(f.color) ?? f.color },
                     ]),
                   ),
                 },
@@ -637,7 +689,36 @@ function buildItems(): BuiltinItems {
     };
     return block;
   });
-  return { colors, blocks };
+  // Month data block variants (spec 025): each folds into its block, its ids prefixed so they stay
+  // apart from the block's own, its fills added to the block's colorings.
+  STARTER_BLOCKS.forEach((b, i) => {
+    if (!b.variantOf) return;
+    const [name, days] = b.variantOf;
+    const into = blocks.find((x) => x.notecard.name === name)!;
+    const v = blocks[i]!;
+    const p = (id: string) => `v${days}${id}`;
+    into.data!.variants = [
+      ...(into.data!.variants ?? []),
+      {
+        days,
+        drawing: {
+          nodes: v.drawing.nodes.map((n) => ({ ...n, id: p(n.id) })),
+          segments: v.drawing.segments.map((sg) => ({
+            ...sg,
+            id: p(sg.id),
+            from: p(sg.from),
+            to: p(sg.to),
+          })),
+        },
+        patches: v.patches.map((x) => ({ ...x, id: p(x.id) })),
+      },
+    ];
+    for (const c of into.colorings) {
+      const from = v.colorings.find((x) => x.id === c.id) ?? v.colorings[0]!;
+      for (const [k, f] of Object.entries(from.fills)) c.fills[p(k)] = f;
+    }
+  });
+  return { colors, blocks: blocks.filter((_, i) => !STARTER_BLOCKS[i]!.variantOf) };
 }
 
 /** The built-in library with content versions (computed once at startup). */
@@ -671,6 +752,10 @@ const STARTER_CATEGORIES = [
   'Symbols',
   'Symbols/Letters',
   'Symbols/Numbers',
+  'Data',
+  'Data/Months',
+  'Data/Weeks',
+  'Data/Days',
 ];
 const catId = (path: string) =>
   `rrquilts.category.${path
@@ -697,9 +782,10 @@ export function builtinDoc(items: BuiltinItems): LibraryDoc {
         : { id: catId(path), name: top! };
     }),
     items: [
-      ...items.blocks.map((data, i) => ({
+      ...items.blocks.map((data) => ({
         type: 'block' as const,
-        category: catId(STARTER_BLOCKS[i]!.category),
+        // By name: month variants fold into their block, so the lists don't line up.
+        category: catId(STARTER_BLOCKS.find((b) => b.name === data.notecard.name)!.category),
         data,
       })),
       ...[{ name: 'Basic colors', colors: STARTER_COLORS }, ...STARTER_PALETTES].map((p) => ({

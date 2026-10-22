@@ -1,10 +1,10 @@
 # Feature Specification: Sort a Palette's Swatches
 
-**Feature Branch**: `TBD` (no feature branch yet)
+**Feature Branch**: `0.7.0`
 
 **Created**: 2026-10-20
 
-**Status**: Draft (spec only; not implemented)
+**Status**: Implemented on `0.7.0` (2026-10-20). FR-006 has nothing to act on yet: swatches can't be dragged to reorder (when that comes, it switches the view back to Saved order first). Swap menus (colorway mapping, palette swap) keep the saved order.
 
 **Input**: Owner, 2026-10-20: being able to sort palettes by hue, value, etc. on an individual,
 remembered basis.
@@ -16,6 +16,19 @@ remembered basis.
   a way of looking at a palette: it never changes the saved order or the file.
 - **Per palette, remembered**: each palette keeps its own sort on this device, across sessions, and
   shows that way wherever its swatches appear.
+
+## Clarifications
+
+### Session 2026-10-20
+
+- Q: 021 (rewrite the palette's order) or 032 (a view)? → A: 032, the view. Sorting is a display
+  preference, so library and pack palettes can be sorted too, and a palette keeps its sort as
+  swatches are added. 021 is superseded.
+- Q: Where does the user see their sorts? → A: Settings lists every palette that has a sort set
+  (name, its sort), each with a way to clear it.
+- Q: When does a preference go away? → A: When its palette is removed: deleted from the project or
+  My library, or its pack/library removed. (The app can't see other projects' palettes, so a
+  project palette's preference goes when it's deleted in the open project.)
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -82,6 +95,10 @@ next to it stays as it was; reload: still by hue.
   saved order.
 - **FR-005**: Fabrics MUST sort by their average color.
 - **FR-006**: Reordering by hand MUST first return the view to Saved order.
+- **FR-007**: Settings MUST list the palettes that have a sort (palette name and where it lives, the
+  sort, Reverse) with Clear for each.
+- **FR-008**: Removing a palette (deleting a project or My library palette, removing its pack or
+  library) MUST remove its sort preference.
 
 ### Key Entities
 

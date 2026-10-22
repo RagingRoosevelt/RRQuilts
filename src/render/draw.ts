@@ -1,7 +1,7 @@
 // Draw a quilt on a 2-D canvas. View maps quilt units → CSS pixels; `dpr` scales to device pixels.
 import type { Generated, Slot } from '@/model/layout/slots';
 import type { Block } from '@/model/schema/block';
-import { resolveColoring } from '@/model/coloring';
+import { slotColoring } from '@/model/data-quilt';
 import type { ColoringBody, Fill } from '@/model/schema/coloring';
 import type { Color, Fabric } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
@@ -60,6 +60,9 @@ function hatch(ctx: CanvasRenderingContext2D, dark: boolean) {
   return hatchCache.pattern ?? '#ddd';
 }
 
+/** A data paint's place before it's worked out (spec 025). */
+export const DATA_PLACE = 'rgb(200,206,214)';
+
 /**
  * Fill → fill style. `extra`: library colors/fabrics not (yet) in the project, e.g. for library
  * blocks. With `canvas`, fabrics draw as true-scale image patterns (spec 014); without, as their
@@ -77,6 +80,8 @@ export function colorLookup(
   const fabrics = new Map([...extraFabrics, ...doc.project.palette.fabrics].map((f) => [f.id, f]));
   return (f: Fill | undefined): string | CanvasPattern | undefined => {
     if (!f) return undefined;
+    // A data paint not worked out (no data plan, no unit): a place, not a color (spec 025).
+    if ('data' in f) return DATA_PLACE;
     if ('color' in f) return colors.get(f.color);
     const fab = fabrics.get(f.fabric);
     if (!fab) return undefined;
@@ -143,7 +148,7 @@ export function drawQuilt(
     if (block.id === PLAIN_BLOCK) {
       // Plain pieces (sashes, setting pieces, borders) fill their own outline, whatever block
       // square the space maps (a setting piece's square is the turned block before cutting).
-      const coloring = resolveColoring(quilt.colorings[content.coloring], block);
+      const coloring = slotColoring(quilt, slot.id, block);
       ctx.fillStyle = fillOf(coloring?.fills[PLAIN_PATCH]) ?? hatch(ctx, o.dark);
       ctx.fill(outline);
       if (o.outlines) {
@@ -158,7 +163,7 @@ export function drawQuilt(
     const m = placementMatrix(slot, content, block);
     ctx.setTransform(...mul(base, m));
     const unitsPerPx = px / Math.sqrt(Math.abs(m[0] * m[3] - m[1] * m[2]));
-    drawBlock(ctx, block, resolveColoring(quilt.colorings[content.coloring], block), fillOf, {
+    drawBlock(ctx, block, slotColoring(quilt, slot.id, block), fillOf, {
       outlines: o.outlines,
       lineWidth: unitsPerPx,
       dark: o.dark,
@@ -167,16 +172,45 @@ export function drawQuilt(
   }
 
   ctx.setTransform(...base);
-  for (const slot of generated.slots) {
-    const hi = slot.id === o.hover ? 2 : o.selected?.has(slot.id) ? 3 : 0;
-    if (!hi) continue;
-    ctx.lineWidth = hi * px;
-    ctx.strokeStyle = hi === 3 ? '#1976d2' : 'rgba(25,118,210,0.7)';
-    ctx.stroke(slotPath(slot));
-  }
   if (o.labels) drawLabels(ctx, quilt, generated, blocks, base, o.dpr);
-  if (o.target && quilt.target?.visible)
-    drawTarget(ctx, quilt.target, generated.bounds, generated.anchor ?? generated.bounds, px);
+  const overlay = o.target && quilt.target?.visible;
+  if (overlay)
+    drawTarget(ctx, quilt.target!, generated.bounds, generated.anchor ?? generated.bounds, px);
+  // Hovered and found spaces: a glowing outline over everything, in the overlay tint's opposite
+  // hue so it stands out from the reference overlay.
+  const glow = complement(overlay ? (quilt.target!.tint ?? OVERLAY_TINT) : OVERLAY_TINT);
+  ctx.save();
+  ctx.strokeStyle = glow;
+  ctx.shadowColor = glow;
+  ctx.shadowBlur = 10 * o.dpr;
+  ctx.lineJoin = 'round';
+  for (const slot of generated.slots) {
+    const hi = slot.id === o.hover ? 2.5 : o.selected?.has(slot.id) ? 3 : 0;
+    if (!hi) continue;
+    const path = slotPath(slot);
+    ctx.globalAlpha = 0.45;
+    ctx.lineWidth = (hi + 4) * px;
+    ctx.stroke(path);
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = hi * px;
+    ctx.stroke(path);
+  }
+  ctx.restore();
+}
+
+/** The opposite hue of a `#rrggbb` color, bright and saturated (an outline that stands out). */
+export function complement(hex: string): string {
+  const n = parseInt(hex.slice(1, 7), 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => v / 255) as [
+    number,
+    number,
+    number,
+  ];
+  const max = Math.max(r, g, b);
+  const d = max - Math.min(r, g, b);
+  let h = 0;
+  if (d) h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return `hsl(${Math.round((h * 60 + 180 + 360) % 360)} 100% 50%)`;
 }
 
 /** A target size (spec 006 FR-001a): a see-through, dashed outline centered on the quilt, with a

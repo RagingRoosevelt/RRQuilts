@@ -163,6 +163,8 @@ export function useViewport(o: ViewportOptions) {
     fit,
     zoomBy,
     view,
+    /** The world point under a pointer or drag event. */
+    worldAt: (e: { clientX: number; clientY: number }) => toWorld(local(e)),
     /** World units per CSS pixel (for snap radius, line widths). */
     worldPerPx: () => 1 / view().scale,
     handlers: {

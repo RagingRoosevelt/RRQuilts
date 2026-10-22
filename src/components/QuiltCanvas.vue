@@ -28,6 +28,8 @@ import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
 import { boundsWithTarget, drawQuilt, type View } from '@/render/draw';
 import { hitTest, type Hit } from '@/render/hit';
+import type { Pt } from '@/model/geometry/path';
+import { drawDataOverlay, drawDayArrows, type DataMark } from '@/render/data-overlay';
 
 const props = defineProps<{
   doc: RrqDoc;
@@ -40,6 +42,10 @@ const props = defineProps<{
   /** Slots to outline (e.g. every placement of the block being found). */
   selected?: Set<string> | undefined;
   panOnly: boolean;
+  /** Data quilt marks and order lines (spec 025, Data tab). */
+  dataMarks?: readonly DataMark[] | null;
+  /** Each data block's days in order, drawn as light arrows. */
+  dayPaths?: readonly Pt[][] | null;
 }>();
 const emit = defineEmits<{
   tap: [hit: Hit];
@@ -74,6 +80,15 @@ const vp = useViewport({
       hover: props.hover,
       dark: $q.dark.isActive,
     });
+    if (props.dataMarks?.length || props.dayPaths?.length) {
+      const k = dpr * view.scale;
+      ctx.setTransform(k, 0, 0, k, dpr * view.tx, dpr * view.ty);
+      drawDayArrows(ctx, props.dayPaths ?? [], 1 / view.scale, $q.dark.isActive);
+      drawDataOverlay(ctx, props.dataMarks ?? [], 1 / view.scale, {
+        line: true,
+        dark: $q.dark.isActive,
+      });
+    }
   },
   onTap: (p) => {
     const hit = hitAt(p);
@@ -92,6 +107,8 @@ watch(
     props.outlines,
     props.labels,
     props.selected,
+    props.dataMarks,
+    props.dayPaths,
     $q.dark.isActive,
     imagesTick.value, // fabric images arriving (spec 014)
   ],

@@ -50,6 +50,19 @@
     </div>
     <q-separator class="q-mb-md" />
 
+    <!-- Data quilts (spec 025) or the others. -->
+    <SlidePicker
+      v-if="tab === 'quilts'"
+      v-model="quiltKind"
+      :options="[
+        { value: 'all', label: 'All quilts' },
+        { value: 'data', label: 'Data quilts' },
+        { value: 'other', label: 'Other quilts' },
+      ]"
+      label="Show"
+      class="q-mb-md"
+      style="max-width: 420px"
+    />
     <div v-if="tab === 'quilts'" class="cards">
       <div v-if="!project.readOnly" class="stack">
         <button class="card add" @click="wizard?.show()">
@@ -63,11 +76,17 @@
       </div>
       <div
         v-for="(q, i) in quilts"
+        v-show="quiltKind === 'all' || (quiltKind === 'data') === !!q.data?.on"
         :key="q.id"
         class="card"
+        :class="{
+          'glow-right': quiltGap !== null && i === quiltGap,
+          'glow-left': quiltGap !== null && i === quiltGap + 1,
+        }"
         :draggable="!project.readOnly"
         @dragstart="dragFrom = i"
-        @dragover.prevent
+        @dragover.prevent="quiltDropAt = i"
+        @dragend="dragFrom = quiltDropAt = null"
         @drop="drop('quilts', i)"
       >
         <div class="relative-position">
@@ -97,25 +116,14 @@
                   <q-item v-close-popup clickable @click="duplicate(q.id)"
                     ><q-item-section>Create copy</q-item-section></q-item
                   >
+                  <q-item v-close-popup clickable @click="project.exportQuilt(q.id)"
+                    ><q-item-section>Export quilt…</q-item-section></q-item
+                  >
                   <q-item v-close-popup clickable @click="startSwapColorway(q)"
-                    ><q-item-section>New colorway from palette swap…</q-item-section></q-item
+                    ><q-item-section>New colorway from palette…</q-item-section></q-item
                   >
                   <q-item v-close-popup clickable @click="quiltDetails(q.id)"
                     ><q-item-section>Details</q-item-section></q-item
-                  >
-                  <q-item
-                    v-close-popup
-                    clickable
-                    :disable="i === 0"
-                    @click="moveItem('quilts', i, -1)"
-                    ><q-item-section>Move earlier</q-item-section></q-item
-                  >
-                  <q-item
-                    v-close-popup
-                    clickable
-                    :disable="i === quilts.length - 1"
-                    @click="moveItem('quilts', i, 1)"
-                    ><q-item-section>Move later</q-item-section></q-item
                   >
                   <q-item v-close-popup clickable @click="deleteQuilt(q.id)"
                     ><q-item-section class="text-negative">Delete</q-item-section></q-item
@@ -182,6 +190,13 @@
               v-model="bf[f.key]"
               :options="f.options"
               :label="f.label"
+            />
+          </FilterCard>
+          <FilterCard label="Data">
+            <FilterSelect
+              v-model="bf.data"
+              :options="DATA_FILTER.options"
+              :label="DATA_FILTER.label"
             />
           </FilterCard>
           <q-select
@@ -633,6 +648,7 @@
               label="Tags"
             />
           </FilterCard>
+          <ColorFilterCard v-model="colorF" />
         </aside>
         <div class="col" style="min-width: 0">
           <div v-if="$q.screen.lt.md" class="row justify-end q-mb-sm">
@@ -718,20 +734,17 @@
                     Empty: click to add colors or fabric images
                   </span>
                   <span
-                    v-for="(x, j) in pp.colors"
-                    :key="x.id"
+                    v-for="(s, k) in cardSwatches(pp.palette.id, pp.colors, pp.fabrics)"
+                    :key="s.item.id"
                     class="chip"
-                    :style="{ background: `rgb(${x.rgb.join(',')})` }"
-                    :title="x.notecard.name"
-                    @click.stop="openProjectPalette(pp.palette.id, j)"
-                  />
-                  <span
-                    v-for="(x, j) in pp.fabrics"
-                    :key="x.id"
-                    class="chip"
-                    :style="swatchStyle(x)"
-                    :title="x.notecard.name"
-                    @click.stop="openProjectPalette(pp.palette.id, pp.colors.length + j)"
+                    :class="{ dim: !colorMatch(s) }"
+                    :style="
+                      s.kind === 'color'
+                        ? { background: `rgb(${s.item.rgb.join(',')})` }
+                        : swatchStyle(s.item)
+                    "
+                    :title="s.item.notecard.name"
+                    @click.stop="openProjectPalette(pp.palette.id, k)"
                   />
                 </button>
                 <!-- At the top, beside the first row of swatches, however many rows there are. -->
@@ -787,6 +800,7 @@
                           <q-item-section>Save to my library…</q-item-section>
                         </q-item>
                       </template>
+                      <PaletteSortMenu :id="pp.palette.id" />
                       <q-item
                         v-close-popup
                         clickable
@@ -878,20 +892,17 @@
                   </div>
                   <div class="row col" style="gap: 3px">
                     <button
-                      v-for="(x, i) in c.colors"
-                      :key="x.id"
+                      v-for="(s, k) in cardSwatches(c.id, c.colors, c.fabrics)"
+                      :key="s.item.id"
                       class="mini-swatch lib-swatch"
-                      :style="{ background: `rgb(${x.rgb.join(',')})` }"
-                      :title="x.notecard.name"
-                      @click="showPalette(c, i)"
-                    />
-                    <button
-                      v-for="(x, i) in c.fabrics ?? []"
-                      :key="x.id"
-                      class="mini-swatch lib-swatch"
-                      :style="swatchStyle(x)"
-                      :title="x.notecard.name"
-                      @click="showPalette(c, c.colors.length + i)"
+                      :class="{ dim: !colorMatch(s) }"
+                      :style="
+                        s.kind === 'color'
+                          ? { background: `rgb(${s.item.rgb.join(',')})` }
+                          : swatchStyle(s.item)
+                      "
+                      :title="s.item.notecard.name"
+                      @click="showPalette(c, k)"
                     />
                   </div>
                   <q-btn
@@ -905,6 +916,20 @@
                     @click="tagPalette(c)"
                   >
                     <q-tooltip>Tags… (⭐ Favorite)</q-tooltip>
+                  </q-btn>
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    size="sm"
+                    icon="sort"
+                    aria-label="Sort"
+                    class="self-start"
+                  >
+                    <q-tooltip>Sort its swatches</q-tooltip>
+                    <q-menu
+                      ><q-list dense><PaletteSortMenu :id="c.id" /></q-list
+                    ></q-menu>
                   </q-btn>
                 </div>
               </fieldset>
@@ -994,6 +1019,7 @@
         <PalettePreview
           v-model:at="shownPalette.at"
           :palette="shownData"
+          :sort-id="shownPalette.project ?? shownData.id"
           :editable="!!shownPalette.project && !project.readOnly"
           images
           @add="newProjectColor(shownPalette.project)"
@@ -1366,7 +1392,11 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <QuiltWizard ref="wizard" :units="project.doc.units" @create="startQuilt" />
+    <QuiltWizard
+      ref="wizard"
+      :units="project.doc.units"
+      @create="(l, b, t, d) => startQuilt(l, b, t, false, d)"
+    />
     <!-- Tags (and technique on the project's own blocks), spec 029 -->
     <KeepWhichDialog
       :items="keepWhich?.items ?? null"
@@ -1400,6 +1430,15 @@ import {
 } from '@/composables/swap-options';
 import { fillFor, paintOf } from '@/editor/paint';
 import PalettePreview from '@/components/PalettePreview.vue';
+import PaletteSortMenu from '@/components/PaletteSortMenu.vue';
+import { usePaletteSort, type Swatch } from '@/composables/palette-sort';
+import ColorFilterCard from '@/components/ColorFilterCard.vue';
+import {
+  colorFilter,
+  colorFilterOn,
+  paletteMatches,
+  swatchMatches,
+} from '@/model/palette-color-filter';
 import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { ColorCollection } from '@/model/schema/library';
 import { swatchStyle } from '@/render/fabric-images';
@@ -1412,15 +1451,13 @@ import { useStartQuilt } from '@/composables/start-quilt';
 import { allPatches } from '@/model/blocks/patches';
 import { attribution, copyBlock, newBlock, saveColoringAs } from '@/editor/block-ops';
 import { nearestColor } from '@/editor/color';
-import { paintsUsed, quiltColors, quiltPaints, replaceColors } from '@/editor/colors';
-import { fillKey } from '@/model/coloring';
-import { addColorway, setSwap, shownColorway, swapper, colorwayList } from '@/model/colorways';
+import { paintsUsed, quiltColors, replaceColors } from '@/editor/colors';
 import type { Quilt } from '@/model/schema/quilt';
 import { authorOf, effectiveLicense, licenseName, priorCredits } from '@/model/credits';
 import { newId } from '@/model/ids';
 import { variationName } from '@/model/new-quilt';
 import { describeSlot } from '@/model/plain';
-import type { Block } from '@/model/schema/block';
+import type { Block, DataKind } from '@/model/schema/block';
 import { saveBlockImage, saveQuiltImage } from '@/render/save-image';
 import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 import { useEditorStore } from '@/stores/editor';
@@ -1428,6 +1465,7 @@ import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
 import BlockFilter from '@/components/BlockFilter.vue';
 import FilterSelect from '@/components/FilterSelect.vue';
+import SlidePicker from '@/components/SlidePicker.vue';
 import FilterCard from '@/components/FilterCard.vue';
 import { blockFits, type ShapeFilter } from '@/render/layout-samples';
 import { roundLen } from '@/model/units';
@@ -1444,6 +1482,7 @@ import TagsDialog from '@/components/TagsDialog.vue';
 import KeepWhichDialog, { type KeepChoice, type KeepItem } from '@/components/KeepWhichDialog.vue';
 import FavoriteBadge from '@/components/FavoriteBadge.vue';
 import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
+import { DATA_FILTER, dataKindMatches } from '@/model/data-quilt';
 import { techniqueOptions } from '@/model/schema/shared';
 import {
   cleanTags,
@@ -1456,6 +1495,7 @@ import {
   type TagTarget,
 } from '@/model/tags';
 import { useLibraryBlockActions } from '@/composables/library-block-actions';
+import { useColorwaySwap } from '@/composables/colorway-swap';
 import { useAuthor } from '@/composables/author';
 import { useAskCategory } from '@/composables/category';
 import {
@@ -1529,6 +1569,7 @@ const otherVersions = computed(
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
 const { editLibrary, colorVariant } = useLibraryBlockActions();
+const { swatches, forget: forgetSorts } = usePaletteSort();
 const inUseDialog = ref<{
   id: string;
   quilt: string;
@@ -1544,6 +1585,15 @@ const dragFrom = ref<number | null>(null);
 const wizard = ref<InstanceType<typeof QuiltWizard>>();
 
 const quilts = computed(() => project.doc!.project.quilts);
+const quiltKind = ref<'all' | 'data' | 'other'>('all');
+/** Where a dragged quilt card will land: the card it's over, and the gap as the index of the card
+ *  left of it (dragged right, the quilt goes after the card; left, before it). */
+const quiltDropAt = ref<number | null>(null);
+const quiltGap = computed(() => {
+  const [from, at] = [dragFrom.value, quiltDropAt.value];
+  if (tab.value !== 'quilts' || from === null || at === null || from === at) return null;
+  return from < at ? at : at - 1;
+});
 const split = computed(() => {
   const own = project.doc!.project.blocks.filter((b) => !b.notecard.tags?.includes('system'));
   // My-library items this project has a linked copy of show once, as that copy in My blocks.
@@ -1573,6 +1623,7 @@ const bf = reactive({
   techniques: [] as string[],
   seams: [] as string[],
   difficulty: [] as string[],
+  data: [] as string[],
   layout: null as string | null,
   shape: null as ShapeFilter | null,
 });
@@ -1597,7 +1648,7 @@ const blockFiltering = computed(
     !!bf.search ||
     !!bf.layout ||
     !!bf.shape ||
-    [bf.cats, bf.tags, bf.techniques, bf.seams, bf.difficulty].some((f) => f.length),
+    [bf.cats, bf.tags, bf.techniques, bf.seams, bf.difficulty, bf.data].some((f) => f.length),
 );
 const anyOf = (picked: string[], have: readonly string[]) =>
   !picked.length || picked.some((x) => have.includes(x));
@@ -1674,6 +1725,7 @@ function blockShown(b: Block) {
     anyOf(catFilter.value.ids(bf.cats), [blockCat(b)]) &&
     anyOf(bf.tags, tagsOfBlock(b)) &&
     anyOf(bf.techniques, b.notecard.techniques ?? []) &&
+    dataKindMatches(b, bf.data) &&
     // A library block is in inches; the project's own in the project's units.
     constructionMatches(b, bf, isLibraryItem(b) ? 'in' : (project.doc?.units ?? 'in')) &&
     notecardMatches(b.notecard, bf.search ?? '', tagsOfBlock(b))
@@ -1788,19 +1840,38 @@ const palTagOptions = computed(() =>
     true,
   ).map((t) => ({ label: tagLabel(t), value: t })),
 );
-const palMatches = (name: string, tags: string[], cat: string) =>
+/** Spec 033: palettes with a swatch in the Color card's ranges. */
+const colorF = reactive(colorFilter());
+const colorMatch = (s: Swatch) =>
+  !colorFilterOn(colorF) || swatchMatches(s.kind === 'color' ? s.item.rgb : s.item.average, colorF);
+/** A palette's chips: sorted (spec 032), the Color card's non-matches hidden if asked. */
+const cardSwatches = (id: string, colors?: readonly Color[], fabrics?: readonly Fabric[]) =>
+  swatches(id, colors, fabrics).filter((s) => !colorF.onlyMatching || colorMatch(s));
+const rgbsOf = (colors: readonly Color[] = [], fabrics: readonly Fabric[] = []) => [
+  ...colors.map((c) => c.rgb),
+  ...fabrics.map((f) => f.average),
+];
+const palMatches = (name: string, tags: string[], cat: string, rgbs: ReturnType<typeof rgbsOf>) =>
+  paletteMatches(rgbs, colorF) &&
   (!pf.search || name.toLowerCase().includes(pf.search.toLowerCase())) &&
   anyOf(pf.tags, tags) &&
   anyOf(palCatFilter.value.ids(pf.cats), [cat]);
 const shownOwnPalettes = computed(() =>
-  ownPalettes.value.filter((pp) => palMatches(pp.palette.notecard.name, ownPaletteTags(pp), '')),
+  ownPalettes.value.filter((pp) =>
+    palMatches(pp.palette.notecard.name, ownPaletteTags(pp), '', rgbsOf(pp.colors, pp.fabrics)),
+  ),
 );
 const shownPaletteLibs = computed(() =>
   paletteLibs.value
     .map((g) => ({
       ...g,
       collections: g.collections.filter((c) =>
-        palMatches(c.notecard.name, tagsOfPalette(c), catOf.value.get(c.id) ?? ''),
+        palMatches(
+          c.notecard.name,
+          tagsOfPalette(c),
+          catOf.value.get(c.id) ?? '',
+          rgbsOf(c.colors, c.fabrics),
+        ),
       ),
     }))
     .filter((g) => g.collections.length),
@@ -1808,7 +1879,7 @@ const shownPaletteLibs = computed(() =>
 /** The palette preview: a palette and which of its colors or fabrics is shown large. */
 type Shown = Pick<
   ColorCollection,
-  'notecard' | 'colors' | 'fabrics' | 'author' | 'source' | 'license'
+  'id' | 'notecard' | 'colors' | 'fabrics' | 'author' | 'source' | 'license'
 >;
 /** `project`: one of the project's own palettes (editable, read from the project as it changes). */
 const shownPalette = ref<{ palette?: Shown; project?: string; at: number } | null>(null);
@@ -1817,7 +1888,14 @@ const shownData = computed((): Shown | undefined => {
   const sp = shownPalette.value;
   if (!sp?.project) return sp?.palette;
   const pp = ownPalettes.value.find((x) => x.palette.id === sp.project);
-  return pp && { notecard: pp.palette.notecard, colors: pp.colors, fabrics: pp.fabrics };
+  return (
+    pp && {
+      id: pp.palette.id,
+      notecard: pp.palette.notecard,
+      colors: pp.colors,
+      fabrics: pp.fabrics,
+    }
+  );
 });
 
 // --- The project's own palettes (format v3) ---
@@ -2039,36 +2117,8 @@ function swapped(b: Block, from: string, map: Record<string, string>, name?: str
   return { block: next, id };
 }
 /** The quilt with a new colorway: the one shown, its colors as shown swapped by `map`. */
-function swappedQuilt(q: Quilt, map: Record<string, string>, name?: string): Quilt {
-  const shown = swapper(shownColorway(q));
-  const id = newId();
-  let next = addColorway(q, id, name, shownColorway(q));
-  for (const p of quiltPaints(project.doc!, q)) {
-    const from = fillFor(p);
-    const now = paintOf(shown(from))!;
-    if (map[now] && map[now] !== now) next = setSwap(next, id, fillKey(from), fillFor(map[now]));
-  }
-  return next;
-}
-function startSwapColorway(q: Quilt) {
-  const shown = swapper(shownColorway(q));
-  const now = new Set([...quiltPaints(project.doc!, q)].map((p) => paintOf(shown(fillFor(p)))!));
-  const name = colorwayList(q).find((v) => v.id === shownColorway(q)?.id)?.name;
-  swapDialog.value?.show({
-    heading: 'New colorway from palette swap',
-    title: `${q.notecard.name} (${name})`,
-    okLabel: 'Add colorway',
-    used: [...now].flatMap((p) => paintOpt(p) ?? []),
-    before: quiltThumbnail(project.doc!, q, 500, $q.dark.isActive, true, true),
-    preview: (map, n, doc) =>
-      quiltThumbnail(doc, swappedQuilt(q, map, n), 500, $q.dark.isActive, true, true),
-    done: (map, n) =>
-      project.change((d) => {
-        const i = d.project.quilts.findIndex((x) => x.id === q.id);
-        if (i >= 0) d.project.quilts[i] = castDraft(swappedQuilt(q, map, n));
-      }),
-  });
-}
+const { startSwapColorway: swapColorway } = useColorwaySwap();
+const startSwapColorway = (q: Quilt) => swapColorway(swapDialog.value, q);
 function startSwapColoring(b: Block) {
   const coloring = b.colorings.find((c) => c.id === shownColoring(b)) ?? b.colorings[0]!;
   const ids = new Set(Object.values(coloring.fills).map((f) => paintOf(f)!));
@@ -2109,6 +2159,7 @@ function removal(d: Draft<RrqDoc>, u: NonNullable<typeof unpicking.value>) {
 }
 function applyRemoval(u: NonNullable<typeof unpicking.value>) {
   project.change((d) => removal(d, u));
+  if (u.projectPalette) forgetSorts([u.projectPalette]);
   if (u.packsOff) {
     const off = new Set([...settings.settings.packsOff, ...u.packsOff]);
     settings.settings.packsOff = [...off];
@@ -2318,8 +2369,13 @@ function newBlockDialog() {
   newBlockDlg.value?.show(`Block ${blocks.value.length + 1}`, project.doc!.units);
 }
 
-async function createBlock(name: string, shape: BlockShape | undefined, size: [number, number]) {
-  const b = newBlock(
+async function createBlock(
+  name: string,
+  shape: BlockShape | undefined,
+  size: [number, number],
+  data: DataKind | undefined,
+) {
+  const made = newBlock(
     name,
     size,
     project.doc!.units,
@@ -2327,6 +2383,7 @@ async function createBlock(name: string, shape: BlockShape | undefined, size: [n
     project.doc!.project.license,
     shape,
   );
+  const b = data ? { ...made, data: { kind: data } } : made;
   project.change((d) => void d.project.blocks.push(b));
   editor.blockMode = 'draw';
   editor.blockTool = 'line';
@@ -2892,6 +2949,7 @@ function moveItem(list: 'quilts' | 'blocks', from: number, delta: number) {
   });
 }
 function drop(list: 'quilts' | 'blocks', to: number) {
+  quiltDropAt.value = null;
   if (dragFrom.value === null || dragFrom.value === to) return;
   moveItem(list, dragFrom.value, to - dragFrom.value);
   dragFrom.value = null;
@@ -3199,6 +3257,10 @@ watch(
   text-align: left;
   cursor: pointer;
 }
+.chip.dim,
+.lib-swatch.dim {
+  opacity: 0.25;
+}
 .chip {
   display: inline-block;
   width: 28px;
@@ -3335,5 +3397,14 @@ watch(
   :global(.body--dark .filter-side) {
     background: var(--q-dark-page);
   }
+}
+/* Where a dragged quilt card will land: the facing edges of the cards either side glow. */
+.card.glow-right {
+  box-shadow: 6px 0 10px -3px rgba(25, 118, 210, 0.9);
+  border-right: 2px solid #1976d2;
+}
+.card.glow-left {
+  box-shadow: -6px 0 10px -3px rgba(25, 118, 210, 0.9);
+  border-left: 2px solid #1976d2;
 }
 </style>

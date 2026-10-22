@@ -72,10 +72,14 @@ export function blockThumbnail(
   block: Block,
   px = 160,
   dark = false,
-  coloringId?: string,
+  /** null: uncolored (seams only). */
+  coloringId?: string | null,
   libraryColors: readonly Color[] = [],
 ) {
-  const coloring = block.colorings.find((c) => c.id === coloringId) ?? block.colorings[0];
+  const coloring =
+    coloringId === null
+      ? undefined
+      : (block.colorings.find((c) => c.id === coloringId) ?? block.colorings[0]);
   return cached(
     block,
     `${px}:${dark}:${coloring?.id ?? ''}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,

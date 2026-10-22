@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-16
 
-**Status**: Draft (spec only; not implemented)
+**Status**: Superseded by spec 032 (owner, 2026-10-20: sorting is a remembered display preference per palette, not a rewrite of its order)
 
 **Input**: Owner request 2026-10-16: "sorting a palette by hue or value (or hue or value of average
 color)". Palettes hold colors and fabrics (spec 011, spec 014); a fabric's color is its average

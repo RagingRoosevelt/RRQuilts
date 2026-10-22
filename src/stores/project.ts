@@ -5,6 +5,7 @@ import { defineStore } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 import { absorbImages, prepareForSave } from '@/storage/fabric-files';
 import { libraryRefs } from '@/model/library-refs';
+import { quiltProject } from '@/model/export-quilt';
 import { parseProject, serializeProject } from '@/model/io';
 import { newId } from '@/model/ids';
 import { createProject } from '@/model/new-project';
@@ -42,6 +43,7 @@ import {
 import {
   download,
   ensurePermission,
+  exportFile,
   pickSaveHandle,
   supportsFileAccess,
   writeToHandle,
@@ -270,8 +272,8 @@ export const useProjectStore = defineStore('project', () => {
     if (doc.value) doc.value = freeze(await stampVersions(doc.value), true);
   }
   /** The file's text: fabric images per spec 014, and the libraries the project uses. */
-  async function fileText() {
-    const d = doc.value!;
+  const fileText = () => textOf(doc.value!);
+  async function textOf(d: RrqDoc) {
     const refs = libraryRefs(d, useLibraryStore().whereOf);
     const { libraries: _old, ...rest } = d.project;
     void _old;
@@ -314,6 +316,12 @@ export const useProjectStore = defineStore('project', () => {
     }
     await write(null, text);
     return 'downloaded';
+  }
+
+  /** Export one quilt as a project file of its own (just that quilt and what it uses). */
+  async function exportQuilt(quiltId: string) {
+    const d = doc.value && quiltProject(doc.value, quiltId, newId());
+    if (d) await exportFile(d.project.name, await textOf(d), 'rrq');
   }
 
   /** Save as a separate project (new id) and continue editing the copy. */
@@ -419,6 +427,7 @@ export const useProjectStore = defineStore('project', () => {
     save,
     saveAs,
     saveCopy,
+    exportQuilt,
     continueHere,
     close,
   };

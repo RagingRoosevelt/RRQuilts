@@ -21,6 +21,8 @@ For a finished block of side f, the block's diagonal (corner to corner) is **f �
   corners).
 - **The quilt**, with n blocks across the top row and m down the side, is n × f × √2 wide and
   m × f × √2 tall. It holds n × m + (n − 1)(m − 1) blocks and 2(n − 1) + 2(m − 1) side triangles.
+  A half in either count adds half a block's width on point to that side, and the quilt ends on a
+  short row (or column) there.
 
 <svg viewBox="0 0 420 150" width="630" role="img" aria-label="Eight blocks turned on point, with side triangles along the edges and corner triangles at the corners. A bracket marks the side of one block">
   <rect x="10" y="30" width="144" height="96" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>

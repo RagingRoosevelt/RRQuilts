@@ -10,9 +10,15 @@
     >
       <q-tab name="blocks" label="Blocks" />
       <q-tab name="colors" label="Colors" />
+      <q-tab v-if="data" name="data" label="Data" />
     </q-tabs>
 
-    <div v-if="tab === 'blocks' && noBlocks" class="q-pa-md text-caption text-grey-8">
+    <!-- A data quilt (spec 025): its numbered list and block pools instead of the blocks, and its
+         Data tab. -->
+    <div v-if="data && tab !== 'colors'" class="col scroll q-pa-sm">
+      <slot :name="tab" />
+    </div>
+    <div v-else-if="tab === 'blocks' && noBlocks" class="q-pa-md text-caption text-grey-8">
       This quilt layout doesn't support blocks. Its pieces take colors and fabrics: use the Colors
       tab.
     </div>
@@ -192,51 +198,52 @@
               node.lib ? { label: group.label, kind: `colors:${node.lib}` } : { class: 'contents' }
             "
           >
-            <button
-              v-for="c in group.items"
-              :key="c.id"
-              class="swatch"
-              :class="{ active: editor.color === c.id }"
-              :style="{ background: `rgb(${c.rgb.join(',')})` }"
-              :title="c.notecard.name"
-              @click="pickColor(c.id)"
-            >
-              <q-menu v-if="!project.readOnly && !group.mine" touch-position context-menu>
-                <q-list dense style="min-width: 140px">
-                  <q-item v-close-popup clickable @click="editCopy(c)">
-                    <q-item-section>Edit a copy…</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-              <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
-                <q-list dense style="min-width: 140px">
-                  <q-item v-close-popup clickable @click="edit(c.id)">
-                    <q-item-section>Edit…</q-item-section>
-                  </q-item>
-                  <q-item v-close-popup clickable @click="remove(c.id)">
-                    <q-item-section class="text-negative">Delete</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </button>
-            <!-- Fabrics (spec 014): the print over its average color. -->
-            <button
-              v-for="f in group.fabrics"
-              :key="f.id"
-              class="swatch fabric"
-              :class="{ active: editor.color === fabricPaint(f.id) }"
-              :style="swatchStyle(f)"
-              :title="f.notecard.name + (f.approximate ? ' (size ≈)' : '')"
-              @click="pickColor(fabricPaint(f.id))"
-            >
-              <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
-                <q-list dense style="min-width: 140px">
-                  <q-item v-close-popup clickable @click="removeFabric(f.id)">
-                    <q-item-section class="text-negative">Delete</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </button>
+            <!-- Colors, then fabrics (spec 014: the print over its average color); or as the
+                 quilter sorted the palette (spec 032). -->
+            <template v-for="sw in ordered(group)" :key="sw.item.id">
+              <button
+                v-if="sw.kind === 'color'"
+                class="swatch"
+                :class="{ active: editor.color === sw.item.id }"
+                :style="{ background: `rgb(${sw.item.rgb.join(',')})` }"
+                :title="sw.item.notecard.name"
+                @click="pickColor(sw.item.id)"
+              >
+                <q-menu v-if="!project.readOnly && !group.mine" touch-position context-menu>
+                  <q-list dense style="min-width: 140px">
+                    <q-item v-close-popup clickable @click="editCopy(sw.item)">
+                      <q-item-section>Edit a copy…</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+                <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
+                  <q-list dense style="min-width: 140px">
+                    <q-item v-close-popup clickable @click="edit(sw.item.id)">
+                      <q-item-section>Edit…</q-item-section>
+                    </q-item>
+                    <q-item v-close-popup clickable @click="remove(sw.item.id)">
+                      <q-item-section class="text-negative">Delete</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </button>
+              <button
+                v-else
+                class="swatch fabric"
+                :class="{ active: editor.color === fabricPaint(sw.item.id) }"
+                :style="swatchStyle(sw.item)"
+                :title="sw.item.notecard.name + (sw.item.approximate ? ' (size ≈)' : '')"
+                @click="pickColor(fabricPaint(sw.item.id))"
+              >
+                <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
+                  <q-list dense style="min-width: 140px">
+                    <q-item v-close-popup clickable @click="removeFabric(sw.item.id)">
+                      <q-item-section class="text-negative">Delete</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </button>
+            </template>
           </component>
         </TraySection>
       </template>
@@ -252,6 +259,7 @@
 </template>
 
 <script setup lang="ts">
+import { usePaletteSort } from '@/composables/palette-sort';
 import { useQuasar } from 'quasar';
 import { QExpansionItem } from 'quasar';
 import { computed, defineComponent, h, onMounted, ref } from 'vue';
@@ -308,24 +316,32 @@ const props = withDefaults(
     noBlocks?: boolean;
     /** Whether the quilt has a space that takes this block (its shape). */
     fitsQuilt?: (b: Block) => boolean;
+    /** A data quilt: the `blocks` and `data` slots fill the Blocks and Data tabs. */
+    data?: boolean;
   }>(),
-  { colorsOnly: false, sidebar: false, noBlocks: false },
+  { colorsOnly: false, sidebar: false, noBlocks: false, data: false },
 );
 const app = useSettingsStore();
 const tab = computed({
   get: () =>
     props.colorsOnly || ['paint', 'spray', 'swap', 'eyedropper'].includes(editor.tool)
       ? 'colors'
-      : 'blocks',
-  set: (t: 'blocks' | 'colors') => {
-    editor.tool = t === 'colors' ? 'paint' : 'set';
-    if (props.sidebar) app.settings.trayTab = t;
+      : props.data && editor.tool === 'entry'
+        ? 'data'
+        : 'blocks',
+  set: (t: 'blocks' | 'colors' | 'data') => {
+    editor.tool = t === 'colors' ? 'paint' : t === 'data' ? 'entry' : props.data ? 'number' : 'set';
+    if (props.sidebar && t !== 'data') app.settings.trayTab = t;
   },
 });
 onMounted(() => {
+  if (!props.data && (editor.tool === 'number' || editor.tool === 'entry')) editor.tool = 'set';
   // A quilt without block spaces opens on Colors (without changing the remembered tab).
   if (props.noBlocks) {
     if (tab.value === 'blocks') editor.tool = 'paint';
+  } else if (props.data) {
+    // Opening a data quilt: off any tool it has no use for (Set, the other quilt's numbers).
+    if (editor.tool === 'set') editor.tool = 'number';
   } else if (props.sidebar && !props.colorsOnly && tab.value !== app.settings.trayTab)
     tab.value = app.settings.trayTab;
 });
@@ -396,6 +412,16 @@ const recentFirst = <T extends { id: string }>(all: T[]) =>
         ...all.filter((c) => !editor.recentColors.includes(c.id)),
       ]
     : all;
+/** A tray group's swatches: colors then fabrics as listed, or the palette's sort (spec 032). */
+const sorting = usePaletteSort();
+type TrayGroup = { items: Color[]; fabrics: readonly Fabric[]; sortId?: string };
+const ordered = (g: TrayGroup) =>
+  g.sortId && sorting.prefOf(g.sortId)
+    ? sorting.swatches(g.sortId, g.items, g.fabrics)
+    : [
+        ...g.items.map((item, i) => ({ kind: 'color' as const, item, i })),
+        ...g.fabrics.map((item, i) => ({ kind: 'fabric' as const, item, i })),
+      ];
 const colorTree = computed(() => {
   const colors = doc.value.project.palette.colors;
   const { mine, library: lib } = splitItems(colors, library.items.colors);
@@ -421,6 +447,7 @@ const colorTree = computed(() => {
           items: recentFirst(items),
           fabrics: c.fabrics ?? [],
           mine: false,
+          sortId: c.id,
         };
       }),
   );
@@ -451,6 +478,7 @@ const colorTree = computed(() => {
         items: recentFirst(pp.colors),
         fabrics: pp.fabrics,
         mine: true,
+        sortId: pp.palette.id,
       })),
     },
     {

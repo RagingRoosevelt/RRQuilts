@@ -12,7 +12,7 @@
         <q-tab name="design" icon="palette" label="Design" />
         <q-tab name="print" icon="print" label="Print" />
       </q-tabs>
-      <HelpLink v-bind="QUILT_HELP[editor.mode] ?? QUILT_HELP.design!" />
+      <HelpLink v-bind="help" />
       <q-btn
         flat
         round
@@ -125,7 +125,7 @@
         <template v-if="editor.mode === 'design'">
           <q-separator />
           <q-btn
-            v-for="t in tools"
+            v-for="t in shownTools"
             :key="t.id"
             :flat="editor.tool !== t.id"
             :unelevated="editor.tool === t.id"
@@ -153,11 +153,13 @@
           :doc="project.doc"
           :quilt="quilt"
           :generated="generated"
-          :hover="hover?.slotId ?? null"
+          :hover="highlight"
           :outlines="editor.outlines"
           :labels="editor.labels"
           :selected="found"
           :pan-only="panOnly"
+          :data-marks="dataMarks"
+          :day-paths="dayPaths"
           @tap="onTap"
           @hover="(h) => (hover = h)"
         />
@@ -176,7 +178,11 @@
             :readonly="project.readOnly"
             class="q-mb-sm"
           />
-          <div class="row items-center q-mb-xs" style="gap: 8px">
+          <div
+            v-if="editor.tool !== 'number' && editor.tool !== 'entry'"
+            class="row items-center q-mb-xs"
+            style="gap: 8px"
+          >
             <span class="text-caption">Apply to</span>
             <q-btn-toggle
               v-model="editor.scope"
@@ -190,14 +196,32 @@
             />
           </div>
           <div class="text-caption text-grey-7 q-mb-sm">{{ toolHint }}</div>
-          <PaletteTray sidebar :no-blocks="!hasBlockSpaces" :fits-quilt="fitsQuilt">
+          <PaletteTray
+            sidebar
+            :no-blocks="!hasBlockSpaces"
+            :fits-quilt="fitsQuilt"
+            :data="!!quilt.data?.on"
+          >
             <!-- A colorway other than the primary: its mapping instead of the palettes. -->
             <template v-if="quilt.shownColorway" #colors>
               <ColorwayMapping :quilt="quilt" :readonly="project.readOnly" />
             </template>
+            <template #blocks>
+              <DataBlocks :quilt="quilt" :readonly="project.readOnly" />
+            </template>
+            <template #data>
+              <DataInspector ref="dataInspector" :quilt="quilt" :readonly="project.readOnly" />
+            </template>
           </PaletteTray>
         </template>
         <template v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'">
+          <DataSpaceCount
+            v-if="quilt.data?.on"
+            :generated="generated"
+            :plan="quilt.data.plan"
+            :need="numberCount(quilt.data)"
+            class="q-mb-md"
+          />
           <LayoutInspector
             :key="quilt.id"
             :layout="quilt.layout"
@@ -240,6 +264,24 @@ import HelpLink from '@/components/HelpLink.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BordersInspector from '@/components/BordersInspector.vue';
+import DataBlocks from '@/components/DataBlocks.vue';
+import DataSpaceCount from '@/components/DataSpaceCount.vue';
+import { useDataTypes } from '@/composables/data-types';
+import DataInspector from '@/components/DataInspector.vue';
+import { castDraft } from 'immer';
+import { resolveColoring } from '@/model/coloring';
+import {
+  dayDate,
+  dayOf,
+  nextFree,
+  numberCount,
+  numberInfo,
+  numberOf,
+  placeNumber,
+  takeBack,
+} from '@/model/data-quilt';
+import { blockSpaceNumbers, quiltDataMarks, quiltDayPaths } from '@/render/data-overlay';
+import { PLAIN_PATCH } from '@/model/plain';
 import TargetSection from '@/components/TargetSection.vue';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import LayoutInspector from '@/components/LayoutInspector.vue';
@@ -278,6 +320,7 @@ watch(
   { immediate: true },
 );
 const library = useLibraryStore();
+const dataTypes = useDataTypes();
 const appSettings = useSettingsStore();
 
 const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === route.params.id));
@@ -322,6 +365,8 @@ const HINTS: Record<Tool, string> = {
   flip: 'Tap a block to mirror it. Tap the Flip tool again to switch left↔right / top↕bottom.',
   erase: 'Tap a block to remove it.',
   find: 'Tap a block to select it in the tray.',
+  number: 'Tap a block space to place the highlighted number.',
+  entry: 'Tap a day’s piece to open its entry.',
   paint: 'Tap a patch to color it.',
   spray: 'Tap a patch to recolor every patch of the same color.',
   swap: 'Tap a patch to replace that color everywhere in the quilt.',
@@ -337,6 +382,15 @@ const QUILT_HELP: Record<string, { topic: string; label: string }> = {
   design: { topic: 'guides/designing-a-quilt', label: 'Designing a quilt' },
   print: { topic: 'guides/printing', label: 'Printing' },
 };
+const help = computed(() =>
+  editor.mode === 'design' && quilt.value?.data?.on
+    ? { topic: 'guides/data-quilts', label: 'Data quilts' }
+    : (QUILT_HELP[editor.mode] ?? QUILT_HELP.design!),
+);
+/** A data quilt places its blocks by number (spec 025): no Set, Erase or Find. */
+const shownTools = computed(() =>
+  quilt.value?.data?.on ? tools.filter((t) => !['set', 'erase', 'find'].includes(t.id)) : tools,
+);
 const labelOf = (t: { id: Tool; label: string }) =>
   t.id === 'flip' ? (editor.flipAxis === 'v' ? 'Flip top↕bottom' : 'Flip left↔right') : t.label;
 /** Choosing Flip while it's already active switches its direction. */
@@ -355,6 +409,100 @@ const panOnly = computed(
     !(editor.mode === 'layout' && strips.value) &&
     (editor.mode !== 'design' || editor.tool === 'pan'),
 );
+const dataInspector = ref<InstanceType<typeof DataInspector>>();
+/** The space outlined on the quilt: a dragged or hovered card's, else the one under the pointer
+ *  (placing numbers or in the Data tab: block spaces only), else the clicked card's. */
+const highlight = computed(() => {
+  if (editor.dataHot) return editor.dataHot;
+  const id = hover.value?.slotId ?? null;
+  const dataTool = quilt.value?.data?.on && (editor.tool === 'number' || editor.tool === 'entry');
+  if (!dataTool) return id;
+  return id && blockSpaceNumbers(generated.value).has(id) ? id : editor.dataSel;
+});
+/** A data quilt's numbers on their block spaces, joined in order (spec 025). */
+const dataMarks = computed(() =>
+  editor.mode === 'design' && quilt.value?.data?.on
+    ? quiltDataMarks(quilt.value, generated.value)
+    : null,
+);
+/** Each placed data block's days in order (light arrows under the month trace). */
+const dayPaths = computed(() =>
+  editor.mode === 'design' && quilt.value?.data?.on && project.doc
+    ? quiltDayPaths(project.doc, quilt.value, generated.value)
+    : null,
+);
+// The highlighted number follows the list (undo and redo too): a number emptied gets the highlight
+// back; numbers placed move it past the last of them.
+watch(
+  () => quilt.value?.data?.order,
+  (now, was) => {
+    const plan = quilt.value?.data;
+    if (!plan || !now || !was || now.length !== was.length) return;
+    const placed = (o: readonly (string | null)[]) => new Set(o.filter(Boolean));
+    const before = placed(was);
+    const after = placed(now);
+    if (after.size < before.size) {
+      const k = now.findIndex((id, i) => !id && was[i]);
+      if (k >= 0) editor.dataNext = k + 1;
+    } else if (after.size > before.size) {
+      const last = now.reduce((m, id, i) => (id && !before.has(id) ? i : m), -1);
+      editor.dataNext = nextFree(plan, last + 2) ?? last + 1;
+    }
+  },
+);
+// Off a data quilt: off its tools.
+watch(
+  () => !!quilt.value?.data?.on,
+  (on) => {
+    if (!on && (editor.tool === 'number' || editor.tool === 'entry')) editor.tool = 'set';
+    if (on && ['set', 'erase', 'find'].includes(editor.tool)) editor.tool = 'number';
+  },
+);
+/** Data quilt taps: the brush places the highlighted number (or takes a space's back); in the
+ *  Data tab a day's piece opens its entry. */
+function onDataTap(hit: Hit) {
+  const q = quilt.value;
+  const plan = q?.data;
+  if (!q || !plan || !project.doc) return;
+  const say = (message: string) => $q.notify({ message, timeout: 1500 });
+  if (editor.tool === 'entry') {
+    const content = q.layers[0].slots[hit.slotId];
+    const block = content && project.doc.project.blocks.find((b) => b.id === content.block);
+    const f = content
+      ? resolveColoring(q.colorings[content.coloring], block)?.fills[hit.patchId ?? PLAIN_PATCH]
+      : undefined;
+    const day = f && 'data' in f ? dayOf(plan, numberOf(plan, hit.slotId), f.data) : null;
+    if (typeof day === 'number') dataInspector.value?.openDay(dayDate(plan.start, day));
+    return;
+  }
+  if (project.readOnly) return;
+  if (!blockSpaceNumbers(generated.value).has(hit.slotId))
+    return say('Numbers go on whole block spaces, not ones cut down at the edge.');
+  const had = numberOf(plan, hit.slotId);
+  let next: typeof plan;
+  const kindOf = (k: number) => numberInfo(plan, k)?.kind ?? 'month';
+  if (had) {
+    // Another type picked: the space takes it and keeps its number; the same type: number back.
+    const type = dataTypes.typeFor(kindOf(had));
+    if (type && type !== plan.types[hit.slotId])
+      next = { ...plan, types: { ...plan.types, [hit.slotId]: type } };
+    else {
+      next = takeBack(plan, hit.slotId);
+      editor.dataNext = had;
+    }
+  } else {
+    const k = nextFree(plan, editor.dataNext);
+    if (!k) return say('Every number is placed.');
+    const kind = kindOf(k);
+    const type = dataTypes.typeFor(kind);
+    if (!type) return say(`Make a ${kind} data block first (a block’s Details tab › Data block).`);
+    next = placeNumber(plan, hit.slotId, k, type);
+    editor.dataNext = nextFree(next, k + 1) ?? k;
+  }
+  project.change((d) => {
+    d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(next);
+  });
+}
 const styleLabel = computed(
   () => STRIP_STYLES.find((x) => x.value === editor.stripStyle)?.label ?? '',
 );
@@ -474,6 +622,7 @@ function onStripTap(hit: Hit, l: StripLayout) {
 function onTap(hit: Hit) {
   if (!project.doc || !quilt.value) return;
   if (editor.mode === 'layout') return strips.value ? onStripTap(hit, strips.value) : undefined;
+  if (editor.tool === 'number' || editor.tool === 'entry') return onDataTap(hit);
   const r = applyTool(project.doc, quilt.value.id, generated.value.slots, hit, {
     ...editor.$state,
     library: library.lookup,

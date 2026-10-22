@@ -1,6 +1,6 @@
 # Feature Specification: Technique Hints in a Block's Details
 
-**Feature Branch**: `TBD` (no feature branch yet)
+**Feature Branch**: `0.7.0` (last: owner, 2026-10-20, wants more time to think before it's built)
 
 **Created**: 2026-10-19
 

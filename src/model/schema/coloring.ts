@@ -1,11 +1,29 @@
 import Type from 'typebox';
 import { Id, ItemId, Vec2 } from './shared';
 
-/** A patch filled with fabric (offset/rotation = fussy cut) or a solid color. Absent = unfilled. */
-export const Fill = Type.Union([
-  Type.Object({ fabric: ItemId, offset: Vec2, rotation: Type.Number() }),
-  Type.Object({ color: ItemId }),
-]);
+const FabricFill = Type.Object({ fabric: ItemId, offset: Vec2, rotation: Type.Number() });
+const ColorFill = Type.Object({ color: ItemId });
+
+/**
+ * A data paint (spec 025, v9): a place for one day's value in a data quilt. `n` is the local day
+ * (1–31 in a month block, 1–7 in a week block, 1 in a day block);
+ * `slot` is the value slot (0–3 = A–D, absent = A). `under` is the color painted before, shown
+ * where the design says "as designed".
+ */
+export const DataPaint = Type.Object({
+  n: Type.Integer({ minimum: 1, maximum: 366 }),
+  slot: Type.Optional(Type.Integer({ minimum: 0, maximum: 3 })),
+});
+const DataFill = Type.Object({
+  data: DataPaint,
+  under: Type.Optional(Type.Union([FabricFill, ColorFill])),
+});
+
+/** A patch filled with fabric (offset/rotation = fussy cut), a solid color, or a data paint.
+ *  Absent = unfilled. */
+export const Fill = Type.Union([FabricFill, ColorFill, DataFill]);
+/** A fill that is a color or fabric (what data paints resolve to). */
+export const PlainFill = Type.Union([FabricFill, ColorFill]);
 
 export const ThreadUse = Type.Object({
   thread: ItemId,
@@ -33,5 +51,7 @@ export const Coloring = Type.Object({
 });
 
 export type Fill = Type.Static<typeof Fill>;
+export type PlainFill = Type.Static<typeof PlainFill>;
+export type DataPaint = Type.Static<typeof DataPaint>;
 export type ColoringBody = Type.Static<typeof ColoringBody>;
 export type Coloring = Type.Static<typeof Coloring>;

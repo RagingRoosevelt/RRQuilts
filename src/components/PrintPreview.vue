@@ -241,6 +241,10 @@
               <div v-if="on(s, 'cap')" data-m="cap" class="text-caption">
                 {{ widthsLabel }}; rounded up to the next {{ fabricStepLabel }}. Borders are cut
                 from strips across the fabric; estimates never come out short.
+                <template v-if="view?.yardPieces">
+                  Data quilt: each range or category counts its most days expected (set in the Data
+                  tab; at first its days in the sample) in the largest piece of its value.</template
+                >
               </div>
               <table v-if="on(s, 'y>')">
                 <thead data-m="y>">
@@ -491,6 +495,25 @@
                   />
                 </g>
               </svg>
+              <!-- A data quilt's legend: each value's colors (spec 025). -->
+              <div v-if="s.legend" class="legend self-stretch column" style="gap: 4px">
+                <div
+                  v-for="l in s.legend"
+                  :key="l.label"
+                  class="row items-center"
+                  style="gap: 4px 12px"
+                >
+                  <strong>{{ l.label }}</strong>
+                  <span
+                    v-for="it in l.items"
+                    :key="it.fill + it.text"
+                    class="row items-center no-wrap"
+                    style="gap: 4px"
+                  >
+                    <span class="chip yardage" :style="chipStyle(it.fill)" />{{ it.text }}
+                  </span>
+                </div>
+              </div>
               <!-- Under the picture: its text; the scale square is pinned to the page's bottom right. -->
               <div class="pic-caption self-stretch">
                 <div v-if="onPage(s, 'scaleSquare')" class="scale-box">
@@ -568,7 +591,9 @@ import {
 } from 'vue';
 import HelpLink from '@/components/HelpLink.vue';
 import TemplatePiece from '@/components/TemplatePiece.vue';
-import { resolveColoring } from '@/model/coloring';
+import { fillKey } from '@/model/coloring';
+import { scaleEntries, slotColoring } from '@/model/data-quilt';
+import { dataYardagePieces } from '@/model/print/data-yardage';
 import {
   authorOf,
   blockLock,
@@ -856,6 +881,9 @@ interface View {
   /** Quilts: blocks made by others (or based on others' work), with their chains. */
   blocks: { name: string; author?: string | undefined; license: string; basedOn: Credit[] }[];
   pieces: Piece[];
+  /** A data quilt (spec 025): the pieces its yardage counts (worst case), and its legend. */
+  yardPieces?: Piece[];
+  legend?: { label: string; items: { fill: string; text: string }[] }[];
   /** Picture: outlines (+ fills) in their own coordinates. */
   picture: { d: string; css: string }[];
   pictureBox: readonly [number, number, number, number];
@@ -897,6 +925,15 @@ const view = computed<View | undefined>(() => {
         basedOn: u.credits,
       })),
       pieces,
+      ...(quilt.data?.on
+        ? {
+            yardPieces: dataYardagePieces(dd, quilt),
+            legend: quilt.data.slots.map((s) => ({
+              label: s.label,
+              items: scaleEntries(s).map((e) => ({ fill: fillKey(e.fill), text: e.text })),
+            })),
+          }
+        : {}),
       picture: [
         ...g.slots.map((s) => ({
           d: d(flattenLoop(pathToSegs(s.outline, [1, 1]), 0.01)),
@@ -921,10 +958,7 @@ const view = computed<View | undefined>(() => {
     const slot = g.slots.find((s) => quilt.layers[0].slots[s.id]?.block === block.id);
     if (slot) {
       size = slot.size;
-      keyColoring = resolveColoring(
-        quilt.colorings[quilt.layers[0].slots[slot.id]!.coloring],
-        block,
-      ) as typeof keyColoring;
+      keyColoring = slotColoring(quilt, slot.id, block) as typeof keyColoring;
     }
     pieces = quiltPieces(dd, quilt, block.id);
   } else {
@@ -1078,6 +1112,7 @@ type Sheet = (
   | {
       kind: 'picture';
       heading: string;
+      legend?: View['legend'];
       polys: { d: string; css: string }[];
       edge?: string | undefined;
       trim?: boolean | undefined;
@@ -1194,11 +1229,17 @@ const logical = computed<Sheet[]>(() => {
         (v.notes ? ah * 0.7 : ah - 2 * font.value) - (isBlock ? 0 : titleRoom()) - font.value * 1.5;
       // The quilt's picture can be made smaller (print settings › Quilt picture › Picture size).
       const size = isBlock ? 1 : Math.max(0.75, Math.min(1.5, prefs.value.pictureSize));
-      const most = Math.min(aw / w, (ah - font.value * 3) / h); // the page, less a caption
+      // The page, less a caption (and a data quilt's legend: a line per 4 entries).
+      const legendLines = (v.legend ?? []).reduce(
+        (n, l) => n + 1 + Math.ceil(l.items.length / 4),
+        0,
+      );
+      const most = Math.min(aw / w, (ah - font.value * (3 + legendLines * 1.8)) / h);
       const scale = Math.min(1, most, Math.min(aw / w, room / h) * size);
       out.push({
         kind: 'picture',
         heading: isBlock ? 'Block' : 'Quilt',
+        ...(v.legend ? { legend: v.legend } : {}),
         polys: v.picture,
         edge: v.edge && d(v.edge),
         trim: v.trim,
@@ -1303,7 +1344,10 @@ const logical = computed<Sheet[]>(() => {
     if (section === 'yardage' && !isBlock) {
       const fstep = prefs.value.fabricStep[units.value];
       const [x0, y0, x1, y1] = v.pictureBox;
-      const { cols, fills } = needCols(v.pieces);
+      // Data places with no day yet (spec 025) are places, not fabric.
+      const { cols, fills } = needCols(
+        (v.yardPieces ?? v.pieces).filter((p) => !p.fill.startsWith('data:')),
+      );
       out.push({
         kind: 'yardage',
         heading: 'Yardage estimate',
@@ -1396,7 +1440,7 @@ function quiltBlocks() {
         quilt,
         block,
         size,
-        coloring: resolveColoring(quilt.colorings[content.coloring], block),
+        coloring: slotColoring(quilt, slot.id, block),
         number: seen.size,
       },
     ];

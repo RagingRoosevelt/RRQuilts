@@ -1,10 +1,10 @@
 # Feature Specification: Automatic Colorways
 
-**Feature Branch**: `TBD` (no feature branch yet)
+**Feature Branch**: `0.7.0`
 
 **Created**: 2026-10-18
 
-**Status**: Draft (spec only; not implemented)
+**Status**: Implemented on `0.7.0` (2026-10-20; project format v9). An auto mapping's `swaps` are worked out in `syncDraft` on every project change (model `colorway-auto.ts`), so drawing, printing and embedding read them like any colorway's; a library palette update shows at the next change. Not built: the dialog's own Source choice (it follows the colorway shown; the Colors tab's Follows changes it later) and the notice when a palette is lost.
 
 **Input**: Owner, 2026-10-18: a quilt can make a new colorway from an existing one (primary or not)
 and a chosen palette, matching each of the source colorway's colors to its closest in the palette.
@@ -13,7 +13,7 @@ colorway keeps its link: whenever it is drawn, it takes the source colorway's co
 best match for each in the palette. Deleting the source colorway leaves the automatic one with the
 picks it has at that moment. The quilt design's Colors list for a colorway gets the same
 Manual / Automatic switch. Available from a quilt's menu in the project and from the Design tab's
-Colorways section, next to Save as new colorway. Name of the feature and button undecided.
+Colorways section, next to Save as new colorway. Name: **Auto mapping** (owner, 2026-10-20): the switch reads Manual · Auto mapping, the button "New colorway with auto mapping…" (to a palette).
 
 Owner, 2026-10-18 (follow-up): in Automatic mode the quilter can still override single picks: each
 source color keeps its dropdown, which defaults to an **Automatic** option and can be switched to any

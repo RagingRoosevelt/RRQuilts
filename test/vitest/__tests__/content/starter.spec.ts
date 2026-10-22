@@ -67,7 +67,7 @@ describe('starter content', () => {
   it('adds 76 colors (36 basic + 5 palettes of 8) and every starter block', () => {
     expect(doc.project.palette.colors).toHaveLength(76);
     expect(doc.project.blocks.map((b) => b.notecard.name)).toEqual(
-      STARTER_BLOCKS.map((b) => b.name),
+      STARTER_BLOCKS.filter((b) => !b.variantOf).map((b) => b.name),
     );
   });
 
@@ -84,6 +84,8 @@ describe('starter content', () => {
 
   it('uses more than one color in every pieced block', () => {
     for (const b of doc.project.blocks) {
+      // Data blocks (spec 025) are day places, colored by data.
+      if (Object.values(b.colorings[0]!.fills).some((f) => 'data' in f)) continue;
       const colors = new Set(
         Object.values(b.colorings[0]!.fills).map((f) => ('color' in f ? f.color : '')),
       );

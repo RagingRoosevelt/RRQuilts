@@ -2,9 +2,9 @@
 // (every piece colored `from` shows `to`), so the design's edits show in every colorway. The quilt
 // remembers which colorway it shows (none: its own colors). The quilt's own colors are the first
 // colorway (named `primaryName`): any colorway can go while another is left, as a block's colorings.
-import { fillKey, resolveColoring } from './coloring';
+import { fillKey, plainFill, resolveColoring } from './coloring';
 import type { Block } from './schema/block';
-import type { ColoringBody, Fill } from './schema/coloring';
+import type { ColoringBody, Fill, PlainFill } from './schema/coloring';
 import type { Quilt, Colorway } from './schema/quilt';
 
 /** The colorway a quilt shows (undefined: its own colors). */
@@ -104,8 +104,10 @@ function removeOwnColors(q: Quilt, blocks: readonly Block[]): Quilt {
     }
     colorings[s.coloring] = { ...colorings[s.coloring]!, fills };
   }
-  // The others swap from the new colors (two colors that became one take the first's swap).
-  const colorways = rest.map((w): Colorway => {
+  // The others swap from the new colors (two colors that became one take the first's swap). An
+  // auto mapping (spec 024) keeps the picks it shows and becomes manual, so nothing looks different.
+  const colorways = rest.map(({ auto: _auto, ...w }): Colorway => {
+    void _auto;
     const swapW = swapper(w);
     const swaps: Colorway['swaps'] = [];
     const seen = new Set<string>();
@@ -119,6 +121,19 @@ function removeOwnColors(q: Quilt, blocks: readonly Block[]): Quilt {
     return { ...w, swaps };
   });
   const out: Quilt = { ...q, colorings, colorways, primaryName: next.name };
+  // A data quilt's scale (spec 025) takes the new colors too.
+  if (q.data) {
+    const to = (f: PlainFill) => plainFill(swap(f)) ?? f;
+    out.data = {
+      ...q.data,
+      slots: q.data.slots.map((s) => ({
+        ...s,
+        ranges: s.ranges.map((r) => ({ ...r, fill: to(r.fill) })),
+        categories: s.categories.map((c) => ({ ...c, fill: to(c.fill) })),
+      })),
+      ...(q.data.filler ? { filler: to(q.data.filler) } : {}),
+    };
+  }
   if (!q.shownColorway || q.shownColorway === next.id) delete out.shownColorway;
   return out;
 }

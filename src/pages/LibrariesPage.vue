@@ -341,6 +341,7 @@
             />
           </template>
         </FilterCard>
+        <ColorFilterCard v-if="settings.settings.libraryType !== 'block'" v-model="colorF" />
         <FilterCard v-if="settings.settings.libraryType === 'block'" label="Shape">
           <BlockFilter
             v-model:layout="fitLayout"
@@ -356,6 +357,13 @@
             v-model="filters[f.key]"
             :options="f.options"
             :label="f.label"
+          />
+        </FilterCard>
+        <FilterCard v-if="settings.settings.libraryType === 'block'" label="Data">
+          <FilterSelect
+            v-model="filters.data"
+            :options="DATA_FILTER.options"
+            :label="DATA_FILTER.label"
           />
         </FilterCard>
         <q-select
@@ -648,24 +656,19 @@
                   >
                     Empty: click to add colors or fabric images
                   </span>
+                  <!-- Colors and fabrics (spec 014: the print over its average color), in the
+                       order picked for this palette (spec 032). -->
                   <span
-                    v-for="(x, i) in c.colors"
-                    :key="x.id"
+                    v-for="(s, k) in cardSwatches(c)"
+                    :key="s.item.id"
                     class="chip"
-                    :style="{ background: css(x) }"
-                    :title="x.notecard.name"
-                    @click.stop="previewing = { lib: g.v.doc.id, id: c.id, at: i }"
-                  />
-                  <!-- Fabrics (spec 014): the print over its average color. -->
-                  <span
-                    v-for="(x, i) in c.fabrics ?? []"
-                    :key="x.id"
-                    class="chip"
-                    :style="swatchStyle(x)"
-                    @click.stop="
-                      previewing = { lib: g.v.doc.id, id: c.id, at: c.colors.length + i }
+                    :class="{ dim: !colorMatch(s) }"
+                    :style="s.kind === 'color' ? { background: css(s.item) } : swatchStyle(s.item)"
+                    :title="
+                      s.item.notecard.name +
+                      (s.kind === 'fabric' && s.item.approximate ? ' (size ≈)' : '')
                     "
-                    :title="x.notecard.name + (x.approximate ? ' (size ≈)' : '')"
+                    @click.stop="previewing = { lib: g.v.doc.id, id: c.id, at: k }"
                   />
                 </button>
                 <!-- At the top, beside the first row of swatches, however many rows there are. -->
@@ -698,6 +701,7 @@
                           <q-item-section>Copy to my library</q-item-section>
                         </q-item>
                       </template>
+                      <PaletteSortMenu :id="c.id" />
                       <q-item v-close-popup clickable @click="exportCollection(c)">
                         <q-item-section>Export (.rrqplt)</q-item-section>
                       </q-item>
@@ -814,6 +818,7 @@
         <PalettePreview
           v-model:at="swatchAt"
           :palette="previewCollection"
+          :sort-id="previewCollection.id"
           :editable="previewMine"
           images
           @add="startColor(previewCollection!.id)"
@@ -1374,6 +1379,7 @@ import DialogClose from '@/components/DialogClose.vue';
 import TagsDialog from '@/components/TagsDialog.vue';
 import FavoriteBadge from '@/components/FavoriteBadge.vue';
 import { CONSTRUCTION_FILTERS, constructionMatches } from '@/model/blocks/construction';
+import { DATA_FILTER, dataKindMatches } from '@/model/data-quilt';
 import { TECHNIQUES, techniqueOptions } from '@/model/schema/shared';
 import { FAVORITE, sortTags, tagLabel, tagsFor, visibleTags, type TagTarget } from '@/model/tags';
 import ColoringCount from '@/components/ColoringCount.vue';
@@ -1453,6 +1459,15 @@ import {
 } from '@/storage/library-zip';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import PalettePreview from '@/components/PalettePreview.vue';
+import PaletteSortMenu from '@/components/PaletteSortMenu.vue';
+import { usePaletteSort, type Swatch } from '@/composables/palette-sort';
+import ColorFilterCard from '@/components/ColorFilterCard.vue';
+import {
+  colorFilter,
+  colorFilterOn,
+  paletteMatches,
+  swatchMatches,
+} from '@/model/palette-color-filter';
 import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { Fabric } from '@/model/schema/palette';
 import { retryMissing, swatchStyle } from '@/render/fabric-images';
@@ -1479,6 +1494,7 @@ const $q = useQuasar();
 const library = useLibraryStore();
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
+const { swatches, forget: forgetSorts } = usePaletteSort();
 const me = computed(() => settings.settings.author);
 
 /** Problems found while reading a file, listed in dialogs. */
@@ -1508,6 +1524,7 @@ function toggleFilters() {
 const select = (id: string) => {
   for (const k of ['cats', 'tags', 'techniques', 'seams', 'difficulty'] as const) filters[k] = [];
   search.value = '';
+  Object.assign(colorF, colorFilter());
   hiddenLibs.value =
     id === 'mine' ? [] : library.allViews.map((v) => v.doc.id).filter((x) => x !== id);
 };
@@ -1903,6 +1920,11 @@ function disconnect(g: PackGroup) {
       // A library offered with the app stays out of the list on this device once disconnected.
       if (c && bundled.some((b) => sameUrl(b.url, c.url)))
         settings.settings.bundledHidden = [...settings.settings.bundledHidden, c.url];
+      forgetSorts(
+        library.packs
+          .filter((p) => `lib:${p.library?.id}` === g.key)
+          .flatMap((p) => p.items.map((i) => i.data.id)),
+      );
       void library.removeLibrary(g.key.slice(4));
       if (!keep) void library.dropKept(tagged);
     },
@@ -1932,6 +1954,7 @@ const filters = reactive({
   techniques: [] as string[],
   seams: [] as string[],
   difficulty: [] as string[],
+  data: [] as string[],
 });
 /** What's typed in each dropdown to narrow its options. */
 const filtering = computed(
@@ -1941,9 +1964,15 @@ const filtering = computed(
     !!hiddenLibs.value.length ||
     !!fitLayout.value ||
     !!fitShape.value ||
-    [filters.cats, filters.tags, filters.techniques, filters.seams, filters.difficulty].some(
-      (f) => f.length,
-    ),
+    [
+      filters.cats,
+      filters.tags,
+      filters.techniques,
+      filters.seams,
+      filters.difficulty,
+      filters.data,
+    ].some((f) => f.length) ||
+    (settings.settings.libraryType !== 'block' && colorFilterOn(colorF)),
 );
 /** Every library shown; My library always, as an empty one until something is saved there. */
 const inScope = computed(() =>
@@ -2017,15 +2046,28 @@ watch(
 );
 const anyOf = (picked: string[], have: string[]) =>
   !picked.length || picked.some((x) => have.includes(x));
+/** Spec 033: palettes with a swatch in the Color card's ranges (blocks aren't filtered by it). */
+const colorF = reactive(colorFilter());
+const swatchRgb = (s: Swatch) => (s.kind === 'color' ? s.item.rgb : s.item.average);
+const colorMatch = (s: Swatch) => !colorFilterOn(colorF) || swatchMatches(swatchRgb(s), colorF);
+/** A palette card's swatches: sorted (spec 032), the Color card's non-matches hidden if asked. */
+const cardSwatches = (c: ColorCollection) =>
+  swatches(c.id, c.colors, c.fabrics).filter((s) => !colorF.onlyMatching || colorMatch(s));
 const matches = (i: LibraryItem) =>
   (!settings.settings.libraryType || i.type === settings.settings.libraryType) &&
+  (i.type !== 'colors' ||
+    paletteMatches(
+      [...i.data.colors.map((c) => c.rgb), ...(i.data.fabrics ?? []).map((f) => f.average)],
+      colorF,
+    )) &&
   anyOf(catFilter.value.ids(filters.cats), [i.category ?? '']) &&
   anyOf(filters.tags, tagsOfItem(i)) &&
   anyOf(filters.techniques, i.data.notecard.techniques ?? []) &&
   (i.type !== 'block'
-    ? !filters.seams.length && !filters.difficulty.length
+    ? !filters.seams.length && !filters.difficulty.length && !filters.data.length
     : blockFits(i.data.shape, fitLayout.value, fitShape.value) &&
-      constructionMatches(i.data, filters));
+      constructionMatches(i.data, filters) &&
+      dataKindMatches(i.data, filters.data));
 const GROUP_BY = [
   { label: 'Nothing', value: 'none' },
   { label: 'Category', value: 'category' },
@@ -2169,7 +2211,7 @@ function remove(id: string) {
       tagged: tags.length ? 1 : 0,
     },
     (keep) =>
-      void update((l) => removeItem(l, id)).then(() =>
+      void update((l) => (forgetSorts([id]), removeItem(l, id))).then(() =>
         keep ? library.setKeptTags(me.value, id, tags) : undefined,
       ),
   );
@@ -2634,6 +2676,7 @@ function removePack(doc: LibraryDoc) {
     },
     (keep) => {
       select('mine');
+      forgetSorts(doc.items.map((i) => i.data.id));
       void library.removePack(doc.id);
       if (!keep) void library.dropKept(tagged);
     },
@@ -3053,6 +3096,9 @@ function downloadPack() {
   height: 28px;
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.2);
+}
+.chip.dim {
+  opacity: 0.25;
 }
 .chip.big {
   width: 32px;

@@ -14,6 +14,22 @@ interface Sweep {
 
 const SWEEPS: Sweep[] = [
   {
+    id: 'S10',
+    title: 'Diamond Point blocks across, in halves',
+    expect:
+      'Each half step adds one column of 60° diamonds at the right: a short column (one diamond fewer down), then the next long one. Setting triangles always finish the right edge.',
+    base: { style: 'diamond-point', layout: { cols: 2, rows: 3 } },
+    steps: [2, 2.5, 3, 3.5].map((cols) => ({ label: `${cols} across`, layout: { cols } })),
+  },
+  {
+    id: 'S09',
+    title: 'On-Point blocks down, in halves',
+    expect:
+      'Each half step adds one row of diamonds at the bottom: 2½ ends on a short row (2 blocks), 3 adds the next long row (3 blocks), and so on. The width never changes; setting triangles always finish the bottom.',
+    base: { style: 'on-point', layout: { cols: 3, rows: 2 } },
+    steps: [2, 2.5, 3, 3.5, 4].map((rows) => ({ label: `${rows} down`, layout: { rows } })),
+  },
+  {
     id: 'S08',
     title: 'Shaped Blocks edges, trimmed or whole',
     expect:

@@ -1,5 +1,6 @@
 <template>
-  <!-- New block: a name and a shape (spec 026). The shape can't change later. -->
+  <!-- New block: a name and a shape (spec 026). The shape can't change later. A data block (spec
+       025) of a kind: day, week or month. -->
   <q-dialog v-model="open">
     <q-card style="width: 420px; max-width: 95vw">
       <DialogClose />
@@ -37,6 +38,24 @@
           Finished size {{ size[0] }} × {{ size[1] }} {{ units }}. You can change it in the block
           editor.
         </div>
+        <q-toggle v-model="dataOn" dense label="Data block" />
+        <template v-if="dataOn">
+          <SlidePicker
+            v-model="kind"
+            :options="[
+              { value: 'day', label: 'Day' },
+              { value: 'week', label: 'Week' },
+              { value: 'month', label: 'Month' },
+            ]"
+            label="Data block type"
+          />
+          <div class="text-caption text-grey-7 q-mt-n-sm">
+            A data quilt places it for each {{ kind }}. Its Color tab numbers patches with day
+            numerals{{
+              kind === 'month' ? ', and its Draw tab can add 30, 29 and 28-day variants' : ''
+            }}.
+          </div>
+        </template>
       </q-card-section>
       <q-card-actions align="right">
         <q-btn v-close-popup flat no-caps label="Cancel" />
@@ -50,10 +69,17 @@
 import DialogClose from './DialogClose.vue';
 import { ref } from 'vue';
 import ShapeSize from '@/components/ShapeSize.vue';
+import SlidePicker from '@/components/SlidePicker.vue';
+import type { DataKind } from '@/model/schema/block';
 import { SHAPE_NAME, SHAPE_OUTLINE, shapeSize, type BlockShape } from '@/model/blocks/shape';
 
 const emit = defineEmits<{
-  create: [name: string, shape: BlockShape | undefined, size: [number, number]];
+  create: [
+    name: string,
+    shape: BlockShape | undefined,
+    size: [number, number],
+    data: DataKind | undefined,
+  ];
 }>();
 
 const open = ref(false);
@@ -61,6 +87,8 @@ const name = ref('');
 const units = ref<'in' | 'cm'>('in');
 const shape = ref<BlockShape | undefined>();
 const size = ref<[number, number]>([10, 10]);
+const dataOn = ref(false);
+const kind = ref<DataKind>('month');
 
 /** Picture points in a 40 × 40 box, the shape centered at its own proportions. */
 const points = (s?: BlockShape) => {
@@ -97,11 +125,18 @@ function show(defaultName: string, u: 'in' | 'cm') {
   name.value = defaultName;
   units.value = u;
   pick(undefined);
+  dataOn.value = false;
   open.value = true;
 }
 function ok() {
   open.value = false;
-  emit('create', name.value.trim() || 'Block', shape.value, size.value);
+  emit(
+    'create',
+    name.value.trim() || 'Block',
+    shape.value,
+    size.value,
+    dataOn.value ? kind.value : undefined,
+  );
 }
 
 defineExpose({ show });

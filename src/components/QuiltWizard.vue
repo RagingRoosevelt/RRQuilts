@@ -13,6 +13,25 @@
           :contracted="$q.screen.lt.sm"
         >
           <q-step name="blocks" title="Layout" icon="grid_on">
+            <!-- Data quilt (spec 025): pieces colored from a year of data; set up in its Data tab. -->
+            <div class="row items-center q-mb-sm" style="gap: 12px">
+              <q-toggle v-model="dataOn" dense label="Data quilt" />
+              <SlidePicker
+                v-if="dataOn"
+                v-model="dataPlan"
+                class="col"
+                :options="[
+                  { value: 'months', label: '12 months' },
+                  { value: 'weeks', label: '52 weeks' },
+                  { value: 'days', label: '365 days' },
+                ]"
+                label="Data plan"
+              />
+            </div>
+            <div v-if="dataOn" class="text-caption text-grey-7 q-mb-md">
+              Each day's data colors its place, such as a year of temperatures. Pick a layout with a
+              block space per month or week, or patches for days; the Data tab does the rest.
+            </div>
             <!-- Block layouts or patch layouts (spec 026); some styles are in both. -->
             <q-btn-toggle
               v-model="mode"
@@ -65,6 +84,13 @@
           </q-step>
           <q-step name="detail" :title="detailTitle" :icon="isStrip ? 'view_stream' : 'straighten'">
             <div class="text-subtitle1 q-mb-md">{{ styleLabel }}</div>
+            <DataSpaceCount
+              v-if="dataOn"
+              :generated="generated"
+              :plan="dataPlan as DataPlan['plan']"
+              :need="dataNeed"
+              class="q-mb-md"
+            />
             <template v-if="isStrip">
               <q-btn-toggle
                 v-model="stripLayout.style"
@@ -150,6 +176,7 @@
                       dense
                       outlined
                       type="number"
+                      :step="halves ? 0.5 : 1"
                       min="1"
                       max="100"
                       :label="acrossLabel"
@@ -160,6 +187,7 @@
                       dense
                       outlined
                       type="number"
+                      :step="halves ? 0.5 : 1"
                       min="1"
                       max="100"
                       :label="downLabel"
@@ -347,6 +375,11 @@
 </template>
 
 <script setup lang="ts">
+import DataSpaceCount from '@/components/DataSpaceCount.vue';
+import { newDataPlan, numberCount } from '@/model/data-quilt';
+import type { DataPlan } from '@/model/schema/data-quilt';
+import SlidePicker from '@/components/SlidePicker.vue';
+
 import { SHAPE_OUTLINE, type BlockShape } from '@/model/blocks/shape';
 import DialogClose from './DialogClose.vue';
 import { computed, reactive, ref, watch } from 'vue';
@@ -384,11 +417,20 @@ import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{ units: 'in' | 'cm' }>();
 const emit = defineEmits<{
-  create: [layout: Layout, borders: Border[], target?: QuiltTarget];
+  create: [layout: Layout, borders: Border[], target?: QuiltTarget, data?: DataPlan['plan']];
 }>();
 
 const open = ref(false);
 const step = ref('blocks');
+const dataOn = ref(false);
+const dataPlan = ref<string>('months');
+/** Numbers the data plan needs (next year's period, as the quilt gets). */
+const dataNeed = computed(() =>
+  numberCount({
+    ...newDataPlan(props.units, new Date().getFullYear() + 1),
+    plan: dataPlan.value as DataPlan['plan'],
+  }),
+);
 // Layout and target size first; the chosen layout's own settings next (spec 006 FR-001a).
 const steps = ['blocks', 'detail', 'sashing', 'borders'];
 const next = computed(() => steps[steps.indexOf(step.value) + 1]);
@@ -474,6 +516,11 @@ function loadTile() {
 }
 watch(style, loadTile);
 const clampCount = (n: number) => Math.min(100, Math.max(1, Math.round(n || 1)));
+/** On-Point and Variable/Diamond Point counts go in halves (a half row is a short row). */
+const halves = computed(() =>
+  ['on-point', 'variable-point', 'diamond-point'].includes(style.value),
+);
+const halfCount = (n: number) => Math.min(100, Math.max(1, Math.round((n || 1) * 2) / 2));
 /** Styles with a turnable grid (spec 026 flow angle). */
 const flows = computed(
   () =>
@@ -490,8 +537,8 @@ const layout = computed<Layout>(() =>
     : style.value === 'diamond-point'
       ? {
           ...(layoutDefaults('diamond-point', k.value) as VariablePointLayout),
-          cols: clampCount(cols.value),
-          rows: clampCount(rows.value),
+          cols: halfCount(cols.value),
+          rows: halfCount(rows.value),
           width: tile.width,
           height: tile.width * Math.sqrt(3),
           sash: sash.value,
@@ -509,8 +556,8 @@ const layout = computed<Layout>(() =>
         : style.value === 'variable-point'
           ? {
               ...(layoutDefaults('variable-point', k.value) as VariablePointLayout),
-              cols: clampCount(cols.value),
-              rows: clampCount(rows.value),
+              cols: halfCount(cols.value),
+              rows: halfCount(rows.value),
               width: tile.width,
               height: tile.height,
               sash: sash.value,
@@ -551,8 +598,8 @@ const layout = computed<Layout>(() =>
                 : style.value === 'on-point'
                   ? {
                       ...onPointDefaults(props.units === 'cm' ? 2.5 : 1),
-                      cols: clampCount(cols.value),
-                      rows: clampCount(rows.value),
+                      cols: halfCount(cols.value),
+                      rows: halfCount(rows.value),
                       block: blockSize.value,
                       sash: sash.value,
                     }
@@ -687,6 +734,7 @@ function create() {
     JSON.parse(JSON.stringify(layout.value)) as Layout,
     borders.value,
     target && (JSON.parse(JSON.stringify(target)) as QuiltTarget),
+    dataOn.value ? (dataPlan.value as DataPlan['plan']) : undefined,
   );
 }
 
@@ -695,6 +743,8 @@ function show() {
   const cm = props.units === 'cm';
   step.value = 'blocks';
   mode.value = 'blocks';
+  dataOn.value = false;
+  dataPlan.value = 'months';
   style.value = 'straight-set';
   targetInput.value = {
     choice: null,
