@@ -36,12 +36,13 @@ export function putNumeral(
   return out;
 }
 
-/** Every numeral of value `slot` taken off the patches `ids` (their colors come back). */
-export function clearNumerals(fills: Fills, ids: readonly string[], slot: number) {
+/** Every numeral (of value `slot`, or of any value) taken off the patches `ids` (their colors
+ *  come back). */
+export function clearNumerals(fills: Fills, ids: readonly string[], slot?: number) {
   const out = { ...fills };
   for (const id of ids) {
     const f = out[id];
-    if (!f || !('data' in f) || !inSlot(f.data, slot)) continue;
+    if (!f || !('data' in f) || (slot !== undefined && !inSlot(f.data, slot))) continue;
     if (f.under) out[id] = f.under;
     else delete out[id];
   }

@@ -49,7 +49,8 @@ numerals that say which day colors them.
 
 A month block has numerals 1 to 31, a week block 1 to 7, and a day block only 1. A numeral can go
 on more than one patch, so one day can color several pieces. Tap a patch that has the picked
-numeral to take it off. Numerals not on any patch yet show faded. **Clear numerals** takes the picked value's numerals off the drawing shown. A numbered patch keeps the color
+numeral to take it off. Numerals not on any patch yet show faded. **Clear all numerals** takes every numeral, of every value, off the drawing shown. A new variant
+starts with its colors but no numerals. A numbered patch keeps the color
 it had underneath. That color is what **As designed** shows.
 
 **Value** picks A, B, C, or D. Use B, C, and D when a day records more than one value, such as a

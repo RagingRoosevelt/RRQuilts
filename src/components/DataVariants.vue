@@ -51,6 +51,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { plainFill } from '@/model/coloring';
 import { KIND_DAYS, VARIANT_DAYS } from '@/model/data-quilt';
 import { newId } from '@/model/ids';
 import type { DataVariant, SeamBlock } from '@/model/schema/block';
@@ -76,7 +77,8 @@ const missing = computed(() =>
   VARIANT_DAYS[kind.value].filter((d) => !variants.value.some((v) => v.days === d)),
 );
 
-/** A new variant: the 31-day drawing copied with fresh ids, each patch keeping its fills. */
+/** A new variant: the block's own drawing copied with fresh ids, each patch keeping its color
+ *  (no numerals). */
 function add(d: 28 | 29 | 30 | 1) {
   const b = props.block;
   const id = new Map<string, string>();
@@ -103,7 +105,8 @@ function add(d: 28 | 29 | 30 | 1) {
     db.data.variants = [...(db.data.variants ?? []), v];
     for (const c of db.colorings)
       for (const p of b.patches) {
-        const f = c.fills[p.id];
+        // Colors only: the new variant starts with no numerals (they're the other drawing's days).
+        const f = plainFill(c.fills[p.id]);
         if (f) c.fills[id.get(p.id)!] = f;
       }
   });

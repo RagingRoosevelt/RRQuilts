@@ -353,13 +353,6 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-140',
-    group: G.small,
-    text: 'Block editor › Color › Day numerals › Clear numerals: takes every numeral of the picked value off the shown drawing in this coloring, and the patches show their colors again. With a variant picked, only that variant is cleared (the 31 keeps its numerals); value B’s numerals stay when A is picked. Greyed out with no numerals placed. Undo brings them back.',
-    last: '"let\'s add a clear for the block design numeral assignments"',
-    to: '/',
-  },
-  {
     id: 'TC-141',
     group: G.small,
     text: 'Undo while placing data blocks: place Jan, Feb, Mar (Next: Apr). Undo: Mar’s block goes and Next is Mar again; undo again: Next Feb; redo: Feb back, Next Mar. Clear then undo: every block back, Next past the last placed.',
@@ -399,6 +392,13 @@ export const CHECKS: Check[] = [
     group: G.small,
     text: 'Block Details: a Metadata line (same labelled divider) sits between the Data block section and Tags, Category and Techniques.',
     last: '"we should add a seperator in block details between the data block info and the metadata section"',
+    to: '/',
+  },
+  {
+    id: 'TC-147',
+    group: G.small,
+    text: 'Block editor › Color › Day numerals › Clear all numerals: takes every numeral, of every value (A to D), off the shown drawing in this coloring; the patches show their colors again. With a variant picked, only that variant is cleared. Greyed out when the drawing has no numerals. Undo brings them back. Add a variant to a numbered block: the new variant has its colors but no numerals, and the block’s own drawing keeps its numerals.',
+    last: '"I had a block that already had a 7 day variant. when I created the 1 day variant, it still had all 7 labels. creating a variant should remove all the day labels" / "we need a "clear labels" type button for clearing all the day labels"',
     to: '/',
   },
 ];

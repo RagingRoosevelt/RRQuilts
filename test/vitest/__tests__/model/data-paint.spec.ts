@@ -31,6 +31,8 @@ describe('data places (spec 025 US1)', () => {
     expect(c.b).toEqual(gray);
     expect(c.c).toEqual(f.c); // value B stays
     expect(c.d).toEqual({ data: { n: 2 } }); // not among the patches
+    // Any value.
+    expect(clearNumerals(f, ['c'])).toMatchObject({ c: gray });
   });
 
   it('reading order: rows, columns, snake', () => {

@@ -44,9 +44,9 @@
       no-caps
       size="sm"
       icon="clear"
-      label="Clear numerals"
+      label="Clear all numerals"
       class="self-start"
-      :disable="!counts.size"
+      :disable="!anyNumeral"
       @click="emit('clear')"
     />
     <q-toggle v-model="editor.data.advance" dense label="Next numeral after each tap" />
@@ -76,6 +76,13 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ clear: [] }>();
 const editor = useEditorStore();
+/** Any numeral of any value on the shown drawing. */
+const anyNumeral = computed(() =>
+  props.patches.some((id) => {
+    const f = props.fills[id];
+    return !!f && 'data' in f;
+  }),
+);
 const counts = computed(() => numeralCounts(props.fills, props.patches, editor.data.slot));
 const label = (n: number) =>
   paintLabel({ n, ...(editor.data.slot ? { slot: editor.data.slot } : {}) });

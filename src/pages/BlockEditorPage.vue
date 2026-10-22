@@ -679,7 +679,7 @@ function numeralPatch(patchId: string, n: number, tap = false) {
   if (tap && !taking && editor.data.advance && n < numeralCount.value) editor.data.numeral = n + 1;
 }
 
-/** Clear numerals: the picked value's numerals off the shown drawing, in this coloring. */
+/** Clear all numerals: every day label (all values) off the shown drawing, in this coloring. */
 function clearAllNumerals() {
   if (ro.value) return;
   const { base, target } = editable();
@@ -688,7 +688,7 @@ function clearAllNumerals() {
     withBlock(project.doc!, () =>
       produce(base, (x) => {
         const c = x.colorings.find((k) => k.id === target)!;
-        c.fills = castDraft(clearNumerals(c.fills, ids, editor.data.slot));
+        c.fills = castDraft(clearNumerals(c.fills, ids));
       }),
     ),
   );
