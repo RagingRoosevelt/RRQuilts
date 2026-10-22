@@ -17,7 +17,8 @@ import { Units, type RrqDoc } from './schema/project';
 import { Socials } from './schema/shared';
 
 export const BLOCK_FORMAT = 'rrqbl';
-export const BLOCK_VERSION = 3;
+/** v4: data blocks (spec 025). */
+export const BLOCK_VERSION = 4;
 
 export const BlockFile = Type.Object({
   format: Type.Literal(BLOCK_FORMAT),

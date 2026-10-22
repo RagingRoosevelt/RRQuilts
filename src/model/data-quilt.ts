@@ -1,12 +1,12 @@
 // Data quilts (spec 025): which day a data paint stands for, that day's value, and the fill its
 // slot's scale gives it. `slotColoring` is a block space's coloring with every data paint replaced
 // by what it shows now, so drawing, printing, yardage and colorways read ordinary fills.
-import type { Draft } from 'immer';
+import { castDraft, type Draft } from 'immer';
 import { resolveColoring } from './coloring';
 import { sampleSeries } from './data-samples';
-import type { Block } from './schema/block';
+import type { Block, DataKind, DataVariant } from './schema/block';
 import type { ColoringBody, DataPaint, Fill, PlainFill } from './schema/coloring';
-import type { DataPlan, DataPreset, Pool, ValueSlot } from './schema/data-quilt';
+import type { DataPlan, DataPreset, ValueSlot } from './schema/data-quilt';
 import type { Quilt } from './schema/quilt';
 
 const DAY = 86_400_000;
@@ -39,12 +39,12 @@ export function numberCount(plan: DataPlan) {
   return plan.plan === 'months' ? 12 : plan.plan === 'weeks' ? 52 + n - 364 : n;
 }
 
-/** Number `k` (1-based): its first period day, how many days it holds, and the pool its blocks
- *  come from (the days it needs). */
+/** Number `k` (1-based): its first period day, how many days it holds, and the kind of data block
+ *  it takes. */
 export function numberInfo(
   plan: DataPlan,
   k: number,
-): { first: number; len: number; pool: Pool } | undefined {
+): { first: number; len: number; kind: DataKind } | undefined {
   if (!Number.isInteger(k) || k < 1 || k > numberCount(plan)) return undefined;
   if (plan.plan === 'months') {
     const s = new Date(parse(plan.start));
@@ -52,11 +52,10 @@ export function numberInfo(
       Math.round(
         (Date.UTC(s.getUTCFullYear(), s.getUTCMonth() + k - 1, 1) - parse(plan.start)) / DAY,
       ) + 1;
-    const len = monthLength(plan.start, k);
-    return { first, len, pool: String(len) as Pool };
+    return { first, len: monthLength(plan.start, k), kind: 'month' };
   }
-  if (plan.plan === 'weeks' && k <= 52) return { first: 7 * (k - 1) + 1, len: 7, pool: '7' };
-  return { first: plan.plan === 'weeks' ? 364 + k - 52 : k, len: 1, pool: '1' };
+  if (plan.plan === 'weeks' && k <= 52) return { first: 7 * (k - 1) + 1, len: 7, kind: 'week' };
+  return { first: plan.plan === 'weeks' ? 364 + k - 52 : k, len: 1, kind: 'day' };
 }
 
 /**
@@ -215,88 +214,109 @@ export const dataColorings = (quilts: readonly Quilt[]): ColoringBody[] =>
     return [{ fills: Object.fromEntries(fills.map((f, i) => [i, f])) }];
   });
 
-/** Blocks a quilt's pools name. */
-export const dataBlocks = (q: Quilt): string[] =>
-  Object.values(q.data?.picks ?? {}).flatMap((ids) => ids ?? []);
+/** The data blocks (types) a quilt's spaces show. */
+export const dataBlocks = (q: Quilt): string[] => [...new Set(Object.values(q.data?.types ?? {}))];
 
-/** A stable pick in 0…n−1 for a block space (FNV-1a of seed and space id). */
-function pickIndex(seed: number, slotId: string, n: number) {
-  let h = 2166136261 ^ seed;
-  for (let i = 0; i < slotId.length; i++) h = Math.imul(h ^ slotId.charCodeAt(i), 16777619);
-  return (h >>> 0) % n;
+/** Days a data block's kind holds (a month block's own drawing: 31). */
+export const KIND_DAYS: Record<DataKind, number> = { day: 1, week: 7, month: 31 };
+
+/** A variant's block id: the data block's id and its days. */
+export const variantId = (id: string, days: number) => `${id}-v${days}`;
+
+/** What a type shows for a number of `len` days: its smallest variant with at least that many
+ *  days (a block id), else the block itself. */
+export function variantFor(b: Block, len: number): string {
+  const v = (b.data?.variants ?? [])
+    .filter((x) => x.days >= len)
+    .sort((x, y) => x.days - y.days)[0];
+  return v ? variantId(b.id, v.days) : b.id;
 }
 
-/** Day places in a block (distinct numbers of value A in its first coloring). */
-export function placesIn(b: Block): number {
-  const ns = new Set<number>();
-  for (const f of Object.values(b.colorings[0]?.fills ?? {}))
-    if ('data' in f && !f.data.slot) ns.add(f.data.n);
-  return ns.size;
+/** A month block's variant as a block of its own, hidden, to place in a quilt: the variant's
+ *  drawing and the block's colorings (which hold every variant's fills). */
+export function variantBlock(b: Block, v: DataVariant): Block | undefined {
+  if (b.kind !== 'seam') return undefined;
+  const { source: _s, version: _v, revision: _r, unconnected: _u, data: _d, ...rest } = b;
+  void [_s, _v, _r, _u, _d];
+  return {
+    ...rest,
+    id: variantId(b.id, v.days),
+    drawing: v.drawing,
+    patches: v.patches,
+    ...(v.unconnected ? { unconnected: v.unconnected } : {}),
+    notecard: { ...b.notecard, name: `${b.notecard.name} (${v.days} days)`, tags: ['system'] },
+    data: { kind: 'month', of: b.id, days: v.days },
+  };
 }
-
-/** Pool sizes: the day places a pool's blocks need at least. */
-export const POOL_DAYS: Record<Pool, number> = {
-  '31': 31,
-  '30': 30,
-  '29': 29,
-  '28': 28,
-  '7': 7,
-  '1': 1,
-};
-
-/** The pools a plan's numbers draw from, longest first. */
-export const poolsOf = (plan: DataPlan): Pool[] =>
-  plan.plan === 'months'
-    ? ['31', '30', '29', '28']
-    : plan.plan === 'weeks'
-      ? ['7', ...(numberCount(plan) > 52 ? (['1'] as Pool[]) : [])]
-      : ['1'];
 
 /**
- * Put a block from each placed number's pool in its space (spec 025 FR-007), keeping its turn and
- * flip; a new block gets a coloring that follows the block's first. Only blocks with enough day
- * places count. A number whose pool is empty leaves its space as it is.
+ * Rebuild the hidden variant blocks of the data blocks data quilts use (spec 025): kept in step
+ * with their block on every change. Unused ones go (`pruneVariants`, after `applyPicks`).
+ */
+export function syncVariants(blocks: Draft<Block>[], quilts: readonly Quilt[]) {
+  const used = new Set(quilts.flatMap((q) => (q.data?.on ? dataBlocks(q) : [])));
+  for (const b of [...blocks]) {
+    if (!used.has(b.id) || b.data?.of) continue;
+    for (const v of b.data?.variants ?? []) {
+      const made = variantBlock(b, v);
+      if (!made) continue;
+      const i = blocks.findIndex((x) => x.id === made.id);
+      if (i < 0) blocks.push(castDraft(made));
+      else if (JSON.stringify(blocks[i]) !== JSON.stringify(made)) blocks[i] = castDraft(made);
+    }
+  }
+}
+
+/** Drop hidden variant blocks no quilt space shows. */
+export function pruneVariants(blocks: Draft<Block>[], quilts: readonly Quilt[]): Draft<Block>[] {
+  const shown = new Set(
+    quilts.flatMap((q) => [
+      ...Object.values(q.layers[0].slots).map((s) => s.block),
+      ...q.layers.flatMap((l) => l.items.map((i) => i.ref)),
+    ]),
+  );
+  return blocks.filter((b) => !b.data?.of || shown.has(b.id));
+}
+
+/**
+ * Show each placed space's type (spec 025 FR-007): the variant for its number's days, keeping its
+ * turn and flip; a new block gets a coloring that follows the block's first. A space whose number
+ * was taken back (one by one, Clear, a shorter list) gives its block up and loses its type.
  */
 export function applyPicks(q: Draft<Quilt>, blocks: readonly Block[], newId: () => string) {
   const plan = q.data;
   if (!plan?.on) return;
   const byId = new Map(blocks.map((b) => [b.id, b]));
   const slots = q.layers[0].slots;
+  const used = (c: string) =>
+    Object.values(slots).some((s) => s.coloring === c) ||
+    q.layers.some((l) => l.items.some((i) => i.coloring === c));
   plan.order.forEach((slotId, i) => {
     const info = slotId ? numberInfo(plan, i + 1) : undefined;
-    if (!slotId || !info) return;
-    const list = (plan.picks[info.pool] ?? []).filter((id) => {
-      const b = byId.get(id);
-      return b && placesIn(b) >= info.len;
-    });
-    if (!list.length) return;
-    const id = list[pickIndex(plan.seed, slotId, list.length)]!;
+    const type = slotId ? byId.get(plan.types[slotId] ?? '') : undefined;
+    if (!slotId || !info || !type) return;
+    const id = variantFor(type, info.len);
+    const block = byId.get(id);
     const now = slots[slotId];
-    if (now?.block === id) return;
+    if (!block || now?.block === id) return;
     let coloring: string;
     do coloring = newId();
     while (coloring in q.colorings);
-    const base = byId.get(id)!.colorings[0]?.id;
+    const base = block.colorings[0]?.id;
     q.colorings[coloring] = { fills: {}, ...(base ? { base } : {}) };
     slots[slotId] = { block: id, coloring, rotation: now?.rotation ?? 0, flip: now?.flip ?? false };
     const old = now?.coloring;
-    const used = (c: string) =>
-      Object.values(slots).some((s) => s.coloring === c) ||
-      q.layers.some((l) => l.items.some((i) => i.coloring === c));
     if (old && !used(old)) delete q.colorings[old];
   });
-  // A space whose number was taken back (one by one, Clear, a shorter list) gives its pool block up.
-  // ponytail: any unnumbered space holding a pool block is emptied, even one set before the
-  // quilt became a data quilt; Set is off in data quilts, so only numbering puts them there.
+  // ponytail: an unnumbered space showing a data block is emptied, even one set before the quilt
+  // became a data quilt; Set is off in data quilts, so only numbering puts them there.
   const placed = new Set(plan.order);
-  const pooled = new Set(dataBlocks(q));
+  for (const id of Object.keys(plan.types)) if (!placed.has(id)) delete plan.types[id];
   for (const [id, s] of Object.entries(slots)) {
-    if (placed.has(id) || !pooled.has(s.block)) continue;
+    const data = byId.get(s.block)?.data;
+    if (placed.has(id) || !data) continue;
     delete slots[id];
-    const inUse =
-      Object.values(slots).some((x) => x.coloring === s.coloring) ||
-      q.layers.some((l) => l.items.some((i) => i.coloring === s.coloring));
-    if (!inUse) delete q.colorings[s.coloring];
+    if (!used(s.coloring)) delete q.colorings[s.coloring];
   }
 }
 
@@ -406,8 +426,7 @@ export function newDataPlan(units: 'in' | 'cm', year: number): DataPlan {
     start: `${year}-01-01`,
     slots: [presetSlot('temperature', units)],
     order: Array<null>(12).fill(null),
-    picks: {},
-    seed: 0,
+    types: {},
     unused: 'filler',
     waiting: 'designed',
     filler: col('black'),
@@ -434,32 +453,42 @@ export function nextFree(plan: DataPlan, from = 1): number | undefined {
   return undefined;
 }
 
-/** Place number `k` on a space (a space holds one number: its old one is freed). */
-export function placeNumber(plan: DataPlan, slotId: string, k: number): DataPlan {
+/** Place number `k` on a space with data block `type` (a space holds one number: its old one is
+ *  freed). */
+export function placeNumber(plan: DataPlan, slotId: string, k: number, type: string): DataPlan {
   const order = fitOrder(plan).order.map((id) => (id === slotId ? null : id));
   order[k - 1] = slotId;
-  return { ...plan, order };
+  return { ...plan, order, types: { ...plan.types, [slotId]: type } };
 }
 
 /** Take a space's number back (the number becomes empty). */
-export const takeBack = (plan: DataPlan, slotId: string): DataPlan => ({
-  ...plan,
-  order: plan.order.map((id) => (id === slotId ? null : id)),
-});
+export function takeBack(plan: DataPlan, slotId: string): DataPlan {
+  const { [slotId]: _gone, ...types } = plan.types;
+  void _gone;
+  return { ...plan, order: plan.order.map((id) => (id === slotId ? null : id)), types };
+}
 
-/** Put spaces on the empty numbers in the order given (placed spaces kept), until they run out. */
-export function fillNumbers(plan: DataPlan, ids: readonly string[]): DataPlan {
+/** Put spaces on the empty numbers in the order given (placed spaces kept), until they run out,
+ *  each with the type `typeOf` gives for its number's kind (numbers without one are skipped). */
+export function fillNumbers(
+  plan: DataPlan,
+  ids: readonly string[],
+  typeOf: (kind: DataKind) => string | undefined,
+): DataPlan {
   const out = fitOrder(plan);
   const order = [...out.order];
+  const types = { ...out.types };
   const placed = new Set(order);
-  let k = 0;
-  for (const id of ids) {
-    if (placed.has(id)) continue;
-    while (k < order.length && order[k]) k++;
-    if (k >= order.length) break;
-    order[k] = id;
-  }
-  return { ...out, order };
+  const free = ids.filter((id) => !placed.has(id));
+  order.forEach((id, i) => {
+    const kind = numberInfo(out, i + 1)?.kind;
+    const type = kind && typeOf(kind);
+    if (id || !type || !free.length) return;
+    const space = free.shift()!;
+    order[i] = space;
+    types[space] = type;
+  });
+  return { ...out, order, types };
 }
 
 /** Move number `from` to position `to` (1-based); the ones between shift, so their labels do. */
@@ -505,20 +534,11 @@ export function dataReport(q: Quilt, blocks: readonly Block[]): string[] {
         .map((k) => numberLabel(plan, k))
         .join(', ')}${empty.length > 6 ? '…' : ''}.`,
     );
-  const needed = new Set<Pool>();
-  plan.order.forEach((id, i) => {
-    const info = id ? numberInfo(plan, i + 1) : undefined;
-    if (info) needed.add(info.pool);
-  });
-  for (const pool of poolsOf(plan))
-    if (
-      needed.has(pool) &&
-      !(plan.picks[pool] ?? []).some((id) => {
-        const b = byId.get(id);
-        return b && placesIn(b) >= POOL_DAYS[pool];
-      })
-    )
-      out.push(`The ${pool}-day pool has no block yet.`);
+  const missing = new Set(Object.values(plan.types).filter((id) => !byId.has(id)));
+  if (missing.size)
+    out.push(
+      `${missing.size} block type${missing.size > 1 ? 's are' : ' is'} missing: ${[...missing].join(', ')}.`,
+    );
   const days = new Set<number>();
   let unnumbered = 0;
   for (const [slotId, s] of Object.entries(q.layers[0].slots)) {

@@ -18,6 +18,9 @@ import {
   dayDate,
   dayOf,
   periodLength,
+  pruneVariants,
+  syncVariants,
+  variantFor,
   scaleFill,
   slotColoring,
 } from '@/model/data-quilt';
@@ -53,8 +56,7 @@ const plan = (p: Partial<DataPlan> = {}): DataPlan => ({
   start: '2027-01-01',
   slots: [temp, mood],
   order: [],
-  picks: {},
-  seed: 0,
+  types: {},
   unused: 'filler',
   waiting: 'designed',
   filler: { color: 'black' },
@@ -161,43 +163,49 @@ describe('slotColoring', () => {
   });
 });
 
-describe('block pools', () => {
-  /** A block with `n` day places. */
-  const block = (id: string, n: number): Block => {
-    const b = structuredClone(fixture().project.blocks[0]!);
-    b.colorings[0]!.fills = Object.fromEntries(
-      Array.from({ length: n }, (_, i) => [`p${i}`, { data: { n: i + 1 } }]),
-    );
-    return { ...b, id };
+describe('data block types and variants', () => {
+  /** A month data block with 30 and 28-day variants (its own drawing is the 31). */
+  const month = (): Block => {
+    const b = structuredClone(fixture().project.blocks.find((x) => x.kind === 'seam')!);
+    if (b.kind !== 'seam') throw new Error('seam block expected');
+    const v = (days: 28 | 30) => ({ days, drawing: b.drawing, patches: b.patches });
+    return { ...b, id: 'ms', data: { kind: 'month', variants: [v(30), v(28)] } };
   };
-  const blocks = [block('m28', 28), block('m29', 29), block('m31a', 31), block('m31b', 31)];
 
-  it('each placed number shows a block from the pool for its days; a block too small is passed over', () => {
+  it('each placed space shows its type’s smallest variant with enough days', () => {
     const { q, slotId } = dataQuilt(plan({ start: '2028-01-01' }));
     const ids = [slotId, 'u2', 'u3', 'u4'];
+    const blocks: Block[] = [month()];
+    syncVariants(blocks, [{ ...q, data: { ...q.data!, types: { x: 'ms' } } }]);
+    expect(blocks.map((b) => b.id)).toEqual(['ms', 'ms-v30', 'ms-v28']);
+    expect(blocks[1]!.notecard.tags).toEqual(['system']);
     const next = produce(q, (d) => {
-      // Numbers 2 (Feb 2028), 4 (Apr), 1 (Jan), 3 (Mar).
-      d.data!.order = [ids[2]!, ids[0]!, ids[3]!, ids[1]!];
-      d.data!.picks = { '29': ['m28', 'm29'], '31': ['m31a', 'm31b'] };
+      // Jan, Feb (29 days in 2028), Mar, Apr.
+      d.data!.order = ids;
+      d.data!.types = Object.fromEntries(ids.map((id) => [id, 'ms']));
       let n = 0;
       applyPicks(d, blocks, () => `c${n++}`);
     });
     const at = (i: number) => next.layers[0].slots[ids[i]!]?.block;
-    expect(at(0)).toBe('m29'); // m28 has too few places for the 29 pool
-    expect(at(1)).toBeUndefined(); // April: the 30 pool is empty
-    expect(['m31a', 'm31b']).toContain(at(2));
-    expect(['m31a', 'm31b']).toContain(at(3));
+    expect([at(0), at(1), at(2), at(3)]).toEqual(['ms', 'ms-v30', 'ms', 'ms-v30']);
     expect(next.colorings[next.layers[0].slots[slotId]!.coloring]).toBeDefined();
-    // Stable until shuffled.
-    const again = produce(next, (d) => applyPicks(d, blocks, () => 'zz'));
-    expect(again).toBe(next);
-    // A number taken back (or Clear) empties its space.
+    // Stable.
+    expect(produce(next, (d) => applyPicks(d, blocks, () => 'zz'))).toBe(next);
+    // 2027: February takes the 28.
+    const y27 = produce(next, (d) => {
+      d.data!.start = '2027-01-01';
+      applyPicks(d, blocks, () => 'yy');
+    });
+    expect(y27.layers[0].slots[ids[1]!]!.block).toBe('ms-v28');
+    // A number taken back (or Clear) empties its space and drops its type.
     const cleared = produce(next, (d) => {
       d.data!.order = [null, null, null, null];
       applyPicks(d, blocks, () => 'zz');
     });
     for (const id of ids) expect(cleared.layers[0].slots[id]).toBeUndefined();
-    expect(cleared.colorings[next.layers[0].slots[slotId]!.coloring]).toBeUndefined();
+    expect(cleared.data!.types).toEqual({});
+    expect(pruneVariants(blocks, [cleared]).map((b) => b.id)).toEqual(['ms']);
+    expect(variantFor(month(), 31)).toBe('ms');
   });
 });
 
@@ -217,15 +225,16 @@ describe('setting a plan up', () => {
 
   it('the numbered list: place, take back, skip placed, fill, reorder', () => {
     let p = plan({ order: Array<null>(12).fill(null) });
-    p = placeNumber(p, 's1', 1);
-    p = placeNumber(p, 's3', 3);
+    p = placeNumber(p, 's1', 1, 'ms');
+    p = placeNumber(p, 's3', 3, 'ms');
     expect(nextFree(p, 1)).toBe(2);
     expect(nextFree(p, 3)).toBe(4); // 3 placed: skipped
-    p = placeNumber(p, 's1', 5); // a space holds one number
+    p = placeNumber(p, 's1', 5, 'ms'); // a space holds one number
     expect(p.order.slice(0, 5)).toEqual([null, null, 's3', null, 's1']);
     p = takeBack(p, 's3');
     expect(nextFree(p, 3)).toBe(3);
-    p = fillNumbers(p, ['s1', 'a', 'b']);
+    p = fillNumbers(p, ['s1', 'a', 'b'], () => 'ms');
+    expect(p.types).toEqual({ s1: 'ms', a: 'ms', b: 'ms' });
     expect(p.order.slice(0, 5)).toEqual(['a', 'b', null, null, 's1']);
     p = moveNumber(p, 5, 1); // s1 becomes 001, the rest move down
     expect(p.order.slice(0, 5)).toEqual(['s1', 'a', 'b', null, null]);
@@ -238,16 +247,20 @@ describe('setting a plan up', () => {
     const full = fillNumbers(
       p,
       Array.from({ length: 14 }, (_, i) => `x${i}`),
+      () => 'ms',
     );
     expect(nextFree(full)).toBeUndefined();
+    // No type for the kind: those numbers stay empty.
+    expect(fillNumbers(p, ['y'], () => undefined).order).toEqual(p.order);
   });
 
-  it('the report: numbers not placed, empty pools, unnumbered spaces, days without a place', () => {
+  it('the report: numbers not placed, missing types, unnumbered spaces, days without a place', () => {
     const { q, slotId } = dataQuilt(plan());
     q.data!.order = [null, null, slotId, ...Array<null>(9).fill(null)];
+    q.data!.types = { [slotId]: 'gone' };
     const r = dataReport(q, []).join(' ');
     expect(r).toMatch(/11 numbers not placed yet: Jan, Feb, Apr/);
-    expect(r).toMatch(/The 31-day pool has no block yet/);
+    expect(r).toMatch(/1 block type is missing: gone/);
     expect(r).toMatch(/364 days have no place/);
     q.data!.order = [];
     expect(dataReport(q, []).join(' ')).toMatch(/1 space has day places but no number/);

@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { computed, reactive, ref } from 'vue';
 import type { Scope } from '@/editor/scope';
 import type { DataOrder, DataSet } from '@/model/data-paint';
+import type { DataKind } from '@/model/schema/block';
 import type { StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 
@@ -92,6 +93,12 @@ export const useEditorStore = defineStore('editor', () => {
   const dataHot = ref<string | null>(null);
   /** The block space of the card last clicked in the list (stays highlighted). */
   const dataSel = ref<string | null>(null);
+  /** The data block type picked to place, per kind. */
+  const dataType = reactive<Record<DataKind, string | null>>({
+    day: null,
+    week: null,
+    month: null,
+  });
 
   function useColor(id: string) {
     color.value = id;
@@ -129,6 +136,7 @@ export const useEditorStore = defineStore('editor', () => {
     dataNext,
     dataHot,
     dataSel,
+    dataType,
     useColor,
   };
 });

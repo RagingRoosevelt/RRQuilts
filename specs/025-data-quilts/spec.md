@@ -3,12 +3,12 @@
 **Feature Branch**: `0.7.0`
 
 **Created**: 2026-10-18 · **Reworked**: 2026-10-21 (data paints model; then the numbered list,
-block pools and the Design tab)
+block pools and the Design tab; then data block types with variants)
 
-**Status**: Built on `0.7.0` (2026-10-21) except User Story 7 (quilt-as-you-go printing, open).
+**Status**: Third rework (data block types) in progress on `0.7.0`, 2026-10-21. Before it: built on `0.7.0` (2026-10-21) except User Story 7 (quilt-as-you-go printing, open).
 Built: data paints and numbering in the block editor (Color › Data places), the Data quilt switch
 (Layout) and wizard option, the Design tab of a data quilt (Blocks: the numbered list with one
-brush, Fill empty numbers, reordering, block pools with Shuffle, warnings; Data: period,
+brush, Fill empty numbers, reordering, data block types, warnings; Data: period,
 value slots with presets and scales, the colorway mapping of scale colors, filler, unused places,
 waiting days), sample data (built-in year, CSV), real entries (table, Missing, Today's entry,
 import, tap a piece for its row), print legend and worst-case yardage (most days expected per
@@ -47,6 +47,19 @@ its mapped color. Agreed with the owner: tapping a placed space takes its number
 Columns and Snake fill the empty numbers; Weeks adds a number for each day left over (365, 366),
 drawn from a 1-day pool, so year-day paints on pieces go and Days numbers one block space per day.
 
+Owner, 2026-10-21 (third rework, data block types): the Month Strip 28/29/30/31 blocks are one
+**type**, and another type could be strips that turn a corner. Placing blocks, the quilter picks a
+type for each space; the type's **variant** is chosen by the month the space gets. A month type has a
+31-day variant and optionally 30, 29 and 28. A block becomes a data block by a switch in its Details
+tab (and the new-block wizard) with its kind (day, week, month); its Color tab then offers a
+**numeral palette** of 1 to N (N by kind) to drag onto patches, a numeral on as many patches as
+wanted, with a value picker (A to D) above it; the Draw tab gets a variant picker at the top to draw
+each variant. Agreed: one block per variant (no random picks), each variant drawn and colored on its
+own with one color variation covering all variants, library files carry data blocks (format bump),
+the quilt's Blocks tab lists the types of the plan's kind. Then: the quilt's Data quilt switch and
+plan move to the quilt's Details tab (as for blocks), and the project's and libraries' quilt and
+block lists get a data filter.
+
 Related: spec 006 (quilt editor, wizard), spec 007 (block editor), spec 016 (layout engine), spec 019
 and 024 (colorways), spec 010 (printing, yardage), spec 014 (fabrics), constitution I and II (no
 server calls; offline first).
@@ -54,9 +67,9 @@ server calls; offline first).
 ## Concepts
 
 - **Data quilt**: an ordinary quilt (any layout, sashing, borders) with a **data plan**, turned on
-  by a **Data quilt** switch in the Layout tab. Its Design tab's tray then has **Blocks** (the
-  numbered list and pools), **Colors** (as usual, for everything that isn't a day) and **Data** (the
-  plan and the value mapping). Set, Erase and Find leave the rail.
+  by a **Data quilt** switch with its plan in the quilt's Details tab. Its Design tab's tray then has
+  **Blocks** (the numbered list and the types), **Colors** (as usual, for everything that isn't a
+  day) and **Data** (period, data and the value mapping). Set, Erase and Find leave the rail.
 - **Data plan** (the quilt's math): **Months** (12 numbers, days 1–31 in each), **Weeks** (52
   numbers of 7 days from the period start, then a number per day left over), or **Days** (a number
   per day). Plus the **period**: a start date, one year long (365 or 366 days, by whether it holds a
@@ -64,17 +77,20 @@ server calls; offline first).
 - **Value slots A–D**: what each day records. The designer names each used slot ("High", "Low",
   "Mood") and gives it a **scale**: number **ranges** (from, to, fill) or **categories** (a name and a
   fill each). One-value quilts use A only. At most 4 slots.
-- **Data paints**: virtual fills painted into pieces like a color, in a block: **1–31** (a month
-  block) or **1–7** (a week block); a day block needs one. Each paint carries a slot: "5·A", "5·B".
-  Slot A is the default, so one-value designers never pick a slot.
-- **Data block**: a block whose pieces hold data paints. Its **day places** are its distinct
-  numbers of value A.
-- **Numbered list**: every number of the plan, labelled **001, 002…**, each empty or placed on a
-  block space. The label is the place in the list: number k is the period's k-th month, week or day.
-  Reordering moves a space to another number. Placed numbers show on the quilt with an order line.
-- **Block pools**: the blocks a number draws from, by the days it needs: 31, 30, 29 and 28 (Months),
-  7 (Weeks), 1 (days left over in Weeks, and Days). A block joins a pool only with at least that many
-  day places. Each placed space shows a pool block picked at random and kept until **Shuffle**.
+- **Data paints**: virtual fills on a data block's patches: day numerals **1–31** (month), **1–7**
+  (week) or **1** (day). A numeral may sit on several patches (one day, several pieces). Each paint
+  carries a value slot: "5·A", "5·B". Slot A is the default.
+- **Data block**: a block switched on as one in its Details tab, with a **kind**: day, week or month.
+  It is a **type** the quilt places. A month block has **variants**: its own drawing is the 31-day
+  one, and it may add 30, 29 and 28-day variants, each drawn and numbered on its own. One color
+  variation covers all its variants.
+- **Numbered list**: every number of the plan, months by name and weeks and days as 001, 002…,
+  each empty or placed on a block space. The label is the place in the list: number k is the
+  period's k-th month, week or day. Reordering moves a space to another number. Placed numbers show
+  on the quilt with an order line.
+- **Variant choice**: a placed space shows its type's smallest variant with at least as many days as
+  its number holds (February: the 28, or 29 in a leap year; a 30-day month without a 30 variant: the
+  31). Dragging a space to another month changes its variant, never its type.
 - **Fill policy** (unused places): what a place shows when its month is shorter than the block
   (a 31-day block in a 30-day month): a **filler** color or fabric, or **as designed**.
 - **Waiting days**: what a day without an entry shows, the designer's choice: **as designed**, the
@@ -87,29 +103,33 @@ server calls; offline first).
 
 ### User Story 1 - Design a data block (Priority: P1)
 
-A designer draws a month strip of 31 small pieces and numbers them in order.
+A designer draws a month strip of 31 small pieces, numbers them, and adds a 30 and a 28-day variant.
 
-**Independent Test**: In the block editor, open the Data paints, pick 1–31 and click 31 pieces in
-turn; the order line runs through them 1 to 31. Copies with 30, 29 and 28 places make the other
-lengths.
+**Independent Test**: New block with Data block on and kind Month; draw 31 strips; in Color drag
+numerals 1 to 31 onto them. In Draw pick variant 30, draw 30 strips, number them. Place the block in
+a Months quilt: April shows the 30, February the 28 (or the 31 with filler without one).
 
 **Acceptance Scenarios**:
 
-1. **Given** the block editor's coloring tools, **Then** a **Data** palette offers the 1–31 and 1–7
-   number sets, a slot picker (A–D, A by default) and a **Number in order** tool: each click paints
-   the next number not yet used; clicking a numbered piece takes it back.
-2. **Given** a data block, **Then** an overlay can show each piece's number (and slot when more than
-   A is used), and an **order line** connecting piece centers in number order, one line per slot.
-3. **Given** a selection of pieces, **Then** **Pattern fill** numbers them in one go: by rows, by
-   columns, or snake (rows alternating direction), starting from the next free number.
-4. **Given** a data block shown without data (sidebar, block editor), **Then** its data pieces draw in
-   a neutral data color with their numbers, so they read as places, not colors.
+1. **Given** a block's Details tab (and the new-block wizard), **Then** a **Data block** switch and
+   a kind (Day, Week, Month) make it a data block; switching it off keeps its numerals as colors
+   underneath.
+2. **Given** a data block's Color tab, **Then** a **numeral palette** lists 1 to N (31, 7 or 1) with a
+   value picker (A to D) above it; a numeral dragged (or picked and tapped) onto a patch numbers it,
+   over its color; a numeral can number several patches; each numeral shows how many patches it has.
+3. **Given** a month data block's Draw tab, **Then** a variant picker at the top shows 31 and any of
+   30, 29, 28 it has, with add and remove; picking one shows and edits that variant's drawing (a new
+   variant starts as a copy of the 31); the Color tab numbers the picked variant (1 to its days).
+4. **Given** a data block, **Then** an overlay can show each piece's numeral and an order line through
+   them, one line per value.
+5. **Given** a data block shown without data (library, block editor), **Then** its data pieces draw
+   in a neutral data color with their numbers, so they read as places, not colors.
 
 ### User Story 2 - Set up a data quilt (Priority: P1)
 
 **Independent Test**: New › Data quilt; pick Months, start 1 January 2027, slots High and Low as
 Temperature; then a 3 × 4 horizontal layout. Fill empty numbers by Rows and pick the built-in month
-strips for the four pools. The quilt shows 365 days in the simulation's colors.
+strip type. The quilt shows 365 days in the simulation's colors.
 
 **Acceptance Scenarios**:
 
@@ -118,7 +138,7 @@ strips for the four pools. The quilt shows 365 days in the simulation's colors.
    Custom), then the regular layout steps.
 2. **Given** any quilt's Layout tab, **Then** a **Data quilt** switch, with the plan (Months, Weeks,
    Days) picked under it (owner, 2026-10-21), turns the Design tab's tray into
-   Blocks (numbered list, pools), Colors and Data; switching it off keeps the settings (until saved
+   Blocks (numbered list, types), Colors and Data; switching it off keeps the settings (until saved
    without them) and turns data pieces back to placeholders.
 3. **Given** the Blocks tab, **Then** **Place numbers** is one brush: tapping a block space places
    the highlighted number and the highlight moves to the next number not placed; tapping a number in
@@ -128,14 +148,14 @@ strips for the four pools. The quilt shows 365 days in the simulation's colors.
    block spaces on the empty numbers, **Clear** empties the list, and dragging a placed number (or
    its arrows) moves it, relabelling it and the numbers between.
 5. **Given** the quilt, **Then** each placed space shows its label (001…) with an order line.
-6. **Given** a Months plan with pools filled, **Then** each placed space shows a block from the pool
-   for its month's days (February's 29-day pool in a leap year); with several, each space keeps its
-   random pick, and **Shuffle** picks again.
-7. **Given** a number whose pool is empty, **Then** its space keeps what it holds and the tab says
-   which pool has no block. A block with more places than its number's days shows the fill policy
-   (filler or as designed) past them.
+6. **Given** the Blocks tab, **Then** it lists the data blocks of the plan's kind (Weeks: week
+   blocks, and day blocks for the days left over; Days: day blocks) from the project and libraries;
+   the selected type is what Place numbers and Fill empty numbers place; tapping a placed space with
+   another type selected changes its type and keeps its number.
+7. **Given** a Months plan, **Then** each placed space shows its type's variant for its month (see
+   Variant choice); places past the month's days follow the fill policy.
 8. **Given** a Weeks plan, **Then** week N is days 7N−6 to 7N of the period; numbers 053 (and 054)
-   are days 365 (and 366), each a block space drawing from the 1-day pool.
+   are days 365 (and 366), each a block space showing a day type.
 
 ### User Story 3 - Map values to colors (Priority: P1)
 
@@ -201,20 +221,23 @@ strips for the four pools. The quilt shows 365 days in the simulation's colors.
   1st of a month); one year long.
 - **FR-002**: A data plan MUST have 1 to 4 **value slots** (A–D), each with a label and a scale of
   number ranges or categories mapping to colors or fabrics from the project's palettes.
-- **FR-003**: Pieces MUST take **data paints** as fills: day 1–31 or 1–7 in blocks, each with a slot
-  (A by default). A data quilt's block spaces MUST take **numbers** from its numbered list.
+- **FR-003**: Data blocks MUST have a kind (day, week, month) and patches MUST take **data paints**
+  (numerals 1 to the kind's days, a numeral on any number of patches) with a slot (A by default).
+  Month blocks MAY have 30, 29 and 28-day variants, each its own drawing; one coloring covers all.
+  A data quilt's block spaces MUST take **numbers** from its numbered list and a **type**.
 - **FR-004**: A data piece's day MUST be: Months: the number's month + the piece's day; Weeks:
   7 × (number − 1) + day, and the left-over numbers their day; Days: the number. Places past a
-  number's days follow the fill policy. Days without a place, numbers not placed and pools without a
-  block MUST be reported in the Blocks tab, not dropped silently.
+  number's days follow the fill policy. Days without a place, numbers not placed and types missing
+  from the project or libraries MUST be reported in the Blocks tab, not dropped silently.
 - **FR-005**: A data piece's color MUST come from its day's value for its slot through the slot's
   scale; unused places follow the fill policy; days without a value follow the waiting-days choice.
   Data pieces are never painted by hand while they hold a data paint.
 - **FR-006**: Data colors MUST be worked out from the design, the shown data and the scales whenever
   the project changes, so drawing, thumbnails, colorways, printing and yardage see ordinary fills.
-- **FR-007**: Pools MUST be picked in the Blocks tab (one or more blocks each, only blocks with
-  enough day places offered and used); a placed space shows a block from its number's pool, chosen
-  at random among several and kept (stable across saves) until Shuffle. No other pool stands in.
+- **FR-007**: A placed space MUST show its type's variant for its number's days (the smallest with
+  at least that many days, else the 31). Data blocks with variants MUST survive library files,
+  packs and single-block files (format versions bumped) and the quilt's Details tab and the project
+  and library lists MUST offer a data filter.
 - **FR-008**: Number in order, pattern fill (rows, columns, snake) and the order line MUST be
   available in the block editor (pieces) and the quilt editor (block spaces), with reordering of
   the numbered list.
@@ -240,10 +263,10 @@ strips for the four pools. The quilt shows 365 days in the simulation's colors.
 
 ## Edge Cases
 
-- Leap years: a period holding 29 February has 366 days; Months draws February from the 29-day pool;
+- Leap years: a period holding 29 February has 366 days; Months shows February's 29-day variant (or the next longer);
   Weeks gets a second left-over number and Days a 366th.
 - A space holds one number: placing another number on it frees its old one. A space left without a
-  number (taken back, Clear, a shorter list) gives up its pool block and is empty again. A day number used twice
+  number (taken back, Clear, a shorter list) gives up its block and is empty again. A day number used twice
   in a block: both pieces show that day.
 - Changing the plan or period resizes the list (numbers past the end dropped, new ones empty).
 - A slot removed: its paints become placeholders until repainted or the slot is added back.

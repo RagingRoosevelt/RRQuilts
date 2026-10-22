@@ -1187,6 +1187,382 @@
                   "colorVariant": {
                     "type": "boolean"
                   },
+                  "data": {
+                    "type": "object",
+                    "required": [
+                      "kind"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "day"
+                          },
+                          {
+                            "type": "string",
+                            "const": "week"
+                          },
+                          {
+                            "type": "string",
+                            "const": "month"
+                          }
+                        ]
+                      },
+                      "variants": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "days",
+                            "drawing",
+                            "patches"
+                          ],
+                          "properties": {
+                            "days": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "const": 28
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 29
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 30
+                                }
+                              ]
+                            },
+                            "drawing": {
+                              "type": "object",
+                              "required": [
+                                "nodes",
+                                "segments"
+                              ],
+                              "properties": {
+                                "nodes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "required": [
+                                      "id",
+                                      "x",
+                                      "y"
+                                    ],
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9]{1,32}$"
+                                      },
+                                      "x": {
+                                        "type": "number"
+                                      },
+                                      "y": {
+                                        "type": "number"
+                                      },
+                                      "handle": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "const": "corner"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "cusp"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "smooth"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "symmetric"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                },
+                                "segments": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "line"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind",
+                                          "sweep"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "arc"
+                                          },
+                                          "sweep": {
+                                            "type": "number",
+                                            "exclusiveMinimum": -360,
+                                            "exclusiveMaximum": 360,
+                                            "not": {
+                                              "const": 0
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind",
+                                          "c1",
+                                          "c2"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "bezier"
+                                          },
+                                          "c1": {
+                                            "type": "array",
+                                            "additionalItems": false,
+                                            "items": [
+                                              {
+                                                "type": "number"
+                                              },
+                                              {
+                                                "type": "number"
+                                              }
+                                            ],
+                                            "minItems": 2
+                                          },
+                                          "c2": {
+                                            "type": "array",
+                                            "additionalItems": false,
+                                            "items": [
+                                              {
+                                                "type": "number"
+                                              },
+                                              {
+                                                "type": "number"
+                                              }
+                                            ],
+                                            "minItems": 2
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "patches": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "id",
+                                  "path"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "pattern": "^[a-z0-9]{1,32}$"
+                                  },
+                                  "path": {
+                                    "type": "array",
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "M"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 3
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "L"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 3
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "A"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": -360,
+                                              "exclusiveMaximum": 360,
+                                              "not": {
+                                                "const": 0
+                                              }
+                                            }
+                                          ],
+                                          "minItems": 4
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "C"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 7
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "Z"
+                                            }
+                                          ],
+                                          "minItems": 1
+                                        }
+                                      ]
+                                    },
+                                    "minItems": 2
+                                  },
+                                  "flags": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "unconnected": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^[a-z0-9]{1,32}$"
+                              }
+                            }
+                          }
+                        },
+                        "maxItems": 3
+                      },
+                      "of": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                      },
+                      "days": {
+                        "type": "integer",
+                        "minimum": 28,
+                        "maximum": 30
+                      }
+                    }
+                  },
                   "kind": {
                     "type": "string",
                     "const": "seam"
@@ -1914,6 +2290,382 @@
                   "colorVariant": {
                     "type": "boolean"
                   },
+                  "data": {
+                    "type": "object",
+                    "required": [
+                      "kind"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "day"
+                          },
+                          {
+                            "type": "string",
+                            "const": "week"
+                          },
+                          {
+                            "type": "string",
+                            "const": "month"
+                          }
+                        ]
+                      },
+                      "variants": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "days",
+                            "drawing",
+                            "patches"
+                          ],
+                          "properties": {
+                            "days": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "const": 28
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 29
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 30
+                                }
+                              ]
+                            },
+                            "drawing": {
+                              "type": "object",
+                              "required": [
+                                "nodes",
+                                "segments"
+                              ],
+                              "properties": {
+                                "nodes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "required": [
+                                      "id",
+                                      "x",
+                                      "y"
+                                    ],
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9]{1,32}$"
+                                      },
+                                      "x": {
+                                        "type": "number"
+                                      },
+                                      "y": {
+                                        "type": "number"
+                                      },
+                                      "handle": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "const": "corner"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "cusp"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "smooth"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "symmetric"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                },
+                                "segments": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "line"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind",
+                                          "sweep"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "arc"
+                                          },
+                                          "sweep": {
+                                            "type": "number",
+                                            "exclusiveMinimum": -360,
+                                            "exclusiveMaximum": 360,
+                                            "not": {
+                                              "const": 0
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind",
+                                          "c1",
+                                          "c2"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "bezier"
+                                          },
+                                          "c1": {
+                                            "type": "array",
+                                            "additionalItems": false,
+                                            "items": [
+                                              {
+                                                "type": "number"
+                                              },
+                                              {
+                                                "type": "number"
+                                              }
+                                            ],
+                                            "minItems": 2
+                                          },
+                                          "c2": {
+                                            "type": "array",
+                                            "additionalItems": false,
+                                            "items": [
+                                              {
+                                                "type": "number"
+                                              },
+                                              {
+                                                "type": "number"
+                                              }
+                                            ],
+                                            "minItems": 2
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "patches": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "id",
+                                  "path"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "pattern": "^[a-z0-9]{1,32}$"
+                                  },
+                                  "path": {
+                                    "type": "array",
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "M"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 3
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "L"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 3
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "A"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": -360,
+                                              "exclusiveMaximum": 360,
+                                              "not": {
+                                                "const": 0
+                                              }
+                                            }
+                                          ],
+                                          "minItems": 4
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "C"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 7
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "Z"
+                                            }
+                                          ],
+                                          "minItems": 1
+                                        }
+                                      ]
+                                    },
+                                    "minItems": 2
+                                  },
+                                  "flags": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "unconnected": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^[a-z0-9]{1,32}$"
+                              }
+                            }
+                          }
+                        },
+                        "maxItems": 3
+                      },
+                      "of": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                      },
+                      "days": {
+                        "type": "integer",
+                        "minimum": 28,
+                        "maximum": 30
+                      }
+                    }
+                  },
                   "kind": {
                     "type": "string",
                     "const": "grid"
@@ -2502,6 +3254,382 @@
                   },
                   "colorVariant": {
                     "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "required": [
+                      "kind"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "day"
+                          },
+                          {
+                            "type": "string",
+                            "const": "week"
+                          },
+                          {
+                            "type": "string",
+                            "const": "month"
+                          }
+                        ]
+                      },
+                      "variants": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "days",
+                            "drawing",
+                            "patches"
+                          ],
+                          "properties": {
+                            "days": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "const": 28
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 29
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 30
+                                }
+                              ]
+                            },
+                            "drawing": {
+                              "type": "object",
+                              "required": [
+                                "nodes",
+                                "segments"
+                              ],
+                              "properties": {
+                                "nodes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "required": [
+                                      "id",
+                                      "x",
+                                      "y"
+                                    ],
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9]{1,32}$"
+                                      },
+                                      "x": {
+                                        "type": "number"
+                                      },
+                                      "y": {
+                                        "type": "number"
+                                      },
+                                      "handle": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "const": "corner"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "cusp"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "smooth"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "symmetric"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                },
+                                "segments": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "line"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind",
+                                          "sweep"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "arc"
+                                          },
+                                          "sweep": {
+                                            "type": "number",
+                                            "exclusiveMinimum": -360,
+                                            "exclusiveMaximum": 360,
+                                            "not": {
+                                              "const": 0
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind",
+                                          "c1",
+                                          "c2"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "bezier"
+                                          },
+                                          "c1": {
+                                            "type": "array",
+                                            "additionalItems": false,
+                                            "items": [
+                                              {
+                                                "type": "number"
+                                              },
+                                              {
+                                                "type": "number"
+                                              }
+                                            ],
+                                            "minItems": 2
+                                          },
+                                          "c2": {
+                                            "type": "array",
+                                            "additionalItems": false,
+                                            "items": [
+                                              {
+                                                "type": "number"
+                                              },
+                                              {
+                                                "type": "number"
+                                              }
+                                            ],
+                                            "minItems": 2
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "patches": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "id",
+                                  "path"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "pattern": "^[a-z0-9]{1,32}$"
+                                  },
+                                  "path": {
+                                    "type": "array",
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "M"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 3
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "L"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 3
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "A"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": -360,
+                                              "exclusiveMaximum": 360,
+                                              "not": {
+                                                "const": 0
+                                              }
+                                            }
+                                          ],
+                                          "minItems": 4
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "C"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 7
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "Z"
+                                            }
+                                          ],
+                                          "minItems": 1
+                                        }
+                                      ]
+                                    },
+                                    "minItems": 2
+                                  },
+                                  "flags": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "unconnected": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^[a-z0-9]{1,32}$"
+                              }
+                            }
+                          }
+                        },
+                        "maxItems": 3
+                      },
+                      "of": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                      },
+                      "days": {
+                        "type": "integer",
+                        "minimum": 28,
+                        "maximum": 30
+                      }
+                    }
                   },
                   "kind": {
                     "type": "string",
@@ -3295,6 +4423,382 @@
                   "colorVariant": {
                     "type": "boolean"
                   },
+                  "data": {
+                    "type": "object",
+                    "required": [
+                      "kind"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "day"
+                          },
+                          {
+                            "type": "string",
+                            "const": "week"
+                          },
+                          {
+                            "type": "string",
+                            "const": "month"
+                          }
+                        ]
+                      },
+                      "variants": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "days",
+                            "drawing",
+                            "patches"
+                          ],
+                          "properties": {
+                            "days": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "const": 28
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 29
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 30
+                                }
+                              ]
+                            },
+                            "drawing": {
+                              "type": "object",
+                              "required": [
+                                "nodes",
+                                "segments"
+                              ],
+                              "properties": {
+                                "nodes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "required": [
+                                      "id",
+                                      "x",
+                                      "y"
+                                    ],
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9]{1,32}$"
+                                      },
+                                      "x": {
+                                        "type": "number"
+                                      },
+                                      "y": {
+                                        "type": "number"
+                                      },
+                                      "handle": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "const": "corner"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "cusp"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "smooth"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "symmetric"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                },
+                                "segments": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "line"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind",
+                                          "sweep"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "arc"
+                                          },
+                                          "sweep": {
+                                            "type": "number",
+                                            "exclusiveMinimum": -360,
+                                            "exclusiveMaximum": 360,
+                                            "not": {
+                                              "const": 0
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind",
+                                          "c1",
+                                          "c2"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "bezier"
+                                          },
+                                          "c1": {
+                                            "type": "array",
+                                            "additionalItems": false,
+                                            "items": [
+                                              {
+                                                "type": "number"
+                                              },
+                                              {
+                                                "type": "number"
+                                              }
+                                            ],
+                                            "minItems": 2
+                                          },
+                                          "c2": {
+                                            "type": "array",
+                                            "additionalItems": false,
+                                            "items": [
+                                              {
+                                                "type": "number"
+                                              },
+                                              {
+                                                "type": "number"
+                                              }
+                                            ],
+                                            "minItems": 2
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "patches": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "id",
+                                  "path"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "pattern": "^[a-z0-9]{1,32}$"
+                                  },
+                                  "path": {
+                                    "type": "array",
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "M"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 3
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "L"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 3
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "A"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": -360,
+                                              "exclusiveMaximum": 360,
+                                              "not": {
+                                                "const": 0
+                                              }
+                                            }
+                                          ],
+                                          "minItems": 4
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "C"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 7
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "Z"
+                                            }
+                                          ],
+                                          "minItems": 1
+                                        }
+                                      ]
+                                    },
+                                    "minItems": 2
+                                  },
+                                  "flags": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "unconnected": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^[a-z0-9]{1,32}$"
+                              }
+                            }
+                          }
+                        },
+                        "maxItems": 3
+                      },
+                      "of": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                      },
+                      "days": {
+                        "type": "integer",
+                        "minimum": 28,
+                        "maximum": 30
+                      }
+                    }
+                  },
                   "kind": {
                     "anyOf": [
                       {
@@ -3972,6 +5476,382 @@
                   },
                   "colorVariant": {
                     "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "required": [
+                      "kind"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "day"
+                          },
+                          {
+                            "type": "string",
+                            "const": "week"
+                          },
+                          {
+                            "type": "string",
+                            "const": "month"
+                          }
+                        ]
+                      },
+                      "variants": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "days",
+                            "drawing",
+                            "patches"
+                          ],
+                          "properties": {
+                            "days": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "const": 28
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 29
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 30
+                                }
+                              ]
+                            },
+                            "drawing": {
+                              "type": "object",
+                              "required": [
+                                "nodes",
+                                "segments"
+                              ],
+                              "properties": {
+                                "nodes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "required": [
+                                      "id",
+                                      "x",
+                                      "y"
+                                    ],
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9]{1,32}$"
+                                      },
+                                      "x": {
+                                        "type": "number"
+                                      },
+                                      "y": {
+                                        "type": "number"
+                                      },
+                                      "handle": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "const": "corner"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "cusp"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "smooth"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "symmetric"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                },
+                                "segments": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "line"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind",
+                                          "sweep"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "arc"
+                                          },
+                                          "sweep": {
+                                            "type": "number",
+                                            "exclusiveMinimum": -360,
+                                            "exclusiveMaximum": 360,
+                                            "not": {
+                                              "const": 0
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "from",
+                                          "to",
+                                          "kind",
+                                          "c1",
+                                          "c2"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "from": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "to": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9]{1,32}$"
+                                          },
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "bezier"
+                                          },
+                                          "c1": {
+                                            "type": "array",
+                                            "additionalItems": false,
+                                            "items": [
+                                              {
+                                                "type": "number"
+                                              },
+                                              {
+                                                "type": "number"
+                                              }
+                                            ],
+                                            "minItems": 2
+                                          },
+                                          "c2": {
+                                            "type": "array",
+                                            "additionalItems": false,
+                                            "items": [
+                                              {
+                                                "type": "number"
+                                              },
+                                              {
+                                                "type": "number"
+                                              }
+                                            ],
+                                            "minItems": 2
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "patches": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "id",
+                                  "path"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "pattern": "^[a-z0-9]{1,32}$"
+                                  },
+                                  "path": {
+                                    "type": "array",
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "M"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 3
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "L"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 3
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "A"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": -360,
+                                              "exclusiveMaximum": 360,
+                                              "not": {
+                                                "const": 0
+                                              }
+                                            }
+                                          ],
+                                          "minItems": 4
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "C"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 7
+                                        },
+                                        {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "string",
+                                              "const": "Z"
+                                            }
+                                          ],
+                                          "minItems": 1
+                                        }
+                                      ]
+                                    },
+                                    "minItems": 2
+                                  },
+                                  "flags": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "unconnected": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^[a-z0-9]{1,32}$"
+                              }
+                            }
+                          }
+                        },
+                        "maxItems": 3
+                      },
+                      "of": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                      },
+                      "days": {
+                        "type": "integer",
+                        "minimum": 28,
+                        "maximum": 30
+                      }
+                    }
                   },
                   "kind": {
                     "type": "string",
@@ -7201,8 +9081,7 @@
                   "start",
                   "slots",
                   "order",
-                  "picks",
-                  "seed",
+                  "types",
                   "unused",
                   "waiting",
                   "show",
@@ -7437,62 +9316,14 @@
                     },
                     "maxItems": 366
                   },
-                  "picks": {
+                  "types": {
                     "type": "object",
-                    "properties": {
-                      "1": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
-                        },
-                        "maxItems": 50
-                      },
-                      "7": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
-                        },
-                        "maxItems": 50
-                      },
-                      "28": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
-                        },
-                        "maxItems": 50
-                      },
-                      "29": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
-                        },
-                        "maxItems": 50
-                      },
-                      "30": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
-                        },
-                        "maxItems": 50
-                      },
-                      "31": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
-                        },
-                        "maxItems": 50
+                    "patternProperties": {
+                      "^.*$": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                       }
                     }
-                  },
-                  "seed": {
-                    "type": "integer",
-                    "minimum": 0
                   },
                   "unused": {
                     "anyOf": [

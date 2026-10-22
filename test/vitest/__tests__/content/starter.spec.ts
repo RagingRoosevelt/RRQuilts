@@ -67,7 +67,7 @@ describe('starter content', () => {
   it('adds 76 colors (36 basic + 5 palettes of 8) and every starter block', () => {
     expect(doc.project.palette.colors).toHaveLength(76);
     expect(doc.project.blocks.map((b) => b.notecard.name)).toEqual(
-      STARTER_BLOCKS.map((b) => b.name),
+      STARTER_BLOCKS.filter((b) => !b.variantOf).map((b) => b.name),
     );
   });
 

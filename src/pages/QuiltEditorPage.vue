@@ -287,6 +287,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BordersInspector from '@/components/BordersInspector.vue';
 import DataBlocks from '@/components/DataBlocks.vue';
+import { useDataTypes } from '@/composables/data-types';
 import DataInspector from '@/components/DataInspector.vue';
 import { castDraft } from 'immer';
 import { resolveColoring } from '@/model/coloring';
@@ -296,6 +297,7 @@ import {
   fitOrder,
   newDataPlan,
   nextFree,
+  numberInfo,
   numberOf,
   placeNumber,
   takeBack,
@@ -342,6 +344,7 @@ watch(
   { immediate: true },
 );
 const library = useLibraryStore();
+const dataTypes = useDataTypes();
 const appSettings = useSettingsStore();
 
 const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === route.params.id));
@@ -515,13 +518,23 @@ function onDataTap(hit: Hit) {
   if (!s || s.kind !== 'block' || !takesBlock(s)) return say('Numbers go on block spaces.');
   const had = numberOf(plan, hit.slotId);
   let next: typeof plan;
+  const kindOf = (k: number) => numberInfo(plan, k)?.kind ?? 'month';
   if (had) {
-    next = takeBack(plan, hit.slotId);
-    editor.dataNext = had;
+    // Another type picked: the space takes it and keeps its number; the same type: number back.
+    const type = dataTypes.typeFor(kindOf(had));
+    if (type && type !== plan.types[hit.slotId])
+      next = { ...plan, types: { ...plan.types, [hit.slotId]: type } };
+    else {
+      next = takeBack(plan, hit.slotId);
+      editor.dataNext = had;
+    }
   } else {
     const k = nextFree(plan, editor.dataNext);
     if (!k) return say('Every number is placed.');
-    next = placeNumber(plan, hit.slotId, k);
+    const kind = kindOf(k);
+    const type = dataTypes.typeFor(kind);
+    if (!type) return say(`Make a ${kind} data block first (a block’s Details tab › Data block).`);
+    next = placeNumber(plan, hit.slotId, k, type);
     editor.dataNext = nextFree(next, k + 1) ?? k;
   }
   project.change((d) => {

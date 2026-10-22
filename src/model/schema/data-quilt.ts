@@ -1,5 +1,5 @@
 // A quilt's data plan (spec 025, v9): what each day records, how values map to fills, where days
-// sit (the numbered list of block spaces, block pools), the real entries and the sample data shown
+// sit (the numbered list of block spaces and their data block types), the real entries and the sample data shown
 // while designing.
 import Type from 'typebox';
 import { PlainFill } from './coloring';
@@ -57,8 +57,6 @@ export const DataSim = Type.Union([
   }),
 ]);
 
-const Picks = Type.Array(ItemId, { maxItems: 50 });
-
 export const DataPlan = Type.Object({
   /** The Layout tab's Data quilt switch; off keeps the settings. */
   on: Type.Boolean(),
@@ -71,18 +69,9 @@ export const DataPlan = Type.Object({
   order: Type.Array(Type.Union([Type.String({ maxLength: 200 }), Type.Null()]), {
     maxItems: 366,
   }),
-  /** Block pools by the day places a number needs (28–31 for months, 7 for weeks, 1 for days). */
-  picks: Type.Object({
-    '28': Type.Optional(Picks),
-    '29': Type.Optional(Picks),
-    '30': Type.Optional(Picks),
-    '31': Type.Optional(Picks),
-    '7': Type.Optional(Picks),
-    '1': Type.Optional(Picks),
-  }),
-  /** Seed for picking among several blocks of a pool (Shuffle changes it). */
-  seed: Type.Integer({ minimum: 0 }),
-  /** Places past a number's days (a block with more places than it needs): the filler, or as
+  /** The data block (type) each placed space shows, by space id; its variant follows the number. */
+  types: Type.Record(Type.String(), ItemId),
+  /** Places past a number's days (a 31-day variant in a 30-day month): the filler, or as
    *  designed. */
   unused: Type.Union([Type.Literal('filler'), Type.Literal('designed')]),
   /** Days without an entry (Real data): as designed, the sample value, or the filler. */
@@ -102,4 +91,3 @@ export type ValueSlot = Type.Static<typeof ValueSlot>;
 export type DataSim = Type.Static<typeof DataSim>;
 export type DayValues = Type.Static<typeof DayValues>;
 export type DataPreset = Type.Static<typeof DataPreset>;
-export type Pool = keyof DataPlan['picks'];

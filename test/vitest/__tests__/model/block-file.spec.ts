@@ -70,7 +70,9 @@ describe('.rrqbl block files', () => {
     expect(r.doc.project.blocks.map((b) => [b.id, b.size[0]])).toEqual([[mine.id, 25.4]]);
     expect(r.doc.project.quilts).toHaveLength(0);
     expect(projectBlockChoices(r.doc, from, skip)[0]!.here).toBe(true); // already there
-    expect(projectBlockChoices(into, from)).toHaveLength(STARTER_BLOCKS.length + 1); // starter blocks too
+    expect(projectBlockChoices(into, from)).toHaveLength(
+      STARTER_BLOCKS.filter((b) => !b.variantOf).length + 1,
+    ); // starter blocks too
     expect(importProjectBlocks(into, from, 'Sam', []).added).toBe(0); // only what's picked
   });
 

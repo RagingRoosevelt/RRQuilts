@@ -2,7 +2,7 @@
 // keeps its identity (`id@version`), and is never edited in place.
 import { plainFill } from './coloring';
 import { swapColorings } from './colorways';
-import { applyPicks, dataBlocks, dataColorings } from './data-quilt';
+import { applyPicks, dataBlocks, dataColorings, pruneVariants, syncVariants } from './data-quilt';
 import { castDraft, current, produce, type Draft } from 'immer';
 import { refreshAuto, type PaletteSwatch } from './colorway-auto';
 import { projectPalettes, syncPalettes } from './project-palettes';
@@ -82,8 +82,11 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
       b.colorVariant && b.source && (lib?.block(b.source.itemId)?.notecard.name ?? b.source.name);
     if (name && b.notecard.name !== name) b.notecard.name = name;
   }
-  // Data quilts (spec 025): numbered spaces show their month or week picks.
+  // Data quilts (spec 025): placed spaces show their type's variant for their number's days.
+  syncVariants(p.blocks, p.quilts);
   for (const q of p.quilts) applyPicks(q, p.blocks, newId);
+  const withVariants = pruneVariants(p.blocks, p.quilts);
+  if (withVariants.length !== p.blocks.length) p.blocks = withVariants;
   const usedBlocks = blocksUsed(p);
   const keptBlocks = p.blocks.filter((b) => !isLibraryItem(b) || usedBlocks.has(b.id));
   if (keptBlocks.length !== p.blocks.length) p.blocks = keptBlocks;

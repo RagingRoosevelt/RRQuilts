@@ -1,6 +1,6 @@
 <template>
   <!-- A data quilt's Blocks tab (spec 025): the numbered list placed on block spaces with one brush,
-       and the block pools each number draws its block from. -->
+       and the data block types it places. -->
   <div v-if="plan" class="column no-wrap" style="gap: 10px">
     <FieldGroup label="Numbers" heading />
     <div class="row items-center no-wrap" style="gap: 8px">
@@ -122,41 +122,32 @@
       </template>
     </q-virtual-scroll>
 
-    <FieldGroup label="Block pools" heading>
-      <template #aside>
-        <q-btn
-          flat
-          dense
-          no-caps
-          size="sm"
-          icon="shuffle"
-          label="Shuffle"
-          :disable="readonly"
-          @click="edit((p) => ({ ...p, seed: p.seed + 1 }))"
-        />
-      </template>
-    </FieldGroup>
+    <FieldGroup label="Block types" heading />
     <div class="text-caption text-grey-7">
-      Each number shows a block from the pool for its days, picked at random when a pool has
-      several. A pool takes blocks with at least that many day places.
+      Pick a type, then place numbers with it. A placed space keeps its type and shows the variant
+      for its month's days. Tap a placed space with another type picked to change its type.
     </div>
-    <q-select
-      v-for="pool in pools"
-      :key="pool"
-      :model-value="plan.picks[pool] ?? []"
-      :options="optionsFor(pool)"
-      option-value="id"
-      option-label="label"
-      emit-value
-      map-options
-      multiple
-      use-chips
-      dense
-      outlined
-      :label="POOL_LABEL[pool]"
-      :readonly="readonly"
-      @update:model-value="(ids: string[]) => setPicks(pool, ids)"
-    />
+    <template v-for="kind in kinds" :key="kind">
+      <div class="text-caption text-weight-medium">{{ KIND_LABEL[kind] }}</div>
+      <div v-if="ofKind(kind).length" class="types row" style="gap: 6px">
+        <button
+          v-for="b in ofKind(kind)"
+          :key="b.id"
+          type="button"
+          class="type column items-center"
+          :class="{ active: typeFor(kind) === b.id }"
+          :aria-pressed="typeFor(kind) === b.id"
+          :title="b.notecard.name"
+          @click="pickType(kind, b.id)"
+        >
+          <img :src="typeThumb(b)" alt="" />
+          <span class="text-caption ellipsis">{{ b.notecard.name }}</span>
+        </button>
+      </div>
+      <div v-else class="text-caption text-grey-7">
+        No {{ kind }} data blocks yet: turn on Data block in a block’s Details tab.
+      </div>
+    </template>
 
     <template v-if="report.length">
       <q-separator />
@@ -188,15 +179,14 @@ import {
   numberLabel,
   numberInfo,
   numberName,
-  placesIn,
-  POOL_DAYS,
-  poolsOf,
 } from '@/model/data-quilt';
+import { useDataTypes } from '@/composables/data-types';
+import type { Block, DataKind } from '@/model/schema/block';
 import { generateFor } from '@/model/layout/slots';
 import { blockSpaceNumbers } from '@/render/data-overlay';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useQuasar } from 'quasar';
-import type { DataPlan, Pool } from '@/model/schema/data-quilt';
+import type { DataPlan } from '@/model/schema/data-quilt';
 import type { Quilt } from '@/model/schema/quilt';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
@@ -212,17 +202,25 @@ const ORDERS: { value: DataOrder; label: string }[] = [
   { value: 'columns', label: 'Columns' },
   { value: 'snake', label: 'Snake' },
 ];
-const POOL_LABEL: Record<Pool, string> = {
-  '31': '31-day months',
-  '30': '30-day months',
-  '29': '29-day months',
-  '28': '28-day months',
-  '7': 'Weeks',
-  '1': 'Days',
+const KIND_LABEL: Record<DataKind, string> = {
+  month: 'Month blocks',
+  week: 'Week blocks',
+  day: 'Day blocks',
 };
-
+const { ofKind, typeFor, block: typeBlock } = useDataTypes();
 const plan = computed(() => props.quilt.data);
-const pools = computed(() => (plan.value ? poolsOf(plan.value) : []));
+/** The kinds the plan's numbers take (Weeks: and day blocks for the days left over). */
+const kinds = computed((): DataKind[] => {
+  const p = plan.value;
+  if (!p) return [];
+  return p.plan === 'months'
+    ? ['month']
+    : p.plan === 'days'
+      ? ['day']
+      : numberCount(p) > 52
+        ? ['week', 'day']
+        : ['week'];
+});
 const rows = computed(() => {
   const p = plan.value;
   if (!p) return [];
@@ -241,35 +239,30 @@ const rows = computed(() => {
 /** The highlighted number: the brush's next, moved on past placed ones. */
 const next = computed(() => (plan.value ? nextFree(plan.value, editor.dataNext) : undefined));
 const $q = useQuasar();
-/** An uncolored picture of the block number `k` shows: its space's block, else its pool's first. */
+/** An uncolored picture of the block number `k` shows: its space's block, else the picked type's. */
 function thumb(k: number, space: string | null) {
   const doc = project.doc;
   const p = plan.value;
   if (!doc || !p) return undefined;
   let id = space ? props.quilt.layers[0].slots[space]?.block : undefined;
   if (!id) {
-    const info = numberInfo(p, k);
-    id =
-      info && (p.picks[info.pool] ?? []).find((x) => optionsFor(info.pool).some((o) => o.id === x));
+    const kind = numberInfo(p, k)?.kind;
+    id = kind && typeFor(kind);
   }
-  const b =
-    id &&
-    (doc.project.blocks.find((x) => x.id === id) ?? library.items.blocks.find((x) => x.id === id));
+  const b = id && (doc.project.blocks.find((x) => x.id === id) ?? typeBlock(id));
   return b ? blockThumbnail(doc, b, 80, $q.dark.isActive, null) : undefined;
 }
 const report = computed(() => dataReport(props.quilt, project.doc?.project.blocks ?? []));
 
-/** Blocks with enough day places for a pool (own and in libraries). */
-const candidates = computed(() => {
-  const seen = new Set<string>();
-  return [...(project.doc?.project.blocks ?? []), ...library.items.blocks].flatMap((b) => {
-    if (seen.has(b.id)) return [];
-    seen.add(b.id);
-    const n = placesIn(b);
-    return n ? [{ id: b.id, label: `${b.notecard.name} (${n})`, n }] : [];
-  });
-});
-const optionsFor = (pool: Pool) => candidates.value.filter((c) => c.n >= POOL_DAYS[pool]);
+/** A type's picture, in its colors. */
+const typeThumb = (b: Block) =>
+  project.doc
+    ? blockThumbnail(project.doc, b, 96, $q.dark.isActive, undefined, library.items.colors)
+    : '';
+function pickType(kind: DataKind, id: string) {
+  editor.dataType[kind] = id;
+  if (!props.readonly) editor.tool = 'number';
+}
 
 /** Change the plan (one undo step). */
 function edit(fn: (p: DataPlan) => DataPlan) {
@@ -278,14 +271,6 @@ function edit(fn: (p: DataPlan) => DataPlan) {
   project.change((d) => {
     const q = d.project.quilts.find((x) => x.id === props.quilt.id);
     if (q) q.data = JSON.parse(JSON.stringify(out)) as DataPlan;
-  });
-}
-function setPicks(pool: Pool, ids: string[]) {
-  edit((p) => {
-    const picks = { ...p.picks };
-    if (ids.length) picks[pool] = ids;
-    else delete picks[pool];
-    return { ...p, picks };
   });
 }
 function pick(k: number) {
@@ -335,7 +320,7 @@ const spots = computed(() => {
 /** Each block space's number, left to right and top to bottom (as on the quilt). */
 const spaceNo = computed(() => blockSpaceNumbers(generated.value));
 function fillAll(order: DataOrder) {
-  edit((p) => fillNumbers(p, readingOrder(spots.value, [...spots.value.keys()], order)));
+  edit((p) => fillNumbers(p, readingOrder(spots.value, [...spots.value.keys()], order), typeFor));
 }
 // A list sized for another plan or period (switched in the Data tab) is fitted on the next edit;
 // the highlight starts at the first number not placed.
@@ -365,6 +350,27 @@ watch(
 .card.glow-top {
   border-top: 2px solid #1976d2;
   box-shadow: 0 -7px 12px -2px rgba(25, 118, 210, 0.9);
+}
+.types .type {
+  width: 84px;
+  padding: 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.types .type.active {
+  border-color: var(--q-primary);
+  box-shadow: 0 0 0 2px var(--q-primary);
+}
+.types .type img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+.types .type span {
+  max-width: 100%;
 }
 .label {
   width: 64px;
