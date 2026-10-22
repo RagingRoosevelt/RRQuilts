@@ -431,6 +431,25 @@ const dayPaths = computed(() =>
     ? quiltDayPaths(project.doc, quilt.value, generated.value)
     : null,
 );
+// The highlighted number follows the list (undo and redo too): a number emptied gets the highlight
+// back; numbers placed move it past the last of them.
+watch(
+  () => quilt.value?.data?.order,
+  (now, was) => {
+    const plan = quilt.value?.data;
+    if (!plan || !now || !was || now.length !== was.length) return;
+    const placed = (o: readonly (string | null)[]) => new Set(o.filter(Boolean));
+    const before = placed(was);
+    const after = placed(now);
+    if (after.size < before.size) {
+      const k = now.findIndex((id, i) => !id && was[i]);
+      if (k >= 0) editor.dataNext = k + 1;
+    } else if (after.size > before.size) {
+      const last = now.reduce((m, id, i) => (id && !before.has(id) ? i : m), -1);
+      editor.dataNext = nextFree(plan, last + 2) ?? last + 1;
+    }
+  },
+);
 // Off a data quilt: off its tools.
 watch(
   () => !!quilt.value?.data?.on,

@@ -359,6 +359,13 @@ export const CHECKS: Check[] = [
     last: '"let\'s add a clear for the block design numeral assignments"',
     to: '/',
   },
+  {
+    id: 'TC-141',
+    group: G.small,
+    text: 'Undo while placing data blocks: place Jan, Feb, Mar (Next: Apr). Undo: Mar’s block goes and Next is Mar again; undo again: Next Feb; redo: Feb back, Next Mar. Clear then undo: every block back, Next past the last placed.',
+    last: '"when placing data blocks in the quilt design interface, undo should undo both the block placement as well as the month advancement"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
