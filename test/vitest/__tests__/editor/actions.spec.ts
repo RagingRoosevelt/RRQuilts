@@ -4,9 +4,9 @@ import { applyTool, type ToolState } from '@/editor/actions';
 import type { Space } from '@/editor/scope';
 import { allPatches } from '@/model/blocks/patches';
 import { paint, resolveColoring } from '@/model/coloring';
-import { produce } from 'immer';
+import { castDraft, produce } from 'immer';
 import { mul, orient, type M } from '@/render/affine';
-import { generateSlots } from '@/model/layout/slots';
+import { convertLayout, generateSlots } from '@/model/layout/slots';
 import { PLAIN_BLOCK } from '@/model/plain';
 import { createProject } from '@/model/new-project';
 import { expectFast } from '../timing';
@@ -247,6 +247,37 @@ describe('editor actions', () => {
     expect(m(flip(d, 'h'))).toEqual(z(mul(H, m(d))));
     expect(m(flip(d, 'v'))).toEqual(z(mul(V, m(d))));
     expect(m(flip(flip(d, 'v'), 'v'))).toEqual(m(d)); // mirroring twice restores
+  });
+
+  it('flip on an On-Point quilt mirrors across the quilt’s axes, not the turned block’s', () => {
+    const { doc, byName } = setup();
+    const op = produce(doc, (x) => {
+      const q0 = x.project.quilts[0]!;
+      q0.layout = castDraft(convertLayout(q0.layout, 'on-point', x.units));
+    });
+    const spaces = generateSlots(op.project.quilts[0]!.layout, op.project.quilts[0]!.borders).slots;
+    const id = spaces.find((x) => x.kind === 'block')!.id;
+    const t = spaces.find((x) => x.id === id)!.transform;
+    let d = run(op, spaces, id, {
+      tool: 'set',
+      scope: 'this',
+      block: byName('Pinwheel').id,
+      color: null,
+    }).doc!;
+    const lin = (x: RrqDoc): number[] => {
+      const c = q(x).layers[0].slots[id]!;
+      return mul(t, orient(c.rotation as 0 | 90 | 180 | 270, c.flip))
+        .slice(0, 4)
+        .map((v) => Math.round(v * 1e6) / 1e6 + 0);
+    };
+    const flip = (x: RrqDoc, flipAxis: 'h' | 'v') =>
+      run(x, spaces, id, { tool: 'flip', scope: 'this', block: null, color: null, flipAxis }).doc!;
+    const before = lin(d);
+    d = flip(d, 'h');
+    // On screen: x changes sign, y stays.
+    expect(lin(d)).toEqual([-before[0]!, before[1]!, -before[2]!, before[3]!].map((v) => v + 0));
+    d = flip(flip(d, 'h'), 'v');
+    expect(lin(d)).toEqual([before[0]!, -before[1]!, before[2]!, -before[3]!].map((v) => v + 0));
   });
 
   it('set uses the coloring chosen for that block', () => {

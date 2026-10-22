@@ -17,7 +17,8 @@ import {
 import type { Fill } from '@/model/schema/coloring';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt, Rotation } from '@/model/schema/quilt';
-import { SHAPE_NAME, SHAPE_TURN, type BlockShape } from '@/model/blocks/shape';
+import { SHAPE_NAME, SHAPE_TURN, shapeOrient, type BlockShape } from '@/model/blocks/shape';
+import { mul, orient, type M } from '@/model/geometry/affine';
 import type { Hit } from '@/render/hit';
 import type { Tool } from '@/stores/editor';
 import {
@@ -52,6 +53,34 @@ const mirrorV = (o: Orientation): Orientation => ({
   rotation: norm(180 - o.rotation),
   flip: !o.flip,
 });
+
+/**
+ * A flip as seen on the quilt: the turn and flip that mirror a placed block across the quilt's
+ * up-down axis (`h`, left↔right) or left-right axis (`v`), whatever angle its space sits at
+ * (On-Point spaces are turned 45°, so the block's own axes run diagonally there). Null when no
+ * turn the block allows does it (then it mirrors across its own axis).
+ */
+function quiltMirror(
+  c: Orientation,
+  axis: 'h' | 'v',
+  t: M | undefined,
+  shape: BlockShape | undefined,
+): Orientation | null {
+  if (!t) return null;
+  const o = (r: number, f: boolean) =>
+    shape ? shapeOrient(shape, r, f) : orient(r as 0 | 90 | 180 | 270, f);
+  const mirror: M = axis === 'h' ? [-1, 0, 0, 1, 0, 0] : [1, 0, 0, -1, 0, 0];
+  const want = mul(mirror, mul(t, o(c.rotation, c.flip)));
+  const size = Math.max(...want.slice(0, 4).map(Math.abs));
+  const step = shape ? SHAPE_TURN[shape] : 90;
+  for (let r = 0; r < 360; r += step)
+    for (const f of [false, true]) {
+      const got = mul(t, o(r, f));
+      if (got.slice(0, 4).every((v, i) => Math.abs(v - want[i]!) < 1e-6 * size))
+        return { rotation: r as Rotation, flip: f };
+    }
+  return null;
+}
 
 export interface Result {
   doc?: RrqDoc;
@@ -137,6 +166,7 @@ export function applyTool(
     case 'erase': {
       if (!content) return {};
       const targets = placementTargets(quilt, spaces, hit.slotId, s.scope);
+      const spaceOf = new Map(spaces.map((x) => [x.id, x]));
       return {
         doc: withQuilt(
           doc,
@@ -146,11 +176,13 @@ export function applyTool(
               if (!c) continue;
               const shape = blockOf(c.block)?.shape;
               if (s.tool === 'erase') delete q.layers[0].slots[t];
-              // A triangle has no top↕bottom mirror that keeps its outline: mirror left↔right.
+              // Flip across the quilt's axis; when the block can't (a triangle has no top↕bottom
+              // mirror that keeps its outline), across its own, left↔right for a triangle.
               else if (s.tool === 'flip')
                 Object.assign(
                   c,
-                  s.flipAxis === 'v' && shape !== 'triangle' ? mirrorV(c) : mirrorH(c),
+                  quiltMirror(c, s.flipAxis ?? 'h', spaceOf.get(t)?.transform, shape) ??
+                    (s.flipAxis === 'v' && shape !== 'triangle' ? mirrorV(c) : mirrorH(c)),
                 );
               else c.rotation = norm(c.rotation + (shape ? SHAPE_TURN[shape] : 90));
             }
