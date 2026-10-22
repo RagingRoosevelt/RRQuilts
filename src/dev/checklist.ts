@@ -317,6 +317,13 @@ export const CHECKS: Check[] = [
     last: '"pressing clear clears the mapping to months, but doesn\'t seem to clear the blocks from the quilt layout"',
     to: '/',
   },
+  {
+    id: 'TC-127',
+    group: G.small,
+    text: 'Data quilt with sashing and a border: in Design › Blocks (Place numbers) and Design › Data, moving the pointer over sashing, cornerstones or the border outlines nothing; over a block space it glows. In Design › Colors, sashing and borders still glow as you paint them.',
+    last: '"we don\'t need non-data blocks to be highlighted"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

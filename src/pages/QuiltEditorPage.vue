@@ -153,7 +153,7 @@
           :doc="project.doc"
           :quilt="quilt"
           :generated="generated"
-          :hover="editor.dataHot ?? hover?.slotId ?? (quilt.data?.on ? editor.dataSel : null)"
+          :hover="highlight"
           :outlines="editor.outlines"
           :labels="editor.labels"
           :selected="found"
@@ -430,6 +430,16 @@ const panOnly = computed(
     (editor.mode !== 'design' || editor.tool === 'pan'),
 );
 const dataInspector = ref<InstanceType<typeof DataInspector>>();
+/** The space outlined on the quilt: a dragged or hovered card's, else the one under the pointer
+ *  (placing numbers or in the Data tab: block spaces only), else the clicked card's. */
+const highlight = computed(() => {
+  if (editor.dataHot) return editor.dataHot;
+  const id = hover.value?.slotId ?? null;
+  const dataTool = quilt.value?.data?.on && (editor.tool === 'number' || editor.tool === 'entry');
+  if (!dataTool) return id;
+  const s = id ? generated.value.slots.find((x) => x.id === id) : undefined;
+  return s?.kind === 'block' && takesBlock(s) ? id : editor.dataSel;
+});
 /** A data quilt's numbers on their block spaces, joined in order (spec 025). */
 const dataMarks = computed(() =>
   editor.mode === 'design' && quilt.value?.data?.on
