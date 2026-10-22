@@ -270,7 +270,11 @@ export function variantBlock(b: Block, v: DataVariant): Block | undefined {
     drawing: v.drawing,
     patches: v.patches,
     ...(v.unconnected ? { unconnected: v.unconnected } : {}),
-    notecard: { ...b.notecard, name: `${b.notecard.name} (${v.days} days)`, tags: ['system'] },
+    notecard: {
+      ...b.notecard,
+      name: `${b.notecard.name} (${v.days === 1 ? '1 day' : `${v.days} days`})`,
+      tags: ['system'],
+    },
     data: { kind: b.data?.kind ?? 'month', of: b.id, days: v.days },
   };
 }
@@ -335,7 +339,8 @@ export function applyPicks(q: Draft<Quilt>, blocks: readonly Block[], newId: () 
     if (old && !used(old)) delete q.colorings[old];
   });
   // ponytail: an unnumbered space showing a data block is emptied, even one set before the quilt
-  // became a data quilt; Set is off in data quilts, so only numbering puts them there.
+  // became a data quilt; Other blocks only offers them for numbering, so only numbering puts them
+  // there.
   const placed = new Set(plan.order);
   for (const id of Object.keys(plan.types)) if (!placed.has(id)) delete plan.types[id];
   for (const [id, s] of Object.entries(slots)) {
@@ -530,9 +535,13 @@ const short = (key: string) => {
   const d = new Date(parse(key));
   return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`;
 };
-/** A number's label: its month's name (Months), else 001, 002, … */
-export const numberLabel = (plan: DataPlan, k: number) =>
-  plan.plan === 'months' ? numberName(plan, k) : String(k).padStart(3, '0');
+/** A number's label: its month's name (Jan), its week (Wk 1), or its day's date (Jan 2; a Weeks
+ *  plan's left-over days too). */
+export function numberLabel(plan: DataPlan, k: number) {
+  if (plan.plan === 'months') return numberName(plan, k);
+  const info = numberInfo(plan, k);
+  return info?.len === 7 ? `Wk ${k}` : numberName(plan, k);
+}
 
 /** What a number stands for: its month, its week's first day, or its day. */
 export function numberName(plan: DataPlan, k: number) {
@@ -594,6 +603,24 @@ export function dataReport(q: Quilt, blocks: readonly Block[]): string[] {
 }
 
 /** A slot's scale entries in order, each with its text (`60 to 70 °F`, `Good`). */
+/** Ranges with one boundary moved: range `j`'s `from` or `to` becomes `v`. Ranges stay joined and
+ *  each keeps at least `gap` between its start and end, so a big move pushes the ranges beyond it
+ *  along (and the moved range's other end too). */
+export function moveBound<R extends { from: number; to: number }>(
+  ranges: readonly R[],
+  j: number,
+  side: 'from' | 'to',
+  v: number,
+  gap = 1,
+): R[] {
+  const b = [...ranges.map((r) => r.from), ranges.at(-1)!.to];
+  const at = side === 'from' ? j : j + 1;
+  b[at] = v;
+  for (let k = at + 1; k < b.length; k++) b[k] = Math.max(b[k]!, b[k - 1]! + gap);
+  for (let k = at - 1; k >= 0; k--) b[k] = Math.min(b[k]!, b[k + 1]! - gap);
+  return ranges.map((r, k) => ({ ...r, from: b[k]!, to: b[k + 1]! }));
+}
+
 export function scaleEntries(s: ValueSlot): { fill: PlainFill; text: string; most?: number }[] {
   const u = s.unit ? ` ${s.unit}` : '';
   const most = (x: { most?: number }) => (x.most !== undefined ? { most: x.most } : {});

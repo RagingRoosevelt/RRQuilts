@@ -3,17 +3,44 @@
        optional control (#aside) at the line's right end. -->
   <div class="field-group">
     <div class="head">
-      <span class="label" :class="{ heading }">{{ label }}</span>
+      <button
+        v-if="collapsible"
+        type="button"
+        class="label toggle"
+        :class="{ heading }"
+        :aria-expanded="open"
+        @click="setOpen(!open)"
+      >
+        {{ label }}
+        <q-icon :name="open ? 'expand_less' : 'expand_more'" size="18px" />
+      </button>
+      <span v-else class="label" :class="{ heading }">{{ label }}</span>
       <span class="line" />
       <slot name="aside" />
     </div>
-    <slot />
+    <div v-if="collapsible" v-show="open" class="column no-wrap" style="gap: 10px">
+      <slot />
+    </div>
+    <slot v-else />
   </div>
 </template>
 
 <script setup lang="ts">
-/** `heading`: a top-level section of a tab (stronger label). */
-defineProps<{ label: string; heading?: boolean }>();
+import { computed } from 'vue';
+import { useSettingsStore } from '@/stores/settings';
+
+/** `heading`: a top-level section of a tab (stronger label). `collapsible`: the label folds the
+ *  section away; which are folded is kept in settings, as the tray's sections. */
+const props = defineProps<{ label: string; heading?: boolean; collapsible?: boolean }>();
+const app = useSettingsStore();
+const key = computed(() => `group:${props.label}`);
+const open = computed(
+  () => !props.collapsible || !app.settings.collapsedSections.includes(key.value),
+);
+function setOpen(v: boolean) {
+  const rest = app.settings.collapsedSections.filter((l) => l !== key.value);
+  app.settings.collapsedSections = v ? rest : [...rest, key.value];
+}
 </script>
 
 <style scoped>
@@ -41,6 +68,17 @@ defineProps<{ label: string; heading?: boolean }>();
 .label {
   font-size: 0.8rem;
   opacity: 0.75;
+}
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
 .label.heading {
   font-size: 0.875rem;

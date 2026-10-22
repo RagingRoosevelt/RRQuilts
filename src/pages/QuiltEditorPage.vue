@@ -268,7 +268,8 @@ import DataBlocks from '@/components/DataBlocks.vue';
 import DataSpaceCount from '@/components/DataSpaceCount.vue';
 import { useDataTypes } from '@/composables/data-types';
 import DataInspector from '@/components/DataInspector.vue';
-import { castDraft } from 'immer';
+import { castDraft, produce } from 'immer';
+import type { RrqDoc } from '@/model/schema/project';
 import { resolveColoring } from '@/model/coloring';
 import {
   dayDate,
@@ -411,13 +412,20 @@ const panOnly = computed(
 );
 const dataInspector = ref<InstanceType<typeof DataInspector>>();
 /** The space outlined on the quilt: a dragged or hovered card's, else the one under the pointer
- *  (placing numbers or in the Data tab: block spaces only), else the clicked card's. */
+ *  (a data quilt's Blocks tab: whole block spaces only; Data tab: numbered ones), else the clicked card's. */
 const highlight = computed(() => {
   if (editor.dataHot) return editor.dataHot;
   const id = hover.value?.slotId ?? null;
-  const dataTool = quilt.value?.data?.on && (editor.tool === 'number' || editor.tool === 'entry');
-  if (!dataTool) return id;
-  return id && blockSpaceNumbers(generated.value).has(id) ? id : editor.dataSel;
+  // A data quilt's Blocks and Data tabs (any tool but the Colors tab's) outline block spaces only.
+  const colorTool = ['paint', 'spray', 'swap', 'eyedropper'].includes(editor.tool);
+  const plan = quilt.value?.data;
+  if (!plan?.on || colorTool) return id;
+  // The Data tab: only spaces holding a number (a data block); Blocks: any whole block space.
+  const ok =
+    editor.tool === 'entry'
+      ? (x: string) => plan.order.includes(x)
+      : (x: string) => blockSpaceNumbers(generated.value).has(x);
+  return id && ok(id) ? id : editor.dataSel;
 });
 /** A data quilt's numbers on their block spaces, joined in order (spec 025). */
 const dataMarks = computed(() =>
@@ -631,9 +639,27 @@ function onTap(hit: Hit) {
   if (r.selectColor) editor.useColor(r.selectColor);
   if (r.message) $q.notify({ message: r.message, timeout: 1500 });
   if (r.doc && !project.readOnly) {
-    const next = r.doc;
+    const next = dropNumbers(quilt.value.id, project.doc, r.doc);
     project.change(() => next);
   }
+}
+
+/** A data quilt's numbered spaces given an ordinary block (Other blocks) give their numbers back. */
+function dropNumbers(id: string, before: RrqDoc, after: RrqDoc): RrqDoc {
+  const was = before.project.quilts.find((q) => q.id === id);
+  const now = after.project.quilts.find((q) => q.id === id);
+  const plan = now?.data;
+  if (!was || !now || !plan?.on) return after;
+  const blocks = new Map(after.project.blocks.map((b) => [b.id, b]));
+  const lost = plan.order.filter((sid): sid is string => {
+    const b = sid ? now.layers[0].slots[sid]?.block : undefined;
+    return !!sid && b !== was.layers[0].slots[sid]?.block && !blocks.get(b ?? '')?.data;
+  });
+  if (!lost.length) return after;
+  return produce(after, (d) => {
+    const q = d.project.quilts.find((x) => x.id === id)!;
+    q.data = castDraft(lost.reduce((p, sid) => takeBack(p, sid), plan));
+  });
 }
 
 /** Set or remove the quilt's target size outline. */

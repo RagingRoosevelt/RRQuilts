@@ -71,8 +71,8 @@ the days a Weeks plan leaves over (365, and 366 in a leap year) and the days of 
 block is listed with the day blocks. Unless you pick a day block, the days left over in a Weeks plan
 take the 1-day variant of the week block in use.
 
-The built-in library has a **Month Strip** with 30, 29, and 28-day variants (31 bars each, the days
-past the month in black), a **Week Row** of 7 bars, and a **Day Square** with one place, all filed
+The built-in library has a square **Month Strip** with 30, 29, and 28-day variants (31 bars each,
+the days past the month in black), a **Week Row** of 7 bars, and a **Day Square** with one place, all filed
 under **Data**.
 
 To find data blocks, use the **Data** filter in the project's **Blocks** tab and in the libraries.
@@ -80,11 +80,17 @@ The project's **Quilts** tab can show only data quilts or only the others.
 
 ## Place the numbers
 
-At the top of the **Blocks** tab, pick a block type. A Months plan lists month blocks, Weeks lists
+The **Blocks** tab has **Data blocks** and **Other blocks** at the top. **Other blocks** places your
+usual blocks, such as a center block or plain spaces between the months, the same way as in any
+quilt. A numbered space given another block gives its number back. **Data blocks** places the
+numbers.
+
+With **Data blocks**, pick a block type at the top. A Months plan lists month blocks, Weeks lists
 week blocks and day blocks for the days left over, and Days lists day blocks.
 
 The tab then lists every number of the plan. Months go by name (Jan, Feb, and so on from the period
-start), weeks and days by number (001, 002, and on). With **Place numbers** on, tap block spaces on
+start), weeks by number (Wk 1, Wk 2, and on), and days by date (Jan 1, Jan 2). The days a Weeks plan
+leaves over go by date too. With **Place numbers** on, tap block spaces on
 the quilt. Each gets the highlighted number and the picked type, and the highlight moves on to the
 next number not yet placed. Tap a number in the list to place from there. Numbers already placed are
 skipped. Tap a placed space to take its number back, or pick another type first and tap it to change
@@ -98,7 +104,7 @@ Beside each label is a card for the block space holding it: an uncolored picture
 the space's number, **Block 1**, **Block 2**, and so on, counted left to right and top to bottom.
 Drag a card to another label, or use the arrows on it, and the cards between move along. The labels
 stay where they are, so each moved block takes its new label, and the variant for its new month.
-While you drag, the card's block space lights up on the quilt. The quilt shows every block space's
+Hover over a card, click it, or drag it, and its block space lights up on the quilt. The quilt shows every block space's
 number, and each placed space's label under it, joined by a line in order. A lighter arrow inside
 each placed block runs through its days in order.
 
@@ -110,8 +116,8 @@ place.
 Each value has a **Label** and a **Kind**. Temperature, Hours of daylight, and Rainfall map ranges
 of numbers to colors. Mood maps each choice to a color. Custom starts with three number ranges.
 
-The values are in the **Data** tab, under a small chart of how many days of the sample fall in each
-range or category. The first range holds every value under its end, and the last every value from
+The values are in the **Data** tab. Right above each value's ranges or categories, a small chart
+shows how many days of the sample fall in each. The first range holds every value under its end, and the last every value from
 its start. A range between holds values from its first number up to (not including) its second.
 Ranges stay joined, so changing where one ends moves where the next starts. Change a range's
 numbers, color, or fabric, add or remove ranges, and the quilt recolors as you go. **Add a
@@ -124,7 +130,8 @@ themselves.
 ## Preview with sample data
 
 **Sample data** shows the quilt colored by a made-up year, so you can judge the colors before your
-own data comes in. Each value's **Sample** picks which made-up series feeds it. **CSV…** loads your
+own data comes in. Each value's **Sample** picks which made-up series feeds it, from those that fit its **Kind** (a
+temperature takes the daily high or low). **CSV…** loads your
 own sample instead: open a file or paste rows, then pick the date column and the column for each
 value. A sample from another year is matched by day of the year.
 

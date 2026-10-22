@@ -3,248 +3,323 @@
        their scales (in a colorway other than the primary: what each scale color becomes), yardage,
        places without data. Numbers and block pools are in the Blocks tab (DataBlocks). -->
   <div v-if="plan" class="column no-wrap" style="gap: 12px">
-    <FieldGroup label="Period" heading />
-    <q-input
-      :model-value="plan.start"
-      type="date"
-      dense
-      outlined
-      label="Period starts"
-      :readonly="readonly"
-      @update:model-value="setStart"
-    />
-    <div class="text-caption text-grey-7 q-mt-n-sm">Ends {{ end }}, {{ days }} days.</div>
-    <FieldGroup label="Data" heading />
-    <SlidePicker
-      :model-value="plan.show"
-      :options="[
-        { value: 'simulation', label: 'Sample data' },
-        { value: 'real', label: 'Real data' },
-      ]"
-      label="Show"
-      :class="{ 'no-pointer': readonly }"
-      @update:model-value="(v) => edit((p) => ({ ...p, show: v as DataPlan['show'] }))"
-    />
-    <div class="row items-center no-wrap" style="gap: 6px">
-      <q-select
-        :model-value="plan.sim.source"
-        :options="[
-          { value: 'builtin', label: 'Built-in sample year' },
-          ...(csvSample ? [{ value: 'csv', label: csvSample.name }] : []),
-        ]"
-        emit-value
-        map-options
+    <FieldGroup label="Period" heading collapsible>
+      <q-input
+        :model-value="plan.start"
+        type="date"
         dense
         outlined
-        class="col"
-        style="min-width: 0"
-        label="Sample data"
+        label="Period starts"
         :readonly="readonly"
-        @update:model-value="setSampleSource"
+        @update:model-value="setStart"
       />
-      <q-btn
-        flat
-        dense
-        no-caps
-        icon="upload_file"
-        label="CSV…"
-        :disable="readonly"
-        aria-label="Sample data from a CSV"
-        @click="csv?.show(true)"
+      <div class="text-caption text-grey-7 q-mt-n-sm">Ends {{ end }}, {{ days }} days.</div>
+    </FieldGroup>
+    <FieldGroup label="Data" heading collapsible>
+      <SlidePicker
+        :model-value="plan.show"
+        :options="[
+          { value: 'simulation', label: 'Sample data' },
+          { value: 'real', label: 'Real data' },
+        ]"
+        label="Show"
+        :class="{ 'no-pointer': readonly }"
+        @update:model-value="(v) => edit((p) => ({ ...p, show: v as DataPlan['show'] }))"
       />
-    </div>
-    <div class="column" style="gap: 4px">
-      <div class="text-caption">
-        Real data: {{ enteredCount }} of {{ days }} days entered<template v-if="missingCount">
-          , {{ missingCount }} missing up to today</template
-        >.
-      </div>
-      <div class="row" style="gap: 6px">
-        <q-btn
-          dense
-          outline
-          no-caps
-          size="sm"
-          icon="today"
-          label="Today’s entry"
-          @click="todayEntry"
-        />
-        <q-btn
-          dense
-          outline
-          no-caps
-          size="sm"
-          icon="table_rows"
-          label="Table"
-          @click="entriesDlg?.show()"
-        />
-        <q-btn
-          v-if="missingCount"
-          dense
-          outline
-          no-caps
-          size="sm"
-          icon="error_outline"
-          label="Missing"
-          @click="entriesDlg?.show(undefined, true)"
-        />
-        <q-btn
-          dense
-          outline
-          no-caps
-          size="sm"
-          icon="upload_file"
-          label="Import"
-          :disable="readonly"
-          @click="csv?.show(false)"
-        />
-      </div>
-    </div>
-
-    <FieldGroup label="Values" heading />
-    <!-- The sample's days per range or category (the current bins), a small bar chart per value. -->
-    <div v-for="(s, i) in plan.slots" :key="`h${i}`" class="column" style="gap: 2px">
-      <div class="text-caption text-grey-7">{{ s.label }}: days in the sample</div>
-      <div class="histogram row no-wrap items-end" role="img" :aria-label="histLabel(i)">
-        <div
-          v-for="(e, j) in scaleEntries(s)"
-          :key="j"
-          class="bar col"
-          :style="{ ...swatch(e.fill), height: `${barHeight(i, j)}%` }"
-        >
-          <q-tooltip>{{ e.text }}: {{ counts[i]?.[j] ?? 0 }} days</q-tooltip>
-        </div>
-      </div>
-    </div>
-    <template v-if="colorway">
-      <div class="text-caption text-grey-7">
-        {{ colorway.name }}: pick what each color of {{ primaryName }} becomes. Show
-        {{ primaryName }} to change the values and their colors.
-      </div>
-      <div v-for="(s, i) in plan.slots" :key="i" class="slot column no-wrap" style="gap: 6px">
-        <div class="text-caption text-weight-medium">{{ SLOT_NAMES[i] }}: {{ s.label }}</div>
-        <div v-for="(e, j) in scaleEntries(s)" :key="j" class="column" style="gap: 2px">
-          <span class="text-caption">{{ e.text }}</span>
-          <PaintMapRow
-            :from="paintOpt(paintOf(e.fill)!)"
-            :model-value="paintOf(swap(e.fill))"
-            :options="fillOptions"
-            :readonly="readonly"
-            stacked
-            @update:model-value="(to) => mapTo(e.fill, to)"
-          />
-        </div>
-      </div>
-    </template>
-    <div
-      v-for="(s, i) in colorway ? [] : plan.slots"
-      :key="i"
-      class="slot column no-wrap"
-      style="gap: 6px"
-    >
       <div class="row items-center no-wrap" style="gap: 6px">
-        <q-badge color="primary" :label="SLOT_NAMES[i]" />
-        <q-input
-          :model-value="s.label"
+        <q-select
+          :model-value="plan.sim.source"
+          :options="[
+            { value: 'builtin', label: 'Built-in sample year' },
+            ...(csvSample ? [{ value: 'csv', label: csvSample.name }] : []),
+          ]"
+          emit-value
+          map-options
           dense
           outlined
           class="col"
-          label="Label"
-          maxlength="40"
+          style="min-width: 0"
+          label="Sample data"
           :readonly="readonly"
-          @update:model-value="(v) => setSlot(i, { label: String(v ?? '') }, `label${i}`)"
+          @update:model-value="setSampleSource"
         />
         <q-btn
-          v-if="plan.slots.length > 1 && i === plan.slots.length - 1 && !readonly"
           flat
-          round
           dense
-          size="sm"
-          icon="delete"
-          :aria-label="`Remove value ${SLOT_NAMES[i]}`"
-          @click="removeSlot(i)"
+          no-caps
+          icon="upload_file"
+          label="CSV…"
+          :disable="readonly"
+          aria-label="Sample data from a CSV"
+          @click="csv?.show(true)"
         />
       </div>
-      <div class="row no-wrap" style="gap: 6px">
-        <q-select
-          :model-value="s.preset ?? 'custom'"
-          :options="PRESETS"
-          emit-value
-          map-options
-          dense
-          outlined
-          class="col"
-          label="Kind"
-          :readonly="readonly"
-          @update:model-value="(v: DataPreset) => setPreset(i, v)"
-        />
-        <q-select
-          v-if="plan.sim.source === 'builtin'"
-          :model-value="plan.sim.series[i] ?? null"
-          :options="seriesOptions"
-          emit-value
-          map-options
-          dense
-          outlined
-          class="col"
-          label="Sample"
-          :readonly="readonly"
-          @update:model-value="(v: string | null) => setSeries(i, v)"
-        />
-      </div>
-      <template v-if="s.kind === 'number'">
-        <div v-for="(r, j) in s.ranges" :key="j" class="row items-center no-wrap" style="gap: 4px">
-          <!-- Always three cells (from, "to", to), so the inputs line up row to row: the first range
-               takes everything under its end, the last everything from its start. -->
-          <span v-if="j === 0" class="num text-caption text-right q-pr-xs">{{
-            s.ranges.length > 1 ? 'under' : 'all'
-          }}</span>
-          <q-input
-            v-else
-            :model-value="r.from"
-            type="number"
+      <div class="column" style="gap: 4px">
+        <div class="text-caption">
+          Real data: {{ enteredCount }} of {{ days }} days entered<template v-if="missingCount">
+            , {{ missingCount }} missing up to today</template
+          >.
+        </div>
+        <div class="row" style="gap: 6px">
+          <q-btn
             dense
-            outlined
-            class="num"
-            :aria-label="`Range ${j + 1} from`"
-            :readonly="readonly"
-            @update:model-value="(v) => setRange(i, j, { from: Number(v) }, `r${i}.${j}`)"
-          />
-          <span class="join text-caption text-center">{{
-            j > 0 && j < s.ranges.length - 1 ? 'to' : ''
-          }}</span>
-          <q-input
-            v-if="j < s.ranges.length - 1"
-            :model-value="r.to"
-            type="number"
-            dense
-            outlined
-            class="num"
-            :aria-label="`Range ${j + 1} to`"
-            :readonly="readonly"
-            @update:model-value="(v) => setRange(i, j, { to: Number(v) }, `r${i}.${j}`)"
-          />
-          <span v-else class="num text-caption q-pl-xs">{{ j > 0 ? 'and up' : '' }}</span>
-          <PaintMapRow
-            class="col"
-            :model-value="paintOf(r.fill)"
-            :options="fillOptions"
-            :label="scaleEntries(s)[j]?.text ?? ''"
-            :readonly="readonly"
-            @update:model-value="(id) => setRange(i, j, { fill: plain(id) })"
+            outline
+            no-caps
+            size="sm"
+            icon="today"
+            label="Today’s entry"
+            @click="todayEntry"
           />
           <q-btn
-            v-if="!readonly"
+            dense
+            outline
+            no-caps
+            size="sm"
+            icon="table_rows"
+            label="Table"
+            @click="entriesDlg?.show()"
+          />
+          <q-btn
+            v-if="missingCount"
+            dense
+            outline
+            no-caps
+            size="sm"
+            icon="error_outline"
+            label="Missing"
+            @click="entriesDlg?.show(undefined, true)"
+          />
+          <q-btn
+            dense
+            outline
+            no-caps
+            size="sm"
+            icon="upload_file"
+            label="Import"
+            :disable="readonly"
+            @click="csv?.show(false)"
+          />
+        </div>
+      </div>
+    </FieldGroup>
+    <FieldGroup label="Values" heading collapsible>
+      <template v-if="colorway">
+        <div class="text-caption text-grey-7">
+          {{ colorway.name }}: pick what each color of {{ primaryName }} becomes. Show
+          {{ primaryName }} to change the values and their colors.
+        </div>
+        <div v-for="(s, i) in plan.slots" :key="i" class="slot column no-wrap" style="gap: 6px">
+          <div class="text-caption text-weight-medium">{{ SLOT_NAMES[i] }}: {{ s.label }}</div>
+          <!-- The sample's days per range or category (the current bins), at the top of its value. -->
+          <div class="column" style="gap: 2px">
+            <div class="text-caption text-grey-7">Days in the sample</div>
+            <div class="histogram row no-wrap items-end" role="img" :aria-label="histLabel(i)">
+              <div
+                v-for="(e, j) in scaleEntries(s)"
+                :key="j"
+                class="bar col"
+                :style="{ ...swatch(e.fill), height: `${barHeight(i, j)}%` }"
+              >
+                <q-tooltip>{{ e.text }}: {{ counts[i]?.[j] ?? 0 }} days</q-tooltip>
+              </div>
+            </div>
+          </div>
+          <div v-for="(e, j) in scaleEntries(s)" :key="j" class="column" style="gap: 2px">
+            <span class="text-caption">{{ e.text }}</span>
+            <PaintMapRow
+              :from="paintOpt(paintOf(e.fill)!)"
+              :model-value="paintOf(swap(e.fill))"
+              :options="fillOptions"
+              :readonly="readonly"
+              stacked
+              @update:model-value="(to) => mapTo(e.fill, to)"
+            />
+          </div>
+        </div>
+      </template>
+      <div
+        v-for="(s, i) in colorway ? [] : plan.slots"
+        :key="i"
+        class="slot column no-wrap"
+        style="gap: 6px"
+      >
+        <div class="row items-center no-wrap" style="gap: 6px">
+          <q-badge color="primary" :label="SLOT_NAMES[i]" />
+          <q-input
+            :model-value="s.label"
+            dense
+            outlined
+            class="col"
+            label="Label"
+            maxlength="40"
+            :readonly="readonly"
+            @update:model-value="(v) => setSlot(i, { label: String(v ?? '') }, `label${i}`)"
+          />
+          <q-btn
+            v-if="plan.slots.length > 1 && i === plan.slots.length - 1 && !readonly"
             flat
             round
             dense
             size="sm"
-            icon="close"
-            :aria-label="`Remove range ${j + 1}`"
-            @click="setScale(i, { ranges: s.ranges.filter((_, k) => k !== j) })"
+            icon="delete"
+            :aria-label="`Remove value ${SLOT_NAMES[i]}`"
+            @click="removeSlot(i)"
           />
         </div>
-        <div class="row items-center" style="gap: 6px">
+        <div class="row no-wrap" style="gap: 6px">
+          <q-select
+            :model-value="s.preset ?? 'custom'"
+            :options="PRESETS"
+            emit-value
+            map-options
+            dense
+            outlined
+            class="col"
+            label="Kind"
+            :readonly="readonly"
+            @update:model-value="(v: DataPreset) => setPreset(i, v)"
+          />
+          <q-select
+            v-if="plan.sim.source === 'builtin'"
+            :model-value="plan.sim.series[i] ?? null"
+            :options="seriesOptions(s.preset)"
+            emit-value
+            map-options
+            dense
+            outlined
+            class="col"
+            label="Sample"
+            :readonly="readonly"
+            @update:model-value="(v: string | null) => setSeries(i, v)"
+          />
+        </div>
+        <!-- The sample's days per range or category (the current bins), right above them. -->
+        <div class="column" style="gap: 2px">
+          <div class="text-caption text-grey-7">Days in the sample</div>
+          <div class="histogram row no-wrap items-end" role="img" :aria-label="histLabel(i)">
+            <div
+              v-for="(e, j) in scaleEntries(s)"
+              :key="j"
+              class="bar col"
+              :style="{ ...swatch(e.fill), height: `${barHeight(i, j)}%` }"
+            >
+              <q-tooltip>{{ e.text }}: {{ counts[i]?.[j] ?? 0 }} days</q-tooltip>
+            </div>
+          </div>
+        </div>
+        <template v-if="s.kind === 'number'">
+          <div
+            v-for="(r, j) in s.ranges"
+            :key="j"
+            class="row items-center no-wrap"
+            style="gap: 4px"
+          >
+            <!-- Always three cells (from, "to", to), so the inputs line up row to row: the first range
+               takes everything under its end, the last everything from its start. -->
+            <span v-if="j === 0" class="num text-caption text-right q-pr-xs">{{
+              s.ranges.length > 1 ? 'under' : 'all'
+            }}</span>
+            <q-input
+              v-else
+              :model-value="r.from"
+              type="number"
+              dense
+              outlined
+              class="num"
+              :aria-label="`Range ${j + 1} from`"
+              :readonly="readonly"
+              @update:model-value="(v) => (typed = { i, j, side: 'from', v })"
+              @blur="commitTyped"
+              @keyup.enter="commitTyped"
+            />
+            <span class="join text-caption text-center">{{
+              j > 0 && j < s.ranges.length - 1 ? 'to' : ''
+            }}</span>
+            <q-input
+              v-if="j < s.ranges.length - 1"
+              :model-value="r.to"
+              type="number"
+              dense
+              outlined
+              class="num"
+              :aria-label="`Range ${j + 1} to`"
+              :readonly="readonly"
+              @update:model-value="(v) => (typed = { i, j, side: 'to', v })"
+              @blur="commitTyped"
+              @keyup.enter="commitTyped"
+            />
+            <span v-else class="num text-caption q-pl-xs">{{ j > 0 ? 'and up' : '' }}</span>
+            <PaintMapRow
+              class="col"
+              :model-value="paintOf(r.fill)"
+              :options="fillOptions"
+              :label="scaleEntries(s)[j]?.text ?? ''"
+              :readonly="readonly"
+              @update:model-value="(id) => setRange(i, j, { fill: plain(id) })"
+            />
+            <q-btn
+              v-if="!readonly"
+              flat
+              round
+              dense
+              size="sm"
+              icon="close"
+              :aria-label="`Remove range ${j + 1}`"
+              @click="setScale(i, { ranges: s.ranges.filter((_, k) => k !== j) })"
+            />
+          </div>
+          <div class="row items-center" style="gap: 6px">
+            <q-btn
+              v-if="!readonly"
+              dense
+              flat
+              no-caps
+              size="sm"
+              icon="add"
+              label="Add range"
+              @click="addRange(i)"
+            />
+            <span v-if="s.unit" class="text-caption text-grey-7">Values in {{ s.unit }}.</span>
+          </div>
+        </template>
+        <template v-else>
+          <div
+            v-for="(c, j) in s.categories"
+            :key="c.id"
+            class="row items-center no-wrap"
+            style="gap: 4px"
+          >
+            <q-input
+              :model-value="c.name"
+              dense
+              outlined
+              class="col-5"
+              maxlength="60"
+              :aria-label="`Category ${j + 1}`"
+              :readonly="readonly"
+              @update:model-value="
+                (v) => setCategory(i, j, { name: String(v ?? '') }, `c${i}.${j}`)
+              "
+            />
+            <PaintMapRow
+              class="col"
+              :model-value="paintOf(c.fill)"
+              :options="fillOptions"
+              :label="c.name"
+              :readonly="readonly"
+              @update:model-value="(id) => setCategory(i, j, { fill: plain(id) })"
+            />
+            <q-btn
+              v-if="!readonly"
+              flat
+              round
+              dense
+              size="sm"
+              icon="close"
+              :aria-label="`Remove ${c.name}`"
+              @click="setScale(i, { categories: s.categories.filter((_, k) => k !== j) })"
+            />
+          </div>
           <q-btn
             v-if="!readonly"
             dense
@@ -252,142 +327,99 @@
             no-caps
             size="sm"
             icon="add"
-            label="Add range"
-            @click="addRange(i)"
+            label="Add category"
+            class="self-start"
+            @click="addCategory(i)"
           />
-          <span v-if="s.unit" class="text-caption text-grey-7">Values in {{ s.unit }}.</span>
-        </div>
-      </template>
-      <template v-else>
-        <div
-          v-for="(c, j) in s.categories"
-          :key="c.id"
-          class="row items-center no-wrap"
-          style="gap: 4px"
-        >
-          <q-input
-            :model-value="c.name"
-            dense
-            outlined
-            class="col-5"
-            maxlength="60"
-            :aria-label="`Category ${j + 1}`"
-            :readonly="readonly"
-            @update:model-value="(v) => setCategory(i, j, { name: String(v ?? '') }, `c${i}.${j}`)"
-          />
-          <PaintMapRow
-            class="col"
-            :model-value="paintOf(c.fill)"
-            :options="fillOptions"
-            :label="c.name"
-            :readonly="readonly"
-            @update:model-value="(id) => setCategory(i, j, { fill: plain(id) })"
-          />
-          <q-btn
-            v-if="!readonly"
-            flat
-            round
-            dense
-            size="sm"
-            icon="close"
-            :aria-label="`Remove ${c.name}`"
-            @click="setScale(i, { categories: s.categories.filter((_, k) => k !== j) })"
-          />
-        </div>
-        <q-btn
-          v-if="!readonly"
-          dense
-          flat
-          no-caps
-          size="sm"
-          icon="add"
-          label="Add category"
-          class="self-start"
-          @click="addCategory(i)"
-        />
-      </template>
-    </div>
-    <q-btn
-      v-if="plan.slots.length < 4 && !readonly && !colorway"
-      dense
-      outline
-      no-caps
-      icon="add"
-      label="Add a value"
-      class="self-start"
-      @click="addSlot"
-    />
-
-    <FieldGroup label="Yardage" heading />
-    <q-expansion-item dense label="Most days expected" header-class="q-px-none">
-      <div class="text-caption text-grey-7 q-mb-sm">
-        Printed yardage counts this many days for each range or category, each in the largest piece
-        of its value. Empty: its days in the sample.
+        </template>
       </div>
-      <div v-for="(s, i) in plan.slots" :key="i" class="column q-mb-sm" style="gap: 4px">
-        <div class="text-caption text-weight-medium">{{ s.label }}</div>
-        <div
-          v-for="(e, j) in scaleEntries(s)"
-          :key="j"
-          class="row items-center no-wrap"
-          style="gap: 6px"
-        >
-          <span class="swatch" :style="swatch(e.fill)" />
-          <span class="col ellipsis text-caption">{{ e.text }}</span>
-          <q-input
-            :model-value="e.most ?? ''"
-            type="number"
-            dense
-            outlined
-            class="num"
-            :placeholder="String(counts[i]?.[j] ?? 0)"
-            :aria-label="`Most days for ${e.text}`"
-            :readonly="readonly"
-            @update:model-value="(v) => setMost(i, j, v)"
-          />
+      <q-btn
+        v-if="plan.slots.length < 4 && !readonly && !colorway"
+        dense
+        outline
+        no-caps
+        icon="add"
+        label="Add a value"
+        class="self-start"
+        @click="addSlot"
+      />
+    </FieldGroup>
+    <FieldGroup label="Yardage" heading collapsible>
+      <q-expansion-item dense label="Most days expected" header-class="q-px-none">
+        <div class="text-caption text-grey-7 q-mb-sm">
+          Printed yardage counts this many days for each range or category, each in the largest
+          piece of its value. Empty: its days in the sample.
         </div>
+        <div v-for="(s, i) in plan.slots" :key="i" class="column q-mb-sm" style="gap: 4px">
+          <div class="text-caption text-weight-medium">{{ s.label }}</div>
+          <div
+            v-for="(e, j) in scaleEntries(s)"
+            :key="j"
+            class="row items-center no-wrap"
+            style="gap: 6px"
+          >
+            <span class="swatch" :style="swatch(e.fill)" />
+            <span class="col ellipsis text-caption">{{ e.text }}</span>
+            <q-input
+              :model-value="e.most ?? ''"
+              type="number"
+              dense
+              outlined
+              class="num"
+              :placeholder="String(counts[i]?.[j] ?? 0)"
+              :aria-label="`Most days for ${e.text}`"
+              :readonly="readonly"
+              @update:model-value="(v) => setMost(i, j, v)"
+            />
+          </div>
+        </div>
+      </q-expansion-item>
+    </FieldGroup>
+    <FieldGroup label="Places without data" heading collapsible>
+      <SlidePicker
+        :model-value="plan.unused"
+        :options="[
+          { value: 'filler', label: 'Filler' },
+          { value: 'designed', label: 'As designed' },
+        ]"
+        label="Places past a number’s days"
+        :class="{ 'no-pointer': readonly }"
+        @update:model-value="(v) => edit((p) => ({ ...p, unused: v as DataPlan['unused'] }))"
+      />
+      <div class="text-caption text-grey-7 q-mt-n-sm">
+        Day 31 of a 31-place block showing a 30-day month, say.
       </div>
-    </q-expansion-item>
+      <SlidePicker
+        :model-value="plan.waiting"
+        :options="[
+          { value: 'designed', label: 'As designed' },
+          { value: 'simulation', label: 'Sample' },
+          { value: 'filler', label: 'Filler' },
+        ]"
+        label="Days without an entry"
+        :class="{ 'no-pointer': readonly }"
+        @update:model-value="(v) => edit((p) => ({ ...p, waiting: v as DataPlan['waiting'] }))"
+      />
+      <div class="text-caption text-grey-7 q-mt-n-sm">
+        Real data only. As designed shows the color painted under the day’s number.
+      </div>
+      <PaintMapRow
+        :model-value="plan.filler ? paintOf(plan.filler) : undefined"
+        :options="fillOptions"
+        label="Filler"
+        :readonly="readonly"
+        @update:model-value="(id) => edit((p) => ({ ...p, filler: plain(id) }))"
+      />
+      <div class="text-caption text-grey-7 q-mt-n-sm">Filler color or fabric.</div>
 
-    <FieldGroup label="Places without data" heading />
-    <SlidePicker
-      :model-value="plan.unused"
-      :options="[
-        { value: 'filler', label: 'Filler' },
-        { value: 'designed', label: 'As designed' },
-      ]"
-      label="Places past a number’s days"
-      :class="{ 'no-pointer': readonly }"
-      @update:model-value="(v) => edit((p) => ({ ...p, unused: v as DataPlan['unused'] }))"
-    />
-    <div class="text-caption text-grey-7 q-mt-n-sm">
-      Day 31 of a 31-place block showing a 30-day month, say.
-    </div>
-    <SlidePicker
-      :model-value="plan.waiting"
-      :options="[
-        { value: 'designed', label: 'As designed' },
-        { value: 'simulation', label: 'Sample' },
-        { value: 'filler', label: 'Filler' },
-      ]"
-      label="Days without an entry"
-      :class="{ 'no-pointer': readonly }"
-      @update:model-value="(v) => edit((p) => ({ ...p, waiting: v as DataPlan['waiting'] }))"
-    />
-    <div class="text-caption text-grey-7 q-mt-n-sm">
-      Real data only. As designed shows the color painted under the day’s number.
-    </div>
-    <PaintMapRow
-      :model-value="plan.filler ? paintOf(plan.filler) : undefined"
-      :options="fillOptions"
-      label="Filler"
-      :readonly="readonly"
-      @update:model-value="(id) => edit((p) => ({ ...p, filler: plain(id) }))"
-    />
-    <div class="text-caption text-grey-7 q-mt-n-sm">Filler color or fabric.</div>
-
-    <DataCsvDialog ref="csv" :slots="plan.slots" @sample="setCsvSample" @entries="importEntries" />
-    <DataEntriesDialog ref="entriesDlg" :plan="plan" :readonly="readonly" @set="setEntry" />
+      <DataCsvDialog
+        ref="csv"
+        :slots="plan.slots"
+        @sample="setCsvSample"
+        @entries="importEntries"
+      />
+      <DataEntriesDialog ref="entriesDlg" :plan="plan" :readonly="readonly" @set="setEntry" />
+    </FieldGroup>
   </div>
 </template>
 
@@ -409,6 +441,7 @@ import { SLOT_NAMES } from '@/model/data-paint';
 import {
   dayDate,
   fitOrder,
+  moveBound,
   periodLength,
   presetSeries,
   presetSlot,
@@ -437,10 +470,19 @@ const PRESETS: { value: DataPreset; label: string }[] = [
   { value: 'rainfall', label: 'Rainfall' },
   { value: 'custom', label: 'Custom' },
 ];
-const seriesOptions = computed(() => [
+/** The made-up series that fit a value's kind (temperature: high and low); Custom takes any. */
+const SERIES_OF: Partial<Record<DataPreset, readonly string[]>> = {
+  temperature: ['high', 'low'],
+  mood: ['mood'],
+  daylight: ['daylight'],
+  rainfall: ['rainfall'],
+};
+const seriesOptions = (preset: DataPreset | undefined) => [
   { value: null, label: 'None' },
-  ...sampleSeries().map((s) => ({ value: s.id, label: s.label })),
-]);
+  ...sampleSeries()
+    .filter((x) => !SERIES_OF[preset ?? 'custom'] || SERIES_OF[preset!]!.includes(x.id))
+    .map((x) => ({ value: x.id, label: x.label })),
+];
 const fillOptions = computed(() => swapOptions());
 const plain = (id: string): PlainFill => plainFill(fillFor(id))!;
 
@@ -587,25 +629,25 @@ function setScale(i: number, patch: Partial<ValueSlot>) {
   if (patch.ranges) patch = { ...patch, ranges: [...patch.ranges].sort((a, b) => a.from - b.from) };
   setSlot(i, patch);
 }
+/** A range number being typed: applied on Enter or leaving the field, so half-typed numbers
+ *  don't push the other ranges around. */
+const typed = ref<{ i: number; j: number; side: 'from' | 'to'; v: string | number | null } | null>(
+  null,
+);
+function commitTyped() {
+  const t = typed.value;
+  typed.value = null;
+  if (t && t.v !== null && t.v !== '') setRange(t.i, t.j, { [t.side]: Number(t.v) });
+}
 function setRange(i: number, j: number, patch: Partial<ValueSlot['ranges'][number]>, c?: string) {
   if (Object.values(patch).some((v) => typeof v === 'number' && !Number.isFinite(v))) return;
   const s = plan.value!.slots[i]!;
-  // Ranges stay joined: a range's start is the one before's end.
-  setSlot(
-    i,
-    {
-      ranges: s.ranges.map((r, k) =>
-        k === j
-          ? { ...r, ...patch }
-          : k === j - 1 && patch.from !== undefined
-            ? { ...r, to: patch.from }
-            : k === j + 1 && patch.to !== undefined
-              ? { ...r, from: patch.to }
-              : r,
-      ),
-    },
-    c,
-  );
+  // Ranges stay joined, each at least 1 wide: a big move pushes the neighbours along.
+  const side = patch.from !== undefined ? 'from' : patch.to !== undefined ? 'to' : null;
+  const ranges = side
+    ? moveBound(s.ranges, j, side, patch[side]!)
+    : s.ranges.map((r, k) => (k === j ? { ...r, ...patch } : r));
+  setSlot(i, { ranges }, c);
 }
 function setCategory(
   i: number,

@@ -1,7 +1,7 @@
 <template>
   <!-- Details tab (spec 025): a quilt's Data quilt switch and plan, or a block's Data block switch
        and kind. -->
-  <FieldGroup :label="quilt ? 'Data quilt' : 'Data block'" heading>
+  <FieldGroup :label="quilt ? 'Data quilt' : 'Data block'" heading class="q-my-md">
     <q-toggle
       :model-value="on"
       dense

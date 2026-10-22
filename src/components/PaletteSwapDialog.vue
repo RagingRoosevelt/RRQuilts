@@ -43,7 +43,27 @@
           label="Palette"
           class="q-mt-sm"
           @update:model-value="pick"
-        />
+        >
+          <!-- Each palette with its swatches, so it can be judged before picking. -->
+          <template #option="{ opt, itemProps }">
+            <q-item v-bind="itemProps">
+              <q-item-section>
+                <q-item-label>{{ opt.label }}</q-item-label>
+                <div class="ps-swatches">
+                  <span
+                    v-for="c in opt.colors.slice(0, 24)"
+                    :key="c.id"
+                    class="ps-dot"
+                    :style="optStyle(c)"
+                  />
+                </div>
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-select>
+        <div v-if="chosen" class="ps-swatches q-mt-xs" aria-label="The palette's swatches">
+          <span v-for="c in chosen.colors" :key="c.id" class="ps-dot" :style="optStyle(c)" />
+        </div>
       </q-card-section>
       <q-card-section class="column q-pt-none" style="gap: 8px">
         <PaintMapRow
@@ -85,7 +105,7 @@ import { computed, ref, shallowRef, toRaw } from 'vue';
 import { nearestColor } from '@/editor/color';
 import type { RrqDoc } from '@/model/schema/project';
 import PaintMapRow from '@/components/PaintMapRow.vue';
-import { useSwapOptions, type Opt } from '@/composables/swap-options';
+import { optStyle, useSwapOptions, type Opt } from '@/composables/swap-options';
 import { useProjectStore } from '@/stores/project';
 
 /** One swap: what's swapped, its picture now, and its picture after (`map`: paint id → paint id;
@@ -112,10 +132,9 @@ const to = ref<string | null>(null);
 const options = ref<Opt[]>([]);
 const map = ref<Record<string, string>>({});
 
+const chosen = computed(() => swapPalettes.value.find((p) => p.id === to.value));
 /** The chosen palette's name (the new coloring or colorway takes it). */
-const name = computed(
-  () => swapPalettes.value.find((p) => p.id === to.value)?.label.split(' · ')[0],
-);
+const name = computed(() => chosen.value?.label.split(' · ')[0]);
 
 function show(j: Job) {
   job.value = j;
@@ -180,6 +199,19 @@ defineExpose({ show });
 </script>
 
 <style>
+.ps-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 4px;
+}
+.ps-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(128, 128, 128, 0.45);
+  background-size: cover;
+}
 .ps-side {
   flex: 1 1 0;
   min-width: 0;

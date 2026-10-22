@@ -1,166 +1,170 @@
 <template>
   <!-- A data quilt's Blocks tab (spec 025): the numbered list placed on block spaces with one brush,
        and the data block types it places. -->
-  <div v-if="plan" class="column no-wrap" style="gap: 10px">
-    <FieldGroup label="Block types" heading />
-    <div class="text-caption text-grey-7">
-      Pick a type, then place numbers with it. A placed space keeps its type and shows the variant
-      for its month's days. Tap a placed space with another type picked to change its type.
-    </div>
-    <template v-for="kind in kinds" :key="kind">
-      <div class="text-caption text-weight-medium">{{ KIND_LABEL[kind] }}</div>
-      <div v-if="ofKind(kind).length" class="types row" style="gap: 6px">
-        <button
-          v-for="b in ofKind(kind)"
-          :key="b.id"
-          type="button"
-          class="type column items-center"
-          :class="{ active: typeFor(kind) === b.id }"
-          :aria-pressed="typeFor(kind) === b.id"
-          :title="b.notecard.name"
-          @click="pickType(kind, b.id)"
-        >
-          <img :src="typeThumb(b)" alt="" />
-          <span class="text-caption ellipsis">{{ b.notecard.name }}</span>
-        </button>
+  <div v-if="plan" ref="root" class="column no-wrap" style="gap: 10px">
+    <FieldGroup label="Block types" heading collapsible>
+      <div class="text-caption text-grey-7">
+        Pick a type, then place numbers with it. A placed space keeps its type and shows the variant
+        for its month's days. Tap a placed space with another type picked to change its type.
       </div>
-      <div v-else class="text-caption text-grey-7">
-        No {{ kind }} data blocks yet: turn on Data block in a block’s Details tab.
-      </div>
-    </template>
-
-    <FieldGroup label="Numbers" heading />
-    <div class="row items-center no-wrap" style="gap: 8px">
-      <q-btn
-        :unelevated="editor.tool === 'number'"
-        :outline="editor.tool !== 'number'"
-        color="primary"
-        dense
-        no-caps
-        icon="brush"
-        label="Place numbers"
-        :disable="readonly"
-        @click="editor.tool = 'number'"
-      />
-      <div class="col text-caption" aria-live="polite">
-        <template v-if="next">Next: {{ rows[next - 1]?.text }}</template>
-        <template v-else>Every number is placed.</template>
-      </div>
-    </div>
-    <div class="text-caption text-grey-7">
-      Tap block spaces to place the highlighted number. It moves on to the next one not placed. Tap
-      a number below to place from there. Tap a placed space to take its number back. Drag placed
-      numbers, or use their arrows, to reorder them. A number's place in the list is its label.
-    </div>
-    <div class="row items-center" style="gap: 6px">
-      <span class="text-caption">Fill empty numbers</span>
-      <q-btn
-        v-for="o in ORDERS"
-        :key="o.value"
-        dense
-        outline
-        no-caps
-        size="sm"
-        :label="o.label"
-        :disable="readonly"
-        @click="fillAll(o.value)"
-      />
-      <q-btn
-        dense
-        flat
-        no-caps
-        size="sm"
-        icon="clear"
-        label="Clear"
-        :disable="readonly || !plan.order.some(Boolean)"
-        @click="edit((p) => ({ ...p, order: p.order.map(() => null) }))"
-      />
-    </div>
-
-    <q-virtual-scroll
-      :items="rows"
-      class="numbers"
-      style="max-height: 40vh"
-      :virtual-scroll-item-size="56"
-    >
-      <template #default="{ item: r }">
-        <!-- A fixed label (the month, week or day) and, beside it, the card of the block space
-             holding it: only the card moves when dragged. -->
-        <div
-          :key="r.k"
-          class="number row items-center no-wrap"
-          :class="{ current: r.k === next, drop: r.k === dropAt }"
-          role="button"
-          :aria-label="`${r.text}${r.space ? `, block ${spaceNo.get(r.space)}` : ', not placed'}`"
-          @click="pick(r.k)"
-          @dragover.prevent="dropAt = r.k"
-          @dragleave="dropAt === r.k && (dropAt = null)"
-          @drop.prevent="drop(r.k)"
-        >
-          <div class="label column">
-            <span>{{ r.label }}</span>
-            <span v-if="r.name !== r.label" class="text-caption ellipsis">{{ r.name }}</span>
-          </div>
-          <div
-            class="card col row items-center no-wrap"
-            :class="{
-              placed: !!r.space,
-              'glow-bottom': gap !== null && r.k === gap,
-              'glow-top': gap !== null && r.k === gap + 1,
-            }"
-            :draggable="!readonly && !!r.space"
-            @dragstart="(e: DragEvent) => dragStart(e, r.k)"
-            @dragend="endDrag"
-            @mouseenter="r.space && !dragFrom && (editor.dataHot = r.space)"
-            @mouseleave="!dragFrom && (editor.dataHot = null)"
-            @click="editor.dataSel = r.space"
+      <template v-for="kind in kinds" :key="kind">
+        <div class="text-caption text-weight-medium">{{ KIND_LABEL[kind] }}</div>
+        <div v-if="ofKind(kind).length" class="types row" style="gap: 6px">
+          <button
+            v-for="b in ofKind(kind)"
+            :key="b.id"
+            type="button"
+            class="type column items-center"
+            :class="{ active: typeFor(kind) === b.id }"
+            :aria-pressed="typeFor(kind) === b.id"
+            :title="b.notecard.name"
+            @click="pickType(kind, b.id)"
           >
-            <!-- The block its space shows (or, not placed yet, one from its pool), uncolored. -->
-            <img v-if="thumb(r.k, r.space)" :src="thumb(r.k, r.space)" class="thumb" alt="" />
-            <span v-else class="thumb" />
-            <!-- Which block space: counted left to right, top to bottom, whatever the order. -->
-            <span class="col ellipsis text-caption" :class="{ 'text-grey-6': !r.space }">{{
-              r.space ? `Block ${spaceNo.get(r.space)}` : 'Not placed'
-            }}</span>
-            <span v-if="r.space && !readonly" class="moves">
-              <q-btn
-                flat
-                round
-                dense
-                size="xs"
-                icon="arrow_upward"
-                aria-label="Move up"
-                :disable="r.k === 1"
-                @click.stop="move(r.k, r.k - 1)"
-              />
-              <q-btn
-                flat
-                round
-                dense
-                size="xs"
-                icon="arrow_downward"
-                aria-label="Move down"
-                :disable="r.k === rows.length"
-                @click.stop="move(r.k, r.k + 1)"
-              />
-            </span>
-          </div>
+            <img :src="typeThumb(b)" alt="" />
+            <span class="text-caption ellipsis">{{ b.notecard.name }}</span>
+          </button>
+        </div>
+        <div v-else class="text-caption text-grey-7">
+          No {{ kind }} data blocks yet: turn on Data block in a block’s Details tab.
         </div>
       </template>
-    </q-virtual-scroll>
-
-    <template v-if="report.length">
-      <q-separator />
-      <div
-        v-for="r in report"
-        :key="r"
-        class="row no-wrap items-start text-caption"
-        style="gap: 6px"
-      >
-        <q-icon name="warning" color="warning" size="16px" />
-        <span>{{ r }}</span>
+    </FieldGroup>
+    <FieldGroup label="Numbers" heading collapsible>
+      <div class="row items-center no-wrap" style="gap: 8px">
+        <q-btn
+          :unelevated="editor.tool === 'number'"
+          :outline="editor.tool !== 'number'"
+          color="primary"
+          dense
+          no-caps
+          icon="brush"
+          label="Place numbers"
+          :disable="readonly"
+          @click="editor.tool = 'number'"
+        />
+        <div class="col text-caption" aria-live="polite">
+          <template v-if="next">Next: {{ rows[next - 1]?.text }}</template>
+          <template v-else>Every number is placed.</template>
+        </div>
       </div>
-    </template>
+      <div class="text-caption text-grey-7">
+        Tap block spaces to place the highlighted number. It moves on to the next one not placed.
+        Tap a number below to place from there. Tap a placed space to take its number back. Drag
+        placed numbers, or use their arrows, to reorder them. A number's place in the list is its
+        label.
+      </div>
+      <div class="row items-center" style="gap: 6px">
+        <span class="text-caption">Fill empty numbers</span>
+        <q-btn
+          v-for="o in ORDERS"
+          :key="o.value"
+          dense
+          outline
+          no-caps
+          size="sm"
+          :label="o.label"
+          :disable="readonly"
+          @click="fillAll(o.value)"
+        />
+        <q-btn
+          dense
+          flat
+          no-caps
+          size="sm"
+          icon="clear"
+          label="Clear"
+          :disable="readonly || !plan.order.some(Boolean)"
+          @click="edit((p) => ({ ...p, order: p.order.map(() => null) }))"
+        />
+      </div>
+
+      <!-- Scrolls with the sidebar (no box of its own); only the rows in view are drawn. -->
+      <q-virtual-scroll
+        v-if="scroller"
+        :items="rows"
+        class="numbers"
+        :scroll-target="scroller"
+        :virtual-scroll-item-size="44"
+      >
+        <template #default="{ item: r }">
+          <!-- A fixed label (the month, week or day) and, beside it, the card of the block space
+             holding it: only the card moves when dragged. -->
+          <div
+            :key="r.k"
+            class="number row items-center no-wrap"
+            :class="{ current: r.k === next, drop: r.k === dropAt }"
+            role="button"
+            :aria-label="`${r.text}${r.space ? `, block ${spaceNo.get(r.space)}` : ', not placed'}`"
+            @click="pick(r.k)"
+            @dragover.prevent="dropAt = r.k"
+            @dragleave="dropAt === r.k && (dropAt = null)"
+            @drop.prevent="drop(r.k)"
+          >
+            <div class="label column">
+              <span>{{ r.label }}</span>
+              <span v-if="r.name !== r.label" class="text-caption ellipsis">{{ r.name }}</span>
+            </div>
+            <div
+              class="card col row items-center no-wrap"
+              :class="{
+                placed: !!r.space,
+                'glow-bottom': gap !== null && r.k === gap,
+                'glow-top': gap !== null && r.k === gap + 1,
+              }"
+              :draggable="!readonly && !!r.space"
+              @dragstart="(e: DragEvent) => dragStart(e, r.k)"
+              @dragend="endDrag"
+              @mouseenter="r.space && !dragFrom && (editor.dataHot = r.space)"
+              @mouseleave="!dragFrom && (editor.dataHot = null)"
+              @click="editor.dataSel = r.space"
+            >
+              <!-- The block its space shows (or, not placed yet, one from its pool), uncolored. -->
+              <img v-if="thumb(r.k, r.space)" :src="thumb(r.k, r.space)" class="thumb" alt="" />
+              <span v-else class="thumb" />
+              <!-- Which block space: counted left to right, top to bottom, whatever the order. -->
+              <span class="col ellipsis text-caption" :class="{ 'text-grey-6': !r.space }">{{
+                r.space ? `Block ${spaceNo.get(r.space)}` : 'Not placed'
+              }}</span>
+              <span v-if="r.space && !readonly" class="moves">
+                <q-btn
+                  flat
+                  round
+                  dense
+                  size="xs"
+                  icon="arrow_upward"
+                  aria-label="Move up"
+                  :disable="r.k === 1"
+                  @click.stop="move(r.k, r.k - 1)"
+                />
+                <q-btn
+                  flat
+                  round
+                  dense
+                  size="xs"
+                  icon="arrow_downward"
+                  aria-label="Move down"
+                  :disable="r.k === rows.length"
+                  @click.stop="move(r.k, r.k + 1)"
+                />
+              </span>
+            </div>
+          </div>
+        </template>
+      </q-virtual-scroll>
+
+      <template v-if="report.length">
+        <q-separator />
+        <div
+          v-for="r in report"
+          :key="r"
+          class="row no-wrap items-start text-caption"
+          style="gap: 6px"
+        >
+          <q-icon name="warning" color="warning" size="16px" />
+          <span>{{ r }}</span>
+        </div>
+      </template>
+    </FieldGroup>
   </div>
 </template>
 
@@ -238,6 +242,10 @@ const rows = computed(() => {
 /** The highlighted number: the brush's next, moved on past placed ones. */
 const next = computed(() => (plan.value ? nextFree(plan.value, editor.dataNext) : undefined));
 const $q = useQuasar();
+/** The sidebar that scrolls the number list. */
+const root = ref<HTMLElement>();
+const scroller = ref<Element | null>(null);
+watch(root, (el) => (scroller.value = el?.closest('.scroll') ?? null), { flush: 'post' });
 /** An uncolored picture of the block number `k` shows: its space's block, else the picked type's. */
 function thumb(k: number, space: string | null) {
   const doc = project.doc;
@@ -329,7 +337,7 @@ watch(
 
 <style scoped>
 .number {
-  height: 56px;
+  height: 44px;
   gap: 8px;
   padding: 2px 4px;
   cursor: pointer;
@@ -376,7 +384,7 @@ watch(
   font-variant-numeric: tabular-nums;
 }
 .card {
-  height: 50px;
+  height: 40px;
   gap: 8px;
   padding: 0 6px;
   border-radius: 6px;
@@ -392,8 +400,8 @@ watch(
   background: #2a2a2a;
 }
 .thumb {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   flex: none;
   object-fit: contain;
 }

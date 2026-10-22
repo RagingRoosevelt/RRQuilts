@@ -189,9 +189,9 @@ const dataBars = (
   ]),
 });
 const DATA_BLOCKS: StarterBlock[] = [
-  { ...dataBars('Month Strip', 'Data/Months', 31, 31, [31, 6]), data: 'month' },
+  { ...dataBars('Month Strip', 'Data/Months', 31, 31, [31, 31]), data: 'month' },
   ...([30, 29, 28] as const).map((d): StarterBlock => ({
-    ...dataBars(`Month Strip ${d}`, 'Data/Months', 31, d, [31, 6]),
+    ...dataBars(`Month Strip ${d}`, 'Data/Months', 31, d, [31, 31]),
     variantOf: ['Month Strip', d],
   })),
   { ...dataBars('Week Row', 'Data/Weeks', 7, 7, [7, 7]), data: 'week' },
