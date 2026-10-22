@@ -137,6 +137,7 @@
     />
     <!-- The quilter's tags (spec 029) and the library category it's filed under (spec 035 E). -->
     <template v-if="block">
+      <FieldGroup label="Metadata" heading />
       <q-select
         :model-value="blockTags"
         label="Tags"
@@ -253,6 +254,7 @@
 
 <script setup lang="ts">
 import DataSection from '@/components/DataSection.vue';
+import FieldGroup from '@/components/FieldGroup.vue';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import { saveQuiltImage } from '@/render/save-image';
 import { TECHNIQUE_GROUPS, TECHNIQUES, type Technique } from '@/model/schema/shared';

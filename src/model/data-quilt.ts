@@ -246,7 +246,19 @@ export function variantFor(b: Block, len: number): string {
   return v ? variantId(b.id, v.days) : b.id;
 }
 
-/** A month block's variant as a block of its own, hidden, to place in a quilt: the variant's
+/** The variants a kind of data block can add (spec 025). */
+export const VARIANT_DAYS: Record<DataKind, readonly (28 | 29 | 30 | 1)[]> = {
+  month: [30, 29, 28, 1],
+  week: [1],
+  day: [],
+};
+
+/** Whether a data block can show a number of `kind`: its own kind, or a single day from a week or
+ *  month block's 1-day variant. */
+export const takesKind = (b: Block, kind: DataKind) =>
+  b.data?.kind === kind || (kind === 'day' && !!b.data?.variants?.some((v) => v.days === 1));
+
+/** A data block's variant as a block of its own, hidden, to place in a quilt: the variant's
  *  drawing and the block's colorings (which hold every variant's fills). */
 export function variantBlock(b: Block, v: DataVariant): Block | undefined {
   if (b.kind !== 'seam') return undefined;
@@ -259,7 +271,7 @@ export function variantBlock(b: Block, v: DataVariant): Block | undefined {
     patches: v.patches,
     ...(v.unconnected ? { unconnected: v.unconnected } : {}),
     notecard: { ...b.notecard, name: `${b.notecard.name} (${v.days} days)`, tags: ['system'] },
-    data: { kind: 'month', of: b.id, days: v.days },
+    data: { kind: b.data?.kind ?? 'month', of: b.id, days: v.days },
   };
 }
 

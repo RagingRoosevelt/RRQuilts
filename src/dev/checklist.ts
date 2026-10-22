@@ -387,6 +387,20 @@ export const CHECKS: Check[] = [
     last: '"can we add support for on-point and diamond-point quilts to be able to add half-row increments?" / "a half increment would add just the short row. and then another half increment would add the next corresponding long row. same idea for diamond point"',
     to: '/',
   },
+  {
+    id: 'TC-145',
+    group: G.small,
+    text: '1-day variants: a week data block’s Draw tab › Variant offers + 1 day (a copy of the 7); a month block’s offers 30, 29, 28 and 1 day. The 1-day variant’s Color tab has numeral 1 only. In a Weeks quilt, Design › Blocks › Day blocks lists that week block next to Day Square; placing 053 (Dec 31) with the week block in use shows its 1-day variant there. Pick Day Square for days and 053 shows Day Square instead. Switching the block to Day in Details drops its variants.',
+    last: '"the week and month block types should have a 1 day variant"',
+    to: '/',
+  },
+  {
+    id: 'TC-146',
+    group: G.small,
+    text: 'Block Details: a Metadata line (same labelled divider) sits between the Data block section and Tags, Category and Techniques.',
+    last: '"we should add a seperator in block details between the data block info and the metadata section"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

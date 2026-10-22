@@ -20,6 +20,7 @@ import {
   periodLength,
   pruneVariants,
   syncVariants,
+  takesKind,
   variantFor,
   scaleFill,
   slotColoring,
@@ -206,6 +207,18 @@ describe('data block types and variants', () => {
     expect(cleared.data!.types).toEqual({});
     expect(pruneVariants(blocks, [cleared]).map((b) => b.id)).toEqual(['ms']);
     expect(variantFor(month(), 31)).toBe('ms');
+    // A 1-day variant: what a single day shows; it makes the block a day type too.
+    const withDay: Block = {
+      ...month(),
+      data: {
+        kind: 'month',
+        variants: [...month().data!.variants!, { ...month().data!.variants![0]!, days: 1 }],
+      },
+    };
+    expect(variantFor(withDay, 1)).toBe('ms-v1');
+    expect(variantFor(withDay, 28)).toBe('ms-v28');
+    expect(takesKind(withDay, 'day')).toBe(true);
+    expect(takesKind(month(), 'day')).toBe(false);
   });
 });
 

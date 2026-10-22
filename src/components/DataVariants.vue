@@ -1,17 +1,18 @@
 <template>
-  <!-- A month data block's variants (spec 025): its own drawing is the 31-day one; 30, 29 and
-       28-day variants are drawn and numbered on their own. Picking one shows and edits it. -->
+  <!-- A data block's variants (spec 025): its own drawing is the 31-day one (a week block's the
+       7-day one); a month block adds 30, 29, 28 and 1-day variants, a week block a 1-day one, each
+       drawn and numbered on its own. Picking one shows and edits it. -->
   <div class="row items-center no-wrap q-gutter-none" style="gap: 6px">
     <span class="text-caption">Variant</span>
     <q-btn-toggle
       :model-value="shown"
-      :options="days.map((d) => ({ label: `${d} days`, value: d }))"
+      :options="days.map((d) => ({ label: d === 1 ? '1 day' : `${d} days`, value: d }))"
       dense
       no-caps
       unelevated
       toggle-color="primary"
       aria-label="Variant"
-      @update:model-value="(d: number) => (editor.blockVariant = d === 31 ? null : d)"
+      @update:model-value="(d: number) => (editor.blockVariant = d === base ? null : d)"
     />
     <q-btn
       v-if="!readonly && missing.length"
@@ -26,13 +27,15 @@
       <q-menu>
         <q-list dense>
           <q-item v-for="d in missing" :key="d" v-close-popup clickable @click="add(d)">
-            <q-item-section>{{ d }} days (a copy of the 31)</q-item-section>
+            <q-item-section
+              >{{ d === 1 ? '1 day' : `${d} days` }} (a copy of the {{ base }})</q-item-section
+            >
           </q-item>
         </q-list>
       </q-menu>
     </q-btn>
     <q-btn
-      v-if="!readonly && shown !== 31"
+      v-if="!readonly && shown !== base"
       flat
       dense
       round
@@ -48,6 +51,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { KIND_DAYS, VARIANT_DAYS } from '@/model/data-quilt';
 import { newId } from '@/model/ids';
 import type { DataVariant, SeamBlock } from '@/model/schema/block';
 import { useEditorStore } from '@/stores/editor';
@@ -57,17 +61,23 @@ const props = defineProps<{ block: SeamBlock; readonly?: boolean }>();
 const editor = useEditorStore();
 const project = useProjectStore();
 
+const kind = computed(() => props.block.data?.kind ?? 'month');
+/** The block's own drawing: 31 days (month) or 7 (week). */
+const base = computed(() => KIND_DAYS[kind.value]);
 const variants = computed(() => props.block.data?.variants ?? []);
-const days = computed(() => [31, ...variants.value.map((v) => v.days).sort((a, b) => b - a)]);
+const days = computed(() => [
+  base.value,
+  ...variants.value.map((v) => v.days).sort((a, b) => b - a),
+]);
 const shown = computed(() =>
-  variants.value.some((v) => v.days === editor.blockVariant) ? editor.blockVariant! : 31,
+  variants.value.some((v) => v.days === editor.blockVariant) ? editor.blockVariant! : base.value,
 );
 const missing = computed(() =>
-  ([30, 29, 28] as const).filter((d) => !variants.value.some((v) => v.days === d)),
+  VARIANT_DAYS[kind.value].filter((d) => !variants.value.some((v) => v.days === d)),
 );
 
 /** A new variant: the 31-day drawing copied with fresh ids, each patch keeping its fills. */
-function add(d: 28 | 29 | 30) {
+function add(d: 28 | 29 | 30 | 1) {
   const b = props.block;
   const id = new Map<string, string>();
   const fresh = (old: string) => {

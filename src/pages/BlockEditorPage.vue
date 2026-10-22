@@ -147,7 +147,7 @@
         />
         <DataVariants
           v-if="
-            stored?.data?.kind === 'month' &&
+            (stored?.data?.kind === 'month' || stored?.data?.kind === 'week') &&
             (editor.blockMode === 'draw' || editor.blockMode === 'color')
           "
           :block="stored!"

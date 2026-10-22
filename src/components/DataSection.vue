@@ -60,7 +60,7 @@ import { computed } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { plainFill } from '@/model/coloring';
-import { fitOrder, newDataPlan } from '@/model/data-quilt';
+import { fitOrder, newDataPlan, VARIANT_DAYS } from '@/model/data-quilt';
 import type { Block, DataKind } from '@/model/schema/block';
 import type { DataPlan } from '@/model/schema/data-quilt';
 import type { Quilt } from '@/model/schema/quilt';
@@ -83,9 +83,9 @@ const PLAN_HINTS: Record<DataPlan['plan'], string> = {
 };
 const KIND_HINTS: Record<DataKind, string> = {
   day: 'Numerals: 1. A Days plan places it on every day, a Weeks plan on the days left over.',
-  week: 'Numerals: 1 to 7.',
+  week: 'Numerals: 1 to 7. The Draw tab can add a 1-day variant, for a Weeks plan’s days left over.',
   month:
-    'Numerals: 1 to 31. The Draw tab can add 30, 29 and 28-day variants; a month shows the smallest with enough days.',
+    'Numerals: 1 to 31. The Draw tab can add 30, 29, 28 and 1-day variants; a month shows the smallest with enough days, a single day the 1-day one.',
 };
 
 const on = computed(() => !!(props.quilt ? props.quilt.data?.on : props.block?.data));
@@ -124,10 +124,19 @@ function setOn(v: boolean) {
   });
 }
 
-/** A month block's variants and their fills removed. */
-function dropVariants(db: Block) {
-  const gone = new Set((db.data?.variants ?? []).flatMap((v) => v.patches.map((p) => p.id)));
-  if (db.data) delete db.data.variants;
+/** A data block's variants the kind `keep` can't have removed, with their fills (all of them
+ *  when no kind is given). */
+function dropVariants(db: Block, keep?: DataKind) {
+  const allowed: readonly number[] = keep ? VARIANT_DAYS[keep] : [];
+  const all = db.data?.variants ?? [];
+  const gone = new Set(
+    all.filter((v) => !allowed.includes(v.days)).flatMap((v) => v.patches.map((p) => p.id)),
+  );
+  const rest = all.filter((v) => allowed.includes(v.days));
+  if (db.data) {
+    if (rest.length) db.data.variants = rest;
+    else delete db.data.variants;
+  }
   for (const c of db.colorings) for (const k of gone) delete c.fills[k];
 }
 
@@ -136,7 +145,7 @@ function setKind(v: string) {
   if (!b || props.readonly) return;
   project.change((d) => {
     const db = d.project.blocks.find((x) => x.id === b.id)!;
-    if (v !== 'month') dropVariants(db);
+    dropVariants(db, v as DataKind);
     db.data = { ...db.data, kind: v as DataKind };
   });
 }

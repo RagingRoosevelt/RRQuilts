@@ -86,7 +86,10 @@ server calls; offline first).
   carries a value slot: "5·A", "5·B". Slot A is the default.
 - **Data block**: a block switched on as one in its Details tab, with a **kind**: day, week or month.
   It is a **type** the quilt places. A month block has **variants**: its own drawing is the 31-day
-  one, and it may add 30, 29 and 28-day variants, each drawn and numbered on its own. One color
+  one, and it may add 30, 29, 28 and 1-day variants, each drawn and numbered on its own; a week
+  block may add a 1-day variant (owner, 2026-10-21: "the week and month block types should have a 1
+  day variant"). A 1-day variant makes the block a day type too: a Weeks plan's days left over take
+  the week type's 1-day variant unless a day type is picked. One color
   variation covers all its variants.
 - **Numbered list**: every number of the plan, months by name and weeks and days as 001, 002…,
   each empty or placed on a block space. The label is the place in the list: number k is the

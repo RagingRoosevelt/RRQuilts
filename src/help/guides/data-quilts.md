@@ -56,7 +56,7 @@ it had underneath. That color is what **As designed** shows.
 high and a low temperature. Each value has its own numerals and its own order line. **Show
 numerals** and **Show order line** draw the numerals and a line through the patches in order.
 
-### Variants for shorter months
+### Variants for shorter months and single days
 
 A month block's own drawing is for 31 days. At the top of the **Draw** and **Color** tabs,
 **Variant** adds a 30, 29, or 28-day variant, which starts as a copy of the 31-day drawing. Pick a
@@ -64,6 +64,11 @@ variant to draw and number it on its own. A month shows the variant with the few
 covers it: February takes the 28-day variant (the 29 in a leap year), and a 30-day month without a
 30-day variant takes the 31. Places past a month's last day show the filler or their own color, as
 set under **Places past a number’s days**.
+
+Month and week blocks can also add a **1 day** variant. It stands for a single day, so it serves
+the days a Weeks plan leaves over (365, and 366 in a leap year) and the days of a Days plan, and the
+block is listed with the day blocks. Unless you pick a day block, the days left over in a Weeks plan
+take the 1-day variant of the week block in use.
 
 The built-in library has a **Month Strip** with 30, 29, and 28-day variants (31 bars each, the days
 past the month in black), a **Week Row** of 7 bars, and a **Day Square** with one place, all filed
