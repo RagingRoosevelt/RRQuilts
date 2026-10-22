@@ -15,7 +15,8 @@ import { fillQuilt, starterKit } from '@/dev/fill-quilt';
 const dir = process.env.FORMAT_DEMO;
 
 type Any = any; // eslint-disable-line @typescript-eslint/no-explicit-any
-type Add = { name: string; style?: string; layout?: Any; borders?: Any[] };
+/** `data`: a data quilt (v9), its block spaces numbered in order with the built-in Month Strip. */
+type Add = { name: string; style?: string; layout?: Any; borders?: Any[]; data?: boolean };
 
 /** Layout capabilities each project format version added (the first is the 3×3 every demo has). */
 const ADDED: Record<number, Add[]> = {
@@ -44,6 +45,16 @@ const ADDED: Record<number, Add[]> = {
     { name: 'Baby Blocks of Blocks', style: 'baby-blocks' },
   ],
   8: [], // v8 added palette tags, no layouts
+  9: [
+    { name: 'On Point Half Rows', style: 'on-point', layout: { cols: 3.5, rows: 3.5 } },
+    { name: 'Diamond Point Half Rows', style: 'diamond-point', layout: { cols: 4, rows: 3.5 } },
+    {
+      name: 'Data Quilt',
+      style: 'straight-set',
+      layout: { cols: 2, rows: 6, block: [15.5, 3], sash: [1, 1], sashBorder: true },
+      data: true,
+    },
+  ],
 };
 
 it.skipIf(!dir)('write the demo project', async () => {
@@ -76,6 +87,36 @@ it.skipIf(!dir)('write the demo project', async () => {
     const quilt = createQuilt(add.name, layout, borders as Any);
     doc = produce(doc, (d: Any) => void d.project.quilts.push(quilt));
     doc = fillQuilt(doc, quilt.id, kit);
+    if (add.data) doc = await dataQuilt(doc, quilt.id);
   }
   writeFileSync(`${dir}/demo-v${VERSION}.rrq`, serializeProject(doc));
 });
+
+/** A data quilt (spec 025): next year's months plan, its block spaces numbered in order, each
+ *  showing the built-in Month Strip's variant for its month, in the sample year's colors. */
+async function dataQuilt(doc: Any, id: string): Promise<Any> {
+  const { builtinItems } = await import('@/content/starter');
+  const { newDataPlan } = await import('@/model/data-quilt');
+  const { syncDraft } = await import('@/model/library-items');
+  const items = builtinItems();
+  const strip = items.blocks.find((b) => b.id === 'rrquilts.month-strip')!;
+  // As the app does: library blocks and colors in use (the scales' built-in colors) come in.
+  const lib = {
+    block: (x: string) => items.blocks.find((b) => b.id === x),
+    color: (x: string) => items.colors.find((c) => c.id === x),
+  };
+  return produce(doc, (d: Any) => {
+    const q = d.project.quilts.find((x: Any) => x.id === id);
+    const spaces = slots
+      .generateFor(q)
+      .slots.filter((s: Any) => s.kind === 'block')
+      .map((s: Any) => s.id)
+      .slice(0, 12);
+    q.data = {
+      ...newDataPlan('in', 2027),
+      order: spaces,
+      types: Object.fromEntries(spaces.map((s: string) => [s, strip.id])),
+    };
+    syncDraft(d, lib);
+  });
+}

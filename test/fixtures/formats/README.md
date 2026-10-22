@@ -17,6 +17,8 @@ that release's code, plus a quilt for each layout capability the version added (
 - v6: Variable Point, One Patch, Baby Blocks, Variable Blocks, Pieced Border
 - v7: Shaped Blocks, Hexagons on a Flow, Diamond Point, Baby Blocks of Blocks
 - v8: no new layouts (it added palette tags)
+- v9: On Point Half Rows, Diamond Point Half Rows, Data Quilt (months placed with the built-in Month
+  Strip and its variants, in the sample year's colors)
 
 `demo-v<N>/` holds a PNG of each of its quilts and blocks, saved with the app's Save image by a
 release that writes that version.
@@ -53,6 +55,7 @@ uv run scripts/format-images.py docs test/fixtures/formats/demo-vN.rrq
 - project v6, library v3, block v1, palette v1, settings v1: written by release v0.4.0's code.
 - project v7, library v4, block v2: written by release v0.5.0's code.
 - project v8, library v5, block v3: written by release v0.6.0's code.
-- demo v4, v5, v6, v7, v8: written by releases v0.1.0, v0.3.0, v0.4.0, v0.5.0 and v0.6.0. Pictures:
-  v4 by v0.2.0 (v0.1.0 had no Save image; both write v4), v5 by v0.3.0, v6 by v0.4.0, v7 by v0.5.0,
-  v8 by v0.6.0.
+- project v9, library v6, block v4: written by release v0.7.0's code.
+- demo v4, v5, v6, v7, v8, v9: written by releases v0.1.0, v0.3.0, v0.4.0, v0.5.0, v0.6.0 and v0.7.0.
+  Pictures: v4 by v0.2.0 (v0.1.0 had no Save image; both write v4), v5 by v0.3.0, v6 by v0.4.0, v7
+  by v0.5.0, v8 by v0.6.0, v9 by v0.7.0.
