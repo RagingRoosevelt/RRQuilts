@@ -30,6 +30,44 @@ const strip = (id: string, style: string, width: number, along = 4, across = 1) 
 
 export const VARIATIONS: Variation[] = [
   {
+    id: 'G031',
+    title: 'On-Point half rows with seamed corners',
+    added: 'On-Point half rows (0.7.0)',
+    expect:
+      'On-Point 3½ × 3½ with Corner Seam: the top-left and bottom-right corners have corner pieces, each split by its seam; at the top-right and bottom-left the edge runs along a diamond’s side, so two half diamonds meet there instead.',
+    style: 'on-point',
+    layout: { cols: 3.5, rows: 3.5, corner: 'seam' },
+    fill: 'mix',
+  },
+  {
+    id: 'G030',
+    title: 'On-Point half row, sashed, floating',
+    added: 'On-Point half rows (0.7.0)',
+    expect:
+      'On-Point 4 × 3½ with 1½ in sashing and cornerstones around every block and a 2 in float: the bottom row is the short row (3 blocks), framed like the rest, and the oversized setting triangles reach past it to the quilt edge.',
+    style: 'on-point',
+    layout: { cols: 4, rows: 3.5, sash: 1.5, edge: { finish: 'float', float: 2 } },
+  },
+  {
+    id: 'G029',
+    title: 'Variable Point, 3½ across',
+    added: 'On-Point half rows (0.7.0)',
+    expect:
+      'Tall Variable Point diamonds, 3½ across by 3 down: the right column is the short column (2 diamonds), setting pieces along every side, painted colors only.',
+    style: 'variable-point',
+    layout: { cols: 3.5, rows: 3 },
+    fill: 'solids',
+  },
+  {
+    id: 'G028',
+    title: 'On-Point, half across only',
+    added: 'On-Point half rows (0.7.0)',
+    expect:
+      'On-Point 2½ × 3: three long rows of 2 blocks and short rows of 2 (one more than a whole 2 × 3 has), the right edge running through the centers of a column of half diamonds; the quilt is as tall as 2 × 3.',
+    style: 'on-point',
+    layout: { cols: 2.5, rows: 3 },
+  },
+  {
     id: 'G027',
     title: 'On-Point, 3½ × 4½ blocks',
     added: 'On-Point half rows (0.7.0)',

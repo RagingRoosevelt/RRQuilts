@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { onPointDefaults } from '@/model/io';
 import { generateSlots } from '@/model/layout/slots';
+import { pathPolygon } from '@/model/geometry/path';
+import { area } from '@/model/print/polygon';
 import type { Layout } from '@/model/schema/quilt';
 
 const onPoint = (cols: number, rows: number, finish: 'exact' | 'none' = 'exact'): Layout => ({
@@ -46,6 +48,35 @@ describe('On-Point half rows (a half row is the short row after the last long on
     const g = generateSlots(onPoint(2.5, 2.5, 'none'), []);
     expect(g.edge.length).toBeGreaterThan(8);
     expect(g.slots.filter((s) => s.kind === 'block')).toHaveLength(4 + 4);
+  });
+
+  it('pieces cover the quilt exactly: no gaps, no overlaps, half or whole, sashed or floating', () => {
+    for (const [cols, rows] of [
+      [4, 3],
+      [4, 3.5],
+      [3.5, 3],
+      [3.5, 3.5],
+      [1, 1],
+      [1.5, 1],
+    ])
+      for (const [sash, float] of [
+        [0, 0],
+        [0, 2],
+        [1.5, 0],
+        [1.5, 2],
+      ])
+        for (const corner of ['triangle', 'seam'] as const) {
+          const l = {
+            ...onPoint(cols!, rows!),
+            sash,
+            corner,
+            edge: { finish: 'float', float },
+          } as Layout;
+          const g = generateSlots(l, []);
+          const [x0, y0, x1, y1] = g.center;
+          const pieces = g.slots.reduce((t, x) => t + area(pathPolygon(x.outline, [1, 1])), 0);
+          expect(pieces).toBeCloseTo((x1 - x0) * (y1 - y0), 6);
+        }
   });
 
   it('a whole count is as before', () => {

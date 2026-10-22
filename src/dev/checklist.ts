@@ -383,7 +383,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-144',
     group: G.small,
-    text: 'Half rows: an On-Point quilt’s Layout tab › Blocks across and Blocks down step by ½. 5 × 5½ ends at the bottom on a short row (4 blocks) with setting triangles below; 6 adds the next long row. 5½ across adds a short column at the right. Same in the new-quilt wizard, and for Diamond Point and Variable Point. With Whole blocks to the edge (no setting pieces), the zigzag edge ends on the short row. Switching a 5½ On-Point to Straight Set gives 6. Tests › Layout gallery G025 to G027.',
+    text: 'Half rows: an On-Point quilt’s Layout tab › Blocks across and Blocks down step by ½. 5 × 5½ ends at the bottom on a short row (4 blocks) with setting triangles below; 6 adds the next long row. 5½ across adds a short column at the right. Same in the new-quilt wizard, and for Diamond Point and Variable Point. With Whole blocks to the edge (no setting pieces), the zigzag edge ends on the short row. Switching a 5½ On-Point to Straight Set gives 6. Tests › Layout gallery G025 to G031 and Sweeps S09, S10 show halves across and down, with sashing, floating and seamed corners; no gaps at any corner.',
     last: '"can we add support for on-point and diamond-point quilts to be able to add half-row increments?" / "a half increment would add just the short row. and then another half increment would add the next corresponding long row. same idea for diamond point"',
     to: '/',
   },

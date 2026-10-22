@@ -274,8 +274,17 @@ export function onPoint(
         const x = pos(p, q);
         if (status(x) !== 'ring' || held.has(code(x))) continue;
         const [top, right, bottom, left] = sidesOf(centerOf(x));
-        const [x0, x1] = [top || left ? -g : 0, bottom || right ? s + g : s];
-        const [y0, y1] = [top || right ? -g : 0, bottom || left ? s + g : s];
+        // Grown over the sashing on each side facing no block: outside the quilt, or another
+        // setting piece (a half row's corner); between two setting pieces only one grows.
+        // Toward outside the quilt a piece grows a whole cell (trimmed to the edge anyway), so a
+        // half row's corner, beyond the sashing frames, is covered too.
+        const grow = (pp: number, qq: number, tie: boolean) => {
+          const y = pos(pp, qq);
+          const st = status(y);
+          return st === 'out' ? P : tie && st === 'ring' && !held.has(code(y)) ? g : 0;
+        };
+        const [x0, x1] = [-grow(p - 1, q, true), s + grow(p + 1, q, false)];
+        const [y0, y1] = [-grow(p, q + 1, true), s + grow(p, q - 1, false)];
         const at = (lx: number, ly: number): Pt => {
           const [ox, oy] = L(p * P + lx, -q * P + ly);
           return [O[0] + ox, O[1] + oy];
@@ -364,15 +373,36 @@ function extrude(poly: Pt[], r: Bounds, fs: readonly number[]): Pt[] {
     out.push(
       sides.reduce<Pt>((q, s) => [q[0] + NORMAL[s]![0] * fs[s]!, q[1] + NORMAL[s]![1] * fs[s]!], p),
     );
+  // A quilt corner on a vertex where a piece's edge leaves the side (a half row's corner falls
+  // between two half diamonds): the piece along the left or right side also takes the float's
+  // corner square, so the corner isn't left empty. ponytail: its oversized cut shape isn't grown
+  // to match; only half rows with Floating reach this.
+  const [x0, y0, x1, y1] = r;
+  const cornerSide = (v: Pt, s: number) =>
+    (s === 1 || s === 3) && (near(v[0], x0) || near(v[0], x1)) && (near(v[1], y0) || near(v[1], y1))
+      ? near(v[1], y0)
+        ? 0
+        : 2
+      : null;
   poly.forEach((v, i) => {
     const sin = sideOf(poly[(i + n - 1) % n]!, v, r);
     const sout = sideOf(v, poly[(i + 1) % n]!, r);
     if (sin === null && sout === null) out.push(v);
     else if (sin === null) {
       out.push(v);
+      const c = cornerSide(v, sout!);
+      if (c !== null) {
+        push(v, c);
+        push(v, c, sout!);
+      }
       push(v, sout!);
     } else if (sout === null) {
       push(v, sin);
+      const c = cornerSide(v, sin);
+      if (c !== null) {
+        push(v, sin, c);
+        push(v, c);
+      }
       out.push(v);
     } else if (sin === sout) push(v, sin);
     else push(v, sin, sout);
