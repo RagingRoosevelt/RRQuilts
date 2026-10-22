@@ -5,7 +5,8 @@ import { slotGroup } from '@/model/plain';
 import type { Quilt } from '@/model/schema/quilt';
 
 export type Scope = 'this' | 'all' | 'alternate';
-export type Space = Pick<Slot, 'id' | 'alt'> & Partial<Pick<Slot, 'kind' | 'size' | 'shape'>>;
+export type Space = Pick<Slot, 'id' | 'alt'> &
+  Partial<Pick<Slot, 'kind' | 'size' | 'shape' | 'transform'>>;
 
 const SHAPED = new Set(['triangle', 'diamond60', 'hexagon', 'clamshell', 'spool']);
 

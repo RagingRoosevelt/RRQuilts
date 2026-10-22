@@ -176,18 +176,18 @@ For cutting lengths, see [Borders](/help/math/borders).
 
 The left rail holds the tools. Tooltips and a hint line above the tray say what each does.
 
-| Tool                      | What a tap does                                                                                        |
-| ------------------------- | ------------------------------------------------------------------------------------------------------ |
-| **Set block**             | Places the selected block                                                                              |
-| **Rotate**                | Turns a block 90°                                                                                      |
-| **Flip**                  | Mirrors a block, tap the tool again to switch left↔right and top↕bottom                                |
-| **Erase block**           | Removes a block                                                                                        |
-| **Find block**            | Selects that block in the tray and outlines every place it's used                                      |
-| **Paint**                 | Colors one patch                                                                                       |
-| **Spray (same color)**    | Recolors every patch of the same color                                                                 |
-| **Swap color everywhere** | Replaces that color throughout the quilt                                                               |
-| **Eyedropper**            | Picks up a patch's color                                                                               |
-| **Pan**                   | Drag to move around (with the other tools, pinch with two fingers or drag with the right mouse button) |
+| Tool                      | What a tap does                                                                                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Set block**             | Places the selected block                                                                                                                                            |
+| **Rotate**                | Turns a block 90°                                                                                                                                                    |
+| **Flip**                  | Mirrors a block across the quilt, tap the tool again to switch left↔right and top↕bottom. On a turned block, such as in On-Point, it still mirrors as the quilt runs |
+| **Erase block**           | Removes a block                                                                                                                                                      |
+| **Find block**            | Selects that block in the tray and outlines every place it's used                                                                                                    |
+| **Paint**                 | Colors one patch                                                                                                                                                     |
+| **Spray (same color)**    | Recolors every patch of the same color                                                                                                                               |
+| **Swap color everywhere** | Replaces that color throughout the quilt                                                                                                                             |
+| **Eyedropper**            | Picks up a patch's color                                                                                                                                             |
+| **Pan**                   | Drag to move around (with the other tools, pinch with two fingers or drag with the right mouse button)                                                               |
 
 ## Color
 
