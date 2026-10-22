@@ -305,33 +305,6 @@ describe('worst-case yardage (spec 025 US6)', () => {
   });
 });
 
-describe('data plans from earlier format 9 builds', () => {
-  it('unit numbers become the numbered list; pools go; the file opens', async () => {
-    const { parseProject, serializeProject } = await import('@/model/io');
-    const { q, slotId } = dataQuilt(plan());
-    const doc = structuredClone(fixture());
-    const { order: _o, types: _t, ...rest } = q.data!;
-    void [_o, _t];
-    // The first shape: units by space, pools with a seed.
-    doc.project.quilts[0] = {
-      ...q,
-      data: { ...rest, units: { [slotId]: 3 }, picks: { '31': ['x'] }, seed: 2 },
-    } as unknown as Quilt;
-    let r = await parseProject(serializeProject(doc));
-    expect(r.ok).toBe(true);
-    if (!r.ok) return;
-    expect(r.doc.project.quilts[0]!.data).toMatchObject({ order: [null, null, slotId], types: {} });
-    expect(r.doc.project.quilts[0]!.data).not.toHaveProperty('picks');
-    // The second: the numbered list, still with pools.
-    doc.project.quilts[0] = {
-      ...q,
-      data: { ...rest, order: [slotId], picks: { '1': ['x'] }, seed: 0 },
-    } as unknown as Quilt;
-    r = await parseProject(serializeProject(doc));
-    expect(r.ok && r.doc.project.quilts[0]!.data?.order).toEqual([slotId]);
-  });
-});
-
 describe('layout changes on a data quilt', () => {
   it('fewer rows: removed spaces give their numbers back, and the edit goes through', async () => {
     const { syncDraft } = await import('@/model/library-items');

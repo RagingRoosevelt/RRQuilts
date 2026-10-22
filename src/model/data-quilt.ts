@@ -626,35 +626,3 @@ export function sampleCounts(plan: DataPlan, slot: number): number[] {
   }
   return counts;
 }
-
-/**
- * Data plans saved by earlier builds of the unreleased format 9 (spec 025 reworks), brought up to
- * date before validation: unit numbers by space (`units`) become the numbered list (`order`); the
- * block pools (`picks`, `seed`) go, and placed spaces start without a type (tapping one with a type
- * picked gives it one). Raw JSON in, raw JSON out.
- * ponytail: temporary, for the owner's test files; format 9 never shipped these shapes. Remove it
- * (and its call in io.ts and its test) before the 0.7.0 release.
- */
-export function upgradeDataPlans(raw: unknown): unknown {
-  const quilts = (raw as { project?: { quilts?: unknown } })?.project?.quilts;
-  if (!Array.isArray(quilts)) return raw;
-  for (const q of quilts as { data?: Record<string, unknown> }[]) {
-    const d = q?.data;
-    if (!d || typeof d !== 'object') continue;
-    if (!Array.isArray(d.order)) {
-      const units = (d.units ?? {}) as Record<string, unknown>;
-      const order: (string | null)[] = [];
-      for (const [id, u] of Object.entries(units))
-        if (Number.isInteger(u) && (u as number) >= 1 && (u as number) <= 366) {
-          while (order.length < (u as number)) order.push(null);
-          order[(u as number) - 1] = id;
-        }
-      d.order = order;
-    }
-    if (!d.types || typeof d.types !== 'object') d.types = {};
-    delete d.units;
-    delete d.picks;
-    delete d.seed;
-  }
-  return raw;
-}

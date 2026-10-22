@@ -4,7 +4,7 @@ import Value from 'typebox/value';
 import { findDuplicateIds, newId } from './ids';
 import type { Asset } from './schema/shared';
 import { plainFill } from './coloring';
-import { dataBlocks, dataColorings, upgradeDataPlans } from './data-quilt';
+import { dataBlocks, dataColorings } from './data-quilt';
 import type { ColoringBody } from './schema/coloring';
 import { FORMAT, RrqDoc, VERSION } from './schema/project';
 
@@ -240,8 +240,6 @@ export async function parseProject(
   }
   // Spec 029: styles become tags; techniques this version doesn't know are dropped.
   raw = upgradeNotecards(raw);
-  // Spec 025: data plans from earlier builds of the unreleased format 9.
-  raw = upgradeDataPlans(raw);
   if (!Value.Check(RrqDoc, raw)) {
     return { ok: false, error: `Project file is damaged: ${firstError(raw)}` };
   }
