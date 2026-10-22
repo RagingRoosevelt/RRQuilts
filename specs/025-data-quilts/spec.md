@@ -274,7 +274,9 @@ strip type. The quilt shows 365 days in the simulation's colors.
   samples per kind: temperate place, Fairbanks AK and Honolulu HI (highs and lows), three moods,
   rain (temperate, Hilo HI, Phoenix AZ), daylight (temperate, Fairbanks, Austin TX); a value's
   Sample offers its kind's. Hovering any part of a quilt glows in one of three hues from the
-  overlay tint: data blocks (opposite), other block spaces (+120°), the rest (+240°).
+  overlay tint: data blocks (opposite), other spaces that take blocks (+120°; setting and cut-down
+  edge pieces too), patch-only parts (+240°). The block editor's Color tab glows the hovered patch
+  the same way.
 
 ## Success Criteria *(mandatory)*
 

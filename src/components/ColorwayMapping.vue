@@ -27,18 +27,12 @@
         :readonly="readonly"
         @update:model-value="(v: string) => setAuto({ source: v || undefined })"
       />
-      <q-select
+      <PaletteSelect
         :model-value="paletteKey(auto.palette)"
         :options="swapPalettes"
-        option-value="id"
-        option-label="label"
-        emit-value
-        map-options
-        dense
-        outlined
         label="Palette"
         :readonly="readonly"
-        @update:model-value="(v: string) => setAuto({ palette: v.replace(/^project:/, '') })"
+        @update:model-value="(v) => v && setAuto({ palette: v.replace(/^project:/, '') })"
       />
       <div class="text-caption text-grey-7">
         Each color of {{ sourceName }} becomes its nearest in the palette, and keeps up as either
@@ -46,18 +40,12 @@
       </div>
     </template>
     <template v-else>
-      <q-select
+      <PaletteSelect
         :model-value="colorway?.palette ? paletteKey(colorway.palette) : ''"
         :options="[{ id: '', label: 'All colors and palettes' }, ...swapPalettes]"
-        option-value="id"
-        option-label="label"
-        emit-value
-        map-options
-        dense
-        outlined
         label="Pick from"
         :readonly="readonly"
-        @update:model-value="setManualPalette"
+        @update:model-value="(v) => setManualPalette(v ?? '')"
       />
       <div class="text-caption text-grey-7">
         {{ colorway?.name }}: pick what each color of {{ primary }} becomes. Show {{ primary }} to
@@ -97,6 +85,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import PaintMapRow from '@/components/PaintMapRow.vue';
+import PaletteSelect from '@/components/PaletteSelect.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { useSwapOptions, type Opt, type Section } from '@/composables/swap-options';
 import { quiltPaints } from '@/editor/colors';

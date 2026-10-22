@@ -5,7 +5,9 @@ import { gridSpacing, type SnapSettings } from '@/editor/snap';
 import type { Pt, Seg } from '@/model/geometry/path';
 import type { Block, Drawing } from '@/model/schema/block';
 import type { ColoringBody } from '@/model/schema/coloring';
-import { colorLookup, drawBlock, type View } from './draw';
+import { colorLookup, complement, drawBlock, type View } from './draw';
+import { blockPaths } from './paths';
+import { OVERLAY_TINT } from '@/model/targets';
 import { drawDataOverlay, type DataMark } from './data-overlay';
 import { paintLabel, pieceSpots } from '@/model/data-paint';
 import type { RrqDoc } from '@/model/schema/project';
@@ -34,6 +36,8 @@ export interface BlockDrawOptions {
   liveDrawing?: Drawing | null;
   /** Color mode: data paints' numbers, and their order line (spec 025). */
   dataOverlay?: { line: boolean } | null;
+  /** Color mode: the patch under the pointer, outlined with a glow. */
+  hoverPatch?: string | null;
 }
 
 function segPath(p: Path2D, g: Seg) {
@@ -223,5 +227,26 @@ export function drawBlockEditor(
         : [];
     });
     drawDataOverlay(ctx, marks, px, { line: o.dataOverlay.line, dark: o.dark });
+  }
+
+  // The hovered patch: a glowing outline on top, in the quilt editor's hues (a numbered patch as
+  // a data block, any other as a block).
+  const hovered = o.mode === 'color' && o.hoverPatch;
+  const path = hovered ? blockPaths(block).find((x) => x.id === hovered)?.path : undefined;
+  if (path) {
+    const f = o.coloring?.fills[hovered as string];
+    const glow = complement(OVERLAY_TINT, f && 'data' in f ? 180 : 120);
+    ctx.save();
+    ctx.strokeStyle = glow;
+    ctx.shadowColor = glow;
+    ctx.shadowBlur = 10 * o.dpr;
+    ctx.lineJoin = 'round';
+    ctx.globalAlpha = 0.45;
+    ctx.lineWidth = 6.5 * px;
+    ctx.stroke(path);
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 2.5 * px;
+    ctx.stroke(path);
+    ctx.restore();
   }
 }

@@ -124,13 +124,6 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-164',
-    group: G.small,
-    text: 'Glow in every quilt (data or not), Design and Layout: hovering any part outlines it, in one of three colors spread round from the reference overlay’s tint: data blocks one (orange with the default blue tint), other block spaces (empty, plain or ordinary blocks) another (magenta), and sashing, cornerstones, borders and setting pieces the third (green). Change the overlay tint: all three move with it and none is close to it.',
-    last: '"in non-data quilts, the glow shows up on blocks, sashing, borders, etc. for consistency... I think I actually like having the glow show up for all quilt elements. I think what we should do is pick a three-way split complementary color set against the reference overlay and use one color for data blocks, one color for regular blocks, and the third color for any non-block items"',
-    to: '/',
-  },
-  {
     id: 'TC-165',
     group: G.small,
     text: 'Libraries › Palettes › Color card: the Hue, Value, Saturation and Hide non-matching swatches switches line up with the sliders (same left edge) and aren’t cut off by the sidebar edge, on or off; the ± and the fabrics note line up too.',
@@ -142,13 +135,6 @@ export const CHECKS: Check[] = [
     group: G.small,
     text: 'Block editor › Color tab of a month data block: Day numerals sit in tight rows (about 32 px each, 5 rows for 31 numerals at a normal width) with Clear all numerals and the switches right under them, no empty space below the numerals. Same for week and day blocks and with a variant picked.',
     last: '"the div that the buttons sit in is showing up as 248px tall even though the buttons inside it are only 28px tall. that means when several of that container are used (as rows) to show a bunch of those numeral buttons, then there\'s a lot of dead whitespace"',
-    to: '/',
-  },
-  {
-    id: 'TC-167',
-    group: G.small,
-    text: 'New colorway from palette…: the swatches under each palette in the Palette list, and under the field once one is picked, are 22 × 22 px, like the swatches in the color rows below.',
-    last: '"we should make the swatch preview images larger in both the dropdown and when the dropdown selection is shown. I think 22x22 would match what we\'re doing in the mapping dropdowns right below?"',
     to: '/',
   },
   {
@@ -170,6 +156,27 @@ export const CHECKS: Check[] = [
     group: G.small,
     text: 'Design › Data › Values › Sample, by Kind: Temperature offers Daily high and low for the temperate place, Fairbanks, Alaska (cold winters, below 0 °F) and Honolulu, Hawaii (80s all year); Mood: Mood (1 to 5), mostly low with good days, an optimist with bad days; Rainfall: temperate, Hilo, Hawaii (rain most days), Phoenix, Arizona (dry, a few summer storms); Hours of daylight: temperate, Fairbanks (about 4 to 22 h), Austin, Texas. The histogram and quilt change with each.',
     last: "\"let's add a few more samples of each type. let's do a high / low for alaska and hawaii. let's do mood for a depressed person who sometimes has good days and for an optimist who sometimes has bad days. let's do rain for hawaii and arizona. and let's do hours of sunlight for alaska and texas\"",
+    to: '/',
+  },
+  {
+    id: 'TC-171',
+    group: G.small,
+    text: 'Block editor › Color tab: moving the mouse over a patch outlines it with a glow (magenta with the default tint; a patch holding a day numeral orange), gone when the mouse leaves the block. Draw tab: no patch glow.',
+    last: '"let\'s turn glow on for patches in the block editor, too"',
+    to: '/',
+  },
+  {
+    id: 'TC-172',
+    group: G.small,
+    text: 'Glow in every quilt (data or not), Design and Layout: hovering any part outlines it, in one of three colors spread round from the reference overlay’s tint: data blocks one (orange with the default blue tint); spaces that take blocks another (magenta), including On-Point setting triangles, cut-down edge spaces and square cornerstones; and patch-only parts (sashing, borders, strips, One Patch pieces) the third (green). Change the overlay tint: all three move with it and none is close to it.',
+    last: '"you\'re coloring the split blocks that fill in to make a straight edge as patches in terms of the glow color they get assigned. the patch glow should apply for spaces that only patches are allowed in"',
+    to: '/',
+  },
+  {
+    id: 'TC-173',
+    group: G.small,
+    text: 'Palette swatches, 22 × 22 px, under each palette in the list and under the field once one is picked: New colorway from palette… (dialog), and in the Design sidebar’s Colors tab of a non-primary colorway: Palette (Auto mapping) and Pick from (Manual).',
+    last: '"we should make the swatch preview images larger in both the dropdown and when the dropdown selection is shown. I think 22x22 would match what we\'re doing in the mapping dropdowns right below?" / "we need to mak that update in the sidebar version of this dropdown too"',
     to: '/',
   },
 ];

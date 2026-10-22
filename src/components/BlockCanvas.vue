@@ -158,6 +158,8 @@ function previewSeg(a: Pt, b: Pt): Seg {
 }
 
 let lastTap: { at: number; seam: string | null } = { at: 0, seam: null };
+/** Color tab: the patch under the mouse, drawn with a glow. */
+const hoverPatch = ref<string | null>(null);
 
 const vp = useViewport({
   host,
@@ -190,10 +192,12 @@ const vp = useViewport({
       bulge: liveDrawing.value ? null : bulge.value,
       liveDrawing: liveDrawing.value,
       dataOverlay: editor.data.numbers ? { line: editor.data.line } : null,
+      hoverPatch: hoverPatch.value,
     });
   },
 
   onHover(p) {
+    hoverPatch.value = p && editor.blockMode === 'color' ? patchAt(p) : null;
     if (!p) {
       snapPoint.value = null;
       emit('pointer', null);
@@ -372,7 +376,7 @@ watch(
   ],
   vp.schedule,
 );
-watch([preview, previewRect, marquee, snapPoint, liveDrawing], vp.schedule);
+watch([preview, previewRect, marquee, snapPoint, liveDrawing, hoverPatch], vp.schedule);
 defineExpose({ fit: vp.fit });
 </script>
 

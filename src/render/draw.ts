@@ -8,6 +8,7 @@ import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt, QuiltTarget } from '@/model/schema/quilt';
 import { shownColorway, swapper } from '@/model/colorways';
 import { OVERLAY_TINT, overlayFill, placeTarget } from '@/model/targets';
+import { takesBlock } from '@/editor/scope';
 import { mul, type M } from './affine';
 import { blockPaths, toPath2D } from './paths';
 import { placementMatrix } from './placement';
@@ -178,7 +179,7 @@ export function drawQuilt(
     drawTarget(ctx, quilt.target!, generated.bounds, generated.anchor ?? generated.bounds, px);
   // Hovered and found spaces: a glowing outline over everything, in one of three hues spread
   // round the wheel from the overlay's tint (none near it): the opposite for data blocks, a third
-  // of the way round each side for other block spaces and for the rest (sashing, borders…).
+  // of the way round each side for other spaces that take blocks and for patch-only ones.
   const tint = overlay ? (quilt.target!.tint ?? OVERLAY_TINT) : OVERLAY_TINT;
   const glows = {
     data: complement(tint),
@@ -192,12 +193,13 @@ export function drawQuilt(
     const hi = slot.id === o.hover ? 2.5 : o.selected?.has(slot.id) ? 3 : 0;
     if (!hi) continue;
     const content = quilt.layers[0].slots[slot.id];
-    const glow =
-      slot.kind !== 'block'
-        ? glows.other
-        : content && blocks.get(content.block)?.data
-          ? glows.data
-          : glows.block;
+    // Spaces that take blocks (setting and cut-down edge pieces too) as blocks; patch-only ones
+    // (sashing, borders, strips, one-patch pieces) as the rest.
+    const glow = !takesBlock(slot)
+      ? glows.other
+      : content && blocks.get(content.block)?.data
+        ? glows.data
+        : glows.block;
     ctx.strokeStyle = glow;
     ctx.shadowColor = glow;
     const path = slotPath(slot);
