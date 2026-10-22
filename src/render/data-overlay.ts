@@ -143,9 +143,11 @@ export function drawDayArrows(
 ) {
   if (!paths.length) return;
   ctx.save();
-  ctx.strokeStyle = ctx.fillStyle = dark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.35)';
-  ctx.lineWidth = 1.25 * px;
+  ctx.strokeStyle = ctx.fillStyle = dark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.22)';
+  // Wider than the month trace (2 px), and light, so the trace reads on top of it.
+  ctx.lineWidth = 5 * px;
   ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
   for (const p of paths) {
     ctx.beginPath();
     p.forEach((q, i) => (i ? ctx.lineTo(...q) : ctx.moveTo(...q)));
@@ -153,7 +155,7 @@ export function drawDayArrows(
     // The head, at the last day, pointing on from the day before.
     const [a, b] = [p.at(-2)!, p.at(-1)!];
     const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
-    const h = 6 * px;
+    const h = 13 * px;
     ctx.beginPath();
     ctx.moveTo(...b);
     ctx.lineTo(b[0] - h * Math.cos(ang - 0.45), b[1] - h * Math.sin(ang - 0.45));
