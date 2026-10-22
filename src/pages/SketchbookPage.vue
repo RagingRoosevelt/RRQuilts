@@ -116,6 +116,9 @@
                   <q-item v-close-popup clickable @click="duplicate(q.id)"
                     ><q-item-section>Create copy</q-item-section></q-item
                   >
+                  <q-item v-close-popup clickable @click="project.exportQuilt(q.id)"
+                    ><q-item-section>Export quilt…</q-item-section></q-item
+                  >
                   <q-item v-close-popup clickable @click="startSwapColorway(q)"
                     ><q-item-section>New colorway from palette…</q-item-section></q-item
                   >

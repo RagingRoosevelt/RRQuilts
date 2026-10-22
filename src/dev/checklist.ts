@@ -408,6 +408,13 @@ export const CHECKS: Check[] = [
     last: '"in the values color mapping, for the first and last rows, sicne they only have one temp input value their input cells don\'t align with the other cells of that type"',
     to: '/',
   },
+  {
+    id: 'TC-149',
+    group: G.small,
+    text: 'Project › Quilts › a quilt’s ⋮ › Export quilt…: saves (or downloads) “<quilt name>.rrq” holding only that quilt, with the blocks, colors, fabrics (images too) and data plan it uses, and palettes cut to those. Open it: one quilt, looks the same. In another project, Import quilts from it brings that quilt in.',
+    last: '"do we have a method for exporting a single quilt?" / "yeah, let\'s do that in 0.7.0"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
