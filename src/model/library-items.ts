@@ -3,7 +3,7 @@
 import { plainFill } from './coloring';
 import { swapColorings } from './colorways';
 import { applyPicks, dataBlocks, dataColorings, pruneVariants, syncVariants } from './data-quilt';
-import { castDraft, current, produce, type Draft } from 'immer';
+import { castDraft, current, isDraft, produce, type Draft } from 'immer';
 import { refreshAuto, type PaletteSwatch } from './colorway-auto';
 import { projectPalettes, syncPalettes } from './project-palettes';
 import { newId } from './ids';
@@ -84,7 +84,13 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   }
   // Data quilts (spec 025): placed spaces show their type's variant for their number's days.
   syncVariants(p.blocks, p.quilts);
-  for (const q of p.quilts) applyPicks(q, p.blocks, newId);
+  p.quilts.forEach((q, i) => {
+    if (!q.data?.on) return;
+    // A quilt swapped in whole by the edit (a layout change) is frozen, not a draft: copy it so
+    // its blocks can be placed.
+    const live = isDraft(q) ? q : (p.quilts[i] = castDraft(structuredClone(q)));
+    applyPicks(live, p.blocks, newId);
+  });
   const withVariants = pruneVariants(p.blocks, p.quilts);
   if (withVariants.length !== p.blocks.length) p.blocks = withVariants;
   const usedBlocks = blocksUsed(p);

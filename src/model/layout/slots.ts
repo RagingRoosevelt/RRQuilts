@@ -279,10 +279,16 @@ export function reconcile(quilt: Quilt, layout: Layout, borders: Border[]): Reco
 /** Apply a new layout/borders, keeping content in slots that still exist. Returns a copy. */
 export function applyLayout(quilt: Quilt, layout: Layout, borders: Border[]): Quilt {
   const { slots } = reconcile(quilt, layout, borders);
+  // A data quilt (spec 025): spaces the layout no longer has give their numbers back.
+  const kept = quilt.data && new Set(generateSlots(layout, borders).slots.map((x) => x.id));
   return produce(quilt, (q) => {
     q.layout = layout;
     q.borders = borders;
     q.layers[0].slots = slots;
+    if (q.data && kept) {
+      q.data.order = q.data.order.map((id) => (id && !kept.has(id) ? null : id));
+      for (const id of Object.keys(q.data.types)) if (!kept.has(id)) delete q.data.types[id];
+    }
   });
 }
 

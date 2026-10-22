@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { produce } from 'immer';
+import { castDraft, produce } from 'immer';
 import { Value } from 'typebox/value';
 import {
   applyPicks,
@@ -316,5 +316,33 @@ describe('data plans from earlier format 9 builds', () => {
     } as unknown as Quilt;
     r = await parseProject(serializeProject(doc));
     expect(r.ok && r.doc.project.quilts[0]!.data?.order).toEqual([slotId]);
+  });
+});
+
+describe('layout changes on a data quilt', () => {
+  it('fewer rows: removed spaces give their numbers back, and the edit goes through', async () => {
+    const { syncDraft } = await import('@/model/library-items');
+    const { applyLayout, generateFor } = await import('@/model/layout/slots');
+    const doc = structuredClone(fixture());
+    const i = doc.project.quilts.findIndex((q) => 'rows' in q.layout && q.layout.rows > 1);
+    const q0 = doc.project.quilts[i]!;
+    const ids = generateFor(q0)
+      .slots.filter((s) => s.kind === 'block')
+      .map((s) => s.id);
+    doc.project.quilts[i] = { ...q0, data: { ...plan(), order: ids, types: {} } };
+    const frozen = produce(doc, () => {}); // as the store holds it
+    const q = frozen.project.quilts[i]!;
+    const layout = {
+      ...q.layout,
+      rows: (q.layout as { rows: number }).rows - 1,
+    } as Quilt['layout'];
+    const next = produce(frozen, (d) => {
+      d.project.quilts[i] = castDraft(applyLayout(q, layout, q.borders));
+      syncDraft(d);
+    });
+    const left = new Set(generateFor(next.project.quilts[i]!).slots.map((s) => s.id));
+    const order = next.project.quilts[i]!.data!.order;
+    expect(order.filter(Boolean).every((id) => left.has(id!))).toBe(true);
+    expect(order.some((id) => id === null)).toBe(true);
   });
 });

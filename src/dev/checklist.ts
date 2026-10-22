@@ -366,6 +366,13 @@ export const CHECKS: Check[] = [
     last: '"when placing data blocks in the quilt design interface, undo should undo both the block placement as well as the month advancement"',
     to: '/',
   },
+  {
+    id: 'TC-142',
+    group: G.small,
+    text: 'Layout changes on a data quilt: open Test Layouts › Quilt 22 (On-Point 6 × 6, weeks), Layout › Blocks down 5: the quilt gets shorter (Finished 88.853 × 74.711 in) and the weeks on the removed row become empty numbers in Design › Blocks. Try Blocks across, block size and another style on a data quilt too. Undo puts it back.',
+    last: '"take a look at Quilt 22. go to layout and change the number of blocks down to 5 instead of 6. quilt size doesn\'t change"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
