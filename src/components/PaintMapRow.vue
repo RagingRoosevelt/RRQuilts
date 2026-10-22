@@ -30,13 +30,14 @@
       <div class="col ellipsis text-left">{{ current?.notecard.name }}</div>
       <q-icon name="arrow_drop_down" size="20px" />
     </button>
-    <!-- As wide as the whole row (so it stays inside the sidebar), under it. -->
+    <!-- As wide as the whole row (so it stays inside the sidebar), under it; at least 300 px, so a
+         narrow row (a data quilt's range) still shows readable swatches. -->
     <q-menu
       v-if="!readonly && rowEl"
       v-model="open"
       :target="rowEl"
       no-parent-event
-      :style="{ width: `${rowEl.offsetWidth}px` }"
+      :style="{ width: `${Math.max(rowEl.offsetWidth, 300)}px`, maxWidth: '95vw' }"
       anchor="bottom left"
       self="top left"
       class="ps-menu"
