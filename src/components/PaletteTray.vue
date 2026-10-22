@@ -13,9 +13,22 @@
       <q-tab v-if="data" name="data" label="Data" />
     </q-tabs>
 
-    <!-- A data quilt (spec 025): its numbered list and block pools instead of the blocks, and its
-         Data tab. -->
-    <div v-if="data && tab !== 'colors'" class="col scroll q-pa-sm">
+    <!-- A data quilt (spec 025): Data blocks (its numbered list and block types) or Other blocks
+         (the usual blocks, for the spaces without numbers), and its Data tab. -->
+    <div v-if="data && tab === 'blocks'" class="q-px-sm q-pt-sm">
+      <SlidePicker
+        :model-value="editor.tool === 'set' ? 'other' : 'data'"
+        :options="[
+          { value: 'data', label: 'Data blocks' },
+          { value: 'other', label: 'Other blocks' },
+        ]"
+        @update:model-value="(v) => (editor.tool = v === 'other' ? 'set' : 'number')"
+      />
+    </div>
+    <div
+      v-if="data && tab !== 'colors' && !(tab === 'blocks' && editor.tool === 'set')"
+      class="col scroll q-pa-sm"
+    >
       <slot :name="tab" />
     </div>
     <div v-else-if="tab === 'blocks' && noBlocks" class="q-pa-md text-caption text-grey-8">
@@ -281,6 +294,7 @@ import { fabricsIn, isLibraryItem, projectColorings, splitItems } from '@/model/
 import { blocksByLibrary, libraryGroups } from '@/model/library';
 import { projectPalettes } from '@/model/project-palettes';
 import BlockSections from '@/components/BlockSections.vue';
+import SlidePicker from '@/components/SlidePicker.vue';
 import BlockFilter from '@/components/BlockFilter.vue';
 import { blockFits, type ShapeFilter } from '@/render/layout-samples';
 import { creditCopy } from '@/model/credits';
@@ -384,8 +398,10 @@ const blockGroups = computed(() => {
 /** Sidebar: Mine, then each library's available blocks in category sections. */
 const filterShape = ref<ShapeFilter | null>(null);
 const compatibleOnly = computed(() => !!props.fitsQuilt && app.settings.compatibleBlocks);
+/** A data quilt's Other blocks leave data blocks out: those go on through numbering. */
 const fits = (b: Block) =>
-  compatibleOnly.value ? props.fitsQuilt!(b) : blockFits(b.shape, null, filterShape.value);
+  !(props.data && b.data) &&
+  (compatibleOnly.value ? props.fitsQuilt!(b) : blockFits(b.shape, null, filterShape.value));
 const blockSectionGroups = computed(() => {
   const [all, ...libs] = blockGroups.value;
   const mine = { ...all!, items: all!.items.filter(fits) };

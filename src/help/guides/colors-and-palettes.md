@@ -64,7 +64,7 @@ The filter sidebar on the Libraries page (Palettes or All) and in the project's 
 a **Color** card. Switch on **Hue** and slide to the color you want, with **±** for how wide a range
 around it. **Value** (dark to light) and **Saturation** (muted to vivid) take a range too. A palette
 stays when one of its swatches is in every range you set. Its other swatches are dimmed, or hidden
-with **Only matching swatches**. Grays have no hue, so a hue never finds them. Fabrics count by
+with **Hide non-matching swatches**. Grays have no hue, so a hue never finds them. Fabrics count by
 their average color.
 
 ## Paint a quilt

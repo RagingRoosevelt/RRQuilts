@@ -91,7 +91,8 @@ server calls; offline first).
   day variant"). A 1-day variant makes the block a day type too: a Weeks plan's days left over take
   the week type's 1-day variant unless a day type is picked. One color
   variation covers all its variants.
-- **Numbered list**: every number of the plan, months by name and weeks and days as 001, 002…,
+- **Numbered list**: every number of the plan, months by name (Jan), weeks as Wk 1, Wk 2…, days
+  (and a Weeks plan's left-over days) by date (Jan 2),
   each empty or placed on a block space. The label is the place in the list: number k is the
   period's k-th month, week or day. Reordering moves a space to another number. Placed numbers show
   on the quilt with an order line.
@@ -154,7 +155,8 @@ strip type. The quilt shows 365 days in the simulation's colors.
 4. **Given** the list, **Then** **Fill empty numbers** by Rows, Columns or Snake puts unnumbered
    block spaces on the empty numbers, **Clear** empties the list, and dragging a placed number (or
    its arrows) moves it, relabelling it and the numbers between.
-5. **Given** the quilt, **Then** each placed space shows its label (001…) with an order line.
+5. **Given** the quilt, **Then** each placed space shows its label (Jan, Wk 1, Jan 2) with an
+   order line.
 6. **Given** the Blocks tab, **Then** it lists the data blocks of the plan's kind (Weeks: week
    blocks, and day blocks for the days left over; Days: day blocks) from the project and libraries;
    the selected type is what Place numbers and Fill empty numbers place; tapping a placed space with
@@ -256,6 +258,30 @@ strip type. The quilt shows 365 days in the simulation's colors.
 - **FR-012**: Everything MUST work offline. A weather fetch is a later spec with its constitution
   amendment.
 - **FR-013**: Printing SHOULD offer a quilt-as-you-go mode (User Story 7).
+- **FR-014** (test round 2026-10-22): Number ranges stay joined and at least 1 wide: moving a
+  boundary past a neighbour's pushes the ranges beyond it along (`moveBound`); typed numbers apply
+  on Enter or leaving the field. A value's Sample offers only series of its kind; its sample
+  histogram sits right above its ranges or categories.
+- **FR-015**: A data quilt's Blocks tab offers **Data blocks** (types and the numbered list) or
+  **Other blocks** (the usual blocks without data blocks, with This/All/Alternate). An ordinary
+  block set on a numbered space gives that number back. Its Blocks and Data sections fold away
+  (kept in settings, as the tray's sections), and the numbered list scrolls with the sidebar.
+- **FR-016**: Print lists a data block's variants shown in the quilt as blocks of their own
+  (Month Strip (30 days)). The built-in Month Strip is square (31 × 31 in, 1 in bars).
+- **FR-017** (second round): Switching the plan keeps only placed spaces whose type takes their
+  new number's kind (`replan`); when that takes any off, a dialog says how many and asks first.
+  Labels: months by name, weeks Wk N, days by date, one label in the list and on the quilt. Built-in
+  samples per kind: temperate place, Fairbanks AK and Honolulu HI (highs and lows), three moods,
+  rain (temperate, Hilo HI, Phoenix AZ), daylight (temperate, Fairbanks, Austin TX); a value's
+  Sample offers its kind's. Hovering any part of a quilt glows in one of three hues from the
+  overlay tint: data blocks (opposite), other spaces that take blocks (+120°; setting and cut-down
+  edge pieces too), patch-only parts (+240°). The block editor's Color tab glows the hovered patch
+  the same way.
+- **FR-018**: Built-in data blocks: Month Strip, Week Strip (was Week Row), Day Square, and corner
+  versions with day 1 at the top left corner: Curved (quarter rings), Cornered (nested right
+  angles) and Fan (equal-angle wedges) Month and Week Strips; month ones with 30/29/28 variants.
+  Color variants follow their block's drawing (the project's copy, else the library's), also when a
+  project opens.
 
 ## Success Criteria *(mandatory)*
 

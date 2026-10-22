@@ -270,7 +270,11 @@ export function variantBlock(b: Block, v: DataVariant): Block | undefined {
     drawing: v.drawing,
     patches: v.patches,
     ...(v.unconnected ? { unconnected: v.unconnected } : {}),
-    notecard: { ...b.notecard, name: `${b.notecard.name} (${v.days} days)`, tags: ['system'] },
+    notecard: {
+      ...b.notecard,
+      name: `${b.notecard.name} (${v.days === 1 ? '1 day' : `${v.days} days`})`,
+      tags: ['system'],
+    },
     data: { kind: b.data?.kind ?? 'month', of: b.id, days: v.days },
   };
 }
@@ -335,7 +339,8 @@ export function applyPicks(q: Draft<Quilt>, blocks: readonly Block[], newId: () 
     if (old && !used(old)) delete q.colorings[old];
   });
   // ponytail: an unnumbered space showing a data block is emptied, even one set before the quilt
-  // became a data quilt; Set is off in data quilts, so only numbering puts them there.
+  // became a data quilt; Other blocks only offers them for numbering, so only numbering puts them
+  // there.
   const placed = new Set(plan.order);
   for (const id of Object.keys(plan.types)) if (!placed.has(id)) delete plan.types[id];
   for (const [id, s] of Object.entries(slots)) {
@@ -469,6 +474,29 @@ export function fitOrder(plan: DataPlan): DataPlan {
   return { ...plan, order: Array.from({ length: n }, (_, i) => plan.order[i] ?? null) };
 }
 
+/** The plan switched to Months, Weeks or Days: numbers past the new count go, and so do placed
+ *  spaces whose type can't show their new number's kind (a week block in a month). `lost`: how
+ *  many placed spaces that empties. */
+export function replan(
+  plan: DataPlan,
+  to: DataPlan['plan'],
+  blocks: ReadonlyMap<string, Block>,
+): { plan: DataPlan; lost: number } {
+  const start = to === 'months' ? `${plan.start.slice(0, 8)}01` : plan.start;
+  let next = fitOrder({ ...plan, plan: to, start });
+  next = {
+    ...next,
+    order: next.order.map((id, i) => {
+      const type = id ? blocks.get(plan.types[id] ?? '') : undefined;
+      const kind = numberInfo(next, i + 1)?.kind;
+      return id && type && kind && takesKind(type, kind) ? id : null;
+    }),
+  };
+  const kept = new Set(next.order.filter(Boolean));
+  next.types = Object.fromEntries(Object.entries(plan.types).filter(([id]) => kept.has(id)));
+  return { plan: next, lost: plan.order.filter(Boolean).length - kept.size };
+}
+
 /** The first unplaced number from `from` on, wrapping round (undefined: all placed). */
 export function nextFree(plan: DataPlan, from = 1): number | undefined {
   const n = numberCount(plan);
@@ -530,18 +558,15 @@ const short = (key: string) => {
   const d = new Date(parse(key));
   return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`;
 };
-/** A number's label: its month's name (Months), else 001, 002, … */
-export const numberLabel = (plan: DataPlan, k: number) =>
-  plan.plan === 'months' ? numberName(plan, k) : String(k).padStart(3, '0');
-
-/** What a number stands for: its month, its week's first day, or its day. */
+/** A number's label: its month (Jan), its week (Wk 1), or its day's date (Jan 2; a Weeks plan's
+ *  left-over days too). */
 export function numberName(plan: DataPlan, k: number) {
   const info = numberInfo(plan, k);
   if (!info) return '';
   if (plan.plan === 'months')
     return MONTHS[(new Date(parse(plan.start)).getUTCMonth() + k - 1) % 12]!;
   const from = short(dayDate(plan.start, info.first));
-  return info.len === 7 ? `Week of ${from}` : from;
+  return info.len === 7 ? `Wk ${k}` : from;
 }
 
 /** What the tab reports (FR-004 and the edge cases): numbers not placed, pools with no block that
@@ -594,6 +619,24 @@ export function dataReport(q: Quilt, blocks: readonly Block[]): string[] {
 }
 
 /** A slot's scale entries in order, each with its text (`60 to 70 °F`, `Good`). */
+/** Ranges with one boundary moved: range `j`'s `from` or `to` becomes `v`. Ranges stay joined and
+ *  each keeps at least `gap` between its start and end, so a big move pushes the ranges beyond it
+ *  along (and the moved range's other end too). */
+export function moveBound<R extends { from: number; to: number }>(
+  ranges: readonly R[],
+  j: number,
+  side: 'from' | 'to',
+  v: number,
+  gap = 1,
+): R[] {
+  const b = [...ranges.map((r) => r.from), ranges.at(-1)!.to];
+  const at = side === 'from' ? j : j + 1;
+  b[at] = v;
+  for (let k = at + 1; k < b.length; k++) b[k] = Math.max(b[k]!, b[k - 1]! + gap);
+  for (let k = at - 1; k >= 0; k--) b[k] = Math.min(b[k]!, b[k + 1]! - gap);
+  return ranges.map((r, k) => ({ ...r, from: b[k]!, to: b[k + 1]! }));
+}
+
 export function scaleEntries(s: ValueSlot): { fill: PlainFill; text: string; most?: number }[] {
   const u = s.unit ? ` ${s.unit}` : '';
   const most = (x: { most?: number }) => (x.most !== undefined ? { most: x.most } : {});
@@ -626,3 +669,6 @@ export function sampleCounts(plan: DataPlan, slot: number): number[] {
   }
   return counts;
 }
+
+/** Same as `numberName` (the list and the quilt show one label). */
+export const numberLabel = (plan: DataPlan, k: number) => numberName(plan, k);

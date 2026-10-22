@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { castDraft, produce } from 'immer';
 import { Value } from 'typebox/value';
 import {
+  fitOrder,
+  moveBound,
+  replan,
   applyPicks,
   dataFill,
   dataReport,
@@ -253,10 +256,12 @@ describe('setting a plan up', () => {
     expect(p.order.slice(0, 5)).toEqual(['s1', 'a', 'b', null, null]);
     expect(p.order).toHaveLength(12);
     expect(numberLabel(p, 7)).toBe('Jul');
-    expect(numberLabel(plan({ plan: 'weeks' }), 7)).toBe('007');
+    expect(numberLabel(plan({ plan: 'weeks' }), 7)).toBe('Wk 7');
+    expect(numberLabel(plan({ plan: 'weeks' }), 53)).toBe(numberName(plan({ plan: 'weeks' }), 53)); // a left-over day: its date
+    expect(numberLabel({ ...plan({ plan: 'days' }), start: '2027-01-01' }, 2)).toBe('Jan 2');
     expect(numberName(p, 3)).toBe('Mar');
     expect(numberName({ ...p, start: '2027-09-01' }, 5)).toBe('Jan');
-    expect(numberName(plan({ plan: 'weeks' }), 2)).toBe('Week of Jan 8');
+    expect(numberName(plan({ plan: 'weeks' }), 2)).toBe('Wk 2');
     const full = fillNumbers(
       p,
       Array.from({ length: 14 }, (_, i) => `x${i}`),
@@ -330,5 +335,59 @@ describe('layout changes on a data quilt', () => {
     const order = next.project.quilts[i]!.data!.order;
     expect(order.filter(Boolean).every((id) => left.has(id!))).toBe(true);
     expect(order.some((id) => id === null)).toBe(true);
+  });
+});
+
+describe('switching the plan of a placed data quilt', () => {
+  it('weeks to months goes through (the new plan is a frozen object)', async () => {
+    const { syncDraft } = await import('@/model/library-items');
+    const { generateFor } = await import('@/model/layout/slots');
+    const doc = structuredClone(fixture());
+    const i = doc.project.quilts.findIndex((q) => 'rows' in q.layout && q.layout.rows > 1);
+    const q0 = doc.project.quilts[i]!;
+    const ids = generateFor(q0)
+      .slots.filter((s) => s.kind === 'block')
+      .map((s) => s.id);
+    const weeks = {
+      ...plan({ plan: 'weeks' }),
+      types: Object.fromEntries(ids.map((id) => [id, 'x'])),
+    };
+    doc.project.quilts[i] = { ...q0, data: { ...weeks, order: ids.slice(0, 53) } };
+    const frozen = produce(doc, () => {});
+    const q = frozen.project.quilts[i]!;
+    const next = fitOrder({ ...q.data!, plan: 'months' });
+    const after = produce(frozen, (d) => {
+      d.project.quilts[i]!.data = castDraft(next);
+      syncDraft(d);
+    });
+    expect(after.project.quilts[i]!.data!.plan).toBe('months');
+  });
+  it('replan keeps only spaces whose type fits the new kind', () => {
+    const week = { id: 'w', data: { kind: 'week' } } as unknown as Block;
+    const month = { id: 'm', data: { kind: 'month' } } as unknown as Block;
+    const blocks = new Map([
+      ['w', week],
+      ['m', month],
+    ]);
+    const p0 = { ...plan({ plan: 'weeks' }), types: { a: 'w', b: 'm', c: 'm' } };
+    p0.order = Array.from({ length: 53 }, (_, k) => ['a', 'b', 'c'][k] ?? null);
+    const r = replan(p0, 'months', blocks);
+    expect(r.plan.order.slice(0, 3)).toEqual([null, 'b', 'c']);
+    expect(r.plan.types).toEqual({ b: 'm', c: 'm' });
+    expect(r.lost).toBe(1);
+  });
+});
+
+describe('moveBound', () => {
+  const r = (...b: number[]) => b.slice(0, -1).map((from, k) => ({ from, to: b[k + 1]! }));
+  it('moves the joined neighbour', () => {
+    expect(moveBound(r(0, 60, 70, 80, 90), 2, 'from', 65)).toEqual(r(0, 60, 65, 80, 90));
+  });
+  it('pushes the range’s own end and the ones past it, at least 1 apart', () => {
+    expect(moveBound(r(0, 60, 70, 80, 90), 2, 'from', 85)).toEqual(r(0, 60, 85, 86, 90));
+    expect(moveBound(r(0, 60, 70, 80, 90), 1, 'from', 100)).toEqual(r(0, 100, 101, 102, 103));
+  });
+  it('pushes down too', () => {
+    expect(moveBound(r(0, 60, 70, 80, 90), 2, 'to', 50)).toEqual(r(0, 48, 49, 50, 90));
   });
 });

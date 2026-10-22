@@ -40,6 +40,9 @@
             </svg>
           </q-item-section>
           <q-item-section>{{ opt.label }}</q-item-section>
+          <q-item-section v-if="opt.value === 'shaped-blocks'" side>
+            <ShapeBadges />
+          </q-item-section>
         </q-item>
       </template>
       <template v-if="PICS[layout.style]" #prepend>
@@ -52,6 +55,9 @@
             vector-effect="non-scaling-stroke"
           />
         </svg>
+      </template>
+      <template v-if="layout.style === 'shaped-blocks'" #append>
+        <ShapeBadges />
       </template>
     </q-select>
     <StripsInspector
@@ -485,6 +491,7 @@
 import { computed, ref } from 'vue';
 import DiamondSize from '@/components/DiamondSize.vue';
 import FlowAngle from '@/components/FlowAngle.vue';
+import ShapeBadges from '@/components/ShapeBadges.vue';
 import ShapeSize from '@/components/ShapeSize.vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import LengthInput from '@/components/LengthInput.vue';

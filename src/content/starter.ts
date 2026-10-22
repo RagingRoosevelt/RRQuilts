@@ -188,13 +188,80 @@ const dataBars = (
     i + 1,
   ]),
 });
-const DATA_BLOCKS: StarterBlock[] = [
-  { ...dataBars('Month Strip', 'Data/Months', 31, 31, [31, 6]), data: 'month' },
+/** A data block whose `n` strips meet at the top left corner, day 1 there: strips turning the
+ *  corner as quarter rings (`arcs`, the last taking the far corner) or nested L shapes (`square`),
+ *  or a `fan` of wedges between straight lines from the corner at equal angles. Days 1…`used`
+ *  numbered, the rest black. */
+const dataCorner = (
+  name: string,
+  category: string,
+  n: number,
+  used: number,
+  style: 'arcs' | 'square' | 'fan',
+): StarterBlock => {
+  /** Where a fan line at `deg` from the top edge meets the far edge. */
+  const edge = (deg: number): P => {
+    const t = (deg * Math.PI) / 180;
+    return deg <= 45 ? [1, Math.tan(t)] : [1 / Math.tan(t), 1];
+  };
+  const seams = Array.from({ length: n - 1 }, (_, i): Seam[] => {
+    const r = (i + 1) / n;
+    // Arcs: + sweep is counterclockwise on screen (y down), so top edge to left edge is −90.
+    if (style === 'arcs') return [[[r, 0], [0, r], -90]];
+    if (style === 'fan') return [[[0, 0], edge(90 * r)]];
+    return [
+      [
+        [r, 0],
+        [r, r],
+      ],
+      [
+        [r, r],
+        [0, r],
+      ],
+    ];
+  }).flat();
+  // Each strip's place: halfway across it (on the diagonal), or along its wedge's middle line.
+  const at = (k: number): [number, number] => {
+    if (style === 'fan') {
+      const t = ((k + 0.5) * Math.PI) / 2 / n;
+      return [0.6 * Math.cos(t), 0.6 * Math.sin(t)];
+    }
+    const m = (k + 0.5) / n;
+    return style === 'arcs' ? [m / Math.SQRT2, m / Math.SQRT2] : [m, m];
+  };
+  return {
+    name,
+    category,
+    dims: [n, n],
+    seams,
+    base: C.Cream!,
+    points: Array.from({ length: n - used }, (_, i): [number, number, number] => [
+      ...at(used + i),
+      C.Black!,
+    ]),
+    days: Array.from({ length: used }, (_, i): [number, number, number] => [...at(i), i + 1]),
+  };
+};
+/** A month data block and its 30, 29 and 28-day variants. */
+const monthFamily = (
+  name: string,
+  make: (name: string, used: number) => StarterBlock,
+): StarterBlock[] => [
+  { ...make(name, 31), data: 'month' },
   ...([30, 29, 28] as const).map((d): StarterBlock => ({
-    ...dataBars(`Month Strip ${d}`, 'Data/Months', 31, d, [31, 6]),
-    variantOf: ['Month Strip', d],
+    ...make(`${name} ${d}`, d),
+    variantOf: [name, d],
   })),
-  { ...dataBars('Week Row', 'Data/Weeks', 7, 7, [7, 7]), data: 'week' },
+];
+const DATA_BLOCKS: StarterBlock[] = [
+  ...monthFamily('Month Strip', (nm, d) => dataBars(nm, 'Data/Months', 31, d, [31, 31])),
+  ...monthFamily('Curved Month Strip', (nm, d) => dataCorner(nm, 'Data/Months', 31, d, 'arcs')),
+  ...monthFamily('Cornered Month Strip', (nm, d) => dataCorner(nm, 'Data/Months', 31, d, 'square')),
+  ...monthFamily('Month Fan', (nm, d) => dataCorner(nm, 'Data/Months', 31, d, 'fan')),
+  { ...dataBars('Week Strip', 'Data/Weeks', 7, 7, [7, 7]), data: 'week' },
+  { ...dataCorner('Curved Week Strip', 'Data/Weeks', 7, 7, 'arcs'), data: 'week' },
+  { ...dataCorner('Cornered Week Strip', 'Data/Weeks', 7, 7, 'square'), data: 'week' },
+  { ...dataCorner('Week Fan', 'Data/Weeks', 7, 7, 'fan'), data: 'week' },
   { ...dataBars('Day Square', 'Data/Days', 1, 1, [1, 1]), data: 'day' },
 ];
 
