@@ -172,16 +172,45 @@ export function drawQuilt(
   }
 
   ctx.setTransform(...base);
-  for (const slot of generated.slots) {
-    const hi = slot.id === o.hover ? 2 : o.selected?.has(slot.id) ? 3 : 0;
-    if (!hi) continue;
-    ctx.lineWidth = hi * px;
-    ctx.strokeStyle = hi === 3 ? '#1976d2' : 'rgba(25,118,210,0.7)';
-    ctx.stroke(slotPath(slot));
-  }
   if (o.labels) drawLabels(ctx, quilt, generated, blocks, base, o.dpr);
-  if (o.target && quilt.target?.visible)
-    drawTarget(ctx, quilt.target, generated.bounds, generated.anchor ?? generated.bounds, px);
+  const overlay = o.target && quilt.target?.visible;
+  if (overlay)
+    drawTarget(ctx, quilt.target!, generated.bounds, generated.anchor ?? generated.bounds, px);
+  // Hovered and found spaces: a glowing outline over everything, in the overlay tint's opposite
+  // hue so it stands out from the reference overlay.
+  const glow = complement(overlay ? (quilt.target!.tint ?? OVERLAY_TINT) : OVERLAY_TINT);
+  ctx.save();
+  ctx.strokeStyle = glow;
+  ctx.shadowColor = glow;
+  ctx.shadowBlur = 10 * o.dpr;
+  ctx.lineJoin = 'round';
+  for (const slot of generated.slots) {
+    const hi = slot.id === o.hover ? 2.5 : o.selected?.has(slot.id) ? 3 : 0;
+    if (!hi) continue;
+    const path = slotPath(slot);
+    ctx.globalAlpha = 0.45;
+    ctx.lineWidth = (hi + 4) * px;
+    ctx.stroke(path);
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = hi * px;
+    ctx.stroke(path);
+  }
+  ctx.restore();
+}
+
+/** The opposite hue of a `#rrggbb` color, bright and saturated (an outline that stands out). */
+export function complement(hex: string): string {
+  const n = parseInt(hex.slice(1, 7), 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => v / 255) as [
+    number,
+    number,
+    number,
+  ];
+  const max = Math.max(r, g, b);
+  const d = max - Math.min(r, g, b);
+  let h = 0;
+  if (d) h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return `hsl(${Math.round((h * 60 + 180 + 360) % 360)} 100% 50%)`;
 }
 
 /** A target size (spec 006 FR-001a): a see-through, dashed outline centered on the quilt, with a

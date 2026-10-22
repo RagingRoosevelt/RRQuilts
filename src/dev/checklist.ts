@@ -296,6 +296,13 @@ export const CHECKS: Check[] = [
     last: '"hovering or clicking one of the draggable items should highlight that block in the canvas"',
     to: '/',
   },
+  {
+    id: 'TC-124',
+    group: G.small,
+    text: 'Highlight over the reference overlay: turn on a target size (Layout › Reference overlay) so it covers some blocks. Hovering a space on the quilt, a Blocks list card, or Find’s matches draws a glowing outline on top of the overlay, in the opposite hue of the overlay’s tint (orange for the default blue; change the tint and the glow follows). Also check dark mode.',
+    last: '"the highlight doesn\'t have enough contrast when the reference overlay is turned on. it needs to be a contrasting color to the reference overlay and it should be a glow outline around the block"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
