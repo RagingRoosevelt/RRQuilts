@@ -303,6 +303,13 @@ export const CHECKS: Check[] = [
     last: '"the highlight doesn\'t have enough contrast when the reference overlay is turned on. it needs to be a contrasting color to the reference overlay and it should be a glow outline around the block"',
     to: '/',
   },
+  {
+    id: 'TC-125',
+    group: G.small,
+    text: 'Design › Blocks list, dragging a card: the edges either side of where it will land glow (the bottom of the card above, the top of the card below). Dragging Feb down onto Apr glows Apr’s bottom and May’s top; dragging it up onto Jan glows only Jan’s top. Letting go outside the list clears the glow.',
+    last: '"when dragging, the drop zone should be visulized by a glow from the bottom border of the block above and the top border of the block below where the block being dragged will land"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

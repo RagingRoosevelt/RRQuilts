@@ -76,10 +76,14 @@
           </div>
           <div
             class="card col row items-center no-wrap"
-            :class="{ placed: !!r.space }"
+            :class="{
+              placed: !!r.space,
+              'glow-bottom': gap !== null && r.k === gap,
+              'glow-top': gap !== null && r.k === gap + 1,
+            }"
             :draggable="!readonly && !!r.space"
             @dragstart="(e: DragEvent) => dragStart(e, r.k)"
-            @dragend="editor.dataHot = null"
+            @dragend="endDrag"
             @mouseenter="r.space && !dragFrom && (editor.dataHot = r.space)"
             @mouseleave="!dragFrom && (editor.dataHot = null)"
             @click="editor.dataSel = r.space"
@@ -293,10 +297,21 @@ function move(from: number, to: number) {
 }
 const dragFrom = ref<number | null>(null);
 const dropAt = ref<number | null>(null);
+/** The gap a drop lands in, as the number above it (0: before the first). Dragged down, the card
+ *  goes after the one it's over; dragged up, before it. */
+const gap = computed(() => {
+  const [from, at] = [dragFrom.value, dropAt.value];
+  if (!from || !at || from === at) return null;
+  return from < at ? at : at - 1;
+});
 function dragStart(e: DragEvent, k: number) {
   dragFrom.value = k;
   editor.dataHot = plan.value?.order[k - 1] ?? null;
   e.dataTransfer?.setData('text/plain', String(k));
+}
+/** A drag let go anywhere (a drop on the list has already moved the card). */
+function endDrag() {
+  dragFrom.value = dropAt.value = editor.dataHot = null;
 }
 function drop(k: number) {
   const from = dragFrom.value;
@@ -342,8 +357,14 @@ watch(
   background: rgba(25, 118, 210, 0.16);
   font-weight: 600;
 }
-.number.drop .card {
-  box-shadow: 0 0 0 2px #1976d2;
+/* Where a dragged card will land: the edges either side of that gap glow. */
+.card.glow-bottom {
+  border-bottom: 2px solid #1976d2;
+  box-shadow: 0 7px 12px -2px rgba(25, 118, 210, 0.9);
+}
+.card.glow-top {
+  border-top: 2px solid #1976d2;
+  box-shadow: 0 -7px 12px -2px rgba(25, 118, 210, 0.9);
 }
 .label {
   width: 64px;
