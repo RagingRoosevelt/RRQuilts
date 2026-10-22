@@ -194,8 +194,9 @@
       </div>
       <template v-if="s.kind === 'number'">
         <div v-for="(r, j) in s.ranges" :key="j" class="row items-center no-wrap" style="gap: 4px">
-          <!-- The first range takes everything under its end, the last everything from its start. -->
-          <span v-if="j === 0" class="num text-caption text-right">{{
+          <!-- Always three cells (from, "to", to), so the inputs line up row to row: the first range
+               takes everything under its end, the last everything from its start. -->
+          <span v-if="j === 0" class="num text-caption text-right q-pr-xs">{{
             s.ranges.length > 1 ? 'under' : 'all'
           }}</span>
           <q-input
@@ -209,8 +210,8 @@
             :readonly="readonly"
             @update:model-value="(v) => setRange(i, j, { from: Number(v) }, `r${i}.${j}`)"
           />
-          <span v-if="j > 0" class="text-caption">{{
-            j === s.ranges.length - 1 ? 'and up' : 'to'
+          <span class="join text-caption text-center">{{
+            j > 0 && j < s.ranges.length - 1 ? 'to' : ''
           }}</span>
           <q-input
             v-if="j < s.ranges.length - 1"
@@ -223,6 +224,7 @@
             :readonly="readonly"
             @update:model-value="(v) => setRange(i, j, { to: Number(v) }, `r${i}.${j}`)"
           />
+          <span v-else class="num text-caption q-pl-xs">{{ j > 0 ? 'and up' : '' }}</span>
           <PaintMapRow
             class="col"
             :model-value="paintOf(r.fill)"
@@ -702,6 +704,10 @@ function removeSlot(i: number) {
 <style scoped>
 .num {
   width: 52px;
+  flex: none;
+}
+.join {
+  width: 16px;
   flex: none;
 }
 .num :deep(input) {

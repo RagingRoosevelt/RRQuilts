@@ -401,6 +401,13 @@ export const CHECKS: Check[] = [
     last: '"I had a block that already had a 7 day variant. when I created the 1 day variant, it still had all 7 labels. creating a variant should remove all the day labels" / "we need a "clear labels" type button for clearing all the day labels"',
     to: '/',
   },
+  {
+    id: 'TC-148',
+    group: G.small,
+    text: 'Design › Data › Values ranges line up: "under" sits in the from column with the first row’s value under the other rows’ to values; the last row’s value sits under the other from values with "and up" in the to column; every color picker starts at the same place.',
+    last: '"in the values color mapping, for the first and last rows, sicne they only have one temp input value their input cells don\'t align with the other cells of that type"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
