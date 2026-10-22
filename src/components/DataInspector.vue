@@ -470,17 +470,11 @@ const PRESETS: { value: DataPreset; label: string }[] = [
   { value: 'rainfall', label: 'Rainfall' },
   { value: 'custom', label: 'Custom' },
 ];
-/** The made-up series that fit a value's kind (temperature: high and low); Custom takes any. */
-const SERIES_OF: Partial<Record<DataPreset, readonly string[]>> = {
-  temperature: ['high', 'low'],
-  mood: ['mood'],
-  daylight: ['daylight'],
-  rainfall: ['rainfall'],
-};
+/** The made-up series that fit a value's kind (temperature: highs and lows); Custom takes any. */
 const seriesOptions = (preset: DataPreset | undefined) => [
   { value: null, label: 'None' },
   ...sampleSeries()
-    .filter((x) => !SERIES_OF[preset ?? 'custom'] || SERIES_OF[preset!]!.includes(x.id))
+    .filter((x) => !preset || preset === 'custom' || x.kind === preset)
     .map((x) => ({ value: x.id, label: x.label })),
 ];
 const fillOptions = computed(() => swapOptions());

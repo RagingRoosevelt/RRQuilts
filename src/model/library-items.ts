@@ -86,9 +86,16 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   syncVariants(p.blocks, p.quilts);
   p.quilts.forEach((q, i) => {
     if (!q.data?.on) return;
-    // A quilt swapped in whole by the edit (a layout change) is frozen, not a draft: copy it so
-    // its blocks can be placed.
+    // A quilt (a layout change) or a part of it (a new plan) swapped in whole by the edit isn't a
+    // draft and may be frozen: copy it so its blocks can be placed.
     const live = isDraft(q) ? q : (p.quilts[i] = castDraft(structuredClone(q)));
+    // ponytail: a part that isn't a draft was swapped in, and may hold frozen pieces: copy it all.
+    const thaw = <T>(v: T): T =>
+      v && typeof v === 'object' && !isDraft(v) ? (castDraft(structuredClone(v)) as T) : v;
+    if (live.data) live.data = thaw(live.data);
+    live.colorings = thaw(live.colorings);
+    live.layers[0] = thaw(live.layers[0]);
+    live.layers[0].slots = thaw(live.layers[0].slots);
     applyPicks(live, p.blocks, newId);
   });
   const withVariants = pruneVariants(p.blocks, p.quilts);

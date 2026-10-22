@@ -268,6 +268,13 @@ strip type. The quilt shows 365 days in the simulation's colors.
   (kept in settings, as the tray's sections), and the numbered list scrolls with the sidebar.
 - **FR-016**: Print lists a data block's variants shown in the quilt as blocks of their own
   (Month Strip (30 days)). The built-in Month Strip is square (31 × 31 in, 1 in bars).
+- **FR-017** (second round): Switching the plan keeps only placed spaces whose type takes their
+  new number's kind (`replan`); when that takes any off, a dialog says how many and asks first.
+  Labels: months by name, weeks Wk N, days by date, one label in the list and on the quilt. Built-in
+  samples per kind: temperate place, Fairbanks AK and Honolulu HI (highs and lows), three moods,
+  rain (temperate, Hilo HI, Phoenix AZ), daylight (temperate, Fairbanks, Austin TX); a value's
+  Sample offers its kind's. Hovering any part of a quilt glows in one of three hues from the
+  overlay tint: data blocks (opposite), other block spaces (+120°), the rest (+240°).
 
 ## Success Criteria *(mandatory)*
 

@@ -412,20 +412,10 @@ const panOnly = computed(
 );
 const dataInspector = ref<InstanceType<typeof DataInspector>>();
 /** The space outlined on the quilt: a dragged or hovered card's, else the one under the pointer
- *  (a data quilt's Blocks tab: whole block spaces only; Data tab: numbered ones), else the clicked card's. */
+ *  (any part of the quilt; its color says which kind), else the clicked card's. */
 const highlight = computed(() => {
   if (editor.dataHot) return editor.dataHot;
-  const id = hover.value?.slotId ?? null;
-  // A data quilt's Blocks and Data tabs (any tool but the Colors tab's) outline block spaces only.
-  const colorTool = ['paint', 'spray', 'swap', 'eyedropper'].includes(editor.tool);
-  const plan = quilt.value?.data;
-  if (!plan?.on || colorTool) return id;
-  // The Data tab: only spaces holding a number (a data block); Blocks: any whole block space.
-  const ok =
-    editor.tool === 'entry'
-      ? (x: string) => plan.order.includes(x)
-      : (x: string) => blockSpaceNumbers(generated.value).has(x);
-  return id && ok(id) ? id : editor.dataSel;
+  return hover.value?.slotId ?? (quilt.value?.data?.on ? editor.dataSel : null);
 });
 /** A data quilt's numbers on their block spaces, joined in order (spec 025). */
 const dataMarks = computed(() =>

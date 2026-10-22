@@ -20,7 +20,9 @@ Start a quilt with **Data quilt** turned on in the first step of the wizard, and
 | Colors | the usual colors and fabrics, for sashing, borders, and the rest |
 | Data   | the period, the data, and the colors for each value              |
 
-The plan says how days are grouped. Change it under **Data quilt** in the quilt's **Details** tab.
+The plan says how days are grouped. Change it under **Data quilt** in the quilt's **Details** tab. Placed
+blocks that can't stay in the new plan, such as week blocks in a Months plan, come off the quilt.
+The app asks first and says how many.
 
 | Plan   | Each number stands for                                                                   |
 | ------ | ---------------------------------------------------------------------------------------- |
@@ -130,8 +132,12 @@ themselves.
 ## Preview with sample data
 
 **Sample data** shows the quilt colored by a made-up year, so you can judge the colors before your
-own data comes in. Each value's **Sample** picks which made-up series feeds it, from those that fit its **Kind** (a
-temperature takes the daily high or low). **CSV…** loads your
+own data comes in. Each value's **Sample** picks which made-up series feeds it, from those that fit its **Kind**.
+Temperatures come as daily highs and lows for a temperate place, Fairbanks in Alaska, and Honolulu
+in Hawaii. Moods come as an even mood, a mostly low one with good days, and an optimist's with bad
+days. Rainfall comes for a temperate place, Hilo in Hawaii, and Phoenix in Arizona, and hours of
+daylight for a temperate place, Fairbanks, and Austin in Texas. They follow each place's usual
+weather, not a real year's records. **CSV…** loads your
 own sample instead: open a file or paste rows, then pick the date column and the column for each
 value. A sample from another year is matched by day of the year.
 

@@ -474,6 +474,29 @@ export function fitOrder(plan: DataPlan): DataPlan {
   return { ...plan, order: Array.from({ length: n }, (_, i) => plan.order[i] ?? null) };
 }
 
+/** The plan switched to Months, Weeks or Days: numbers past the new count go, and so do placed
+ *  spaces whose type can't show their new number's kind (a week block in a month). `lost`: how
+ *  many placed spaces that empties. */
+export function replan(
+  plan: DataPlan,
+  to: DataPlan['plan'],
+  blocks: ReadonlyMap<string, Block>,
+): { plan: DataPlan; lost: number } {
+  const start = to === 'months' ? `${plan.start.slice(0, 8)}01` : plan.start;
+  let next = fitOrder({ ...plan, plan: to, start });
+  next = {
+    ...next,
+    order: next.order.map((id, i) => {
+      const type = id ? blocks.get(plan.types[id] ?? '') : undefined;
+      const kind = numberInfo(next, i + 1)?.kind;
+      return id && type && kind && takesKind(type, kind) ? id : null;
+    }),
+  };
+  const kept = new Set(next.order.filter(Boolean));
+  next.types = Object.fromEntries(Object.entries(plan.types).filter(([id]) => kept.has(id)));
+  return { plan: next, lost: plan.order.filter(Boolean).length - kept.size };
+}
+
 /** The first unplaced number from `from` on, wrapping round (undefined: all placed). */
 export function nextFree(plan: DataPlan, from = 1): number | undefined {
   const n = numberCount(plan);
@@ -535,22 +558,15 @@ const short = (key: string) => {
   const d = new Date(parse(key));
   return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`;
 };
-/** A number's label: its month's name (Jan), its week (Wk 1), or its day's date (Jan 2; a Weeks
- *  plan's left-over days too). */
-export function numberLabel(plan: DataPlan, k: number) {
-  if (plan.plan === 'months') return numberName(plan, k);
-  const info = numberInfo(plan, k);
-  return info?.len === 7 ? `Wk ${k}` : numberName(plan, k);
-}
-
-/** What a number stands for: its month, its week's first day, or its day. */
+/** A number's label: its month (Jan), its week (Wk 1), or its day's date (Jan 2; a Weeks plan's
+ *  left-over days too). */
 export function numberName(plan: DataPlan, k: number) {
   const info = numberInfo(plan, k);
   if (!info) return '';
   if (plan.plan === 'months')
     return MONTHS[(new Date(parse(plan.start)).getUTCMonth() + k - 1) % 12]!;
   const from = short(dayDate(plan.start, info.first));
-  return info.len === 7 ? `Week of ${from}` : from;
+  return info.len === 7 ? `Wk ${k}` : from;
 }
 
 /** What the tab reports (FR-004 and the edge cases): numbers not placed, pools with no block that
@@ -653,3 +669,6 @@ export function sampleCounts(plan: DataPlan, slot: number): number[] {
   }
   return counts;
 }
+
+/** Same as `numberName` (the list and the quilt show one label). */
+export const numberLabel = (plan: DataPlan, k: number) => numberName(plan, k);

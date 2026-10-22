@@ -206,8 +206,8 @@ defineExpose({ show });
   margin-top: 4px;
 }
 .ps-dot {
-  width: 14px;
-  height: 14px;
+  width: 22px;
+  height: 22px;
   border-radius: 3px;
   border: 1px solid rgba(128, 128, 128, 0.45);
   background-size: cover;

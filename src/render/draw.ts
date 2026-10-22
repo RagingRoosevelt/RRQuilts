@@ -176,17 +176,30 @@ export function drawQuilt(
   const overlay = o.target && quilt.target?.visible;
   if (overlay)
     drawTarget(ctx, quilt.target!, generated.bounds, generated.anchor ?? generated.bounds, px);
-  // Hovered and found spaces: a glowing outline over everything, in the overlay tint's opposite
-  // hue so it stands out from the reference overlay.
-  const glow = complement(overlay ? (quilt.target!.tint ?? OVERLAY_TINT) : OVERLAY_TINT);
+  // Hovered and found spaces: a glowing outline over everything, in one of three hues spread
+  // round the wheel from the overlay's tint (none near it): the opposite for data blocks, a third
+  // of the way round each side for other block spaces and for the rest (sashing, borders…).
+  const tint = overlay ? (quilt.target!.tint ?? OVERLAY_TINT) : OVERLAY_TINT;
+  const glows = {
+    data: complement(tint),
+    block: complement(tint, 120),
+    other: complement(tint, 240),
+  };
   ctx.save();
-  ctx.strokeStyle = glow;
-  ctx.shadowColor = glow;
   ctx.shadowBlur = 10 * o.dpr;
   ctx.lineJoin = 'round';
   for (const slot of generated.slots) {
     const hi = slot.id === o.hover ? 2.5 : o.selected?.has(slot.id) ? 3 : 0;
     if (!hi) continue;
+    const content = quilt.layers[0].slots[slot.id];
+    const glow =
+      slot.kind !== 'block'
+        ? glows.other
+        : content && blocks.get(content.block)?.data
+          ? glows.data
+          : glows.block;
+    ctx.strokeStyle = glow;
+    ctx.shadowColor = glow;
     const path = slotPath(slot);
     ctx.globalAlpha = 0.45;
     ctx.lineWidth = (hi + 4) * px;
@@ -198,8 +211,9 @@ export function drawQuilt(
   ctx.restore();
 }
 
-/** The opposite hue of a `#rrggbb` color, bright and saturated (an outline that stands out). */
-export function complement(hex: string): string {
+/** A hue `turn` degrees round from a `#rrggbb` color's (default: the opposite), bright and
+ *  saturated (an outline that stands out). */
+export function complement(hex: string, turn = 180): string {
   const n = parseInt(hex.slice(1, 7), 16);
   const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => v / 255) as [
     number,
@@ -210,7 +224,7 @@ export function complement(hex: string): string {
   const d = max - Math.min(r, g, b);
   let h = 0;
   if (d) h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
-  return `hsl(${Math.round((h * 60 + 180 + 360) % 360)} 100% 50%)`;
+  return `hsl(${Math.round((h * 60 + turn + 360) % 360)} 100% 50%)`;
 }
 
 /** A target size (spec 006 FR-001a): a see-through, dashed outline centered on the quilt, with a

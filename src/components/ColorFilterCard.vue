@@ -2,7 +2,7 @@
   <!-- Palettes with a swatch in a hue, value and saturation range (spec 033). Session only. -->
   <FilterCard label="Color">
     <div class="column" style="gap: 2px">
-      <q-toggle v-model="model.hue.on" dense label="Hue" />
+      <q-toggle v-model="model.hue.on" dense class="pad" label="Hue" />
       <template v-if="model.hue.on">
         <div class="hue-strip" :style="{ background: strip }" aria-hidden="true">
           <span class="band" :style="band" />
@@ -17,7 +17,7 @@
           :label-value="`${model.hue.center}°`"
           aria-label="Hue"
         />
-        <div class="text-caption q-mt-sm">± {{ model.hue.range }}°</div>
+        <div class="text-caption q-mt-sm pad">± {{ model.hue.range }}°</div>
         <q-slider
           v-model="model.hue.range"
           class="pad"
@@ -29,7 +29,7 @@
       </template>
     </div>
     <div class="column section" style="gap: 2px">
-      <q-toggle v-model="model.value.on" dense label="Value (dark to light)" />
+      <q-toggle v-model="model.value.on" dense class="pad" label="Value (dark to light)" />
       <q-range
         class="pad"
         v-if="model.value.on"
@@ -43,7 +43,7 @@
       />
     </div>
     <div class="column section" style="gap: 2px">
-      <q-toggle v-model="model.sat.on" dense label="Saturation (muted to vivid)" />
+      <q-toggle v-model="model.sat.on" dense class="pad" label="Saturation (muted to vivid)" />
       <q-range
         class="pad"
         v-if="model.sat.on"
@@ -57,8 +57,8 @@
       />
     </div>
     <div v-if="colorFilterOn(model)" class="column section" style="gap: 2px">
-      <q-toggle v-model="model.onlyMatching" dense label="Hide non-matching swatches" />
-      <div class="text-caption text-grey-7">
+      <q-toggle v-model="model.onlyMatching" dense class="pad" label="Hide non-matching swatches" />
+      <div class="text-caption text-grey-7 pad">
         Fabrics count by their average color, which can mislead for busy prints.
       </div>
     </div>
