@@ -24,3 +24,15 @@ html {
 :where(.body--dark) a:where(:link, :visited) {
   color: color-mix(in srgb, var(--q-primary) 45%, white);
 }
+
+/* iOS Safari: dialogs fill 100dvh, which reaches under the floating address bar, and the page is
+   locked while a dialog is open, so the buttons at a card's bottom can't be scrolled into view.
+   Size dialogs to the small viewport (bars shown) instead. Quasar's own keyboard sizing
+   (--keyboard, inline top/bottom) still wins while the keyboard is up. */
+body.platform-ios .q-dialog__inner:not(.q-dialog__inner--keyboard) {
+  bottom: auto;
+  height: 100svh;
+}
+body.platform-ios .q-dialog__inner--minimized:not(.q-dialog__inner--keyboard) > div {
+  max-height: calc(100svh - 48px);
+}

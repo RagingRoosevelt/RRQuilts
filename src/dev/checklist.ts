@@ -97,6 +97,13 @@ export const CHECKS: Check[] = [
     last: "\"the flip horizontal / vertical tool flips according to a block's native axis. but if you're in a layout like on point, the flip should actually be according to the quilt's native axis, not the block. so when the quilt and block share a native axis, even in those cases it should still be the quilt's native axis\"",
     to: '/',
   },
+  {
+    id: 'TC-178',
+    group: G.small,
+    text: 'On an iPhone in Safari (address bar at the bottom, and once with it at the top): open a few dialogs (New quilt, Save as, Settings › Export, a delete confirm, Tests › Viewport › Open a tall dialog). Every dialog’s buttons show above the address bar, scrolling the dialog if it’s tall. Then tap a text field in a dialog: the keyboard still pushes the dialog up as before. If anything is hidden, copy the numbers from Tests › Viewport (with the tall dialog open) into the note.',
+    last: '"on iOS, most dialogs end up with the Safari address bar sitting over top of the buttons that are needed to progress the dialog and no amount of scrolling does anything to reveal the dialog buttons"',
+    to: '/dev/viewport',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
