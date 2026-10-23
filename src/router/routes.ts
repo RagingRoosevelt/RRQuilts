@@ -49,7 +49,7 @@ const routes: RouteRecordRaw[] = [
     ? [
         { path: '/dev', redirect: '/dev/checklist' },
         {
-          path: '/dev/:view(checklist|gallery|borders|sweeps|extremes|blocks|print|pictures)',
+          path: '/dev/:view(checklist|gallery|borders|sweeps|extremes|blocks|print|pictures|viewport)',
           component: () => import('@/pages/DevPage.vue'),
         },
       ]
