@@ -667,16 +667,26 @@ function numeralPatch(patchId: string, n: number, tap = false) {
   const slot = editor.data.slot;
   const was = base.colorings.find((k) => k.id === target)?.fills[patchId];
   const taking = !!was && 'data' in was && was.data.n === n && (was.data.slot ?? 0) === slot;
-  project.change(() =>
-    withBlock(project.doc!, () =>
-      produce(base, (x) => {
-        const c = x.colorings.find((k) => k.id === target)!;
-        c.fills = castDraft(putNumeral(c.fills, patchId, n, slot));
-      }),
-    ),
+  // Undo puts the picked numeral back too, so the next tap places the undone one again.
+  const before = editor.data.numeral;
+  const after = tap && !taking && editor.data.advance && n < numeralCount.value ? n + 1 : before;
+  project.change(
+    () =>
+      withBlock(project.doc!, () =>
+        produce(base, (x) => {
+          const c = x.colorings.find((k) => k.id === target)!;
+          c.fills = castDraft(putNumeral(c.fills, patchId, n, slot));
+        }),
+      ),
+    {
+      session: {
+        undo: () => (editor.data.numeral = before),
+        redo: () => (editor.data.numeral = after),
+      },
+    },
   );
   editor.coloringOf.set(b.id, target);
-  if (tap && !taking && editor.data.advance && n < numeralCount.value) editor.data.numeral = n + 1;
+  editor.data.numeral = after;
 }
 
 /** Clear all numerals: every day label (all values) off the shown drawing, in this coloring. */
