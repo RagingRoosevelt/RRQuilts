@@ -104,6 +104,27 @@ export const CHECKS: Check[] = [
     last: '"on iOS, most dialogs end up with the Safari address bar sitting over top of the buttons that are needed to progress the dialog and no amount of scrolling does anything to reveal the dialog buttons"',
     to: '/dev/viewport',
   },
+  {
+    id: 'TC-179',
+    group: G.small,
+    text: 'Block editor › a data block › Day numerals, with “Next numeral after each tap” on: tap patches to place 1, 2, 3, then Undo. The 3 comes off and 3 is the picked numeral again; Undo again goes back to 2. Redo puts 2 back on with 3 picked, then 3 back on with 4 picked. Picking a numeral by hand, then undoing an earlier tap, also goes back to the numeral that tap had.',
+    last: '"in a data block, the undo button doesn’t walk back the “next to be placed numeral” at the same time as walking back placing a numeral"',
+    to: '/',
+  },
+  {
+    id: 'TC-180',
+    group: G.small,
+    text: 'Block editor › a data block › Day numerals: “Clear all numerals” sits right below the numeral buttons, above the help text and the toggles.',
+    last: '"the “clear all numerals” button should sit right below the numeral buttons"',
+    to: '/',
+  },
+  {
+    id: 'TC-181',
+    group: G.small,
+    text: 'Block editor › a data block: pick a color in the tray (e.g. a Basic color), then pick a day numeral. The color is no longer shown as picked; only the numeral is. Picking a color again unpicks the numeral. Open an ordinary block or the quilt editor after picking a numeral: the tray’s picked color shows again and taps paint it.',
+    last: '"in a data block, when you select a numeral for painting, the currently selected color (such as a color in the built in basic colors) doesn’t get unselected"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -35,10 +35,6 @@
         <span v-if="(counts.get(n) ?? 0) > 1" class="times">×{{ counts.get(n) }}</span>
       </button>
     </div>
-    <div class="text-caption text-grey-7">
-      Drag a numeral onto a patch, or pick one and tap patches. Tap a patch with that numeral to
-      take it off. A numeral can go on several patches. Faded numerals aren't on any patch yet.
-    </div>
     <q-btn
       v-if="!readonly"
       dense
@@ -51,6 +47,10 @@
       :disable="!anyNumeral"
       @click="emit('clear')"
     />
+    <div class="text-caption text-grey-7">
+      Drag a numeral onto a patch, or pick one and tap patches. Tap a patch with that numeral to
+      take it off. A numeral can go on several patches. Faded numerals aren't on any patch yet.
+    </div>
     <q-toggle v-model="editor.data.advance" dense label="Next numeral after each tap" />
     <q-toggle v-model="editor.data.numbers" dense label="Show numerals" />
     <q-toggle
