@@ -401,6 +401,13 @@ watch(
   () => stored.value?.id,
   () => (editor.blockVariant = null),
 );
+// Numeral painting only lasts while a data block is shown: elsewhere the picked color paints.
+watch(
+  () => !!stored.value?.data,
+  (isData) => {
+    if (!isData) editor.data.on = false;
+  },
+);
 const notSeam = computed(() => !!anyBlock.value && !stored.value);
 watch(
   anyBlock,
@@ -758,7 +765,10 @@ function onKey(e: KeyboardEvent) {
   }
 }
 onMounted(() => window.addEventListener('keydown', onKey));
-onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey);
+  editor.data.on = false;
+});
 </script>
 
 <style scoped>

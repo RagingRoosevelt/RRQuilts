@@ -111,6 +111,13 @@ export const CHECKS: Check[] = [
     last: '"the “clear all numerals” button should sit right below the numeral buttons"',
     to: '/',
   },
+  {
+    id: 'TC-181',
+    group: G.small,
+    text: 'Block editor › a data block: pick a color in the tray (e.g. a Basic color), then pick a day numeral. The color is no longer shown as picked; only the numeral is. Picking a color again unpicks the numeral. Open an ordinary block or the quilt editor after picking a numeral: the tray’s picked color shows again and taps paint it.',
+    last: '"in a data block, when you select a numeral for painting, the currently selected color (such as a color in the built in basic colors) doesn’t get unselected"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
