@@ -118,6 +118,13 @@ export const CHECKS: Check[] = [
     last: '"in a data block, when you select a numeral for painting, the currently selected color (such as a color in the built in basic colors) doesn’t get unselected"',
     to: '/',
   },
+  {
+    id: 'TC-182',
+    group: G.small,
+    text: 'Block editor › a month data block (e.g. a copy of Month Strip) › Variant: click through 31, 30, 29, 28 and 1 day. The buttons keep the same size and their labels stay on the same number of lines; the Remove button shows only on the variants, in the same place.',
+    last: '"in a data block for months, clicking through the varous variants causes them to switch back and forth between 1 row lables and 2 row labels"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

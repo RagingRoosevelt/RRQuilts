@@ -34,8 +34,11 @@
         </q-list>
       </q-menu>
     </q-btn>
+    <!-- Kept in place (hidden) on the base drawing, so picking a variant doesn't squeeze the
+         buttons into two-line labels. -->
     <q-btn
-      v-if="!readonly && shown !== base"
+      v-if="!readonly"
+      :style="shown === base ? 'visibility: hidden' : ''"
       flat
       dense
       round
