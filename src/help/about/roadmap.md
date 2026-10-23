@@ -8,7 +8,7 @@ These are the plans for the next few versions. Plans change as people use the ap
 may move to another version, arrive in a different form, or not at all. To ask for something that
 isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
-## 0.7.1
+## 0.7.2
 
 - A guide for each month, week or day of a data quilt: which pieces of its block to cut in which
   fabric, day by day, printed or on screen.

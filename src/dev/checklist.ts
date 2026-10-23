@@ -98,13 +98,6 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-178',
-    group: G.small,
-    text: 'On an iPhone in Safari (address bar at the bottom, and once with it at the top): open a few dialogs (New quilt, Save as, Settings › Export, a delete confirm, Tests › Viewport › Open a tall dialog). Every dialog’s buttons show above the address bar, scrolling the dialog if it’s tall. Then tap a text field in a dialog: the keyboard still pushes the dialog up as before. If anything is hidden, copy the numbers from Tests › Viewport (with the tall dialog open) into the note.',
-    last: '"on iOS, most dialogs end up with the Safari address bar sitting over top of the buttons that are needed to progress the dialog and no amount of scrolling does anything to reveal the dialog buttons"',
-    to: '/dev/viewport',
-  },
-  {
     id: 'TC-179',
     group: G.small,
     text: 'Block editor › a data block › Day numerals, with “Next numeral after each tap” on: tap patches to place 1, 2, 3, then Undo. The 3 comes off and 3 is the picked numeral again; Undo again goes back to 2. Redo puts 2 back on with 3 picked, then 3 back on with 4 picked. Picking a numeral by hand, then undoing an earlier tap, also goes back to the numeral that tap had.',
