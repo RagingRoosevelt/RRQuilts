@@ -19,6 +19,7 @@
     </p>
 
     <DevChecklist v-if="view === 'checklist'" />
+    <DevViewport v-else-if="view === 'viewport'" />
 
     <template v-else-if="view === 'blocks'">
       <div class="bar">
@@ -142,6 +143,7 @@ import { useQuasar } from 'quasar';
 import { computed, ref, shallowReactive, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DevChecklist from '@/components/DevChecklist.vue';
+import DevViewport from '@/components/DevViewport.vue';
 import DevQuiltCards from '@/components/DevQuiltCards.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import { BORDERS } from '@/dev/borders';
@@ -220,6 +222,13 @@ const TABS = [
     icon: 'compare',
     about:
       'The demo projects (test/fixtures/formats) drawn by this code beside the pictures saved when each format version was released; red marks what moved.',
+  },
+  {
+    name: 'viewport',
+    label: 'Viewport',
+    icon: 'phone_iphone',
+    about:
+      'Screen and viewport sizes as this browser reports them, and a tall dialog to check that its buttons can be reached (iOS Safari address bar).',
   },
 ] as const;
 type View = (typeof TABS)[number]['name'];

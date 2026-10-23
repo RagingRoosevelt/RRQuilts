@@ -22,7 +22,7 @@ import {
   versionMismatches,
 } from '@/model/library-items';
 import { useLibraryStore } from './library';
-import { createHistory } from '@/editor/undo';
+import { createHistory, type SessionRestore } from '@/editor/undo';
 import { createAutosave } from '@/session/autosave';
 import { socialsOut } from '@/settings/socials';
 import { openedProject } from '@/settings/settings';
@@ -220,10 +220,11 @@ export const useProjectStore = defineStore('project', () => {
   /**
    * Apply an edit as an Immer recipe: mutate the draft, or return a replacement document.
    * Every change is one undo step; changes with the same `coalesce` key within 1 s merge.
+   * `session` puts editor state back along with the step (undo and redo).
    */
   function change(
     recipe: (d: ImmerDraft<RrqDoc>) => RrqDoc | void,
-    opts: { coalesce?: string } = {},
+    opts: { coalesce?: string; session?: SessionRestore } = {},
   ) {
     if (!doc.value || readOnly.value) return;
     const lib = useLibraryStore().lookup;
@@ -235,7 +236,7 @@ export const useProjectStore = defineStore('project', () => {
     });
     if (!patches.length) return;
     doc.value = next;
-    history.record(patches, inverse, opts.coalesce);
+    history.record(patches, inverse, opts.coalesce, Date.now(), opts.session);
     touched();
   }
 

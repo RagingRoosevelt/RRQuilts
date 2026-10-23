@@ -217,7 +217,7 @@
               <button
                 v-if="sw.kind === 'color'"
                 class="swatch"
-                :class="{ active: editor.color === sw.item.id }"
+                :class="{ active: !editor.data.on && editor.color === sw.item.id }"
                 :style="{ background: `rgb(${sw.item.rgb.join(',')})` }"
                 :title="sw.item.notecard.name"
                 @click="pickColor(sw.item.id)"
@@ -243,7 +243,7 @@
               <button
                 v-else
                 class="swatch fabric"
-                :class="{ active: editor.color === fabricPaint(sw.item.id) }"
+                :class="{ active: !editor.data.on && editor.color === fabricPaint(sw.item.id) }"
                 :style="swatchStyle(sw.item)"
                 :title="sw.item.notecard.name + (sw.item.approximate ? ' (size ≈)' : '')"
                 @click="pickColor(fabricPaint(sw.item.id))"

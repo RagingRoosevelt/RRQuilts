@@ -8,18 +8,15 @@ These are the plans for the next few versions. Plans change as people use the ap
 may move to another version, arrive in a different form, or not at all. To ask for something that
 isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
-## 0.7.0
+## 0.7.1
 
-- Sort a palette's swatches by hue or by how light or dark they are. Fabrics sort by their average
-  color.
-- Filter palettes by hue, value and saturation.
-- Pick a palette for a new colorway, and each color of the quilt is matched to the closest color or
-  fabric in it. Change any match you don't like.
-- Hints in a block's Details about which techniques may suit it, for the block's designer to tick.
-- Data quilts that turn a year of temperatures, moods, rainfall or any other numbers into colors.
+- A guide for each month, week or day of a data quilt: which pieces of its block to cut in which
+  fabric, day by day, printed or on screen.
 
 ## 0.8.0
 
+- Apply to Empty: set a block in, or color, only the spaces and pieces that are still empty.
+- Hints in a block's Details about which techniques may suit it, for the block's designer to tick.
 - English paper piecing layouts, such as hexagon flower gardens, with printable paper templates.
 - Step by step instructions for making a quilt, built from its layout and blocks.
 - Choose how strongly lines snap to the grid and to other lines while drawing blocks.
@@ -28,6 +25,8 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
 ## 0.9.0
 
+- Turn blocks before placing them: choose Rotate again and the block picker, and the blocks you
+  set, turn with it.
 - Choose how large imported fabric photos are kept: smaller to save space, larger to stay sharp in
   print and up close.
 - Shrink a palette's fabric photos later to free space, and give a fabric a better photo.

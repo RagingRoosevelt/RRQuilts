@@ -71,4 +71,29 @@ describe('undo history', () => {
     expect(doc.n).toBe(1);
     expect(h.canUndo).toBe(false);
   });
+
+  it('puts session state back with its step (merged steps: first undo, last redo)', () => {
+    const h = createHistory();
+    let doc = { n: 0 };
+    let next = 1;
+    const step = (n: number, key?: string, at?: number) => {
+      const [d, p, inv] = produceWithPatches(doc, (x) => void (x.n = n));
+      const before = next;
+      h.record(p, inv, key, at, { undo: () => (next = before), redo: () => (next = n + 1) });
+      doc = d;
+      next = n + 1;
+    };
+    step(1);
+    step(2);
+    doc = h.undo(doc)!;
+    expect([doc.n, next]).toEqual([1, 2]);
+    doc = h.redo(doc)!;
+    expect([doc.n, next]).toEqual([2, 3]);
+    step(3, 'k', 0);
+    step(4, 'k', 100);
+    doc = h.undo(doc)!;
+    expect([doc.n, next]).toEqual([2, 3]);
+    doc = h.redo(doc)!;
+    expect([doc.n, next]).toEqual([4, 5]);
+  });
 });

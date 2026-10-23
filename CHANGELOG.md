@@ -2,6 +2,32 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.7.0 (2026-10-22)
+
+### New features
+
+- Data quilts: color a quilt from a year of temperatures, moods, hours of daylight, rainfall or your own numbers. Turn on Data quilt in a quilt's Details tab or in the new quilt window, and pick months, weeks or days.
+- Data blocks: make any block a month, week or day block and number its patches with day numerals. Month blocks can have 30, 29, 28 and 1-day variants, and week blocks a 1-day one. The built-in library has a Month Strip, a Week Strip and a Day Square, and month and week strips that turn a corner in curves, right angles or a fan.
+- Place a data quilt's blocks month by month (or week by week, or day by day), drag them to other months, and see each block's month and its days in order on the quilt. Ordinary blocks can fill the other spaces.
+- Preview a data quilt with a made-up sample year (temperatures for Alaska or Hawaii, rain for Hawaii or Arizona, daylight for Alaska or Texas, and moods) or your own CSV file, then enter real days in a table, by pasting or importing, or with Today's entry.
+- Printouts of data quilts show a legend of each value's colors and count yardage for the worst case.
+- Sort a palette's swatches by hue, value, saturation or name.
+- Filter palettes by hue, value and saturation.
+- Make a new colorway from a palette: each color of the quilt is matched to the closest color or fabric in it, and you can change any match.
+- On-Point, Variable Point and Diamond Point quilts can be half a row or column longer, ending on a short row.
+- Export a single quilt as a project file of its own.
+- Drag quilt cards to rearrange them. A glow shows where the quilt will land.
+- Filter blocks and quilts in the project and the libraries to find data blocks and data quilts.
+- Hovering a quilt outlines the piece under the pointer in a color that tells data blocks, other blocks and sashing or borders apart. The block editor outlines the patch under the pointer.
+
+### Fixes
+
+- The outline on a hovered block stands out over the reference overlay.
+- A color variant of a library block follows the block when the library redraws it.
+- Flip on On-Point quilts mirrors across the quilt, as it looks on screen.
+- Color menus in palette swaps and colorway mappings are wide enough to read.
+- Projects from older versions open and are upgraded. Library and block files saved with 0.7.0 need 0.7.0 or later to open.
+
 ## 0.6.1 (2026-10-20)
 
 ### New features
