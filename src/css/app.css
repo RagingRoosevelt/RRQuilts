@@ -36,3 +36,9 @@ body.platform-ios .q-dialog__inner:not(.q-dialog__inner--keyboard) {
 body.platform-ios .q-dialog__inner--minimized:not(.q-dialog__inner--keyboard) > div {
   max-height: calc(100svh - 48px);
 }
+
+/* "View grayscale" toggle (quilt and block editors): values only. Filter in App.vue. */
+canvas.gray,
+.gray canvas {
+  filter: url(#rrq-gray);
+}

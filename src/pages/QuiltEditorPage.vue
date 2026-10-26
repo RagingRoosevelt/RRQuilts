@@ -160,6 +160,7 @@
           :pan-only="panOnly"
           :data-marks="dataMarks"
           :day-paths="dayPaths"
+          :class="{ gray: editor.gray }"
           @tap="onTap"
           @hover="(h) => (hover = h)"
         />
@@ -172,6 +173,7 @@
       <!-- Inspector -->
       <div v-show="editor.sidebar" class="inspector q-pa-md scroll">
         <template v-if="editor.mode === 'design'">
+          <q-toggle v-model="editor.gray" dense label="View grayscale" class="q-mb-sm" />
           <QuiltColorways
             :quilt="quilt"
             mode="panel"

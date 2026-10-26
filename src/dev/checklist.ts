@@ -118,6 +118,13 @@ export const CHECKS: Check[] = [
     last: '"in a data block, when you select a numeral for painting, the currently selected color (such as a color in the built in basic colors) doesn’t get unselected"',
     to: '/',
   },
+  {
+    id: 'TC-183',
+    group: G.small,
+    text: 'Quilt editor › Design: "View grayscale" sits right above Colorways. Switch it on: the quilt draws in grays (tray swatches stay in color), painting still works. Block editor › Color: the same switch sits right above Colorings and grays the block. It stays on going between the two editors, and is off again after a reload.',
+    last: '"let’s add a “view grayscale” switch right above the colorways section of the quilt design editor and right above the “colorings” section of the block editor"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
