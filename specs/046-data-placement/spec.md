@@ -193,10 +193,13 @@ place"".)
 
    - **Average**: the period counts 365 places. Feb 28's place shows the average of Feb 28's and
      Feb 29's values (each value A–D on its own); a day with only one of the two shows that one.
-     A category value (Mood) averages the two categories' places in its list, and its own
-     **Round down / Round up** choice (beside Leap day, one per category value, Round down by
-     default) settles a half: down = the one earlier in the list, up = the later. (Owner,
-     2026-10-28: "for categorial, give the option to round up or round down".)
+     A category value (Mood) averages the two categories' places in its list, and a half is
+     settled by the quilt's **Categories round** setting, **Down** (default: the one earlier in
+     the list) or **Up** (the later). One setting for the whole quilt, covering every category
+     value, in the Details tab's Data quilt section beside Leap day; shown while Average is picked
+     and the quilt has a category value. (Owner, 2026-10-28: "for categorial, give the option to
+     round up or round down" / "no let's just have this as a setting for the whole quilt for any
+     category series. we can put it in the details/data quilt settings section".)
    - **Ignore**: the period counts 365 places. Feb 29 has no place (in Weeks, the week holding it
      runs Feb 28 to Mar 1 with seven places) and its entries and sample values are left out.
    - **2-day variant** (Weeks): the single day becomes one number of two days (Jan 1–2 at the
@@ -208,7 +211,7 @@ place"".)
 2. **Given** a period without 29 February, **Then** the setting is hidden (and kept for when the
    start moves).
 3. **Then** the choice is saved with the plan (`leap: 'average' | 'ignore' | 'pair' | 'extra'`,
-   and per category value `leapRound: 'down' | 'up'`;
+   and `leapRound: 'down' | 'up'` for the whole quilt;
    `pair` only in Weeks, a Days plan reads it as `extra`). Changing it renumbers the days from
    Feb 29 on only; a placement whose block no longer takes its number (a 1-day block on a 2-day
    number without a 2-day variant) stays and shows per item 1; a placement left on a number that
