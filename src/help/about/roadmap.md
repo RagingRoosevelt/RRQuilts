@@ -25,6 +25,8 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 ## 0.8.0
 
 - English paper piecing layouts, such as hexagon flower gardens, with printable paper templates.
+- Stamps for English paper piecing: save a group of shapes, such as a hexagon flower, and place it
+  like a single shape.
 
 ## 0.9.0
 

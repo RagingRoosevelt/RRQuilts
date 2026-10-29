@@ -54,7 +54,8 @@ justification).
   (a scale-1 edge runs along half of a scale-2 edge).
 - **Snap**: a dragged piece's edge settles onto a nearby edge of equal length, end to end, so the
   two would be sewn together.
-- **Rosette / group**: pieces picked together to move, turn, copy or recolor as one.
+- **Rosette / group**: pieces picked together to move, turn, copy or recolor as one. Saved for
+  reuse, a group is a **stamp** (spec 050): a meta-block used interchangeably with shapes.
 - **Outline**: an EPP quilt has no assumed shape and no quilt rectangle; binding and borders are
   optional, not assumed. Its edge is set by the **edge trim**:
   - **No trimming** (default): the edge is wherever the outer pieces end, often jagged (a hexagon
@@ -111,7 +112,7 @@ middle one, sharing a whole edge.
 5. **Given** pieces that would overlap, **Then** the overlap is shown (but allowed, so the quilter can
    rearrange), and printing warns about it.
 6. **Given** several pieces selected, **Then** they move, turn, mirror, copy, delete and recolor as a
-   group, and a group can be saved as a **rosette** in the library for reuse.
+   group, and a group can be saved as a **stamp** (spec 050) for reuse.
 7. Undo and redo cover every change (spec 006).
 
 ---
@@ -154,7 +155,7 @@ parallelogram); place it and print it.
 1. **Given** the built-in library, **Then** it has a starter set of EPP shapes: hexagon, equilateral
    triangle, square, 60° diamond, 45° diamond, half hexagon, jewel, kite, octagon, pentagon and a few
    stretched versions (for example a 2-unit long hexagon), filed by category.
-2. **Given** My library and packs (spec 011), **Then** EPP shapes (and rosettes) can be saved to My
+2. **Given** My library and packs (spec 011), **Then** EPP shapes (and stamps, spec 050) can be saved to My
    library, shared in packs, copied from packs, synced and credited exactly like blocks, and the
    Libraries page and project tabs list and filter them as their own type.
 3. **Given** a project that uses library shapes, **Then** it embeds the ones it uses (spec 008).
@@ -263,10 +264,10 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   and can rescale selected pieces. Snapping works across scales at whole-unit steps.
 - **FR-004**: Each piece MUST have exactly one fill: a color or a fabric.
 - **FR-005**: Pieces MUST support select, group, move, turn, mirror, copy, delete and recolor, with
-  undo; groups can be saved as rosettes.
+  undo; groups can be saved as stamps (spec 050).
 - **FR-006**: Quilters MUST be able to create, copy and edit EPP shapes (edge lengths in units,
   angles, or a snapping grid) with validation that the outline closes and doesn't cross itself.
-- **FR-007**: EPP shapes and rosettes MUST be library items: built-in starters, My library, packs,
+- **FR-007**: EPP shapes and stamps (spec 050) MUST be library items: built-in starters, My library, packs,
   embedding, sync and credits, as blocks are (specs 008, 009, 011).
 - **FR-008**: Printing MUST produce paper templates (no seam allowance) and fabric templates (with
   seam allowance) at true size, with counts per fill, labels, packing and yardage.
@@ -285,7 +286,7 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **EppQuilt**: base dimension, seam allowance, edge trim (none / straight rectangle / custom
   outline), optional binding and borders (off by default), pieces, groups, colorways; later `joins` and a 3D flag.
 - **Piece**: shape ref, position, turn, mirror, scale (1-4), fill.
-- **Rosette**: a saved group of pieces (shape refs, relative positions, fills).
+- **Stamp**: see spec 050 (replaces the rosette: a saved group used like a shape).
 - **Join** (later): two (piece, edge) pairs.
 
 ## Success Criteria *(mandatory)*
