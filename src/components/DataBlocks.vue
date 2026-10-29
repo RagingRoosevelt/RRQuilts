@@ -28,37 +28,6 @@
           No {{ kind }} data blocks yet: turn on Data block in a block’s Details tab.
         </div>
       </template>
-      <!-- The quilt value each of the picked block's own values reads (spec 046 US2). -->
-      <div v-if="picked" class="column" style="gap: 4px">
-        <div class="text-caption text-grey-7">
-          <template v-if="letters.length === 1">The quilt value it shows:</template>
-          <template v-else>
-            {{ picked.block.notecard.name }} has {{ letters.length }} values. Pick the quilt value
-            each one shows:
-          </template>
-        </div>
-        <div v-for="l in letters" :key="l" class="row items-center no-wrap" style="gap: 8px">
-          <span v-if="letters.length > 1" class="text-caption" style="width: 56px"
-            >Block {{ SLOT_NAMES[l] }}</span
-          >
-          <q-select
-            :model-value="editor.dataSeries[l] ?? l"
-            :options="valueOptions"
-            emit-value
-            map-options
-            dense
-            outlined
-            options-dense
-            class="col"
-            :aria-label="`Quilt value for block value ${SLOT_NAMES[l]}`"
-            @update:model-value="(v: number) => setSeries(l, v)"
-          />
-        </div>
-        <div v-if="letters.length > plan.slots.length" class="text-caption text-warning">
-          This quilt has {{ plan.slots.length }} value{{ plan.slots.length > 1 ? 's' : '' }}: add
-          more in the Data tab to place this block.
-        </div>
-      </div>
     </FieldGroup>
     <FieldGroup label="Numbers" heading collapsible>
       <div class="row items-center no-wrap" style="gap: 8px">
@@ -77,6 +46,31 @@
           <template v-if="rows[next - 1]">Next: {{ rows[next - 1]!.text }}</template>
         </div>
       </div>
+      <!-- The quilt value each of the picked block's own values shows (spec 046 US2), picked as
+           in the block editor's Value. -->
+      <template v-if="picked">
+        <div v-for="l in letters" :key="l" class="row items-center no-wrap" style="gap: 8px">
+          <span class="text-caption">{{
+            letters.length > 1 ? `Block ${SLOT_NAMES[l]} shows` : 'Value'
+          }}</span>
+          <q-btn-toggle
+            :model-value="editor.dataSeries[l] ?? l"
+            :options="valueOptions"
+            dense
+            no-caps
+            unelevated
+            toggle-color="primary"
+            :aria-label="
+              letters.length > 1 ? `Quilt value for block value ${SLOT_NAMES[l]}` : 'Value'
+            "
+            @update:model-value="(v: number) => setSeries(l, v)"
+          />
+        </div>
+        <div v-if="letters.length > plan.slots.length" class="text-caption text-warning">
+          {{ picked.block.notecard.name }} has {{ letters.length }} values and this quilt
+          {{ plan.slots.length }}: add more in the Data tab to place it.
+        </div>
+      </template>
       <div class="text-caption text-grey-7">
         Tap block spaces to place the highlighted number. It moves on to the next number. Tap a
         number below to place from there, or to place it again. Tap a placed space to take it off,
@@ -258,7 +252,16 @@ function pickType(b: Block, kind: DataKind) {
 /** The picked block's own values (A, B…). */
 const letters = computed(() => (picked.value ? blockLetters(picked.value.block) : []));
 const valueOptions = computed(() =>
-  (plan.value?.slots ?? []).map((s, i) => ({ label: `q${SLOT_NAMES[i]} ${s.label}`, value: i })),
+  // All four, as the block editor's Value; ones the quilt doesn't have yet are off.
+  SLOT_NAMES.map((n, i) => {
+    const s = plan.value?.slots[i];
+    return {
+      label: `q${n}`,
+      value: i,
+      disable: !s,
+      attrs: { title: s ? s.label : 'Add this value in the Data tab' },
+    };
+  }),
 );
 function setSeries(letter: number, v: number) {
   const out = [...editor.dataSeries];

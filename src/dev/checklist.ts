@@ -129,7 +129,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-185',
     group: G.data046,
-    text: 'A data quilt with two values (High and Low, Data tab). Pick a single-value block: “The quilt value it shows” offers qA High and qB Low. Place one with qA and one with qB: the quilt shows Wk 1 over qA and Wk 2 over qB, and the qB block’s pieces follow the Low values. A block whose numerals use A and B asks for a value for each (Block A, Block B); mapped crosswise it reads qB, qA under its number. A block needing more values than the quilt has says so and isn’t placed.',
+    text: 'A data quilt with two values (High and Low, Data tab). Pick a single-value block: under Place numbers, Value shows qA qB qC qD as in the block editor (qC and qD grayed out; hovering names High and Low). Place one with qA and one with qB: the quilt shows Wk 1 over qA and Wk 2 over qB, and the qB block’s pieces follow the Low values. A block whose numerals use A and B has a row for each (Block A shows, Block B shows); mapped crosswise it reads qB, qA under its number. A block needing more values than the quilt has says so and isn’t placed.',
     last: '"when placing a single series block we’ll show it as Wk1 with the series label on the line below qA…"',
     to: '/',
   },
