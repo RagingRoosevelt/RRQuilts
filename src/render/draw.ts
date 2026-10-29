@@ -197,7 +197,7 @@ export function drawQuilt(
     if (!hi) continue;
     // A slight glow (soft): a fainter, tighter halo.
     const soft = hi === 1;
-    ctx.shadowBlur = (soft ? 3 : 10) * o.dpr;
+    ctx.shadowBlur = (soft ? 2 : 10) * o.dpr;
     const content = quilt.layers[0].slots[slot.id];
     // Spaces that take blocks (setting and cut-down edge pieces too) as blocks; patch-only ones
     // (sashing, borders, strips, one-patch pieces) as the rest.
@@ -209,8 +209,8 @@ export function drawQuilt(
     ctx.strokeStyle = glow;
     ctx.shadowColor = glow;
     const path = slotPath(slot);
-    ctx.globalAlpha = soft ? 0.2 : 0.45;
-    ctx.lineWidth = (hi + 4) * px;
+    ctx.globalAlpha = soft ? 0.15 : 0.45;
+    ctx.lineWidth = (soft ? 3 : hi + 4) * px;
     ctx.stroke(path);
     ctx.globalAlpha = 1;
     ctx.lineWidth = hi * px;
