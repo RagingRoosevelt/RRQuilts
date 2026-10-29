@@ -57,7 +57,7 @@
 ## Concepts
 
 - **Number**: one entry of the plan's list (a month, a week or left-over day, or a day), shown by
-  its label: Jan, Wk 1, Jan 2. Owner's word: data slot.
+  its label: Jan, Wk 1, Jan 2. The owner's words **numeral** and **data slot** mean the same.
 - **Placement**: a block space given a number, a data block and a series map. A number may have any
   number of placements (none, one, several).
 - **Series**: the quilt's values A–D, written **qA…qD** on the quilt. A block's own series are the
@@ -81,10 +81,23 @@ Wk 3. Click Wk 2 in the list, tap a fourth space: it reads Wk 2 too, and Wk 2 ha
    days, as today) and the highlight moves to the next number.
 2. **Given** a number clicked in the list, **Then** it becomes the highlight, whether or not it is
    already placed, so the next tap adds another placement for it.
-3. **Given** the highlighted number and a space already placed for it, **When** tapped, **Then**
-   that placement is removed (the number keeps its other placements).
-4. **Given** a space placed for another number, **When** tapped, **Then** it takes the highlighted
-   number (keeping its block and series map).
+3. **Given** a placed space, **When** tapped, **Then** it compares the brush (highlighted number,
+   picked block, its series) with the placement and changes only what differs:
+
+   | Brush vs placement | Result |
+   |---|---|
+   | same number, same block, same series | placement removed (the number keeps its others) |
+   | same number, other block | block changed, number kept |
+   | same block, other number | number changed, block kept |
+   | other block and other number | both changed |
+   | same number and block, other series | series changed |
+
+   (Owner, 2026-10-28: "if you change the block but have the same numeral selected as is already
+   present, then you just change the block; if you have the same block selected but have a
+   different numeral selected, then you just change the numeral; if you have a different block and
+   a different numeral selected, both are changed".)
+4. **Then** the highlight moves to the next number after a new placement or a number change; a
+   block or series change alone keeps it. A space holds one placement.
 5. **Given** an ordinary (non-data) block picked, **Then** taps set it as in Other blocks today.
 6. **Then** there is no drag and drop and no move arrows in the list, and no per-length pools or
    Shuffle: the block placed is the one picked.
@@ -178,9 +191,7 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
 2. The series line on a quilt with only one value (qA): shown always (default, as asked) or hidden?
 3. The series map belongs to each placement (default: one block can be placed for qA in one space
    and qB in another), not to the block for the whole quilt.
-4. A space can hold one placement (default): tapping a space with another data block picked
-   replaces its block.
-5. Leap year with a lead day: one day stays at the end (default), or both left-over days go to the
+4. Leap year with a lead day: one day stays at the end (default), or both left-over days go to the
    front as Jan 1 and Jan 2?
 
 ## Out of scope
