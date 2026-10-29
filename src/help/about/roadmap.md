@@ -35,6 +35,9 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - Hints in a block's Details about which techniques may suit it, for the block's designer to tick.
 - Step by step instructions for making a quilt, built from its layout and blocks.
 
+- A Move tool for quilts: select several blocks and drag them to other spaces, replacing what was
+  there.
+
 ## 0.10.0
 
 - Turn blocks before placing them: choose Rotate again and the block picker, and the blocks you
