@@ -193,6 +193,10 @@ place"".)
 
    - **Average**: the period counts 365 places. Feb 28's place shows the average of Feb 28's and
      Feb 29's values (each value A–D on its own); a day with only one of the two shows that one.
+     A category value (Mood) averages the two categories' places in its list, and its own
+     **Round down / Round up** choice (beside Leap day, one per category value, Round down by
+     default) settles a half: down = the one earlier in the list, up = the later. (Owner,
+     2026-10-28: "for categorial, give the option to round up or round down".)
    - **Ignore**: the period counts 365 places. Feb 29 has no place (in Weeks, the week holding it
      runs Feb 28 to Mar 1 with seven places) and its entries and sample values are left out.
    - **2-day variant** (Weeks): the single day becomes one number of two days (Jan 1–2 at the
@@ -203,7 +207,8 @@ place"".)
      at the end, or Jan 1 and Jan 2 at the start). Days: Feb 29 is a number of its own to place.
 2. **Given** a period without 29 February, **Then** the setting is hidden (and kept for when the
    start moves).
-3. **Then** the choice is saved with the plan (`leap: 'average' | 'ignore' | 'pair' | 'extra'`;
+3. **Then** the choice is saved with the plan (`leap: 'average' | 'ignore' | 'pair' | 'extra'`,
+   and per category value `leapRound: 'down' | 'up'`;
    `pair` only in Weeks, a Days plan reads it as `extra`). Changing it renumbers the days from
    Feb 29 on only; a placement whose block no longer takes its number (a 1-day block on a 2-day
    number without a 2-day variant) stays and shows per item 1; a placement left on a number that
@@ -244,9 +249,7 @@ place"".)
 2. The series line on a quilt with only one value (qA): shown always (default, as asked) or hidden?
 3. The series map belongs to each placement (default: one block can be placed for qA in one space
    and qB in another), not to the block for the whole quilt.
-4. Averaging a category value (Mood): no average exists. Default: Feb 28's value, Feb 29's when
-   Feb 28 has none.
-5. "Extra single-day number at the start/end": both single days together where the single day sits
+4. "Extra single-day number at the start/end": both single days together where the single day sits
    (default), or one at the start and one at the end?
 
 ## Out of scope
