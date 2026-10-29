@@ -11,7 +11,9 @@ Owner, 2026-10-29: "it looks like it's also partially implmented for blocks, but
 missing. let's put it in 0.7.3 and add fixing the glow for blocks. that will also let uus drop the
 move earlier/later menu items from blocks" (User Story 4). Then: "when dragging, the actual
 quilt/block is reduced in transparency and a virtual drag representation is shown following the
-mouse (sylized a bit to look like it's moving / being dragged)" (User Story 1, scenarios 6 and 7).
+mouse (sylized a bit to look like it's moving / being dragged)" (User Story 1, scenarios 6 and 7). Then: "add a bugfix to that item where if you drag a
+quilt/block too far past the end, letting go doesn't drop it where the glow suggests it will go"
+(Bug below, User Story 1 scenario 9).
 
 ## Today
 
@@ -24,6 +26,14 @@ either side of where it will land glow (`glow-right` / `glow-left`, `quiltGap` i
 The Blocks tab's own blocks drag the same way (mouse only, off while filtering) but show no glow,
 so there is no telling where a block will land. Their ⋮ menu also has Move earlier / Move later. The order is saved with the project and is
 the order of the quilt editor's quilt switcher, printing and exports.
+
+## Bug: letting go past the end doesn't drop
+
+Dragging a quilt past the last card and letting go in the empty space after it leaves the quilt
+where it was, though the glow showed it landing at the end. Cause: the glow comes from the last
+card the pointer was over (`quiltDropAt`, set on `dragover`), but the move happens only on a
+`drop` event over a card, and none fires on empty space; `dragend` then clears the glow. Blocks
+have the same gap (`drop('blocks', i)` only on cards).
 
 ## User Scenarios & Testing
 
@@ -38,8 +48,8 @@ A quilter with a dozen quilts drags one card to where it belongs, with a mouse o
    does now for the mouse), and releasing puts it there.
 2. **Given** a drag near the top or bottom of the page, **Then** the page scrolls so any place can be
    reached.
-3. **Given** a drop, **Then** it's one undo step; Esc or dropping outside the list cancels with no
-   change.
+3. **Given** a drop, **Then** it's one undo step; Esc cancels with no change (letting go
+   elsewhere follows scenario 9).
 4. **Given** touch, **Then** a plain swipe still scrolls the page and a tap still opens the quilt
    (only a long press starts a drag).
 5. **Given** a read-only project, **Then** nothing can be dragged.
@@ -50,6 +60,10 @@ A quilter with a dozen quilts drags one card to where it belongs, with a mouse o
    lifted). It tilts slightly toward the direction of movement and settles straight when the
    pointer stops. On drop it slides into the landing place; on cancel it slides back to the faded
    card, then the card returns to full opacity.
+9. **Given** a glow showing where the card will land, **When** the quilter lets go anywhere (over a
+   card, past the last card, in a gap, below the list), **Then** the card lands exactly where the
+   glow showed. No glow, no move: only Esc, or dragging back over the card's own place, cancels.
+   Past the last card the glow shows the end of the list; before the first, its start.
 8. **Given** the quilter's system asks for reduced motion, **Then** the copy follows without tilt or
    slide (still larger, with the shadow).
 
@@ -92,6 +106,8 @@ A quilter with a dozen quilts drags one card to where it belongs, with a mouse o
 
 - **FR-001**: Quilt cards MUST be reorderable by drag with mouse, pen and touch (long press), with the
   landing glow they have now and auto-scroll.
+- **FR-008**: Letting go MUST move the card to the place the glow shows, wherever the pointer is
+  (fixes the drop lost past the end of the list); with no glow showing, nothing moves.
 - **FR-007**: While dragging, the moved card MUST stay in place faded, and a styled copy of its
   picture (larger, tilted, lifted shadow) MUST follow the pointer, honoring reduced motion. The
   browser's own drag image isn't styleable and doesn't work for touch, so the drag is built on
