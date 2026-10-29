@@ -12,7 +12,9 @@ Owner, 2026-10-29: "let's move [it] into 0.7.3 and add the ability to pick which
 gravity at all". Done as one strength per snap target (User Story 3), each of which can be Off.
 Then: "add a snapping target toggle of horizontal or vertical alignment with nearest nearly
 horizontal and nearest vertical node" (User Story 5). Then: "the snap settings are user settings
-(not project settings) but are exposed in the block design editor".
+(not project settings) but are exposed in the block design editor". Then: "the horizontal /vertical
+snapping specs should be handled a bit differently on non-cartisian grid blocks (triangles,
+hexagons, diamonds) and should snap to nearest node along grid axes" (User Story 5, scenario 9).
 
 ## Concepts
 
@@ -119,6 +121,16 @@ x 1 as well: it lands at (1, 2.3) only if Corners pull it there; else at x 1 on 
    seam can be drawn exactly level or plumb.
 8. **Given** corners counted, **Then** they are the drawn corners and the block's own corners (the
    same ones Corners snaps to); the corner being moved, when editing, doesn't count.
+9. **Given** a shaped block (triangle, 60° diamond, hexagon: the triangle grid), **Then** line up
+   follows the grid's three axes instead of level and plumb: triangles and diamonds 0°, 60° and
+   120° (level rows), hexagons 90°, 30° and 150° (upright columns), the same directions as the grid
+   lines drawn. For each axis, the point pulls onto the nearest line through a corner in that
+   direction, within reach.
+10. **Given** a shaped block and lines along two axes within reach (from the same corner or two),
+    **Then** the point lands where they cross, the two nearest lines winning; with one axis lined up
+    and Grid points on, it can land where that line crosses the nearest grid line within reach.
+11. **Given** a shaped block, **Then** the dashed guide line runs along the axis to the corner, and a
+    seam drawn from a corner lines up along any of the three axes from its own start.
 
 ---
 
@@ -144,8 +156,9 @@ x 1 as well: it lands at (1, 2.3) only if Corners pull it there; else at x 1 on 
 - Blocks saved before this feature carry their own snap toggles in their editor state: they are
   ignored from now on (the grid spacing there still applies) and dropped the next time the block is
   saved. A block that had one switched off now snaps by the quilter's settings.
-- Line up on a shaped block (triangle grid): level and plumb are still screen horizontal and
-  vertical (the block's own axes); the triangle grid's slanted lines don't count.
+- Line up on a shaped block: along the triangle grid's three axes, not screen level and plumb
+  (scenario 9). A shaped block turned on the quilt keeps its own axes in the block editor, which
+  draws it upright.
 - Line up beats grid points: a corner level 1/16″ off a grid line wins when both are within reach.
 
 ## Requirements *(mandatory)*
@@ -165,7 +178,10 @@ x 1 as well: it lands at (1, 2.3) only if Corners pull it there; else at x 1 on 
 - **FR-008**: The block editor MUST offer **Line up with nodes** (the user setting, Off by
   default). On, a point MUST
   take the exact y of the nearest corner whose y is within reach, and the exact x of the nearest
-  corner whose x is within reach, independently; the other axis MAY then snap to a grid line.
+  corner whose x is within reach, independently; the other axis MAY then snap to a grid line. On a
+  shaped block (triangle grid), the axes MUST be the grid's three line directions (0°, 60°, 120°;
+  hexagons 90°, 30°, 150°), the point moving onto the nearest line through a corner along each, two
+  lines combining at their crossing.
 - **FR-009**: A lined up point MUST show a dashed guide line to its corner(s); the seam being drawn
   MUST count its own start as a corner.
 - **FR-005**: Holding Alt (Option) while drawing MUST turn snapping off for that stroke.
