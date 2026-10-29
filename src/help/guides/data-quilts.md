@@ -142,6 +142,9 @@ different block changes its block, and a different value changes its value.
 **Fill empty numbers** puts the block spaces still empty on the numbers with no block yet, by
 **Rows**, **Columns**, or **Snake**, with the picked block. **Clear** takes every block off.
 
+**Erase** on the left takes a placed block off its space, and **Find** lights up every space a
+data block is placed on.
+
 Beside each label are the blocks placed for it, each an uncolored picture with its values. Hover
 over one, or click it, and its block space lights up on the quilt. On the quilt, each placed space
 shows its number, with its values on the line below in the block's own order. A line joins the

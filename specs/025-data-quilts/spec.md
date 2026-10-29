@@ -73,7 +73,7 @@ server calls; offline first).
 - **Data quilt**: an ordinary quilt (any layout, sashing, borders) with a **data plan**, turned on
   by a **Data quilt** switch with its plan in the quilt's Details tab. Its Design tab's tray then has
   **Blocks** (the numbered list and the types), **Colors** (as usual, for everything that isn't a
-  day) and **Data** (period, data and the value mapping). Set, Erase and Find leave the rail.
+  day) and **Data** (period, data and the value mapping). Set leaves the rail (Erase and Find stay, spec 046: owner, 2026-10-29).
 - **Data plan** (the quilt's math): **Months** (12 numbers, days 1–31 in each), **Weeks** (52
   numbers of 7 days from the period start, then a number per day left over), or **Days** (a number
   per day). Plus the **period**: a start date, one year long (365 or 366 days, by whether it holds a

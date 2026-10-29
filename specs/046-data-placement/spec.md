@@ -264,6 +264,10 @@ place"".)
   block on the first number and cleared by placing a week block there, removing its last 1-day
     placement, or (after asking) placing a 1-day block on the last number. Day numbering (spec 025
   FR-004) becomes: lead day 1, then 7 × (k − 1) + 2 … for Wk k.
+- **FR-011**: A data quilt's rail keeps **Erase** (a placed space erased gives its placement up)
+  and **Find** (a data block finds every space it's placed on, whichever variant shows there).
+  Only Set leaves (owner, 2026-10-29: "we don't seem to have the "erase a block" tool in a data
+  quilt? or find block?").
 - **FR-010**: A Weeks or Days plan over a leap year MUST offer the Leap day setting (User Story 6) in the
   Details tab's Data quilt section; week blocks MUST be able to add a 2-day variant (block file and
   library formats bumped with the project's).

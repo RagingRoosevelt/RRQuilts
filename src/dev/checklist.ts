@@ -112,6 +112,13 @@ export const CHECKS: Check[] = [
     last: '"in quilt design, block trace arrows are shown only for series A"',
     to: '/',
   },
+  {
+    id: 'TC-203',
+    group: G.data046,
+    text: 'Data quilt › Design: the rail has Erase block and Find block (not Set). Erase a placed data block: the space empties and the list shows that number without it (Undo brings it back). Find, tapping a data block: every space it’s placed on lights up, including ones showing its 1-day variant.',
+    last: '"we don’t seem to have the “erase a block” tool in a data quilt? or find block?"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -394,7 +394,8 @@ const help = computed(() =>
 );
 /** A data quilt places its blocks by number (spec 025): no Set, Erase or Find. */
 const shownTools = computed(() =>
-  quilt.value?.data?.on ? tools.filter((t) => !['set', 'erase', 'find'].includes(t.id)) : tools,
+  // A data quilt sets blocks with its numbering brush (Other blocks: Set from the tray).
+  quilt.value?.data?.on ? tools.filter((t) => t.id !== 'set') : tools,
 );
 const labelOf = (t: { id: Tool; label: string }) =>
   t.id === 'flip' ? (editor.flipAxis === 'v' ? 'Flip top↕bottom' : 'Flip left↔right') : t.label;
@@ -438,7 +439,7 @@ watch(
   () => !!quilt.value?.data?.on,
   (on) => {
     if (!on && (editor.tool === 'number' || editor.tool === 'entry')) editor.tool = 'set';
-    if (on && ['set', 'erase', 'find'].includes(editor.tool)) editor.tool = 'number';
+    if (on && editor.tool === 'set') editor.tool = 'number';
   },
 );
 /** Data quilt taps: the brush places the highlighted number (or takes a space's back); in the
@@ -551,7 +552,14 @@ const found = computed(() => {
   }
   if (editor.tool !== 'find' || !editor.block || !quilt.value) return undefined;
   const slots = quilt.value.layers[0].slots;
-  return new Set(Object.keys(slots).filter((id) => slots[id]!.block === editor.block));
+  // A data block: every space it's placed on, whichever variant shows there.
+  const placed = (quilt.value.data?.places ?? [])
+    .filter((p) => p.block === editor.block)
+    .map((p) => p.space);
+  return new Set([
+    ...Object.keys(slots).filter((id) => slots[id]!.block === editor.block),
+    ...placed,
+  ]);
 });
 const sidebarLabel = computed(() => (editor.sidebar ? 'Hide sidebar' : 'Show sidebar'));
 const labelsLabel = computed(() => (editor.labels ? 'Hide block names' : 'Show block names'));
@@ -625,7 +633,9 @@ function onTap(hit: Hit) {
     ...editor.$state,
     library: library.lookup,
   });
-  if (r.selectBlock) editor.block = r.selectBlock;
+  // Find on a data block: the block itself, not the variant its space shows.
+  const place = quilt.value.data?.on ? placeOf(quilt.value.data, hit.slotId) : undefined;
+  if (r.selectBlock) editor.block = editor.tool === 'find' && place ? place.block : r.selectBlock;
   if (r.selectColor) editor.useColor(r.selectColor);
   if (r.message) $q.notify({ message: r.message, timeout: 1500 });
   if (r.doc && !project.readOnly) {
