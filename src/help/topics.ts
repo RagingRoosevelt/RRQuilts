@@ -11,6 +11,7 @@
 // A line `::diagram <section>/<id>` repeats the first diagram of that topic (no copies to drift).
 // `{{yours:<feature>}}` becomes "yours does" / "yours doesn't" (HelpPage checks the browser).
 import { marked } from 'marked';
+import { changelogMarkdown } from '@/model/changelog';
 
 export const SECTIONS = [
   { id: 'guides', label: 'App Guides', icon: 'menu_book' },
@@ -112,7 +113,7 @@ const changelog = import.meta.glob<string>('/CHANGELOG.md', {
 });
 const changelogTopic = Object.values(changelog).map(
   (raw) =>
-    `---\ntitle: Changelog\norder: 40\nsummary: What changed in each version.\n---\n${raw.replace(/^# .*\n/, '')}`,
+    `---\ntitle: Changelog\norder: 40\nsummary: What changed in each version.\n---\n${changelogMarkdown(raw.replace(/^# .*\n/, ''))}`,
 );
 
 export const TOPICS: Topic[] = [
