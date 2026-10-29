@@ -159,7 +159,14 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
    **Then** the first number becomes a single day (the period's first day, Jan 1), weeks start the
    day after, and the day left over at the end goes (the last number is Wk 52). A leap year
    follows the Leap day setting (User Story 6).
-2. **Then** placed weeks keep their numbers (Wk k stays Wk k) and their days move one later.
+2. **Then** placed blocks keep their places in the list, so their labels shift by one: moving the
+   single day to the start, the block on Wk 2 becomes Wk 1; moving it back, Wk 1 becomes Wk 2
+   (owner, 2026-10-29: "changing wk1 to jan 1 should bump each of the other blocks backwards 1
+   slot (so wk2 moves to wk1, wk3 moves to wk2). changing wk52 to dec31 should scoot the blocks
+   back the other way."). A week block placed on the single day at the end moves it to the start
+   too, the space becoming Wk 52 (owner: a 7-day pick on Dec 31 "just cleared that block"). Each
+   move asks first when other blocks would shift. A block picked from another kind's list (a week
+   block's week on a single day) is refused with where to pick it, never taken as a take-back.
 3. **Given** the first number is already a single day, **Then** placing a week block on it,
    removing its last 1-day placement, or placing a 1-day block on the last number (Wk 52) turns it
    back (weeks from the period start, the left-over day at the end). Placing on Wk 52 asks first:

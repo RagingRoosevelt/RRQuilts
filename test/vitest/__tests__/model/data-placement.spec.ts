@@ -136,32 +136,56 @@ describe('series (US2)', () => {
 });
 
 describe('the single day first (US5)', () => {
-  it('a 1-day block on Wk 1 starts the year with it; weeks keep their labels', () => {
+  it('a 1-day block on Wk 1 starts the year with it; the other blocks move up a week', () => {
     let p = ok(dataTap(plan(), 'w1', brush(1))).plan; // Wk 1
-    p = ok(dataTap(p, 'd', brush(53, day, 'day'))).plan; // Dec 31
-    const r = ok(dataTap(p, 'j1', brush(1, day, 'day')));
-    expect(r.ask).toMatch(/Jan 1 as a single day/); // Wk 1 has a block: ask
+    p = ok(dataTap(p, 'w2', brush(2))).plan; // Wk 2
+    // The first space retyped as Jan 1.
+    const r = ok(dataTap(p, 'w1', brush(1, day, 'day')));
+    expect(r.ask).toMatch(
+      /Start the year with Jan 1 as a single day\? The other block keeps its place/,
+    );
     expect(r.plan.lead).toBe(true);
     const by = Object.fromEntries(r.plan.places.map((x) => [x.space, numberLabel(r.plan, x.n)]));
-    expect(by).toEqual({ w1: 'Wk 1', d: 'Jan 1', j1: 'Jan 1' });
+    expect(by).toEqual({ w1: 'Jan 1', w2: 'Wk 1' });
     expect(numberLabel(r.plan, 53)).toBe('Wk 52');
     expect(placeDate(r.plan, dayOf(r.plan, 53, { n: 7 })!)).toBe('2027-12-31');
-    // Nothing on Wk 1: no question.
+    // Nothing else placed: no question.
     expect(ok(dataTap(plan(), 'j1', brush(1, day, 'day'))).ask).toBeUndefined();
   });
 
-  it('back to the end: a 1-day block on Wk 52 (asked), a week block on Jan 1, or Jan 1 emptied', () => {
-    const lead = ok(dataTap(plan(), 'j1', brush(1, day, 'day'))).plan;
+  it('back to the end: a 1-day block on Wk 52, a week block on Jan 1, or Jan 1 emptied (asked)', () => {
+    let lead = ok(dataTap(plan(), 'j1', brush(1, day, 'day'))).plan;
+    lead = ok(dataTap(lead, 'w', brush(2))).plan; // Wk 1
     const r = ok(dataTap(lead, 'x', brush(53, day, 'day')));
-    expect(r.ask).toMatch(/Make Jan 1 part of Wk 1 again/);
+    expect(r.ask).toMatch(/Make Jan 1 part of Wk 1 again.*Wk 1 becomes Wk 2/);
     expect(r.plan.lead).toBeUndefined();
-    expect(r.plan.places.map((x) => numberLabel(r.plan, x.n))).toEqual(['Dec 31', 'Dec 31']);
-    const w = ok(dataTap(lead, 'y', brush(1)));
+    const by = Object.fromEntries(r.plan.places.map((x) => [x.space, numberLabel(r.plan, x.n)]));
+    expect(by).toEqual({ j1: 'Wk 1', w: 'Wk 2', x: 'Dec 31' });
+    const w = ok(dataTap(lead, 'j1', brush(1)));
+    expect(w.ask).toBeDefined();
     expect(w.plan.lead).toBeUndefined();
-    expect(numberLabel(w.plan, w.plan.places.find((x) => x.space === 'y')!.n)).toBe('Wk 1');
     const off = ok(dataTap(lead, 'j1', brush(1, day, 'day')));
+    expect(off.ask).toMatch(/single day back at the end/);
     expect(off.plan.lead).toBeUndefined();
+    expect(off.plan.places).toEqual([{ space: 'w', n: 2, block: 'wk' }]); // now Wk 2
     expect(setLead(setLead(plan(), true), false)).toEqual(plan());
+  });
+  it('a week block on the single day at the end moves it to the start (asked); a block picked from another kind’s list is refused', () => {
+    let p = ok(dataTap(plan(), 'w', brush(1))).plan; // Wk 1
+    p = ok(dataTap(p, 'd', brush(53, week, 'day'))).plan; // Dec 31, the week block's 1-day variant
+    const r = ok(dataTap(p, 'd', brush(53, week, 'week')));
+    expect(r.ask).toMatch(
+      /Move the single day \(Dec 31\) to the start of the year and make this Wk 52\?/,
+    );
+    const by = Object.fromEntries(r.plan.places.map((x) => [x.space, numberLabel(r.plan, x.n)]));
+    expect(by).toEqual({ w: 'Jan 1', d: 'Wk 52' });
+    // Not the end: a day pick on a week, or a week pick on a single day, says where to pick it.
+    expect(dataTap(p, 'x', brush(5, week, 'day'))).toMatchObject({
+      error: /pick wk under Week blocks/,
+    });
+    expect(
+      dataTap(ok(dataTap(plan(), 'j', brush(1, day, 'day'))).plan, 'x', brush(1, week, 'week')),
+    ).not.toHaveProperty('error');
   });
 });
 

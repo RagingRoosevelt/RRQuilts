@@ -64,6 +64,7 @@
               letters.length > 1 ? `Quilt value for block value ${SLOT_NAMES[l]}` : 'Value'
             "
             @update:model-value="(v: number) => setSeries(l, v)"
+            @click="onValueClick"
           />
         </div>
         <div v-if="letters.length > plan.slots.length" class="text-caption text-warning">
@@ -112,7 +113,7 @@
         <template #default="{ item: r }">
           <div
             :key="r.k"
-            class="number row items-center no-wrap"
+            class="number row items-start no-wrap"
             :class="{ current: r.k === next }"
             role="button"
             :aria-label="`${r.text}, ${r.places.length ? `${r.places.length} placed` : 'not placed'}`"
@@ -122,7 +123,7 @@
               <span>{{ r.label }}</span>
               <span v-if="r.name !== r.label" class="text-caption ellipsis">{{ r.name }}</span>
             </div>
-            <div class="col row items-center no-wrap places">
+            <div class="col row items-center places">
               <div
                 v-for="pl in r.places"
                 :key="pl.space"
@@ -169,7 +170,9 @@ import {
   dataReport,
   fillNumbers,
   numberCount,
+  placesOf,
   seriesLabel,
+  seriesOf,
 } from '@/model/data-quilt';
 import { useDataTypes } from '@/composables/data-types';
 import type { Block, DataKind } from '@/model/schema/block';
@@ -304,6 +307,26 @@ function edit(fn: (p: DataPlan) => DataPlan) {
 function pick(k: number) {
   editor.dataNext = k;
   if (!props.readonly) editor.tool = 'number';
+  if (plan.value) editor.flashSpaces(placesOf(plan.value, k).map((x) => x.space));
+}
+/** Blink the blocks that show quilt value `v`. */
+function flashValue(v: number) {
+  const p = plan.value;
+  if (!p) return;
+  editor.flashSpaces(
+    p.places
+      .filter((x) => {
+        const b = blockOf(x.block);
+        return (b ? blockLetters(b) : [0]).some((l) => seriesOf(x, l) === v);
+      })
+      .map((x) => x.space),
+  );
+}
+/** A Value button clicked (picked or already picked): its value's blocks blink. */
+function onValueClick(e: Event) {
+  const t = (e.target as HTMLElement | null)?.closest('button')?.textContent?.trim() ?? '';
+  const i = SLOT_NAMES.indexOf(t.slice(1) as (typeof SLOT_NAMES)[number]);
+  if (t.startsWith('q') && i >= 0) flashValue(i);
 }
 /** Block spaces' centers, as fractions of the quilt. */
 const generated = computed(() => generateFor(props.quilt));
@@ -339,7 +362,7 @@ watch(
 
 <style scoped>
 .number {
-  height: 44px;
+  min-height: 44px;
   gap: 8px;
   padding: 2px 4px;
   cursor: pointer;
@@ -372,6 +395,8 @@ watch(
 }
 .label {
   width: 64px;
+  min-height: 40px;
+  justify-content: center;
   flex: none;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
@@ -397,9 +422,10 @@ watch(
   flex: none;
   object-fit: contain;
 }
+/* Blocks past the width wrap onto more rows (the list's rows grow to fit). */
 .places {
-  gap: 6px;
-  overflow-x: auto;
+  gap: 4px 6px;
+  min-height: 40px;
 }
 .card {
   flex: none;

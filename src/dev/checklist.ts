@@ -141,13 +141,6 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-187',
-    group: G.data046,
-    text: 'A Weeks quilt over a year without 29 February (e.g. from 1 January 2027). Pick a day block (or a week block under Day blocks, for its 1-day variant) and place it on Wk 1: the list now starts Jan 1, Wk 1… and ends Wk 52, with no Dec 31. If Wk 1 already had blocks, it asks first and they stay on Wk 1. Then place a 1-day block on Wk 52: it asks to move the single day back to the end and, on Move it, lands on Dec 31. Placing a week block on Jan 1, or taking Jan 1’s last block off, also moves the single day back.',
-    last: '"in quilt week mode, let’s also placing a 1-day block in the first slot to convert it to a Jan 1 block and the last slot into a week 52 slot" / "or placing a 1 day block in the last slot asks…"',
-    to: '/',
-  },
-  {
     id: 'TC-188',
     group: G.data046,
     text: 'Leap day: a Weeks quilt from 1 January 2028. Details › Data quilt shows Leap day (hidden for 2027 and for Months). Extra single-day number: the list runs Jan 1, Wk 1 … Wk 52, Dec 31. Use a 2-day block variant: the last number is Dec 30–31 and a week block’s 2-day variant (Draw tab › Variant › 2 days) shows there. Average and Ignore: 53 numbers, and the Entries dialog marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value (Mood) and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra; switching to Ignore with a block on Feb 29 asks first.',
@@ -194,6 +187,27 @@ export const CHECKS: Check[] = [
     group: G.data046,
     text: 'Quilt editor › Design, middle-click: on a placed data block, Blocks › Data blocks picks its block, its Value(s) and its number as Next; on an ordinary block, its block is picked (Set) and the clicked patch’s color; on a sash, border or plain patch, its color (Colors tab, Paint). A middle-button drag still pans, and picks nothing.',
     last: '"middle clicking a data block should select it’s series, block, and data slot. middle clicking a regular block should select its fabric/color and block. middle clicking a patch should select its color/fabric." / "(but make sure middle-click-drag keeps working)"',
+    to: '/',
+  },
+  {
+    id: 'TC-196',
+    group: G.data046,
+    text: 'A Weeks quilt over 2027 with blocks on Wk 1, Wk 2, Wk 3. Pick a day block (or a week block under Day blocks) and tap the Wk 1 space: it asks, then that space is Jan 1 and the old Wk 2 and Wk 3 blocks read Wk 1 and Wk 2. Tap Wk 52’s space with a 1-day block: it asks, and the blocks shift back (Jan 1 → Wk 1, Wk 1 → Wk 2), that space being Dec 31. With the single day at the end, a week-picked block (Week blocks) on the Dec 31 space asks to move the single day to the start and makes that space Wk 52 (it isn’t cleared). A week-picked block tapped on another single day says to pick it under Day blocks.',
+    last: '"changing wk1 to jan 1 should bump each of the other blocks backwards 1 slot (so wk2 moves to wk1, wk3 moves to wk2). changing wk52 to dec31 should scoot the blocks back the other way." / "I picked the same block but the 7 day variant and clicked on the dec 31 block in the quilt and instead of asking if I wanted to move the single-day one to be the frist slot, it just cleared that block in the quilt"',
+    to: '/',
+  },
+  {
+    id: 'TC-197',
+    group: G.data046,
+    text: 'Data blocks list: click a number with blocks placed: all its blocks light up once, briefly, on the quilt. Click a Value button (qA, qB; already picked or not): the blocks showing that value light up once.',
+    last: '"clicking on a data slot or series label should briefly flash all members of that slot or label" / "single quick flash, not multiple"',
+    to: '/',
+  },
+  {
+    id: 'TC-198',
+    group: G.data046,
+    text: 'Put three or more blocks on one number: its row in the list grows to more rows of blocks, with no scrollbar and nothing clipped.',
+    last: '"when the scrollbar gets added to a slot in the sidebar, it causes the blocks & slot labels to clip. we should instead just add a row for the extra blocks"',
     to: '/',
   },
 ];

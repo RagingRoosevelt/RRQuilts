@@ -37,11 +37,12 @@ count, and they can't take a number.
 The period is one year from **Period starts**. A Months period starts on the 1st of a month.
 
 A year of 365 days leaves one day over in a Weeks plan. It comes last (Dec 31 for a year from
-January), unless you start the year with it. Place a 1-day block on **Wk 1** and that number
-becomes the first day as a single day (Jan 1), with the weeks starting the day after. Place a week
-block there, or take its last 1-day block off, and the single day goes back to the end. With the
-single day first, a 1-day block placed on **Wk 52** asks to move it back to the end and goes on the
-last day. Weeks keep their labels when the single day moves, and blocks on it move with it.
+January), unless you start the year with it. Place a 1-day block on **Wk 1**, or a week block on
+the single day at the end, and the single day moves to the start (Jan 1), with the weeks starting
+the day after. Place a week block on Jan 1, a 1-day block on **Wk 52**, or take Jan 1's last block
+off, and it goes back to the end. Blocks keep their places in the list when the single day moves,
+so their labels shift by one: moving it to the start, the block on Wk 2 becomes Wk 1, and moving it
+back, Wk 1 becomes Wk 2. The app asks first when other blocks would shift.
 
 ### Leap years
 

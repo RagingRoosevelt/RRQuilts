@@ -672,18 +672,14 @@ export function relabel(
   return { plan: out.plan, lost: out.lost + before.places.length - places.length };
 }
 
-/** The single day moved to the start (`on`) or back to the end (spec 046 US5): weeks keep their
- *  labels (their numbers shift by one) and the single day's placements move with it. */
+/** The single day moved to the start (`on`) or back to the end (spec 046 US5). Blocks keep their
+ *  places in the list, so their labels move a week: with the single day first, the block on Wk 2
+ *  becomes Wk 1; back at the end, Wk 1 becomes Wk 2 (owner, 2026-10-29). */
 export function setLead(plan: DataPlan, on: boolean): DataPlan {
   if (!canLead(plan) || !!plan.lead === on) return plan;
-  const n = numberCount(plan); // 53 either way
-  const places = plan.places.map((p) => {
-    const single = on ? p.n === n : p.n === 1;
-    return { ...p, n: single ? (on ? 1 : n) : on ? p.n + 1 : p.n - 1 };
-  });
   const { lead: _l, ...rest } = plan;
   void _l;
-  return { ...rest, ...(on ? { lead: true } : {}), places };
+  return on ? { ...rest, lead: true } : rest;
 }
 
 /** The brush (spec 046): the highlighted number, the picked data block and the kind of number it
@@ -722,17 +718,35 @@ export function dataTap(plan: DataPlan, space: string, brush: DataBrush): TapRes
   const info = numberInfo(p, k);
   if (!info) return { error: 'Pick a number in the list first.' };
   if (brush.kind !== info.kind && canLead(p)) {
+    const others = p.places.filter((x) => x.space !== space).length;
+    const moves = (dir: 'up' | 'down') =>
+      others
+        ? ` The ${others > 1 ? `other ${others} blocks keep` : 'other block keeps'} ${others > 1 ? 'their places' : 'its place'} in the list, so ${dir === 'up' ? 'Wk 2 becomes Wk 1' : 'Wk 1 becomes Wk 2'} and so on.`
+        : '';
     if (brush.kind === 'day' && !p.lead && k === 1) {
-      const moving = placesOf(p, 1).filter((x) => x.space !== space).length;
       p = setLead(p, true);
-      if (moving)
-        ask = `Start with ${numberInfo(p, 1)!.label} as a single day? Weeks then start a day later, and the ${moving > 1 ? `${moving} blocks` : 'block'} on Wk 1 stay${moving > 1 ? '' : 's'} on Wk 1.`;
+      if (others)
+        ask = `Start the year with ${numberInfo(p, 1)!.label} as a single day?${moves('up')}`;
     } else if (brush.kind === 'day' && p.lead && k === count) {
       p = setLead(p, false);
-      ask = `Make ${numberInfo(plan, 1)!.label} part of Wk 1 again and the last day (${numberInfo(p, count)!.label}) a single day?`;
-    } else if (brush.kind === 'week' && p.lead && k === 1) p = setLead(p, false);
+      ask = `Make ${numberInfo(plan, 1)!.label} part of Wk 1 again and the last day (${numberInfo(p, count)!.label}) a single day?${moves('down')}`;
+    } else if (brush.kind === 'week' && !p.lead && k === count) {
+      // A week block on the single day at the end: the single day moves to the start, and this
+      // space becomes Wk 52.
+      p = setLead(p, true);
+      ask = `Move the single day (${numberInfo(plan, count)!.label}) to the start of the year and make this ${numberInfo(p, count)!.label}?${moves('up')}`;
+    } else if (brush.kind === 'week' && p.lead && k === 1) {
+      p = setLead(p, false);
+      if (others)
+        ask = `Make ${numberInfo(plan, 1)!.label} part of Wk 1 again, with the single day back at the end?${moves('down')}`;
+    }
   }
   const at = numberInfo(p, k)!;
+  // Picked from another kind's list (a week block's week, for a single day): say where to pick it.
+  if (brush.kind !== at.kind && takesKind(brush.block, at.kind))
+    return {
+      error: `${at.label} takes a ${at.kind} block: pick ${brush.block.notecard.name} under ${at.kind === 'day' ? 'Day' : at.kind === 'week' ? 'Week' : 'Month'} blocks.`,
+    };
   if (!takesKind(brush.block, at.kind))
     return {
       error: `${brush.block.notecard.name} can’t show ${at.label}: it takes a ${at.kind} block${at.kind === 'day' ? ' (or a week or month block with a 1-day variant)' : ''}.`,
@@ -747,10 +761,25 @@ export function dataTap(plan: DataPlan, space: string, brush: DataBrush): TapRes
     };
   const series = cleanSeries(brush.series);
   const cur = placeOf(p, space);
-  if (cur && cur.n === k && cur.block === brush.block.id && sameSeries(cur.series, series)) {
+  const moved = !!p.lead !== !!plan.lead; // the single day just moved: a change, never a take-back
+  if (
+    !moved &&
+    cur &&
+    cur.n === k &&
+    cur.block === brush.block.id &&
+    sameSeries(cur.series, series)
+  ) {
     let out = takeBack(p, space);
     // The single day's last block taken off the start: the single day goes back to the end.
-    if (out.lead && k === 1 && !placesOf(out, 1).length) out = setLead(out, false);
+    if (out.lead && k === 1 && !placesOf(out, 1).length) {
+      out = setLead(out, false);
+      if (out.places.length)
+        return {
+          plan: out,
+          next: k,
+          ask: `Take ${numberInfo(p, 1)!.label}’s last block off and put the single day back at the end? The other blocks keep their places in the list, so Wk 1 becomes Wk 2 and so on.`,
+        };
+    }
     return { plan: out, next: k };
   }
   const place: DataPlace = { space, n: k, block: brush.block.id, ...(series ? { series } : {}) };
@@ -806,6 +835,20 @@ export function dataReport(q: Quilt, blocks: readonly Block[]): string[] {
         .join(', ')}${empty.length > 6 ? '…' : ''}.`,
     );
   const missing = new Set(plan.places.map((p) => p.block).filter((id) => !byId.has(id)));
+  const wrong = plan.places.filter((p) => {
+    const b = byId.get(p.block);
+    const kind = numberInfo(plan, p.n)?.kind;
+    return b && (!kind || !takesKind(b, kind));
+  });
+  if (wrong.length)
+    out.push(
+      `${wrong.length} block${wrong.length > 1 ? 's' : ''} can’t show ${wrong.length > 1 ? 'their numbers' : 'its number'}: ${wrong
+        .slice(0, 4)
+        .map((p) => numberLabel(plan, p.n) || `#${p.n}`)
+        .join(
+          ', ',
+        )}${wrong.length > 4 ? '…' : ''}. Tap ${wrong.length > 1 ? 'them' : 'it'} with a block that can.`,
+    );
   if (missing.size)
     out.push(
       `${missing.size} block type${missing.size > 1 ? 's are' : ' is'} missing: ${[...missing].join(', ')}.`,

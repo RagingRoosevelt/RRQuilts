@@ -536,6 +536,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
 /** Find tool: outline every placement of the selected block. */
 const found = computed(() => {
+  if (editor.flash.on && editor.flash.ids.length) return new Set(editor.flash.ids);
   if (editor.mode === 'layout' && strips.value) {
     const id = editor.swapFirst ?? editor.selectedStrip;
     return id
