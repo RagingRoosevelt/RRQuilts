@@ -169,27 +169,48 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
 
 ### User Story 6 - Leap day setting (Priority: P2)
 
-A Weeks plan over a period holding 29 February has 366 days: 52 weeks and two days left over.
+A Weeks plan over a period holding 29 February has 366 days: 52 weeks and two days left over. A
+Days plan has 366 numbers. Months plans need nothing: February takes its block's 29-day variant
+(spec 025).
+
 (Owner, 2026-10-28: "let's have the leap year question be a setting in the details / data quilt
 section. choices the user could pick between are "ignore Feb 29", "use a 2-day block variant in
 place of a 1-day block variant", or "use an extra single-day data block slot which will be at the
-start/end of the year"".)
+start/end of the year"" and "months already has it solved by using the 29/30/31 variant for feb
+for leap years. for day mode, let's give the user the option between "average feb 28 & feb 29"
+(let's add this as an option for wk mode too), "ignore feb 29", "make extra day slot available to
+place"".)
 
-1. **Given** a Weeks plan whose period holds 29 February, **Then** the quilt's Details tab, Data
-   quilt section, shows **Leap day** with three choices:
-   - **Ignore Feb 29**: the period counts 365 days. Feb 29 has no place (the week holding it runs
-     Feb 28 to Mar 1 with seven places) and its entries and sample values are left out.
-   - **Use a 2-day block variant**: the single day becomes one number of two days (Jan 1–2 at the
+1. **Given** a Weeks or Days plan whose period holds 29 February, **Then** the quilt's Details tab,
+   Data quilt section, shows **Leap day**:
+
+   | Choice | Weeks | Days |
+   |---|---|---|
+   | **Average Feb 28 and Feb 29** | ✓ | ✓ |
+   | **Ignore Feb 29** | ✓ | ✓ |
+   | **Use a 2-day block variant** | ✓ | |
+   | **Extra single-day number** (default, as 0.7.0 does) | ✓ | ✓ |
+
+   - **Average**: the period counts 365 places. Feb 28's place shows the average of Feb 28's and
+     Feb 29's values (each value A–D on its own); a day with only one of the two shows that one.
+   - **Ignore**: the period counts 365 places. Feb 29 has no place (in Weeks, the week holding it
+     runs Feb 28 to Mar 1 with seven places) and its entries and sample values are left out.
+   - **2-day variant** (Weeks): the single day becomes one number of two days (Jan 1–2 at the
      start, Dec 30–31 at the end) and takes a block's **2-day variant**. Week blocks may add a
      2-day variant (spec 025 variants: 1 and 2). A block without one shows its smallest variant
      with at least two days (the 7-day drawing), its unused places following the fill policy.
-   - **Use an extra single-day number** (default, as 0.7.0 does): two single-day numbers, both
-     where the single day sits (Dec 30 and Dec 31 at the end, or Jan 1 and Jan 2 at the start).
+   - **Extra**: Weeks: two single-day numbers, both where the single day sits (Dec 30 and Dec 31
+     at the end, or Jan 1 and Jan 2 at the start). Days: Feb 29 is a number of its own to place.
 2. **Given** a period without 29 February, **Then** the setting is hidden (and kept for when the
    start moves).
-3. **Then** the choice is saved with the plan (`leap: 'ignore' | 'pair' | 'extra'`). Changing it
-   renumbers the left-over days only; a placement whose block no longer takes its number (a 1-day
-   block on a 2-day number without a 2-day variant) stays and shows per item 1.
+3. **Then** the choice is saved with the plan (`leap: 'average' | 'ignore' | 'pair' | 'extra'`;
+   `pair` only in Weeks, a Days plan reads it as `extra`). Changing it renumbers the days from
+   Feb 29 on only; a placement whose block no longer takes its number (a 1-day block on a 2-day
+   number without a 2-day variant) stays and shows per item 1; a placement left on a number that
+   goes (Days: Feb 29 under Average or Ignore) is reported in the list, not dropped, and a dialog
+   says how many first.
+4. **Then** the Data tab's entry table still lists Feb 29 under Average and Ignore, so real data
+   can be kept complete, with a note saying how the quilt uses it.
 
 ## Requirements
 
@@ -212,7 +233,7 @@ start/end of the year"".)
   block on the first number and cleared by placing a week block there, removing its last 1-day
     placement, or (after asking) placing a 1-day block on the last number. Day numbering (spec 025
   FR-004) becomes: lead day 1, then 7 × (k − 1) + 2 … for Wk k.
-- **FR-010**: A Weeks plan over a leap year MUST offer the Leap day setting (User Story 6) in the
+- **FR-010**: A Weeks or Days plan over a leap year MUST offer the Leap day setting (User Story 6) in the
   Details tab's Data quilt section; week blocks MUST be able to add a 2-day variant (block file and
   library formats bumped with the project's).
 
@@ -223,8 +244,8 @@ start/end of the year"".)
 2. The series line on a quilt with only one value (qA): shown always (default, as asked) or hidden?
 3. The series map belongs to each placement (default: one block can be placed for qA in one space
    and qB in another), not to the block for the whole quilt.
-4. Leap day setting for Months and Days plans too ("Ignore Feb 29" leaving Feb 29 out of a Days
-   quilt or a February block)? Default: Weeks plans only.
+4. Averaging a category value (Mood): no average exists. Default: Feb 28's value, Feb 29's when
+   Feb 28 has none.
 5. "Extra single-day number at the start/end": both single days together where the single day sits
    (default), or one at the start and one at the end?
 
