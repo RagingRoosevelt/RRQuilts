@@ -1,4 +1,4 @@
-# Feature Specification: Block Cards Without the Gray Backing
+# Feature Specification: Block and Quilt Cards Without the Gray Backing
 
 **Feature Branch**: `TBD` (target 0.7.3)
 
@@ -7,7 +7,8 @@
 **Status**: Draft (spec only; not implemented)
 
 **Input**: Owner, 2026-10-29: "let's also add to 0.7.3 that blocks should not show the gray
-background and should instead have a drop shadow matching the shape of the block".
+background and should instead have a drop shadow matching the shape of the block". Then: "yeah,
+let's implement that background & shadow update for quilts too" (User Story 2).
 
 ## Today (0.7.2)
 
@@ -34,22 +35,36 @@ shadow is a hexagon). Same in Libraries and in dark mode.
    light glow if dark on dark doesn't read).
 4. **Given** a block with empty pieces, **Then** they draw as they do now in the picture (the block
    still reads as a whole shape), so the shadow follows the full outline, not just colored pieces.
-5. **Given** quilt cards, **Then** nothing changes (out of scope unless asked).
+
+### User Story 2 - Quilts too (Priority: P2)
+
+**Independent Test**: project Quilts tab with a rectangle quilt, a round or shaped outline quilt
+(a target outline such as a garment) and an on-point quilt with a sawtooth edge. No gray squares;
+each casts a shadow following its own outline.
+
+1. **Given** a quilt card (project Quilts tab), **Then** there is no gray square behind its picture,
+   and the quilt casts the same soft drop shadow, following its outline (rectangle, curved or
+   shaped outline, pieced or uneven edges).
+2. **Given** a quilt with empty spaces or pieces, **Then** they draw as they do now, so the shadow
+   follows the whole quilt.
+3. **Given** dark mode, **Then** the same as blocks (User Story 1, scenario 3).
 
 ## Requirements
 
-- **FR-001**: Block card pictures MUST have no gray backing.
-- **FR-002**: Block card pictures MUST cast a drop shadow following the block's outline, for every
-  block shape, in light and dark mode (CSS `filter: drop-shadow()` on the picture follows its
+- **FR-001**: Block and quilt card pictures MUST have no gray backing.
+- **FR-002**: Block and quilt card pictures MUST cast a drop shadow following the outline, for every
+  block shape and quilt outline, in light and dark mode (CSS `filter: drop-shadow()` on the picture follows its
   transparent edges).
-- **FR-003**: The block picture MUST be transparent outside the block's outline and opaque over its
-  whole outline (empty pieces included), so the shadow takes the outline's shape.
+- **FR-003**: The picture MUST be transparent outside the block's or quilt's outline and opaque over
+  its whole outline (empty pieces and spaces included), so the shadow takes the outline's shape.
 - **FR-004**: Only the picture changes. The drag landing glow (spec 037), hover and focus marks
   belong to the card, not the block, and stay as they are.
 
 ## Edge Cases
 
 - Fabric image fills with transparent parts: the shadow shows through; acceptable.
+- A quilt much longer than wide: the picture is centered in the card space and the shadow follows
+  it, as for rectangular blocks.
 - Rectangular blocks (not square): the picture is centered in the square card space and the shadow
   follows the rectangle.
 - Small pictures (the coloring count's 64 px thumbs, the tray): out of scope; only the card picture
@@ -57,7 +72,7 @@ shadow is a hexagon). Same in Libraries and in dark mode.
 
 ## Out of scope
 
-- Quilt cards, the quilt editor's tray, print previews.
+- The quilt editor's tray, the quilt switcher, print previews.
 
 ## Checklist
 
