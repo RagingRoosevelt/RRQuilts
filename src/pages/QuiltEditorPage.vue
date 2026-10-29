@@ -161,6 +161,7 @@
           :data-marks="dataMarks"
           :day-paths="dayPaths"
           @tap="onTap"
+          @pick="onPick"
           @hover="(h) => (hover = h)"
         />
         <div class="sizes q-pa-xs text-caption">
@@ -271,7 +272,18 @@ import DataInspector from '@/components/DataInspector.vue';
 import { castDraft, produce } from 'immer';
 import type { RrqDoc } from '@/model/schema/project';
 import { resolveColoring } from '@/model/coloring';
-import { dataTap, dayOf, numberCount, numberOf, placeDate, takeBack } from '@/model/data-quilt';
+import {
+  blockLetters,
+  dataTap,
+  dayOf,
+  numberCount,
+  numberInfo,
+  numberOf,
+  placeDate,
+  placeOf,
+  seriesOf,
+  takeBack,
+} from '@/model/data-quilt';
 import { blockSpaceNumbers, quiltDataMarks, quiltDayPaths } from '@/render/data-overlay';
 import { PLAIN_PATCH } from '@/model/plain';
 import TargetSection from '@/components/TargetSection.vue';
@@ -613,6 +625,43 @@ function onTap(hit: Hit) {
     const next = dropNumbers(quilt.value.id, project.doc, r.doc);
     project.change(() => next);
   }
+}
+
+/**
+ * A middle click picks up what's there: a data block its block, values and number (the numbering
+ * brush); any other block its block and the clicked patch's color or fabric; a patch its color or
+ * fabric.
+ */
+function onPick(hit: Hit) {
+  const q = quilt.value;
+  const doc = project.doc;
+  if (!q || !doc || editor.mode !== 'design') return;
+  const plan = q.data?.on ? q.data : undefined;
+  const place = plan && placeOf(plan, hit.slotId);
+  const kind = place && numberInfo(plan, place.n)?.kind;
+  const data = place && dataTypes.block(place.block);
+  if (place && kind && data) {
+    editor.dataPick = { id: data.id, kind };
+    const series: (number | null)[] = [null, null, null, null];
+    for (const l of blockLetters(data)) series[l] = seriesOf(place, l);
+    editor.dataSeries = series;
+    editor.dataNext = place.n;
+    editor.tool = 'number';
+    return;
+  }
+  const content = q.layers[0].slots[hit.slotId];
+  const block = content && doc.project.blocks.find((b) => b.id === content.block);
+  const r = applyTool(doc, q.id, generated.value.slots, hit, {
+    ...editor.$state,
+    tool: 'eyedropper',
+    library: library.lookup,
+  });
+  if (block && block.id !== PLAIN_BLOCK && !block.data) {
+    editor.block = block.id;
+    if (['number', 'entry'].includes(editor.tool)) editor.tool = 'set';
+  } else if (r.selectColor && ['set', 'number', 'entry', 'find'].includes(editor.tool))
+    editor.tool = 'paint';
+  if (r.selectColor) editor.useColor(r.selectColor);
 }
 
 /** A data quilt's numbered spaces given an ordinary block (Other blocks) give their numbers back. */

@@ -3,6 +3,7 @@
     <canvas
       ref="canvas"
       @pointerdown="vp.handlers.pointerdown"
+      @mousedown.middle.prevent
       @pointermove="vp.handlers.pointermove"
       @pointerup="vp.handlers.pointerup"
       @pointercancel="vp.handlers.pointercancel"
@@ -49,6 +50,8 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{
   tap: [hit: Hit];
+  /** A middle click: pick up what's there. */
+  pick: [hit: Hit];
   hover: [hit: Hit | null];
   'update:view': [view: View];
 }>();
@@ -93,6 +96,10 @@ const vp = useViewport({
   onTap: (p) => {
     const hit = hitAt(p);
     if (hit) emit('tap', hit);
+  },
+  onMiddle: (p) => {
+    const hit = hitAt(p);
+    if (hit) emit('pick', hit);
   },
   onHover: (p) => emit('hover', p ? hitAt(p) : null),
 });

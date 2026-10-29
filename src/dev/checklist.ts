@@ -189,6 +189,13 @@ export const CHECKS: Check[] = [
     last: '"tracings should only consider blocks or patches that are in the same series (only A or qA, B or qB, etc)"',
     to: '/',
   },
+  {
+    id: 'TC-195',
+    group: G.data046,
+    text: 'Quilt editor › Design, middle-click: on a placed data block, Blocks › Data blocks picks its block, its Value(s) and its number as Next; on an ordinary block, its block is picked (Set) and the clicked patch’s color; on a sash, border or plain patch, its color (Colors tab, Paint). A middle-button drag still pans, and picks nothing.',
+    last: '"middle clicking a data block should select it’s series, block, and data slot. middle clicking a regular block should select its fabric/color and block. middle clicking a patch should select its color/fabric." / "(but make sure middle-click-drag keeps working)"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
