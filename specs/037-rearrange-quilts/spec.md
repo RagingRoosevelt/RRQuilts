@@ -1,6 +1,6 @@
 # Feature Specification: Rearranging Quilts in a Project
 
-**Feature Branch**: `TBD` (target 0.7.3)
+**Feature Branch**: `TBD` (target 0.7.4; moved from 0.7.3)
 
 **Created**: 2026-10-20
 

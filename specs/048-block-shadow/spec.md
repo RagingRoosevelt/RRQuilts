@@ -1,6 +1,6 @@
 # Feature Specification: Block and Quilt Cards Without the Gray Backing
 
-**Feature Branch**: `TBD` (target 0.7.3)
+**Feature Branch**: `TBD` (target 0.7.4; moved from 0.7.3)
 
 **Created**: 2026-10-29
 

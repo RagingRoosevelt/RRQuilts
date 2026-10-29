@@ -10,6 +10,11 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
 ## 0.7.3
 
+- When a new version is ready, a dialog says so right away, with what's new since the version you
+  have, and smaller updates.
+
+## 0.7.4
+
 - A guide for each month, week or day of a data quilt: which pieces of its block to cut in which
   fabric, day by day, printed or on screen.
 - View grayscale in the block previews of the project's Blocks tab and of Libraries.

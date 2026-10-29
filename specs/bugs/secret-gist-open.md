@@ -1,6 +1,6 @@
 # Bug: a secret gist link may not open
 
-**Reported**: 2026-10-29 (owner) · **Status**: Open, to be defined (target 0.7.3) · **Area**: Open
+**Reported**: 2026-10-29 (owner) · **Status**: Open, to be defined (target 0.7.4; moved from 0.7.3) · **Area**: Open
 from a gist (`src/storage/gist.ts`, constitution Principle II's second network exception)
 
 Owner, 2026-10-29: "we don't have a check for opening a link to a private gist. add that to 0.7.3
