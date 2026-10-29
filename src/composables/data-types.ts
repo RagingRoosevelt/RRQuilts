@@ -38,9 +38,19 @@ export function useDataTypes() {
     const b = p ? block(p.id) : undefined;
     return p && b ? { block: b, kind: p.kind } : undefined;
   });
+  /** Pick a block to place. The values picked so far carry over: a single-value block keeps the
+   *  quilt value the last single-value block showed, a several-value one each letter's choice. */
   function pick(b: Block, kind: DataKind) {
+    const was = picked.value?.block;
+    const prev = editor.dataSeries;
+    const out = defaultSeries(b);
+    const letters = blockLetters(b);
+    const before = was ? blockLetters(was) : [];
+    if (letters.length === 1 && before.length === 1)
+      out[letters[0]!] = prev[before[0]!] ?? before[0]!;
+    else if (letters.length > 1) for (const l of letters) out[l] = prev[l] ?? out[l] ?? l;
     editor.dataPick = { id: b.id, kind };
-    editor.dataSeries = defaultSeries(b);
+    editor.dataSeries = out;
   }
   /** The block placed for a kind when filling numbers: the picked one when it takes it, else the
    *  first that does. */

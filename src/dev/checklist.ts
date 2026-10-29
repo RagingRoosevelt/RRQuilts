@@ -168,6 +168,13 @@ export const CHECKS: Check[] = [
     last: '"undo doens’t go back a step in the numerals while it undoes a block placement"',
     to: '/',
   },
+  {
+    id: 'TC-192',
+    group: G.data046,
+    text: 'A data quilt with two values: in Blocks, pick qB, then pick another data block (and another): Value stays on qB. A block with several values keeps each row’s choice when you switch between such blocks.',
+    last: '"switching block selection shouldn’t switch series selection back to qA"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
