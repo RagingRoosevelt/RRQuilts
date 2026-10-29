@@ -13,6 +13,8 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - A guide for each month, week or day of a data quilt: which pieces of its block to cut in which
   fabric, day by day, printed or on screen.
 - View grayscale in the block previews of the project's Blocks tab and of Libraries.
+- Choose how strongly lines snap to the grid and to other lines while drawing blocks, and which of
+  them pull at all.
 - Fix: a link to a secret gist opens its project.
 
 ## 0.8.0
@@ -24,7 +26,6 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - Apply to Empty: set a block in, or color, only the spaces and pieces that are still empty.
 - Hints in a block's Details about which techniques may suit it, for the block's designer to tick.
 - Step by step instructions for making a quilt, built from its layout and blocks.
-- Choose how strongly lines snap to the grid and to other lines while drawing blocks.
 - Rearrange quilts in a project by dragging them with a finger as well as a mouse, and move one
   straight to the start or end of the list.
 
