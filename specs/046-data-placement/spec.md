@@ -37,6 +37,8 @@
   three proceeding cases and then would draw traces according to those rules"
 - "and we can drop the block number from displaying in the design view since the drag and drop is
   going away" / "we'll still have it behind the scenes, though, I'm sure"
+- "in quilt week mode, let's also placing a 1-day block in the first slot to convert it to a Jan 1
+  block and the last slot into a week 52 slot"
 
 ## Today (spec 025, 0.7.0)
 
@@ -126,6 +128,28 @@ other. 3 x, 2 y: x₁ to its nearest y, then x₂ and x₃ both to the other.
    the reading-order count (`spaceNo`) is still worked out for screen-reader labels and anywhere
    else that needs to name a space (print, reports).
 
+### User Story 5 - Weeks plan starting with a single day (Priority: P2)
+
+Today a Weeks plan runs 52 weeks from the period start and puts the day left over (two in a leap
+year) at the end: Wk 1 … Wk 52, Dec 31.
+
+**Independent Test**: A Weeks quilt starting 1 January 2027. Pick a 1-day block (a day block or a
+week block's 1-day variant), tap a space with Wk 1 highlighted: the list now reads Jan 1, Wk 1
+(Jan 2–8) … Wk 52 (Dec 25–31), and no Dec 31 day at the end.
+
+1. **Given** a Weeks plan whose first number is a week, **When** a 1-day block is placed on it,
+   **Then** the first number becomes a single day (the period's first day, Jan 1), weeks start the
+   day after, and the day left over at the end goes (the last number is Wk 52). In a leap year one
+   day still stays at the end (Dec 31).
+2. **Then** placed weeks keep their numbers (Wk k stays Wk k) and their days move one later.
+3. **Given** the first number is already a single day, **Then** placing a week block on it, or
+   removing its last 1-day placement, turns it back (weeks from the period start, the left-over
+   day at the end).
+4. **Given** week placements already on Wk 1, **When** a 1-day block is placed there, **Then** a
+   dialog says those placements move to Wk 1 starting a day later and asks first.
+5. **Then** the switch is saved with the plan (`lead: 'day'`), is one undo step, and the Data tab's
+   period text says "Jan 1, then weeks from Jan 2".
+
 ## Requirements
 
 - **FR-001**: A data plan MUST hold, per number, a list of placements: block space, data block, and
@@ -141,6 +165,9 @@ other. 3 x, 2 y: x₁ to its nearest y, then x₂ and x₃ both to the other.
 - **FR-007**: The project format MUST bump (rrq v10) with a migration: each old `order` entry
   becomes one placement with the block its space showed (its type) and series map qA→A … (paints'
   letters unchanged), so old quilts look the same.
+- **FR-009**: A Weeks plan MUST allow a single lead day (User Story 5), set by placing a 1-day
+  block on the first number and cleared by placing a week block there or removing its last 1-day
+  placement. Day numbering (spec 025 FR-004) becomes: lead day 1, then 7 × (k − 1) + 2 … for Wk k.
 - **FR-008**: Switching the plan (spec 025 FR-017) keeps placements whose block takes the new
   number's kind, asking first when any go.
 
@@ -151,6 +178,8 @@ other. 3 x, 2 y: x₁ to its nearest y, then x₂ and x₃ both to the other.
 2. The series line on a quilt with only one value (qA): shown always (default, as asked) or hidden?
 3. The series map belongs to each placement (default: one block can be placed for qA in one space
    and qB in another), not to the block for the whole quilt.
+5. Leap year with a lead day: one day stays at the end (default), or both left-over days go to the
+   front as Jan 1 and Jan 2?
 4. A space can hold one placement (default): tapping a space with another data block picked
    replaces its block.
 
