@@ -1,6 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { changelogMarkdown, parseChangelog } from '@/model/changelog';
+import {
+  changelogMarkdown,
+  changesSince,
+  compareVersions,
+  parseChangelog,
+  parseVersionInfo,
+} from '@/model/changelog';
 
 describe('CHANGELOG.md (make release)', () => {
   it("names package.json's version as its newest release", () => {
@@ -10,8 +16,7 @@ describe('CHANGELOG.md (make release)', () => {
   });
 });
 
-describe('changelog parsing (spec 054)', () => {
-  const raw = `# Changelog
+const raw = `# Changelog
 
 Intro.
 
@@ -34,6 +39,7 @@ Intro.
 - [major] First.
 `;
 
+describe('changelog parsing (spec 054)', () => {
   it('reads versions, sections and major marks, joining wrapped lines', () => {
     const v = parseChangelog(raw);
     expect(v.map((x) => [x.version, x.date])).toEqual([
@@ -61,5 +67,34 @@ Intro.
     const text = readFileSync('CHANGELOG.md', 'utf8');
     const n = parseChangelog(text).flatMap((v) => v.sections.flatMap((s) => s.changes)).length;
     expect(n).toBe(text.split('\n').filter((l) => l.startsWith('- ')).length);
+  });
+});
+
+describe('update dialog data (spec 054)', () => {
+  it('compares versions by number', () => {
+    expect(compareVersions('0.7.10', '0.7.9')).toBe(1);
+    expect(compareVersions('0.7.2', '0.7.2')).toBe(0);
+    expect(compareVersions('0.6.1', '0.7.0')).toBe(-1);
+  });
+
+  it('lists newer versions with their major changes and a count of the rest', () => {
+    const info = parseVersionInfo({ version: '0.2.0', versions: parseChangelog(raw) })!;
+    expect(changesSince(info, '0.1.0')).toEqual([
+      {
+        version: '0.2.0',
+        date: '2026-10-30',
+        major: ['Big thing that wraps onto a second line.'],
+        minor: 2,
+      },
+    ]);
+    expect(changesSince(info, '0.2.0')).toEqual([]);
+  });
+
+  it('rejects a malformed version.json', () => {
+    expect(parseVersionInfo(null)).toBeNull();
+    expect(parseVersionInfo({ version: 1 })).toBeNull();
+    expect(
+      parseVersionInfo({ version: '1.0.0', versions: [{ version: '1.0.0' }] })?.versions,
+    ).toEqual([]);
   });
 });

@@ -1,7 +1,8 @@
-import { Notify } from 'quasar';
 import { register } from 'register-service-worker';
+import { found, ready } from '../src/session/update';
 
-// New versions wait until the user accepts; the app never reloads on its own.
+// New versions wait until the user accepts; the app never reloads on its own. The update dialog
+// (spec 054) opens when a new version is found, while it downloads.
 const HOUR = 60 * 60 * 1000;
 
 register(import.meta.env.QUASAR_SERVICE_WORKER_FILE, {
@@ -14,26 +15,6 @@ register(import.meta.env.QUASAR_SERVICE_WORKER_FILE, {
       if (document.visibilityState === 'visible') check();
     });
   },
-  updated(registration) {
-    Notify.create({
-      message: 'Update available',
-      timeout: 0,
-      actions: [
-        {
-          label: 'Reload',
-          color: 'yellow',
-          handler: () => {
-            navigator.serviceWorker.addEventListener(
-              'controllerchange',
-              () => window.location.reload(),
-              {
-                once: true,
-              },
-            );
-            registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
-          },
-        },
-      ],
-    });
-  },
+  updatefound: found,
+  updated: ready,
 });

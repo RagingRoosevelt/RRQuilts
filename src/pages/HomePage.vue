@@ -158,6 +158,7 @@
 </template>
 
 <script setup lang="ts">
+import { updateBeforeLink } from '@/session/update';
 import DialogClose from '@/components/DialogClose.vue';
 import HelpLink from '@/components/HelpLink.vue';
 import { useQuasar } from 'quasar';
@@ -196,6 +197,7 @@ onMounted(async () => {
   // shared what; its project opens only once the quilter says so.
   const link = route.query.open_gist;
   if (typeof link === 'string') {
+    await updateBeforeLink(); // a new version first, if there is one (spec 054)
     await router.replace({ path: '/' }); // first: dialogs close when the route changes
     const id = gistId(link);
     if (!id) $q.notify({ type: 'negative', message: 'That link doesn’t point at a GitHub gist.' });

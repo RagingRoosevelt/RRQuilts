@@ -51,6 +51,7 @@ const G = {
   tags: 'Tags, technique, Favorite (spec 029)',
   small: 'Smaller changes',
   data046: 'Data quilts: placing by number and series (spec 046)',
+  update054: 'Update dialog (spec 054)',
 };
 
 export const CHECKS: Check[] = [
@@ -97,6 +98,44 @@ export const CHECKS: Check[] = [
     text: 'Leap day: a Weeks quilt from 1 January 2028. Details › Data quilt shows Leap day (hidden for 2027 and for Months). Extra single-day number: the list runs Jan 1, Wk 1 … Wk 52, Dec 31. Use a 2-day block variant: the last number is Dec 30–31 and a week block’s 2-day variant (Draw tab › Variant › 2 days) shows there. Average and Ignore: 53 numbers, and the Entries dialog marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value (Mood) and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra; switching to Ignore with a block on Feb 29 asks first.',
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
+  },
+  {
+    id: 'TC-208',
+    group: G.update054,
+    text: 'The dialog as an update from 0.6.1 (this link fakes one: the dev server has no service worker). Title "Update from 0.6.1 to <this version>". Two whole quilts tilted toward each other, moving gently. Each newer version lists only its major changes, then "And N smaller changes". "The full changelog" opens Help › About › Changelog. Later closes it, and an Update button in the header opens it again.',
+    to: '/?update_demo=0.6.1',
+  },
+  {
+    id: 'TC-209',
+    group: G.update054,
+    text: 'Other states, by changing the link’s phase: &phase=ready says "The update is ready"; &phase=failed says it couldn’t be downloaded, with Close; &phase=elsewhere says it was updated in another tab, with only Reload. Reload while downloading turns the buttons into a "Reloading…" spinner.',
+    to: '/?update_demo=0.7.1&phase=ready',
+  },
+  {
+    id: 'TC-210',
+    group: G.update054,
+    text: 'Help › About › Changelog: no "[major]" text anywhere, and in each section the major changes come first (0.7.2 New features starts with "A data quilt can place several blocks").',
+    to: '/help/about/changelog',
+  },
+  {
+    id: 'TC-211',
+    group: G.update054,
+    text: 'A real update: make build, make serve, open localhost:8080/RRQuilts/ and let it load. Change anything, make build again, reload the page: the dialog shows right away with "Downloading the update…", then "The update is ready". Throttle the network (Slow 3G) and press Reload early: "Reloading…", then the page reloads by itself. With a second tab open, it then asks to reload too.',
+  },
+  {
+    id: 'TC-212',
+    group: G.update054,
+    text: 'A link while an update waits (as in TC-211, before reloading): open localhost:8080/RRQuilts/?open_gist=<a gist> and …/libraries?add=<a library address>. The update dialog shows first. Later: the gist or library is offered by the running version. Reload: the new version offers it.',
+  },
+  {
+    id: 'TC-213',
+    group: G.update054,
+    text: 'Unsaved work: with a project changed and not saved, Reload in the update dialog asks Cancel / Keep as draft / Save, with no browser "Leave page?" prompt after. Keep as draft: after the reload, Restore unsaved project offers it.',
+  },
+  {
+    id: 'TC-214',
+    group: G.update054,
+    text: 'Smaller download: on localhost:8080, dev tools › Application › Cache storage has no schemas/ files and no version.json. localhost:8080/RRQuilts/schemas/formats.json still opens.',
   },
 ];
 

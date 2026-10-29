@@ -62,3 +62,53 @@ export function changelogMarkdown(raw: string): string {
   );
   return [intro, ...versions].filter(Boolean).join('\n\n') + '\n';
 }
+
+/** What a build publishes as version.json (spec 054). */
+export interface VersionInfo {
+  version: string;
+  versions: ChangelogVersion[];
+}
+
+/** version.json as fetched: checked, never trusted. */
+export function parseVersionInfo(x: unknown): VersionInfo | null {
+  const o = x as Partial<VersionInfo> | null;
+  if (!o || typeof o.version !== 'string' || !Array.isArray(o.versions)) return null;
+  const versions = o.versions.filter(
+    (v): v is ChangelogVersion =>
+      !!v &&
+      typeof v.version === 'string' &&
+      Array.isArray(v.sections) &&
+      v.sections.every(
+        (s) =>
+          typeof s?.title === 'string' &&
+          Array.isArray(s.changes) &&
+          s.changes.every((c) => typeof c?.text === 'string' && typeof c.major === 'boolean'),
+      ),
+  );
+  return { version: o.version, versions };
+}
+
+/** -1, 0 or 1, comparing dotted numbers ("0.7.10" after "0.7.9"). */
+export function compareVersions(a: string, b: string): number {
+  const [x, y] = [a.split('.').map(Number), b.split('.').map(Number)];
+  for (let i = 0; i < Math.max(x.length, y.length); i++) {
+    const d = (x[i] || 0) - (y[i] || 0);
+    if (d) return Math.sign(d);
+  }
+  return 0;
+}
+
+/** The versions after `running`, newest first, each with its major changes and a count of the rest. */
+export function changesSince(info: VersionInfo, running: string) {
+  return info.versions
+    .filter((v) => compareVersions(v.version, running) > 0)
+    .map((v) => {
+      const all = v.sections.flatMap((s) => s.changes);
+      return {
+        version: v.version,
+        date: v.date,
+        major: all.filter((c) => c.major).map((c) => c.text),
+        minor: all.filter((c) => !c.major).length,
+      };
+    });
+}
