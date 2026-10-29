@@ -10,6 +10,8 @@
 settings, under design, block design.
 Owner, 2026-10-29: "let's move [it] into 0.7.3 and add the ability to pick which things have snap
 gravity at all". Done as one strength per snap target (User Story 3), each of which can be Off.
+Then: "add a snapping target toggle of horizontal or vertical alignment with nearest nearly
+horizontal and nearest vertical node" (User Story 5).
 
 ## Concepts
 
@@ -67,18 +69,51 @@ stop on it, in every block, while corners and grid points still pull.
 
 **Acceptance Scenarios**:
 
-1. **Given** Snapping gravity, **Then** it lists the three snap targets, each with its own step
+1. **Given** Snapping gravity, **Then** it lists the snap targets, each with its own step
    (Off, Gentle, Normal, Strong): **Corners** (corners already drawn and the block's own corners),
    **Seams** (any point on a seam or the outline) and **Grid points** (the snap grid, square or
-   triangle). All Normal by default (today's behavior).
+   triangle), plus **Line up** (User Story 5). All Normal by default.
 2. **Given** a target set to Off, **Then** it never pulls, in any block, and the block editor's
-   toggle for it ("Snap to nodes", "Snap to seams", "Snap to grid points") shows off and disabled
+   toggle for it ("Snap to nodes", "Snap to seams", "Snap to grid points", "Line up with
+   nodes") shows off and disabled
    with the note "Off in Settings" and a link there.
 3. **Given** a target not Off, **Then** the block's own toggle works as now (per block, saved with
    the block), so a quilter can still switch one off for a single block.
 4. **Given** several targets within reach, **Then** priority stays as now: corners, then seams, then
-   grid points, each reaching its own distance.
-5. **Given** all three Off, **Then** nothing snaps and the snap marker never shows.
+   line up, then grid points, each reaching its own distance.
+5. **Given** every target Off, **Then** nothing snaps and the snap marker never shows.
+
+---
+
+### User Story 5 - Line up with other corners (Priority: P2)
+
+A quilter draws a seam end that should sit level with a corner across the block, or straight above
+one, with no grid point there. The pointer pulls onto the level (or the plumb line) of the nearest
+corner, and a guide line shows which corner it lined up with.
+
+**Independent Test**: a block with one corner at (1, 2.3), grid off, Line up on. Move the pointer
+near y 2.3 far from that corner: the point lands at y 2.3, with a dashed line to the corner. Near
+x 1 as well: it lands at (1, 2.3) only if Corners pull it there; else at x 1 on its own line.
+
+**Acceptance Scenarios**:
+
+1. **Given** the block editor, **Then** a toggle **Line up with nodes** sits with the other snap
+   toggles, per block, **off** for every block until switched on (so drawing stays as it is today).
+2. **Given** Line up on, **When** the pointer's height is within reach of a corner's height (a
+   nearly horizontal line from that corner), **Then** the point takes that corner's height exactly;
+   of several, the corner nearest the pointer wins.
+3. **Given** the same for width (a nearly vertical line from a corner), **Then** the point takes
+   that corner's x exactly, nearest corner winning.
+4. **Given** both apply at once (level with one corner, plumb with another), **Then** the point takes
+   both: x from one, y from the other.
+5. **Given** one axis lines up and Grid points is on, **Then** the other axis can still snap to the
+   nearest grid line within reach, so the point lands level with a corner and on a grid column.
+6. **Given** a point lined up, **Then** a dashed guide line runs from it to the corner (or corners)
+   it lines up with, while the pointer is there.
+7. **Given** drawing a seam, **Then** the seam's own start counts as a corner to line up with, so a
+   seam can be drawn exactly level or plumb.
+8. **Given** corners counted, **Then** they are the drawn corners and the block's own corners (the
+   same ones Corners snaps to); the corner being moved, when editing, doesn't count.
 
 ---
 
@@ -99,20 +134,31 @@ stop on it, in every block, while corners and grid points still pull.
 - Shaped blocks (triangle grid): the same gravity applies to triangle-grid points.
 - Seam editing (moving a corner): the moved corner snaps with the same gravity; its own old position
   doesn't pull it back.
-- Settings older than this feature: Normal and Double, matching today.
+- Settings older than this feature: Normal and Double, matching today. Blocks saved before it: Line
+  up off.
+- Line up on a shaped block (triangle grid): level and plumb are still screen horizontal and
+  vertical (the block's own axes); the triangle grid's slanted lines don't count.
+- Line up beats grid points: a corner level 1/16″ off a grid line wins when both are within reach.
 
 ## Requirements *(mandatory)*
 
 - **FR-001**: Settings MUST offer **Snapping gravity** under Quilt and block design › Block design:
-  a step (Off, Gentle, Normal, Strong; default Normal) for each of Corners, Seams and Grid points,
+  a step (Off, Gentle, Normal, Strong; default Normal) for each of Corners, Seams, Line up and Grid
+  points,
   saved with the other settings and in `.rrqconf`.
 - **FR-002**: The block editor's snapping MUST use each target's distance, in screen pixels; a
   target Off MUST not snap anywhere, without changing the per-block snap toggles, which show off and
   disabled with a note while their target is Off in Settings.
 - **FR-003**: Touch input MUST multiply the distance by **Touch gravity** (Same, Double default,
   Triple).
-- **FR-004**: Each target MUST reach its own distance; the priority order stays corners (nodes),
-  then seams, then grid.
+- **FR-004**: Each target MUST reach its own distance; the priority order is corners (nodes), seams,
+  line up, grid.
+- **FR-008**: The block editor MUST offer **Line up with nodes** per block (off by default and for
+  older blocks, saved in the block's editor state, so no format version change). On, a point MUST
+  take the exact y of the nearest corner whose y is within reach, and the exact x of the nearest
+  corner whose x is within reach, independently; the other axis MAY then snap to a grid line.
+- **FR-009**: A lined up point MUST show a dashed guide line to its corner(s); the seam being drawn
+  MUST count its own start as a corner.
 - **FR-005**: Holding Alt (Option) while drawing MUST turn snapping off for that stroke.
 - **FR-006**: The setting MUST show a preview of the pull's size while it's changed.
 - **FR-007**: Settings files without the new fields MUST load as Normal and Double (no format
@@ -120,13 +166,16 @@ stop on it, in every block, while corners and grid points still pull.
 
 ### Key Entities
 
-- **Snap gravity setting**: a step (off, gentle, normal, strong) per target (nodes, seams, grid)
+- **Snap gravity setting**: a step (off, gentle, normal, strong) per target (nodes, seams, align,
+  grid)
   and a touch multiplier (1, 2, 3).
 
 ## Success Criteria *(mandatory)*
 
 - **SC-001**: With every target Off, a seam ends exactly at the pointer in every case.
 - **SC-004**: With one target Off, that target never pulls in any block, and the others still do.
+- **SC-005**: With Line up on, a seam drawn from a corner toward another corner's level ends exactly
+  level with it (same y to the stored precision).
 - **SC-002**: With the default, drawing feels as it does today (nothing changes for anyone who never
   opens the setting).
 - **SC-003**: A quilter can find and change the setting in under 30 seconds from the block editor.

@@ -14,7 +14,7 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
   fabric, day by day, printed or on screen.
 - View grayscale in the block previews of the project's Blocks tab and of Libraries.
 - Choose how strongly lines snap to the grid and to other lines while drawing blocks, and which of
-  them pull at all.
+  them pull at all. Lines can also snap level with, or straight above, another corner.
 - Fix: a link to a secret gist opens its project.
 
 ## 0.8.0
