@@ -2,6 +2,17 @@
   <div class="fit" @dragover.prevent @drop.prevent="onDrop">
     <MainLayout />
     <VersionDialog />
+    <!-- "View grayscale": each color becomes the gray of the same luminance (Rec. 709 weights in
+         linear light), so equal grays mean equal values. CSS grayscale() mixes gamma-encoded
+         values and makes saturated blues and reds read too dark. -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <filter id="rrq-gray" color-interpolation-filters="linearRGB">
+        <feColorMatrix
+          type="matrix"
+          values="0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0 0 0 1 0"
+        />
+      </filter>
+    </svg>
   </div>
 </template>
 

@@ -18,6 +18,7 @@ which one each placed block starts from.
 ## Several colorings
 
 Under **Colorings** in the sidebar, each coloring is a thumbnail. Click one to work on it.
+**View grayscale**, just above, shows the block in grays to check its values.
 
 - **Save as new coloring** copies the current one so you can change it freely.
 - The pencil under a coloring renames it.

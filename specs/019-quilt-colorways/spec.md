@@ -58,6 +58,7 @@ colorway.
   removes it) and leave the quilt's colorings alone.
 - **FR-004**: Library colors and fabrics a colorway swaps in MUST stay in the project (`syncDraft`).
 - **FR-005**: Deleting the primary colorway MUST paint the next one's swaps into the quilt's
+- **FR-006**: A **View grayscale** switch above Colorways (quilt editor, Design) and above Colorings (block editor, Color) MUST draw the canvas in grayscale for checking values. View only, session only, shared by both editors.
   colorings (overriding placed blocks' own fills where swapped) and rebase the other colorways'
   swaps so they look the same (two colors that became one keep the first one's swap).
 

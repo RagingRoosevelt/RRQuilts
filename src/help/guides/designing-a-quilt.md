@@ -217,6 +217,9 @@ one the primary. The colorway shown is saved with the quilt, and printing and pi
 
 On the project's Quilts tab, the count on a quilt's card picks the colorway shown.
 
+**View grayscale**, above Colorways, shows the quilt in grays so you can check light and dark
+values. It only changes the view.
+
 **New colorway from palette…** is on the card's menu and beside **Save as new colorway**. Pick a
 palette (the list shows each palette's swatches), and each color of the primary colorway becomes its
 nearest color or fabric there, whichever colorway is shown. Change any

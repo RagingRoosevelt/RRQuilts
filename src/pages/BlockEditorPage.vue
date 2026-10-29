@@ -118,6 +118,7 @@
           :settings="settings"
           :unconnected="unconnected"
           :readonly="ro"
+          :class="{ gray: editor.gray }"
           @drawing="applyDrawing"
           @patch="onPatch"
           @numeral="(p, n) => numeralPatch(p, n)"
@@ -168,6 +169,7 @@
           @op="onOp"
         />
         <div v-else-if="editor.blockMode === 'color'" class="column">
+          <q-toggle v-model="editor.gray" dense label="View grayscale" class="q-mb-sm" />
           <q-expansion-item
             :model-value="open('Colorings')"
             dense
