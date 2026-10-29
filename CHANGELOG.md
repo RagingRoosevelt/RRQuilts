@@ -2,6 +2,14 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.7.1 (2026-10-23)
+
+### Fixes
+
+- On iPhones, dialog buttons no longer hide under Safari's address bar.
+- In a data block, Undo also takes back the picked day numeral, so the next tap places it again.
+- Picking a day numeral unselects the picked color, so it's clear which one a tap paints.
+
 ## 0.7.0 (2026-10-22)
 
 ### New features
