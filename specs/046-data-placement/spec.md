@@ -113,7 +113,8 @@ the space reads Wk 1 over qB and its pieces follow the Low values.
    series in order; placing waits until every block series has one. A quilt with fewer values than
    the block needs says so and doesn't place it.
 3. **Then** a placed space shows its number on one line and its quilt series on the next, in the
-   block's series order (qB, qC, qA).
+   block's series order (qB, qC, qA). A quilt with one value still shows its qA line (owner,
+   2026-10-28: "yes it does").
 4. **Then** a piece's value comes from its day and its block series mapped to the quilt series of
    its placement.
 
@@ -122,7 +123,7 @@ the space reads Wk 1 over qB and its pieces follow the Low values.
 Applies to the order line between numbers in the quilt (block spaces) and to the line between
 numerals in the data block editor (patches).
 
-For a number X and the next number Y = X + 1, with places x₁…xₘ and y₁…yₙ (in placement order):
+For a number X and the next number Y = X + 1, with places x₁…xₘ and y₁…yₙ (in the order they were placed; owner, 2026-10-28: "seems fine"):
 
 1. m = 1: x₁ traces to every y.
 2. n = 1: every x traces to y₁.
@@ -189,7 +190,7 @@ place"".)
    | **Average Feb 28 and Feb 29** | ✓ | ✓ |
    | **Ignore Feb 29** | ✓ | ✓ |
    | **Use a 2-day block variant** | ✓ | |
-   | **Extra single-day number** (default, as 0.7.0 does) | ✓ | ✓ |
+   | **Extra single-day number** (default) | ✓ | ✓ |
 
    - **Average**: the period counts 365 places. Feb 28's place shows the average of Feb 28's and
      Feb 29's values (each value A–D on its own); a day with only one of the two shows that one.
@@ -206,8 +207,11 @@ place"".)
      start, Dec 30–31 at the end) and takes a block's **2-day variant**. Week blocks may add a
      2-day variant (spec 025 variants: 1 and 2). A block without one shows its smallest variant
      with at least two days (the 7-day drawing), its unused places following the fill policy.
-   - **Extra**: Weeks: two single-day numbers, both where the single day sits (Dec 30 and Dec 31
-     at the end, or Jan 1 and Jan 2 at the start). Days: Feb 29 is a number of its own to place.
+   - **Extra**: Weeks: the period's first and last days are single-day numbers and the 52 weeks
+     run between them: Jan 1, Wk 1 (Jan 2–8) … Wk 52 (Dec 24–30), Dec 31 for a 2028 quilt (owner,
+     2026-10-28: "jan 1 and dec 31, paralles what we're already doing"). The single-day start of User Story 5 is then always on and its switches
+     don't apply. 0.7.0 quilts (both days at the end) open with their placements on the same
+     numbers. Days: Feb 29 is a number of its own to place.
 2. **Given** a period without 29 February, **Then** the setting is hidden (and kept for when the
    start moves).
 3. **Then** the choice is saved with the plan (`leap: 'average' | 'ignore' | 'pair' | 'extra'`,
@@ -247,13 +251,8 @@ place"".)
 
 ## Open questions (defaults used until answered)
 
-1. Placement order for x₁, x₂ in the order line: the order they were placed (default) or reading
-   order (left to right, top to bottom)?
-2. The series line on a quilt with only one value (qA): shown always (default, as asked) or hidden?
-3. The series map belongs to each placement (default: one block can be placed for qA in one space
+1. The series map belongs to each placement (default: one block can be placed for qA in one space
    and qB in another), not to the block for the whole quilt.
-4. "Extra single-day number at the start/end": both single days together where the single day sits
-   (default), or one at the start and one at the end?
 
 ## Out of scope
 
