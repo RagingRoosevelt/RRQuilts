@@ -44,8 +44,8 @@ shadow is a hexagon). Same in Libraries and in dark mode.
   transparent edges).
 - **FR-003**: The block picture MUST be transparent outside the block's outline and opaque over its
   whole outline (empty pieces included), so the shadow takes the outline's shape.
-- **FR-004**: The drag landing glow (spec 037), hover and focus marks MUST stay visible on the new
-  cards.
+- **FR-004**: Only the picture changes. The drag landing glow (spec 037), hover and focus marks
+  belong to the card, not the block, and stay as they are.
 
 ## Edge Cases
 
