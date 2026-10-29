@@ -15,6 +15,8 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - View grayscale in the block previews of the project's Blocks tab and of Libraries.
 - Choose how strongly lines snap to the grid and to other lines while drawing blocks, and which of
   them pull at all. Lines can also snap level with, or straight above, another corner.
+- Drag quilts and blocks into order with a finger as well as a mouse, see where a block will land as
+  you can for quilts, and move a quilt straight to the start or end of the list.
 - Fix: a link to a secret gist opens its project.
 
 ## 0.8.0
@@ -26,8 +28,6 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - Apply to Empty: set a block in, or color, only the spaces and pieces that are still empty.
 - Hints in a block's Details about which techniques may suit it, for the block's designer to tick.
 - Step by step instructions for making a quilt, built from its layout and blocks.
-- Rearrange quilts in a project by dragging them with a finger as well as a mouse, and move one
-  straight to the start or end of the list.
 
 ## 0.10.0
 
