@@ -1,6 +1,6 @@
 # Feature Specification: Placing Data Blocks by Number and Series
 
-**Feature Branch**: `TBD` (no feature branch yet)
+**Feature Branch**: `TBD` (target 0.7.2, head of the roadmap: a fix for an oversight in spec 025)
 
 **Created**: 2026-10-28
 
