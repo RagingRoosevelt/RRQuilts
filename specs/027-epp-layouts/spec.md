@@ -1,6 +1,6 @@
 # Feature Specification: English Paper Piecing (EPP) Layouts
 
-**Feature Branch**: `TBD` (no feature branch yet)
+**Feature Branch**: `TBD` (target 0.8.0, its own release)
 
 **Created**: 2026-10-18
 

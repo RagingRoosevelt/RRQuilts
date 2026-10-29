@@ -17,15 +17,18 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
 ## 0.8.0
 
+- English paper piecing layouts, such as hexagon flower gardens, with printable paper templates.
+
+## 0.9.0
+
 - Apply to Empty: set a block in, or color, only the spaces and pieces that are still empty.
 - Hints in a block's Details about which techniques may suit it, for the block's designer to tick.
-- English paper piecing layouts, such as hexagon flower gardens, with printable paper templates.
 - Step by step instructions for making a quilt, built from its layout and blocks.
 - Choose how strongly lines snap to the grid and to other lines while drawing blocks.
 - Rearrange quilts in a project by dragging them with a finger as well as a mouse, and move one
   straight to the start or end of the list.
 
-## 0.9.0
+## 0.10.0
 
 - Turn blocks before placing them: choose Rotate again and the block picker, and the blocks you
   set, turn with it.
