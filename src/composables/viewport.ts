@@ -17,6 +17,8 @@ export interface ViewportOptions {
   draw: (ctx: CanvasRenderingContext2D, view: View, dpr: number) => void;
   panOnly: () => boolean;
   onTap?: (p: World, e: PointerEvent) => void;
+  /** A middle-button click (no drag: a middle drag still pans). */
+  onMiddle?: (p: World, e: PointerEvent) => void;
   onHover?: (p: World | null, e: PointerEvent | null) => void;
   onDragStart?: (p: World, e: PointerEvent) => boolean;
   onDrag?: (p: World, e: PointerEvent) => void;
@@ -142,6 +144,7 @@ export function useViewport(o: ViewportOptions) {
     if (pointers.size < 2) pinch = null;
     if (s?.mode === 'drag') o.onDragEnd?.(toWorld(p), e);
     else if (s?.mode === 'pending' && e.button === 0 && !o.panOnly()) o.onTap?.(toWorld(p), e);
+    else if (s?.mode === 'pending' && e.button === 1) o.onMiddle?.(toWorld(p), e);
     start = null;
   }
 

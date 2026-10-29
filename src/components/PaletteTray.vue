@@ -1,5 +1,5 @@
 <template>
-  <div class="palette-tray column no-wrap" :class="{ sidebar }">
+  <div ref="trayRoot" class="palette-tray column no-wrap" :class="{ sidebar }">
     <q-tabs
       v-if="!colorsOnly"
       v-model="tab"
@@ -17,7 +17,7 @@
          (the usual blocks, for the spaces without numbers), and its Data tab. -->
     <div v-if="data && tab === 'blocks'" class="q-px-sm q-pt-sm">
       <SlidePicker
-        :model-value="editor.tool === 'set' ? 'other' : 'data'"
+        :model-value="editor.dataOther ? 'other' : 'data'"
         :options="[
           { value: 'data', label: 'Data blocks' },
           { value: 'other', label: 'Other blocks' },
@@ -26,7 +26,7 @@
       />
     </div>
     <div
-      v-if="data && tab !== 'colors' && !(tab === 'blocks' && editor.tool === 'set')"
+      v-if="data && tab !== 'colors' && !(tab === 'blocks' && editor.dataOther)"
       class="col scroll q-pa-sm"
     >
       <slot :name="tab" />
@@ -74,6 +74,7 @@
             <button
               class="tile"
               :class="{ active: editor.block === b.id }"
+              :data-block="b.id"
               :title="b.notecard.name"
               @click="pickBlock(b)"
             >
@@ -124,6 +125,7 @@
               :key="b.id"
               class="tile"
               :class="{ active: editor.block === b.id }"
+              :data-block="b.id"
               :title="b.notecard.name"
               @click="pickBlock(b)"
             >
@@ -218,6 +220,7 @@
                 v-if="sw.kind === 'color'"
                 class="swatch"
                 :class="{ active: !editor.data.on && editor.color === sw.item.id }"
+                :data-color="sw.item.id"
                 :style="{ background: `rgb(${sw.item.rgb.join(',')})` }"
                 :title="sw.item.notecard.name"
                 @click="pickColor(sw.item.id)"
@@ -244,6 +247,7 @@
                 v-else
                 class="swatch fabric"
                 :class="{ active: !editor.data.on && editor.color === fabricPaint(sw.item.id) }"
+                :data-color="fabricPaint(sw.item.id)"
                 :style="swatchStyle(sw.item)"
                 :title="sw.item.notecard.name + (sw.item.approximate ? ' (size ≈)' : '')"
                 @click="pickColor(fabricPaint(sw.item.id))"
@@ -275,7 +279,7 @@
 import { usePaletteSort } from '@/composables/palette-sort';
 import { useQuasar } from 'quasar';
 import { QExpansionItem } from 'quasar';
-import { computed, defineComponent, h, onMounted, ref } from 'vue';
+import { computed, defineComponent, h, nextTick, onMounted, ref, watch } from 'vue';
 import ColorEditor from '@/components/ColorEditor.vue';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import { fabricPaint } from '@/editor/paint';
@@ -336,6 +340,23 @@ const props = withDefaults(
   { colorsOnly: false, sidebar: false, noBlocks: false, data: false },
 );
 const app = useSettingsStore();
+const trayRoot = ref<HTMLElement>();
+// Find or a middle click: what it picked (block, color) scrolls into view in the tray, once the
+// list it's in has drawn.
+watch(
+  () => editor.revealTick,
+  () =>
+    void nextTick(() =>
+      requestAnimationFrame(() => {
+        const root = trayRoot.value;
+        const at = (sel: string) =>
+          root?.querySelector(sel)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        if (tab.value === 'colors' && editor.color)
+          at(`[data-color="${CSS.escape(editor.color)}"]`);
+        else if (editor.block) at(`[data-block="${CSS.escape(editor.block)}"]`);
+      }),
+    ),
+);
 const tab = computed({
   get: () =>
     props.colorsOnly || ['paint', 'spray', 'swap', 'eyedropper'].includes(editor.tool)

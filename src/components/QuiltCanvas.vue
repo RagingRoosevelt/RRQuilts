@@ -3,6 +3,7 @@
     <canvas
       ref="canvas"
       @pointerdown="vp.handlers.pointerdown"
+      @mousedown.middle.prevent
       @pointermove="vp.handlers.pointermove"
       @pointerup="vp.handlers.pointerup"
       @pointercancel="vp.handlers.pointercancel"
@@ -41,6 +42,8 @@ const props = defineProps<{
   labels: boolean;
   /** Slots to outline (e.g. every placement of the block being found). */
   selected?: Set<string> | undefined;
+  /** Spaces given a slight glow. */
+  soft?: Set<string> | undefined;
   panOnly: boolean;
   /** Data quilt marks and order lines (spec 025, Data tab). */
   dataMarks?: readonly DataMark[] | null;
@@ -49,6 +52,8 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{
   tap: [hit: Hit];
+  /** A middle click: pick up what's there. */
+  pick: [hit: Hit];
   hover: [hit: Hit | null];
   'update:view': [view: View];
 }>();
@@ -77,6 +82,7 @@ const vp = useViewport({
       outlines: props.outlines,
       labels: props.labels,
       ...(props.selected ? { selected: props.selected } : {}),
+      ...(props.soft ? { soft: props.soft } : {}),
       hover: props.hover,
       dark: $q.dark.isActive,
     });
@@ -94,6 +100,10 @@ const vp = useViewport({
     const hit = hitAt(p);
     if (hit) emit('tap', hit);
   },
+  onMiddle: (p) => {
+    const hit = hitAt(p);
+    if (hit) emit('pick', hit);
+  },
   onHover: (p) => emit('hover', p ? hitAt(p) : null),
 });
 
@@ -107,6 +117,7 @@ watch(
     props.outlines,
     props.labels,
     props.selected,
+    props.soft,
     props.dataMarks,
     props.dayPaths,
     $q.dark.isActive,

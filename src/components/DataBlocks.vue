@@ -1,11 +1,11 @@
 <template>
-  <!-- A data quilt's Blocks tab (spec 025): the numbered list placed on block spaces with one brush,
-       and the data block types it places. -->
+  <!-- A data quilt's Blocks tab (spec 025, 046): the data block to place and the values it reads,
+       and the numbered list, placed on block spaces with one brush. -->
   <div v-if="plan" ref="root" class="column no-wrap" style="gap: 10px">
-    <FieldGroup label="Block types" heading collapsible>
+    <FieldGroup label="Data blocks" heading collapsible>
       <div class="text-caption text-grey-7">
-        Pick a type, then place numbers with it. A placed space keeps its type and shows the variant
-        for its month's days. Tap a placed space with another type picked to change its type.
+        Pick a block, then tap block spaces to place the highlighted number with it. A placed space
+        shows the block's variant for its number's days.
       </div>
       <template v-for="kind in kinds" :key="kind">
         <div class="text-caption text-weight-medium">{{ KIND_LABEL[kind] }}</div>
@@ -15,12 +15,13 @@
             :key="b.id"
             type="button"
             class="type column items-center"
-            :class="{ active: typeFor(kind) === b.id }"
-            :aria-pressed="typeFor(kind) === b.id"
+            :class="{ active: isPicked(b, kind) }"
+            :data-pick="`${kind}:${b.id}`"
+            :aria-pressed="isPicked(b, kind)"
             :title="b.notecard.name"
-            @click="pickType(kind, b.id)"
+            @click="pickType(b, kind)"
           >
-            <img :src="typeThumb(b)" alt="" />
+            <img :src="typeThumb(b, kind)" alt="" />
             <span class="text-caption ellipsis">{{ b.notecard.name }}</span>
           </button>
         </div>
@@ -43,15 +44,35 @@
           @click="editor.tool = 'number'"
         />
         <div class="col text-caption" aria-live="polite">
-          <template v-if="next">Next: {{ rows[next - 1]?.text }}</template>
-          <template v-else>Every number is placed.</template>
+          <template v-if="rows[next - 1]">Next: {{ rows[next - 1]!.text }}</template>
         </div>
       </div>
+      <!-- The quilt value each of the picked block's own values shows (spec 046 US2), picked as
+           in the block editor's Value. -->
+      <template v-if="picked">
+        <div v-for="l in letters" :key="l" class="row items-center no-wrap" style="gap: 8px">
+          <span class="text-caption">{{
+            letters.length > 1 ? `Block ${SLOT_NAMES[l]} shows` : 'Value'
+          }}</span>
+          <q-btn-toggle
+            :model-value="editor.dataSeries[l] ?? l"
+            :options="valueOptions"
+            dense
+            no-caps
+            unelevated
+            toggle-color="primary"
+            :aria-label="
+              letters.length > 1 ? `Quilt value for block value ${SLOT_NAMES[l]}` : 'Value'
+            "
+            @update:model-value="(v: number) => setSeries(l, v)"
+            @click="onValueClick"
+          />
+        </div>
+      </template>
       <div class="text-caption text-grey-7">
-        Tap block spaces to place the highlighted number. It moves on to the next one not placed.
-        Tap a number below to place from there. Tap a placed space to take its number back. Drag
-        placed numbers, or use their arrows, to reorder them. A number's place in the list is its
-        label.
+        Tap block spaces to place the highlighted number. It moves on to the next number. Tap a
+        number below to place from there, or to place it again. Tap a placed space to take it off,
+        or, with another number or block picked, to change it to those.
       </div>
       <div class="row items-center" style="gap: 6px">
         <span class="text-caption">Fill empty numbers</span>
@@ -73,8 +94,8 @@
           size="sm"
           icon="clear"
           label="Clear"
-          :disable="readonly || !plan.order.some(Boolean)"
-          @click="edit((p) => ({ ...p, order: p.order.map(() => null) }))"
+          :disable="readonly || !plan.places.length"
+          @click="edit((p) => ({ ...p, places: [] }))"
         />
       </div>
 
@@ -87,66 +108,32 @@
         :virtual-scroll-item-size="44"
       >
         <template #default="{ item: r }">
-          <!-- A fixed label (the month, week or day) and, beside it, the card of the block space
-             holding it: only the card moves when dragged. -->
           <div
             :key="r.k"
-            class="number row items-center no-wrap"
-            :class="{ current: r.k === next, drop: r.k === dropAt }"
+            class="number row items-start no-wrap"
+            :class="{ current: r.k === next }"
             role="button"
-            :aria-label="`${r.text}${r.space ? `, block ${spaceNo.get(r.space)}` : ', not placed'}`"
+            :aria-label="`${r.text}, ${r.places.length ? `${r.places.length} placed` : 'not placed'}`"
             @click="pick(r.k)"
-            @dragover.prevent="dropAt = r.k"
-            @dragleave="dropAt === r.k && (dropAt = null)"
-            @drop.prevent="drop(r.k)"
           >
             <div class="label column">
               <span>{{ r.label }}</span>
               <span v-if="r.name !== r.label" class="text-caption ellipsis">{{ r.name }}</span>
             </div>
-            <div
-              class="card col row items-center no-wrap"
-              :class="{
-                placed: !!r.space,
-                'glow-bottom': gap !== null && r.k === gap,
-                'glow-top': gap !== null && r.k === gap + 1,
-              }"
-              :draggable="!readonly && !!r.space"
-              @dragstart="(e: DragEvent) => dragStart(e, r.k)"
-              @dragend="endDrag"
-              @mouseenter="r.space && !dragFrom && (editor.dataHot = r.space)"
-              @mouseleave="!dragFrom && (editor.dataHot = null)"
-              @click="editor.dataSel = r.space"
-            >
-              <!-- The block its space shows (or, not placed yet, one from its pool), uncolored. -->
-              <img v-if="thumb(r.k, r.space)" :src="thumb(r.k, r.space)" class="thumb" alt="" />
-              <span v-else class="thumb" />
-              <!-- Which block space: counted left to right, top to bottom, whatever the order. -->
-              <span class="col ellipsis text-caption" :class="{ 'text-grey-6': !r.space }">{{
-                r.space ? `Block ${spaceNo.get(r.space)}` : 'Not placed'
-              }}</span>
-              <span v-if="r.space && !readonly" class="moves">
-                <q-btn
-                  flat
-                  round
-                  dense
-                  size="xs"
-                  icon="arrow_upward"
-                  aria-label="Move up"
-                  :disable="r.k === 1"
-                  @click.stop="move(r.k, r.k - 1)"
-                />
-                <q-btn
-                  flat
-                  round
-                  dense
-                  size="xs"
-                  icon="arrow_downward"
-                  aria-label="Move down"
-                  :disable="r.k === rows.length"
-                  @click.stop="move(r.k, r.k + 1)"
-                />
-              </span>
+            <div class="col row items-center places">
+              <div
+                v-for="pl in r.places"
+                :key="pl.space"
+                class="card placed row items-center no-wrap"
+                @mouseenter="editor.dataHot = pl.space"
+                @mouseleave="editor.dataHot = null"
+                @click="editor.dataSel = pl.space"
+              >
+                <!-- The block its space shows, uncolored, and the values it shows. -->
+                <img v-if="thumb(pl)" :src="thumb(pl)" class="thumb" alt="" />
+                <span class="text-caption">{{ seriesLabel(pl, blockOf(pl.block)) }}</span>
+              </div>
+              <span v-if="!r.places.length" class="text-caption text-grey-6">Not placed</span>
             </div>
           </div>
         </template>
@@ -169,27 +156,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
-import { readingOrder, type DataOrder } from '@/model/data-paint';
+import { readingOrder, SLOT_NAMES, type DataOrder } from '@/model/data-paint';
 import {
+  blockLetters,
+  dataNumbers,
+  KIND_DAYS,
+  variantBlock,
   dataReport,
   fillNumbers,
-  fitOrder,
-  moveNumber,
-  nextFree,
   numberCount,
-  numberLabel,
-  numberInfo,
-  numberName,
+  seriesLabel,
+  seriesOf,
 } from '@/model/data-quilt';
 import { useDataTypes } from '@/composables/data-types';
 import type { Block, DataKind } from '@/model/schema/block';
 import { generateFor } from '@/model/layout/slots';
-import { blockSpaceNumbers, isWholeBlockSpace } from '@/render/data-overlay';
+import { isWholeBlockSpace } from '@/render/data-overlay';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useQuasar } from 'quasar';
-import type { DataPlan } from '@/model/schema/data-quilt';
+import type { DataPlace, DataPlan } from '@/model/schema/data-quilt';
 import type { Quilt } from '@/model/schema/quilt';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
@@ -210,65 +197,98 @@ const KIND_LABEL: Record<DataKind, string> = {
   week: 'Week blocks',
   day: 'Day blocks',
 };
-const { ofKind, typeFor, block: typeBlock } = useDataTypes();
+const { ofKind, typeFor, block: blockOf, picked, pick: pickBlock } = useDataTypes();
 const plan = computed(() => props.quilt.data);
-/** The kinds the plan's numbers take (Weeks: and day blocks for the days left over). */
+/** The kinds the plan's numbers take, in list order. */
 const kinds = computed((): DataKind[] => {
   const p = plan.value;
   if (!p) return [];
-  return p.plan === 'months'
-    ? ['month']
-    : p.plan === 'days'
-      ? ['day']
-      : numberCount(p) > 52
-        ? ['week', 'day']
-        : ['week'];
+  const order: DataKind[] = ['month', 'week', 'day'];
+  const have = new Set(dataNumbers(p).map((x) => x.kind));
+  // A Weeks plan whose single day can move to the start takes a day block there too.
+  if (p.plan === 'weeks') have.add('day');
+  return order.filter((k) => have.has(k));
 });
 const rows = computed(() => {
   const p = plan.value;
   if (!p) return [];
-  return Array.from({ length: numberCount(p) }, (_, i) => {
-    const name = numberName(p, i + 1);
-    const label = numberLabel(p, i + 1);
-    return {
-      k: i + 1,
-      name,
-      label,
-      text: name === label ? label : `${label} ${name}`,
-      space: p.order[i] ?? null,
-    };
+  const by = new Map<number, DataPlace[]>();
+  for (const x of p.places) by.set(x.n, [...(by.get(x.n) ?? []), x]);
+  return dataNumbers(p).map((num, i) => {
+    const k = i + 1;
+    const name = num.label;
+    return { k, name, label: name, text: name, places: by.get(k) ?? [] };
   });
 });
-/** The highlighted number: the brush's next, moved on past placed ones. */
-const next = computed(() => (plan.value ? nextFree(plan.value, editor.dataNext) : undefined));
+/** The highlighted number. */
+const next = computed(() =>
+  plan.value ? Math.min(Math.max(1, editor.dataNext), numberCount(plan.value)) : 1,
+);
 const $q = useQuasar();
 /** The sidebar that scrolls the number list. */
 const root = ref<HTMLElement>();
 const scroller = ref<Element | null>(null);
 watch(root, (el) => (scroller.value = el?.closest('.scroll') ?? null), { flush: 'post' });
-/** An uncolored picture of the block number `k` shows: its space's block, else the picked type's. */
-function thumb(k: number, space: string | null) {
+/** An uncolored picture of the block a placement's space shows (else its block's). */
+function thumb(pl: DataPlace) {
   const doc = project.doc;
-  const p = plan.value;
-  if (!doc || !p) return undefined;
-  let id = space ? props.quilt.layers[0].slots[space]?.block : undefined;
-  if (!id) {
-    const kind = numberInfo(p, k)?.kind;
-    id = kind && typeFor(kind);
-  }
-  const b = id && (doc.project.blocks.find((x) => x.id === id) ?? typeBlock(id));
+  if (!doc) return undefined;
+  const id = props.quilt.layers[0].slots[pl.space]?.block ?? pl.block;
+  const b = doc.project.blocks.find((x) => x.id === id) ?? blockOf(id);
   return b ? blockThumbnail(doc, b, 80, $q.dark.isActive, null) : undefined;
 }
 const report = computed(() => dataReport(props.quilt, project.doc?.project.blocks ?? []));
 
-/** A type's picture, in its colors. */
-const typeThumb = (b: Block) =>
+/** The drawing a block shows for a kind: a week or month block listed with the day blocks shows
+ *  its 1-day variant (kept, so its picture is cached). */
+const variants = new WeakMap<Block, Map<number, Block>>();
+function shownFor(b: Block, kind: DataKind): Block {
+  const len = KIND_DAYS[kind];
+  const v = b.data?.variants?.filter((x) => x.days >= len).sort((x, y) => x.days - y.days)[0];
+  if (!v || len >= KIND_DAYS[b.data!.kind]) return b;
+  let m = variants.get(b);
+  if (!m) variants.set(b, (m = new Map()));
+  let out = m.get(v.days);
+  if (!out) m.set(v.days, (out = variantBlock(b, v) ?? b));
+  return out;
+}
+/** A block's picture for a kind, in its colors. */
+const typeThumb = (b: Block, kind: DataKind) =>
   project.doc
-    ? blockThumbnail(project.doc, b, 96, $q.dark.isActive, undefined, library.items.colors)
+    ? blockThumbnail(
+        project.doc,
+        shownFor(b, kind),
+        96,
+        $q.dark.isActive,
+        undefined,
+        library.items.colors,
+      )
     : '';
-function pickType(kind: DataKind, id: string) {
-  editor.dataType[kind] = id;
+const isPicked = (b: Block, kind: DataKind) =>
+  picked.value?.block.id === b.id && picked.value.kind === kind;
+function pickType(b: Block, kind: DataKind) {
+  pickBlock(b, kind);
   if (!props.readonly) editor.tool = 'number';
+}
+/** The picked block's own values (A, B…). */
+const letters = computed(() => (picked.value ? blockLetters(picked.value.block) : []));
+const valueOptions = computed(() =>
+  // All four, as the block editor's Value; ones the quilt doesn't have yet are off.
+  SLOT_NAMES.map((n, i) => {
+    const s = plan.value?.slots[i];
+    return {
+      label: `q${n}`,
+      value: i,
+      disable: !s,
+      attrs: { title: s ? s.label : 'Add this value in the Data tab' },
+    };
+  }),
+);
+function setSeries(letter: number, v: number) {
+  const out = [...editor.dataSeries];
+  while (out.length < 4) out.push(null);
+  out[letter] = v;
+  editor.dataSeries = out;
 }
 
 /** Change the plan (one undo step). */
@@ -283,32 +303,40 @@ function edit(fn: (p: DataPlan) => DataPlan) {
 function pick(k: number) {
   editor.dataNext = k;
   if (!props.readonly) editor.tool = 'number';
+  flashMatching((x) => x.n === k);
 }
-function move(from: number, to: number) {
-  edit((p) => moveNumber(p, from, to));
+/** The quilt values a placement shows. */
+function valuesOf(x: DataPlace): number[] {
+  const b = blockOf(x.block);
+  return (b ? blockLetters(b) : [0]).map((l) => seriesOf(x, l));
 }
-const dragFrom = ref<number | null>(null);
-const dropAt = ref<number | null>(null);
-/** The gap a drop lands in, as the number above it (0: before the first). Dragged down, the card
- *  goes after the one it's over; dragged up, before it. */
-const gap = computed(() => {
-  const [from, at] = [dragFrom.value, dropAt.value];
-  if (!from || !at || from === at) return null;
-  return from < at ? at : at - 1;
-});
-function dragStart(e: DragEvent, k: number) {
-  dragFrom.value = k;
-  editor.dataHot = plan.value?.order[k - 1] ?? null;
-  e.dataTransfer?.setData('text/plain', String(k));
+/** The quilt values the brush shows. */
+const brushValues = () => letters.value.map((l) => editor.dataSeries[l] ?? l);
+/** Light up the placements `match` picks: full glow where they also match both the highlighted
+ *  number and the picked value(s), slight glow otherwise. */
+function flashMatching(match: (x: DataPlace) => boolean) {
+  const p = plan.value;
+  if (!p) return;
+  const want = brushValues();
+  const strong: string[] = [];
+  const soft: string[] = [];
+  for (const x of p.places) {
+    if (!match(x)) continue;
+    const both = x.n === editor.dataNext && valuesOf(x).some((v) => want.includes(v));
+    (both ? strong : soft).push(x.space);
+  }
+  editor.flashSpaces(strong, soft);
 }
-/** A drag let go anywhere (a drop on the list has already moved the card). */
-function endDrag() {
-  dragFrom.value = dropAt.value = editor.dataHot = null;
+/** Light up the blocks that show quilt value `v`. */
+function flashValue(v: number) {
+  flashMatching((x) => valuesOf(x).includes(v));
 }
-function drop(k: number) {
-  const from = dragFrom.value;
-  dragFrom.value = dropAt.value = editor.dataHot = null;
-  if (from && from !== k) move(from, k);
+/** A Value button clicked (picked or already picked): its value's blocks blink. */
+function onValueClick(e: Event) {
+  const t = (e.target as HTMLElement | null)?.closest('button')?.textContent?.trim() ?? '';
+  const i = SLOT_NAMES.indexOf(t.slice(1) as (typeof SLOT_NAMES)[number]);
+  // After the pick lands, so the full glow follows the new value.
+  if (t.startsWith('q') && i >= 0) void nextTick(() => flashValue(i));
 }
 /** Block spaces' centers, as fractions of the quilt. */
 const generated = computed(() => generateFor(props.quilt));
@@ -322,22 +350,57 @@ const spots = computed(() => {
     }),
   );
 });
-/** Each block space's number, left to right and top to bottom (as on the quilt). */
-const spaceNo = computed(() => blockSpaceNumbers(generated.value));
 function fillAll(order: DataOrder) {
   edit((p) => fillNumbers(p, readingOrder(spots.value, [...spots.value.keys()], order), typeFor));
 }
-// A list sized for another plan or period (switched in the Data tab) is fitted on the next edit;
-// the highlight starts at the first number not placed.
+// Another plan or period (switched in the Data tab): the highlight starts at the first number.
 watch(
-  () => plan.value && fitOrder(plan.value).order.length,
+  () => plan.value && numberCount(plan.value),
   () => (editor.dataNext = 1),
+);
+// A block value with no quilt value of its letter (block C on a quilt with qA and qB) shows qA
+// until another is picked: several of the block's values may show one quilt value.
+watch(
+  [letters, () => plan.value?.slots.length ?? 0],
+  ([ls, n]) => {
+    if (!n || ls.every((l) => (editor.dataSeries[l] ?? l) < n)) return;
+    const out = [...editor.dataSeries];
+    while (out.length < 4) out.push(null);
+    for (const l of ls) if ((out[l] ?? l) >= n) out[l] = 0;
+    editor.dataSeries = out;
+  },
+  { immediate: true },
+);
+// Find or a middle click: the picked data block scrolls into view in its list.
+watch(
+  () => editor.revealTick,
+  () => {
+    const p = editor.dataPick;
+    if (!p) return;
+    void nextTick(() =>
+      requestAnimationFrame(() =>
+        root.value
+          ?.querySelector(`[data-pick="${CSS.escape(`${p.kind}:${p.id}`)}"]`)
+          ?.scrollIntoView({ block: 'center', behavior: 'smooth' }),
+      ),
+    );
+  },
+);
+// Nothing picked yet: the first block of the first kind.
+watch(
+  kinds,
+  (ks) => {
+    if (picked.value) return;
+    const k = ks.find((x) => ofKind(x).length);
+    if (k) pickBlock(ofKind(k)[0]!, k);
+  },
+  { immediate: true },
 );
 </script>
 
 <style scoped>
 .number {
-  height: 44px;
+  min-height: 44px;
   gap: 8px;
   padding: 2px 4px;
   cursor: pointer;
@@ -346,15 +409,6 @@ watch(
 .number.current {
   background: rgba(25, 118, 210, 0.16);
   font-weight: 600;
-}
-/* Where a dragged card will land: the edges either side of that gap glow. */
-.card.glow-bottom {
-  border-bottom: 2px solid #1976d2;
-  box-shadow: 0 7px 12px -2px rgba(25, 118, 210, 0.9);
-}
-.card.glow-top {
-  border-top: 2px solid #1976d2;
-  box-shadow: 0 -7px 12px -2px rgba(25, 118, 210, 0.9);
 }
 .types .type {
   width: 84px;
@@ -379,6 +433,8 @@ watch(
 }
 .label {
   width: 64px;
+  min-height: 40px;
+  justify-content: center;
   flex: none;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
@@ -392,7 +448,6 @@ watch(
 }
 .card.placed {
   border-style: solid;
-  cursor: grab;
   background: var(--q-card-bg, #fff);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
@@ -405,20 +460,13 @@ watch(
   flex: none;
   object-fit: contain;
 }
-.card:not(.placed) .thumb {
-  opacity: 0.4;
+/* Blocks past the width wrap onto more rows (the list's rows grow to fit). */
+.places {
+  gap: 4px 6px;
+  min-height: 40px;
 }
-.moves {
-  opacity: 0;
-}
-.card:hover .moves,
-.card:focus-within .moves {
-  opacity: 1;
-}
-@media (hover: none) {
-  .moves {
-    opacity: 1;
-  }
+.card {
+  flex: none;
 }
 .numbers :deep(.q-virtual-scroll__content) {
   display: block;

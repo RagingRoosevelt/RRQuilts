@@ -453,7 +453,7 @@ import { colorwayList, setSwap, shownColorway, swapper } from '@/model/colorways
 import { SLOT_NAMES } from '@/model/data-paint';
 import {
   dayDate,
-  fitOrder,
+  fitPlaces,
   moveBound,
   periodLength,
   presetSeries,
@@ -623,7 +623,7 @@ function edit(fn: (p: DataPlan) => DataPlan, coalesce?: string) {
 function setStart(v: string | number | null) {
   const s = String(v ?? '');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return;
-  edit((p) => fitOrder({ ...p, start: p.plan === 'months' ? `${s.slice(0, 8)}01` : s }));
+  edit((p) => fitPlaces({ ...p, start: p.plan === 'months' ? `${s.slice(0, 8)}01` : s }).plan);
 }
 const slots = (p: DataPlan, i: number, patch: Partial<ValueSlot>) =>
   p.slots.map((s, k) => (k === i ? { ...s, ...patch } : s));

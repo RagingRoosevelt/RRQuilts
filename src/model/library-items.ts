@@ -109,14 +109,15 @@ export const fabricsIn = (colorings: ColoringBody[]) =>
     }),
   );
 
-export const blocksUsed = (p: RrqDoc['project']) =>
-  new Set(
-    p.quilts.flatMap((q) => [
-      ...Object.values(q.layers[0].slots).map((s) => s.block),
-      ...dataBlocks(q),
-      ...q.layers.flatMap((l) => l.items.flatMap((i) => (i.ref ? [i.ref] : []))),
-    ]),
-  );
+/** The blocks a quilt uses: in its spaces and layers, and its data blocks (placed as hidden
+ *  variants, spec 046). */
+export const quiltBlocks = (q: RrqDoc['project']['quilts'][number]): string[] => [
+  ...Object.values(q.layers[0].slots).map((s) => s.block),
+  ...dataBlocks(q),
+  ...q.layers.flatMap((l) => l.items.flatMap((i) => (i.ref ? [i.ref] : []))),
+];
+
+export const blocksUsed = (p: RrqDoc['project']) => new Set(p.quilts.flatMap(quiltBlocks));
 
 /**
  * Keep library items in step with use, inside one edit: embed library blocks/colors that are
@@ -315,6 +316,8 @@ export function useMyCopy(
       for (const s of Object.values(q.layers[0].slots))
         if (s.block === libBlockId) s.block = copy.id;
       for (const i of q.layers.flatMap((l) => l.items)) if (i.ref === libBlockId) i.ref = copy.id;
+      // A data quilt's placements too (their variants follow on the next sync).
+      for (const p of q.data?.places ?? []) if (p.block === libBlockId) p.block = copy.id;
     }
   });
   return syncLibraryItems(withCopy);

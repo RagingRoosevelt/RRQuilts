@@ -30,8 +30,15 @@ export function dataYardagePieces(doc: RrqDoc, quilt: Quilt): Piece[] {
     // place, not a fabric) not at all; any other as it shows (filler, its own color).
     if (!scaleKeys.has(now.fill) && !now.fill.startsWith('data:')) out.push(now);
   });
+  // ponytail: placements reading a block's value for another quilt value (spec 046 series) mix
+  // the letters, so each value then counts the largest data place of any.
+  const mixed = plan.places.some((p) => p.series);
+  const any = [...largest.values()].reduce<Piece | undefined>(
+    (a, p) => (!a || area(p.poly) > area(a.poly) ? p : a),
+    undefined,
+  );
   plan.slots.forEach((s, slot) => {
-    const piece = largest.get(slot);
+    const piece = mixed ? any : largest.get(slot);
     if (!piece) return;
     const counts = sampleCounts(plan, slot);
     scaleEntries(s).forEach((e, j) => {

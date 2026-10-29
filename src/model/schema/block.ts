@@ -72,7 +72,13 @@ export const BlockShape = Type.Union([
 /** A data block's shorter variant (spec 025): its own drawing, numbered 1 to `days`. Month blocks
  *  take 30, 29, 28 and 1; week blocks 1 (for a single day: a Weeks plan's days left over). */
 export const DataVariant = Type.Object({
-  days: Type.Union([Type.Literal(28), Type.Literal(29), Type.Literal(30), Type.Literal(1)]),
+  days: Type.Union([
+    Type.Literal(28),
+    Type.Literal(29),
+    Type.Literal(30),
+    Type.Literal(2),
+    Type.Literal(1),
+  ]),
   drawing: Drawing,
   patches: Type.Array(Patch),
   unconnected: Type.Optional(Type.Array(Id)),

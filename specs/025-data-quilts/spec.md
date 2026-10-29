@@ -73,7 +73,7 @@ server calls; offline first).
 - **Data quilt**: an ordinary quilt (any layout, sashing, borders) with a **data plan**, turned on
   by a **Data quilt** switch with its plan in the quilt's Details tab. Its Design tab's tray then has
   **Blocks** (the numbered list and the types), **Colors** (as usual, for everything that isn't a
-  day) and **Data** (period, data and the value mapping). Set, Erase and Find leave the rail.
+  day) and **Data** (period, data and the value mapping). Set leaves the rail (Erase and Find stay, spec 046: owner, 2026-10-29).
 - **Data plan** (the quilt's math): **Months** (12 numbers, days 1–31 in each), **Weeks** (52
   numbers of 7 days from the period start, then a number per day left over), or **Days** (a number
   per day). Plus the **period**: a start date, one year long (365 or 366 days, by whether it holds a
@@ -91,7 +91,8 @@ server calls; offline first).
   day variant"). A 1-day variant makes the block a day type too: a Weeks plan's days left over take
   the week type's 1-day variant unless a day type is picked. One color
   variation covers all its variants.
-- **Numbered list**: every number of the plan, months by name (Jan), weeks as Wk 1, Wk 2…, days
+- **Numbered list** (reworked by spec 046: several placements per number, the brush only, no
+  reordering): every number of the plan, months by name (Jan), weeks as Wk 1, Wk 2…, days
   (and a Weeks plan's left-over days) by date (Jan 2),
   each empty or placed on a block space. The label is the place in the list: number k is the
   period's k-th month, week or day. Reordering moves a space to another number. Placed numbers show

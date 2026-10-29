@@ -50,6 +50,7 @@ const G = {
   filters: 'Filters and sidebars',
   tags: 'Tags, technique, Favorite (spec 029)',
   small: 'Smaller changes',
+  data046: 'Data quilts: placing by number and series (spec 046)',
 };
 
 export const CHECKS: Check[] = [
@@ -91,31 +92,10 @@ export const CHECKS: Check[] = [
     to: '/dev/print',
   },
   {
-    id: 'TC-177',
-    group: G.small,
-    text: 'Quilt editor › Design › Flip on an On-Point quilt: left↔right mirrors each block across the quilt’s up-down line (as seen on screen), not along the block’s turned diagonal; tap the tool again for top↕bottom, across the quilt’s left-right line. A Straight Set quilt flips as before, also on blocks turned with Rotate. Shaped blocks in turned layouts mirror across the quilt where their shape allows it.',
-    last: "\"the flip horizontal / vertical tool flips according to a block's native axis. but if you're in a layout like on point, the flip should actually be according to the quilt's native axis, not the block. so when the quilt and block share a native axis, even in those cases it should still be the quilt's native axis\"",
-    to: '/',
-  },
-  {
-    id: 'TC-179',
-    group: G.small,
-    text: 'Block editor › a data block › Day numerals, with “Next numeral after each tap” on: tap patches to place 1, 2, 3, then Undo. The 3 comes off and 3 is the picked numeral again; Undo again goes back to 2. Redo puts 2 back on with 3 picked, then 3 back on with 4 picked. Picking a numeral by hand, then undoing an earlier tap, also goes back to the numeral that tap had.',
-    last: '"in a data block, the undo button doesn’t walk back the “next to be placed numeral” at the same time as walking back placing a numeral"',
-    to: '/',
-  },
-  {
-    id: 'TC-180',
-    group: G.small,
-    text: 'Block editor › a data block › Day numerals: “Clear all numerals” sits right below the numeral buttons, above the help text and the toggles.',
-    last: '"the “clear all numerals” button should sit right below the numeral buttons"',
-    to: '/',
-  },
-  {
-    id: 'TC-181',
-    group: G.small,
-    text: 'Block editor › a data block: pick a color in the tray (e.g. a Basic color), then pick a day numeral. The color is no longer shown as picked; only the numeral is. Picking a color again unpicks the numeral. Open an ordinary block or the quilt editor after picking a numeral: the tray’s picked color shows again and taps paint it.',
-    last: '"in a data block, when you select a numeral for painting, the currently selected color (such as a color in the built in basic colors) doesn’t get unselected"',
+    id: 'TC-188',
+    group: G.data046,
+    text: 'Leap day: a Weeks quilt from 1 January 2028. Details › Data quilt shows Leap day (hidden for 2027 and for Months). Extra single-day number: the list runs Jan 1, Wk 1 … Wk 52, Dec 31. Use a 2-day block variant: the last number is Dec 30–31 and a week block’s 2-day variant (Draw tab › Variant › 2 days) shows there. Average and Ignore: 53 numbers, and the Entries dialog marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value (Mood) and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra; switching to Ignore with a block on Feb 29 asks first.',
+    last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
   },
 ];

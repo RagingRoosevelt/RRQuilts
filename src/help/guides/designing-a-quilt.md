@@ -189,6 +189,12 @@ The left rail holds the tools. Tooltips and a hint line above the tray say what 
 | **Eyedropper**            | Picks up a patch's color                                                                                                                                             |
 | **Pan**                   | Drag to move around (with the other tools, pinch with two fingers or drag with the right mouse button)                                                               |
 
+A middle-button click picks up what is under the pointer, whatever tool is on. On a block, it
+picks the block for **Set** and the clicked patch's color or fabric. On a sash, border, or other
+patch, it picks the color or fabric for **Paint**. On a data quilt's data block, it picks the block,
+its values, and its number for placing (see **Data quilts**). A middle-button drag still moves the
+view.
+
 ## Color
 
 1. Click the **Colors** tab in the tray and click a swatch. **+** adds a new color.

@@ -37,6 +37,10 @@
               <q-icon v-if="isMissing(d)" name="error_outline" color="warning" size="14px">
                 <q-tooltip>No entry yet</q-tooltip>
               </q-icon>
+              <!-- Spec 046 US6: the quilt's Leap day setting leaves this day without a place. -->
+              <div v-if="leapNote && d.endsWith('-02-29')" class="text-caption text-grey-7">
+                {{ leapNote }}
+              </div>
             </div>
             <template v-for="(s, i) in slots" :key="i">
               <q-select
@@ -79,7 +83,7 @@ import { QVirtualScroll } from 'quasar';
 import { computed, nextTick, ref } from 'vue';
 import DialogClose from '@/components/DialogClose.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
-import { dayDate, periodLength } from '@/model/data-quilt';
+import { dayDate, leapOf, periodLength } from '@/model/data-quilt';
 import type { DataPlan } from '@/model/schema/data-quilt';
 
 const props = defineProps<{ plan: DataPlan; readonly?: boolean }>();
@@ -91,6 +95,11 @@ const focus = ref<string | null>(null);
 const scroller = ref<QVirtualScroll>();
 
 const slots = computed(() => props.plan.slots);
+/** What the quilt does with 29 February, when it has no place of its own. */
+const leapNote = computed(() => {
+  const l = leapOf(props.plan);
+  return l === 'average' ? 'Averaged into Feb 28' : l === 'ignore' ? 'Not shown in the quilt' : '';
+});
 const dates = computed(() =>
   Array.from({ length: periodLength(props.plan.start) }, (_, i) =>
     dayDate(props.plan.start, i + 1),

@@ -1528,6 +1528,7 @@ import { importProjectQuilts } from '@/model/import-quilts';
 import {
   fabricToUnits,
   isLibraryItem,
+  quiltBlocks,
   splitItems,
   syncLibraryItems,
   versionMismatches,
@@ -2305,12 +2306,7 @@ function rename(value: string | number | null) {
 }
 
 function quiltsUsing(id: string) {
-  return quilts.value.filter((q) =>
-    [
-      ...Object.values(q.layers[0].slots).map((s) => s.block),
-      ...q.layers.flatMap((l) => l.items.map((i) => i.ref)),
-    ].includes(id),
-  );
+  return quilts.value.filter((q) => quiltBlocks(q).includes(id));
 }
 
 /** Open the block editor; warn once when the block is used in quilts (edits update them). */
@@ -2975,6 +2971,8 @@ function deleteBlock(id: string) {
         const slots = q.layers[0].slots;
         for (const [k, s] of Object.entries(slots)) if (s.block === id) delete slots[k];
         for (const l of q.layers) l.items = l.items.filter((i) => i.ref !== id);
+        // A data block's placements go too (their spaces empty on the next sync).
+        if (q.data) q.data.places = q.data.places.filter((p) => p.block !== id);
         const used = new Set(Object.values(slots).map((s) => s.coloring));
         for (const l of q.layers) for (const i of l.items) if (i.coloring) used.add(i.coloring);
         for (const c of Object.keys(q.colorings)) if (!used.has(c)) delete q.colorings[c];

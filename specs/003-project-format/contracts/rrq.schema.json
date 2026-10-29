@@ -14,7 +14,7 @@
     },
     "version": {
       "type": "number",
-      "const": 9
+      "const": 10
     },
     "app": {
       "type": "string"
@@ -1235,6 +1235,10 @@
                                 },
                                 {
                                   "type": "number",
+                                  "const": 2
+                                },
+                                {
+                                  "type": "number",
                                   "const": 1
                                 }
                               ]
@@ -2342,6 +2346,10 @@
                                 },
                                 {
                                   "type": "number",
+                                  "const": 2
+                                },
+                                {
+                                  "type": "number",
                                   "const": 1
                                 }
                               ]
@@ -3308,6 +3316,10 @@
                                 {
                                   "type": "number",
                                   "const": 30
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 2
                                 },
                                 {
                                   "type": "number",
@@ -4483,6 +4495,10 @@
                                 },
                                 {
                                   "type": "number",
+                                  "const": 2
+                                },
+                                {
+                                  "type": "number",
                                   "const": 1
                                 }
                               ]
@@ -5538,6 +5554,10 @@
                                 {
                                   "type": "number",
                                   "const": 30
+                                },
+                                {
+                                  "type": "number",
+                                  "const": 2
                                 },
                                 {
                                   "type": "number",
@@ -9104,8 +9124,7 @@
                   "plan",
                   "start",
                   "slots",
-                  "order",
-                  "types",
+                  "places",
                   "unused",
                   "waiting",
                   "show",
@@ -9325,29 +9344,83 @@
                     "minItems": 1,
                     "maxItems": 4
                   },
-                  "order": {
+                  "places": {
                     "type": "array",
                     "items": {
-                      "anyOf": [
-                        {
+                      "type": "object",
+                      "required": [
+                        "space",
+                        "n",
+                        "block"
+                      ],
+                      "properties": {
+                        "space": {
                           "type": "string",
                           "maxLength": 200
                         },
-                        {
-                          "type": "null"
+                        "n": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 366
+                        },
+                        "block": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                        },
+                        "series": {
+                          "type": "array",
+                          "items": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 3
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "maxItems": 4
                         }
-                      ]
-                    },
-                    "maxItems": 366
-                  },
-                  "types": {
-                    "type": "object",
-                    "patternProperties": {
-                      "^.*$": {
-                        "type": "string",
-                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
                       }
-                    }
+                    },
+                    "maxItems": 2000
+                  },
+                  "lead": {
+                    "type": "boolean"
+                  },
+                  "leap": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "average"
+                      },
+                      {
+                        "type": "string",
+                        "const": "ignore"
+                      },
+                      {
+                        "type": "string",
+                        "const": "pair"
+                      },
+                      {
+                        "type": "string",
+                        "const": "extra"
+                      }
+                    ]
+                  },
+                  "leapRound": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "down"
+                      },
+                      {
+                        "type": "string",
+                        "const": "up"
+                      }
+                    ]
                   },
                   "unused": {
                     "anyOf": [
@@ -9649,6 +9722,6 @@
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v9.json",
-  "title": "RRQuilts project (.rrq) v9"
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v10.json",
+  "title": "RRQuilts project (.rrq) v10"
 }

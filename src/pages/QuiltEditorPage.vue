@@ -157,10 +157,12 @@
           :outlines="editor.outlines"
           :labels="editor.labels"
           :selected="found"
+          :soft="flashSoft"
           :pan-only="panOnly"
           :data-marks="dataMarks"
           :day-paths="dayPaths"
           @tap="onTap"
+          @pick="onPick"
           @hover="(h) => (hover = h)"
         />
         <div class="sizes q-pa-xs text-caption">
@@ -272,13 +274,15 @@ import { castDraft, produce } from 'immer';
 import type { RrqDoc } from '@/model/schema/project';
 import { resolveColoring } from '@/model/coloring';
 import {
-  dayDate,
+  blockLetters,
+  dataTap,
   dayOf,
-  nextFree,
   numberCount,
   numberInfo,
   numberOf,
-  placeNumber,
+  placeDate,
+  placeOf,
+  seriesOf,
   takeBack,
 } from '@/model/data-quilt';
 import { blockSpaceNumbers, quiltDataMarks, quiltDayPaths } from '@/render/data-overlay';
@@ -390,7 +394,8 @@ const help = computed(() =>
 );
 /** A data quilt places its blocks by number (spec 025): no Set, Erase or Find. */
 const shownTools = computed(() =>
-  quilt.value?.data?.on ? tools.filter((t) => !['set', 'erase', 'find'].includes(t.id)) : tools,
+  // A data quilt sets blocks with its numbering brush (Other blocks: Set from the tray).
+  quilt.value?.data?.on ? tools.filter((t) => t.id !== 'set') : tools,
 );
 const labelOf = (t: { id: Tool; label: string }) =>
   t.id === 'flip' ? (editor.flipAxis === 'v' ? 'Flip top↕bottom' : 'Flip left↔right') : t.label;
@@ -411,7 +416,7 @@ const panOnly = computed(
     (editor.mode !== 'design' || editor.tool === 'pan'),
 );
 const dataInspector = ref<InstanceType<typeof DataInspector>>();
-/** The space outlined on the quilt: a dragged or hovered card's, else the one under the pointer
+/** The space outlined on the quilt: a hovered placement's, else the one under the pointer
  *  (any part of the quilt; its color says which kind), else the clicked card's. */
 const highlight = computed(() => {
   if (editor.dataHot) return editor.dataHot;
@@ -420,7 +425,7 @@ const highlight = computed(() => {
 /** A data quilt's numbers on their block spaces, joined in order (spec 025). */
 const dataMarks = computed(() =>
   editor.mode === 'design' && quilt.value?.data?.on
-    ? quiltDataMarks(quilt.value, generated.value)
+    ? quiltDataMarks(project.doc!, quilt.value, generated.value)
     : null,
 );
 /** Each placed data block's days in order (light arrows under the month trace). */
@@ -429,31 +434,12 @@ const dayPaths = computed(() =>
     ? quiltDayPaths(project.doc, quilt.value, generated.value)
     : null,
 );
-// The highlighted number follows the list (undo and redo too): a number emptied gets the highlight
-// back; numbers placed move it past the last of them.
-watch(
-  () => quilt.value?.data?.order,
-  (now, was) => {
-    const plan = quilt.value?.data;
-    if (!plan || !now || !was || now.length !== was.length) return;
-    const placed = (o: readonly (string | null)[]) => new Set(o.filter(Boolean));
-    const before = placed(was);
-    const after = placed(now);
-    if (after.size < before.size) {
-      const k = now.findIndex((id, i) => !id && was[i]);
-      if (k >= 0) editor.dataNext = k + 1;
-    } else if (after.size > before.size) {
-      const last = now.reduce((m, id, i) => (id && !before.has(id) ? i : m), -1);
-      editor.dataNext = nextFree(plan, last + 2) ?? last + 1;
-    }
-  },
-);
 // Off a data quilt: off its tools.
 watch(
   () => !!quilt.value?.data?.on,
   (on) => {
     if (!on && (editor.tool === 'number' || editor.tool === 'entry')) editor.tool = 'set';
-    if (on && ['set', 'erase', 'find'].includes(editor.tool)) editor.tool = 'number';
+    if (on && editor.tool === 'set') editor.tool = 'number';
   },
 );
 /** Data quilt taps: the brush places the highlighted number (or takes a space's back); in the
@@ -470,36 +456,45 @@ function onDataTap(hit: Hit) {
       ? resolveColoring(q.colorings[content.coloring], block)?.fills[hit.patchId ?? PLAIN_PATCH]
       : undefined;
     const day = f && 'data' in f ? dayOf(plan, numberOf(plan, hit.slotId), f.data) : null;
-    if (typeof day === 'number') dataInspector.value?.openDay(dayDate(plan.start, day));
+    if (typeof day === 'number') dataInspector.value?.openDay(placeDate(plan, day));
     return;
   }
   if (project.readOnly) return;
   if (!blockSpaceNumbers(generated.value).has(hit.slotId))
     return say('Numbers go on whole block spaces, not ones cut down at the edge.');
-  const had = numberOf(plan, hit.slotId);
-  let next: typeof plan;
-  const kindOf = (k: number) => numberInfo(plan, k)?.kind ?? 'month';
-  if (had) {
-    // Another type picked: the space takes it and keeps its number; the same type: number back.
-    const type = dataTypes.typeFor(kindOf(had));
-    if (type && type !== plan.types[hit.slotId])
-      next = { ...plan, types: { ...plan.types, [hit.slotId]: type } };
-    else {
-      next = takeBack(plan, hit.slotId);
-      editor.dataNext = had;
-    }
-  } else {
-    const k = nextFree(plan, editor.dataNext);
-    if (!k) return say('Every number is placed.');
-    const kind = kindOf(k);
-    const type = dataTypes.typeFor(kind);
-    if (!type) return say(`Make a ${kind} data block first (a block’s Details tab › Data block).`);
-    next = placeNumber(plan, hit.slotId, k, type);
-    editor.dataNext = nextFree(next, k + 1) ?? k;
-  }
-  project.change((d) => {
-    d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(next);
+  const pick = dataTypes.picked.value;
+  if (!pick) return say('Pick a data block in the Blocks tab first.');
+  const r = dataTap(plan, hit.slotId, {
+    n: editor.dataNext,
+    block: pick.block,
+    kind: pick.kind,
+    series: editor.dataSeries,
   });
+  if ('error' in r) return say(r.error);
+  const apply = () => {
+    // Undo and redo walk the highlighted number back and forth with the placement.
+    const before = editor.dataNext;
+    editor.dataNext = r.next;
+    project.change(
+      (d) => {
+        d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(r.plan);
+      },
+      {
+        session: {
+          undo: () => (editor.dataNext = before),
+          redo: () => (editor.dataNext = r.next),
+        },
+      },
+    );
+  };
+  if (!r.ask) return apply();
+  $q.dialog({
+    title: 'Move the single day?',
+    message: r.ask,
+    cancel: { flat: true, noCaps: true, label: 'Cancel' },
+    ok: { unelevated: true, noCaps: true, label: 'Move it' },
+    persistent: true,
+  }).onOk(apply);
 }
 const styleLabel = computed(
   () => STRIP_STYLES.find((x) => x.value === editor.stripStyle)?.label ?? '',
@@ -542,7 +537,13 @@ onMounted(() => window.addEventListener('keydown', onKey));
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
 /** Find tool: outline every placement of the selected block. */
+/** A flash's spaces matching only part of what's picked (a slight glow). */
+const flashSoft = computed(() =>
+  editor.flash.on && editor.flash.soft.length ? new Set(editor.flash.soft) : undefined,
+);
 const found = computed(() => {
+  if (editor.flash.on && (editor.flash.ids.length || editor.flash.soft.length))
+    return new Set(editor.flash.ids);
   if (editor.mode === 'layout' && strips.value) {
     const id = editor.swapFirst ?? editor.selectedStrip;
     return id
@@ -551,7 +552,14 @@ const found = computed(() => {
   }
   if (editor.tool !== 'find' || !editor.block || !quilt.value) return undefined;
   const slots = quilt.value.layers[0].slots;
-  return new Set(Object.keys(slots).filter((id) => slots[id]!.block === editor.block));
+  // A data block: every space it's placed on, whichever variant shows there.
+  const placed = (quilt.value.data?.places ?? [])
+    .filter((p) => p.block === editor.block)
+    .map((p) => p.space);
+  return new Set([
+    ...Object.keys(slots).filter((id) => slots[id]!.block === editor.block),
+    ...placed,
+  ]);
 });
 const sidebarLabel = computed(() => (editor.sidebar ? 'Hide sidebar' : 'Show sidebar'));
 const labelsLabel = computed(() => (editor.labels ? 'Hide block names' : 'Show block names'));
@@ -625,13 +633,61 @@ function onTap(hit: Hit) {
     ...editor.$state,
     library: library.lookup,
   });
-  if (r.selectBlock) editor.block = r.selectBlock;
+  // Find on a data block: the block itself, not the variant its space shows.
+  const place = quilt.value.data?.on ? placeOf(quilt.value.data, hit.slotId) : undefined;
+  if (r.selectBlock) editor.block = editor.tool === 'find' && place ? place.block : r.selectBlock;
+  // …and picked in the Data blocks list, for the kind of number it shows there.
+  const kind = place && numberInfo(quilt.value.data!, place.n)?.kind;
+  const data = place && dataTypes.block(place.block);
+  if (editor.tool === 'find' && data && kind) dataTypes.pick(data, kind);
+  // A data quilt's tray shows the list the found block is in.
+  if (editor.tool === 'find' && quilt.value.data?.on && r.selectBlock) editor.dataOther = !place;
+  if (editor.tool === 'find' && r.selectBlock) editor.reveal();
   if (r.selectColor) editor.useColor(r.selectColor);
   if (r.message) $q.notify({ message: r.message, timeout: 1500 });
   if (r.doc && !project.readOnly) {
     const next = dropNumbers(quilt.value.id, project.doc, r.doc);
     project.change(() => next);
   }
+}
+
+/**
+ * A middle click picks up what's there: a data block its block, values and number (the numbering
+ * brush); any other block its block and the clicked patch's color or fabric; a patch its color or
+ * fabric.
+ */
+function onPick(hit: Hit) {
+  const q = quilt.value;
+  const doc = project.doc;
+  if (!q || !doc || editor.mode !== 'design') return;
+  const plan = q.data?.on ? q.data : undefined;
+  const place = plan && placeOf(plan, hit.slotId);
+  const kind = place && numberInfo(plan, place.n)?.kind;
+  const data = place && dataTypes.block(place.block);
+  if (place && kind && data) {
+    editor.dataPick = { id: data.id, kind };
+    const series: (number | null)[] = [null, null, null, null];
+    for (const l of blockLetters(data)) series[l] = seriesOf(place, l);
+    editor.dataSeries = series;
+    editor.dataNext = place.n;
+    editor.tool = 'number';
+    editor.reveal();
+    return;
+  }
+  const content = q.layers[0].slots[hit.slotId];
+  const block = content && doc.project.blocks.find((b) => b.id === content.block);
+  const r = applyTool(doc, q.id, generated.value.slots, hit, {
+    ...editor.$state,
+    tool: 'eyedropper',
+    library: library.lookup,
+  });
+  if (block && block.id !== PLAIN_BLOCK && !block.data) {
+    editor.block = block.id;
+    if (['number', 'entry'].includes(editor.tool)) editor.tool = 'set';
+  } else if (r.selectColor && ['set', 'number', 'entry', 'find'].includes(editor.tool))
+    editor.tool = 'paint';
+  if (r.selectColor) editor.useColor(r.selectColor);
+  editor.reveal();
 }
 
 /** A data quilt's numbered spaces given an ordinary block (Other blocks) give their numbers back. */
@@ -641,10 +697,12 @@ function dropNumbers(id: string, before: RrqDoc, after: RrqDoc): RrqDoc {
   const plan = now?.data;
   if (!was || !now || !plan?.on) return after;
   const blocks = new Map(after.project.blocks.map((b) => [b.id, b]));
-  const lost = plan.order.filter((sid): sid is string => {
-    const b = sid ? now.layers[0].slots[sid]?.block : undefined;
-    return !!sid && b !== was.layers[0].slots[sid]?.block && !blocks.get(b ?? '')?.data;
-  });
+  const lost = plan.places
+    .map((p) => p.space)
+    .filter((sid) => {
+      const b = now.layers[0].slots[sid]?.block;
+      return b !== was.layers[0].slots[sid]?.block && !blocks.get(b ?? '')?.data;
+    });
   if (!lost.length) return after;
   return produce(after, (d) => {
     const q = d.project.quilts.find((x) => x.id === id)!;

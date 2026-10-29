@@ -88,6 +88,29 @@ export const migrations: Migrations = {
   7: (doc) => doc,
   // v9 (spec 024): colorways may carry an auto mapping and a manual palette; nothing to change.
   8: (doc) => doc,
+  // v10 (spec 046): a data plan's numbered list (`order`, a space per number) and its types (a
+  // block per space) become placements, in number order, each reading the block's own values. A
+  // leap year's Weeks plan had both single days at the end (Dec 30, Dec 31); now its first and
+  // last days are: weeks move up one, Dec 30's blocks go to Jan 1.
+  9: (doc) => {
+    const project = isObject(doc.project) ? doc.project : undefined;
+    if (!project || !Array.isArray(project.quilts)) return doc;
+    const quilts = project.quilts.map((q: unknown) => {
+      if (!isObject(q) || !isObject(q.data)) return q;
+      const { order, types, ...data } = q.data;
+      const typeOf = isObject(types) ? types : {};
+      const list: unknown[] = Array.isArray(order) ? order : [];
+      const shift = data.plan === 'weeks' && list.length === 54;
+      const at = (i: number) => (!shift ? i + 1 : i < 52 ? i + 2 : i === 52 ? 1 : 54);
+      const places = list.flatMap((space, i) =>
+        typeof space === 'string' && typeof typeOf[space] === 'string'
+          ? [{ space, n: at(i), block: typeOf[space] }]
+          : [],
+      );
+      return { ...q, data: { ...data, places } };
+    });
+    return { ...doc, project: { ...project, quilts } };
+  },
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */

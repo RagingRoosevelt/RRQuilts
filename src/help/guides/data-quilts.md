@@ -24,18 +24,43 @@ The plan says how days are grouped. Change it under **Data quilt** in the quilt'
 blocks that can't stay in the new plan, such as week blocks in a Months plan, come off the quilt.
 The app asks first and says how many.
 
-| Plan   | Each number stands for                                                                   |
-| ------ | ---------------------------------------------------------------------------------------- |
-| Months | a month, 12 numbers                                                                      |
-| Weeks  | 7 days counted from the period start, 52 numbers, then one number for each day left over |
-| Days   | one day, a number for every day of the period                                            |
+| Plan   | Each number stands for                                      |
+| ------ | ----------------------------------------------------------- |
+| Months | a month, 12 numbers                                         |
+| Weeks  | 7 days each, 52 numbers, and a number for the day left over |
+| Days   | one day, a number for every day of the period               |
 
 With **Data quilt** on, the wizard's size step and the quilt's **Layout** tab say how many whole
 block spaces the layout has and how many the plan needs. Blocks cut down at the quilt's edge don't
 count, and they can't take a number.
 
-The period is one year from **Period starts**. A Months period starts on the 1st of a month. A
-period that holds 29 February has 366 days, so a Weeks plan then has two days left over.
+The period is one year from **Period starts**. A Months period starts on the 1st of a month.
+
+A year of 365 days leaves one day over in a Weeks plan. It comes last (Dec 31 for a year from
+January), unless you start the year with it. Place a 1-day block on **Wk 1**, or a week block on
+the single day at the end, and the single day moves to the start (Jan 1), with the weeks starting
+the day after. Place a week block on Jan 1, a 1-day block on **Wk 52**, or take Jan 1's last block
+off, and it goes back to the end. Blocks keep their places in the list when the single day moves,
+so their labels shift by one: moving it to the start, the block on Wk 2 becomes Wk 1, and moving it
+back, Wk 1 becomes Wk 2. The app asks first when other blocks would shift.
+
+### Leap years
+
+A period that holds 29 February has 366 days. Months plans need nothing more, since February
+takes its block's 29-day variant. For a Weeks or Days plan, **Leap day** in the quilt's **Details**
+tab, under **Data quilt**, picks what happens to the extra day.
+
+| Leap day                      | What happens                                                                        |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| **Average Feb 28 and Feb 29** | 28 February shows the average of the two days, and 29 February has no place         |
+| **Ignore Feb 29**             | 29 February has no place and its value is left out                                  |
+| **Use a 2-day block variant** | Weeks only. The two days left over are one number, shown by a 2-day variant         |
+| **Extra single-day number**   | Weeks get a single day at each end of the year. Days give 29 February its own place |
+
+Averaging a category value, such as a mood, takes the category halfway between the two days in
+the list. When that falls between two categories, **Categories round** picks the earlier one
+(**Down**) or the later one (**Up**). The data entry table still lists 29 February, so your record
+stays complete.
 
 ## Make a data block
 
@@ -57,7 +82,9 @@ it had underneath. That color is what **As designed** shows.
 
 **Value** picks A, B, C, or D. Use B, C, and D when a day records more than one value, such as a
 high and a low temperature. Each value has its own numerals and its own order line. **Show
-numerals** and **Show order line** draw the numerals and a line through the patches in order.
+numerals** and **Show order line** draw the numerals and a line through the patches in order. A
+numeral on several patches branches the line, the same way as on the quilt (see **Place the
+numbers**).
 
 ### Variants for shorter months and single days
 
@@ -69,9 +96,9 @@ covers it: February takes the 28-day variant (the 29 in a leap year), and a 30-d
 set under **Places past a number’s days**.
 
 Month and week blocks can also add a **1 day** variant. It stands for a single day, so it serves
-the days a Weeks plan leaves over (365, and 366 in a leap year) and the days of a Days plan, and the
-block is listed with the day blocks. Unless you pick a day block, the days left over in a Weeks plan
-take the 1-day variant of the week block in use.
+the day a Weeks plan leaves over and the days of a Days plan, and the block is listed with the day
+blocks too, pictured as its 1-day variant. Week blocks can add a **2 days** variant for a leap year's two days left over (see
+**Leap years** above).
 
 The built-in library has a square **Month Strip** with 30, 29, and 28-day variants (31 bars each,
 the days past the month in black), a **Week Strip** of 7 bars, and a **Day Square** with one place,
@@ -90,28 +117,42 @@ usual blocks, such as a center block or plain spaces between the months, the sam
 quilt. A numbered space given another block gives its number back. **Data blocks** places the
 numbers.
 
-With **Data blocks**, pick a block type at the top. A Months plan lists month blocks, Weeks lists
-week blocks and day blocks for the days left over, and Days lists day blocks.
+With **Data blocks**, pick a block at the top. A Months plan lists month blocks, Weeks lists week
+blocks and day blocks, and Days lists day blocks. A week or month block with a 1-day variant shows
+under day blocks too. Picked there, it places its 1-day variant.
+
+Under **Place numbers**, **Value** picks the quilt value the block shows, **qA** to **qD**, as
+**Value** does in the block editor. Hover over one to see its name, such as High or Low. Values the
+quilt doesn't have yet are grayed out. A block whose numerals use several values, say A and B, has
+a row for each one, and several of them can show the same quilt value, so a block with values A, B,
+and C works in a quilt with only qA and qB. The same block can show High in one space and Low in
+another.
 
 The tab then lists every number of the plan. Months go by name (Jan, Feb, and so on from the period
-start), weeks by number (Wk 1, Wk 2, and on), and days by date (Jan 1, Jan 2). The days a Weeks plan
-leaves over go by date too. With **Place numbers** on, tap block spaces on
-the quilt. Each gets the highlighted number and the picked type, and the highlight moves on to the
-next number not yet placed. Tap a number in the list to place from there. Numbers already placed are
-skipped. Tap a placed space to take its number back, or pick another type first and tap it to change
-its type.
+start), weeks by number (Wk 1, Wk 2, and on), and days by date (Jan 1, Jan 2). A single day in a
+Weeks plan goes by date too. With **Place numbers** on, tap block spaces on the quilt. Each gets the
+highlighted number and the picked block, and the highlight moves on to the next number. Tap a
+number in the list to place from there. A number can go on as many spaces as you like, so tap it
+again to place another.
 
-**Fill empty numbers** puts every block space without a number on the empty numbers, by **Rows**,
-**Columns**, or **Snake**, with the picked type. **Clear** takes every number back. A space whose
-number is taken back is emptied.
+Tap a placed space to change it. With the same number, block, and value picked, the tap takes the
+block off. Otherwise the space takes whatever differs. A different number changes its number, a
+different block changes its block, and a different value changes its value.
 
-Beside each label is a card for the block space holding it: an uncolored picture of its block and
-the space's number, **Block 1**, **Block 2**, and so on, counted left to right and top to bottom.
-Drag a card to another label, or use the arrows on it, and the cards between move along. The labels
-stay where they are, so each moved block takes its new label, and the variant for its new month.
-Hover over a card, click it, or drag it, and its block space lights up on the quilt. The quilt shows every block space's
-number, and each placed space's label under it, joined by a line in order. A lighter arrow inside
-each placed block runs through its days in order.
+**Fill empty numbers** puts the block spaces still empty on the numbers with no block yet, by
+**Rows**, **Columns**, or **Snake**, with the picked block. **Clear** takes every block off.
+
+**Erase** on the left takes a placed block off its space, and **Find** lights up every space a
+data block is placed on.
+
+Beside each label are the blocks placed for it, each an uncolored picture with its values. Hover
+over one, or click it, and its block space lights up on the quilt. On the quilt, each placed space
+shows its number, with its values on the line below in the block's own order. A line joins the
+numbers in order, a line of its own for each value (qA, qB), joining only the blocks that show it.
+When a number sits on several spaces, the line from one number to the next
+branches. One space joins every space of the next number, and several join one. When both have
+several, each space joins the nearest one not yet joined, in the order they were placed. A lighter
+arrow inside each placed block runs through its days in order.
 
 The tab lists anything that needs attention, such as numbers not placed yet or days without a
 place.
