@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-28
 
-**Status**: Built on branch `046-data-placement`, 2026-10-28 (not released; checks TC-184 to TC-189).
+**Status**: Built on branch `046-data-placement`, 2026-10-28 (not released; checks TC-184, TC-186 to TC-190).
 Reworks the numbered list of spec 025 (data quilts).
 
 **Input**: Owner, 2026-10-28, after three week blocks didn't show in a Months quilt's picker:
