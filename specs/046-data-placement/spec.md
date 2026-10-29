@@ -172,7 +172,7 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
 
 A Weeks plan over a period holding 29 February has 366 days: 52 weeks and two days left over. A
 Days plan has 366 numbers. Months plans need nothing: February takes its block's 29-day variant
-(spec 025).
+(spec 025; owner, 2026-10-28: "in month mode, it goes in the month using the extra slot").
 
 (Owner, 2026-10-28: "let's have the leap year question be a setting in the details / data quilt
 section. choices the user could pick between are "ignore Feb 29", "use a 2-day block variant in
@@ -209,8 +209,8 @@ place"".)
      with at least two days (the 7-day drawing), its unused places following the fill policy.
    - **Extra**: Weeks: the period's first and last days are single-day numbers and the 52 weeks
      run between them: Jan 1, Wk 1 (Jan 2–8) … Wk 52 (Dec 24–30), Dec 31 for a 2028 quilt (owner,
-     2026-10-28: "jan 1 and dec 31, paralles what we're already doing"). The single-day start of User Story 5 is then always on and its switches
-     don't apply. 0.7.0 quilts (both days at the end) open with their placements on the same
+     2026-10-28: "jan 1 and dec 31, paralles what we're already doing"). The single-day start of User Story 5 is then always on and its
+     switches don't apply. 0.7.0 quilts (both days at the end) open with their placements on the same
      numbers. Days: Feb 29 is a number of its own to place.
 2. **Given** a period without 29 February, **Then** the setting is hidden (and kept for when the
    start moves).
