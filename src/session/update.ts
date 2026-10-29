@@ -102,7 +102,7 @@ if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
 
 /** Reload into the new version, now or when its download finishes. Unsaved work is the caller's. */
 export function reload() {
-  if (update.from) return demoReload();
+  if (import.meta.env.DEV && update.from) return demoReload();
   if (update.phase === 'elsewhere') return window.location.reload();
   update.reloading = true;
   if (update.phase === 'ready') activate();
