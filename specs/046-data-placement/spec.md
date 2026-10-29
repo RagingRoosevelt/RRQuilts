@@ -152,8 +152,8 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
 
 1. **Given** a Weeks plan whose first number is a week, **When** a 1-day block is placed on it,
    **Then** the first number becomes a single day (the period's first day, Jan 1), weeks start the
-   day after, and the day left over at the end goes (the last number is Wk 52). In a leap year one
-   day still stays at the end (Dec 31).
+   day after, and the day left over at the end goes (the last number is Wk 52). A leap year
+   follows the Leap day setting (User Story 6).
 2. **Then** placed weeks keep their numbers (Wk k stays Wk k) and their days move one later.
 3. **Given** the first number is already a single day, **Then** placing a week block on it,
    removing its last 1-day placement, or placing a 1-day block on the last number (Wk 52) turns it
@@ -166,6 +166,30 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
    dialog says those placements move to Wk 1 starting a day later and asks first.
 5. **Then** the switch is saved with the plan (`lead: 'day'`), is one undo step, and the Data tab's
    period text says "Jan 1, then weeks from Jan 2".
+
+### User Story 6 - Leap day setting (Priority: P2)
+
+A Weeks plan over a period holding 29 February has 366 days: 52 weeks and two days left over.
+(Owner, 2026-10-28: "let's have the leap year question be a setting in the details / data quilt
+section. choices the user could pick between are "ignore Feb 29", "use a 2-day block variant in
+place of a 1-day block variant", or "use an extra single-day data block slot which will be at the
+start/end of the year"".)
+
+1. **Given** a Weeks plan whose period holds 29 February, **Then** the quilt's Details tab, Data
+   quilt section, shows **Leap day** with three choices:
+   - **Ignore Feb 29**: the period counts 365 days. Feb 29 has no place (the week holding it runs
+     Feb 28 to Mar 1 with seven places) and its entries and sample values are left out.
+   - **Use a 2-day block variant**: the single day becomes one number of two days (Jan 1–2 at the
+     start, Dec 30–31 at the end) and takes a block's **2-day variant**. Week blocks may add a
+     2-day variant (spec 025 variants: 1 and 2). A block without one shows its smallest variant
+     with at least two days (the 7-day drawing), its unused places following the fill policy.
+   - **Use an extra single-day number** (default, as 0.7.0 does): two single-day numbers, both
+     where the single day sits (Dec 30 and Dec 31 at the end, or Jan 1 and Jan 2 at the start).
+2. **Given** a period without 29 February, **Then** the setting is hidden (and kept for when the
+   start moves).
+3. **Then** the choice is saved with the plan (`leap: 'ignore' | 'pair' | 'extra'`). Changing it
+   renumbers the left-over days only; a placement whose block no longer takes its number (a 1-day
+   block on a 2-day number without a 2-day variant) stays and shows per item 1.
 
 ## Requirements
 
@@ -186,7 +210,11 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
   number's kind, asking first when any go.
 - **FR-009**: A Weeks plan MUST allow a single lead day (User Story 5), set by placing a 1-day
   block on the first number and cleared by placing a week block there, removing its last 1-day
-  placement, or (after asking) placing a 1-day block on the last number. Day numbering (spec 025 FR-004) becomes: lead day 1, then 7 × (k − 1) + 2 … for Wk k.
+    placement, or (after asking) placing a 1-day block on the last number. Day numbering (spec 025
+  FR-004) becomes: lead day 1, then 7 × (k − 1) + 2 … for Wk k.
+- **FR-010**: A Weeks plan over a leap year MUST offer the Leap day setting (User Story 6) in the
+  Details tab's Data quilt section; week blocks MUST be able to add a 2-day variant (block file and
+  library formats bumped with the project's).
 
 ## Open questions (defaults used until answered)
 
@@ -195,8 +223,10 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
 2. The series line on a quilt with only one value (qA): shown always (default, as asked) or hidden?
 3. The series map belongs to each placement (default: one block can be placed for qA in one space
    and qB in another), not to the block for the whole quilt.
-4. Leap year with a lead day: one day stays at the end (default), or both left-over days go to the
-   front as Jan 1 and Jan 2?
+4. Leap day setting for Months and Days plans too ("Ignore Feb 29" leaving Feb 29 out of a Days
+   quilt or a February block)? Default: Weeks plans only.
+5. "Extra single-day number at the start/end": both single days together where the single day sits
+   (default), or one at the start and one at the end?
 
 ## Out of scope
 
