@@ -1,6 +1,6 @@
 # Feature Specification: View Grayscale in Block Previews
 
-**Feature Branch**: `TBD` (no feature branch yet)
+**Feature Branch**: `TBD` (target 0.7.3)
 
 **Created**: 2026-10-29
 

@@ -2,6 +2,30 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.7.2 (2026-10-29)
+
+### New features
+
+- A data quilt can place several blocks on the same month, week or day, each showing the value you
+  pick, such as High on one and Low on another. Blocks go on with the number brush, the way
+  numerals go on a data block, and the order line branches to every block of a number.
+- A block with several values picks which of the quilt's values each one shows, even when the quilt
+  has fewer values than the block.
+- A Weeks quilt can start the year with Jan 1 as a single day, so its last week ends on Dec 31.
+- In a leap year, week and day quilts can average Feb 28 and Feb 29, leave Feb 29 out, give it a
+  place of its own, or show a week block's new 2-day variant.
+- View grayscale shows a quilt or a block in grays of the same lightness, to check its values.
+- A middle click picks up the block, color, or data block under the pointer. It and Find scroll the
+  tray to what they pick.
+- Clicking a number or a value in a data quilt's list lights up its blocks on the quilt.
+- Erase and Find work in data quilts.
+- Older projects, block files, and libraries open and are upgraded. Files saved with this version
+  need it or a newer one.
+
+### Fixes
+
+- A block used in a data quilt only as its 1-day variant shows as in use.
+
 ## 0.7.1 (2026-10-23)
 
 ### Fixes

@@ -8,15 +8,11 @@ These are the plans for the next few versions. Plans change as people use the ap
 may move to another version, arrive in a different form, or not at all. To ask for something that
 isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
-## 0.7.2
+## 0.7.3
 
-- Data quilts place several blocks on the same month, week or day, each for the value you pick
-  (High on one, Low on another). Blocks are placed with the number brush, as in a data block.
-- Leap years in week and day quilts: average Feb 28 and Feb 29, leave Feb 29 out, give it its own
-  place, or use a 2-day block.
-- A week quilt can start with Jan 1 as a single day so its last week ends on Dec 31.
 - A guide for each month, week or day of a data quilt: which pieces of its block to cut in which
   fabric, day by day, printed or on screen.
+- View grayscale in the block previews of the project's Blocks tab and of Libraries.
 
 ## 0.8.0
 

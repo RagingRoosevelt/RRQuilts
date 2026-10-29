@@ -15,8 +15,16 @@ import { fillQuilt, starterKit } from '@/dev/fill-quilt';
 const dir = process.env.FORMAT_DEMO;
 
 type Any = any; // eslint-disable-line @typescript-eslint/no-explicit-any
-/** `data`: a data quilt (v9), its block spaces numbered in order with the built-in Month Strip. */
-type Add = { name: string; style?: string; layout?: Any; borders?: Any[]; data?: boolean };
+/** `data`: a data quilt (v9), its block spaces numbered in order with the built-in Month Strip;
+ *  `weeks`: a two-value Weeks quilt starting with a single day (v10, spec 046). */
+type Add = {
+  name: string;
+  style?: string;
+  layout?: Any;
+  borders?: Any[];
+  data?: boolean;
+  weeks?: boolean;
+};
 
 /** Layout capabilities each project format version added (the first is the 3×3 every demo has). */
 const ADDED: Record<number, Add[]> = {
@@ -55,6 +63,14 @@ const ADDED: Record<number, Add[]> = {
       data: true,
     },
   ],
+  10: [
+    {
+      name: 'Data Weeks, Two Values',
+      style: 'straight-set',
+      layout: { cols: 8, rows: 4, block: [7, 7], sash: [0, 0], sashBorder: false },
+      weeks: true,
+    },
+  ],
 };
 
 it.skipIf(!dir)('write the demo project', async () => {
@@ -88,6 +104,7 @@ it.skipIf(!dir)('write the demo project', async () => {
     doc = produce(doc, (d: Any) => void d.project.quilts.push(quilt));
     doc = fillQuilt(doc, quilt.id, kit);
     if (add.data) doc = await dataQuilt(doc, quilt.id);
+    if (add.weeks) doc = await weeksQuilt(doc, quilt.id);
   }
   writeFileSync(`${dir}/demo-v${VERSION}.rrq`, serializeProject(doc));
 });
@@ -112,10 +129,58 @@ async function dataQuilt(doc: Any, id: string): Promise<Any> {
       .slots.filter((s: Any) => s.kind === 'block')
       .map((s: Any) => s.id)
       .slice(0, 12);
+    // v9 kept a numbered list and a type per space; v10 (spec 046) placements.
+    q.data =
+      VERSION >= 10
+        ? {
+            ...newDataPlan('in', 2027),
+            places: spaces.map((space: string, i: number) => ({
+              space,
+              n: i + 1,
+              block: strip.id,
+            })),
+          }
+        : {
+            ...newDataPlan('in', 2027),
+            order: spaces,
+            types: Object.fromEntries(spaces.map((s: string) => [s, strip.id])),
+          };
+    syncDraft(d, lib);
+  });
+}
+
+/** A Weeks data quilt with two values (spec 046): Jan 1 as a single day (Day Square), then each
+ *  week twice, the Week Strip showing High on one and Low on the other, in reading order. */
+async function weeksQuilt(doc: Any, id: string): Promise<Any> {
+  const { builtinItems } = await import('@/content/starter');
+  const { newDataPlan, presetSlot } = await import('@/model/data-quilt');
+  const { syncDraft } = await import('@/model/library-items');
+  const items = builtinItems();
+  const week = items.blocks.find((b) => b.id === 'rrquilts.week-strip')!;
+  const day = items.blocks.find((b) => b.id === 'rrquilts.day-square')!;
+  const lib = {
+    block: (x: string) => items.blocks.find((b) => b.id === x),
+    color: (x: string) => items.colors.find((c) => c.id === x),
+  };
+  return produce(doc, (d: Any) => {
+    const q = d.project.quilts.find((x: Any) => x.id === id);
+    const spaces: string[] = slots
+      .generateFor(q)
+      .slots.filter((s: Any) => s.kind === 'block')
+      .map((s: Any) => s.id);
+    const plan = newDataPlan('in', 2027);
+    const places: Any[] = [{ space: spaces[0], n: 1, block: day.id }];
+    spaces.slice(1).forEach((space, i) => {
+      const n = 2 + Math.floor(i / 2); // Wk 1, Wk 1, Wk 2, Wk 2…
+      places.push({ space, n, block: week.id, ...(i % 2 ? { series: [1] } : {}) });
+    });
     q.data = {
-      ...newDataPlan('in', 2027),
-      order: spaces,
-      types: Object.fromEntries(spaces.map((s: string) => [s, strip.id])),
+      ...plan,
+      plan: 'weeks',
+      lead: true,
+      slots: [presetSlot('temperature', 'in'), presetSlot('temperature', 'in', 'Low')],
+      sim: { source: 'builtin', set: 'sample', series: ['high', 'low'] },
+      places,
     };
     syncDraft(d, lib);
   });

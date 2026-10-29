@@ -1,6 +1,6 @@
 # Feature Specification: Data Quilt Period Guide
 
-**Feature Branch**: `TBD` (target 0.7.1)
+**Feature Branch**: `TBD` (target 0.7.3)
 
 **Created**: 2026-10-22
 
