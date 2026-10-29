@@ -11,7 +11,10 @@ decision: the address (see Decision).
 to my github pages custom domain?" Then: "can we put this domain/repo ownership switch into a spec?
 the new custom domain would probably be prunusdomestic.com. and I would probably host this at
 prunusdomestic.com/RRQuilts or rrquilts.prunusdomesic.com [read: prunusdomestic.com]. right now my
-org is RRQuilts but I would probably rename the org to PrunusDomestic."
+org is RRQuilts but I would probably rename the org to PrunusDomestic." Then, on the old address:
+"this would be a new version of the site in the old url location that would still have access to
+the local storage and would provide users a mechanism to export their data before being redirected
+to the new location" (User Stories 2 and 3). The address is decided at implementation.
 
 ## Today
 
@@ -63,35 +66,70 @@ every path the same, but data still has to move (new origin either way).
 2. **Given** `prunusdomestic.com`, **Then** it's a verified domain for the organization (org
    settings › Pages › Verified domains), so no one else can attach it.
 
-### User Story 2 - Old links keep working (Priority: P1)
+### User Story 2 - The old address becomes a moving page (Priority: P1)
 
-1. **Given** a link to `theodorelindsey.io/RRQuilts/<path>?<query>#<hash>` (bookmarks, shared
-   links, `?open_gist=` links, help links in old files), **Then** it lands on the same path, query
-   and hash at the new address.
-2. This needs a stub repo `RagingRoosevelt/RRQuilts` (the name freed by the transfer) whose Pages
-   site is only a redirect page: `index.html` and `404.html` that rebuild the URL on the new origin
-   and `location.replace` there, plus a plain link for no-script.
-3. **Given** the stub, **Then** `/schemas/*.json` keep serving there (copies), since saved files'
-   `$schema` links and older library tools fetch them (`FORMATS_URL`); `formats.json` there is
-   kept current by the release process until the old tools are gone.
+The old address keeps a final build of the app, the **moving build**, served from a repo left under
+the personal account (`RagingRoosevelt/RRQuilts`, the name freed by the transfer). Because it's on
+the old origin (`theodorelindsey.io`), it still reads the quilter's saved data there, lets them take
+it along, and then sends them to the new address.
 
-### User Story 3 - Bring your data across (Priority: P1)
+**Independent Test**: at the old address, with a My library, a pack, fabric photos and an unsaved
+draft from before. Open `theodorelindsey.io/RRQuilts/project?open_gist=...`: the moving page lists
+what's stored, **Move my data** carries it to the new address, and the gist link then opens there.
+Open the old address again in a browser with no RRQuilts data: it goes straight to the new address.
 
-A quilter who used the old address opens the new one and gets their library, packs, fabric photos
-and settings back.
+**Acceptance Scenarios**:
 
-1. **Given** a release before the move (on the old origin), **Then** it shows a notice: the app is
-   moving; **Export everything** saves a My library backup (`.rrqlib` with images and packs) and the
-   settings (`.rrqconf`), with the new address.
-2. **Given** the new address, first open, **Then** a welcome step offers **Import from the old
-   address**: pick those two files; the app restores them (existing restore paths, spec 011 and
-   settings import).
-3. **Given** drafts (crash recovery), **Then** the notice asks to save open drafts as `.rrq` first;
-   drafts aren't carried otherwise.
-4. Optional, if it proves reliable: the old origin's page opens the new one with a one-time
-   `postMessage` hand-off (both are ours), moving data without files. Files are the baseline.
-5. **Given** the old origin's installed app, **Then** after the move its update prompt (the last
-   build served there) says where the app went, and the redirect stub takes over afterwards.
+1. **Given** any URL at the old address, **When** this browser has no RRQuilts data there, **Then**
+   it goes straight to the same path, query and hash at the new address (`location.replace`).
+2. **Given** data at the old address, **Then** the moving page shows instead: RRQuilts has moved to
+   the new address; what's stored here (counts of drafts, recent files, My library items, packs,
+   fabric photos; whether settings were changed); and the actions below.
+3. **Move my data** (preferred): the moving page opens the new address with a hand-off (User Story
+   3) and the new address imports everything; on success the moving page says so and continues to
+   the link the quilter came with.
+4. **Download my data** (always offered, the fallback): saves a My library backup (`.rrqlib` with
+   packs and images, the existing backup) and the settings (`.rrqconf`), and each draft as a
+   `.rrq`, for importing at the new address by hand.
+5. **Continue without moving**: goes to the new address; the moving page asks once more if data
+   would be left behind.
+6. **Given** the data has moved, **Then** the moving page offers **Clear the data here** (so the
+   next visit redirects straight away); not automatic, and never before a hand-off or download
+   succeeded.
+7. **Given** an installed app or a cached old build (the service worker at the old address), **Then**
+   the moving build ships a service worker at the same URL, so the old one updates to it (the
+   app's update prompt appears; it can't be skipped forever); the moving build's service worker
+   caches only the moving page, so it works offline too and keeps showing the data until it's
+   moved.
+8. **Given** the moving build, **Then** it's the app itself in a moving mode (same code for reading
+   drafts, libraries, images and settings, and for the backup files), built once with the new
+   address and frozen; the editors aren't reachable from it.
+9. **Given** schema URLs at the old address (`/schemas/*.json`, saved files' `$schema`, older library
+   tools' `FORMATS_URL`), **Then** they keep resolving there (copies; `formats.json` kept current
+   by the release process until old tools are gone).
+10. The moving build stays up indefinitely: a quilter who comes back a year later can still move
+    their data.
+
+---
+
+### User Story 3 - Arrive at the new address with your data (Priority: P1)
+
+1. **Given** a hand-off from the moving page, **Then** the new address receives the data (a
+   `postMessage` exchange between the two windows, each checking the other's exact origin; data in
+   chunks for large image stores) and imports it: My library (merged, as a restore merges), packs,
+   fabric images, settings (only if the new address has none changed), drafts and recent files.
+2. **Given** the import, **Then** a summary shows what arrived, and the moving page is told it
+   succeeded only after everything is stored.
+3. **Given** downloaded files instead, **Then** the new address's first-open welcome offers **Bring
+   data from the old address**, taking the `.rrqlib`, `.rrqconf` and `.rrq` files (existing import
+   paths).
+4. **Given** data already at the new address, **Then** importing merges and never deletes; conflicts
+   follow the existing library rules (spec 011).
+5. **Given** recent files from the old address (file handles from the File System Access API), **Then**
+   they can't carry across (handles are tied to the origin): the list arrives as names only, and
+   opening one asks to pick the file again.
+
+---
 
 ### User Story 4 - Organization rename and repositories (Priority: P1)
 
@@ -154,24 +192,30 @@ Found on 2026-10-29 (excluding `docs/`, `specs/`):
 ## Order of work
 
 1. Buy and set up DNS for `prunusdomestic.com`; verify it for the organization.
-2. Ship a release on the old address with the moving notice and Export everything (User Story 3),
-   and the old-owner mapping for library URLs if needed (User Story 4).
+2. Ship a release (still at the old address) that can receive a hand-off (User Story 3), so the
+   new address has the import code from its first day, and the old-owner mapping for library URLs
+   if needed (User Story 4).
 3. Rename the organization; create the placeholder `RRQuilts` organization.
 4. Transfer `RagingRoosevelt/RRQuilts` to the organization (and Novelty if moving); set Pages and
    the custom domain; update every reference (User Story 5) and release from the new home.
-5. Create the redirect stub `RagingRoosevelt/RRQuilts` with schemas; check old links, gist links,
-   deep links.
+5. Create `RagingRoosevelt/RRQuilts` with the moving build (User Story 2) and the schemas; check
+   old links, gist links, deep links, an installed app, a move with fabric photos.
 6. Update the template and library repos' tools and links.
-7. Keep the stub and placeholder organization indefinitely.
+7. Keep the moving build and the placeholder organization indefinitely.
 
 ## Requirements
 
 - **FR-001**: The app MUST be served at the chosen address over HTTPS with the domain verified for
   the organization.
-- **FR-002**: Old `theodorelindsey.io/RRQuilts/` URLs MUST redirect to the same path, query and hash
-  at the new address, and old schema URLs MUST keep resolving.
-- **FR-003**: Before the move, a release MUST let quilters export all their data, and the new
-  address MUST offer to import it on first open.
+- **FR-002**: The old address MUST serve a moving build of the app: with no data stored there it
+  redirects to the same path, query and hash at the new address; with data it offers to move it
+  (hand-off) or download it, then continues to the new address. Old schema URLs MUST keep
+  resolving.
+- **FR-003**: The new address MUST import a hand-off from the moving build and the downloaded files,
+  merging and never deleting; the moving build MUST NOT clear data unless asked, after a confirmed
+  move or download.
+- **FR-006**: The moving build MUST replace the old service worker, so installed apps and cached
+  builds at the old address reach the moving page.
 - **FR-004**: The old organization name MUST be held after the rename; stored library URLs MUST keep
   fetching from the right repositories.
 - **FR-005**: Every reference listed in User Story 5 MUST be updated, and `make build` MUST stay
@@ -189,4 +233,4 @@ Found on 2026-10-29 (excluding `docs/`, `specs/`):
 
 - "prunusdomesic.com" in the note is `prunusdomestic.com`.
 - The personal site and `theodorelindsey.io` stay as they are.
-- No server: the redirect is a static page (GitHub Pages can't send HTTP redirects).
+- No server: the moving build is a static site (GitHub Pages can't send HTTP redirects).
