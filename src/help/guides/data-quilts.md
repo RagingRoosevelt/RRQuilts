@@ -124,7 +124,9 @@ under day blocks too. Picked there, it places its 1-day variant.
 Under **Place numbers**, **Value** picks the quilt value the block shows, **qA** to **qD**, as
 **Value** does in the block editor. Hover over one to see its name, such as High or Low. Values the
 quilt doesn't have yet are grayed out. A block whose numerals use several values, say A and B, has
-a row for each one. The same block can show High in one space and Low in another.
+a row for each one, and several of them can show the same quilt value, so a block with values A, B,
+and C works in a quilt with only qA and qB. The same block can show High in one space and Low in
+another.
 
 The tab then lists every number of the plan. Months go by name (Jan, Feb, and so on from the period
 start), weeks by number (Wk 1, Wk 2, and on), and days by date (Jan 1, Jan 2). A single day in a

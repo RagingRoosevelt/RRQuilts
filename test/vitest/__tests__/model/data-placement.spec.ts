@@ -124,6 +124,9 @@ describe('series (US2)', () => {
     const r = ok(dataTap(p, 's', brush(1, three, 'week', [1, 2, 0])));
     expect(seriesLabel(r.plan.places[0]!, three)).toBe('qB, qC, qA');
     expect(seriesLabel({ space: 's', n: 1, block: 'wk' }, week)).toBe('qA');
+    // Fewer quilt values than the block's: several block values show one (qA → A and C).
+    const two = ok(dataTap(plan({ slots: [temp, temp] }), 's', brush(1, three, 'week', [0, 1, 0])));
+    expect(seriesLabel(two.plan.places[0]!, three)).toBe('qA, qB, qA');
     // A value the quilt doesn't have: refused.
     expect(dataTap(plan({ slots: [temp] }), 's', brush(1, three))).toHaveProperty('error');
     // A piece reads the quilt value its letter maps to.

@@ -111,8 +111,11 @@ the space reads Wk 1 over qB and its pieces follow the Low values.
 1. **Given** a single-series block picked, **Then** a series choice (qA…qD, the quilt's values in
    use) sits by it, qA by default.
 2. **Given** a multi-series block picked, **Then** the quilter picks a quilt series for each block
-   series in order; placing waits until every block series has one. A quilt with fewer values than
-   the block needs says so and doesn't place it.
+   series in order; placing waits until every block series has one. Several block series may read
+   one quilt series, so a quilt with fewer values than the block still places it (block A and C
+   both reading qA; a block series without a quilt series of its letter starts on qA). (Owner,
+   2026-10-29: "if the quilt only has qA and qB, we should still allow using a block with A, B, and
+   C. The user might want to do qA->A,C, qB->B".)
 3. **Then** a placed space shows its number on one line and its quilt series on the next, in the
    block's series order (qB, qC, qA). A quilt with one value still shows its qA line (owner,
    2026-10-28: "yes it does").

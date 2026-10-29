@@ -67,10 +67,6 @@
             @click="onValueClick"
           />
         </div>
-        <div v-if="letters.length > plan.slots.length" class="text-caption text-warning">
-          {{ picked.block.notecard.name }} has {{ letters.length }} values and this quilt
-          {{ plan.slots.length }}: add more in the Data tab to place it.
-        </div>
       </template>
       <div class="text-caption text-grey-7">
         Tap block spaces to place the highlighted number. It moves on to the next number. Tap a
@@ -360,6 +356,19 @@ function fillAll(order: DataOrder) {
 watch(
   () => plan.value && numberCount(plan.value),
   () => (editor.dataNext = 1),
+);
+// A block value with no quilt value of its letter (block C on a quilt with qA and qB) shows qA
+// until another is picked: several of the block's values may show one quilt value.
+watch(
+  [letters, () => plan.value?.slots.length ?? 0],
+  ([ls, n]) => {
+    if (!n || ls.every((l) => (editor.dataSeries[l] ?? l) < n)) return;
+    const out = [...editor.dataSeries];
+    while (out.length < 4) out.push(null);
+    for (const l of ls) if ((out[l] ?? l) >= n) out[l] = 0;
+    editor.dataSeries = out;
+  },
+  { immediate: true },
 );
 // Nothing picked yet: the first block of the first kind.
 watch(
