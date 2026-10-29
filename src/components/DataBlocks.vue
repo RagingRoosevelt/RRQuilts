@@ -16,6 +16,7 @@
             type="button"
             class="type column items-center"
             :class="{ active: isPicked(b, kind) }"
+            :data-pick="`${kind}:${b.id}`"
             :aria-pressed="isPicked(b, kind)"
             :title="b.notecard.name"
             @click="pickType(b, kind)"
@@ -369,6 +370,20 @@ watch(
     editor.dataSeries = out;
   },
   { immediate: true },
+);
+// Find: the found data block scrolls into view in its list.
+watch(
+  () => editor.tool === 'find' && editor.dataPick,
+  (p) => {
+    if (!p) return;
+    void nextTick(() =>
+      requestAnimationFrame(() =>
+        root.value
+          ?.querySelector(`[data-pick="${CSS.escape(`${p.kind}:${p.id}`)}"]`)
+          ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }),
+      ),
+    );
+  },
 );
 // Nothing picked yet: the first block of the first kind.
 watch(

@@ -126,6 +126,13 @@ export const CHECKS: Check[] = [
     last: '"find tool doesn’t select the data block in the data block picker" / "actaully it doesn’t find normal blocks in a data quilt either"',
     to: '/',
   },
+  {
+    id: 'TC-205',
+    group: G.data046,
+    text: 'Find block scrolls the sidebar to what it picks: in an ordinary quilt and in a data quilt’s Other blocks, the block’s tile; in a data quilt’s Data blocks, the picked data block (scroll the sidebar to the bottom first, then Find).',
+    last: '"don’t we also scroll the sidebar when find tool is used?"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

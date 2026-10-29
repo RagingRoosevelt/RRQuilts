@@ -1,5 +1,5 @@
 <template>
-  <div class="palette-tray column no-wrap" :class="{ sidebar }">
+  <div ref="trayRoot" class="palette-tray column no-wrap" :class="{ sidebar }">
     <q-tabs
       v-if="!colorsOnly"
       v-model="tab"
@@ -74,6 +74,7 @@
             <button
               class="tile"
               :class="{ active: editor.block === b.id }"
+              :data-block="b.id"
               :title="b.notecard.name"
               @click="pickBlock(b)"
             >
@@ -124,6 +125,7 @@
               :key="b.id"
               class="tile"
               :class="{ active: editor.block === b.id }"
+              :data-block="b.id"
               :title="b.notecard.name"
               @click="pickBlock(b)"
             >
@@ -275,7 +277,7 @@
 import { usePaletteSort } from '@/composables/palette-sort';
 import { useQuasar } from 'quasar';
 import { QExpansionItem } from 'quasar';
-import { computed, defineComponent, h, onMounted, ref } from 'vue';
+import { computed, defineComponent, h, nextTick, onMounted, ref, watch } from 'vue';
 import ColorEditor from '@/components/ColorEditor.vue';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import { fabricPaint } from '@/editor/paint';
@@ -336,6 +338,21 @@ const props = withDefaults(
   { colorsOnly: false, sidebar: false, noBlocks: false, data: false },
 );
 const app = useSettingsStore();
+const trayRoot = ref<HTMLElement>();
+// Find: the found block scrolls into view in the tray (once the list it's in has drawn).
+watch(
+  () => editor.tool === 'find' && editor.block,
+  (id) => {
+    if (!id) return;
+    void nextTick(() =>
+      requestAnimationFrame(() =>
+        trayRoot.value
+          ?.querySelector(`[data-block="${CSS.escape(id)}"]`)
+          ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }),
+      ),
+    );
+  },
+);
 const tab = computed({
   get: () =>
     props.colorsOnly || ['paint', 'spray', 'swap', 'eyedropper'].includes(editor.tool)
