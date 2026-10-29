@@ -230,7 +230,7 @@ place"".)
   quilt series per block series (single-series: one).
 - **FR-002**: Placing MUST be the number brush only (User Story 1); drag and drop, move arrows, the
   per-length type pools and Shuffle are removed.
-- **FR-003**: A piece's value MUST come from the placement's series map (User Story 2.4) The map
+- **FR-003**: A piece's value MUST come from the placement's series map (User Story 2.4). The map
   belongs to each placement: the same block can be placed for qA in one space and qB in another
   (owner, 2026-10-28: "we expect to use a block placed in one spot for one series and placed in
   another spot for another series").
