@@ -458,10 +458,20 @@ function onDataTap(hit: Hit) {
   });
   if ('error' in r) return say(r.error);
   const apply = () => {
+    // Undo and redo walk the highlighted number back and forth with the placement.
+    const before = editor.dataNext;
     editor.dataNext = r.next;
-    project.change((d) => {
-      d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(r.plan);
-    });
+    project.change(
+      (d) => {
+        d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(r.plan);
+      },
+      {
+        session: {
+          undo: () => (editor.dataNext = before),
+          redo: () => (editor.dataNext = r.next),
+        },
+      },
+    );
   };
   if (!r.ask) return apply();
   $q.dialog({

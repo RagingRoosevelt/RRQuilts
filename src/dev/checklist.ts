@@ -161,6 +161,13 @@ export const CHECKS: Check[] = [
     to: '/',
     file: 'demo-v9.rrq',
   },
+  {
+    id: 'TC-191',
+    group: G.data046,
+    text: 'Data quilt › Design › Blocks: place three blocks (Next moves Wk 1 → Wk 4). Undo: the last block comes off and Next goes back to Wk 3; Undo again: Wk 2. Redo puts the block back and Next on Wk 3.',
+    last: '"undo doens’t go back a step in the numerals while it undoes a block placement"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
