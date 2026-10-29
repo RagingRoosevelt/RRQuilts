@@ -108,7 +108,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-209',
     group: G.update054,
-    text: 'Other states, by changing the link’s phase: &phase=ready says "The update is ready"; &phase=failed says it couldn’t be downloaded, with Close; &phase=elsewhere says it was updated in another tab, with only Reload. Reload while downloading turns the buttons into a "Reloading…" spinner.',
+    text: 'Other states, by changing the link’s phase: &phase=ready says "The update is ready"; &phase=failed says it couldn’t be downloaded, with Close; &phase=elsewhere says it was updated in another tab, with only Reload. In the demo the download takes 2 seconds: Reload before that shows a "Reloading…" spinner, then the page reloads without the demo flag (as a real update reloads into the new version).',
     to: '/?update_demo=0.7.1&phase=ready',
   },
   {

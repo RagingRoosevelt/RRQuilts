@@ -60,8 +60,8 @@ function watch(w: ServiceWorker | null) {
 
 /** The browser found a new version and started downloading it. */
 export function found(reg: ServiceWorkerRegistration) {
-  // First visit: the app is being installed, not updated.
-  if (!navigator.serviceWorker.controller) return;
+  // First visit: the app is being installed, not updated. The dev demo ignores real updates.
+  if (!navigator.serviceWorker.controller || update.from) return;
   registration = reg;
   watch(reg.installing);
   if (update.phase === 'none' || update.phase === 'failed') update.phase = 'downloading';
@@ -70,6 +70,7 @@ export function found(reg: ServiceWorkerRegistration) {
 
 /** The new version is downloaded and waiting. */
 export function ready(reg: ServiceWorkerRegistration) {
+  if (update.from) return;
   registration = reg;
   if (update.phase !== 'elsewhere') update.phase = 'ready';
   if (update.reloading) activate();
@@ -101,6 +102,7 @@ if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
 
 /** Reload into the new version, now or when its download finishes. Unsaved work is the caller's. */
 export function reload() {
+  if (update.from) return demoReload();
   if (update.phase === 'elsewhere') return window.location.reload();
   update.reloading = true;
   if (update.phase === 'ready') activate();
@@ -131,6 +133,19 @@ export async function updateBeforeLink(): Promise<void> {
   await new Promise<void>((r) => waiters.push(r));
 }
 
+/** Dev demo: "reload into the new version" = the same URL without the demo flag. */
+function demoReload() {
+  update.reloading = true;
+  const go = () => {
+    const u = new URL(location.href);
+    u.searchParams.delete('update_demo');
+    u.searchParams.delete('phase');
+    location.replace(u);
+  };
+  if (update.phase === 'downloading') setTimeout(go, 2000);
+  else go();
+}
+
 // Dev only: `?update_demo=0.6.1[&phase=ready|failed|elsewhere]` opens the dialog as an update from
 // 0.6.1 to this build (the dev server has no service worker).
 if (import.meta.env.DEV && typeof location !== 'undefined') {
@@ -142,5 +157,8 @@ if (import.meta.env.DEV && typeof location !== 'undefined') {
       update.from = from;
       update.phase = (q.get('phase') as UpdatePhase | null) ?? 'downloading';
       update.open = true;
+      // The fake download finishes after a moment.
+      if (update.phase === 'downloading')
+        setTimeout(() => update.phase === 'downloading' && (update.phase = 'ready'), 2000);
     });
 }
