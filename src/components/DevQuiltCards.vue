@@ -22,8 +22,12 @@
           @visibility="(on: boolean) => on && void load(v)"
         >
           <article class="card" :class="[compact ? 'small' : 'var', { bad: built[v.id]?.error }]">
-            <figure>
-              <img v-if="pics[v.id]" :src="pics[v.id]" :alt="v.title" />
+            <!-- A grayscale variation: its picture in color, then in View grayscale's grays. -->
+            <figure :class="{ pair: v.gray && pics[v.id] }">
+              <template v-if="pics[v.id]">
+                <img :src="pics[v.id]" :alt="v.title" />
+                <img v-if="v.gray" :src="pics[v.id]" :alt="`${v.title}, in grays`" class="gray" />
+              </template>
               <div v-else class="none">{{ built[v.id]?.error ? 'Not drawn' : 'Drawing…' }}</div>
             </figure>
             <div class="about">
@@ -230,6 +234,13 @@ li {
 }
 figure {
   margin: 0;
+}
+figure.pair {
+  display: flex;
+  gap: 6px;
+}
+figure.pair img {
+  width: calc(50% - 3px);
 }
 /* Pictures sit on a light cutting mat in both themes. */
 figure img,
