@@ -18,7 +18,7 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - Drag quilts and blocks into order with a finger as well as a mouse, see where a block will land as
   you can for quilts, and move a quilt straight to the start or end of the list.
 - Block and quilt cards show each in its own shape, with a soft shadow, instead of on a gray square.
-- Library blocks listed by shape, then by name.
+- Library blocks listed by shape, then by name, and a choice to group them by shape.
 - Fix: a link to a secret gist opens its project.
 
 ## 0.8.0

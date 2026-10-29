@@ -1,4 +1,4 @@
-# Feature Specification: Library Blocks Sorted by Shape, Then Name
+# Feature Specification: Library Blocks by Shape: Sorted, and Grouped
 
 **Feature Branch**: `TBD` (target 0.7.3)
 
@@ -7,7 +7,8 @@
 **Status**: Draft (spec only; not implemented)
 
 **Input**: Owner, 2026-10-29: "let's add a 0.7.3 spec that library blocks (when displayed) are shown
-sorted by shape then block name".
+sorted by shape then block name". Then: "let's add a 0.7.3 for grouping blocks by shape" (User
+Story 2).
 
 ## Today (0.7.2)
 
@@ -42,11 +43,34 @@ diamonds, then hexagons. Same on the project Blocks tab and in the quilt editor'
    quilter set (spec 037 drag).
 7. **Given** a search, **Then** matches show in the same order.
 
+### User Story 2 - Group by shape (Priority: P2)
+
+**Independent Test**: Libraries, Group library blocks by **Shape**: the built-in library shows
+sections Square and rectangle, Triangle, 60° diamond, Hexagon, each A to Z. Same choice on the
+project Blocks tab.
+
+**Acceptance Scenarios**:
+
+1. **Given** **Group library blocks by** (project Blocks tab and Libraries), **Then** it offers
+   **Shape** besides None, Category, Tags and Technique.
+2. **Given** Shape, **Then** each library's blocks show in sections **Square and rectangle**,
+   **Triangle**, **60° diamond**, **Hexagon** (the shape names the app already uses, `SHAPE_NAME`),
+   in that order, empty ones left out; inside each, A to Z by name (User Story 1).
+3. **Given** a library of packs, **Then** it keeps one section per pack (as for the other choices),
+   each sorted by shape then name.
+4. **Given** Shape, **Then** the contents list beside the blocks lists the shape sections with their
+   counts, as it does for categories.
+5. **Given** the choice, **Then** it's saved like the other choices (setting `libraryGroupBy`, also
+   in `.rrqconf`); a settings file without it loads as before.
+
 ## Requirements
 
 - **FR-001**: Every display of library blocks MUST sort the blocks inside each section by shape
   (none, triangle, diamond60, hexagon), then name (case-insensitive, numeric), stable for ties.
 - **FR-002**: Section order and the project's own block order MUST NOT change.
+- **FR-004**: **Group library blocks by** MUST offer **Shape** (`libraryGroupBy: 'shape'`), giving
+  sections per shape in the order of FR-001, named by `SHAPE_NAME` (plain blocks: "Square and
+  rectangle"), blocks A to Z inside.
 - **FR-003**: Display only: libraries, packs and `.rrqlib` files keep their stored item order.
 
 ## Edge Cases
