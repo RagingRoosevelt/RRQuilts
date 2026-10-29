@@ -636,6 +636,12 @@ function onTap(hit: Hit) {
   // Find on a data block: the block itself, not the variant its space shows.
   const place = quilt.value.data?.on ? placeOf(quilt.value.data, hit.slotId) : undefined;
   if (r.selectBlock) editor.block = editor.tool === 'find' && place ? place.block : r.selectBlock;
+  // …and picked in the Data blocks list, for the kind of number it shows there.
+  const kind = place && numberInfo(quilt.value.data!, place.n)?.kind;
+  const data = place && dataTypes.block(place.block);
+  if (editor.tool === 'find' && data && kind) dataTypes.pick(data, kind);
+  // A data quilt's tray shows the list the found block is in.
+  if (editor.tool === 'find' && quilt.value.data?.on && r.selectBlock) editor.dataOther = !place;
   if (r.selectColor) editor.useColor(r.selectColor);
   if (r.message) $q.notify({ message: r.message, timeout: 1500 });
   if (r.doc && !project.readOnly) {

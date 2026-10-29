@@ -17,7 +17,7 @@
          (the usual blocks, for the spaces without numbers), and its Data tab. -->
     <div v-if="data && tab === 'blocks'" class="q-px-sm q-pt-sm">
       <SlidePicker
-        :model-value="editor.tool === 'set' ? 'other' : 'data'"
+        :model-value="editor.dataOther ? 'other' : 'data'"
         :options="[
           { value: 'data', label: 'Data blocks' },
           { value: 'other', label: 'Other blocks' },
@@ -26,7 +26,7 @@
       />
     </div>
     <div
-      v-if="data && tab !== 'colors' && !(tab === 'blocks' && editor.tool === 'set')"
+      v-if="data && tab !== 'colors' && !(tab === 'blocks' && editor.dataOther)"
       class="col scroll q-pa-sm"
     >
       <slot :name="tab" />

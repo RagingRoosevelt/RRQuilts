@@ -119,6 +119,13 @@ export const CHECKS: Check[] = [
     last: '"we don’t seem to have the “erase a block” tool in a data quilt? or find block?"',
     to: '/',
   },
+  {
+    id: 'TC-204',
+    group: G.data046,
+    text: 'Data quilt › Find block: tap a placed data block: Blocks shows Data blocks with that block picked (in the Day blocks list for a 1-day one) and all its spaces light up. Tap an ordinary block (set from Other blocks): Blocks switches to Other blocks with it selected, and its spaces light up.',
+    last: '"find tool doesn’t select the data block in the data block picker" / "actaully it doesn’t find normal blocks in a data quilt either"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

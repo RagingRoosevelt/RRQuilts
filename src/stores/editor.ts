@@ -1,6 +1,6 @@
 // Session-only editor state: mode, tool, scope, selections, view per quilt/block.
 import { defineStore } from 'pinia';
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import type { Scope } from '@/editor/scope';
 import type { DataKind } from '@/model/schema/block';
 import type { StripStyle } from '@/model/schema/quilt';
@@ -92,6 +92,13 @@ export const useEditorStore = defineStore('editor', () => {
    *  values reads (by its letter). */
   const dataPick = ref<{ id: string; kind: DataKind } | null>(null);
   const dataSeries = ref<(number | null)[]>([]);
+  /** A data quilt's Blocks tab shows Other blocks (not Data blocks): Set's list, kept while Erase,
+   *  Find and the like are on. */
+  const dataOther = ref(false);
+  watch(tool, (t) => {
+    if (t === 'set') dataOther.value = true;
+    if (t === 'number') dataOther.value = false;
+  });
   /** Block spaces lit for a moment on the quilt (a number or a value clicked in the list): `ids`
    *  at full glow, `soft` slightly. */
   const flash = reactive<{ ids: string[]; soft: string[]; on: boolean }>({
@@ -154,6 +161,7 @@ export const useEditorStore = defineStore('editor', () => {
     dataSel,
     dataPick,
     dataSeries,
+    dataOther,
     flash,
     flashSpaces,
     useColor,
