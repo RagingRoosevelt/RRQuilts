@@ -10,6 +10,8 @@ multi-select).
 **Input**: Owner, 2026-10-29: "let's also add a 0.9.0 spec that blocks in a standard quilt (or data
 quilt) should also be multi-selectable and can be dragged (erasing anything they were dragged
 ontop of). this would introduce a new move tool that activate this block selection mode".
+Then: "turning or flipping a group of blocks should be supported. we won't add support for sashes,
+borders, or strips (since they are part of the layout and can't be moved)" (User Story 5).
 
 ## Today (0.7.2)
 
@@ -106,6 +108,32 @@ everything back.
 4. **Given** an erase that removes numbers, **Then** the data report (spec 025) lists the numbers no
    longer placed, as it does after an Erase.
 
+### User Story 5 - Turn or flip the selection (Priority: P1)
+
+**Independent Test**: Straight Set, pick a 2 × 3 group with an arrow block pointing right in its
+top-left space. **Turn** once: the group is now 3 × 2 in the same place, the arrow block is in the
+top-right space and points down. **Flip across**: the group mirrors left to right and each block
+is flipped. One undo each.
+
+**Acceptance Scenarios**:
+
+1. **Given** a selection with the Move tool, **Then** **Turn left**, **Turn right**, **Flip across**
+   and **Flip up and down** show by the selection (and as keys: R / Shift+R, H, V).
+2. **Given** a turn, **Then** the selection's spaces turn around its middle by the layout's turn
+   step (90° for square grids and On-Point, 60° for triangle and hexagon grids): each block goes to
+   the turned position and its own turn changes by the same step, so the group looks turned as a
+   whole.
+3. **Given** a flip, **Then** positions mirror across the selection's middle line and each block is
+   flipped the same way (its flip toggled, and its turn adjusted so the picture is the mirror image).
+4. **Given** a turn or flip whose result doesn't line up with the quilt's spaces (an odd-sized group
+   whose turned middle falls between spaces, a shape the layout doesn't have turned), **Then** the
+   result is nudged to the nearest landing that fits, or refused with a note if none does.
+5. **Given** a turned or flipped selection, **Then** it lands by the same rules as a move: shown
+   first while dragging, erases what it covers, red for what doesn't fit, one undo step. Turning in
+   place (no drag) applies at once with the same rules.
+6. **Given** a data quilt, **Then** placed numbers move with their spaces as in User Story 4; the
+   numbers keep their values.
+
 ### Edge Cases
 
 - **Overlapping move** (the selection lands partly on itself): handled as one move (all lifted,
@@ -130,6 +158,8 @@ everything back.
 - **FR-005**: In data quilts, placed numbers and data blocks MUST move with their spaces (`plan.places`
   updated), and landing MUST erase the data placed there.
 - **FR-006**: The selection is session state only; no format change.
+- **FR-007**: A selection MUST turn (left, right, by the layout's turn step) and flip (across, up and
+  down) as a group, positions and each block's turn and flip together, landing by FR-003's rules.
 
 ## Success Criteria
 
@@ -140,10 +170,10 @@ everything back.
 ## Assumptions
 
 - The faded original and picked-up copy follow spec 037's drag look.
-- Setting, rotating and flipping keep their own tools; Move doesn't turn blocks (a later idea:
-  turn the selection).
+- The Rotate and Flip tools still turn or flip single blocks in place; turning a group is the Move
+  tool's.
 
 ## Out of scope
 
-- Moving sashes, borders or strips (strips have their own tools, spec 017).
-- Turning or mirroring a selection of blocks as a group.
+- Moving sashes, borders or strips: they're part of the layout and can't be moved (strips are
+  rearranged with their own tools, spec 017).

@@ -34,8 +34,8 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - Apply to Empty: set a block in, or color, only the spaces and pieces that are still empty.
 - Hints in a block's Details about which techniques may suit it, for the block's designer to tick.
 - Step by step instructions for making a quilt, built from its layout and blocks.
-- A Move tool for quilts: select several blocks and drag them to other spaces, replacing what was
-  there.
+- A Move tool for quilts: select several blocks to drag, turn or flip together, replacing what they
+  land on.
 
 ## 0.10.0
 
