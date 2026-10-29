@@ -1,4 +1,4 @@
-import{o as e,t,y as n}from"./project-BDu2IXoQ.js";import{$ as r,G as i,H as a,Mt as o,Nt as s,Q as c,W as l,X as u,b as d,ct as f,f as p,g as m,h,kt as g,m as _,mt as v,p as y,s as b,st as x,x as S,y as C,z as w}from"./create-1s3Rzb7I.js";import{H as T,n as E,t as ee,y as te}from"./_plugin-vue_export-helper-CR9-uGE4.js";import{_ as ne,i as re,n as ie,t as D}from"./QCard-COE3_gKp.js";import{a as ae}from"./render-14VoT2U0.js";import{D as oe,F as se,I as ce,L as le,T as ue,r as de,s as fe,w as pe}from"./units-Dqt31H1T.js";import{Mt as me,bt as O}from"./index-BYvBLB1M.js";import{n as he,t as ge}from"./QTabs-CSUpYk9D.js";import{t as _e}from"./QPage-GR1f5I2A.js";import{n as ve,r as k,t as A}from"./format-C_MAcbKB.js";import{a as j,f as ye,i as be,n as xe,o as Se,r as Ce,t as we,u as Te}from"./yardage-B_kv5tRK.js";import{t as Ee}from"./QMarkupTable-vBrm_cnd.js";var De=e=>Te[e].filter(e=>!e.fatQuarter);function Oe(e,t,n){let r=Te[e].find(e=>e.id===n)??De(e)[0];return{units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:r.usable,fabric:r,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}}var ke=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),M=(e,t)=>ke([[0,0],[e,0],[e,t],[0,t]]),Ae=e=>ke([[0,0],[e,0],[0,e]]),je=e=>ke([[0,0],[e,0],[e/2,e/2]]),Me=(e,t)=>ke([[0,0],[e,0],[e-t,t],[t,t]]),N=(e,t)=>ve(e,t.units),P=(e,t)=>e.cut[0]===e.cut[1]?`${N(e.cut[0],t)} square`:`${N(e.cut[0],t)} × ${N(e.cut[1],t)}`,F=(e,t)=>({in:e,cm:t}),Ne={square:{title:`Square`,inputs:[{key:`f`,label:`Finished side`,start:F(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:P(j(M(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:F(6,15)},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:P(j(M(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished leg`,start:F(3,8)}],rows:({f:e},t)=>{let n=j(Ae(e),t.seam,t.step),r=k((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${P(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${N(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${N(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:F(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${P(j(je(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:F(4,10),link:{key:`h`,factor:.5}},{key:`h`,label:`Finished height`,start:F(2,5),link:{key:`w`,factor:2}}],rows:({w:e},t)=>{let n=e/2,r=j(je(e),t.seam,t.step),i=j(Ae(n),t.seam,t.step);return[{label:`Stitch and flip (1)`,value:`${P(j(M(e,n),t.seam,t.step),t)} rectangle + 2 × ${P(j(M(n,n),t.seam,t.step),t)}`},{label:`Four at a time (4)`,value:`1 × ${P(r,t)} + 4 × ${P(i,t)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${P(r,t)}; sky: 2 halves of a ${P(i,t)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit side`,start:F(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:P(j(M(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${P(j(Ae(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block side`,start:F(10,25)},{key:`n`,label:`Blocks across`,start:F(3,3),count:!0},{key:`m`,label:`Blocks down`,start:F(2,2),count:!0}],rows:({f:e,n:t,m:n},r)=>{let i=e*Math.SQRT2,a=Math.max(1,Math.round(t)),o=Math.max(1,Math.round(n)),s=2*(a-1)+2*(o-1);return[{label:`Finished quilt`,value:`${N(a*i,r)} × ${N(o*i,r)}`},{label:`Block diagonal`,value:N(i,r)},{label:`Blocks`,value:String(a*o+(a-1)*(o-1))},{label:`Side setting triangles`,value:`${Math.ceil(s/4)} × ${P(j(je(i),r.seam,r.step),r)}, cut both diagonals (${s} needed)`},{label:`Corner setting triangles`,value:`2 × ${P(j(Ae(e/Math.SQRT2),r.seam,r.step),r)}, cut once (4 corners)`}]}},border:{title:`Borders`,inputs:[{key:`w`,label:`Finished width, no border`,start:F(48,120)},{key:`h`,label:`Finished height, no border`,start:F(60,150)},{key:`b`,label:`Finished border width`,start:F(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${P(j(M(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${P(j(M(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${P(j(Me(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${P(j(Me(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(48,120)},{key:`h`,label:`Quilt height`,start:F(48,120)}],rows:({w:e,h:t},n)=>{let r=Ce(2*(e+t),n.bindingWidth,we[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${N(n.bindingWidth,n)} wide`},{label:`Total length`,value:N(2*(e+t)+we[n.units],n)},{label:`Fabric`,value:A(r.length,n.units)}]}},backing:{title:`Backing`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(60,150)},{key:`h`,label:`Quilt height`,start:F(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:A(xe(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${N(n.overhang,n)} each side`}]},yardage:{title:`Patches from yardage`,widths:`any`,inputs:[{key:`n`,label:`How many patches`,start:F(40,40),count:!0},{key:`w`,label:`Finished length`,start:F(3,8),newLine:!0},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({n:e,w:t,h:n},r)=>{let i=Array.from({length:Math.max(1,Math.round(e))},()=>M(t,n)),a=Se(i,r.seam,r.step,r.usable),o=be(a,r.fabric,r.fabricStep)[0];return[{label:`Strips`,value:`${a[0].strips} × ${N(a[0].stripWidth,r)} (${a[0].perStrip} per strip)`},r.fabric.fatQuarter?{label:`Fat quarters`,value:String(o.fatQuarters)}:{label:`Fabric (${N(r.usable,r)} usable)`,value:A(o.length,r.units)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:F(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:N(e,t)},{label:`Cut (rounded up)`,value:N(k(e,t.step),t)}]}},Pe={class:`text-subtitle2`},Fe={class:`text-caption text-grey-7`},Ie={key:0,class:`full-width`},Le={class:`text-grey-8`},Re={class:`text-weight-medium`},ze=ee(S({__name:`HelpCalc`,props:{name:{}},setup(e){let r=e,i=t(),o=n(),l=p(()=>Ne[r.name]),g=p(()=>i.doc?.units??o.settings.units),S=f(De(g.value)[0].id);u(g,e=>S.value=De(e)[0].id);let T=p(()=>Oe(g.value,ye(o.settings.print),S.value)),E=x(Object.fromEntries((l.value?.inputs??[]).map(e=>[e.key,e.start[g.value]])));function ee(e,t){E[e.key]=t,e.link&&(E[e.link.key]=t*e.link.factor)}let ne=p(()=>{let e=l.value;return!e||e.inputs.some(e=>!(E[e.key]>0))?[]:e.rows(E,T.value)});return(t,n)=>l.value?(w(),_(D,{key:0,bordered:``,class:`help-calc q-my-md shadow-2`},{default:c(()=>[d(ie,{class:`q-pb-sm`},{default:c(()=>[y(`div`,Pe,[d(te,{name:`calculate`,class:`q-mr-xs`}),C(s(l.value.title)+` calculator `,1)]),y(`div`,Fe,` Seam allowance `+s(v(ve)(T.value.seam,g.value))+` · cut sizes rounded up to `+s(T.value.step?v(ve)(T.value.step,g.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),d(ie,{class:`inputs row q-pt-none`},{default:c(()=>[l.value.widths?(w(),_(de,{key:0,modelValue:S.value,"onUpdate:modelValue":n[0]||=e=>S.value=e,options:(l.value.widths===`any`?v(Te)[g.value]:v(De)(g.value)).map(e=>({label:e.label,value:e.id})),"emit-value":``,"map-options":``,outlined:``,dense:``,label:`Fabric width`,style:{width:`200px`}},null,8,[`modelValue`,`options`])):h(``,!0),(w(!0),m(b,null,a(l.value.inputs,e=>(w(),m(b,{key:e.key},[e.newLine?(w(),m(`div`,Ie)):h(``,!0),e.count||e.raw?(w(),_(re,{key:1,modelValue:E[e.key],"onUpdate:modelValue":t=>E[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(w(),_(O,{key:2,"model-value":E[e.key],"onUpdate:modelValue":t=>ee(e,t),units:g.value,min:.25,label:e.label,style:{width:`240px`}},null,8,[`model-value`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),d(Ee,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:c(()=>[y(`tbody`,null,[(w(!0),m(b,null,a(ne.value,e=>(w(),m(`tr`,{key:e.label},[y(`td`,Le,s(e.label),1),y(`td`,Re,s(e.value),1)]))),128))])]),_:1})]),_:1})):(w(),_(me,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:c(()=>[C(`Unknown calculator “`+s(e.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-5c7e7680`]]),Be=`---
+import{o as e,t,y as n}from"./project-BDu2IXoQ.js";import{$ as r,G as i,H as a,Mt as o,Nt as s,Q as c,W as l,X as u,b as d,ct as f,f as p,g as m,h,kt as g,m as _,mt as v,p as y,s as b,st as x,x as S,y as C,z as w}from"./create-1s3Rzb7I.js";import{H as T,n as E,t as ee,y as te}from"./_plugin-vue_export-helper-CR9-uGE4.js";import{_ as ne,i as re,n as ie,t as D}from"./QCard-COE3_gKp.js";import{a as ae}from"./render-14VoT2U0.js";import{D as oe,F as se,I as ce,L as le,T as ue,r as de,s as fe,w as pe}from"./units-Dqt31H1T.js";import{Mt as me,bt as O}from"./index-D7zcpuQe.js";import{n as he,t as ge}from"./QTabs-CMdEIPy3.js";import{t as _e}from"./QPage-GR1f5I2A.js";import{n as ve,r as k,t as A}from"./format-C_MAcbKB.js";import{a as j,f as ye,i as be,n as xe,o as Se,r as Ce,t as we,u as Te}from"./yardage-B_kv5tRK.js";import{t as Ee}from"./QMarkupTable-vBrm_cnd.js";var De=e=>Te[e].filter(e=>!e.fatQuarter);function Oe(e,t,n){let r=Te[e].find(e=>e.id===n)??De(e)[0];return{units:e,seam:t.seam[e],step:t.rounding[e],slack:t.miterSlack[e],usable:r.usable,fabric:r,fabricStep:t.fabricStep[e],overhang:t.overhang[e],bindingWidth:t.bindingWidth[e]}}var ke=e=>({poly:e,curved:!1,fill:`x`,marks:[]}),M=(e,t)=>ke([[0,0],[e,0],[e,t],[0,t]]),Ae=e=>ke([[0,0],[e,0],[0,e]]),je=e=>ke([[0,0],[e,0],[e/2,e/2]]),Me=(e,t)=>ke([[0,0],[e,0],[e-t,t],[t,t]]),N=(e,t)=>ve(e,t.units),P=(e,t)=>e.cut[0]===e.cut[1]?`${N(e.cut[0],t)} square`:`${N(e.cut[0],t)} × ${N(e.cut[1],t)}`,F=(e,t)=>({in:e,cm:t}),Ne={square:{title:`Square`,inputs:[{key:`f`,label:`Finished side`,start:F(3,8)}],rows:({f:e},t)=>[{label:`Cut`,value:P(j(M(e,e),t.seam,t.step),t)}]},rect:{title:`Rectangle`,inputs:[{key:`w`,label:`Finished length`,start:F(6,15)},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({w:e,h:t},n)=>[{label:`Cut`,value:P(j(M(e,t),n.seam,n.step),n)}]},hst:{title:`Half-square triangles`,inputs:[{key:`f`,label:`Finished leg`,start:F(3,8)}],rows:({f:e},t)=>{let n=j(Ae(e),t.seam,t.step),r=k((e+(2+Math.SQRT2)*t.seam)*Math.SQRT2,t.step);return[{label:`Two at a time`,value:`${P(n,t)}, one per pair · cut once diagonally`},{label:`Four at a time`,value:`${N(r,t)} square, one per pair · sew all around, cut both diagonals`},{label:`Eight at a time`,value:`${N(2*n.cut[0],t)} square, one per pair · sew both diagonals, cut into 8`}]}},qst:{title:`Quarter-square triangles`,inputs:[{key:`f`,label:`Finished long side`,start:F(4,10)}],rows:({f:e},t)=>[{label:`Cut`,value:`${P(j(je(e),t.seam,t.step),t)} · cut both diagonals: 4 triangles`}]},geese:{title:`Flying geese`,inputs:[{key:`w`,label:`Finished width`,start:F(4,10),link:{key:`h`,factor:.5}},{key:`h`,label:`Finished height`,start:F(2,5),link:{key:`w`,factor:2}}],rows:({w:e},t)=>{let n=e/2,r=j(je(e),t.seam,t.step),i=j(Ae(n),t.seam,t.step);return[{label:`Stitch and flip (1)`,value:`${P(j(M(e,n),t.seam,t.step),t)} rectangle + 2 × ${P(j(M(n,n),t.seam,t.step),t)}`},{label:`Four at a time (4)`,value:`1 × ${P(r,t)} + 4 × ${P(i,t)}`},{label:`Pieced (1)`,value:`goose: ¼ of a ${P(r,t)}; sky: 2 halves of a ${P(i,t)}`}]}},sqinsq:{title:`Square in a square`,inputs:[{key:`f`,label:`Finished unit side`,start:F(4,10)}],rows:({f:e},t)=>{let n=e/Math.SQRT2;return[{label:`Center`,value:P(j(M(n,n),t.seam,t.step),t)},{label:`Corners`,value:`2 × ${P(j(Ae(e/2),t.seam,t.step),t)}, cut once diagonally`}]}},onpoint:{title:`On-point setting`,inputs:[{key:`f`,label:`Finished block side`,start:F(10,25)},{key:`n`,label:`Blocks across`,start:F(3,3),count:!0},{key:`m`,label:`Blocks down`,start:F(2,2),count:!0}],rows:({f:e,n:t,m:n},r)=>{let i=e*Math.SQRT2,a=Math.max(1,Math.round(t)),o=Math.max(1,Math.round(n)),s=2*(a-1)+2*(o-1);return[{label:`Finished quilt`,value:`${N(a*i,r)} × ${N(o*i,r)}`},{label:`Block diagonal`,value:N(i,r)},{label:`Blocks`,value:String(a*o+(a-1)*(o-1))},{label:`Side setting triangles`,value:`${Math.ceil(s/4)} × ${P(j(je(i),r.seam,r.step),r)}, cut both diagonals (${s} needed)`},{label:`Corner setting triangles`,value:`2 × ${P(j(Ae(e/Math.SQRT2),r.seam,r.step),r)}, cut once (4 corners)`}]}},border:{title:`Borders`,inputs:[{key:`w`,label:`Finished width, no border`,start:F(48,120)},{key:`h`,label:`Finished height, no border`,start:F(60,150)},{key:`b`,label:`Finished border width`,start:F(4,10)}],rows:({w:e,h:t,b:n},r)=>[{label:`Straight: sides`,value:`2 × ${P(j(M(t,n),r.seam,r.step),r)}`},{label:`Straight: top and bottom`,value:`2 × ${P(j(M(e+2*n,n),r.seam,r.step),r)}`},{label:`Mitered: sides`,value:`2 × ${P(j(Me(t+2*n,n),r.seam,r.step,r.slack),r)}`},{label:`Mitered: top and bottom`,value:`2 × ${P(j(Me(e+2*n,n),r.seam,r.step,r.slack),r)}`}]},binding:{title:`Binding`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(48,120)},{key:`h`,label:`Quilt height`,start:F(48,120)}],rows:({w:e,h:t},n)=>{let r=Ce(2*(e+t),n.bindingWidth,we[n.units],n.usable,n.fabricStep);return[{label:`Strips`,value:`${r.strips} × ${N(n.bindingWidth,n)} wide`},{label:`Total length`,value:N(2*(e+t)+we[n.units],n)},{label:`Fabric`,value:A(r.length,n.units)}]}},backing:{title:`Backing`,widths:!0,inputs:[{key:`w`,label:`Quilt width`,start:F(60,150)},{key:`h`,label:`Quilt height`,start:F(72,180)}],rows:({w:e,h:t},n)=>[{label:`Fabric`,value:A(xe(e,t,n.overhang,n.usable,n.fabricStep),n.units)},{label:`Overhang`,value:`${N(n.overhang,n)} each side`}]},yardage:{title:`Patches from yardage`,widths:`any`,inputs:[{key:`n`,label:`How many patches`,start:F(40,40),count:!0},{key:`w`,label:`Finished length`,start:F(3,8),newLine:!0},{key:`h`,label:`Finished width`,start:F(3,8)}],rows:({n:e,w:t,h:n},r)=>{let i=Array.from({length:Math.max(1,Math.round(e))},()=>M(t,n)),a=Se(i,r.seam,r.step,r.usable),o=be(a,r.fabric,r.fabricStep)[0];return[{label:`Strips`,value:`${a[0].strips} × ${N(a[0].stripWidth,r)} (${a[0].perStrip} per strip)`},r.fabric.fatQuarter?{label:`Fat quarters`,value:String(o.fatQuarters)}:{label:`Fabric (${N(r.usable,r)} usable)`,value:A(o.length,r.units)}]}},rounding:{title:`Rounding to the ruler`,inputs:[{key:`x`,label:`Exact length`,start:F(3.854,9.31),raw:!0}],rows:({x:e},t)=>[{label:`Exact`,value:N(e,t)},{label:`Cut (rounded up)`,value:N(k(e,t.step),t)}]}},Pe={class:`text-subtitle2`},Fe={class:`text-caption text-grey-7`},Ie={key:0,class:`full-width`},Le={class:`text-grey-8`},Re={class:`text-weight-medium`},ze=ee(S({__name:`HelpCalc`,props:{name:{}},setup(e){let r=e,i=t(),o=n(),l=p(()=>Ne[r.name]),g=p(()=>i.doc?.units??o.settings.units),S=f(De(g.value)[0].id);u(g,e=>S.value=De(e)[0].id);let T=p(()=>Oe(g.value,ye(o.settings.print),S.value)),E=x(Object.fromEntries((l.value?.inputs??[]).map(e=>[e.key,e.start[g.value]])));function ee(e,t){E[e.key]=t,e.link&&(E[e.link.key]=t*e.link.factor)}let ne=p(()=>{let e=l.value;return!e||e.inputs.some(e=>!(E[e.key]>0))?[]:e.rows(E,T.value)});return(t,n)=>l.value?(w(),_(D,{key:0,bordered:``,class:`help-calc q-my-md shadow-2`},{default:c(()=>[d(ie,{class:`q-pb-sm`},{default:c(()=>[y(`div`,Pe,[d(te,{name:`calculate`,class:`q-mr-xs`}),C(s(l.value.title)+` calculator `,1)]),y(`div`,Fe,` Seam allowance `+s(v(ve)(T.value.seam,g.value))+` · cut sizes rounded up to `+s(T.value.step?v(ve)(T.value.step,g.value):`exact sizes`)+` (change in Print settings) `,1)]),_:1}),d(ie,{class:`inputs row q-pt-none`},{default:c(()=>[l.value.widths?(w(),_(de,{key:0,modelValue:S.value,"onUpdate:modelValue":n[0]||=e=>S.value=e,options:(l.value.widths===`any`?v(Te)[g.value]:v(De)(g.value)).map(e=>({label:e.label,value:e.id})),"emit-value":``,"map-options":``,outlined:``,dense:``,label:`Fabric width`,style:{width:`200px`}},null,8,[`modelValue`,`options`])):h(``,!0),(w(!0),m(b,null,a(l.value.inputs,e=>(w(),m(b,{key:e.key},[e.newLine?(w(),m(`div`,Ie)):h(``,!0),e.count||e.raw?(w(),_(re,{key:1,modelValue:E[e.key],"onUpdate:modelValue":t=>E[e.key]=t,modelModifiers:{number:!0},type:`number`,step:e.count?1:`any`,min:+!!e.count,outlined:``,dense:``,label:e.label,style:{width:`140px`}},null,8,[`modelValue`,`onUpdate:modelValue`,`step`,`min`,`label`])):(w(),_(O,{key:2,"model-value":E[e.key],"onUpdate:modelValue":t=>ee(e,t),units:g.value,min:.25,label:e.label,style:{width:`240px`}},null,8,[`model-value`,`onUpdate:modelValue`,`units`,`label`]))],64))),128))]),_:1}),d(Ee,{flat:``,dense:``,separator:`horizontal`,class:`q-mx-md q-mb-md`},{default:c(()=>[y(`tbody`,null,[(w(!0),m(b,null,a(ne.value,e=>(w(),m(`tr`,{key:e.label},[y(`td`,Le,s(e.label),1),y(`td`,Re,s(e.value),1)]))),128))])]),_:1})]),_:1})):(w(),_(me,{key:1,dense:``,class:`bg-warning text-dark q-my-md`},{default:c(()=>[C(`Unknown calculator “`+s(e.name)+`”.`,1)]),_:1}))}}),[[`__scopeId`,`data-v-5c7e7680`]]),Be=`---
 title: File formats
 order: 30
 summary: The files RRQuilts reads and writes, and their published schemas.
@@ -2821,20 +2821,20 @@ What changed in each version of RRQuilts, newest first.
 
 ### New features
 
-- A data quilt can place several blocks on the same month, week or day, each showing the value you
+- [major] A data quilt can place several blocks on the same month, week or day, each showing the value you
   pick, such as High on one and Low on another. Blocks go on with the number brush, the way
   numerals go on a data block, and the order line branches to every block of a number.
-- A block with several values picks which of the quilt's values each one shows, even when the quilt
+- [major] A block with several values picks which of the quilt's values each one shows, even when the quilt
   has fewer values than the block.
 - A Weeks quilt can start the year with Jan 1 as a single day, so its last week ends on Dec 31.
 - In a leap year, week and day quilts can average Feb 28 and Feb 29, leave Feb 29 out, give it a
   place of its own, or show a week block's new 2-day variant.
-- View grayscale shows a quilt or a block in grays of the same lightness, to check its values.
-- A middle click picks up the block, color, or data block under the pointer. It and Find scroll the
+- [major] View grayscale shows a quilt or a block in grays of the same lightness, to check its values.
+- [major] A middle click picks up the block, color, or data block under the pointer. It and Find scroll the
   tray to what they pick.
 - Clicking a number or a value in a data quilt's list lights up its blocks on the quilt.
 - Erase and Find work in data quilts.
-- Older projects, block files, and libraries open and are upgraded. Files saved with this version
+- [major] Older projects, block files, and libraries open and are upgraded. Files saved with this version
   need it or a newer one.
 
 ### Fixes
@@ -2845,7 +2845,7 @@ What changed in each version of RRQuilts, newest first.
 
 ### Fixes
 
-- On iPhones, dialog buttons no longer hide under Safari's address bar.
+- [major] On iPhones, dialog buttons no longer hide under Safari's address bar.
 - In a data block, Undo also takes back the picked day numeral, so the next tap places it again.
 - Picking a day numeral unselects the picked color, so it's clear which one a tap paints.
 
@@ -2853,16 +2853,16 @@ What changed in each version of RRQuilts, newest first.
 
 ### New features
 
-- Data quilts: color a quilt from a year of temperatures, moods, hours of daylight, rainfall or your own numbers. Turn on Data quilt in a quilt's Details tab or in the new quilt window, and pick months, weeks or days.
-- Data blocks: make any block a month, week or day block and number its patches with day numerals. Month blocks can have 30, 29, 28 and 1-day variants, and week blocks a 1-day one. The built-in library has a Month Strip, a Week Strip and a Day Square, and month and week strips that turn a corner in curves, right angles or a fan.
+- [major] Data quilts: color a quilt from a year of temperatures, moods, hours of daylight, rainfall or your own numbers. Turn on Data quilt in a quilt's Details tab or in the new quilt window, and pick months, weeks or days.
+- [major] Data blocks: make any block a month, week or day block and number its patches with day numerals. Month blocks can have 30, 29, 28 and 1-day variants, and week blocks a 1-day one. The built-in library has a Month Strip, a Week Strip and a Day Square, and month and week strips that turn a corner in curves, right angles or a fan.
 - Place a data quilt's blocks month by month (or week by week, or day by day), drag them to other months, and see each block's month and its days in order on the quilt. Ordinary blocks can fill the other spaces.
 - Preview a data quilt with a made-up sample year (temperatures for Alaska or Hawaii, rain for Hawaii or Arizona, daylight for Alaska or Texas, and moods) or your own CSV file, then enter real days in a table, by pasting or importing, or with Today's entry.
 - Printouts of data quilts show a legend of each value's colors and count yardage for the worst case.
 - Sort a palette's swatches by hue, value, saturation or name.
 - Filter palettes by hue, value and saturation.
-- Make a new colorway from a palette: each color of the quilt is matched to the closest color or fabric in it, and you can change any match.
+- [major] Make a new colorway from a palette: each color of the quilt is matched to the closest color or fabric in it, and you can change any match.
 - On-Point, Variable Point and Diamond Point quilts can be half a row or column longer, ending on a short row.
-- Export a single quilt as a project file of its own.
+- [major] Export a single quilt as a project file of its own.
 - Drag quilt cards to rearrange them. A glow shows where the quilt will land.
 - Filter blocks and quilts in the project and the libraries to find data blocks and data quilts.
 - Hovering a quilt outlines the piece under the pointer in a color that tells data blocks, other blocks and sashing or borders apart. The block editor outlines the patch under the pointer.
@@ -2879,7 +2879,7 @@ What changed in each version of RRQuilts, newest first.
 
 ### New features
 
-- Open any block in the block editor from its menu or its preview, right after Preview.
+- [major] Open any block in the block editor from its menu or its preview, right after Preview.
 - Print a block or a quilt straight from its menu.
 
 ### Fixes
@@ -2892,10 +2892,10 @@ What changed in each version of RRQuilts, newest first.
 
 ### New features
 
-- 21 new 60° triangle blocks in the built-in library, for Shaped Blocks quilts.
+- [major] 21 new 60° triangle blocks in the built-in library, for Shaped Blocks quilts.
 - A new library, RagingRoosevelt's Novelty, is listed on the Libraries page. Its Fractals and Memes packs download when you switch them on.
-- Tag your project's palettes and star your favorite palettes, including library palettes. The project's Palettes tab has the same filters as the Libraries page.
-- Edit a block's tags and category in its Details tab.
+- [major] Tag your project's palettes and star your favorite palettes, including library palettes. The project's Palettes tab has the same filters as the Libraries page.
+- [major] Edit a block's tags and category in its Details tab.
 - The quilt editor's block list shows only blocks that fit the quilt's layout. Switch off "Compatible with this layout" to see them all.
 - When imported quilts or fabric images are already in the project, you see both side by side and choose which to keep, or keep both.
 - Removing a pack, a library, or a tagged item asks whether to keep your tags in case it comes back.
@@ -2903,25 +2903,25 @@ What changed in each version of RRQuilts, newest first.
 - Categories with the same name in different libraries show once in the filter, and ticking a category ticks all of its subcategories.
 - New On-Point, Variable Point and Diamond Point quilts start with an Exact edge, so the edge stays at the block points.
 - Every dialog has a close button, and a project reopens on the tab you left it on.
-- Plain Block is gone from the built-in library. Paint an empty block space instead.
+- [major] Plain Block is gone from the built-in library. Paint an empty block space instead.
 
 ### Fixes
 
 - Exported blocks, packs and backups keep colorings made with fabric images.
 - The reference overlay stays in place when you set a block into an On-Point setting triangle.
-- Several built-in blocks are redrawn to match how they are sewn, and the Seams filter is more accurate. Lettered variants now use numbers (King's Crown II). Projects that use them still open.
+- [major] Several built-in blocks are redrawn to match how they are sewn, and the Seams filter is more accurate. Lettered variants now use numbers (King's Crown II). Projects that use them still open.
 - Projects, libraries, and block files from older versions open and are upgraded.
 
 ## 0.5.0 (2026-10-19)
 
 ### New features
 
-- Shaped blocks. Draw triangle, 60° diamond, and hexagon blocks, and set them in the Shaped Blocks, Baby Blocks, and Diamond Point layouts. A flow angle turns the whole layout. Starter shaped blocks are in the built-in library.
+- [major] Shaped blocks. Draw triangle, 60° diamond, and hexagon blocks, and set them in the Shaped Blocks, Baby Blocks, and Diamond Point layouts. A flow angle turns the whole layout. Starter shaped blocks are in the built-in library.
 - Find blocks with a filter sidebar on the Libraries page and the project's Blocks tab. Search, then narrow by shape, by the layouts a block fits, by seams (straight, curved, set-in), or by difficulty.
 - In a block's Details tab, mark what it needs (foundation paper piecing, appliqué, hand sewing) and the faster methods it suits (strip piecing, quick units, stitch and flip). Filter and group blocks by technique.
-- Tag any block with your own words, built-in and pack blocks too, and star your favorites. Tags stay in your own library and are never shared in packs or block files. Styles from older files become tags.
-- Import quilts from another project, with the blocks, colors, and fabrics they use.
-- Open a project shared as a GitHub gist, from the home page or a link ending in \`?open_gist=\` and the gist's address. The app shows who shared it before it opens.
+- [major] Tag any block with your own words, built-in and pack blocks too, and star your favorites. Tags stay in your own library and are never shared in packs or block files. Styles from older files become tags.
+- [major] Import quilts from another project, with the blocks, colors, and fabrics they use.
+- [major] Open a project shared as a GitHub gist, from the home page or a link ending in \`?open_gist=\` and the gist's address. The app shows who shared it before it opens.
 - A quilt picture downloaded from its Details tab includes seam lines when they are shown.
 
 ### Fixes
@@ -2933,11 +2933,11 @@ What changed in each version of RRQuilts, newest first.
 
 ### New features
 
-- Four new layouts. Variable Point lays out diamonds of any width, height, or point angle. One Patch tiles a single shape such as hexagons. Baby Blocks tiles tumbling-block cubes, and Variable Blocks lets you squash or stretch them.
-- Pieced borders in 19 styles, including points, diamonds, spaced squares, and checkerboard.
-- Quilt colorways. Try a quilt in other colors and switch between them. A new colorway can start from a palette swap, and its colors are changed by picking a replacement for each color of the original.
-- Pick a target size when you start a quilt, from a placemat to a king bed, US or European, or a top or pants in your size. It is drawn as an outline over the quilt and can be changed later in the Layout tab.
-- The reference overlay shows that outline with your choice of tint, opacity, and fill, on screen and in print.
+- [major] Four new layouts. Variable Point lays out diamonds of any width, height, or point angle. One Patch tiles a single shape such as hexagons. Baby Blocks tiles tumbling-block cubes, and Variable Blocks lets you squash or stretch them.
+- [major] Pieced borders in 19 styles, including points, diamonds, spaced squares, and checkerboard.
+- [major] Quilt colorways. Try a quilt in other colors and switch between them. A new colorway can start from a palette swap, and its colors are changed by picking a replacement for each color of the original.
+- [major] Pick a target size when you start a quilt, from a placemat to a king bed, US or European, or a top or pants in your size. It is drawn as an outline over the quilt and can be changed later in the Layout tab.
+- [major] The reference overlay shows that outline with your choice of tint, opacity, and fill, on screen and in print.
 - A welcome on your first visit asks for your name for credits, your units, and your bed and clothing sizes.
 - The printed quilt picture can show its title, author, and project name, with a slider for the picture's size.
 - Templates for quilt pieces that need them, such as one-patch shapes, setting triangles, and pieced border pieces.
@@ -2957,13 +2957,13 @@ What changed in each version of RRQuilts, newest first.
 
 ### New features
 
-- Make On-Point quilts, with blocks turned on point, blocks between them, sashing, and a choice of edge. Setting triangles can be cut to size or oversized so the blocks float, the edge can be partial blocks, or the zigzag edge can be bound as it is.
-- Build a quilt from strips, each with its own style (plain, blocks, half-drop blocks, points, diamonds, double diamonds, spaced squares, or checkerboard) and width. Drag strips to reorder them, or swap and restyle them from the toolbar.
+- [major] Make On-Point quilts, with blocks turned on point, blocks between them, sashing, and a choice of edge. Setting triangles can be cut to size or oversized so the blocks float, the edge can be partial blocks, or the zigzag edge can be bound as it is.
+- [major] Build a quilt from strips, each with its own style (plain, blocks, half-drop blocks, points, diamonds, double diamonds, spaced squares, or checkerboard) and width. Drag strips to reorder them, or swap and restyle them from the toolbar.
 - Start a quilt shows a live preview and a picture card for each layout style, with its own step for setting up strips.
 - A Plain Block in the built-in library, for plain alternate squares.
 - Clearer templates. Long thin pieces get their labels in a row, labels on small pieces can use the seam allowance, and sizes that are off the ruler grid show their fractions on a line below.
 - The Horizontal layout is now called Straight Set. Older projects open and are upgraded.
-- A setting to show recently used colors first in each palette.
+- [major] A setting to show recently used colors first in each palette.
 
 ### Fixes
 
@@ -2974,11 +2974,11 @@ What changed in each version of RRQuilts, newest first.
 
 ### New features
 
-- Add a library from the web by pasting its link, or import a library file and pick which of its packs to install.
-- Back up a library with its packs and images, and restore it later, even when its web source can no longer be reached.
-- Make your own pack from chosen items, and link a library's home page, gallery, and repository.
+- [major] Add a library from the web by pasting its link, or import a library file and pick which of its packs to install.
+- [major] Back up a library with its packs and images, and restore it later, even when its web source can no longer be reached.
+- [major] Make your own pack from chosen items, and link a library's home page, gallery, and repository.
 - The import picker checks packs you already have, and offers larger or smaller fabric images when a file has them.
-- Save a quilt or block as a PNG image.
+- [major] Save a quilt or block as a PNG image.
 - Help buttons beside Start a quilt, New project, and New palette, with a setting to hide them.
 
 ### Fixes
@@ -2990,13 +2990,13 @@ What changed in each version of RRQuilts, newest first.
 
 ### New features
 
-- Draw your own blocks with seam lines, then set them in a quilt with sashes, cornerstones, and borders.
+- [major] Draw your own blocks with seam lines, then set them in a quilt with sashes, cornerstones, and borders.
 - Undo and redo any change.
-- Keep a personal library of blocks, colors, and fabrics, and reuse them in any project.
-- Import photos of fabrics and see them at true scale in your quilt.
-- Save projects as .rrq files. If the browser crashes, your work comes back from an automatic draft.
-- Print templates for every block, rotary cutting sizes, a yardage estimate, and a print preview.
-- Share blocks as .rrqbl files, palettes as .rrqplt files, and whole libraries as .rrqlib files.
+- [major] Keep a personal library of blocks, colors, and fabrics, and reuse them in any project.
+- [major] Import photos of fabrics and see them at true scale in your quilt.
+- [major] Save projects as .rrq files. If the browser crashes, your work comes back from an automatic draft.
+- [major] Print templates for every block, rotary cutting sizes, a yardage estimate, and a print preview.
+- [major] Share blocks as .rrqbl files, palettes as .rrqplt files, and whole libraries as .rrqlib files.
 - Record the author, license, and credits of your work, with a Details tab that shows the full chain of authors.
 - Read built-in help guides and use calculators for quilt math.
 - Works offline after the first load and installs like an app.

@@ -52,9 +52,16 @@ where a step says so. Use the project's Makefile targets (see CLAUDE.md).
    - Follow the Help writing style: no em or en dashes, no semicolons joining clauses, no
      "Concept: details" colons, no filler.
 
+   - **Major changes**: a line starting `- [major] ` is a major change. The update dialog shows only
+     those for each newer version (spec 054), and Help lists them first in each section (the
+     marker itself never shows). Mark nothing yourself: the user picks.
+
    The entry appears in the app at Help › About › Changelog.
 
-5. **Show the user** the entry, and wait for their OK or edits.
+5. **Show the user** the entry, and wait for their OK or edits. Then **ask which changes are
+   major**: list every line of the entry (each section) in multi-select questions (AskUserQuestion,
+   up to four lines a question, four questions a call), and mark the picked ones `[major]`. A
+   version may have none.
    Then update Help › About › Roadmap (`src/help/about/roadmap.md`): drop what this release
    delivered, and ask the user whether the next versions' plans changed.
 6. **Set the version**: `package.json` `"version"` to `X.Y.Z` (nothing else in it).
