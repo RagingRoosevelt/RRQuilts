@@ -175,6 +175,20 @@ export const CHECKS: Check[] = [
     last: '"switching block selection shouldn’t switch series selection back to qA"',
     to: '/',
   },
+  {
+    id: 'TC-193',
+    group: G.data046,
+    text: 'Weeks quilt › Design › Blocks: under Day blocks, a week block with a 1-day variant is pictured as its 1-day variant, not the 7-day drawing (a Days plan’s week and month blocks too).',
+    last: '"day blocks should show the one-day variant of the block, not the 7 day variant"',
+    to: '/',
+  },
+  {
+    id: 'TC-194',
+    group: G.data046,
+    text: 'A data quilt with two values: place Wk 1–3 with qA and Wk 1–3 again with qB. Two order lines in two colors, each joining only its value’s blocks (no line from a qA block to a qB one). A block showing both values sits on both lines.',
+    last: '"tracings should only consider blocks or patches that are in the same series (only A or qA, B or qB, etc)"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -122,7 +122,10 @@ the space reads Wk 1 over qB and its pieces follow the Low values.
 ### User Story 3 - Order line with several placements (Priority: P1)
 
 Applies to the order line between numbers in the quilt (block spaces) and to the line between
-numerals in the data block editor (patches).
+numerals in the data block editor (patches). Each value has its own line: in the block editor,
+patches of one value letter (A); on the quilt, the placements showing one quilt value (qA), a
+several-value placement joining each of its values' lines (owner, 2026-10-28: "tracings should
+only consider blocks or patches that are in the same series").
 
 For a number X and the next number Y = X + 1, with places x₁…xₘ and y₁…yₙ (in the order they were placed; owner, 2026-10-28: "seems fine"):
 

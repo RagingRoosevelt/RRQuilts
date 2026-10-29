@@ -96,7 +96,7 @@ set under **Places past a number’s days**.
 
 Month and week blocks can also add a **1 day** variant. It stands for a single day, so it serves
 the day a Weeks plan leaves over and the days of a Days plan, and the block is listed with the day
-blocks too. Week blocks can add a **2 days** variant for a leap year's two days left over (see
+blocks too, pictured as its 1-day variant. Week blocks can add a **2 days** variant for a leap year's two days left over (see
 **Leap years** above).
 
 The built-in library has a square **Month Strip** with 30, 29, and 28-day variants (31 bars each,
@@ -142,7 +142,8 @@ different block changes its block, and a different value changes its value.
 Beside each label are the blocks placed for it, each an uncolored picture with its values. Hover
 over one, or click it, and its block space lights up on the quilt. On the quilt, each placed space
 shows its number, with its values on the line below in the block's own order. A line joins the
-numbers in order. When a number sits on several spaces, the line from one number to the next
+numbers in order, a line of its own for each value (qA, qB), joining only the blocks that show it.
+When a number sits on several spaces, the line from one number to the next
 branches. One space joins every space of the next number, and several join one. When both have
 several, each space joins the nearest one not yet joined, in the order they were placed. A lighter
 arrow inside each placed block runs through its days in order.

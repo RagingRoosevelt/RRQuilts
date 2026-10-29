@@ -20,7 +20,7 @@
             :title="b.notecard.name"
             @click="pickType(b, kind)"
           >
-            <img :src="typeThumb(b)" alt="" />
+            <img :src="typeThumb(b, kind)" alt="" />
             <span class="text-caption ellipsis">{{ b.notecard.name }}</span>
           </button>
         </div>
@@ -164,6 +164,8 @@ import { readingOrder, SLOT_NAMES, type DataOrder } from '@/model/data-paint';
 import {
   blockLetters,
   dataNumbers,
+  KIND_DAYS,
+  variantBlock,
   dataReport,
   fillNumbers,
   numberCount,
@@ -238,10 +240,30 @@ function thumb(pl: DataPlace) {
 }
 const report = computed(() => dataReport(props.quilt, project.doc?.project.blocks ?? []));
 
-/** A type's picture, in its colors. */
-const typeThumb = (b: Block) =>
+/** The drawing a block shows for a kind: a week or month block listed with the day blocks shows
+ *  its 1-day variant (kept, so its picture is cached). */
+const variants = new WeakMap<Block, Map<number, Block>>();
+function shownFor(b: Block, kind: DataKind): Block {
+  const len = KIND_DAYS[kind];
+  const v = b.data?.variants?.filter((x) => x.days >= len).sort((x, y) => x.days - y.days)[0];
+  if (!v || len >= KIND_DAYS[b.data!.kind]) return b;
+  let m = variants.get(b);
+  if (!m) variants.set(b, (m = new Map()));
+  let out = m.get(v.days);
+  if (!out) m.set(v.days, (out = variantBlock(b, v) ?? b));
+  return out;
+}
+/** A block's picture for a kind, in its colors. */
+const typeThumb = (b: Block, kind: DataKind) =>
   project.doc
-    ? blockThumbnail(project.doc, b, 96, $q.dark.isActive, undefined, library.items.colors)
+    ? blockThumbnail(
+        project.doc,
+        shownFor(b, kind),
+        96,
+        $q.dark.isActive,
+        undefined,
+        library.items.colors,
+      )
     : '';
 const isPicked = (b: Block, kind: DataKind) =>
   picked.value?.block.id === b.id && picked.value.kind === kind;

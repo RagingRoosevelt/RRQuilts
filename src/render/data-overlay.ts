@@ -4,7 +4,7 @@
 import { takesBlock } from '@/editor/scope';
 import { resolveColoring } from '@/model/coloring';
 import { pieceSpots, readingOrder } from '@/model/data-paint';
-import { numberLabel, placeOf, seriesLabel } from '@/model/data-quilt';
+import { blockLetters, numberLabel, placeOf, seriesLabel, seriesOf } from '@/model/data-quilt';
 import type { Generated, Slot } from '@/model/layout/slots';
 import { SHAPE_OUTLINE, type BlockShape } from '@/model/blocks/shape';
 import { pathPolygon, type Pt } from '@/model/geometry/path';
@@ -18,6 +18,9 @@ export interface DataMark {
   label: string;
   /** Marks joined by one line (a value slot). */
   group: string;
+  /** Lines it joins, when more than one (a placement showing several quilt values); the label is
+   *  drawn once. */
+  groups?: string[];
   /** Place along the line. */
   order: number;
   /** Label moved down this many CSS pixels (two labels at one spot). */
@@ -69,30 +72,36 @@ export function drawDataOverlay(
   ctx.save();
   if (o.line) {
     const groups = new Map<string, DataMark[]>();
-    for (const m of marks) if (m.group) groups.set(m.group, [...(groups.get(m.group) ?? []), m]);
-    [...groups.values()].forEach((g, i) => {
-      ctx.beginPath();
-      for (const [a, b] of traceSegments(g)) {
-        ctx.moveTo(...a);
-        ctx.lineTo(...b);
-      }
-      ctx.strokeStyle = LINE[i % LINE.length]!;
-      ctx.lineWidth = 2 * px;
-      ctx.lineCap = 'round';
-      ctx.globalAlpha = 0.8;
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-      // The start: a dot on each place of the first number.
-      const first = Math.min(...g.map((m) => m.order));
-      ctx.beginPath();
-      for (const m of g) {
-        if (m.order !== first) continue;
-        ctx.moveTo(m.p[0] + 4 * px, m.p[1]);
-        ctx.arc(...m.p, 4 * px, 0, 2 * Math.PI);
-      }
-      ctx.fillStyle = ctx.strokeStyle;
-      ctx.fill();
-    });
+    for (const m of marks)
+      for (const k of m.groups ?? (m.group ? [m.group] : []))
+        groups.set(k, [...(groups.get(k) ?? []), m]);
+    // Each value its own line and color (A, B… in order, whichever are drawn).
+    [...groups.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .forEach(([key, g]) => {
+        const i = Number(key.replace(/\D/g, '')) || 0;
+        ctx.beginPath();
+        for (const [a, b] of traceSegments(g)) {
+          ctx.moveTo(...a);
+          ctx.lineTo(...b);
+        }
+        ctx.strokeStyle = LINE[i % LINE.length]!;
+        ctx.lineWidth = 2 * px;
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = 0.8;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        // The start: a dot on each place of the first number.
+        const first = Math.min(...g.map((m) => m.order));
+        ctx.beginPath();
+        for (const m of g) {
+          if (m.order !== first) continue;
+          ctx.moveTo(m.p[0] + 4 * px, m.p[1]);
+          ctx.arc(...m.p, 4 * px, 0, 2 * Math.PI);
+        }
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.fill();
+      });
   }
   // Labels in device pixels (tiny fonts scaled up draw unevenly).
   const t = ctx.getTransform();
@@ -157,12 +166,16 @@ export function quiltDataMarks(doc: RrqDoc, quilt: Quilt, generated: Generated):
     const slot = at.get(place.space);
     if (!slot) return [];
     const [a, b, c, d, e, f] = slot.transform;
+    const block = blocks.get(place.block);
+    // A line per quilt value: a placement joins the lines of the values it shows.
+    const values = [...new Set((block ? blockLetters(block) : [0]).map((l) => seriesOf(place, l)))];
     return [
       {
         p: [(a + c) / 2 + e, (b + d) / 2 + f],
         label: numberLabel(plan, place.n),
-        sub: seriesLabel(place, blocks.get(place.block)),
-        group: 'n',
+        sub: seriesLabel(place, block),
+        group: `q${values[0] ?? 0}`,
+        groups: values.map((v) => `q${v}`),
         order: place.n,
         dy: -7,
       },
