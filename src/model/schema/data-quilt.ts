@@ -1,6 +1,6 @@
-// A quilt's data plan (spec 025, v9): what each day records, how values map to fills, where days
-// sit (the numbered list of block spaces and their data block types), the real entries and the sample data shown
-// while designing.
+// A quilt's data plan (spec 025, v9; spec 046, v10): what each day records, how values map to
+// fills, where days sit (the placed data blocks: space, number, block, series), the real entries
+// and the sample data shown while designing.
 import Type from 'typebox';
 import { PlainFill } from './coloring';
 import { Id, ItemId } from './shared';
@@ -57,6 +57,20 @@ export const DataSim = Type.Union([
   }),
 ]);
 
+/** A data block placed on a block space (spec 046): the number it shows, the block, and the quilt
+ *  value (series) each of the block's own values reads, by the block's letter (absent: the same
+ *  letter). A number may have any number of placements; a space holds one. */
+export const DataPlace = Type.Object({
+  space: Type.String({ maxLength: 200 }),
+  n: Type.Integer({ minimum: 1, maximum: 366 }),
+  block: ItemId,
+  series: Type.Optional(
+    Type.Array(Type.Union([Type.Integer({ minimum: 0, maximum: 3 }), Type.Null()]), {
+      maxItems: 4,
+    }),
+  ),
+});
+
 export const DataPlan = Type.Object({
   /** The Layout tab's Data quilt switch; off keeps the settings. */
   on: Type.Boolean(),
@@ -64,13 +78,22 @@ export const DataPlan = Type.Object({
   /** First day of the one-year period (Months: the 1st of a month). */
   start: DateKey,
   slots: Type.Array(ValueSlot, { minItems: 1, maxItems: 4 }),
-  /** The numbered list: the block space (slot) id holding each number, in order (index 0 = 001),
-   *  null while not placed. Months 12, Weeks 52 then the leftover days, Days one per day. */
-  order: Type.Array(Type.Union([Type.String({ maxLength: 200 }), Type.Null()]), {
-    maxItems: 366,
-  }),
-  /** The data block (type) each placed space shows, by space id; its variant follows the number. */
-  types: Type.Record(Type.String(), ItemId),
+  /** The placed data blocks, in the order they were placed (spec 046). */
+  places: Type.Array(DataPlace, { maxItems: 2000 }),
+  /** Weeks: the period starts with a single day, weeks from the day after (spec 046 US5). */
+  lead: Type.Optional(Type.Boolean()),
+  /** Weeks and Days over a period holding 29 February (spec 046 US6): average it into 28 February,
+   *  ignore it, a 2-day number (Weeks), or an extra single day (absent: extra). */
+  leap: Type.Optional(
+    Type.Union([
+      Type.Literal('average'),
+      Type.Literal('ignore'),
+      Type.Literal('pair'),
+      Type.Literal('extra'),
+    ]),
+  ),
+  /** Averaging category values: a half rounds to the earlier category or the later. */
+  leapRound: Type.Optional(Type.Union([Type.Literal('down'), Type.Literal('up')])),
   /** Places past a number's days (a 31-day variant in a 30-day month): the filler, or as
    *  designed. */
   unused: Type.Union([Type.Literal('filler'), Type.Literal('designed')]),
@@ -87,6 +110,7 @@ export const DataPlan = Type.Object({
 });
 
 export type DataPlan = Type.Static<typeof DataPlan>;
+export type DataPlace = Type.Static<typeof DataPlace>;
 export type ValueSlot = Type.Static<typeof ValueSlot>;
 export type DataSim = Type.Static<typeof DataSim>;
 export type DayValues = Type.Static<typeof DayValues>;

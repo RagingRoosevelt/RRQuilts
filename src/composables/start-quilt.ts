@@ -1,5 +1,5 @@
 import { useRouter } from 'vue-router';
-import { fitOrder, newDataPlan } from '@/model/data-quilt';
+import { newDataPlan } from '@/model/data-quilt';
 import type { DataPlan } from '@/model/schema/data-quilt';
 import { DEFAULT_LICENSE } from '@/model/credits';
 import { takesBlock } from '@/editor/scope';
@@ -34,10 +34,7 @@ export function useStartQuilt() {
       // A data quilt (spec 025): next year's plan, set up in the Design tab.
       ...(data
         ? {
-            data: fitOrder({
-              ...newDataPlan(project.doc!.units, new Date().getFullYear() + 1),
-              plan: data,
-            }),
+            data: { ...newDataPlan(project.doc!.units, new Date().getFullYear() + 1), plan: data },
           }
         : {}),
     };

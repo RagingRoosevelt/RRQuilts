@@ -33,6 +33,42 @@
         @update:model-value="setPlan"
       />
       <div class="text-caption text-grey-7 q-mt-xs">{{ PLAN_HINTS[quilt.data.plan] }}</div>
+      <!-- Spec 046 US6: a Weeks or Days plan over a year with 29 February. -->
+      <template v-if="leap">
+        <q-select
+          :model-value="leap"
+          :options="leapOptions"
+          emit-value
+          map-options
+          dense
+          outlined
+          options-dense
+          label="Leap day"
+          class="q-mt-md"
+          :readonly="readonly"
+          @update:model-value="setLeap"
+        />
+        <div class="text-caption text-grey-7 q-mt-xs">{{ LEAP_HINTS[leap] }}</div>
+        <SlidePicker
+          v-if="leap === 'average' && quilt.data.slots.some((s) => s.kind === 'category')"
+          :model-value="quilt.data.leapRound ?? 'down'"
+          :options="[
+            { value: 'down', label: 'Down' },
+            { value: 'up', label: 'Up' },
+          ]"
+          label="Categories round"
+          class="q-mt-md"
+          :class="{ 'no-pointer': readonly }"
+          @update:model-value="setRound"
+        />
+        <div
+          v-if="leap === 'average' && quilt.data.slots.some((s) => s.kind === 'category')"
+          class="text-caption text-grey-7 q-mt-xs"
+        >
+          Two categories halfway apart (Good and Great on 28 and 29 February) show the earlier one
+          in the list (Down) or the later one (Up).
+        </div>
+      </template>
     </template>
     <template v-if="block?.data">
       <SlidePicker
@@ -61,7 +97,7 @@ import { computed } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { plainFill } from '@/model/coloring';
-import { newDataPlan, replan, VARIANT_DAYS } from '@/model/data-quilt';
+import { leapOf, newDataPlan, relabel, replan, VARIANT_DAYS } from '@/model/data-quilt';
 import type { Block, DataKind } from '@/model/schema/block';
 import type { DataPlan } from '@/model/schema/data-quilt';
 import type { Quilt } from '@/model/schema/quilt';
@@ -80,12 +116,54 @@ const $q = useQuasar();
 const PLAN_HINTS: Record<DataPlan['plan'], string> = {
   months: 'A numbered block space per month, showing its month block’s variant for its days.',
   weeks:
-    'A numbered block space per week of 7 days from the period start, then one per day left over (day 365, and 366 in a leap period).',
+    'A numbered block space per week of 7 days, and the day left over: the last day, or the first when a 1-day block is placed on Wk 1.',
   days: 'A numbered block space per day of the period.',
 };
+type Leap = NonNullable<DataPlan['leap']>;
+const LEAP_HINTS: Record<Leap, string> = {
+  average: '28 February shows the average of the 28th and the 29th.',
+  ignore: '29 February has no place and its value is left out.',
+  pair: 'The days left over are one number of two days, shown by a week block’s 2-day variant.',
+  extra:
+    'The first and last days of the year are single days, the 52 weeks between them. In a Days plan 29 February is a number of its own.',
+};
+/** The Leap day setting, shown for a Weeks or Days plan over a year with 29 February. */
+const leap = computed(() => (props.quilt?.data ? leapOf(props.quilt.data) : undefined));
+const leapOptions = computed(() => [
+  { value: 'average', label: 'Average Feb 28 and Feb 29' },
+  { value: 'ignore', label: 'Ignore Feb 29' },
+  ...(props.quilt?.data?.plan === 'weeks'
+    ? [{ value: 'pair', label: 'Use a 2-day block variant' }]
+    : []),
+  { value: 'extra', label: 'Extra single-day number' },
+]);
+function setLeap(v: Leap) {
+  const q = props.quilt;
+  if (!q?.data || props.readonly) return;
+  const blocks = new Map(project.doc!.project.blocks.map((b) => [b.id, b]));
+  const { plan: next, lost } = relabel(q.data, { ...q.data, leap: v }, blocks);
+  const go = () =>
+    project.change((d) => {
+      d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(next);
+    });
+  if (!lost) return go();
+  $q.dialog({
+    title: 'Change the leap day?',
+    message: `${lost} placed block${lost > 1 ? 's' : ''} can't stay (a number that goes, or a block that can't show its new number) and will be taken off the quilt (Undo brings them back).`,
+    ok: { label: 'Change', flat: true, noCaps: true },
+    cancel: { label: 'Cancel', flat: true, noCaps: true },
+  }).onOk(go);
+}
+function setRound(v: string) {
+  const q = props.quilt;
+  if (!q?.data || props.readonly) return;
+  project.change((d) => {
+    d.project.quilts.find((x) => x.id === q.id)!.data!.leapRound = v as 'down' | 'up';
+  });
+}
 const KIND_HINTS: Record<DataKind, string> = {
   day: 'Numerals: 1. A Days plan places it on every day, a Weeks plan on the days left over.',
-  week: 'Numerals: 1 to 7. The Draw tab can add a 1-day variant, for a Weeks plan’s days left over.',
+  week: 'Numerals: 1 to 7. The Draw tab can add 1-day and 2-day variants, for a Weeks plan’s days left over.',
   month:
     'Numerals: 1 to 31. The Draw tab can add 30, 29, 28 and 1-day variants; a month shows the smallest with enough days, a single day the 1-day one.',
 };

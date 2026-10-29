@@ -17,8 +17,8 @@ import { Units, type RrqDoc } from './schema/project';
 import { Socials } from './schema/shared';
 
 export const BLOCK_FORMAT = 'rrqbl';
-/** v4: data blocks (spec 025). */
-export const BLOCK_VERSION = 4;
+/** v4: data blocks (spec 025). v5: week blocks may add a 2-day variant (spec 046). */
+export const BLOCK_VERSION = 5;
 
 export const BlockFile = Type.Object({
   format: Type.Literal(BLOCK_FORMAT),

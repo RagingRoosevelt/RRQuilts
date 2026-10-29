@@ -271,16 +271,7 @@ import DataInspector from '@/components/DataInspector.vue';
 import { castDraft, produce } from 'immer';
 import type { RrqDoc } from '@/model/schema/project';
 import { resolveColoring } from '@/model/coloring';
-import {
-  dayDate,
-  dayOf,
-  nextFree,
-  numberCount,
-  numberInfo,
-  numberOf,
-  placeNumber,
-  takeBack,
-} from '@/model/data-quilt';
+import { dataTap, dayOf, numberCount, numberOf, placeDate, takeBack } from '@/model/data-quilt';
 import { blockSpaceNumbers, quiltDataMarks, quiltDayPaths } from '@/render/data-overlay';
 import { PLAIN_PATCH } from '@/model/plain';
 import TargetSection from '@/components/TargetSection.vue';
@@ -411,7 +402,7 @@ const panOnly = computed(
     (editor.mode !== 'design' || editor.tool === 'pan'),
 );
 const dataInspector = ref<InstanceType<typeof DataInspector>>();
-/** The space outlined on the quilt: a dragged or hovered card's, else the one under the pointer
+/** The space outlined on the quilt: a hovered placement's, else the one under the pointer
  *  (any part of the quilt; its color says which kind), else the clicked card's. */
 const highlight = computed(() => {
   if (editor.dataHot) return editor.dataHot;
@@ -420,7 +411,7 @@ const highlight = computed(() => {
 /** A data quilt's numbers on their block spaces, joined in order (spec 025). */
 const dataMarks = computed(() =>
   editor.mode === 'design' && quilt.value?.data?.on
-    ? quiltDataMarks(quilt.value, generated.value)
+    ? quiltDataMarks(project.doc!, quilt.value, generated.value)
     : null,
 );
 /** Each placed data block's days in order (light arrows under the month trace). */
@@ -428,25 +419,6 @@ const dayPaths = computed(() =>
   editor.mode === 'design' && quilt.value?.data?.on && project.doc
     ? quiltDayPaths(project.doc, quilt.value, generated.value)
     : null,
-);
-// The highlighted number follows the list (undo and redo too): a number emptied gets the highlight
-// back; numbers placed move it past the last of them.
-watch(
-  () => quilt.value?.data?.order,
-  (now, was) => {
-    const plan = quilt.value?.data;
-    if (!plan || !now || !was || now.length !== was.length) return;
-    const placed = (o: readonly (string | null)[]) => new Set(o.filter(Boolean));
-    const before = placed(was);
-    const after = placed(now);
-    if (after.size < before.size) {
-      const k = now.findIndex((id, i) => !id && was[i]);
-      if (k >= 0) editor.dataNext = k + 1;
-    } else if (after.size > before.size) {
-      const last = now.reduce((m, id, i) => (id && !before.has(id) ? i : m), -1);
-      editor.dataNext = nextFree(plan, last + 2) ?? last + 1;
-    }
-  },
 );
 // Off a data quilt: off its tools.
 watch(
@@ -470,36 +442,35 @@ function onDataTap(hit: Hit) {
       ? resolveColoring(q.colorings[content.coloring], block)?.fills[hit.patchId ?? PLAIN_PATCH]
       : undefined;
     const day = f && 'data' in f ? dayOf(plan, numberOf(plan, hit.slotId), f.data) : null;
-    if (typeof day === 'number') dataInspector.value?.openDay(dayDate(plan.start, day));
+    if (typeof day === 'number') dataInspector.value?.openDay(placeDate(plan, day));
     return;
   }
   if (project.readOnly) return;
   if (!blockSpaceNumbers(generated.value).has(hit.slotId))
     return say('Numbers go on whole block spaces, not ones cut down at the edge.');
-  const had = numberOf(plan, hit.slotId);
-  let next: typeof plan;
-  const kindOf = (k: number) => numberInfo(plan, k)?.kind ?? 'month';
-  if (had) {
-    // Another type picked: the space takes it and keeps its number; the same type: number back.
-    const type = dataTypes.typeFor(kindOf(had));
-    if (type && type !== plan.types[hit.slotId])
-      next = { ...plan, types: { ...plan.types, [hit.slotId]: type } };
-    else {
-      next = takeBack(plan, hit.slotId);
-      editor.dataNext = had;
-    }
-  } else {
-    const k = nextFree(plan, editor.dataNext);
-    if (!k) return say('Every number is placed.');
-    const kind = kindOf(k);
-    const type = dataTypes.typeFor(kind);
-    if (!type) return say(`Make a ${kind} data block first (a block’s Details tab › Data block).`);
-    next = placeNumber(plan, hit.slotId, k, type);
-    editor.dataNext = nextFree(next, k + 1) ?? k;
-  }
-  project.change((d) => {
-    d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(next);
+  const pick = dataTypes.picked.value;
+  if (!pick) return say('Pick a data block in the Blocks tab first.');
+  const r = dataTap(plan, hit.slotId, {
+    n: editor.dataNext,
+    block: pick.block,
+    kind: pick.kind,
+    series: editor.dataSeries,
   });
+  if ('error' in r) return say(r.error);
+  const apply = () => {
+    editor.dataNext = r.next;
+    project.change((d) => {
+      d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(r.plan);
+    });
+  };
+  if (!r.ask) return apply();
+  $q.dialog({
+    title: 'Move the single day?',
+    message: r.ask,
+    cancel: { flat: true, noCaps: true, label: 'Cancel' },
+    ok: { unelevated: true, noCaps: true, label: 'Move it' },
+    persistent: true,
+  }).onOk(apply);
 }
 const styleLabel = computed(
   () => STRIP_STYLES.find((x) => x.value === editor.stripStyle)?.label ?? '',
@@ -641,10 +612,12 @@ function dropNumbers(id: string, before: RrqDoc, after: RrqDoc): RrqDoc {
   const plan = now?.data;
   if (!was || !now || !plan?.on) return after;
   const blocks = new Map(after.project.blocks.map((b) => [b.id, b]));
-  const lost = plan.order.filter((sid): sid is string => {
-    const b = sid ? now.layers[0].slots[sid]?.block : undefined;
-    return !!sid && b !== was.layers[0].slots[sid]?.block && !blocks.get(b ?? '')?.data;
-  });
+  const lost = plan.places
+    .map((p) => p.space)
+    .filter((sid) => {
+      const b = now.layers[0].slots[sid]?.block;
+      return b !== was.layers[0].slots[sid]?.block && !blocks.get(b ?? '')?.data;
+    });
   if (!lost.length) return after;
   return produce(after, (d) => {
     const q = d.project.quilts.find((x) => x.id === id)!;

@@ -4,7 +4,8 @@
 
 **Created**: 2026-10-28
 
-**Status**: Draft (spec only; not implemented). Reworks the numbered list of spec 025 (data quilts).
+**Status**: Built on branch `046-data-placement`, 2026-10-28 (not released; checks TC-184 to TC-189).
+Reworks the numbered list of spec 025 (data quilts).
 
 **Input**: Owner, 2026-10-28, after three week blocks didn't show in a Months quilt's picker:
 
@@ -216,11 +217,11 @@ place"".)
    start moves).
 3. **Then** the choice is saved with the plan (`leap: 'average' | 'ignore' | 'pair' | 'extra'`,
    and `leapRound: 'down' | 'up'` for the whole quilt;
-   `pair` only in Weeks, a Days plan reads it as `extra`). Changing it renumbers the days from
-   Feb 29 on only; a placement whose block no longer takes its number (a 1-day block on a 2-day
-   number without a 2-day variant) stays and shows per item 1; a placement left on a number that
-   goes (Days: Feb 29 under Average or Ignore) is reported in the list, not dropped, and a dialog
-   says how many first.
+   `pair` only in Weeks, a Days plan reads it as `extra`). Changing it moves placements by their
+   number's label (Wk 3 stays Wk 3, Mar 1 stays Mar 1). Placements whose label goes (Days: Feb 29
+   under Average or Ignore; Dec 31 under the 2-day variant) or whose block can't show the new
+   number come off the quilt, after a dialog saying how many (Undo brings them back), as when the
+   plan switches (FR-008).
 4. **Then** the Data tab's entry table still lists Feb 29 under Average and Ignore, so real data
    can be kept complete, with a note saying how the quilt uses it.
 
@@ -241,7 +242,9 @@ place"".)
   placements is fine. Print and yardage count every placement.
 - **FR-007**: The project format MUST bump (rrq v10) with a migration: each old `order` entry
   becomes one placement with the block its space showed (its type) and series map qA→A … (paints'
-  letters unchanged), so old quilts look the same.
+  letters unchanged), so old quilts look the same. A leap year's Weeks list (Wk 1 … Wk 52, Dec 30,
+  Dec 31) becomes the Extra layout (Jan 1, Wk 1 … Wk 52, Dec 31): weeks keep their labels, Dec 30's
+  blocks go to Jan 1. Block files go to v5 and libraries to v7 for the 2-day variant.
 - **FR-008**: Switching the plan (spec 025 FR-017) keeps placements whose block takes the new
   number's kind, asking first when any go.
 - **FR-009**: A Weeks plan MUST allow a single lead day (User Story 5), set by placing a 1-day

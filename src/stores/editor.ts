@@ -83,16 +83,15 @@ export const useEditorStore = defineStore('editor', () => {
   const blockVariant = ref<number | null>(null);
   /** A data quilt's next number to place (1-based, spec 025). */
   const dataNext = ref(1);
-  /** The block space of the number being dragged in the list, highlighted on the quilt. */
+  /** The block space of the placement hovered in the list, highlighted on the quilt. */
   const dataHot = ref<string | null>(null);
   /** The block space of the card last clicked in the list (stays highlighted). */
   const dataSel = ref<string | null>(null);
-  /** The data block type picked to place, per kind. */
-  const dataType = reactive<Record<DataKind, string | null>>({
-    day: null,
-    week: null,
-    month: null,
-  });
+  /** The data block picked to place (spec 046), with the kind of number it was picked for (a
+   *  week block's 1-day variant is picked as a day block), and the quilt value each of its own
+   *  values reads (by its letter). */
+  const dataPick = ref<{ id: string; kind: DataKind } | null>(null);
+  const dataSeries = ref<(number | null)[]>([]);
 
   function useColor(id: string) {
     color.value = id;
@@ -131,7 +130,8 @@ export const useEditorStore = defineStore('editor', () => {
     dataNext,
     dataHot,
     dataSel,
-    dataType,
+    dataPick,
+    dataSeries,
     useColor,
   };
 });

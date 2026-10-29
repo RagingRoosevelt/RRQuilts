@@ -286,8 +286,7 @@ export function applyLayout(quilt: Quilt, layout: Layout, borders: Border[]): Qu
     q.borders = borders;
     q.layers[0].slots = slots;
     if (q.data && kept) {
-      q.data.order = q.data.order.map((id) => (id && !kept.has(id) ? null : id));
-      for (const id of Object.keys(q.data.types)) if (!kept.has(id)) delete q.data.types[id];
+      q.data.places = q.data.places.filter((p) => kept.has(p.space));
     }
   });
 }

@@ -50,6 +50,7 @@ const G = {
   filters: 'Filters and sidebars',
   tags: 'Tags, technique, Favorite (spec 029)',
   small: 'Smaller changes',
+  data046: 'Data quilts: placing by number and series (spec 046)',
 };
 
 export const CHECKS: Check[] = [
@@ -117,6 +118,48 @@ export const CHECKS: Check[] = [
     text: 'Block editor › a data block: pick a color in the tray (e.g. a Basic color), then pick a day numeral. The color is no longer shown as picked; only the numeral is. Picking a color again unpicks the numeral. Open an ordinary block or the quilt editor after picking a numeral: the tray’s picked color shows again and taps paint it.',
     last: '"in a data block, when you select a numeral for painting, the currently selected color (such as a color in the built in basic colors) doesn’t get unselected"',
     to: '/',
+  },
+  {
+    id: 'TC-184',
+    group: G.data046,
+    text: 'A Weeks data quilt › Design › Blocks › Data blocks: pick a week block, tap three spaces (Wk 1, Wk 2, Wk 3; the highlight moves on). Click Wk 2 in the list and tap another space: Wk 2 now lists two blocks. Tap a placed space with nothing changed: it comes off. With another numeral highlighted it takes that numeral; with another block picked it takes that block; with both, both. No drag and drop, no move arrows and no “Block N” in the list or on the quilt.',
+    last: '"we should be able place multiple blocks to address the same numeral" / "if you change the block but have the same numeral selected as is already present, then you just change the block…"',
+    to: '/',
+  },
+  {
+    id: 'TC-185',
+    group: G.data046,
+    text: 'A data quilt with two values (High and Low, Data tab). Pick a single-value block: “The quilt value it shows” offers qA High and qB Low. Place one with qA and one with qB: the quilt shows Wk 1 over qA and Wk 2 over qB, and the qB block’s pieces follow the Low values. A block whose numerals use A and B asks for a value for each (Block A, Block B); mapped crosswise it reads qB, qA under its number. A block needing more values than the quilt has says so and isn’t placed.',
+    last: '"when placing a single series block we’ll show it as Wk1 with the series label on the line below qA…"',
+    to: '/',
+  },
+  {
+    id: 'TC-186',
+    group: G.data046,
+    text: 'Order line with repeated numbers. Quilt: put Wk 2 on two spaces: the line from Wk 1 branches to both, and both join Wk 3. Put Wk 1 on two spaces as well: each Wk 1 joins its nearest Wk 2. Block editor › a data block › Color: put numeral 3 on two patches: the line branches the same way.',
+    last: '"(in both data block design and data quilt design) since we expect there may be several instances of a given numeral…"',
+    to: '/',
+  },
+  {
+    id: 'TC-187',
+    group: G.data046,
+    text: 'A Weeks quilt over a year without 29 February (e.g. from 1 January 2027). Pick a day block (or a week block under Day blocks, for its 1-day variant) and place it on Wk 1: the list now starts Jan 1, Wk 1… and ends Wk 52, with no Dec 31. If Wk 1 already had blocks, it asks first and they stay on Wk 1. Then place a 1-day block on Wk 52: it asks to move the single day back to the end and, on Move it, lands on Dec 31. Placing a week block on Jan 1, or taking Jan 1’s last block off, also moves the single day back.',
+    last: '"in quilt week mode, let’s also placing a 1-day block in the first slot to convert it to a Jan 1 block and the last slot into a week 52 slot" / "or placing a 1 day block in the last slot asks…"',
+    to: '/',
+  },
+  {
+    id: 'TC-188',
+    group: G.data046,
+    text: 'Leap day: a Weeks quilt from 1 January 2028. Details › Data quilt shows Leap day (hidden for 2027 and for Months). Extra single-day number: the list runs Jan 1, Wk 1 … Wk 52, Dec 31. Use a 2-day block variant: the last number is Dec 30–31 and a week block’s 2-day variant (Draw tab › Variant › 2 days) shows there. Average and Ignore: 53 numbers, and the Entries dialog marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value (Mood) and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra; switching to Ignore with a block on Feb 29 asks first.',
+    last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
+    to: '/',
+  },
+  {
+    id: 'TC-189',
+    group: G.data046,
+    text: 'Open the 0.7.0 demo (download below): its Data Quilt keeps its 12 months on the same spaces with the same blocks. A project saved by this build opens with its placements, series and Leap day setting as saved. A block file or library with a 2-day variant opens here (older apps say it’s from a newer RRQuilts).',
+    to: '/',
+    file: 'demo-v9.rrq',
   },
 ];
 

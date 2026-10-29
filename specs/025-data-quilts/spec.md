@@ -91,7 +91,8 @@ server calls; offline first).
   day variant"). A 1-day variant makes the block a day type too: a Weeks plan's days left over take
   the week type's 1-day variant unless a day type is picked. One color
   variation covers all its variants.
-- **Numbered list**: every number of the plan, months by name (Jan), weeks as Wk 1, Wk 2…, days
+- **Numbered list** (reworked by spec 046: several placements per number, the brush only, no
+  reordering): every number of the plan, months by name (Jan), weeks as Wk 1, Wk 2…, days
   (and a Weeks plan's left-over days) by date (Jan 2),
   each empty or placed on a block space. The label is the place in the list: number k is the
   period's k-th month, week or day. Reordering moves a space to another number. Placed numbers show

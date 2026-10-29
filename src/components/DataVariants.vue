@@ -82,7 +82,7 @@ const missing = computed(() =>
 
 /** A new variant: the block's own drawing copied with fresh ids, each patch keeping its color
  *  (no numerals). */
-function add(d: 28 | 29 | 30 | 1) {
+function add(d: DataVariant['days']) {
   const b = props.block;
   const id = new Map<string, string>();
   const fresh = (old: string) => {
