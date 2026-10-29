@@ -9,7 +9,9 @@
 **Input**: Owner, 2026-10-20: add a spec for rearranging quilts within a project workspace.
 Owner, 2026-10-29: "it looks like it's also partially implmented for blocks, but the glow is
 missing. let's put it in 0.7.3 and add fixing the glow for blocks. that will also let uus drop the
-move earlier/later menu items from blocks" (User Story 4).
+move earlier/later menu items from blocks" (User Story 4). Then: "when dragging, the actual
+quilt/block is reduced in transparency and a virtual drag representation is shown following the
+mouse (sylized a bit to look like it's moving / being dragged)" (User Story 1, scenarios 6 and 7).
 
 ## Today
 
@@ -41,6 +43,15 @@ A quilter with a dozen quilts drags one card to where it belongs, with a mouse o
 4. **Given** touch, **Then** a plain swipe still scrolls the page and a tap still opens the quilt
    (only a long press starts a drag).
 5. **Given** a read-only project, **Then** nothing can be dragged.
+6. **Given** a drag (mouse, pen or finger), **Then** the card being moved stays in its place, faded
+   (about 40% opacity), so it's clear which one is moving and where it came from.
+7. **Given** a drag, **Then** a copy of the card's picture follows the pointer, styled as picked up:
+   a little larger (about 105%), tilted a few degrees, with a deeper drop shadow (spec 048's shadow,
+   lifted). It tilts slightly toward the direction of movement and settles straight when the
+   pointer stops. On drop it slides into the landing place; on cancel it slides back to the faded
+   card, then the card returns to full opacity.
+8. **Given** the quilter's system asks for reduced motion, **Then** the copy follows without tilt or
+   slide (still larger, with the shadow).
 
 ### User Story 2 - Move by keyboard and to the ends (Priority: P2)
 
@@ -61,7 +72,8 @@ A quilter with a dozen quilts drags one card to where it belongs, with a mouse o
 **Acceptance Scenarios**:
 
 1. **Given** the Blocks tab, **When** an own block is dragged, **Then** the facing edges of the cards
-   either side of where it will land glow, exactly as for quilts.
+   either side of where it will land glow, and the faded card and picked-up copy show, exactly as
+   for quilts (User Story 1).
 2. **Given** blocks, **Then** they drag with a finger (long press) as well as a mouse, with the same
    auto-scroll, cancel and undo as quilts (User Story 1).
 3. **Given** a block's ⋮ menu, **Then** **Move earlier** and **Move later** are gone (dragging
@@ -80,6 +92,10 @@ A quilter with a dozen quilts drags one card to where it belongs, with a mouse o
 
 - **FR-001**: Quilt cards MUST be reorderable by drag with mouse, pen and touch (long press), with the
   landing glow they have now and auto-scroll.
+- **FR-007**: While dragging, the moved card MUST stay in place faded, and a styled copy of its
+  picture (larger, tilted, lifted shadow) MUST follow the pointer, honoring reduced motion. The
+  browser's own drag image isn't styleable and doesn't work for touch, so the drag is built on
+  pointer events (as the strip list's, spec 017), not HTML drag and drop.
 - **FR-002**: Every reorder (drag, menu, keyboard, sort) MUST be one undo step and change only
   `project.quilts` order (no format change).
 - **FR-003**: The ⋮ menu MUST offer Move to start / Move earlier / Move later / Move to end.
