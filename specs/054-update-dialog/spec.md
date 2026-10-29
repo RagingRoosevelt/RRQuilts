@@ -132,9 +132,11 @@ first. Reload: 0.7.3 loads and then opens the gist. Repeat with Later: the gist 
 3. **Given** Help › About › Changelog, **Then** each version still shows its sections (New features,
    Fixes…), with major changes first in each section, then minor ones, each group in the order
    written; the `[major]` marker never shows (major ones may be in bold).
-4. **Given** a version with no line marked (every version before 0.7.3, unless marked then), **Then**
-   the dialog shows that version's New features as its major changes, so older versions still read
-   well; Help shows it as written.
+4. Every version from 0.1.0 to 0.7.2 was marked by the owner on 2026-10-29 (38 lines, committed on
+   `feat/update-dialog` with the release-step change, since Help shows the marker until this
+   feature is built).
+4a. **Given** a version with no line marked (a version that has no major changes), **Then**
+   the dialog shows it as in scenario 5; Help shows it as written.
 5. **Given** a version with only minor changes, **Then** the dialog shows the version with just "6
    smaller changes" and the link.
 
@@ -164,7 +166,7 @@ first. Reload: 0.7.3 loads and then opens the gist. Repeat with Later: the gist 
   version's major changes (and a count of the rest), from the new build's `version.json`.
 - **FR-009**: `CHANGELOG.md` lines MAY start with `[major]`; `version.json` MUST carry `major` per
   change; Help's changelog MUST list major changes first within each section and hide the marker;
-  a version with none marked counts its New features as major in the dialog.
+  a version with none marked shows only its count of smaller changes in the dialog.
 - **FR-005**: The dialog MUST show two whole quilts angled toward each other, as the welcome wizard's
   picture does.
 - **FR-006**: Action links MUST wait (up to 3 s) for the update check, show the dialog first when
