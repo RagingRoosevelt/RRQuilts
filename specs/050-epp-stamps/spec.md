@@ -71,7 +71,8 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
    slot for this placement only (scope This), or for every placement of the stamp (scope All). The
    stamp's colorings can be picked per placement, as block colorings are.
 5. **Given** a placed stamp, **When** the quilter chooses **Break apart**, **Then** it becomes its
-   individual pieces (fills kept, undoable), no longer linked.
+   individual pieces (fills kept, undoable), no longer linked. This is what placing a spec 027 rosette did:
+   a stamp is a rosette that stays together until broken apart.
 6. **Given** a stamp edited (in the stamp editor), **Then** every placement updates, with undo;
    placements whose snapped neighbors no longer meet are flagged, not moved (as edited shapes,
    spec 027).
