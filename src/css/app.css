@@ -39,6 +39,7 @@ body.platform-ios .q-dialog__inner--minimized:not(.q-dialog__inner--keyboard) > 
 
 /* "View grayscale" toggle (quilt and block editors): values only. Filter in App.vue. */
 canvas.gray,
-.gray canvas {
+.gray canvas,
+img.gray {
   filter: url(#rrq-gray);
 }

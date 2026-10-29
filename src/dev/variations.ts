@@ -18,6 +18,8 @@ export interface Variation {
   layout?: Record<string, unknown>;
   borders?: { style: string; sides: [number, number, number, number]; blocks?: [number, number] }[];
   fill?: FillMode;
+  /** Drawn in View grayscale's grays. */
+  gray?: boolean;
 }
 
 const strip = (id: string, style: string, width: number, along = 4, across = 1) => ({
@@ -29,6 +31,26 @@ const strip = (id: string, style: string, width: number, along = 4, across = 1) 
 });
 
 export const VARIATIONS: Variation[] = [
+  {
+    id: 'G033',
+    title: 'Straight Set with blocks, in grays',
+    added: 'View grayscale (0.7.2)',
+    expect:
+      'The 3×3 Straight Set with blocks and solids, in color and beside it as View grayscale shows it: every patch a gray of its color’s lightness. Cream reads near white and navy near black, while colors of like lightness, such as the mustard and the sage, come out nearly the same gray although their hues differ. A saturated blue is a mid-dark gray, never black. Seam lines stay visible.',
+    style: 'straight-set',
+    fill: 'mix',
+    gray: true,
+  },
+  {
+    id: 'G032',
+    title: 'On-Point, painted colors, in grays',
+    added: 'View grayscale (0.7.2)',
+    expect:
+      'On-Point 3 × 3 painted in solids, in color and beside it in View grayscale’s grays: setting triangles, blocks and border each a flat gray. Colors that look equally light in color look equally gray here.',
+    style: 'on-point',
+    fill: 'solids',
+    gray: true,
+  },
   {
     id: 'G031',
     title: 'On-Point half rows with seamed corners',

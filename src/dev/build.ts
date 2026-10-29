@@ -27,6 +27,8 @@ export interface DevVariation {
   fill?: FillMode;
   /** Every third block turned, every third flipped. */
   turns?: boolean;
+  /** Drawn in View grayscale's grays (the editors' `#rrq-gray` filter). */
+  gray?: boolean;
   units?: Units;
 }
 
