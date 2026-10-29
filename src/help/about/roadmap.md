@@ -8,11 +8,6 @@ These are the plans for the next few versions. Plans change as people use the ap
 may move to another version, arrive in a different form, or not at all. To ask for something that
 isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
-## 0.7.3
-
-- When a new version is ready, a dialog says so right away, with what's new since the version you
-  have, and smaller updates.
-
 ## 0.7.4
 
 - A guide for each month, week or day of a data quilt: which pieces of its block to cut in which

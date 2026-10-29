@@ -2,6 +2,16 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.7.3 (2026-10-29)
+
+### New features
+
+- [major] From the next update on, a dialog tells you as soon as a new version is ready, names the
+  version you have and the new one, and lists what's new in this update. Unsaved work is saved or
+  kept as a draft first.
+- Updates are delivered as smaller bundles, so a new version is ready sooner.
+- The changelog in Help lists each version's major changes first.
+
 ## 0.7.2 (2026-10-29)
 
 ### New features

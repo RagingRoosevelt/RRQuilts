@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-29
 
-**Status**: Built on `feat/update-dialog` (2026-10-29), not merged. Download progress shows as a spinner, not a file count (the browser doesn't report it).
+**Status**: Released in 0.7.3 (2026-10-29). Download progress shows as a spinner, not a file count (the browser doesn't report it).
 
 **Input**: Owner, 2026-10-29, after people waited hours or days after a release for the update
 toast: "i don't see any sense in including the schemas/*.json in the app's bundle then. that sounds
