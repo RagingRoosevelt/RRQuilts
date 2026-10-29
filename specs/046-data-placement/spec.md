@@ -165,11 +165,11 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
 - **FR-007**: The project format MUST bump (rrq v10) with a migration: each old `order` entry
   becomes one placement with the block its space showed (its type) and series map qA→A … (paints'
   letters unchanged), so old quilts look the same.
+- **FR-008**: Switching the plan (spec 025 FR-017) keeps placements whose block takes the new
+  number's kind, asking first when any go.
 - **FR-009**: A Weeks plan MUST allow a single lead day (User Story 5), set by placing a 1-day
   block on the first number and cleared by placing a week block there or removing its last 1-day
   placement. Day numbering (spec 025 FR-004) becomes: lead day 1, then 7 × (k − 1) + 2 … for Wk k.
-- **FR-008**: Switching the plan (spec 025 FR-017) keeps placements whose block takes the new
-  number's kind, asking first when any go.
 
 ## Open questions (defaults used until answered)
 
@@ -178,10 +178,10 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
 2. The series line on a quilt with only one value (qA): shown always (default, as asked) or hidden?
 3. The series map belongs to each placement (default: one block can be placed for qA in one space
    and qB in another), not to the block for the whole quilt.
-5. Leap year with a lead day: one day stays at the end (default), or both left-over days go to the
-   front as Jan 1 and Jan 2?
 4. A space can hold one placement (default): tapping a space with another data block picked
    replaces its block.
+5. Leap year with a lead day: one day stays at the end (default), or both left-over days go to the
+   front as Jan 1 and Jan 2?
 
 ## Out of scope
 
