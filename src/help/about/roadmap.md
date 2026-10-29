@@ -13,6 +13,7 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - A guide for each month, week or day of a data quilt: which pieces of its block to cut in which
   fabric, day by day, printed or on screen.
 - View grayscale in the block previews of the project's Blocks tab and of Libraries.
+- Fix: a link to a secret gist opens its project.
 
 ## 0.8.0
 
