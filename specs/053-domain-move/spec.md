@@ -179,7 +179,7 @@ Found on 2026-10-29 (excluding `docs/`, `specs/`):
   case-sensitive (a repo rename changes the path).
 - **No server settings**: no HTTP redirects, no custom headers (no `Cache-Control`, CSP or
   `Service-Worker-Allowed`); everything is cached about 10 minutes, so a new build can take that
-  long to show. The redirect stub and the SPA 404 fallback (which answers with status 404) are
+  long to show. The moving build and the SPA 404 fallback (which answers with status 404) are
   static pages for this reason.
 - **After the transfer**: check Settings › Pages on the moved repo (source `main` › `/docs`, the
   domain); re-enter them if missing. The organization's member privileges must allow Pages for
