@@ -1375,6 +1375,7 @@
 </template>
 
 <script setup lang="ts">
+import { updateBeforeLink } from '@/session/update';
 import DialogClose from '@/components/DialogClose.vue';
 import TagsDialog from '@/components/TagsDialog.vue';
 import FavoriteBadge from '@/components/FavoriteBadge.vue';
@@ -1790,6 +1791,7 @@ function showLibrary(id: string) {
 onMounted(async () => {
   const url = route.query.add;
   if (typeof url !== 'string' || !url.trim()) return;
+  await updateBeforeLink(); // a new version first, if there is one (spec 054)
   const ref = typeof route.query.ref === 'string' ? route.query.ref.trim() : '';
   // A reload doesn't ask again. Done first: dialogs close when the route changes.
   await router.replace({ query: {} });

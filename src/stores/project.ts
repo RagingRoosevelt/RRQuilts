@@ -373,6 +373,11 @@ export const useProjectStore = defineStore('project', () => {
     return released;
   }
 
+  /** Reloading for an update (spec 054): the quilter already chose to save or keep a draft. */
+  let leaveAllowed = false;
+  const allowLeave = () => void (leaveAllowed = true);
+  const flushDraft = () => autosave.flush();
+
   // Never lose more than a moment of work when the tab goes away.
   if (typeof window !== 'undefined') {
     document.addEventListener('visibilitychange', () => {
@@ -382,7 +387,7 @@ export const useProjectStore = defineStore('project', () => {
     window.addEventListener('beforeunload', (e) => {
       // Write the draft now: Firefox aborts IndexedDB writes started later, during pagehide.
       void autosave.flush();
-      if (dirty.value && !readOnly.value) e.preventDefault();
+      if (dirty.value && !readOnly.value && !leaveAllowed) e.preventDefault();
     });
   }
 
@@ -436,5 +441,7 @@ export const useProjectStore = defineStore('project', () => {
     exportQuilt,
     continueHere,
     close,
+    flushDraft,
+    allowLeave,
   };
 });

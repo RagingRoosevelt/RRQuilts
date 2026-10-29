@@ -37,6 +37,16 @@
           />
         </template>
         <q-space />
+        <!-- A new version the quilter put off (spec 054): reopens the update dialog. -->
+        <q-btn
+          v-if="update.phase !== 'none' && !update.open"
+          flat
+          dense
+          no-caps
+          icon="system_update"
+          :label="update.phase === 'ready' ? 'Update ready' : 'Update'"
+          @click="update.open = true"
+        />
         <ImageStatus />
         <SaveStatus />
         <q-btn
@@ -92,6 +102,7 @@
 import { useQuasar } from 'quasar';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { update } from '@/session/update';
 import ImageStatus from '@/components/ImageStatus.vue';
 import SaveStatus from '@/components/SaveStatus.vue';
 import SettingsPanel from '@/components/SettingsPanel.vue';

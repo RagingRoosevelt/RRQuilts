@@ -2,6 +2,7 @@
 import { defineConfig } from '#q-app';
 import { copyFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { parseChangelog } from './src/model/changelog';
 
 // Base path the site is served under (GitHub Pages project site by default).
 const base = process.env.RRQ_BASE || '/RRQuilts/';
@@ -105,6 +106,12 @@ export default defineConfig(() => ({
     afterBuild() {
       copyFileSync(join(distDir, 'index.html'), join(distDir, '404.html'));
       writeFileSync(join(distDir, '.nojekyll'), '');
+      // What the update dialog shows (spec 054): fetched by the running app, never precached.
+      const versions = parseChangelog(readFileSync('CHANGELOG.md', 'utf8'));
+      writeFileSync(
+        join(distDir, 'version.json'),
+        JSON.stringify({ version: appVersion, versions }),
+      );
     },
   },
 
@@ -122,6 +129,9 @@ export default defineConfig(() => ({
     // Never activate a new version until the user accepts the update prompt.
     extendPWAGenerateSWOptions(opts) {
       opts.skipWaiting = false;
+      // The published schemas are for outside tools (the app never reads them), and version.json
+      // must always come from the network (spec 054).
+      opts.globIgnores = [...(opts.globIgnores ?? []), 'schemas/**', 'version.json'];
     },
     extendPWAManifestJson(json) {
       json.id = base;

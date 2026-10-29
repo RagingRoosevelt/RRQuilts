@@ -2,6 +2,7 @@
   <div class="fit" @dragover.prevent @drop.prevent="onDrop">
     <MainLayout />
     <VersionDialog />
+    <UpdateDialog />
     <!-- "View grayscale": each color becomes the gray of the same luminance (Rec. 709 weights in
          linear light), so equal grays mean equal values. CSS grayscale() mixes gamma-encoded
          values and makes saturated blues and reds read too dark. -->
@@ -19,6 +20,7 @@
 <script setup lang="ts">
 import MainLayout from '@/layouts/MainLayout.vue';
 import VersionDialog from '@/components/VersionDialog.vue';
+import UpdateDialog from '@/components/UpdateDialog.vue';
 import { useOpenProject } from '@/composables/open-project';
 import { useProjectStore } from '@/stores/project';
 
