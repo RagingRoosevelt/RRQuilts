@@ -98,41 +98,6 @@ export const CHECKS: Check[] = [
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
   },
-  {
-    id: 'TC-201',
-    group: G.data046,
-    text: 'A data quilt with only qA and qB, and a data block whose numerals use A, B and C. Pick it: three rows (Block A, B, C shows), Block C starting on qA, no warning. Set A → qA, B → qB, C → qA and place it: it reads qA, qB, qA under its number, and its C patches follow qA’s values.',
-    last: '"if the quilt only has qA and qB, we should still allow using a block with A, B, and C. The user might want to do qA->A,C, qB->B"',
-    to: '/',
-  },
-  {
-    id: 'TC-202',
-    group: G.data046,
-    text: 'A data quilt with a block whose numerals use value B (or B and A): the light day arrows inside each placed block run through every value’s days, not only value A’s, whichever quilt value they show.',
-    last: '"in quilt design, block trace arrows are shown only for series A"',
-    to: '/',
-  },
-  {
-    id: 'TC-203',
-    group: G.data046,
-    text: 'Data quilt › Design: the rail has Erase block and Find block (not Set). Erase a placed data block: the space empties and the list shows that number without it (Undo brings it back). Find, tapping a data block: every space it’s placed on lights up, including ones showing its 1-day variant.',
-    last: '"we don’t seem to have the “erase a block” tool in a data quilt? or find block?"',
-    to: '/',
-  },
-  {
-    id: 'TC-204',
-    group: G.data046,
-    text: 'Data quilt › Find block: tap a placed data block: Blocks shows Data blocks with that block picked (in the Day blocks list for a 1-day one) and all its spaces light up. Tap an ordinary block (set from Other blocks): Blocks switches to Other blocks with it selected, and its spaces light up.',
-    last: '"find tool doesn’t select the data block in the data block picker" / "actaully it doesn’t find normal blocks in a data quilt either"',
-    to: '/',
-  },
-  {
-    id: 'TC-206',
-    group: G.data046,
-    text: 'Scroll the sidebar to the bottom, then Find block or middle-click: what it picks scrolls to the middle of the sidebar. Ordinary quilt or a data quilt’s Other blocks: the block’s tile. Data blocks: the picked data block. Middle-click on a sash or border: its swatch in Colors.',
-    last: '"don’t we also scroll the sidebar when find tool is used?" / "middle click should scroll too"',
-    to: '/',
-  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
