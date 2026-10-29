@@ -14,7 +14,11 @@ prunusdomestic.com/RRQuilts or rrquilts.prunusdomesic.com [read: prunusdomestic.
 org is RRQuilts but I would probably rename the org to PrunusDomestic." Then, on the old address:
 "this would be a new version of the site in the old url location that would still have access to
 the local storage and would provide users a mechanism to export their data before being redirected
-to the new location" (User Stories 2 and 3). The address is decided at implementation.
+to the new location" (User Stories 2 and 3). The address is decided at implementation. Then:
+"the "moving" version of the site would allow the user to download all of those recent files as
+rrq files that they could then open at the new site" and "make sure that the action links we have
+set up would continue to work, by redirecting them intact to the new location. so I believe we have
+an open gist and an add library one right now" (User Story 2, scenarios 4a and 11).
 
 ## Today
 
@@ -91,6 +95,14 @@ Open the old address again in a browser with no RRQuilts data: it goes straight 
 4. **Download my data** (always offered, the fallback): saves a My library backup (`.rrqlib` with
    packs and images, the existing backup) and the settings (`.rrqconf`), and each draft as a
    `.rrq`, for importing at the new address by hand.
+4a. **Recent files**: the moving page lists the recent files (`storage/recent.ts`, File System
+   Access handles kept on the old origin) with **Download** for each and **Download all** (one
+   `.zip` of `.rrq` files, `model/zip.ts`). Reading each needs the browser's permission for that
+   file (the same prompt as reopening it today, one per file, from the button press). A file that
+   was moved, renamed or deleted since is listed as not found ("open it from where it is now"). A
+   recent entry with no handle (browsers without File System Access) is listed by name only. The
+   hand-off (scenario 3) also offers to include them: the new address receives their contents as
+   drafts named after the files, to save again there.
 5. **Continue without moving**: goes to the new address; the moving page asks once more if data
    would be left behind.
 6. **Given** the data has moved, **Then** the moving page offers **Clear the data here** (so the
@@ -109,6 +121,16 @@ Open the old address again in a browser with no RRQuilts data: it goes straight 
    by the release process until old tools are gone).
 10. The moving build stays up indefinitely: a quilter who comes back a year later can still move
     their data.
+11. **Action links** arrive intact at the new address, with every query parameter, whether the
+    moving page shows first or not (after it, the quilter continues to the link they came with):
+    - `/?open_gist=<gist link or id>` (shared projects, `HomePage.vue`) opens the gist's project
+      there;
+    - `/libraries?add=<repository address>[&ref=<branch or tag>]` (library gallery pages, the
+      template README and `tools/site.py`, `LibrariesPage.vue`) asks to add the library there;
+    - any other path and query (future links, such as spec 040's filtered views) are carried the same
+      way, not by a list of known ones. In-app parameters (`?notice=`, `?turnOff=`) need nothing.
+    With address B the base path changes: `/RRQuilts/libraries?add=...` maps to `/libraries?add=...`.
+    Each link is tested through the moving build, with and without stored data.
 
 ---
 
@@ -125,9 +147,9 @@ Open the old address again in a browser with no RRQuilts data: it goes straight 
    paths).
 4. **Given** data already at the new address, **Then** importing merges and never deletes; conflicts
    follow the existing library rules (spec 011).
-5. **Given** recent files from the old address (file handles from the File System Access API), **Then**
-   they can't carry across (handles are tied to the origin): the list arrives as names only, and
-   opening one asks to pick the file again.
+5. **Given** recent files from the old address, **Then** their handles can't carry across (tied to
+   the origin): they arrive as their contents (User Story 2, scenario 4a), as drafts to save again
+   or as downloaded `.rrq` files to open.
 
 ---
 
@@ -214,6 +236,10 @@ Found on 2026-10-29 (excluding `docs/`, `specs/`):
 - **FR-003**: The new address MUST import a hand-off from the moving build and the downloaded files,
   merging and never deleting; the moving build MUST NOT clear data unless asked, after a confirmed
   move or download.
+- **FR-007**: The moving build MUST let the quilter download every recent file as `.rrq` (one by one
+  or all in a `.zip`) and include them in the hand-off.
+- **FR-008**: Action links (`?open_gist=`, `/libraries?add=&ref=`, and any path and query) MUST
+  reach the new address intact, with or without the moving page in between.
 - **FR-006**: The moving build MUST replace the old service worker, so installed apps and cached
   builds at the old address reach the moving page.
 - **FR-004**: The old organization name MUST be held after the rename; stored library URLs MUST keep
