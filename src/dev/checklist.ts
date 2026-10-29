@@ -127,10 +127,10 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-205',
+    id: 'TC-206',
     group: G.data046,
-    text: 'Find block scrolls the sidebar to what it picks: in an ordinary quilt and in a data quilt’s Other blocks, the block’s tile; in a data quilt’s Data blocks, the picked data block (scroll the sidebar to the bottom first, then Find).',
-    last: '"don’t we also scroll the sidebar when find tool is used?"',
+    text: 'Scroll the sidebar to the bottom, then Find block or middle-click: what it picks scrolls to the middle of the sidebar. Ordinary quilt or a data quilt’s Other blocks: the block’s tile. Data blocks: the picked data block. Middle-click on a sash or border: its swatch in Colors.',
+    last: '"don’t we also scroll the sidebar when find tool is used?" / "middle click should scroll too"',
     to: '/',
   },
 ];

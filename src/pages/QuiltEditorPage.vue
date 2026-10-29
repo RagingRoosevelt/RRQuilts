@@ -642,6 +642,7 @@ function onTap(hit: Hit) {
   if (editor.tool === 'find' && data && kind) dataTypes.pick(data, kind);
   // A data quilt's tray shows the list the found block is in.
   if (editor.tool === 'find' && quilt.value.data?.on && r.selectBlock) editor.dataOther = !place;
+  if (editor.tool === 'find' && r.selectBlock) editor.reveal();
   if (r.selectColor) editor.useColor(r.selectColor);
   if (r.message) $q.notify({ message: r.message, timeout: 1500 });
   if (r.doc && !project.readOnly) {
@@ -670,6 +671,7 @@ function onPick(hit: Hit) {
     editor.dataSeries = series;
     editor.dataNext = place.n;
     editor.tool = 'number';
+    editor.reveal();
     return;
   }
   const content = q.layers[0].slots[hit.slotId];
@@ -685,6 +687,7 @@ function onPick(hit: Hit) {
   } else if (r.selectColor && ['set', 'number', 'entry', 'find'].includes(editor.tool))
     editor.tool = 'paint';
   if (r.selectColor) editor.useColor(r.selectColor);
+  editor.reveal();
 }
 
 /** A data quilt's numbered spaces given an ordinary block (Other blocks) give their numbers back. */

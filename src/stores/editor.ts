@@ -95,6 +95,9 @@ export const useEditorStore = defineStore('editor', () => {
   /** A data quilt's Blocks tab shows Other blocks (not Data blocks): Set's list, kept while Erase,
    *  Find and the like are on. */
   const dataOther = ref(false);
+  /** Bumped when Find or a middle click picks something: the tray scrolls it into view. */
+  const revealTick = ref(0);
+  const reveal = () => revealTick.value++;
   watch(tool, (t) => {
     if (t === 'set') dataOther.value = true;
     if (t === 'number') dataOther.value = false;
@@ -162,6 +165,8 @@ export const useEditorStore = defineStore('editor', () => {
     dataPick,
     dataSeries,
     dataOther,
+    revealTick,
+    reveal,
     flash,
     flashSpaces,
     useColor,

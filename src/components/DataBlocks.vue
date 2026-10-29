@@ -371,16 +371,17 @@ watch(
   },
   { immediate: true },
 );
-// Find: the found data block scrolls into view in its list.
+// Find or a middle click: the picked data block scrolls into view in its list.
 watch(
-  () => editor.tool === 'find' && editor.dataPick,
-  (p) => {
+  () => editor.revealTick,
+  () => {
+    const p = editor.dataPick;
     if (!p) return;
     void nextTick(() =>
       requestAnimationFrame(() =>
         root.value
           ?.querySelector(`[data-pick="${CSS.escape(`${p.kind}:${p.id}`)}"]`)
-          ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }),
+          ?.scrollIntoView({ block: 'center', behavior: 'smooth' }),
       ),
     );
   },

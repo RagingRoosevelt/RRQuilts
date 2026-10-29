@@ -220,6 +220,7 @@
                 v-if="sw.kind === 'color'"
                 class="swatch"
                 :class="{ active: !editor.data.on && editor.color === sw.item.id }"
+                :data-color="sw.item.id"
                 :style="{ background: `rgb(${sw.item.rgb.join(',')})` }"
                 :title="sw.item.notecard.name"
                 @click="pickColor(sw.item.id)"
@@ -246,6 +247,7 @@
                 v-else
                 class="swatch fabric"
                 :class="{ active: !editor.data.on && editor.color === fabricPaint(sw.item.id) }"
+                :data-color="fabricPaint(sw.item.id)"
                 :style="swatchStyle(sw.item)"
                 :title="sw.item.notecard.name + (sw.item.approximate ? ' (size ≈)' : '')"
                 @click="pickColor(fabricPaint(sw.item.id))"
@@ -339,19 +341,21 @@ const props = withDefaults(
 );
 const app = useSettingsStore();
 const trayRoot = ref<HTMLElement>();
-// Find: the found block scrolls into view in the tray (once the list it's in has drawn).
+// Find or a middle click: what it picked (block, color) scrolls into view in the tray, once the
+// list it's in has drawn.
 watch(
-  () => editor.tool === 'find' && editor.block,
-  (id) => {
-    if (!id) return;
+  () => editor.revealTick,
+  () =>
     void nextTick(() =>
-      requestAnimationFrame(() =>
-        trayRoot.value
-          ?.querySelector(`[data-block="${CSS.escape(id)}"]`)
-          ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }),
-      ),
-    );
-  },
+      requestAnimationFrame(() => {
+        const root = trayRoot.value;
+        const at = (sel: string) =>
+          root?.querySelector(sel)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        if (tab.value === 'colors' && editor.color)
+          at(`[data-color="${CSS.escape(editor.color)}"]`);
+        else if (editor.block) at(`[data-block="${CSS.escape(editor.block)}"]`);
+      }),
+    ),
 );
 const tab = computed({
   get: () =>
