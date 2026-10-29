@@ -157,6 +157,7 @@
           :outlines="editor.outlines"
           :labels="editor.labels"
           :selected="found"
+          :soft="flashSoft"
           :pan-only="panOnly"
           :data-marks="dataMarks"
           :day-paths="dayPaths"
@@ -535,8 +536,13 @@ onMounted(() => window.addEventListener('keydown', onKey));
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
 /** Find tool: outline every placement of the selected block. */
+/** A flash's spaces matching only part of what's picked (a slight glow). */
+const flashSoft = computed(() =>
+  editor.flash.on && editor.flash.soft.length ? new Set(editor.flash.soft) : undefined,
+);
 const found = computed(() => {
-  if (editor.flash.on && editor.flash.ids.length) return new Set(editor.flash.ids);
+  if (editor.flash.on && (editor.flash.ids.length || editor.flash.soft.length))
+    return new Set(editor.flash.ids);
   if (editor.mode === 'layout' && strips.value) {
     const id = editor.swapFirst ?? editor.selectedStrip;
     return id

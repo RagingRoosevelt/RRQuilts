@@ -29,6 +29,8 @@ export interface DrawOptions {
   labels?: boolean;
   hover?: string | null;
   selected?: Set<string>;
+  /** Spaces given a slight glow (a data quilt's flash: those matching only part of what's picked). */
+  soft?: Set<string>;
   /** Visual theme: patch outline and empty-space colors. */
   dark: boolean;
   /** Draw the quilt's reference overlay when it's switched on (the editor, a Details download);
@@ -190,7 +192,8 @@ export function drawQuilt(
   ctx.shadowBlur = 10 * o.dpr;
   ctx.lineJoin = 'round';
   for (const slot of generated.slots) {
-    const hi = slot.id === o.hover ? 2.5 : o.selected?.has(slot.id) ? 3 : 0;
+    const hi =
+      slot.id === o.hover ? 2.5 : o.selected?.has(slot.id) ? 3 : o.soft?.has(slot.id) ? 1 : 0;
     if (!hi) continue;
     const content = quilt.layers[0].slots[slot.id];
     // Spaces that take blocks (setting and cut-down edge pieces too) as blocks; patch-only ones

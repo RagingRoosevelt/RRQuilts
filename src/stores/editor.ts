@@ -92,15 +92,27 @@ export const useEditorStore = defineStore('editor', () => {
    *  values reads (by its letter). */
   const dataPick = ref<{ id: string; kind: DataKind } | null>(null);
   const dataSeries = ref<(number | null)[]>([]);
-  /** Block spaces lit for a moment on the quilt (a number or a value clicked in the list). */
-  const flash = reactive<{ ids: string[]; on: boolean }>({ ids: [], on: false });
+  /** Block spaces lit for a moment on the quilt (a number or a value clicked in the list): `ids`
+   *  at full glow, `soft` slightly. */
+  const flash = reactive<{ ids: string[]; soft: string[]; on: boolean }>({
+    ids: [],
+    soft: [],
+    on: false,
+  });
   let flashTimers: ReturnType<typeof setTimeout>[] = [];
   /** Light spaces up once, briefly. */
-  function flashSpaces(ids: string[]) {
+  function flashSpaces(ids: string[], soft: string[] = []) {
     flashTimers.forEach(clearTimeout);
     flash.ids = ids;
+    flash.soft = soft;
     flash.on = true;
-    flashTimers = [setTimeout(() => ((flash.on = false), (flash.ids = [])), 400)];
+    flashTimers = [
+      setTimeout(() => {
+        flash.on = false;
+        flash.ids = [];
+        flash.soft = [];
+      }, 400),
+    ];
   }
 
   function useColor(id: string) {

@@ -42,6 +42,8 @@ const props = defineProps<{
   labels: boolean;
   /** Slots to outline (e.g. every placement of the block being found). */
   selected?: Set<string> | undefined;
+  /** Spaces given a slight glow. */
+  soft?: Set<string> | undefined;
   panOnly: boolean;
   /** Data quilt marks and order lines (spec 025, Data tab). */
   dataMarks?: readonly DataMark[] | null;
@@ -80,6 +82,7 @@ const vp = useViewport({
       outlines: props.outlines,
       labels: props.labels,
       ...(props.selected ? { selected: props.selected } : {}),
+      ...(props.soft ? { soft: props.soft } : {}),
       hover: props.hover,
       dark: $q.dark.isActive,
     });
@@ -114,6 +117,7 @@ watch(
     props.outlines,
     props.labels,
     props.selected,
+    props.soft,
     props.dataMarks,
     props.dayPaths,
     $q.dark.isActive,

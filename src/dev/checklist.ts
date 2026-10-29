@@ -197,17 +197,17 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-197',
-    group: G.data046,
-    text: 'Data blocks list: click a number with blocks placed: all its blocks light up once, briefly, on the quilt. Click a Value button (qA, qB; already picked or not): the blocks showing that value light up once.',
-    last: '"clicking on a data slot or series label should briefly flash all members of that slot or label" / "single quick flash, not multiple"',
-    to: '/',
-  },
-  {
     id: 'TC-198',
     group: G.data046,
     text: 'Put three or more blocks on one number: its row in the list grows to more rows of blocks, with no scrollbar and nothing clipped.',
     last: '"when the scrollbar gets added to a slot in the sidebar, it causes the blocks & slot labels to clip. we should instead just add a row for the extra blocks"',
+    to: '/',
+  },
+  {
+    id: 'TC-199',
+    group: G.data046,
+    text: 'A data quilt with two values, Wk 1–3 placed with qA and again with qB. With qB picked, click Wk 2 in the list: the Wk 2 qB block lights up once at full glow, the Wk 2 qA block with a slight glow. With Wk 2 highlighted, click qA: Wk 2 qA at full glow, Wk 1 and Wk 3 qA slightly. Each is one quick flash.',
+    last: '"clicking on a data slot or series label should briefly flash all members of that slot or label" / "single quick flash, not multiple" / "the members of the series or numeral should flash with a slight glow but the blocks that match both the currently selected data slot _and_ series label should flash with a glow intensity that we’re currently using"',
     to: '/',
   },
 ];

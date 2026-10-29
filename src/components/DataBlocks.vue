@@ -159,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import { readingOrder, SLOT_NAMES, type DataOrder } from '@/model/data-paint';
 import {
@@ -170,7 +170,6 @@ import {
   dataReport,
   fillNumbers,
   numberCount,
-  placesOf,
   seriesLabel,
   seriesOf,
 } from '@/model/data-quilt';
@@ -307,26 +306,40 @@ function edit(fn: (p: DataPlan) => DataPlan) {
 function pick(k: number) {
   editor.dataNext = k;
   if (!props.readonly) editor.tool = 'number';
-  if (plan.value) editor.flashSpaces(placesOf(plan.value, k).map((x) => x.space));
+  flashMatching((x) => x.n === k);
 }
-/** Blink the blocks that show quilt value `v`. */
-function flashValue(v: number) {
+/** The quilt values a placement shows. */
+function valuesOf(x: DataPlace): number[] {
+  const b = blockOf(x.block);
+  return (b ? blockLetters(b) : [0]).map((l) => seriesOf(x, l));
+}
+/** The quilt values the brush shows. */
+const brushValues = () => letters.value.map((l) => editor.dataSeries[l] ?? l);
+/** Light up the placements `match` picks: full glow where they also match both the highlighted
+ *  number and the picked value(s), slight glow otherwise. */
+function flashMatching(match: (x: DataPlace) => boolean) {
   const p = plan.value;
   if (!p) return;
-  editor.flashSpaces(
-    p.places
-      .filter((x) => {
-        const b = blockOf(x.block);
-        return (b ? blockLetters(b) : [0]).some((l) => seriesOf(x, l) === v);
-      })
-      .map((x) => x.space),
-  );
+  const want = brushValues();
+  const strong: string[] = [];
+  const soft: string[] = [];
+  for (const x of p.places) {
+    if (!match(x)) continue;
+    const both = x.n === editor.dataNext && valuesOf(x).some((v) => want.includes(v));
+    (both ? strong : soft).push(x.space);
+  }
+  editor.flashSpaces(strong, soft);
+}
+/** Light up the blocks that show quilt value `v`. */
+function flashValue(v: number) {
+  flashMatching((x) => valuesOf(x).includes(v));
 }
 /** A Value button clicked (picked or already picked): its value's blocks blink. */
 function onValueClick(e: Event) {
   const t = (e.target as HTMLElement | null)?.closest('button')?.textContent?.trim() ?? '';
   const i = SLOT_NAMES.indexOf(t.slice(1) as (typeof SLOT_NAMES)[number]);
-  if (t.startsWith('q') && i >= 0) flashValue(i);
+  // After the pick lands, so the full glow follows the new value.
+  if (t.startsWith('q') && i >= 0) void nextTick(() => flashValue(i));
 }
 /** Block spaces' centers, as fractions of the quilt. */
 const generated = computed(() => generateFor(props.quilt));
