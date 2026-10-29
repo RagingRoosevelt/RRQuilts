@@ -16,7 +16,8 @@ quilts in this one, and just two of them, sort of facing eachother on an angle l
 dialog does). let's have the title inform the user what version they're coming from and what
 version they're going to. and then we can show a changelog of the major changes since the version
 they were already on. if the user arrives to the page from a link in (add library, open gist), the
-reload for update offer shows before they redirect to the destination of their path in".
+reload for update offer shows before they redirect to the destination of their path in". Then: "if the user clicks on reload before we're done downloading the update we can show a
+spinner saying "reloading"" (User Story 2, scenario 2).
 
 ## Today (0.7.2)
 
@@ -52,8 +53,10 @@ download runs; **Reload** turns on when it's done.
 1. **Given** the browser finds a new version (the new worker starts installing: `updatefound`),
    **Then** the update dialog opens at once, before the download finishes.
 2. **Given** the download is running, **Then** the dialog shows **Downloading the update…** (with
-   progress: files done of files changed, where available) and **Reload** shows as **Reload when
-   ready**: pressing it closes the dialog and reloads by itself when the download finishes.
+   progress: files done of files changed, where available) and **Reload** is available. Pressing it
+   before the download finishes turns the dialog's buttons into a spinner with **Reloading…**; the
+   page reloads by itself when the download finishes (a failed download ends the spinner with
+   scenario 5's message).
 3. **Given** the download finished, **Then** the dialog shows **Ready** and **Reload** reloads now.
 4. **Given** **Later**, **Then** the dialog closes; a small **Update ready** button stays in the
    app's header (or on Home) to reopen it; the next page load shows the dialog again.
@@ -107,7 +110,7 @@ first. Reload: 0.7.3 loads and then opens the gist. Repeat with Later: the gist 
    before acting on it the app checks for an update (`registration.update()`, one small request),
    waiting at most 3 seconds (offline or slow: it goes on).
 2. **Given** an update was found, **Then** the update dialog shows first; the link isn't acted on.
-3. **Given** **Reload** (now or when ready), **Then** the page reloads with the same URL, so the new
+3. **Given** **Reload** (at once, or after the "Reloading…" spinner), **Then** the page reloads with the same URL, so the new
    version acts on the link.
 4. **Given** **Later**, **Then** the running version acts on the link at once.
 5. **Given** no update, **Then** the link is acted on as today, after the check.
@@ -128,7 +131,7 @@ first. Reload: 0.7.3 loads and then opens the gist. Repeat with Later: the gist 
 
 - **FR-001**: The build MUST leave `schemas/*.json` out of the precache, still publishing them.
 - **FR-002**: The update dialog MUST open when a new worker starts installing, not when it's done,
-  with Reload available as "Reload when ready" during the download.
+  with Reload available during the download (pressed early: a "Reloading…" spinner until it's ready).
 - **FR-003**: The dialog MUST replace the toast; Later MUST leave a way back to it.
 - **FR-004**: The title MUST name the running and new versions; the body MUST list the changelog's
   new features for every newer version, fixes folded, from the new build's `version.json`.
