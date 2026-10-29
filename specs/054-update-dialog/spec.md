@@ -17,7 +17,10 @@ dialog does). let's have the title inform the user what version they're coming f
 version they're going to. and then we can show a changelog of the major changes since the version
 they were already on. if the user arrives to the page from a link in (add library, open gist), the
 reload for update offer shows before they redirect to the destination of their path in". Then: "if the user clicks on reload before we're done downloading the update we can show a
-spinner saying "reloading"" (User Story 2, scenario 2).
+spinner saying "reloading"" (User Story 2, scenario 2). Then: "in version.json, can we designate
+major and minor changes so that we can show only major changes to the user in this dialog? we can
+continue showing them intermixed in about/changelog but we can sort them by major minor in that
+about/changelog area" (User Story 5).
 
 ## Today (0.7.2)
 
@@ -87,9 +90,10 @@ first, with each version's fixes folded away.
    version>** (for example "Update from 0.7.1 to 0.7.3"); a rebuild of the same version reads
    **A new build of 0.7.2**.
 3. **Given** the new version's changelog, **Then** the dialog lists every version newer than the
-   running one, newest first, each with its **New features** in full and its **Fixes** (and any other
-   sections) folded under a "Fixes" line to open. Long lists scroll inside the dialog. A link opens
-   the full changelog in Help (after reload, the new one).
+   running one, newest first, each with only its **major** changes (User Story 5), whatever section
+   they're in. Long lists scroll inside the dialog. A line under each version says how many other
+   changes it has ("and 6 smaller changes"), and a link opens the full changelog in Help (after
+   reload, the new one).
 4. **Given** the running app is old, **Then** the new version number and changelog come from the
    new build, not the running one: each build publishes `version.json` (version, build date, and the
    changelog entries as structured data, made from `CHANGELOG.md` at build time); the dialog fetches
@@ -115,6 +119,25 @@ first. Reload: 0.7.3 loads and then opens the gist. Repeat with Later: the gist 
 4. **Given** **Later**, **Then** the running version acts on the link at once.
 5. **Given** no update, **Then** the link is acted on as today, after the check.
 
+### User Story 5 - Major and minor changes (Priority: P1)
+
+**Acceptance Scenarios**:
+
+1. **Given** `CHANGELOG.md`, **Then** a change is marked major by starting its line with `[major]`
+   (`- [major] A data quilt can place several blocks…`); every other line is minor. The release
+   process (`scripts/release.md`, the changelog step) marks the few changes a quilter should hear
+   about, usually new features.
+2. **Given** the build, **Then** `version.json` gives each change `{text, major}`, grouped by version
+   and section, with the marker removed from the text.
+3. **Given** Help › About › Changelog, **Then** each version still shows its sections (New features,
+   Fixes…), with major changes first in each section, then minor ones, each group in the order
+   written; the `[major]` marker never shows (major ones may be in bold).
+4. **Given** a version with no line marked (every version before 0.7.3, unless marked then), **Then**
+   the dialog shows that version's New features as its major changes, so older versions still read
+   well; Help shows it as written.
+5. **Given** a version with only minor changes, **Then** the dialog shows the version with just "6
+   smaller changes" and the link.
+
 ### Edge Cases
 
 - **Downgrade or same version** (a rollback): the title reads "Update from 0.7.3 to 0.7.2"; the
@@ -137,14 +160,17 @@ first. Reload: 0.7.3 loads and then opens the gist. Repeat with Later: the gist 
 - **FR-002**: The update dialog MUST open when a new worker starts installing, not when it's done,
   with Reload available during the download (pressed early: a "Reloading…" spinner until it's ready).
 - **FR-003**: The dialog MUST replace the toast; Later MUST leave a way back to it.
-- **FR-004**: The title MUST name the running and new versions; the body MUST list the changelog's
-  new features for every newer version, fixes folded, from the new build's `version.json`.
+- **FR-004**: The title MUST name the running and new versions; the body MUST list each newer
+  version's major changes (and a count of the rest), from the new build's `version.json`.
+- **FR-009**: `CHANGELOG.md` lines MAY start with `[major]`; `version.json` MUST carry `major` per
+  change; Help's changelog MUST list major changes first within each section and hide the marker;
+  a version with none marked counts its New features as major in the dialog.
 - **FR-005**: The dialog MUST show two whole quilts angled toward each other, as the welcome wizard's
   picture does.
 - **FR-006**: Action links MUST wait (up to 3 s) for the update check, show the dialog first when
   there's an update, and survive the reload; Later acts on them in the running version.
 - **FR-007**: Reloading MUST NOT lose unsaved work (ask first, drafts as today).
-- **FR-008**: Each build MUST publish `version.json` (version, date, changelog entries), not
+- **FR-008**: Each build MUST publish `version.json` (version, date, changelog entries with `major`), not
   precached and fetched with no caching.
 
 ## Success Criteria
