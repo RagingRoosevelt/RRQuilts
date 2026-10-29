@@ -11,13 +11,19 @@ settings, under design, block design.
 Owner, 2026-10-29: "let's move [it] into 0.7.3 and add the ability to pick which things have snap
 gravity at all". Done as one strength per snap target (User Story 3), each of which can be Off.
 Then: "add a snapping target toggle of horizontal or vertical alignment with nearest nearly
-horizontal and nearest vertical node" (User Story 5).
+horizontal and nearest vertical node" (User Story 5). Then: "the snap settings are user settings
+(not project settings) but are exposed in the block design editor".
 
 ## Concepts
 
 - **Snapping** (block editor, spec 007; triangle grid spec 026): while drawing, the pointer jumps
   to the nearest existing corner (node), then a point on a seam or the outline, then a snap-grid
-  point, when one is close enough. Which of these snap is set per block (the snap toggles).
+  point, when one is close enough. Which of these snap is today set per block (the snap toggles,
+  saved in the block's editor state). This feature makes them the quilter's own settings.
+- **Where snap settings live**: which targets pull, and how hard, are **user settings** (Settings,
+  `.rrqconf`), the same in every block and every project. The block editor shows them and changes
+  them in place. The grid itself (step or divisions, triangle steps per side) stays with each block,
+  since it depends on the block's size.
 - **Gravity**: how close is "close enough": the distance on screen within which a point pulls the
   pointer in. Today it is fixed at 8 screen pixels for every target and every input.
 - Gravity is measured on screen, not in the block, so it feels the same at any zoom.
@@ -40,8 +46,7 @@ seam end lands on the corner; set all three Off: it lands exactly where the poin
    default, today's behavior) or **Strong**.
 2. **Given** a step, **Then** the pull reaches: Off 0, Gentle 4, Normal 8, Strong 16 screen pixels
    (mouse and pen).
-3. **Given** a target Off, **Then** it doesn't snap (the block's toggle keeps its saved value, for
-   when gravity comes back).
+3. **Given** a target Off, **Then** it doesn't snap, and its block editor toggle shows off.
 4. **Given** the setting changes while a block is open in another tab, **Then** that editor follows
    it when the settings sync (as other settings do).
 5. **Given** a settings file (`.rrqconf`) exported and imported, **Then** gravity goes with it.
@@ -73,12 +78,11 @@ stop on it, in every block, while corners and grid points still pull.
    (Off, Gentle, Normal, Strong): **Corners** (corners already drawn and the block's own corners),
    **Seams** (any point on a seam or the outline) and **Grid points** (the snap grid, square or
    triangle), plus **Line up** (User Story 5). All Normal by default.
-2. **Given** a target set to Off, **Then** it never pulls, in any block, and the block editor's
-   toggle for it ("Snap to nodes", "Snap to seams", "Snap to grid points", "Line up with
-   nodes") shows off and disabled
-   with the note "Off in Settings" and a link there.
-3. **Given** a target not Off, **Then** the block's own toggle works as now (per block, saved with
-   the block), so a quilter can still switch one off for a single block.
+2. **Given** a target set to Off, **Then** it never pulls, in any block.
+3. **Given** the block editor, **Then** its snap toggles ("Snap to nodes", "Snap to seams", "Snap to
+   grid points", "Line up with nodes") are these same settings: switching one off there sets that
+   target Off in Settings; switching it on brings back the step it had before (Normal if none), for
+   every block. A link opens Settings for the strengths.
 4. **Given** several targets within reach, **Then** priority stays as now: corners, then seams, then
    line up, then grid points, each reaching its own distance.
 5. **Given** every target Off, **Then** nothing snaps and the snap marker never shows.
@@ -98,7 +102,8 @@ x 1 as well: it lands at (1, 2.3) only if Corners pull it there; else at x 1 on 
 **Acceptance Scenarios**:
 
 1. **Given** the block editor, **Then** a toggle **Line up with nodes** sits with the other snap
-   toggles, per block, **off** for every block until switched on (so drawing stays as it is today).
+   toggles. Like them it is the quilter's setting, **Off** by default (so drawing stays as it is
+   today) until switched on.
 2. **Given** Line up on, **When** the pointer's height is within reach of a corner's height (a
    nearly horizontal line from that corner), **Then** the point takes that corner's height exactly;
    of several, the corner nearest the pointer wins.
@@ -134,8 +139,11 @@ x 1 as well: it lands at (1, 2.3) only if Corners pull it there; else at x 1 on 
 - Shaped blocks (triangle grid): the same gravity applies to triangle-grid points.
 - Seam editing (moving a corner): the moved corner snaps with the same gravity; its own old position
   doesn't pull it back.
-- Settings older than this feature: Normal and Double, matching today. Blocks saved before it: Line
-  up off.
+- Settings older than this feature: Normal for Corners, Seams and Grid points, Off for Line up,
+  Double for touch, matching today.
+- Blocks saved before this feature carry their own snap toggles in their editor state: they are
+  ignored from now on (the grid spacing there still applies) and dropped the next time the block is
+  saved. A block that had one switched off now snaps by the quilter's settings.
 - Line up on a shaped block (triangle grid): level and plumb are still screen horizontal and
   vertical (the block's own axes); the triangle grid's slanted lines don't count.
 - Line up beats grid points: a corner level 1/16″ off a grid line wins when both are within reach.
@@ -143,18 +151,19 @@ x 1 as well: it lands at (1, 2.3) only if Corners pull it there; else at x 1 on 
 ## Requirements *(mandatory)*
 
 - **FR-001**: Settings MUST offer **Snapping gravity** under Quilt and block design › Block design:
-  a step (Off, Gentle, Normal, Strong; default Normal) for each of Corners, Seams, Line up and Grid
-  points,
+  a step (Off, Gentle, Normal, Strong; default Normal, Line up default Off) for each of Corners,
+  Seams, Line up and Grid points,
   saved with the other settings and in `.rrqconf`.
 - **FR-002**: The block editor's snapping MUST use each target's distance, in screen pixels; a
-  target Off MUST not snap anywhere, without changing the per-block snap toggles, which show off and
-  disabled with a note while their target is Off in Settings.
+  target Off MUST not snap anywhere. The block editor's snap toggles MUST read and write these user
+  settings (off = Off, on = the last step, Normal if none); nothing about which targets snap is saved
+  in the block or the project.
 - **FR-003**: Touch input MUST multiply the distance by **Touch gravity** (Same, Double default,
   Triple).
 - **FR-004**: Each target MUST reach its own distance; the priority order is corners (nodes), seams,
   line up, grid.
-- **FR-008**: The block editor MUST offer **Line up with nodes** per block (off by default and for
-  older blocks, saved in the block's editor state, so no format version change). On, a point MUST
+- **FR-008**: The block editor MUST offer **Line up with nodes** (the user setting, Off by
+  default). On, a point MUST
   take the exact y of the nearest corner whose y is within reach, and the exact x of the nearest
   corner whose x is within reach, independently; the other axis MAY then snap to a grid line.
 - **FR-009**: A lined up point MUST show a dashed guide line to its corner(s); the seam being drawn
@@ -166,7 +175,7 @@ x 1 as well: it lands at (1, 2.3) only if Corners pull it there; else at x 1 on 
 
 ### Key Entities
 
-- **Snap gravity setting**: a step (off, gentle, normal, strong) per target (nodes, seams, align,
+- **Snap gravity setting** (user settings, not project): a step (off, gentle, normal, strong) per target (nodes, seams, align,
   grid)
   and a touch multiplier (1, 2, 3).
 
@@ -189,4 +198,4 @@ x 1 as well: it lands at (1, 2.3) only if Corners pull it there; else at x 1 on 
 ## Out of Scope
 
 - Snapping in the quilt editor (placing items) and the print overlay.
-- Per-block gravity (the setting is the quilter's, for every block).
+- Per-block gravity or per-block snap targets (both are the quilter's, for every block).
