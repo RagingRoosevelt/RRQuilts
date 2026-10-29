@@ -121,6 +121,36 @@ Found on 2026-10-29 (excluding `docs/`, `specs/`):
   its README links are updated.
 - Local clones: `git remote set-url` for each repo (GitHub redirects, but explicit is better).
 
+## GitHub Pages gotchas
+
+- **CNAME wiped by the build**: Pages from a branch keeps the custom domain in a `CNAME` file in the
+  published folder (`docs/`). Setting the domain in Settings commits that file, and the next
+  `make build` (which empties `docs/`) deletes it, dropping the domain. The build MUST write
+  `docs/CNAME` (next to `.nojekyll`, `quasar.config.ts`) whenever a custom domain is set.
+- **DNS**: a subdomain is a CNAME to `prunusdomestic.github.io` (the organization's host, not the
+  repo). An apex domain needs Pages' four A (and AAAA) records, plus `www` as a CNAME. No wildcard
+  records (they let others claim subdomains).
+- **HTTPS**: the certificate takes from minutes to about an hour after DNS resolves; **Enforce HTTPS**
+  is only offered after that. Set it then.
+- **Domain verification**: verify `prunusdomestic.com` for the organization before adding it to any
+  repo, so no other account can attach it or its subdomains.
+- **Option A side effect**: with the custom domain on the organization site, every Pages site in the
+  organization shows under it (`prunusdomestic.com/<repo>/`), the library repos' galleries too if
+  they're turned on.
+- **Names are lowercase in hosts, not paths**: `prunusdomestic.github.io`, but `/RRQuilts/` stays
+  case-sensitive (a repo rename changes the path).
+- **No server settings**: no HTTP redirects, no custom headers (no `Cache-Control`, CSP or
+  `Service-Worker-Allowed`); everything is cached about 10 minutes, so a new build can take that
+  long to show. The redirect stub and the SPA 404 fallback (which answers with status 404) are
+  static pages for this reason.
+- **After the transfer**: check Settings › Pages on the moved repo (source `main` › `/docs`, the
+  domain); re-enter them if missing. The organization's member privileges must allow Pages for
+  public repositories.
+- **Limits**: published site 1 GB, soft 100 GB a month of traffic, 10 builds an hour. Today `docs/`
+  is 5 MB; fine.
+- **Private repos**: Pages needs a paid plan (Team for organizations), and the site is public even
+  then.
+
 ## Order of work
 
 1. Buy and set up DNS for `prunusdomestic.com`; verify it for the organization.
@@ -145,7 +175,7 @@ Found on 2026-10-29 (excluding `docs/`, `specs/`):
 - **FR-004**: The old organization name MUST be held after the rename; stored library URLs MUST keep
   fetching from the right repositories.
 - **FR-005**: Every reference listed in User Story 5 MUST be updated, and `make build` MUST stay
-  reproducible (CNAME emitted by the build if B).
+  reproducible and MUST emit `docs/CNAME` for the custom domain (either option).
 
 ## Success Criteria
 
