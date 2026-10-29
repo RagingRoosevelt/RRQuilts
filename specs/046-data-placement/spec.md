@@ -155,9 +155,13 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
    day after, and the day left over at the end goes (the last number is Wk 52). In a leap year one
    day still stays at the end (Dec 31).
 2. **Then** placed weeks keep their numbers (Wk k stays Wk k) and their days move one later.
-3. **Given** the first number is already a single day, **Then** placing a week block on it, or
-   removing its last 1-day placement, turns it back (weeks from the period start, the left-over
-   day at the end).
+3. **Given** the first number is already a single day, **Then** placing a week block on it,
+   removing its last 1-day placement, or placing a 1-day block on the last number (Wk 52) turns it
+   back (weeks from the period start, the left-over day at the end). Placing on Wk 52 asks first:
+   "Make Jan 1 part of Wk 1 again and the last day (Dec 31) a single day?" Yes turns it back and
+   puts the block on the new last number, Dec 31; No places nothing. (Owner, 2026-10-28: "or
+   placing a 1 day block in the last slot asks if you want to convert the first slot to a week
+   slot and change to the last slot being a 1 day slot".)
 4. **Given** week placements already on Wk 1, **When** a 1-day block is placed there, **Then** a
    dialog says those placements move to Wk 1 starting a day later and asks first.
 5. **Then** the switch is saved with the plan (`lead: 'day'`), is one undo step, and the Data tab's
@@ -181,8 +185,8 @@ week block's 1-day variant), tap a space with Wk 1 highlighted: the list now rea
 - **FR-008**: Switching the plan (spec 025 FR-017) keeps placements whose block takes the new
   number's kind, asking first when any go.
 - **FR-009**: A Weeks plan MUST allow a single lead day (User Story 5), set by placing a 1-day
-  block on the first number and cleared by placing a week block there or removing its last 1-day
-  placement. Day numbering (spec 025 FR-004) becomes: lead day 1, then 7 × (k − 1) + 2 … for Wk k.
+  block on the first number and cleared by placing a week block there, removing its last 1-day
+  placement, or (after asking) placing a 1-day block on the last number. Day numbering (spec 025 FR-004) becomes: lead day 1, then 7 × (k − 1) + 2 … for Wk k.
 
 ## Open questions (defaults used until answered)
 
