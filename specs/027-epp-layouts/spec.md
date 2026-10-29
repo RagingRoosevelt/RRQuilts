@@ -112,7 +112,7 @@ middle one, sharing a whole edge.
 5. **Given** pieces that would overlap, **Then** the overlap is shown (but allowed, so the quilter can
    rearrange), and printing warns about it.
 6. **Given** several pieces selected, **Then** they move, turn, mirror, copy, delete and recolor as a
-   group, and a group can be saved as a **stamp** (spec 050) for reuse.
+   group (detailed in spec 051), and a group can be saved as a **stamp** (spec 050) for reuse.
 7. Undo and redo cover every change (spec 006).
 
 ---
