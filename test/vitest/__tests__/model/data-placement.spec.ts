@@ -16,6 +16,7 @@ import {
   type DataBrush,
 } from '@/model/data-quilt';
 import { migrate } from '@/model/io';
+import { quiltBlocks } from '@/model/library-items';
 import { DataPlan, type ValueSlot } from '@/model/schema/data-quilt';
 import type { Block } from '@/model/schema/block';
 import { traceSegments } from '@/render/data-overlay';
@@ -298,5 +299,15 @@ describe('format v10 (spec 046)', () => {
       (places(doc) as { space: string; n: number }[]).map((p) => [p.space, p.n]),
     );
     expect([by.s1, by.s52, by.s53, by.s54]).toEqual([2, 53, 1, 54]);
+  });
+});
+
+describe('blocks in use', () => {
+  it('a data block placed only as its variant counts as used', () => {
+    const q = {
+      layers: [{ slots: { s: { block: 'head-v1', coloring: 'c' } }, items: [] }],
+      data: plan({ places: [{ space: 's', n: 53, block: 'head' }] }),
+    } as unknown as Parameters<typeof quiltBlocks>[0];
+    expect(quiltBlocks(q)).toContain('head');
   });
 });

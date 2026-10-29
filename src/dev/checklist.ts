@@ -210,6 +210,13 @@ export const CHECKS: Check[] = [
     last: '"clicking on a data slot or series label should briefly flash all members of that slot or label" / "single quick flash, not multiple" / "the members of the series or numeral should flash with a slight glow but the blocks that match both the currently selected data slot _and_ series label should flash with a glow intensity that we’re currently using"',
     to: '/',
   },
+  {
+    id: 'TC-200',
+    group: G.data046,
+    text: 'A data quilt using a block only as its 1-day variant (e.g. Snake Head on Dec 31): the project’s Blocks tab shows its in-use badge, and deleting it warns that the quilt uses it and takes its placements off. Edit a library data block placed in a quilt and use your copy in its place: the placements follow the copy.',
+    last: '"when viewing the blocks and looking at the Snake Head block, it didn’t get an “in use” badge even though the 1-day variant was used in a quilt"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

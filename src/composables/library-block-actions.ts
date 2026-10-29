@@ -5,7 +5,7 @@ import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import { useAuthor } from '@/composables/author';
 import { copyBlock, saveColoringAs } from '@/editor/block-ops';
-import { isLibraryItem, toUnits, useMyCopy } from '@/model/library-items';
+import { isLibraryItem, quiltBlocks, toUnits, useMyCopy } from '@/model/library-items';
 import type { Block } from '@/model/schema/block';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
@@ -20,12 +20,7 @@ export function useLibraryBlockActions() {
   const names = () =>
     project.doc!.project.blocks.filter((b) => !isLibraryItem(b)).map((b) => b.notecard.name);
   const quiltsUsing = (id: string) =>
-    project.doc!.project.quilts.filter((q) =>
-      [
-        ...Object.values(q.layers[0].slots).map((s) => s.block),
-        ...q.layers.flatMap((l) => l.items.map((i) => i.ref)),
-      ].includes(id),
-    );
+    project.doc!.project.quilts.filter((q) => quiltBlocks(q).includes(id));
 
   /** Open a block on a tab. The tab is set after arriving: from a library block's read-only view
    *  (Details and Print only) it would otherwise be switched back before the route changes. */
