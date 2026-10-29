@@ -29,7 +29,7 @@ A quilter finds the pointer jumping to corners they didn't mean (or missing ones
 editor follows it at once.
 
 **Independent Test**: set gravity to Strong, draw near a corner from twice as far as before: the
-seam end lands on the corner; set Off: it lands exactly where the pointer is.
+seam end lands on the corner; set all three Off: it lands exactly where the pointer is.
 
 **Acceptance Scenarios**:
 
