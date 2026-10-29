@@ -105,6 +105,13 @@ export const CHECKS: Check[] = [
     last: '"if the quilt only has qA and qB, we should still allow using a block with A, B, and C. The user might want to do qA->A,C, qB->B"',
     to: '/',
   },
+  {
+    id: 'TC-202',
+    group: G.data046,
+    text: 'A data quilt with a block whose numerals use value B (or B and A): the light day arrows inside each placed block run through every value’s days, not only value A’s, whichever quilt value they show.',
+    last: '"in quilt design, block trace arrows are shown only for series A"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

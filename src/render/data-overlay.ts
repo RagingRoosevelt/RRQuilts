@@ -183,7 +183,8 @@ export function quiltDataMarks(doc: RrqDoc, quilt: Quilt, generated: Generated):
   });
 }
 
-/** Each placed data block's day places (value A) in day order, in quilt units: where its days run. */
+/** Each placed data block's day places in day order, one path per value it uses, in quilt units:
+ *  where its days run. */
 export function quiltDayPaths(doc: RrqDoc, quilt: Quilt, generated: Generated): Pt[][] {
   const plan = quilt.data;
   if (!plan) return [];
@@ -195,16 +196,21 @@ export function quiltDayPaths(doc: RrqDoc, quilt: Quilt, generated: Generated): 
     const fills = resolveColoring(quilt.colorings[content.coloring], block)?.fills ?? {};
     const at = pieceSpots(block);
     const m = placementMatrix(slot, content, block);
-    const days = Object.entries(fills)
-      .flatMap(([id, f]) =>
-        'data' in f && !f.data.slot && at.has(id) ? [{ n: f.data.n, s: at.get(id)! }] : [],
-      )
-      .sort((a, b) => a.n - b.n)
-      .map(({ s }): Pt => {
-        const [x, y] = [s[0] * block.size[0], s[1] * block.size[1]];
-        return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
-      });
-    return days.length > 1 ? [days] : [];
+    const byValue = new Map<number, { n: number; s: Pt }[]>();
+    for (const [id, f] of Object.entries(fills)) {
+      if (!('data' in f) || !at.has(id)) continue;
+      const v = f.data.slot ?? 0;
+      byValue.set(v, [...(byValue.get(v) ?? []), { n: f.data.n, s: at.get(id)! }]);
+    }
+    return [...byValue.values()].flatMap((days) => {
+      const path = days
+        .sort((a, b) => a.n - b.n)
+        .map(({ s }): Pt => {
+          const [x, y] = [s[0] * block.size[0], s[1] * block.size[1]];
+          return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+        });
+      return path.length > 1 ? [path] : [];
+    });
   });
 }
 
