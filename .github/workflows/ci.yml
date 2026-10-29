@@ -19,6 +19,8 @@ jobs:
         run: make check
 
       - name: docs/ matches a fresh build
+        # specs/backlog edits help (the roadmap) without building; docs/ is rebuilt when it merges.
+        if: github.ref != 'refs/heads/specs/backlog'
         run: |
           if [ -n "$(git status --porcelain -- docs)" ]; then
             echo "::error::docs/ is out of date. Run 'make build' (or 'make commit') and commit the result."
