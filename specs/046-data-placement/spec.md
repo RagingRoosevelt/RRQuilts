@@ -230,7 +230,10 @@ place"".)
   quilt series per block series (single-series: one).
 - **FR-002**: Placing MUST be the number brush only (User Story 1); drag and drop, move arrows, the
   per-length type pools and Shuffle are removed.
-- **FR-003**: A piece's value MUST come from the placement's series map (User Story 2.4).
+- **FR-003**: A piece's value MUST come from the placement's series map (User Story 2.4) The map
+  belongs to each placement: the same block can be placed for qA in one space and qB in another
+  (owner, 2026-10-28: "we expect to use a block placed in one spot for one series and placed in
+  another spot for another series").
 - **FR-004**: The order line MUST follow User Story 3 in the quilt and in the data block editor.
 - **FR-005**: Placed spaces MUST show the number and, below it, the quilt series in block series
   order; **Block N** goes (list and quilt).
@@ -248,11 +251,6 @@ place"".)
 - **FR-010**: A Weeks or Days plan over a leap year MUST offer the Leap day setting (User Story 6) in the
   Details tab's Data quilt section; week blocks MUST be able to add a 2-day variant (block file and
   library formats bumped with the project's).
-
-## Open questions (defaults used until answered)
-
-1. The series map belongs to each placement (default: one block can be placed for qA in one space
-   and qB in another), not to the block for the whole quilt.
 
 ## Out of scope
 
