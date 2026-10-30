@@ -105,8 +105,8 @@ export function useCardDrag(o: CardDragOptions) {
       height: `${r.height}px`,
       zIndex: '9000',
       pointerEvents: 'none',
-      borderRadius: '4px',
-      boxShadow: '0 14px 28px rgba(0,0,0,0.35), 0 6px 10px rgba(0,0,0,0.25)',
+      // The picture's own shape casts the shadow (spec 048), lifted.
+      filter: 'var(--card-shadow-lifted)',
       willChange: 'transform',
     });
     document.body.appendChild(copy);

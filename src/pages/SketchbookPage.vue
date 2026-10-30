@@ -3228,12 +3228,14 @@ watch(
   padding: 8px 12px;
   text-align: left;
 }
+/* Card pictures (spec 048): no backing; the block or quilt casts a shadow in its own shape (the
+   picture is transparent outside its outline). */
 .thumb {
   display: block;
   width: 100%;
   padding: 0;
   border: none;
-  background: #9e9e9e;
+  background: transparent;
   border-radius: 4px;
   cursor: pointer;
 }
@@ -3242,6 +3244,7 @@ watch(
   width: 100%;
   aspect-ratio: 1;
   object-fit: contain;
+  filter: var(--card-shadow);
 }
 .swatches {
   display: flex;

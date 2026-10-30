@@ -1,14 +1,19 @@
 # Feature Specification: Block and Quilt Cards Without the Gray Backing
 
-**Feature Branch**: `TBD` (target 0.7.4; moved from 0.7.3)
+**Feature Branch**: `feat/card-shadows` (target 0.7.4; moved from 0.7.3)
 
 **Created**: 2026-10-29
 
-**Status**: Draft (spec only; not implemented)
+**Status**: Implemented (check TC-228). `.thumb` in `SketchbookPage.vue` and `LibrariesPage.vue`
+has no backing; its picture takes `filter: var(--card-shadow)` (`css/app.css`). The drag copy
+(spec 037) casts `--card-shadow-lifted`. Thumbnails were already transparent outside the outline
+and opaque inside it (empty pieces are hatched), so nothing changed in the drawing.
 
 **Input**: Owner, 2026-10-29: "let's also add to 0.7.3 that blocks should not show the gray
 background and should instead have a drop shadow matching the shape of the block". Then: "yeah,
-let's implement that background & shadow update for quilts too" (User Story 2).
+let's implement that background & shadow update for quilts too" (User Story 2). Owner,
+2026-10-30, on the first look: "let's go with slighly more shadow radius/spread", then "shadow
+should be accent color in dark mode" (scenario 3).
 
 ## Today (0.7.2)
 
@@ -31,8 +36,8 @@ shadow is a hexagon). Same in Libraries and in dark mode.
    there is no gray square behind the picture; the card's own background shows around it.
 2. **Given** a block card, **Then** the block casts a soft drop shadow shaped like its outline:
    square for square blocks, the triangle, diamond or hexagon for shaped ones.
-3. **Given** dark mode, **Then** the shadow still shows the edge (a darker, wider shadow, or a faint
-   light glow if dark on dark doesn't read).
+3. **Given** dark mode, **Then** the shadow is a glow in the accent color (the app's primary color,
+   the system accent when Settings › "Use the system accent color" is on).
 4. **Given** a block with empty pieces, **Then** they draw as they do now in the picture (the block
    still reads as a whole shape), so the shadow follows the full outline, not just colored pieces.
 

@@ -3058,12 +3058,14 @@ function downloadPack() {
   font-size: 1.25rem;
   font-weight: 600;
 }
+/* Card pictures (spec 048): no backing; the block or quilt casts a shadow in its own shape (the
+   picture is transparent outside its outline). */
 .thumb {
   display: block;
   width: 100%;
   padding: 0;
   border: none;
-  background: #9e9e9e;
+  background: transparent;
   border-radius: 4px;
   cursor: pointer;
 }
@@ -3072,6 +3074,7 @@ function downloadPack() {
   width: 100%;
   aspect-ratio: 1;
   object-fit: contain;
+  filter: var(--card-shadow);
 }
 .collection {
   border: 1px solid rgba(128, 128, 128, 0.3);
