@@ -53,6 +53,7 @@ const G = {
   data046: 'Data quilts: placing by number and series (spec 046)',
   update054: 'Update dialog (spec 054)',
   gray047: 'View grayscale in block previews (spec 047)',
+  drag037: 'Dragging quilts and blocks into order (spec 037)',
 };
 
 export const CHECKS: Check[] = [
@@ -99,6 +100,42 @@ export const CHECKS: Check[] = [
     text: 'Leap day: a Weeks quilt from 1 January 2028. Details › Data quilt shows Leap day (hidden for 2027 and for Months). Extra single-day number: the list runs Jan 1, Wk 1 … Wk 52, Dec 31. Use a 2-day block variant: the last number is Dec 30–31 and a week block’s 2-day variant (Draw tab › Variant › 2 days) shows there. Average and Ignore: 53 numbers, and the Entries dialog marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value (Mood) and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra; switching to Ignore with a block on Feb 29 asks first.',
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
+  },
+  {
+    id: 'TC-220',
+    group: G.drag037,
+    text: 'Quilts tab, a project with several quilts: drag a quilt card with the mouse. The card stays in place faded; a solid copy of its picture, a little larger with a deep shadow, follows the pointer and tilts toward the way you move, then settles straight when you stop. The facing edges of the cards either side of the landing place glow. Let go: the copy slides into place and the quilt is there. One Undo puts it back. Dropping does not open the quilt.',
+    to: '/project',
+  },
+  {
+    id: 'TC-221',
+    group: G.drag037,
+    text: 'Drop past the end (bug fix): drag a quilt beyond the last card, in the empty space to its right and below the list. The glow shows the end; let go there and it lands last. Before the first card it lands first. Over its own place there’s no glow and nothing moves. Esc during a drag slides the copy back and nothing moves.',
+    to: '/project',
+  },
+  {
+    id: 'TC-222',
+    group: G.drag037,
+    text: 'Phone or tablet (the dev server over your network works for this), or a touch laptop: a swipe on the cards scrolls the page and a tap opens the quilt. Press and hold a card: it lifts (a small buzz on Android) and follows your finger, the page doesn’t scroll under it. Hold it near the top or bottom of the screen: the page scrolls. Let go: it lands where the glow shows.',
+    to: '/project',
+  },
+  {
+    id: 'TC-223',
+    group: G.drag037,
+    text: 'Quilt ⋮ menu: Move to start, Move earlier, Move later, Move to end, each greyed where it does nothing (first or last quilt). Keyboard: Tab to the handle left of a quilt’s name; arrows move it one place, Home and End to the ends, focus stays on it, and a screen reader says its new place (“3 of 12”). Data quilts or Other quilts selected: no handles, no dragging.',
+    to: '/project',
+  },
+  {
+    id: 'TC-224',
+    group: G.drag037,
+    text: 'Blocks tab › My blocks: blocks drag exactly like quilts (faded card, solid copy, glow, past-the-end drop, touch, keyboard handle). The ⋮ menu has no Move earlier / Move later. With a search or filter on, blocks don’t drag and show no handle.',
+    to: '/project',
+  },
+  {
+    id: 'TC-225',
+    group: G.drag037,
+    text: 'Reduced motion (system setting): the copy still follows, larger with the shadow, but without tilting or sliding into place.',
+    to: '/project',
   },
   {
     id: 'TC-217',

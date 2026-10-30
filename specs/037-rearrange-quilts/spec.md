@@ -1,10 +1,13 @@
 # Feature Specification: Rearranging Quilts in a Project
 
-**Feature Branch**: `TBD` (target 0.7.4; moved from 0.7.3)
+**Feature Branch**: `feat/drag-order` (target 0.7.4; moved from 0.7.3)
 
 **Created**: 2026-10-20
 
-**Status**: Draft (spec only; not implemented)
+**Status**: Implemented (checks TC-220 to TC-225) except User Story 3 (Sort, optional), which is
+left for later. `composables/card-drag.ts` (`useCardDrag`, `gapAt`) drives both lists: pointer
+events, a 350 ms long press for touch, an 8 px move for mouse and pen. Keyboard grips sit left of
+each card's name.
 
 **Input**: Owner, 2026-10-20: add a spec for rearranging quilts within a project workspace.
 Owner, 2026-10-29: "it looks like it's also partially implmented for blocks, but the glow is

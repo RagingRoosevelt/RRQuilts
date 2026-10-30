@@ -79,26 +79,31 @@
         v-show="quiltKind === 'all' || (quiltKind === 'data') === !!q.data?.on"
         :key="q.id"
         class="card"
-        :class="{
-          'glow-right': quiltGap !== null && i === quiltGap,
-          'glow-left': quiltGap !== null && i === quiltGap + 1,
-        }"
-        :draggable="!project.readOnly"
-        @dragstart="dragFrom = i"
-        @dragover.prevent="quiltDropAt = i"
-        @dragend="dragFrom = quiltDropAt = null"
-        @drop="drop('quilts', i)"
+        :class="[quiltGlow(i), { dragged: quiltFrom === i }]"
+        data-drag="quilts"
+        :data-drag-index="i"
+        @pointerdown="quiltDown($event, i)"
       >
         <div class="relative-position">
           <button class="thumb" @click="openQuilt(q.id)">
             <img
               :src="quiltThumbnail(project.doc, q, 240, $q.dark.isActive, true)"
               :alt="q.notecard.name"
+              draggable="false"
             />
           </button>
           <QuiltColorways :quilt="q" :readonly="project.readOnly" />
         </div>
         <div class="row items-center no-wrap">
+          <button
+            v-if="canDragQuilts"
+            class="grip"
+            :data-grip="q.id"
+            :aria-label="`Move ${q.notecard.name}: arrow keys, Home, End`"
+            @keydown="gripKey($event, 'quilts', i)"
+          >
+            <q-icon name="drag_indicator" size="18px" />
+          </button>
           <FullName class="col" :name="q.notecard.name" />
           <q-btn flat round dense icon="more_vert" aria-label="Actions">
             <q-menu>
@@ -106,6 +111,17 @@
                 <q-item v-close-popup clickable @click="openQuilt(q.id)"
                   ><q-item-section>Open</q-item-section></q-item
                 >
+                <template v-if="canDragQuilts">
+                  <q-item
+                    v-for="m in quiltMoves(i)"
+                    :key="m.label"
+                    v-close-popup
+                    clickable
+                    :disable="m.to === null"
+                    @click="m.to !== null && moveTo('quilts', i, m.to)"
+                    ><q-item-section>{{ m.label }}</q-item-section></q-item
+                  >
+                </template>
                 <q-item v-close-popup clickable @click="saveQuiltImage(project.doc!, q)"
                   ><q-item-section>Save image</q-item-section></q-item
                 >
@@ -250,17 +266,26 @@
               </button>
             </div>
             <!-- Cards are built as they come into view (and then kept), not all at once. -->
-            <q-intersection v-for="(b, i) in shownBlocks" :key="b.id" once class="card-slot">
+            <q-intersection
+              v-for="(b, i) in shownBlocks"
+              :key="b.id"
+              once
+              class="card-slot"
+              data-drag="blocks"
+              :data-drag-index="i"
+            >
               <div
                 class="card"
-                :draggable="!project.readOnly && !blockFiltering"
-                @dragstart="dragFrom = i"
-                @dragover.prevent
-                @drop="drop('blocks', i)"
+                :class="[blockGlow(i), { dragged: blockFrom === i }]"
+                @pointerdown="blockDown($event, i)"
               >
                 <div class="relative-position">
                   <button class="thumb" @click="openBlock(b.id)">
-                    <img :src="thumb(b, 200, shownColoring(b))" :alt="b.notecard.name" />
+                    <img
+                      :src="thumb(b, 200, shownColoring(b))"
+                      :alt="b.notecard.name"
+                      draggable="false"
+                    />
                   </button>
                   <FavoriteBadge v-if="tagsOfBlock(b).includes(FAVORITE)" />
                   <ColoringCount
@@ -282,6 +307,15 @@
                   <q-tooltip>Your coloring of a library block — show the original</q-tooltip>
                 </q-badge>
                 <div class="row items-center no-wrap">
+                  <button
+                    v-if="canDragBlocks"
+                    class="grip"
+                    :data-grip="b.id"
+                    :aria-label="`Move ${b.notecard.name}: arrow keys, Home, End`"
+                    @keydown="gripKey($event, 'blocks', i)"
+                  >
+                    <q-icon name="drag_indicator" size="18px" />
+                  </button>
                   <FullName class="col" :name="b.notecard.name">
                     <q-icon v-if="inUse(b.id)" name="check_circle" color="primary" size="xs">
                       <q-tooltip>Placed in a quilt</q-tooltip>
@@ -395,24 +429,6 @@
                           <q-item-section>Tags…</q-item-section>
                         </q-item>
                         <template v-if="!project.readOnly && !blockFiltering">
-                          <q-item
-                            v-close-popup
-                            clickable
-                            :disable="i === 0"
-                            @click="moveItem('blocks', i, -1)"
-                            ><q-item-section avatar class="menu-icon"
-                              ><q-icon name="arrow_back" /></q-item-section
-                            ><q-item-section>Move earlier</q-item-section></q-item
-                          >
-                          <q-item
-                            v-close-popup
-                            clickable
-                            :disable="i === blocks.length - 1"
-                            @click="moveItem('blocks', i, 1)"
-                            ><q-item-section avatar class="menu-icon"
-                              ><q-icon name="arrow_forward" /></q-item-section
-                            ><q-item-section>Move later</q-item-section></q-item
-                          >
                           <q-item v-close-popup clickable @click="deleteBlock(b.id)"
                             ><q-item-section avatar
                               ><q-icon name="delete" color="negative" /></q-item-section
@@ -1414,6 +1430,7 @@
       @close="tagging = null"
       @save="saveTags"
     />
+    <div class="sr-only" aria-live="polite">{{ announce }}</div>
   </q-page>
 </template>
 
@@ -1433,6 +1450,7 @@ import {
 } from '@/composables/swap-options';
 import { fillFor, paintOf } from '@/editor/paint';
 import PalettePreview from '@/components/PalettePreview.vue';
+import { useCardDrag } from '@/composables/card-drag';
 import PaletteSortMenu from '@/components/PaletteSortMenu.vue';
 import { usePaletteSort, type Swatch } from '@/composables/palette-sort';
 import ColorFilterCard from '@/components/ColorFilterCard.vue';
@@ -1446,7 +1464,7 @@ import PaletteTitle from '@/components/PaletteTitle.vue';
 import type { ColorCollection } from '@/model/schema/library';
 import { swatchStyle } from '@/render/fabric-images';
 import { useQuasar } from 'quasar';
-import { computed, reactive, ref, toRaw, watch } from 'vue';
+import { computed, nextTick, reactive, ref, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import QuiltWizard from '@/components/QuiltWizard.vue';
@@ -1585,19 +1603,34 @@ const tab = computed({
   set: (v) => (settings.settings.projectTab = v),
 });
 const preview = ref<string | null>(null);
-const dragFrom = ref<number | null>(null);
 const wizard = ref<InstanceType<typeof QuiltWizard>>();
+const canDragQuilts = computed(
+  () => !project.readOnly && quiltKind.value === 'all' && quilts.value.length > 1,
+);
+const {
+  from: quiltFrom,
+  onDown: quiltDown,
+  glow: quiltGlow,
+} = useCardDrag({
+  list: 'quilts',
+  enabled: () => canDragQuilts.value,
+  move: (f, g) => moveTo('quilts', f, g),
+});
+const canDragBlocks = computed(
+  () => !project.readOnly && !blockFiltering.value && blocks.value.length > 1,
+);
+const {
+  from: blockFrom,
+  onDown: blockDown,
+  glow: blockGlow,
+} = useCardDrag({
+  list: 'blocks',
+  enabled: () => canDragBlocks.value,
+  move: (f, g) => moveTo('blocks', f, g),
+});
 
 const quilts = computed(() => project.doc!.project.quilts);
 const quiltKind = ref<'all' | 'data' | 'other'>('all');
-/** Where a dragged quilt card will land: the card it's over, and the gap as the index of the card
- *  left of it (dragged right, the quilt goes after the card; left, before it). */
-const quiltDropAt = ref<number | null>(null);
-const quiltGap = computed(() => {
-  const [from, at] = [dragFrom.value, quiltDropAt.value];
-  if (tab.value !== 'quilts' || from === null || at === null || from === at) return null;
-  return from < at ? at : at - 1;
-});
 const split = computed(() => {
   const own = project.doc!.project.blocks.filter((b) => !b.notecard.tags?.includes('system'));
   // My-library items this project has a linked copy of show once, as that copy in My blocks.
@@ -2939,24 +2972,59 @@ function blockDetails(id: string) {
   void router.push(`/project/block/${id}`);
 }
 
-/** Reorder within the visible list (system blocks keep their place at the end). */
-function moveItem(list: 'quilts' | 'blocks', from: number, delta: number) {
+/** Reorder within the visible list: card `from` into gap `gap` (0 = first, length = last). System
+ *  blocks keep their place at the end. One undo step. */
+function moveTo(list: 'quilts' | 'blocks', from: number, gap: number) {
   const visible = list === 'quilts' ? quilts.value : blocks.value;
   const id = visible[from]?.id;
-  const target = visible[from + delta]?.id;
-  if (!id || !target) return;
+  if (!id || gap === from || gap === from + 1 || gap < 0 || gap > visible.length) return;
+  const before = visible[gap]?.id;
+  const last = visible.at(-1)!.id;
   project.change((d) => {
     const arr = d.project[list] as { id: string }[];
-    const i = arr.findIndex((x) => x.id === id);
-    const [item] = arr.splice(i, 1);
-    arr.splice(arr.findIndex((x) => x.id === target) + (delta > 0 ? 1 : 0), 0, item!);
+    const [item] = arr.splice(
+      arr.findIndex((x) => x.id === id),
+      1,
+    );
+    const at = before
+      ? arr.findIndex((x) => x.id === before)
+      : arr.findIndex((x) => x.id === last) + 1;
+    arr.splice(at, 0, item!);
   });
 }
-function drop(list: 'quilts' | 'blocks', to: number) {
-  quiltDropAt.value = null;
-  if (dragFrom.value === null || dragFrom.value === to) return;
-  moveItem(list, dragFrom.value, to - dragFrom.value);
-  dragFrom.value = null;
+/** The quilt menu's moves; `to` null where it does nothing. */
+function quiltMoves(i: number) {
+  const n = quilts.value.length;
+  return [
+    { label: 'Move to start', to: i > 0 ? 0 : null },
+    { label: 'Move earlier', to: i > 0 ? i - 1 : null },
+    { label: 'Move later', to: i < n - 1 ? i + 2 : null },
+    { label: 'Move to end', to: i < n - 1 ? n : null },
+  ];
+}
+/** Drag grips by keyboard: arrows move one place, Home and End to the ends; the new place is
+ *  announced and the grip keeps focus. */
+const announce = ref('');
+function gripKey(e: KeyboardEvent, list: 'quilts' | 'blocks', i: number) {
+  const visible = list === 'quilts' ? quilts.value : blocks.value;
+  const n = visible.length;
+  const gap = (
+    {
+      ArrowLeft: i - 1,
+      ArrowUp: i - 1,
+      ArrowRight: i + 2,
+      ArrowDown: i + 2,
+      Home: 0,
+      End: n,
+    } as Record<string, number>
+  )[e.key];
+  if (gap === undefined) return;
+  e.preventDefault();
+  const item = visible[i]!;
+  moveTo(list, i, gap);
+  const now = (list === 'quilts' ? quilts.value : blocks.value).findIndex((x) => x.id === item.id);
+  announce.value = `${item.notecard.name}: ${now + 1} of ${n}`;
+  void nextTick(() => document.querySelector<HTMLElement>(`[data-grip="${item.id}"]`)?.focus());
 }
 
 function deleteQuilt(id: string) {
@@ -3404,7 +3472,38 @@ watch(
     background: var(--q-dark-page);
   }
 }
-/* Where a dragged quilt card will land: the facing edges of the cards either side glow. */
+/* Dragging cards (spec 037): no text selection or touch callout; the card being moved fades. */
+.card {
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.card.dragged {
+  opacity: 0.4;
+}
+.grip {
+  display: inline-flex;
+  padding: 2px 0;
+  margin-right: 2px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.5;
+  cursor: grab;
+}
+.grip:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--q-primary);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* Where a dragged card will land: the facing edges of the cards either side glow. */
 .card.glow-right {
   box-shadow: 6px 0 10px -3px rgba(25, 118, 210, 0.9);
   border-right: 2px solid #1976d2;

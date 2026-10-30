@@ -43,3 +43,10 @@ canvas.gray,
 img.gray {
   filter: url(#rrq-gray);
 }
+
+/* A card being dragged into order (spec 037, composables/card-drag.ts). */
+body.card-dragging,
+body.card-dragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}
