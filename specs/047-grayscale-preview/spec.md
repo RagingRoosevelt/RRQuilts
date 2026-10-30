@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-29
 
-**Status**: Implemented (checks TC-215, TC-216). The switch sits under the big picture. Follows the View grayscale switch of 0.7.2.
+**Status**: Implemented (checks TC-217 to TC-219). The switch sits under the big picture. Follows the View grayscale switch of 0.7.2.
 
 **Input**: Owner, 2026-10-29: "let's add a spec that the greyscale toggle should also be available
 in the block preview too".
@@ -14,7 +14,7 @@ in the block preview too".
 - **View grayscale** sits above Colorways in the quilt editor (Design) and above Colorings in the
   block editor (Color). On, the canvas shows each color as the gray of the same luminance (Rec. 709
   weights in linear light, the SVG filter `#rrq-gray` in `App.vue`), so equal grays mean equal
-  values. It's session only and shared by both editors (`editor.gray`).
+  values. It was session only and shared by both editors (`editor.gray`).
 - The block previews don't have it: the dialog a block opens in the project's **Blocks** tab
   (`SketchbookPage.vue`, a block that opens as a preview) and in **Libraries**
   (`LibrariesPage.vue`), each a large picture of the block with its colorings to pick from.
@@ -24,19 +24,22 @@ in the block preview too".
 ### User Story 1 - Check a block's values before using it (Priority: P2)
 
 **Independent Test**: Libraries › a built-in block › preview. Switch on View grayscale: the
-picture turns to grays; the coloring thumbnails under it too. Close it and open the quilt editor:
-its View grayscale is on as well.
+picture turns to grays; the coloring thumbnails under it too. Close and reopen it: in color again.
 
 1. **Given** a block preview (project Blocks tab or Libraries), **Then** a **View grayscale** switch
    sits in it, by the picture.
 2. **When** it is on, **Then** the preview's picture and its coloring thumbnails show in the same
    grays as the editors (the same filter), and nothing else changes.
-3. **Then** it is the same switch as the editors' (`editor.gray`): on in one place, on in all, for
-   the session.
+3. **Then** it is never remembered: each preview opens in color, whether new or reopened.
+4. **And** the editors' switch is no longer remembered either: opening a quilt or block editor
+   always starts in color (owner, 2026-10-30: "view greyscale shouldn't be a remembered setting").
 
 ## Requirements
 
-- **FR-001**: Both block preview dialogs MUST offer **View grayscale**, sharing the editors' state.
+- **FR-001**: Both block preview dialogs MUST offer **View grayscale**, off each time a preview
+  opens. Not shared with the editors, not remembered.
+- **FR-001a**: The quilt and block editors' **View grayscale** MUST start off each time an editor
+  opens (was session-wide in 0.7.2).
 - **FR-002**: On, the preview's block picture and coloring thumbnails MUST use the editors' gray
   (same luminance, `#rrq-gray`), not CSS `grayscale()`.
 - **FR-003**: View only: no change to the block, its colorings or the project.

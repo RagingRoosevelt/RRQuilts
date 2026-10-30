@@ -1051,12 +1051,12 @@
         </q-card-section>
         <img
           :src="thumb(previewBlock, 560, previewColoring ?? previewSections[0]!.colorings[0]?.id)"
-          :class="{ gray: editor.gray }"
+          :class="{ gray }"
           style="width: 100%; display: block"
           alt=""
         />
-        <!-- The editors' View grayscale (spec 047): one switch for the session. -->
-        <q-toggle v-model="editor.gray" dense label="View grayscale" class="q-px-md q-pt-sm" />
+        <!-- View grayscale (spec 047): off each time a preview opens. -->
+        <q-toggle v-model="gray" dense label="View grayscale" class="q-px-md q-pt-sm" />
         <template v-if="previewBlock.colorings.length > 1">
           <template v-for="sec in previewSections" :key="sec.label ?? ''">
             <div v-if="sec.label" class="text-subtitle2 q-px-md q-pt-sm">{{ sec.label }}</div>
@@ -1071,7 +1071,7 @@
                 :title="k.name ?? `Coloring ${previewBlock.colorings.indexOf(k) + 1}`"
                 @click="previewColoring = k.id"
               >
-                <img :src="thumb(previewBlock, 64, k.id)" :class="{ gray: editor.gray }" alt="" />
+                <img :src="thumb(previewBlock, 64, k.id)" :class="{ gray }" alt="" />
                 <span class="skin-name">{{
                   k.name ?? `Coloring ${previewBlock.colorings.indexOf(k) + 1}`
                 }}</span>
@@ -2299,7 +2299,12 @@ function shownColoring(b: Block) {
 }
 /** The preview's coloring (undefined: the block's first); reset when the preview changes. */
 const previewColoring = ref<string>();
-watch(preview, () => (previewColoring.value = undefined));
+/** The preview's View grayscale; reset (off) when the preview changes or closes. */
+const gray = ref(false);
+watch(preview, () => {
+  previewColoring.value = undefined;
+  gray.value = false;
+});
 const inUse = (id: string) => quiltsUsing(id).length > 0;
 const patchCount = (b: Block) => allPatches(b).length;
 
