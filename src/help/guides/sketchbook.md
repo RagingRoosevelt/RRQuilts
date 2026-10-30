@@ -22,8 +22,13 @@ across the whole project.
    try other colors on), **Export quilt…**, **Details**, and **Delete** (you can undo). **Export
    quilt…** saves a project file holding just that quilt and the blocks, colors and fabrics it uses.
    Open it as a project, or bring the quilt into another project with **Import quilts**.
-4. Drag cards to reorder them. While you drag, the edges either side of where the quilt will land
-   light up.
+4. Drag cards to reorder them, with a mouse or, on a touch screen, by pressing a card until it lifts.
+   The handle left of a card's name drags straight away.
+   The card you move stays faded in its place while a copy follows your finger or pointer, and the
+   edges either side of where the quilt will land light up. Let go anywhere and it lands there. Esc
+   puts it back. Near the top or bottom of the window the page scrolls.
+5. With the keyboard, tab to the handle left of a quilt's name and use the arrow keys, or Home and
+   End to move it to the start or end.
 
 ## Blocks
 
@@ -33,16 +38,19 @@ The sidebar beside the blocks (on a phone, the **Filters** button) works as on t
 (**Category**, **Tags**, **Technique**), **Shape** (**Fits layout**, for blocks that fit a quilt
 layout's spaces, and **Shape**) and **Construction** (**Seams**, **Difficulty**). They narrow
 both My blocks and Library blocks. **Group library blocks by** sorts library blocks into sections by
-category, tag or technique, and the contents list below it jumps to My blocks or a library section.
+category, tag, technique or shape, and the contents list below it jumps to My blocks or a library
+section. In each section, square and rectangle blocks come first, then triangles, 60° diamonds and
+hexagons, each A to Z.
 See [Libraries](/help/guides/libraries) for tags, technique and construction.
-While a filter is on, blocks can't be moved earlier or later.
+While a filter is on, blocks can't be moved.
 
 1. **New block** asks for a name and opens the block editor ([Drawing blocks](/help/guides/drawing-blocks)).
 2. **Import blocks** reads blocks from a `.rrqbl` file or from another project. Tick the ones to add.
 3. A block's **Actions** menu offers **Edit a copy**, **Preview**, **Open in block editor**, **Print**, **Details**, **Tags…**,
-   **Export (.rrqbl)**, **Move earlier / later**, **Delete**, plus **Add to my library…** or **Sync to my library** for the My library
+   **Export (.rrqbl)**, **Delete**, plus **Add to my library…** or **Sync to my library** for the My library
    links. Small icons on a card show that the block is
-   placed in a quilt, is in My library, or has changed since it was saved there.
+   placed in a quilt, is in My library, or has changed since it was saved there. Drag My blocks into
+   order as you do quilts, or tab to the handle left of a block's name and use the arrow keys.
 4. **Library blocks** lists blocks from the built-in set and your libraries, grouped by library and
    category. Tick the ones to use in this project's quilts. You can't edit them directly. **Edit
    (make a copy)** makes your own copy, and **Create a coloration variant** keeps the drawing but

@@ -1,10 +1,14 @@
 # Feature Specification: Library Blocks by Shape: Sorted, and Grouped
 
-**Feature Branch**: `TBD` (target 0.7.4; moved from 0.7.3)
+**Feature Branch**: `feat/library-shape-sort` (target 0.7.4; moved from 0.7.3)
 
 **Created**: 2026-10-29
 
-**Status**: Draft (spec only; not implemented)
+**Status**: Implemented (check TC-229; `library-sort.spec.ts`). `byShapeAndName` in
+`model/library.ts` sorts inside `blockSections` and the pack sections of `blocksByLibrary`, so the
+Libraries page, the project Blocks tab and the quilt editor's tray all list the same way.
+`GroupBy` gains `'shape'`. On the project Blocks tab the choice stays per visit, as the others do
+there (only the Libraries page saves `libraryGroupBy`).
 
 **Input**: Owner, 2026-10-29: "let's add a 0.7.3 spec that library blocks (when displayed) are shown
 sorted by shape then block name". Then: "let's add a 0.7.3 for grouping blocks by shape" (User

@@ -1,4 +1,5 @@
 // Load/save .rrq files. Input is untrusted: parse, migrate, validate, then check integrity.
+import { prettyJson } from './json';
 import { upgradeNotecards } from './tags';
 import Value from 'typebox/value';
 import { findDuplicateIds, newId } from './ids';
@@ -275,7 +276,8 @@ export async function parseProject(
 }
 
 export function serializeProject(doc: RrqDoc): string {
-  return JSON.stringify({ ...doc, version: VERSION });
+  // Pretty-printed, so a saved file reads well in a text editor or a gist.
+  return prettyJson({ ...doc, version: VERSION });
 }
 
 /** Missing references don't block loading; they're shown as "missing" and reported once. */

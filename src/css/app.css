@@ -43,3 +43,29 @@ canvas.gray,
 img.gray {
   filter: url(#rrq-gray);
 }
+
+/* A card being dragged into order (spec 037, composables/card-drag.ts). */
+/* No pull-to-refresh or scroll chaining while a card is held. */
+html.card-dragging,
+html.card-dragging body {
+  overscroll-behavior: none;
+}
+body.card-dragging,
+body.card-dragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+/* The shadow a block or quilt casts on its card (spec 048), and lifted while dragged (spec 037).
+   Dark mode: a glow in the accent color (the app's primary, the system accent where chosen). */
+:root {
+  --card-shadow: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+  --card-shadow-lifted: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.35))
+    drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25));
+}
+.body--dark {
+  --card-shadow: drop-shadow(0 2px 8px color-mix(in srgb, var(--q-primary) 75%, transparent));
+  --card-shadow-lifted: drop-shadow(
+    0 8px 16px color-mix(in srgb, var(--q-primary) 85%, transparent)
+  );
+}

@@ -366,24 +366,16 @@
             "
           />
         </div>
+        <!-- The quilter's own settings (spec 031), the same in every block. -->
         <q-toggle
-          :model-value="settings.snap.grid"
+          v-for="t in SNAP_TOGGLES"
+          :key="t.target"
+          :model-value="!app.settings.snapOff.includes(t.target)"
           dense
-          label="Snap to grid points"
-          @update:model-value="(v) => setSnap({ grid: v })"
+          :label="t.label"
+          @update:model-value="(v) => setSnapOn(t.target, v)"
         />
-        <q-toggle
-          :model-value="settings.snap.nodes"
-          dense
-          label="Snap to nodes"
-          @update:model-value="(v) => setSnap({ nodes: v })"
-        />
-        <q-toggle
-          :model-value="settings.snap.seams"
-          dense
-          label="Snap to seams"
-          @update:model-value="(v) => setSnap({ seams: v })"
-        />
+        <a href="#" class="text-caption" @click.prevent="openSnapSettings">Snapping gravity</a>
         <q-toggle
           v-if="!block.shape"
           :model-value="settings.graph.show"
@@ -419,7 +411,8 @@ import LengthInput from '@/components/LengthInput.vue';
 import ShapeSize from '@/components/ShapeSize.vue';
 import { SHAPE_NAME } from '@/model/blocks/shape';
 import { attribution, type BlockEditorSettings, type SelectionOp } from '@/editor/block-ops';
-import type { SnapSettings } from '@/editor/snap';
+import type { SnapSettings, SnapTarget } from '@/editor/snap';
+import { settingsOpen } from '@/composables/settings-open';
 import type { SeamBlock } from '@/model/schema/block';
 import { useEditorStore, type BlockTool } from '@/stores/editor';
 import { useSettingsStore } from '@/stores/settings';
@@ -464,6 +457,26 @@ const clampInt = (v: string | number | null) =>
   Math.max(1, Math.min(96, Math.round(Number(v) || 1)));
 const setSnap = (patch: Partial<SnapSettings>) =>
   emit('settings', { snap: { ...props.settings.snap, ...patch } });
+
+const SNAP_TOGGLES: { target: SnapTarget; label: string }[] = [
+  // The same order as Settings › Block design › Snapping gravity.
+  { target: 'nodes', label: 'Snap to nodes' },
+  { target: 'seams', label: 'Snap to seams' },
+  { target: 'align', label: 'Aligned to nearest neighbors' },
+  { target: 'grid', label: 'Snap to grid points' },
+];
+/** On brings back the target's own step (Settings › Block design). */
+function setSnapOn(t: SnapTarget, on: boolean) {
+  const rest = app.settings.snapOff.filter((x) => x !== t);
+  app.settings.snapOff = on ? rest : [...rest, t];
+}
+function openSnapSettings() {
+  settingsOpen.value = true;
+  setTimeout(
+    () => document.getElementById('snap-gravity')?.scrollIntoView({ block: 'center' }),
+    300,
+  );
+}
 </script>
 
 <style scoped>

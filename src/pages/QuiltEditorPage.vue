@@ -161,7 +161,7 @@
           :pan-only="panOnly"
           :data-marks="dataMarks"
           :day-paths="dayPaths"
-          :class="{ gray: editor.gray }"
+          :class="{ gray: gray }"
           @tap="onTap"
           @pick="onPick"
           @hover="(h) => (hover = h)"
@@ -175,7 +175,7 @@
       <!-- Inspector -->
       <div v-show="editor.sidebar" class="inspector q-pa-md scroll">
         <template v-if="editor.mode === 'design'">
-          <q-toggle v-model="editor.gray" dense label="View grayscale" class="q-mb-sm" />
+          <q-toggle v-model="gray" dense label="View grayscale" class="q-mb-sm" />
           <QuiltColorways
             :quilt="quilt"
             mode="panel"
@@ -317,6 +317,8 @@ const route = useRoute();
 const router = useRouter();
 const project = useProjectStore();
 const editor = useEditorStore();
+/** View grayscale (values only): off each time the editor opens, never remembered. */
+const gray = ref(false);
 // Sidebar opens with each editor (hiding it isn't remembered).
 // Open on arrival, except on phones/portrait tablets, where it slides over the canvas.
 editor.sidebar = !$q.screen.lt.md;

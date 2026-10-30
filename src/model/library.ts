@@ -2,6 +2,7 @@
 // Library content is in inches; items get their `source` when looked up, not in storage.
 import { plainFill } from './coloring';
 import { sortTags, tagLabel, visibleTags } from './tags';
+import { BLOCK_SHAPES, SHAPE_NAME } from './blocks/shape';
 import { TECHNIQUES, type Technique } from './schema/shared';
 import { produce } from 'immer';
 import { canonicalContent, contentVersion, itemId, stableStringify } from './identity';
@@ -725,7 +726,7 @@ export function blocksByLibrary(
     const g = out.get(lib.id) ?? { id: lib.id, label: lib.name, sections: [] };
     g.sections.push(
       ...(v.doc.library
-        ? [{ key: v.doc.id, label: v.doc.name, blocks: bs, count: bs.length }]
+        ? [{ key: v.doc.id, label: v.doc.name, blocks: byShapeAndName(bs), count: bs.length }]
         : blockSections(v.doc, bs, by, tagsOf)),
     );
     out.set(lib.id, g);
@@ -737,7 +738,20 @@ export function blocksByLibrary(
   return { groups: [...out.values()], other: blocks.filter((b) => !seen.has(b.id)) };
 }
 
-export type GroupBy = 'none' | 'category' | 'tags' | 'techniques';
+export type GroupBy = 'none' | 'category' | 'tags' | 'techniques' | 'shape';
+
+/** Shape order for lists (spec 049): square and rectangle blocks, then `BLOCK_SHAPES`. */
+const SHAPE_ORDER = ['', ...BLOCK_SHAPES];
+const shapeRank = (b: Block) => SHAPE_ORDER.indexOf(b.shape ?? '');
+const byName = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+
+/** Library blocks as listed (spec 049): by shape, then name (case-insensitive, numbers in number
+ *  order); ties keep their order. A new array: the library's own order isn't changed. */
+export function byShapeAndName(blocks: readonly Block[]): Block[] {
+  return [...blocks].sort(
+    (a, b) => shapeRank(a) - shapeRank(b) || byName.compare(a.notecard.name, b.notecard.name),
+  );
+}
 export interface BlockSection {
   /** Unique within the library; a subcategory's is "Parent / Child". */
   key: string;
@@ -752,8 +766,9 @@ export interface BlockSection {
 /**
  * A library's blocks in sections: categories in the library's order, each top-level one holding
  * its own blocks then its subcategories (then Uncategorized); or tags A–Z / techniques in list order
- * (then None; a block with several shows under each). `none`: one unlabelled section. `tagsOf`: the
- * quilter's tags on a block (spec 029: with those kept in My library); default its own.
+ * (then None; a block with several shows under each); or shapes (spec 049). `none`: one unlabelled
+ * section. Inside each, blocks by shape then name (`byShapeAndName`). `tagsOf`: the quilter's tags on
+ * a block (spec 029: with those kept in My library); default its own.
  */
 export function blockSections(
   doc: LibraryDoc,
@@ -761,6 +776,7 @@ export function blockSections(
   by: GroupBy,
   tagsOf: (b: Block) => readonly string[] = (b) => visibleTags(b.notecard.tags),
 ): BlockSection[] {
+  blocks = byShapeAndName(blocks);
   const sec = (key: string, label: string, bs: Block[], parent?: string): BlockSection => ({
     key,
     label,
@@ -769,6 +785,15 @@ export function blockSections(
     ...(parent ? { parent } : {}),
   });
   if (by === 'none' || !blocks.length) return [sec('', '', blocks)];
+  if (by === 'shape')
+    return SHAPE_ORDER.map((s) => {
+      const label = s ? SHAPE_NAME[s as keyof typeof SHAPE_NAME] : 'Square and rectangle';
+      return sec(
+        label,
+        label,
+        blocks.filter((b) => (b.shape ?? '') === s),
+      );
+    }).filter((x) => x.count);
   if (by === 'category') {
     const catOf = new Map(doc.items.map((i) => [i.data.id, i.category]));
     const inCat = (id: string) => blocks.filter((b) => catOf.get(b.id) === id);

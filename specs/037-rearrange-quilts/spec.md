@@ -1,12 +1,17 @@
 # Feature Specification: Rearranging Quilts in a Project
 
-**Feature Branch**: `TBD` (target 0.7.4; moved from 0.7.3)
+**Feature Branch**: `feat/drag-order` (target 0.7.4; moved from 0.7.3)
 
 **Created**: 2026-10-20
 
-**Status**: Draft (spec only; not implemented)
+**Status**: Implemented (checks TC-220, TC-221, TC-224 to TC-227) except User Story 3 (Sort, optional), which is
+left for later. `composables/card-drag.ts` (`useCardDrag`, `gapAt`) drives both lists: pointer
+events, a 350 ms long press for touch, an 8 px move for mouse and pen. Keyboard grips sit left of
+each card's name.
 
-**Input**: Owner, 2026-10-20: add a spec for rearranging quilts within a project workspace.
+**Input**: Owner, 2026-10-30, on the quilt menu's Move to start / earlier / later / end: "the
+whole point of dragging is that we no longer need these menu options" (FR-003 now drops them for
+quilts too). Owner, 2026-10-20: add a spec for rearranging quilts within a project workspace.
 Owner, 2026-10-29: "it looks like it's also partially implmented for blocks, but the glow is
 missing. let's put it in 0.7.3 and add fixing the glow for blocks. that will also let uus drop the
 move earlier/later menu items from blocks" (User Story 4). Then: "when dragging, the actual
@@ -60,7 +65,10 @@ A quilter with a dozen quilts drags one card to where it belongs, with a mouse o
 3. **Given** a drop, **Then** it's one undo step; Esc cancels with no change (letting go
    elsewhere follows scenario 9).
 4. **Given** touch, **Then** a plain swipe still scrolls the page and a tap still opens the quilt
-   (only a long press starts a drag).
+   (only a long press starts a drag). On the drag grip a touch drags at once, no long press (owner,
+   2026-10-30: "on mobile, dragging from the drag handle shouldn't require a long press"). Firefox
+   for Android: the card listens for touchmove from the start of the touch, or the drag scrolls and
+   pulls to refresh.
 5. **Given** a read-only project, **Then** nothing can be dragged.
 6. **Given** a drag (mouse, pen or finger), **Then** the card being moved stays in its place, faded
    (about 40% opacity), so it's clear which one is moving and where it came from.
@@ -79,10 +87,9 @@ A quilter with a dozen quilts drags one card to where it belongs, with a mouse o
 
 ### User Story 2 - Move by keyboard and to the ends (Priority: P2)
 
-1. **Given** a quilt card's ⋮ menu, **Then** besides Move earlier / Move later it offers **Move to
-   start** and **Move to end** (disabled where they do nothing).
+1. **Given** a quilt card's ⋮ menu, **Then** it has no move items (dragging covers them).
 2. **Given** keyboard focus on a card's drag grip, **When** the quilter presses the arrow keys,
-   **Then** the card moves one place (as the strip list's grips do, spec 017), and screen readers
+   **Then** the card moves one place, Home and End to the ends (as the strip list's grips do, spec 017), and screen readers
    hear its new position ("3 of 12").
 
 ### User Story 3 - Sort once (Priority: P3)
@@ -124,13 +131,14 @@ A quilter with a dozen quilts drags one card to where it belongs, with a mouse o
   pointer events (as the strip list's, spec 017), not HTML drag and drop.
 - **FR-002**: Every reorder (drag, menu, keyboard, sort) MUST be one undo step and change only
   `project.quilts` order (no format change).
-- **FR-003**: The ⋮ menu MUST offer Move to start / Move earlier / Move later / Move to end.
+- **FR-003**: Quilt cards' ⋮ menus MUST NOT offer move items (dragging and the keyboard grip cover
+  moving, including to the start or end with Home and End).
 - **FR-004**: Drag grips MUST be keyboard operable with the new position announced.
 - **FR-005**: A one-off Sort (name, last changed) MAY be offered; it MUST NOT become a saved
   setting.
 - **FR-006**: The Blocks tab's own-block list MUST use the same drag behavior as quilts (landing
   glow, touch, auto-scroll, keyboard grip), and its ⋮ menu MUST drop Move earlier / Move later.
-  Quilts keep theirs (FR-003).
+  Quilts drop theirs too (FR-003).
 
 ## Success Criteria
 

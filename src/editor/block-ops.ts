@@ -15,7 +15,7 @@ import type { BlockShape } from '@/model/blocks/shape';
 import type { Block, SeamBlock } from '@/model/schema/block';
 import type { Units } from '@/model/schema/project';
 import type { Guide, NodeMode } from './draw-ops';
-import { defaultSnap, type SnapSettings } from './snap';
+import { defaultSnap, snapGrid, type SnapSettings } from './snap';
 
 export interface BlockEditorSettings {
   snap: SnapSettings;
@@ -28,7 +28,7 @@ export interface BlockEditorSettings {
 export function editorSettings(block: Block, units: Units): BlockEditorSettings {
   const e = (block.editor ?? {}) as Partial<BlockEditorSettings>;
   return {
-    snap: { ...defaultSnap(units, block.shape), ...e.snap },
+    snap: snapGrid(e.snap ?? {}, units, block.shape),
     graph: { show: false, step: units === 'cm' ? 1 : 0.5, ...e.graph },
     guides: e.guides ?? [],
     showPatches: e.showPatches ?? true,

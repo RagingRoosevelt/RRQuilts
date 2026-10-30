@@ -41,8 +41,6 @@ export const useEditorStore = defineStore('editor', () => {
   const recentColors = ref<string[]>([]);
   const outlines = ref(true);
   const labels = ref(false);
-  /** Quilt and block canvases drawn in grayscale (to check values). */
-  const gray = ref(false);
   /** Editor sidebar (inspector) shown; the hamburger button toggles it. */
   const sidebar = ref(true);
   /** Print preview scale (1 = true size); null = fit the page width. `printFit` is that fit. */
@@ -143,7 +141,6 @@ export const useEditorStore = defineStore('editor', () => {
     recentColors,
     outlines,
     labels,
-    gray,
     sidebar,
     printZoom,
     printFit,
