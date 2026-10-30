@@ -1051,9 +1051,12 @@
         </q-card-section>
         <img
           :src="thumb(previewBlock, 560, previewColoring ?? previewSections[0]!.colorings[0]?.id)"
+          :class="{ gray: editor.gray }"
           style="width: 100%; display: block"
           alt=""
         />
+        <!-- The editors' View grayscale (spec 047): one switch for the session. -->
+        <q-toggle v-model="editor.gray" dense label="View grayscale" class="q-px-md q-pt-sm" />
         <template v-if="previewBlock.colorings.length > 1">
           <template v-for="sec in previewSections" :key="sec.label ?? ''">
             <div v-if="sec.label" class="text-subtitle2 q-px-md q-pt-sm">{{ sec.label }}</div>
@@ -1068,7 +1071,7 @@
                 :title="k.name ?? `Coloring ${previewBlock.colorings.indexOf(k) + 1}`"
                 @click="previewColoring = k.id"
               >
-                <img :src="thumb(previewBlock, 64, k.id)" alt="" />
+                <img :src="thumb(previewBlock, 64, k.id)" :class="{ gray: editor.gray }" alt="" />
                 <span class="skin-name">{{
                   k.name ?? `Coloring ${previewBlock.colorings.indexOf(k) + 1}`
                 }}</span>

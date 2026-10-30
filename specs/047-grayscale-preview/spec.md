@@ -1,10 +1,10 @@
 # Feature Specification: View Grayscale in Block Previews
 
-**Feature Branch**: `TBD` (target 0.7.4; moved from 0.7.3)
+**Feature Branch**: `feat/grayscale-preview` (target 0.7.4; moved from 0.7.3)
 
 **Created**: 2026-10-29
 
-**Status**: Draft (spec only; not implemented). Follows the View grayscale switch of 0.7.2.
+**Status**: Implemented (checks TC-215, TC-216). The switch sits under the big picture. Follows the View grayscale switch of 0.7.2.
 
 **Input**: Owner, 2026-10-29: "let's add a spec that the greyscale toggle should also be available
 in the block preview too".

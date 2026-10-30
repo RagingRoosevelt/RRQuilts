@@ -742,9 +742,12 @@
         </q-card-section>
         <img
           :src="thumb(previewBlock, 560, previewColoring ?? previewSections[0]!.colorings[0]?.id)"
+          :class="{ gray: editor.gray }"
           style="width: 100%; display: block"
           alt=""
         />
+        <!-- The editors' View grayscale (spec 047): one switch for the session. -->
+        <q-toggle v-model="editor.gray" dense label="View grayscale" class="q-px-md q-pt-sm" />
         <template v-if="previewBlock.colorings.length > 1">
           <template v-for="sec in previewSections" :key="sec.label ?? ''">
             <div v-if="sec.label" class="text-subtitle2 q-px-md q-pt-sm">{{ sec.label }}</div>
@@ -759,7 +762,7 @@
                 :title="k.name ?? `Coloring ${previewBlock.colorings.indexOf(k) + 1}`"
                 @click="previewColoring = k.id"
               >
-                <img :src="thumb(previewBlock, 64, k.id)" alt="" />
+                <img :src="thumb(previewBlock, 64, k.id)" :class="{ gray: editor.gray }" alt="" />
                 <span class="skin-name">{{
                   k.name ?? `Coloring ${previewBlock.colorings.indexOf(k) + 1}`
                 }}</span>
@@ -1493,6 +1496,7 @@ const ALL = { mine: true, packs: true };
 
 const $q = useQuasar();
 const library = useLibraryStore();
+const editor = useEditorStore();
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
 const { swatches, forget: forgetSorts } = usePaletteSort();
@@ -2174,7 +2178,7 @@ watch(previewing, () => (previewColoring.value = undefined));
 /** A library block in the open project's block editor, read-only (a My library block too: edit
  *  its linked copy to change it). */
 function openInEditor(id: string, tab: 'details' | 'print' = 'details') {
-  useEditorStore().blockMode = tab;
+  editor.blockMode = tab;
   void router.push(`/project/block/${id}`);
 }
 const previewLib = computed(() => library.allViews.find((v) => v.doc.id === previewing.value?.lib));
