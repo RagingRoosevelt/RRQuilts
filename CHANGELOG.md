@@ -9,7 +9,7 @@ What changed in each version of RRQuilts, newest first.
 - Drag quilts and blocks into order, with a mouse or a finger.
 - [major] When drawing a block, control how strongly it snaps, and new ways to snap, such as lining
   up with a nearby node.
-- [major] View grayscale in the block previews of the project's Blocks tab and of Libraries.
+- [major] Grayscale view mode in the block previews.
 - Block and quilt cards show each picture in its own shape with a soft shadow, instead of on a gray
   square. In dark mode the shadow glows in the accent color.
 - Library blocks are listed by shape, then by name, and Group blocks by has a Shape choice.
