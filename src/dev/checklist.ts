@@ -120,10 +120,11 @@ export const CHECKS: Check[] = [
     to: '/project',
   },
   {
-    id: 'TC-223',
+    id: 'TC-226',
     group: G.drag037,
-    text: 'Quilt ⋮ menu: Move to start, Move earlier, Move later, Move to end, each greyed where it does nothing (first or last quilt). Keyboard: Tab to the handle left of a quilt’s name; arrows move it one place, Home and End to the ends, focus stays on it, and a screen reader says its new place (“3 of 12”). Data quilts or Other quilts selected: no handles, no dragging.',
+    text: 'Quilt ⋮ menu: no move items. Keyboard: Tab to the handle left of a quilt’s name; arrows move it one place, Home and End to the ends, focus stays on it, and a screen reader says its new place (“3 of 12”). Data quilts or Other quilts selected: no handles, no dragging.',
     to: '/project',
+    last: '"the whole point of dragging is that we no longer need these menu options"',
   },
   {
     id: 'TC-224',

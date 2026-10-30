@@ -16,7 +16,7 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - Choose how strongly lines snap to the grid and to other lines while drawing blocks, and which of
   them pull at all. Lines can also snap level with, or straight above, another corner.
 - Drag quilts and blocks into order with a finger as well as a mouse, see where a block will land as
-  you can for quilts, and move a quilt straight to the start or end of the list. Fix: letting go
+  you can for quilts. The Move earlier and Move later menu items go. Fix: letting go
   past the end of the list drops the card where the glow shows.
 - Block and quilt cards show each in its own shape, with a soft shadow, instead of on a gray square.
 - Library blocks listed by shape, then by name, and a choice to group them by shape.

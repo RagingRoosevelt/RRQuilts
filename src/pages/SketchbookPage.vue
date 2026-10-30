@@ -111,17 +111,6 @@
                 <q-item v-close-popup clickable @click="openQuilt(q.id)"
                   ><q-item-section>Open</q-item-section></q-item
                 >
-                <template v-if="canDragQuilts">
-                  <q-item
-                    v-for="m in quiltMoves(i)"
-                    :key="m.label"
-                    v-close-popup
-                    clickable
-                    :disable="m.to === null"
-                    @click="m.to !== null && moveTo('quilts', i, m.to)"
-                    ><q-item-section>{{ m.label }}</q-item-section></q-item
-                  >
-                </template>
                 <q-item v-close-popup clickable @click="saveQuiltImage(project.doc!, q)"
                   ><q-item-section>Save image</q-item-section></q-item
                 >
@@ -2991,16 +2980,6 @@ function moveTo(list: 'quilts' | 'blocks', from: number, gap: number) {
       : arr.findIndex((x) => x.id === last) + 1;
     arr.splice(at, 0, item!);
   });
-}
-/** The quilt menu's moves; `to` null where it does nothing. */
-function quiltMoves(i: number) {
-  const n = quilts.value.length;
-  return [
-    { label: 'Move to start', to: i > 0 ? 0 : null },
-    { label: 'Move earlier', to: i > 0 ? i - 1 : null },
-    { label: 'Move later', to: i < n - 1 ? i + 2 : null },
-    { label: 'Move to end', to: i < n - 1 ? n : null },
-  ];
 }
 /** Drag grips by keyboard: arrows move one place, Home and End to the ends; the new place is
  *  announced and the grip keeps focus. */

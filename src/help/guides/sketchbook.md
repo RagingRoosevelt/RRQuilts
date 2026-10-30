@@ -26,8 +26,8 @@ across the whole project.
    The card you move stays faded in its place while a copy follows your finger or pointer, and the
    edges either side of where the quilt will land light up. Let go anywhere and it lands there. Esc
    puts it back. Near the top or bottom of the window the page scrolls.
-5. The **Actions** menu also has **Move to start**, **Move earlier**, **Move later** and **Move to end**. With
-   the keyboard, tab to the handle left of a quilt's name and use the arrow keys, or Home and End.
+5. With the keyboard, tab to the handle left of a quilt's name and use the arrow keys, or Home and
+   End to move it to the start or end.
 
 ## Blocks
 
