@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-20
 
-**Status**: Implemented (checks TC-220 to TC-222, TC-224 to TC-226) except User Story 3 (Sort, optional), which is
+**Status**: Implemented (checks TC-220, TC-221, TC-224 to TC-227) except User Story 3 (Sort, optional), which is
 left for later. `composables/card-drag.ts` (`useCardDrag`, `gapAt`) drives both lists: pointer
 events, a 350 ms long press for touch, an 8 px move for mouse and pen. Keyboard grips sit left of
 each card's name.
@@ -65,7 +65,10 @@ A quilter with a dozen quilts drags one card to where it belongs, with a mouse o
 3. **Given** a drop, **Then** it's one undo step; Esc cancels with no change (letting go
    elsewhere follows scenario 9).
 4. **Given** touch, **Then** a plain swipe still scrolls the page and a tap still opens the quilt
-   (only a long press starts a drag).
+   (only a long press starts a drag). On the drag grip a touch drags at once, no long press (owner,
+   2026-10-30: "on mobile, dragging from the drag handle shouldn't require a long press"). Firefox
+   for Android: the card listens for touchmove from the start of the touch, or the drag scrolls and
+   pulls to refresh.
 5. **Given** a read-only project, **Then** nothing can be dragged.
 6. **Given** a drag (mouse, pen or finger), **Then** the card being moved stays in its place, faded
    (about 40% opacity), so it's clear which one is moving and where it came from.

@@ -3473,6 +3473,14 @@ watch(
   color: inherit;
   opacity: 0.5;
   cursor: grab;
+  touch-action: none; /* a finger on the grip drags at once instead of scrolling */
+}
+/* A bigger grip for fingers. */
+@media (pointer: coarse) {
+  .grip {
+    padding: 6px 4px;
+    margin: -4px 0 -4px -4px;
+  }
 }
 .grip:focus-visible {
   opacity: 1;

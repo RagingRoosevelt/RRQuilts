@@ -114,17 +114,11 @@ export const CHECKS: Check[] = [
     to: '/project',
   },
   {
-    id: 'TC-222',
+    id: 'TC-227',
     group: G.drag037,
-    text: 'Phone or tablet (the dev server over your network works for this), or a touch laptop: a swipe on the cards scrolls the page and a tap opens the quilt. Press and hold a card: it lifts (a small buzz on Android) and follows your finger, the page doesn’t scroll under it. Hold it near the top or bottom of the screen: the page scrolls. Let go: it lands where the glow shows.',
+    text: 'Phone or tablet (the dev server over your network works for this), or a touch laptop: a swipe on the cards scrolls the page and a tap opens the quilt. Press and hold a card: it lifts (a small buzz on Android) and follows your finger, the page doesn’t scroll or pull to refresh under it, even dragging down from the top. Drag by the handle left of a name: it lifts at once, no long press. Hold a card near the top or bottom of the screen: the page scrolls. Let go: it lands where the glow shows.',
     to: '/project',
-  },
-  {
-    id: 'TC-226',
-    group: G.drag037,
-    text: 'Quilt ⋮ menu: no move items. Keyboard: Tab to the handle left of a quilt’s name; arrows move it one place, Home and End to the ends, focus stays on it, and a screen reader says its new place (“3 of 12”). Data quilts or Other quilts selected: no handles, no dragging.',
-    to: '/project',
-    last: '"the whole point of dragging is that we no longer need these menu options"',
+    last: '"in firefox on my mobile device, long pressing a quilt then dragging it to the row below causes the browser to want to refresh the page" / "on mobile, dragging from the drag handle shouldn’t require a long press"',
   },
   {
     id: 'TC-224',

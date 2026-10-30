@@ -50,6 +50,8 @@ export function useCardDrag(o: CardDragOptions) {
     y: number;
     el: HTMLElement;
     i: number;
+    /** A touch outside the grip: drags only after a long press. */
+    touch: boolean;
     timer?: number;
   } | null = null;
   let ghost: HTMLElement | null = null;
@@ -68,8 +70,10 @@ export function useCardDrag(o: CardDragOptions) {
   function onDown(e: PointerEvent, i: number) {
     if (!o.enabled() || e.button !== 0 || from.value !== null) return;
     const el = e.currentTarget as HTMLElement;
-    pending = { id: e.pointerId, x: e.clientX, y: e.clientY, el, i };
-    if (e.pointerType === 'touch')
+    // On the grip a touch drags at once, like a mouse (the grip doesn't scroll the page).
+    const touch = e.pointerType === 'touch' && !(e.target as Element).closest('.grip');
+    pending = { id: e.pointerId, x: e.clientX, y: e.clientY, el, i, touch };
+    if (touch)
       pending.timer = window.setTimeout(() => {
         if (pending) {
           navigator.vibrate?.(10);
@@ -169,8 +173,8 @@ export function useCardDrag(o: CardDragOptions) {
     if (from.value === null) {
       const far = Math.hypot(e.clientX - pending.x, e.clientY - pending.y) > SLOP;
       if (!far) return;
-      // Touch: moving before the long press is a scroll. Mouse and pen: a drag.
-      if (e.pointerType === 'touch') return cancel();
+      // Touch off the grip: moving before the long press is a scroll. Otherwise a drag.
+      if (pending.touch) return cancel();
       start(e.clientX, e.clientY);
     }
     vx = vx * 0.5 + (e.clientX - pos.x) * 0.5;

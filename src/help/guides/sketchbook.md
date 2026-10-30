@@ -23,6 +23,7 @@ across the whole project.
    quilt…** saves a project file holding just that quilt and the blocks, colors and fabrics it uses.
    Open it as a project, or bring the quilt into another project with **Import quilts**.
 4. Drag cards to reorder them, with a mouse or, on a touch screen, by pressing a card until it lifts.
+   The handle left of a card's name drags straight away.
    The card you move stays faded in its place while a copy follows your finger or pointer, and the
    edges either side of where the quilt will land light up. Let go anywhere and it lands there. Esc
    puts it back. Near the top or bottom of the window the page scrolls.
