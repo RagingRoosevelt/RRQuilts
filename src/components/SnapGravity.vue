@@ -59,7 +59,7 @@ const TARGETS: { target: SnapTarget; label: string; caption: string }[] = [
   {
     target: 'align',
     label: 'Aligned to nearest neighbors',
-    caption: 'Level with a nearby node, or straight above or below one.',
+    caption: 'In line with a nearby node, along the grid’s directions.',
   },
   { target: 'grid', label: 'Grid points', caption: 'The snap grid.' },
 ];
