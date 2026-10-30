@@ -1,6 +1,6 @@
 # Feature Specification: Apply to Empty
 
-**Feature Branch**: `TBD` (target 0.9.0)
+**Feature Branch**: `TBD` (target 0.10.0; was 0.9.0)
 
 **Created**: 2026-10-22
 

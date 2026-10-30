@@ -1,6 +1,6 @@
 # Feature Specification: EPP Multi-Select (a Selection That Acts Like a Stamp)
 
-**Feature Branch**: `TBD` (target 0.8.0, with specs 027 and 050)
+**Feature Branch**: `TBD` (target 0.9.0, with specs 027 and 050; was 0.8.0)
 
 **Created**: 2026-10-29
 

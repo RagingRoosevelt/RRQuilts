@@ -1,6 +1,6 @@
 # Feature Specification: EPP Stamps (Meta-Blocks)
 
-**Feature Branch**: `TBD` (target 0.8.0, with spec 027)
+**Feature Branch**: `TBD` (target 0.9.0, with spec 027; was 0.8.0)
 
 **Created**: 2026-10-29
 
