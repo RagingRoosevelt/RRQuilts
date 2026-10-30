@@ -33,6 +33,8 @@ hexagons, diamonds) and should snap to nearest node along grid axes" (User Story
   **Nodes**, and Settings, help and captions say node, not corner.
 - Owner, 2026-10-30: "turning off snap to grid points should't hide the grid". The snap grid (dots, or a
   shaped block's lines) always shows while drawing; Grid points Off only stops the pull.
+- Owner, 2026-10-30: "snap to seams shouldn't disable snapping to the block edges, just to seams within
+  the block". The outline pulls at the Seams step even with Seams Off (`Reach.edges`); only Alt stops it.
 - The pull preview (User Story 4) is a ring beside each step in Settings, shown all the time.
 - Code: `editor/snap.ts` (`snap` takes a `Reach` per target, `lineUp`), `components/SnapGravity.vue`,
   `BlockCanvas.vue` (reach from settings, touch, Alt, guide), `render/draw-block.ts` (`lineGuide`).

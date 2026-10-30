@@ -109,7 +109,8 @@ const radius = () => 8 * vp.worldPerPx();
 function reach(e?: PointerEvent | null): Reach {
   const s = app.settings;
   const k = e?.altKey ? 0 : (e?.pointerType === 'touch' ? s.snapTouch : 1) * vp.worldPerPx();
-  const r = {} as Reach;
+  // The block's edges pull at the Seams step even with Snap to seams off.
+  const r = { edges: GRAVITY_PX[s.snapGravity.seams] * k } as Reach;
   for (const t of SNAP_TARGETS) r[t] = s.snapOff.includes(t) ? 0 : GRAVITY_PX[s.snapGravity[t]] * k;
   return r;
 }

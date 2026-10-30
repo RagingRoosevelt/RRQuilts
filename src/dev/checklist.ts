@@ -117,6 +117,13 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
+    id: 'TC-236',
+    group: G.snap031,
+    text: 'Block editor, Snap to seams off: drawing near a seam inside the block doesn’t stop on it, but near the block’s edge it still lands exactly on the edge (green dot), on shaped blocks too. Settings › Seams set to Strong: the edge pulls from farther. Hold Alt: not even the edge pulls.',
+    last: '"snap to seams shouldn’t disable snapping to the block edges, just to seams within the block"',
+    to: '/project',
+  },
+  {
     id: 'TC-235',
     group: G.snap031,
     text: 'Block editor › Snapping & graph paper: the toggles Snap to grid points, Snap to nodes, Snap to seams and Aligned to nearest neighbors match Settings. Switch one off: its step in Settings shows Off; on again: it comes back at the step it had. Open another block: the same toggles. Snapping gravity under the toggles opens Settings at the steps. A block saved before this keeps its grid spacing. Snap to grid points off: the grid dots (or a shaped block’s grid lines) still show, they just don’t pull.',

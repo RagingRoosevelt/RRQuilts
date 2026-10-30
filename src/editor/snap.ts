@@ -1,5 +1,5 @@
 // Snapping for the block editor (design space: normalized × block size).
-// Priority: existing nodes → points on seams (incl. the outline) → lining up with nodes → snap-grid
+// Priority: existing nodes → points on seams and the block's edges → lining up with nodes → snap-grid
 // points. Which targets pull, and how far, are the quilter's settings (spec 031); the grid itself is
 // the block's.
 import { project } from '@/model/geometry/intersect';
@@ -44,9 +44,18 @@ export type Gravity = 'gentle' | 'normal' | 'strong';
 /** How far each step pulls, in screen pixels (mouse and pen). */
 export const GRAVITY_PX: Record<Gravity, number> = { gentle: 4, normal: 8, strong: 16 };
 /** How far each target pulls, in design units; 0 = off. */
-export type Reach = Record<SnapTarget, number>;
+export type Reach = Record<SnapTarget, number> & {
+  /** The block's own edges: they pull even with Snap to seams off (owner, 2026-10-30). */
+  edges: number;
+};
 /** Every target but line up at `d` (line up off, as by default). */
-export const reachOf = (d: number, align = 0): Reach => ({ nodes: d, seams: d, grid: d, align });
+export const reachOf = (d: number, align = 0): Reach => ({
+  nodes: d,
+  seams: d,
+  edges: d,
+  grid: d,
+  align,
+});
 
 export interface Snapped {
   /** Design-space point. */
@@ -115,17 +124,20 @@ export function snap(
 
   // Seam candidate. Ending on a seam wins over a nearby grid point — unless that grid point is
   // itself on the seam (then use it: it's both exact and on the grid).
-  if (reach.seams > 0) {
+  if (reach.seams > 0 || reach.edges > 0) {
     const outline = corners.map((a, i): Seg => ({
       kind: 'line',
       a,
       b: corners[(i + 1) % corners.length]!,
     }));
     let best: { q: Pt; d: number; g: Seg } | undefined;
-    for (const g of [...outline, ...drawing.segments.map((x) => segGeom(drawing, x, size))]) {
+    const near = (g: Seg, within: number) => {
       const r = project(g, p);
-      if (r.d <= reach.seams && (!best || r.d < best.d)) best = { q: pointAt(g, r.t), d: r.d, g };
-    }
+      if (r.d <= within && (!best || r.d < best.d)) best = { q: pointAt(g, r.t), d: r.d, g };
+    };
+    for (const g of outline) near(g, reach.edges);
+    if (reach.seams > 0)
+      for (const x of drawing.segments) near(segGeom(drawing, x, size), reach.seams);
     if (best) {
       const onSeam = grid && project(best.g, grid).d <= 1e-6 * Math.max(w, h);
       if (onSeam) return { p: grid!, endpoint: norm(grid!), kind: 'grid' };
