@@ -111,9 +111,10 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-231',
+    id: 'TC-235',
     group: G.snap031,
-    text: 'Block editor › Snapping & graph paper: the toggles Snap to grid points, Snap to nodes, Snap to seams and Aligned to nearest neighbors match Settings. Switch one off: its step in Settings shows Off; on again: it comes back at the step it had. Open another block: the same toggles. Snapping gravity under the toggles opens Settings at the steps. A block saved before this keeps its grid spacing.',
+    text: 'Block editor › Snapping & graph paper: the toggles Snap to grid points, Snap to nodes, Snap to seams and Aligned to nearest neighbors match Settings. Switch one off: its step in Settings shows Off; on again: it comes back at the step it had. Open another block: the same toggles. Snapping gravity under the toggles opens Settings at the steps. A block saved before this keeps its grid spacing. Snap to grid points off: the grid dots (or a shaped block’s grid lines) still show, they just don’t pull.',
+    last: '"turning off snap to grid points should’t hide the grid"',
     to: '/project',
   },
   {

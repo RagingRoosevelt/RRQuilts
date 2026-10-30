@@ -31,6 +31,8 @@ hexagons, diamonds) and should snap to nearest node along grid axes" (User Story
 - Owner, 2026-10-30, on the label "Line up": "maybe 'aligned to nearest neighbors'?". Settings and the
   block editor toggle both say **Aligned to nearest neighbors** (spec text below still says Line up). Then: "node is better than corner": the Settings row is
   **Nodes**, and Settings, help and captions say node, not corner.
+- Owner, 2026-10-30: "turning off snap to grid points should't hide the grid". The snap grid (dots, or a
+  shaped block's lines) always shows while drawing; Grid points Off only stops the pull.
 - The pull preview (User Story 4) is a ring beside each step in Settings, shown all the time.
 - Code: `editor/snap.ts` (`snap` takes a `Reach` per target, `lineUp`), `components/SnapGravity.vue`,
   `BlockCanvas.vue` (reach from settings, touch, Alt, guide), `render/draw-block.ts` (`lineGuide`).

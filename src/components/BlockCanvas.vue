@@ -208,7 +208,6 @@ const vp = useViewport({
       marquee: marquee.value,
       snapPoint: snapPoint.value,
       lineGuide: lineGuide.value,
-      showGrid: !app.settings.snapOff.includes('grid'),
       bulge: liveDrawing.value ? null : bulge.value,
       liveDrawing: liveDrawing.value,
       dataOverlay: editor.data.numbers ? { line: editor.data.line } : null,
@@ -397,7 +396,6 @@ watch(
     imagesTick.value, // fabric images arriving (spec 014)
     editor.data.numbers,
     editor.data.line,
-    app.settings.snapOff,
   ],
   vp.schedule,
 );
