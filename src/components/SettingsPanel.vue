@@ -269,6 +269,10 @@
               </div>
               <OverlaySettings />
             </SettingsCard>
+            <SettingsCard label="Block design" class="q-mt-md">
+              <div class="text-subtitle2 q-mb-xs">Snapping gravity</div>
+              <SnapGravity />
+            </SettingsCard>
           </div>
         </q-expansion-item>
         <q-expansion-item default-opened label="Fabrics" icon="attachment">
@@ -327,6 +331,7 @@
 import { useQuasar } from 'quasar';
 import OverlaySettings from '@/components/OverlaySettings.vue';
 import SettingsCard from '@/components/SettingsCard.vue';
+import SnapGravity from '@/components/SnapGravity.vue';
 import { welcomeOpen } from '@/composables/settings-open';
 import { computed, reactive, ref } from 'vue';
 import { authorSlug } from '@/model/identity';

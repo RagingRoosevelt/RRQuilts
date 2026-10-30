@@ -22,6 +22,8 @@ export interface BlockDrawOptions {
   mode: 'draw' | 'color';
   coloring: ColoringBody | undefined;
   snap: SnapSettings;
+  /** Grid points snap (the quilter's setting): show the grid. */
+  showGrid: boolean;
   graph: { show: boolean; step: number };
   guides: { a: Pt; b: Pt; sweep?: number }[];
   selection: Set<string>;
@@ -31,6 +33,8 @@ export interface BlockDrawOptions {
   previewRect?: [Pt, Pt] | null;
   marquee?: [Pt, Pt] | null;
   snapPoint?: Pt | null;
+  /** Lined up (spec 031): dashed guides from the point to the corners it lines up with. */
+  lineGuide?: { p: Pt; to: Pt[] } | null;
   bulge?: Pt | null;
   /** While dragging: the drawing as it will be on release (seams follow live). */
   liveDrawing?: Drawing | null;
@@ -82,7 +86,7 @@ export function drawBlockEditor(
   }
 
   // A shaped block's triangle grid: faint lines inside the outline, as the snap points.
-  if (block.shape && o.mode === 'draw' && o.snap.grid) {
+  if (block.shape && o.mode === 'draw' && o.showGrid) {
     ctx.save();
     ctx.clip(outline);
     ctx.beginPath();
@@ -113,7 +117,7 @@ export function drawBlockEditor(
   }
 
   // Snap grid points (only when they'd be at least 6 px apart)
-  if (o.mode === 'draw' && o.snap.grid && !block.shape) {
+  if (o.mode === 'draw' && o.showGrid && !block.shape) {
     const [gx, gy] = gridSpacing(o.snap, block.size);
     if (gx / px >= 6 && gy / px >= 6) {
       ctx.fillStyle = o.dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.25)';
@@ -198,6 +202,19 @@ export function drawBlockEditor(
     );
   }
   ctx.setLineDash([]);
+
+  if (o.lineGuide) {
+    ctx.beginPath();
+    for (const a of o.lineGuide.to) {
+      ctx.moveTo(...o.lineGuide.p);
+      ctx.lineTo(...a);
+    }
+    ctx.setLineDash([4 * px, 3 * px]);
+    ctx.lineWidth = 1.5 * px;
+    ctx.strokeStyle = '#43a047';
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
 
   // Snap marker and bulge handle
   for (const [pt, color] of [

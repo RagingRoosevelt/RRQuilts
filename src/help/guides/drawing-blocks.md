@@ -36,11 +36,22 @@ Pick a tool on the left rail and drag on the block:
 4. Seams that don't join at both ends are shown in red. Join them so the shapes close.
 
 Points snap to guides so seams stay tidy. Open **Snapping & graph paper** in the sidebar to choose
-**Step** (**Snap every**) or **Divisions** (**Across** / **Down**). Turn **Snap to grid points**, **Snap to nodes**, and
-**Snap to seams** on or off, and show **Graph paper**.
+**Step** (**Snap every**) or **Divisions** (**Across** / **Down**). Turn **Snap to grid points**, **Snap to nodes**,
+**Snap to seams** and **Line up with nodes** on or off, and show **Graph paper**. The grid belongs to
+each block. The snap toggles are yours, the same in every block and every project.
+
+**Line up with nodes** (off at first) pulls the point level with a corner, or straight above or
+below one, even with no grid point there. A dashed line shows the corner it lined up with. Near two
+such lines, the point lands where they cross. The start of the seam you're drawing counts too, so a
+seam drawn from it ends exactly level or upright.
+
+**Snapping gravity**, under the toggles, opens Settings, where each kind of snap pulls **Gentle**,
+**Normal** or **Strong**, or is **Off**. A finger pulls from twice as far as a mouse at first
+(**Touch gravity**). Hold Alt (Option on a Mac) to draw without snapping.
 
 Shaped blocks snap to a triangle grid instead. **Grid steps per side** cuts each side of the shape
 into that many steps, and the grid's lines run at 60° to each other through the shape's corners.
+On them, **Line up with nodes** follows the grid's three directions instead of level and upright.
 
 ## Select and edit
 

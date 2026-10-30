@@ -56,6 +56,7 @@ const G = {
   drag037: 'Dragging quilts and blocks into order (spec 037)',
   shadow048: 'Card shadows (spec 048)',
   shape049: 'Library blocks by shape (spec 049)',
+  snap031: 'Snapping gravity and Line up (spec 031)',
 };
 
 export const CHECKS: Check[] = [
@@ -102,6 +103,30 @@ export const CHECKS: Check[] = [
     text: 'Leap day: a Weeks quilt from 1 January 2028. Details › Data quilt shows Leap day (hidden for 2027 and for Months). Extra single-day number: the list runs Jan 1, Wk 1 … Wk 52, Dec 31. Use a 2-day block variant: the last number is Dec 30–31 and a week block’s 2-day variant (Draw tab › Variant › 2 days) shows there. Average and Ignore: 53 numbers, and the Entries dialog marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value (Mood) and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra; switching to Ignore with a block on Feb 29 asks first.',
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
+  },
+  {
+    id: 'TC-230',
+    group: G.snap031,
+    text: 'Settings › Quilt and block design › Block design: Snapping gravity lists Corners, Seams, Line up and Grid points, each Off, Gentle, Normal or Strong, with a dot and a ring that grows with the step, and Touch gravity (Same as mouse, Double, Triple). New settings: all Normal, Line up Off, Double. Set Grid points to Strong: drawing jumps to grid points from farther away. Set Seams to Off: seams no longer pull, in every block. Export and import a settings file: the steps come back.',
+    to: '/',
+  },
+  {
+    id: 'TC-231',
+    group: G.snap031,
+    text: 'Block editor › Snapping & graph paper: the toggles Snap to grid points, Snap to nodes, Snap to seams and Line up with nodes match Settings. Switch one off: its step in Settings shows Off; on again: it comes back at the step it had. Open another block: the same toggles. Snapping gravity under the toggles opens Settings at the steps. A block saved before this keeps its grid spacing.',
+    to: '/project',
+  },
+  {
+    id: 'TC-232',
+    group: G.snap031,
+    text: 'Square block, Line up with nodes on, grid off: draw a seam, then move the pointer near the height of one of its ends, far from it: the green dot sits exactly level, with a dashed line to that end. Near its x too, another corner: the dot takes x from one, y from the other, dashed lines to both. With grid points on, the other axis lands on a grid column. Draw a seam from a corner straight across: it ends exactly level (Details or the coordinates under the block show the same y). Hold Alt (Option): no snapping at all while held.',
+    to: '/project',
+  },
+  {
+    id: 'TC-233',
+    group: G.snap031,
+    text: 'Triangle, 60° diamond and hexagon blocks, Line up on: points line up along the triangle grid’s three directions (level and both 60° slopes; hexagons upright and both 30° slopes), not plumb; two directions within reach meet where they cross; dashed line along the direction to the corner. On a phone or tablet: a finger pulls from twice as far as the mouse (Touch gravity Double).',
+    to: '/project',
   },
   {
     id: 'TC-229',

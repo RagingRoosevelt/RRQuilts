@@ -92,3 +92,39 @@ describe('tab on opening a project', () => {
     expect([s.lastProject, s.projectTab]).toEqual(['b', 'quilts']);
   });
 });
+
+describe('snapping gravity (spec 031)', () => {
+  it('older settings snap as before: Normal, line up Off, double for touch', () => {
+    const s = loadSettings(memoryStore({ [STORAGE_KEY]: JSON.stringify({ units: 'cm' }) }));
+    expect(s.snapGravity).toEqual({
+      nodes: 'normal',
+      seams: 'normal',
+      align: 'normal',
+      grid: 'normal',
+    });
+    expect(s.snapOff).toEqual(['align']);
+    expect(s.snapTouch).toBe(2);
+  });
+
+  it('goes with a settings file; bad values fall back', () => {
+    const s = {
+      ...defaults(),
+      snapGravity: { nodes: 'strong', seams: 'gentle', align: 'normal', grid: 'normal' },
+      snapOff: ['seams'],
+      snapTouch: 3,
+    } as ReturnType<typeof defaults>;
+    expect(parseConf(JSON.stringify(toConf(s, 'x')))).toEqual({
+      ok: true,
+      settings: s,
+      invalid: [],
+    });
+    const bad = parseConf(
+      JSON.stringify({
+        format: 'rrqconf',
+        version: 1,
+        settings: { snapGravity: { nodes: 'huge' }, snapOff: ['walls'], snapTouch: 9 },
+      }),
+    );
+    expect(bad).toMatchObject({ invalid: ['snapGravity', 'snapOff', 'snapTouch'] });
+  });
+});

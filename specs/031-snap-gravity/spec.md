@@ -1,10 +1,10 @@
 # Feature Specification: Snap Gravity Setting
 
-**Feature Branch**: `TBD` (target 0.7.4; moved from 0.7.3)
+**Feature Branch**: `feat/snap-gravity` (0.7.4; moved from 0.7.3)
 
 **Created**: 2026-10-19
 
-**Status**: Draft (spec only; not implemented)
+**Status**: Implemented (2026-10-30). Owner, 2026-10-30: "ok, let's do snapping preferences next".
 
 **Input**: Owner, 2026-10-19: a feature where the user can set the snapping gravity in their user
 settings, under design, block design.
@@ -15,6 +15,23 @@ horizontal and nearest vertical node" (User Story 5). Then: "the snap settings a
 (not project settings) but are exposed in the block design editor". Then: "the horizontal /vertical
 snapping specs should be handled a bit differently on non-cartisian grid blocks (triangles,
 hexagons, diamonds) and should snap to nearest node along grid axes" (User Story 5, scenario 9).
+
+## Implementation notes (2026-10-30)
+
+- Settings keys: `snapGravity` (a step per target: gentle, normal, strong), `snapOff` (targets
+  switched off, so switching one on brings its step back), `snapTouch` (1, 2, 3). Blocks keep only
+  their grid (`mode`, `step`, `divisions`, `perSide`); old on/off toggles in `block.editor.snap` are
+  ignored and dropped at the next save of the block's editor state.
+- Line up, of several lines within reach along one axis: the nearest line wins, ties to the corner
+  nearest the pointer (scenario 2's "nearest corner" read as the nearest line, so a point never jumps
+  past a closer level). Two lines from the same corner don't combine (they'd cross on the corner,
+  which is Corners' job), matching User Story 5's independent test; scenario 10's "from the same
+  corner" is read that way too.
+- A lined-up point stores its corner's x or y exactly (SC-005).
+- The pull preview (User Story 4) is a ring beside each step in Settings, shown all the time.
+- Code: `editor/snap.ts` (`snap` takes a `Reach` per target, `lineUp`), `components/SnapGravity.vue`,
+  `BlockCanvas.vue` (reach from settings, touch, Alt, guide), `render/draw-block.ts` (`lineGuide`).
+  Checks TC-230 to TC-233.
 
 ## Concepts
 

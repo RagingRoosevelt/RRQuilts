@@ -169,7 +169,10 @@ export function lattice(shape: BlockShape, size: readonly [number, number], divi
         ];
   const toPlane: M = [e1[0], e1[1], e2[0], e2[1], origin[0], origin[1]];
   const toGrid = invert(toPlane);
+  const unit = (v: Pt): Pt => [v[0] / L, v[1] / L];
   return {
+    /** The grid's three line directions, as unit vectors (line up, spec 031). */
+    axes: [unit(e1), unit(e2), unit([e2[0] - e1[0], e2[1] - e1[1]])],
     /** The grid point nearest `p`. */
     nearest(p: Pt): Pt {
       const [u, v] = apply(toGrid, p);
