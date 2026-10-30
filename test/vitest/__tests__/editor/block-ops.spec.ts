@@ -72,6 +72,13 @@ describe('snapping', () => {
     });
   });
 
+  it("Seams off still lands on the block's edges, not on drawn seams", () => {
+    const r = { ...reachOf(0.3), seams: 0, grid: 0 };
+    expect(snap([3.3, 5.1], drawing, size, s, r).kind).toBe('free'); // the drawn seam at y 5
+    expect(snap([3.3, 9.9], drawing, size, s, r)).toMatchObject({ kind: 'seam', p: [3.3, 10] });
+    expect(snap([3.3, 9.9], drawing, size, s, { ...r, edges: 0 }).kind).toBe('free');
+  });
+
   it('each target reaches its own distance', () => {
     const far: [number, number] = [3.37, 7.12]; // 0.17 from the nearest grid point
     expect(snap(far, drawing, size, s, { ...reachOf(0.3), grid: 0.1 }).kind).toBe('free');
@@ -112,7 +119,7 @@ describe('snapping', () => {
       none,
       tri,
       defaultSnap('in', 'triangle'),
-      { nodes: 0, seams: 0, grid: 0, align: 0.1 },
+      { nodes: 0, seams: 0, edges: 0, grid: 0, align: 0.1 },
       'triangle',
     );
     expect(r.kind).toBe('align');

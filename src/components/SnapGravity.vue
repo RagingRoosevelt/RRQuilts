@@ -55,7 +55,11 @@ const store = useSettingsStore();
 
 const TARGETS: { target: SnapTarget; label: string; caption: string }[] = [
   { target: 'nodes', label: 'Nodes', caption: 'Nodes already drawn and the block’s corners.' },
-  { target: 'seams', label: 'Seams', caption: 'Any point on a seam or the outline.' },
+  {
+    target: 'seams',
+    label: 'Seams',
+    caption: 'Any point on a seam. The block’s edges pull at this step even when Off.',
+  },
   {
     target: 'align',
     label: 'Aligned to nearest neighbors',

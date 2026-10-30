@@ -38,7 +38,9 @@ Pick a tool on the left rail and drag on the block:
 Points snap to guides so seams stay tidy. Open **Snapping & graph paper** in the sidebar to choose
 **Step** (**Snap every**) or **Divisions** (**Across** / **Down**). Turn **Snap to grid points**, **Snap to nodes**,
 **Snap to seams** and **Aligned to nearest neighbors** on or off, and show **Graph paper**. The grid
-belongs to each block. The snap toggles are yours, the same in every block and every project.
+belongs to each block. The snap toggles are yours, the same in every block and every project. With **Snap to
+seams** off, points still snap to the block's edges, just not to the seams inside it. With **Snap to
+grid points** off, the grid still shows but doesn't pull.
 
 **Aligned to nearest neighbors** (off at first) pulls the point level with a node, or straight above or
 below one, even with no grid point there. A dashed line shows the node it lined up with. Near two
