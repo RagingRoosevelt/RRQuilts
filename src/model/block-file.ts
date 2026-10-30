@@ -1,5 +1,6 @@
 // Single-block files (.rrqbl): one block plus the colors and (v3) fabrics its colorings use. Imported blocks are
 // the user's own (editable); the original author stays credited (constitution Principle VI).
+import { prettyJson } from './json';
 import { plainFill } from './coloring';
 import { upgradeNotecards, withoutTags } from './tags';
 import { produce } from 'immer';
@@ -85,7 +86,7 @@ export function blockFile(
 }
 
 export const serializeBlock = (...args: Parameters<typeof blockFile>) =>
-  JSON.stringify(blockFile(...args));
+  prettyJson(blockFile(...args));
 
 export function parseBlockFile(
   text: string,

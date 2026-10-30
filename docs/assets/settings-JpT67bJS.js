@@ -1,0 +1,1 @@
+import{v as e,y as t}from"./project-BgvsjUer.js";import{r as n}from"./index-CFcd-GV4.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

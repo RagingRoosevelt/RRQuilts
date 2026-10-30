@@ -1426,6 +1426,7 @@
 </template>
 
 <script setup lang="ts">
+import { prettyJson } from '@/model/json';
 import DialogClose from '@/components/DialogClose.vue';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
@@ -1979,7 +1980,7 @@ function exportProjectPalette(pp: (typeof ownPalettes.value)[number]) {
   void embedFabrics(pp.fabrics, settings.settings.saveSize).then((fabrics) =>
     exportFile(
       pp.palette.notecard.name,
-      JSON.stringify(collectionFile({ ...c, fabrics }, import.meta.env.APP_VERSION)),
+      prettyJson(collectionFile({ ...c, fabrics }, import.meta.env.APP_VERSION)),
       'rrqplt',
     ),
   );

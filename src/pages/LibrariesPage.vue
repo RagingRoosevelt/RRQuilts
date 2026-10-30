@@ -1378,6 +1378,7 @@
 </template>
 
 <script setup lang="ts">
+import { prettyJson } from '@/model/json';
 import { updateBeforeLink } from '@/session/update';
 import DialogClose from '@/components/DialogClose.vue';
 import TagsDialog from '@/components/TagsDialog.vue';
@@ -2385,7 +2386,7 @@ async function exportCollection(c: ColorCollection) {
     ? await embedFabrics(c.fabrics, settings.settings.saveSize)
     : undefined;
   const out = fabrics ? { ...c, fabrics } : c;
-  void exportFile(c.notecard.name, JSON.stringify(collectionFile(out, APP)), 'rrqplt');
+  void exportFile(c.notecard.name, prettyJson(collectionFile(out, APP)), 'rrqplt');
 }
 
 const formatOf = (text: string): unknown => {
