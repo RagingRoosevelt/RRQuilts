@@ -28,6 +28,9 @@ hexagons, diamonds) and should snap to nearest node along grid axes" (User Story
   which is Corners' job), matching User Story 5's independent test; scenario 10's "from the same
   corner" is read that way too.
 - A lined-up point stores its corner's x or y exactly (SC-005).
+- Owner, 2026-10-30, on the label "Line up": "maybe 'aligned to nearest neighbors'?". Settings and the
+  block editor toggle both say **Aligned to nearest neighbors** (spec text below still says Line up). Then: "node is better than corner": the Settings row is
+  **Nodes**, and Settings, help and captions say node, not corner.
 - The pull preview (User Story 4) is a ring beside each step in Settings, shown all the time.
 - Code: `editor/snap.ts` (`snap` takes a `Reach` per target, `lineUp`), `components/SnapGravity.vue`,
   `BlockCanvas.vue` (reach from settings, touch, Alt, guide), `render/draw-block.ts` (`lineGuide`).

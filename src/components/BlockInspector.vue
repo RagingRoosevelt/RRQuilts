@@ -462,7 +462,7 @@ const SNAP_TOGGLES: { target: SnapTarget; label: string }[] = [
   { target: 'grid', label: 'Snap to grid points' },
   { target: 'nodes', label: 'Snap to nodes' },
   { target: 'seams', label: 'Snap to seams' },
-  { target: 'align', label: 'Line up with nodes' },
+  { target: 'align', label: 'Aligned to nearest neighbors' },
 ];
 /** On brings back the target's own step (Settings › Block design). */
 function setSnapOn(t: SnapTarget, on: boolean) {

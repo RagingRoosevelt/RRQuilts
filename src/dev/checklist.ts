@@ -107,25 +107,25 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-230',
     group: G.snap031,
-    text: 'Settings › Quilt and block design › Block design: Snapping gravity lists Corners, Seams, Line up and Grid points, each Off, Gentle, Normal or Strong, with a dot and a ring that grows with the step, and Touch gravity (Same as mouse, Double, Triple). New settings: all Normal, Line up Off, Double. Set Grid points to Strong: drawing jumps to grid points from farther away. Set Seams to Off: seams no longer pull, in every block. Export and import a settings file: the steps come back.',
+    text: 'Settings › Quilt and block design › Block design: Snapping gravity lists Nodes, Seams, Aligned to nearest neighbors and Grid points, each Off, Gentle, Normal or Strong, with a dot and a ring that grows with the step, and Touch gravity (Same as mouse, Double, Triple). New settings: all Normal, Line up Off, Double. Set Grid points to Strong: drawing jumps to grid points from farther away. Set Seams to Off: seams no longer pull, in every block. Export and import a settings file: the steps come back.',
     to: '/',
   },
   {
     id: 'TC-231',
     group: G.snap031,
-    text: 'Block editor › Snapping & graph paper: the toggles Snap to grid points, Snap to nodes, Snap to seams and Line up with nodes match Settings. Switch one off: its step in Settings shows Off; on again: it comes back at the step it had. Open another block: the same toggles. Snapping gravity under the toggles opens Settings at the steps. A block saved before this keeps its grid spacing.',
+    text: 'Block editor › Snapping & graph paper: the toggles Snap to grid points, Snap to nodes, Snap to seams and Aligned to nearest neighbors match Settings. Switch one off: its step in Settings shows Off; on again: it comes back at the step it had. Open another block: the same toggles. Snapping gravity under the toggles opens Settings at the steps. A block saved before this keeps its grid spacing.',
     to: '/project',
   },
   {
     id: 'TC-232',
     group: G.snap031,
-    text: 'Square block, Line up with nodes on, grid off: draw a seam, then move the pointer near the height of one of its ends, far from it: the green dot sits exactly level, with a dashed line to that end. Near its x too, another corner: the dot takes x from one, y from the other, dashed lines to both. With grid points on, the other axis lands on a grid column. Draw a seam from a corner straight across: it ends exactly level (Details or the coordinates under the block show the same y). Hold Alt (Option): no snapping at all while held.',
+    text: 'Square block, Aligned to nearest neighbors on, grid off: draw a seam, then move the pointer near the height of one of its ends, far from it: the green dot sits exactly level, with a dashed line to that end. Near its x too, another node: the dot takes x from one, y from the other, dashed lines to both. With grid points on, the other axis lands on a grid column. Draw a seam from a node straight across: it ends exactly level (Details or the coordinates under the block show the same y). Hold Alt (Option): no snapping at all while held.',
     to: '/project',
   },
   {
     id: 'TC-233',
     group: G.snap031,
-    text: 'Triangle, 60° diamond and hexagon blocks, Line up on: points line up along the triangle grid’s three directions (level and both 60° slopes; hexagons upright and both 30° slopes), not plumb; two directions within reach meet where they cross; dashed line along the direction to the corner. On a phone or tablet: a finger pulls from twice as far as the mouse (Touch gravity Double).',
+    text: 'Triangle, 60° diamond and hexagon blocks, Line up on: points line up along the triangle grid’s three directions (level and both 60° slopes; hexagons upright and both 30° slopes), not plumb; two directions within reach meet where they cross; dashed line along the direction to the node. On a phone or tablet: a finger pulls from twice as far as the mouse (Touch gravity Double).',
     to: '/project',
   },
   {

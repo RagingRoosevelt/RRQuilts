@@ -54,9 +54,13 @@ import { useSettingsStore } from '@/stores/settings';
 const store = useSettingsStore();
 
 const TARGETS: { target: SnapTarget; label: string; caption: string }[] = [
-  { target: 'nodes', label: 'Corners', caption: 'Corners already drawn and the block’s own.' },
+  { target: 'nodes', label: 'Nodes', caption: 'Nodes already drawn and the block’s corners.' },
   { target: 'seams', label: 'Seams', caption: 'Any point on a seam or the outline.' },
-  { target: 'align', label: 'Line up', caption: 'Level or plumb with a corner.' },
+  {
+    target: 'align',
+    label: 'Aligned to nearest neighbors',
+    caption: 'Level with a nearby node, or straight above or below one.',
+  },
   { target: 'grid', label: 'Grid points', caption: 'The snap grid.' },
 ];
 const STEPS = [

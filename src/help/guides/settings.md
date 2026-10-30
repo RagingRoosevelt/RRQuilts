@@ -42,8 +42,8 @@ sizes, and help.
   - Each starts unset. **Set now** sets it here, or the first one you use in the new quilt wizard
     sets it. **Clear** unsets it.
 - **Block design** › **Snapping gravity** sets how close the pointer must come before it jumps onto
-  **Corners**, **Seams**, a **Line up** with a corner, or **Grid points** while you draw a block.
-  Each is **Off**, **Gentle**, **Normal** or **Strong**, and the ring beside it shows how far it
+  **Nodes**, **Seams**, a line through a nearby node (**Aligned to nearest neighbors**), or **Grid
+  points** while you draw a block. Each is **Off**, **Gentle**, **Normal** or **Strong**, and the ring beside it shows how far it
   reaches. **Touch gravity** makes a finger pull from farther than a mouse. The block editor's snap
   toggles switch these same settings off and on.
 
