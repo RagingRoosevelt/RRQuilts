@@ -22,8 +22,6 @@ export interface BlockDrawOptions {
   mode: 'draw' | 'color';
   coloring: ColoringBody | undefined;
   snap: SnapSettings;
-  /** Grid points snap (the quilter's setting): show the grid. */
-  showGrid: boolean;
   graph: { show: boolean; step: number };
   guides: { a: Pt; b: Pt; sweep?: number }[];
   selection: Set<string>;
@@ -85,8 +83,9 @@ export function drawBlockEditor(
     ctx.fill(outline);
   }
 
-  // A shaped block's triangle grid: faint lines inside the outline, as the snap points.
-  if (block.shape && o.mode === 'draw' && o.showGrid) {
+  // A shaped block's triangle grid: faint lines inside the outline, as the snap points (shown even
+  // with Snap to grid points off: it still guides the eye).
+  if (block.shape && o.mode === 'draw') {
     ctx.save();
     ctx.clip(outline);
     ctx.beginPath();
@@ -117,7 +116,7 @@ export function drawBlockEditor(
   }
 
   // Snap grid points (only when they'd be at least 6 px apart)
-  if (o.mode === 'draw' && o.showGrid && !block.shape) {
+  if (o.mode === 'draw' && !block.shape) {
     const [gx, gy] = gridSpacing(o.snap, block.size);
     if (gx / px >= 6 && gy / px >= 6) {
       ctx.fillStyle = o.dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.25)';
