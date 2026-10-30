@@ -105,6 +105,12 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
+    id: 'TC-234',
+    group: G.files,
+    text: 'Save a project, export a block (.rrqbl), a palette (.rrqplt) and a library backup or pack (.rrqlib), and open each in a text editor: indented, with short things (a size, a node, a fill) on one line. Each opens again in the app as before, and older compact files still open.',
+    to: '/',
+  },
+  {
     id: 'TC-230',
     group: G.snap031,
     text: 'Settings › Quilt and block design › Block design: Snapping gravity lists Nodes, Seams, Aligned to nearest neighbors and Grid points, each Off, Gentle, Normal or Strong, with a dot and a ring that grows with the step, and Touch gravity (Same as mouse, Double, Triple). New settings: all Normal, Line up Off, Double. Set Grid points to Strong: drawing jumps to grid points from farther away. Set Seams to Off: seams no longer pull, in every block. Export and import a settings file: the steps come back.',
