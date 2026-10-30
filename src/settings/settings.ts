@@ -25,7 +25,7 @@ export interface Settings {
   /** Quilt editor Design sidebar: last tab. */
   trayTab: 'blocks' | 'colors';
   /** Libraries page: blocks in sections by category, tag, or style. */
-  libraryGroupBy: 'none' | 'category' | 'tags' | 'techniques';
+  libraryGroupBy: 'none' | 'category' | 'tags' | 'techniques' | 'shape';
   /** Quilt editor block sidebar: only blocks the quilt's layout takes. */
   compatibleBlocks: boolean;
   /** Project (sketchbook) page: last tab. */
@@ -153,7 +153,8 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   osAccent: (v) => typeof v === 'boolean',
   trayTab: (v) => v === 'blocks' || v === 'colors',
   // 'styles' (before spec 029) falls back to the default.
-  libraryGroupBy: (v) => v === 'none' || v === 'category' || v === 'tags' || v === 'techniques',
+  libraryGroupBy: (v) =>
+    v === 'none' || v === 'category' || v === 'tags' || v === 'techniques' || v === 'shape',
   libraryType: (v) => v === 'block' || v === 'colors' || v === '',
   socials: (v) =>
     Array.isArray(v) &&

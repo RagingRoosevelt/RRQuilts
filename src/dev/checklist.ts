@@ -55,6 +55,7 @@ const G = {
   gray047: 'View grayscale in block previews (spec 047)',
   drag037: 'Dragging quilts and blocks into order (spec 037)',
   shadow048: 'Card shadows (spec 048)',
+  shape049: 'Library blocks by shape (spec 049)',
 };
 
 export const CHECKS: Check[] = [
@@ -101,6 +102,12 @@ export const CHECKS: Check[] = [
     text: 'Leap day: a Weeks quilt from 1 January 2028. Details › Data quilt shows Leap day (hidden for 2027 and for Months). Extra single-day number: the list runs Jan 1, Wk 1 … Wk 52, Dec 31. Use a 2-day block variant: the last number is Dec 30–31 and a week block’s 2-day variant (Draw tab › Variant › 2 days) shows there. Average and Ignore: 53 numbers, and the Entries dialog marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value (Mood) and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra; switching to Ignore with a block on Feb 29 asks first.',
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
+  },
+  {
+    id: 'TC-229',
+    group: G.shape049,
+    text: 'Libraries, grouped by Category: in a category with shaped blocks (e.g. Stars), square blocks come first A to Z, then triangles, 60° diamonds, hexagons, each A to Z. Group blocks by › Shape: sections Square and rectangle, Triangle, 60° diamond, Hexagon with counts, also in the contents list; reload: still Shape. Project Blocks tab: the same order and the Shape choice; the quilt editor’s block tray in the same order. My blocks keep your own order.',
+    to: '/libraries',
   },
   {
     id: 'TC-228',

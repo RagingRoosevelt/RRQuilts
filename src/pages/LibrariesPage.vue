@@ -2079,6 +2079,7 @@ const GROUP_BY = [
   { label: 'Category', value: 'category' },
   { label: 'Tags', value: 'tags' },
   { label: 'Technique', value: 'techniques' },
+  { label: 'Shape', value: 'shape' },
 ];
 /** The contents list's heading: what blocks are grouped by (libraries alone when by nothing). */
 const tocLabel = computed(() =>

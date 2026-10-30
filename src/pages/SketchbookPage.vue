@@ -1663,6 +1663,7 @@ const GROUP_BY = [
   { label: 'Category', value: 'category' },
   { label: 'Tags', value: 'tags' },
   { label: 'Technique', value: 'techniques' },
+  { label: 'Shape', value: 'shape' },
 ];
 const libCats = computed(() => [
   ...new Map(library.views.flatMap((v) => v.doc.categories).map((c) => [c.id, c])).values(),

@@ -38,7 +38,9 @@ The sidebar beside the blocks (on a phone, the **Filters** button) works as on t
 (**Category**, **Tags**, **Technique**), **Shape** (**Fits layout**, for blocks that fit a quilt
 layout's spaces, and **Shape**) and **Construction** (**Seams**, **Difficulty**). They narrow
 both My blocks and Library blocks. **Group library blocks by** sorts library blocks into sections by
-category, tag or technique, and the contents list below it jumps to My blocks or a library section.
+category, tag, technique or shape, and the contents list below it jumps to My blocks or a library
+section. In each section, square and rectangle blocks come first, then triangles, 60° diamonds and
+hexagons, each A to Z.
 See [Libraries](/help/guides/libraries) for tags, technique and construction.
 While a filter is on, blocks can't be moved.
 
