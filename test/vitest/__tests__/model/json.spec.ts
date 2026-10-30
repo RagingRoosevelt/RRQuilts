@@ -1,3 +1,4 @@
+import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { prettyJson } from '@/model/json';
 import { fixtureText } from './helpers';
@@ -28,5 +29,21 @@ describe('prettyJson (saved files)', () => {
         '}',
       ].join('\n'),
     );
+  });
+});
+
+// Every released format sample (projects, demos, blocks, libraries, palettes, settings): laid out
+// by prettyJson, it reads back as the same data JSON.stringify writes.
+describe('prettyJson on every format sample', () => {
+  const dir = 'test/fixtures/formats';
+  const files = readdirSync(dir).filter((f) => /\.rrq(bl|lib|plt|conf)?$/.test(f));
+
+  it('finds the samples', () => expect(files.length).toBeGreaterThan(20));
+
+  it.each(files)('%s', (f) => {
+    const data = JSON.parse(readFileSync(`${dir}/${f}`, 'utf8')) as unknown;
+    const text = prettyJson(data);
+    expect(JSON.parse(text)).toEqual(JSON.parse(JSON.stringify(data)));
+    expect(text).toMatch(/^\{\n {2}"/); // laid out, not one long line
   });
 });
