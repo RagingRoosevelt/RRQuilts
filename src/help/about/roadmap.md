@@ -18,7 +18,6 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
   past the end of the list drops the card where the glow shows.
 - Block and quilt cards show each in its own shape, with a soft shadow, instead of on a gray square.
 - Library blocks listed by shape, then by name, and a choice to group them by shape.
-- Fix: a link to a secret gist opens its project.
 
 ## 0.8.0
 
