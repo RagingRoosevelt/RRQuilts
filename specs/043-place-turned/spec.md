@@ -1,6 +1,6 @@
 # Feature Specification: Place Blocks Turned
 
-**Feature Branch**: `TBD` (target 0.10.0)
+**Feature Branch**: `TBD` (target 0.11.0; was 0.10.0)
 
 **Created**: 2026-10-22
 

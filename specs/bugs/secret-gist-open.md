@@ -1,6 +1,6 @@
 # Bug: a secret gist link may not open
 
-**Reported**: 2026-10-29 (owner) · **Status**: Open, to be defined (target 0.7.4; moved from 0.7.3) · **Area**: Open
+**Reported**: 2026-10-29 (owner) · **Status**: Closed, not reproduced (2026-10-30) · **Area**: Open
 from a gist (`src/storage/gist.ts`, constitution Principle II's second network exception)
 
 Owner, 2026-10-29: "we don't have a check for opening a link to a private gist. add that to 0.7.3
@@ -34,3 +34,10 @@ starts.
 ## Expected
 
 A secret gist's link opens its project, as a public gist's does. Anything that can't open says why.
+
+## Outcome (2026-10-30)
+
+Owner, checking before any work: "ok, it does look like it actually worked". A secret gist's link
+opens its project. Nothing changed. Left as a possible later tidy-up: `gistId` doesn't read GitHub's
+"Clone via HTTPS" (`…/<id>.git`) or "Embed" (`…/<id>.js`) forms, so those keep the paste box's Open
+button off.
