@@ -7,6 +7,7 @@ export type Units = 'in' | 'cm';
 import type { OverlayDefaults } from '@/model/targets';
 import type { Social } from './socials';
 import { validSortPrefs, type SortPref } from '@/model/palette-sort';
+import type { Gravity, SnapTarget } from '@/editor/snap';
 
 export interface Settings {
   theme: Theme;
@@ -25,7 +26,7 @@ export interface Settings {
   /** Quilt editor Design sidebar: last tab. */
   trayTab: 'blocks' | 'colors';
   /** Libraries page: blocks in sections by category, tag, or style. */
-  libraryGroupBy: 'none' | 'category' | 'tags' | 'techniques';
+  libraryGroupBy: 'none' | 'category' | 'tags' | 'techniques' | 'shape';
   /** Quilt editor block sidebar: only blocks the quilt's layout takes. */
   compatibleBlocks: boolean;
   /** Project (sketchbook) page: last tab. */
@@ -67,6 +68,12 @@ export interface Settings {
   /** Reference overlay starting points (lengths in inches); each unset until given in Settings or
    *  first used in the new quilt wizard. */
   overlayDefaults: OverlayDefaults;
+  /** Block editor snapping (spec 031): how hard each target pulls when on. */
+  snapGravity: Record<SnapTarget, Gravity>;
+  /** Snap targets switched off (their step in `snapGravity` comes back when switched on). */
+  snapOff: SnapTarget[];
+  /** A finger's pull is this many times the mouse's. */
+  snapTouch: 1 | 2 | 3;
   // Keys added by later app versions are kept as-is.
   [key: string]: unknown;
 }
@@ -119,7 +126,12 @@ export const defaults = (): Settings => ({
   bundledHidden: [],
   bedSizes: 'auto',
   overlayDefaults: {},
+  snapGravity: { nodes: 'normal', seams: 'normal', align: 'normal', grid: 'normal' },
+  snapOff: ['align'],
+  snapTouch: 2,
 });
+
+const SNAP_TARGETS = ['nodes', 'seams', 'align', 'grid'];
 
 const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   theme: (v) => v === 'auto' || v === 'light' || v === 'dark',
@@ -153,7 +165,8 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   osAccent: (v) => typeof v === 'boolean',
   trayTab: (v) => v === 'blocks' || v === 'colors',
   // 'styles' (before spec 029) falls back to the default.
-  libraryGroupBy: (v) => v === 'none' || v === 'category' || v === 'tags' || v === 'techniques',
+  libraryGroupBy: (v) =>
+    v === 'none' || v === 'category' || v === 'tags' || v === 'techniques' || v === 'shape',
   libraryType: (v) => v === 'block' || v === 'colors' || v === '',
   socials: (v) =>
     Array.isArray(v) &&
@@ -185,6 +198,12 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   bundledHidden: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   collapsedSections: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   paletteSorts: validSortPrefs,
+  snapGravity: (v) =>
+    isObject(v) &&
+    SNAP_TARGETS.every((k) => v[k] === 'gentle' || v[k] === 'normal' || v[k] === 'strong'),
+  snapOff: (v) =>
+    Array.isArray(v) && v.every((x) => typeof x === 'string' && SNAP_TARGETS.includes(x)),
+  snapTouch: (v) => v === 1 || v === 2 || v === 3,
 };
 
 const isObject = (v: unknown): v is Record<string, unknown> =>

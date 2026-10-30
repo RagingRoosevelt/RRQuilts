@@ -1,5 +1,6 @@
 // .rrqlib files (spec 002, amended by spec 011): read untrusted library documents item by item,
 // write backups (My library + installed packs) and packs (license-checked).
+import { prettyJson } from './json';
 import { upgradeNotecards, withoutTags } from './tags';
 import type { TSchema } from 'typebox';
 import Value from 'typebox/value';
@@ -119,7 +120,7 @@ export function parseLibrary(text: string): LibraryParse {
 }
 
 export const serializeLibrary = (doc: LibraryBackup, app: string) =>
-  JSON.stringify({ ...doc, format: LIBRARY_FORMAT, version: LIBRARY_VERSION, app });
+  prettyJson({ ...doc, format: LIBRARY_FORMAT, version: LIBRARY_VERSION, app });
 
 /** One backup of everything in Libraries (repository links join with spec 012). */
 export function backupDoc(

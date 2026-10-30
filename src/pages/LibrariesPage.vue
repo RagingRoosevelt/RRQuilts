@@ -742,9 +742,12 @@
         </q-card-section>
         <img
           :src="thumb(previewBlock, 560, previewColoring ?? previewSections[0]!.colorings[0]?.id)"
+          :class="{ gray }"
           style="width: 100%; display: block"
           alt=""
         />
+        <!-- View grayscale (spec 047): off each time a preview opens. -->
+        <q-toggle v-model="gray" dense label="View grayscale" class="q-px-md q-pt-sm" />
         <template v-if="previewBlock.colorings.length > 1">
           <template v-for="sec in previewSections" :key="sec.label ?? ''">
             <div v-if="sec.label" class="text-subtitle2 q-px-md q-pt-sm">{{ sec.label }}</div>
@@ -759,7 +762,7 @@
                 :title="k.name ?? `Coloring ${previewBlock.colorings.indexOf(k) + 1}`"
                 @click="previewColoring = k.id"
               >
-                <img :src="thumb(previewBlock, 64, k.id)" alt="" />
+                <img :src="thumb(previewBlock, 64, k.id)" :class="{ gray }" alt="" />
                 <span class="skin-name">{{
                   k.name ?? `Coloring ${previewBlock.colorings.indexOf(k) + 1}`
                 }}</span>
@@ -1375,6 +1378,7 @@
 </template>
 
 <script setup lang="ts">
+import { prettyJson } from '@/model/json';
 import { updateBeforeLink } from '@/session/update';
 import DialogClose from '@/components/DialogClose.vue';
 import TagsDialog from '@/components/TagsDialog.vue';
@@ -1493,6 +1497,7 @@ const ALL = { mine: true, packs: true };
 
 const $q = useQuasar();
 const library = useLibraryStore();
+const editor = useEditorStore();
 const settings = useSettingsStore();
 const askAuthor = useAuthor();
 const { swatches, forget: forgetSorts } = usePaletteSort();
@@ -2075,6 +2080,7 @@ const GROUP_BY = [
   { label: 'Category', value: 'category' },
   { label: 'Tags', value: 'tags' },
   { label: 'Technique', value: 'techniques' },
+  { label: 'Shape', value: 'shape' },
 ];
 /** The contents list's heading: what blocks are grouped by (libraries alone when by nothing). */
 const tocLabel = computed(() =>
@@ -2170,11 +2176,16 @@ const tagLine = (x: Block) =>
 const previewing = ref<{ lib: string; id: string; at?: number } | null>(null);
 /** The preview's coloring (undefined: the block's first); reset when the preview changes. */
 const previewColoring = ref<string>();
-watch(previewing, () => (previewColoring.value = undefined));
+/** The preview's View grayscale; reset (off) when the preview changes or closes. */
+const gray = ref(false);
+watch(previewing, () => {
+  previewColoring.value = undefined;
+  gray.value = false;
+});
 /** A library block in the open project's block editor, read-only (a My library block too: edit
  *  its linked copy to change it). */
 function openInEditor(id: string, tab: 'details' | 'print' = 'details') {
-  useEditorStore().blockMode = tab;
+  editor.blockMode = tab;
   void router.push(`/project/block/${id}`);
 }
 const previewLib = computed(() => library.allViews.find((v) => v.doc.id === previewing.value?.lib));
@@ -2375,7 +2386,7 @@ async function exportCollection(c: ColorCollection) {
     ? await embedFabrics(c.fabrics, settings.settings.saveSize)
     : undefined;
   const out = fabrics ? { ...c, fabrics } : c;
-  void exportFile(c.notecard.name, JSON.stringify(collectionFile(out, APP)), 'rrqplt');
+  void exportFile(c.notecard.name, prettyJson(collectionFile(out, APP)), 'rrqplt');
 }
 
 const formatOf = (text: string): unknown => {
@@ -3049,12 +3060,14 @@ function downloadPack() {
   font-size: 1.25rem;
   font-weight: 600;
 }
+/* Card pictures (spec 048): no backing; the block or quilt casts a shadow in its own shape (the
+   picture is transparent outside its outline). */
 .thumb {
   display: block;
   width: 100%;
   padding: 0;
   border: none;
-  background: #9e9e9e;
+  background: transparent;
   border-radius: 4px;
   cursor: pointer;
 }
@@ -3063,6 +3076,7 @@ function downloadPack() {
   width: 100%;
   aspect-ratio: 1;
   object-fit: contain;
+  filter: var(--card-shadow);
 }
 .collection {
   border: 1px solid rgba(128, 128, 128, 0.3);

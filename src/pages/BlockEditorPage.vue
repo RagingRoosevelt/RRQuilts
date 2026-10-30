@@ -118,7 +118,7 @@
           :settings="settings"
           :unconnected="unconnected"
           :readonly="ro"
-          :class="{ gray: editor.gray }"
+          :class="{ gray: gray }"
           @drawing="applyDrawing"
           @patch="onPatch"
           @numeral="(p, n) => numeralPatch(p, n)"
@@ -169,7 +169,7 @@
           @op="onOp"
         />
         <div v-else-if="editor.blockMode === 'color'" class="column">
-          <q-toggle v-model="editor.gray" dense label="View grayscale" class="q-mb-sm" />
+          <q-toggle v-model="gray" dense label="View grayscale" class="q-mb-sm" />
           <q-expansion-item
             :model-value="open('Colorings')"
             dense
@@ -343,6 +343,8 @@ const router = useRouter();
 const project = useProjectStore();
 const library = useLibraryStore();
 const editor = useEditorStore();
+/** View grayscale (values only): off each time the editor opens, never remembered. */
+const gray = ref(false);
 // Sidebar opens with each editor (hiding it isn't remembered).
 // Open on arrival, except on phones/portrait tablets, where it slides over the canvas.
 editor.sidebar = !$q.screen.lt.md;
