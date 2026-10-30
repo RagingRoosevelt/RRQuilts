@@ -83,6 +83,7 @@
         data-drag="quilts"
         :data-drag-index="i"
         @pointerdown="quiltDown($event, i)"
+        @touchmove="quiltTouch"
       >
         <div class="relative-position">
           <button class="thumb" @click="openQuilt(q.id)">
@@ -267,6 +268,7 @@
                 class="card"
                 :class="[blockGlow(i), { dragged: blockFrom === i }]"
                 @pointerdown="blockDown($event, i)"
+                @touchmove="blockTouch"
               >
                 <div class="relative-position">
                   <button class="thumb" @click="openBlock(b.id)">
@@ -1599,6 +1601,7 @@ const canDragQuilts = computed(
 const {
   from: quiltFrom,
   onDown: quiltDown,
+  onTouchMove: quiltTouch,
   glow: quiltGlow,
 } = useCardDrag({
   list: 'quilts',
@@ -1611,6 +1614,7 @@ const canDragBlocks = computed(
 const {
   from: blockFrom,
   onDown: blockDown,
+  onTouchMove: blockTouch,
   glow: blockGlow,
 } = useCardDrag({
   list: 'blocks',

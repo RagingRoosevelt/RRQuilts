@@ -45,6 +45,11 @@ img.gray {
 }
 
 /* A card being dragged into order (spec 037, composables/card-drag.ts). */
+/* No pull-to-refresh or scroll chaining while a card is held. */
+html.card-dragging,
+html.card-dragging body {
+  overscroll-behavior: none;
+}
 body.card-dragging,
 body.card-dragging * {
   cursor: grabbing !important;

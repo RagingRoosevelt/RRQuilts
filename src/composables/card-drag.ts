@@ -107,8 +107,8 @@ export function useCardDrag(o: CardDragOptions) {
     });
     document.body.appendChild(copy);
     document.body.classList.add('card-dragging');
+    document.documentElement.classList.add('card-dragging');
     window.addEventListener('keydown', onKey);
-    document.addEventListener('touchmove', blockScroll, { passive: false });
     document.addEventListener('contextmenu', blockMenu);
     pos = { x, y };
     vx = 0;
@@ -204,7 +204,12 @@ export function useCardDrag(o: CardDragOptions) {
     if (f !== null) finish(f, () => cards()[f]);
   }
 
-  const blockScroll = (e: TouchEvent) => e.cancelable && e.preventDefault();
+  /** Bound on each card (`@touchmove`) so it's there when the touch starts: Firefox for Android
+   *  decides then whether the page may stop scrolling, and a listener added at the long press is
+   *  too late (the drag scrolls, or pulls to refresh at the top). Stops scrolling only while dragging. */
+  const onTouchMove = (e: TouchEvent) => {
+    if (from.value !== null && ghost && e.cancelable) e.preventDefault();
+  };
   const blockMenu = (e: Event) => e.preventDefault();
 
   /** The copy slides to `to` (its landing place, or back to the card), then everything resets. */
@@ -237,9 +242,9 @@ export function useCardDrag(o: CardDragOptions) {
     window.removeEventListener('pointerup', onUp);
     window.removeEventListener('pointercancel', cancel);
     window.removeEventListener('keydown', onKey);
-    document.removeEventListener('touchmove', blockScroll);
     document.removeEventListener('contextmenu', blockMenu);
     document.body.classList.remove('card-dragging');
+    document.documentElement.classList.remove('card-dragging');
   }
 
   function cancel() {
@@ -264,5 +269,5 @@ export function useCardDrag(o: CardDragOptions) {
           ? 'glow-left'
           : null;
 
-  return { from, gap, onDown, glow };
+  return { from, gap, onDown, onTouchMove, glow };
 }
