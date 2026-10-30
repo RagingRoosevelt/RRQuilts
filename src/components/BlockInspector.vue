@@ -459,10 +459,11 @@ const setSnap = (patch: Partial<SnapSettings>) =>
   emit('settings', { snap: { ...props.settings.snap, ...patch } });
 
 const SNAP_TOGGLES: { target: SnapTarget; label: string }[] = [
-  { target: 'grid', label: 'Snap to grid points' },
+  // The same order as Settings › Block design › Snapping gravity.
   { target: 'nodes', label: 'Snap to nodes' },
   { target: 'seams', label: 'Snap to seams' },
   { target: 'align', label: 'Aligned to nearest neighbors' },
+  { target: 'grid', label: 'Snap to grid points' },
 ];
 /** On brings back the target's own step (Settings › Block design). */
 function setSnapOn(t: SnapTarget, on: boolean) {

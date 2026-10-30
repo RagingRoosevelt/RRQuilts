@@ -117,6 +117,13 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
+    id: 'TC-237',
+    group: G.snap031,
+    text: 'Block editor › Snapping & graph paper: the switches run Snap to nodes, Snap to seams, Aligned to nearest neighbors, Snap to grid points, the same order as Settings › Block design › Snapping gravity (Nodes, Seams, Aligned to nearest neighbors, Grid points).',
+    last: '"the order of the switches in the block editor should match the order in the settings page"',
+    to: '/project',
+  },
+  {
     id: 'TC-236',
     group: G.snap031,
     text: 'Block editor, Snap to seams off: drawing near a seam inside the block doesn’t stop on it, but near the block’s edge it still lands exactly on the edge (green dot), on shaped blocks too. Settings › Seams set to Strong: the edge pulls from farther. Hold Alt: not even the edge pulls.',
