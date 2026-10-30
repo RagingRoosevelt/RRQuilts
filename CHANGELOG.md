@@ -2,6 +2,23 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.7.4 (2026-10-30)
+
+### New features
+
+- Drag quilts and blocks into order, with a mouse or a finger.
+- [major] Control how strongly drawing snaps, and new ways to snap, such as lining up with a nearby
+  node.
+- [major] View grayscale in the block previews of the project's Blocks tab and of Libraries.
+- Block and quilt cards show each picture in its own shape with a soft shadow, instead of on a gray
+  square. In dark mode the shadow glows in the accent color.
+- Library blocks are listed by shape, then by name, and Group blocks by has a Shape choice.
+- Saved projects, libraries, blocks and palettes are laid out to read easily in a text editor.
+
+### Fixes
+
+- Letting go of a quilt past the end of the list drops it where the glow shows.
+
 ## 0.7.3 (2026-10-29)
 
 ### New features
