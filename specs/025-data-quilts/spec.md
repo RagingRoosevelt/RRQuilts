@@ -305,9 +305,14 @@ strip type. The quilt shows 365 days in the simulation's colors.
   blocks that match the origional image"): Quartered Month Swirl (30/29/28 variants) and Quartered
   Week Swirl. Four quarters pieced apart, each a fan from a point on its inner edge 0.27 of a
   quarter from the block's center, each quarter the last turned clockwise. Days split TL, TR, BR,
-  BL (the first quarters take the extra: 8/8/8/7, a week 2/2/2/1), spikes clockwise in each fan
-  between lines from 160° to 40°, plain wedges at both ends; spikes from 0.38 to 0.68 along their
-  lines, each tip at the next spike's outer corner.
+  BL (the first quarters take the extra: 8/8/8/7, a week 2/2/2/1). First try (spikes by fraction
+  along the fan lines) rejected: "the triangles should be in a cirlce similar to the pinwheel we
+  already implmented, but the four sub-blocks are constructed differently". So the spikes stand
+  in a ring about the block's center, as a pinwheel's: fan line j aims at the middle ring
+  (0.327 block widths) at 180° + 90°·j/m (line 0 is the middle line, line m meets the quarter's
+  edge on the ring); each spike runs 0.22 to 0.433 block widths from the center along its line,
+  its tip where the next line meets the middle ring (a quarter's last tip on the seam, at the
+  middle of the next quarter's first spike's side).
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
 

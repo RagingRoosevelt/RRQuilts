@@ -319,29 +319,39 @@ const SQUARE: P[] = [
 ];
 /** A data block in four square quarters, each a fan of lines from a point on its inner edge, a
  *  quarter of the way out from the block's center, each quarter the last turned a quarter turn
- *  clockwise. Each fan holds its quarter's days (the first quarters take the extra ones), a spike
- *  per day sweeping clockwise from the fan's left side, plain wedges at both ends. */
+ *  clockwise. The spikes stand in a ring about the block's center like a pinwheel's, a spike per
+ *  day clockwise from the left, the first quarters taking the extra days. */
 const dataQuarters = (name: string, category: string, n: number): StarterBlock => {
-  // Worked in the top left quarter (side 1, the block's center at its bottom right corner), its
-  // fan from the bottom edge; angles in degrees counterclockwise from pointing right.
-  const hub: P = [0.73, 1];
-  const ray = (deg: number, f: number): P => {
-    const t = (deg * Math.PI) / 180;
-    const [dx, dy] = [Math.cos(t), -Math.sin(t)];
-    // Up to the left, top or right edge, whichever comes first.
-    const len = Math.min(
-      dx < 0 ? -hub[0] / dx : dx > 0 ? (1 - hub[0]) / dx : Infinity,
-      -hub[1] / dy,
+  // Worked in the top left quarter, its fan from the block's middle line left of the center, then
+  // turned. Distances from the center in block widths: spikes from LO to HI, tips at MID.
+  const O: P = [0.5, 0.5];
+  const hub: P = [0.5 - 0.135, 0.5];
+  const [LO, HI] = [0.22, 0.433];
+  const MID = (LO + HI) / 2;
+  /** Where the line from the hub toward `to` is `r` from the center. */
+  const at = (to: P, r: number): P => {
+    const l = Math.hypot(to[0] - hub[0], to[1] - hub[1]);
+    const [dx, dy] = [(to[0] - hub[0]) / l, (to[1] - hub[1]) / l];
+    const [ox, oy] = [hub[0] - O[0], hub[1] - O[1]];
+    const b = ox * dx + oy * dy;
+    const t = -b + Math.sqrt(b * b - (ox * ox + oy * oy) + r * r);
+    return [hub[0] + dx * t, hub[1] + dy * t];
+  };
+  /** Where the line from the hub toward `to` leaves the quarter (top, left or right edge). */
+  const end = (to: P): P => {
+    const [dx, dy] = [to[0] - hub[0], to[1] - hub[1]];
+    const t = Math.min(
+      dy < 0 ? -hub[1] / dy : Infinity,
+      dx < 0 ? -hub[0] / dx : dx > 0 ? (0.5 - hub[0]) / dx : Infinity,
     );
-    return [hub[0] + dx * len * f, hub[1] + dy * len * f];
+    return [hub[0] + dx * t, hub[1] + dy * t];
   };
   // Quarter q's point, a quarter turn clockwise per quarter about the block's center.
   const place = ([x, y]: P, q: number): P => {
-    let [u, v] = [x / 2 - 0.5, y / 2 - 0.5];
+    let [u, v] = [x - 0.5, y - 0.5];
     for (let i = 0; i < q; i++) [u, v] = [-v, u];
     return [0.5 + u, 0.5 + v];
   };
-  const [IN, OUT] = [0.38, 0.68];
   const seams: Seam[] = [
     [
       [0.5, 0],
@@ -356,13 +366,16 @@ const dataQuarters = (name: string, category: string, n: number): StarterBlock =
   let day = 1;
   for (let q = 0; q < 4; q++) {
     const m = Math.floor(n / 4) + (q < n % 4 ? 1 : 0);
-    // Day lines from 160° to 40°, a plain wedge either side (one more line at 18°).
-    const deg = (k: number) => 160 - (120 * k) / m;
+    // Line j aims at the middle ring at 180° + 90°·j/m: line 0 is the middle line itself, line m
+    // meets the quarter's right edge on the middle ring.
+    const aim = (j: number): P => {
+      const t = Math.PI + (Math.PI / 2) * (j / m);
+      return [O[0] + MID * Math.cos(t), O[1] + MID * Math.sin(t)];
+    };
     const line = (a: P, b: P): Seam => [place(a, q), place(b, q)];
-    for (let k = 0; k <= m; k++) seams.push(line(hub, ray(deg(k), 1)));
-    seams.push(line(hub, ray(18, 1)));
-    for (let k = 0; k < m; k++) {
-      const [p1, p2, tip] = [ray(deg(k), IN), ray(deg(k), OUT), ray(deg(k + 1), OUT)];
+    for (let j = 1; j <= m; j++) seams.push(line(hub, end(aim(j))));
+    for (let j = 0; j < m; j++) {
+      const [p1, p2, tip] = [at(aim(j), LO), at(aim(j), HI), aim(j + 1)];
       seams.push(line(p1, tip), line(p2, tip));
       const c = place([(p1[0] + p2[0] + tip[0]) / 3, (p1[1] + p2[1] + tip[1]) / 3], q);
       days.push([c[0], c[1], day++]);

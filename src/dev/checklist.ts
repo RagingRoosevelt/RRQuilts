@@ -122,8 +122,8 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-240',
     group: G.swirl025,
-    text: 'Libraries › Data: Quartered Month Swirl and Quartered Week Swirl look like the photo: four quarters, each a fan from a point on its inner edge, each turned a quarter turn from the last. Days run top left, top right, bottom right, bottom left, clockwise within each fan. Variant › 30, 29, 28 days takes a spike off the later quarters first. In a data quilt each day colors its own spike.',
-    last: '"the source image is split into quadrants and is assembled differently than we\'ve designed... let\'s make an additional set of square blocks that match the origional image"',
+    text: 'Libraries › Data: Quartered Month Swirl and Quartered Week Swirl look like the photo: four quarters, each a fan from a point on its inner edge, each turned a quarter turn from the last, the spikes in a ring about the center like the pinwheels. Day 1 at the left, going clockwise; each quarter’s last tip meets the middle of the next quarter’s first spike on their seam. Variant › 30, 29, 28 days takes a spike off the later quarters first. In a data quilt each day colors its own spike.',
+    last: '"the source image is split into quadrants and is assembled differently than we\'ve designed... let\'s make an additional set of square blocks that match the origional image" / "nope, that doesn\'t look right. the triangles should be in a cirlce similar to the pinwheel we already implmented, but the four sub-blocks are constructed differently"',
     to: '/libraries',
   },
 ];

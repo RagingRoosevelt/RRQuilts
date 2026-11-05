@@ -17,8 +17,8 @@ describe.each([
   ['Quartered Week Swirl', 7, undefined],
   ['Quartered Month Swirl', 31, undefined],
 ] as const)('%s', (name, days, shape) => {
-  // Quartered: each quarter's fan also has three plain wedges.
-  const extra = name.startsWith('Quartered') ? 12 : 0;
+  // Quartered: each quarter also has a plain piece by the block's center.
+  const extra = name.startsWith('Quartered') ? 4 : 0;
   const b = blocks.find((x) => x.notecard.name === name)!;
   const sets = [
     { days, patches: b.patches },
