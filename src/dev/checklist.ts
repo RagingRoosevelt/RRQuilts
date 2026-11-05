@@ -115,8 +115,8 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-239',
     group: G.swirl025,
-    text: 'Libraries › Data: Month Pinwheel, Week Pinwheel, Hexagon Month Pinwheel and Hexagon Week Pinwheel, like the swirls but every spike the same distance from the center. Variant › 30, 29, 28 days keeps them level. In a data quilt each day colors its own spike, day 1 at the top.',
-    last: '"let\'s do non-spiral ones. each data patch will be at the same radius out from the center as its neighbors"',
+    text: 'Libraries › Data: Month Pinwheel, Week Pinwheel, Hexagon Month Pinwheel and Hexagon Week Pinwheel, like the swirls but every spike the same distance from the center, its tip touching the middle of the next spike’s side. Variant › 30, 29, 28 days keeps them level. In a data quilt each day colors its own spike, day 1 at the top.',
+    last: '"let\'s do non-spiral ones. each data patch will be at the same radius out from the center as its neighbors" / "have the spike side of the triangle sit at the midpoint of it\'s neighbor\'s edge for the pinwheel data blocks"',
     to: '/libraries',
   },
 ];

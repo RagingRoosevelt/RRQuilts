@@ -282,11 +282,13 @@ const dataSwirl = (
   // Day by day the spikes step outward: a round spiral (or all level, a pinwheel), each spike swept
   // forward at its tip.
   const from = (k: number) => (spiral ? 0.3 + (n > 1 ? (0.38 * k) / (n - 1) : 0) : 0.49);
-  // The inner corner reaches in toward the center, so the spike fills more of its wedge.
+  // The inner corner reaches in toward the center, so the spike fills more of its wedge. A
+  // pinwheel's tip meets the middle of the next spike's long side.
+  const [IN, OUT] = [0.18, 0.2];
   const spike = (k: number): [P, P, P] => [
-    along(k, from(k) - 0.18),
-    along(k, from(k) + 0.2),
-    along(k + 1, from(k) + 0.28),
+    along(k, from(k) - IN),
+    along(k, from(k) + OUT),
+    along(k + 1, spiral ? from(k) + 0.28 : from(k + 1) + (OUT - IN) / 2),
   ];
   const seams: Seam[] = Array.from({ length: n }, (_, k): Seam[] => {
     const [p1, p2, q] = spike(k);
