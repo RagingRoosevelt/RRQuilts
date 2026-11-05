@@ -315,6 +315,13 @@ strip type. The quilt shows 365 days in the simulation's colors.
   (0.43 out, a third of a step clockwise; tip m's long line is the quarter's edge). A spike's other
   base corner rests on the next long line 0.33 out, so each piece inside the ring has four sides:
   the fan's point, a tip, that spike's resting corner, the next tip.
+  Then: "the first trianlge (traveling clockwise) in each sub block has it's edge tight up against
+  the sub-block edge. the tips of the trinagles don't touch the sub-block edge on the last
+  triangles (traveling clockwise). the last/top inner piece is a single patch, not split between a
+  quad and a triangle". So tip 0's long line is the quarter's edge (the first spike lies against
+  it); the last spike rests on a closing line from the quarter's edge where tip m would be,
+  leaning back a third of a step, clear of the edge; no line from the fan's point to tip m, so the
+  last inner piece is one patch.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
 

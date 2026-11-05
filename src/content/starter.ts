@@ -323,7 +323,8 @@ const SQUARE: P[] = [
  *  the first quarters taking the extra days. Each spike points in: lines from the fan's point end
  *  at the spike tips, and from each tip a long line runs out to the edge along the spike's side,
  *  the spike's other base corner resting on the next long line, so the pieces inside the ring
- *  have four sides. */
+ *  have four sides (the last one more, in one piece). The first spike lies against its quarter's
+ *  edge; the last rests on a line clear of it. */
 const dataQuarters = (name: string, category: string, n: number): StarterBlock => {
   // Worked in the top left quarter, its fan from the block's middle line left of the center, then
   // turned. Distances from the center in block widths: tips at LO, outer corners at HI, the
@@ -374,16 +375,20 @@ const dataQuarters = (name: string, category: string, n: number): StarterBlock =
   for (let q = 0; q < 4; q++) {
     const m = Math.floor(n / 4) + (q < n % 4 ? 1 : 0);
     const step = 90 / m;
-    // Tip j at 180° + j·step on the inner ring (tip 0 on the middle line, tip m on the quarter's
-    // right edge); its long line leans a third of a step clockwise (tip m's is that edge).
+    // Tip j at 180° + j·step on the inner ring; its long line runs out through the spike's outer
+    // corner, a third of a step clockwise. Tip 0 is on the middle line and its long line is that
+    // edge, so the first spike lies against it. The last spike rests on a closing line from the
+    // quarter's right edge (where tip m would be) leaning back a third of a step, clear of the edge.
     const tip = (j: number) => polar(180 + j * step, LO);
-    const outer = (j: number): P => (j === m ? [0.5, 0] : polar(180 + (j + 1 / 3) * step, HI));
+    const outer = (j: number): P => polar(180 + (j + 1 / 3) * step, HI);
+    const close: [P, P] = [tip(m), polar(270 - step / 3, HI)];
+    const long = (j: number): [P, P] => (j === m ? close : [tip(j), outer(j)]);
     const line = (a: P, b: P): Seam => [place(a, q), place(b, q)];
     for (let j = 1; j < m; j++) seams.push(line(hub, tip(j)));
-    seams.push(line(hub, tip(m)));
-    for (let j = 0; j < m; j++) seams.push(line(tip(j), end(tip(j), outer(j))));
+    for (let j = 1; j <= m; j++) seams.push(line(long(j)[0], end(...long(j))));
     for (let j = 0; j < m; j++) {
-      const [t, v, u] = [tip(j), at(tip(j), outer(j), HI), at(tip(j + 1), outer(j + 1), REST)];
+      const v = j === 0 ? polar(180, HI) : at(tip(j), outer(j), HI);
+      const [t, u] = [tip(j), at(...long(j + 1), REST)];
       seams.push(line(t, u), line(v, u));
       const c = place([(t[0] + v[0] + u[0]) / 3, (t[1] + v[1] + u[1]) / 3], q);
       days.push([c[0], c[1], day++]);
