@@ -123,7 +123,8 @@ side, and C the piece on its outer side. In **Place numbers**, set B and C to th
 want them to show (see below), or paint over those pieces in the quilt for a fixed color.
 
 A data block's picture in the libraries and the **Blocks** tab draws its traces: a line through
-each value's pieces in day order, starting from a dot on day 1. **Save image** leaves them off.
+each value's pieces in day order, from a dot on day 1 to an arrowhead at the last day. **Save
+image** leaves them off.
 
 To find data blocks, use the **Data** filter in the project's **Blocks** tab and in the libraries.
 The project's **Quilts** tab can show only data quilts or only the others.

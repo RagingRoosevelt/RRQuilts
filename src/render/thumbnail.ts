@@ -119,6 +119,8 @@ export function blockThumbnail(
           line: true,
           dark,
           labels: false,
+          alpha: 0.4,
+          arrow: true,
         });
       }
       return c.toDataURL();

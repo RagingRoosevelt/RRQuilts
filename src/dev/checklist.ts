@@ -143,8 +143,8 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-243',
     group: G.swirl025,
-    text: 'Data block pictures (Libraries, the project’s Blocks tab, the block pickers) draw the block’s traces: a colored line per value through its pieces in day order, a dot on day 1. Other blocks look as before. In the project’s Blocks tab, a data block’s ⋮ › Save image saves the picture without the traces.',
-    last: '"let\'s set data blocks to show their traces in the block previews / thumbnailes but not when downloading"',
+    text: 'Data block pictures (Libraries, the project’s Blocks tab, the block pickers) draw the block’s traces, faint (about 40%): a colored line per value through its pieces in day order, a dot on day 1 and an arrowhead at the last day. Other blocks look as before. In the project’s Blocks tab, a data block’s ⋮ › Save image saves the picture without the traces.',
+    last: '"let\'s set data blocks to show their traces in the block previews / thumbnailes but not when downloading" / "set the trace opacity to like 40% in thumbnail and preview views" / "and make sure you include the end arrow head"',
     to: '/libraries',
   },
 ];
