@@ -243,9 +243,15 @@ const dataCorner = (
   };
 };
 /** A data block of `n` wedges between straight lines from the center, each wedge holding a slim
- *  spike, the spikes spiraling outward day by day clockwise from the top: a square, or a hexagon
- *  (`shape`). Each spike is two straight seams across its wedge, so it can be paper pieced. */
-const dataSwirl = (name: string, category: string, n: number, shape?: 'hexagon'): StarterBlock => {
+ *  spike, the spikes spiraling outward day by day clockwise from the top (or, not `spiral`, all at
+ *  one distance from the center): a square, or a hexagon (`shape`). Each spike is two straight seams across its wedge, so it can be paper pieced. */
+const dataSwirl = (
+  name: string,
+  category: string,
+  n: number,
+  shape?: 'hexagon',
+  spiral = true,
+): StarterBlock => {
   // Worked in true proportions (width 1), stored in the unit square.
   const a = shape ? ASPECT[shape] : 1;
   const outline: P[] = (shape ? SHAPE_OUTLINE[shape] : SQUARE).map(([x, y]) => [x, y * a]);
@@ -273,8 +279,9 @@ const dataSwirl = (name: string, category: string, n: number, shape?: 'hexagon')
     const f = Math.min(1, (r * 0.5) / Math.hypot(x - hub[0], y - hub[1]));
     return [hub[0] + (x - hub[0]) * f, (hub[1] + (y - hub[1]) * f) / a];
   };
-  // Day by day the spikes step outward: a round spiral, each spike swept forward at its tip.
-  const from = (k: number) => 0.3 + (n > 1 ? (0.38 * k) / (n - 1) : 0);
+  // Day by day the spikes step outward: a round spiral (or all level, a pinwheel), each spike swept
+  // forward at its tip.
+  const from = (k: number) => (spiral ? 0.3 + (n > 1 ? (0.38 * k) / (n - 1) : 0) : 0.49);
   // The inner corner reaches in toward the center, so the spike fills more of its wedge.
   const spike = (k: number): [P, P, P] => [
     along(k, from(k) - 0.18),
@@ -326,12 +333,18 @@ const DATA_BLOCKS: StarterBlock[] = [
   ...monthFamily('Month Fan', (nm, d) => dataCorner(nm, 'Data/Months', 31, d, 'fan')),
   ...monthFamily('Month Swirl', (nm, d) => dataSwirl(nm, 'Data/Months', d)),
   ...monthFamily('Hexagon Month Swirl', (nm, d) => dataSwirl(nm, 'Data/Months', d, 'hexagon')),
+  ...monthFamily('Month Pinwheel', (nm, d) => dataSwirl(nm, 'Data/Months', d, undefined, false)),
+  ...monthFamily('Hexagon Month Pinwheel', (nm, d) =>
+    dataSwirl(nm, 'Data/Months', d, 'hexagon', false),
+  ),
   { ...dataBars('Week Strip', 'Data/Weeks', 7, 7, [7, 7]), data: 'week' },
   { ...dataCorner('Curved Week Strip', 'Data/Weeks', 7, 7, 'arcs'), data: 'week' },
   { ...dataCorner('Cornered Week Strip', 'Data/Weeks', 7, 7, 'square'), data: 'week' },
   { ...dataCorner('Week Fan', 'Data/Weeks', 7, 7, 'fan'), data: 'week' },
   { ...dataSwirl('Week Swirl', 'Data/Weeks', 7), data: 'week' },
   { ...dataSwirl('Hexagon Week Swirl', 'Data/Weeks', 7, 'hexagon'), data: 'week' },
+  { ...dataSwirl('Week Pinwheel', 'Data/Weeks', 7, undefined, false), data: 'week' },
+  { ...dataSwirl('Hexagon Week Pinwheel', 'Data/Weeks', 7, 'hexagon', false), data: 'week' },
   { ...dataBars('Day Square', 'Data/Days', 1, 1, [1, 1]), data: 'day' },
 ];
 

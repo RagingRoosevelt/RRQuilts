@@ -1,4 +1,4 @@
-// Swirl data blocks (spec 025): a spike per day in equal wedges from the center, square and hexagon,
+// Swirl and Pinwheel data blocks (spec 025): a spike per day in equal wedges from the center, square and hexagon,
 // month ones with a variant per shorter month that has exactly that many spikes.
 import { describe, expect, it } from 'vitest';
 import { builtinItems } from '@/content/starter';
@@ -10,6 +10,10 @@ describe.each([
   ['Hexagon Week Swirl', 7, 'hexagon'],
   ['Month Swirl', 31, undefined],
   ['Hexagon Month Swirl', 31, 'hexagon'],
+  ['Week Pinwheel', 7, undefined],
+  ['Hexagon Week Pinwheel', 7, 'hexagon'],
+  ['Month Pinwheel', 31, undefined],
+  ['Hexagon Month Pinwheel', 31, 'hexagon'],
 ] as const)('%s', (name, days, shape) => {
   const b = blocks.find((x) => x.notecard.name === name)!;
   const sets = [

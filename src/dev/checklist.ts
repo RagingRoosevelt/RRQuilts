@@ -57,7 +57,7 @@ const G = {
   shadow048: 'Card shadows (spec 048)',
   shape049: 'Library blocks by shape (spec 049)',
   snap031: 'Snapping gravity and Line up (spec 031)',
-  swirl025: 'Swirl data blocks (spec 025)',
+  swirl025: 'Swirl and Pinwheel data blocks (spec 025)',
 };
 
 export const CHECKS: Check[] = [
@@ -110,6 +110,13 @@ export const CHECKS: Check[] = [
     group: G.swirl025,
     text: 'Libraries › Data: Month Swirl, Week Swirl, Hexagon Month Swirl and Hexagon Week Swirl, each a spike per day spiraling out clockwise from the top. In the block editor, Variant › 30, 29 and 28 days shows that many spikes, none black. Make a Months data quilt with Month Swirl and a Weeks one with Week Swirl, enter some values: each day colors its own spike, day 1 at the top. A Shaped Blocks quilt with hexagons takes the hexagon swirls the same way.',
     last: '"can you implment this as a set of temperature blocks? do one as a hexagon and one as a square block. do a copy for 7day and one for 28/29/30/31 days."',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-239',
+    group: G.swirl025,
+    text: 'Libraries › Data: Month Pinwheel, Week Pinwheel, Hexagon Month Pinwheel and Hexagon Week Pinwheel, like the swirls but every spike the same distance from the center. Variant › 30, 29, 28 days keeps them level. In a data quilt each day colors its own spike, day 1 at the top.',
+    last: '"let\'s do non-spiral ones. each data patch will be at the same radius out from the center as its neighbors"',
     to: '/libraries',
   },
 ];

@@ -108,7 +108,9 @@ Strip** and **Cornered Week Strip** in nested right angles, and **Month Fan** an
 wedges fanning out from the corner. **Month Swirl** and **Week Swirl** have a slim spike for each
 day, spiraling out from the center clockwise from the top, between straight lines that make them
 easy to paper piece. **Hexagon Month Swirl** and **Hexagon Week Swirl** are the same in a hexagon,
-for hexagon layouts. The month swirls have one spike per day in each of their 30, 29, and 28-day
+for hexagon layouts. **Month Pinwheel**, **Week Pinwheel**, **Hexagon Month Pinwheel**, and
+**Hexagon Week Pinwheel** are swirls with every spike the same distance from the center. The month
+swirls and pinwheels have one spike per day in each of their 30, 29, and 28-day
 variants, with no black spikes left over.
 
 To find data blocks, use the **Data** filter in the project's **Blocks** tab and in the libraries.
