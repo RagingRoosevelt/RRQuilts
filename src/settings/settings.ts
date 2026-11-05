@@ -27,7 +27,7 @@ export interface Settings {
   trayTab: 'blocks' | 'colors';
   /** Libraries page: blocks in sections by category, tag, or style. */
   libraryGroupBy: 'none' | 'category' | 'tags' | 'techniques' | 'shape';
-  /** Libraries and project Blocks tab: data block pictures draw their traces. */
+  /** Libraries and project Blocks tab: data block pictures draw their traces (default off). */
   showTraces: boolean;
   /** Quilt editor block sidebar: only blocks the quilt's layout takes. */
   compatibleBlocks: boolean;
@@ -110,7 +110,7 @@ export const defaults = (): Settings => ({
   osAccent: true,
   trayTab: 'blocks',
   libraryGroupBy: 'none',
-  showTraces: true,
+  showTraces: false,
   libraryType: 'block',
   socials: [],
   hideLibraryBlocks: false,

@@ -143,15 +143,15 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-243',
     group: G.swirl025,
-    text: 'Data block pictures (Libraries, the project’s Blocks tab, the block pickers) draw the block’s traces, faint (about 40%): a colored line per value through its pieces in day order, a dot on day 1 and an arrowhead at the last day. Other blocks look as before. In the project’s Blocks tab, a data block’s ⋮ › Save image saves the picture without the traces.',
+    text: 'With Show traces on (Data filter), data block pictures (Libraries, the project’s Blocks tab, and always in the block pickers) draw the block’s traces, faint (about 40%): a colored line per value through its pieces in day order, a dot on day 1 and an arrowhead at the last day. Other blocks look as before. In the project’s Blocks tab, a data block’s ⋮ › Save image saves the picture without the traces.',
     last: '"let\'s set data blocks to show their traces in the block previews / thumbnailes but not when downloading" / "set the trace opacity to like 40% in thumbnail and preview views" / "and make sure you include the end arrow head"',
     to: '/libraries',
   },
   {
     id: 'TC-244',
     group: G.swirl025,
-    text: 'Libraries (Blocks) and the project’s Blocks tab: the sidebar’s Data section starts with a Show traces toggle, above the Data block dropdown. Turning it off draws data block pictures without traces, on brings them back. The choice is shared by both pages and kept after a reload.',
-    last: '"let\'s add a "show traces" toggle to the library and project view, at the very start of the data section in the sidebar, above the "data block" dropdown"',
+    text: 'Libraries (Blocks) and the project’s Blocks tab: the sidebar’s Data section starts with a Show traces toggle, above the Data block dropdown, off at first: data block pictures show no traces until you turn it on. The choice is shared by both pages and kept after a reload.',
+    last: '"let\'s add a "show traces" toggle to the library and project view, at the very start of the data section in the sidebar, above the "data block" dropdown" / "default the toggle to off"',
     to: '/libraries',
   },
 ];

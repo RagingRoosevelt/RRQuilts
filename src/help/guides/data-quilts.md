@@ -122,9 +122,9 @@ The swirls and pinwheels give each day three values: A colors the spike, B the p
 side, and C the piece on its outer side. In **Place numbers**, set B and C to the quilt values you
 want them to show (see below), or paint over those pieces in the quilt for a fixed color.
 
-A data block's picture in the libraries and the **Blocks** tab draws its traces: a line through
-each value's pieces in day order, from a dot on day 1 to an arrowhead at the last day. **Save
-image** leaves them off. To hide them, turn off **Show traces** at the top of the **Data** filter.
+To see a data block's traces in its picture in the libraries and the **Blocks** tab, turn on
+**Show traces** at the top of the **Data** filter. Each trace is a line through one value's pieces
+in day order, from a dot on day 1 to an arrowhead at the last day. **Save image** leaves them off.
 
 To find data blocks, use the **Data** filter in the project's **Blocks** tab and in the libraries.
 The project's **Quilts** tab can show only data quilts or only the others.
