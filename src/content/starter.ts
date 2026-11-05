@@ -317,20 +317,19 @@ const SQUARE: P[] = [
   [1, 1],
   [0, 1],
 ];
-/** A data block in four square quarters, each a fan from a point on its inner edge, each quarter
- *  the last turned a quarter turn clockwise (as the paper pieced block it's drawn from). The spikes
- *  are all one triangle, turned about the block's center into a ring, a spike per day clockwise
- *  from the left, the first quarters taking the extra days. A spike's inner corner and its tip lie
- *  on a line from the block's center; its base faces the fan's point; its outer side is one
- *  straight seam from the edge, past the tip, along the spike and on past its third corner to the
- *  next spike (a white gap between them). Each piece inside the ring has four sides:
- *  the fan's point, a spike's two inner corners, the next spike's inner corner (the block's center
- *  after the last). A quarter's first spike lies against its edge. */
+/** A data block in four square quarters, each a fan of seams toward a spot on its inner edge, each
+ *  quarter the last turned a quarter turn clockwise (as the paper pieced block it's drawn from).
+ *  The spikes are all one triangle, turned about the block's center into a ring, a spike per day
+ *  clockwise from the left, the first quarters taking the extra days. A spike's inner corner and
+ *  its tip lie on a line from the block's center. Its outer side is one straight seam from the
+ *  edge, past the tip, along the spike and on past its third corner to the next spike (a white gap
+ *  between them). Its base runs on straight inward past its inner corner to the quarter's edge or
+ *  an earlier spike's seam, so the fan's seams nearly, but don't quite, meet. A quarter's first
+ *  spike lies against its edge. */
 const dataQuarters = (name: string, category: string, n: number): StarterBlock => {
-  // Worked in the top left quarter, its fan from the block's middle line left of the center, then
-  // turned. Distances from the center in block widths, measured off the photo.
+  // Worked in the top left quarter, its fan toward the block's middle line left of the center,
+  // then turned. Distances from the center in block widths, measured off the photo.
   const O: P = [0.5, 0.5];
-  const hub: P = [0.5 - 0.14, 0.5];
   const polar = (deg: number, r: number): P => {
     const t = (deg * Math.PI) / 180;
     return [O[0] + r * Math.cos(t), O[1] + r * Math.sin(t)];
@@ -380,11 +379,32 @@ const dataQuarters = (name: string, category: string, n: number): StarterBlock =
       const k = ((o[0] - p[0]) * ey - (o[1] - p[1]) * ex) / (dx * ey - dy * ex);
       return [p[0] + dx * k, p[1] + dy * k];
     };
+    // A spike's base runs on straight inward past its inner corner, to the quarter's edge or an
+    // earlier spike's line, whichever comes first.
+    const feet: [P, P][] = [];
+    const foot = (j: number): P => {
+      const [p, d] = [b(j), [b(j)[0] - a(j)[0], b(j)[1] - a(j)[1]] as P];
+      let best = end(a(j), b(j));
+      let bestK = Math.hypot(best[0] - p[0], best[1] - p[1]) / Math.hypot(...d);
+      for (const [o, f] of feet) {
+        const e: P = [f[0] - o[0], f[1] - o[1]];
+        const den = d[0] * e[1] - d[1] * e[0];
+        if (Math.abs(den) < 1e-12) continue;
+        const k = ((o[0] - p[0]) * e[1] - (o[1] - p[1]) * e[0]) / den;
+        const u = ((o[0] - p[0]) * d[1] - (o[1] - p[1]) * d[0]) / den;
+        if (k > 1e-9 && k < bestK && u > -1e-9 && u < 1 + 1e-9) {
+          bestK = k;
+          best = [p[0] + d[0] * k, p[1] + d[1] * k];
+        }
+      }
+      feet.push([p, best]);
+      return best;
+    };
     for (let j = 0; j < m; j++) {
       // The spike's outer side is one straight seam, from the quarter's edge past its tip, along
       // the spike and on past its third corner to the next spike. Spike 0 lies on the quarter's
       // edge.
-      if (j > 0) seams.push(line(hub, b(j)), line(a(j), end(a(j), t(j))));
+      if (j > 0) seams.push(line(b(j), foot(j)), line(a(j), end(a(j), t(j))));
       seams.push(line(b(j), a(j)), line(b(j), t(j)), line(t(j), rest(j)));
       const c = place([(b(j)[0] + t(j)[0] + a(j)[0]) / 3, (b(j)[1] + t(j)[1] + a(j)[1]) / 3], q);
       days.push([c[0], c[1], day++]);

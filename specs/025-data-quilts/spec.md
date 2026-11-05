@@ -334,7 +334,11 @@ strip type. The quilt shows 365 days in the simulation's colors.
   outer patches that extend to touch the next triangle's flat edge, not the patches from the
   inside of the block": a spike's outer side is one straight seam from the quarter's edge, past
   the tip, along the spike and on past its third corner until it meets the next spike's inner side
-  (the quarter's edge after the last). The base stops at the third corner. Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
+  (the quarter's edge after the last). The base stops at the third corner. Then "the edges extending
+  down from the triangles don't all converge at the same point. those edges should also be
+  aligned to the edge of the triangle they share that corner with": no fan point; each spike's
+  base runs on straight inward past its inner corner to the quarter's edge or an earlier spike's
+  seam, whichever comes first (they land close together, near where the fan point was). Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
   quarter the spikes are too far apart for the bases to reach the next spike.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
