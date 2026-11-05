@@ -317,11 +317,15 @@ strip type. The quilt shows 365 days in the simulation's colors.
   the fan's point, a tip, that spike's resting corner, the next tip.
   Then: "the first trianlge (traveling clockwise) in each sub block has it's edge tight up against
   the sub-block edge. the tips of the trinagles don't touch the sub-block edge on the last
-  triangles (traveling clockwise). the last/top inner piece is a single patch, not split between a
-  quad and a triangle". So tip 0's long line is the quarter's edge (the first spike lies against
-  it); the last spike rests on a closing line from the quarter's edge where tip m would be,
-  leaning back a third of a step, clear of the edge; no line from the fan's point to tip m, so the
-  last inner piece is one patch.
+  triangles", "the last/top inner piece is a single patch", and "that quad for the last triangle
+  should still be convex like the rest... there's a bit of a gap between triangles... all
+  triangles should be the same size". Measured off the photo: every spike is one triangle turned
+  about the block's center, 90°/m apart: inner corner 0.27 block widths out, tip 0.415 out on the
+  same line from the center (which runs on out to the edge as a long seam), third corner 0.342
+  out and 7° clockwise, facing the fan's point (0.14 from the center). The third corner joins the
+  next spike's inner corner across a white gap; each piece inside the ring has four sides (fan's
+  point, a spike's inner and third corners, the next inner corner; the block's center after the
+  last spike, which keeps it convex). The first spike's line is the quarter's edge.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
 

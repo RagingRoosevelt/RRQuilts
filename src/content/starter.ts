@@ -317,42 +317,28 @@ const SQUARE: P[] = [
   [1, 1],
   [0, 1],
 ];
-/** A data block in four square quarters, each a fan from a point on its inner edge, a quarter of
- *  the way out from the block's center, each quarter the last turned a quarter turn clockwise.
- *  The spikes stand in a ring about the block's center, a spike per day clockwise from the left,
- *  the first quarters taking the extra days. Each spike points in: lines from the fan's point end
- *  at the spike tips, and from each tip a long line runs out to the edge along the spike's side,
- *  the spike's other base corner resting on the next long line, so the pieces inside the ring
- *  have four sides (the last one more, in one piece). The first spike lies against its quarter's
- *  edge; the last rests on a line clear of it. */
+/** A data block in four square quarters, each a fan from a point on its inner edge, each quarter
+ *  the last turned a quarter turn clockwise (as the paper pieced block it's drawn from). The spikes
+ *  are all one triangle, turned about the block's center into a ring, a spike per day clockwise
+ *  from the left, the first quarters taking the extra days. A spike's inner corner and its tip lie
+ *  on a line from the block's center that runs on out to the edge; its third corner faces the
+ *  fan's point, a white gap away from the next spike. Each piece inside the ring has four sides:
+ *  the fan's point, a spike's two inner corners, the next spike's inner corner (the block's center
+ *  after the last). A quarter's first spike lies against its edge. */
 const dataQuarters = (name: string, category: string, n: number): StarterBlock => {
   // Worked in the top left quarter, its fan from the block's middle line left of the center, then
-  // turned. Distances from the center in block widths: tips at LO, outer corners at HI, the
-  // corner resting on the next line at REST.
+  // turned. Distances from the center in block widths, measured off the photo.
   const O: P = [0.5, 0.5];
-  const hub: P = [0.5 - 0.135, 0.5];
-  const [LO, REST, HI] = [0.2, 0.33, 0.43];
+  const hub: P = [0.5 - 0.14, 0.5];
   const polar = (deg: number, r: number): P => {
     const t = (deg * Math.PI) / 180;
     return [O[0] + r * Math.cos(t), O[1] + r * Math.sin(t)];
   };
-  /** Where the line from `a` through `b` is `r` from the center (beyond `a`). */
-  const at = (a: P, b: P, r: number): P => {
-    const l = Math.hypot(b[0] - a[0], b[1] - a[1]);
-    const [dx, dy] = [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
-    const [ox, oy] = [a[0] - O[0], a[1] - O[1]];
-    const k = ox * dx + oy * dy;
-    const t = -k + Math.sqrt(k * k - (ox * ox + oy * oy) + r * r);
-    return [a[0] + dx * t, a[1] + dy * t];
-  };
-  /** Where the line from `a` through `b` leaves the quarter (top, left or right edge). */
-  const end = (a: P, b: P): P => {
-    const [dx, dy] = [b[0] - a[0], b[1] - a[1]];
-    const t = Math.min(
-      dy < 0 ? -a[1] / dy : Infinity,
-      dx < 0 ? -a[0] / dx : dx > 0 ? (0.5 - a[0]) / dx : Infinity,
-    );
-    return [a[0] + dx * t, a[1] + dy * t];
+  /** Where the line from the center through `a` leaves the quarter (top or left edge). */
+  const end = (a: P): P => {
+    const [dx, dy] = [a[0] - O[0], a[1] - O[1]];
+    const t = Math.min(dy < 0 ? -O[1] / dy : Infinity, dx < 0 ? -O[0] / dx : Infinity);
+    return [O[0] + dx * t, O[1] + dy * t];
   };
   // Quarter q's point, a quarter turn clockwise per quarter about the block's center.
   const place = ([x, y]: P, q: number): P => {
@@ -375,22 +361,16 @@ const dataQuarters = (name: string, category: string, n: number): StarterBlock =
   for (let q = 0; q < 4; q++) {
     const m = Math.floor(n / 4) + (q < n % 4 ? 1 : 0);
     const step = 90 / m;
-    // Tip j at 180° + j·step on the inner ring; its long line runs out through the spike's outer
-    // corner, a third of a step clockwise. Tip 0 is on the middle line and its long line is that
-    // edge, so the first spike lies against it. The last spike rests on a closing line from the
-    // quarter's right edge (where tip m would be) leaning back a third of a step, clear of the edge.
-    const tip = (j: number) => polar(180 + j * step, LO);
-    const outer = (j: number): P => polar(180 + (j + 1 / 3) * step, HI);
-    const close: [P, P] = [tip(m), polar(270 - step / 3, HI)];
-    const long = (j: number): [P, P] => (j === m ? close : [tip(j), outer(j)]);
-    const line = (a: P, b: P): Seam => [place(a, q), place(b, q)];
-    for (let j = 1; j < m; j++) seams.push(line(hub, tip(j)));
-    for (let j = 1; j <= m; j++) seams.push(line(long(j)[0], end(...long(j))));
+    // Spike j at 180° + j·step: inner corner b, tip t, third corner a.
+    const b = (j: number): P => (j === m ? O : polar(180 + j * step, 0.27));
+    const t = (j: number) => polar(180 + j * step, 0.415);
+    const a = (j: number) => polar(180 + j * step + 7, 0.342);
+    const line = (p: P, r: P): Seam => [place(p, q), place(r, q)];
     for (let j = 0; j < m; j++) {
-      const v = j === 0 ? polar(180, HI) : at(tip(j), outer(j), HI);
-      const [t, u] = [tip(j), at(...long(j + 1), REST)];
-      seams.push(line(t, u), line(v, u));
-      const c = place([(t[0] + v[0] + u[0]) / 3, (t[1] + v[1] + u[1]) / 3], q);
+      // Spike 0's line is the quarter's edge.
+      if (j > 0) seams.push(line(hub, b(j)), line(b(j), end(b(j))));
+      seams.push(line(b(j), a(j)), line(a(j), t(j)), line(a(j), b(j + 1)));
+      const c = place([(b(j)[0] + t(j)[0] + a(j)[0]) / 3, (b(j)[1] + t(j)[1] + a(j)[1]) / 3], q);
       days.push([c[0], c[1], day++]);
     }
   }
