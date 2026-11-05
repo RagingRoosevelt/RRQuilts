@@ -33,12 +33,17 @@ describe.each([
     expect(sets.map((s) => s.days)).toEqual(days === 7 ? [7] : [31, 30, 29, 28]);
   });
 
-  it('has three pieces per day and one data place per day, each day once', () => {
+  // Owner: "a second and third series... C for the outer patches and B for the inner patches".
+  it('has three pieces per day: the spike (A), the inner piece (B), the outer piece (C)', () => {
     for (const s of sets) {
       expect(s.patches).toHaveLength(3 * s.days + extra);
       const fills = s.patches.map((p) => b.colorings[0]!.fills[p.id]!);
-      const placed = fills.flatMap((f) => ('data' in f ? [f.data.n] : [])).sort((x, y) => x - y);
-      expect(placed).toEqual(Array.from({ length: s.days }, (_, i) => i + 1));
+      for (const slot of [0, 1, 2]) {
+        const placed = fills
+          .flatMap((f) => ('data' in f && (f.data.slot ?? 0) === slot ? [f.data.n] : []))
+          .sort((x, y) => x - y);
+        expect(placed).toEqual(Array.from({ length: s.days }, (_, i) => i + 1));
+      }
     }
   });
 });
@@ -49,7 +54,10 @@ describe('Quartered Month Pinwheel spikes', () => {
     const b = blocks.find((x) => x.notecard.name === 'Quartered Month Pinwheel')!;
     const k1 = b.colorings[0]!.fills;
     const areas = b.patches
-      .filter((p) => 'data' in k1[p.id]!)
+      .filter((p) => {
+        const f = k1[p.id]!;
+        return 'data' in f && !f.data.slot;
+      })
       .map((p) => Math.abs(signedArea(flattenLoop(pathToSegs(p.path, b.size), 1e-3))));
     expect(areas).toHaveLength(31);
     for (const a of areas) expect(a).toBeCloseTo(areas[0]!, 6);

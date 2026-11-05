@@ -154,7 +154,7 @@ interface StarterBlock {
   /** Width × height in inches when not square (data strips). */
   dims?: [number, number];
   /** Data places (spec 025): x, y, day number; the piece there keeps its color under it. */
-  days?: [number, number, number][];
+  days?: Place[];
   /** A data block (spec 025) of this kind. */
   data?: DataKind;
   /** A shorter variant of the named month data block, not a block of its own. */
@@ -242,6 +242,26 @@ const dataCorner = (
     days: Array.from({ length: used }, (_, i): [number, number, number] => [...at(i), i + 1]),
   };
 };
+/** A data place: x, y, day number, and the value slot (absent: A). */
+type Place = [number, number, number, number?];
+/** A spike's day places: the spike (value A), the piece across its `inner` side (B) and the piece
+ *  across its `outer` side (C), each just over that side from the spike. */
+const spikePlaces = (spike: [P, P, P], inner: [P, P], outer: [P, P], n: number): Place[] => {
+  const c: P = [
+    (spike[0][0] + spike[1][0] + spike[2][0]) / 3,
+    (spike[0][1] + spike[1][1] + spike[2][1]) / 3,
+  ];
+  const across = ([u, v]: [P, P]): P => {
+    const m: P = [(u[0] + v[0]) / 2, (u[1] + v[1]) / 2];
+    const l = Math.hypot(m[0] - c[0], m[1] - c[1]);
+    return [m[0] + ((m[0] - c[0]) / l) * 0.004, m[1] + ((m[1] - c[1]) / l) * 0.004];
+  };
+  return [
+    [...c, n],
+    [...across(inner), n, 1],
+    [...across(outer), n, 2],
+  ];
+};
 /** A data block of `n` wedges between straight lines from the center, each wedge holding a slim
  *  spike, the spikes spiraling outward day by day clockwise from the top (or, not `spiral`, all at
  *  one distance from the center): a square, or a hexagon (`shape`). Each spike is two straight seams across its wedge, so it can be paper pieced. */
@@ -305,10 +325,10 @@ const dataSwirl = (
     seams,
     base: C.White!,
     points: [],
-    days: Array.from({ length: n }, (_, k): [number, number, number] => {
+    days: Array.from({ length: n }, (_, k) => {
       const [p1, p2, q] = spike(k);
-      return [(p1[0] + p2[0] + q[0]) / 3, (p1[1] + p2[1] + q[1]) / 3, k + 1];
-    }),
+      return spikePlaces([p1, p2, q], [p1, q], [p2, q], k + 1);
+    }).flat(),
   };
 };
 const SQUARE: P[] = [
@@ -366,7 +386,7 @@ const dataQuarters = (
       [1, 0.5],
     ],
   ];
-  const days: [number, number, number][] = [];
+  const days: Place[] = [];
   let day = 1;
   for (let q = 0; q < 4; q++) {
     const m = each ?? Math.floor(n / 4) + (q < n % 4 ? 1 : 0);
@@ -416,18 +436,27 @@ const dataQuarters = (
       // edge.
       if (j > 0) seams.push(line(b(j), foot(j)), line(a(j), end(a(j), t(j))));
       seams.push(line(b(j), a(j)), line(b(j), t(j)), line(t(j), rest(j)));
-      const c = place([(b(j)[0] + t(j)[0] + a(j)[0]) / 3, (b(j)[1] + t(j)[1] + a(j)[1]) / 3], q);
-      if (!each) days.push([c[0], c[1], day++]);
-      else {
+      let d: number | undefined = day++;
+      if (each) {
         // Spike k of 4·each, clockwise from the left. The spikes past `n` are plain, centered on
         // the bottom; the days run on clockwise from the gap, day 1 just after it.
         const all = 4 * each;
         const k = q * each + j;
         const gap = all - n;
         const first = Math.round((3 * all) / 4 - (gap - 1) / 2) + gap; // after the bottom gap
-        const d = (((k - first) % all) + all) % all;
-        if (d < n) days.push([c[0], c[1], d + 1]);
+        const i = (((k - first) % all) + all) % all;
+        d = i < n ? i + 1 : undefined;
       }
+      // The spike (A), the inner piece across its base (B), the outer piece across its outer side
+      // (C).
+      if (d)
+        for (const [x, y, ...rest] of spikePlaces(
+          [b(j), a(j), t(j)],
+          [b(j), a(j)],
+          [a(j), t(j)],
+          d,
+        ))
+          days.push([...place([x, y], q), ...rest] as Place);
     }
   }
   return { name, category, dims: [n, n], seams, base: C.White!, points: [], days };
@@ -916,7 +945,9 @@ function buildItems(): BuiltinItems {
       const hit = b.points.find(([px, py]) => pointInPolygon([px, py], poly));
       const color = { color: colors[hit ? hit[2] : b.base]!.id };
       const day = b.days?.find(([px, py]) => pointInPolygon([px, py], poly));
-      fills[p.id] = day ? { data: { n: day[2] }, under: color } : color;
+      fills[p.id] = day
+        ? { data: { n: day[2], ...(day[3] ? { slot: day[3] } : {}) }, under: color }
+        : color;
     }
     const block: SeamBlock = {
       id: libId(FORMER[b.name] ?? b.name),

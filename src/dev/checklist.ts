@@ -133,6 +133,13 @@ export const CHECKS: Check[] = [
     last: '"can we attempt to make a week version?" / "one-week quater (left), but with the triangles a bit larger and more spaced out" / "try to space them relativly evenly around the circle. so at like 0 and 45 degrees, not 0 and 30." / "let\'s make the bottom patch be the non-data block"',
     to: '/libraries',
   },
+  {
+    id: 'TC-242',
+    group: G.swirl025,
+    text: 'Every swirl and pinwheel data block (square, hexagon, quartered, and the month variants) has values A, B and C: the block editor’s Value shows the spikes as A, the pieces on their inner side as B, those on their outer side as C, each with its spike’s day. In a data quilt with qA, qB and qC each colors by its own value; in one with only qA, Place numbers › Value sets B and C to qA, and painting over a B or C piece in the quilt gives it a fixed color.',
+    last: '"let\'s update each of these spirial and pinwheel data blocks with a second and third series. we\'ll use C for the outer patches and B for the inner patches"',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

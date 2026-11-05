@@ -348,7 +348,14 @@ strip type. The quilt shows 365 days in the simulation's colors.
   relativly evenly around the circle. so at like 0 and 45 degrees": two spikes a quarter, 45°
   apart (eight evenly round the ring), inner corner 0.22, third corner 0.33 out and 18° on, tip
   0.45. "let's make the bottom patch be the non-data block": the spike at the bottom is plain, the
-  days run on clockwise from it (day 1 at the bottom left, day 7 at the bottom right). Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
+  days run on clockwise from it (day 1 at the bottom left, day 7 at the bottom right).
+  Owner: "let's update each of these spirial and pinwheel data blocks with a second and third
+  series. we'll use C for the outer patches and B for the inner patches": every swirl and
+  pinwheel (square, hexagon, quartered; month variants too) paints each day three times, the
+  spike value A, the piece across its inner side (toward the center) value B, the piece across its
+  outer side value C. Asked first whether a second series could be painted over with a fixed
+  color in the quilt: yes, the quilt's paint replaces any fill; a value the quilt lacks shows the
+  placeholder until mapped (Place numbers › Value) or painted. Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
   quarter the spikes are too far apart for the bases to reach the next spike.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.

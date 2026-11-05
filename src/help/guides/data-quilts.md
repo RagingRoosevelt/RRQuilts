@@ -118,6 +118,10 @@ tips pointing out, day 1 at the left, going clockwise. **Quartered Week Pinwheel
 same way with two larger spikes in each quarter, evenly spaced. The bottom spike is plain, and the
 days run clockwise from it, day 1 just after it.
 
+The swirls and pinwheels give each day three values: A colors the spike, B the piece on its inner
+side, and C the piece on its outer side. In **Place numbers**, set B and C to the quilt values you
+want them to show (see below), or paint over those pieces in the quilt for a fixed color.
+
 To find data blocks, use the **Data** filter in the project's **Blocks** tab and in the libraries.
 The project's **Quilts** tab can show only data quilts or only the others.
 
