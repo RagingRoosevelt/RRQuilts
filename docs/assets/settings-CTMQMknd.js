@@ -1,0 +1,1 @@
+import{v as e,y as t}from"./project-C57rFAON.js";import{r as n}from"./index-BITF-f68.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

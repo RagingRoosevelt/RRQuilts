@@ -129,8 +129,8 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-241',
     group: G.swirl025,
-    text: 'Libraries › Data: Quartered Week Pinwheel, the quartered pinwheel with two larger spikes in each quarter, eight evenly round the ring, days 1 to 7 clockwise from the left, the eighth spike plain. In a Weeks data quilt each day colors its own spike.',
-    last: '"can we attempt to make a week version?" / "one-week quater (left), but with the triangles a bit larger and more spaced out" / "try to space them relativly evenly around the circle. so at like 0 and 45 degrees, not 0 and 30."',
+    text: 'Libraries › Data: Quartered Week Pinwheel, the quartered pinwheel with two larger spikes in each quarter, eight evenly round the ring. The bottom spike is plain; days 1 to 7 run clockwise from it, day 1 at the bottom left. In a Weeks data quilt each day colors its own spike.',
+    last: '"can we attempt to make a week version?" / "one-week quater (left), but with the triangles a bit larger and more spaced out" / "try to space them relativly evenly around the circle. so at like 0 and 45 degrees, not 0 and 30." / "let\'s make the bottom patch be the non-data block"',
     to: '/libraries',
   },
 ];

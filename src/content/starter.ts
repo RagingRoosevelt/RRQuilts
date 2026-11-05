@@ -330,8 +330,8 @@ const dataQuarters = (
   name: string,
   category: string,
   n: number,
-  /** Spikes in every quarter, larger, spaced evenly (the spikes past `n` plain); else the days
-   *  split, at the photo's size. */
+  /** Spikes in every quarter, larger, spaced evenly (the spikes past `n` plain, at the bottom);
+   *  else the days split, at the photo's size. */
   each?: number,
 ): StarterBlock => {
   // Worked in the top left quarter, its fan toward the block's middle line left of the center,
@@ -417,7 +417,17 @@ const dataQuarters = (
       if (j > 0) seams.push(line(b(j), foot(j)), line(a(j), end(a(j), t(j))));
       seams.push(line(b(j), a(j)), line(b(j), t(j)), line(t(j), rest(j)));
       const c = place([(b(j)[0] + t(j)[0] + a(j)[0]) / 3, (b(j)[1] + t(j)[1] + a(j)[1]) / 3], q);
-      if (day <= n) days.push([c[0], c[1], day++]);
+      if (!each) days.push([c[0], c[1], day++]);
+      else {
+        // Spike k of 4·each, clockwise from the left. The spikes past `n` are plain, centered on
+        // the bottom; the days run on clockwise from the gap, day 1 just after it.
+        const all = 4 * each;
+        const k = q * each + j;
+        const gap = all - n;
+        const first = Math.round((3 * all) / 4 - (gap - 1) / 2) + gap; // after the bottom gap
+        const d = (((k - first) % all) + all) % all;
+        if (d < n) days.push([c[0], c[1], d + 1]);
+      }
     }
   }
   return { name, category, dims: [n, n], seams, base: C.White!, points: [], days };
