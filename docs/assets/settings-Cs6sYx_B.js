@@ -1,0 +1,1 @@
+import{v as e,y as t}from"./project-DnZ64wXA.js";import{r as n}from"./index-CFSySXB-.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

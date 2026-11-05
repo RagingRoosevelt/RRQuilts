@@ -296,6 +296,7 @@ strip type. The quilt shows 365 days in the simulation's colors.
   a pinwheel spike's tip meets the middle of the next spike's side on their shared line. Owner: "on the
   hex, we want the triangles on the corners to start at the r=1/3 and extend to r=2/3": a hexagon
   pinwheel's spikes run from ⅓ to ⅔ of the center-to-corner distance; the square keeps its own.
+  Then "let's try at 1/4 and 3/4": ¼ to ¾.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
 
