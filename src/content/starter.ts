@@ -317,34 +317,41 @@ const SQUARE: P[] = [
   [1, 1],
   [0, 1],
 ];
-/** A data block in four square quarters, each a fan of lines from a point on its inner edge, a
- *  quarter of the way out from the block's center, each quarter the last turned a quarter turn
- *  clockwise. The spikes stand in a ring about the block's center like a pinwheel's, a spike per
- *  day clockwise from the left, the first quarters taking the extra days. */
+/** A data block in four square quarters, each a fan from a point on its inner edge, a quarter of
+ *  the way out from the block's center, each quarter the last turned a quarter turn clockwise.
+ *  The spikes stand in a ring about the block's center, a spike per day clockwise from the left,
+ *  the first quarters taking the extra days. Each spike points in: lines from the fan's point end
+ *  at the spike tips, and from each tip a long line runs out to the edge along the spike's side,
+ *  the spike's other base corner resting on the next long line, so the pieces inside the ring
+ *  have four sides. */
 const dataQuarters = (name: string, category: string, n: number): StarterBlock => {
   // Worked in the top left quarter, its fan from the block's middle line left of the center, then
-  // turned. Distances from the center in block widths: spikes from LO to HI, tips at MID.
+  // turned. Distances from the center in block widths: tips at LO, outer corners at HI, the
+  // corner resting on the next line at REST.
   const O: P = [0.5, 0.5];
   const hub: P = [0.5 - 0.135, 0.5];
-  const [LO, HI] = [0.22, 0.433];
-  const MID = (LO + HI) / 2;
-  /** Where the line from the hub toward `to` is `r` from the center. */
-  const at = (to: P, r: number): P => {
-    const l = Math.hypot(to[0] - hub[0], to[1] - hub[1]);
-    const [dx, dy] = [(to[0] - hub[0]) / l, (to[1] - hub[1]) / l];
-    const [ox, oy] = [hub[0] - O[0], hub[1] - O[1]];
-    const b = ox * dx + oy * dy;
-    const t = -b + Math.sqrt(b * b - (ox * ox + oy * oy) + r * r);
-    return [hub[0] + dx * t, hub[1] + dy * t];
+  const [LO, REST, HI] = [0.2, 0.33, 0.43];
+  const polar = (deg: number, r: number): P => {
+    const t = (deg * Math.PI) / 180;
+    return [O[0] + r * Math.cos(t), O[1] + r * Math.sin(t)];
   };
-  /** Where the line from the hub toward `to` leaves the quarter (top, left or right edge). */
-  const end = (to: P): P => {
-    const [dx, dy] = [to[0] - hub[0], to[1] - hub[1]];
+  /** Where the line from `a` through `b` is `r` from the center (beyond `a`). */
+  const at = (a: P, b: P, r: number): P => {
+    const l = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const [dx, dy] = [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
+    const [ox, oy] = [a[0] - O[0], a[1] - O[1]];
+    const k = ox * dx + oy * dy;
+    const t = -k + Math.sqrt(k * k - (ox * ox + oy * oy) + r * r);
+    return [a[0] + dx * t, a[1] + dy * t];
+  };
+  /** Where the line from `a` through `b` leaves the quarter (top, left or right edge). */
+  const end = (a: P, b: P): P => {
+    const [dx, dy] = [b[0] - a[0], b[1] - a[1]];
     const t = Math.min(
-      dy < 0 ? -hub[1] / dy : Infinity,
-      dx < 0 ? -hub[0] / dx : dx > 0 ? (0.5 - hub[0]) / dx : Infinity,
+      dy < 0 ? -a[1] / dy : Infinity,
+      dx < 0 ? -a[0] / dx : dx > 0 ? (0.5 - a[0]) / dx : Infinity,
     );
-    return [hub[0] + dx * t, hub[1] + dy * t];
+    return [a[0] + dx * t, a[1] + dy * t];
   };
   // Quarter q's point, a quarter turn clockwise per quarter about the block's center.
   const place = ([x, y]: P, q: number): P => {
@@ -366,18 +373,19 @@ const dataQuarters = (name: string, category: string, n: number): StarterBlock =
   let day = 1;
   for (let q = 0; q < 4; q++) {
     const m = Math.floor(n / 4) + (q < n % 4 ? 1 : 0);
-    // Line j aims at the middle ring at 180° + 90°·j/m: line 0 is the middle line itself, line m
-    // meets the quarter's right edge on the middle ring.
-    const aim = (j: number): P => {
-      const t = Math.PI + (Math.PI / 2) * (j / m);
-      return [O[0] + MID * Math.cos(t), O[1] + MID * Math.sin(t)];
-    };
+    const step = 90 / m;
+    // Tip j at 180° + j·step on the inner ring (tip 0 on the middle line, tip m on the quarter's
+    // right edge); its long line leans a third of a step clockwise (tip m's is that edge).
+    const tip = (j: number) => polar(180 + j * step, LO);
+    const outer = (j: number): P => (j === m ? [0.5, 0] : polar(180 + (j + 1 / 3) * step, HI));
     const line = (a: P, b: P): Seam => [place(a, q), place(b, q)];
-    for (let j = 1; j <= m; j++) seams.push(line(hub, end(aim(j))));
+    for (let j = 1; j < m; j++) seams.push(line(hub, tip(j)));
+    seams.push(line(hub, tip(m)));
+    for (let j = 0; j < m; j++) seams.push(line(tip(j), end(tip(j), outer(j))));
     for (let j = 0; j < m; j++) {
-      const [p1, p2, tip] = [at(aim(j), LO), at(aim(j), HI), aim(j + 1)];
-      seams.push(line(p1, tip), line(p2, tip));
-      const c = place([(p1[0] + p2[0] + tip[0]) / 3, (p1[1] + p2[1] + tip[1]) / 3], q);
+      const [t, v, u] = [tip(j), at(tip(j), outer(j), HI), at(tip(j + 1), outer(j + 1), REST)];
+      seams.push(line(t, u), line(v, u));
+      const c = place([(t[0] + v[0] + u[0]) / 3, (t[1] + v[1] + u[1]) / 3], q);
       days.push([c[0], c[1], day++]);
     }
   }

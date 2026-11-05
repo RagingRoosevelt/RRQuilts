@@ -122,8 +122,8 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-240',
     group: G.swirl025,
-    text: 'Libraries › Data: Quartered Month Swirl and Quartered Week Swirl look like the photo: four quarters, each a fan from a point on its inner edge, each turned a quarter turn from the last, the spikes in a ring about the center like the pinwheels. Day 1 at the left, going clockwise; each quarter’s last tip meets the middle of the next quarter’s first spike on their seam. Variant › 30, 29, 28 days takes a spike off the later quarters first. In a data quilt each day colors its own spike.',
-    last: '"the source image is split into quadrants and is assembled differently than we\'ve designed... let\'s make an additional set of square blocks that match the origional image" / "nope, that doesn\'t look right. the triangles should be in a cirlce similar to the pinwheel we already implmented, but the four sub-blocks are constructed differently"',
+    text: 'Libraries › Data: Quartered Month Swirl and Quartered Week Swirl look like the photo: four quarters, each a fan from a point on its inner edge, each turned a quarter turn from the last, the spikes in a ring about the center, pointing in. The pieces inside the ring have four sides: the fan’s point, a spike’s tip, its corner resting on the next long line, the next tip. Day 1 at the left, going clockwise. Variant › 30, 29, 28 days takes a spike off the later quarters first. In a data quilt each day colors its own spike.',
+    last: '"the source image is split into quadrants and is assembled differently than we\'ve designed... let\'s make an additional set of square blocks that match the origional image" / "nope, that doesn\'t look right. the triangles should be in a cirlce similar to the pinwheel we already implmented, but the four sub-blocks are constructed differently" / "the inner most patches aren\'t triangles. they are four-sided"',
     to: '/libraries',
   },
 ];

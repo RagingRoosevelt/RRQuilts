@@ -307,12 +307,14 @@ strip type. The quilt shows 365 days in the simulation's colors.
   quarter from the block's center, each quarter the last turned clockwise. Days split TL, TR, BR,
   BL (the first quarters take the extra: 8/8/8/7, a week 2/2/2/1). First try (spikes by fraction
   along the fan lines) rejected: "the triangles should be in a cirlce similar to the pinwheel we
-  already implmented, but the four sub-blocks are constructed differently". So the spikes stand
-  in a ring about the block's center, as a pinwheel's: fan line j aims at the middle ring
-  (0.327 block widths) at 180° + 90°·j/m (line 0 is the middle line, line m meets the quarter's
-  edge on the ring); each spike runs 0.22 to 0.433 block widths from the center along its line,
-  its tip where the next line meets the middle ring (a quarter's last tip on the seam, at the
-  middle of the next quarter's first spike's side).
+  already implmented, but the four sub-blocks are constructed differently", then "the inner most
+  patches aren't triangles. they are four-sided". So, read from the photo: the spikes stand in a
+  ring about the block's center and point in. Lines from the fan's point end at the spike tips
+  (0.2 block widths from the center, at 180° + 90°·j/m; tip 0 on the middle line, tip m on the
+  quarter's edge); from each tip a long line runs out to the edge through the spike's outer corner
+  (0.43 out, a third of a step clockwise; tip m's long line is the quarter's edge). A spike's other
+  base corner rests on the next long line 0.33 out, so each piece inside the ring has four sides:
+  the fan's point, a tip, that spike's resting corner, the next tip.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
 
