@@ -111,7 +111,7 @@ easy to paper piece. **Hexagon Month Swirl** and **Hexagon Week Swirl** are the 
 for hexagon layouts. **Month Pinwheel**, **Week Pinwheel**, **Hexagon Month Pinwheel**, and
 **Hexagon Week Pinwheel** are swirls with every spike the same distance from the center. The month
 swirls and pinwheels have one spike per day in each of their 30, 29, and 28-day
-variants, with no black spikes left over. **Quartered Month Swirl** and **Quartered Week Swirl** are square blocks
+variants, with no black spikes left over. **Quartered Month Swirl** is a square block
 pieced in four quarters, each a fan of lines from a point on its inner edge, turned a quarter turn
 from the last. Their spikes are all the same size, standing in a ring about the center with their
 tips pointing out, day 1 at the left, going clockwise.

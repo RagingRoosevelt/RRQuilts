@@ -15,7 +15,6 @@ describe.each([
   ['Hexagon Week Pinwheel', 7, 'hexagon'],
   ['Month Pinwheel', 31, undefined],
   ['Hexagon Month Pinwheel', 31, 'hexagon'],
-  ['Quartered Week Swirl', 7, undefined],
   ['Quartered Month Swirl', 31, undefined],
 ] as const)('%s', (name, days, shape) => {
   const b = blocks.find((x) => x.notecard.name === name)!;
