@@ -293,7 +293,9 @@ strip type. The quilt shows 365 days in the simulation's colors.
   at the same radius out from the center as its neighbors"): Month, Week, Hexagon Month and Hexagon
   Week Pinwheel, the swirl with every spike at the spiral's middle distance. Owner: "have the spike
   side of the triangle sit at the midpoint of it's neighbor's edge for the pinwheel data blocks":
-  a pinwheel spike's tip meets the middle of the next spike's side on their shared line.
+  a pinwheel spike's tip meets the middle of the next spike's side on their shared line. Owner: "on the
+  hex, we want the triangles on the corners to start at the r=1/3 and extend to r=2/3": a hexagon
+  pinwheel's spikes run from ⅓ to ⅔ of the center-to-corner distance; the square keeps its own.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
 
