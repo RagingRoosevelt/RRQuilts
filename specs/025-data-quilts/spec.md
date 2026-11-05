@@ -361,7 +361,10 @@ strip type. The quilt shows 365 days in the simulation's colors.
   lines (each value its own color, a dot on day 1, no labels: too small to read); Save image and
   the picture check leave them off. Then "set the trace opacity to like 40% in thumbnail and preview views" and
   "make sure you include the end arrow head": 40% opacity, an arrowhead at the last day; the block
-  editor's overlay unchanged. Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
+  editor's overlay unchanged. Then "let's add a "show traces" toggle to the library and project
+  view, at the very start of the data section in the sidebar, above the "data block" dropdown":
+  a Show traces toggle first in the Data filter card (Libraries, project Blocks tab), one setting
+  (`showTraces`, default on) for both. Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
   quarter the spikes are too far apart for the bases to reach the next spike.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.

@@ -27,6 +27,8 @@ export interface Settings {
   trayTab: 'blocks' | 'colors';
   /** Libraries page: blocks in sections by category, tag, or style. */
   libraryGroupBy: 'none' | 'category' | 'tags' | 'techniques' | 'shape';
+  /** Libraries and project Blocks tab: data block pictures draw their traces. */
+  showTraces: boolean;
   /** Quilt editor block sidebar: only blocks the quilt's layout takes. */
   compatibleBlocks: boolean;
   /** Project (sketchbook) page: last tab. */
@@ -108,6 +110,7 @@ export const defaults = (): Settings => ({
   osAccent: true,
   trayTab: 'blocks',
   libraryGroupBy: 'none',
+  showTraces: true,
   libraryType: 'block',
   socials: [],
   hideLibraryBlocks: false,
@@ -164,6 +167,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   sidesSwapped: (v) => typeof v === 'boolean',
   osAccent: (v) => typeof v === 'boolean',
   trayTab: (v) => v === 'blocks' || v === 'colors',
+  showTraces: (v) => typeof v === 'boolean',
   // 'styles' (before spec 029) falls back to the default.
   libraryGroupBy: (v) =>
     v === 'none' || v === 'category' || v === 'tags' || v === 'techniques' || v === 'shape',

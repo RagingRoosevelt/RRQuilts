@@ -147,6 +147,13 @@ export const CHECKS: Check[] = [
     last: '"let\'s set data blocks to show their traces in the block previews / thumbnailes but not when downloading" / "set the trace opacity to like 40% in thumbnail and preview views" / "and make sure you include the end arrow head"',
     to: '/libraries',
   },
+  {
+    id: 'TC-244',
+    group: G.swirl025,
+    text: 'Libraries (Blocks) and the project’s Blocks tab: the sidebar’s Data section starts with a Show traces toggle, above the Data block dropdown. Turning it off draws data block pictures without traces, on brings them back. The choice is shared by both pages and kept after a reload.',
+    last: '"let\'s add a "show traces" toggle to the library and project view, at the very start of the data section in the sidebar, above the "data block" dropdown"',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
