@@ -321,9 +321,9 @@ const SQUARE: P[] = [
  *  the last turned a quarter turn clockwise (as the paper pieced block it's drawn from). The spikes
  *  are all one triangle, turned about the block's center into a ring, a spike per day clockwise
  *  from the left, the first quarters taking the extra days. A spike's inner corner and its tip lie
- *  on a line from the block's center; its base faces the fan's point and runs on straight past
- *  its third corner to the next spike (a white gap between them), and its outer side runs on past
- *  the tip to the edge. Each piece inside the ring has four sides:
+ *  on a line from the block's center; its base faces the fan's point; its outer side is one
+ *  straight seam from the edge, past the tip, along the spike and on past its third corner to the
+ *  next spike (a white gap between them). Each piece inside the ring has four sides:
  *  the fan's point, a spike's two inner corners, the next spike's inner corner (the block's center
  *  after the last). A quarter's first spike lies against its edge. */
 const dataQuarters = (name: string, category: string, n: number): StarterBlock => {
@@ -370,21 +370,22 @@ const dataQuarters = (name: string, category: string, n: number): StarterBlock =
     const t = (j: number) => polar(180 + j * step, 0.415);
     const a = (j: number) => polar(180 + j * step + 7, 0.342);
     const line = (p: P, r: P): Seam => [place(p, q), place(r, q)];
-    /** Where spike j's base, run on past its third corner, meets the next spike's inner side
-     *  (after the last spike, the quarter's edge). */
+    /** Where spike j's outer side, run on inward past its third corner, meets the next spike's
+     *  inner side (after the last spike, the quarter's edge). */
     const rest = (j: number): P => {
-      if (j === m - 1) return end(b(j), a(j));
-      const [p, r] = [b(j), a(j)];
+      if (j === m - 1) return end(t(j), a(j));
+      const [p, r] = [t(j), a(j)];
       const [o, e] = [b(j + 1), t(j + 1)];
       const [dx, dy, ex, ey] = [r[0] - p[0], r[1] - p[1], e[0] - o[0], e[1] - o[1]];
       const k = ((o[0] - p[0]) * ey - (o[1] - p[1]) * ex) / (dx * ey - dy * ex);
       return [p[0] + dx * k, p[1] + dy * k];
     };
     for (let j = 0; j < m; j++) {
-      // The spike's outer side runs on past its tip to the edge, and its base past its third
-      // corner to the next spike. Spike 0 lies on the quarter's edge.
+      // The spike's outer side is one straight seam, from the quarter's edge past its tip, along
+      // the spike and on past its third corner to the next spike. Spike 0 lies on the quarter's
+      // edge.
       if (j > 0) seams.push(line(hub, b(j)), line(a(j), end(a(j), t(j))));
-      seams.push(line(b(j), rest(j)), line(b(j), t(j)), line(a(j), t(j)));
+      seams.push(line(b(j), a(j)), line(b(j), t(j)), line(t(j), rest(j)));
       const c = place([(b(j)[0] + t(j)[0] + a(j)[0]) / 3, (b(j)[1] + t(j)[1] + a(j)[1]) / 3], q);
       days.push([c[0], c[1], day++]);
     }
