@@ -321,8 +321,8 @@ const SQUARE: P[] = [
  *  the last turned a quarter turn clockwise (as the paper pieced block it's drawn from). The spikes
  *  are all one triangle, turned about the block's center into a ring, a spike per day clockwise
  *  from the left, the first quarters taking the extra days. A spike's inner corner and its tip lie
- *  on a line from the block's center that runs on out to the edge; its third corner faces the
- *  fan's point, a white gap away from the next spike. Each piece inside the ring has four sides:
+ *  on a line from the block's center; its third corner faces the fan's point, a white gap away
+ *  from the next spike, and its outer side runs on past the tip to the edge. Each piece inside the ring has four sides:
  *  the fan's point, a spike's two inner corners, the next spike's inner corner (the block's center
  *  after the last). A quarter's first spike lies against its edge. */
 const dataQuarters = (name: string, category: string, n: number): StarterBlock => {
@@ -334,11 +334,14 @@ const dataQuarters = (name: string, category: string, n: number): StarterBlock =
     const t = (deg * Math.PI) / 180;
     return [O[0] + r * Math.cos(t), O[1] + r * Math.sin(t)];
   };
-  /** Where the line from the center through `a` leaves the quarter (top or left edge). */
-  const end = (a: P): P => {
-    const [dx, dy] = [a[0] - O[0], a[1] - O[1]];
-    const t = Math.min(dy < 0 ? -O[1] / dy : Infinity, dx < 0 ? -O[0] / dx : Infinity);
-    return [O[0] + dx * t, O[1] + dy * t];
+  /** Where the line from `a` through `b` leaves the quarter, beyond `b`. */
+  const end = (a: P, b: P): P => {
+    const [dx, dy] = [b[0] - a[0], b[1] - a[1]];
+    const t = Math.min(
+      dx < 0 ? -b[0] / dx : dx > 0 ? (0.5 - b[0]) / dx : Infinity,
+      dy < 0 ? -b[1] / dy : dy > 0 ? (0.5 - b[1]) / dy : Infinity,
+    );
+    return [b[0] + dx * t, b[1] + dy * t];
   };
   // Quarter q's point, a quarter turn clockwise per quarter about the block's center.
   const place = ([x, y]: P, q: number): P => {
@@ -367,9 +370,9 @@ const dataQuarters = (name: string, category: string, n: number): StarterBlock =
     const a = (j: number) => polar(180 + j * step + 7, 0.342);
     const line = (p: P, r: P): Seam => [place(p, q), place(r, q)];
     for (let j = 0; j < m; j++) {
-      // Spike 0's line is the quarter's edge.
-      if (j > 0) seams.push(line(hub, b(j)), line(b(j), end(b(j))));
-      seams.push(line(b(j), a(j)), line(a(j), t(j)), line(a(j), b(j + 1)));
+      // The spike's outer side runs on past its tip to the edge. Spike 0 lies on the quarter's edge.
+      if (j > 0) seams.push(line(hub, b(j)), line(a(j), end(a(j), t(j))));
+      seams.push(line(b(j), a(j)), line(b(j), t(j)), line(a(j), t(j)), line(a(j), b(j + 1)));
       const c = place([(b(j)[0] + t(j)[0] + a(j)[0]) / 3, (b(j)[1] + t(j)[1] + a(j)[1]) / 3], q);
       days.push([c[0], c[1], day++]);
     }

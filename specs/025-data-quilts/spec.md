@@ -326,6 +326,10 @@ strip type. The quilt shows 365 days in the simulation's colors.
   next spike's inner corner across a white gap; each piece inside the ring has four sides (fan's
   point, a spike's inner and third corners, the next inner corner; the block's center after the
   last spike, which keeps it convex). The first spike's line is the quarter's edge.
+  Then "the patches for the outside of the triangles share an edge with the triangles, right now
+  you're drawing them at an angle to that edge": the long seam beyond each tip runs on straight
+  from the spike's outer side (third corner to tip), not from its inner corner; the first spike,
+  on the quarter's edge, has none.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
 
