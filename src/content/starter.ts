@@ -279,7 +279,8 @@ const dataSwirl = (
     const f = Math.min(1, (r * 0.5) / Math.hypot(x - hub[0], y - hub[1]));
     return [hub[0] + (x - hub[0]) * f, (hub[1] + (y - hub[1]) * f) / a];
   };
-  // A swirl's spikes step outward day by day, a round spiral, each swept forward at its tip.
+  // A swirl's spikes step outward day by day, a round spiral, each tip at the outer corner of the
+  // next day's spike (the last one's where an extra day's would be).
   const from = (k: number) => 0.3 + (n > 1 ? (0.38 * k) / (n - 1) : 0);
   // The inner corner reaches in toward the center, so the spike fills more of its wedge. A
   // pinwheel's spikes run from `lo` to `hi`: ¼ to ¾ of the way to a hexagon's corners, the same
@@ -287,7 +288,7 @@ const dataSwirl = (
   const [lo, hi] = [2 / Math.sqrt(3) / 4, 6 / Math.sqrt(3) / 4];
   const spike = (k: number): [P, P, P] =>
     spiral
-      ? [along(k, from(k) - 0.18), along(k, from(k) + 0.2), along(k + 1, from(k) + 0.28)]
+      ? [along(k, from(k) - 0.18), along(k, from(k) + 0.2), along(k + 1, from(k + 1) + 0.2)]
       : [along(k, lo), along(k, hi), along(k + 1, (lo + hi) / 2)];
   const seams: Seam[] = Array.from({ length: n }, (_, k): Seam[] => {
     const [p1, p2, q] = spike(k);

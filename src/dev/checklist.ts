@@ -108,8 +108,8 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-238',
     group: G.swirl025,
-    text: 'Libraries › Data: Month Swirl, Week Swirl, Hexagon Month Swirl and Hexagon Week Swirl, each a spike per day spiraling out clockwise from the top. In the block editor, Variant › 30, 29 and 28 days shows that many spikes, none black. Make a Months data quilt with Month Swirl and a Weeks one with Week Swirl, enter some values: each day colors its own spike, day 1 at the top. A Shaped Blocks quilt with hexagons takes the hexagon swirls the same way.',
-    last: '"can you implment this as a set of temperature blocks? do one as a hexagon and one as a square block. do a copy for 7day and one for 28/29/30/31 days."',
+    text: 'Libraries › Data: Month Swirl, Week Swirl, Hexagon Month Swirl and Hexagon Week Swirl, each a spike per day spiraling out clockwise from the top, each tip at the outer corner of the next day’s spike. In the block editor, Variant › 30, 29 and 28 days shows that many spikes, none black. Make a Months data quilt with Month Swirl and a Weeks one with Week Swirl, enter some values: each day colors its own spike, day 1 at the top. A Shaped Blocks quilt with hexagons takes the hexagon swirls the same way.',
+    last: '"can you implment this as a set of temperature blocks? do one as a hexagon and one as a square block. do a copy for 7day and one for 28/29/30/31 days." / "on the spirals, the tip of the triangle should align with the edge corner of the next patch as the patches spiral out"',
     to: '/libraries',
   },
   {

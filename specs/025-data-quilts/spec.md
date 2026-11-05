@@ -298,7 +298,9 @@ strip type. The quilt shows 365 days in the simulation's colors.
   pinwheel's spikes run from ⅓ to ⅔ of the center-to-corner distance; the square keeps its own.
   Then "let's try at 1/4 and 3/4": ¼ to ¾, and "we want to use the same r values (from the
   center) for the square blocks": the square pinwheels use the same distances (a square as wide
-  as the hexagon; ¾ of the square's own corner distance would cross its sides).
+  as the hexagon; ¾ of the square's own corner distance would cross its sides). Swirls (owner: "the
+  tip of the triangle should align with the edge corner of the next patch as the patches spiral
+  out"): each spike's tip is the next day's spike's outer corner.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
 
