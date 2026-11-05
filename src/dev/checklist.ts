@@ -57,6 +57,7 @@ const G = {
   shadow048: 'Card shadows (spec 048)',
   shape049: 'Library blocks by shape (spec 049)',
   snap031: 'Snapping gravity and Line up (spec 031)',
+  swirl025: 'Swirl data blocks (spec 025)',
 };
 
 export const CHECKS: Check[] = [
@@ -103,6 +104,13 @@ export const CHECKS: Check[] = [
     text: 'Leap day: a Weeks quilt from 1 January 2028. Details › Data quilt shows Leap day (hidden for 2027 and for Months). Extra single-day number: the list runs Jan 1, Wk 1 … Wk 52, Dec 31. Use a 2-day block variant: the last number is Dec 30–31 and a week block’s 2-day variant (Draw tab › Variant › 2 days) shows there. Average and Ignore: 53 numbers, and the Entries dialog marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value (Mood) and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra; switching to Ignore with a block on Feb 29 asks first.',
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
+  },
+  {
+    id: 'TC-238',
+    group: G.swirl025,
+    text: 'Libraries › Data: Month Swirl, Week Swirl, Hexagon Month Swirl and Hexagon Week Swirl, each a spike per day spiraling out clockwise from the top. In the block editor, Variant › 30, 29 and 28 days shows that many spikes, none black. Make a Months data quilt with Month Swirl and a Weeks one with Week Swirl, enter some values: each day colors its own spike, day 1 at the top. A Shaped Blocks quilt with hexagons takes the hexagon swirls the same way.',
+    last: '"can you implment this as a set of temperature blocks? do one as a hexagon and one as a square block. do a copy for 7day and one for 28/29/30/31 days."',
+    to: '/libraries',
   },
 ];
 

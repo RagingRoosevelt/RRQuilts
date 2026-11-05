@@ -8,7 +8,8 @@ import { SHAPED_CURVES } from '@/content/shaped-curves';
 import { pathPolygon } from '@/model/geometry/path';
 
 const items = builtinItems();
-const blocks = items.blocks.filter((b) => b.shape);
+// Shaped data blocks (the hexagon swirls) are data-swirl.spec.ts's.
+const blocks = items.blocks.filter((b) => b.shape && !b.data);
 const rgbOf = new Map(items.colors.map((c) => [c.id, c.rgb]));
 
 describe('built-in shaped blocks', () => {

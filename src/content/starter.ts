@@ -1,7 +1,7 @@
 // Built-in starter content: 13 traditional blocks (plus the four-, five-, seven-, and nine-patch families in their own files) drawn originally as seam lines, 36 basic solid
 // colors, and five themed palettes, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
-import { shapeSize, type BlockShape } from '@/model/blocks/shape';
+import { ASPECT, SHAPE_OUTLINE, shapeSize, type BlockShape } from '@/model/blocks/shape';
 import { SHAPED_BLOCKS, curvedStarter, shapedStarter } from './shaped';
 import { SHAPED_CURVES } from './shaped-curves';
 import { produce } from 'immer';
@@ -242,6 +242,71 @@ const dataCorner = (
     days: Array.from({ length: used }, (_, i): [number, number, number] => [...at(i), i + 1]),
   };
 };
+/** A data block of `n` wedges between straight lines from the center, each wedge holding a slim
+ *  spike, the spikes spiraling outward day by day clockwise from the top: a square, or a hexagon
+ *  (`shape`). Each spike is two straight seams across its wedge, so it can be paper pieced. */
+const dataSwirl = (name: string, category: string, n: number, shape?: 'hexagon'): StarterBlock => {
+  // Worked in true proportions (width 1), stored in the unit square.
+  const a = shape ? ASPECT[shape] : 1;
+  const outline: P[] = (shape ? SHAPE_OUTLINE[shape] : SQUARE).map(([x, y]) => [x, y * a]);
+  const hub: P = [0.5, a / 2];
+  const rays = Array.from({ length: n }, (_, k): P => {
+    const t = ((-90 + (360 * k) / n) * Math.PI) / 180;
+    const [dx, dy] = [Math.cos(t), Math.sin(t)];
+    // Nearest crossing of the ray with the outline.
+    let best = Infinity;
+    outline.forEach(([x1, y1], i) => {
+      const [x2, y2] = outline[(i + 1) % outline.length]!;
+      const [ex, ey] = [x2 - x1, y2 - y1];
+      const den = dx * ey - dy * ex;
+      if (Math.abs(den) < 1e-12) return;
+      const s = ((x1 - hub[0]) * ey - (y1 - hub[1]) * ex) / den;
+      const u = ((x1 - hub[0]) * dy - (y1 - hub[1]) * dx) / den;
+      if (s > 1e-9 && u > -1e-9 && u < 1 + 1e-9) best = Math.min(best, s);
+    });
+    return [hub[0] + dx * best, hub[1] + dy * best];
+  });
+  /** The point on ray `k` at distance `r` from the center (in half widths; 1 = the edge's middle),
+   *  or its end (`r` = Infinity). */
+  const along = (k: number, r: number): P => {
+    const [x, y] = rays[k % n]!;
+    const f = Math.min(1, (r * 0.5) / Math.hypot(x - hub[0], y - hub[1]));
+    return [hub[0] + (x - hub[0]) * f, (hub[1] + (y - hub[1]) * f) / a];
+  };
+  // Day by day the spikes step outward: a round spiral, each spike swept forward at its tip.
+  const from = (k: number) => 0.3 + (n > 1 ? (0.38 * k) / (n - 1) : 0);
+  const spike = (k: number): [P, P, P] => [
+    along(k, from(k)),
+    along(k, from(k) + 0.2),
+    along(k + 1, from(k) + 0.28),
+  ];
+  const seams: Seam[] = Array.from({ length: n }, (_, k): Seam[] => {
+    const [p1, p2, q] = spike(k);
+    return [
+      [along(k, 0), along(k, Infinity)],
+      [p1, q],
+      [p2, q],
+    ];
+  }).flat();
+  return {
+    name,
+    category,
+    ...(shape ? { shape, size: n / Math.sqrt(3) } : { dims: [n, n] as [number, number] }),
+    seams,
+    base: C.White!,
+    points: [],
+    days: Array.from({ length: n }, (_, k): [number, number, number] => {
+      const [p1, p2, q] = spike(k);
+      return [(p1[0] + p2[0] + q[0]) / 3, (p1[1] + p2[1] + q[1]) / 3, k + 1];
+    }),
+  };
+};
+const SQUARE: P[] = [
+  [0, 0],
+  [1, 0],
+  [1, 1],
+  [0, 1],
+];
 /** A month data block and its 30, 29 and 28-day variants. */
 const monthFamily = (
   name: string,
@@ -258,10 +323,14 @@ const DATA_BLOCKS: StarterBlock[] = [
   ...monthFamily('Curved Month Strip', (nm, d) => dataCorner(nm, 'Data/Months', 31, d, 'arcs')),
   ...monthFamily('Cornered Month Strip', (nm, d) => dataCorner(nm, 'Data/Months', 31, d, 'square')),
   ...monthFamily('Month Fan', (nm, d) => dataCorner(nm, 'Data/Months', 31, d, 'fan')),
+  ...monthFamily('Month Swirl', (nm, d) => dataSwirl(nm, 'Data/Months', d)),
+  ...monthFamily('Hexagon Month Swirl', (nm, d) => dataSwirl(nm, 'Data/Months', d, 'hexagon')),
   { ...dataBars('Week Strip', 'Data/Weeks', 7, 7, [7, 7]), data: 'week' },
   { ...dataCorner('Curved Week Strip', 'Data/Weeks', 7, 7, 'arcs'), data: 'week' },
   { ...dataCorner('Cornered Week Strip', 'Data/Weeks', 7, 7, 'square'), data: 'week' },
   { ...dataCorner('Week Fan', 'Data/Weeks', 7, 7, 'fan'), data: 'week' },
+  { ...dataSwirl('Week Swirl', 'Data/Weeks', 7), data: 'week' },
+  { ...dataSwirl('Hexagon Week Swirl', 'Data/Weeks', 7, 'hexagon'), data: 'week' },
   { ...dataBars('Day Square', 'Data/Days', 1, 1, [1, 1]), data: 'day' },
 ];
 

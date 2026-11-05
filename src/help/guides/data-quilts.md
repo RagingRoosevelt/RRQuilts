@@ -105,7 +105,11 @@ the days past the month in black), a **Week Strip** of 7 bars, and a **Day Squar
 all filed under **Data**. Months and weeks also come with their strips turning a corner, day 1 at
 the top left: **Curved Month Strip** and **Curved Week Strip** in quarter rings, **Cornered Month
 Strip** and **Cornered Week Strip** in nested right angles, and **Month Fan** and **Week Fan** as
-wedges fanning out from the corner.
+wedges fanning out from the corner. **Month Swirl** and **Week Swirl** have a slim spike for each
+day, spiraling out from the center clockwise from the top, between straight lines that make them
+easy to paper piece. **Hexagon Month Swirl** and **Hexagon Week Swirl** are the same in a hexagon,
+for hexagon layouts. The month swirls have one spike per day in each of their 30, 29, and 28-day
+variants, with no black spikes left over.
 
 To find data blocks, use the **Data** filter in the project's **Blocks** tab and in the libraries.
 The project's **Quilts** tab can show only data quilts or only the others.
