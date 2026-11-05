@@ -275,8 +275,9 @@ const dataSwirl = (name: string, category: string, n: number, shape?: 'hexagon')
   };
   // Day by day the spikes step outward: a round spiral, each spike swept forward at its tip.
   const from = (k: number) => 0.3 + (n > 1 ? (0.38 * k) / (n - 1) : 0);
+  // The inner corner reaches in toward the center, so the spike fills more of its wedge.
   const spike = (k: number): [P, P, P] => [
-    along(k, from(k)),
+    along(k, from(k) - 0.18),
     along(k, from(k) + 0.2),
     along(k + 1, from(k) + 0.28),
   ];

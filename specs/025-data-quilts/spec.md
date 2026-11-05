@@ -286,6 +286,10 @@ strip type. The quilt shows 365 days in the simulation's colors.
   pieced spike swirl): Month Swirl, Week Swirl, Hexagon Month Swirl, Hexagon Week Swirl. Equal
   wedges from the center, a spike per day (two straight seams across its wedge), stepping outward
   clockwise from the top; a month variant has as many spikes as days (no black ones).
+  Owner, 2026-11-05: "I want the data patch to take up more surface area within the slice... leave
+  the outter edge alone but move the node on the counterclockwise side of the inner edge closer to
+  the core of the spiral": the spike's inner corner (on its counterclockwise line) sits 0.18 half
+  widths nearer the center.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
 
