@@ -66,7 +66,7 @@ export function drawDataOverlay(
   ctx: CanvasRenderingContext2D,
   marks: readonly DataMark[],
   px: number,
-  o: { line: boolean; dark: boolean },
+  o: { line: boolean; dark: boolean; labels?: boolean },
 ) {
   if (!marks.length) return;
   ctx.save();
@@ -103,6 +103,7 @@ export function drawDataOverlay(
         ctx.fill();
       });
   }
+  if (o.labels === false) return ctx.restore();
   // Labels in device pixels (tiny fonts scaled up draw unevenly).
   const t = ctx.getTransform();
   const dev = Math.hypot(t.a, t.b) * px; // device pixels per CSS pixel

@@ -38,6 +38,7 @@ export async function saveBlockImage(
   libraryColors: readonly Color[],
 ) {
   await fabricsReady(doc);
-  const url = blockThumbnail(doc, { ...block }, 1024, false, coloring, libraryColors);
+  // No traces: a download is the block itself.
+  const url = blockThumbnail(doc, { ...block }, 1024, false, coloring, libraryColors, false);
   await exportFile(block.notecard.name, await pngBytes(url), 'png');
 }

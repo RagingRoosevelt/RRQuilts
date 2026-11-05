@@ -355,7 +355,11 @@ strip type. The quilt shows 365 days in the simulation's colors.
   spike value A, the piece across its inner side (toward the center) value B, the piece across its
   outer side value C. Asked first whether a second series could be painted over with a fixed
   color in the quilt: yes, the quilt's paint replaces any fill; a value the quilt lacks shows the
-  placeholder until mapped (Place numbers › Value) or painted. Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
+  placeholder until mapped (Place numbers › Value) or painted.
+- Block pictures (owner, 2026-11-05: "let's set data blocks to show their traces in the block
+  previews / thumbnailes but not when downloading"): `blockThumbnail` draws a data block's order
+  lines (each value its own color, a dot on day 1, no labels: too small to read); Save image and
+  the picture check leave them off. Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
   quarter the spikes are too far apart for the bases to reach the next spike.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.

@@ -105,7 +105,7 @@ export async function* pictureCheck(libraryColors: readonly Color[]): AsyncGener
     for (const b of doc.project.blocks)
       if (b.id !== 'plain')
         now.set(b.notecard.name, () =>
-          blockThumbnail(doc, { ...b }, 1024, false, undefined, libraryColors),
+          blockThumbnail(doc, { ...b }, 1024, false, undefined, libraryColors, false),
         );
     const dir = file.replace(/\.rrq$/, '/');
     const release = new Map(

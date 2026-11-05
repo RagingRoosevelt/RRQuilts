@@ -57,7 +57,7 @@ const G = {
   shadow048: 'Card shadows (spec 048)',
   shape049: 'Library blocks by shape (spec 049)',
   snap031: 'Snapping gravity and Line up (spec 031)',
-  swirl025: 'Swirl and Pinwheel data blocks (spec 025)',
+  swirl025: 'Swirl and Pinwheel data blocks, traces in block pictures (spec 025)',
 };
 
 export const CHECKS: Check[] = [
@@ -138,6 +138,13 @@ export const CHECKS: Check[] = [
     group: G.swirl025,
     text: 'Every swirl and pinwheel data block (square, hexagon, quartered, and the month variants) has values A, B and C: the block editor’s Value shows the spikes as A, the pieces on their inner side as B, those on their outer side as C, each with its spike’s day. In a data quilt with qA, qB and qC each colors by its own value; in one with only qA, Place numbers › Value sets B and C to qA, and painting over a B or C piece in the quilt gives it a fixed color.',
     last: '"let\'s update each of these spirial and pinwheel data blocks with a second and third series. we\'ll use C for the outer patches and B for the inner patches"',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-243',
+    group: G.swirl025,
+    text: 'Data block pictures (Libraries, the project’s Blocks tab, the block pickers) draw the block’s traces: a colored line per value through its pieces in day order, a dot on day 1. Other blocks look as before. In the project’s Blocks tab, a data block’s ⋮ › Save image saves the picture without the traces.',
+    last: '"let\'s set data blocks to show their traces in the block previews / thumbnailes but not when downloading"',
     to: '/libraries',
   },
 ];
