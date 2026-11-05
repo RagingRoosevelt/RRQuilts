@@ -57,7 +57,7 @@ const G = {
   shadow048: 'Card shadows (spec 048)',
   shape049: 'Library blocks by shape (spec 049)',
   snap031: 'Snapping gravity and Line up (spec 031)',
-  swirl025: 'Swirl, Pinwheel and Quartered data blocks (spec 025)',
+  swirl025: 'Swirl and Pinwheel data blocks (spec 025)',
 };
 
 export const CHECKS: Check[] = [
@@ -122,8 +122,15 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-240',
     group: G.swirl025,
-    text: 'Libraries › Data: Quartered Month Swirl looks like the photo: four quarters, each a fan from a point on its inner edge, each turned a quarter turn from the last, the spikes all the same size in a ring about the center, tips out, a small white gap between each; the long seam past each tip runs straight on from the spike’s outer side, and that same seam carries on past the spike’s inner corner to touch the next spike’s side. The seams below the spikes carry on straight from each spike’s base, landing close together on the edge but not at one point. The pieces inside the ring are convex and four-sided, the last in each quarter too. Each quarter’s first spike lies against the quarter’s edge, its last spike’s tip clear of the edge. Day 1 at the left, going clockwise. Variant › 30, 29, 28 days takes a spike off the later quarters first. In a data quilt each day colors its own spike.',
+    text: 'Libraries › Data: Quartered Month Pinwheel looks like the photo: four quarters, each a fan from a point on its inner edge, each turned a quarter turn from the last, the spikes all the same size in a ring about the center, tips out, a small white gap between each; the long seam past each tip runs straight on from the spike’s outer side, and that same seam carries on past the spike’s inner corner to touch the next spike’s side. The seams below the spikes carry on straight from each spike’s base, landing close together on the edge but not at one point. The pieces inside the ring are convex and four-sided, the last in each quarter too. Each quarter’s first spike lies against the quarter’s edge, its last spike’s tip clear of the edge. Day 1 at the left, going clockwise. Variant › 30, 29, 28 days takes a spike off the later quarters first. In a data quilt each day colors its own spike.',
     last: '"the source image is split into quadrants and is assembled differently than we\'ve designed... let\'s make an additional set of square blocks that match the origional image" / "nope, that doesn\'t look right. the triangles should be in a cirlce similar to the pinwheel we already implmented, but the four sub-blocks are constructed differently" / "the inner most patches aren\'t triangles. they are four-sided" / "the first trianlge (traveling clockwise) in each sub block has it\'s edge tight up against the sub-block edge. the tips of the trinagles don\'t touch the sub-block edge on the last triangles (traveling clockwise). the last/top inner piece is a single patch, not split between a quad and a triangle" / "that quad for the last triangle should still be convex like the rest of them are. you also aren\'t getting the triangles right overall. there\'s a bit of a gap between triangles. and the triangles you\'re drawing are different sizes. all triangles should be the same size" / "the patches for the outside of the triangles share an edge with the triangles, right now you\'re drawing them at an angle to that edge of the triangles" / "that edge should continue until it intersects the next triangle block rather than bending at the tip of the trinagle." / "in the source image, it\'s the edges from the outer patches that extend to touch the next triangle\'s flat edge, not the patches from the inside of the block" / "the edges extending down from the triangles don\'t all converge at the same point. those edges should also be aligned to the edge of the triangle they share that corner with"',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-241',
+    group: G.swirl025,
+    text: 'Libraries › Data: Quartered Week Pinwheel, the quartered pinwheel with two larger, wider spaced spikes at the start of each quarter, days 1 to 7 clockwise from the left, the eighth spike plain. In a Weeks data quilt each day colors its own spike.',
+    last: '"can we attempt to make a week version?" / "one-week quater (left), but with the triangles a bit larger and more spaced out"',
     to: '/libraries',
   },
 ];

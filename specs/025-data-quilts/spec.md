@@ -303,7 +303,7 @@ strip type. The quilt shows 365 days in the simulation's colors.
   out"): each spike's tip is the next day's spike's outer corner. Quartered (owner: "the source image
   is split into quadrants and is assembled differently... let's make an additional set of square
   blocks that match the origional image"): Quartered Month Swirl (30/29/28 variants) and Quartered
-  Week Swirl. Four quarters pieced apart, each a fan from a point on its inner edge 0.27 of a
+  Week Swirl (renamed Pinwheel, below). Four quarters pieced apart, each a fan from a point on its inner edge 0.27 of a
   quarter from the block's center, each quarter the last turned clockwise. Days split TL, TR, BR,
   BL (the first quarters take the extra: 8/8/8/7, a week 2/2/2/1). First try (spikes by fraction
   along the fan lines) rejected: "the triangles should be in a cirlce similar to the pinwheel we
@@ -338,7 +338,14 @@ strip type. The quilt shows 365 days in the simulation's colors.
   down from the triangles don't all converge at the same point. those edges should also be
   aligned to the edge of the triangle they share that corner with": no fan point; each spike's
   base runs on straight inward past its inner corner to the quarter's edge or an earlier spike's
-  seam, whichever comes first (they land close together, near where the fan point was). Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
+  seam, whichever comes first (they land close together, near where the fan point was).
+  Owner: "that looks like an exact match now. can we attempt to make a week version?" and
+  "shouldn't we be calling it a pinwheel, not a swirl? since we're using swirl to describe spiral
+  blocks?": renamed Quartered Month Pinwheel; Quartered Week Pinwheel added. Week tries: spikes
+  scaled to 45° wedges broke the seams; a single quarter with 7 spikes (four turned make the
+  design) and two spikes a quarter at the photo's spacing were offered. Owner chose the paired
+  whole block "with the triangles a bit larger and more spaced out": two spikes a quarter, 30°
+  apart, inner corner 0.22, third corner 0.33 out and 12° on, tip 0.45; the eighth spike plain. Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
   quarter the spikes are too far apart for the bases to reach the next spike.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.

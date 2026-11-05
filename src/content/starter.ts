@@ -326,7 +326,14 @@ const SQUARE: P[] = [
  *  between them). Its base runs on straight inward past its inner corner to the quarter's edge or
  *  an earlier spike's seam, so the fan's seams nearly, but don't quite, meet. A quarter's first
  *  spike lies against its edge. */
-const dataQuarters = (name: string, category: string, n: number): StarterBlock => {
+const dataQuarters = (
+  name: string,
+  category: string,
+  n: number,
+  /** Spikes in every quarter, larger and spaced wider (the spikes past `n` plain); else the days
+   *  split, at the photo's size. */
+  each?: number,
+): StarterBlock => {
   // Worked in the top left quarter, its fan toward the block's middle line left of the center,
   // then turned. Distances from the center in block widths, measured off the photo.
   const O: P = [0.5, 0.5];
@@ -362,12 +369,15 @@ const dataQuarters = (name: string, category: string, n: number): StarterBlock =
   const days: [number, number, number][] = [];
   let day = 1;
   for (let q = 0; q < 4; q++) {
-    const m = Math.floor(n / 4) + (q < n % 4 ? 1 : 0);
-    const step = 90 / m;
-    // Spike j at 180° + j·step: inner corner b, tip t, third corner a.
-    const b = (j: number): P => (j === m ? O : polar(180 + j * step, 0.27));
-    const t = (j: number) => polar(180 + j * step, 0.415);
-    const a = (j: number) => polar(180 + j * step + 7, 0.342);
+    const m = each ?? Math.floor(n / 4) + (q < n % 4 ? 1 : 0);
+    // Spike j at 180° + j·step: inner corner b, tip t, third corner a. With `each`, fewer,
+    // larger spikes, spaced wider, at the start of the quarter, the rest plain.
+    const [step, turn, rb, ra, rt] = each
+      ? [30, 12, 0.22, 0.33, 0.45]
+      : [90 / m, 7, 0.27, 0.342, 0.415];
+    const b = (j: number): P => (j === m ? O : polar(180 + j * step, rb));
+    const t = (j: number) => polar(180 + j * step, rt);
+    const a = (j: number) => polar(180 + j * step + turn, ra);
     const line = (p: P, r: P): Seam => [place(p, q), place(r, q)];
     /** Where spike j's outer side, run on inward past its third corner, meets the next spike's
      *  inner side (after the last spike, the quarter's edge). */
@@ -407,7 +417,7 @@ const dataQuarters = (name: string, category: string, n: number): StarterBlock =
       if (j > 0) seams.push(line(b(j), foot(j)), line(a(j), end(a(j), t(j))));
       seams.push(line(b(j), a(j)), line(b(j), t(j)), line(t(j), rest(j)));
       const c = place([(b(j)[0] + t(j)[0] + a(j)[0]) / 3, (b(j)[1] + t(j)[1] + a(j)[1]) / 3], q);
-      days.push([c[0], c[1], day++]);
+      if (day <= n) days.push([c[0], c[1], day++]);
     }
   }
   return { name, category, dims: [n, n], seams, base: C.White!, points: [], days };
@@ -434,7 +444,7 @@ const DATA_BLOCKS: StarterBlock[] = [
   ...monthFamily('Hexagon Month Pinwheel', (nm, d) =>
     dataSwirl(nm, 'Data/Months', d, 'hexagon', false),
   ),
-  ...monthFamily('Quartered Month Swirl', (nm, d) => dataQuarters(nm, 'Data/Months', d)),
+  ...monthFamily('Quartered Month Pinwheel', (nm, d) => dataQuarters(nm, 'Data/Months', d)),
   { ...dataBars('Week Strip', 'Data/Weeks', 7, 7, [7, 7]), data: 'week' },
   { ...dataCorner('Curved Week Strip', 'Data/Weeks', 7, 7, 'arcs'), data: 'week' },
   { ...dataCorner('Cornered Week Strip', 'Data/Weeks', 7, 7, 'square'), data: 'week' },
@@ -443,6 +453,7 @@ const DATA_BLOCKS: StarterBlock[] = [
   { ...dataSwirl('Hexagon Week Swirl', 'Data/Weeks', 7, 'hexagon'), data: 'week' },
   { ...dataSwirl('Week Pinwheel', 'Data/Weeks', 7, undefined, false), data: 'week' },
   { ...dataSwirl('Hexagon Week Pinwheel', 'Data/Weeks', 7, 'hexagon', false), data: 'week' },
+  { ...dataQuarters('Quartered Week Pinwheel', 'Data/Weeks', 7, 2), data: 'week' },
   { ...dataBars('Day Square', 'Data/Days', 1, 1, [1, 1]), data: 'day' },
 ];
 

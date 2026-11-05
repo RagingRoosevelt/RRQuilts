@@ -15,8 +15,11 @@ describe.each([
   ['Hexagon Week Pinwheel', 7, 'hexagon'],
   ['Month Pinwheel', 31, undefined],
   ['Hexagon Month Pinwheel', 31, 'hexagon'],
-  ['Quartered Month Swirl', 31, undefined],
+  ['Quartered Month Pinwheel', 31, undefined],
+  ['Quartered Week Pinwheel', 7, undefined],
 ] as const)('%s', (name, days, shape) => {
+  // Quartered Week Pinwheel: two spikes a quarter, the eighth plain.
+  const extra = name === 'Quartered Week Pinwheel' ? 3 : 0;
   const b = blocks.find((x) => x.notecard.name === name)!;
   const sets = [
     { days, patches: b.patches },
@@ -32,7 +35,7 @@ describe.each([
 
   it('has three pieces per day and one data place per day, each day once', () => {
     for (const s of sets) {
-      expect(s.patches).toHaveLength(3 * s.days);
+      expect(s.patches).toHaveLength(3 * s.days + extra);
       const fills = s.patches.map((p) => b.colorings[0]!.fills[p.id]!);
       const placed = fills.flatMap((f) => ('data' in f ? [f.data.n] : [])).sort((x, y) => x - y);
       expect(placed).toEqual(Array.from({ length: s.days }, (_, i) => i + 1));
@@ -40,10 +43,10 @@ describe.each([
   });
 });
 
-describe('Quartered Month Swirl spikes', () => {
+describe('Quartered Month Pinwheel spikes', () => {
   // Owner: "all triangles should be the same size".
   it('are all the same triangle', () => {
-    const b = blocks.find((x) => x.notecard.name === 'Quartered Month Swirl')!;
+    const b = blocks.find((x) => x.notecard.name === 'Quartered Month Pinwheel')!;
     const k1 = b.colorings[0]!.fills;
     const areas = b.patches
       .filter((p) => 'data' in k1[p.id]!)

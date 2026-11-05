@@ -111,10 +111,11 @@ easy to paper piece. **Hexagon Month Swirl** and **Hexagon Week Swirl** are the 
 for hexagon layouts. **Month Pinwheel**, **Week Pinwheel**, **Hexagon Month Pinwheel**, and
 **Hexagon Week Pinwheel** are swirls with every spike the same distance from the center. The month
 swirls and pinwheels have one spike per day in each of their 30, 29, and 28-day
-variants, with no black spikes left over. **Quartered Month Swirl** is a square block
+variants, with no black spikes left over. **Quartered Month Pinwheel** is a square block
 pieced in four quarters, each a fan of seams toward its inner edge, turned a quarter turn from
 the last. Its spikes are all the same size, standing in a ring about the center with their
-tips pointing out, day 1 at the left, going clockwise.
+tips pointing out, day 1 at the left, going clockwise. **Quartered Week Pinwheel** is built the
+same way with two larger spikes at the start of each quarter, the eighth spike plain.
 
 To find data blocks, use the **Data** filter in the project's **Blocks** tab and in the libraries.
 The project's **Quilts** tab can show only data quilts or only the others.
