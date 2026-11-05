@@ -344,8 +344,10 @@ strip type. The quilt shows 365 days in the simulation's colors.
   blocks?": renamed Quartered Month Pinwheel; Quartered Week Pinwheel added. Week tries: spikes
   scaled to 45° wedges broke the seams; a single quarter with 7 spikes (four turned make the
   design) and two spikes a quarter at the photo's spacing were offered. Owner chose the paired
-  whole block "with the triangles a bit larger and more spaced out": two spikes a quarter, 30°
-  apart, inner corner 0.22, third corner 0.33 out and 12° on, tip 0.45; the eighth spike plain. Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
+  whole block "with the triangles a bit larger and more spaced out", then "try to space them
+  relativly evenly around the circle. so at like 0 and 45 degrees": two spikes a quarter, 45°
+  apart (eight evenly round the ring), inner corner 0.22, third corner 0.33 out and 18° on, tip
+  0.45; the eighth spike plain. Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
   quarter the spikes are too far apart for the bases to reach the next spike.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.

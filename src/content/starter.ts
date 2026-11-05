@@ -330,7 +330,7 @@ const dataQuarters = (
   name: string,
   category: string,
   n: number,
-  /** Spikes in every quarter, larger and spaced wider (the spikes past `n` plain); else the days
+  /** Spikes in every quarter, larger, spaced evenly (the spikes past `n` plain); else the days
    *  split, at the photo's size. */
   each?: number,
 ): StarterBlock => {
@@ -371,9 +371,9 @@ const dataQuarters = (
   for (let q = 0; q < 4; q++) {
     const m = each ?? Math.floor(n / 4) + (q < n % 4 ? 1 : 0);
     // Spike j at 180° + j·step: inner corner b, tip t, third corner a. With `each`, fewer,
-    // larger spikes, spaced wider, at the start of the quarter, the rest plain.
+    // larger spikes spaced evenly round the ring (two a quarter: 45° apart).
     const [step, turn, rb, ra, rt] = each
-      ? [30, 12, 0.22, 0.33, 0.45]
+      ? [90 / each, 18, 0.22, 0.33, 0.45]
       : [90 / m, 7, 0.27, 0.342, 0.415];
     const b = (j: number): P => (j === m ? O : polar(180 + j * step, rb));
     const t = (j: number) => polar(180 + j * step, rt);
