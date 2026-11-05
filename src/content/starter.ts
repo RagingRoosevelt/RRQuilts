@@ -317,6 +317,59 @@ const SQUARE: P[] = [
   [1, 1],
   [0, 1],
 ];
+/** A data block in four square quarters, each a fan of lines from a point on its inner edge, a
+ *  quarter of the way out from the block's center, each quarter the last turned a quarter turn
+ *  clockwise. Each fan holds its quarter's days (the first quarters take the extra ones), a spike
+ *  per day sweeping clockwise from the fan's left side, plain wedges at both ends. */
+const dataQuarters = (name: string, category: string, n: number): StarterBlock => {
+  // Worked in the top left quarter (side 1, the block's center at its bottom right corner), its
+  // fan from the bottom edge; angles in degrees counterclockwise from pointing right.
+  const hub: P = [0.73, 1];
+  const ray = (deg: number, f: number): P => {
+    const t = (deg * Math.PI) / 180;
+    const [dx, dy] = [Math.cos(t), -Math.sin(t)];
+    // Up to the left, top or right edge, whichever comes first.
+    const len = Math.min(
+      dx < 0 ? -hub[0] / dx : dx > 0 ? (1 - hub[0]) / dx : Infinity,
+      -hub[1] / dy,
+    );
+    return [hub[0] + dx * len * f, hub[1] + dy * len * f];
+  };
+  // Quarter q's point, a quarter turn clockwise per quarter about the block's center.
+  const place = ([x, y]: P, q: number): P => {
+    let [u, v] = [x / 2 - 0.5, y / 2 - 0.5];
+    for (let i = 0; i < q; i++) [u, v] = [-v, u];
+    return [0.5 + u, 0.5 + v];
+  };
+  const [IN, OUT] = [0.38, 0.68];
+  const seams: Seam[] = [
+    [
+      [0.5, 0],
+      [0.5, 1],
+    ],
+    [
+      [0, 0.5],
+      [1, 0.5],
+    ],
+  ];
+  const days: [number, number, number][] = [];
+  let day = 1;
+  for (let q = 0; q < 4; q++) {
+    const m = Math.floor(n / 4) + (q < n % 4 ? 1 : 0);
+    // Day lines from 160° to 40°, a plain wedge either side (one more line at 18°).
+    const deg = (k: number) => 160 - (120 * k) / m;
+    const line = (a: P, b: P): Seam => [place(a, q), place(b, q)];
+    for (let k = 0; k <= m; k++) seams.push(line(hub, ray(deg(k), 1)));
+    seams.push(line(hub, ray(18, 1)));
+    for (let k = 0; k < m; k++) {
+      const [p1, p2, tip] = [ray(deg(k), IN), ray(deg(k), OUT), ray(deg(k + 1), OUT)];
+      seams.push(line(p1, tip), line(p2, tip));
+      const c = place([(p1[0] + p2[0] + tip[0]) / 3, (p1[1] + p2[1] + tip[1]) / 3], q);
+      days.push([c[0], c[1], day++]);
+    }
+  }
+  return { name, category, dims: [n, n], seams, base: C.White!, points: [], days };
+};
 /** A month data block and its 30, 29 and 28-day variants. */
 const monthFamily = (
   name: string,
@@ -339,6 +392,7 @@ const DATA_BLOCKS: StarterBlock[] = [
   ...monthFamily('Hexagon Month Pinwheel', (nm, d) =>
     dataSwirl(nm, 'Data/Months', d, 'hexagon', false),
   ),
+  ...monthFamily('Quartered Month Swirl', (nm, d) => dataQuarters(nm, 'Data/Months', d)),
   { ...dataBars('Week Strip', 'Data/Weeks', 7, 7, [7, 7]), data: 'week' },
   { ...dataCorner('Curved Week Strip', 'Data/Weeks', 7, 7, 'arcs'), data: 'week' },
   { ...dataCorner('Cornered Week Strip', 'Data/Weeks', 7, 7, 'square'), data: 'week' },
@@ -347,6 +401,7 @@ const DATA_BLOCKS: StarterBlock[] = [
   { ...dataSwirl('Hexagon Week Swirl', 'Data/Weeks', 7, 'hexagon'), data: 'week' },
   { ...dataSwirl('Week Pinwheel', 'Data/Weeks', 7, undefined, false), data: 'week' },
   { ...dataSwirl('Hexagon Week Pinwheel', 'Data/Weeks', 7, 'hexagon', false), data: 'week' },
+  { ...dataQuarters('Quartered Week Swirl', 'Data/Weeks', 7), data: 'week' },
   { ...dataBars('Day Square', 'Data/Days', 1, 1, [1, 1]), data: 'day' },
 ];
 

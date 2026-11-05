@@ -57,7 +57,7 @@ const G = {
   shadow048: 'Card shadows (spec 048)',
   shape049: 'Library blocks by shape (spec 049)',
   snap031: 'Snapping gravity and Line up (spec 031)',
-  swirl025: 'Swirl and Pinwheel data blocks (spec 025)',
+  swirl025: 'Swirl, Pinwheel and Quartered data blocks (spec 025)',
 };
 
 export const CHECKS: Check[] = [
@@ -117,6 +117,13 @@ export const CHECKS: Check[] = [
     group: G.swirl025,
     text: 'Libraries › Data: Month Pinwheel, Week Pinwheel, Hexagon Month Pinwheel and Hexagon Week Pinwheel, like the swirls but every spike the same distance from the center, its tip touching the middle of the next spike’s side. On the hexagon ones each spike runs from a quarter to three quarters of the way out to a corner, and the square ones sit at the same distances from the center. Variant › 30, 29, 28 days keeps them level. In a data quilt each day colors its own spike, day 1 at the top.',
     last: '"let\'s do non-spiral ones. each data patch will be at the same radius out from the center as its neighbors" / "have the spike side of the triangle sit at the midpoint of it\'s neighbor\'s edge for the pinwheel data blocks" / "on the hex, we want the triangles on the corners to start at the r=1/3 and extend to r=2/3" / "hm, let\'s try at 1/4 and 3/4" / "yeah, we want to use the same r values (from the center) for the square blocks"',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-240',
+    group: G.swirl025,
+    text: 'Libraries › Data: Quartered Month Swirl and Quartered Week Swirl look like the photo: four quarters, each a fan from a point on its inner edge, each turned a quarter turn from the last. Days run top left, top right, bottom right, bottom left, clockwise within each fan. Variant › 30, 29, 28 days takes a spike off the later quarters first. In a data quilt each day colors its own spike.',
+    last: '"the source image is split into quadrants and is assembled differently than we\'ve designed... let\'s make an additional set of square blocks that match the origional image"',
     to: '/libraries',
   },
 ];

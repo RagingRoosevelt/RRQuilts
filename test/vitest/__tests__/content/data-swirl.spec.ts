@@ -1,4 +1,4 @@
-// Swirl and Pinwheel data blocks (spec 025): a spike per day in equal wedges from the center, square and hexagon,
+// Swirl, Pinwheel and Quartered data blocks (spec 025): a spike per day in equal wedges from the center, square and hexagon,
 // month ones with a variant per shorter month that has exactly that many spikes.
 import { describe, expect, it } from 'vitest';
 import { builtinItems } from '@/content/starter';
@@ -14,7 +14,11 @@ describe.each([
   ['Hexagon Week Pinwheel', 7, 'hexagon'],
   ['Month Pinwheel', 31, undefined],
   ['Hexagon Month Pinwheel', 31, 'hexagon'],
+  ['Quartered Week Swirl', 7, undefined],
+  ['Quartered Month Swirl', 31, undefined],
 ] as const)('%s', (name, days, shape) => {
+  // Quartered: each quarter's fan also has three plain wedges.
+  const extra = name.startsWith('Quartered') ? 12 : 0;
   const b = blocks.find((x) => x.notecard.name === name)!;
   const sets = [
     { days, patches: b.patches },
@@ -28,9 +32,9 @@ describe.each([
     expect(sets.map((s) => s.days)).toEqual(days === 7 ? [7] : [31, 30, 29, 28]);
   });
 
-  it('has three pieces per wedge and one data place per day, each day once', () => {
+  it('has three pieces per day wedge and one data place per day, each day once', () => {
     for (const s of sets) {
-      expect(s.patches).toHaveLength(3 * s.days);
+      expect(s.patches).toHaveLength(3 * s.days + extra);
       const fills = s.patches.map((p) => b.colorings[0]!.fills[p.id]!);
       const placed = fills.flatMap((f) => ('data' in f ? [f.data.n] : [])).sort((x, y) => x - y);
       expect(placed).toEqual(Array.from({ length: s.days }, (_, i) => i + 1));

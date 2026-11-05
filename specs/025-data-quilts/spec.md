@@ -300,7 +300,14 @@ strip type. The quilt shows 365 days in the simulation's colors.
   center) for the square blocks": the square pinwheels use the same distances (a square as wide
   as the hexagon; ¾ of the square's own corner distance would cross its sides). Swirls (owner: "the
   tip of the triangle should align with the edge corner of the next patch as the patches spiral
-  out"): each spike's tip is the next day's spike's outer corner.
+  out"): each spike's tip is the next day's spike's outer corner. Quartered (owner: "the source image
+  is split into quadrants and is assembled differently... let's make an additional set of square
+  blocks that match the origional image"): Quartered Month Swirl (30/29/28 variants) and Quartered
+  Week Swirl. Four quarters pieced apart, each a fan from a point on its inner edge 0.27 of a
+  quarter from the block's center, each quarter the last turned clockwise. Days split TL, TR, BR,
+  BL (the first quarters take the extra: 8/8/8/7, a week 2/2/2/1), spikes clockwise in each fan
+  between lines from 160° to 40°, plain wedges at both ends; spikes from 0.38 to 0.68 along their
+  lines, each tip at the next spike's outer corner.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
 
