@@ -58,7 +58,7 @@ const G = {
   shape049: 'Library blocks by shape (spec 049)',
   snap031: 'Snapping gravity and Line up (spec 031)',
   swirl025: 'Swirl and Pinwheel data blocks, traces in block pictures (spec 025)',
-  make041: 'Data Quilts: data entry and next steps (spec 041)',
+  make041: 'Data Quilts: data entry and printed instructions (spec 041)',
 };
 
 export const CHECKS: Check[] = [
@@ -179,7 +179,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-248',
     group: G.make041,
-    text: 'Next steps: with nothing picked it covers the days entered and not cut; drag across days (or Shift-click a second day) to pick a run. The printout lists each day’s value, fabric and pieces (count × letter in fabric), “No entry yet” or “Not on the quilt” where so, then the block’s templates lettered as the table with a key. Tint by fabric splits templates per fabric; Quilt notes (only when the quilt has notes) prints them after the steps. Print gives the same pages.',
+    text: 'Print instructions: with nothing picked it covers the days entered and not cut; drag across days (or Shift-click a second day) to pick a run. The printout lists each day’s value, fabric and pieces (count × letter in fabric), “No entry yet” or “Not on the quilt” where so, then the block’s templates lettered as the table with a key. Tint by fabric splits templates per fabric; Quilt notes (only when the quilt has notes) prints them after the steps. Print gives the same pages.',
     to: '/data',
     file: 'demo-v10.rrq',
   },
@@ -204,7 +204,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-252',
     group: G.make041,
-    text: 'Phone: the data entry dialog fills the screen; the day form sits above the calendar, and while scrolling the calendar the footer (hint and Next steps) stays on screen. Tapping a day doesn’t pop the keyboard until you tap the field.',
+    text: 'Phone: the data entry dialog fills the screen; the day form sits above the calendar, and while scrolling the calendar the footer (hint and Print instructions) stays on screen. Tapping a day doesn’t pop the keyboard until you tap the field.',
     last: '"on my phone, i\'m having some issues with the bottom instructions and button getting cut off when scrolling" / "let\'s move the data entry to sit above the calendar selection."',
     to: '/data',
     file: 'demo-v10.rrq',
@@ -212,7 +212,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-253',
     group: G.make041,
-    text: 'Phone: hold a day briefly, then drag: the days you pass are picked (a short buzz where the phone supports it) and Next steps counts them; a plain swipe still scrolls. Computer: drag across days with the mouse to pick them.',
+    text: 'Phone: hold a day briefly, then drag: the days you pass are picked (a short buzz where the phone supports it) and Print instructions counts them; a plain swipe still scrolls. Computer: drag across days with the mouse to pick them.',
     last: '"let\'s update so that dragging on a date range selects those days on mobile."',
     to: '/data',
     file: 'demo-v10.rrq',
@@ -228,7 +228,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-255',
     group: G.make041,
-    text: 'Next steps printout: under the table on the same page, each block the days go in, in its fabrics, with the days’ patches outlined thick and numbered with the day of the month. The template pages no longer repeat the key.',
+    text: 'Instructions printout: under the table on the same page, each block the days go in, in its fabrics, with the days’ patches outlined thick and numbered with the day of the month. The template pages no longer repeat the key.',
     last: '"in the printout, let\'s put the block map on the same page as the color table along with thicker outlines around the impacted patches in that block map thing"',
     to: '/data',
     file: 'demo-v10.rrq',
@@ -236,8 +236,16 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-256',
     group: G.make041,
-    text: 'Next steps page: its options sit on the right like the editors’ sidebar, and move to the left with Settings › toolbar on the right.',
+    text: 'Print instructions page: its options sit on the right like the editors’ sidebar, and move to the left with Settings › toolbar on the right.',
     last: '"the settings for the printout needs to respect the "toolbar on left/right" setting"',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-257',
+    group: G.make041,
+    text: 'The data entry dialog’s button reads “Print instructions (n days)” with a printer icon, the Data Quilts card menu has Print instructions, and the printout’s pages are headed Instructions.',
+    last: '""next steps" need to be called something that better describes that we\'re moving to the printout instructions"',
     to: '/data',
     file: 'demo-v10.rrq',
   },

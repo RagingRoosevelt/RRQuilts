@@ -973,7 +973,7 @@ export function lastEntry(plan: DataPlan): string | undefined {
   return last;
 }
 
-/** Days entered and not yet cut, oldest first (what Next steps covers unless days are picked). */
+/** Days entered and not yet cut, oldest first (what Print instructions covers unless days are picked). */
 export const nextDays = (plan: DataPlan): string[] =>
   Object.keys(plan.entries)
     .filter((d) => hasValue(plan.entries[d]) && !plan.made?.[d]?.cut)

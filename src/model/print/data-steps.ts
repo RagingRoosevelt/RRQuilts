@@ -1,4 +1,4 @@
-// Next steps for a data quilt (spec 041): for any set of days, which pieces each takes, in which
+// Instructions for a data quilt (spec 041): for any set of days, which pieces each takes, in which
 // fabric, in which block. Real entries only: the sample never stands in for a day's fabric.
 import { allPatches } from '../blocks/patches';
 import { fillKey, resolveColoring } from '../coloring';

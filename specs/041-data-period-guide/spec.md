@@ -1,4 +1,4 @@
-# Feature Specification: Making a Data Quilt (Data Quilts, Next Steps, Block by Block)
+# Feature Specification: Making a Data Quilt (Data Quilts, Printed Instructions, Block by Block)
 
 **Feature Branch**: `TBD` (target 0.8.0, its own release; moved out of 0.7.4, owner 2026-10-30)
 
@@ -59,7 +59,7 @@ for next steps. the user can select the days they want to get the printout for."
     Assembled inputs for the day.
   - A preview of the quilt so far, colored by the entries.
   - Blocks are tracked too: which data blocks are assembled.
-  - **Next steps** button: opens a printout page of next steps. The quilter picks the days it covers.
+  - **Print instructions** button: opens a printout page of instructions for the picked days. The quilter picks the days it covers.
 
 ## Clarifications
 
@@ -91,7 +91,7 @@ for next steps. the user can select the days they want to get the printout for."
 - Q: As you go and Cut ahead: a saved choice or two views? → A: Owner: "I don't plan on offering a
   cut ahead option. "As you go" will naturally have a "catch-up" aspect if someone falls behind
   where they can select multiple days to get instructions for. this is just a view, not something
-  saved with the quilt." Cut ahead and its workbook are dropped. Next steps covers any days picked.
+  saved with the quilt." Cut ahead and its workbook are dropped. Print instructions covers any days picked.
 - Q: Templates labeled per day or counted per shape? → A: Owner: "this responds to the "tint per
   piece" choice. if tinting per piece, then each unique patch/color gets its own template in the as
   you go view too. if tinting isn't selected, we'll do uncolored templates like we already do." The
@@ -103,6 +103,9 @@ for next steps. the user can select the days they want to get the printout for."
 - Q: Does the next steps printout print the quilt's notes? → A: "toggle for that option". A
   **Quilt notes** toggle on the next steps printout (on at first, kept in the print settings),
   printing the notes after the steps; shown only when the quilt has notes.
+- Owner, 2026-11-09 (after trying it): ""next steps" need to be called something that better
+  describes that we're moving to the printout instructions". The button and menu item are **Print
+  instructions** (printer icon); the printout's pages are headed **Instructions**.
 
 ## Today
 
@@ -168,7 +171,7 @@ A quilter who fell behind picks a run of days (entered, not yet cut) and gets on
 
 **Acceptance Scenarios**:
 
-1. **Given** Next steps, **When** several days are picked, **Then** the steps cover just those days,
+1. **Given** Print instructions, **When** several days are picked, **Then** the steps cover just those days,
    grouped by block, identical pieces in the same fabric counted together.
 2. **Given** Tint by fabric on, **Then** each unique piece and fabric has its own template. Off,
    templates are uncolored, one per shape, as in Print today.
@@ -221,7 +224,7 @@ A quilter who fell behind picks a run of days (entered, not yet cut) and gets on
 - **FR-001**: Data quilt instructions MUST be built from per-day, per-value steps, so any set of
   days (just entered, one block, all) can be shown and printed alone.
 - **FR-002**: Entering one or several days' values MUST show the steps for just those days.
-- **FR-003**: Next steps MUST cover any days the quilter picks, with templates per Tint by fabric
+- **FR-003**: Print instructions MUST cover any days the quilter picks, with templates per Tint by fabric
   (on: per unique piece and fabric; off: uncolored, per shape).
 - **FR-004**: **Block by block** MUST show each data block with lettered pieces, day numerals and
   its day table, on screen and in print.

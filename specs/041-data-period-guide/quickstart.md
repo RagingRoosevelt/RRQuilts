@@ -26,7 +26,7 @@ Firefox for the drafts-only case. Unit tests: `make test`.
 6. Same project open in another tab: dialog says it's kept on this device; the other tab shows the
    entries after reopening.
 7. Home: calendar icon on rows with data quilts only; opens the dialog.
-8. Next steps for Jan 11 to 13: table, block with the three places outlined, templates per Tint by
+8. Print instructions for Jan 11 to 13: table, block with the three places outlined, templates per Tint by
    fabric (on and off), Quilt notes toggle prints notes; prints on Letter and A4.
 9. Block by block January: every day of January, entered ones with fabrics, others "no entry yet".
 10. Firefox: only drafts and the open project listed; no Show buttons.

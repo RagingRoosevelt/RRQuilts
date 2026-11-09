@@ -1,6 +1,6 @@
 <template>
   <!-- Data entry for one data quilt (spec 041), from Data Quilts or Home: the year as a calendar,
-       the tapped day's form, the quilt so far; Next steps prints the picked days' steps. -->
+       the tapped day's form, the quilt so far; Print instructions shows the picked days' cutting and sewing instructions to print. -->
   <q-dialog v-model="open" :maximized="$q.screen.lt.md">
     <q-card
       v-if="card && quilt && doc"
@@ -76,9 +76,9 @@
         <q-btn
           unelevated
           color="primary"
-          icon="checklist"
+          icon="print"
           no-caps
-          :label="`Next steps (${stepDays.length} ${stepDays.length === 1 ? 'day' : 'days'})`"
+          :label="`Print instructions (${stepDays.length} ${stepDays.length === 1 ? 'day' : 'days'})`"
           :disable="!stepDays.length"
           @click="nextSteps"
         >

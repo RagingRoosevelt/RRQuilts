@@ -84,7 +84,7 @@ Code facts gathered 2026-11-09 on `041-data-making` (built on `feat/swirl-data-b
 - `blockSteps(doc, quilt, k)` gives the same per number for Block by block.
 - Rationale: FR-001 (any set of days), FR-006 (counts agree with yardage: same `quiltPieces`).
 
-## R8. Next steps and Block by block printouts
+## R8. Print instructions and Block by block printouts
 
 - Decision: `PrintPreview.vue` gains `kind: 'steps'` with props `days` or `numbers` and a `doc`
   (already a prop). Its sheets: a steps table (day, date, values, range and fabric, pieces), the

@@ -84,4 +84,4 @@ interface DayStep {
 }
 ```
 
-- `nextDays(plan, today)`: entered and not cut, oldest first (the default pick for Next steps).
+- `nextDays(plan, today)`: entered and not cut, oldest first (the default pick for Print instructions).

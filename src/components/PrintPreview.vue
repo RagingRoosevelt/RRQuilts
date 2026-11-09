@@ -398,7 +398,7 @@
               </div>
             </div>
 
-            <!-- Next steps (spec 041): each day's values, fabric and pieces, by block -->
+            <!-- Instructions (spec 041): each day's values, fabric and pieces, by block -->
             <div v-else-if="s.kind === 'steps'" class="column" style="gap: 10px">
               <div v-if="on(s, 'cap')" data-m="cap" class="text-caption">
                 Cut each piece from the fabric its day's value falls in, then sew it into its block
@@ -750,7 +750,7 @@ import { creditSocial, isKnownSite, socialIcon, type Social } from '@/settings/s
 import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
-  /** `steps`: a data quilt's next steps for `days` (spec 041). */
+  /** `steps`: a data quilt's instructions for `days` (spec 041). */
   kind: 'block' | 'quilt' | 'steps';
   id: string;
   days?: readonly string[] | undefined;
@@ -995,7 +995,7 @@ interface View {
   /** Quilts: the outer edge (pieces are clipped to it) and whether to trim to it after piecing. */
   edge?: Pt[];
   trim?: boolean;
-  /** Next steps (spec 041). */
+  /** Data quilt instructions (spec 041). */
   steps?: DayStep[];
   /** Templates: block, its finished size, and pieces of one block for the key. */
   block?: Block;
@@ -1605,7 +1605,7 @@ function quiltBlocks() {
   });
 }
 
-/** Next steps (spec 041): the days' table, then each block's templates for just those days, keyed
+/** Data quilt instructions (spec 041): the days' table, then each block's templates for just those days, keyed
  *  on the block, lettered as the table. Days without pieces print their reason only. */
 function stepSheets(steps: DayStep[], notes: string | undefined): Sheet[] {
   const dd = doc.value!;
@@ -1613,7 +1613,7 @@ function stepSheets(steps: DayStep[], notes: string | undefined): Sheet[] {
   const plan = quilt?.data;
   if (!quilt || !plan) return [];
   const maps: StepMap[] = [];
-  const out: Sheet[] = [{ kind: 'steps', heading: 'Next steps', rows: steps, notes, maps }];
+  const out: Sheet[] = [{ kind: 'steps', heading: 'Instructions', rows: steps, notes, maps }];
   const real = { ...quilt, data: { ...plan, show: 'real' as const, waiting: 'designed' as const } };
   const slots = new Map(generateFor(quilt).slots.map((x) => [x.id, x]));
   const [aw, ah] = area.value;

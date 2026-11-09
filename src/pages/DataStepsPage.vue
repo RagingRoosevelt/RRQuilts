@@ -1,5 +1,5 @@
 <template>
-  <!-- Next steps for a data quilt (spec 041): the picked days' pieces, fabrics and templates, to
+  <!-- Print instructions for a data quilt (spec 041): the picked days' pieces, fabrics and templates, to
        print. Opened from Data Quilts or the data entry dialog. -->
   <!-- The options sit where the editors' sidebar does (Settings: toolbar on the left or right). -->
   <q-page

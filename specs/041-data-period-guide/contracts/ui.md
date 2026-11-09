@@ -1,4 +1,4 @@
-# UI contract: Data Quilts, data entry dialog, Next steps (spec 041)
+# UI contract: Data Quilts, data entry dialog, Print instructions (spec 041)
 
 ## Navigation
 
@@ -13,7 +13,7 @@
   quilt name, "Last entry Jan 14" (or "No entries yet"), a badge for unsaved (draft) or
   "Waiting to be saved into the project" (pending).
 - No permission yet: the picture is a placeholder with **Show** (one permission request).
-- Tap: opens DataEntryDialog for that quilt. Card menu: Open project, Next steps, Block by block,
+- Tap: opens DataEntryDialog for that quilt. Card menu: Open project, Print instructions, Block by block,
   Forget (removes the `known` record, not the file).
 - Empty state: no data quilts known, with a link to Help › Data quilts.
 
@@ -36,14 +36,14 @@ Props: `{ projectId: string; quiltId: string }` (source resolved by the store). 
   - one dot per series (A to D) with an entry, in `dayColor`; an empty ring for a series without;
   - a **Cut** badge (scissors) and an **Assembled** badge (needle) when marked;
   - outside the period or past the plan: dimmed, not tappable.
-  - Selection: tap a day; shift-tap or long press then tap extends a range (for Next steps).
+  - Selection: tap a day; shift-tap or long press then tap extends a range (for Print instructions).
 - **Entry form** below the calendar for the tapped day:
   - one input per series as the Data tab's entries (number with unit, or category select);
   - **Cut** and **Assembled** toggles (setting them stores today's date);
   - the day's block (label) with **Block assembled** toggle;
   - a warning when changing the value of a day marked cut.
   - Keyboard: Enter moves to the next day.
-- Footer: **Next steps** (the selected days, else `nextDays`), **Block by block**, Close.
+- Footer: **Print instructions** (the selected days, else `nextDays`), **Block by block**, Close.
 
 ## `/data/steps`: DataStepsPage
 

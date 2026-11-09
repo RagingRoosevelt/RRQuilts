@@ -1,4 +1,4 @@
-# Implementation Plan: Making a Data Quilt (Data Quilts, Next Steps, Block by Block)
+# Implementation Plan: Making a Data Quilt (Data Quilts, Printed Instructions, Block by Block)
 
 **Branch**: `041-data-making` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
@@ -11,7 +11,7 @@ drafts and projects the device has seen (file handles). Each opens a **data entr
 scrolling year calendar with a dot per series in its range color, Cut and Assembled badges, an
 entry form for the tapped day, and a live preview. Home rows of data quilt projects get a calendar
 icon to the same dialog. Entries for a project that isn't open go into its draft, or wait on the
-device and are applied when it next opens. **Next steps** prints the steps (pieces, fabric, cut,
+device and are applied when it next opens. **Print instructions** prints the steps (pieces, fabric, cut,
 place) for any picked days, and **Block by block** the same per data block, through a new
 `PrintPreview` kind. Done marks are saved in the project (rrq v11).
 
@@ -84,7 +84,7 @@ src/stores/data-quilts.ts           # list, read docs, data sources (write routi
 src/layouts/MainLayout.vue          # Data Quilts nav item
 src/router/routes.ts                # /data, /data/steps
 src/pages/DataQuiltsPage.vue        # the list
-src/pages/DataStepsPage.vue         # Next steps / Block by block printout
+src/pages/DataStepsPage.vue         # Print instructions / Block by block printout
 src/pages/HomePage.vue              # calendar icon on rows
 src/components/DataEntryDialog.vue  # calendar, entry form, preview, footer
 src/components/DataCalendar.vue     # year calendar (dots, badges, selection)

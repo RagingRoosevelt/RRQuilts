@@ -49,7 +49,7 @@
                     <q-item-section>Open project</q-item-section>
                   </q-item>
                   <q-item clickable :disable="!store.docOf(c.projectId)" @click="steps(c)">
-                    <q-item-section>Next steps</q-item-section>
+                    <q-item-section>Print instructions</q-item-section>
                   </q-item>
                   <q-item v-if="c.handle" clickable @click="store.forget(c.projectId)">
                     <q-item-section>Forget</q-item-section>
