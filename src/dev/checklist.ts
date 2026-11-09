@@ -256,6 +256,14 @@ export const CHECKS: Check[] = [
     last: '"long quilt titles truncate weirdly even on desktop where there\'s plenty of room"',
     to: '/data',
   },
+  {
+    id: 'TC-259',
+    group: G.make041,
+    text: 'Data entry dialog: the Year box (top right) moves the quilt to another year: the calendar and days count follow (366 for a leap year), and going back shows the entries made before. A new data quilt (wizard, or Data quilt in Details) starts this year from January to August, next year from September on.',
+    last: '"the user should be able to set the year when entering data in a data quilt (but defaults to current year if you\'re in the first two thirds of the year, next year if you\'re in the last third of the year)"',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

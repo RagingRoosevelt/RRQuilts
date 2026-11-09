@@ -1,9 +1,12 @@
 // Data entered for a project that isn't open (spec 041): kept on the device as a patch per quilt,
 // and applied when the project next opens. Pure: no storage here.
+import { setYear } from './data-quilt';
 import type { DayMade, DayValues } from './schema/data-quilt';
 import type { RrqDoc } from './schema/project';
 
 export interface QuiltPatch {
+  /** The period's first day (the year changed, spec 041). */
+  start?: string;
   /** Changed days, each its whole row of values. */
   entries?: DayValues;
   /** Changed marks (null: cleared). */
@@ -21,6 +24,7 @@ export interface PendingData {
 /** `b` laid over `a` (later writes win per day). */
 export function mergePatch(a: QuiltPatch = {}, b: QuiltPatch): QuiltPatch {
   const out: QuiltPatch = { ...a };
+  if (b.start) out.start = b.start;
   if (b.entries) out.entries = { ...a.entries, ...b.entries };
   if (b.made) out.made = { ...a.made, ...b.made };
   if (b.blocksMade) out.blocksMade = { ...a.blocksMade, ...b.blocksMade };
@@ -41,7 +45,8 @@ export function applyPending(
     const p = pending.quilts[q.id];
     if (!p || !q.data) return q;
     changed = true;
-    const data = { ...q.data, entries: { ...q.data.entries } };
+    const moved = p.start ? setYear(q.data, Number(p.start.slice(0, 4))) : q.data;
+    const data = { ...moved, entries: { ...moved.entries } };
     for (const [d, row] of Object.entries(p.entries ?? {})) {
       if (empty(row)) delete data.entries[d];
       else data.entries[d] = row;

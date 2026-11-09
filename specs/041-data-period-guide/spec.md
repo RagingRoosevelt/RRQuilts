@@ -106,6 +106,11 @@ for next steps. the user can select the days they want to get the printout for."
 - Owner, 2026-11-09 (after trying it): ""next steps" need to be called something that better
   describes that we're moving to the printout instructions". The button and menu item are **Print
   instructions** (printer icon); the printout's pages are headed **Instructions**.
+- Owner, 2026-11-09: "the user should be able to set the year when entering data in a data quilt
+  (but defaults to current year if you're in the first two thirds of the year, next year if you're
+  in the last third of the year)". The data entry dialog has a **Year** picker that moves the
+  quilt's period (same month and day); entries stay stored by date, so going back shows them. New
+  data quilts start this year from January to August, next year from September to December.
 
 ## Today
 

@@ -4,7 +4,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref, shallowReactive } from 'vue';
 import { applyPending, mergePatch, type PendingData, type QuiltPatch } from '@/model/data-pending';
-import { setBlockMade, setMade } from '@/model/data-quilt';
+import { setBlockMade, setMade, setYear } from '@/model/data-quilt';
 import type { DayMade } from '@/model/schema/data-quilt';
 import type { RrqDoc } from '@/model/schema/project';
 import { lockedProjects } from '@/session/tab-lock';
@@ -176,6 +176,12 @@ export const useDataQuiltsStore = defineStore('data-quilts', () => {
     return write(c, { blocksMade: { [n]: at } });
   }
 
+  function setStart(c: DataCard, year: number) {
+    const plan = quiltOf(c)?.data;
+    if (!plan) return;
+    return write(c, { start: setYear(plan, year).start });
+  }
+
   /** What the steps page prints: a document, a quilt, and days or block numbers. */
   const stepsInput = ref<{
     doc: RrqDoc;
@@ -198,6 +204,7 @@ export const useDataQuiltsStore = defineStore('data-quilts', () => {
     setEntry,
     setMark,
     setBlockMark,
+    setStart,
     stepsInput,
   };
 });

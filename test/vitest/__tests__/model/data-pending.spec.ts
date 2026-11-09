@@ -41,6 +41,13 @@ describe('pending data', () => {
     expect(d.project.quilts[0]!.data!.entries['2027-01-02']).toEqual([30]); // input untouched
   });
 
+  it('a year picked away from the project moves its period when it opens', () => {
+    const d = doc();
+    const id = d.project.quilts[0]!.id;
+    const out = applyPending(d, { quilts: { [id]: { start: '2028-01-01' } } });
+    expect(out.project.quilts[0]!.data!.start).toBe('2028-01-01');
+  });
+
   it('nothing pending gives the same document', () => {
     const d = doc();
     expect(applyPending(d, undefined)).toBe(d);

@@ -14,6 +14,18 @@
             {{ card.projectName }}<template v-if="whereNote"> · {{ whereNote }}</template>
           </div>
         </div>
+        <q-select
+          :model-value="year"
+          :options="years"
+          dense
+          outlined
+          options-dense
+          label="Year"
+          style="width: 96px; margin-right: 28px"
+          @update:model-value="pickYear"
+        >
+          <q-tooltip>The year this quilt records. Entries of other years are kept.</q-tooltip>
+        </q-select>
         <DialogClose />
       </q-card-section>
       <q-separator />
@@ -160,6 +172,22 @@ const hot = computed(() =>
 const stepDays = computed(() =>
   selected.value.length > 1 ? selected.value : plan.value ? nextDays(plan.value) : [],
 );
+
+/** The period's year, and years to pick from (around this year and the quilt's). */
+const year = computed(() => (plan.value ? Number(plan.value.start.slice(0, 4)) : 0));
+const years = computed(() => {
+  const now = new Date().getFullYear();
+  const [a, b] = [Math.min(year.value, now - 1), Math.max(year.value, now + 2)];
+  return Array.from({ length: b - a + 1 }, (_, i) => a + i);
+});
+async function pickYear(y: number) {
+  if (!card.value || y === year.value) return;
+  await store.setStart(card.value, y);
+  // Same day in the new year.
+  const move = (d: string) => `${y}${d.slice(4)}`;
+  focus.value = focus.value && inPeriod(move(focus.value)) ? move(focus.value) : plan.value!.start;
+  selected.value = [focus.value];
+}
 
 const inPeriod = (d: string) => !!plan.value && d >= plan.value.start && d <= last.value;
 

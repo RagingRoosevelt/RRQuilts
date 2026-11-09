@@ -1017,3 +1017,17 @@ export function numberOfDate(plan: DataPlan, date: string): { k: number; n: numb
   const k = nums.findIndex((x) => d >= x.first && d < x.first + x.len) + 1;
   return k ? { k, n: d - nums[k - 1]!.first + 1 } : undefined;
 }
+
+/** The year a new data quilt records (owner, spec 041): this year in its first two thirds
+ *  (January to August), next year from September on. */
+export const defaultDataYear = (today = new Date()) =>
+  today.getFullYear() + (today.getMonth() >= 8 ? 1 : 0);
+
+/** The plan moved to another year (same month and day; 29 February becomes the 28th). Entries are
+ *  kept by date, so moving back shows them again. */
+export function setYear(plan: DataPlan, year: number): DataPlan {
+  let start = `${String(year).padStart(4, '0')}${plan.start.slice(4)}`;
+  if (start.endsWith('-02-29') && !isLeap(year)) start = `${start.slice(0, 8)}28`;
+  return fitPlaces({ ...plan, start }).plan;
+}
+const isLeap = (y: number) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;

@@ -371,7 +371,7 @@
 
 <script setup lang="ts">
 import DataSpaceCount from '@/components/DataSpaceCount.vue';
-import { newDataPlan, numberCount } from '@/model/data-quilt';
+import { defaultDataYear, newDataPlan, numberCount } from '@/model/data-quilt';
 import type { DataPlan } from '@/model/schema/data-quilt';
 import SlidePicker from '@/components/SlidePicker.vue';
 
@@ -422,7 +422,7 @@ const dataPlan = ref<string>('months');
 /** Numbers the data plan needs (next year's period, as the quilt gets). */
 const dataNeed = computed(() =>
   numberCount({
-    ...newDataPlan(props.units, new Date().getFullYear() + 1),
+    ...newDataPlan(props.units, defaultDataYear()),
     plan: dataPlan.value as DataPlan['plan'],
   }),
 );

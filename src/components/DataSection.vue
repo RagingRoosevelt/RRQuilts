@@ -97,7 +97,14 @@ import { computed } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { plainFill } from '@/model/coloring';
-import { leapOf, newDataPlan, relabel, replan, VARIANT_DAYS } from '@/model/data-quilt';
+import {
+  defaultDataYear,
+  leapOf,
+  newDataPlan,
+  relabel,
+  replan,
+  VARIANT_DAYS,
+} from '@/model/data-quilt';
 import type { Block, DataKind } from '@/model/schema/block';
 import type { DataPlan } from '@/model/schema/data-quilt';
 import type { Quilt } from '@/model/schema/quilt';
@@ -177,7 +184,7 @@ function setOn(v: boolean) {
     project.change((d) => {
       const dq = d.project.quilts.find((x) => x.id === q.id)!;
       if (dq.data) dq.data.on = v;
-      else if (v) dq.data = newDataPlan(project.doc!.units, new Date().getFullYear() + 1);
+      else if (v) dq.data = newDataPlan(project.doc!.units, defaultDataYear());
     });
     if (v) {
       editor.tool = 'number';

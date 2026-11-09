@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { Value } from 'typebox/value';
 import {
   dayColor,
+  defaultDataYear,
+  setYear,
   fitPlaces,
   lastEntry,
   newDataPlan,
@@ -73,5 +75,23 @@ describe('v10 → v11 (spec 041)', () => {
   it('opens a version 10 project unchanged apart from its version', async () => {
     const r = await parseProject(JSON.stringify({ ...fixture(), version: 10 }));
     expect(r.ok && r.doc).toEqual({ ...fixture(), version: VERSION });
+  });
+});
+
+describe('the year a data quilt records', () => {
+  it('defaults to this year through August, next year from September', () => {
+    expect(defaultDataYear(new Date(2026, 0, 15))).toBe(2026);
+    expect(defaultDataYear(new Date(2026, 7, 31))).toBe(2026);
+    expect(defaultDataYear(new Date(2026, 8, 1))).toBe(2027);
+    expect(defaultDataYear(new Date(2026, 11, 31))).toBe(2027);
+  });
+
+  it('moves the period, keeping entries by date; 29 February falls back to the 28th', () => {
+    const p = setYear(plan(), 2028);
+    expect(p.start).toBe('2028-01-01');
+    expect(p.entries['2027-01-01']).toEqual([28]);
+    expect(setYear({ ...plan(), plan: 'days', start: '2028-02-29' }, 2027).start).toBe(
+      '2027-02-28',
+    );
   });
 });
