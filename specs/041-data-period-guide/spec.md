@@ -1,4 +1,4 @@
-# Feature Specification: Making a Data Quilt (Next Steps, Cut Ahead Workbook, Block by Block)
+# Feature Specification: Making a Data Quilt (Data Quilts, Next Steps, Block by Block)
 
 **Feature Branch**: `TBD` (target 0.8.0, its own release; moved out of 0.7.4, owner 2026-10-30)
 
@@ -80,12 +80,23 @@ for next steps. the user can select the days they want to get the printout for."
   on." Pending entries and marks wait on the device and are written into the project when it's next
   opened (then saved as usual). A draft is updated in place.
 - Q: Where are Cut ahead (workbook, templates) and Block by block reached? → A: "from the data quilt
-  module and the entry dialog".
+  module and the entry dialog". (Cut ahead was dropped later the same day: Block by block only.)
 - Q: Which color does each series get on the calendar? → A: "the color the quilter picked per
-  series". New: each series (A to D) has a color the quilter picks, defaulting to today's order line
-  colors; the order lines use it too.
+  series". Then: "I see a palette selection in the quilt design data tab. and doing a colorway
+  offers the ability to pick alternative colors. I think the colorway specifically does provide the
+  quilter picked colors, right?" Yes: a day's marker for a series is the color its value maps to
+  (the range's fill in the Data tab, through the shown colorway). No new color setting.
 - Q: Cut and assembled marks in the project file? → A: "yup": a format version bump (done marks
-  per day: cut, assembled; per block: assembled; the series colors).
+  per day: cut, assembled; per block: assembled).
+- Q: As you go and Cut ahead: a saved choice or two views? → A: Owner: "I don't plan on offering a
+  cut ahead option. "As you go" will naturally have a "catch-up" aspect if someone falls behind
+  where they can select multiple days to get instructions for. this is just a view, not something
+  saved with the quilt." Cut ahead and its workbook are dropped. Next steps covers any days picked.
+- Q: Templates labeled per day or counted per shape? → A: Owner: "this responds to the "tint per
+  piece" choice. if tinting per piece, then each unique patch/color gets its own template in the as
+  you go view too. if tinting isn't selected, we'll do uncolored templates like we already do." The
+  next steps follow the print setting Tint by fabric: on, a template per unique piece and fabric;
+  off, uncolored templates per shape, as Print does today.
 
 ## Today
 
@@ -100,23 +111,19 @@ for next steps. the user can select the days they want to get the printout for."
 
 ## Concepts
 
-- **Making** (new): what happens after the design is done, day after day for a year. It has its own
-  place in the quilt editor (working name **Make**), with two ways to work: **As you go** and
-  **Cut ahead**.
+- **Making** (new): what happens after the design is done, day after day for a year. It lives in
+  the **Data Quilts** module and the data entry dialog (see Access path). One way to work: **As you
+  go**.
 - **Steps**: data quilt instructions are built from small parts, one per day and value, so any set
   of days can be shown on its own: the days just entered, one data block, or the whole quilt. A
   day's step: its pieces (letters, from its block's variant), each with its fabric (the range or
   category its value falls in), its cut (template or rotary size, as the print settings give it),
   and where they go (the block, the places with the day's numeral).
 - **As you go**: enter one day or several, and get the next steps for just those days: which
-  pieces, cut from which fabric, sewn where. Nothing is cut before its day is known.
-- **Cut ahead**: every template and cut is there from the start, uncolored, for the whole quilt (as
-  with Tint by fabric off). The quilter prepares pieces in advance and decides each piece's fabric
-  later, in the **workbook**.
-- **Workbook**: a table of days for deciding which fabric each day's pieces are cut from. Per day:
-  date, the day's pieces, value (blank until known), the range or category it falls in, and that
-  range's fabric. On screen it fills in as values are entered. Printed, a day without a value shows
-  every range's swatch small, to circle by hand.
+  pieces, cut from which fabric, sewn where. Nothing is cut before its day is known. Catching up
+  after falling behind: pick several days and get their steps together. A view, not saved.
+- **Templates in the steps** follow Tint by fabric: on, each unique piece and fabric gets its own
+  template; off, uncolored templates per shape, as Print does today.
 - **Block by block**: an instruction view that walks the quilt one data block (one number of the
   plan: a month, a week or a day) at a time: the block's variant drawn with piece letters and day
   numerals, and the table of its days. This is the period guide of the first draft.
@@ -134,7 +141,7 @@ each with a fabric and a cut, and its block with the pieces' places marked.
 
 **Acceptance Scenarios**:
 
-1. **Given** Make › As you go, **When** a day's value is entered (typed, picked, or imported),
+1. **Given** the data entry dialog, **When** a day's value is entered (typed, picked, or imported),
    **Then** its steps show at once: the day's block (label, Block N, variant), the pieces with that
    day's numeral, and for each piece its letter, fabric (swatch and name, from the range its value
    falls in) and cut.
@@ -149,26 +156,18 @@ each with a fabric and a cut, and its block with the pieces' places marked.
 
 ---
 
-### User Story 2 - Cut ahead with a workbook (Priority: P1)
+### User Story 2 - Catch up on several days (Priority: P1)
 
-A quilter wants to cut every piece before the year starts, from plain templates, and choose each
-piece's fabric only when the day's value is known.
-
-**Independent Test**: Cut ahead: print the whole quilt's templates (uncolored) and the workbook.
-Enter a week's values: the workbook shows those days' fabrics, the rest still open.
+A quilter who fell behind picks a run of days (entered, not yet cut) and gets one set of steps.
 
 **Acceptance Scenarios**:
 
-1. **Given** Make › Cut ahead, **Then** templates and cuts for every data piece of the quilt are
-   there from the start, uncolored, counted per shape (identical pieces together), in print and on
-   screen.
-2. **Given** the workbook, **Then** it lists every day of the period: date, block (label), the
-   day's pieces, value (blank until entered), range, and fabric.
-3. **Given** a day with a value, **Then** its range and fabric fill in. Without one, every range's
-   swatch shows small (printed: to circle by hand).
-4. **Given** the workbook printed, **Then** it has room to write each value by hand.
-5. **Given** the pieces that aren't data (the blocks' own colors, sashing, borders), **Then** they
-   are listed once, with their fabric and cuts, as in any quilt's printout.
+1. **Given** Next steps, **When** several days are picked, **Then** the steps cover just those days,
+   grouped by block, identical pieces in the same fabric counted together.
+2. **Given** Tint by fabric on, **Then** each unique piece and fabric has its own template. Off,
+   templates are uncolored, one per shape, as in Print today.
+3. **Given** the pieces that aren't data (the blocks' own colors, sashing, borders), **Then** they
+   are not in the next steps (they're in the quilt's Print).
 
 ---
 
@@ -176,7 +175,7 @@ Enter a week's values: the workbook shows those days' fabrics, the rest still op
 
 **Acceptance Scenarios**:
 
-1. **Given** Make, **Then** a **Block by block** view walks the plan's numbers in order (Jan, Wk 3,
+1. **Given** the Data Quilts module or the data entry dialog, **Then** a **Block by block** view walks the plan's numbers in order (Jan, Wk 3,
    Jan 2) with Previous and Next: the block's variant drawn with lettered pieces and day numerals on
    its data places (uncolored with tint off), and a table:
 
@@ -196,8 +195,8 @@ Enter a week's values: the workbook shows those days' fabrics, the rest still op
 **Acceptance Scenarios**:
 
 1. **Given** a day's steps, **Then** they can be marked done. Done days are left out of the next
-   steps and show as done in the workbook and block by block.
-2. **Given** Make, **Then** it opens on what's next: days entered and not done, and days up to
+   steps and show as done in the calendar and block by block.
+2. **Given** the data entry dialog, **Then** it opens on what's next: days entered and not done, and days up to
    today without a value (spec 025's Missing list), with **Today's entry**.
 
 ### Edge Cases
@@ -205,43 +204,41 @@ Enter a week's values: the workbook shows those days' fabrics, the rest still op
 - A month shorter than its variant: places past the last day show "past the month" with the setting
   for them (filler, own color).
 - Weeks plan left-over days use their day block or the week block's 1-day variant.
-- Colorways: steps, workbook and blocks use the shown colorway's range fabrics.
+- Colorways: steps, calendar markers and blocks use the shown colorway's range fabrics.
 - A value changed after its day was marked done: the day is flagged, since its pieces may be in the
   wrong fabric.
-- Simulation shown: steps and the workbook use real entries only. The sample never stands in for a
+- Simulation shown: steps and the calendar use real entries only. The sample never stands in for a
   day's fabric when making.
-- Switching between As you go and Cut ahead keeps entries and done marks.
 
 ## Requirements
 
 - **FR-001**: Data quilt instructions MUST be built from per-day, per-value steps, so any set of
   days (just entered, one block, all) can be shown and printed alone.
 - **FR-002**: Entering one or several days' values MUST show the steps for just those days.
-- **FR-003**: **Cut ahead** MUST offer every data piece's template or cut from the start,
-  uncolored, with a workbook (on screen and printed) for each day's fabric.
+- **FR-003**: Next steps MUST cover any days the quilter picks, with templates per Tint by fabric
+  (on: per unique piece and fabric; off: uncolored, per shape).
 - **FR-004**: **Block by block** MUST show each data block with lettered pieces, day numerals and
   its day table, on screen and in print.
 - **FR-005**: A day's fabric MUST come from its real entry's range. Without one, every range is
   offered.
-- **FR-006**: Counts in the steps, the workbook and block by block MUST agree with the yardage's
+- **FR-006**: Counts in the steps and block by block MUST agree with the yardage's
   counts for the same data.
-- **FR-007**: Help (Data quilts) MUST describe making: As you go, Cut ahead, the workbook, and
-  block by block.
+- **FR-007**: Help (Data quilts) MUST describe making: the Data Quilts module, the data entry
+  dialog, next steps, and block by block.
 
 ## Success Criteria
 
 - **SC-001**: After entering a day, the quilter knows what to cut and sew for it from one panel,
   without opening Print.
-- **SC-002**: A quilter who cut ahead can tell from the printed workbook alone, without the app,
-  which fabric each day's pieces take.
+- **SC-002**: A quilter a week behind gets that week's steps in one printout.
 - **SC-003**: For any block, one section says which pieces to cut in which fabric for each day.
 
 ## Open Questions (for /speckit-clarify)
 
 - ~~Where Make lives~~: a Data Quilts module and a data entry dialog (2026-11-09).
 - ~~Done marks in the file~~: yes, a format version bump (2026-11-09).
-- As you go or Cut ahead: a saved choice of the quilt, or just two views.
-- Cut ahead: are cut pieces labeled per day, or counted per shape only.
+- ~~As you go or Cut ahead~~: no Cut ahead; catching up is a view (2026-11-09).
+- ~~Labeled per day or per shape~~: follows Tint by fabric (2026-11-09).
 - Whether next steps also say how to join finished blocks (spec 025 User Story 7, quilt as you go)
   or stop at the block.
 
