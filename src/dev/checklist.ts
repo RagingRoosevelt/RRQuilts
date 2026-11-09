@@ -272,6 +272,14 @@ export const CHECKS: Check[] = [
     to: '/',
     file: 'demo-v10.rrq',
   },
+  {
+    id: 'TC-261',
+    group: G.make041,
+    text: 'Enter a few days without marking them Cut, then pick just one and press Print instructions: it asks to pick all the uncut days or print just that one. Pick all: the calendar picks them and the button counts them, nothing prints until you press it again. Just that day: its instructions open. With no other uncut days it doesn’t ask.',
+    last: '"if the user goes to print instructions and they\'ve only picked a single day but have a number of days that are entered but not marked at cut, the app should ask if they want to select all of the currently uncut days or proceed with just the selected day. if they pick to select all, then the selection should be updated and then they can click on "print instructions" again"',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

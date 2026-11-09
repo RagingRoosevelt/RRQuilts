@@ -51,6 +51,11 @@ describe('made marks', () => {
     expect(lastEntry(p)).toBe('2027-01-03');
     expect(nextDays(plan())).toEqual(['2027-01-01', '2027-01-03']);
     expect(nextDays(p)).toEqual(['2027-01-03']);
+    // Entries of another year (the quilt moved) aren't this period's.
+    expect(nextDays({ ...plan(), entries: { ...plan().entries, '2026-12-31': [5] } })).toEqual([
+      '2027-01-01',
+      '2027-01-03',
+    ]);
   });
 });
 

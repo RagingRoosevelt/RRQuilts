@@ -974,10 +974,12 @@ export function lastEntry(plan: DataPlan): string | undefined {
 }
 
 /** Days entered and not yet cut, oldest first (what Print instructions covers unless days are picked). */
-export const nextDays = (plan: DataPlan): string[] =>
-  Object.keys(plan.entries)
-    .filter((d) => hasValue(plan.entries[d]) && !plan.made?.[d]?.cut)
+export function nextDays(plan: DataPlan): string[] {
+  const end = dayDate(plan.start, periodLength(plan.start));
+  return Object.keys(plan.entries)
+    .filter((d) => d >= plan.start && d <= end && hasValue(plan.entries[d]) && !plan.made?.[d]?.cut)
     .sort();
+}
 
 /** The plan with a day's Cut or Assembled mark set (to `today`) or cleared. */
 export function setMade(

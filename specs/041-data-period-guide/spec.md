@@ -121,6 +121,13 @@ for next steps. the user can select the days they want to get the printout for."
   there, or entering data from Home) moves `auto` to `on`, never `off`. With `off`, going to Data
   Quilts (its address, or Home's calendar icon) asks whether to show the tab again (Show it /
   Keep it hidden) and goes on either way.
+- Owner, 2026-11-09: "if the user goes to print instructions and they've only picked a single day
+  but have a number of days that are entered but not marked at cut, the app should ask if they
+  want to select all of the currently uncut days or proceed with just the selected day. if they
+  pick to select all, then the selection should be updated and then they can click on "print
+  instructions" again". Print instructions covers the picked days; with one day picked and other
+  days of the period entered and not cut, it asks: **Pick all n days** (the selection grows, nothing
+  prints yet) or **Just Jan 11** (prints that day).
 
 ## Today
 

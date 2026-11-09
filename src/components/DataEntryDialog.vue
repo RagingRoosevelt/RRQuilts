@@ -95,7 +95,7 @@
           @click="nextSteps"
         >
           <q-tooltip>
-            {{ selected.length > 1 ? 'The picked days' : 'Days entered and not yet cut' }}
+            {{ selected.length ? 'The picked days' : 'Days entered and not yet cut' }}
           </q-tooltip>
         </q-btn>
       </q-card-actions>
@@ -171,8 +171,9 @@ const hot = computed(() =>
       )
     : [],
 );
+/** The picked days (none picked: the days entered and not yet cut). */
 const stepDays = computed(() =>
-  selected.value.length > 1 ? selected.value : plan.value ? nextDays(plan.value) : [],
+  selected.value.length ? selected.value : plan.value ? nextDays(plan.value) : [],
 );
 
 /** The period's year, and years to pick from (around this year and the quilt's). */
@@ -227,6 +228,34 @@ function move(by: number) {
 }
 
 function nextSteps() {
+  if (!doc.value || !card.value || !plan.value) return;
+  // One day picked while others wait to be cut: offer to pick them all first.
+  const uncut = nextDays(plan.value);
+  const one = selected.value.length === 1 ? selected.value[0]! : undefined;
+  if (one && uncut.some((d) => d !== one)) {
+    const label = new Date(`${one}T00:00:00Z`).toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      timeZone: 'UTC',
+    });
+    const all = uncut.length + (uncut.includes(one) ? 0 : 1);
+    $q.dialog({
+      title: 'Other days are waiting to be cut',
+      message: `${uncut.length} ${uncut.length === 1 ? 'day is' : 'days are'} entered and not marked Cut. Pick them all, or print just ${label}?`,
+      ok: { label: `Pick all ${all} days`, unelevated: true, noCaps: true },
+      cancel: { label: `Just ${label}`, flat: true, noCaps: true },
+      persistent: true,
+    })
+      .onOk(() => {
+        // Picked; Print instructions prints them on the next tap.
+        selected.value = [...new Set([...uncut, one])].sort();
+      })
+      .onCancel(go);
+    return;
+  }
+  go();
+}
+function go() {
   if (!doc.value || !card.value) return;
   store.stepsInput = { doc: doc.value, quiltId: card.value.quiltId, days: [...stepDays.value] };
   open.value = false;
