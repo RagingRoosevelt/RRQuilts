@@ -21,7 +21,20 @@
            footer. Wider: the picture beside the form, with the calendar scrolling under it. -->
       <div class="col body" :class="$q.screen.lt.md ? 'scroll' : 'row no-wrap'">
         <div class="preview q-pa-md column items-center" style="gap: 8px">
-          <img :src="picture" alt="The quilt so far" class="picture" />
+          <div class="picture-wrap">
+            <img :src="picture" alt="The quilt so far" class="picture" />
+            <!-- The open or picked days' patches, outlined (the picture fits the quilt exactly). -->
+            <svg
+              v-if="box"
+              class="hot"
+              :viewBox="box"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <path v-for="(d, i) in hot" :key="`w${i}`" :d="d" class="halo" />
+              <path v-for="(d, i) in hot" :key="`k${i}`" :d="d" class="line" />
+            </svg>
+          </div>
           <div class="text-caption text-grey-7">{{ entered }} of {{ days }} days entered</div>
         </div>
         <div class="col column no-wrap" style="min-width: 0">
@@ -86,6 +99,8 @@ import DataCalendar from '@/components/DataCalendar.vue';
 import DataDayForm from '@/components/DataDayForm.vue';
 import DialogClose from '@/components/DialogClose.vue';
 import { dayDate, nextDays, periodLength } from '@/model/data-quilt';
+import { generateFor } from '@/model/layout/slots';
+import { dayPatches } from '@/model/print/data-steps';
 import { quiltThumbnail } from '@/render/thumbnail';
 import { todayKey, useDataQuiltsStore, type DataCard } from '@/stores/data-quilts';
 
@@ -116,16 +131,31 @@ const whereNote = computed(() => {
       ? 'kept on this device until you next open the project'
       : '';
 });
-/** The quilt with real entries only, as it stands. */
+/** The quilt with real entries only, as it stands, drawn to fit its bounds exactly. */
 const picture = computed(() =>
   doc.value && quilt.value?.data
     ? quiltThumbnail(
         doc.value,
         { ...quilt.value, data: { ...quilt.value.data, show: 'real' } },
-        360,
+        480,
         $q.dark.isActive,
+        false,
+        true,
       )
     : '',
+);
+const box = computed(() => {
+  if (!quilt.value) return '';
+  const [x0, y0, x1, y1] = generateFor(quilt.value).bounds;
+  return `${x0} ${y0} ${x1 - x0} ${y1 - y0}`;
+});
+/** Outlines of the picked days' patches (the open day when one is picked). */
+const hot = computed(() =>
+  doc.value && quilt.value
+    ? dayPatches(doc.value, quilt.value, selected.value).map(
+        (x) => `M${(x.piece.shown ?? x.piece.poly).map((p) => p.join(' ')).join('L')}Z`,
+      )
+    : [],
 );
 const stepDays = computed(() =>
   selected.value.length > 1 ? selected.value : plan.value ? nextDays(plan.value) : [],
@@ -205,9 +235,34 @@ defineExpose({ show });
 .phone .preview {
   width: auto;
 }
+.picture-wrap {
+  position: relative;
+  line-height: 0;
+}
 .picture {
   max-width: 100%;
   max-height: 50vh;
+}
+.hot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.hot path {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+.hot .halo {
+  stroke: #fff;
+  stroke-width: 5px;
+}
+.hot .line {
+  stroke: #000;
+  stroke-width: 2.5px;
 }
 .phone .picture {
   max-height: 30vh;

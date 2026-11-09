@@ -1,7 +1,12 @@
 <template>
   <!-- Next steps for a data quilt (spec 041): the picked days' pieces, fabrics and templates, to
        print. Opened from Data Quilts or the data entry dialog. -->
-  <q-page v-if="input" class="row no-wrap items-stretch steps-page">
+  <!-- The options sit where the editors' sidebar does (Settings: toolbar on the left or right). -->
+  <q-page
+    v-if="input"
+    class="row no-wrap items-stretch steps-page"
+    :class="{ reverse: !app.settings.sidesSwapped }"
+  >
     <div class="options q-pa-md column" style="gap: 12px">
       <q-btn
         flat
@@ -76,5 +81,9 @@ onMounted(() => !input.value && void router.replace('/data'));
   width: 240px;
   flex: none;
   border-right: 1px solid rgba(128, 128, 128, 0.3);
+}
+.reverse .options {
+  border-right: 0;
+  border-left: 1px solid rgba(128, 128, 128, 0.3);
 }
 </style>

@@ -443,6 +443,54 @@
                   </template>
                 </tbody>
               </table>
+              <template v-for="(m, j) in s.maps" :key="`m${j}`">
+                <div v-if="on(s, `map>${j}`)" :data-m="`map>${j}`" class="column" style="gap: 4px">
+                  <div class="text-weight-medium">
+                    {{ m.label }}: where the pieces go (outlined, with the day)
+                  </div>
+                  <svg
+                    class="bleed"
+                    :width="`${m.w * m.scale}${units}`"
+                    :height="`${m.h * m.scale}${units}`"
+                    :viewBox="`0 0 ${m.w} ${m.h}`"
+                    style="flex: none; overflow: visible"
+                  >
+                    <path
+                      v-for="(p, k) in m.polys"
+                      :key="k"
+                      :d="p.d"
+                      :fill="prefs.outline ? 'none' : p.css"
+                      stroke="#000"
+                      :stroke-width="(stroke / m.scale) * 0.6"
+                    />
+                    <template v-for="(p, k) in m.polys" :key="`h${k}`">
+                      <path
+                        v-if="p.hot"
+                        :d="p.d"
+                        fill="none"
+                        stroke="#000"
+                        :stroke-width="(stroke / m.scale) * 3"
+                        stroke-linejoin="round"
+                      />
+                    </template>
+                    <text
+                      v-for="(l, k) in m.labels"
+                      :key="`l${k}`"
+                      :x="l.x"
+                      :y="l.y + (font / m.scale) * 0.3"
+                      :font-size="(font / m.scale) * 0.8"
+                      text-anchor="middle"
+                      fill="#000"
+                      stroke="#fff"
+                      :stroke-width="(font / m.scale) * 0.8 * 0.22"
+                      paint-order="stroke"
+                      stroke-linejoin="round"
+                    >
+                      {{ l.text }}
+                    </text>
+                  </svg>
+                </div>
+              </template>
               <template v-if="s.notes && on(s, 'notes')">
                 <div class="text-weight-medium" data-m="notes">Quilt notes</div>
                 <div style="white-space: pre-wrap">{{ s.notes }}</div>
@@ -646,7 +694,8 @@ import HelpLink from '@/components/HelpLink.vue';
 import TemplatePiece from '@/components/TemplatePiece.vue';
 import { fillKey } from '@/model/coloring';
 import { placesOf, scaleEntries, slotColoring } from '@/model/data-quilt';
-import { daySteps, type DayStep } from '@/model/print/data-steps';
+import { dayPatches, daySteps, type DayStep } from '@/model/print/data-steps';
+import { allPatches } from '@/model/blocks/patches';
 import { dataYardagePieces } from '@/model/print/data-yardage';
 import {
   authorOf,
@@ -1176,6 +1225,8 @@ type Sheet = (
       heading: string;
       rows: DayStep[];
       notes?: string | undefined;
+      /** Each block the days go in, the days' patches outlined thick and numbered. */
+      maps: StepMap[];
     }
   | {
       kind: 'miter';
@@ -1235,6 +1286,14 @@ type Sheet = (
   /** A part of a split page: the pieces on it. */
   show?: Set<string>;
 };
+interface StepMap {
+  label: string;
+  w: number;
+  h: number;
+  scale: number;
+  polys: { d: string; css: string; hot: boolean }[];
+  labels: { x: number; y: number; text: string }[];
+}
 interface NeedCol {
   opt: WidthOption;
   needs: Map<string, FabricNeed>;
@@ -1553,9 +1612,11 @@ function stepSheets(steps: DayStep[], notes: string | undefined): Sheet[] {
   const quilt = dd.project.quilts.find((q) => q.id === props.id);
   const plan = quilt?.data;
   if (!quilt || !plan) return [];
-  const out: Sheet[] = [{ kind: 'steps', heading: 'Next steps', rows: steps, notes }];
+  const maps: StepMap[] = [];
+  const out: Sheet[] = [{ kind: 'steps', heading: 'Next steps', rows: steps, notes, maps }];
   const real = { ...quilt, data: { ...plan, show: 'real' as const, waiting: 'designed' as const } };
   const slots = new Map(generateFor(quilt).slots.map((x) => [x.id, x]));
+  const [aw, ah] = area.value;
   for (const k of [...new Set(steps.flatMap((x) => (x.pieces.length ? [x.number!] : [])))]) {
     const place = placesOf(plan, k)[0];
     const slot = place && slots.get(place.space);
@@ -1565,6 +1626,36 @@ function stepSheets(steps: DayStep[], notes: string | undefined): Sheet[] {
     const keyPieces = blockPieces(block, slot.size, slotColoring(real, slot.id, block));
     const letters = new Map(templates(keyPieces).map((t) => [shapeKey(t.poly), t.letter]));
     const mine = steps.filter((x) => x.number === k);
+    // The block map: this placement's patches for the days with pieces, by patch id.
+    const ids = allPatches(block).map((x) => x.id);
+    const hot = new Map(
+      dayPatches(
+        dd,
+        quilt,
+        mine.filter((x) => x.pieces.length).map((x) => x.date),
+      )
+        .filter((x) => x.space === slot.id)
+        .map((x) => [x.patchId, String(Number(x.date.slice(8)))]),
+    );
+    const [w, h] = slot.size;
+    const scale = Math.min(1, aw / w, (ah * 0.3) / h);
+    maps.push({
+      label: mine[0]!.label ?? '',
+      w,
+      h,
+      scale,
+      polys: keyPieces.map((x, i) => ({
+        d: d(x.poly),
+        css: shapeFill(x.fill),
+        hot: hot.has(ids[i]!),
+      })),
+      labels: keyPieces.flatMap((x, i) => {
+        const day = hot.get(ids[i]!);
+        if (!day) return [];
+        const spot = roomiest(x.poly).p;
+        return [{ x: spot[0], y: spot[1], text: day }];
+      }),
+    });
     out.push(
       ...templateSheets({
         pieces: mine.flatMap((x) => x.pieces.flatMap((p) => Array<Piece>(p.count).fill(p.piece))),
@@ -1572,6 +1663,7 @@ function stepSheets(steps: DayStep[], notes: string | undefined): Sheet[] {
         keyPieces,
         heading: `Templates: ${mine[0]!.label}`,
         letters,
+        noKey: true,
       }),
     );
   }

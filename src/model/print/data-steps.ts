@@ -38,13 +38,79 @@ export interface DayStep {
 const real = (q: Quilt): Quilt =>
   q.data ? { ...q, data: { ...q.data, show: 'real', waiting: 'designed' } } : q;
 
-/** Steps for each of `days` (dates), in date order. */
-export function daySteps(doc: RrqDoc, quilt: Quilt, days: readonly string[]): DayStep[] {
-  const plan = quilt.data;
-  if (!plan) return [];
+/** One patch a day shows: where it is (a block space and patch), the value it shows, and the
+ *  piece as placed in the quilt. */
+export interface DayPatch {
+  date: string;
+  space: string;
+  patchId: string;
+  /** Quilt value (0–3). */
+  series: number;
+  block: Block;
+  piece: Piece;
+}
+
+/** Finds days' patches in a quilt (real entries), reusing each space's pieces. */
+function patchFinder(doc: RrqDoc, quilt: Quilt) {
   const q = real(quilt);
+  const plan = q.data!;
   const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
   const slots = new Map(generateFor(quilt).slots.map((s) => [s.id, s]));
+  const spaces = new Map<
+    string,
+    { block: Block; ids: string[]; raw: ReturnType<typeof resolveColoring>; pieces: Piece[] } | null
+  >();
+  const space = (id: string) => {
+    if (!spaces.has(id)) {
+      const slot = slots.get(id);
+      const content = q.layers[0].slots[id];
+      const block = content && blocks.get(content.block);
+      spaces.set(
+        id,
+        slot && block
+          ? {
+              block,
+              ids: allPatches(block).map((p) => p.id),
+              raw: resolveColoring(q.colorings[content.coloring], block),
+              pieces: quiltPieces(doc, q, undefined, [slot]),
+            }
+          : null,
+      );
+    }
+    return spaces.get(id) ?? null;
+  };
+  /** A date's number and day in it, and its patches in every placement of the number. */
+  const find = (date: string) => {
+    const at = numberOfDate(plan, date);
+    if (!at) return undefined;
+    const list: DayPatch[] = [];
+    for (const place of placesOf(plan, at.k)) {
+      const sp = space(place.space);
+      if (!sp) continue;
+      sp.pieces.forEach((piece, i) => {
+        const patchId = sp.ids[i]!;
+        const f = sp.raw?.fills[patchId];
+        if (!f || !('data' in f) || f.data.n !== at.n) return;
+        const series = seriesOf(place, f.data.slot ?? 0);
+        list.push({ date, space: place.space, patchId, series, block: sp.block, piece });
+      });
+    }
+    return { ...at, placed: placesOf(plan, at.k).length > 0, list };
+  };
+  return { q, plan, slots, find };
+}
+
+/** Every patch of `days`, whether entered or not (for highlighting where they go). */
+export function dayPatches(doc: RrqDoc, quilt: Quilt, days: readonly string[]): DayPatch[] {
+  if (!quilt.data) return [];
+  const { find } = patchFinder(doc, quilt);
+  return days.flatMap((d) => find(d)?.list ?? []);
+}
+
+/** Steps for each of `days` (dates), in date order. */
+export function daySteps(doc: RrqDoc, quilt: Quilt, days: readonly string[]): DayStep[] {
+  if (!quilt.data) return [];
+  const { q, plan, slots, find } = patchFinder(doc, quilt);
   const letters = new Map<Block, Map<string, string>>();
   const letterIn = (b: Block, p: Piece) => {
     let m = letters.get(b);
@@ -68,31 +134,19 @@ export function daySteps(doc: RrqDoc, quilt: Quilt, days: readonly string[]): Da
         ? []
         : [{ slot, value: v, fill: fillKey(dayColor(quilt, slot, date)) }];
     });
-    const at = numberOfDate(plan, date);
-    const places = at ? placesOf(plan, at.k) : [];
-    if (!at || !places.length) return { ...base, values, pieces: [], reason: 'not-placed' };
-    const { k, n } = at;
-    const head = { ...base, number: k, label: numberLabel(plan, k), values };
+    const at = find(date);
+    if (!at?.placed) return { ...base, values, pieces: [], reason: 'not-placed' };
+    const head = { ...base, number: at.k, label: numberLabel(plan, at.k), values };
     if (!values.length) return { ...head, pieces: [], reason: 'no-entry' };
     const merged = new Map<string, StepPiece>();
-    for (const place of places) {
-      const slot = slots.get(place.space);
-      const content = q.layers[0].slots[place.space];
-      const block = content && blocks.get(content.block);
-      if (!slot || !block) continue;
-      const raw = resolveColoring(q.colorings[content.coloring], block);
-      const ids = allPatches(block).map((p) => p.id);
-      quiltPieces(doc, q, undefined, [slot]).forEach((piece, i) => {
-        const f = raw?.fills[ids[i]!];
-        if (!f || !('data' in f) || f.data.n !== n) return;
-        const series = seriesOf(place, f.data.slot ?? 0);
-        if (!values.some((v) => v.slot === series)) return;
-        const letter = letterIn(block, piece);
-        const key = `${letter}|${series}|${piece.fill}`;
-        const hit = merged.get(key);
-        if (hit) hit.count++;
-        else merged.set(key, { letter, slot: series, fill: piece.fill, count: 1, piece });
-      });
+    for (const x of at.list) {
+      if (!values.some((v) => v.slot === x.series)) continue;
+      const letter = letterIn(x.block, x.piece);
+      const key = `${letter}|${x.series}|${x.piece.fill}`;
+      const hit = merged.get(key);
+      if (hit) hit.count++;
+      else
+        merged.set(key, { letter, slot: x.series, fill: x.piece.fill, count: 1, piece: x.piece });
     }
     return { ...head, pieces: [...merged.values()] };
   });

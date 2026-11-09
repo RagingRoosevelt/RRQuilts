@@ -217,6 +217,30 @@ export const CHECKS: Check[] = [
     to: '/data',
     file: 'demo-v10.rrq',
   },
+  {
+    id: 'TC-254',
+    group: G.make041,
+    text: 'Data entry dialog: the open day’s patches are outlined on the quilt picture (every placement, every value); dragging or Shift-clicking a run outlines all of their patches.',
+    last: "\"let's highlight the currently selected day's patch when entering a value. and when selecting several days, let's highlight that set of patches\"",
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-255',
+    group: G.make041,
+    text: 'Next steps printout: under the table on the same page, each block the days go in, in its fabrics, with the days’ patches outlined thick and numbered with the day of the month. The template pages no longer repeat the key.',
+    last: '"in the printout, let\'s put the block map on the same page as the color table along with thicker outlines around the impacted patches in that block map thing"',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-256',
+    group: G.make041,
+    text: 'Next steps page: its options sit on the right like the editors’ sidebar, and move to the left with Settings › toolbar on the right.',
+    last: '"the settings for the printout needs to respect the "toolbar on left/right" setting"',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
