@@ -100,6 +100,9 @@ for next steps. the user can select the days they want to get the printout for."
 - Q: Do next steps say how to join finished blocks (spec 025 User Story 7)? → A: Owner: "those
   instructions will go into the designer-provided notes". The steps stop at the finished block.
   Joining, quilting as you go and the like are the designer's words in the quilt's notes (Details).
+- Q: Does the next steps printout print the quilt's notes? → A: "toggle for that option". A
+  **Quilt notes** toggle on the next steps printout (on at first, kept in the print settings),
+  printing the notes after the steps; shown only when the quilt has notes.
 
 ## Today
 
