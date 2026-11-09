@@ -1,7 +1,13 @@
 <template>
   <!-- A data quilt's year as a calendar (spec 041): a dot per value in its range color once
        entered, Cut and Assembled badges, the picked days highlighted. -->
-  <div ref="root" class="data-calendar">
+  <div
+    ref="root"
+    class="data-calendar"
+    :class="{ dragging: !!drag?.on }"
+    @mousedown="mouseDown"
+    @touchstart="touchStart"
+  >
     <div v-for="m in months" :key="m.key" class="month" :data-month="m.key">
       <div class="text-weight-medium q-mb-xs">{{ m.title }}</div>
       <div class="grid">
@@ -20,7 +26,8 @@
           }"
           :disabled="!c.inPeriod"
           :aria-label="ariaOf(c.date)"
-          @click="(e) => emit('pick', c.date, e.shiftKey)"
+          :data-date="c.date"
+          @click="(e) => click(c.date, e)"
         >
           <span class="num">{{ c.day }}</span>
           <span class="dots">
@@ -43,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { dayColor, dayDate, periodLength } from '@/model/data-quilt';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
@@ -57,7 +64,11 @@ const props = defineProps<{
   selected: readonly string[];
   focus: string | null;
 }>();
-const emit = defineEmits<{ pick: [date: string, extend: boolean] }>();
+const emit = defineEmits<{
+  pick: [date: string, extend: boolean];
+  /** Dragged from one day to another: the days between are picked. */
+  range: [from: string, to: string];
+}>();
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const library = useLibraryStore();
@@ -124,6 +135,75 @@ function ariaOf(date: string) {
     .join(', ');
 }
 
+// Picking days by dragging: at once with a mouse; on touch, after holding a day still briefly,
+// so a plain swipe still scrolls.
+const HOLD_MS = 300;
+const drag = ref<{ from: string; to: string; on: boolean; x: number; y: number } | null>(null);
+let hold: ReturnType<typeof setTimeout> | undefined;
+/** A drag just ended: its click isn't a tap. */
+let swallowClick = false;
+const dateAt = (x: number, y: number) =>
+  (document.elementFromPoint(x, y)?.closest('[data-date]') as HTMLElement | null)?.dataset.date;
+function moveTo(x: number, y: number) {
+  const d = drag.value;
+  const at = dateAt(x, y);
+  if (!d?.on || !at || at === d.to) return;
+  d.to = at;
+  emit('range', d.from, at);
+}
+function end() {
+  clearTimeout(hold);
+  if (drag.value?.on && drag.value.to !== drag.value.from) swallowClick = true;
+  drag.value = null;
+  window.removeEventListener('mousemove', onMouseMove);
+  window.removeEventListener('mouseup', end);
+  window.removeEventListener('touchmove', onTouchMove);
+  window.removeEventListener('touchend', end);
+  window.removeEventListener('touchcancel', end);
+}
+const onMouseMove = (e: MouseEvent) => moveTo(e.clientX, e.clientY);
+function mouseDown(e: MouseEvent) {
+  swallowClick = false;
+  const from = e.button === 0 && !e.shiftKey ? dateAt(e.clientX, e.clientY) : undefined;
+  if (!from) return;
+  drag.value = { from, to: from, on: true, x: e.clientX, y: e.clientY };
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseup', end);
+}
+function onTouchMove(e: TouchEvent) {
+  const t = e.touches[0];
+  const d = drag.value;
+  if (!t || !d) return;
+  if (!d.on) {
+    // Moved before the hold: a scroll, not a pick.
+    if (Math.hypot(t.clientX - d.x, t.clientY - d.y) > 8) end();
+    return;
+  }
+  e.preventDefault();
+  moveTo(t.clientX, t.clientY);
+}
+function touchStart(e: TouchEvent) {
+  swallowClick = false;
+  const t = e.touches[0];
+  const from = e.touches.length === 1 && t ? dateAt(t.clientX, t.clientY) : undefined;
+  if (!from) return;
+  drag.value = { from, to: from, on: false, x: t!.clientX, y: t!.clientY };
+  hold = setTimeout(() => {
+    if (!drag.value) return;
+    drag.value.on = true;
+    navigator.vibrate?.(15);
+    emit('range', from, from);
+  }, HOLD_MS);
+  window.addEventListener('touchmove', onTouchMove, { passive: false });
+  window.addEventListener('touchend', end);
+  window.addEventListener('touchcancel', end);
+}
+onBeforeUnmount(end);
+function click(date: string, e: MouseEvent) {
+  if (swallowClick) return void (swallowClick = false);
+  emit('pick', date, e.shiftKey);
+}
+
 /** Bring a day's month into view. */
 function reveal(date: string, smooth = true) {
   const el = root.value?.querySelector(`[data-month="${date.slice(0, 7)}"]`);
@@ -166,6 +246,15 @@ defineExpose({ reveal });
   color: inherit;
   font: inherit;
   cursor: pointer;
+}
+.dragging,
+.dragging .day {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.day {
+  -webkit-touch-callout: none;
 }
 .day:hover {
   background: rgba(128, 128, 128, 0.12);

@@ -44,7 +44,7 @@
           outlined
           class="col"
           :label="s.unit ? `${s.label} (${s.unit})` : s.label"
-          :autofocus="i === 0"
+          :autofocus="i === 0 && !$q.platform.has.touch"
           debounce="300"
           @update:model-value="
             (v) => emit('set', date, i, v === '' || v === null ? null : Number(v))

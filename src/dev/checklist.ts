@@ -179,7 +179,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-248',
     group: G.make041,
-    text: 'Next steps: with nothing picked it covers the days entered and not cut; Shift-click a second day to pick a run. The printout lists each day’s value, fabric and pieces (count × letter in fabric), “No entry yet” or “Not on the quilt” where so, then the block’s templates lettered as the table with a key. Tint by fabric splits templates per fabric; Quilt notes (only when the quilt has notes) prints them after the steps. Print gives the same pages.',
+    text: 'Next steps: with nothing picked it covers the days entered and not cut; drag across days (or Shift-click a second day) to pick a run. The printout lists each day’s value, fabric and pieces (count × letter in fabric), “No entry yet” or “Not on the quilt” where so, then the block’s templates lettered as the table with a key. Tint by fabric splits templates per fabric; Quilt notes (only when the quilt has notes) prints them after the steps. Print gives the same pages.',
     to: '/data',
     file: 'demo-v10.rrq',
   },
@@ -200,6 +200,22 @@ export const CHECKS: Check[] = [
     group: G.make041,
     text: 'Home (Chrome or Edge, a recent project with a data quilt): a calendar icon on its row opens the data entry dialog; with several data quilts it asks which. Rows of projects without data quilts have no icon.',
     to: '/',
+  },
+  {
+    id: 'TC-252',
+    group: G.make041,
+    text: 'Phone: the data entry dialog fills the screen; the day form sits above the calendar, and while scrolling the calendar the footer (hint and Next steps) stays on screen. Tapping a day doesn’t pop the keyboard until you tap the field.',
+    last: '"on my phone, i\'m having some issues with the bottom instructions and button getting cut off when scrolling" / "let\'s move the data entry to sit above the calendar selection."',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-253',
+    group: G.make041,
+    text: 'Phone: hold a day briefly, then drag: the days you pass are picked (a short buzz where the phone supports it) and Next steps counts them; a plain swipe still scrolls. Computer: drag across days with the mouse to pick them.',
+    last: '"let\'s update so that dragging on a date range selects those days on mobile."',
+    to: '/data',
+    file: 'demo-v10.rrq',
   },
 ];
 

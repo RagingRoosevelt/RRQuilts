@@ -4,8 +4,8 @@
   <q-dialog v-model="open" :maximized="$q.screen.lt.md">
     <q-card
       v-if="card && quilt && doc"
-      class="column no-wrap"
-      style="width: 1100px; max-width: 100vw"
+      class="column no-wrap entry-card"
+      :class="{ phone: $q.screen.lt.md }"
     >
       <q-card-section class="row items-center no-wrap q-pb-sm" style="gap: 8px">
         <div class="col" style="min-width: 0">
@@ -17,22 +17,14 @@
         <DialogClose />
       </q-card-section>
       <q-separator />
-      <div class="col row no-wrap body" :class="{ column: $q.screen.lt.md }">
+      <!-- Phones: one scrolling column (picture, day form, calendar) between fixed header and
+           footer. Wider: the picture beside the form, with the calendar scrolling under it. -->
+      <div class="col body" :class="$q.screen.lt.md ? 'scroll' : 'row no-wrap'">
         <div class="preview q-pa-md column items-center" style="gap: 8px">
           <img :src="picture" alt="The quilt so far" class="picture" />
           <div class="text-caption text-grey-7">{{ entered }} of {{ days }} days entered</div>
         </div>
         <div class="col column no-wrap" style="min-width: 0">
-          <div class="col scroll q-pa-md calendar">
-            <DataCalendar
-              :doc="doc"
-              :quilt="quilt"
-              :selected="selected"
-              :focus="focus"
-              @pick="pick"
-            />
-          </div>
-          <q-separator />
           <div class="q-pa-md">
             <DataDayForm
               v-if="focus"
@@ -46,12 +38,27 @@
             />
             <div v-else class="text-grey-7">Tap a day to enter its values.</div>
           </div>
+          <q-separator />
+          <div class="q-pa-md calendar" :class="{ 'col scroll': !$q.screen.lt.md }">
+            <DataCalendar
+              :doc="doc"
+              :quilt="quilt"
+              :selected="selected"
+              :focus="focus"
+              @pick="pick"
+              @range="range"
+            />
+          </div>
         </div>
       </div>
       <q-separator />
       <q-card-actions align="right">
-        <div class="text-caption text-grey-7 q-mr-auto q-pl-sm">
-          Shift-click a second day to pick the days between.
+        <div class="text-caption text-grey-7 q-mr-auto q-pl-sm hint">
+          {{
+            $q.platform.has.touch
+              ? 'Hold a day, then drag to pick days.'
+              : 'Drag across days, or Shift-click a second day, to pick days.'
+          }}
         </div>
         <q-btn
           unelevated
@@ -126,21 +133,29 @@ const stepDays = computed(() =>
 
 const inPeriod = (d: string) => !!plan.value && d >= plan.value.start && d <= last.value;
 
+/** The days from `a` to `b` (either order), in the period. */
+function between(a: string, b: string) {
+  const [x, y] = [a, b].sort() as [string, string];
+  const out: string[] = [];
+  for (let t = Date.parse(`${x}T00:00:00Z`); ; t += 86_400_000) {
+    const k = new Date(t).toISOString().slice(0, 10);
+    if (k > y) break;
+    if (inPeriod(k)) out.push(k);
+  }
+  return out;
+}
+
 /** Tap a day: it opens in the form; with Shift, the days from the open one to it are picked. */
 function pick(date: string, extend: boolean) {
-  if (extend && focus.value) {
-    const [a, b] = [focus.value, date].sort() as [string, string];
-    const out: string[] = [];
-    for (let t = Date.parse(`${a}T00:00:00Z`); ; t += 86_400_000) {
-      const k = new Date(t).toISOString().slice(0, 10);
-      if (k > b) break;
-      out.push(k);
-    }
-    selected.value = out;
-    return;
-  }
+  if (extend && focus.value) return void (selected.value = between(focus.value, date));
   focus.value = date;
   selected.value = [date];
+}
+
+/** Dragged across days: those are picked, the first opens in the form. */
+function range(from: string, to: string) {
+  focus.value = from;
+  selected.value = between(from, to);
 }
 
 function move(by: number) {
@@ -172,22 +187,35 @@ defineExpose({ show });
 </script>
 
 <style scoped>
+.entry-card {
+  width: 1100px;
+  max-width: 100vw;
+  height: min(900px, 92vh);
+}
+.entry-card.phone {
+  height: 100%;
+}
 .body {
   min-height: 0;
-  max-height: calc(100vh - 160px);
 }
 .preview {
   width: 340px;
   flex: none;
 }
-.body.column .preview {
+.phone .preview {
   width: auto;
 }
 .picture {
   max-width: 100%;
   max-height: 50vh;
 }
+.phone .picture {
+  max-height: 30vh;
+}
 .calendar {
   min-height: 200px;
+}
+.hint {
+  min-width: 0;
 }
 </style>
