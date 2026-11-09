@@ -52,9 +52,6 @@
         />
       </template>
     </div>
-    <div v-if="made?.cut" class="text-caption text-warning">
-      Cut on {{ short(made.cut) }}: a new value may take another fabric.
-    </div>
     <div class="row items-center" style="gap: 4px 16px">
       <q-toggle
         :model-value="!!made?.cut"
@@ -92,12 +89,6 @@ const emit = defineEmits<{
   move: [by: number];
 }>();
 
-const short = (k: string) =>
-  new Date(`${k}T00:00:00Z`).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC',
-  });
 const title = computed(() =>
   new Date(`${props.date}T00:00:00Z`).toLocaleDateString(undefined, {
     weekday: 'long',

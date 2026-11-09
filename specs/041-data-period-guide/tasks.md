@@ -89,9 +89,9 @@ em or en dashes, UI labels quoted as in the UI). Tests in `test/vitest/__tests__
 
 **Goal**: mark days cut and assembled, blocks assembled; next steps leave done days out.
 
-**Independent test**: mark Jan 11 Cut and Assembled: badges show in the calendar; the January block's Block assembled toggle shows on its days; Print instructions' default days no longer include Jan 11; changing Jan 11's value warns it was cut.
+**Independent test**: mark Jan 11 Cut and Assembled: badges show in the calendar; the January block's Block assembled toggle shows on its days; Print instructions' default days no longer include Jan 11.
 
-- [X] T031 [US4] In src/components/DataDayForm.vue add **Cut** and **Assembled** toggles (`setMade` with today's date), the day's block label with **Block assembled** (`setBlockMade`), and the warning when changing a value of a day marked cut
+- [X] T031 [US4] In src/components/DataDayForm.vue add **Cut** and **Assembled** toggles (`setMade` with today's date), the day's block label with **Block assembled** (`setBlockMade`) (the warning on changing a cut day's value was dropped, owner 2026-11-09)
 - [ ] T032 [US4] (day badges done in the MVP: scissors, double check) Cut (scissors) and Assembled (needle) badges per day in src/components/DataCalendar.vue, and an assembled mark on each month's or week's label
 - [ ] T033 [US4] Done days in the steps: `daySteps`/`blockSteps` carry `made`; the steps table in src/components/PrintPreview.vue shows "cut Jan 14" / "assembled" and Block by block marks done days
 

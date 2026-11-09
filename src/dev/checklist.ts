@@ -172,7 +172,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-247',
     group: G.make041,
-    text: 'In the day form, Cut and Assembled put a scissors and a double check on the day in the calendar; Block assembled (Jan) is saved for the block. Changing the value of a day marked Cut warns that a new value may take another fabric.',
+    text: 'In the day form, Cut and Assembled put a scissors and a double check on the day in the calendar; Block assembled (Jan) is saved for the block.',
     to: '/data',
     file: 'demo-v10.rrq',
   },

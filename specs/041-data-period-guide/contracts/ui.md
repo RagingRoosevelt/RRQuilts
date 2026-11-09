@@ -41,7 +41,6 @@ Props: `{ projectId: string; quiltId: string }` (source resolved by the store). 
   - one input per series as the Data tab's entries (number with unit, or category select);
   - **Cut** and **Assembled** toggles (setting them stores today's date);
   - the day's block (label) with **Block assembled** toggle;
-  - a warning when changing the value of a day marked cut.
   - Keyboard: Enter moves to the next day.
 - Footer: **Print instructions** (the selected days, else `nextDays`), **Block by block**, Close.
 

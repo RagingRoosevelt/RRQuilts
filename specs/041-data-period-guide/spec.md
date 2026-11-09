@@ -219,8 +219,9 @@ A quilter who fell behind picks a run of days (entered, not yet cut) and gets on
   for them (filler, own color).
 - Weeks plan left-over days use their day block or the week block's 1-day variant.
 - Colorways: steps, calendar markers and blocks use the shown colorway's range fabrics.
-- A value changed after its day was marked done: the day is flagged, since its pieces may be in the
-  wrong fabric.
+- A value changed after its day was marked done: no warning (owner, 2026-11-09, on "Cut on Nov 9: a
+  new value may take another fabric": "this doesn't seem useful to give as a warning. let's cut
+  it").
 - Simulation shown: steps and the calendar use real entries only. The sample never stands in for a
   day's fabric when making.
 

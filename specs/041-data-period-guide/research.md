@@ -52,8 +52,8 @@ Code facts gathered 2026-11-09 on `041-data-making` (built on `feat/swirl-data-b
   the steps say "cut Jan 12". Number index keys match `dataNumbers(plan)`.
 - Replanning (period, plan kind, lead day): `replan` drops `blocksMade` whose index no longer
   exists; `made` is keyed by date and survives.
-- A value changed on a day marked cut: the entry form warns on the spot ("cut on Jan 14 in Sky");
-  no stored flag. Simpler than storing the fill at cut time.
+- A value changed on a day marked cut: no warning and no stored flag (the owner found the warning
+  not useful, 2026-11-09).
 
 ## R5. Known projects
 

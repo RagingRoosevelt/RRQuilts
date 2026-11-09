@@ -1,0 +1,1 @@
+import{D as e,O as t}from"./project-72o105HB.js";import{r as n}from"./index-ARdDjVce.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};
