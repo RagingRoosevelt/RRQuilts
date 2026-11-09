@@ -97,6 +97,9 @@ for next steps. the user can select the days they want to get the printout for."
   you go view too. if tinting isn't selected, we'll do uncolored templates like we already do." The
   next steps follow the print setting Tint by fabric: on, a template per unique piece and fabric;
   off, uncolored templates per shape, as Print does today.
+- Q: Do next steps say how to join finished blocks (spec 025 User Story 7)? → A: Owner: "those
+  instructions will go into the designer-provided notes". The steps stop at the finished block.
+  Joining, quilting as you go and the like are the designer's words in the quilt's notes (Details).
 
 ## Today
 
@@ -239,8 +242,7 @@ A quilter who fell behind picks a run of days (entered, not yet cut) and gets on
 - ~~Done marks in the file~~: yes, a format version bump (2026-11-09).
 - ~~As you go or Cut ahead~~: no Cut ahead; catching up is a view (2026-11-09).
 - ~~Labeled per day or per shape~~: follows Tint by fabric (2026-11-09).
-- Whether next steps also say how to join finished blocks (spec 025 User Story 7, quilt as you go)
-  or stop at the block.
+- ~~Joining finished blocks~~: stop at the block; joining is in the designer's notes (2026-11-09).
 
 ## Assumptions
 
