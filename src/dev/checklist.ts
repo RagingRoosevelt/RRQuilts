@@ -280,6 +280,14 @@ export const CHECKS: Check[] = [
     to: '/data',
     file: 'demo-v10.rrq',
   },
+  {
+    id: 'TC-262',
+    group: G.make041,
+    text: 'Data entry calendar: every other block’s days are shaded light gray, so the Weeks quilt shows its weeks (a single lead or leftover day as its own block) and the Months quilt alternates month by month. Picked days and the open day still stand out.',
+    last: '"in the calendar view, let\'s alternate between slighly different background colors for the days to make clear which days belong to which blocks, sort of like how some tables alternate rows to keep them visually distinct"',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -23,6 +23,7 @@
             focus: c.date === focus,
             today: c.date === today,
             out: !c.inPeriod,
+            band: band.get(c.date) === 1,
           }"
           :disabled="!c.inPeriod"
           :aria-label="ariaOf(c.date)"
@@ -51,7 +52,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { dayColor, dayDate, periodLength } from '@/model/data-quilt';
+import { dataNumbers, dayColor, dayDate, periodLength, placeDays } from '@/model/data-quilt';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
 import { colorLookup } from '@/render/draw';
@@ -113,6 +114,15 @@ const months = computed(() => {
   return out;
 });
 
+/** Each day's block (the plan's number) as odd or even, so neighboring blocks shade apart. */
+const band = computed(() => {
+  const days = placeDays(plan.value);
+  const out = new Map<string, number>();
+  dataNumbers(plan.value).forEach((x, i) => {
+    for (let d = x.first; d < x.first + x.len; d++) out.set(days[d - 1]!, i % 2);
+  });
+  return out;
+});
 const css = computed(() => colorLookup(props.doc, library.items.colors));
 /** One dot per value: its range color when entered, else empty. */
 const dots = (date: string) =>
@@ -255,6 +265,9 @@ defineExpose({ reveal });
 }
 .day {
   -webkit-touch-callout: none;
+}
+.day.band {
+  background: rgba(128, 128, 128, 0.12);
 }
 .day:hover {
   background: rgba(128, 128, 128, 0.12);

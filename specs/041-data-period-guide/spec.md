@@ -128,6 +128,10 @@ for next steps. the user can select the days they want to get the printout for."
   instructions" again". Print instructions covers the picked days; with one day picked and other
   days of the period entered and not cut, it asks: **Pick all n days** (the selection grows, nothing
   prints yet) or **Just Jan 11** (prints that day).
+- Owner, 2026-11-09: "in the calendar view, let's alternate between slighly different background
+  colors for the days to make clear which days belong to which blocks, sort of like how some
+  tables alternate rows to keep them visually distinct". Every other data block's days are shaded
+  light gray in the calendar (weeks alternate week by week; months month by month).
 
 ## Today
 
