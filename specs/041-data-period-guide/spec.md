@@ -61,6 +61,32 @@ for next steps. the user can select the days they want to get the printout for."
   - Blocks are tracked too: which data blocks are assembled.
   - **Next steps** button: opens a printout page of next steps. The quilter picks the days it covers.
 
+## Clarifications
+
+### Session 2026-11-09
+
+- Q: How does the Data Quilts list read projects that aren't open? → A: Owner: "easy for unsaved
+  changes. for projects that have been saved when we have access to file handles: we'll keep a list
+  of the file handles we've seen and the data quilts inside them and ask to read the file when we
+  need to gather specific data from them. i'm inclined to skip the outright summary since unless
+  the user opens a project in a browser without the file handle, we won't be able to open the
+  project anyhow." Drafts (unsaved changes) are read from IndexedDB. Saved projects: the device
+  keeps each file handle seen with the names and ids of its data quilts, and reads the file (asking
+  the browser's permission) when the list needs its picture or entries. No summary copy. A browser
+  without file handles lists drafts only.
+- Q: Where are entries made from Home or Data Quilts saved? → A: Owner: "ultimatly, saved to the
+  project file. but we'll keep them on device and write to the project when it's next opened. for
+  "unsaved changes" projects we're keeping in local storage, these can be updated as they're worked
+  on." Pending entries and marks wait on the device and are written into the project when it's next
+  opened (then saved as usual). A draft is updated in place.
+- Q: Where are Cut ahead (workbook, templates) and Block by block reached? → A: "from the data quilt
+  module and the entry dialog".
+- Q: Which color does each series get on the calendar? → A: "the color the quilter picked per
+  series". New: each series (A to D) has a color the quilter picks, defaulting to today's order line
+  colors; the order lines use it too.
+- Q: Cut and assembled marks in the project file? → A: "yup": a format version bump (done marks
+  per day: cut, assembled; per block: assembled; the series colors).
+
 ## Today
 
 - Designing a data quilt ends in the Design tab: the plan, the data blocks, the value mapping,
@@ -212,24 +238,8 @@ Enter a week's values: the workbook shows those days' fabrics, the rest still op
 
 ## Open Questions (for /speckit-clarify)
 
-Raised by the 2026-11-09 access path:
-
-- Known projects: Home's recent list holds file handles, and reading a file the app didn't just open
-  needs the browser's permission per file (and isn't possible where File System Access is missing:
-  Firefox, Safari, phones). Does the Data Quilts list read the project files, the drafts in
-  IndexedDB, or a small per-quilt summary the app keeps on the device when the project is saved?
-- Saving entries made from Data Quilts or Home: written back into the project file (same permission
-  question; elsewhere a download), or kept in the draft until the project is next opened and saved.
-- Cut ahead (the workbook and all templates from the start) and Block by block: reached from the
-  data entry dialog too, or from the quilt editor's Print tab only.
-- Series colors: the order line colors of spec 046 (qA to qD), or a color chosen per series.
-- Done marks (cut, assembled per day; assembled per block) are saved in the project file: a format
-  version bump. The four proposals all chose this.
-
-Earlier questions (the access path above answers the first):
-
 - ~~Where Make lives~~: a Data Quilts module and a data entry dialog (2026-11-09).
-- Done marks change the file (a done date per day): a format version bump, or kept on the device.
+- ~~Done marks in the file~~: yes, a format version bump (2026-11-09).
 - As you go or Cut ahead: a saved choice of the quilt, or just two views.
 - Cut ahead: are cut pieces labeled per day, or counted per shape only.
 - Whether next steps also say how to join finished blocks (spec 025 User Story 7, quilt as you go)
