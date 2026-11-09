@@ -14,7 +14,7 @@
     },
     "version": {
       "type": "number",
-      "const": 10
+      "const": 11
     },
     "app": {
       "type": "string"
@@ -9608,6 +9608,33 @@
                         "maxItems": 4
                       }
                     }
+                  },
+                  "made": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^\\d{4}-\\d{2}-\\d{2}$": {
+                        "type": "object",
+                        "properties": {
+                          "cut": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                          },
+                          "assembled": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "blocksMade": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^\\d{1,3}$": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      }
+                    }
                   }
                 }
               }
@@ -9722,6 +9749,6 @@
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v10.json",
-  "title": "RRQuilts project (.rrq) v10"
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v11.json",
+  "title": "RRQuilts project (.rrq) v11"
 }

@@ -112,6 +112,9 @@ export const migrations: Migrations = {
     });
     return { ...doc, project: { ...project, quilts } };
   },
+  // v11 (spec 041): a data plan may carry made marks (days cut and assembled, blocks assembled);
+  // nothing to change.
+  10: (doc) => doc,
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */

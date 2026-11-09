@@ -1,1 +1,0 @@
-import{v as e,y as t}from"./project-BAnx2W22.js";import{r as n}from"./index-DcDg8Zif.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

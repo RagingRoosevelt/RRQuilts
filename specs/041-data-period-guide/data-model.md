@@ -7,12 +7,11 @@
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `made` | `Record<DateKey, DayMade>` | Per period day: when it was cut and assembled. A key with neither is deleted. |
-| `blocksMade` | `Record<string, DateKey>` | Per plan number (index into `dataNumbers(plan)`, as a string): when the block was assembled. |
+| `blocksMade` | `Record<string, DateKey>` | Per plan number `n` (1-based, as placements use it; as a string): when the block was assembled. |
 
 `DayMade = { cut?: DateKey; assembled?: DateKey }` (each the date the mark was set).
 
-Validation (untrusted input): keys are valid `DateKey`s inside the period (others dropped on load,
-reported as repaired), `blocksMade` keys are integers `0 ≤ k < numberCount(plan)`.
+Validation (untrusted input): keys are valid `DateKey`s (marks outside the period are ignored), `blocksMade` keys are numbers `1 ≤ n ≤ numberCount(plan)` (others are pruned when the plan is refitted, and ignored until then).
 
 Migration 10 → 11: none (fields optional); `VERSION = 11`; `public/schemas/rrq.v11.json`;
 `formats.json` `rrq: 11`; fixtures `project-v11.rrq` and `demo-v11.rrq` (+ `demo-v11/` PNGs) at

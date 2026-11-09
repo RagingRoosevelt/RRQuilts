@@ -16,22 +16,22 @@ em or en dashes, UI labels quoted as in the UI). Tests in `test/vitest/__tests__
 
 ## Phase 1: Setup
 
-- [ ] T001 Bump the IndexedDB version 3 → 4 and add stores `known` and `pending` to `STORES` in src/storage/idb.ts (keyPath `id`, created on upgrade like the others)
+- [X] T001 Bump the IndexedDB version 3 → 4 and add stores `known` and `pending` to `STORES` in src/storage/idb.ts (keyPath `id`, created on upgrade like the others)
 
 ---
 
 ## Phase 2: Foundational (blocks every story)
 
-- [ ] T002 Add `DayMade` (`{ cut?: DateKey; assembled?: DateKey }`) and optional `DataPlan.made: Record<DateKey, DayMade>` and `DataPlan.blocksMade: Record<string, DateKey>` to src/model/schema/data-quilt.ts (data-model.md)
-- [ ] T003 Set `VERSION = 11` in src/model/schema/project.ts and add `migrations[10]` (no change, version only) in src/model/io.ts; validation drops `made` keys outside the period and `blocksMade` keys not in `0 ≤ k < numberCount(plan)`, reported as repaired
-- [ ] T004 Regenerate the published schema (`npm run schema` in the container) to public/schemas/rrq.v11.json and set `rrq: 11` in public/schemas/formats.json; update any test that names v10 as current
-- [ ] T005 [P] Add `dayColor(quilt, slot, date)`, `lastEntry(plan)`, `nextDays(plan)` (entered, not cut, oldest first), `setMade(plan, date, part, on, today)`, `setBlockMade(plan, k, on, today)` in src/model/data-quilt.ts; make `replan`/`relabel`/`setLead` drop `blocksMade` indexes that no longer exist
-- [ ] T006 [P] Tests for T002 to T005 in test/vitest/__tests__/model/data-made.spec.ts and test/vitest/__tests__/model/io.migrate.spec.ts (v10 opens as v11 unchanged; bad mark keys dropped; dayColor follows the shown colorway; replan prunes blocksMade)
-- [ ] T007 [P] Create src/storage/known.ts: `KnownProject` (data-model.md), `rememberKnown(doc, handle?)` (writes when the doc has data quilts with `on`, deletes otherwise), `knownProjects()`, `forgetKnown(id)`; all wrapped in try/catch
-- [ ] T008 [P] Create src/storage/pending.ts: `PendingData` (data-model.md), `getPending(id)`, `putPending(id, quiltId, patch)` (merges into the stored record), `removePending(id)`
-- [ ] T009 [P] Create src/model/data-pending.ts: pure `mergePending(a, b)` and `applyPending(doc, pending)` (entries rows replaced, marks set or cleared on null, missing quilts or out-of-period days skipped); tests in test/vitest/__tests__/model/data-pending.spec.ts
-- [ ] T010 Create src/storage/read-project.ts `readProjectDoc(source)`: a draft through `draftDoc`, a handle through `ensurePermission(handle, 'read')` + file text + `parseProject`; returns `{ doc, problems }` or a typed failure (`denied`, `gone`, `invalid`); never touches the open project
-- [ ] T011 In src/stores/project.ts: after `load()` sets the doc, apply `getPending(id)` with one `project.change` (marks unsaved) then `removePending`; call `rememberKnown` on open and after each save (with the handle when there is one)
+- [X] T002 Add `DayMade` (`{ cut?: DateKey; assembled?: DateKey }`) and optional `DataPlan.made: Record<DateKey, DayMade>` and `DataPlan.blocksMade: Record<string, DateKey>` to src/model/schema/data-quilt.ts (data-model.md)
+- [X] T003 Set `VERSION = 11` in src/model/schema/project.ts and add `migrations[10]` (no change, version only) in src/model/io.ts; marks outside the period are ignored; `blocksMade` keys (1-based numbers `n`) past the plan are pruned when it's refitted (`fitPlaces`)
+- [X] T004 Regenerate the published schema (`npm run schema` in the container) to public/schemas/rrq.v11.json and set `rrq: 11` in public/schemas/formats.json; update any test that names v10 as current
+- [X] T005 [P] Add `dayColor(quilt, slot, date)`, `lastEntry(plan)`, `nextDays(plan)` (entered, not cut, oldest first), `setMade(plan, date, part, on, today)`, `setBlockMade(plan, k, on, today)` in src/model/data-quilt.ts; make `replan`/`relabel`/`setLead` drop `blocksMade` indexes that no longer exist
+- [X] T006 [P] Tests for T002 to T005 in test/vitest/__tests__/model/data-made.spec.ts and test/vitest/__tests__/model/io.migrate.spec.ts (v10 opens as v11 unchanged; bad mark keys dropped; dayColor follows the shown colorway; replan prunes blocksMade)
+- [X] T007 [P] Create src/storage/known.ts: `KnownProject` (data-model.md), `rememberKnown(doc, handle?)` (writes when the doc has data quilts with `on`, deletes otherwise), `knownProjects()`, `forgetKnown(id)`; all wrapped in try/catch
+- [X] T008 [P] Create src/storage/pending.ts: `PendingData` (data-model.md), `getPending(id)`, `putPending(id, quiltId, patch)` (merges into the stored record), `removePending(id)`
+- [X] T009 [P] Create src/model/data-pending.ts: pure `mergePending(a, b)` and `applyPending(doc, pending)` (entries rows replaced, marks set or cleared on null, missing quilts or out-of-period days skipped); tests in test/vitest/__tests__/model/data-pending.spec.ts
+- [X] T010 Create src/storage/read-project.ts `readProjectDoc(source)`: a draft through `draftDoc`, a handle through `ensurePermission(handle, 'read')` + file text + `parseProject`; returns `{ doc, problems }` or a typed failure (`denied`, `gone`, `invalid`); never touches the open project
+- [X] T011 In src/stores/project.ts: after `load()` sets the doc, apply `getPending(id)` with one `project.change` (marks unsaved) then `removePending`; call `rememberKnown` on open and after each save (with the handle when there is one)
 
 **Checkpoint**: v11 files load and save; marks and pending logic tested.
 
