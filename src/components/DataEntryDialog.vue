@@ -86,6 +86,17 @@
           }}
         </div>
         <q-btn
+          flat
+          color="primary"
+          icon="view_module"
+          no-caps
+          label="Block by block"
+          :disable="!focusBlock"
+          @click="blockByBlock"
+        >
+          <q-tooltip>Instructions for the open day's block: every day of it</q-tooltip>
+        </q-btn>
+        <q-btn
           unelevated
           color="primary"
           icon="print"
@@ -110,7 +121,7 @@ import { useRouter } from 'vue-router';
 import DataCalendar from '@/components/DataCalendar.vue';
 import DataDayForm from '@/components/DataDayForm.vue';
 import DialogClose from '@/components/DialogClose.vue';
-import { dayDate, nextDays, periodLength } from '@/model/data-quilt';
+import { dayDate, nextDays, numberOfDate, periodLength } from '@/model/data-quilt';
 import { generateFor } from '@/model/layout/slots';
 import { dayPatches } from '@/model/print/data-steps';
 import { quiltThumbnail } from '@/render/thumbnail';
@@ -254,6 +265,16 @@ function nextSteps() {
     return;
   }
   go();
+}
+/** The open day's block (the plan's number). */
+const focusBlock = computed(() =>
+  plan.value && focus.value ? numberOfDate(plan.value, focus.value)?.k : undefined,
+);
+function blockByBlock() {
+  if (!doc.value || !card.value || !focusBlock.value) return;
+  store.stepsInput = { doc: doc.value, quiltId: card.value.quiltId, numbers: [focusBlock.value] };
+  open.value = false;
+  void router.push('/data/steps');
 }
 function go() {
   if (!doc.value || !card.value) return;

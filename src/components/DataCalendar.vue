@@ -23,7 +23,8 @@
             focus: c.date === focus,
             today: c.date === today,
             out: !c.inPeriod,
-            band: band.get(c.date) === 1,
+            band: (band.get(c.date) ?? 1) % 2 === 0,
+            built: !!plan.blocksMade?.[band.get(c.date) ?? 0],
           }"
           :disabled="!c.inPeriod"
           :aria-label="ariaOf(c.date)"
@@ -114,12 +115,13 @@ const months = computed(() => {
   return out;
 });
 
-/** Each day's block (the plan's number) as odd or even, so neighboring blocks shade apart. */
+/** Each day's block (the plan's number, 1-based): every other block shades, and an assembled
+ *  block's days tint green. */
 const band = computed(() => {
   const days = placeDays(plan.value);
   const out = new Map<string, number>();
   dataNumbers(plan.value).forEach((x, i) => {
-    for (let d = x.first; d < x.first + x.len; d++) out.set(days[d - 1]!, i % 2);
+    for (let d = x.first; d < x.first + x.len; d++) out.set(days[d - 1]!, i + 1);
   });
   return out;
 });
@@ -268,6 +270,12 @@ defineExpose({ reveal });
 }
 .day.band {
   background: rgba(128, 128, 128, 0.12);
+}
+.day.built {
+  background: rgba(46, 160, 67, 0.16);
+}
+.day.built.band {
+  background: rgba(46, 160, 67, 0.26);
 }
 .day:hover {
   background: rgba(128, 128, 128, 0.12);

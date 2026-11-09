@@ -223,3 +223,48 @@ The printed quilt picture has a legend of each value's colors. Yardage can't kno
 time, so it counts a worst case. Each range or category counts its **most days expected**, each in
 the largest piece of its value. Set those numbers under **Yardage** › **Most days expected** in the
 **Data** tab. Left empty, each takes its number of days in the sample.
+
+## Make it day by day
+
+Once the design is done, the **Data Quilts** tab is where the quilt gets made. The tab shows up
+after you open or make your first data quilt. Turn it on or off in **Settings** under **Show the
+Data Quilts tab**.
+
+The tab lists every data quilt this device knows: the open project, unsaved projects, and saved
+projects opened here before. Each card shows the quilt colored by the days entered so far and the
+date of the last entry. In Chrome and Edge a saved project's picture may wait for **Show**, which
+asks the browser to let RRQuilts read the file. Other browsers list unsaved projects and the open
+one. On the home page, the calendar icon beside a recent project opens the same data entry.
+
+Tap a card to enter data. The picture of the quilt sits beside a calendar of the whole year.
+
+- Tap a day to open it. Type its value for each series, then press Enter to move to the next day.
+- Each entered value shows as a dot in its range's color.
+- Every other block's days are shaded, so you can tell which days share a block.
+- The open day's patches are outlined on the quilt picture.
+- **Year** moves the quilt to another year. Entries stay with their dates, so going back shows
+  them again.
+
+Mark each day **Cut** when its pieces are cut and **Assembled** when they're sewn in. The
+calendar shows a scissors and a double check for them. **Block assembled** marks the whole block,
+and its days turn green in the calendar.
+
+Data entered while the project isn't open is kept on this device. It goes into the project the next
+time you open it, which then has unsaved changes to save. An unsaved project gets it right away.
+
+### Print instructions
+
+**Print instructions** prints what to cut and sew for the picked days. Drag across days in the
+calendar, or Shift-click a second day, to pick several. With one day picked and other days entered
+but not cut, it asks whether to pick all of them first.
+
+The printout has a section for each block. It shows the block in its fabrics with each day's
+patches outlined and numbered, then a table of the days with their values, fabrics, and the pieces
+to cut. Templates for those pieces follow. With **Tint by fabric** on, each template is tinted and
+says which days it's for. **Quilt notes** adds the quilt's notes from its **Details** tab, a good
+place for how to join the blocks.
+
+**Block by block** prints whole blocks instead: every day of each block, the days without an
+entry marked as such, and the block's own pieces to cut once. **Previous** and **Next** step through
+the blocks. On the instructions page, **Days** picks a range of dates, and **Not cut yet** picks the
+days entered and not marked **Cut**.

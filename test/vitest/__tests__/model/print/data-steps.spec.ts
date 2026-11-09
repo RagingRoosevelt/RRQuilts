@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseProject } from '@/model/io';
-import { daySteps } from '@/model/print/data-steps';
+import { blockOwn, daySteps, numberDates } from '@/model/print/data-steps';
 import type { RrqDoc } from '@/model/schema/project';
 
 async function demo(): Promise<RrqDoc> {
@@ -42,5 +42,31 @@ describe('day steps', () => {
     expect(jan!.pieces.map((p) => p.slot).sort()).toEqual([0, 1]);
     expect(jan!.pieces.every((p) => p.count >= 1)).toBe(true);
     expect(dec!.reason).toBe('not-placed');
+  });
+
+  it('a week of days merges identical pieces per fabric; only day pieces are steps', async () => {
+    const doc = await demo();
+    const q = dataQuilt(doc, 'months');
+    q.data!.entries = { '2027-01-11': [33], '2027-01-12': [34], '2027-01-13': [41] };
+    const steps = daySteps(doc, q, ['2027-01-11', '2027-01-12', '2027-01-13']);
+    // Each day its own piece; Jan 11 and 12 both Aqua.
+    expect(steps.map((x) => x.pieces[0]!.fill)).toEqual([
+      'color:rrquilts.aqua',
+      'color:rrquilts.aqua',
+      'color:rrquilts.mint',
+    ]);
+    expect(steps.flatMap((x) => x.pieces).every((p) => !p.fill.startsWith('data:'))).toBe(true);
+  });
+});
+
+describe('block by block', () => {
+  it("a month's dates; February's places past the 28th are the block's own pieces", async () => {
+    const doc = await demo();
+    const q = dataQuilt(doc, 'months');
+    expect(numberDates(q.data!, 2)).toHaveLength(28);
+    expect(numberDates(q.data!, 2)[0]).toBe('2027-02-01');
+    const own = blockOwn(doc, q, 2);
+    expect(own.reduce((n, p) => n + p.count, 0)).toBeGreaterThanOrEqual(3);
+    expect(own.every((p) => !p.fill.startsWith('data:'))).toBe(true);
   });
 });

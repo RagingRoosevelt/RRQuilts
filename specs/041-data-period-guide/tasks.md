@@ -66,10 +66,10 @@ em or en dashes, UI labels quoted as in the UI). Tests in `test/vitest/__tests__
 
 **Independent test**: select Jan 8 to 14 in the calendar, Print instructions lists all seven grouped by block with merged counts; Tint by fabric on gives a template per unique piece and fabric labeled with its days, off gives uncolored templates per shape.
 
-- [ ] T024 [US2] Range selection in src/components/DataCalendar.vue (shift-tap, or long press then tap, extends from the tapped day; a "Not cut yet" chip selects `nextDays`); the dialog's **Print instructions** uses the selection, else `nextDays`
-- [ ] T025 [US2] On src/pages/DataStepsPage.vue a days picker (date range plus "Not cut yet") to change the days covered
-- [ ] T026 [US2] In the `steps` kind of src/components/PrintPreview.vue: group the steps table by block, and with `tint` on label each template with its days ("Jan 8, Jan 12"); with `tint` off keep today's uncolored per-shape templates with counts
-- [ ] T027 [P] [US2] Extend test/vitest/__tests__/model/print/data-steps.spec.ts: a week of days merges identical pieces per fabric; non-data pieces are not in the steps
+- [X] T024 [US2] (drag, Shift-click and the pick-all question; no chip, see review-notes.md 8) Range selection in src/components/DataCalendar.vue (shift-tap, or long press then tap, extends from the tapped day; a "Not cut yet" chip selects `nextDays`); the dialog's **Print instructions** uses the selection, else `nextDays`
+- [X] T025 [US2] On src/pages/DataStepsPage.vue a days picker (date range plus "Not cut yet") to change the days covered
+- [X] T026 [US2] In the `steps` kind of src/components/PrintPreview.vue: group the steps table by block, and with `tint` on label each template with its days ("Jan 8, Jan 12"); with `tint` off keep today's uncolored per-shape templates with counts
+- [X] T027 [P] [US2] Extend test/vitest/__tests__/model/print/data-steps.spec.ts: a week of days merges identical pieces per fabric; non-data pieces are not in the steps
 
 ---
 
@@ -79,9 +79,9 @@ em or en dashes, UI labels quoted as in the UI). Tests in `test/vitest/__tests__
 
 **Independent test**: Block by block for January prints the block with letters and day numerals and a row per day of January (entered ones with fabric, others "no entry yet"); Jan to Mar prints three.
 
-- [ ] T028 [US3] Add `blockSteps(doc, quilt, k)` in src/model/print/data-steps.ts (every day of number `k`, the block's non-data pieces listed once with their fabric); tests in test/vitest/__tests__/model/print/data-steps.spec.ts
-- [ ] T029 [US3] **Block by block** mode on src/pages/DataStepsPage.vue (number range picker using `numberLabel`, Previous/Next on screen) feeding `numbers` to PrintPreview's `steps` kind in src/components/PrintPreview.vue
-- [ ] T030 [US3] Entry points: **Block by block** in the DataEntryDialog footer (src/components/DataEntryDialog.vue, opens on the tapped day's block) and in the Data Quilts card menu (src/pages/DataQuiltsPage.vue)
+- [X] T028 [US3] Add `blockSteps(doc, quilt, k)` in src/model/print/data-steps.ts (every day of number `k`, the block's non-data pieces listed once with their fabric); tests in test/vitest/__tests__/model/print/data-steps.spec.ts
+- [X] T029 [US3] **Block by block** mode on src/pages/DataStepsPage.vue (number range picker using `numberLabel`, Previous/Next on screen) feeding `numbers` to PrintPreview's `steps` kind in src/components/PrintPreview.vue
+- [X] T030 [US3] Entry points: **Block by block** in the DataEntryDialog footer (src/components/DataEntryDialog.vue, opens on the tapped day's block) and in the Data Quilts card menu (src/pages/DataQuiltsPage.vue)
 
 ---
 
@@ -92,17 +92,17 @@ em or en dashes, UI labels quoted as in the UI). Tests in `test/vitest/__tests__
 **Independent test**: mark Jan 11 Cut and Assembled: badges show in the calendar; the January block's Block assembled toggle shows on its days; Print instructions' default days no longer include Jan 11.
 
 - [X] T031 [US4] In src/components/DataDayForm.vue add **Cut** and **Assembled** toggles (`setMade` with today's date), the day's block label with **Block assembled** (`setBlockMade`) (the warning on changing a cut day's value was dropped, owner 2026-11-09)
-- [ ] T032 [US4] (day badges done in the MVP: scissors, double check) Cut (scissors) and Assembled (needle) badges per day in src/components/DataCalendar.vue, and an assembled mark on each month's or week's label
-- [ ] T033 [US4] Done days in the steps: `daySteps`/`blockSteps` carry `made`; the steps table in src/components/PrintPreview.vue shows "cut Jan 14" / "assembled" and Block by block marks done days
+- [X] T032 [US4] (assembled block = green days, see review-notes.md 1) Cut (scissors) and Assembled (needle) badges per day in src/components/DataCalendar.vue, and an assembled mark on each month's or week's label
+- [X] T033 [US4] Done days in the steps: `daySteps`/`blockSteps` carry `made`; the steps table in src/components/PrintPreview.vue shows "cut Jan 14" / "assembled" and Block by block marks done days
 
 ---
 
 ## Phase 7: Polish & Cross-Cutting
 
-- [ ] T034 [P] Help: a "Making a data quilt" section in src/help/guides/data-quilts.md (Data Quilts module, the calendar and entry form, Cut and Assembled, where entries wait for a project that isn't open, Print instructions, Block by block, Quilt notes toggle) (FR-007)
-- [ ] T035 [P] (MVP checks TC-245 to TC-251 added) Checklist checks TC-245 onward in src/dev/checklist.ts, one per quickstart.md manual scenario, new group for spec 041
-- [ ] T036 [P] Fixture with marks: extend test/vitest/__tests__/formats/write-samples.spec.ts / write-demo.spec.ts so v11 samples carry `made` and `blocksMade` (files written at release per scripts/release.md)
-- [ ] T037 Update spec.md status and CLAUDE.md (Data Quilts module, `known`/`pending` stores, `data-steps.ts`) and run `make check`
+- [X] T034 [P] Help: a "Making a data quilt" section in src/help/guides/data-quilts.md (Data Quilts module, the calendar and entry form, Cut and Assembled, where entries wait for a project that isn't open, Print instructions, Block by block, Quilt notes toggle) (FR-007)
+- [X] T035 [P] (MVP checks TC-245 to TC-251 added) Checklist checks TC-245 onward in src/dev/checklist.ts, one per quickstart.md manual scenario, new group for spec 041
+- [X] T036 [P] (writer ready; files written at release) Fixture with marks: extend test/vitest/__tests__/formats/write-samples.spec.ts / write-demo.spec.ts so v11 samples carry `made` and `blocksMade` (files written at release per scripts/release.md)
+- [X] T037 Update spec.md status and CLAUDE.md (Data Quilts module, `known`/`pending` stores, `data-steps.ts`) and run `make check`
 
 ## Dependencies & Execution Order
 

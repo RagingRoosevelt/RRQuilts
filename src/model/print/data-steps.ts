@@ -2,7 +2,15 @@
 // fabric, in which block. Real entries only: the sample never stands in for a day's fabric.
 import { allPatches } from '../blocks/patches';
 import { fillKey, resolveColoring } from '../coloring';
-import { dayColor, numberLabel, numberOfDate, placesOf, seriesOf } from '../data-quilt';
+import {
+  dataNumbers,
+  dayColor,
+  numberLabel,
+  numberOfDate,
+  placeDays,
+  placesOf,
+  seriesOf,
+} from '../data-quilt';
 import { generateFor } from '../layout/slots';
 import type { Block } from '../schema/block';
 import type { DayMade } from '../schema/data-quilt';
@@ -97,7 +105,20 @@ function patchFinder(doc: RrqDoc, quilt: Quilt) {
     }
     return { ...at, placed: placesOf(plan, at.k).length > 0, list };
   };
-  return { q, plan, slots, find };
+  const letters = new Map<Block, Map<string, string>>();
+  /** A piece's letter in its block: shapes lettered in order, in the first space showing it. */
+  const letterIn = (b: Block, p: Piece) => {
+    let m = letters.get(b);
+    if (!m) {
+      m = new Map();
+      const first = [...slots.values()].find((s) => q.layers[0].slots[s.id]?.block === b.id);
+      for (const t of templates(first ? quiltPieces(doc, q, b.id, [first]) : []))
+        m.set(shapeKey(t.poly), t.letter);
+      letters.set(b, m);
+    }
+    return m.get(shapeKey(p.poly)) ?? '?';
+  };
+  return { q, plan, slots, find, space, letterIn };
 }
 
 /** Every patch of `days`, whether entered or not (for highlighting where they go). */
@@ -110,20 +131,7 @@ export function dayPatches(doc: RrqDoc, quilt: Quilt, days: readonly string[]): 
 /** Steps for each of `days` (dates), in date order. */
 export function daySteps(doc: RrqDoc, quilt: Quilt, days: readonly string[]): DayStep[] {
   if (!quilt.data) return [];
-  const { q, plan, slots, find } = patchFinder(doc, quilt);
-  const letters = new Map<Block, Map<string, string>>();
-  const letterIn = (b: Block, p: Piece) => {
-    let m = letters.get(b);
-    if (!m) {
-      m = new Map();
-      // Lettered as the block's own pieces, in the first space showing it.
-      const first = [...slots.values()].find((s) => q.layers[0].slots[s.id]?.block === b.id);
-      for (const t of templates(first ? quiltPieces(doc, q, b.id, [first]) : []))
-        m.set(shapeKey(t.poly), t.letter);
-      letters.set(b, m);
-    }
-    return m.get(shapeKey(p.poly)) ?? '?';
-  };
+  const { plan, find, letterIn } = patchFinder(doc, quilt);
 
   return [...days].sort().map((date): DayStep => {
     const made = plan.made?.[date];
@@ -150,4 +158,34 @@ export function daySteps(doc: RrqDoc, quilt: Quilt, days: readonly string[]): Da
     }
     return { ...head, pieces: [...merged.values()] };
   });
+}
+
+/** The dates of the plan's number `k` (1-based), in order. */
+export function numberDates(plan: NonNullable<Quilt['data']>, k: number): string[] {
+  const x = dataNumbers(plan)[k - 1];
+  return x ? placeDays(plan).slice(x.first - 1, x.first - 1 + x.len) : [];
+}
+
+/** A data block's own pieces (not days: its fixed colors, and places past the number's days),
+ *  counted over every placement of number `k`, by letter and fabric. */
+export function blockOwn(doc: RrqDoc, quilt: Quilt, k: number): Omit<StepPiece, 'slot'>[] {
+  const plan = quilt.data;
+  if (!plan) return [];
+  const { space, letterIn } = patchFinder(doc, quilt);
+  const days = new Set(Array.from({ length: dataNumbers(plan)[k - 1]?.len ?? 0 }, (_, i) => i + 1));
+  const merged = new Map<string, Omit<StepPiece, 'slot'>>();
+  for (const place of placesOf(plan, k)) {
+    const sp = space(place.space);
+    if (!sp) continue;
+    sp.pieces.forEach((piece, i) => {
+      const f = sp.raw?.fills[sp.ids[i]!];
+      if (f && 'data' in f && days.has(f.data.n)) return;
+      const letter = letterIn(sp.block, piece);
+      const key = `${letter}|${piece.fill}`;
+      const hit = merged.get(key);
+      if (hit) hit.count++;
+      else merged.set(key, { letter, fill: piece.fill, count: 1, piece });
+    });
+  }
+  return [...merged.values()];
 }

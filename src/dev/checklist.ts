@@ -288,6 +288,33 @@ export const CHECKS: Check[] = [
     to: '/data',
     file: 'demo-v10.rrq',
   },
+  {
+    id: 'TC-263',
+    group: G.make041,
+    text: 'Block by block: from the data entry dialog (the open day’s block) or a Data Quilts card menu. The printout has the block in its fabrics with every day numbered (days to cut outlined thick), a row per day (entered ones with fabric and pieces, others “No entry yet”), a “Once” row with the block’s own pieces, then templates. From and To pick a range of blocks; Previous and Next step through them.',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-264',
+    group: G.make041,
+    text: 'Instructions page, Days: From and To pick a run of dates, Not cut yet picks the days entered and not cut, and the day count follows. The printout has a section per block (title, block map, table without a Block column). With Tint by fabric on, each template says its days (“Cut 1 · Jan 10”). The Done column gives dates (“Cut Nov 9”).',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-265',
+    group: G.make041,
+    text: 'Data entry dialog: Block assembled on a day turns its whole block’s days light green in the calendar; turning it off brings back the usual shading.',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-266',
+    group: G.make041,
+    text: 'Help › Guides › Data quilts › Make it day by day describes the Data Quilts tab, the calendar and day form, Cut, Assembled, Block assembled, Year, where data waits, Print instructions and Block by block, in the app’s words.',
+    to: '/help/guides/data-quilts',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

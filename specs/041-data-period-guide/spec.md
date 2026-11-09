@@ -1,11 +1,12 @@
 # Feature Specification: Making a Data Quilt (Data Quilts, Printed Instructions, Block by Block)
 
-**Feature Branch**: `TBD` (target 0.8.0, its own release; moved out of 0.7.4, owner 2026-10-30)
+**Feature Branch**: `041-data-making` (target 0.8.0, its own release; moved out of 0.7.4, owner 2026-10-30)
 
 **Created**: 2026-10-22. Reworked 2026-10-30.
 
-**Status**: Draft (spec only; not implemented). Builds on spec 025 (data quilts) and spec 046
-(placing data blocks).
+**Status**: Built on `041-data-making` (2026-11-09), waiting for the owner's test round (TC-245 to
+TC-266). Builds on spec 025 (data quilts) and spec 046 (placing data blocks). Decisions made while
+the owner was away: [review-notes.md](review-notes.md).
 
 **Input**: Owner, 2026-10-22 test round: "we need a mechanism to, week by week or month by month or
 day by day provide guidance on the block map. When you turn off tint by fabric, there's no

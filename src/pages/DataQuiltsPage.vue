@@ -53,6 +53,9 @@
                   <q-item clickable :disable="!store.docOf(c.projectId)" @click="steps(c)">
                     <q-item-section>Print instructions</q-item-section>
                   </q-item>
+                  <q-item clickable :disable="!store.docOf(c.projectId)" @click="blocks(c)">
+                    <q-item-section>Block by block</q-item-section>
+                  </q-item>
                   <q-item v-if="c.handle" clickable @click="store.forget(c.projectId)">
                     <q-item-section>Forget</q-item-section>
                   </q-item>
@@ -89,7 +92,7 @@ import DataEntryDialog from '@/components/DataEntryDialog.vue';
 import HelpLink from '@/components/HelpLink.vue';
 import { useDataTab } from '@/composables/data-tab';
 import { useOpenProject } from '@/composables/open-project';
-import { lastEntry, nextDays } from '@/model/data-quilt';
+import { lastEntry, nextDays, numberOfDate } from '@/model/data-quilt';
 import { quiltThumbnail } from '@/render/thumbnail';
 import { useDataQuiltsStore, type DataCard } from '@/stores/data-quilts';
 import { useProjectStore } from '@/stores/project';
@@ -149,6 +152,17 @@ function steps(c: DataCard) {
   const plan = store.quiltOf(c)?.data;
   if (!doc || !plan) return;
   store.stepsInput = { doc, quiltId: c.quiltId, days: nextDays(plan) };
+  void router.push('/data/steps');
+}
+
+/** Block by block, from the block of the first day not cut yet (or the first block). */
+function blocks(c: DataCard) {
+  const doc = store.docOf(c.projectId);
+  const plan = store.quiltOf(c)?.data;
+  if (!doc || !plan) return;
+  const first = nextDays(plan)[0];
+  const k = (first && numberOfDate(plan, first)?.k) || 1;
+  store.stepsInput = { doc, quiltId: c.quiltId, numbers: [k] };
   void router.push('/data/steps');
 }
 
