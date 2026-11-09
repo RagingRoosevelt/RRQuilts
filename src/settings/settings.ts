@@ -29,6 +29,9 @@ export interface Settings {
   libraryGroupBy: 'none' | 'category' | 'tags' | 'techniques' | 'shape';
   /** Libraries and project Blocks tab: data block pictures draw their traces (default off). */
   showTraces: boolean;
+  /** The Data Quilts nav tab (spec 041): hidden until a data quilt is opened or made ('auto'),
+   *  then shown ('on'); 'off' when the quilter hid it (nothing turns it back on by itself). */
+  dataTab: 'auto' | 'on' | 'off';
   /** Quilt editor block sidebar: only blocks the quilt's layout takes. */
   compatibleBlocks: boolean;
   /** Project (sketchbook) page: last tab. */
@@ -111,6 +114,7 @@ export const defaults = (): Settings => ({
   trayTab: 'blocks',
   libraryGroupBy: 'none',
   showTraces: false,
+  dataTab: 'auto',
   libraryType: 'block',
   socials: [],
   hideLibraryBlocks: false,
@@ -168,6 +172,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   osAccent: (v) => typeof v === 'boolean',
   trayTab: (v) => v === 'blocks' || v === 'colors',
   showTraces: (v) => typeof v === 'boolean',
+  dataTab: (v) => v === 'auto' || v === 'on' || v === 'off',
   // 'styles' (before spec 029) falls back to the default.
   libraryGroupBy: (v) =>
     v === 'none' || v === 'category' || v === 'tags' || v === 'techniques' || v === 'shape',

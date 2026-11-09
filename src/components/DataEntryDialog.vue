@@ -114,11 +114,13 @@ import { dayDate, nextDays, periodLength } from '@/model/data-quilt';
 import { generateFor } from '@/model/layout/slots';
 import { dayPatches } from '@/model/print/data-steps';
 import { quiltThumbnail } from '@/render/thumbnail';
+import { useDataTab } from '@/composables/data-tab';
 import { todayKey, useDataQuiltsStore, type DataCard } from '@/stores/data-quilts';
 
 const $q = useQuasar();
 const router = useRouter();
 const store = useDataQuiltsStore();
+const dataTab = useDataTab();
 
 const open = ref(false);
 const card = ref<DataCard>();
@@ -233,6 +235,7 @@ function nextSteps() {
 
 /** Open on a quilt: on today, or the period's first day before it starts. */
 function show(c: DataCard) {
+  dataTab.seen();
   card.value = c;
   const p = store.quiltOf(c)?.data;
   const t = todayKey();

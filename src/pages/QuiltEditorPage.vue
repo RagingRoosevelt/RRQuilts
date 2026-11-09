@@ -260,6 +260,7 @@
 </template>
 
 <script setup lang="ts">
+import { useDataTab } from '@/composables/data-tab';
 import type { Block } from '@/model/schema/block';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import ColorwayMapping from '@/components/ColorwayMapping.vue';
@@ -333,6 +334,13 @@ const dataTypes = useDataTypes();
 const appSettings = useSettingsStore();
 
 const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === route.params.id));
+// Opening or making a data quilt shows the Data Quilts tab (unless it was hidden on purpose).
+const dataTab = useDataTab();
+watch(
+  () => !!quilt.value?.data?.on,
+  (on) => on && dataTab.seen(),
+  { immediate: true },
+);
 watch(
   quilt,
   (q) => {

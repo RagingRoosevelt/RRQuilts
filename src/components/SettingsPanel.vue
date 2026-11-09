@@ -196,6 +196,13 @@
               </div>
             </SettingsCard>
             <q-toggle v-model="store.settings.showHelp" label="Show help buttons" />
+            <q-toggle
+              :model-value="store.settings.dataTab === 'on'"
+              label="Show the Data Quilts tab"
+              @update:model-value="(on: boolean) => (store.settings.dataTab = on ? 'on' : 'off')"
+            >
+              <q-tooltip>Shown by itself once you open or make a data quilt</q-tooltip>
+            </q-toggle>
             <SettingsCard label="Editor layout">
               <q-btn-toggle
                 v-model="store.settings.sidesSwapped"

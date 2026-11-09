@@ -109,9 +109,11 @@ import SettingsPanel from '@/components/SettingsPanel.vue';
 import WelcomeWizard from '@/components/WelcomeWizard.vue';
 import { settingsOpen } from '@/composables/settings-open';
 import { useProjectStore } from '@/stores/project';
+import { useSettingsStore } from '@/stores/settings';
 
 const $q = useQuasar();
 const project = useProjectStore();
+const settings = useSettingsStore();
 const taking = ref(false);
 const route = useRoute();
 const header = ref<{ $el: HTMLElement }>();
@@ -132,7 +134,9 @@ const HOME = { to: '/', icon: 'home', label: 'RRQuilts' };
 const nav = computed(() => [
   HOME,
   ...(project.isOpen ? [{ to: '/project', icon: 'grid_view', label: 'Project' }] : []),
-  { to: '/data', icon: 'calendar_month', label: 'Data Quilts' },
+  ...(settings.settings.dataTab === 'on'
+    ? [{ to: '/data', icon: 'calendar_month', label: 'Data Quilts' }]
+    : []),
   { to: '/libraries', icon: 'collections_bookmark', label: 'Libraries' },
   { to: '/help', icon: 'help_outline', label: 'Help' },
   // Testing aids: dev server only (routes.ts).

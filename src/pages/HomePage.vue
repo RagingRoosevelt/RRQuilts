@@ -230,6 +230,7 @@ import RestoreDrafts from '@/components/RestoreDrafts.vue';
 import DataEntryDialog from '@/components/DataEntryDialog.vue';
 import { dataQuiltsOf, knownProjects } from '@/storage/known';
 import { useDataQuiltsStore } from '@/stores/data-quilts';
+import { useDataTab } from '@/composables/data-tab';
 import { settingsOpen } from '@/composables/settings-open';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -393,7 +394,9 @@ const dataQuilts = (id: string) => {
 };
 const dataStore = useDataQuiltsStore();
 const dataEntry = ref<InstanceType<typeof DataEntryDialog>>();
+const dataTab = useDataTab();
 async function enterData(projectId: string, quiltId: string) {
+  await dataTab.ask();
   await dataStore.refresh();
   const card = dataStore.cards.find((c) => c.projectId === projectId && c.quiltId === quiltId);
   if (!card) return;

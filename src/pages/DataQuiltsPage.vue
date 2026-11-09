@@ -87,6 +87,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import DataEntryDialog from '@/components/DataEntryDialog.vue';
 import HelpLink from '@/components/HelpLink.vue';
+import { useDataTab } from '@/composables/data-tab';
 import { useOpenProject } from '@/composables/open-project';
 import { lastEntry, nextDays } from '@/model/data-quilt';
 import { quiltThumbnail } from '@/render/thumbnail';
@@ -102,7 +103,9 @@ const dialog = ref<InstanceType<typeof DataEntryDialog>>();
 const loading = ref(true);
 const openId = computed(() => (project.isOpen ? project.doc!.project.id : undefined));
 
+const dataTab = useDataTab();
 onMounted(async () => {
+  await dataTab.ask();
   await store.refresh();
   loading.value = false;
 });

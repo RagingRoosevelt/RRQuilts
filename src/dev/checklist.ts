@@ -158,7 +158,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-245',
     group: G.make041,
-    text: 'The nav has Data Quilts right after Project, also with no project open. After opening demo-v10.rrq, Data Quilts lists its two data quilts, each with its picture (only real entries colored), project name, “No entries yet” or “Last entry …”, and an Open badge.',
+    text: 'The nav has Data Quilts right after Project once a data quilt has been opened (see TC-260), also with no project open. After opening demo-v10.rrq, Data Quilts lists its two data quilts, each with its picture (only real entries colored), project name, “No entries yet” or “Last entry …”, and an Open badge.',
     to: '/data',
     file: 'demo-v10.rrq',
   },
@@ -262,6 +262,14 @@ export const CHECKS: Check[] = [
     text: 'Data entry dialog: the Year box (top right) moves the quilt to another year: the calendar and days count follow (366 for a leap year), and going back shows the entries made before. A new data quilt (wizard, or Data quilt in Details) starts this year from January to August, next year from September on.',
     last: '"the user should be able to set the year when entering data in a data quilt (but defaults to current year if you\'re in the first two thirds of the year, next year if you\'re in the last third of the year)"',
     to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-260',
+    group: G.make041,
+    text: 'Fresh browser (or private window): no Data Quilts tab. Open a project and a data block: still none. Open a data quilt (or turn on Data quilt for a quilt): the tab appears. Settings › Show the Data Quilts tab off: the tab goes; then going to Data Quilts (its address, or the calendar icon on Home) asks whether to show it again; Show it brings it back, Keep it hidden goes on without it. Opening data quilts afterwards doesn’t bring it back by itself.',
+    last: '"let\'s have a toggle setting (default off) that hides the data quilt tab. this setting would change to on once the user has opened or created a data quilt (a data block wouldn\'t trigger the change). if the user has set the setting to off themsevles (vs the default), then anything that would bring the user to the data quilt module should alert them to the interface tab being curretnly set to not show and asking if they want it to be shown"',
+    to: '/',
     file: 'demo-v10.rrq',
   },
 ];

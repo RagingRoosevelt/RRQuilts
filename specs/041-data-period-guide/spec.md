@@ -111,6 +111,16 @@ for next steps. the user can select the days they want to get the printout for."
   in the last third of the year)". The data entry dialog has a **Year** picker that moves the
   quilt's period (same month and day); entries stay stored by date, so going back shows them. New
   data quilts start this year from January to August, next year from September to December.
+- Owner, 2026-11-09: "let's have a toggle setting (default off) that hides the data quilt tab. this
+  setting would change to on once the user has opened or created a data quilt (a data block
+  wouldn't trigger the change). if the user has set the setting to off themsevles (vs the
+  default), then anything that would bring the user to the data quilt module should alert them to
+  the interface tab being curretnly set to not show and asking if they want it to be shown".
+  Settings › **Show the Data Quilts tab** (setting `dataTab`: `auto` at first, hidden; `on`; `off`
+  when the quilter turned it off). Opening a data quilt in the quilt editor (or turning one on
+  there, or entering data from Home) moves `auto` to `on`, never `off`. With `off`, going to Data
+  Quilts (its address, or Home's calendar icon) asks whether to show the tab again (Show it /
+  Keep it hidden) and goes on either way.
 
 ## Today
 
