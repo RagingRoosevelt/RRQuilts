@@ -25,6 +25,42 @@ sort of instruction view that goes data block by data block."
 Then: "this release for the data quilt/block flow improvement will be the new 0.8.0 and will push
 the current releases out by one".
 
+Owner, 2026-11-09 (the access path, after four printout proposals on `explore/041-calendar`,
+`-ledger`, `-kit` and `-map`): "in addition to "Home", "Project", "Libraries", "Help", "tests",
+we'll add a module called "Data Quilts" right after project. when you're on the home page with a
+list of recent projects, projects that include a data quilt will have a calendar icon next to the
+trash bin icon. clicking that calendar icon will open a data entry wizard that will be reused from
+the data quilt module. the data quilt module will have a list of all your data quilts in known
+projects. each will have a note about when data was last entered and the preview for the quilt will
+show the colors according to what has been entered so far. we'll have a dialog for entering data
+for a quilt. it'll have a full-year calendar display that you can scroll through with markers
+indicating for each day if entry has been made. it should indicate for each series present on the
+quilt using the correct color for that series for that day. clicking on a day opens an entry form
+below the calendar view for each of the series in that quilt. the entry dialog should also have a
+preview of the quilt so far. for the quilt, we also want to track which days have actually been cut
+and assembled so far and which blocks have been assembled so far. the entry form should have entry
+inputs for the day cut/assembled note as well. we will use badges for each day for cut and
+assembly. we'll have a next-step button in the entry dialog that will then show a print out page
+for next steps. the user can select the days they want to get the printout for."
+
+## Access path (owner, 2026-11-09)
+
+- **Data Quilts** module: a new top-level nav item right after **Project** (Home, Project, Data
+  Quilts, Libraries, Help, Tests). It lists every data quilt in the known projects. Each card: the
+  quilt's picture colored by the entries so far, the project and quilt name, and when data was last
+  entered. A card opens the **data entry dialog**.
+- **Home**: a recent project with a data quilt shows a calendar icon beside its trash icon. It opens
+  the same data entry dialog (for a project with several data quilts, the quilt is picked first).
+- **Data entry dialog** (shared by both): 
+  - A full-year calendar to scroll through. Each day shows a marker per series (A to D) on the quilt,
+    in that series' color, when the day has an entry for it.
+  - Each day also shows a **Cut** badge and an **Assembled** badge once marked.
+  - Tapping a day opens an entry form below the calendar: one input per series, and Cut and
+    Assembled inputs for the day.
+  - A preview of the quilt so far, colored by the entries.
+  - Blocks are tracked too: which data blocks are assembled.
+  - **Next steps** button: opens a printout page of next steps. The quilter picks the days it covers.
+
 ## Today
 
 - Designing a data quilt ends in the Design tab: the plan, the data blocks, the value mapping,
@@ -176,8 +212,23 @@ Enter a week's values: the workbook shows those days' fabrics, the rest still op
 
 ## Open Questions (for /speckit-clarify)
 
-- Where Make lives: a third quilt editor tab beside Design and Print, a mode of Print, or a page of
-  its own.
+Raised by the 2026-11-09 access path:
+
+- Known projects: Home's recent list holds file handles, and reading a file the app didn't just open
+  needs the browser's permission per file (and isn't possible where File System Access is missing:
+  Firefox, Safari, phones). Does the Data Quilts list read the project files, the drafts in
+  IndexedDB, or a small per-quilt summary the app keeps on the device when the project is saved?
+- Saving entries made from Data Quilts or Home: written back into the project file (same permission
+  question; elsewhere a download), or kept in the draft until the project is next opened and saved.
+- Cut ahead (the workbook and all templates from the start) and Block by block: reached from the
+  data entry dialog too, or from the quilt editor's Print tab only.
+- Series colors: the order line colors of spec 046 (qA to qD), or a color chosen per series.
+- Done marks (cut, assembled per day; assembled per block) are saved in the project file: a format
+  version bump. The four proposals all chose this.
+
+Earlier questions (the access path above answers the first):
+
+- ~~Where Make lives~~: a Data Quilts module and a data entry dialog (2026-11-09).
 - Done marks change the file (a done date per day): a format version bump, or kept on the device.
 - As you go or Cut ahead: a saved choice of the quilt, or just two views.
 - Cut ahead: are cut pieces labeled per day, or counted per shape only.
