@@ -249,6 +249,13 @@ export const CHECKS: Check[] = [
     to: '/data',
     file: 'demo-v10.rrq',
   },
+  {
+    id: 'TC-258',
+    group: G.make041,
+    text: 'A data quilt with a long name: on Data Quilts its card name wraps to two lines inside the card (no text running into the next card), ending in … with the full name on hover; the data entry dialog shows the whole name, wrapping if needed.',
+    last: '"long quilt titles truncate weirdly even on desktop where there\'s plenty of room"',
+    to: '/data',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

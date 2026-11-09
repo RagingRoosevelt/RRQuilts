@@ -9,7 +9,7 @@
     >
       <q-card-section class="row items-center no-wrap q-pb-sm" style="gap: 8px">
         <div class="col" style="min-width: 0">
-          <div class="text-h6 ellipsis">{{ quilt.notecard.name }}</div>
+          <div class="text-h6 title" :title="quilt.notecard.name">{{ quilt.notecard.name }}</div>
           <div class="text-caption text-grey-7 ellipsis">
             {{ card.projectName }}<template v-if="whereNote"> · {{ whereNote }}</template>
           </div>
@@ -217,6 +217,10 @@ defineExpose({ show });
 </script>
 
 <style scoped>
+.title {
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
 .entry-card {
   width: 1100px;
   max-width: 100vw;

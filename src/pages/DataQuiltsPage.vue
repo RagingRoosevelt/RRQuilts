@@ -39,8 +39,10 @@
         <q-card-section class="q-pt-sm col">
           <div class="row items-start no-wrap">
             <div class="col" style="min-width: 0">
-              <div class="text-weight-medium ellipsis">{{ c.quiltName }}</div>
-              <div class="text-caption text-grey-7 ellipsis">{{ c.projectName }}</div>
+              <div class="text-weight-medium clamp" :title="c.quiltName">{{ c.quiltName }}</div>
+              <div class="text-caption text-grey-7 clamp" :title="c.projectName">
+                {{ c.projectName }}
+              </div>
             </div>
             <q-btn flat dense round icon="more_vert" aria-label="More" @click.stop>
               <q-menu auto-close>
@@ -163,6 +165,17 @@ function openProject(c: DataCard) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 12px;
+}
+.cards > * {
+  min-width: 0;
+}
+/* Long names wrap to two lines, then end in "…" (the full name on hover). */
+.clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 .pic {
   height: 200px;
