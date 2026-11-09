@@ -58,6 +58,7 @@ const G = {
   shape049: 'Library blocks by shape (spec 049)',
   snap031: 'Snapping gravity and Line up (spec 031)',
   swirl025: 'Swirl and Pinwheel data blocks, traces in block pictures (spec 025)',
+  make041: 'Data Quilts: data entry and next steps (spec 041)',
 };
 
 export const CHECKS: Check[] = [
@@ -153,6 +154,52 @@ export const CHECKS: Check[] = [
     text: 'Libraries (Blocks) and the project’s Blocks tab: the sidebar’s Data section starts with a Show traces toggle, above the Data block dropdown, off at first: data block pictures show no traces until you turn it on. The choice is shared by both pages and kept after a reload.',
     last: '"let\'s add a "show traces" toggle to the library and project view, at the very start of the data section in the sidebar, above the "data block" dropdown" / "default the toggle to off"',
     to: '/libraries',
+  },
+  {
+    id: 'TC-245',
+    group: G.make041,
+    text: 'The nav has Data Quilts right after Project, also with no project open. After opening demo-v10.rrq, Data Quilts lists its two data quilts, each with its picture (only real entries colored), project name, “No entries yet” or “Last entry …”, and an Open badge.',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-246',
+    group: G.make041,
+    text: 'Tap a data quilt: the dialog shows the quilt so far, a calendar of the whole period opening on today (or the first day before the period starts), and the day’s form. Enter a few days (Enter moves to the next day): each day gets a dot per value in its range’s color, the picture and “n of 365 days entered” update. The two-value Weeks quilt shows two dots per day.',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-247',
+    group: G.make041,
+    text: 'In the day form, Cut and Assembled put a scissors and a double check on the day in the calendar; Block assembled (Jan) is saved for the block. Changing the value of a day marked Cut warns that a new value may take another fabric.',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-248',
+    group: G.make041,
+    text: 'Next steps: with nothing picked it covers the days entered and not cut; Shift-click a second day to pick a run. The printout lists each day’s value, fabric and pieces (count × letter in fabric), “No entry yet” or “Not on the quilt” where so, then the block’s templates lettered as the table with a key. Tint by fabric splits templates per fabric; Quilt notes (only when the quilt has notes) prints them after the steps. Print gives the same pages.',
+    to: '/data',
+    file: 'demo-v10.rrq',
+  },
+  {
+    id: 'TC-249',
+    group: G.make041,
+    text: 'Chrome or Edge: open a saved project with a data quilt, close it (Home › open another, or reload). Data Quilts still lists it; its picture loads at once or after Show (one browser prompt). Enter a day: the card says it waits for the project to open. Open the project: the entry is there and the project shows unsaved changes.',
+    to: '/data',
+  },
+  {
+    id: 'TC-250',
+    group: G.make041,
+    text: 'Unsaved project (never saved, or with unsaved changes) not open: entries made from Data Quilts go into its unsaved changes (Restore shows them). With the project open in another tab, the dialog says the data is kept on this device until the project next opens.',
+    to: '/data',
+  },
+  {
+    id: 'TC-251',
+    group: G.make041,
+    text: 'Home (Chrome or Edge, a recent project with a data quilt): a calendar icon on its row opens the data entry dialog; with several data quilts it asks which. Rows of projects without data quilts have no icon.',
+    to: '/',
   },
 ];
 

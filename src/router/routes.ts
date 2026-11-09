@@ -34,6 +34,9 @@ const routes: RouteRecordRaw[] = [
     props: { title: 'Image editor' },
     meta: project,
   },
+  // Data Quilts (spec 041): data entry and next steps for any known data quilt, no project open.
+  { path: '/data', component: () => import('@/pages/DataQuiltsPage.vue') },
+  { path: '/data/steps', component: () => import('@/pages/DataStepsPage.vue') },
   { path: '/libraries', component: () => import('@/pages/LibrariesPage.vue') },
   // Help (spec 013): /help/<section>[/<topic>]; /help opens Guides.
   { path: '/help', redirect: '/help/guides' },

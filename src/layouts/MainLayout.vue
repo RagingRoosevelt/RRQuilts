@@ -132,6 +132,7 @@ const HOME = { to: '/', icon: 'home', label: 'RRQuilts' };
 const nav = computed(() => [
   HOME,
   ...(project.isOpen ? [{ to: '/project', icon: 'grid_view', label: 'Project' }] : []),
+  { to: '/data', icon: 'calendar_month', label: 'Data Quilts' },
   { to: '/libraries', icon: 'collections_bookmark', label: 'Libraries' },
   { to: '/help', icon: 'help_outline', label: 'Help' },
   // Testing aids: dev server only (routes.ts).

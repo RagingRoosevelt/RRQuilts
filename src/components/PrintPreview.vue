@@ -398,6 +398,57 @@
               </div>
             </div>
 
+            <!-- Next steps (spec 041): each day's values, fabric and pieces, by block -->
+            <div v-else-if="s.kind === 'steps'" class="column" style="gap: 10px">
+              <div v-if="on(s, 'cap')" data-m="cap" class="text-caption">
+                Cut each piece from the fabric its day's value falls in, then sew it into its block
+                at the place with the day's number. Letters match the templates.
+              </div>
+              <table v-if="on(s, 't>')">
+                <thead data-m="t>">
+                  <tr>
+                    <th>Date</th>
+                    <th>Block</th>
+                    <th>Value</th>
+                    <th>Pieces</th>
+                    <th>Done</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template v-for="r in s.rows" :key="r.date">
+                    <tr v-if="on(s, `t>${r.date}`)" :data-m="`t>${r.date}`">
+                      <td>{{ stepDate(r.date) }}</td>
+                      <td>{{ r.label ?? '—' }}</td>
+                      <td>
+                        <div v-for="x in r.values" :key="x.slot">
+                          <span class="chip" :style="chipStyle(x.fill)" />
+                          {{ stepValue(x) }} · {{ fillInfo(x.fill).name }}
+                        </div>
+                      </td>
+                      <td>
+                        <template v-if="r.reason === 'no-entry'">No entry yet</template>
+                        <template v-else-if="r.reason === 'not-placed'">Not on the quilt</template>
+                        <div v-for="(p, j) in r.pieces" :key="j">
+                          {{ p.count }} × {{ p.letter }} in
+                          <span class="chip" :style="chipStyle(p.fill)" />
+                          {{ fillInfo(p.fill).name }}
+                        </div>
+                      </td>
+                      <td>
+                        {{ r.made?.cut ? 'Cut' : ''
+                        }}{{ r.made?.cut && r.made?.assembled ? ', ' : ''
+                        }}{{ r.made?.assembled ? 'Assembled' : '' }}
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+              <template v-if="s.notes && on(s, 'notes')">
+                <div class="text-weight-medium" data-m="notes">Quilt notes</div>
+                <div style="white-space: pre-wrap">{{ s.notes }}</div>
+              </template>
+            </div>
+
             <!-- Credits: everyone whose work this builds on (when no block pages carry them) -->
             <div v-else-if="s.kind === 'credits'" class="column" style="gap: 8px">
               <div v-if="on(s, 'title')" data-m="title">
@@ -566,6 +617,8 @@
         :kind="kind"
         :id="id"
         :target="target"
+        :doc="props.doc"
+        :days="days"
         :measured="measuredHere"
         print-only
       />
@@ -592,7 +645,8 @@ import {
 import HelpLink from '@/components/HelpLink.vue';
 import TemplatePiece from '@/components/TemplatePiece.vue';
 import { fillKey } from '@/model/coloring';
-import { scaleEntries, slotColoring } from '@/model/data-quilt';
+import { placesOf, scaleEntries, slotColoring } from '@/model/data-quilt';
+import { daySteps, type DayStep } from '@/model/print/data-steps';
 import { dataYardagePieces } from '@/model/print/data-yardage';
 import {
   authorOf,
@@ -647,8 +701,10 @@ import { creditSocial, isKnownSite, socialIcon, type Social } from '@/settings/s
 import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
-  kind: 'block' | 'quilt';
+  /** `steps`: a data quilt's next steps for `days` (spec 041). */
+  kind: 'block' | 'quilt' | 'steps';
   id: string;
+  days?: readonly string[] | undefined;
   target?: PrintTarget | undefined;
   /** The copy that prints (hidden on screen). */
   printOnly?: boolean;
@@ -890,6 +946,8 @@ interface View {
   /** Quilts: the outer edge (pieces are clipped to it) and whether to trim to it after piecing. */
   edge?: Pt[];
   trim?: boolean;
+  /** Next steps (spec 041). */
+  steps?: DayStep[];
   /** Templates: block, its finished size, and pieces of one block for the key. */
   block?: Block;
   blockSize?: [number, number];
@@ -905,6 +963,35 @@ const view = computed<View | undefined>(() => {
   const dd = doc.value;
   if (!dd) return undefined;
   const id = props.id;
+  if (props.kind === 'steps') {
+    const quilt = dd.project.quilts.find((q) => q.id === id);
+    if (!quilt) return undefined;
+    const steps = daySteps(dd, quilt, props.days ?? []);
+    const dates = steps.map((x) => x.date);
+    const span = (k: string) =>
+      new Date(`${k}T00:00:00Z`).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC',
+      });
+    return {
+      title: quilt.notecard.name,
+      size: !dates.length
+        ? 'No days'
+        : dates.length === 1
+          ? span(dates[0]!)
+          : `${span(dates[0]!)} to ${span(dates.at(-1)!)}`,
+      byline: `By ${quilt.author ?? 'anonymous'}`,
+      author: quilt.author,
+      basedOn: [],
+      notes: prefs.value.stepsNotes ? quilt.notecard.notes : undefined,
+      blocks: [],
+      pieces: steps.flatMap((x) => x.pieces.flatMap((p) => Array<Piece>(p.count).fill(p.piece))),
+      steps,
+      picture: [],
+      pictureBox: [0, 0, 1, 1],
+    };
+  }
   if (props.kind === 'quilt') {
     const quilt = dd.project.quilts.find((q) => q.id === id);
     if (!quilt) return undefined;
@@ -985,10 +1072,14 @@ const view = computed<View | undefined>(() => {
 });
 
 // Templates: each distinct shape, cut line around it, rotated snug, packed on pages.
-function templateItems(pieces: Piece[], prefix: string) {
+function templateItems(pieces: Piece[], prefix: string, letters?: Map<string, string>) {
   const { mirror, seamAllowance, trimPoints, tint, labels } = prefs.value;
   // Tinted or color-keyed: one template per fabric.
-  const list = templates(pieces, prefix).flatMap((t) =>
+  const lettered = templates(pieces, prefix).map((t) => ({
+    ...t,
+    letter: letters?.get(shapeKey(t.poly)) ?? t.letter,
+  }));
+  const list = lettered.flatMap((t) =>
     (tint || labels.color) && t.counts.size > 1
       ? [...t.counts].map(([fill, n]) => ({ ...t, counts: new Map([[fill, n]]) }))
       : [t],
@@ -1081,6 +1172,12 @@ type Sheet = (
       heading: string;
     }
   | {
+      kind: 'steps';
+      heading: string;
+      rows: DayStep[];
+      notes?: string | undefined;
+    }
+  | {
       kind: 'miter';
       heading: string;
       guides: MiterGuide[];
@@ -1169,6 +1266,7 @@ const logical = computed<Sheet[]>(() => {
   const wanted: string[] = isBlock ? prefs.value.blockSections : prefs.value.quiltSections;
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
+  if (v.steps) return stepSheets(v.steps, v.notes);
 
   // One order whatever order the boxes were ticked in — quilt: picture, yardage, rotary, blocks,
   // templates (credits last); block: block page ("picture"), rotary, templates.
@@ -1448,6 +1546,38 @@ function quiltBlocks() {
   });
 }
 
+/** Next steps (spec 041): the days' table, then each block's templates for just those days, keyed
+ *  on the block, lettered as the table. Days without pieces print their reason only. */
+function stepSheets(steps: DayStep[], notes: string | undefined): Sheet[] {
+  const dd = doc.value!;
+  const quilt = dd.project.quilts.find((q) => q.id === props.id);
+  const plan = quilt?.data;
+  if (!quilt || !plan) return [];
+  const out: Sheet[] = [{ kind: 'steps', heading: 'Next steps', rows: steps, notes }];
+  const real = { ...quilt, data: { ...plan, show: 'real' as const, waiting: 'designed' as const } };
+  const slots = new Map(generateFor(quilt).slots.map((x) => [x.id, x]));
+  for (const k of [...new Set(steps.flatMap((x) => (x.pieces.length ? [x.number!] : [])))]) {
+    const place = placesOf(plan, k)[0];
+    const slot = place && slots.get(place.space);
+    const content = slot && quilt.layers[0].slots[slot.id];
+    const block = content && dd.project.blocks.find((b) => b.id === content.block);
+    if (!slot || !block) continue;
+    const keyPieces = blockPieces(block, slot.size, slotColoring(real, slot.id, block));
+    const letters = new Map(templates(keyPieces).map((t) => [shapeKey(t.poly), t.letter]));
+    const mine = steps.filter((x) => x.number === k);
+    out.push(
+      ...templateSheets({
+        pieces: mine.flatMap((x) => x.pieces.flatMap((p) => Array<Piece>(p.count).fill(p.piece))),
+        size: slot.size,
+        keyPieces,
+        heading: `Templates: ${mine[0]!.label}`,
+        letters,
+      }),
+    );
+  }
+  return out;
+}
+
 /** Template pages for one block: a lettered key, then each distinct piece packed at true size. */
 function templateSheets(src: {
   pieces: Piece[];
@@ -1460,12 +1590,14 @@ function templateSheets(src: {
   noKey?: boolean;
   /** A key as wide as the page (a whole quilt's pieces), not a quarter of it. */
   bigKey?: boolean;
+  /** Letters by shape (the key's), when `pieces` are only some of the block's. */
+  letters?: Map<string, string>;
 }): Sheet[] {
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
   const gap = units.value === 'in' ? 0.25 : 0.6;
   const prefix = src.prefix ?? '';
-  const items = templateItems(src.pieces, prefix);
+  const items = templateItems(src.pieces, prefix, src.letters);
   // Key: the block with each patch's letter, about a quarter of the page wide.
   const keyScale = src.bigKey
     ? Math.min(aw, ah * 0.8) / Math.max(...src.size)
@@ -1724,7 +1856,7 @@ const SHEET_HELP: Record<string, { topic: string; label: string }> = {
   miter: { topic: 'math/borders', label: 'Mitered borders' },
   yardage: { topic: 'math/patches-from-yardage', label: 'Yardage, binding, and backing' },
 };
-const FLOW = new Set(['rotary', 'yardage', 'credits', 'block']);
+const FLOW = new Set(['rotary', 'yardage', 'credits', 'block', 'steps']);
 type Costs = Record<number, { key: string; cost: number }[]>;
 const measuredHere = ref<Costs>({});
 const costs = computed(() => props.measured ?? measuredHere.value);
@@ -1750,6 +1882,20 @@ const pillsBeside = (s: Sheet) =>
   s.kind === 'block' && s.fabrics.length * 6.6 <= s.h * s.scale * mm.value;
 /** Part of a split page: is this piece on it? */
 const on = (s: Sheet, key: string) => !s.show || s.show.has(key);
+const stepDate = (k: string) =>
+  new Date(`${k}T00:00:00Z`).toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+function stepValue(x: DayStep['values'][number]) {
+  const slot = doc.value?.project.quilts.find((q) => q.id === props.id)?.data?.slots[x.slot];
+  if (!slot) return String(x.value);
+  if (slot.kind === 'category')
+    return slot.categories.find((c) => c.id === x.value)?.name ?? String(x.value);
+  return `${slot.label}: ${x.value}${slot.unit ? ` ${slot.unit}` : ''}`;
+}
 const measureStyle = computed(() => ({ width: `${area.value[0]}${units.value}` }));
 function measure() {
   const out: Costs = {};

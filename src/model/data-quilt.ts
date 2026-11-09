@@ -1007,3 +1007,13 @@ export function setBlockMade(plan: DataPlan, n: number, on: boolean, today: stri
   void _b;
   return Object.keys(blocksMade).length ? { ...rest, blocksMade } : rest;
 }
+
+/** The plan's number (1-based) holding a date, and its day within it; none when it has no place
+ *  (outside the period, or 29 February averaged or ignored). */
+export function numberOfDate(plan: DataPlan, date: string): { k: number; n: number } | undefined {
+  const d = placeDays(plan).indexOf(date) + 1;
+  if (!d) return undefined;
+  const nums = dataNumbers(plan);
+  const k = nums.findIndex((x) => d >= x.first && d < x.first + x.len) + 1;
+  return k ? { k, n: d - nums[k - 1]!.first + 1 } : undefined;
+}

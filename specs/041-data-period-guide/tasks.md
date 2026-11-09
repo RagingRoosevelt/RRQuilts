@@ -43,18 +43,18 @@ em or en dashes, UI labels quoted as in the UI). Tests in `test/vitest/__tests__
 
 **Independent test**: open Data Quilts with no project open, open the demo months quilt, enter Jan 11; the calendar dot shows in its range color, the preview updates, Next steps prints Jan 11's pieces, fabric, cut and place.
 
-- [ ] T012 [US1] Create src/stores/data-quilts.ts: the card list (open project, dirty drafts from `unsavedDrafts`, `knownProjects`), a session cache of read docs by project id (with pending laid over through `applyPending`), `source(projectId)` = `open | draft | file | other-tab` (lock from `lockedProjects()`), `write(projectId, quiltId, patch)` routing per research R3 (open: `project.change` with the Data tab's coalesce keys; draft: `putDraft` stays dirty; else `putPending`), and `stepsInput` for the steps page
-- [ ] T013 [US1] Add `/data` and `/data/steps` routes in src/router/routes.ts (no `requiresProject`; `/data/steps` redirects to `/data` without `stepsInput`)
-- [ ] T014 [US1] Add the **Data Quilts** nav item after Project in src/layouts/MainLayout.vue (always shown; active on `/data*`)
-- [ ] T015 [US1] Create src/pages/DataQuiltsPage.vue per contracts/ui.md: cards with picture (`quiltThumbnail` of the quilt with `show: 'real'`), project and quilt names, "Last entry …" from `lastEntry`, unsaved/pending badges; **Show** button when the file needs permission (one `readProjectDoc` per tap); card menu (Open project, Next steps, Block by block, Forget); empty state linking Help › Data quilts
-- [ ] T016 [P] [US1] Create src/components/DataCalendar.vue: the period's months stacked in a scroll area, opening on today's month (or the first month before the period starts); each day cell shows a dot per series with an entry in `dayColor` (resolved with `colorLookup`), an empty ring for a series without; dims days outside the period; emits `pick(date)`; props `{ quilt, selected: DateKey[], doc }`
-- [ ] T017 [P] [US1] Create src/components/DataDayForm.vue: one input per series reusing the Data tab's entry inputs from src/components/DataEntriesDialog.vue (number with unit, or category select); emits `set(date, slot, value)`; Enter moves to the next day
-- [ ] T018 [US1] Create src/components/DataEntryDialog.vue: header (quilt, project, where changes go per `source`), the quilt preview (real entries, redraws on change), DataCalendar, DataDayForm below for the tapped day, footer **Next steps** and Close; writes through the data-quilts store
-- [ ] T019 [US1] In src/pages/HomePage.vue add a calendar icon button (`event`, tooltip "Enter data") on recent rows and loose draft rows whose project has data quilts (from `knownProjects` and drafts), beside the trash icon where there is one; several data quilts open a small menu to pick one; opens DataEntryDialog
-- [ ] T020 [P] [US1] Create src/model/print/data-steps.ts `daySteps(doc, quilt, days)` per research R7 and data-model.md (`DayStep`): real entries only (`show: 'real'`, never the sample), colorway applied, pieces from `quiltPieces` filtered by the day's paint, identical pieces in one fabric counted together, reasons `no-entry` / `not-placed` / `past`
-- [ ] T021 [P] [US1] Tests in test/vitest/__tests__/model/print/data-steps.spec.ts on the demo months and weeks quilts with entries added in the test: Jan 11 to 13 letters, fabrics, counts; reasons; counts agree with `quiltPieces` for the same days
-- [ ] T022 [US1] Add `kind: 'steps'` to src/components/PrintPreview.vue with props `days?`/`numbers?`: sheets for the steps table, the blocks with the days' places outlined and numerals, templates via `templateItems` (respecting `tint`), and quilt notes; header "Jan 11 to Jan 13"
-- [ ] T023 [US1] Add `stepsNotes: true` to `PRINT_DEFAULTS` in src/model/print/prefs.ts and create src/pages/DataStepsPage.vue: PrintPreview `kind="steps"` with a slim options panel (Tint by fabric, **Quilt notes** shown only when the quilt has notes, paper) and a Print button
+- [X] T012 [US1] Create src/stores/data-quilts.ts: the card list (open project, dirty drafts from `unsavedDrafts`, `knownProjects`), a session cache of read docs by project id (with pending laid over through `applyPending`), `source(projectId)` = `open | draft | file | other-tab` (lock from `lockedProjects()`), `write(projectId, quiltId, patch)` routing per research R3 (open: `project.change` with the Data tab's coalesce keys; draft: `putDraft` stays dirty; else `putPending`), and `stepsInput` for the steps page
+- [X] T013 [US1] Add `/data` and `/data/steps` routes in src/router/routes.ts (no `requiresProject`; `/data/steps` redirects to `/data` without `stepsInput`)
+- [X] T014 [US1] Add the **Data Quilts** nav item after Project in src/layouts/MainLayout.vue (always shown; active on `/data*`)
+- [X] T015 [US1] Create src/pages/DataQuiltsPage.vue per contracts/ui.md: cards with picture (`quiltThumbnail` of the quilt with `show: 'real'`), project and quilt names, "Last entry …" from `lastEntry`, unsaved/pending badges; **Show** button when the file needs permission (one `readProjectDoc` per tap); card menu (Open project, Next steps, Block by block, Forget); empty state linking Help › Data quilts
+- [X] T016 [P] [US1] Create src/components/DataCalendar.vue: the period's months stacked in a scroll area, opening on today's month (or the first month before the period starts); each day cell shows a dot per series with an entry in `dayColor` (resolved with `colorLookup`), an empty ring for a series without; dims days outside the period; emits `pick(date)`; props `{ quilt, selected: DateKey[], doc }`
+- [X] T017 [P] [US1] Create src/components/DataDayForm.vue: one input per series reusing the Data tab's entry inputs from src/components/DataEntriesDialog.vue (number with unit, or category select); emits `set(date, slot, value)`; Enter moves to the next day
+- [X] T018 [US1] Create src/components/DataEntryDialog.vue: header (quilt, project, where changes go per `source`), the quilt preview (real entries, redraws on change), DataCalendar, DataDayForm below for the tapped day, footer **Next steps** and Close; writes through the data-quilts store
+- [X] T019 [US1] In src/pages/HomePage.vue add a calendar icon button (`event`, tooltip "Enter data") on recent rows and loose draft rows whose project has data quilts (from `knownProjects` and drafts), beside the trash icon where there is one; several data quilts open a small menu to pick one; opens DataEntryDialog
+- [X] T020 [P] [US1] Create src/model/print/data-steps.ts `daySteps(doc, quilt, days)` per research R7 and data-model.md (`DayStep`): real entries only (`show: 'real'`, never the sample), colorway applied, pieces from `quiltPieces` filtered by the day's paint, identical pieces in one fabric counted together, reasons `no-entry` / `not-placed` / `past`
+- [X] T021 [P] [US1] Tests in test/vitest/__tests__/model/print/data-steps.spec.ts on the demo months and weeks quilts with entries added in the test: Jan 11 to 13 letters, fabrics, counts; reasons; counts agree with `quiltPieces` for the same days
+- [X] T022 [US1] Add `kind: 'steps'` to src/components/PrintPreview.vue with props `days?`/`numbers?`: sheets for the steps table, the blocks with the days' places outlined and numerals, templates via `templateItems` (respecting `tint`), and quilt notes; header "Jan 11 to Jan 13"
+- [X] T023 [US1] Add `stepsNotes: true` to `PRINT_DEFAULTS` in src/model/print/prefs.ts and create src/pages/DataStepsPage.vue: PrintPreview `kind="steps"` with a slim options panel (Tint by fabric, **Quilt notes** shown only when the quilt has notes, paper) and a Print button
 
 **Checkpoint**: MVP: enter data anywhere, print a day's steps.
 
@@ -91,8 +91,8 @@ em or en dashes, UI labels quoted as in the UI). Tests in `test/vitest/__tests__
 
 **Independent test**: mark Jan 11 Cut and Assembled: badges show in the calendar; the January block's Block assembled toggle shows on its days; Next steps' default days no longer include Jan 11; changing Jan 11's value warns it was cut.
 
-- [ ] T031 [US4] In src/components/DataDayForm.vue add **Cut** and **Assembled** toggles (`setMade` with today's date), the day's block label with **Block assembled** (`setBlockMade`), and the warning when changing a value of a day marked cut
-- [ ] T032 [US4] Cut (scissors) and Assembled (needle) badges per day in src/components/DataCalendar.vue, and an assembled mark on each month's or week's label
+- [X] T031 [US4] In src/components/DataDayForm.vue add **Cut** and **Assembled** toggles (`setMade` with today's date), the day's block label with **Block assembled** (`setBlockMade`), and the warning when changing a value of a day marked cut
+- [ ] T032 [US4] (day badges done in the MVP: scissors, double check) Cut (scissors) and Assembled (needle) badges per day in src/components/DataCalendar.vue, and an assembled mark on each month's or week's label
 - [ ] T033 [US4] Done days in the steps: `daySteps`/`blockSteps` carry `made`; the steps table in src/components/PrintPreview.vue shows "cut Jan 14" / "assembled" and Block by block marks done days
 
 ---
@@ -100,7 +100,7 @@ em or en dashes, UI labels quoted as in the UI). Tests in `test/vitest/__tests__
 ## Phase 7: Polish & Cross-Cutting
 
 - [ ] T034 [P] Help: a "Making a data quilt" section in src/help/guides/data-quilts.md (Data Quilts module, the calendar and entry form, Cut and Assembled, where entries wait for a project that isn't open, Next steps, Block by block, Quilt notes toggle) (FR-007)
-- [ ] T035 [P] Checklist checks TC-245 onward in src/dev/checklist.ts, one per quickstart.md manual scenario, new group for spec 041
+- [ ] T035 [P] (MVP checks TC-245 to TC-251 added) Checklist checks TC-245 onward in src/dev/checklist.ts, one per quickstart.md manual scenario, new group for spec 041
 - [ ] T036 [P] Fixture with marks: extend test/vitest/__tests__/formats/write-samples.spec.ts / write-demo.spec.ts so v11 samples carry `made` and `blocksMade` (files written at release per scripts/release.md)
 - [ ] T037 Update spec.md status and CLAUDE.md (Data Quilts module, `known`/`pending` stores, `data-steps.ts`) and run `make check`
 

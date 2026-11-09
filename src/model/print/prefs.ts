@@ -43,6 +43,8 @@ export const PRINT_DEFAULTS = {
    */
   labels: { letter: true, counts: true, size: false, color: false },
   tint: false,
+  /** Next steps (spec 041): print the quilt's notes after the steps. */
+  stepsNotes: true,
   onePerPage: false,
   /** A scale square on each template (the quilt picture page always has one). */
   squareOnTemplate: true,
