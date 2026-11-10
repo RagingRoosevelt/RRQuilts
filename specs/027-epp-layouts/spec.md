@@ -64,6 +64,12 @@ justification).
   is cut). Owner, 2026-11-10: "A. Users can choose between specifying auto cutting to a size or
   auto-closing to create the edges."
 
+- Q: In a block quilt, where do rosettes show up and how do they print? → A: In the sidebar's block
+  picker behind a **Rosettes** filter, with an EPP badge, offering only rosettes whose outline
+  matches the space; they place, turn and color like blocks. The printout adds an EPP templates
+  section (paper and fabric templates) for their pieces, left out of rotary cutting. Owner,
+  2026-11-10: "your recomendation for how rosettes show up in a block quilt looks right."
+
 ## Concepts
 
 - **EPP quilt**: a quilt (or part of a project) made of **pieces** placed freely and joined edge to
@@ -387,7 +393,10 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   normal block quilts. Owner, 2026-11-10: "in the standard block-based quilt designer, we should also
   show rosettes that match standard block layout shapes (triangle, diamond, hexagon, square) so that
   EPP rosettes could be mixed into normal block quilts." The block space sets the rosette's size (its
-  1U follows from the space), and its pieces print as EPP shapes (spec 050 User Story 4).
+  1U follows from the space). Rosettes are offered in the sidebar's block picker behind a
+  **Rosettes** filter, with an EPP badge, only where their outline matches the space; they place,
+  turn and color like blocks. The block quilt's printout adds an EPP templates section (paper and
+  fabric templates) for their pieces, which are left out of rotary cutting.
 
 ### Key Entities
 
