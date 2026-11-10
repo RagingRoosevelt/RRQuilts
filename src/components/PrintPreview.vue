@@ -1722,13 +1722,15 @@ function stepSheets(steps: DayStep[], notes: string | undefined, blocks: boolean
     // its days.
     const days = new Map<string, string[]>();
     for (const r of mine)
-      for (const p of r.pieces) {
+      for (const p of [...r.pieces, ...(r.blank ?? [])]) {
         const key = `${p.letter}|${p.fill}`;
         days.set(key, [...(days.get(key) ?? []), shortDate(r.date)]);
       }
     const pieces = [
       ...(dataT
-        ? mine.flatMap((x) => x.pieces.flatMap((p) => Array<Piece>(p.count).fill(p.piece)))
+        ? mine.flatMap((x) =>
+            [...x.pieces, ...(x.blank ?? [])].flatMap((p) => Array<Piece>(p.count).fill(p.piece)),
+          )
         : []),
       ...(otherT ? own.flatMap((p) => Array<Piece>(p.count).fill(p.piece)) : []),
     ];
@@ -1747,6 +1749,8 @@ function stepSheets(steps: DayStep[], notes: string | undefined, blocks: boolean
   }
   const loose = steps.filter((x) => !x.number);
   if (loose.length) groups.push({ label: 'Not on the quilt', rows: loose, own: [] });
+  // Nothing else to print: the info page, whose table says why.
+  if (!out.length) out.push({ kind: 'steps', heading: 'Instructions', groups, notes });
   return out;
 }
 

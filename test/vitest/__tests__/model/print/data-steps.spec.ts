@@ -34,6 +34,23 @@ describe('day steps', () => {
     expect(a!.pieces[0]!.letter).toMatch(/^[A-Z]+$/);
   });
 
+  it('a day without an entry, or a value not entered, has its pieces blank (no fabric)', async () => {
+    const doc = await demo();
+    const months = dataQuilt(doc, 'months');
+    months.data!.entries = {};
+    const [none] = daySteps(doc, months, ['2027-01-13']);
+    expect(none!.reason).toBe('no-entry');
+    expect(none!.pieces).toEqual([]);
+    expect(none!.blank!.map((p) => [p.slot, p.fill, p.count, p.piece.fill])).toEqual([
+      [0, 'none', 1, 'none'],
+    ]);
+    const weeks = dataQuilt(doc, 'weeks');
+    weeks.data!.entries = { '2027-01-11': [33, null] };
+    const [half] = daySteps(doc, weeks, ['2027-01-11']);
+    expect(half!.pieces.map((p) => p.slot)).toEqual([0]);
+    expect(half!.blank!.map((p) => [p.slot, p.fill])).toEqual([[1, 'none']]);
+  });
+
   it('weeks: two values per day; a day past the placed weeks is not placed', async () => {
     const doc = await demo();
     const q = dataQuilt(doc, 'weeks');

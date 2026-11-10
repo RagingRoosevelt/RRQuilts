@@ -270,4 +270,5 @@ the blocks. On the instructions page, **Days** picks a range of dates, and **Not
 days entered and not marked **Cut**. Under **Contents**, **Info page** prints the block maps and
 the table of days (and the quilt notes). Under **Templates**, **Data patches** prints templates for
 the days' pieces and **Non-data patches** adds the rest of each block, the patches that don't
-change with the data. One of the three always stays on. Block by block always prints all of them.
+change with the data. Days without an entry yet get plain templates, not colored in, so the
+pieces can be cut ahead of the fabric choice. One of the three always stays on. Block by block always prints all of them.

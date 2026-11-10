@@ -381,6 +381,12 @@ export const CHECKS: Check[] = [
     text: "Print instructions, Days: of Info page, Data patches and Non-data patches, the last one still on is greyed out and can't be turned off; turning another on frees it. Any of them can always be turned on.",
     last: '"let\'s have those toggles only available to turn off (always available to turn on) when at least one of the other two is on"',
   },
+  {
+    id: 'TC-278',
+    group: G.make041,
+    text: 'Print instructions, Days, with days not entered yet (demo-v10, Data Quilt, Feb 10 to 11): Data patches prints their templates uncolored, even with Tint by fabric on, each saying its days (Cut 2 · Feb 10, Feb 11). The table still says No entry yet. A day with only some values entered gets colored templates for those and plain ones for the rest. If nothing else would print, the info page prints.',
+    last: '"show the templates for those days but not colored in. and yes, show the info page whenever nothing else would print"',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

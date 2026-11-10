@@ -157,6 +157,10 @@ for next steps. the user can select the days they want to get the printout for."
 - Owner, 2026-11-09: "let's have those toggles only available to turn off (always available to
   turn on) when at least one of the other two is on". The last of Info page, Data patches and
   Non-data patches still on can't be turned off, so something always prints.
+- Owner, 2026-11-09, on picked days without entries printing nothing: "show the templates for those
+  days but not colored in. and yes, show the info page whenever nothing else would print". A day
+  without an entry (or a value not entered on a day) carries its pieces as `blank` (fill `none`):
+  plain templates labeled with their days. With nothing else to print, the info page prints.
 
 ## Today
 

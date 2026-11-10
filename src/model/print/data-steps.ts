@@ -39,6 +39,8 @@ export interface DayStep {
   reason?: 'no-entry' | 'not-placed';
   values: { slot: number; value: number | string; fill: string }[];
   pieces: StepPiece[];
+  /** Pieces of values not entered yet, fill `none`: plain templates, cut once there's an entry. */
+  blank?: StepPiece[];
   made?: DayMade;
 }
 
@@ -145,18 +147,21 @@ export function daySteps(doc: RrqDoc, quilt: Quilt, days: readonly string[]): Da
     const at = find(date);
     if (!at?.placed) return { ...base, values, pieces: [], reason: 'not-placed' };
     const head = { ...base, number: at.k, label: numberLabel(plan, at.k), values };
-    if (!values.length) return { ...head, pieces: [], reason: 'no-entry' };
     const merged = new Map<string, StepPiece>();
+    const blank = new Map<string, StepPiece>();
     for (const x of at.list) {
-      if (!values.some((v) => v.slot === x.series)) continue;
+      const entered = values.some((v) => v.slot === x.series);
+      const fill = entered ? x.piece.fill : 'none';
       const letter = letterIn(x.block, x.piece);
-      const key = `${letter}|${x.series}|${x.piece.fill}`;
-      const hit = merged.get(key);
+      const key = `${letter}|${x.series}|${fill}`;
+      const into = entered ? merged : blank;
+      const hit = into.get(key);
       if (hit) hit.count++;
-      else
-        merged.set(key, { letter, slot: x.series, fill: x.piece.fill, count: 1, piece: x.piece });
+      else into.set(key, { letter, slot: x.series, fill, count: 1, piece: { ...x.piece, fill } });
     }
-    return { ...head, pieces: [...merged.values()] };
+    const rest = blank.size ? { blank: [...blank.values()] } : {};
+    if (!values.length) return { ...head, pieces: [], ...rest, reason: 'no-entry' };
+    return { ...head, pieces: [...merged.values()], ...rest };
   });
 }
 
