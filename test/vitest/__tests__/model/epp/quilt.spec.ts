@@ -201,4 +201,24 @@ describe('EPP quilt print pieces', () => {
       'rrquilts.epp-triangle',
     ]);
   });
+
+  it('cut to size sits on the pieces, not past them (owner: "shifted towards the top too much")', () => {
+    const star = rosettes.find((r) => r.notecard.name === 'Six-Diamond Star')!.id;
+    let q = newEppQuilt('Q', 'in');
+    const y = -0.6179966044142614;
+    for (const p of [
+      { rosette: star, at: [-1.4057157092264432, y] as [number, number], turn: 0 },
+      { rosette: star, at: [1.5942842907735557, y] as [number, number], turn: -60 },
+      {
+        shape: 'rrquilts.epp-60-diamond',
+        at: [0.09428429077355646, y] as [number, number],
+        turn: -240,
+      },
+    ])
+      q = addPiece(q, { ...p, scale: 1 }).quilt;
+    const r = cutRect(piecePolys(q, lookup))!;
+    const h = Math.sqrt(3) / 2;
+    const want = [-1.4057157092264432 - 1, y - h, 1.5942842907735557 + 1, y + h];
+    r.forEach((v, i) => expect(v).toBeCloseTo(want[i]!, 5));
+  });
 });

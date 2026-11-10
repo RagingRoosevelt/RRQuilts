@@ -196,6 +196,7 @@ limits are listed in the plan's research).
 
 - [ ] T071 [US2] Change the coloring of a rosette already placed (EPP quilt): for example a coloring choice on a placed rosette with several colorings, setting `piece.coloring` (owner, 2026-11-10: "We should have a method to change a rosette's selected color variation. We can leave that as a note for now")
 - [X] T072 [US1] Close space lines: drag corner to corner to fill the closed spaces on each side of the line or split the piece it crosses; areas that are existing shapes become references (`faces.ts` `lineCut`, `match.ts` `pieceFor`, `rosette-ops`/`quilt-ops` `fillGap`/`splitPiece`, both editors; TC-286, fix TC-287)
+- [X] T073 [US1] Cut to size fits the pieces: grid cells count only when fully covered, then each side pushed out to the pieces (`edge.ts` `cutRect`; owner, 2026-11-10: "cut-to-size is leaving weird bumps on the top of the quilt"; TC-288)
 
 - [ ] T066 [P] Help guides src/help/guides/epp-shapes.md, rosettes.md, epp-quilts.md (front matter, help style rules, UI labels as in the UI), HelpLink from each editor; link checks pass (topics test)
 - [ ] T067 [P] Layout gallery and picture check: an EPP quilt variation (G### newest on top) in src/dev/variations.ts if gallery quilts can carry EPP; Print examples in src/dev/print-examples.ts for a rosette and an EPP quilt

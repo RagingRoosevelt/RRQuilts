@@ -150,6 +150,13 @@ export const CHECKS: Check[] = [
     last: 'it only filled in one of the spaces produced by the gap fill I made',
     to: '/project',
   },
+  {
+    id: 'TC-288',
+    group: G.epp027,
+    text: 'Cut to size fits the pieces: two Six-Diamond Stars side by side with a 60° Diamond between them, Layout › Edge › Cut to size (or Largest rectangle the pieces fill on a quilt already cut). The dashed cut line runs along the flat top and bottom of the pieces and through the side notch tips: no bumps of empty space inside it, no strip of pieces left outside it at the bottom.',
+    last: 'cut-to-size is leaving weird bumps on the top of the quilt / it looks like the size it used is right but it is shifted towards the top too much',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
