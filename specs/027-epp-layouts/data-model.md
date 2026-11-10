@@ -10,7 +10,7 @@ gives it a real length (project units, inches or cm). Rosettes and shapes have n
 | itemBase | id, notecard, source, version, revision, author, license, credits | as blocks |
 | outline | `[x, y][]` units, 3-24 vertices, counter-clockwise | checks: closes, simple (no self-crossing), convex (corners < 180°), whole-unit edges except `marked` |
 | locked | `number[]` vertex indexes | optional; tools never move them |
-| marked | `number[]` edge indexes (edge i = vertex i → i+1) | optional; deliberately not whole units, snap only to equal lengths |
+| marked | `number[]` edge indexes (edge i = vertex i → i+1) | optional; deliberately not whole units; length L snaps to L, kL, L/2, L/4 |
 | fill | Fill | optional default fill for new pieces |
 
 A shape failing a check is saved as a draft (`notecard` kept) but not offered in pickers.

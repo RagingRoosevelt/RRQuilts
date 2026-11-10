@@ -63,7 +63,8 @@ interchangably with individual patchblocks when designing an EPP quilt".
 - **Interchangeable**: anywhere a shape can be used, a rosette can too: the sidebar picker, placing,
   dragging, snapping, turning, mirroring, the Scale slider, painting, libraries, packs, printing.
 - **Rosette edges**: a rosette snaps by the edges of its outside outline, each its shape's edge:
-  whole units, or a marked length that snaps only to the same length (spec 027 FR-002; marked edges
+  whole units, or a marked length that snaps to the same length, a whole multiple of it, or a half or
+  a quarter of it (spec 027 FR-002; marked edges
   and Close space shapes can have one), so it joins shapes and other rosettes as a shape does. Inner edges
   (between its own shapes) don't snap from outside.
 - **Colorings**: as a block's (spec 007): each piece of a rosette has a fill (a color or a fabric)
