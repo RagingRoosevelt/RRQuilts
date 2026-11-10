@@ -375,6 +375,12 @@ export const CHECKS: Check[] = [
     text: 'Print instructions, Days: a Contents heading, then Info page (on at first), then Templates with Data patches and Non-data patches. Info page off leaves only the template pages, and Quilt notes (on a quilt with notes) is greyed out with a tooltip saying why. Block by block always prints the info page.',
     last: '"let\'s add "info page" before templates and put a section header before the "info page" with header title "contents""',
   },
+  {
+    id: 'TC-277',
+    group: G.make041,
+    text: "Print instructions, Days: of Info page, Data patches and Non-data patches, the last one still on is greyed out and can't be turned off; turning another on frees it. Any of them can always be turned on.",
+    last: '"let\'s have those toggles only available to turn off (always available to turn on) when at least one of the other two is on"',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

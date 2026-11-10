@@ -82,6 +82,7 @@
             <div class="text-subtitle2">Contents</div>
             <q-toggle
               :model-value="prefs.stepsInfo"
+              :disable="lastOn('stepsInfo')"
               dense
               label="Info page"
               @update:model-value="(v: boolean) => set('stepsInfo', v)"
@@ -91,6 +92,7 @@
             <div class="text-caption text-grey-8 q-mt-sm">Templates</div>
             <q-toggle
               :model-value="prefs.stepsDataTemplates"
+              :disable="lastOn('stepsDataTemplates')"
               dense
               label="Data patches"
               @update:model-value="(v: boolean) => set('stepsDataTemplates', v)"
@@ -99,6 +101,7 @@
             </q-toggle>
             <q-toggle
               :model-value="prefs.stepsOtherTemplates"
+              :disable="lastOn('stepsOtherTemplates')"
               dense
               label="Non-data patches"
               class="q-mt-xs"
@@ -215,6 +218,10 @@ const last = computed(() =>
   plan.value ? dayDate(plan.value.start, periodLength(plan.value.start)) : '',
 );
 const prefs = computed(() => printPrefs(app.settings.print));
+/** Days' contents: the last one on stays on, so something always prints. */
+const CONTENTS = ['stepsInfo', 'stepsDataTemplates', 'stepsOtherTemplates'] as const;
+const lastOn = (k: (typeof CONTENTS)[number]) =>
+  prefs.value[k] && CONTENTS.every((x) => x === k || !prefs.value[x]);
 function set<K extends keyof PrintPrefs>(key: K, value: PrintPrefs[K]) {
   app.settings.print = { ...app.settings.print, [key]: value };
 }

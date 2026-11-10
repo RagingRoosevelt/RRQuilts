@@ -52,6 +52,7 @@ Props: `{ projectId: string; quiltId: string }` (source resolved by the store). 
 - Days mode: **Contents** › **Info page** (pref `stepsInfo`, on; off greys out Quilt notes),
   **Templates** › **Data patches** (pref `stepsDataTemplates`, on) and **Non-data
   patches** (pref `stepsOtherTemplates`, off: the blocks' own pieces). Block by block prints both.
+  The last of the three still on is locked on.
 - Options: **Quilt notes** (pref `stepsNotes`, shown only when the quilt has notes), then
   `PrintOptions kind="steps"`: Paper, Cutting, Templates (Tint by fabric, pref `tint`), Look.
 - Layout as the editors' Print tab: bar, tool rail (`PrintZoom`), preview, sidebar.

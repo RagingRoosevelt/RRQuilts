@@ -154,6 +154,9 @@ for next steps. the user can select the days they want to get the printout for."
   "info page" with header title "contents"". Days mode: **Contents** › **Info page** (pref
   `stepsInfo`, on: the block maps, the days' table and the quilt notes), then **Templates** ›
   Data patches, Non-data patches. With the info page off, **Quilt notes** is greyed out.
+- Owner, 2026-11-09: "let's have those toggles only available to turn off (always available to
+  turn on) when at least one of the other two is on". The last of Info page, Data patches and
+  Non-data patches still on can't be turned off, so something always prints.
 
 ## Today
 
