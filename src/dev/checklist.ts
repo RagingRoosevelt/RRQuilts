@@ -321,6 +321,12 @@ export const CHECKS: Check[] = [
     text: 'On a phone (or a narrow window), each month in the data entry calendar folds and unfolds by tapping its title. A month whose days are all assembled (the day or its block) has a green ✓✓ and starts folded. Moving to a day in a folded month unfolds it. On a wide window months never fold.',
     last: '"on mobile, make each month colapseable and colapse any months that have been finished"',
   },
+  {
+    id: 'TC-268',
+    group: G.make041,
+    text: 'Print instructions: a bar above the preview has a back arrow, the quilt and project names, and a ☰ button that shows or hides the sidebar. On a wide window the sidebar sits beside the preview (side per Settings › toolbar left or right). On a phone or narrow window it starts hidden and slides over the preview with its own background, like the Quilt editor’s sidebar.',
+    last: "\"there's weird layout issues for the dataquilt print view where the sidebar doesn't properly sit above the print preview.  also, it doesn't show/hide on mobile like the other sidebars do\"",
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -136,6 +136,10 @@ for next steps. the user can select the days they want to get the printout for."
 - Owner, 2026-11-09: "on mobile, make each month colapseable and colapse any months that have been
   finished". On phones each calendar month folds by its title; a month whose days are all assembled
   (the day or its block) starts folded and shows a green mark.
+- Owner, 2026-11-09: "there's weird layout issues for the dataquilt print view where the sidebar
+  doesn't properly sit above the print preview. also, it doesn't show/hide on mobile like the
+  other sidebars do". The page now has the editors' bar with a ☰ button, and the sidebar slides over
+  the preview on narrow screens.
 
 ## Today
 

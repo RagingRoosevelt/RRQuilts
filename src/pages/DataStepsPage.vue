@@ -2,147 +2,157 @@
   <!-- Print instructions for a data quilt (spec 041): picked days' pieces, fabrics and templates,
        or block by block (every day of each block). Opened from Data Quilts or the data entry
        dialog. The options sit where the editors' sidebar does (Settings: toolbar left or right). -->
-  <q-page
-    v-if="input && plan"
-    class="row no-wrap items-stretch steps-page"
-    :class="{ reverse: !app.settings.sidesSwapped }"
-  >
-    <div class="options q-pa-md column no-wrap scroll" style="gap: 12px">
-      <q-btn
-        flat
-        dense
-        no-caps
-        icon="arrow_back"
-        label="Data Quilts"
-        class="self-start"
-        to="/data"
-      />
-      <div>
-        <div class="text-subtitle1">{{ quilt?.notecard.name }}</div>
-        <div class="text-caption text-grey-7">{{ input.doc.project.name }}</div>
+  <q-page v-if="input && plan" class="column no-wrap" :style-fn="fill">
+    <div
+      class="row items-center no-wrap q-px-sm bar"
+      :class="{ reverse: app.settings.sidesSwapped }"
+      style="gap: 8px"
+    >
+      <q-btn flat dense round icon="arrow_back" to="/data" aria-label="Back to Data Quilts">
+        <q-tooltip>Back to Data Quilts</q-tooltip>
+      </q-btn>
+      <div
+        class="col q-py-xs"
+        style="min-width: 0; overflow-wrap: anywhere"
+        :class="{ 'text-right': app.settings.sidesSwapped }"
+      >
+        <span class="text-subtitle1">{{ quilt?.notecard.name }}</span>
+        <span class="text-caption text-grey-7 q-ml-sm">{{ input.doc.project.name }}</span>
       </div>
-      <SlidePicker
-        :model-value="mode"
-        :options="[
-          { value: 'days', label: 'Days' },
-          { value: 'blocks', label: 'Block by block' },
-        ]"
-        @update:model-value="setMode"
-      />
-      <template v-if="mode === 'days'">
-        <div class="column" style="gap: 8px">
-          <q-input
-            :model-value="from"
-            type="date"
-            dense
-            outlined
-            stack-label
-            label="From"
-            :min="plan.start"
-            :max="last"
-            @update:model-value="(v) => setRange(String(v ?? ''), to)"
-          />
-          <q-input
-            :model-value="to"
-            type="date"
-            dense
-            outlined
-            stack-label
-            label="To"
-            :min="plan.start"
-            :max="last"
-            @update:model-value="(v) => setRange(from, String(v ?? ''))"
-          />
-        </div>
-        <q-btn outline no-caps dense icon="content_cut" label="Not cut yet" @click="notCut">
-          <q-tooltip>The days entered and not marked Cut</q-tooltip>
-        </q-btn>
-        <div class="text-body2">{{ daysNote }}</div>
-      </template>
-      <template v-else>
-        <div class="row no-wrap" style="gap: 8px">
-          <q-select
-            :model-value="numbers[0]"
-            :options="blockOptions"
-            emit-value
-            map-options
-            dense
-            outlined
-            label="From"
-            class="col"
-            @update:model-value="(k: number) => setBlocks(k, Math.max(k, numbers.at(-1)!))"
-          />
-          <q-select
-            :model-value="numbers.at(-1)"
-            :options="blockOptions"
-            emit-value
-            map-options
-            dense
-            outlined
-            label="To"
-            class="col"
-            @update:model-value="(k: number) => setBlocks(Math.min(k, numbers[0]!), k)"
-          />
-        </div>
-        <div class="row no-wrap" style="gap: 8px">
-          <q-btn
-            outline
-            no-caps
-            dense
-            icon="chevron_left"
-            label="Previous"
-            class="col"
-            :disable="numbers[0]! <= 1"
-            @click="shift(-1)"
-          />
-          <q-btn
-            outline
-            no-caps
-            dense
-            icon-right="chevron_right"
-            label="Next"
-            class="col"
-            :disable="numbers.at(-1)! >= blockOptions.length"
-            @click="shift(1)"
-          />
-        </div>
-      </template>
-      <q-separator />
-      <q-toggle
-        :model-value="prefs.tint"
-        dense
-        label="Tint by fabric"
-        @update:model-value="(v: boolean) => set('tint', v)"
-      >
-        <q-tooltip
-          >A template for each piece and fabric, tinted and labeled with its days; off: one per
-          shape</q-tooltip
-        >
-      </q-toggle>
-      <q-toggle
-        v-if="quilt?.notecard.notes"
-        :model-value="prefs.stepsNotes"
-        dense
-        label="Quilt notes"
-        @update:model-value="(v: boolean) => set('stepsNotes', v)"
-      >
-        <q-tooltip>Print the quilt's notes after the instructions</q-tooltip>
-      </q-toggle>
+      <q-btn flat round dense icon="menu" :aria-label="sidebarLabel" @click="sidebar = !sidebar">
+        <q-tooltip>{{ sidebarLabel }}</q-tooltip>
+      </q-btn>
     </div>
-    <div class="col column" style="min-width: 0">
-      <PrintPreview
-        kind="steps"
-        :id="input.quiltId"
-        :doc="input.doc"
-        :days="mode === 'days' ? days : undefined"
-        :numbers="mode === 'blocks' ? numbers : undefined"
-      />
+    <div
+      class="row col no-wrap"
+      :class="{ reverse: app.settings.sidesSwapped }"
+      style="min-height: 0; position: relative"
+    >
+      <div class="col column" style="min-width: 0">
+        <PrintPreview
+          kind="steps"
+          :id="input.quiltId"
+          :doc="input.doc"
+          :days="mode === 'days' ? days : undefined"
+          :numbers="mode === 'blocks' ? numbers : undefined"
+        />
+      </div>
+      <div v-show="sidebar" class="options q-pa-md column no-wrap scroll" style="gap: 12px">
+        <SlidePicker
+          :model-value="mode"
+          :options="[
+            { value: 'days', label: 'Days' },
+            { value: 'blocks', label: 'Block by block' },
+          ]"
+          @update:model-value="setMode"
+        />
+        <template v-if="mode === 'days'">
+          <div class="column" style="gap: 8px">
+            <q-input
+              :model-value="from"
+              type="date"
+              dense
+              outlined
+              stack-label
+              label="From"
+              :min="plan.start"
+              :max="last"
+              @update:model-value="(v) => setRange(String(v ?? ''), to)"
+            />
+            <q-input
+              :model-value="to"
+              type="date"
+              dense
+              outlined
+              stack-label
+              label="To"
+              :min="plan.start"
+              :max="last"
+              @update:model-value="(v) => setRange(from, String(v ?? ''))"
+            />
+          </div>
+          <q-btn outline no-caps dense icon="content_cut" label="Not cut yet" @click="notCut">
+            <q-tooltip>The days entered and not marked Cut</q-tooltip>
+          </q-btn>
+          <div class="text-body2">{{ daysNote }}</div>
+        </template>
+        <template v-else>
+          <div class="row no-wrap" style="gap: 8px">
+            <q-select
+              :model-value="numbers[0]"
+              :options="blockOptions"
+              emit-value
+              map-options
+              dense
+              outlined
+              label="From"
+              class="col"
+              @update:model-value="(k: number) => setBlocks(k, Math.max(k, numbers.at(-1)!))"
+            />
+            <q-select
+              :model-value="numbers.at(-1)"
+              :options="blockOptions"
+              emit-value
+              map-options
+              dense
+              outlined
+              label="To"
+              class="col"
+              @update:model-value="(k: number) => setBlocks(Math.min(k, numbers[0]!), k)"
+            />
+          </div>
+          <div class="row no-wrap" style="gap: 8px">
+            <q-btn
+              outline
+              no-caps
+              dense
+              icon="chevron_left"
+              label="Previous"
+              class="col"
+              :disable="numbers[0]! <= 1"
+              @click="shift(-1)"
+            />
+            <q-btn
+              outline
+              no-caps
+              dense
+              icon-right="chevron_right"
+              label="Next"
+              class="col"
+              :disable="numbers.at(-1)! >= blockOptions.length"
+              @click="shift(1)"
+            />
+          </div>
+        </template>
+        <q-separator />
+        <q-toggle
+          :model-value="prefs.tint"
+          dense
+          label="Tint by fabric"
+          @update:model-value="(v: boolean) => set('tint', v)"
+        >
+          <q-tooltip
+            >A template for each piece and fabric, tinted and labeled with its days; off: one per
+            shape</q-tooltip
+          >
+        </q-toggle>
+        <q-toggle
+          v-if="quilt?.notecard.notes"
+          :model-value="prefs.stepsNotes"
+          dense
+          label="Quilt notes"
+          @update:model-value="(v: boolean) => set('stepsNotes', v)"
+        >
+          <q-tooltip>Print the quilt's notes after the instructions</q-tooltip>
+        </q-toggle>
+      </div>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { useQuasar } from 'quasar';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import PrintPreview from '@/components/PrintPreview.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
@@ -161,6 +171,11 @@ import { useSettingsStore } from '@/stores/settings';
 const store = useDataQuiltsStore();
 const app = useSettingsStore();
 const router = useRouter();
+const $q = useQuasar();
+const fill = (offset: number) => ({ height: `calc(100vh - ${offset}px)` });
+// As the editors: open beside the preview on wide screens, slid over it on phones and tablets.
+const sidebar = ref(!$q.screen.lt.md);
+const sidebarLabel = computed(() => (sidebar.value ? 'Hide sidebar' : 'Show sidebar'));
 const input = computed(() => store.stepsInput);
 const quilt = computed(() =>
   input.value?.doc.project.quilts.find((q) => q.id === input.value!.quiltId),
@@ -238,16 +253,42 @@ onMounted(() => !input.value && void router.replace('/data'));
 </script>
 
 <style scoped>
-.steps-page {
-  height: calc(100vh - 50px);
+.bar {
+  border-bottom: 1px solid rgba(128, 128, 128, 0.25);
 }
 .options {
-  width: 260px;
+  width: 280px;
   flex: none;
-  border-right: 1px solid rgba(128, 128, 128, 0.3);
+  border-left: 1px solid rgba(128, 128, 128, 0.25);
 }
-.reverse .options {
-  border-right: 0;
-  border-left: 1px solid rgba(128, 128, 128, 0.3);
+.reverse > .options {
+  border-left: none;
+  border-right: 1px solid rgba(128, 128, 128, 0.25);
+}
+/* Phones and portrait tablets: the sidebar slides over the preview. */
+@media (max-width: 1023px) {
+  .options {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: min(320px, 85vw);
+    z-index: 5;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.25);
+  }
+  .reverse > .options {
+    right: auto;
+    left: 0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.25);
+  }
+  :global(.body--dark .options) {
+    background: var(--q-dark-page);
+  }
+}
+@media (max-width: 599px) {
+  .options {
+    width: 95%;
+  }
 }
 </style>
