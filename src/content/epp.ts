@@ -27,7 +27,7 @@ const regular = (n: number) => turtle(Array(n).fill(1), Array(n).fill(360 / n));
  * corners 120°). Honeycomb: six 1U edges with 90° end corners (the rest 135°); Elongated Hexagon:
  * the same with its two long sides 2U. Half Square: its long edge is √2, marked.
  */
-/** Hexagon kite (owner, 2026-11-10): from a 2U hexagon, its center, an edge's midpoint, the next
+/** Hexi Kite (owner, 2026-11-10; first called Kite): from a 2U hexagon, its center, an edge's midpoint, the next
  *  corner and the next midpoint. Short edges 1U, long edges √3 (marked); corners 60°, 90°, 120°. */
 function kite(): Poly {
   const pts: Pt[] = [
@@ -63,7 +63,7 @@ const STARTER_SHAPES: { name: string; category: string; outline: Poly; marked?: 
   { name: 'Square', category: 'Squares', outline: regular(4) },
   { name: '60° Diamond', category: 'Diamonds', outline: turtle([1, 1, 1, 1], [120, 60, 120, 60]) },
   { name: '45° Diamond', category: 'Diamonds', outline: turtle([1, 1, 1, 1], [135, 45, 135, 45]) },
-  { name: 'Kite', category: 'Diamonds', outline: kite() },
+  { name: 'Hexi Kite', category: 'Diamonds', outline: kite() },
   { name: 'Jewel', category: 'Diamonds', outline: turtle([1, 1, 2, 2, 1], [60, 60, 120, 60, 60]) },
   { name: 'Pentagon', category: 'Polygons', outline: regular(5) },
   { name: 'Octagon', category: 'Polygons', outline: regular(8) },

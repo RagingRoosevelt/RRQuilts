@@ -122,7 +122,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-282',
     group: G.epp027,
-    text: 'EPP section: Project › EPP lists your shapes and rosettes, the libraries’ ones below (built-in: Hexagon, Half Hexagon, Honeycomb, Elongated Hexagon, Triangle, Half Square, Square, 60° and 45° Diamond, Kite, Jewel, Pentagon, Octagon; rosettes Hexagon Flower, Double Flower, Six-Diamond Star, Tumbling Block, Octagon and Square). Card menu: Duplicate, Edit a copy (library items), Export (.rrqepp) then Import it into another project, Add to My library, Delete (refused while used). Libraries page: Type › EPP shows them; Copy to My library and Delete from My library. Save and reopen the project: everything comes back.',
+    text: 'EPP section: Project › EPP lists your shapes and rosettes, the libraries’ ones below (built-in: Hexagon, Half Hexagon, Honeycomb, Elongated Hexagon, Triangle, Half Square, Square, 60° and 45° Diamond, Hexi Kite, Jewel, Pentagon, Octagon; rosettes Hexagon Flower, Double Flower, Six-Diamond Star, Tumbling Block, Octagon and Square). Card menu: Duplicate, Edit a copy (library items), Export (.rrqepp) then Import it into another project, Add to My library, Delete (refused while used). Libraries page: Type › EPP shows them; Copy to My library and Delete from My library. Save and reopen the project: everything comes back.',
     to: '/libraries',
   },
   {
