@@ -8,16 +8,6 @@ These are the plans for the next few versions. Plans change as people use the ap
 may move to another version, arrive in a different form, or not at all. To ask for something that
 isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
-## 0.8.0
-
-- Making a data quilt, after the design is done. Enter one day or several and see just the next
-  steps for them: which pieces to cut, from which fabric, and where they go.
-- Or cut ahead: every template from the start, uncolored, with a workbook for choosing each day's
-  fabric once its value is known, on screen or printed to fill in by hand.
-- A block by block guide: each month, week or day block drawn with its piece letters and day
-  numbers, with a table of which pieces each day takes in which fabric.
-- Mark days done, so the next steps show only what's left.
-
 ## 0.9.0
 
 - English paper piecing layouts, such as hexagon flower gardens, with printable paper templates.
