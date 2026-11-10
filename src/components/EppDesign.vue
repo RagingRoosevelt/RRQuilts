@@ -353,14 +353,13 @@ const fitOnEdge = (pid: string) => {
   const e = hoverEdge.value;
   return s && e ? attach(s.outline, epp.scale, e, allPolys.value) !== null : undefined;
 };
-const ghost = computed<Pose | null>(() => {
-  const p = hover.value;
-  if (!p || !epp.picked || tool.value !== 'place' || ro.value || drag.value || leafAt(p))
-    return null;
+/** Where the picked item goes for a point (the hover ghost, or a tap: phones have no hover). */
+function poseAt(p: Pt): Pose | null {
+  if (!epp.picked || ro.value || leafAt(p)) return null;
   const mode = prefs.value.mode;
   const s = pickedShape.value;
   if (mode === 'grow') {
-    const e = hoverEdge.value;
+    const e = edgeNear(p);
     return e && s ? attach(s.outline, epp.scale, e, allPolys.value, p) : null;
   }
   const pose: Pose = { at: p, turn: 0, scale: epp.scale };
@@ -371,7 +370,10 @@ const ghost = computed<Pose | null>(() => {
   const sn = snap(moving, index.value, px(16), turn, SNAP_SHARE, reject);
   if (sn) return snapPose(pose, sn);
   return mode === 'grid' && s ? cellAt(s.outline, epp.scale, lattice.value, p) : pose;
-});
+}
+const ghost = computed<Pose | null>(() =>
+  hover.value && tool.value === 'place' && !drag.value ? poseAt(hover.value) : null,
+);
 
 // --- Edits (each also brings the box and closing pieces up to date) ---
 function edit(fn: (q: Quilt) => Quilt, coalesce?: string) {
@@ -408,7 +410,8 @@ function onTap(p: World) {
   const hit = leafAt(p);
   const t = tool.value;
   if (t === 'place') {
-    if (!hit && ghost.value) placeAt(ghost.value);
+    const pose = hit ? null : poseAt(p);
+    if (pose) placeAt(pose);
     return;
   }
   if (t === 'close') {

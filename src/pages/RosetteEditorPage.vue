@@ -441,13 +441,12 @@ const fitOnEdge = (pid: string) => {
 };
 
 /** Where a tap would place the picked item now. */
-const ghost = computed<Pose | null>(() => {
-  const p = hover.value;
-  if (!p || !epp.picked || epp.rosetteTool !== 'place' || ro.value || drag.value) return null;
-  if (pieceAt(p)) return null;
+/** Where the picked item goes for a point (the hover ghost, or a tap: phones have no hover). */
+function poseAt(p: Pt): Pose | null {
+  if (!epp.picked || ro.value || pieceAt(p)) return null;
   const mode = prefs.value.mode;
   if (mode === 'grow') {
-    const e = hoverEdge.value;
+    const e = edgeNear(p);
     const s = pickedShape.value;
     return e && s ? attach(s.outline, epp.scale, e, allPolys.value, p) : null;
   }
@@ -465,7 +464,10 @@ const ghost = computed<Pose | null>(() => {
   const reject = pickedShape.value ? undefined : landsOver(moving, allPolys.value);
   const s = snap(moving, index.value, px(16), Math.PI, SNAP_SHARE, reject);
   return s ? snapPose(pose, s) : pose;
-});
+}
+const ghost = computed<Pose | null>(() =>
+  hover.value && epp.rosetteTool === 'place' && !drag.value ? poseAt(hover.value) : null,
+);
 /** Snaps reach half the shorter edge (or 16 screen pixels, when that's more). */
 const SNAP_SHARE = 0.5;
 /** A dragged piece turns at most this much to meet a neighbor (owner, 2026-11-10). */
@@ -519,7 +521,8 @@ function onTap(p: World) {
   const hit = pieceAt(p);
   const t = epp.rosetteTool;
   if (t === 'place') {
-    if (!hit && ghost.value) placeAt(ghost.value);
+    const pose = hit ? null : poseAt(p);
+    if (pose) placeAt(pose);
     return;
   }
   if (t === 'close') {
