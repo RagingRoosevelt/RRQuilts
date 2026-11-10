@@ -79,7 +79,16 @@
           </q-btn>
           <div class="text-body2">{{ daysNote }}</div>
           <div class="column items-start">
-            <div class="text-subtitle2">Templates</div>
+            <div class="text-subtitle2">Contents</div>
+            <q-toggle
+              :model-value="prefs.stepsInfo"
+              dense
+              label="Info page"
+              @update:model-value="(v: boolean) => set('stepsInfo', v)"
+            >
+              <q-tooltip>Each block's map and the table of days, values and pieces</q-tooltip>
+            </q-toggle>
+            <div class="text-caption text-grey-8 q-mt-sm">Templates</div>
             <q-toggle
               :model-value="prefs.stepsDataTemplates"
               dense
@@ -153,9 +162,14 @@
           :model-value="prefs.stepsNotes"
           dense
           label="Quilt notes"
+          :disable="mode === 'days' && !prefs.stepsInfo"
           @update:model-value="(v: boolean) => set('stepsNotes', v)"
         >
-          <q-tooltip>Print the quilt's notes after the instructions</q-tooltip>
+          <q-tooltip>{{
+            mode === 'days' && !prefs.stepsInfo
+              ? 'Printed on the info page, which is off'
+              : "Print the quilt's notes after the instructions"
+          }}</q-tooltip>
         </q-toggle>
         <PrintOptions kind="steps" :id="input.quiltId" :doc="input.doc" />
       </div>

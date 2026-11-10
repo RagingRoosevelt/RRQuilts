@@ -49,7 +49,8 @@ Props: `{ projectId: string; quiltId: string }` (source resolved by the store). 
 
 - Mode: **Days** (picked days, a date range picker plus "Not cut yet") or **Block by block**
   (a number range, Jan to Mar, Wk 1 to 4).
-- Days mode: **Templates** › **Data patches** (pref `stepsDataTemplates`, on) and **Non-data
+- Days mode: **Contents** › **Info page** (pref `stepsInfo`, on; off greys out Quilt notes),
+  **Templates** › **Data patches** (pref `stepsDataTemplates`, on) and **Non-data
   patches** (pref `stepsOtherTemplates`, off: the blocks' own pieces). Block by block prints both.
 - Options: **Quilt notes** (pref `stepsNotes`, shown only when the quilt has notes), then
   `PrintOptions kind="steps"`: Paper, Cutting, Templates (Tint by fabric, pref `tint`), Look.

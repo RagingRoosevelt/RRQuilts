@@ -1663,7 +1663,11 @@ function stepSheets(steps: DayStep[], notes: string | undefined, blocks: boolean
   const plan = quilt?.data;
   if (!quilt || !plan) return [];
   const groups: StepGroup[] = [];
-  const out: Sheet[] = [{ kind: 'steps', heading: 'Instructions', groups, notes }];
+  // Picked days may leave out the info page (templates only); Block by block always has it.
+  const out: Sheet[] =
+    blocks || prefs.value.stepsInfo
+      ? [{ kind: 'steps', heading: 'Instructions', groups, notes }]
+      : [];
   const real = { ...quilt, data: { ...plan, show: 'real' as const, waiting: 'designed' as const } };
   const slots = new Map(generateFor(quilt).slots.map((x) => [x.id, x]));
   const [aw, ah] = area.value;

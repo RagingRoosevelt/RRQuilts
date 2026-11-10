@@ -47,6 +47,8 @@ export const PRINT_DEFAULTS = {
   stepsNotes: true,
   /** Picked days (not Block by block): templates for the days' patches, and for the blocks' other
    *  patches (fixed colors, the block's own pieces). */
+  /** Picked days: the info page (block maps and the days' table, and the quilt's notes). */
+  stepsInfo: true,
   stepsDataTemplates: true,
   stepsOtherTemplates: false,
   onePerPage: false,

@@ -150,6 +150,10 @@ for next steps. the user can select the days they want to get the printout for."
   has **Templates** › **Data patches** (default on) and **Non-data patches** (default off, the
   blocks' own pieces), print prefs `stepsDataTemplates` and `stepsOtherTemplates`. Block by block
   always prints both.
+- Owner, 2026-11-09: "let's add "info page" before templates and put a section header before the
+  "info page" with header title "contents"". Days mode: **Contents** › **Info page** (pref
+  `stepsInfo`, on: the block maps, the days' table and the quilt notes), then **Templates** ›
+  Data patches, Non-data patches. With the info page off, **Quilt notes** is greyed out.
 
 ## Today
 

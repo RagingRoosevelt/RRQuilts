@@ -369,6 +369,12 @@ export const CHECKS: Check[] = [
     text: "Print instructions, Days: under Not cut yet and the day count, Templates has Data patches (on at first) and Non-data patches (off at first). On demo-v10, Data Quilt, pick Feb 1 to 2 with values entered: Data patches prints templates for those days' pieces; Non-data patches adds the block's own pieces (February's places past the 28th); both off prints no templates. The settings are remembered. Block by block always prints both.",
     last: '"in the print interface for selected days, let\'s add a few toggles right after "not cut yet" and "1 day": templates: data patchse: on/off, non-data patches: on/off"',
   },
+  {
+    id: 'TC-276',
+    group: G.make041,
+    text: 'Print instructions, Days: a Contents heading, then Info page (on at first), then Templates with Data patches and Non-data patches. Info page off leaves only the template pages, and Quilt notes (on a quilt with notes) is greyed out with a tooltip saying why. Block by block always prints the info page.',
+    last: '"let\'s add "info page" before templates and put a section header before the "info page" with header title "contents""',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
