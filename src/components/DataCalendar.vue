@@ -4,9 +4,9 @@
   <div
     ref="root"
     class="data-calendar"
-    :class="{ dragging: !!drag?.on }"
     @mousedown="mouseDown"
     @touchstart="touchStart"
+    @contextmenu.prevent
   >
     <div v-for="m in months" :key="m.key" class="month" :data-month="m.key">
       <button
@@ -225,6 +225,7 @@ function touchStart(e: TouchEvent) {
   hold = setTimeout(() => {
     if (!drag.value) return;
     drag.value.on = true;
+    window.getSelection()?.removeAllRanges();
     navigator.vibrate?.(15);
     emit('range', from, from);
   }, HOLD_MS);
@@ -299,13 +300,10 @@ defineExpose({ reveal });
   font: inherit;
   cursor: pointer;
 }
-.dragging,
-.dragging .day {
+/* Holding and dragging picks days: never select text or open the long-press menu. */
+.data-calendar {
   user-select: none;
   -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-.day {
   -webkit-touch-callout: none;
 }
 .day.band {

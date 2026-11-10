@@ -357,6 +357,12 @@ export const CHECKS: Check[] = [
     text: 'Settings › Quilt and block design › Sorted palettes on a phone: each palette shows its name on one line and where it comes from (the library or project) on a second line below, long names wrapping, with its sort and Clear beside them. On a wide window: name · source on one line, as before.',
     last: '"in settings, there\'s the palette sorting settings.  let\'s give the name and designer two lines instead of squishing them together" / "let\'s do the two-line thing only on narrow screens.  on desktop they can stay on one line"',
   },
+  {
+    id: 'TC-274',
+    group: G.make041,
+    text: 'Data entry calendar on a phone: holding a day and dragging picks days without the phone selecting text or opening its long-press menu (no selection handles, no Copy bubble). Month titles and day numbers can’t be selected with a mouse either.',
+    last: '"dragging on the calendar put the phone into text selection mode.  let\'s make the days on the calendar not selectable text"',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
