@@ -140,6 +140,8 @@ for next steps. the user can select the days they want to get the printout for."
   doesn't properly sit above the print preview. also, it doesn't show/hide on mobile like the
   other sidebars do". The page now has the editors' bar with a ☰ button, and the sidebar slides over
   the preview on narrow screens.
+- Owner, 2026-11-09: "the data quilt print page doesn't scale the print preview correctly like the
+  other print previews do". The preview fits the width as in the editor, with its zoom buttons.
 
 ## Today
 

@@ -327,6 +327,12 @@ export const CHECKS: Check[] = [
     text: 'Print instructions: a bar above the preview has a back arrow, the quilt and project names, and a ☰ button that shows or hides the sidebar. On a wide window the sidebar sits beside the preview (side per Settings › toolbar left or right). On a phone or narrow window it starts hidden and slides over the preview with its own background, like the Quilt editor’s sidebar.',
     last: "\"there's weird layout issues for the dataquilt print view where the sidebar doesn't properly sit above the print preview.  also, it doesn't show/hide on mobile like the other sidebars do\"",
   },
+  {
+    id: 'TC-269',
+    group: G.make041,
+    text: 'Print instructions: the preview shrinks the page to fit the width on a phone or narrow window, as the Quilt editor’s Print tab does. The bar has the same zoom buttons (+, the percent to fit again, −), and Ctrl+wheel and pinch zoom.',
+    last: '"the data quilt print page doesn\'t scale the print preview correctly like the other print previews do"',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

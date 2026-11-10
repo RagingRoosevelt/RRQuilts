@@ -19,6 +19,7 @@
         <span class="text-subtitle1">{{ quilt?.notecard.name }}</span>
         <span class="text-caption text-grey-7 q-ml-sm">{{ input.doc.project.name }}</span>
       </div>
+      <PrintZoom />
       <q-btn flat round dense icon="menu" :aria-label="sidebarLabel" @click="sidebar = !sidebar">
         <q-tooltip>{{ sidebarLabel }}</q-tooltip>
       </q-btn>
@@ -28,15 +29,13 @@
       :class="{ reverse: app.settings.sidesSwapped }"
       style="min-height: 0; position: relative"
     >
-      <div class="col column" style="min-width: 0">
-        <PrintPreview
-          kind="steps"
-          :id="input.quiltId"
-          :doc="input.doc"
-          :days="mode === 'days' ? days : undefined"
-          :numbers="mode === 'blocks' ? numbers : undefined"
-        />
-      </div>
+      <PrintPreview
+        kind="steps"
+        :id="input.quiltId"
+        :doc="input.doc"
+        :days="mode === 'days' ? days : undefined"
+        :numbers="mode === 'blocks' ? numbers : undefined"
+      />
       <div v-show="sidebar" class="options q-pa-md column no-wrap scroll" style="gap: 12px">
         <SlidePicker
           :model-value="mode"
@@ -155,6 +154,7 @@ import { useQuasar } from 'quasar';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import PrintPreview from '@/components/PrintPreview.vue';
+import PrintZoom from '@/components/PrintZoom.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import {
   dataNumbers,
