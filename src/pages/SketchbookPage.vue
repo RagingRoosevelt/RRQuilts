@@ -199,6 +199,7 @@
             />
           </FilterCard>
           <FilterCard label="Data">
+            <q-toggle v-model="settings.settings.showTraces" dense label="Show traces" />
             <FilterSelect
               v-model="bf.data"
               :options="DATA_FILTER.options"
@@ -2317,7 +2318,15 @@ const previewSections = computed(() =>
     : [],
 );
 const thumb = (b: Block, px: number, coloring?: string) =>
-  blockThumbnail(project.doc!, b, px, $q.dark.isActive, coloring, library.items.colors);
+  blockThumbnail(
+    project.doc!,
+    b,
+    px,
+    $q.dark.isActive,
+    coloring,
+    library.items.colors,
+    settings.settings.showTraces,
+  );
 /** The coloring a card shows: the one last chosen (its count badge or the block editor), else a color
  *  variant's first project coloring, else the block's first. */
 function shownColoring(b: Block) {

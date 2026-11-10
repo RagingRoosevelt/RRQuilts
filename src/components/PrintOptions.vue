@@ -1,12 +1,12 @@
 <template>
-  <div v-if="project.doc" class="column" style="gap: 12px">
+  <div v-if="doc ?? project.doc" class="column" style="gap: 12px">
     <QuiltColorways
       v-if="kind === 'quilt' && printQuilt"
       :quilt="printQuilt"
       mode="row"
       :readonly="project.readOnly"
     />
-    <div>
+    <div v-if="kind !== 'steps'">
       <div class="text-subtitle2">Print</div>
       <q-option-group
         :model-value="sections"
@@ -324,6 +324,7 @@
           @update:model-value="(v: boolean) => set('tint', v)"
         />
         <q-toggle
+          v-if="kind !== 'steps'"
           :model-value="prefs.keyOnBlockPage"
           dense
           label="Template key on the block page"
@@ -423,7 +424,8 @@ import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
-  kind: 'block' | 'quilt';
+  /** `steps`: a data quilt's Print instructions (spec 041): paper, cutting, templates, look. */
+  kind: 'block' | 'quilt' | 'steps';
   id: string;
   coloringId?: string | undefined;
   /** The document to print from (the block editor's read-only view of a library block). */
@@ -473,7 +475,7 @@ function setTint(tint: string) {
   });
 }
 const app = useSettingsStore();
-const units = computed(() => project.doc!.units);
+const units = computed(() => (props.doc ?? project.doc)!.units);
 const prefs = computed(() => printPrefs(app.settings.print));
 const paper = computed(() => pick(PAPERS, prefs.value.paper[units.value]));
 
@@ -533,8 +535,9 @@ const block = computed(() =>
 );
 const fmtSize = (s: [number, number]) =>
   `${fmtLen(s[0], units.value)} × ${fmtLen(s[1], units.value)}`;
+// Blocks only: the steps printout may come from a project that isn't open.
 const quiltSizes = computed(() =>
-  project.doc!.project.quilts.flatMap((q) => {
+  (props.kind === 'block' ? project.doc!.project.quilts : []).flatMap((q) => {
     const slot = generateFor(q).slots.find((s) => q.layers[0].slots[s.id]?.block === props.id);
     return slot ? [{ quilt: q, size: slot.size }] : [];
   }),

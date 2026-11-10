@@ -1,4 +1,4 @@
-// A quilt's data plan (spec 025, v9; spec 046, v10): what each day records, how values map to
+// A quilt's data plan (spec 025, v9; spec 046, v10; spec 041 made marks, v11): what each day records, how values map to
 // fills, where days sit (the placed data blocks: space, number, block, series), the real entries
 // and the sample data shown while designing.
 import Type from 'typebox';
@@ -71,6 +71,13 @@ export const DataPlace = Type.Object({
   ),
 });
 
+/** When a day's pieces were cut and when they were sewn into the block (spec 041), each the date
+ *  the mark was set. */
+export const DayMade = Type.Object({
+  cut: Type.Optional(DateKey),
+  assembled: Type.Optional(DateKey),
+});
+
 export const DataPlan = Type.Object({
   /** The Layout tab's Data quilt switch; off keeps the settings. */
   on: Type.Boolean(),
@@ -107,6 +114,10 @@ export const DataPlan = Type.Object({
   show: Type.Union([Type.Literal('simulation'), Type.Literal('real')]),
   sim: DataSim,
   entries: DayValues,
+  /** Days cut and assembled, by date (spec 041). */
+  made: Type.Optional(Type.Record(DateKey, DayMade)),
+  /** Data blocks assembled: the plan's number index (as a string) → the date marked (spec 041). */
+  blocksMade: Type.Optional(Type.Record(Type.String({ pattern: '^\\d{1,3}$' }), DateKey)),
 });
 
 export type DataPlan = Type.Static<typeof DataPlan>;
@@ -115,3 +126,4 @@ export type ValueSlot = Type.Static<typeof ValueSlot>;
 export type DataSim = Type.Static<typeof DataSim>;
 export type DayValues = Type.Static<typeof DayValues>;
 export type DataPreset = Type.Static<typeof DataPreset>;
+export type DayMade = Type.Static<typeof DayMade>;

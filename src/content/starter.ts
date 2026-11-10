@@ -1,7 +1,7 @@
 // Built-in starter content: 13 traditional blocks (plus the four-, five-, seven-, and nine-patch families in their own files) drawn originally as seam lines, 36 basic solid
 // colors, and five themed palettes, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
-import { shapeSize, type BlockShape } from '@/model/blocks/shape';
+import { ASPECT, SHAPE_OUTLINE, shapeSize, type BlockShape } from '@/model/blocks/shape';
 import { SHAPED_BLOCKS, curvedStarter, shapedStarter } from './shaped';
 import { SHAPED_CURVES } from './shaped-curves';
 import { produce } from 'immer';
@@ -154,7 +154,7 @@ interface StarterBlock {
   /** Width × height in inches when not square (data strips). */
   dims?: [number, number];
   /** Data places (spec 025): x, y, day number; the piece there keeps its color under it. */
-  days?: [number, number, number][];
+  days?: Place[];
   /** A data block (spec 025) of this kind. */
   data?: DataKind;
   /** A shorter variant of the named month data block, not a block of its own. */
@@ -189,9 +189,10 @@ const dataBars = (
   ]),
 });
 /** A data block whose `n` strips meet at the top left corner, day 1 there: strips turning the
- *  corner as quarter rings (`arcs`, the last taking the far corner) or nested L shapes (`square`),
- *  or a `fan` of wedges between straight lines from the corner at equal angles. Days 1…`used`
- *  numbered, the rest black. */
+ *  corner as quarter rings (`arcs`, the last taking the far corner), nested L shapes (`square`,
+ *  each L two straight bars, down from the top and in from the left, so it sews on log cabin
+ *  style), or a `fan` of wedges between straight lines from the corner at equal angles. Days
+ *  1…`used` numbered, the rest black. */
 const dataCorner = (
   name: string,
   category: string,
@@ -209,10 +210,11 @@ const dataCorner = (
     // Arcs: + sweep is counterclockwise on screen (y down), so top edge to left edge is −90.
     if (style === 'arcs') return [[[r, 0], [0, r], -90]];
     if (style === 'fan') return [[[0, 0], edge(90 * r)]];
+    // The L's corner seam runs on through the next strip, splitting it into two bars.
     return [
       [
         [r, 0],
-        [r, r],
+        [r, Math.min(1, r + 1 / n)],
       ],
       [
         [r, r],
@@ -220,14 +222,22 @@ const dataCorner = (
       ],
     ];
   }).flat();
-  // Each strip's place: halfway across it (on the diagonal), or along its wedge's middle line.
-  const at = (k: number): [number, number] => {
+  // Each strip's places: halfway across it (on the diagonal), along its wedge's middle line, or
+  // (square) the middle of each of its bars.
+  const at = (k: number): [number, number][] => {
     if (style === 'fan') {
       const t = ((k + 0.5) * Math.PI) / 2 / n;
-      return [0.6 * Math.cos(t), 0.6 * Math.sin(t)];
+      return [[0.6 * Math.cos(t), 0.6 * Math.sin(t)]];
     }
     const m = (k + 0.5) / n;
-    return style === 'arcs' ? [m / Math.SQRT2, m / Math.SQRT2] : [m, m];
+    if (style === 'arcs') return [[m / Math.SQRT2, m / Math.SQRT2]];
+    const [lo, hi] = [k / n, (k + 1) / n];
+    return k
+      ? [
+          [m, hi / 2],
+          [lo / 2, m],
+        ]
+      : [[m, m]];
   };
   return {
     name,
@@ -235,12 +245,232 @@ const dataCorner = (
     dims: [n, n],
     seams,
     base: C.Cream!,
-    points: Array.from({ length: n - used }, (_, i): [number, number, number] => [
-      ...at(used + i),
-      C.Black!,
-    ]),
-    days: Array.from({ length: used }, (_, i): [number, number, number] => [...at(i), i + 1]),
+    points: Array.from({ length: n - used }, (_, i) => used + i).flatMap((k) =>
+      at(k).map((p): [number, number, number] => [...p, C.Black!]),
+    ),
+    days: Array.from({ length: used }, (_, i) => i).flatMap((k) =>
+      at(k).map((p): [number, number, number] => [...p, k + 1]),
+    ),
   };
+};
+/** A data place: x, y, day number, and the value slot (absent: A). */
+type Place = [number, number, number, number?];
+/** A spike's day places: the spike (value A), the piece across its `inner` side (B) and the piece
+ *  across its `outer` side (C), each just over that side from the spike. */
+const spikePlaces = (spike: [P, P, P], inner: [P, P], outer: [P, P], n: number): Place[] => {
+  const c: P = [
+    (spike[0][0] + spike[1][0] + spike[2][0]) / 3,
+    (spike[0][1] + spike[1][1] + spike[2][1]) / 3,
+  ];
+  const across = ([u, v]: [P, P]): P => {
+    const m: P = [(u[0] + v[0]) / 2, (u[1] + v[1]) / 2];
+    const l = Math.hypot(m[0] - c[0], m[1] - c[1]);
+    return [m[0] + ((m[0] - c[0]) / l) * 0.004, m[1] + ((m[1] - c[1]) / l) * 0.004];
+  };
+  return [
+    [...c, n],
+    [...across(inner), n, 1],
+    [...across(outer), n, 2],
+  ];
+};
+/** A data block of `n` wedges between straight lines from the center, each wedge holding a slim
+ *  spike, the spikes spiraling outward day by day clockwise from the top (or, not `spiral`, all at
+ *  one distance from the center): a square, or a hexagon (`shape`). Each spike is two straight seams across its wedge, so it can be paper pieced. */
+const dataSwirl = (
+  name: string,
+  category: string,
+  n: number,
+  shape?: 'hexagon',
+  spiral = true,
+): StarterBlock => {
+  // Worked in true proportions (width 1), stored in the unit square.
+  const a = shape ? ASPECT[shape] : 1;
+  const outline: P[] = (shape ? SHAPE_OUTLINE[shape] : SQUARE).map(([x, y]) => [x, y * a]);
+  const hub: P = [0.5, a / 2];
+  const rays = Array.from({ length: n }, (_, k): P => {
+    const t = ((-90 + (360 * k) / n) * Math.PI) / 180;
+    const [dx, dy] = [Math.cos(t), Math.sin(t)];
+    // Nearest crossing of the ray with the outline.
+    let best = Infinity;
+    outline.forEach(([x1, y1], i) => {
+      const [x2, y2] = outline[(i + 1) % outline.length]!;
+      const [ex, ey] = [x2 - x1, y2 - y1];
+      const den = dx * ey - dy * ex;
+      if (Math.abs(den) < 1e-12) return;
+      const s = ((x1 - hub[0]) * ey - (y1 - hub[1]) * ex) / den;
+      const u = ((x1 - hub[0]) * dy - (y1 - hub[1]) * dx) / den;
+      if (s > 1e-9 && u > -1e-9 && u < 1 + 1e-9) best = Math.min(best, s);
+    });
+    return [hub[0] + dx * best, hub[1] + dy * best];
+  });
+  /** The point on ray `k` at distance `r` from the center (in half widths; 1 = the edge's middle),
+   *  or its end (`r` = Infinity). */
+  const along = (k: number, r: number): P => {
+    const [x, y] = rays[k % n]!;
+    const f = Math.min(1, (r * 0.5) / Math.hypot(x - hub[0], y - hub[1]));
+    return [hub[0] + (x - hub[0]) * f, (hub[1] + (y - hub[1]) * f) / a];
+  };
+  // A swirl's spikes step outward day by day, a round spiral, each tip at the outer corner of the
+  // next day's spike (the last one's where an extra day's would be).
+  const from = (k: number) => 0.3 + (n > 1 ? (0.38 * k) / (n - 1) : 0);
+  // The inner corner reaches in toward the center, so the spike fills more of its wedge. A
+  // pinwheel's spikes run from `lo` to `hi`: ¼ to ¾ of the way to a hexagon's corners, the same
+  // distances in a square of its width. Each tip meets the middle of the next spike's long side.
+  const [lo, hi] = [2 / Math.sqrt(3) / 4, 6 / Math.sqrt(3) / 4];
+  const spike = (k: number): [P, P, P] =>
+    spiral
+      ? [along(k, from(k) - 0.18), along(k, from(k) + 0.2), along(k + 1, from(k + 1) + 0.2)]
+      : [along(k, lo), along(k, hi), along(k + 1, (lo + hi) / 2)];
+  const seams: Seam[] = Array.from({ length: n }, (_, k): Seam[] => {
+    const [p1, p2, q] = spike(k);
+    return [
+      [along(k, 0), along(k, Infinity)],
+      [p1, q],
+      [p2, q],
+    ];
+  }).flat();
+  return {
+    name,
+    category,
+    ...(shape ? { shape, size: n / Math.sqrt(3) } : { dims: [n, n] as [number, number] }),
+    seams,
+    base: C.White!,
+    points: [],
+    days: Array.from({ length: n }, (_, k) => {
+      const [p1, p2, q] = spike(k);
+      return spikePlaces([p1, p2, q], [p1, q], [p2, q], k + 1);
+    }).flat(),
+  };
+};
+const SQUARE: P[] = [
+  [0, 0],
+  [1, 0],
+  [1, 1],
+  [0, 1],
+];
+/** A data block in four square quarters, each a fan of seams toward a spot on its inner edge, each
+ *  quarter the last turned a quarter turn clockwise (as the paper pieced block it's drawn from).
+ *  The spikes are all one triangle, turned about the block's center into a ring, a spike per day
+ *  clockwise from the left, the first quarters taking the extra days. A spike's inner corner and
+ *  its tip lie on a line from the block's center. Its outer side is one straight seam from the
+ *  edge, past the tip, along the spike and on past its third corner to the next spike (a white gap
+ *  between them). Its base runs on straight inward past its inner corner to the quarter's edge or
+ *  an earlier spike's seam, so the fan's seams nearly, but don't quite, meet. A quarter's first
+ *  spike lies against its edge. */
+const dataQuarters = (
+  name: string,
+  category: string,
+  n: number,
+  /** Spikes in every quarter, larger, spaced evenly (the spikes past `n` plain, at the bottom);
+   *  else the days split, at the photo's size. */
+  each?: number,
+): StarterBlock => {
+  // Worked in the top left quarter, its fan toward the block's middle line left of the center,
+  // then turned. Distances from the center in block widths, measured off the photo.
+  const O: P = [0.5, 0.5];
+  const polar = (deg: number, r: number): P => {
+    const t = (deg * Math.PI) / 180;
+    return [O[0] + r * Math.cos(t), O[1] + r * Math.sin(t)];
+  };
+  /** Where the line from `a` through `b` leaves the quarter, beyond `b`. */
+  const end = (a: P, b: P): P => {
+    const [dx, dy] = [b[0] - a[0], b[1] - a[1]];
+    const t = Math.min(
+      dx < 0 ? -b[0] / dx : dx > 0 ? (0.5 - b[0]) / dx : Infinity,
+      dy < 0 ? -b[1] / dy : dy > 0 ? (0.5 - b[1]) / dy : Infinity,
+    );
+    return [b[0] + dx * t, b[1] + dy * t];
+  };
+  // Quarter q's point, a quarter turn clockwise per quarter about the block's center.
+  const place = ([x, y]: P, q: number): P => {
+    let [u, v] = [x - 0.5, y - 0.5];
+    for (let i = 0; i < q; i++) [u, v] = [-v, u];
+    return [0.5 + u, 0.5 + v];
+  };
+  const seams: Seam[] = [
+    [
+      [0.5, 0],
+      [0.5, 1],
+    ],
+    [
+      [0, 0.5],
+      [1, 0.5],
+    ],
+  ];
+  const days: Place[] = [];
+  let day = 1;
+  for (let q = 0; q < 4; q++) {
+    const m = each ?? Math.floor(n / 4) + (q < n % 4 ? 1 : 0);
+    // Spike j at 180° + j·step: inner corner b, tip t, third corner a. With `each`, fewer,
+    // larger spikes spaced evenly round the ring (two a quarter: 45° apart).
+    const [step, turn, rb, ra, rt] = each
+      ? [90 / each, 18, 0.22, 0.33, 0.45]
+      : [90 / m, 7, 0.27, 0.342, 0.415];
+    const b = (j: number): P => (j === m ? O : polar(180 + j * step, rb));
+    const t = (j: number) => polar(180 + j * step, rt);
+    const a = (j: number) => polar(180 + j * step + turn, ra);
+    const line = (p: P, r: P): Seam => [place(p, q), place(r, q)];
+    /** Where spike j's outer side, run on inward past its third corner, meets the next spike's
+     *  inner side (after the last spike, the quarter's edge). */
+    const rest = (j: number): P => {
+      if (j === m - 1) return end(t(j), a(j));
+      const [p, r] = [t(j), a(j)];
+      const [o, e] = [b(j + 1), t(j + 1)];
+      const [dx, dy, ex, ey] = [r[0] - p[0], r[1] - p[1], e[0] - o[0], e[1] - o[1]];
+      const k = ((o[0] - p[0]) * ey - (o[1] - p[1]) * ex) / (dx * ey - dy * ex);
+      return [p[0] + dx * k, p[1] + dy * k];
+    };
+    // A spike's base runs on straight inward past its inner corner, to the quarter's edge or an
+    // earlier spike's line, whichever comes first.
+    const feet: [P, P][] = [];
+    const foot = (j: number): P => {
+      const [p, d] = [b(j), [b(j)[0] - a(j)[0], b(j)[1] - a(j)[1]] as P];
+      let best = end(a(j), b(j));
+      let bestK = Math.hypot(best[0] - p[0], best[1] - p[1]) / Math.hypot(...d);
+      for (const [o, f] of feet) {
+        const e: P = [f[0] - o[0], f[1] - o[1]];
+        const den = d[0] * e[1] - d[1] * e[0];
+        if (Math.abs(den) < 1e-12) continue;
+        const k = ((o[0] - p[0]) * e[1] - (o[1] - p[1]) * e[0]) / den;
+        const u = ((o[0] - p[0]) * d[1] - (o[1] - p[1]) * d[0]) / den;
+        if (k > 1e-9 && k < bestK && u > -1e-9 && u < 1 + 1e-9) {
+          bestK = k;
+          best = [p[0] + d[0] * k, p[1] + d[1] * k];
+        }
+      }
+      feet.push([p, best]);
+      return best;
+    };
+    for (let j = 0; j < m; j++) {
+      // The spike's outer side is one straight seam, from the quarter's edge past its tip, along
+      // the spike and on past its third corner to the next spike. Spike 0 lies on the quarter's
+      // edge.
+      if (j > 0) seams.push(line(b(j), foot(j)), line(a(j), end(a(j), t(j))));
+      seams.push(line(b(j), a(j)), line(b(j), t(j)), line(t(j), rest(j)));
+      let d: number | undefined = day++;
+      if (each) {
+        // Spike k of 4·each, clockwise from the left. The spikes past `n` are plain, centered on
+        // the bottom; the days run on clockwise from the gap, day 1 just after it.
+        const all = 4 * each;
+        const k = q * each + j;
+        const gap = all - n;
+        const first = Math.round((3 * all) / 4 - (gap - 1) / 2) + gap; // after the bottom gap
+        const i = (((k - first) % all) + all) % all;
+        d = i < n ? i + 1 : undefined;
+      }
+      // The spike (A), the inner piece across its base (B), the outer piece across its outer side
+      // (C).
+      if (d)
+        for (const [x, y, ...rest] of spikePlaces(
+          [b(j), a(j), t(j)],
+          [b(j), a(j)],
+          [a(j), t(j)],
+          d,
+        ))
+          days.push([...place([x, y], q), ...rest] as Place);
+    }
+  }
+  return { name, category, dims: [n, n], seams, base: C.White!, points: [], days };
 };
 /** A month data block and its 30, 29 and 28-day variants. */
 const monthFamily = (
@@ -258,10 +488,22 @@ const DATA_BLOCKS: StarterBlock[] = [
   ...monthFamily('Curved Month Strip', (nm, d) => dataCorner(nm, 'Data/Months', 31, d, 'arcs')),
   ...monthFamily('Cornered Month Strip', (nm, d) => dataCorner(nm, 'Data/Months', 31, d, 'square')),
   ...monthFamily('Month Fan', (nm, d) => dataCorner(nm, 'Data/Months', 31, d, 'fan')),
+  ...monthFamily('Month Swirl', (nm, d) => dataSwirl(nm, 'Data/Months', d)),
+  ...monthFamily('Hexagon Month Swirl', (nm, d) => dataSwirl(nm, 'Data/Months', d, 'hexagon')),
+  ...monthFamily('Month Pinwheel', (nm, d) => dataSwirl(nm, 'Data/Months', d, undefined, false)),
+  ...monthFamily('Hexagon Month Pinwheel', (nm, d) =>
+    dataSwirl(nm, 'Data/Months', d, 'hexagon', false),
+  ),
+  ...monthFamily('Quartered Month Pinwheel', (nm, d) => dataQuarters(nm, 'Data/Months', d)),
   { ...dataBars('Week Strip', 'Data/Weeks', 7, 7, [7, 7]), data: 'week' },
   { ...dataCorner('Curved Week Strip', 'Data/Weeks', 7, 7, 'arcs'), data: 'week' },
   { ...dataCorner('Cornered Week Strip', 'Data/Weeks', 7, 7, 'square'), data: 'week' },
   { ...dataCorner('Week Fan', 'Data/Weeks', 7, 7, 'fan'), data: 'week' },
+  { ...dataSwirl('Week Swirl', 'Data/Weeks', 7), data: 'week' },
+  { ...dataSwirl('Hexagon Week Swirl', 'Data/Weeks', 7, 'hexagon'), data: 'week' },
+  { ...dataSwirl('Week Pinwheel', 'Data/Weeks', 7, undefined, false), data: 'week' },
+  { ...dataSwirl('Hexagon Week Pinwheel', 'Data/Weeks', 7, 'hexagon', false), data: 'week' },
+  { ...dataQuarters('Quartered Week Pinwheel', 'Data/Weeks', 7, 2), data: 'week' },
   { ...dataBars('Day Square', 'Data/Days', 1, 1, [1, 1]), data: 'day' },
 ];
 
@@ -714,7 +956,9 @@ function buildItems(): BuiltinItems {
       const hit = b.points.find(([px, py]) => pointInPolygon([px, py], poly));
       const color = { color: colors[hit ? hit[2] : b.base]!.id };
       const day = b.days?.find(([px, py]) => pointInPolygon([px, py], poly));
-      fills[p.id] = day ? { data: { n: day[2] }, under: color } : color;
+      fills[p.id] = day
+        ? { data: { n: day[2], ...(day[3] ? { slot: day[3] } : {}) }, under: color }
+        : color;
     }
     const block: SeamBlock = {
       id: libId(FORMER[b.name] ?? b.name),

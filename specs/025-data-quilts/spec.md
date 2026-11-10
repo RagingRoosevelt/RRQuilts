@@ -281,6 +281,95 @@ strip type. The quilt shows 365 days in the simulation's colors.
 - **FR-018**: Built-in data blocks: Month Strip, Week Strip (was Week Row), Day Square, and corner
   versions with day 1 at the top left corner: Curved (quarter rings), Cornered (nested right
   angles) and Fan (equal-angle wedges) Month and Week Strips; month ones with 30/29/28 variants.
+  Owner, 2026-11-10: "let's update the "cornered <week/month> strip" data blocks to be quilable
+  like I did with this one" (their Cornered Week Strip (2)): each L is two straight bars of its
+  day, one down from the top edge and one in from the left (the corner's vertical seam runs on
+  through the next strip), so the strips sew on log cabin style with no set-in corner.
+  Swirls (owner, 2026-11-05: "implement this as a set of temperature blocks... one as a hexagon
+  and one as a square block... for 7day and one for 28/29/30/31 days", from a photo of a paper
+  pieced spike swirl): Month Swirl, Week Swirl, Hexagon Month Swirl, Hexagon Week Swirl. Equal
+  wedges from the center, a spike per day (two straight seams across its wedge), stepping outward
+  clockwise from the top; a month variant has as many spikes as days (no black ones).
+  Owner, 2026-11-05: "I want the data patch to take up more surface area within the slice... leave
+  the outter edge alone but move the node on the counterclockwise side of the inner edge closer to
+  the core of the spiral": the spike's inner corner (on its counterclockwise line) sits 0.18 half
+  widths nearer the center. Pinwheels (owner: "let's do non-spiral ones. each data patch will be
+  at the same radius out from the center as its neighbors"): Month, Week, Hexagon Month and Hexagon
+  Week Pinwheel, the swirl with every spike at the spiral's middle distance. Owner: "have the spike
+  side of the triangle sit at the midpoint of it's neighbor's edge for the pinwheel data blocks":
+  a pinwheel spike's tip meets the middle of the next spike's side on their shared line. Owner: "on the
+  hex, we want the triangles on the corners to start at the r=1/3 and extend to r=2/3": a hexagon
+  pinwheel's spikes run from ⅓ to ⅔ of the center-to-corner distance; the square keeps its own.
+  Then "let's try at 1/4 and 3/4": ¼ to ¾, and "we want to use the same r values (from the
+  center) for the square blocks": the square pinwheels use the same distances (a square as wide
+  as the hexagon; ¾ of the square's own corner distance would cross its sides). Swirls (owner: "the
+  tip of the triangle should align with the edge corner of the next patch as the patches spiral
+  out"): each spike's tip is the next day's spike's outer corner. Quartered (owner: "the source image
+  is split into quadrants and is assembled differently... let's make an additional set of square
+  blocks that match the origional image"): Quartered Month Swirl (30/29/28 variants) and Quartered
+  Week Swirl (renamed Pinwheel, below). Four quarters pieced apart, each a fan from a point on its inner edge 0.27 of a
+  quarter from the block's center, each quarter the last turned clockwise. Days split TL, TR, BR,
+  BL (the first quarters take the extra: 8/8/8/7, a week 2/2/2/1). First try (spikes by fraction
+  along the fan lines) rejected: "the triangles should be in a cirlce similar to the pinwheel we
+  already implmented, but the four sub-blocks are constructed differently", then "the inner most
+  patches aren't triangles. they are four-sided". So, read from the photo: the spikes stand in a
+  ring about the block's center and point in. Lines from the fan's point end at the spike tips
+  (0.2 block widths from the center, at 180° + 90°·j/m; tip 0 on the middle line, tip m on the
+  quarter's edge); from each tip a long line runs out to the edge through the spike's outer corner
+  (0.43 out, a third of a step clockwise; tip m's long line is the quarter's edge). A spike's other
+  base corner rests on the next long line 0.33 out, so each piece inside the ring has four sides:
+  the fan's point, a tip, that spike's resting corner, the next tip.
+  Then: "the first trianlge (traveling clockwise) in each sub block has it's edge tight up against
+  the sub-block edge. the tips of the trinagles don't touch the sub-block edge on the last
+  triangles", "the last/top inner piece is a single patch", and "that quad for the last triangle
+  should still be convex like the rest... there's a bit of a gap between triangles... all
+  triangles should be the same size". Measured off the photo: every spike is one triangle turned
+  about the block's center, 90°/m apart: inner corner 0.27 block widths out, tip 0.415 out on the
+  same line from the center (which runs on out to the edge as a long seam), third corner 0.342
+  out and 7° clockwise, facing the fan's point (0.14 from the center). The third corner joins the
+  next spike's inner corner across a white gap; each piece inside the ring has four sides (fan's
+  point, a spike's inner and third corners, the next inner corner; the block's center after the
+  last spike, which keeps it convex). The first spike's line is the quarter's edge.
+  Then "the patches for the outside of the triangles share an edge with the triangles, right now
+  you're drawing them at an angle to that edge": the long seam beyond each tip runs on straight
+  from the spike's outer side (third corner to tip), not from its inner corner; the first spike,
+  on the quarter's edge, has none. Then "that edge should continue until it intersects the next
+  triangle block rather than bending at the tip of the trinagle", and "it's the edges from the
+  outer patches that extend to touch the next triangle's flat edge, not the patches from the
+  inside of the block": a spike's outer side is one straight seam from the quarter's edge, past
+  the tip, along the spike and on past its third corner until it meets the next spike's inner side
+  (the quarter's edge after the last). The base stops at the third corner. Then "the edges extending
+  down from the triangles don't all converge at the same point. those edges should also be
+  aligned to the edge of the triangle they share that corner with": no fan point; each spike's
+  base runs on straight inward past its inner corner to the quarter's edge or an earlier spike's
+  seam, whichever comes first (they land close together, near where the fan point was).
+  Owner: "that looks like an exact match now. can we attempt to make a week version?" and
+  "shouldn't we be calling it a pinwheel, not a swirl? since we're using swirl to describe spiral
+  blocks?": renamed Quartered Month Pinwheel; Quartered Week Pinwheel added. Week tries: spikes
+  scaled to 45° wedges broke the seams; a single quarter with 7 spikes (four turned make the
+  design) and two spikes a quarter at the photo's spacing were offered. Owner chose the paired
+  whole block "with the triangles a bit larger and more spaced out", then "try to space them
+  relativly evenly around the circle. so at like 0 and 45 degrees": two spikes a quarter, 45°
+  apart (eight evenly round the ring), inner corner 0.22, third corner 0.33 out and 18° on, tip
+  0.45. "let's make the bottom patch be the non-data block": the spike at the bottom is plain, the
+  days run on clockwise from it (day 1 at the bottom left, day 7 at the bottom right).
+  Owner: "let's update each of these spirial and pinwheel data blocks with a second and third
+  series. we'll use C for the outer patches and B for the inner patches": every swirl and
+  pinwheel (square, hexagon, quartered; month variants too) paints each day three times, the
+  spike value A, the piece across its inner side (toward the center) value B, the piece across its
+  outer side value C. Asked first whether a second series could be painted over with a fixed
+  color in the quilt: yes, the quilt's paint replaces any fill; a value the quilt lacks shows the
+  placeholder until mapped (Place numbers › Value) or painted.
+- Block pictures (owner, 2026-11-05: "let's set data blocks to show their traces in the block
+  previews / thumbnailes but not when downloading"): `blockThumbnail` draws a data block's order
+  lines (each value its own color, a dot on day 1, no labels: too small to read); Save image and
+  the picture check leave them off. Then "set the trace opacity to like 40% in thumbnail and preview views" and
+  "make sure you include the end arrow head": 40% opacity, an arrowhead at the last day; the block
+  editor's overlay unchanged. Then "let's add a "show traces" toggle to the library and project
+  view, at the very start of the data section in the sidebar, above the "data block" dropdown":
+  a Show traces toggle first in the Data filter card (Libraries, project Blocks tab), one setting
+  (`showTraces`) for both, default off (owner: "default the toggle to off"). Quartered Week Swirl dropped for now: at 2/2/2/1 spikes a
+  quarter the spikes are too far apart for the bases to reach the next spike.
   Color variants follow their block's drawing (the project's copy, else the library's), also when a
   project opens.
 

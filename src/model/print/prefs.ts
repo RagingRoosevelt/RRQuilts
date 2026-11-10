@@ -43,6 +43,14 @@ export const PRINT_DEFAULTS = {
    */
   labels: { letter: true, counts: true, size: false, color: false },
   tint: false,
+  /** Data quilt instructions (spec 041): print the quilt's notes after the steps. */
+  stepsNotes: true,
+  /** Picked days: the info page (block maps and the days' table, and the quilt's notes). */
+  stepsInfo: true,
+  /** Picked days (not Block by block): templates for the days' patches, and for the blocks' other
+   *  patches (fixed colors, the block's own pieces). */
+  stepsDataTemplates: true,
+  stepsOtherTemplates: false,
   onePerPage: false,
   /** A scale square on each template (the quilt picture page always has one). */
   squareOnTemplate: true,

@@ -51,6 +51,9 @@ import {
   type Picked,
 } from '@/storage/files';
 import { forgetRecent, getRecent, rememberRecent, type RecentEntry } from '@/storage/recent';
+import { rememberKnown } from '@/storage/known';
+import { getPending, removePending } from '@/storage/pending';
+import { applyPending } from '@/model/data-pending';
 
 export type SaveStatus = 'none' | 'new' | 'saved' | 'unsaved' | 'unsaved-no-draft' | 'read-only';
 export type SaveResult = 'saved' | 'downloaded' | 'cancelled';
@@ -131,7 +134,19 @@ export const useProjectStore = defineStore('project', () => {
     lostToOtherTab.value = false;
     lock = await acquireEditLock(next.project.id, onLost);
     readOnly.value = lock === null;
+    // Data entered from Data Quilts while it was closed (spec 041): written in now, unsaved.
+    if (!readOnly.value) {
+      const pending = await getPending(next.project.id).catch(() => undefined);
+      const withData = applyPending(next, pending);
+      if (pending) await removePending(next.project.id).catch(() => {});
+      if (withData !== next) {
+        doc.value = freeze(withData, true);
+        revision.value = 1;
+        opts = { ...opts, dirty: true };
+      }
+    }
     if (opts.dirty && !readOnly.value) await writeDraft();
+    await rememberKnown(doc.value, opts.handle).catch(() => {});
   }
 
   /** New, empty project in the units chosen in Settings (library items embed when used). */
@@ -265,6 +280,7 @@ export const useProjectStore = defineStore('project', () => {
     autosave.dispose();
     const d = doc.value!;
     await markDraftClean(d.project.id).catch(() => {});
+    await rememberKnown(d, h).catch(() => {});
     await rememberRecent({
       id: d.project.id,
       name: d.project.name,

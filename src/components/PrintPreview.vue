@@ -398,6 +398,117 @@
               </div>
             </div>
 
+            <!-- Instructions (spec 041): each day's values, fabric and pieces, by block -->
+            <div v-else-if="s.kind === 'steps'" class="column" style="gap: 10px">
+              <div v-if="on(s, 'cap')" data-m="cap" class="text-caption">
+                Cut each piece from the fabric its day's value falls in, then sew it into its block
+                at the place with the day's number. Letters match the templates.
+              </div>
+              <template v-for="(g, j) in s.groups" :key="j">
+                <div
+                  v-if="on(s, `g>${j}`)"
+                  :data-m="`g>${j}`"
+                  class="text-subtitle1 text-weight-medium q-mt-sm"
+                >
+                  {{ g.label }}
+                </div>
+                <div v-if="g.map && on(s, `map>${j}`)" :data-m="`map>${j}`">
+                  <svg
+                    class="bleed"
+                    :width="`${g.map.w * g.map.scale}${units}`"
+                    :height="`${g.map.h * g.map.scale}${units}`"
+                    :viewBox="`0 0 ${g.map.w} ${g.map.h}`"
+                    style="flex: none; overflow: visible"
+                  >
+                    <path
+                      v-for="(p, k) in g.map.polys"
+                      :key="k"
+                      :d="p.d"
+                      :fill="prefs.outline ? 'none' : p.css"
+                      stroke="#000"
+                      :stroke-width="(stroke / g.map.scale) * 0.6"
+                    />
+                    <template v-for="(p, k) in g.map.polys" :key="`h${k}`">
+                      <path
+                        v-if="p.hot"
+                        :d="p.d"
+                        fill="none"
+                        stroke="#000"
+                        :stroke-width="(stroke / g.map.scale) * 3"
+                        stroke-linejoin="round"
+                      />
+                    </template>
+                    <text
+                      v-for="(l, k) in g.map.labels"
+                      :key="`l${k}`"
+                      :x="l.x"
+                      :y="l.y + (font / g.map.scale) * 0.3"
+                      :font-size="(font / g.map.scale) * 0.8"
+                      text-anchor="middle"
+                      fill="#000"
+                      stroke="#fff"
+                      :stroke-width="(font / g.map.scale) * 0.8 * 0.22"
+                      paint-order="stroke"
+                      stroke-linejoin="round"
+                    >
+                      {{ l.text }}
+                    </text>
+                  </svg>
+                </div>
+                <table v-if="on(s, `t>${j}`)">
+                  <thead :data-m="`t>${j}`">
+                    <tr>
+                      <th>Date</th>
+                      <th>Value</th>
+                      <th>Pieces</th>
+                      <th>Done</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template v-for="r in g.rows" :key="r.date">
+                      <tr v-if="on(s, `t>${j}>${r.date}`)" :data-m="`t>${j}>${r.date}`">
+                        <td>{{ stepDate(r.date) }}</td>
+                        <td>
+                          <div v-for="x in r.values" :key="x.slot">
+                            <span class="chip" :style="chipStyle(x.fill)" />
+                            {{ stepValue(x) }} · {{ fillInfo(x.fill).name }}
+                          </div>
+                        </td>
+                        <td>
+                          <template v-if="r.reason === 'no-entry'">No entry yet</template>
+                          <template v-else-if="r.reason === 'not-placed'"
+                            >Not on the quilt</template
+                          >
+                          <div v-for="(p, k) in r.pieces" :key="k">
+                            {{ p.count }} × {{ p.letter }} in
+                            <span class="chip" :style="chipStyle(p.fill)" />
+                            {{ fillInfo(p.fill).name }}
+                          </div>
+                        </td>
+                        <td>{{ doneNote(r) }}</td>
+                      </tr>
+                    </template>
+                    <tr v-if="g.own.length && on(s, `t>${j}>own`)" :data-m="`t>${j}>own`">
+                      <td>Once</td>
+                      <td>The block’s own pieces</td>
+                      <td>
+                        <div v-for="(p, k) in g.own" :key="k">
+                          {{ p.count }} × {{ p.letter }} in
+                          <span class="chip" :style="chipStyle(p.fill)" />
+                          {{ fillInfo(p.fill).name }}
+                        </div>
+                      </td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </template>
+              <template v-if="s.notes && on(s, 'notes')">
+                <div class="text-weight-medium" data-m="notes">Quilt notes</div>
+                <div style="white-space: pre-wrap">{{ s.notes }}</div>
+              </template>
+            </div>
+
             <!-- Credits: everyone whose work this builds on (when no block pages carry them) -->
             <div v-else-if="s.kind === 'credits'" class="column" style="gap: 8px">
               <div v-if="on(s, 'title')" data-m="title">
@@ -566,6 +677,9 @@
         :kind="kind"
         :id="id"
         :target="target"
+        :doc="props.doc"
+        :days="days"
+        :numbers="numbers"
         :measured="measuredHere"
         print-only
       />
@@ -592,7 +706,15 @@ import {
 import HelpLink from '@/components/HelpLink.vue';
 import TemplatePiece from '@/components/TemplatePiece.vue';
 import { fillKey } from '@/model/coloring';
-import { scaleEntries, slotColoring } from '@/model/data-quilt';
+import { placesOf, scaleEntries, slotColoring } from '@/model/data-quilt';
+import {
+  blockOwn,
+  dayPatches,
+  daySteps,
+  numberDates,
+  type DayStep,
+} from '@/model/print/data-steps';
+import { allPatches } from '@/model/blocks/patches';
 import { dataYardagePieces } from '@/model/print/data-yardage';
 import {
   authorOf,
@@ -647,8 +769,12 @@ import { creditSocial, isKnownSite, socialIcon, type Social } from '@/settings/s
 import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
-  kind: 'block' | 'quilt';
+  /** `steps`: a data quilt's instructions for `days` (spec 041). */
+  kind: 'block' | 'quilt' | 'steps';
   id: string;
+  days?: readonly string[] | undefined;
+  /** Block by block: the plan's numbers (1-based), every day of each. */
+  numbers?: readonly number[] | undefined;
   target?: PrintTarget | undefined;
   /** The copy that prints (hidden on screen). */
   printOnly?: boolean;
@@ -890,6 +1016,8 @@ interface View {
   /** Quilts: the outer edge (pieces are clipped to it) and whether to trim to it after piecing. */
   edge?: Pt[];
   trim?: boolean;
+  /** Data quilt instructions (spec 041). */
+  steps?: DayStep[];
   /** Templates: block, its finished size, and pieces of one block for the key. */
   block?: Block;
   blockSize?: [number, number];
@@ -905,6 +1033,47 @@ const view = computed<View | undefined>(() => {
   const dd = doc.value;
   if (!dd) return undefined;
   const id = props.id;
+  if (props.kind === 'steps') {
+    const quilt = dd.project.quilts.find((q) => q.id === id);
+    if (!quilt) return undefined;
+    const blocks = props.numbers?.length ? props.numbers : undefined;
+    const steps = daySteps(
+      dd,
+      quilt,
+      blocks && quilt.data
+        ? blocks.flatMap((k) => numberDates(quilt.data!, k))
+        : (props.days ?? []),
+    );
+    const dates = steps.map((x) => x.date);
+    const labels = [...new Set(steps.flatMap((x) => (x.label ? [x.label] : [])))];
+    const span = (k: string) =>
+      new Date(`${k}T00:00:00Z`).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC',
+      });
+    return {
+      title: quilt.notecard.name,
+      size: blocks
+        ? labels.length > 1
+          ? `${labels[0]} to ${labels.at(-1)}`
+          : (labels[0] ?? 'No blocks')
+        : !dates.length
+          ? 'No days'
+          : dates.length === 1
+            ? span(dates[0]!)
+            : `${span(dates[0]!)} to ${span(dates.at(-1)!)}`,
+      byline: `By ${quilt.author ?? 'anonymous'}`,
+      author: quilt.author,
+      basedOn: [],
+      notes: prefs.value.stepsNotes ? quilt.notecard.notes : undefined,
+      blocks: [],
+      pieces: steps.flatMap((x) => x.pieces.flatMap((p) => Array<Piece>(p.count).fill(p.piece))),
+      steps,
+      picture: [],
+      pictureBox: [0, 0, 1, 1],
+    };
+  }
   if (props.kind === 'quilt') {
     const quilt = dd.project.quilts.find((q) => q.id === id);
     if (!quilt) return undefined;
@@ -985,10 +1154,19 @@ const view = computed<View | undefined>(() => {
 });
 
 // Templates: each distinct shape, cut line around it, rotated snug, packed on pages.
-function templateItems(pieces: Piece[], prefix: string) {
+function templateItems(
+  pieces: Piece[],
+  prefix: string,
+  letters?: Map<string, string>,
+  days?: Map<string, string[]>,
+) {
   const { mirror, seamAllowance, trimPoints, tint, labels } = prefs.value;
   // Tinted or color-keyed: one template per fabric.
-  const list = templates(pieces, prefix).flatMap((t) =>
+  const lettered = templates(pieces, prefix).map((t) => ({
+    ...t,
+    letter: letters?.get(shapeKey(t.poly)) ?? t.letter,
+  }));
+  const list = lettered.flatMap((t) =>
     (tint || labels.color) && t.counts.size > 1
       ? [...t.counts].map(([fill, n]) => ({ ...t, counts: new Map([[fill, n]]) }))
       : [t],
@@ -1025,9 +1203,14 @@ function templateItems(pieces: Piece[], prefix: string) {
       grain: grainDir,
       grainLength: Math.min(x1 - x0, y1 - y0) * 0.5,
       // Fabric pills (color key off) carry the per-fabric counts; the note keeps the total.
-      note: prefs.value.labels.color
-        ? `Cut ${counts.join(', ')}`
-        : `Cut ${[...t.counts.values()].reduce((a, b) => a + b, 0)}`,
+      note:
+        (prefs.value.labels.color
+          ? `Cut ${counts.join(', ')}`
+          : `Cut ${[...t.counts.values()].reduce((a, b) => a + b, 0)}`) +
+        // One fabric (tinted): the days it's for.
+        (fills.length === 1 && days?.get(`${t.letter}|${fills[0]}`)
+          ? ` · ${days.get(`${t.letter}|${fills[0]}`)!.join(', ')}`
+          : ''),
       size: finishedLabel(cutFor({ poly: t.poly, curved: t.curved, fill: '', marks: [] }, 0, 0)),
       tint: fills.length === 1 && fills[0] !== 'none' ? fillInfo(fills[0]!).css : undefined,
       marks: t.marks.map((m) => ({ p: shift(turnVec(m.p)), n: turnVec(m.n) })),
@@ -1079,6 +1262,13 @@ type Sheet = (
   | {
       kind: 'credits';
       heading: string;
+    }
+  | {
+      kind: 'steps';
+      heading: string;
+      /** One per block the days go in (in order), then days not on the quilt. */
+      groups: StepGroup[];
+      notes?: string | undefined;
     }
   | {
       kind: 'miter';
@@ -1138,6 +1328,22 @@ type Sheet = (
   /** A part of a split page: the pieces on it. */
   show?: Set<string>;
 };
+interface StepGroup {
+  label: string;
+  /** The block, the days' patches outlined thick and numbered (none: days not on the quilt). */
+  map?: StepMap | undefined;
+  rows: DayStep[];
+  /** Block by block: the block's own pieces (not days), cut once. */
+  own: { letter: string; fill: string; count: number }[];
+}
+interface StepMap {
+  label: string;
+  w: number;
+  h: number;
+  scale: number;
+  polys: { d: string; css: string; hot: boolean }[];
+  labels: { x: number; y: number; text: string }[];
+}
 interface NeedCol {
   opt: WidthOption;
   needs: Map<string, FabricNeed>;
@@ -1169,6 +1375,7 @@ const logical = computed<Sheet[]>(() => {
   const wanted: string[] = isBlock ? prefs.value.blockSections : prefs.value.quiltSections;
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
+  if (v.steps) return stepSheets(v.steps, v.notes, !!props.numbers?.length);
 
   // One order whatever order the boxes were ticked in — quilt: picture, yardage, rotary, blocks,
   // templates (credits last); block: block page ("picture"), rotary, templates.
@@ -1448,6 +1655,105 @@ function quiltBlocks() {
   });
 }
 
+/** Data quilt instructions (spec 041): the days' table, then each block's templates for just those days, keyed
+ *  on the block, lettered as the table. Days without pieces print their reason only. */
+function stepSheets(steps: DayStep[], notes: string | undefined, blocks: boolean): Sheet[] {
+  const dd = doc.value!;
+  const quilt = dd.project.quilts.find((q) => q.id === props.id);
+  const plan = quilt?.data;
+  if (!quilt || !plan) return [];
+  const groups: StepGroup[] = [];
+  // Picked days may leave out the info page (templates only); Block by block always has it.
+  const out: Sheet[] =
+    blocks || prefs.value.stepsInfo
+      ? [{ kind: 'steps', heading: 'Instructions', groups, notes }]
+      : [];
+  const real = { ...quilt, data: { ...plan, show: 'real' as const, waiting: 'designed' as const } };
+  const slots = new Map(generateFor(quilt).slots.map((x) => [x.id, x]));
+  const [aw, ah] = area.value;
+  const numbers = [...new Set(steps.flatMap((x) => (x.number ? [x.number] : [])))];
+  for (const k of numbers) {
+    const mine = steps.filter((x) => x.number === k);
+    const label = mine[0]!.label ?? '';
+    // Block by block: every template, the own pieces in the table too. Picked days: as the settings.
+    const own = blockOwn(dd, quilt, k);
+    const dataT = blocks || prefs.value.stepsDataTemplates;
+    const otherT = blocks || prefs.value.stepsOtherTemplates;
+    const group: StepGroup = { label, rows: mine, own: blocks ? own : [] };
+    groups.push(group);
+    const place = placesOf(plan, k)[0];
+    const slot = place && slots.get(place.space);
+    const content = slot && quilt.layers[0].slots[slot.id];
+    const block = content && dd.project.blocks.find((b) => b.id === content.block);
+    if (!slot || !block) continue;
+    const keyPieces = blockPieces(block, slot.size, slotColoring(real, slot.id, block));
+    const letters = new Map(templates(keyPieces).map((t) => [shapeKey(t.poly), t.letter]));
+    // The block map: every listed day numbered on its patches (this placement); the days with
+    // pieces to cut outlined thick.
+    const ids = allPatches(block).map((x) => x.id);
+    const cut = new Set(mine.filter((x) => x.pieces.length).map((x) => x.date));
+    const at = new Map<string, { day: string; hot: boolean }>();
+    for (const x of dayPatches(
+      dd,
+      quilt,
+      mine.map((r) => r.date),
+    ))
+      if (x.space === slot.id)
+        at.set(x.patchId, { day: String(Number(x.date.slice(8))), hot: cut.has(x.date) });
+    const [w, h] = slot.size;
+    group.map = {
+      label,
+      w,
+      h,
+      scale: Math.min(1, aw / w, (ah * 0.3) / h),
+      polys: keyPieces.map((x, i) => ({
+        d: d(x.poly),
+        css: shapeFill(x.fill),
+        hot: !!at.get(ids[i]!)?.hot,
+      })),
+      labels: keyPieces.flatMap((x, i) => {
+        const day = at.get(ids[i]!)?.day;
+        if (!day) return [];
+        const spot = roomiest(x.poly).p;
+        return [{ x: spot[0], y: spot[1], text: day }];
+      }),
+    };
+    // Templates for the days' pieces and the block's own (as above), each tinted one labeled with
+    // its days.
+    const days = new Map<string, string[]>();
+    for (const r of mine)
+      for (const p of [...r.pieces, ...(r.blank ?? [])]) {
+        const key = `${p.letter}|${p.fill}`;
+        days.set(key, [...(days.get(key) ?? []), shortDate(r.date)]);
+      }
+    const pieces = [
+      ...(dataT
+        ? mine.flatMap((x) =>
+            [...x.pieces, ...(x.blank ?? [])].flatMap((p) => Array<Piece>(p.count).fill(p.piece)),
+          )
+        : []),
+      ...(otherT ? own.flatMap((p) => Array<Piece>(p.count).fill(p.piece)) : []),
+    ];
+    if (pieces.length)
+      out.push(
+        ...templateSheets({
+          pieces,
+          size: slot.size,
+          keyPieces,
+          heading: `Templates: ${label}`,
+          letters,
+          days,
+          noKey: true,
+        }),
+      );
+  }
+  const loose = steps.filter((x) => !x.number);
+  if (loose.length) groups.push({ label: 'Not on the quilt', rows: loose, own: [] });
+  // Nothing else to print: the info page, whose table says why.
+  if (!out.length) out.push({ kind: 'steps', heading: 'Instructions', groups, notes });
+  return out;
+}
+
 /** Template pages for one block: a lettered key, then each distinct piece packed at true size. */
 function templateSheets(src: {
   pieces: Piece[];
@@ -1460,12 +1766,16 @@ function templateSheets(src: {
   noKey?: boolean;
   /** A key as wide as the page (a whole quilt's pieces), not a quarter of it. */
   bigKey?: boolean;
+  /** Letters by shape (the key's), when `pieces` are only some of the block's. */
+  letters?: Map<string, string>;
+  /** Data quilt instructions: the days each tinted template (letter and fabric) is for. */
+  days?: Map<string, string[]>;
 }): Sheet[] {
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
   const gap = units.value === 'in' ? 0.25 : 0.6;
   const prefix = src.prefix ?? '';
-  const items = templateItems(src.pieces, prefix);
+  const items = templateItems(src.pieces, prefix, src.letters, src.days);
   // Key: the block with each patch's letter, about a quarter of the page wide.
   const keyScale = src.bigKey
     ? Math.min(aw, ah * 0.8) / Math.max(...src.size)
@@ -1724,7 +2034,7 @@ const SHEET_HELP: Record<string, { topic: string; label: string }> = {
   miter: { topic: 'math/borders', label: 'Mitered borders' },
   yardage: { topic: 'math/patches-from-yardage', label: 'Yardage, binding, and backing' },
 };
-const FLOW = new Set(['rotary', 'yardage', 'credits', 'block']);
+const FLOW = new Set(['rotary', 'yardage', 'credits', 'block', 'steps']);
 type Costs = Record<number, { key: string; cost: number }[]>;
 const measuredHere = ref<Costs>({});
 const costs = computed(() => props.measured ?? measuredHere.value);
@@ -1750,6 +2060,36 @@ const pillsBeside = (s: Sheet) =>
   s.kind === 'block' && s.fabrics.length * 6.6 <= s.h * s.scale * mm.value;
 /** Part of a split page: is this piece on it? */
 const on = (s: Sheet, key: string) => !s.show || s.show.has(key);
+const shortDate = (k: string) =>
+  new Date(`${k}T00:00:00Z`).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+const stepDate = (k: string) =>
+  new Date(`${k}T00:00:00Z`).toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+/** "Cut Jan 14 · Assembled Jan 15" */
+function doneNote(r: DayStep) {
+  const m = r.made;
+  return [
+    m?.cut ? `Cut ${shortDate(m.cut)}` : '',
+    m?.assembled ? `Assembled ${shortDate(m.assembled)}` : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
+function stepValue(x: DayStep['values'][number]) {
+  const slot = doc.value?.project.quilts.find((q) => q.id === props.id)?.data?.slots[x.slot];
+  if (!slot) return String(x.value);
+  if (slot.kind === 'category')
+    return slot.categories.find((c) => c.id === x.value)?.name ?? String(x.value);
+  return `${slot.label}: ${x.value}${slot.unit ? ` ${slot.unit}` : ''}`;
+}
 const measureStyle = computed(() => ({ width: `${area.value[0]}${units.value}` }));
 function measure() {
   const out: Costs = {};

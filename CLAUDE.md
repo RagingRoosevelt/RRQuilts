@@ -29,6 +29,13 @@ like sketchbook/worktable are fine).
   File System Access API where supported; download + `<input type="file">` fallback.
 - **Settings**: `localStorage`; export/import as `.rrqconf` (JSON).
 - **Project drafts / personal libraries / repo cache**: IndexedDB (drafts = crash recovery, not a save).
+- **Data Quilts** (spec 041, rrq v11 `DataPlan.made`/`blocksMade`): `/data` lists data quilts of the
+  open project, drafts and IndexedDB `known` projects (file handles, read without opening:
+  `storage/read-project.ts`); entries for a closed project wait in `pending` and `stores/project.ts`
+  `load()` applies them (`model/data-pending.ts`). `stores/data-quilts.ts` routes writes (open /
+  draft / pending); `DataEntryDialog` (calendar, day form, Year); `/data/steps` = PrintPreview kind
+  `steps` from `model/print/data-steps.ts` (days or Block by block). Nav tab: setting `dataTab`
+  (`composables/data-tab.ts`).
 - **Resource repositories**: git repos of extra library content, fetched on user request (the only
   network use). Cached for offline. Untrusted: validate, never execute. Projects embed used items.
 - **Library files**: `.rrqlib` (JSON) — one format for personal-library backup and shareable

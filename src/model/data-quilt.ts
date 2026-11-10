@@ -6,7 +6,8 @@ import { resolveColoring } from './coloring';
 import { sampleSeries } from './data-samples';
 import type { Block, DataKind, DataVariant } from './schema/block';
 import type { ColoringBody, DataPaint, Fill, PlainFill } from './schema/coloring';
-import type { DataPlace, DataPlan, DataPreset, ValueSlot } from './schema/data-quilt';
+import { shownColorway, swapper } from './colorways';
+import type { DataPlace, DataPlan, DataPreset, DayMade, ValueSlot } from './schema/data-quilt';
 import type { Quilt } from './schema/quilt';
 
 const DAY = 86_400_000;
@@ -639,9 +640,23 @@ export function fitPlaces(
     const b = blocks?.get(p.block);
     return !!kind && (!b || takesKind(b, kind));
   });
+  const pruned = pruneBlocksMade(plan);
   return places.length === plan.places.length
-    ? { plan, lost: 0 }
-    : { plan: { ...plan, places }, lost: plan.places.length - places.length };
+    ? { plan: pruned, lost: 0 }
+    : { plan: { ...pruned, places }, lost: plan.places.length - places.length };
+}
+
+/** Blocks assembled marks only for numbers the plan has. */
+function pruneBlocksMade(plan: DataPlan): DataPlan {
+  if (!plan.blocksMade) return plan;
+  const count = numberCount(plan);
+  const kept = Object.entries(plan.blocksMade).filter(
+    ([k]) => Number(k) >= 1 && Number(k) <= count,
+  );
+  if (kept.length === Object.keys(plan.blocksMade).length) return plan;
+  const { blocksMade: _b, ...rest } = plan;
+  void _b;
+  return kept.length ? { ...rest, blocksMade: Object.fromEntries(kept) } : rest;
 }
 
 /** The plan switched to Months, Weeks or Days: placements on numbers it no longer has, or whose
@@ -935,3 +950,86 @@ export function sampleCounts(plan: DataPlan, slot: number): number[] {
 
 /** Same as `numberName` (the list and the quilt show one label). */
 export const numberLabel = (plan: DataPlan, k: number) => numberName(plan, k);
+
+// Making (spec 041): a day's color on the calendar, the last entry, and the made marks.
+
+/** The fill a day's entry for value `slot` shows, through the quilt's shown colorway (none
+ *  without an entry). */
+export function dayColor(q: Quilt, slot: number, date: string): Fill | undefined {
+  const plan = q.data;
+  const s = plan?.slots[slot];
+  if (!plan || !s) return undefined;
+  return swapper(shownColorway(q))(scaleFill(s, plan.entries[date]?.[slot]));
+}
+
+const hasValue = (row: readonly Value[] | undefined) =>
+  !!row?.some((v) => v !== null && v !== undefined && v !== '');
+
+/** The latest date with any value entered. */
+export function lastEntry(plan: DataPlan): string | undefined {
+  let last: string | undefined;
+  for (const [d, row] of Object.entries(plan.entries))
+    if (hasValue(row) && (!last || d > last)) last = d;
+  return last;
+}
+
+/** Days entered and not yet cut, oldest first (what Print instructions covers unless days are picked). */
+export function nextDays(plan: DataPlan): string[] {
+  const end = dayDate(plan.start, periodLength(plan.start));
+  return Object.keys(plan.entries)
+    .filter((d) => d >= plan.start && d <= end && hasValue(plan.entries[d]) && !plan.made?.[d]?.cut)
+    .sort();
+}
+
+/** The plan with a day's Cut or Assembled mark set (to `today`) or cleared. */
+export function setMade(
+  plan: DataPlan,
+  date: string,
+  part: keyof DayMade,
+  on: boolean,
+  today: string,
+): DataPlan {
+  const day: DayMade = { ...plan.made?.[date] };
+  if (on) day[part] = day[part] ?? today;
+  else delete day[part];
+  const made = { ...plan.made };
+  if (day.cut || day.assembled) made[date] = day;
+  else delete made[date];
+  const { made: _m, ...rest } = plan;
+  void _m;
+  return Object.keys(made).length ? { ...rest, made } : rest;
+}
+
+/** The plan with number `n`'s Block assembled mark set (to `today`) or cleared. */
+export function setBlockMade(plan: DataPlan, n: number, on: boolean, today: string): DataPlan {
+  const blocksMade = { ...plan.blocksMade };
+  if (on) blocksMade[n] = blocksMade[n] ?? today;
+  else delete blocksMade[n];
+  const { blocksMade: _b, ...rest } = plan;
+  void _b;
+  return Object.keys(blocksMade).length ? { ...rest, blocksMade } : rest;
+}
+
+/** The plan's number (1-based) holding a date, and its day within it; none when it has no place
+ *  (outside the period, or 29 February averaged or ignored). */
+export function numberOfDate(plan: DataPlan, date: string): { k: number; n: number } | undefined {
+  const d = placeDays(plan).indexOf(date) + 1;
+  if (!d) return undefined;
+  const nums = dataNumbers(plan);
+  const k = nums.findIndex((x) => d >= x.first && d < x.first + x.len) + 1;
+  return k ? { k, n: d - nums[k - 1]!.first + 1 } : undefined;
+}
+
+/** The year a new data quilt records (owner, spec 041): this year in its first two thirds
+ *  (January to August), next year from September on. */
+export const defaultDataYear = (today = new Date()) =>
+  today.getFullYear() + (today.getMonth() >= 8 ? 1 : 0);
+
+/** The plan moved to another year (same month and day; 29 February becomes the 28th). Entries are
+ *  kept by date, so moving back shows them again. */
+export function setYear(plan: DataPlan, year: number): DataPlan {
+  let start = `${String(year).padStart(4, '0')}${plan.start.slice(4)}`;
+  if (start.endsWith('-02-29') && !isLeap(year)) start = `${start.slice(0, 8)}28`;
+  return fitPlaces({ ...plan, start }).plan;
+}
+const isLeap = (y: number) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;

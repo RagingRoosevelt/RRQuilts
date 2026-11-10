@@ -57,6 +57,8 @@ const G = {
   shadow048: 'Card shadows (spec 048)',
   shape049: 'Library blocks by shape (spec 049)',
   snap031: 'Snapping gravity and Line up (spec 031)',
+  swirl025: 'Swirl and Pinwheel data blocks, traces in block pictures (spec 025)',
+  make041: 'Data Quilts: data entry and printed instructions (spec 041)',
 };
 
 export const CHECKS: Check[] = [

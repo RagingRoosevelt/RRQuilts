@@ -63,6 +63,8 @@ const ADDED: Record<number, Add[]> = {
       data: true,
     },
   ],
+  // v11 (spec 041) added made marks, no layouts: the data quilts get entries and marks (MARKS).
+  11: [],
   10: [
     {
       name: 'Data Weeks, Two Values',
@@ -106,8 +108,30 @@ it.skipIf(!dir)('write the demo project', async () => {
     if (add.data) doc = await dataQuilt(doc, quilt.id);
     if (add.weeks) doc = await weeksQuilt(doc, quilt.id);
   }
+  if (VERSION === 11) doc = madeMarks(doc);
   writeFileSync(`${dir}/demo-v${VERSION}.rrq`, serializeProject(doc));
 });
+
+/** v11 (spec 041): two weeks of real highs (and lows) on each data quilt, the first ten days cut,
+ *  the first week assembled, and the Weeks quilt's lead day and first week assembled as blocks.
+ *  Shown values stay the sample, so the demo pictures don't change. */
+function madeMarks(doc: Any) {
+  const highs = [28, 31, 35, 22, 18, 25, 33, 38, 41, 36, 34, 29, 27, 31];
+  const day = (i: number) => `2027-01-${String(i + 1).padStart(2, '0')}`;
+  return produce(doc, (d: Any) => {
+    for (const q of d.project.quilts) {
+      if (!q.data?.on) continue;
+      const two = q.data.slots.length > 1;
+      q.data.entries = Object.fromEntries(highs.map((h, i) => [day(i), two ? [h, h - 12] : [h]]));
+      q.data.made = Object.fromEntries(
+        highs
+          .slice(0, 10)
+          .map((_, i) => [day(i), i < 7 ? { cut: day(i), assembled: day(i) } : { cut: day(i) }]),
+      );
+      if (q.data.plan === 'weeks') q.data.blocksMade = { 1: '2027-01-01', 2: '2027-01-08' };
+    }
+  });
+}
 
 /** A data quilt (spec 025): next year's months plan, its block spaces numbered in order, each
  *  showing the built-in Month Strip's variant for its month, in the sample year's colors. */

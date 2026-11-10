@@ -360,6 +360,7 @@
           />
         </FilterCard>
         <FilterCard v-if="settings.settings.libraryType === 'block'" label="Data">
+          <q-toggle v-model="settings.settings.showTraces" dense label="Show traces" />
           <FilterSelect
             v-model="filters.data"
             :options="DATA_FILTER.options"
@@ -2158,7 +2159,15 @@ const emptyDoc = createProject();
 /** The coloring each card shows ("<library>:<block>" → coloring id); default the first. */
 const shown = reactive(new Map<string, string>());
 const thumb = (b: Block, px: number, coloring?: string) =>
-  blockThumbnail(emptyDoc, b, px, $q.dark.isActive, coloring, library.items.colors);
+  blockThumbnail(
+    emptyDoc,
+    b,
+    px,
+    $q.dark.isActive,
+    coloring,
+    library.items.colors,
+    settings.settings.showTraces,
+  );
 const css = (c: Color) => `rgb(${c.rgb.join(',')})`;
 const itemLicense = (x: Block | ColorCollection) =>
   x.license ?? previewLib.value?.doc.license ?? (previewMine.value ? undefined : DEFAULT_LICENSE);

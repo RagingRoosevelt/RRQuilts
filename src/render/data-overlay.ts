@@ -66,7 +66,9 @@ export function drawDataOverlay(
   ctx: CanvasRenderingContext2D,
   marks: readonly DataMark[],
   px: number,
-  o: { line: boolean; dark: boolean },
+  /** `alpha`: the lines' opacity (block pictures draw them fainter). `arrow`: a head at the last
+   *  number's places. */
+  o: { line: boolean; dark: boolean; labels?: boolean; alpha?: number; arrow?: boolean },
 ) {
   if (!marks.length) return;
   ctx.save();
@@ -81,16 +83,17 @@ export function drawDataOverlay(
       .forEach(([key, g]) => {
         const i = Number(key.replace(/\D/g, '')) || 0;
         ctx.beginPath();
-        for (const [a, b] of traceSegments(g)) {
+        const segs = traceSegments(g);
+        for (const [a, b] of segs) {
           ctx.moveTo(...a);
           ctx.lineTo(...b);
         }
         ctx.strokeStyle = LINE[i % LINE.length]!;
         ctx.lineWidth = 2 * px;
         ctx.lineCap = 'round';
-        ctx.globalAlpha = 0.8;
+        ctx.globalAlpha = o.alpha ?? 0.8;
         ctx.stroke();
-        ctx.globalAlpha = 1;
+        ctx.globalAlpha = o.alpha ?? 1;
         // The start: a dot on each place of the first number.
         const first = Math.min(...g.map((m) => m.order));
         ctx.beginPath();
@@ -101,8 +104,27 @@ export function drawDataOverlay(
         }
         ctx.fillStyle = ctx.strokeStyle;
         ctx.fill();
+        // The end: a head on each segment into the last number's places.
+        if (o.arrow) {
+          const last = new Set(
+            g.filter((m) => m.order === Math.max(...g.map((x) => x.order))).map((m) => m.p),
+          );
+          const h = 9 * px;
+          ctx.beginPath();
+          for (const [a, b] of segs) {
+            if (!last.has(b)) continue;
+            const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+            ctx.moveTo(...b);
+            ctx.lineTo(b[0] - h * Math.cos(ang - 0.45), b[1] - h * Math.sin(ang - 0.45));
+            ctx.lineTo(b[0] - h * Math.cos(ang + 0.45), b[1] - h * Math.sin(ang + 0.45));
+            ctx.closePath();
+          }
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
       });
   }
+  if (o.labels === false) return ctx.restore();
   // Labels in device pixels (tiny fonts scaled up draw unevenly).
   const t = ctx.getTransform();
   const dev = Math.hypot(t.a, t.b) * px; // device pixels per CSS pixel

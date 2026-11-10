@@ -105,7 +105,26 @@ the days past the month in black), a **Week Strip** of 7 bars, and a **Day Squar
 all filed under **Data**. Months and weeks also come with their strips turning a corner, day 1 at
 the top left: **Curved Month Strip** and **Curved Week Strip** in quarter rings, **Cornered Month
 Strip** and **Cornered Week Strip** in nested right angles, and **Month Fan** and **Week Fan** as
-wedges fanning out from the corner.
+wedges fanning out from the corner. **Month Swirl** and **Week Swirl** have a slim spike for each
+day, spiraling out from the center clockwise from the top, between straight lines that make them
+easy to paper piece. **Hexagon Month Swirl** and **Hexagon Week Swirl** are the same in a hexagon,
+for hexagon layouts. **Month Pinwheel**, **Week Pinwheel**, **Hexagon Month Pinwheel**, and
+**Hexagon Week Pinwheel** are swirls with every spike the same distance from the center. The month
+swirls and pinwheels have one spike per day in each of their 30, 29, and 28-day
+variants, with no black spikes left over. **Quartered Month Pinwheel** is a square block
+pieced in four quarters, each a fan of seams toward its inner edge, turned a quarter turn from
+the last. Its spikes are all the same size, standing in a ring about the center with their
+tips pointing out, day 1 at the left, going clockwise. **Quartered Week Pinwheel** is built the
+same way with two larger spikes in each quarter, evenly spaced. The bottom spike is plain, and the
+days run clockwise from it, day 1 just after it.
+
+The swirls and pinwheels give each day three values: A colors the spike, B the piece on its inner
+side, and C the piece on its outer side. In **Place numbers**, set B and C to the quilt values you
+want them to show (see below), or paint over those pieces in the quilt for a fixed color.
+
+To see a data block's traces in its picture in the libraries and the **Blocks** tab, turn on
+**Show traces** at the top of the **Data** filter. Each trace is a line through one value's pieces
+in day order, from a dot on day 1 to an arrowhead at the last day. **Save image** leaves them off.
 
 To find data blocks, use the **Data** filter in the project's **Blocks** tab and in the libraries.
 The project's **Quilts** tab can show only data quilts or only the others.
@@ -204,3 +223,52 @@ The printed quilt picture has a legend of each value's colors. Yardage can't kno
 time, so it counts a worst case. Each range or category counts its **most days expected**, each in
 the largest piece of its value. Set those numbers under **Yardage** › **Most days expected** in the
 **Data** tab. Left empty, each takes its number of days in the sample.
+
+## Make it day by day
+
+Once the design is done, the **Data Quilts** tab is where the quilt gets made. The tab shows up
+after you open or make your first data quilt. Turn it on or off in **Settings** under **Show the
+Data Quilts tab**.
+
+The tab lists every data quilt this device knows: the open project, unsaved projects, and saved
+projects opened here before. Each card shows the quilt colored by the days entered so far and the
+date of the last entry. In Chrome and Edge a saved project's picture may wait for **Show**, which
+asks the browser to let RRQuilts read the file. Other browsers list unsaved projects and the open
+one. On the home page, the calendar icon beside a recent project opens the same data entry.
+
+Tap a card to enter data. The picture of the quilt sits beside a calendar of the whole year.
+
+- Tap a day to open it. Type its value for each series, then press Enter to move to the next day.
+- Each entered value shows as a dot in its range's color.
+- Every other block's days are shaded, so you can tell which days share a block.
+- The open day's patches are outlined on the quilt picture.
+- **Year** moves the quilt to another year. Entries stay with their dates, so going back shows
+  them again.
+
+Mark each day **Cut** when its pieces are cut and **Assembled** when they're sewn in. The
+calendar shows a scissors and a double check for them. **Block assembled** marks the whole block,
+and its days turn green in the calendar.
+
+Data entered while the project isn't open is kept on this device. It goes into the project the next
+time you open it, which then has unsaved changes to save. An unsaved project gets it right away.
+
+### Print instructions
+
+**Print instructions** prints what to cut and sew for the picked days. Drag across days in the
+calendar, or Shift-click a second day, to pick several. With one day picked and other days entered
+but not cut, it asks whether to pick all of them first.
+
+The printout has a section for each block. It shows the block in its fabrics with each day's
+patches outlined and numbered, then a table of the days with their values, fabrics, and the pieces
+to cut. Templates for those pieces follow. With **Tint by fabric** on, each template is tinted and
+says which days it's for. **Quilt notes** adds the quilt's notes from its **Details** tab, a good
+place for how to join the blocks.
+
+**Block by block** prints whole blocks instead: every day of each block, the days without an
+entry marked as such, and the block's own pieces to cut once. **Previous** and **Next** step through
+the blocks. On the instructions page, **Days** picks a range of dates, and **Not cut yet** picks the
+days entered and not marked **Cut**. Under **Contents**, **Info page** prints the block maps and
+the table of days (and the quilt notes). Under **Templates**, **Data patches** prints templates for
+the days' pieces and **Non-data patches** adds the rest of each block, the patches that don't
+change with the data. Days without an entry yet get plain templates, not colored in, so the
+pieces can be cut ahead of the fabric choice. One of the three always stays on. Block by block always prints all of them.

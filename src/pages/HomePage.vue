@@ -54,6 +54,32 @@
             <q-item-label>{{ r.name }}</q-item-label>
             <q-item-label caption>{{ new Date(r.openedAt).toLocaleString() }}</q-item-label>
           </q-item-section>
+          <q-item-section v-if="dataQuilts(r.id).length" side>
+            <q-btn
+              flat
+              round
+              dense
+              icon="event"
+              :aria-label="`Enter data for ${r.name}`"
+              @click.stop="
+                dataQuilts(r.id).length === 1 && enterData(r.id, dataQuilts(r.id)[0]!.id)
+              "
+            >
+              <q-tooltip>Enter data</q-tooltip>
+              <q-menu v-if="dataQuilts(r.id).length > 1" auto-close>
+                <q-list dense>
+                  <q-item
+                    v-for="q in dataQuilts(r.id)"
+                    :key="q.id"
+                    clickable
+                    @click="enterData(r.id, q.id)"
+                  >
+                    <q-item-section>{{ q.name }}</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </q-item-section>
           <q-item-section v-if="draftOf(r.id)" side>
             <q-btn
               flat
@@ -76,6 +102,32 @@
           <q-item-section>
             <q-item-label>{{ d.name }}</q-item-label>
             <q-item-label caption>Not saved to a file yet · {{ when(d.savedAt) }}</q-item-label>
+          </q-item-section>
+          <q-item-section v-if="dataQuilts(d.id).length" side>
+            <q-btn
+              flat
+              round
+              dense
+              icon="event"
+              :aria-label="`Enter data for ${d.name}`"
+              @click.stop="
+                dataQuilts(d.id).length === 1 && enterData(d.id, dataQuilts(d.id)[0]!.id)
+              "
+            >
+              <q-tooltip>Enter data</q-tooltip>
+              <q-menu v-if="dataQuilts(d.id).length > 1" auto-close>
+                <q-list dense>
+                  <q-item
+                    v-for="q in dataQuilts(d.id)"
+                    :key="q.id"
+                    clickable
+                    @click="enterData(d.id, q.id)"
+                  >
+                    <q-item-section>{{ q.name }}</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
           </q-item-section>
           <q-item-section side>
             <q-btn
@@ -103,6 +155,7 @@
       <q-btn flat icon="settings" label="Settings" no-caps @click="settingsOpen = true" />
     </div>
     <RestoreDrafts ref="backups" manual />
+    <DataEntryDialog ref="dataEntry" />
     <!-- Gist text is the sharer's: shown as text, never as HTML. -->
     <q-dialog :model-value="!!gistAsk" @update:model-value="gistAsk = null">
       <q-card v-if="gistAsk" style="width: 460px; max-width: 95vw">
@@ -174,6 +227,10 @@ import { useOpenProject } from '@/composables/open-project';
 import { useStartQuilt } from '@/composables/start-quilt';
 import QuiltWizard from '@/components/QuiltWizard.vue';
 import RestoreDrafts from '@/components/RestoreDrafts.vue';
+import DataEntryDialog from '@/components/DataEntryDialog.vue';
+import { dataQuiltsOf, knownProjects } from '@/storage/known';
+import { useDataQuiltsStore } from '@/stores/data-quilts';
+import { useDataTab } from '@/composables/data-tab';
 import { settingsOpen } from '@/composables/settings-open';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -325,6 +382,34 @@ async function loadDrafts() {
   }
 }
 const draftOf = (id: string) => drafts.value.find((d) => d.id === id);
+
+// Projects with data quilts (spec 041): a calendar icon opens data entry for one.
+const known = shallowRef(new Map<string, { id: string; name: string }[]>());
+void knownProjects()
+  .then((ks) => (known.value = new Map(ks.map((k) => [k.id, k.quilts]))))
+  .catch(() => {});
+const dataQuilts = (id: string) => {
+  const d = draftOf(id);
+  return d ? dataQuiltsOf(d.doc) : (known.value.get(id) ?? []);
+};
+const dataStore = useDataQuiltsStore();
+const dataEntry = ref<InstanceType<typeof DataEntryDialog>>();
+const dataTab = useDataTab();
+async function enterData(projectId: string, quiltId: string) {
+  await dataTab.ask();
+  await dataStore.refresh();
+  const card = dataStore.cards.find((c) => c.projectId === projectId && c.quiltId === quiltId);
+  if (!card) return;
+  if (!dataStore.docOf(projectId) && card.handle)
+    await dataStore.read(projectId, card.handle, true);
+  if (dataStore.docOf(projectId)) dataEntry.value?.show(card);
+  else
+    $q.notify({
+      message: 'The browser didn’t allow reading that file.',
+      color: 'warning',
+      textColor: 'dark',
+    });
+}
 /** Unsaved work with no file in the recent list: shown on its own. */
 const looseDrafts = computed(() =>
   drafts.value.filter((d) => !recent.value.some((r) => r.id === d.id)),

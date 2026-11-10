@@ -4,6 +4,8 @@ import type { Block } from '@/model/schema/block';
 import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
+import { pieceSpots } from '@/model/data-paint';
+import { drawDataOverlay } from './data-overlay';
 import { boundsWithTarget, colorLookup, drawBlock, drawQuilt, fitView } from './draw';
 import { display, imagesTick } from './fabric-images';
 
@@ -75,6 +77,9 @@ export function blockThumbnail(
   /** null: uncolored (seams only). */
   coloringId?: string | null,
   libraryColors: readonly Color[] = [],
+  /** A data block's traces: a line through each value's pieces in day order, as the block
+   *  editor draws them (previews; downloads leave them off). */
+  traces = true,
 ) {
   const coloring =
     coloringId === null
@@ -82,7 +87,7 @@ export function blockThumbnail(
       : (block.colorings.find((c) => c.id === coloringId) ?? block.colorings[0]);
   return cached(
     block,
-    `${px}:${dark}:${coloring?.id ?? ''}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
+    `${px}:${dark}:${coloring?.id ?? ''}:${traces}:${doc.project.palette.colors.length}:${fabricsKey(doc)}`,
     () => {
       const [c, ctx] = canvas(px);
       const s = (px - 8) / Math.max(...block.size);
@@ -94,6 +99,30 @@ export function blockThumbnail(
         lineWidth: 1 / s,
         dark,
       });
+      if (traces && block.data && coloring) {
+        const at = pieceSpots(block);
+        const [w, h] = block.size;
+        const marks = Object.entries(coloring.fills).flatMap(([id, f]) => {
+          const p = at.get(id);
+          return p && 'data' in f
+            ? [
+                {
+                  p: [p[0] * w, p[1] * h] as [number, number],
+                  label: '',
+                  group: String(f.data.slot ?? 0),
+                  order: f.data.n,
+                },
+              ]
+            : [];
+        });
+        drawDataOverlay(ctx, marks, Math.max(...block.size) / 160, {
+          line: true,
+          dark,
+          labels: false,
+          alpha: 0.4,
+          arrow: true,
+        });
+      }
       return c.toDataURL();
     },
   );

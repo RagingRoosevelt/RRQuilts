@@ -196,6 +196,13 @@
               </div>
             </SettingsCard>
             <q-toggle v-model="store.settings.showHelp" label="Show help buttons" />
+            <q-toggle
+              :model-value="store.settings.dataTab === 'on'"
+              label="Show the Data Quilts tab"
+              @update:model-value="(on: boolean) => (store.settings.dataTab = on ? 'on' : 'off')"
+            >
+              <q-tooltip>Shown by itself once you open or make a data quilt</q-tooltip>
+            </q-toggle>
             <SettingsCard label="Editor layout">
               <q-btn-toggle
                 v-model="store.settings.sidesSwapped"
@@ -246,11 +253,11 @@
               <div
                 v-for="p in sorted"
                 :key="p.id"
-                class="row items-center no-wrap"
+                class="row items-center no-wrap q-py-xs"
                 style="gap: 8px"
               >
-                <div class="col ellipsis">
-                  {{ p.name }} <span class="text-caption text-grey-7">· {{ p.where }}</span>
+                <div class="col sorted-name">
+                  {{ p.name }} <span class="text-caption text-grey-7 where">{{ p.where }}</span>
                 </div>
                 <span class="text-caption">{{ p.sort }}</span>
                 <q-btn
@@ -448,6 +455,28 @@ async function importConf() {
 </script>
 
 <style scoped>
+/* Sorted palettes: name · source on one line; on phones, the source on a line below. */
+.sorted-name {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sorted-name .where::before {
+  content: '· ';
+}
+@media (max-width: 599px) {
+  .sorted-name {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .sorted-name .where {
+    display: block;
+  }
+  .sorted-name .where::before {
+    content: none;
+  }
+}
 .credit-radio {
   width: 28px;
   flex: none;
