@@ -181,7 +181,10 @@ middle one, sharing a whole edge.
     tidying up a rosette. One **Place** tool places (tap) and moves (drag) pieces; a Select tool
     comes with multi-select (spec 051). Owner, 2026-11-10: "i like what you suggest except I want
     to allow overlapping snaps. it'll be necessary to support them when someone is cleaning up a
-    rosette after dragging the shapes around".
+    rosette after dragging the shapes around". A rosette being dragged or placed meets others by
+    its outside edges only: a snap that would leave it over other pieces is skipped for the next
+    best (loose shapes still snap overlapping). Owner, 2026-11-10: "only the outer edges of a
+    rosette should be snap targets to another rosette".
 
 ---
 

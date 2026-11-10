@@ -3,7 +3,16 @@
 // L/2 and L/4, the shorter edge stepping along the longer by its own length.
 import { add, dist, mul, sub, type Pt } from '../geometry/path';
 import { isWhole } from './checks';
-import { EdgeIndex, lerp, outerEdges, rot, type Edge, type Pose, type Poly } from './geometry';
+import {
+  EdgeIndex,
+  lerp,
+  outerEdges,
+  overlaps,
+  rot,
+  type Edge,
+  type Pose,
+  type Poly,
+} from './geometry';
 
 export interface Snap {
   /** Turn (radians) about the origin, then move. */
@@ -43,6 +52,8 @@ export function snap(
   reach: number,
   maxTurn = Math.PI,
   share = 0,
+  /** A snap to skip (a rosette landing over other pieces): the next best is tried. */
+  reject?: (s: Snap) => boolean,
 ): Snap | null {
   let best: Snap | null = null;
   for (const [a, b] of outerEdges(moving)) {
@@ -66,12 +77,14 @@ export function snap(
         if (dd > Math.max(reach, share * L)) continue;
         const score = dd + Math.abs(rr) * 0.15;
         if (best && score >= best.score) continue;
-        best = {
+        const s: Snap = {
           rot: rr,
           move: sub(s0, rot(m0, rr)),
           score,
           target: [s0, add(s0, mul(us, L))],
         };
+        if (reject?.(s)) continue;
+        best = s;
       }
     }
   }
@@ -143,6 +156,17 @@ export function nextTurn(moving: readonly Poly[], index: EdgeIndex): Snap | null
   }
   return best;
 }
+
+/**
+ * For a moving rosette (owner, 2026-11-10: rosettes meet by their outside edges): a snap is
+ * rejected when it leaves any of the rosette's pieces overlapping a static piece.
+ */
+export const landsOver =
+  (moving: readonly Poly[], statics: readonly Poly[]) =>
+  (s: Snap): boolean => {
+    const placed = moving.map((p) => p.map((q) => add(rot(q, s.rot), s.move)));
+    return placed.some((p) => statics.some((q) => overlaps(p, q)));
+  };
 
 /** A pose after a snap: its origin moves like any point, its turn gains the snap's. */
 export function snapPose<T extends Pose>(pose: T, s: Snap): T {

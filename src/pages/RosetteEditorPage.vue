@@ -240,7 +240,7 @@ import {
   paintPiece,
   removePieces,
 } from '@/model/epp/rosette-ops';
-import { nextTurn, snap, snapPose, staticEdges } from '@/model/epp/snap';
+import { landsOver, nextTurn, snap, snapPose, staticEdges } from '@/model/epp/snap';
 import { dist, pointInPolygon, type Pt } from '@/model/geometry/path';
 import { isLibraryItem } from '@/model/library-items';
 import type { Rosette } from '@/model/schema/epp';
@@ -460,7 +460,10 @@ const ghost = computed<Pose | null>(() => {
     return s ? cellAt(s.outline, epp.scale, lattice.value, p) : null;
   }
   const pose: Pose = { at: p, turn: 0, scale: epp.scale };
-  const s = snap(pickedPolys(pose), index.value, px(16), Math.PI, SNAP_SHARE);
+  const moving = pickedPolys(pose);
+  // A rosette meets the pieces by its outside edges: no snap that lands it over them.
+  const reject = pickedShape.value ? undefined : landsOver(moving, allPolys.value);
+  const s = snap(moving, index.value, px(16), Math.PI, SNAP_SHARE, reject);
   return s ? snapPose(pose, s) : pose;
 });
 /** Snaps reach half the shorter edge (or 16 screen pixels, when that's more). */

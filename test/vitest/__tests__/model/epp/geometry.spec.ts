@@ -380,3 +380,29 @@ describe('turning a snapped piece', () => {
     expect(nextTurn(at(piece('far', 'sq', [5, 5])), base)).toBeNull();
   });
 });
+
+describe('rosettes meet by their outside edges', () => {
+  it('a dragged double flower never lands over another', async () => {
+    const { eppStarters } = await import('@/content/epp');
+    const { landsOver } = await import('@/model/epp/snap');
+    const { shapes, rosettes } = eppStarters();
+    const lk = lookupEpp({ eppShapes: shapes, rosettes });
+    const dbl = rosettes.find((r) => r.notecard.name === 'Double Flower')!;
+    const A = expand({ id: 'a', rosette: dbl.id, at: [0, 0], turn: 0, scale: 1 }, lk).map(
+      (l) => l.poly,
+    );
+    const idx = staticEdges(A);
+    let snaps = 0;
+    for (let i = 0; i < 120; i++) {
+      const at: [number, number] = [Math.cos(i) * 7.5, Math.sin(i * 1.3) * 7.5];
+      const piece = { id: 'b', rosette: dbl.id, at, turn: (i * 7) % 60, scale: 1 };
+      const B = expand(piece, lk).map((l) => l.poly);
+      const s = snap(B, idx, 0.3, Math.PI / 6, 0.5, landsOver(B, A));
+      if (!s) continue;
+      snaps++;
+      const placed = expand(snapPose(piece, s), lk).map((l) => l.poly);
+      expect([...overlapping([...A, ...placed])]).toEqual([]);
+    }
+    expect(snaps).toBeGreaterThan(0);
+  });
+});

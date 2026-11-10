@@ -159,7 +159,7 @@ import {
   removePieces,
   type PaintScope,
 } from '@/model/epp/quilt-ops';
-import { nextTurn, snap, snapPose, staticEdges } from '@/model/epp/snap';
+import { landsOver, nextTurn, snap, snapPose, staticEdges } from '@/model/epp/snap';
 import { nonWholeEdges } from '@/model/epp/checks';
 import { dist, pointInPolygon, type Pt } from '@/model/geometry/path';
 import { newId } from '@/model/ids';
@@ -364,13 +364,11 @@ const ghost = computed<Pose | null>(() => {
     return e && s ? attach(s.outline, epp.scale, e, allPolys.value, p) : null;
   }
   const pose: Pose = { at: p, turn: 0, scale: epp.scale };
-  const sn = snap(
-    polysOf(pickedPiece(pose)),
-    index.value,
-    px(16),
-    mode === 'grid' ? DRAG_TURN : Math.PI,
-    SNAP_SHARE,
-  );
+  const moving = polysOf(pickedPiece(pose));
+  // A rosette meets others by its outside edges: no snap that lands it over other pieces.
+  const reject = s ? undefined : landsOver(moving, allPolys.value);
+  const turn = mode === 'grid' ? DRAG_TURN : Math.PI;
+  const sn = snap(moving, index.value, px(16), turn, SNAP_SHARE, reject);
   if (sn) return snapPose(pose, sn);
   return mode === 'grid' && s ? cellAt(s.outline, epp.scale, lattice.value, p) : pose;
 });
@@ -470,6 +468,7 @@ type Drag =
       grab: Pt;
       key: string;
       others: ReturnType<typeof staticEdges>;
+      statics: Pt[][];
     }
   | { kind: 'grid'; origin: Pt; grab: Pt };
 const drag = shallowRef<Drag | null>(null);
@@ -489,6 +488,7 @@ function claim(p: World, e: PointerEvent) {
     grab: p,
     key: `epp-move-${Date.now()}`,
     others: staticEdges(leaves.value.filter((l) => l.piece !== piece.id).map((l) => l.poly)),
+    statics: leaves.value.filter((l) => l.piece !== piece.id).map((l) => l.poly),
   };
   return true;
 }
@@ -507,7 +507,9 @@ function onDrag(p: World) {
     at: [from.at[0] + p[0] - d.grab[0], from.at[1] + p[1] - d.grab[1]],
   };
   let next = pose;
-  const s = snap(polysOf({ ...from, at: pose.at }), d.others, px(16), DRAG_TURN, SNAP_SHARE);
+  const moving = polysOf({ ...from, at: pose.at });
+  const reject = from.rosette ? landsOver(moving, d.statics) : undefined;
+  const s = snap(moving, d.others, px(16), DRAG_TURN, SNAP_SHARE, reject);
   if (s) next = snapPose(pose, s);
   else if (prefs.value.mode === 'grid' && from.shape) {
     const sh = lookup.value.shape(from.shape);
