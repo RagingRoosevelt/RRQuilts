@@ -214,7 +214,12 @@ parallelogram); place it and print it.
    rosette whose shapes live inside it, not as separate library shapes (spec 050). Line ends snap
    to the outline's corners and earlier lines' ends, then onto outline edges and earlier lines (at
    whole units from an end when close), then to the grid. Owner, 2026-11-10: "it doesn't feel like
-   edges snap to existing exterior edges quite enough in multi-shape mode".
+   edges snap to existing exterior edges quite enough in multi-shape mode". Multi-shape adds a
+   **Line** tool that draws the lines; the other tools work as in single shapes (Vertex also moves
+   line ends, and lines follow a moved corner; Delete also removes a line), and a note above **Save
+   as rosette** says why it's off. Owner, 2026-11-10: "a note should live right above "save as
+   rosette" indicating why the button is disabled when in multi-shape" and "selecting the vertex
+   tool in multi-shape mode doesn't allow for moving the vertices. it still just draws edges".
 7. **Given** a saved shape, **Then** it has a name, notecard (notes, tags, styles), a default fill, and
    credits and license (spec 009), like a block.
 8. A shape can be copied and edited; editing a shape used in a quilt updates its pieces, with undo.

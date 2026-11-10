@@ -147,13 +147,14 @@
                 @click="lines = []"
               />
             </div>
+            <div v-if="saveBlocked" class="text-caption text-grey-8">{{ saveBlocked }}</div>
             <q-btn
               unelevated
               color="primary"
               no-caps
               icon="hive"
               label="Save as rosette"
-              :disable="ro || parts.length < 2"
+              :disable="!!saveBlocked"
               @click="saveRosette"
             />
           </div>
@@ -243,8 +244,22 @@ const setPref = <K extends keyof EppPrefs>(k: K, v: EppPrefs[K]) =>
   (app.settings.epp = { ...app.settings.epp, [k]: v });
 
 const tool = computed({ get: () => epp.shapeTool, set: (v: ShapeTool) => (epp.shapeTool = v) });
-const multi = computed({ get: () => epp.multi, set: (v: boolean) => (epp.multi = v) });
-const tools: { id: ShapeTool; icon: string; label: string; hint: string }[] = [
+const multi = computed({
+  get: () => epp.multi,
+  set: (v: boolean) => {
+    epp.multi = v;
+    // Multi-shape starts drawing lines; the Line tool is Multi-shape's only.
+    if (v) epp.shapeTool = 'line';
+    else if (epp.shapeTool === 'line') epp.shapeTool = 'vertex';
+  },
+});
+const ALL_TOOLS: { id: ShapeTool; icon: string; label: string; hint: string }[] = [
+  {
+    id: 'line',
+    icon: 'show_chart',
+    label: 'Line',
+    hint: 'Line: drag across the outline to split it; each closed area becomes a shape',
+  },
   {
     id: 'vertex',
     icon: 'radio_button_unchecked',
@@ -276,10 +291,16 @@ const tools: { id: ShapeTool; icon: string; label: string; hint: string }[] = [
     hint: 'Delete: tap a corner to remove it, or an edge to join its two corners into one',
   },
 ];
-const toolHint = computed(() =>
-  multi.value
-    ? 'Drag from point to point to draw a line.'
-    : (tools.find((t) => t.id === tool.value)?.hint ?? ''),
+const tools = computed(() => ALL_TOOLS.filter((t) => t.id !== 'line' || multi.value));
+const MULTI_HINTS: Partial<Record<ShapeTool, string>> = {
+  vertex: 'Vertex: drag a corner or a line’s end; tap an edge to add a corner',
+  delete: 'Delete: tap a line to remove it, or a corner or an edge of the outline',
+};
+const toolHint = computed(
+  () =>
+    (multi.value ? MULTI_HINTS[tool.value] : undefined) ??
+    ALL_TOOLS.find((t) => t.id === tool.value)?.hint ??
+    '',
 );
 const FLAGS: { key: keyof Flags; label: string }[] = [
   { key: 'closes', label: 'Closes' },
@@ -303,6 +324,14 @@ const parts = computed(() =>
 );
 
 const outline = computed(() => shape.value?.outline ?? []);
+/** Why Save as rosette can't be used yet (empty: it can). */
+const saveBlocked = computed(() =>
+  ro.value
+    ? 'This shape is read-only, so it can’t be split here.'
+    : parts.value.length < 2
+      ? 'Draw a line from edge to edge across the outline: a rosette needs two or more shapes.'
+      : '',
+);
 const checks = computed<Flags[]>(() =>
   multi.value && parts.value.length > 1
     ? parts.value.map((p) => checkOutline(p.outline))
@@ -327,6 +356,12 @@ const polys = computed<CanvasPoly[]>(() =>
 const selected = ref<number | null>(null);
 const hover = ref<World | null>(null);
 const tick = ref(0);
+function segDist(p: Pt, a: Pt, b: Pt) {
+  const ab: Pt = [b[0] - a[0], b[1] - a[1]];
+  const L2 = ab[0] ** 2 + ab[1] ** 2 || 1e-12;
+  const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * ab[0] + (p[1] - a[1]) * ab[1]) / L2));
+  return dist(p, [a[0] + ab[0] * t, a[1] + ab[1] * t]);
+}
 function cornerAt(p: Pt) {
   const r = px(12);
   let best = -1;
@@ -386,7 +421,8 @@ type Drag =
   | { kind: 'vertex'; i: number }
   | { kind: 'edge'; i: number; grab: Pt; from: Pt }
   | { kind: 'angle'; i: number; x0: number; a0: number }
-  | { kind: 'line'; from: Pt; to: Pt };
+  | { kind: 'line'; from: Pt; to: Pt }
+  | { kind: 'end'; at: Pt };
 const drag = ref<Drag | null>(null);
 const dragKey = ref('');
 
@@ -425,12 +461,22 @@ function snapPoint(p: Pt): Pt {
 function claim(p: World, e: PointerEvent): boolean {
   if (tab.value !== 'draw' || ro.value || e.button === 2) return false;
   dragKey.value = `shape-drag-${Date.now()}`;
-  if (multi.value) {
-    const from = snapPoint(p);
-    drag.value = { kind: 'line', from, to: from };
-    return true;
-  }
+  if (tool.value !== 'line') return grab(p, e);
+  // Multi-shape's Line tool draws a line.
+  const from = snapPoint(p);
+  drag.value = { kind: 'line', from, to: from };
+  return true;
+}
+/** The current tool's handle under p (a corner, a line end, an edge, an angle label), if any. */
+function grab(p: Pt, e: PointerEvent): boolean {
   const c = cornerAt(p);
+  if (tool.value === 'vertex' && multi.value && c === null) {
+    const end = lines.value.flat().find((v) => dist(v, p) < px(12));
+    if (end) {
+      drag.value = { kind: 'end', at: end };
+      return true;
+    }
+  }
   if (tool.value === 'vertex' && c !== null && !shape.value?.locked?.includes(c)) {
     drag.value = { kind: 'vertex', i: c };
     selected.value = c;
@@ -459,9 +505,16 @@ function onDrag(p: World, e: PointerEvent) {
   if (d.kind === 'line') {
     drag.value = { ...d, to: snapPoint(p) };
     tick.value++;
-  } else if (d.kind === 'vertex')
+  } else if (d.kind === 'end') {
+    const to = snapToGrid(p, prefs.value.vertexGrid);
+    moveEnds(d.at, to);
+    drag.value = { kind: 'end', at: to };
+  } else if (d.kind === 'vertex') {
+    // Lines ending on the corner go with it.
+    const from = outline.value[d.i]!;
     edit((s) => moveVertex(s, d.i, p, prefs.value.vertexGrid), dragKey.value);
-  else if (d.kind === 'edge') {
+    moveEnds(from, outline.value[d.i]!);
+  } else if (d.kind === 'edge') {
     const target: Pt = [d.from[0] + p[0] - d.grab[0], d.from[1] + p[1] - d.grab[1]];
     edit((s) => moveEdge(s, d.i, target, prefs.value.vertexGrid), dragKey.value);
   } else {
@@ -470,6 +523,13 @@ function onDrag(p: World, e: PointerEvent) {
     const deg = Math.min(179, Math.max(1, d.a0 + steps * prefs.value.angleStep));
     edit((s) => setAngle(s, d.i, deg), dragKey.value);
   }
+}
+/** Multi-shape lines' ends at `from` move to `to`. */
+function moveEnds(from: Pt, to: Pt) {
+  if (dist(from, to) < 1e-12) return;
+  const at = (v: Pt): Pt => (dist(v, from) < 1e-9 ? to : v);
+  lines.value = lines.value.map(([a, b]) => [at(a), at(b)]);
+  tick.value++;
 }
 function onDragEnd() {
   const d = drag.value;
@@ -483,7 +543,12 @@ function onDragEnd() {
   if (d) edit(normalize, dragKey.value);
 }
 function onTap(p: World) {
-  if (tab.value !== 'draw' || ro.value || multi.value) return;
+  if (tab.value !== 'draw' || ro.value) return;
+  if (multi.value && tool.value === 'delete') {
+    // A line under the tap goes first.
+    const k = lines.value.findIndex(([a, b]) => segDist(p, a, b) < px(10));
+    if (k >= 0) return void (lines.value = lines.value.filter((_, i) => i !== k));
+  }
   const c = cornerAt(p);
   if (tool.value === 'lock' && c !== null) return edit((s) => toggleLocked(s, c));
   if (tool.value === 'delete') {
@@ -589,7 +654,13 @@ function decorate({ ctx, px: p }: Decor) {
       ctx.lineTo(b[0], b[1]);
     }
     ctx.stroke();
-    return;
+    // Line ends: handles for the Vertex tool.
+    ctx.fillStyle = '#1976d2';
+    for (const v of lines.value.flat()) {
+      ctx.beginPath();
+      ctx.arc(v[0], v[1], p(3.5), 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
   // Corners: handles, angle values (Angle tool), locks.
   s.outline.forEach((v, i) => {
