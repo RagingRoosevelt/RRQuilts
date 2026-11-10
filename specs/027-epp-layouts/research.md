@@ -106,7 +106,9 @@ Decisions for the plan. Each: Decision, Rationale, Alternatives considered.
 
 ## R9. Printing
 
-- **Decision**: EPP quilts and rosettes print through `PrintPreview`: expanded pieces become `Piece`s
+- **Decision**: Every EPP patch, wherever it is placed (rosette editor, EPP quilt, rosette in a block
+  quilt), prints both a paper template and a fabric cutting template. EPP quilts and rosettes print
+  through `PrintPreview`: expanded pieces become `Piece`s
   (`model/print/pieces.ts`); paper templates = the polygon, fabric templates = `print/polygon.ts`
   `offset(poly, seam)`; packing `print/pack.ts`; counts by shape, scale, mirror and fill (spec 027
   US6, spec 050 US4). New `kind: 'rosette'` for the rosette editor's Print tab; EPP quilts stay
@@ -117,7 +119,10 @@ Decisions for the plan. Each: Decision, Rationale, Alternatives considered.
 - **Decision**: A rosette whose outline matches a block space shape is offered through a hidden
   derived block (`block.rosette: ItemId`), rebuilt on every change like data variants (`DataBlockInfo.
   of`): its drawing is the rosette's pieces fitted to the shape's outline, so placing, turning,
-  coloring and printing reuse the block paths. Its pieces print in an EPP templates section.
+  and coloring reuse the block paths. Printing does not: block print paths (rotary cutting, block
+  templates, foundations) skip derived rosette blocks, and their patches go through the EPP print
+  path (R9), a paper and a fabric cutting template for each patch, counted with any other EPP
+  pieces. Owner, 2026-11-10: EPP blocks print differently from traditional blocks.
 - **Rationale**: `SlotContent.block` is an ItemId into `project.blocks`; widening it touches every
   slot reader. A derived block is the pattern already used for data variants.
 

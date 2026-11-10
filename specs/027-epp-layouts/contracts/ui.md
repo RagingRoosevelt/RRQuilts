@@ -26,7 +26,8 @@
 
 ## Rosette editor `/project/rosette/:id` (`RosetteEditorPage.vue`)
 
-- Tabs: **Details**, **Design**, **Print** (pieces as templates, counts, rosette sheet).
+- Tabs: **Details**, **Design**, **Print** (a paper and a fabric cutting template per patch, counts,
+  rosette sheet; at a chosen 1U length since a rosette has no size).
 - Toolbar: Undo, Redo, **placement mode** three-way switch (Free / Grow / Grid); in Grid mode a
   **Drag grid** button right under it; Select, Turn, Mirror, Delete, **Break into patches**, **Close
   space**, Paint.
@@ -61,4 +62,6 @@
 
 - Quilt editor sidebar, Blocks: a **Rosettes** filter; rosette cards carry an EPP badge; only rosettes
   whose outline matches the space (square, triangle, 60° diamond, hexagon) are offered.
-- Print: an **EPP templates** section for their pieces; left out of rotary cutting.
+- Print: an **EPP templates** section with a paper template and a fabric cutting template for every
+  patch of the placed rosettes (counts by shape, size, fill); rosettes are left out of rotary cutting,
+  block templates and foundation patterns.

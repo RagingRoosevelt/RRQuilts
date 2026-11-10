@@ -395,8 +395,11 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   EPP rosettes could be mixed into normal block quilts." The block space sets the rosette's size (its
   1U follows from the space). Rosettes are offered in the sidebar's block picker behind a
   **Rosettes** filter, with an EPP badge, only where their outline matches the space; they place,
-  turn and color like blocks. The block quilt's printout adds an EPP templates section (paper and
-  fabric templates) for their pieces, which are left out of rotary cutting.
+  turn and color like blocks. Rosettes never print as traditional blocks: no rotary cutting, no block
+  templates or foundation patterns. Every patch of a placed rosette gets a **paper template**
+  (finished size) and a **fabric cutting template** (with the seam allowance), counted by shape,
+  size and fill, in the block quilt's printout as in an EPP quilt's. Owner, 2026-11-10: "EPP "blocks" should print different than traditional blocks. we need to
+  provide both paper and fabric cutting templates for each of the patches in an EPP rosette/block."
 
 ### Key Entities
 

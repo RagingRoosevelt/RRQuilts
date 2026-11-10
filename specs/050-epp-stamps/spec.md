@@ -156,9 +156,12 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
    counts and yardage are by shape, never by rosette. Owner, 2026-11-10: "in printouts, rosettes are
    broken down into the basic EPP shapes. they're used for design layout ease and to inform the
    quilter that there's an intermediary size between patch and quilt."
-3. **Given** the print, **Then** an optional **rosette sheet** shows each rosette used, its pieces
+3. **Given** a rosette printed anywhere (its editor's Print tab, an EPP quilt, a block quilt), **Then**
+   each of its patches gets both a paper template and a fabric cutting template; rosettes never use
+   traditional block printing (rotary cutting, block templates). (Spec 027 FR-015.)
+4. **Given** the print, **Then** an optional **rosette sheet** shows each rosette used, its pieces
    numbered, how many times it's placed and with which colorings, as an assembly guide.
-4. **Given** yardage, **Then** it counts the rosettes' pieces like loose pieces.
+5. **Given** yardage, **Then** it counts the rosettes' pieces like loose pieces.
 
 ### Edge Cases
 
