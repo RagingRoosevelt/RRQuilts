@@ -165,6 +165,10 @@ middle one, sharing a whole edge.
 11. **Given** Grid mode, **Then** a button right under the mode switch drags the grid until a grid
     edge snaps to an edge of a placed piece, and a **Sync grid to selected size** toggle sizes the grid
     to the picked scale. Taps place shapes that sit on the grid. The grid shows in Grid mode only.
+    Edges snap in Grid mode too: a neighbor's edge in reach wins, otherwise the shape sits on the
+    grid. The Free / Grow / Grid switch and Grid mode's Drag grid and Sync grid sit at the top of
+    the sidebar. Owner, 2026-11-10: "edge snapping should still be on when in grid placement mode.
+    let's move the grid placement buttons into a multi-position switch in the sidebar".
     Owner, 2026-11-10: "the grid shouldn't be shown in "grow" and "free placement" mode".
 12. **Given** a placed piece dragged in Free mode, **Then** it snaps when one of its edges comes
     within half the shorter edge of a neighbor's (whatever the zoom), the two edges showing green

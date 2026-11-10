@@ -55,34 +55,6 @@
         <template v-if="tab === 'design'">
           <q-separator />
           <q-btn
-            v-for="m in MODES"
-            :key="m.id"
-            :flat="prefs.mode !== m.id"
-            :unelevated="prefs.mode === m.id"
-            :color="prefs.mode === m.id ? 'secondary' : undefined"
-            dense
-            :icon="m.icon"
-            :aria-label="m.label"
-            @click="setPref('mode', m.id)"
-          >
-            <q-tooltip anchor="center right" self="center left">{{ m.hint }}</q-tooltip>
-          </q-btn>
-          <q-btn
-            v-if="prefs.mode === 'grid'"
-            :flat="!epp.draggingGrid"
-            :unelevated="epp.draggingGrid"
-            :color="epp.draggingGrid ? 'primary' : undefined"
-            dense
-            icon="open_with"
-            aria-label="Drag grid"
-            @click="epp.draggingGrid = !epp.draggingGrid"
-          >
-            <q-tooltip anchor="center right" self="center left"
-              >Drag grid: drag the grid until it lines up with a placed piece</q-tooltip
-            >
-          </q-btn>
-          <q-separator />
-          <q-btn
             v-for="t in TOOLS"
             :key="t.id"
             :flat="epp.rosetteTool !== t.id"
@@ -128,13 +100,38 @@
         <DetailsPanel v-if="tab === 'details'" kind="rosette" :id="rosette.id" />
         <PrintOptions v-else-if="tab === 'print'" kind="rosette" :id="rosette.id" />
         <template v-else>
-          <q-toggle
-            v-if="prefs.mode === 'grid'"
-            :model-value="prefs.syncGrid"
-            dense
-            label="Sync grid to selected size"
-            @update:model-value="(v: boolean) => setPref('syncGrid', v)"
-          />
+          <div>
+            <div class="text-subtitle2">Placement</div>
+            <SlidePicker
+              :model-value="prefs.mode"
+              :options="MODES.map((m) => ({ value: m.id, label: m.label }))"
+              @update:model-value="(v: string) => setPref('mode', v as EppPrefs['mode'])"
+            />
+            <div class="text-caption text-grey-7 q-mt-xs">
+              {{ MODES.find((m) => m.id === prefs.mode)?.hint }}
+            </div>
+          </div>
+          <template v-if="prefs.mode === 'grid'">
+            <q-btn
+              :outline="!epp.draggingGrid"
+              :unelevated="epp.draggingGrid"
+              :color="epp.draggingGrid ? 'primary' : undefined"
+              no-caps
+              dense
+              icon="open_with"
+              label="Drag grid"
+              class="self-start q-px-sm"
+              @click="epp.draggingGrid = !epp.draggingGrid"
+            >
+              <q-tooltip>Drag the grid until it lines up with a placed piece</q-tooltip>
+            </q-btn>
+            <q-toggle
+              :model-value="prefs.syncGrid"
+              dense
+              label="Sync grid to selected size"
+              @update:model-value="(v: boolean) => setPref('syncGrid', v)"
+            />
+          </template>
           <EppPicker
             v-model:picked="epp.picked"
             v-model:scale="epp.scale"
@@ -208,6 +205,7 @@ import DetailsPanel from '@/components/DetailsPanel.vue';
 import EppCanvas, { type CanvasPoly, type Decor, type Grid } from '@/components/EppCanvas.vue';
 import EppPicker, { type PickerGroup } from '@/components/EppPicker.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
+import SlidePicker from '@/components/SlidePicker.vue';
 import { ERASER } from '@/components/icons';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
@@ -433,7 +431,11 @@ const ghost = computed<Pose | null>(() => {
     return e && s ? attach(s.outline, epp.scale, e, allPolys.value, p) : null;
   }
   if (mode === 'grid') {
+    // A neighbor's edge in reach wins; otherwise the grid.
     const s = pickedShape.value;
+    const free: Pose = { at: p, turn: 0, scale: epp.scale };
+    const e = snap(pickedPolys(free), index.value, px(16), DRAG_TURN, SNAP_SHARE);
+    if (e) return snapPose(free, e);
     return s ? cellAt(s.outline, epp.scale, lattice.value, p) : null;
   }
   const pose: Pose = { at: p, turn: 0, scale: epp.scale };
@@ -578,14 +580,14 @@ function onDrag(p: World) {
     at: [d.from.at[0] + p[0] - d.grab[0], d.from.at[1] + p[1] - d.grab[1]],
   };
   let next = pose;
-  if (prefs.value.mode === 'grid') {
-    const s = lookup.value.shape(d.shape);
-    next = (s && cellAt(s.outline, pose.scale, lattice.value, pose.at)) || pose;
-  } else {
-    const s = snap(pickedPolysFor(d.shape, pose), d.others, px(16), DRAG_TURN, SNAP_SHARE);
-    if (s) next = snapPose(pose, s);
-    snapTarget.value = s?.target ?? null;
+  // Edges snap in every mode; in Grid mode, with no edge in reach, the piece sits on the grid.
+  const s = snap(pickedPolysFor(d.shape, pose), d.others, px(16), DRAG_TURN, SNAP_SHARE);
+  if (s) next = snapPose(pose, s);
+  else if (prefs.value.mode === 'grid') {
+    const sh = lookup.value.shape(d.shape);
+    next = (sh && cellAt(sh.outline, pose.scale, lattice.value, pose.at)) || pose;
   }
+  snapTarget.value = s?.target ?? null;
   edit((r) => movePiece(r, d.id, next), d.key);
 }
 function onDragEnd() {
