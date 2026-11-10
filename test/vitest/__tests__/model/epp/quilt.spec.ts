@@ -11,6 +11,7 @@ import {
   piecePolys,
   refresh,
   setEdge,
+  fillGap,
   splitPiece,
 } from '@/model/epp/quilt-ops';
 import { lineCut } from '@/model/epp/faces';
@@ -180,5 +181,24 @@ describe('EPP quilt print pieces', () => {
     ]);
     expect(out.epp!.pieces.map((p) => p.fills?.[''])).toEqual([{ color: 'c' }, { color: 'c' }]);
     expect(out.epp!.shapes).toBeUndefined();
+  });
+
+  it("close space line between two Six-Diamond Stars fills both sides (owner's Quilt 3)", () => {
+    const star = rosettes.find((r) => r.notecard.name === 'Six-Diamond Star')!.id;
+    let q = newEppQuilt('Q', 'in');
+    for (const [at, turn] of [
+      [[-1.4057157092264432, -0.6179966044142614], 0],
+      [[1.5942842907735557, -0.6179966044142609], -60],
+    ] as const)
+      q = addPiece(q, { rosette: star, at: [...at], turn, scale: 1 }).quilt;
+    const y = -0.6179966044142614;
+    const cut = lineCut(piecePolys(q, lookup), [0.5942842907735557, y], [-0.4057157092264432, y]);
+    const gaps = (cut as { gaps: ReturnType<typeof piecePolys> }).gaps;
+    expect(gaps).toHaveLength(2);
+    q = gaps.reduce((out, g) => fillGap(out, g, shapes), q);
+    expect(q.epp!.pieces.slice(2).map((p) => p.shape)).toEqual([
+      'rrquilts.epp-triangle',
+      'rrquilts.epp-triangle',
+    ]);
   });
 });

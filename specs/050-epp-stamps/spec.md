@@ -103,14 +103,16 @@ one placed Flower.
    space** in the rosette editor, **Then** a new internal shape fills it (its outline taken from the
    gap's edges, editable with the shape tools, checked by the four flags) and is kept inside this
    rosette only.
-   Close space also draws lines: a drag from a piece corner to another corner either closes the
-   smaller gap beside the line (part of a gap) or, across a piece, splits that piece in two (each
+   Close space also draws lines: a drag from a piece corner to another corner either fills the
+   closed spaces on each side of the line (both, when the line splits a gap in two) or, across a piece, splits that piece in two (each
    part in the piece's fills). Every area it makes that is an existing shape (yours or a library's)
    becomes that shape, not a new internal one. Same in EPP quilts (a placed rosette is broken into
    patches first). Owner, 2026-11-10: "update the fill tool so that it can drag a line between
    vertices to make a fill part or split an existing fill part. when it makes a fill part or splits
    a fill part, it should check if that shape matches a library fill shape and replace it with a
    reference if there is one".
+   Then: "it only filled in one of the spaces produced by the gap fill I made" (the first version
+   filled only the smaller side).
 5. **Given** the rosette editor, **Then** the quilter paints pieces with real colors and fabrics in
    the current coloring, adds, copies and deletes colorings, and swaps palettes, as in the block
    editor.

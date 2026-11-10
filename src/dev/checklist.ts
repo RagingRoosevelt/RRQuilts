@@ -144,9 +144,10 @@ export const CHECKS: Check[] = [
     to: '/project',
   },
   {
-    id: 'TC-286',
+    id: 'TC-287',
     group: G.epp027,
-    text: 'Close space lines (rosette editor and EPP quilt Design): with Close space, a corner under the mouse shows a green dot. Drag from one piece corner to another: the line is dashed until it reaches a corner, then solid. Across a gap (a ring of six hexagons, opposite corners of the hole): the smaller side fills, here a library Half Hexagon. Across a piece (a hexagon, left to right corner): it splits in two Half Hexagons in its color. A split square gives two Half Squares. An area no shape matches becomes a new shape (orange or red outline when it needs it). In a quilt, a line across a placed rosette asks to break it into patches first. Along an edge or nowhere useful: a note says the line does nothing. Tapping a gap still fills it all.',
+    text: 'Close space lines (rosette editor and EPP quilt Design): with Close space, a corner under the mouse shows a green dot. Drag from one piece corner to another: the line is dashed until it reaches a corner, then solid. Across a gap (a ring of six hexagons, opposite corners of the hole): both sides fill, here two library Half Hexagons. Two Six-Diamond Stars side by side, a line across the space between them: a Triangle fills each side. Across a piece (a hexagon, left to right corner): it splits in two Half Hexagons in its color. A split square gives two Half Squares. An area no shape matches becomes a new shape (orange or red outline when it needs it). In a quilt, a line across a placed rosette asks to break it into patches first. Along an edge or nowhere useful: a note says the line does nothing. Tapping a gap still fills it all.',
+    last: 'it only filled in one of the spaces produced by the gap fill I made',
     to: '/project',
   },
 ];

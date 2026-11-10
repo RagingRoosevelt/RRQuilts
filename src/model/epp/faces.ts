@@ -1,7 +1,7 @@
 // Shapes from lines (spec 027 Multi-shape, spec 050 Close space), through the planar arrangement
 // that turns block seams into patches. Results are internal shapes (outline, no library item).
 import { arrange, type InputSeg } from '../geometry/arrangement';
-import { dist, pointInPolygon, signedArea, type Pt } from '../geometry/path';
+import { dist, pointInPolygon, type Pt } from '../geometry/path';
 import { interiorPoint } from '../blocks/remap';
 import { simplify } from '../print/polygon';
 import { newId } from '../ids';
@@ -67,14 +67,14 @@ export function gapAt(
 
 /**
  * Close space with a line from corner a to corner b (owner, 2026-11-10). Across a piece: the
- * parts it cuts that piece into (`piece` = its index in polys). Across empty space: the smaller
- * closed gap beside the line. Null when it does neither.
+ * parts it cuts that piece into (`piece` = its index in polys). Across empty space: the closed
+ * gaps on each side of the line (owner, 2026-11-10: both, not one). Null when it does neither.
  */
 export function lineCut(
   polys: readonly Poly[],
   a: Pt,
   b: Pt,
-): { piece: number; parts: Poly[] } | { gap: Poly } | null {
+): { piece: number; parts: Poly[] } | { gaps: Poly[] } | null {
   const len = dist(a, b);
   if (len < EPS) return null;
   const m = mid([a, b]);
@@ -92,8 +92,5 @@ export function lineCut(
   const gaps = [off(1), off(-1)]
     .map((p) => gapAt(polys, p, reach, [[a, b]]))
     .filter((g): g is Poly => !!g);
-  if (!gaps.length) return null;
-  return {
-    gap: gaps.reduce((s, g) => (Math.abs(signedArea(g)) < Math.abs(signedArea(s)) ? g : s)),
-  };
+  return gaps.length ? { gaps } : null;
 }

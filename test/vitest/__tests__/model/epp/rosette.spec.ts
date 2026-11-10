@@ -153,7 +153,7 @@ describe('rosette operations', () => {
     expect(lk.shape('hex')).toBeDefined();
   });
 
-  it('close space line: a corner-to-corner line closes the smaller gap or splits a piece, known shapes used', () => {
+  it('close space line: a corner-to-corner line fills the gaps on both sides or splits a piece, known shapes used', () => {
     let r = newRosette('Ring');
     for (let k = 0; k < 6; k++) {
       const a = (Math.PI / 3) * k + Math.PI / 6;
@@ -174,12 +174,13 @@ describe('rosette operations', () => {
       ]),
     };
     const polys = r.pieces.map((p) => place(hex.outline, p));
-    // Across the hole: half of it, as the known half hexagon.
+    // Across the hole: both halves, each the known half hexagon.
     const cut = lineCut(polys, [1, 0], [-1, 0]);
-    expect(cut && 'gap' in cut).toBe(true);
-    const one = fillGap(r, (cut as { gap: Poly }).gap, [half]);
-    expect(one.pieces.at(-1)!.shape).toBe('half');
-    expect(one.shapes).toBeUndefined();
+    const gaps = (cut as { gaps: Poly[] }).gaps;
+    expect(gaps).toHaveLength(2);
+    const two = gaps.reduce((out, g) => fillGap(out, g, [half]), r);
+    expect(two.pieces.slice(6).map((p) => p.shape)).toEqual(['half', 'half']);
+    expect(two.shapes).toBeUndefined();
     // Fill the whole hole (a new shape), paint it, then split it along the same line.
     let full = closeSpace(r, polys, [0, 0])!;
     const mid = full.pieces.at(-1)!;

@@ -479,7 +479,7 @@ function cornerNear(p: Pt, not?: Pt): Pt | null {
   }
   return best;
 }
-/** A Close space line from a to b: fill the smaller gap beside it, or split the piece it crosses. */
+/** A Close space line from a to b: fill the gaps on each side of it, or split the piece it crosses. */
 function closeLine(a: Pt, b: Pt) {
   const cut = lineCut(allPolys.value, a, b);
   if (!cut)
@@ -487,7 +487,8 @@ function closeLine(a: Pt, b: Pt) {
       message: 'That line doesn’t close a gap or cross a piece.',
       timeout: 1500,
     });
-  if ('gap' in cut) return edit((q) => fillGap(q, cut.gap, known.value));
+  if ('gaps' in cut)
+    return edit((q) => cut.gaps.reduce((out, g) => fillGap(out, g, known.value), q));
   const piece = pieces.value.find((x) => x.id === leaves.value[cut.piece]!.piece);
   if (!piece?.shape)
     return void $q.notify({
