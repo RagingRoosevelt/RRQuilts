@@ -19,7 +19,7 @@
         <span class="text-subtitle1">{{ quilt?.notecard.name }}</span>
         <span class="text-caption text-grey-7 q-ml-sm">{{ input.doc.project.name }}</span>
       </div>
-      <PrintZoom />
+      <HelpLink topic="guides/data-quilts" label="Data quilts" />
       <q-btn flat round dense icon="menu" :aria-label="sidebarLabel" @click="sidebar = !sidebar">
         <q-tooltip>{{ sidebarLabel }}</q-tooltip>
       </q-btn>
@@ -29,6 +29,10 @@
       :class="{ reverse: app.settings.sidesSwapped }"
       style="min-height: 0; position: relative"
     >
+      <!-- Toolbar as the editors': zoom -->
+      <div class="rail column no-wrap q-pa-xs" style="gap: 4px">
+        <PrintZoom />
+      </div>
       <PrintPreview
         kind="steps"
         :id="input.quiltId"
@@ -125,17 +129,6 @@
         </template>
         <q-separator />
         <q-toggle
-          :model-value="prefs.tint"
-          dense
-          label="Tint by fabric"
-          @update:model-value="(v: boolean) => set('tint', v)"
-        >
-          <q-tooltip
-            >A template for each piece and fabric, tinted and labeled with its days; off: one per
-            shape</q-tooltip
-          >
-        </q-toggle>
-        <q-toggle
           v-if="quilt?.notecard.notes"
           :model-value="prefs.stepsNotes"
           dense
@@ -144,6 +137,7 @@
         >
           <q-tooltip>Print the quilt's notes after the instructions</q-tooltip>
         </q-toggle>
+        <PrintOptions kind="steps" :id="input.quiltId" :doc="input.doc" />
       </div>
     </div>
   </q-page>
@@ -153,6 +147,8 @@
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import HelpLink from '@/components/HelpLink.vue';
+import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
@@ -256,8 +252,16 @@ onMounted(() => !input.value && void router.replace('/data'));
 .bar {
   border-bottom: 1px solid rgba(128, 128, 128, 0.25);
 }
+.rail {
+  overflow-y: auto;
+  border-right: 1px solid rgba(128, 128, 128, 0.25);
+}
+.reverse > .rail {
+  border-right: none;
+  border-left: 1px solid rgba(128, 128, 128, 0.25);
+}
 .options {
-  width: 280px;
+  width: 320px;
   flex: none;
   border-left: 1px solid rgba(128, 128, 128, 0.25);
 }
