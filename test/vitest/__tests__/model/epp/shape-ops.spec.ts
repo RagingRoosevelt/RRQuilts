@@ -142,3 +142,54 @@ describe('faces', () => {
     expect(gapAt(one, [5, 5])).toBeNull();
   });
 });
+
+describe('matching existing shapes', () => {
+  it('finds a library shape at any turn, mirrored, and at a whole scale', async () => {
+    const { matchShape } = await import('@/model/epp/match');
+    const { eppStarters } = await import('@/content/epp');
+    const shapes = eppStarters().shapes;
+    const half = shapes.find((s) => s.notecard.name === 'Half Square')!;
+    for (const pose of [
+      { at: [3, 1] as [number, number], turn: 90, scale: 1, mirror: false },
+      { at: [-2, 5] as [number, number], turn: 225, scale: 2, mirror: true },
+    ]) {
+      const drawn = place(half.outline, pose);
+      const m = matchShape(drawn, shapes)!;
+      expect(m.shape.id).toBe(half.id);
+      const again = place(m.shape.outline, m.pose);
+      again.forEach((p, i) => {
+        const q = drawn.reduce((b, x) =>
+          Math.hypot(x[0] - p[0], x[1] - p[1]) < Math.hypot(b[0] - p[0], b[1] - p[1]) ? x : b,
+        );
+        expect(Math.hypot(q[0] - p[0], q[1] - p[1])).toBeLessThan(1e-6);
+        void i;
+      });
+    }
+  });
+
+  it('a hexagon split by its three diagonals gives six library triangles', async () => {
+    const { matchShape } = await import('@/model/epp/match');
+    const { eppStarters } = await import('@/content/epp');
+    const shapes = eppStarters().shapes;
+    const h = hexagon();
+    const parts = splitOutline(h, [
+      [h[0]!, h[3]!],
+      [h[1]!, h[4]!],
+      [h[2]!, h[5]!],
+    ]);
+    expect(parts.map((p) => matchShape(p.outline, shapes)?.shape.notecard.name)).toEqual(
+      Array(6).fill('Triangle'),
+    );
+    // A shape no library has stays its own.
+    expect(
+      matchShape(
+        [
+          [0, 0],
+          [3, 0],
+          [0, 1],
+        ],
+        shapes,
+      ),
+    ).toBeNull();
+  });
+});

@@ -164,7 +164,8 @@ middle one, sharing a whole edge.
     shape in the sidebar picker is shown in a color that says whether it fits that edge.
 11. **Given** Grid mode, **Then** a button right under the mode switch drags the grid until a grid
     edge snaps to an edge of a placed piece, and a **Sync grid to selected size** toggle sizes the grid
-    to the picked scale. Taps place shapes that sit on the grid.
+    to the picked scale. Taps place shapes that sit on the grid. The grid shows in Grid mode only.
+    Owner, 2026-11-10: "the grid shouldn't be shown in "grow" and "free placement" mode".
 12. **Given** a placed piece dragged in Free mode, **Then** it snaps when one of its edges comes
     within half the shorter edge of a neighbor's (whatever the zoom), the two edges showing green
     while dragging; it turns at most 30° to fit; snaps that overlap other pieces are allowed, for
@@ -218,7 +219,11 @@ parallelogram); place it and print it.
 6. **Given** the shape editor, **Then** it has no colors or fabrics, only the outline. Its
    **Multi-shape** mode lets the quilter draw an outline and lines across it; each closed area
    becomes a shape (each checked by the four flags), and the whole is saved as a self-contained
-   rosette whose shapes live inside it, not as separate library shapes (spec 050). Line ends snap
+   rosette whose shapes live inside it, not as separate library shapes (spec 050). A piece that is an
+   existing shape (the project's, then the libraries', at any turn, mirrored or not, scale 1 to 4)
+   uses that shape instead; Close space does the same. Owner, 2026-11-10: "if a
+   mutli-shape-to-rosette ends up with an internal-to-the-rosette shape that's the same as a library
+   shape, it should be replaced by that library shape". Line ends snap
    to the outline's corners and earlier lines' ends, then onto outline edges and earlier lines (at
    whole units from an end when close), then to the grid. Owner, 2026-11-10: "it doesn't feel like
    edges snap to existing exterior edges quite enough in multi-shape mode". Multi-shape adds a

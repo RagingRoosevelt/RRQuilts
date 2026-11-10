@@ -214,7 +214,7 @@ import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
 import type { World } from '@/composables/viewport';
 import { fillFor } from '@/editor/paint';
-import { failing } from '@/model/epp/checks';
+import { checkOutline, failing, passes } from '@/model/epp/checks';
 import { expand, lookupEpp, rosetteLeaves, type Leaf } from '@/model/epp/expand';
 import {
   outerEdges,
@@ -387,7 +387,7 @@ const lattice = computed<Lattice>(() => ({
 const grid = computed<Grid>(() =>
   prefs.value.mode === 'grid'
     ? { kind: lattice.value.kind, origin: lattice.value.origin, step: lattice.value.step }
-    : { kind: 'square' },
+    : { kind: 'none' },
 );
 
 // --- Hover, ghost, edges ---
@@ -497,7 +497,10 @@ function onTap(p: World) {
   }
   if (t === 'close') {
     if (hit) return;
-    const r = rosette.value && closeSpace(rosette.value, allPolys.value, p);
+    const known = [...(project.doc!.project.eppShapes ?? []), ...library.items.eppShapes].filter(
+      (x) => passes(checkOutline(x.outline, x.marked)),
+    );
+    const r = rosette.value && closeSpace(rosette.value, allPolys.value, p, known);
     if (r) edit(() => r);
     else $q.notify({ message: 'No closed gap there to fill.', timeout: 1500 });
     return;

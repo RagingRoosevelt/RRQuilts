@@ -192,7 +192,8 @@ import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
 import type { World } from '@/composables/viewport';
-import { checkOutline, type Flags } from '@/model/epp/checks';
+import { checkOutline, passes, type Flags } from '@/model/epp/checks';
+import { matchShape, piecePose } from '@/model/epp/match';
 import { splitOutline } from '@/model/epp/faces';
 import { cornerAngles, edges, edgeLength, orient, type Poly } from '@/model/epp/geometry';
 import { newRosette } from '@/model/epp/rosette-ops';
@@ -581,14 +582,18 @@ async function saveRosette() {
   if (!s) return;
   const name = `${s.notecard.name} rosette`;
   const r = newRosette(name, app.settings.author);
-  r.shapes = parts.value;
-  r.pieces = parts.value.map((p, i) => ({
-    id: `p${i + 1}`,
-    shape: p.id,
-    at: centroidOf(p.outline),
-    turn: 0,
-    scale: 1,
-  }));
+  // A piece that is an existing shape (yours, then the libraries') uses it, not a copy of it.
+  const known = [...(project.doc?.project.eppShapes ?? []), ...library.items.eppShapes].filter(
+    (x) => passes(checkOutline(x.outline, x.marked)),
+  );
+  const own: typeof parts.value = [];
+  r.pieces = parts.value.map((p, i) => {
+    const m = matchShape(p.outline, known);
+    if (m) return { id: `p${i + 1}`, shape: m.shape.id, ...piecePose(m.pose) };
+    own.push(p);
+    return { id: `p${i + 1}`, shape: p.id, at: centroidOf(p.outline), turn: 0, scale: 1 };
+  });
+  if (own.length) r.shapes = own;
   project.change((d) => void (d.project.rosettes ??= []).push(r));
   lines.value = [];
   multi.value = false;

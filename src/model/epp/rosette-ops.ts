@@ -9,6 +9,7 @@ import type { Pt } from '../geometry/path';
 import { rosetteLocal, type EppLookup } from './expand';
 import { centroid, type Pose, type Poly } from './geometry';
 import { gapAt } from './faces';
+import { matchShape } from './match';
 
 export function newRosette(name: string, author = '', license = DEFAULT_LICENSE): Rosette {
   return {
@@ -128,9 +129,17 @@ export function copyIn(
 }
 
 /** Close space (spec 050): the gap under p becomes an internal shape, placed. Null: no gap there. */
-export function closeSpace(r: Rosette, polys: readonly Poly[], p: Pt): Rosette | null {
+export function closeSpace(
+  r: Rosette,
+  polys: readonly Poly[],
+  p: Pt,
+  /** Shapes to use when the gap is one of them (yours, then the libraries'). */
+  known: readonly { id: string; outline: Poly }[] = [],
+): Rosette | null {
   const gap = gapAt(polys, p);
   if (!gap) return null;
+  const m = matchShape(gap, known);
+  if (m) return addPiece(r, m.shape.id, m.pose);
   const c = centroid(gap);
   const shape: InternalShape = {
     id: newId(),
