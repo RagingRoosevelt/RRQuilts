@@ -15,9 +15,15 @@
       {{ shape.notecard.name }} is a library shape, so it opens read-only.
     </q-banner>
     <q-banner v-else-if="failingNames.length" dense class="bg-negative text-white">
-      <template #avatar><q-icon name="warning" /></template>
-      {{ failingNames.join(', ') }}
-      {{ failingNames.length === 1 ? "isn't" : "aren't" }} usable yet: see the flags.
+      <template #avatar><q-icon name="error" /></template>
+      {{ failingNames.join('; ') }}: not usable yet.
+    </q-banner>
+    <q-banner v-else-if="unmarkedNames.length" dense class="bg-orange-2 text-black">
+      <template #avatar><q-icon name="warning" color="orange-9" /></template>
+      {{ unmarkedNames.join(', ') }}
+      {{ unmarkedNames.length === 1 ? 'has' : 'have' }} edges that aren’t whole units. If they’re
+      meant, tap each with the <b>Edge</b> tool to mark it (marked edges snap to the same length,
+      double, half or a quarter).
     </q-banner>
 
     <div
@@ -164,8 +170,8 @@
             <div v-if="checks.length > 1" class="text-caption text-grey-7">Shape {{ i + 1 }}</div>
             <div v-for="f in FLAGS" :key="f.key" class="row items-center no-wrap" style="gap: 6px">
               <q-icon
-                :name="p[f.key] ? 'check_circle' : 'cancel'"
-                :color="p[f.key] ? 'positive' : 'negative'"
+                :name="p[f.key] ? 'check_circle' : f.key === 'wholeUnits' ? 'warning' : 'cancel'"
+                :color="p[f.key] ? 'positive' : f.key === 'wholeUnits' ? 'orange-9' : 'negative'"
                 size="xs"
               />
               <span class="text-body2">{{ f.label }}</span>
@@ -192,7 +198,7 @@ import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
 import type { World } from '@/composables/viewport';
-import { checkOutline, passes, type Flags } from '@/model/epp/checks';
+import { checkOutline, nonWholeEdges, passes, problems, type Flags } from '@/model/epp/checks';
 import { matchShape, piecePose } from '@/model/epp/match';
 import { splitOutline } from '@/model/epp/faces';
 import { cornerAngles, edges, edgeLength, orient, type Poly } from '@/model/epp/geometry';
@@ -307,7 +313,7 @@ const toolHint = computed(
 const FLAGS: { key: keyof Flags; label: string }[] = [
   { key: 'closes', label: 'Closes' },
   { key: 'simple', label: "Doesn't cross itself" },
-  { key: 'wholeUnits', label: 'Every edge a whole unit (or marked)' },
+  { key: 'wholeUnits', label: 'Every edge a whole unit or marked (a warning only)' },
   { key: 'convex', label: 'Convex' },
 ];
 
@@ -339,19 +345,28 @@ const checks = computed<Flags[]>(() =>
     ? parts.value.map((p) => checkOutline(p.outline))
     : [checkOutline(outline.value, shape.value?.marked)],
 );
-const ok = (f: Flags) => f.closes && f.simple && f.wholeUnits && f.convex;
+const ok = passes;
+const nameOf = (i: number) =>
+  checks.value.length > 1 ? `Shape ${i + 1}` : (shape.value?.notecard.name ?? 'This shape');
+/** "Shape 2 crosses itself" for each shape that isn't usable. */
 const failingNames = computed(() =>
-  checks.value.length > 1
-    ? checks.value.flatMap((f, i) => (ok(f) ? [] : [`Shape ${i + 1}`]))
-    : checks.value.some((f) => !ok(f))
-      ? [shape.value?.notecard.name ?? 'This shape']
-      : [],
+  checks.value.flatMap((f, i) => (ok(f) ? [] : [`${nameOf(i)} ${problems(f).join(' and ')}`])),
+);
+const unmarkedNames = computed(() =>
+  // Multi-shape marks its new edges when it saves: only a single shape warns here.
+  multi.value ? [] : checks.value.flatMap((f, i) => (ok(f) && !f.wholeUnits ? [nameOf(i)] : [])),
 );
 
 const polys = computed<CanvasPoly[]>(() =>
   multi.value && parts.value.length > 1
     ? parts.value.map((p, i) => ({ poly: p.outline, failing: !ok(checks.value[i]!) }))
-    : [{ poly: outline.value, failing: !ok(checks.value[0]!) }],
+    : [
+        {
+          poly: outline.value,
+          failing: !ok(checks.value[0]!),
+          warn: ok(checks.value[0]!) && !checks.value[0]!.wholeUnits,
+        },
+      ],
 );
 
 // --- Hit testing (in units, tolerance in screen pixels) ---
@@ -590,7 +605,9 @@ async function saveRosette() {
   r.pieces = parts.value.map((p, i) => {
     const m = matchShape(p.outline, known);
     if (m) return { id: `p${i + 1}`, shape: m.shape.id, ...piecePose(m.pose) };
-    own.push(p);
+    // The lines were drawn on purpose: edges that aren't whole units are marked as meant.
+    const marked = nonWholeEdges(p.outline);
+    own.push(marked.length ? { ...p, marked } : p);
     return { id: `p${i + 1}`, shape: p.id, at: centroidOf(p.outline), turn: 0, scale: 1 };
   });
   if (own.length) r.shapes = own;

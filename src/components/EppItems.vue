@@ -23,7 +23,7 @@
           </button>
           <button class="card add" @click="importFile">
             <q-icon name="upload_file" size="md" />
-            <div>Import<br /><span class="text-caption">.rrqepp</span></div>
+            <div>Import <span class="text-caption">.rrqepp</span></div>
           </button>
         </div>
         <div v-for="c in g.cards" :key="c.id" class="card">
@@ -31,6 +31,15 @@
             <EppThumb :polys="c.polys" :size="0" />
           </button>
           <div class="row items-center no-wrap">
+            <q-icon
+              v-if="c.kind === 'rosette'"
+              name="hive"
+              size="xs"
+              color="grey-7"
+              class="q-mr-xs"
+            >
+              <q-tooltip>Rosette</q-tooltip>
+            </q-icon>
             <FullName class="col" :name="c.name" />
             <q-btn flat round dense icon="more_vert" aria-label="Actions">
               <q-menu auto-close>
@@ -79,7 +88,6 @@
               </q-menu>
             </q-btn>
           </div>
-          <div class="text-caption text-grey-7">{{ c.kind === 'shape' ? 'Shape' : 'Rosette' }}</div>
         </div>
       </div>
     </template>
@@ -319,7 +327,7 @@ function remove(c: Card) {
 /* As the project's quilt and block cards (SketchbookPage). */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   grid-auto-rows: max-content;
   align-items: start;
   gap: 16px;
@@ -342,15 +350,13 @@ function remove(c: Card) {
   cursor: pointer;
 }
 .stack {
+  /* A short row of its own across the grid, above the cards. */
+  grid-column: 1 / -1;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 8px;
-  /* The same height with or without cards beside it (a card's height), not stretched by its row. */
-  align-self: start;
-  height: 204px;
 }
 .stack .card.add {
-  flex: 1;
   flex-direction: row;
   justify-content: flex-start;
   gap: 8px;

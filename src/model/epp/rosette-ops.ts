@@ -10,6 +10,7 @@ import { rosetteLocal, type EppLookup } from './expand';
 import { centroid, type Pose, type Poly } from './geometry';
 import { gapAt } from './faces';
 import { matchShape } from './match';
+import { nonWholeEdges } from './checks';
 
 export function newRosette(name: string, author = '', license = DEFAULT_LICENSE): Rosette {
   return {
@@ -141,10 +142,10 @@ export function closeSpace(
   const m = matchShape(gap, known);
   if (m) return addPiece(r, m.shape.id, m.pose);
   const c = centroid(gap);
-  const shape: InternalShape = {
-    id: newId(),
-    outline: gap.map(([x, y]): Pt => [x - c[0], y - c[1]]),
-  };
+  const outline = gap.map(([x, y]): Pt => [x - c[0], y - c[1]]);
+  // Its edges are its neighbors': ones that aren't whole units are meant, so marked.
+  const marked = nonWholeEdges(outline);
+  const shape: InternalShape = { id: newId(), outline, ...(marked.length ? { marked } : {}) };
   return addPiece({ ...r, shapes: [...(r.shapes ?? []), shape] }, shape.id, {
     at: c,
     turn: 0,

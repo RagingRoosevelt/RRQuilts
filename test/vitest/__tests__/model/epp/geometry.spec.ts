@@ -282,3 +282,27 @@ describe('snap', () => {
     }
   });
 });
+
+describe('usable shapes and warnings', () => {
+  it('edges that are not whole units warn but leave the shape usable; marked ones clear it', async () => {
+    const { failing, nonWholeEdges, passes, problems, unmarked } =
+      await import('@/model/epp/checks');
+    const tri = orient([
+      [0, 0],
+      [1, 0],
+      [0, 1],
+    ]);
+    const f = checkOutline(tri);
+    expect(passes(f)).toBe(true);
+    expect(unmarked([{ outline: tri }])).toEqual([0]);
+    expect(unmarked([{ outline: tri, marked: nonWholeEdges(tri) }])).toEqual([]);
+    const bow: Poly = [
+      [0, 0],
+      [1, 1],
+      [1, 0],
+      [0, 1],
+    ];
+    expect(failing([{ outline: bow }])).toEqual([0]);
+    expect(problems(checkOutline(bow))).toContain('crosses itself');
+  });
+});

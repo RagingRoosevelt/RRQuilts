@@ -38,6 +38,8 @@ export interface CanvasPoly {
   /** Drawn highlighted (selected), red (failing a check), tinted (overlapping). */
   selected?: boolean;
   failing?: boolean;
+  /** Usable, with edges that aren't whole units and aren't marked (orange). */
+  warn?: boolean;
   overlap?: boolean;
 }
 export type Grid =
@@ -170,14 +172,16 @@ const vp = useViewport({
         ctx.fillStyle = 'rgba(211,47,47,0.25)';
         ctx.fill();
       }
-      ctx.lineWidth = (p.selected || p.failing ? 2.5 : 1) * line;
+      ctx.lineWidth = (p.selected || p.failing || p.warn ? 2.5 : 1) * line;
       ctx.strokeStyle = p.failing
         ? '#d32f2f'
-        : p.selected
-          ? '#1976d2'
-          : dark
-            ? 'rgba(255,255,255,0.7)'
-            : 'rgba(0,0,0,0.75)';
+        : p.warn
+          ? '#ef6c00'
+          : p.selected
+            ? '#1976d2'
+            : dark
+              ? 'rgba(255,255,255,0.7)'
+              : 'rgba(0,0,0,0.75)';
       ctx.stroke();
     }
     props.decorate?.({ ctx, view, dpr, px: (n) => n / view.scale });

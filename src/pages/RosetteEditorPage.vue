@@ -15,11 +15,17 @@
       {{ rosette.notecard.name }} is a library rosette, so it opens read-only.
     </q-banner>
     <q-banner v-else-if="failingCount" dense class="bg-negative text-white">
-      <template #avatar><q-icon name="warning" /></template>
+      <template #avatar><q-icon name="error" /></template>
       {{ failingCount }}
       {{ failingCount === 1 ? 'shape made here isn’t' : 'shapes made here aren’t' }}
-      usable yet (outlined in red): it must close, not cross itself, have whole-unit edges and be
-      convex.
+      usable yet (outlined in red): {{ failingWhy }}.
+    </q-banner>
+    <q-banner v-else-if="unmarkedCount" dense class="bg-orange-2 text-black">
+      <template #avatar><q-icon name="warning" color="orange-9" /></template>
+      {{ unmarkedCount }}
+      {{ unmarkedCount === 1 ? 'shape made here has' : 'shapes made here have' }} edges that aren’t
+      whole units (outlined in orange). They snap to edges of the same length, double, half or a
+      quarter.
     </q-banner>
 
     <div
@@ -212,7 +218,7 @@ import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
 import type { World } from '@/composables/viewport';
 import { fillFor } from '@/editor/paint';
-import { checkOutline, failing, passes } from '@/model/epp/checks';
+import { checkOutline, failing, passes, problems, unmarked } from '@/model/epp/checks';
 import { expand, lookupEpp, rosetteLeaves, type Leaf } from '@/model/epp/expand';
 import {
   outerEdges,
@@ -341,6 +347,16 @@ const failingIds = computed(() => {
   return bad;
 });
 const failingCount = computed(() => failingIds.value.size);
+/** What the red shapes fail, in words ("crosses itself, isn't convex"). */
+const failingWhy = computed(() => {
+  const own = (rosette.value?.shapes ?? []).filter((s) => failingIds.value.has(s.id));
+  return [...new Set(own.flatMap((s) => problems(checkOutline(s.outline, s.marked))))].join(', ');
+});
+const unmarkedIds = computed(() => {
+  const own = rosette.value?.shapes ?? [];
+  return new Set(unmarked(own).map((i) => own[i]!.id));
+});
+const unmarkedCount = computed(() => unmarkedIds.value.size);
 const overlaps = computed(() => overlapping(leaves.value.map((l) => l.poly)));
 
 // --- The picker: own and library shapes and rosettes (not this rosette) ---
@@ -461,6 +477,7 @@ const polys = computed<CanvasPoly[]>(() =>
     fill: l.fill,
     selected: epp.selection.has(l.part!),
     failing: failingIds.value.has(l.shape),
+    warn: unmarkedIds.value.has(l.shape),
     overlap: overlaps.value.has(i),
   })),
 );

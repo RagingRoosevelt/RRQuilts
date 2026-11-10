@@ -5,6 +5,9 @@
       <div v-for="c in cards" :key="c.id" class="card">
         <EppThumb :polys="c.polys" :size="0" />
         <div class="row items-center no-wrap">
+          <q-icon v-if="c.kind === 'rosette'" name="hive" size="xs" color="grey-7" class="q-mr-xs">
+            <q-tooltip>Rosette</q-tooltip>
+          </q-icon>
           <FullName class="col" :name="c.name" />
           <q-btn flat round dense icon="more_vert" aria-label="Actions">
             <q-menu auto-close>
@@ -27,7 +30,6 @@
             </q-menu>
           </q-btn>
         </div>
-        <div class="text-caption text-grey-7">{{ c.kind === 'shape' ? 'Shape' : 'Rosette' }}</div>
       </div>
     </div>
   </div>
@@ -113,7 +115,7 @@ function remove(c: { id: string; name: string }) {
 /* As the block cards. */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   grid-auto-rows: max-content;
   align-items: start;
   gap: 16px;

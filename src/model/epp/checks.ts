@@ -1,5 +1,4 @@
 // The four patch flags (spec 027 FR-006): closes, doesn't cross itself, whole-unit edges, convex.
-import { signedArea } from '../geometry/path';
 import { cornerAngles, edges, edgeLength, EPS, orient, type Poly } from './geometry';
 
 export interface Flags {
@@ -30,7 +29,15 @@ export function checkOutline(outline: Poly, marked: readonly number[] = []): Fla
   const pts = outline.filter(
     (p, i) => i === 0 || Math.hypot(p[0] - outline[i - 1]![0], p[1] - outline[i - 1]![1]) > EPS,
   );
-  const closes = pts.length >= 3 && Math.abs(signedArea(pts)) > EPS;
+  // An outline of corners always joins up: it fails only with fewer than three corners, or all in
+  // one line (a crossed outline can have no area and still close).
+  const closes =
+    pts.length >= 3 &&
+    pts.some((p, i) => {
+      const a = pts[(i + 1) % pts.length]!;
+      const b = pts[(i + 2) % pts.length]!;
+      return Math.abs((a[0] - p[0]) * (b[1] - p[1]) - (a[1] - p[1]) * (b[0] - p[0])) > EPS;
+    });
   const es = edges(outline);
   let simple = closes;
   for (let i = 0; simple && i < es.length; i++)
@@ -46,8 +53,29 @@ export function checkOutline(outline: Poly, marked: readonly number[] = []): Fla
   return { closes, simple, wholeUnits, convex };
 }
 
-export const passes = (f: Flags) => f.closes && f.simple && f.wholeUnits && f.convex;
+/**
+ * Usable: closes, doesn't cross itself, convex. Edges that aren't whole units only warn (owner,
+ * 2026-11-10): marking them with the Edge tool says they're meant, and clears the warning.
+ */
+export const passes = (f: Flags) => f.closes && f.simple && f.convex;
 
-/** Indexes of the outlines failing any flag (for the banner). */
-export const failing = (outlines: readonly { outline: Poly; marked?: number[] | undefined }[]) =>
+type Outlined = { outline: Poly; marked?: number[] | undefined };
+/** Indexes of the outlines that aren't usable (red, the banner). */
+export const failing = (outlines: readonly Outlined[]) =>
   outlines.flatMap((x, i) => (passes(checkOutline(x.outline, x.marked)) ? [] : [i]));
+/** Indexes of usable outlines with unmarked edges that aren't whole units (a warning). */
+export const unmarked = (outlines: readonly Outlined[]) =>
+  outlines.flatMap((x, i) => {
+    const f = checkOutline(x.outline, x.marked);
+    return passes(f) && !f.wholeUnits ? [i] : [];
+  });
+
+/** What an outline fails, in words (the banner names it). */
+export function problems(f: Flags): string[] {
+  if (!f.closes) return ['doesn’t close'];
+  return [...(f.simple ? [] : ['crosses itself']), ...(f.convex ? [] : ['isn’t convex'])];
+}
+
+/** Indexes of an outline's edges that aren't whole units (Save as rosette, Close space mark them). */
+export const nonWholeEdges = (outline: Poly) =>
+  edges(outline).flatMap((e, i) => (isWhole(edgeLength(e)) ? [] : [i]));

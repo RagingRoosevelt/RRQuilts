@@ -213,13 +213,15 @@ parallelogram); place it and print it.
 3. **Given** the sidebar, **Then** a **Vertex grid snapping** setting (Free / Square / Triangle) sets
    where dragged corners land and which grid is drawn, and an angle step setting sets the Angle
    tool's increments.
-4. **Given** an edge that isn't a whole number of units, **Then** it fails the whole-unit flag unless
-   the quilter marked it with the Edge tool as meant to be that length. A marked edge of length L snaps to
+4. **Given** an edge that isn't a whole number of units, **Then** the whole-unit flag warns (orange,
+   the shape stays usable) until the quilter marks it with the Edge tool as meant to be that length.
+   Edges drawn in Multi-shape or made by Close space are marked as they're made. Owner, 2026-11-10:
+   "maybe the requirement to be unit should be relaxed to just a warning with the same dismiss route
+   rather than this "blocking" implmentation". Any edge of length L that isn't a whole unit snaps to
    edges of length L, a whole multiple of L (2L, 3L…), or L/2 or L/4, a shorter edge running along a
    longer one in steps of its own length.
-5. **Given** an outline that doesn't close, crosses itself, isn't convex, or has an unmarked edge that
-   isn't a whole number of units, **Then** the editor flags it and doesn't save it as a usable shape
-   (FR-006 banner).
+5. **Given** an outline that doesn't close, crosses itself or isn't convex, **Then** the editor flags it,
+   the banner says which, and it isn't a usable shape (FR-006 banner).
 6. **Given** the shape editor, **Then** it has no colors or fabrics, only the outline. Its
    **Multi-shape** mode lets the quilter draw an outline and lines across it; each closed area
    becomes a shape (each checked by the four flags), and the whole is saved as a self-contained
@@ -362,8 +364,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **FR-001b**: Trimming MUST NOT change the templates: pieces are made whole (papers are whole
   shapes) and trimmed after assembly, so templates and fabric counts are for whole pieces; the
   print notes the trim line and its size.
-- **FR-002**: EPP shapes MUST be simple closed convex polygons whose edge lengths are whole multiples of
-  the quilt's base dimension, except edges the quilter deliberately marks as another length
+- **FR-002**: EPP shapes MUST be simple closed convex polygons. Edge lengths SHOULD be whole multiples
+  of the quilt's base dimension: other lengths only warn, until the quilter marks them as meant
   (FR-006a). A marked edge snaps to an edge of the same length, a whole multiple of it, or a half or a quarter of it (a shorter edge runs along a longer one in steps of its own length). Owner, 2026-11-10: "let's also allow snapping to an integer multiple of that length or to a 1/2
   or 1/4 ofthat length".
 - **FR-003**: Placing and dragging pieces MUST snap equal-length edges together end to end (and short
