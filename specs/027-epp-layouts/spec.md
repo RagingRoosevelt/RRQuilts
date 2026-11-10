@@ -146,8 +146,13 @@ middle one, sharing a whole edge.
    an edge of equal length, **Then** it turns and moves so the edges meet end to end; releasing
    keeps it there. Edges of different lengths don't snap to each other whole, but a short edge can
    snap to a run of a long edge at whole-unit steps.
-4. **Given** a piece snapped in place, **Then** turning offers only the turns that keep a shared edge
-   (for example 60° steps for a hexagon on a hexagon), and free turning is available off snap.
+4. **Given** a piece snapped in place, **Then** the Turn tool turns it by the smallest amount (either
+   way; ties the same way each time, so taps cycle) that brings its next edge flush against the
+   neighbor edge it lies along, so it stays attached; off snap it turns by its own corner step.
+   Owner, 2026-11-10: "if a shape is already snapped to other shapes, when you hit the shape with
+   the rotate tool, it should rotate by the smalles amount necessary to snap along its next edge to
+   one of the neighbor's edges that it was previously aligned with" (for example a honeycomb's flat
+   top under a square stays attached as it turns).
 5. **Given** pieces that would overlap, **Then** the overlap is shown (but allowed, so the quilter can
    rearrange), and printing warns about it.
 6. **Given** several pieces selected, **Then** they move, turn, mirror, copy, delete and recolor as a

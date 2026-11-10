@@ -78,6 +78,72 @@ export function snap(
   return best;
 }
 
+/**
+ * Turn tool on a snapped piece (owner, 2026-11-10): the smallest turn, either way (ties the same way
+ * each time, so taps cycle), that brings another of its edges flush against a neighbor edge it lies
+ * along now, kept as near where it was as the fit allows. Null when it lies along no neighbor edge.
+ */
+export function nextTurn(moving: readonly Poly[], index: EdgeIndex): Snap | null {
+  const mine = outerEdges(moving);
+  // Neighbor edges it lies along: collinear, running the other way, overlapping.
+  const along: Edge[] = [];
+  for (const [a, b] of mine) {
+    const L = dist(a, b);
+    const u = mul(sub(b, a), 1 / L);
+    for (const i of index.near([a, b], 1e-3)) {
+      const [c, d] = index.items[i]!;
+      const v = mul(sub(d, c), 1 / dist(c, d));
+      if (u[0] * v[0] + u[1] * v[1] > -0.9999) continue;
+      const off = (p: Pt) => Math.abs((p[0] - a[0]) * u[1] - (p[1] - a[1]) * u[0]);
+      if (off(c) > 1e-4 || off(d) > 1e-4) continue;
+      const t = (p: Pt) => (p[0] - a[0]) * u[0] + (p[1] - a[1]) * u[1];
+      if (Math.min(L, Math.max(t(c), t(d))) - Math.max(0, Math.min(t(c), t(d))) > 1e-4)
+        along.push([c, d]);
+    }
+  }
+  if (!along.length) return null;
+  const centre = (polys: readonly Poly[]) => {
+    const pts = polys.flat();
+    return mul(
+      pts.reduce((s, p) => add(s, p), [0, 0] as Pt),
+      1 / pts.length,
+    );
+  };
+  const was = centre(moving);
+  let best: Snap | null = null;
+  let bestTurn = Infinity;
+  let bestShift = Infinity;
+  for (const [c, d] of along) {
+    const Ls = dist(c, d);
+    const us = mul(sub(c, d), 1 / Ls);
+    for (const [a, b] of mine) {
+      const Lm = dist(a, b);
+      const offsets = steps(Lm, Ls);
+      if (!offsets) continue;
+      const um = mul(sub(b, a), 1 / Lm);
+      let r = Math.atan2(us[1], us[0]) - Math.atan2(um[1], um[0]);
+      r = Math.atan2(Math.sin(r), Math.cos(r));
+      if (Math.abs(r) < 1e-6) continue; // the edge already there
+      // Ties (a square's ±90°) go the same way: a bit less for one direction.
+      const size = Math.abs(r) - (r > 0 ? 1e-9 : 0);
+      const L = Math.min(Lm, Ls);
+      for (const o of offsets) {
+        const m0 = Lm > Ls ? add(a, mul(um, o)) : a;
+        const s0 = Ls > Lm ? add(d, mul(us, o)) : d;
+        const move = sub(s0, rot(m0, r));
+        const now = add(rot(was, r), move);
+        const shift = dist(now, was);
+        if (size < bestTurn - 1e-6 || (Math.abs(size - bestTurn) <= 1e-6 && shift < bestShift)) {
+          bestTurn = size;
+          bestShift = shift;
+          best = { rot: r, move, score: 0, target: [s0, add(s0, mul(us, L))] };
+        }
+      }
+    }
+  }
+  return best;
+}
+
 /** A pose after a snap: its origin moves like any point, its turn gains the snap's. */
 export function snapPose<T extends Pose>(pose: T, s: Snap): T {
   return {

@@ -306,3 +306,77 @@ describe('usable shapes and warnings', () => {
     expect(problems(checkOutline(bow))).toContain('crosses itself');
   });
 });
+
+describe('turning a snapped piece', () => {
+  it('turns to its next edge that fits the same neighbor, the smallest turn first', async () => {
+    const { nextTurn, snapPose, staticEdges } = await import('@/model/epp/snap');
+    const sq = shape(
+      'sq',
+      orient([
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+      ]),
+    );
+    const half = shape(
+      'h',
+      orient([
+        [0, 0],
+        [1, 0],
+        [0, 1],
+      ]),
+      [1],
+    );
+    const tri = shape(
+      't',
+      (() => {
+        const r = 1 / Math.sqrt(3);
+        return orient(
+          [0, 1, 2].map((i): [number, number] => [
+            r * Math.cos((2 * Math.PI * i) / 3),
+            r * Math.sin((2 * Math.PI * i) / 3),
+          ]),
+        );
+      })(),
+    );
+    const lk = lookupEpp({ eppShapes: [sq, half, tri] });
+    const at = (p: EppPiece) => expand(p, lk).map((l) => l.poly);
+    const base = staticEdges(at(piece('b', 'sq', [0, 0])));
+    // A half square with a leg against the square's right edge: the next fit is the other leg
+    // (90°); its long edge (√2) can't lie on a 1U edge.
+    const h0 = at(piece('h', 'h', [0, 0]))[0]!;
+    const legs = edges(h0).filter((e) => Math.abs(edgeLength(e) - 1) < 1e-9);
+    expect(legs).toHaveLength(2);
+    // Put it against the square by snapping it first.
+    const near = piece('h', 'h', [0.85, 0.1]);
+    const s0 = snap(at(near), base, 0.6, Math.PI, 0.5)!;
+    const placed = snapPose(near, s0);
+    const turned = nextTurn(at(placed), base)!;
+    expect(Math.abs(turned.rot)).toBeCloseTo(Math.PI / 2, 6);
+    const after = snapPose(placed, turned);
+    expect([...overlapping([...at(piece('b', 'sq', [0, 0])), ...at(after)])]).toEqual([]);
+    // The owner's case: a honeycomb's flat top under a square stays attached as it turns.
+    const { eppStarters } = await import('@/content/epp');
+    const hc = eppStarters().shapes.find((x) => x.notecard.name === 'Honeycomb')!;
+    const lk2 = lookupEpp({ eppShapes: [sq, hc] });
+    const at2 = (p: EppPiece) => expand(p, lk2).map((l) => l.poly);
+    const square = at2(piece('b', 'sq', [0, 0]));
+    const idx = staticEdges(square);
+    let hcPose = snapPose(
+      piece('c', hc.id, [0, 1.3]),
+      snap(at2(piece('c', hc.id, [0, 1.3])), idx, 0.6, Math.PI, 0.5)!,
+    );
+    for (let k = 0; k < 6; k++) {
+      const s = nextTurn(at2(hcPose), idx)!;
+      expect(s).not.toBeNull();
+      expect(Math.abs(s.rot)).toBeLessThan(Math.PI);
+      hcPose = snapPose(hcPose, s);
+      // Still against the square, not overlapping it.
+      expect(nextTurn(at2(hcPose), idx)).not.toBeNull();
+      expect([...overlapping([...square, ...at2(hcPose)])]).toEqual([]);
+    }
+    // Not snapped: nothing to turn along.
+    expect(nextTurn(at(piece('far', 'sq', [5, 5])), base)).toBeNull();
+  });
+});

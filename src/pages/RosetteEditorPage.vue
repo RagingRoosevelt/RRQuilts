@@ -240,7 +240,7 @@ import {
   paintPiece,
   removePieces,
 } from '@/model/epp/rosette-ops';
-import { snap, snapPose, staticEdges } from '@/model/epp/snap';
+import { nextTurn, snap, snapPose, staticEdges } from '@/model/epp/snap';
 import { dist, pointInPolygon, type Pt } from '@/model/geometry/path';
 import { isLibraryItem } from '@/model/library-items';
 import type { Rosette } from '@/model/schema/epp';
@@ -299,7 +299,12 @@ const TOOLS: { id: RosetteTool; icon: string; label: string; hint: string }[] = 
     label: 'Place',
     hint: 'Place: tap to place the picked shape (tap its card again to stop); drag a piece to move it, it snaps to its neighbors',
   },
-  { id: 'turn', icon: 'rotate_right', label: 'Turn', hint: 'Turn: tap a piece to turn it' },
+  {
+    id: 'turn',
+    icon: 'rotate_right',
+    label: 'Turn',
+    hint: 'Turn: tap a piece to turn it; a snapped piece turns to its next edge that fits the same neighbor',
+  },
   { id: 'mirror', icon: 'flip', label: 'Mirror', hint: 'Mirror: tap a piece to flip it' },
   { id: 'erase', icon: ERASER, label: 'Delete', hint: 'Delete: tap a piece to remove it' },
   {
@@ -531,9 +536,12 @@ function onTap(p: World) {
   if (t === 'paint' && coloringId.value)
     return edit((r) => paintPiece(r, coloringId.value!, piece.id, paintNow() ?? null));
   if (t === 'turn') {
+    const others = staticEdges(leaves.value.filter((l) => l.part !== piece.id).map((l) => l.poly));
+    // Snapped: turn to the next edge that fits the neighbor it lies along.
+    const along = nextTurn(pickedPolysFor(piece.shape, piece), others);
+    if (along) return edit((r) => movePiece(r, piece.id, snapPose(piece, along)));
     const n = lookup.value.shape(piece.shape)?.outline.length ?? 4;
     const pose: Pose = { ...piece, turn: piece.turn + 360 / n };
-    const others = staticEdges(leaves.value.filter((l) => l.part !== piece.id).map((l) => l.poly));
     const s = snap(pickedPolysFor(piece.shape, pose), others, px(16), Math.PI / 12);
     const next = s ? snapPose(pose, s) : pose;
     return edit((r) => movePiece(r, piece.id, next));
