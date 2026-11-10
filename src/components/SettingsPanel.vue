@@ -256,9 +256,8 @@
                 class="row items-center no-wrap q-py-xs"
                 style="gap: 8px"
               >
-                <div class="col" style="min-width: 0; overflow-wrap: anywhere">
-                  <div>{{ p.name }}</div>
-                  <div class="text-caption text-grey-7">{{ p.where }}</div>
+                <div class="col sorted-name">
+                  {{ p.name }} <span class="text-caption text-grey-7 where">{{ p.where }}</span>
                 </div>
                 <span class="text-caption">{{ p.sort }}</span>
                 <q-btn
@@ -456,6 +455,28 @@ async function importConf() {
 </script>
 
 <style scoped>
+/* Sorted palettes: name · source on one line; on phones, the source on a line below. */
+.sorted-name {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sorted-name .where::before {
+  content: '· ';
+}
+@media (max-width: 599px) {
+  .sorted-name {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .sorted-name .where {
+    display: block;
+  }
+  .sorted-name .where::before {
+    content: none;
+  }
+}
 .credit-radio {
   width: 28px;
   flex: none;

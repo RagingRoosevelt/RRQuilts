@@ -354,8 +354,8 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-273',
     group: G.small,
-    text: 'Settings › Quilt and block design › Sorted palettes: each palette shows its name on one line and where it comes from (the library or project) on a second line below, long names wrapping, with its sort and Clear beside them.',
-    last: '"in settings, there\'s the palette sorting settings.  let\'s give the name and designer two lines instead of squishing them together"',
+    text: 'Settings › Quilt and block design › Sorted palettes on a phone: each palette shows its name on one line and where it comes from (the library or project) on a second line below, long names wrapping, with its sort and Clear beside them. On a wide window: name · source on one line, as before.',
+    last: '"in settings, there\'s the palette sorting settings.  let\'s give the name and designer two lines instead of squishing them together" / "let\'s do the two-line thing only on narrow screens.  on desktop they can stay on one line"',
   },
 ];
 
