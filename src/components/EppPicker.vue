@@ -23,6 +23,7 @@
         @update:model-value="(v: number | null) => emit('update:scale', v ?? 1)"
       />
     </div>
+    <q-separator />
     <SlidePicker
       v-model="filter"
       :options="[
