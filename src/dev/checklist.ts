@@ -106,13 +106,6 @@ export const CHECKS: Check[] = [
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
   },
-  {
-    id: 'TC-279',
-    group: G.small,
-    text: "Libraries, search Cornered: Cornered Week Strip and Cornered Month Strip draw day 1 as the corner square and every later day as two straight bars (one down from the top, one in from the left), as in the owner's Cornered Week Strip (2). In a data quilt, both bars of a day take that day's color, and the month variants (30, 29, 28) still end in black strips.",
-    last: '"let\'s update the "cornered <week/month> strip" data blocks to be quilable like I did with this one"',
-    to: '/libraries',
-  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
