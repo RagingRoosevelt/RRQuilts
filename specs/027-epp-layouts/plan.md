@@ -110,9 +110,6 @@ stores, components, pages; tests mirror `src/model`.
 
 - **Library readers assume "not a block = a palette"** (`withSources`, `parseLibraryValue`): each
   needs an explicit branch; a test guards it (research R2).
-- **Spec fixes found in review (2026-11-10)**, to apply before tasks: 050 FR-007 garbled clause;
-  050 "Rosette edges" whole-unit rule now has exceptions (marked edges, Close space shapes); 056 join
-  order needs a format field (outside this feature).
 - **Quilt editor size**: `QuiltEditorPage.vue` is large; the EPP Design tab is its own component
   (`EppCanvas` + picker) mounted by a `layout.style` branch, not mixed into block tools.
 - **Help**: new guides (EPP shapes, rosettes, EPP quilts) in `src/help/guides/`, following the help

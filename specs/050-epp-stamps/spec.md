@@ -62,8 +62,9 @@ interchangably with individual patchblocks when designing an EPP quilt".
   and quilt (sew the rosettes, then join them). Printouts break them into their EPP shapes.
 - **Interchangeable**: anywhere a shape can be used, a rosette can too: the sidebar picker, placing,
   dragging, snapping, turning, mirroring, the Scale slider, painting, libraries, packs, printing.
-- **Rosette edges**: a rosette snaps by the edges of its outside outline, each a whole number of units
-  (they're its shapes' edges), so it joins shapes and other rosettes as a shape does. Inner edges
+- **Rosette edges**: a rosette snaps by the edges of its outside outline, each its shape's edge:
+  whole units, or a marked length that snaps only to the same length (spec 027 FR-002; marked edges
+  and Close space shapes can have one), so it joins shapes and other rosettes as a shape does. Inner edges
   (between its own shapes) don't snap from outside.
 - **Colorings**: as a block's (spec 007): each piece of a rosette has a fill (a color or a fabric)
   in each of the rosette's **colorings**, so the same flower can be placed with a yellow middle in
@@ -157,7 +158,7 @@ templates and 28 fabric templates, grouped by fill, with the assembly sheet; Pri
 menu opens the same.
 
 1. **Given** an EPP quilt with rosettes, **When** printing templates, **Then** counts are by shape,
-   scale and fill, adding up every piece inside every placed rosette (a rosette is never a template).
+   scale and fill, adding up every piece inside every placed rosette.
 1a. **Given** a rosette, **Then** it has its own print interface: a **Print** tab in the rosette
    editor (and **Print** on its card menu in Libraries and the project's EPP tab), with the print
    preview in place of the canvas and options in the sidebar, as the block editor's Print tab:
@@ -209,8 +210,7 @@ menu opens the same.
   and page options.
 - **FR-006**: Templates, counts and yardage MUST expand rosettes into their pieces; an optional rosette
   sheet MUST list rosettes, their pieces and placements.
-- **FR-007**: Rosettes MUST be library items with credits and licenses like shapes (spec 027 FR-007),
-  replacing spec 027's rosettes.
+- **FR-007**: Rosettes MUST be library items with credits and licenses like shapes (spec 027 FR-007).
 - **FR-008**: The project format version that adds EPP (spec 027 FR-009) MUST include rosettes and
   placed rosettes; loading validates them (missing shapes, coloring references).
 - **FR-009**: Rosettes are edited in a rosette editor; EPP quilts use the same engine with Layout and
