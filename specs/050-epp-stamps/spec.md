@@ -66,6 +66,9 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
 
 1. **Given** the sidebar's picker, **Then** stamps list with shapes (filtered and grouped the same
    way, with a filter for Shapes / Stamps), and tapping or dragging one places it as a shape is.
+   A **Place as stamp/rosette** toggle at the top of the picker decides whether a stamp is placed
+   grouped (linked, on by default) or as its loose pieces. Every stamp is placed grouped first and
+   can be broken apart after (scenario 5).
 2. **Given** a placed stamp dragged near a shape or stamp, **Then** its outside edges snap to equal
    edges (or whole-unit runs of longer ones) exactly as spec 027 FR-003.
 3. **Given** a placed stamp, **Then** turn, mirror, move, copy, delete and the Scale slider apply to
@@ -127,6 +130,11 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
   slots, painted with the editor's scopes.
 - **FR-004**: Placed stamps MUST stay linked to their stamp (edits update every placement, with undo)
   until broken apart.
+- **FR-009**: Quilts, stamps and rosettes MUST use one editor (spec 027 FR-003b placement modes).
+  A design becomes a stamp through an **Enable as stamp** toggle in its Details. Owner, 2026-11-10:
+  "in details, we'll have a toggle for "enable as stamp". all stamps start out as grouped rosettes
+  but can be broken down after placement and we'll have a toggle at the top of the rosette/stamp
+  picker in the sidebar to "place as stamp/rosette"."
 - **FR-005**: Stamps MAY nest; cycles MUST be refused; depth at most 8.
 - **FR-006**: Templates, counts and yardage MUST expand stamps into their pieces; an optional stamp
   sheet MUST list stamps, their pieces and placements.

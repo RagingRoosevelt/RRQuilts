@@ -114,6 +114,18 @@ middle one, sharing a whole edge.
 6. **Given** several pieces selected, **Then** they move, turn, mirror, copy, delete and recolor as a
    group (detailed in spec 051), and a group can be saved as a **stamp** (spec 050) for reuse.
 7. Undo and redo cover every change (spec 006).
+8. **Given** the toolbar, **Then** a three-way switch picks the placement mode: **Free**, **Grow** and
+   **Grid** (FR-003b). The Scale slider, the shape and stamp picker and colors and fabrics stay in the
+   sidebar; placement tools are in the toolbar, as in the other editors.
+9. **Given** Free mode and a shape picked, **When** the mouse is over the design and not over a placed
+   piece (desktop), **Then** a ghost of the shape follows it, showing where a tap places it and how it
+   snaps. Snapping and turning work as in prototype A.
+10. **Given** Grow mode, **When** the quilter taps a free edge, **Then** the picked shape is attached
+    there (no separate "start with" and "place next" shapes). While the mouse is over an edge, each
+    shape in the sidebar picker is shown in a color that says whether it fits that edge.
+11. **Given** Grid mode, **Then** a button right under the mode switch drags the grid until a grid
+    edge snaps to an edge of a placed piece, and a **Sync grid to selected size** toggle sizes the grid
+    to the picked scale. Taps place shapes that sit on the grid.
 
 ---
 
@@ -262,6 +274,16 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **FR-003a**: Each piece MUST have a whole-number scale from 1 to 4 that multiplies its shape's
   edges; the sidebar's shape picker MUST have a Scale slider (1 to 4) that sets new pieces' scale
   and can rescale selected pieces. Snapping works across scales at whole-unit steps.
+- **FR-003b**: The editor MUST offer three placement modes on a three-way toolbar switch: Free (drag
+  and drop with edge snapping, a ghost of the picked shape under the mouse on desktop), Grow (tap a
+  free edge to attach the picked shape, picker shapes colored by whether they fit the hovered edge)
+  and Grid (place on a grid that can be dragged until it snaps to a placed piece's edge, with a Sync
+  grid to selected size toggle). Owner, 2026-11-10: "for assembling quilts / stamps / rosettes, I
+  like all three of "free canvas", "grow", and "on a grid". let's support all three as various
+  placement modes (three-way switch to change mode). we want to fit this into our existing
+  paradigm, though, so scale, shape picker / stamp picker and colors/fabrics will be in the sidebar
+  and placement tools will be in the toolbar." Quilts, stamps and rosettes are assembled in the
+  same editor (spec 050 FR-009).
 - **FR-004**: Each piece MUST have exactly one fill: a color or a fabric.
 - **FR-005**: Pieces MUST support select, group, move, turn, mirror, copy, delete and recolor, with
   undo; groups can be saved as stamps (spec 050).
