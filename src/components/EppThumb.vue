@@ -1,5 +1,10 @@
 <template>
-  <svg :viewBox="box" class="epp-thumb" :style="{ width: `${size}px`, height: `${size}px` }">
+  <svg
+    :viewBox="box"
+    class="epp-thumb"
+    :class="{ fill: !size }"
+    :style="size ? { width: `${size}px`, height: `${size}px` } : undefined"
+  >
     <path
       v-for="(p, i) in paths"
       :key="i"
@@ -17,6 +22,7 @@ import { computed } from 'vue';
 import { bbox, type Poly } from '@/model/epp/geometry';
 
 const props = withDefaults(
+  /** `size` 0: as wide as its box, square (cards). */
   defineProps<{ polys: { poly: Poly; fill?: string | undefined }[]; size?: number }>(),
   { size: 56 },
 );
@@ -41,5 +47,11 @@ const paths = computed(() =>
 <style scoped>
 .epp-thumb {
   display: block;
+}
+.epp-thumb.fill {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  filter: var(--card-shadow);
 }
 </style>

@@ -3238,6 +3238,9 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 8px;
+  /* The same height with or without cards beside it (a card's height), not stretched by its row. */
+  align-self: start;
+  height: 204px;
 }
 .stack .card.add {
   flex: 1;

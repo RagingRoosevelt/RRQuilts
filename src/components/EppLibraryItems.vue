@@ -2,22 +2,32 @@
   <div class="column" style="gap: 6px">
     <div class="text-subtitle2">EPP shapes and rosettes</div>
     <div class="cards">
-      <div v-for="c in cards" :key="c.id" class="card column items-center">
-        <EppThumb :polys="c.polys" :size="88" />
-        <div class="text-caption ellipsis full-width text-center">{{ c.name }}</div>
+      <div v-for="c in cards" :key="c.id" class="card">
+        <EppThumb :polys="c.polys" :size="0" />
+        <div class="row items-center no-wrap">
+          <FullName class="col" :name="c.name" />
+          <q-btn flat round dense icon="more_vert" aria-label="Actions">
+            <q-menu auto-close>
+              <q-list dense style="min-width: 180px">
+                <q-item v-if="!mine" clickable @click="copyMine(c)">
+                  <q-item-section avatar class="menu-icon"
+                    ><q-icon name="content_copy"
+                  /></q-item-section>
+                  <q-item-section>Copy to {{ MY_LIBRARY }}</q-item-section>
+                </q-item>
+                <q-item v-if="mine" clickable @click="remove(c)">
+                  <q-item-section avatar class="menu-icon"
+                    ><q-icon name="delete" color="negative"
+                  /></q-item-section>
+                  <q-item-section class="text-negative"
+                    >Delete from {{ MY_LIBRARY }}</q-item-section
+                  >
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
+        </div>
         <div class="text-caption text-grey-7">{{ c.kind === 'shape' ? 'Shape' : 'Rosette' }}</div>
-        <q-btn flat round dense size="sm" icon="more_vert" class="menu" aria-label="More">
-          <q-menu auto-close>
-            <q-list dense style="min-width: 180px">
-              <q-item v-if="!mine" clickable @click="copyMine(c)">
-                <q-item-section>Copy to {{ MY_LIBRARY }}</q-item-section>
-              </q-item>
-              <q-item v-if="mine" clickable @click="remove(c)">
-                <q-item-section class="text-negative">Delete from {{ MY_LIBRARY }}</q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </q-btn>
       </div>
     </div>
   </div>
@@ -29,6 +39,7 @@
 import { useQuasar } from 'quasar';
 import { computed } from 'vue';
 import EppThumb from '@/components/EppThumb.vue';
+import FullName from '@/components/FullName.vue';
 import { useAuthor } from '@/composables/author';
 import { lookupEpp, rosetteLocal } from '@/model/epp/expand';
 import { place } from '@/model/epp/geometry';
@@ -99,24 +110,22 @@ function remove(c: { id: string; name: string }) {
 </script>
 
 <style scoped>
+/* As the block cards. */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   grid-auto-rows: max-content;
-  align-content: start;
   align-items: start;
-  gap: 8px;
+  gap: 16px;
 }
 .card {
-  position: relative;
-  padding: 8px;
   border: 1px solid rgba(128, 128, 128, 0.3);
   border-radius: 8px;
+  padding: 8px;
   min-width: 0;
 }
-.menu {
-  position: absolute;
-  top: 2px;
-  right: 2px;
+.menu-icon {
+  min-width: 0;
+  padding-right: 12px;
 }
 </style>

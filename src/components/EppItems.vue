@@ -1,79 +1,88 @@
 <template>
   <div class="column" style="gap: 12px">
-    <div class="row items-center" style="gap: 8px">
-      <q-btn
-        unelevated
-        color="primary"
-        no-caps
-        icon="add"
-        label="New shape"
-        :disable="ro"
-        @click="newShapeItem"
-      />
-      <q-btn
-        unelevated
-        color="primary"
-        no-caps
-        icon="hive"
-        label="New rosette"
-        :disable="ro"
-        @click="newRosetteItem"
-      />
-      <q-btn outline no-caps icon="file_open" label="Import" :disable="ro" @click="importFile" />
-      <SlidePicker
-        v-model="filter"
-        style="min-width: 260px"
-        :options="[
-          { value: 'all', label: 'All' },
-          { value: 'shapes', label: 'Shapes' },
-          { value: 'rosettes', label: 'Rosettes' },
-        ]"
-      />
-    </div>
-    <div v-for="g in groups" :key="g.label" class="column" style="gap: 6px">
+    <SlidePicker
+      v-model="filter"
+      style="max-width: 320px"
+      :options="[
+        { value: 'all', label: 'All' },
+        { value: 'shapes', label: 'Shapes' },
+        { value: 'rosettes', label: 'Rosettes' },
+      ]"
+    />
+    <template v-for="(g, k) in groups" :key="g.label">
       <div class="text-subtitle2">{{ g.label }}</div>
       <div class="cards">
-        <div v-for="c in g.cards" :key="c.id" class="card column items-center" @click="open(c)">
-          <EppThumb :polys="c.polys" :size="88" />
-          <div class="text-caption ellipsis full-width text-center">{{ c.name }}</div>
+        <div v-if="k === 0 && !ro" class="stack">
+          <button class="card add" @click="newShapeItem">
+            <q-icon name="add" size="md" />
+            <div>New shape</div>
+          </button>
+          <button class="card add" @click="newRosetteItem">
+            <q-icon name="hive" size="md" />
+            <div>New rosette</div>
+          </button>
+          <button class="card add" @click="importFile">
+            <q-icon name="upload_file" size="md" />
+            <div>Import<br /><span class="text-caption">.rrqepp</span></div>
+          </button>
+        </div>
+        <div v-for="c in g.cards" :key="c.id" class="card">
+          <button class="thumb" :aria-label="`Open ${c.name}`" @click="open(c)">
+            <EppThumb :polys="c.polys" :size="0" />
+          </button>
+          <div class="row items-center no-wrap">
+            <FullName class="col" :name="c.name" />
+            <q-btn flat round dense icon="more_vert" aria-label="Actions">
+              <q-menu auto-close>
+                <q-list dense style="min-width: 180px">
+                  <q-item clickable @click="open(c)">
+                    <q-item-section avatar class="menu-icon"><q-icon name="edit" /></q-item-section>
+                    <q-item-section>Open</q-item-section>
+                  </q-item>
+                  <q-item clickable @click="printItem(c)">
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="print"
+                    /></q-item-section>
+                    <q-item-section>Print</q-item-section>
+                  </q-item>
+                  <q-item v-if="c.mine && !ro" clickable @click="duplicate(c)">
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="content_copy"
+                    /></q-item-section>
+                    <q-item-section>Duplicate</q-item-section>
+                  </q-item>
+                  <q-item v-if="!c.mine && !ro" clickable @click="copyToProject(c)">
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="content_copy"
+                    /></q-item-section>
+                    <q-item-section>Edit a copy</q-item-section>
+                  </q-item>
+                  <q-item v-if="c.inProject" clickable @click="exportItem(c)">
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="file_download"
+                    /></q-item-section>
+                    <q-item-section>Export (.rrqepp)</q-item-section>
+                  </q-item>
+                  <q-item v-if="c.mine && !c.linked && !ro" clickable @click="toLibrary(c)">
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="collections_bookmark"
+                    /></q-item-section>
+                    <q-item-section>Add to {{ MY_LIBRARY }}</q-item-section>
+                  </q-item>
+                  <q-item v-if="c.mine && !ro" clickable @click="remove(c)">
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="delete" color="negative"
+                    /></q-item-section>
+                    <q-item-section class="text-negative">Delete</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </div>
           <div class="text-caption text-grey-7">{{ c.kind === 'shape' ? 'Shape' : 'Rosette' }}</div>
-          <q-btn
-            flat
-            round
-            dense
-            size="sm"
-            icon="more_vert"
-            class="menu"
-            aria-label="More"
-            @click.stop
-          >
-            <q-menu auto-close>
-              <q-list dense style="min-width: 180px">
-                <q-item clickable @click="open(c)"><q-item-section>Open</q-item-section></q-item>
-                <q-item v-if="c.mine && !ro" clickable @click="duplicate(c)">
-                  <q-item-section>Duplicate</q-item-section>
-                </q-item>
-                <q-item v-if="!c.mine && !ro" clickable @click="copyToProject(c)">
-                  <q-item-section>Edit a copy</q-item-section>
-                </q-item>
-                <q-item clickable @click="printItem(c)"
-                  ><q-item-section>Print</q-item-section></q-item
-                >
-                <q-item v-if="c.inProject" clickable @click="exportItem(c)">
-                  <q-item-section>Export (.rrqepp)</q-item-section>
-                </q-item>
-                <q-item v-if="c.mine && !c.linked && !ro" clickable @click="toLibrary(c)">
-                  <q-item-section>Add to {{ MY_LIBRARY }}</q-item-section>
-                </q-item>
-                <q-item v-if="c.mine && !ro" clickable @click="remove(c)">
-                  <q-item-section class="text-negative">Delete</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-btn>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -83,6 +92,7 @@ import { useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import EppThumb from '@/components/EppThumb.vue';
+import FullName from '@/components/FullName.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { useAuthor } from '@/composables/author';
 import { lookupEpp, rosetteLocal } from '@/model/epp/expand';
@@ -185,7 +195,7 @@ const groups = computed(() => {
     { label: 'Mine', cards: own },
     { label: 'From libraries, used here', cards: used },
     { label: 'Libraries', cards: libs },
-  ].filter((g) => g.cards.length);
+  ].filter((g, i) => i === 0 || g.cards.length);
 });
 
 const open = (c: Card) => void router.push(`/project/${c.kind}/${c.id}`);
@@ -306,28 +316,60 @@ function remove(c: Card) {
 </script>
 
 <style scoped>
+/* As the project's quilt and block cards (SketchbookPage). */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   grid-auto-rows: max-content;
-  align-content: start;
   align-items: start;
-  gap: 8px;
+  gap: 16px;
 }
 .card {
   position: relative;
-  padding: 8px;
   border: 1px solid rgba(128, 128, 128, 0.3);
   border-radius: 8px;
-  cursor: pointer;
+  padding: 8px;
+  background: transparent;
+  color: inherit;
   min-width: 0;
 }
-.card:hover {
-  border-color: var(--q-primary);
+.card.add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  cursor: pointer;
 }
-.menu {
-  position: absolute;
-  top: 2px;
-  right: 2px;
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* The same height with or without cards beside it (a card's height), not stretched by its row. */
+  align-self: start;
+  height: 204px;
+}
+.stack .card.add {
+  flex: 1;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 0;
+  padding: 8px 12px;
+  text-align: left;
+}
+.thumb {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: inherit;
+}
+.menu-icon {
+  min-width: 0;
+  padding-right: 12px;
 }
 </style>
