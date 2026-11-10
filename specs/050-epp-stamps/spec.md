@@ -128,7 +128,11 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
    it as one piece; turning offers the turns that keep a shared edge.
 4. **Given** the Paint tool on a placed rosette, **Then** tapping a piece of it paints that piece
    for this placement only (scope This), or for every placement of the rosette (scope All), as
-   painting a block in a quilt does. The rosette's colorings can be picked per placement.
+   painting a block in a quilt does. The rosette's colorings can be picked per placement. In the
+   picker, a rosette card with several colorings has a count badge to choose the one it's placed in.
+   Still to do: a way to change the coloring of a rosette already placed. Owner, 2026-11-10: "We
+   should have a method to change a rosette's selected color variation. We can leave that as a note
+   for now".
 5. **Given** a placed rosette, **When** the quilter uses the **Break into patches** tool, **Then** it becomes its
    individual pieces (fills kept, undoable), no longer linked. A rosette stays together until broken
    into patches.
