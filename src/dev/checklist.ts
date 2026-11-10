@@ -339,6 +339,12 @@ export const CHECKS: Check[] = [
     text: 'Print instructions is laid out as the Quilt editor’s Print tab: a tool rail with the zoom buttons (+, percent, −), the preview, and the sidebar (sides per Settings › toolbar left or right). Under the day or block pickers and Quilt notes, the sidebar has the editor’s Paper, Cutting, Templates (Tint by fabric is here now) and Look sections, and changing them changes the printout. The bar has a ? link to Help › Data quilts.',
     last: '"that print layout should use the same toolbar / sidebar setup..."',
   },
+  {
+    id: 'TC-271',
+    group: G.make041,
+    text: 'With no project open (after a reload, from a draft or a saved project in the Data Quilts list), Print instructions and Block by block show the preview and the sidebar.',
+    last: '"something is bugged and now the print preview doesn\'t show up at all. i restarted the dev server just in case"',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
