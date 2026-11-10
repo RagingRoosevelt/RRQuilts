@@ -333,6 +333,12 @@ export const CHECKS: Check[] = [
     text: 'Print instructions: the preview shrinks the page to fit the width on a phone or narrow window, as the Quilt editor’s Print tab does. The bar has the same zoom buttons (+, the percent to fit again, −), and Ctrl+wheel and pinch zoom.',
     last: '"the data quilt print page doesn\'t scale the print preview correctly like the other print previews do"',
   },
+  {
+    id: 'TC-270',
+    group: G.make041,
+    text: 'Print instructions is laid out as the Quilt editor’s Print tab: a tool rail with the zoom buttons (+, percent, −), the preview, and the sidebar (sides per Settings › toolbar left or right). Under the day or block pickers and Quilt notes, the sidebar has the editor’s Paper, Cutting, Templates (Tint by fabric is here now) and Look sections, and changing them changes the printout. The bar has a ? link to Help › Data quilts.',
+    last: '"that print layout should use the same toolbar / sidebar setup..."',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

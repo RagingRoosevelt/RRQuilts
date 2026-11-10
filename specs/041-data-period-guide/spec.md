@@ -142,6 +142,9 @@ for next steps. the user can select the days they want to get the printout for."
   the preview on narrow screens.
 - Owner, 2026-11-09: "the data quilt print page doesn't scale the print preview correctly like the
   other print previews do". The preview fits the width as in the editor, with its zoom buttons.
+- Owner, 2026-11-09: "that print layout should use the same toolbar / sidebar setup...". The page
+  has the editor's tool rail (zoom) and its sidebar sections (`PrintOptions` kind `steps`: Paper,
+  Cutting, Templates, Look) under the day and block pickers.
 
 ## Today
 

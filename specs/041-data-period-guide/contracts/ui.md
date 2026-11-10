@@ -49,8 +49,9 @@ Props: `{ projectId: string; quiltId: string }` (source resolved by the store). 
 
 - Mode: **Days** (picked days, a date range picker plus "Not cut yet") or **Block by block**
   (a number range, Jan to Mar, Wk 1 to 4).
-- Options: Tint by fabric (shared print pref `tint`), **Quilt notes** (pref `stepsNotes`, shown
-  only when the quilt has notes), paper and margins (shared prefs).
+- Options: **Quilt notes** (pref `stepsNotes`, shown only when the quilt has notes), then
+  `PrintOptions kind="steps"`: Paper, Cutting, Templates (Tint by fabric, pref `tint`), Look.
+- Layout as the editors' Print tab: bar, tool rail (`PrintZoom`), preview, sidebar.
 - Preview: `PrintPreview kind="steps"`; Print button prints it.
 - Bar above: back to Data Quilts, quilt and project names, ☰ shows or hides the options sidebar
   (beside the preview when wide, sliding over it under 1024 px and hidden at first, as the editors).
