@@ -528,40 +528,52 @@ const fabricStepOptions = computed(() =>
   FABRIC_STEPS[units.value].map((f) => ({ value: f.value, label: `Up to the next ${f.label}` })),
 );
 
+const eppQuilt = computed(() => props.kind === 'quilt' && printQuilt.value?.layout.style === 'epp');
 const sectionOptions = computed(() =>
-  props.kind === 'rosette'
+  eppQuilt.value
     ? [
-        { value: 'picture', label: 'Rosette sheet' },
+        { value: 'picture', label: 'Quilt picture' },
+        { value: 'yardage', label: 'Yardage estimate' },
         { value: 'paper', label: 'Paper templates (finished size)' },
-        { value: 'fabric', label: 'Fabric templates (with seam allowance)' },
+        { value: 'fabric', label: 'Fabric templates (with the quilt’s seam allowance)' },
       ]
-    : props.kind === 'block'
+    : props.kind === 'rosette'
       ? [
-          { value: 'picture', label: 'Block page (picture, fabric, credits)' },
-          { value: 'rotary', label: 'Rotary cutting chart' },
-          { value: 'templates', label: 'Templates' },
+          { value: 'picture', label: 'Rosette sheet' },
+          { value: 'paper', label: 'Paper templates (finished size)' },
+          { value: 'fabric', label: 'Fabric templates (with seam allowance)' },
         ]
-      : [
-          { value: 'picture', label: 'Quilt picture' },
-          { value: 'blocks', label: 'Block pages (picture, fabric, credits)' },
-          { value: 'yardage', label: 'Yardage estimate' },
-          { value: 'rotary', label: 'Rotary cutting chart' },
-          { value: 'templates', label: 'Templates (blocks and quilt pieces)' },
-        ],
+      : props.kind === 'block'
+        ? [
+            { value: 'picture', label: 'Block page (picture, fabric, credits)' },
+            { value: 'rotary', label: 'Rotary cutting chart' },
+            { value: 'templates', label: 'Templates' },
+          ]
+        : [
+            { value: 'picture', label: 'Quilt picture' },
+            { value: 'blocks', label: 'Block pages (picture, fabric, credits)' },
+            { value: 'yardage', label: 'Yardage estimate' },
+            { value: 'rotary', label: 'Rotary cutting chart' },
+            { value: 'templates', label: 'Templates (blocks and quilt pieces)' },
+          ],
 );
 const sections = computed<string[]>(() =>
-  props.kind === 'rosette'
-    ? prefs.value.rosetteSections
-    : props.kind === 'block'
-      ? prefs.value.blockSections
-      : prefs.value.quiltSections,
+  eppQuilt.value
+    ? prefs.value.eppQuiltSections
+    : props.kind === 'rosette'
+      ? prefs.value.rosetteSections
+      : props.kind === 'block'
+        ? prefs.value.blockSections
+        : prefs.value.quiltSections,
 );
 const setSections = (v: string[]) =>
-  props.kind === 'rosette'
-    ? set('rosetteSections', v as PrintPrefs['rosetteSections'])
-    : props.kind === 'block'
-      ? set('blockSections', v as PrintPrefs['blockSections'])
-      : set('quiltSections', v as PrintPrefs['quiltSections']);
+  eppQuilt.value
+    ? set('eppQuiltSections', v as PrintPrefs['eppQuiltSections'])
+    : props.kind === 'rosette'
+      ? set('rosetteSections', v as PrintPrefs['rosetteSections'])
+      : props.kind === 'block'
+        ? set('blockSections', v as PrintPrefs['blockSections'])
+        : set('quiltSections', v as PrintPrefs['quiltSections']);
 
 // Block size: its own, as used in a quilt (counts from that quilt), or custom.
 const block = computed(() =>

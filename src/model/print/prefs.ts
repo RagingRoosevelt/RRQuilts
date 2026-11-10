@@ -6,6 +6,8 @@ export type BlockSection = 'templates' | 'rotary' | 'picture';
 export type QuiltSection = 'picture' | 'blocks' | 'yardage' | 'rotary' | 'templates';
 /** Rosettes (spec 050 FR-006a): the rosette sheet, paper templates, fabric templates. */
 export type RosetteSection = 'picture' | 'paper' | 'fabric';
+/** EPP quilts (spec 027 US6). */
+export type EppQuiltSection = 'picture' | 'yardage' | 'paper' | 'fabric';
 
 const perUnits = <T>(inches: T, cm: T) => ({ in: inches, cm });
 
@@ -86,6 +88,7 @@ export const PRINT_DEFAULTS = {
   blockSections: ['templates', 'rotary'] as BlockSection[],
   quiltSections: ['picture', 'blocks', 'yardage', 'rotary', 'templates'] as QuiltSection[],
   rosetteSections: ['picture', 'paper', 'fabric'] as RosetteSection[],
+  eppQuiltSections: ['picture', 'yardage', 'paper', 'fabric'] as EppQuiltSection[],
   /** A rosette has no size: the length of 1U it prints at, and how many rosettes to cut for. */
   rosetteUnit: perUnits(1, 2.5),
   rosetteCount: 1,

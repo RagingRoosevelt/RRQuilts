@@ -5,7 +5,10 @@ import { fillKey } from '../coloring';
 import type { Pt } from '../geometry/path';
 import type { Piece } from '../print/pieces';
 import type { EppShape, Rosette } from '../schema/epp';
-import { rosetteLocal, type EppLookup } from './expand';
+import type { Quilt } from '../schema/quilt';
+import type { Fill } from '../schema/coloring';
+import { bbox } from './geometry';
+import { expandAll, rosetteLocal, type EppLookup } from './expand';
 
 /** A shape as a rosette of one piece (its fill in the one coloring). */
 export const shapeAsRosette = (shape: EppShape): Rosette => ({
@@ -28,4 +31,37 @@ export function rosettePieces(r: Rosette, lookup: EppLookup, unit: number, color
     marks: [],
   }));
   return { pieces, size: [Math.max(...xs) - x0, Math.max(...ys) - y0] as [number, number] };
+}
+
+/**
+ * An EPP quilt's pieces to cut (spec 027 US6), in project units: every piece and closing piece,
+ * through the shown colorway (`swap`); pieces wholly outside a Cut to size are left out (counted).
+ */
+export function eppQuiltPieces(
+  q: Quilt,
+  lookup: EppLookup,
+  swap: (f: Fill | undefined) => Fill | undefined = (f) => f,
+) {
+  if (q.layout.style !== 'epp' || !q.epp) return { pieces: [] as Piece[], outside: 0 };
+  const u = q.layout.unit;
+  const edge = q.layout.edge;
+  const close = edge.kind === 'close' ? edge.fill : undefined;
+  const all = [
+    ...expandAll(q.epp.pieces, lookup).map((l) => ({ poly: l.poly, fill: l.fill })),
+    ...(q.epp.closing ?? []).map((c) => ({ poly: c.outline, fill: close })),
+  ];
+  const inside = (poly: Pt[]) => {
+    if (edge.kind !== 'cut') return true;
+    const [x0, y0, x1, y1] = bbox([poly]);
+    const [a, b, c, d] = edge.rect;
+    return x1 > a && x0 < c && y1 > b && y0 < d;
+  };
+  const kept = all.filter((p) => inside(p.poly));
+  const pieces: Piece[] = kept.map((p) => ({
+    poly: p.poly.map(([x, y]): Pt => [x * u, y * u]),
+    curved: false,
+    fill: fillKey(swap(p.fill)),
+    marks: [],
+  }));
+  return { pieces, outside: all.length - kept.length };
 }

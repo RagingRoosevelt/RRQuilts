@@ -14,7 +14,7 @@
         >
           <q-step name="blocks" title="Layout" icon="grid_on">
             <!-- Data quilt (spec 025): pieces colored from a year of data; set up in its Data tab. -->
-            <div class="row items-center q-mb-sm" style="gap: 12px">
+            <div v-if="mode !== 'epp'" class="row items-center q-mb-sm" style="gap: 12px">
               <q-toggle v-model="dataOn" dense label="Data quilt" />
               <SlidePicker
                 v-if="dataOn"
@@ -28,7 +28,7 @@
                 label="Data plan"
               />
             </div>
-            <div v-if="dataOn" class="text-caption text-grey-7 q-mb-md">
+            <div v-if="dataOn && mode !== 'epp'" class="text-caption text-grey-7 q-mb-md">
               Each day's data colors its place, such as a year of temperatures. Pick a layout with a
               block space per month or week, or patches for days; the Data tab does the rest.
             </div>
@@ -43,10 +43,30 @@
               :options="[
                 { label: 'Blocks', value: 'blocks' },
                 { label: 'Patches', value: 'patches' },
+                { label: 'EPP', value: 'epp' },
               ]"
             />
+            <!-- English paper piecing (spec 027): shapes and rosettes placed edge to edge. -->
+            <div v-if="mode === 'epp'" class="column q-mb-md" style="gap: 12px; max-width: 360px">
+              <div class="text-body2">
+                Shapes and rosettes joined edge to edge, cut on paper templates. Every edge is a
+                number of units: set how long one unit is (you can change it later).
+              </div>
+              <LengthInput
+                v-model="eppUnit"
+                label="1U length"
+                :units="units"
+                :min="units === 'cm' ? 0.5 : 0.25"
+              />
+              <LengthInput v-model="eppSeam" label="Seam allowance" :units="units" :min="0" />
+            </div>
             <!-- Style cards: each drawn by the layout engine; later styles join the list. -->
-            <div class="styles q-mb-md" role="radiogroup" aria-label="Layout style">
+            <div
+              v-if="mode !== 'epp'"
+              class="styles q-mb-md"
+              role="radiogroup"
+              aria-label="Layout style"
+            >
               <button
                 v-for="c in styleCards"
                 :key="c.value"
@@ -72,6 +92,7 @@
               </button>
             </div>
             <TargetEditor
+              v-if="mode !== 'epp'"
               v-model="targetInput"
               :units="units"
               hint="Shown as an outline over the preview, to size the quilt to"
@@ -327,8 +348,11 @@
         </q-stepper>
         <!-- Live preview of the layout as it's being chosen (beside the steps; below on phones). -->
         <div class="preview q-pa-md">
+          <div v-if="mode === 'epp'" class="text-caption text-grey-7">
+            An EPP quilt starts empty: you place shapes and rosettes in its Design tab.
+          </div>
           <svg
-            v-if="preview"
+            v-else-if="preview"
             :viewBox="preview.box"
             class="preview-art"
             preserveAspectRatio="xMidYMin meet"
@@ -370,6 +394,7 @@
 </template>
 
 <script setup lang="ts">
+import { eppDefaults } from '@/model/epp/quilt-ops';
 import DataSpaceCount from '@/components/DataSpaceCount.vue';
 import { defaultDataYear, newDataPlan, numberCount } from '@/model/data-quilt';
 import type { DataPlan } from '@/model/schema/data-quilt';
@@ -428,7 +453,12 @@ const dataNeed = computed(() =>
 );
 // Layout and target size first; the chosen layout's own settings next (spec 006 FR-001a).
 const steps = ['blocks', 'detail', 'sashing', 'borders'];
-const next = computed(() => steps[steps.indexOf(step.value) + 1]);
+// An EPP quilt has only the first step (its edge and borders come later, in the editor).
+const next = computed(() =>
+  mode.value === 'epp' ? undefined : steps[steps.indexOf(step.value) + 1],
+);
+const eppUnit = ref(2);
+const eppSeam = ref(0.375);
 const detailTitle = computed(() =>
   isStrip.value
     ? 'Strips'
@@ -450,8 +480,9 @@ watch(isGarment, (g) => {
 });
 const style = ref<Style>('straight-set');
 /** Block layouts or patch layouts (spec 026). */
-const mode = ref<'blocks' | 'patches'>('blocks');
+const mode = ref<'blocks' | 'patches' | 'epp'>('blocks');
 watch(mode, (m) => {
+  if (m === 'epp') return void (step.value = 'blocks');
   if (!STYLES.find((x) => x.value === style.value)!.modes.includes(m))
     style.value = STYLES.find((x) => x.modes.includes(m))!.value;
 });
@@ -698,9 +729,13 @@ const shapeCards = SHAPES.map(([value, label]) => ({
 const blockShapeCards = shapeCards.filter((c) => FLOWS.includes(c.value));
 const allStyleCards = STYLES.map((x) => ({ ...x, picture: picture(x.sample, [])! }));
 /** The block shapes a Shaped Blocks quilt takes (spec 026), shown on its card. */
-const styleCards = computed(() => allStyleCards.filter((x) => x.modes.includes(mode.value)));
+const styleCards = computed(() =>
+  mode.value === 'epp' ? [] : allStyleCards.filter((x) => x.modes.includes(mode.value as 'blocks')),
+);
 
 const summary = computed(() => {
+  if (mode.value === 'epp')
+    return `1U = ${+eppUnit.value.toFixed(3)} ${props.units} · seam allowance ${+eppSeam.value.toFixed(3)} ${props.units}`;
   const [x0, y0, x1, y1] = generated.value.bounds;
   const n = (v: number) => +v.toFixed(2);
   const done = `Finished ${n(x1 - x0)} × ${n(y1 - y0)} ${props.units}`;
@@ -712,6 +747,15 @@ const summary = computed(() => {
 
 function create() {
   open.value = false;
+  if (mode.value === 'epp') {
+    const layout: Layout = {
+      style: 'epp',
+      unit: eppUnit.value,
+      seam: eppSeam.value,
+      edge: { kind: 'none' },
+    };
+    return emit('create', layout, []);
+  }
   // A plain copy: the project freezes what it's given, and these are live, editable objects.
   const t = targetShape.value;
   // The first garment or bed made becomes the quilter's own, until changed in Settings.
@@ -737,6 +781,7 @@ function show() {
   const cm = props.units === 'cm';
   step.value = 'blocks';
   mode.value = 'blocks';
+  ({ unit: eppUnit.value, seam: eppSeam.value } = eppDefaults(props.units));
   dataOn.value = false;
   dataPlan.value = 'months';
   style.value = 'straight-set';

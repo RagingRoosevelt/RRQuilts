@@ -273,7 +273,9 @@ export interface Reconciled {
 
 /** Which placed content survives a layout/border change. */
 export function reconcile(quilt: Quilt, layout: Layout, borders: Border[]): Reconciled {
-  const ids = new Set(generateSlots(layout, borders, edgeBlocks(quilt)).slots.map((s) => s.id));
+  const ids = new Set(
+    generateSlots(layout, borders, edgeBlocks(quilt), quilt.epp?.box).slots.map((s) => s.id),
+  );
   // Borders set aside by No fill keep their pieces' colors for when they come back.
   const setAside = layout.style === 'on-point' && layout.edge.finish === 'none';
   const slots: Record<string, SlotContent> = {};

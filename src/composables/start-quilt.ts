@@ -28,6 +28,8 @@ export function useStartQuilt() {
     const author = useSettingsStore().settings.author;
     const quilt = {
       ...createQuilt(`Quilt ${n}`, layout, borders),
+      // An EPP quilt (spec 027) holds its pieces.
+      ...(layout.style === 'epp' ? { epp: { pieces: [] } } : {}),
       ...(target ? { target } : {}),
       ...(author ? { author } : {}),
       license: project.doc!.project.license ?? DEFAULT_LICENSE,

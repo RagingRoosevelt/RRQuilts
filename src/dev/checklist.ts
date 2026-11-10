@@ -131,6 +131,18 @@ export const CHECKS: Check[] = [
     text: 'Rosette print: a rosette’s Print tab (or Print on its card). 1U length and How many rosettes change the counts (Hexagon Flower × 4 = 28 hexagons). Rosette sheet, Paper templates (finished size) and Fabric templates (with seam allowance) each on or off. Print at 100 % and measure: a 1 in hexagon’s edge is 1 in; a fabric template is one seam allowance larger all round.',
     to: '/project',
   },
+  {
+    id: 'TC-284',
+    group: G.epp027,
+    text: 'EPP quilt: Project › Quilts › New quilt › EPP: 1U length (starts 2 in, 5 cm in cm projects) and seam allowance (3/8 in, 1 cm), Create quilt. Design: the rosette editor’s tools on the quilt (Place, Turn, Mirror, Break into patches, Delete, Close space, Paint) with Apply to This / All / Same shape / Same fill; place a rosette (linked, one piece) and with Place rosettes ungrouped on (loose pieces); Free / Grow / Grid. Colorways show. Layout: change 1U, the quilt grows, pieces stay joined; Edge: No trimming, Cut to size (starts as the largest rectangle the pieces fill; type a width and height; dashed red cut line in Design), Auto-close (closing pieces fill the notches; Use the picked color or fabric for them). Borders: with No trimming it asks for an edge first; with an edge, borders go round it. The quilt card and Details picture show the pieces.',
+    to: '/project',
+  },
+  {
+    id: 'TC-285',
+    group: G.epp027,
+    text: 'EPP quilt print: Quilt picture, Yardage estimate, Paper templates (finished size) and Fabric templates (the quilt’s own seam allowance, not the print setting). At 1U = 2 in a hexagon’s paper template edge measures 2 in at 100 %; the fabric one is 3/8 in bigger all round. Closing pieces print too; with Cut to size, pieces wholly outside the cut are left out (the page says how many).',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

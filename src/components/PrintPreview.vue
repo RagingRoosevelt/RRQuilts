@@ -728,7 +728,7 @@ import {
 } from '@/model/credits';
 import { pathToSegs, flattenLoop, sub, type Pt } from '@/model/geometry/path';
 import { lookupEpp } from '@/model/epp/expand';
-import { rosettePieces, shapeAsRosette } from '@/model/epp/print';
+import { eppQuiltPieces, rosettePieces, shapeAsRosette } from '@/model/epp/print';
 import { generateFor } from '@/model/layout/slots';
 import { fmtFabric, fmtLen, splitApprox } from '@/model/print/format';
 import { pack, pillWidth, splitFlow, tiles, wrapPills } from '@/model/print/pack';
@@ -764,6 +764,7 @@ import {
 import type { Block } from '@/model/schema/block';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
+import { shownColorway, swapper } from '@/model/colorways';
 import type { Credit } from '@/model/schema/shared';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
@@ -797,7 +798,12 @@ const paper = computed(() => pick(PAPERS, prefs.value.paper[units.value]));
 /** Millimeters per project unit. */
 const mm = computed(() => (units.value === 'in' ? 25.4 : 10));
 const fmt = (x: number) => fmtLen(x, units.value);
-const seam = computed(() => prefs.value.seam[units.value]);
+/** The seam allowance: an EPP quilt's own (spec 027), else the print setting. */
+const seam = computed(() => {
+  const q =
+    props.kind === 'quilt' ? doc.value?.project.quilts.find((x) => x.id === props.id) : undefined;
+  return q?.layout.style === 'epp' ? q.layout.seam : prefs.value.seam[units.value];
+});
 /** A mitered strip's cut edge reaches this far past the finished corner. */
 const miterA = computed(() => seam.value * (1 + Math.SQRT2));
 const step = computed(() => prefs.value.rounding[units.value]);
@@ -1080,6 +1086,7 @@ const view = computed<View | undefined>(() => {
   if (props.kind === 'quilt') {
     const quilt = dd.project.quilts.find((q) => q.id === id);
     if (!quilt) return undefined;
+    if (quilt.layout.style === 'epp') return eppQuiltView(dd, quilt);
     const g = generateFor(quilt);
     const pieces = quiltPieces(dd, quilt);
     const [x0, y0, x1, y1] = g.bounds;
@@ -1156,6 +1163,41 @@ const view = computed<View | undefined>(() => {
     keyPieces: one,
   };
 });
+
+/** An EPP quilt (spec 027 US6): its pieces at its 1U length, borders round a made edge. */
+function eppQuiltView(dd: RrqDoc, quilt: Quilt): View {
+  const g = generateFor(quilt);
+  const lookup = lookupEpp(dd.project, quilt.epp?.shapes ?? [], library.lookup);
+  const { pieces, outside } = eppQuiltPieces(quilt, lookup, swapper(shownColorway(quilt)));
+  const [x0, y0, x1, y1] = g.bounds;
+  const xs = pieces.flatMap((p) => p.poly.map((q) => q[0]));
+  const ys = pieces.flatMap((p) => p.poly.map((q) => q[1]));
+  const [kx, ky] = [Math.min(...xs), Math.min(...ys)];
+  return {
+    title: quilt.notecard.name,
+    size:
+      sizeLabel(x1 - x0, y1 - y0) +
+      (outside ? ` · ${outside} pieces outside the cut left out` : ''),
+    byline: `By ${quilt.author ?? 'anonymous'} · ${licenseName(effectiveLicense(quilt, dd, quiltLock(dd, quilt)))}`,
+    author: quilt.author,
+    basedOn: priorCredits(quilt),
+    notes: quilt.notecard.notes,
+    blocks: [],
+    pieces,
+    picture: [
+      ...g.slots.map((s) => ({
+        d: d(flattenLoop(pathToSegs(s.outline, [1, 1]), 0.01)),
+        css: '#fff',
+      })),
+      ...pieces.map((p) => ({ d: d(p.poly), css: shapeFill(p.fill) })),
+    ],
+    pictureBox: g.bounds,
+    edge: flattenLoop(pathToSegs(g.edge, [1, 1]), 0.01),
+    trim: g.trim,
+    blockSize: pieces.length ? [Math.max(...xs) - kx, Math.max(...ys) - ky] : [1, 1],
+    keyPieces: pieces.map((p) => ({ ...p, poly: p.poly.map(([x, y]): Pt => [x - kx, y - ky]) })),
+  };
+}
 
 /** A rosette (spec 050 FR-006a): its pieces at the chosen 1U length, for the chosen number. */
 function rosetteView(dd: RrqDoc, id: string): View | undefined {
@@ -1408,7 +1450,14 @@ const logical = computed<Sheet[]>(() => {
   const v = view.value;
   if (!v) return [];
   const isBlock = props.kind === 'block';
-  const wanted: string[] = isBlock ? prefs.value.blockSections : prefs.value.quiltSections;
+  const eppQuilt =
+    props.kind === 'quilt' &&
+    doc.value!.project.quilts.find((q) => q.id === props.id)?.layout.style === 'epp';
+  const wanted: string[] = isBlock
+    ? prefs.value.blockSections
+    : eppQuilt
+      ? prefs.value.eppQuiltSections
+      : prefs.value.quiltSections;
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
   if (v.steps) return stepSheets(v.steps, v.notes, !!props.numbers?.length);
@@ -1418,8 +1467,25 @@ const logical = computed<Sheet[]>(() => {
   // templates (credits last); block: block page ("picture"), rotary, templates.
   const ORDER = isBlock
     ? ['picture', 'rotary', 'templates']
-    : ['picture', 'yardage', 'rotary', 'blocks', 'templates'];
+    : eppQuilt
+      ? ['picture', 'yardage', 'paper', 'fabric']
+      : ['picture', 'yardage', 'rotary', 'blocks', 'templates'];
   for (const section of ORDER.filter((x) => wanted.includes(x))) {
+    // EPP quilts: a paper and a fabric cutting template for every patch, keyed on the whole quilt.
+    if (section === 'paper' || section === 'fabric') {
+      out.push(
+        ...templateSheets({
+          pieces: v.pieces,
+          size: v.blockSize!,
+          keyPieces: v.keyPieces!,
+          heading: section === 'paper' ? 'Paper templates' : 'Fabric templates',
+          prefix: section === 'paper' ? 'P' : 'F',
+          bigKey: true,
+          withSeam: section === 'fabric',
+        }),
+      );
+      continue;
+    }
     if (section === 'picture' && isBlock && v.block) {
       const quilt = doc.value!.project.quilts.find((q) => q.id === props.target?.quilt);
       out.push(

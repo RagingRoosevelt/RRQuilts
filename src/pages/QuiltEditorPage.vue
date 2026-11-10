@@ -25,7 +25,10 @@
       </q-btn>
     </div>
 
+    <!-- An EPP quilt's Design tab (spec 027): its own canvas, tools and picker. -->
+    <EppDesign v-if="isEpp && editor.mode === 'design'" :quilt="quilt" :sidebar="editor.sidebar" />
     <div
+      v-else
       class="row col no-wrap"
       :class="{ reverse: appSettings.settings.sidesSwapped }"
       style="min-height: 0; position: relative"
@@ -218,6 +221,31 @@
             </template>
           </PaletteTray>
         </template>
+        <EppLayoutSection
+          v-else-if="editor.mode === 'layout' && isEpp"
+          :quilt="quilt"
+          :units="units"
+          :readonly="project.readOnly"
+        />
+        <div
+          v-else-if="editor.mode === 'borders' && isEpp && !eppEdgeMade"
+          class="column"
+          style="gap: 8px"
+        >
+          <div class="text-body2">
+            Borders and binding go round a finished edge. Pick an edge in Layout first (Cut to size
+            or Auto-close).
+          </div>
+          <q-btn
+            outline
+            dense
+            no-caps
+            icon="grid_on"
+            label="Go to Layout"
+            class="self-start q-px-sm"
+            @click="editor.mode = 'layout'"
+          />
+        </div>
         <template v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'">
           <DataSpaceCount
             v-if="quilt.data?.on"
@@ -260,6 +288,8 @@
 </template>
 
 <script setup lang="ts">
+import EppDesign from '@/components/EppDesign.vue';
+import EppLayoutSection from '@/components/EppLayoutSection.vue';
 import { ERASER } from '@/components/icons';
 import { useDataTab } from '@/composables/data-tab';
 import type { Block } from '@/model/schema/block';
@@ -335,6 +365,11 @@ const dataTypes = useDataTypes();
 const appSettings = useSettingsStore();
 
 const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === route.params.id));
+/** An EPP quilt (spec 027), and whether its edge is finished (borders need one). */
+const isEpp = computed(() => quilt.value?.layout.style === 'epp');
+const eppEdgeMade = computed(
+  () => quilt.value?.layout.style === 'epp' && quilt.value.layout.edge.kind !== 'none',
+);
 // Opening or making a data quilt shows the Data Quilts tab (unless it was hidden on purpose).
 const dataTab = useDataTab();
 watch(

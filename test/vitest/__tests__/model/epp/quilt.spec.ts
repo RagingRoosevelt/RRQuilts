@@ -135,3 +135,23 @@ describe('EPP quilt', () => {
     expect(edges(c[0]!.outline)).toHaveLength(4);
   });
 });
+
+describe('EPP quilt print pieces', () => {
+  it('pieces at the 1U length, closing pieces included, outside the cut left out', async () => {
+    const { eppQuiltPieces } = await import('@/model/epp/print');
+    const { templates } = await import('@/model/print/pieces');
+    const q = garden();
+    const plain = eppQuiltPieces(q, lookup);
+    expect(plain.pieces).toHaveLength(19);
+    expect(templates(plain.pieces)).toHaveLength(1);
+    // 1U = 2 in: a hexagon edge is 2 in.
+    const [a, b] = plain.pieces[0]!.poly;
+    expect(Math.hypot(b![0] - a![0], b![1] - a![1])).toBeCloseTo(2);
+    const closed = eppQuiltPieces(setEdge(q, { kind: 'close' }, lookup), lookup);
+    expect(closed.pieces.length).toBeGreaterThan(19);
+    // A small cut in the middle leaves the outer ring out.
+    const cut = eppQuiltPieces(setEdge(q, { kind: 'cut', rect: [-1, -1, 1, 1] }, lookup), lookup);
+    expect(cut.outside).toBeGreaterThan(0);
+    expect(cut.pieces.length + cut.outside).toBe(19);
+  });
+});

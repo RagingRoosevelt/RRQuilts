@@ -144,11 +144,11 @@ limits are listed in the plan's research).
 - [X] T047 [P] [US5] Create src/model/epp/quilt-ops.ts: `newEppQuilt(name, unit, seam)` (via `createQuilt` in src/model/new-quilt.ts with `layout: { style: 'epp', … }`, `epp: { pieces: [] }`), `placePiece`, `movePieces`, `paint(quilt, pieceId, rosettePieceId?, fill, scope: this | all | sameShape | sameFill)`, `breakIntoPatches(quilt, id)`, `makeRosette(doc, quilt, ids, name)` (selection → new rosette + one linked placement; placed rosettes copied in), `setUnit`, `setSeam`, `setEdge`
 - [X] T048 [P] [US5] Create src/model/epp/edge.ts: `cutRect(polys)` (largest axis-aligned rectangle fully covered, starting value for Cut to size), `autoClose(polys, rect?)` → closing `InternalShape[]` via `arrange()` of outer edges + the straight bounding rectangle (faces outside every piece, inside the rectangle), `edgeOutline(quilt)` (none: union outline; cut: rect; close: rect; custom: path) for size, borders and binding
 - [X] T049 [US5] Tests in test/vitest/__tests__/model/epp/quilt-ops.spec.ts and edge.spec.ts (unit change scales size, arrangement unchanged; Make rosette replaces the selection by one placement; autoClose on a 19-hexagon flower yields closing pieces whose union with the flower is the rectangle; paint scopes)
-- [ ] T050 [US5] Quilt wizard: **EPP quilt** choice in src/components/QuiltWizard.vue asking name, 1U length and seam allowance; creates through `useStartQuilt` (src/composables/start-quilt.ts) and opens the editor
-- [ ] T051 [US5] src/pages/QuiltEditorPage.vue: when `layout.style === 'epp'`, the Design tab mounts a new src/components/EppDesign.vue (EppCanvas + tool rail + EppPicker + `QuiltColorways` + Paint scopes This / All / Same shape / Same fill + Make rosette + Break into patches + Place rosettes ungrouped) instead of `QuiltCanvas` and block tools; Layout tab shows src/components/EppLayoutSection.vue (1U, seam, Edge: No trimming / Cut to size with size inputs and draggable sides / Auto-close with closing fill / Custom trim waits for spec 055 (owner, 2026-11-10)); Borders tab disabled with "Pick an edge in Layout first" and a button to Layout when edge is `none`
-- [ ] T052 [US5] Borders and binding around `edgeOutline` for made edges in src/model/layout/borders.ts (plain borders around any outline; pieced styles only on the rectangle from Cut to size and Auto-close); quilt size and Details use the edge outline (bounding box labeled as such for No trimming)
-- [ ] T053 [US5] Drawing outside a trim: pieces wholly outside faded, crossing pieces clipped visually at the trim; overlaps tinted; colorways applied to EPP fills in `drawQuilt`/EppCanvas lookup
-- [ ] T054 [US5] Checklist TC-284 (EPP quilt: wizard, Design tools, 1U change, edges, borders gating, colorways)
+- [X] T050 [US5] Quilt wizard: **EPP quilt** choice in src/components/QuiltWizard.vue asking name, 1U length and seam allowance; creates through `useStartQuilt` (src/composables/start-quilt.ts) and opens the editor
+- [X] T051 [US5] src/pages/QuiltEditorPage.vue: when `layout.style === 'epp'`, the Design tab mounts a new src/components/EppDesign.vue (EppCanvas + tool rail + EppPicker + `QuiltColorways` + Paint scopes This / All / Same shape / Same fill + Make rosette + Break into patches + Place rosettes ungrouped) instead of `QuiltCanvas` and block tools; Layout tab shows src/components/EppLayoutSection.vue (1U, seam, Edge: No trimming / Cut to size with size inputs and draggable sides / Auto-close with closing fill / Custom trim waits for spec 055 (owner, 2026-11-10)); Borders tab disabled with "Pick an edge in Layout first" and a button to Layout when edge is `none`
+- [X] T052 [US5] Borders and binding around `edgeOutline` for made edges in src/model/layout/borders.ts (plain borders around any outline; pieced styles only on the rectangle from Cut to size and Auto-close); quilt size and Details use the edge outline (bounding box labeled as such for No trimming)
+- [X] T053 [US5] Drawing outside a trim: pieces wholly outside faded, crossing pieces clipped visually at the trim; overlaps tinted; colorways applied to EPP fills in `drawQuilt`/EppCanvas lookup
+- [X] T054 [US5] Checklist TC-284 (EPP quilt: wizard, Design tools, 1U change, edges, borders gating, colorways)
 
 ---
 
@@ -158,10 +158,10 @@ limits are listed in the plan's research).
 
 **Independent Test**: quickstart Phase 2 step 3.
 
-- [ ] T055 [US6] `PrintPreview.vue`/`PrintOptions.vue` `kind: 'quilt'` EPP branch: expand all pieces (closing pieces included), `eppTemplates` at the quilt's unit and seam, Paper / Fabric / Both and copies (count used, per fill, one of each), pieces wholly outside the trim left out with a note, trim line and size noted, 1 in test square, rosette sheet, credits
-- [ ] T056 [US6] Yardage for EPP quilts in src/model/print/yardage.ts: fabric templates' areas per fill (packed estimate as for templates today), plus borders and binding when on
-- [ ] T057 [US6] Tests in test/vitest/__tests__/model/epp/quilt-print.spec.ts (counts per shape/scale/mirror/fill; outside-trim pieces excluded; yardage grows with seam allowance)
-- [ ] T058 [US6] Checklist TC-285 (EPP quilt print: templates at 100 %, counts, yardage, trim notes)
+- [X] T055 [US6] `PrintPreview.vue`/`PrintOptions.vue` `kind: 'quilt'` EPP branch: expand all pieces (closing pieces included), `eppTemplates` at the quilt's unit and seam, Paper / Fabric / Both and copies (count used, per fill, one of each), pieces wholly outside the trim left out with a note, trim line and size noted, 1 in test square, rosette sheet, credits
+- [X] T056 [US6] Yardage for EPP quilts in src/model/print/yardage.ts: fabric templates' areas per fill (packed estimate as for templates today), plus borders and binding when on
+- [X] T057 [US6] Tests in test/vitest/__tests__/model/epp/quilt-print.spec.ts (counts per shape/scale/mirror/fill; outside-trim pieces excluded; yardage grows with seam allowance)
+- [X] T058 [US6] Checklist TC-285 (EPP quilt print: templates at 100 %, counts, yardage, trim notes)
 
 **Checkpoint**: phase 2 complete. **Stop for the owner to try it.**
 
