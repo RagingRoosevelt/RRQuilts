@@ -1,6 +1,6 @@
 # Feature Specification: Quilt Shapes (Non-Rectangular Quilts)
 
-**Feature Branch**: `TBD` (no target version yet)
+**Feature Branch**: `TBD` (target 0.11.0)
 
 **Created**: 2026-11-10
 

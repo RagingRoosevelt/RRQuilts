@@ -1,6 +1,6 @@
 # Feature Specification: Blocks Spanning Several Block Spaces
 
-**Feature Branch**: `TBD` (no target version yet)
+**Feature Branch**: `TBD` (target 0.10.0)
 
 **Created**: 2026-11-10
 
