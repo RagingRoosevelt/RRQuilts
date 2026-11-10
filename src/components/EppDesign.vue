@@ -63,69 +63,77 @@
 
     <div v-show="sidebar" class="inspector q-pa-md scroll column no-wrap" style="gap: 12px">
       <QuiltColorways :quilt="quilt" mode="panel" :readonly="ro" />
-      <div>
-        <div class="text-subtitle2">Placement</div>
-        <SlidePicker
-          :model-value="prefs.mode"
-          :options="MODES.map((m) => ({ value: m.id, label: m.label }))"
-          @update:model-value="(v: string) => setPref('mode', v as EppPrefs['mode'])"
-        />
-        <div class="text-caption text-grey-7 q-mt-xs">
-          {{ MODES.find((m) => m.id === prefs.mode)?.hint }}
-        </div>
-      </div>
-      <template v-if="prefs.mode === 'grid'">
-        <q-btn
-          :outline="!epp.draggingGrid"
-          :unelevated="epp.draggingGrid"
-          :color="epp.draggingGrid ? 'primary' : undefined"
-          no-caps
-          dense
-          icon="open_with"
-          label="Drag grid"
-          class="self-start q-px-sm"
-          @click="epp.draggingGrid = !epp.draggingGrid"
-        />
-        <q-toggle
-          :model-value="prefs.syncGrid"
-          dense
-          label="Sync grid to selected size"
-          @update:model-value="(v: boolean) => setPref('syncGrid', v)"
-        />
-      </template>
-      <div v-if="tool === 'paint'" class="row items-center" style="gap: 8px">
-        <span class="text-caption">Apply to</span>
-        <q-btn-toggle
-          v-model="scope"
-          dense
-          no-caps
-          :options="[
-            { label: 'This', value: 'this' },
-            { label: 'All', value: 'all' },
-            { label: 'Same shape', value: 'shape' },
-            { label: 'Same fill', value: 'fill' },
-          ]"
-        />
-      </div>
-      <EppPicker
-        v-model:picked="epp.picked"
-        v-model:scale="epp.scale"
-        v-model:ungrouped="ungrouped"
-        show-ungrouped
-        :groups="pickerGroups"
-        :lookup="lookup"
-        :paint="cssFill"
-        :fit="prefs.mode === 'grow' && hoverEdge ? fitOnEdge : undefined"
-      />
-      <q-expansion-item
-        dense
-        default-opened
-        label="Colors and fabrics"
-        header-class="text-subtitle2"
-      >
-        <PaletteTray colors-only sidebar />
-      </q-expansion-item>
       <div class="text-caption text-grey-7">{{ toolHint }}</div>
+      <!-- Paint: where it applies and the colors first; the shape picker steps aside. -->
+      <template v-if="tool === 'paint'">
+        <div class="row items-center" style="gap: 8px">
+          <span class="text-caption">Apply to</span>
+          <q-btn-toggle
+            v-model="scope"
+            dense
+            no-caps
+            :options="[
+              { label: 'This', value: 'this' },
+              { label: 'All', value: 'all' },
+              { label: 'Same shape', value: 'shape' },
+              { label: 'Same fill', value: 'fill' },
+            ]"
+          />
+        </div>
+        <q-expansion-item
+          dense
+          default-opened
+          label="Colors and fabrics"
+          header-class="text-subtitle2"
+        >
+          <PaletteTray colors-only sidebar />
+        </q-expansion-item>
+      </template>
+      <template v-else>
+        <div>
+          <div class="text-subtitle2">Placement</div>
+          <SlidePicker
+            :model-value="prefs.mode"
+            :options="MODES.map((m) => ({ value: m.id, label: m.label }))"
+            @update:model-value="(v: string) => setPref('mode', v as EppPrefs['mode'])"
+          />
+          <div class="text-caption text-grey-7 q-mt-xs">
+            {{ MODES.find((m) => m.id === prefs.mode)?.hint }}
+          </div>
+        </div>
+        <template v-if="prefs.mode === 'grid'">
+          <q-btn
+            :outline="!epp.draggingGrid"
+            :unelevated="epp.draggingGrid"
+            :color="epp.draggingGrid ? 'primary' : undefined"
+            no-caps
+            dense
+            icon="open_with"
+            label="Drag grid"
+            class="self-start q-px-sm"
+            @click="epp.draggingGrid = !epp.draggingGrid"
+          />
+          <q-toggle
+            :model-value="prefs.syncGrid"
+            dense
+            label="Sync grid to selected size"
+            @update:model-value="(v: boolean) => setPref('syncGrid', v)"
+          />
+        </template>
+        <EppPicker
+          v-model:picked="epp.picked"
+          v-model:scale="epp.scale"
+          v-model:ungrouped="ungrouped"
+          show-ungrouped
+          :groups="pickerGroups"
+          :lookup="lookup"
+          :paint="cssFill"
+          :fit="prefs.mode === 'grow' && hoverEdge ? fitOnEdge : undefined"
+        />
+        <div class="text-caption text-grey-7">
+          To color pieces, pick the <b>Paint</b> tool (the roller) in the toolbar.
+        </div>
+      </template>
     </div>
   </div>
 </template>

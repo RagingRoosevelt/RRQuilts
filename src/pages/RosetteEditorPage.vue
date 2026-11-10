@@ -106,95 +106,102 @@
         <DetailsPanel v-if="tab === 'details'" kind="rosette" :id="rosette.id" />
         <PrintOptions v-else-if="tab === 'print'" kind="rosette" :id="rosette.id" />
         <template v-else>
-          <div>
-            <div class="text-subtitle2">Placement</div>
-            <SlidePicker
-              :model-value="prefs.mode"
-              :options="MODES.map((m) => ({ value: m.id, label: m.label }))"
-              @update:model-value="(v: string) => setPref('mode', v as EppPrefs['mode'])"
-            />
-            <div class="text-caption text-grey-7 q-mt-xs">
-              {{ MODES.find((m) => m.id === prefs.mode)?.hint }}
-            </div>
-          </div>
-          <template v-if="prefs.mode === 'grid'">
-            <q-btn
-              :outline="!epp.draggingGrid"
-              :unelevated="epp.draggingGrid"
-              :color="epp.draggingGrid ? 'primary' : undefined"
-              no-caps
-              dense
-              icon="open_with"
-              label="Drag grid"
-              class="self-start q-px-sm"
-              @click="epp.draggingGrid = !epp.draggingGrid"
-            >
-              <q-tooltip>Drag the grid until it lines up with a placed piece</q-tooltip>
-            </q-btn>
-            <q-toggle
-              :model-value="prefs.syncGrid"
-              dense
-              label="Sync grid to selected size"
-              @update:model-value="(v: boolean) => setPref('syncGrid', v)"
-            />
-          </template>
-          <EppPicker
-            v-model:picked="epp.picked"
-            v-model:scale="epp.scale"
-            :groups="pickerGroups"
-            :lookup="lookup"
-            :paint="cssFill"
-            :fit="prefs.mode === 'grow' && hoverEdge ? fitOnEdge : undefined"
-          />
-          <div class="text-caption text-grey-7">
-            Rosettes placed in a rosette become its pieces (they don’t stay linked).
-          </div>
-          <q-separator />
-          <div class="text-subtitle2">Colorings</div>
-          <div class="row" style="gap: 6px">
-            <q-chip
-              v-for="(c, i) in rosette.colorings"
-              :key="c.id"
-              clickable
-              :outline="c.id !== coloringId"
-              :color="c.id === coloringId ? 'primary' : undefined"
-              :text-color="c.id === coloringId ? 'white' : undefined"
-              :removable="!ro && rosette.colorings.length > 1"
-              @click="coloringId = c.id"
-              @remove="edit((r) => deleteColoring(r, c.id))"
-            >
-              {{ c.name ?? `Coloring ${i + 1}` }}
-            </q-chip>
-          </div>
-          <div class="row" style="gap: 8px">
-            <q-btn
-              outline
-              dense
-              no-caps
-              icon="add"
-              label="New coloring"
-              :disable="ro"
-              @click="newColoring()"
-            />
-            <q-btn
-              outline
-              dense
-              no-caps
-              icon="content_copy"
-              label="Copy"
-              :disable="ro"
-              @click="newColoring(coloringId)"
-            />
-          </div>
-          <q-expansion-item
-            dense
-            default-opened
-            label="Colors and fabrics"
-            header-class="text-subtitle2"
-          >
-            <PaletteTray colors-only sidebar />
-          </q-expansion-item>
           <div class="text-caption text-grey-7">{{ toolHint }}</div>
+          <!-- Paint: colorings and colors first; the shape picker steps aside. -->
+          <template v-if="epp.rosetteTool === 'paint'">
+            <div class="text-subtitle2">Colorings</div>
+            <div class="row" style="gap: 6px">
+              <q-chip
+                v-for="(c, i) in rosette.colorings"
+                :key="c.id"
+                clickable
+                :outline="c.id !== coloringId"
+                :color="c.id === coloringId ? 'primary' : undefined"
+                :text-color="c.id === coloringId ? 'white' : undefined"
+                :removable="!ro && rosette.colorings.length > 1"
+                @click="coloringId = c.id"
+                @remove="edit((r) => deleteColoring(r, c.id))"
+              >
+                {{ c.name ?? `Coloring ${i + 1}` }}
+              </q-chip>
+            </div>
+            <div class="row" style="gap: 8px">
+              <q-btn
+                outline
+                dense
+                no-caps
+                icon="add"
+                label="New coloring"
+                :disable="ro"
+                @click="newColoring()"
+              />
+              <q-btn
+                outline
+                dense
+                no-caps
+                icon="content_copy"
+                label="Copy"
+                :disable="ro"
+                @click="newColoring(coloringId)"
+              />
+            </div>
+            <q-expansion-item
+              dense
+              default-opened
+              label="Colors and fabrics"
+              header-class="text-subtitle2"
+            >
+              <PaletteTray colors-only sidebar />
+            </q-expansion-item>
+          </template>
+          <template v-else>
+            <div>
+              <div class="text-subtitle2">Placement</div>
+              <SlidePicker
+                :model-value="prefs.mode"
+                :options="MODES.map((m) => ({ value: m.id, label: m.label }))"
+                @update:model-value="(v: string) => setPref('mode', v as EppPrefs['mode'])"
+              />
+              <div class="text-caption text-grey-7 q-mt-xs">
+                {{ MODES.find((m) => m.id === prefs.mode)?.hint }}
+              </div>
+            </div>
+            <template v-if="prefs.mode === 'grid'">
+              <q-btn
+                :outline="!epp.draggingGrid"
+                :unelevated="epp.draggingGrid"
+                :color="epp.draggingGrid ? 'primary' : undefined"
+                no-caps
+                dense
+                icon="open_with"
+                label="Drag grid"
+                class="self-start q-px-sm"
+                @click="epp.draggingGrid = !epp.draggingGrid"
+              >
+                <q-tooltip>Drag the grid until it lines up with a placed piece</q-tooltip>
+              </q-btn>
+              <q-toggle
+                :model-value="prefs.syncGrid"
+                dense
+                label="Sync grid to selected size"
+                @update:model-value="(v: boolean) => setPref('syncGrid', v)"
+              />
+            </template>
+            <EppPicker
+              v-model:picked="epp.picked"
+              v-model:scale="epp.scale"
+              :groups="pickerGroups"
+              :lookup="lookup"
+              :paint="cssFill"
+              :fit="prefs.mode === 'grow' && hoverEdge ? fitOnEdge : undefined"
+            />
+            <div class="text-caption text-grey-7">
+              Rosettes placed in a rosette become its pieces (they don’t stay linked).
+            </div>
+            <div class="text-caption text-grey-7">
+              To color pieces, pick the <b>Paint</b> tool (the roller) in the toolbar.
+            </div>
+          </template>
         </template>
       </div>
     </div>
