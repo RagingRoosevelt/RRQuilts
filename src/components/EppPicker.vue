@@ -24,6 +24,7 @@
       />
     </div>
     <q-separator />
+    <div class="text-subtitle2">Shapes and rosettes</div>
     <SlidePicker
       v-model="filter"
       :options="[
