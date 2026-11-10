@@ -157,6 +157,13 @@ export const CHECKS: Check[] = [
     last: 'cut-to-size is leaving weird bumps on the top of the quilt / it looks like the size it used is right but it is shifted towards the top too much',
     to: '/project',
   },
+  {
+    id: 'TC-289',
+    group: G.epp027,
+    text: 'Largest rectangle the pieces fill snaps to piece corners: after it finds the rectangle, each corner of the cut looks for piece corners within 1/4 U (in or out) and the cut lands as many of its four corners on piece corners as it can (the smallest move wins a tie). Try a few layouts (hexagons in rows, stars, diamonds): the dashed cut corners sit on piece corners where one is close.',
+    last: 'largest rectangle fill should snap to close vertices after finding the largest rectangle / shouldn’t necessarily be inward. just look for vertices in a 0.25u radius of the rectangle vertex and maximize the number of rectangle vertices that end up sharing a vertex with a shape vertex',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

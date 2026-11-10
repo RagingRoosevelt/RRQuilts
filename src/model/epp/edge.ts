@@ -80,7 +80,47 @@ export function cutRect(polys: readonly Poly[], step = 0.25): Box | null {
       stack.push(c);
     }
   }
-  return best ? grow(polys, best.box, step) : null;
+  return best ? snapCorners(grow(polys, best.box, step), polys.flat(), step) : null;
+}
+
+/**
+ * The cut's corners snapped to piece corners (owner, 2026-11-10): each side may move to a piece
+ * corner within `reach` of one of the cut's own corners, in or out; the box that lands the most of
+ * its four corners on piece corners wins, then the one that moves least.
+ */
+export function snapCorners(box: Box, corners: readonly Pt[], reach: number): Box {
+  const [x0, y0, x1, y1] = box;
+  const rc: Pt[] = [
+    [x0, y0],
+    [x1, y0],
+    [x1, y1],
+    [x0, y1],
+  ];
+  const near = corners.filter((c) => rc.some((r) => Math.hypot(c[0] - r[0], c[1] - r[1]) <= reach));
+  // Each side's choices: where it is, or a near piece corner's x (left, right) or y (top, bottom).
+  const opts = (v: number, axis: 0 | 1) => [
+    v,
+    ...near.map((c) => c[axis]).filter((u) => Math.abs(u - v) <= reach),
+  ];
+  const on = (p: Pt) => near.some((c) => Math.hypot(c[0] - p[0], c[1] - p[1]) < 1e-6);
+  let best = { hits: -1, moved: Infinity, box };
+  for (const a of opts(x0, 0))
+    for (const b of opts(y0, 1))
+      for (const c of opts(x1, 0))
+        for (const d of opts(y1, 1)) {
+          if (c - a < reach || d - b < reach) continue;
+          const pts: Pt[] = [
+            [a, b],
+            [c, b],
+            [c, d],
+            [a, d],
+          ];
+          const hits = pts.filter(on).length;
+          const moved = Math.abs(a - x0) + Math.abs(b - y0) + Math.abs(c - x1) + Math.abs(d - y1);
+          if (hits > best.hits || (hits === best.hits && moved < best.moved - 1e-9))
+            best = { hits, moved, box: [a, b, c, d] };
+        }
+  return best.box;
 }
 
 /** Each side of a covered box pushed out (up to `reach`) while the side stays covered. */

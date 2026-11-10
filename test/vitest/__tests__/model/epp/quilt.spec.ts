@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { eppStarters } from '@/content/epp';
-import { autoClose, cutRect } from '@/model/epp/edge';
+import { autoClose, cutRect, snapCorners } from '@/model/epp/edge';
 import { lookupEpp } from '@/model/epp/expand';
 import { bbox, edges, place } from '@/model/epp/geometry';
 import {
@@ -220,5 +220,22 @@ describe('EPP quilt print pieces', () => {
     const h = Math.sqrt(3) / 2;
     const want = [-1.4057157092264432 - 1, y - h, 1.5942842907735557 + 1, y + h];
     r.forEach((v, i) => expect(v).toBeCloseTo(want[i]!, 5));
+  });
+
+  it('cut to size corners snap to piece corners within 1/4 U, in or out, most corners first', () => {
+    // Top-left and top-right both land (2 corners, moving 0.4) beats top-left and bottom-right
+    // (2 corners, moving 0.6); [2, 1] is near no corner.
+    const corners: [number, number][] = [
+      [0.1, -0.2],
+      [3.9, -0.2],
+      [4.2, 3.1],
+      [2, 1],
+    ];
+    expect(snapCorners([0, 0, 4, 3], corners, 0.25)).toEqual([0.1, -0.2, 3.9, 3]);
+    // Three corners beat two.
+    expect(snapCorners([0, 0, 4, 3], [...corners, [0.1, 3.1], [3.9, 3.1]], 0.25)).toEqual([
+      0.1, -0.2, 3.9, 3.1,
+    ]);
+    expect(snapCorners([0, 0, 4, 3], [], 0.25)).toEqual([0, 0, 4, 3]);
   });
 });
