@@ -267,6 +267,12 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   undo; groups can be saved as stamps (spec 050).
 - **FR-006**: Quilters MUST be able to create, copy and edit EPP shapes (edge lengths in units,
   angles, or a snapping grid) with validation that the outline closes and doesn't cross itself.
+  Owner, 2026-11-10: "we should have a shape/stamp/rosette editor. it should have a banner that
+  shows as long as at least one patche doesn't meet the following criteria: 1. closes, 2. doesn't
+  cross itself, 3. every edge is a whole unit, 4. each shape is convex. each check should be shown
+  as a flag as you're editing." So shapes, stamps and rosettes share one editor (a shape is an item
+  of one patch), every patch shows four flags while editing (closes, doesn't cross itself, whole-unit
+  edges, convex), and a banner names the failing patches until all pass. Shapes MUST be convex.
 - **FR-007**: EPP shapes and stamps (spec 050) MUST be library items: built-in starters, My library, packs,
   embedding, sync and credits, as blocks are (specs 008, 009, 011).
 - **FR-008**: Printing MUST produce paper templates (no seam allowance) and fabric templates (with
@@ -301,7 +307,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 
 ## Assumptions
 
-- Shapes are straight-sided in the first release (no curves); their corners can be any angle.
+- Shapes are straight-sided and convex in the first release (no curves); their corners can be any
+  angle under 180°.
 - An EPP quilt has no target rectangle; the wizard's target sizes (spec 006) don't apply, though a
   size to aim at may be shown as a guide.
 - An EPP quilt is a whole quilt; mixing EPP pieces into a layout-engine quilt (e.g. appliquéd

@@ -48,6 +48,9 @@ one placed Flower.
    parts (allowed: a stamp can be a spaced motif), and its outline is each part's.
 3. **Given** the stamp, **Then** it can also be made or edited in a **stamp editor**: the same
    design area with only the stamp's pieces, from the project's EPP items or the picker's ⋮ menu.
+   Owner, 2026-11-10: one editor for shapes, stamps and rosettes, with each patch flagged as it's
+   edited (closes, doesn't cross itself, whole-unit edges, convex) and a banner while any patch
+   fails (spec 027 FR-006).
 4. **Given** fills, **Then** pieces of the same fill become one slot, so recoloring a slot recolors
    all of them (the quilter can split or merge slots in the stamp editor).
 
