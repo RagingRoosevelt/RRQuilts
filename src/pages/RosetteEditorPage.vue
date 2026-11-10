@@ -409,7 +409,15 @@ function pickedPolys(pose: Pose): Poly[] {
   if (s) return [place(s.outline, pose)];
   const r = lookup.value.rosette(pick);
   if (!r) return [];
-  const piece = { id: 'ghost', rosette: r.id, at: pose.at, turn: pose.turn, scale: pose.scale };
+  const coloring = epp.coloringOf.get(r.id);
+  const piece = {
+    id: 'ghost',
+    rosette: r.id,
+    at: pose.at,
+    turn: pose.turn,
+    scale: pose.scale,
+    ...(coloring ? { coloring } : {}),
+  };
   return expand(pose.mirror ? { ...piece, mirror: true } : piece, lookup.value).map((l) => l.poly);
 }
 const pickedShape = computed(() => (epp.picked ? lookup.value.shape(epp.picked) : undefined));
@@ -532,7 +540,8 @@ function placeAt(pose: Pose) {
   if (s)
     return edit((r) => addPiece(r, pick, pose, paintNow() ?? ('fill' in s ? s.fill : undefined)));
   const other = lookup.value.rosette(pick);
-  if (other) edit((r) => copyIn(r, other, lookup.value, pose));
+  // In the coloring picked on its card.
+  if (other) edit((r) => copyIn(r, other, lookup.value, pose, epp.coloringOf.get(pick)));
 }
 
 function onTap(p: World) {

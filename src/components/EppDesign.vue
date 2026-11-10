@@ -319,7 +319,9 @@ const pickedPiece = (pose: Pose): EppPiece => {
     scale: pose.scale,
     ...(pose.mirror ? { mirror: true } : {}),
   };
-  return pickedShape.value ? { ...base, shape: epp.picked! } : { ...base, rosette: epp.picked! };
+  if (pickedShape.value) return { ...base, shape: epp.picked! };
+  const coloring = epp.coloringOf.get(epp.picked!);
+  return { ...base, rosette: epp.picked!, ...(coloring ? { coloring } : {}) };
 };
 const polysOf = (p: EppPiece) => expand(p, lookup.value).map((l) => l.poly);
 
@@ -415,6 +417,7 @@ function placeAt(pose: Pose) {
     ...piecePose(pose),
     ...(s ? { shape: pick } : { rosette: pick }),
     ...(s && fill ? { fills: { '': fill } } : {}),
+    ...(!s && epp.coloringOf.get(pick) ? { coloring: epp.coloringOf.get(pick)! } : {}),
   };
   edit((q) => {
     const { quilt, id } = addPiece(q, piece);

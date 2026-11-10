@@ -51,6 +51,31 @@
         >
           <EppThumb :polys="c.polys" />
           <div class="text-caption ellipsis full-width">{{ c.name }}</div>
+          <!-- A rosette with several colorings: choose which one shows and is placed. -->
+          <span
+            v-if="c.colorings.length > 1"
+            class="count"
+            role="button"
+            title="Choose coloring"
+            @click.stop
+            >{{ c.colorings.length }}
+            <q-menu>
+              <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+                <button
+                  v-for="k in c.colorings"
+                  :key="k.id"
+                  v-close-popup
+                  type="button"
+                  class="pick-coloring"
+                  :class="{ active: k.id === c.coloring }"
+                  :title="k.name"
+                  @click="pickColoring(c.id, k.id)"
+                >
+                  <EppThumb :polys="k.polys" />
+                </button>
+              </div>
+            </q-menu>
+          </span>
         </button>
       </div>
     </div>
@@ -63,6 +88,7 @@
 // In Grow mode, while an edge is hovered, cards show whether they fit it (`fit`).
 import { computed, ref } from 'vue';
 import EppThumb from '@/components/EppThumb.vue';
+import { useEppEditorStore } from '@/stores/epp-editor';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { rosetteLocal, type EppLookup } from '@/model/epp/expand';
 import { place, type Poly } from '@/model/epp/geometry';
@@ -92,9 +118,42 @@ const emit = defineEmits<{
   'update:ungrouped': [v: boolean];
 }>();
 
+const epp = useEppEditorStore();
 const filter = ref<'all' | 'shapes' | 'rosettes'>('all');
-function card(id: string, name: string, polys: { poly: Poly; fill?: Fill | undefined }[]) {
-  return { id, name, polys: polys.map((p) => ({ poly: p.poly, fill: props.paint(p.fill) })) };
+const css = (polys: { poly: Poly; fill?: Fill | undefined }[]) =>
+  polys.map((p) => ({ poly: p.poly, fill: props.paint(p.fill) }));
+interface Card {
+  id: string;
+  name: string;
+  polys: { poly: Poly; fill?: string | undefined }[];
+  coloring?: string | undefined;
+  colorings: { id: string; name: string; polys: { poly: Poly; fill?: string | undefined }[] }[];
+}
+function card(id: string, name: string, polys: { poly: Poly; fill?: Fill | undefined }[]): Card {
+  return { id, name, polys: css(polys), colorings: [] };
+}
+function rosetteCard(r: Rosette): Card {
+  const chosen = epp.coloringOf.get(r.id);
+  const coloring = r.colorings.some((c) => c.id === chosen) ? chosen : r.colorings[0]?.id;
+  return {
+    id: r.id,
+    name: r.notecard.name,
+    polys: css(rosetteLocal(r, props.lookup, coloring)),
+    coloring,
+    colorings:
+      r.colorings.length > 1
+        ? r.colorings.map((c, i) => ({
+            id: c.id,
+            name: c.name ?? `Coloring ${i + 1}`,
+            polys: css(rosetteLocal(r, props.lookup, c.id)),
+          }))
+        : [],
+  };
+}
+/** Choosing a coloring also picks the rosette, ready to place. */
+function pickColoring(id: string, coloring: string) {
+  epp.coloringOf.set(id, coloring);
+  emit('update:picked', id);
 }
 
 const groups = computed(() =>
@@ -107,9 +166,7 @@ const groups = computed(() =>
             { poly: place(s.outline, { at: [0, 0], turn: 0, scale: 1 }), fill: s.fill },
           ]),
         ),
-        ...(filter.value === 'shapes' ? [] : g.rosettes).map((r) =>
-          card(r.id, r.notecard.name, rosetteLocal(r, props.lookup)),
-        ),
+        ...(filter.value === 'shapes' ? [] : g.rosettes).map(rosetteCard),
       ],
     }))
     .filter((g) => g.cards.length),
@@ -142,6 +199,34 @@ const groups = computed(() =>
 }
 .card.fits {
   background: rgba(46, 125, 50, 0.18);
+}
+.card {
+  position: relative;
+}
+.count {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  color: white;
+  background: var(--q-primary);
+  cursor: pointer;
+}
+.pick-coloring {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.pick-coloring.active {
+  border-color: var(--q-primary);
 }
 .card.misfit {
   opacity: 0.4;

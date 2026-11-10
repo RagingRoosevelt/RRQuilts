@@ -21,7 +21,10 @@ export const useEppEditorStore = defineStore('epp-editor', () => {
   const gridOrigin = ref<[number, number]>([0, 0]);
   const draggingGrid = ref(false);
   const views = reactive(new Map<string, View>());
+  /** The coloring picked per rosette in the picker (shown on its card, used when placing). */
+  const coloringOf = reactive(new Map<string, string>());
   return {
+    coloringOf,
     shapeTool,
     rosetteTool,
     multi,
