@@ -22,6 +22,7 @@
       <q-btn outline no-caps icon="file_open" label="Import" :disable="ro" @click="importFile" />
       <SlidePicker
         v-model="filter"
+        style="min-width: 260px"
         :options="[
           { value: 'all', label: 'All' },
           { value: 'shapes', label: 'Shapes' },
@@ -308,6 +309,9 @@ function remove(c: Card) {
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
+  align-items: start;
   gap: 8px;
 }
 .card {

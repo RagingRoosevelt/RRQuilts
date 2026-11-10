@@ -102,6 +102,9 @@ function remove(c: { id: string; name: string }) {
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
+  align-items: start;
   gap: 8px;
 }
 .card {
