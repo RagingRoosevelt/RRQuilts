@@ -15,7 +15,7 @@ export interface Snap {
 }
 
 /** Positions (offsets from the longer edge's start, in units) where the shorter can sit. */
-function steps(Lm: number, Ls: number): number[] | null {
+export function steps(Lm: number, Ls: number): number[] | null {
   const short = Math.min(Lm, Ls);
   const long = Math.max(Lm, Ls);
   if (short < 0.1) return null;

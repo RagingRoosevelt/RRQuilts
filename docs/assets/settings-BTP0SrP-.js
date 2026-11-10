@@ -1,1 +1,0 @@
-import{D as e,O as t}from"./project-43BngQJN.js";import{r as n}from"./index-D_aqiRe6.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};
