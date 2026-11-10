@@ -26,8 +26,11 @@
 
 ## Rosette editor `/project/rosette/:id` (`RosetteEditorPage.vue`)
 
-- Tabs: **Details**, **Design**, **Print** (a paper and a fabric cutting template per patch, counts,
-  rosette sheet; at a chosen 1U length since a rosette has no size).
+- Tabs: **Details**, **Design**, **Print**. Print shows `PrintPreview kind="rosette"` in place of the
+  canvas and `PrintOptions kind="rosette"` in the sidebar: 1U length, number of rosettes, coloring,
+  Paper / Fabric / Both, seam allowance, rosette sheet, test square, page and packing options. A
+  paper and a fabric cutting template per patch, counted for that many rosettes. Also reachable from
+  **Print** on a rosette card's menu (Libraries, project EPP tab), which opens this tab.
 - Toolbar: Undo, Redo, **placement mode** three-way switch (Free / Grow / Grid); in Grid mode a
   **Drag grid** button right under it; Select, Turn, Mirror, Delete, **Break into patches**, **Close
   space**, Paint.

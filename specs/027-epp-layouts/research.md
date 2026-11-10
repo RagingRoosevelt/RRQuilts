@@ -111,7 +111,9 @@ Decisions for the plan. Each: Decision, Rationale, Alternatives considered.
   through `PrintPreview`: expanded pieces become `Piece`s
   (`model/print/pieces.ts`); paper templates = the polygon, fabric templates = `print/polygon.ts`
   `offset(poly, seam)`; packing `print/pack.ts`; counts by shape, scale, mirror and fill (spec 027
-  US6, spec 050 US4). New `kind: 'rosette'` for the rosette editor's Print tab; EPP quilts stay
+  US6, spec 050 US4). New `kind: 'rosette'` for the rosette print interface (spec 050 FR-006a: 1U length, how many
+  rosettes, coloring, paper / fabric / both, seam allowance, rosette sheet; print prefs gain
+  `rosetteUnit`, `rosetteCount`, `eppTemplates: 'paper' | 'fabric' | 'both'`); EPP quilts stay
   `kind: 'quilt'` with an EPP branch. Optional rosette sheet later in the phase.
 
 ## R10. Rosettes in block quilts (later phase)

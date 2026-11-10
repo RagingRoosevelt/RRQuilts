@@ -150,8 +150,21 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
 
 ### User Story 4 - Print and count by pieces (Priority: P1)
 
+Owner, 2026-11-10: "we should have a print interface for rosettes".
+
+**Independent Test**: Open the Flower rosette, Print tab, 1U = 1 in, 4 rosettes: 28 hexagon paper
+templates and 28 fabric templates, grouped by fill, with the assembly sheet; Print from the EPP card
+menu opens the same.
+
 1. **Given** an EPP quilt with rosettes, **When** printing templates, **Then** counts are by shape,
    scale and fill, adding up every piece inside every placed rosette (a rosette is never a template).
+1a. **Given** a rosette, **Then** it has its own print interface: a **Print** tab in the rosette
+   editor (and **Print** on its card menu in Libraries and the project's EPP tab), with the print
+   preview in place of the canvas and options in the sidebar, as the block editor's Print tab:
+   **1U length** (a rosette has no size of its own), **how many rosettes**, **coloring**, **Paper /
+   Fabric / Both** templates, **seam allowance**, **rosette sheet** on or off, test square, and the
+   usual page and packing options (spec 010). Templates are counted for that many rosettes, by shape,
+   size, mirror and fill.
 2. **Given** any printout, **Then** rosettes are broken down into their EPP shapes: templates,
    counts and yardage are by shape, never by rosette. Owner, 2026-11-10: "in printouts, rosettes are
    broken down into the basic EPP shapes. they're used for design layout ease and to inform the
@@ -191,6 +204,9 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
   until broken into patches.
 - **FR-005**: Rosettes MUST NOT nest: a rosette placed into a rosette is copied in as its pieces
   (with its current coloring's fills and its internal shapes) and keeps no link to its source.
+- **FR-006a**: Rosettes MUST have their own print interface (rosette editor Print tab and card menu)
+  with 1U length, number of rosettes, coloring, paper / fabric / both, seam allowance, rosette sheet
+  and page options.
 - **FR-006**: Templates, counts and yardage MUST expand rosettes into their pieces; an optional rosette
   sheet MUST list rosettes, their pieces and placements.
 - **FR-007**: Rosettes MUST be library items with credits and licenses like shapes (spec 027 FR-007),
