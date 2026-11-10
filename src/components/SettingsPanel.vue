@@ -253,11 +253,12 @@
               <div
                 v-for="p in sorted"
                 :key="p.id"
-                class="row items-center no-wrap"
+                class="row items-center no-wrap q-py-xs"
                 style="gap: 8px"
               >
-                <div class="col ellipsis">
-                  {{ p.name }} <span class="text-caption text-grey-7">· {{ p.where }}</span>
+                <div class="col" style="min-width: 0; overflow-wrap: anywhere">
+                  <div>{{ p.name }}</div>
+                  <div class="text-caption text-grey-7">{{ p.where }}</div>
                 </div>
                 <span class="text-caption">{{ p.sort }}</span>
                 <q-btn
