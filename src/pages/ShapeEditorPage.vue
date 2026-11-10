@@ -187,6 +187,7 @@ import { useRoute, useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import EppCanvas, { type CanvasPoly, type Decor } from '@/components/EppCanvas.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
+import { ERASER } from '@/components/icons';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
@@ -286,7 +287,7 @@ const ALL_TOOLS: { id: ShapeTool; icon: string; label: string; hint: string }[] 
   },
   {
     id: 'delete',
-    icon: 'backspace',
+    icon: ERASER,
     label: 'Delete',
     hint: 'Delete: tap a corner to remove it, or an edge to join its two corners into one',
   },

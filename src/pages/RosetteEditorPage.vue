@@ -208,6 +208,7 @@ import DetailsPanel from '@/components/DetailsPanel.vue';
 import EppCanvas, { type CanvasPoly, type Decor, type Grid } from '@/components/EppCanvas.vue';
 import EppPicker, { type PickerGroup } from '@/components/EppPicker.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
+import { ERASER } from '@/components/icons';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
@@ -297,7 +298,7 @@ const TOOLS: { id: RosetteTool; icon: string; label: string; hint: string }[] = 
   { id: 'select', icon: 'near_me', label: 'Select', hint: 'Select: tap a piece; drag to move it' },
   { id: 'turn', icon: 'rotate_right', label: 'Turn', hint: 'Turn: tap a piece to turn it' },
   { id: 'mirror', icon: 'flip', label: 'Mirror', hint: 'Mirror: tap a piece to flip it' },
-  { id: 'erase', icon: 'delete', label: 'Delete', hint: 'Delete: tap a piece to remove it' },
+  { id: 'erase', icon: ERASER, label: 'Delete', hint: 'Delete: tap a piece to remove it' },
   {
     id: 'close',
     icon: 'format_shapes',

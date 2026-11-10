@@ -260,6 +260,7 @@
 </template>
 
 <script setup lang="ts">
+import { ERASER } from '@/components/icons';
 import { useDataTab } from '@/composables/data-tab';
 import type { Block } from '@/model/schema/block';
 import QuiltColorways from '@/components/QuiltColorways.vue';
@@ -359,10 +360,6 @@ const view = computed<View | undefined>({
     if (quilt.value && v) editor.views.set(quilt.value.id, v);
   },
 });
-
-// Eraser glyph ("ink_eraser", Material Symbols, Apache 2.0) — the bundled icon font has none.
-const ERASER =
-  'M690-240h190v80H610l80-80Zm-500 80-85-85q-23-23-23.5-57t22.5-58l440-456q23-24 56.5-24t56.5 23l199 199q23 23 23 57t-23 57L520-160H190Zm296-80 314-322-198-198-442 456 64 64h262Zm-6-240Z|0 -960 960 960';
 
 const tools: { id: Tool; icon: string; label: string }[] = [
   { id: 'set', icon: 'add_box', label: 'Set block' },
