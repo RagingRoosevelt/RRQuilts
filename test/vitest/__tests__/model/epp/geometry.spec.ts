@@ -190,6 +190,31 @@ describe('snap', () => {
     }
   });
 
+  it('reaches half an edge whatever the zoom, and turns no more than allowed', () => {
+    const middle = polys([piece('m', 'hex', [0, 0])]);
+    // 0.4U off where it belongs, a few pixels' reach at this zoom: half an edge still catches it.
+    const near = piece('n', 'hex', [0, Math.sqrt(3) + 0.4]);
+    expect(snap(polys([near]), staticEdges(middle), 0.05)).toBeNull();
+    const s = snap(polys([near]), staticEdges(middle), 0.05, Math.PI, 0.5);
+    expect(snapPose(near, s!).at[1]).toBeCloseTo(Math.sqrt(3));
+    // A square turned 45° from its neighbor: a 30° limit leaves it, a free turn snaps it.
+    const sq = shape(
+      'sq',
+      orient([
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+      ]),
+    );
+    const lk = lookupEpp({ eppShapes: [sq] });
+    const at = (p: EppPiece) => expand(p, lk).map((l) => l.poly);
+    const base = staticEdges(at(piece('b', 'sq', [0, 0])));
+    const turned = at(piece('t', 'sq', [1.1, 0], 45));
+    expect(snap(turned, base, 0.5, Math.PI / 6, 0.5)).toBeNull();
+    expect(snap(turned, base, 0.5, Math.PI, 0.5)).not.toBeNull();
+  });
+
   it('a 1U square edge sits along a 2U edge at whole-unit steps', () => {
     const big = shape(
       'big',

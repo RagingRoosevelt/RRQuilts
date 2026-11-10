@@ -91,7 +91,7 @@
             dense
             :icon="t.icon"
             :aria-label="t.label"
-            :disable="ro && t.id !== 'select'"
+            :disable="ro"
             @click="epp.rosetteTool = t.id"
           >
             <q-tooltip anchor="center right" self="center left">{{ t.hint }}</q-tooltip>
@@ -291,11 +291,10 @@ const MODES: { id: EppPrefs['mode']; icon: string; label: string; hint: string }
 const TOOLS: { id: RosetteTool; icon: string; label: string; hint: string }[] = [
   {
     id: 'place',
-    icon: 'add_location_alt',
+    icon: 'touch_app',
     label: 'Place',
-    hint: 'Place: tap to place the picked shape; drag a piece to move it',
+    hint: 'Place: tap to place the picked shape (tap its card again to stop); drag a piece to move it, it snaps to its neighbors',
   },
-  { id: 'select', icon: 'near_me', label: 'Select', hint: 'Select: tap a piece; drag to move it' },
   { id: 'turn', icon: 'rotate_right', label: 'Turn', hint: 'Turn: tap a piece to turn it' },
   { id: 'mirror', icon: 'flip', label: 'Mirror', hint: 'Mirror: tap a piece to flip it' },
   { id: 'erase', icon: ERASER, label: 'Delete', hint: 'Delete: tap a piece to remove it' },
@@ -435,9 +434,15 @@ const ghost = computed<Pose | null>(() => {
     return s ? cellAt(s.outline, epp.scale, lattice.value, p) : null;
   }
   const pose: Pose = { at: p, turn: 0, scale: epp.scale };
-  const s = snap(pickedPolys(pose), index.value, px(28));
+  const s = snap(pickedPolys(pose), index.value, px(16), Math.PI, SNAP_SHARE);
   return s ? snapPose(pose, s) : pose;
 });
+/** Snaps reach half the shorter edge (or 16 screen pixels, when that's more). */
+const SNAP_SHARE = 0.5;
+/** A dragged piece turns at most this much to meet a neighbor (owner, 2026-11-10). */
+const DRAG_TURN = Math.PI / 6;
+/** The two edges the dragged piece meets (drawn green). */
+const snapTarget = ref<Edge | null>(null);
 
 function pieceAt(p: Pt): Leaf | undefined {
   for (let i = leaves.value.length - 1; i >= 0; i--)
@@ -484,11 +489,9 @@ function onTap(p: World) {
   const hit = pieceAt(p);
   const t = epp.rosetteTool;
   if (t === 'place') {
-    if (!hit && ghost.value) return placeAt(ghost.value);
-    epp.selection = new Set(hit ? [hit.part!] : []);
+    if (!hit && ghost.value) placeAt(ghost.value);
     return;
   }
-  if (t === 'select') return void (epp.selection = new Set(hit ? [hit.part!] : []));
   if (t === 'close') {
     if (hit) return;
     const r = rosette.value && closeSpace(rosette.value, allPolys.value, p);
@@ -539,7 +542,7 @@ function claim(p: World, e: PointerEvent) {
     drag.value = { kind: 'grid', origin: epp.gridOrigin, grab: p };
     return true;
   }
-  if (ro.value || !['place', 'select'].includes(epp.rosetteTool)) return false;
+  if (ro.value || epp.rosetteTool !== 'place') return false;
   const hit = pieceAt(p);
   if (!hit) return false;
   const piece = rosette.value!.pieces.find((x) => x.id === hit.part)!;
@@ -552,7 +555,6 @@ function claim(p: World, e: PointerEvent) {
     key: `rosette-move-${Date.now()}`,
     others: staticEdges(leaves.value.filter((l) => l.part !== piece.id).map((l) => l.poly)),
   };
-  epp.selection = new Set([piece.id]);
   return true;
 }
 function onDrag(p: World) {
@@ -574,13 +576,15 @@ function onDrag(p: World) {
     const s = lookup.value.shape(d.shape);
     next = (s && cellAt(s.outline, pose.scale, lattice.value, pose.at)) || pose;
   } else {
-    const s = snap(pickedPolysFor(d.shape, pose), d.others, px(28));
+    const s = snap(pickedPolysFor(d.shape, pose), d.others, px(16), DRAG_TURN, SNAP_SHARE);
     if (s) next = snapPose(pose, s);
+    snapTarget.value = s?.target ?? null;
   }
   edit((r) => movePiece(r, d.id, next), d.key);
 }
 function onDragEnd() {
   drag.value = null;
+  snapTarget.value = null;
 }
 
 function newColoring(copyOf?: string) {
@@ -600,7 +604,7 @@ const readout = computed(() => {
 });
 
 function decorate({ ctx, px: p }: Decor) {
-  const e = hoverEdge.value;
+  const e = hoverEdge.value ?? snapTarget.value;
   if (e) {
     ctx.strokeStyle = '#2e7d32';
     ctx.lineWidth = p(4);

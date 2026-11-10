@@ -33,20 +33,23 @@ export const staticEdges = (polys: readonly Poly[]) => new EdgeIndex(outerEdges(
 
 /**
  * Best snap of moving polygons onto static edges, within `reach` units between the matched edges'
- * middles and `maxTurn` radians of added turn. Null when nothing is in reach.
+ * middles (or `share` of the shorter edge's length, when that's more: a fixed share of an edge
+ * snaps the same at every zoom) and `maxTurn` radians of added turn. Overlaps are allowed (the
+ * quilter tidies up by dragging). Null when nothing is in reach.
  */
 export function snap(
   moving: readonly Poly[],
   index: EdgeIndex,
   reach: number,
   maxTurn = Math.PI,
+  share = 0,
 ): Snap | null {
   let best: Snap | null = null;
   for (const [a, b] of outerEdges(moving)) {
     const Lm = dist(a, b);
     if (Lm < 0.1) continue;
     const um = mul(sub(b, a), 1 / Lm);
-    for (const i of index.near([a, b], reach + Lm)) {
+    for (const i of index.near([a, b], Math.max(reach, share * Lm) + Lm)) {
       const [c, d] = index.items[i]!;
       const Ls = dist(c, d);
       const offsets = steps(Lm, Ls);
@@ -60,7 +63,7 @@ export function snap(
         const m0 = Lm > Ls ? add(a, mul(um, o)) : a;
         const s0 = Ls > Lm ? add(d, mul(us, o)) : d;
         const dd = dist(add(m0, mul(um, L / 2)), add(s0, mul(us, L / 2)));
-        if (dd > reach) continue;
+        if (dd > Math.max(reach, share * L)) continue;
         const score = dd + Math.abs(rr) * 0.15;
         if (best && score >= best.score) continue;
         best = {

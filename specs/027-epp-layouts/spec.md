@@ -165,6 +165,13 @@ middle one, sharing a whole edge.
 11. **Given** Grid mode, **Then** a button right under the mode switch drags the grid until a grid
     edge snaps to an edge of a placed piece, and a **Sync grid to selected size** toggle sizes the grid
     to the picked scale. Taps place shapes that sit on the grid.
+12. **Given** a placed piece dragged in Free mode, **Then** it snaps when one of its edges comes
+    within half the shorter edge of a neighbor's (whatever the zoom), the two edges showing green
+    while dragging; it turns at most 30° to fit; snaps that overlap other pieces are allowed, for
+    tidying up a rosette. One **Place** tool places (tap) and moves (drag) pieces; a Select tool
+    comes with multi-select (spec 051). Owner, 2026-11-10: "i like what you suggest except I want
+    to allow overlapping snaps. it'll be necessary to support them when someone is cleaning up a
+    rosette after dragging the shapes around".
 
 ---
 

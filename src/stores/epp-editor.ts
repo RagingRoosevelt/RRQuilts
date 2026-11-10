@@ -6,7 +6,7 @@ import { reactive, ref } from 'vue';
 import type { View } from '@/render/draw';
 
 export type ShapeTool = 'vertex' | 'edge' | 'angle' | 'lock' | 'delete' | 'line';
-export type RosetteTool = 'place' | 'select' | 'turn' | 'mirror' | 'erase' | 'close' | 'paint';
+export type RosetteTool = 'place' | 'turn' | 'mirror' | 'erase' | 'close' | 'paint';
 
 export const useEppEditorStore = defineStore('epp-editor', () => {
   const shapeTool = ref<ShapeTool>('vertex');
