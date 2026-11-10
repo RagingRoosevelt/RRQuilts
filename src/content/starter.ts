@@ -189,9 +189,10 @@ const dataBars = (
   ]),
 });
 /** A data block whose `n` strips meet at the top left corner, day 1 there: strips turning the
- *  corner as quarter rings (`arcs`, the last taking the far corner) or nested L shapes (`square`),
- *  or a `fan` of wedges between straight lines from the corner at equal angles. Days 1…`used`
- *  numbered, the rest black. */
+ *  corner as quarter rings (`arcs`, the last taking the far corner), nested L shapes (`square`,
+ *  each L two straight bars, down from the top and in from the left, so it sews on log cabin
+ *  style), or a `fan` of wedges between straight lines from the corner at equal angles. Days
+ *  1…`used` numbered, the rest black. */
 const dataCorner = (
   name: string,
   category: string,
@@ -209,10 +210,11 @@ const dataCorner = (
     // Arcs: + sweep is counterclockwise on screen (y down), so top edge to left edge is −90.
     if (style === 'arcs') return [[[r, 0], [0, r], -90]];
     if (style === 'fan') return [[[0, 0], edge(90 * r)]];
+    // The L's corner seam runs on through the next strip, splitting it into two bars.
     return [
       [
         [r, 0],
-        [r, r],
+        [r, Math.min(1, r + 1 / n)],
       ],
       [
         [r, r],
@@ -220,14 +222,22 @@ const dataCorner = (
       ],
     ];
   }).flat();
-  // Each strip's place: halfway across it (on the diagonal), or along its wedge's middle line.
-  const at = (k: number): [number, number] => {
+  // Each strip's places: halfway across it (on the diagonal), along its wedge's middle line, or
+  // (square) the middle of each of its bars.
+  const at = (k: number): [number, number][] => {
     if (style === 'fan') {
       const t = ((k + 0.5) * Math.PI) / 2 / n;
-      return [0.6 * Math.cos(t), 0.6 * Math.sin(t)];
+      return [[0.6 * Math.cos(t), 0.6 * Math.sin(t)]];
     }
     const m = (k + 0.5) / n;
-    return style === 'arcs' ? [m / Math.SQRT2, m / Math.SQRT2] : [m, m];
+    if (style === 'arcs') return [[m / Math.SQRT2, m / Math.SQRT2]];
+    const [lo, hi] = [k / n, (k + 1) / n];
+    return k
+      ? [
+          [m, hi / 2],
+          [lo / 2, m],
+        ]
+      : [[m, m]];
   };
   return {
     name,
@@ -235,11 +245,12 @@ const dataCorner = (
     dims: [n, n],
     seams,
     base: C.Cream!,
-    points: Array.from({ length: n - used }, (_, i): [number, number, number] => [
-      ...at(used + i),
-      C.Black!,
-    ]),
-    days: Array.from({ length: used }, (_, i): [number, number, number] => [...at(i), i + 1]),
+    points: Array.from({ length: n - used }, (_, i) => used + i).flatMap((k) =>
+      at(k).map((p): [number, number, number] => [...p, C.Black!]),
+    ),
+    days: Array.from({ length: used }, (_, i) => i).flatMap((k) =>
+      at(k).map((p): [number, number, number] => [...p, k + 1]),
+    ),
   };
 };
 /** A data place: x, y, day number, and the value slot (absent: A). */

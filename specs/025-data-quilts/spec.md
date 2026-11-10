@@ -281,6 +281,10 @@ strip type. The quilt shows 365 days in the simulation's colors.
 - **FR-018**: Built-in data blocks: Month Strip, Week Strip (was Week Row), Day Square, and corner
   versions with day 1 at the top left corner: Curved (quarter rings), Cornered (nested right
   angles) and Fan (equal-angle wedges) Month and Week Strips; month ones with 30/29/28 variants.
+  Owner, 2026-11-10: "let's update the "cornered <week/month> strip" data blocks to be quilable
+  like I did with this one" (their Cornered Week Strip (2)): each L is two straight bars of its
+  day, one down from the top edge and one in from the left (the corner's vertical seam runs on
+  through the next strip), so the strips sew on log cabin style with no set-in corner.
   Swirls (owner, 2026-11-05: "implement this as a set of temperature blocks... one as a hexagon
   and one as a square block... for 7day and one for 28/29/30/31 days", from a photo of a paper
   pieced spike swirl): Month Swirl, Week Swirl, Hexagon Month Swirl, Hexagon Week Swirl. Equal
