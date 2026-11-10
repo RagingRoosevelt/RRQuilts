@@ -78,6 +78,26 @@
             <q-tooltip>The days entered and not marked Cut</q-tooltip>
           </q-btn>
           <div class="text-body2">{{ daysNote }}</div>
+          <div class="column items-start">
+            <div class="text-subtitle2">Templates</div>
+            <q-toggle
+              :model-value="prefs.stepsDataTemplates"
+              dense
+              label="Data patches"
+              @update:model-value="(v: boolean) => set('stepsDataTemplates', v)"
+            >
+              <q-tooltip>The pieces cut for the picked days</q-tooltip>
+            </q-toggle>
+            <q-toggle
+              :model-value="prefs.stepsOtherTemplates"
+              dense
+              label="Non-data patches"
+              class="q-mt-xs"
+              @update:model-value="(v: boolean) => set('stepsOtherTemplates', v)"
+            >
+              <q-tooltip>The rest of each block: patches that don't change with the data</q-tooltip>
+            </q-toggle>
+          </div>
         </template>
         <template v-else>
           <div class="row no-wrap" style="gap: 8px">

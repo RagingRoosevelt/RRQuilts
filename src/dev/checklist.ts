@@ -363,6 +363,12 @@ export const CHECKS: Check[] = [
     text: 'Data entry calendar on a phone: holding a day and dragging picks days without the phone selecting text or opening its long-press menu (no selection handles, no Copy bubble). Month titles and day numbers can’t be selected with a mouse either.',
     last: '"dragging on the calendar put the phone into text selection mode.  let\'s make the days on the calendar not selectable text"',
   },
+  {
+    id: 'TC-275',
+    group: G.make041,
+    text: "Print instructions, Days: under Not cut yet and the day count, Templates has Data patches (on at first) and Non-data patches (off at first). On demo-v10, Data Quilt, pick Feb 1 to 2 with values entered: Data patches prints templates for those days' pieces; Non-data patches adds the block's own pieces (February's places past the 28th); both off prints no templates. The settings are remembered. Block by block always prints both.",
+    last: '"in the print interface for selected days, let\'s add a few toggles right after "not cut yet" and "1 day": templates: data patchse: on/off, non-data patches: on/off"',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

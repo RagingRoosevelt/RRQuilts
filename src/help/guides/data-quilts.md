@@ -267,4 +267,6 @@ place for how to join the blocks.
 **Block by block** prints whole blocks instead: every day of each block, the days without an
 entry marked as such, and the block's own pieces to cut once. **Previous** and **Next** step through
 the blocks. On the instructions page, **Days** picks a range of dates, and **Not cut yet** picks the
-days entered and not marked **Cut**.
+days entered and not marked **Cut**. Under **Templates**, **Data patches** prints templates for the
+days' pieces and **Non-data patches** adds the rest of each block, the patches that don't change
+with the data. Block by block always prints both.

@@ -1671,8 +1671,11 @@ function stepSheets(steps: DayStep[], notes: string | undefined, blocks: boolean
   for (const k of numbers) {
     const mine = steps.filter((x) => x.number === k);
     const label = mine[0]!.label ?? '';
-    const own = blocks ? blockOwn(dd, quilt, k) : [];
-    const group: StepGroup = { label, rows: mine, own };
+    // Block by block: every template, the own pieces in the table too. Picked days: as the settings.
+    const own = blockOwn(dd, quilt, k);
+    const dataT = blocks || prefs.value.stepsDataTemplates;
+    const otherT = blocks || prefs.value.stepsOtherTemplates;
+    const group: StepGroup = { label, rows: mine, own: blocks ? own : [] };
     groups.push(group);
     const place = placesOf(plan, k)[0];
     const slot = place && slots.get(place.space);
@@ -1711,8 +1714,8 @@ function stepSheets(steps: DayStep[], notes: string | undefined, blocks: boolean
         return [{ x: spot[0], y: spot[1], text: day }];
       }),
     };
-    // Templates for the days' pieces (and, block by block, the block's own), each tinted one
-    // labeled with its days.
+    // Templates for the days' pieces and the block's own (as above), each tinted one labeled with
+    // its days.
     const days = new Map<string, string[]>();
     for (const r of mine)
       for (const p of r.pieces) {
@@ -1720,8 +1723,10 @@ function stepSheets(steps: DayStep[], notes: string | undefined, blocks: boolean
         days.set(key, [...(days.get(key) ?? []), shortDate(r.date)]);
       }
     const pieces = [
-      ...mine.flatMap((x) => x.pieces.flatMap((p) => Array<Piece>(p.count).fill(p.piece))),
-      ...own.flatMap((p) => Array<Piece>(p.count).fill(p.piece)),
+      ...(dataT
+        ? mine.flatMap((x) => x.pieces.flatMap((p) => Array<Piece>(p.count).fill(p.piece)))
+        : []),
+      ...(otherT ? own.flatMap((p) => Array<Piece>(p.count).fill(p.piece)) : []),
     ];
     if (pieces.length)
       out.push(

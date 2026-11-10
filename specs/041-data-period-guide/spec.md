@@ -145,6 +145,11 @@ for next steps. the user can select the days they want to get the printout for."
 - Owner, 2026-11-09: "that print layout should use the same toolbar / sidebar setup...". The page
   has the editor's tool rail (zoom) and its sidebar sections (`PrintOptions` kind `steps`: Paper,
   Cutting, Templates, Look) under the day and block pickers.
+- Owner, 2026-11-09: "in the print interface for selected days, let's add a few toggles right after
+  "not cut yet" and "1 day": templates: data patchse: on/off, non-data patches: on/off". Days mode
+  has **Templates** › **Data patches** (default on) and **Non-data patches** (default off, the
+  blocks' own pieces), print prefs `stepsDataTemplates` and `stepsOtherTemplates`. Block by block
+  always prints both.
 
 ## Today
 
