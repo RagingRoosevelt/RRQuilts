@@ -6,7 +6,8 @@
 
 **Status**: Draft (spec only; not implemented).
 
-**Input**: Owner, 2026-11-10: "do we have a spec for FPP quilts / blocks?" There wasn't one; this
+**Input**: Owner, 2026-11-10: "do we have a spec for FPP quilts / blocks?", then "let's add an FPP
+spec." There wasn't one; this
 spec gathers what spec 001 (User Story 7, FR-093) asked for and what spec 010 left for later.
 
 Related: spec 001 (FR-093 foundation patterns), spec 003 (FR-038: blocks store foundation sections,
