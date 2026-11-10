@@ -130,11 +130,6 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
   slots, painted with the editor's scopes.
 - **FR-004**: Placed stamps MUST stay linked to their stamp (edits update every placement, with undo)
   until broken apart.
-- **FR-009**: Quilts, stamps and rosettes MUST use one editor (spec 027 FR-003b placement modes).
-  A design becomes a stamp through an **Enable as stamp** toggle in its Details. Owner, 2026-11-10:
-  "in details, we'll have a toggle for "enable as stamp". all stamps start out as grouped rosettes
-  but can be broken down after placement and we'll have a toggle at the top of the rosette/stamp
-  picker in the sidebar to "place as stamp/rosette"."
 - **FR-005**: Stamps MAY nest; cycles MUST be refused; depth at most 8.
 - **FR-006**: Templates, counts and yardage MUST expand stamps into their pieces; an optional stamp
   sheet MUST list stamps, their pieces and placements.
@@ -142,6 +137,11 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
   replacing spec 027's rosettes.
 - **FR-008**: The project format version that adds EPP (spec 027 FR-009) MUST include stamps and
   placed stamps; loading validates them (cycles, missing shapes, slot references).
+- **FR-009**: Quilts, stamps and rosettes MUST use one editor (spec 027 FR-003b placement modes).
+  A design becomes a stamp through an **Enable as stamp** toggle in its Details. Owner, 2026-11-10:
+  "in details, we'll have a toggle for "enable as stamp". all stamps start out as grouped rosettes
+  but can be broken down after placement and we'll have a toggle at the top of the rosette/stamp
+  picker in the sidebar to "place as stamp/rosette"."
 
 ### Key Entities
 

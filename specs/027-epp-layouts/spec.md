@@ -149,14 +149,26 @@ parallelogram); place it and print it.
 
 **Acceptance Scenarios**:
 
-1. **Given** the project's EPP shapes, **When** the quilter makes a new shape, **Then** a shape editor
-   lets them set each edge length in whole units and each corner angle, or draw on a snapping grid
-   (triangle and square grids, spec 007 / 026), and shows whether the outline closes.
-2. **Given** an outline that doesn't close, crosses itself, or has an edge that isn't a whole number
-   of units, **Then** the editor says which and doesn't save it as a usable shape.
-3. **Given** a saved shape, **Then** it has a name, notecard (notes, tags, styles), a default fill, and
+1. **Given** the project's EPP shapes, **When** the quilter makes a new shape, **Then** the shape
+   editor shows the outline on a 1-unit grid and they drag its corners (nodes) into place. No angles
+   or lengths are typed, and there is no base unit or scale: each edge is labeled with its length in
+   units (or fractions of a unit) read off the grid.
+2. **Given** the toolbar, **Then** it has four tools: **Vertex** (drag a corner), **Edge** (drag or
+   split an edge, and mark it as not a whole unit), **Angle** (drag a corner's angle marker up to
+   widen the angle, down to narrow it, in steps set in the sidebar) and **Lock vertex** (tap a corner
+   so no tool moves it, tap again to free it).
+3. **Given** the sidebar, **Then** a **Vertex grid snapping** setting (Free / Square / Triangle) sets
+   where dragged corners land and which grid is drawn, and an angle step setting sets the Angle
+   tool's increments.
+4. **Given** an edge that isn't a whole number of units, **Then** it fails the whole-unit flag unless
+   the quilter marked it with the Edge tool as meant to be that length. A marked edge snaps only to
+   edges of the same length.
+5. **Given** an outline that doesn't close, crosses itself, isn't convex, or has an unmarked edge that
+   isn't a whole number of units, **Then** the editor flags it and doesn't save it as a usable shape
+   (FR-006 banner).
+6. **Given** a saved shape, **Then** it has a name, notecard (notes, tags, styles), a default fill, and
    credits and license (spec 009), like a block.
-4. A shape can be copied and edited; editing a shape used in a quilt updates its pieces, with undo.
+7. A shape can be copied and edited; editing a shape used in a quilt updates its pieces, with undo.
 
 ---
 
@@ -267,8 +279,9 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **FR-001b**: Trimming MUST NOT change the templates: pieces are made whole (papers are whole
   shapes) and trimmed after assembly, so templates and fabric counts are for whole pieces; the
   print notes the trim line and its size.
-- **FR-002**: EPP shapes MUST be simple closed polygons whose edge lengths are whole multiples of the
-  quilt's base dimension (first release; relaxing this is later).
+- **FR-002**: EPP shapes MUST be simple closed convex polygons whose edge lengths are whole multiples of
+  the quilt's base dimension, except edges the quilter deliberately marks as another length
+  (FR-006a), which snap only to edges of the same length.
 - **FR-003**: Placing and dragging pieces MUST snap equal-length edges together end to end (and short
   edges along long ones at whole-unit steps), with free placement off snap.
 - **FR-003a**: Each piece MUST have a whole-number scale from 1 to 4 that multiplies its shape's
@@ -295,6 +308,19 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   as a flag as you're editing." So shapes, stamps and rosettes share one editor (a shape is an item
   of one patch), every patch shows four flags while editing (closes, doesn't cross itself, whole-unit
   edges, convex), and a banner names the failing patches until all pass. Shapes MUST be convex.
+- **FR-006a**: The shape editor MUST edit by dragging: corners on a 1-unit grid (Vertex grid snapping
+  Free / Square / Triangle, which also sets the grid drawn), angle markers dragged up or down in
+  sidebar-set steps, locked corners that no tool moves, and edge lengths shown in units and fractions.
+  Tools: Vertex, Edge, Angle, Lock vertex. Shapes have no base unit or scale of their own. Owner,
+  2026-11-10: "nodes feel like they should be draggable. I don't like having to type in an angle. I
+  also want to allow non-unit edges as long as the user is specifically picking to implment one.
+  let's support locking a vertex so that it can't be moved. let's also support dragging the angle
+  markers (drag up to increase the angle, down to decrease the angle, increments set in the sidebar.
+  the "draw on a grid" mode feels a lot better for dragging vertices. let's have a "vertex grid
+  snapping" setting for "free/square/triangle" that also changes the grid that is shown. in the
+  toolbox we can have an angle edit tool, and a vertex tool, an edge tool, and a lock vertex tool. I
+  don't believe base unit matters for blocks and there's no reason to set a scale since we can just
+  show a 1u grid and the user will see the number of units (or fractional units) an edge is"
 - **FR-007**: EPP shapes and stamps (spec 050) MUST be library items: built-in starters, My library, packs,
   embedding, sync and credits, as blocks are (specs 008, 009, 011).
 - **FR-008**: Printing MUST produce paper templates (no seam allowance) and fabric templates (with
@@ -341,7 +367,6 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 
 ## Out of Scope (first release)
 
-- Edge lengths that aren't whole units.
 - Drawing custom shapes straight into the quilt design (shapes are made in the shape editor).
 - 3D designs (second release) and STL export (stretch).
 - Fussy-cutting fabric inside a piece, curved shapes, and appliqué onto a background.
