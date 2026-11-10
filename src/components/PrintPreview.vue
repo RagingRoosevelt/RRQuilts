@@ -720,12 +720,15 @@ import {
   authorOf,
   blockLock,
   blocksByOthers,
+  DEFAULT_LICENSE,
   effectiveLicense,
   licenseName,
   priorCredits,
   quiltLock,
 } from '@/model/credits';
 import { pathToSegs, flattenLoop, sub, type Pt } from '@/model/geometry/path';
+import { lookupEpp } from '@/model/epp/expand';
+import { rosettePieces, shapeAsRosette } from '@/model/epp/print';
 import { generateFor } from '@/model/layout/slots';
 import { fmtFabric, fmtLen, splitApprox } from '@/model/print/format';
 import { pack, pillWidth, splitFlow, tiles, wrapPills } from '@/model/print/pack';
@@ -770,7 +773,7 @@ import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
   /** `steps`: a data quilt's instructions for `days` (spec 041). */
-  kind: 'block' | 'quilt' | 'steps';
+  kind: 'block' | 'quilt' | 'steps' | 'rosette';
   id: string;
   days?: readonly string[] | undefined;
   /** Block by block: the plan's numbers (1-based), every day of each. */
@@ -1115,6 +1118,7 @@ const view = computed<View | undefined>(() => {
       trim: g.trim,
     };
   }
+  if (props.kind === 'rosette') return rosetteView(dd, id);
   const block = dd.project.blocks.find((b) => b.id === id);
   if (!block) return undefined;
   const quilt = dd.project.quilts.find((q) => q.id === props.target?.quilt);
@@ -1153,14 +1157,46 @@ const view = computed<View | undefined>(() => {
   };
 });
 
+/** A rosette (spec 050 FR-006a): its pieces at the chosen 1U length, for the chosen number. */
+function rosetteView(dd: RrqDoc, id: string): View | undefined {
+  // A shape (the shape editor's Print tab) prints as a rosette of one piece.
+  const shape = dd.project.eppShapes?.find((x) => x.id === id) ?? library.lookup.eppShape?.(id);
+  const r =
+    dd.project.rosettes?.find((x) => x.id === id) ??
+    library.lookup.rosette?.(id) ??
+    (shape && shapeAsRosette(shape));
+  if (!r) return undefined;
+  const unit = prefs.value.rosetteUnit[units.value];
+  const count = Math.max(1, Math.round(prefs.value.rosetteCount));
+  const lookup = lookupEpp(dd.project, [], library.lookup);
+  const { pieces: one, size } = rosettePieces(r, lookup, unit, props.target?.coloring);
+  return {
+    title: r.notecard.name,
+    size: `1U = ${fmt(unit)} · ${count} ${count === 1 ? 'rosette' : 'rosettes'}`,
+    byline: `By ${r.author ?? 'anonymous'} · ${licenseName(r.license ?? dd.project.license ?? DEFAULT_LICENSE)}`,
+    author: r.author,
+    basedOn: priorCredits(r),
+    notes: r.notecard.notes,
+    blocks: [],
+    pieces: Array.from({ length: count }, () => one).flat(),
+    picture: one.map((p) => ({ d: d(p.poly), css: shapeFill(p.fill) })),
+    pictureBox: [0, 0, size[0], size[1]],
+    blockSize: size,
+    keyPieces: one,
+  };
+}
+
 // Templates: each distinct shape, cut line around it, rotated snug, packed on pages.
 function templateItems(
   pieces: Piece[],
   prefix: string,
   letters?: Map<string, string>,
   days?: Map<string, string[]>,
+  /** EPP paper (false) and fabric (true) templates, whatever the Seam allowance setting. */
+  withSeam?: boolean,
 ) {
-  const { mirror, seamAllowance, trimPoints, tint, labels } = prefs.value;
+  const { mirror, trimPoints, tint, labels } = prefs.value;
+  const seamAllowance = withSeam ?? prefs.value.seamAllowance;
   // Tinted or color-keyed: one template per fabric.
   const lettered = templates(pieces, prefix).map((t) => ({
     ...t,
@@ -1376,6 +1412,7 @@ const logical = computed<Sheet[]>(() => {
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
   if (v.steps) return stepSheets(v.steps, v.notes, !!props.numbers?.length);
+  if (props.kind === 'rosette') return rosetteSheets(v);
 
   // One order whatever order the boxes were ticked in — quilt: picture, yardage, rotary, blocks,
   // templates (credits last); block: block page ("picture"), rotary, templates.
@@ -1755,6 +1792,29 @@ function stepSheets(steps: DayStep[], notes: string | undefined, blocks: boolean
 }
 
 /** Template pages for one block: a lettered key, then each distinct piece packed at true size. */
+/** A rosette's pages: the rosette sheet, then paper and fabric templates for every patch. */
+function rosetteSheets(v: View): Sheet[] {
+  const wanted = prefs.value.rosetteSections;
+  const [aw, ah] = area.value;
+  const out: Sheet[] = [];
+  const size = v.blockSize!;
+  if (wanted.includes('picture')) {
+    const [, , w, h] = v.pictureBox;
+    const scale = Math.min(1, aw / w, (ah * 0.6) / (h + 1e-4));
+    out.push({ kind: 'picture', heading: 'Rosette', polys: v.picture, x0: 0, y0: 0, w, h, scale });
+  }
+  const common = { pieces: v.pieces, size, keyPieces: v.keyPieces! };
+  if (wanted.includes('paper'))
+    out.push(
+      ...templateSheets({ ...common, heading: 'Paper templates', prefix: 'P', withSeam: false }),
+    );
+  if (wanted.includes('fabric'))
+    out.push(
+      ...templateSheets({ ...common, heading: 'Fabric templates', prefix: 'F', withSeam: true }),
+    );
+  return out;
+}
+
 function templateSheets(src: {
   pieces: Piece[];
   size: [number, number];
@@ -1770,12 +1830,14 @@ function templateSheets(src: {
   letters?: Map<string, string>;
   /** Data quilt instructions: the days each tinted template (letter and fabric) is for. */
   days?: Map<string, string[]>;
+  /** EPP: paper (false) or fabric (true) templates. */
+  withSeam?: boolean;
 }): Sheet[] {
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
   const gap = units.value === 'in' ? 0.25 : 0.6;
   const prefix = src.prefix ?? '';
-  const items = templateItems(src.pieces, prefix, src.letters, src.days);
+  const items = templateItems(src.pieces, prefix, src.letters, src.days, src.withSeam);
   // Key: the block with each patch's letter, about a quarter of the page wide.
   const keyScale = src.bigKey
     ? Math.min(aw, ah * 0.8) / Math.max(...src.size)

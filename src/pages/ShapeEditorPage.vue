@@ -4,6 +4,7 @@
       <q-tabs v-model="tab" dense no-caps inline-label class="col">
         <q-tab name="details" icon="info" label="Details" />
         <q-tab name="draw" icon="draw" label="Draw" />
+        <q-tab name="print" icon="print" label="Print" />
       </q-tabs>
       <q-btn flat round dense icon="menu" :aria-label="sidebarLabel" @click="sidebar = !sidebar">
         <q-tooltip>{{ sidebarLabel }}</q-tooltip>
@@ -45,6 +46,10 @@
         >
           <q-tooltip anchor="center right" self="center left">Redo (Ctrl+Shift+Z)</q-tooltip>
         </q-btn>
+        <template v-if="tab === 'print'">
+          <q-separator />
+          <PrintZoom />
+        </template>
         <template v-if="tab === 'draw'">
           <q-separator />
           <q-btn
@@ -64,7 +69,8 @@
         </template>
       </div>
 
-      <div class="col relative-position column no-wrap">
+      <PrintPreview v-if="tab === 'print'" kind="rosette" :id="shape.id" :doc="project.doc" />
+      <div v-else class="col relative-position column no-wrap">
         <EppCanvas
           ref="canvasRef"
           v-model:view="view"
@@ -84,6 +90,7 @@
 
       <div v-show="sidebar" class="inspector q-pa-md scroll column no-wrap" style="gap: 12px">
         <DetailsPanel v-if="tab === 'details'" kind="shape" :id="shape.id" />
+        <PrintOptions v-else-if="tab === 'print'" kind="rosette" :id="shape.id" />
         <template v-else>
           <SlidePicker
             :model-value="multi ? 'multi' : 'single'"
@@ -190,6 +197,9 @@ import { useRoute, useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import EppCanvas, { type CanvasPoly, type Decor } from '@/components/EppCanvas.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
+import PrintOptions from '@/components/PrintOptions.vue';
+import PrintPreview from '@/components/PrintPreview.vue';
+import PrintZoom from '@/components/PrintZoom.vue';
 import type { World } from '@/composables/viewport';
 import { checkOutline, type Flags } from '@/model/epp/checks';
 import { splitOutline } from '@/model/epp/faces';
@@ -234,7 +244,7 @@ const shape = computed<EppShape | undefined>(
 );
 const ro = computed(() => project.readOnly || !own.value || isLibraryItem(own.value));
 
-const tab = ref<'details' | 'draw'>('draw');
+const tab = ref<'details' | 'draw' | 'print'>(route.query.print ? 'print' : 'draw');
 const sidebar = ref(!$q.screen.lt.md);
 const sidebarLabel = computed(() => (sidebar.value ? 'Hide sidebar' : 'Show sidebar'));
 const swapped = computed(() => app.settings.sidesSwapped);

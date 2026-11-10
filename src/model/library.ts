@@ -150,6 +150,49 @@ export async function addBlock(
   };
 }
 
+/**
+ * "Add to my library" for an own EPP shape or rosette (spec 027 FR-007): the library gets it (a
+ * rosette with the library shapes it uses), and the project's copy is linked to it.
+ */
+export async function addEpp(
+  lib: LibraryDoc,
+  doc: RrqDoc,
+  id: string,
+  category?: string,
+): Promise<{ lib: LibraryDoc; doc: RrqDoc }> {
+  const p = doc.project;
+  const shape = (p.eppShapes ?? []).find((s) => s.id === id);
+  const rosette = (p.rosettes ?? []).find((r) => r.id === id);
+  if (!shape && !rosette) return { lib, doc };
+  const cat = category ? { category } : {};
+  let item: LibraryItem;
+  if (shape) item = { type: 'epp-shape', ...cat, data: await asLibraryData(shape, 1) };
+  else {
+    const own = new Set((rosette!.shapes ?? []).map((s) => s.id));
+    const shapes = (p.eppShapes ?? []).filter(
+      (s) => !own.has(s.id) && rosette!.pieces.some((x) => x.shape === s.id),
+    );
+    item = {
+      type: 'rosette',
+      ...cat,
+      data: await asLibraryData(rosette!, 1),
+      ...(shapes.length ? { shapes } : {}),
+    };
+  }
+  const data = item.data;
+  return {
+    lib: { ...lib, items: [...lib.items.filter((i) => i.data.id !== data.id), item] },
+    doc: produce(doc, (d) => {
+      const x =
+        d.project.eppShapes?.find((s) => s.id === id) ??
+        d.project.rosettes?.find((r) => r.id === id);
+      if (!x) return;
+      x.credits ??= [];
+      x.source = link(lib, data);
+    }),
+  };
+}
+
 /** The library item a linked copy follows (in My library), if it still exists. */
 export const linkedBlock = (lib: LibraryDoc | undefined, b: Block) =>
   lib && b.source?.derived && b.source.libraryId === lib.id

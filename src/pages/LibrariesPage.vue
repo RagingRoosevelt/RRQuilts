@@ -341,7 +341,7 @@
             />
           </template>
         </FilterCard>
-        <ColorFilterCard v-if="settings.settings.libraryType !== 'block'" v-model="colorF" />
+        <ColorFilterCard v-if="isPaletteView" v-model="colorF" />
         <FilterCard v-if="settings.settings.libraryType === 'block'" label="Shape">
           <BlockFilter
             v-model:layout="fitLayout"
@@ -592,11 +592,19 @@
               </template>
             </BlockSections>
 
+            <EppLibraryItems
+              v-if="libOpen(g) && isEppView && (g.eppShapes.length || g.rosettes.length)"
+              :view="g.v"
+              :shapes="g.eppShapes"
+              :rosettes="g.rosettes"
+              :mine="g.mine"
+              class="q-mb-md"
+            />
             <div
               v-if="
                 libOpen(g) &&
                 (g.collections.length || (g.mine && g.v.doc.items.length)) &&
-                settings.settings.libraryType !== 'block' &&
+                isPaletteView &&
                 (!g.packOf || g.firstPalettes) &&
                 (settings.settings.libraryType !== 'colors' || g.mine)
               "
@@ -1390,6 +1398,7 @@ import { TECHNIQUES, techniqueOptions } from '@/model/schema/shared';
 import { FAVORITE, sortTags, tagLabel, tagsFor, visibleTags, type TagTarget } from '@/model/tags';
 import ColoringCount from '@/components/ColoringCount.vue';
 import BlockSections from '@/components/BlockSections.vue';
+import EppLibraryItems from '@/components/EppLibraryItems.vue';
 import BlockFilter from '@/components/BlockFilter.vue';
 import FilterSelect from '@/components/FilterSelect.vue';
 import FilterCard from '@/components/FilterCard.vue';
@@ -1980,7 +1989,7 @@ const filtering = computed(
       filters.difficulty,
       filters.data,
     ].some((f) => f.length) ||
-    (settings.settings.libraryType !== 'block' && colorFilterOn(colorF)),
+    (isPaletteView.value && colorFilterOn(colorF)),
 );
 /** Every library shown; My library always, as an empty one until something is saved there. */
 const inScope = computed(() =>
@@ -2026,8 +2035,16 @@ const allCats = computed(() => [
 const TYPE_OPTIONS = [
   { label: 'Blocks', value: 'block' },
   { label: 'Palettes', value: 'colors' },
+  { label: 'EPP', value: 'epp' },
   { label: 'All', value: '' },
 ];
+/** Palettes show in the Palettes and All views (not Blocks, not EPP). */
+const isPaletteView = computed(
+  () => settings.settings.libraryType === 'colors' || !settings.settings.libraryType,
+);
+const isEppView = computed(
+  () => settings.settings.libraryType === 'epp' || !settings.settings.libraryType,
+);
 /** Category filter: every library's categories merged by name; only those the items use. */
 const catFilter = computed(() =>
   categoryFilter(allCats.value, new Set(typedItems.value.map((i) => i.category ?? ''))),
@@ -2064,7 +2081,7 @@ const colorMatch = (s: Swatch) => !colorFilterOn(colorF) || swatchMatches(swatch
 const cardSwatches = (c: ColorCollection) =>
   swatches(c.id, c.colors, c.fabrics).filter((s) => !colorF.onlyMatching || colorMatch(s));
 const matches = (i: LibraryItem) =>
-  (!settings.settings.libraryType || i.type === settings.settings.libraryType) &&
+  ofType(i) &&
   (i.type !== 'colors' ||
     paletteMatches(
       [...i.data.colors.map((c) => c.rgb), ...(i.data.fabrics ?? []).map((f) => f.average)],
@@ -2109,10 +2126,19 @@ const groups = computed(() =>
             tagsFor(b.notecard.tags, [b.id], library.kept),
           ),
           collections: v.collections.filter((c) => ids.has(c.id)),
+          eppShapes: v.eppShapes.filter((x) => ids.has(x.id)),
+          rosettes: v.rosettes.filter((x) => ids.has(x.id)),
         };
       })
       // My library shows even when empty (it holds the New palette button), unless filtering.
-      .filter((g) => g.blocks.length || g.collections.length || (g.mine && !filtering.value)),
+      .filter(
+        (g) =>
+          g.blocks.length ||
+          g.collections.length ||
+          g.eppShapes.length ||
+          g.rosettes.length ||
+          (g.mine && !filtering.value),
+      ),
   ),
 );
 /** Packs of the same library together, the first of each carrying the library's heading. */

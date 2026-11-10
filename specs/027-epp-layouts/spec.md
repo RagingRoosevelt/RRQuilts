@@ -220,9 +220,19 @@ parallelogram); place it and print it.
 
 **Acceptance Scenarios**:
 
-1. **Given** the built-in library, **Then** it has a starter set of EPP shapes: hexagon, equilateral
-   triangle, square, 60° diamond, 45° diamond, half hexagon, jewel, kite, octagon, pentagon and a few
-   stretched versions (for example a 2-unit long hexagon), filed by category.
+1. **Given** the built-in library, **Then** it has a starter set of EPP shapes, filed by category:
+   jewel (edges 1, 1, 2, 2, 1), hexagon, octagon, half hexagon, square, half square (right triangle,
+   its long edge marked), equilateral triangle, 45° diamond, 60° diamond, pentagon, honeycomb (a
+   hexagon of 1U edges with two 90° end corners) and elongated hexagon (the honeycomb with its two
+   long sides 2U), and a kite cut from a 2U hexagon (center, edge midpoint, corner, next midpoint:
+   short edges 1U, long edges √3, marked). Owner, 2026-11-10: "jewel (1u, 1u, 1u, 2u?, 2u?), hexagon, octagon,
+   half-hexagon, square, half-square (right triangle), triangle (60deg equalatralal), 45deg
+   diamond, 60deg diamond, pentagon, honeycomb (hexagon with 1u edges, two 90 degree end corners),
+   elongated hexagon. same as honeycomb but with two 2u sides". Then: ""kite" which would be
+   extracted from a hexagon and is formed from the center of the hexagon to the midpoint of one
+   edge, connected to a natural vertex, connected to the next midpoint of the edge, connected back
+   to the center. the edges between midpoint and natural vertex would be 1u leaving the long edges
+   an odd length".
 2. **Given** My library and packs (spec 011), **Then** EPP shapes (and rosettes, spec 050) can be saved to My
    library, shared in packs, copied from packs, synced and credited exactly like blocks, and the
    Libraries page and project tabs list and filter them as their own type.

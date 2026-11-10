@@ -36,11 +36,13 @@ describe('published format versions (template repositories check these)', () => 
   it('match the app', async () => {
     const { VERSION } = await import('@/model/schema/project');
     const { LIBRARY_VERSION } = await import('@/model/schema/library');
+    const { EPP_VERSION } = await import('@/model/epp-file');
     expect(JSON.parse(readFileSync('public/schemas/formats.json', 'utf8'))).toEqual({
       rrq: VERSION,
       rrqlib: LIBRARY_VERSION,
       'rrqlib-index': 1,
       rrqplt: COLLECTION_VERSION,
+      rrqepp: EPP_VERSION,
     });
   });
 });

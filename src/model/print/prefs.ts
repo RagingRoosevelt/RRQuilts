@@ -4,6 +4,8 @@ import type { Units } from '../schema/project';
 
 export type BlockSection = 'templates' | 'rotary' | 'picture';
 export type QuiltSection = 'picture' | 'blocks' | 'yardage' | 'rotary' | 'templates';
+/** Rosettes (spec 050 FR-006a): the rosette sheet, paper templates, fabric templates. */
+export type RosetteSection = 'picture' | 'paper' | 'fabric';
 
 const perUnits = <T>(inches: T, cm: T) => ({ in: inches, cm });
 
@@ -83,6 +85,10 @@ export const PRINT_DEFAULTS = {
   },
   blockSections: ['templates', 'rotary'] as BlockSection[],
   quiltSections: ['picture', 'blocks', 'yardage', 'rotary', 'templates'] as QuiltSection[],
+  rosetteSections: ['picture', 'paper', 'fabric'] as RosetteSection[],
+  /** A rosette has no size: the length of 1U it prints at, and how many rosettes to cut for. */
+  rosetteUnit: perUnits(1, 2.5),
+  rosetteCount: 1,
 };
 export type PrintPrefs = typeof PRINT_DEFAULTS;
 

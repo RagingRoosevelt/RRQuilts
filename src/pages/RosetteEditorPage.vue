@@ -4,6 +4,7 @@
       <q-tabs v-model="tab" dense no-caps inline-label class="col">
         <q-tab name="details" icon="info" label="Details" />
         <q-tab name="design" icon="hive" label="Design" />
+        <q-tab name="print" icon="print" label="Print" />
       </q-tabs>
       <q-btn flat round dense icon="menu" :aria-label="sidebarLabel" @click="sidebar = !sidebar">
         <q-tooltip>{{ sidebarLabel }}</q-tooltip>
@@ -47,6 +48,10 @@
         >
           <q-tooltip anchor="center right" self="center left">Redo (Ctrl+Shift+Z)</q-tooltip>
         </q-btn>
+        <template v-if="tab === 'print'">
+          <q-separator />
+          <PrintZoom />
+        </template>
         <template v-if="tab === 'design'">
           <q-separator />
           <q-btn
@@ -94,7 +99,14 @@
         </template>
       </div>
 
-      <div class="col relative-position column no-wrap">
+      <PrintPreview
+        v-if="tab === 'print'"
+        kind="rosette"
+        :id="rosette.id"
+        :doc="project.doc"
+        :target="{ coloring: coloringId }"
+      />
+      <div v-else class="col relative-position column no-wrap">
         <EppCanvas
           ref="canvasRef"
           v-model:view="view"
@@ -114,6 +126,7 @@
 
       <div v-show="sidebar" class="inspector q-pa-md scroll column no-wrap" style="gap: 12px">
         <DetailsPanel v-if="tab === 'details'" kind="rosette" :id="rosette.id" />
+        <PrintOptions v-else-if="tab === 'print'" kind="rosette" :id="rosette.id" />
         <template v-else>
           <q-toggle
             v-if="prefs.mode === 'grid'"
@@ -195,6 +208,9 @@ import DetailsPanel from '@/components/DetailsPanel.vue';
 import EppCanvas, { type CanvasPoly, type Decor, type Grid } from '@/components/EppCanvas.vue';
 import EppPicker, { type PickerGroup } from '@/components/EppPicker.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
+import PrintOptions from '@/components/PrintOptions.vue';
+import PrintPreview from '@/components/PrintPreview.vue';
+import PrintZoom from '@/components/PrintZoom.vue';
 import type { World } from '@/composables/viewport';
 import { fillFor } from '@/editor/paint';
 import { failing } from '@/model/epp/checks';
@@ -248,7 +264,7 @@ const rosette = computed<Rosette | undefined>(
 );
 const ro = computed(() => project.readOnly || !own.value || isLibraryItem(own.value));
 
-const tab = ref<'details' | 'design'>('design');
+const tab = ref<'details' | 'design' | 'print'>(route.query.print ? 'print' : 'design');
 const sidebar = ref(!$q.screen.lt.md);
 const sidebarLabel = computed(() => (sidebar.value ? 'Hide sidebar' : 'Show sidebar'));
 const swapped = computed(() => app.settings.sidesSwapped);

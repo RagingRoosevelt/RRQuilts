@@ -17,6 +17,27 @@
       />
     </div>
 
+    <template v-if="kind === 'rosette'">
+      <LengthInput
+        :model-value="prefs.rosetteUnit[units]"
+        label="1U length"
+        :units="units"
+        :min="units === 'in' ? 0.25 : 0.5"
+        @update:model-value="(v: number) => setUnit('rosetteUnit', v)"
+      />
+      <q-input
+        :model-value="prefs.rosetteCount"
+        type="number"
+        dense
+        outlined
+        label="How many rosettes"
+        :min="1"
+        :max="999"
+        @update:model-value="
+          (v) => set('rosetteCount', Math.min(999, Math.max(1, Math.round(Number(v) || 1))))
+        "
+      />
+    </template>
     <template v-if="kind === 'block'">
       <q-select
         v-model="sizeSource"
@@ -425,7 +446,7 @@ import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
   /** `steps`: a data quilt's Print instructions (spec 041): paper, cutting, templates, look. */
-  kind: 'block' | 'quilt' | 'steps';
+  kind: 'block' | 'quilt' | 'steps' | 'rosette';
   id: string;
   coloringId?: string | undefined;
   /** The document to print from (the block editor's read-only view of a library block). */
@@ -484,6 +505,7 @@ function set<K extends keyof PrintPrefs>(key: K, value: PrintPrefs[K]) {
 }
 type PerUnit =
   | 'paper'
+  | 'rosetteUnit'
   | 'margin'
   | 'seam'
   | 'rounding'
@@ -507,27 +529,39 @@ const fabricStepOptions = computed(() =>
 );
 
 const sectionOptions = computed(() =>
-  props.kind === 'block'
+  props.kind === 'rosette'
     ? [
-        { value: 'picture', label: 'Block page (picture, fabric, credits)' },
-        { value: 'rotary', label: 'Rotary cutting chart' },
-        { value: 'templates', label: 'Templates' },
+        { value: 'picture', label: 'Rosette sheet' },
+        { value: 'paper', label: 'Paper templates (finished size)' },
+        { value: 'fabric', label: 'Fabric templates (with seam allowance)' },
       ]
-    : [
-        { value: 'picture', label: 'Quilt picture' },
-        { value: 'blocks', label: 'Block pages (picture, fabric, credits)' },
-        { value: 'yardage', label: 'Yardage estimate' },
-        { value: 'rotary', label: 'Rotary cutting chart' },
-        { value: 'templates', label: 'Templates (blocks and quilt pieces)' },
-      ],
+    : props.kind === 'block'
+      ? [
+          { value: 'picture', label: 'Block page (picture, fabric, credits)' },
+          { value: 'rotary', label: 'Rotary cutting chart' },
+          { value: 'templates', label: 'Templates' },
+        ]
+      : [
+          { value: 'picture', label: 'Quilt picture' },
+          { value: 'blocks', label: 'Block pages (picture, fabric, credits)' },
+          { value: 'yardage', label: 'Yardage estimate' },
+          { value: 'rotary', label: 'Rotary cutting chart' },
+          { value: 'templates', label: 'Templates (blocks and quilt pieces)' },
+        ],
 );
 const sections = computed<string[]>(() =>
-  props.kind === 'block' ? prefs.value.blockSections : prefs.value.quiltSections,
+  props.kind === 'rosette'
+    ? prefs.value.rosetteSections
+    : props.kind === 'block'
+      ? prefs.value.blockSections
+      : prefs.value.quiltSections,
 );
 const setSections = (v: string[]) =>
-  props.kind === 'block'
-    ? set('blockSections', v as PrintPrefs['blockSections'])
-    : set('quiltSections', v as PrintPrefs['quiltSections']);
+  props.kind === 'rosette'
+    ? set('rosetteSections', v as PrintPrefs['rosetteSections'])
+    : props.kind === 'block'
+      ? set('blockSections', v as PrintPrefs['blockSections'])
+      : set('quiltSections', v as PrintPrefs['quiltSections']);
 
 // Block size: its own, as used in a quilt (counts from that quilt), or custom.
 const block = computed(() =>

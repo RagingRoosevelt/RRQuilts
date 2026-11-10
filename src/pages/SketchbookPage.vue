@@ -17,6 +17,7 @@
         <q-tab name="quilts" :label="`Quilts (${quilts.length})`" />
         <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
         <q-tab name="colors" :label="`Palettes (${ownPalettes.length + pickedPalettes.length})`" />
+        <q-tab name="epp" :label="`EPP (${eppCount})`" />
         <q-tab name="photos" label="Photos" />
         <q-tab name="threads" label="Threads" />
         <q-tab name="details" label="Details" />
@@ -612,6 +613,8 @@
     </template>
 
     <DetailsPanel v-else-if="tab === 'details'" kind="project" />
+
+    <EppItems v-else-if="tab === 'epp'" />
 
     <template v-else-if="tab === 'colors'">
       <div class="row no-wrap-md" style="gap: 16px">
@@ -1538,6 +1541,7 @@ import {
 import { collectionFile } from '@/model/collection-file';
 import type { LibraryDoc } from '@/model/schema/library';
 import { absorbFabrics, absorbImages, embedFabrics } from '@/storage/fabric-files';
+import EppItems from '@/components/EppItems.vue';
 import { importProjectQuilts } from '@/model/import-quilts';
 import {
   fabricToUnits,
@@ -1591,6 +1595,11 @@ const inUseDialog = ref<{
   where: { quilt: string; spots: string[] }[];
   remove: () => void;
 } | null>(null);
+/** EPP shapes and rosettes of this project (spec 027 FR-013). */
+const eppCount = computed(
+  () =>
+    (project.doc?.project.eppShapes?.length ?? 0) + (project.doc?.project.rosettes?.length ?? 0),
+);
 const tab = computed({
   get: () => settings.settings.projectTab,
   set: (v) => (settings.settings.projectTab = v),

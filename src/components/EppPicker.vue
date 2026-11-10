@@ -47,16 +47,7 @@
           :title="c.name"
           @click="emit('update:picked', c.id === picked ? null : c.id)"
         >
-          <svg :viewBox="c.box" class="pic">
-            <path
-              v-for="(p, i) in c.paths"
-              :key="i"
-              :d="p.d"
-              :fill="p.fill"
-              stroke="currentColor"
-              :stroke-width="c.stroke"
-            />
-          </svg>
+          <EppThumb :polys="c.polys" />
           <div class="text-caption ellipsis full-width">{{ c.name }}</div>
         </button>
       </div>
@@ -69,9 +60,10 @@
 // The EPP picker (specs 027, 050): shapes and rosettes to place, at the Scale picked above them.
 // In Grow mode, while an edge is hovered, cards show whether they fit it (`fit`).
 import { computed, ref } from 'vue';
+import EppThumb from '@/components/EppThumb.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { rosetteLocal, type EppLookup } from '@/model/epp/expand';
-import { bbox, place, type Poly } from '@/model/epp/geometry';
+import { place, type Poly } from '@/model/epp/geometry';
 import type { EppShape, Rosette } from '@/model/schema/epp';
 import type { Fill } from '@/model/schema/coloring';
 
@@ -99,22 +91,8 @@ const emit = defineEmits<{
 }>();
 
 const filter = ref<'all' | 'shapes' | 'rosettes'>('all');
-const d = (poly: Poly) =>
-  'M' + poly.map(([x, y]) => `${x.toFixed(3)},${y.toFixed(3)}`).join('L') + 'Z';
-
 function card(id: string, name: string, polys: { poly: Poly; fill?: Fill | undefined }[]) {
-  const [x0, y0, x1, y1] = bbox(polys.map((p) => p.poly));
-  const pad = Math.max(x1 - x0, y1 - y0) * 0.08 + 0.05;
-  return {
-    id,
-    name,
-    box: `${x0 - pad} ${y0 - pad} ${x1 - x0 + 2 * pad} ${y1 - y0 + 2 * pad}`,
-    stroke: Math.max(x1 - x0, y1 - y0) / 60,
-    paths: polys.map((p) => ({
-      d: d(p.poly),
-      fill: props.paint(p.fill) ?? 'rgba(128,128,128,0.15)',
-    })),
-  };
+  return { id, name, polys: polys.map((p) => ({ poly: p.poly, fill: props.paint(p.fill) })) };
 }
 
 const groups = computed(() =>
@@ -163,9 +141,5 @@ const groups = computed(() =>
 }
 .card.misfit {
   opacity: 0.4;
-}
-.pic {
-  width: 56px;
-  height: 56px;
 }
 </style>

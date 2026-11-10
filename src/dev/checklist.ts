@@ -59,6 +59,7 @@ const G = {
   snap031: 'Snapping gravity and Line up (spec 031)',
   swirl025: 'Swirl and Pinwheel data blocks, traces in block pictures (spec 025)',
   make041: 'Data Quilts: data entry and printed instructions (spec 041)',
+  epp027: 'English paper piecing: shapes, rosettes, EPP section (specs 027, 050)',
 };
 
 export const CHECKS: Check[] = [
@@ -105,6 +106,30 @@ export const CHECKS: Check[] = [
     text: 'Leap day: a Weeks quilt from 1 January 2028. Details › Data quilt shows Leap day (hidden for 2027 and for Months). Extra single-day number: the list runs Jan 1, Wk 1 … Wk 52, Dec 31. Use a 2-day block variant: the last number is Dec 30–31 and a week block’s 2-day variant (Draw tab › Variant › 2 days) shows there. Average and Ignore: 53 numbers, and the Entries dialog marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value (Mood) and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra; switching to Ignore with a block on Feb 29 asks first.',
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
+  },
+  {
+    id: 'TC-280',
+    group: G.epp027,
+    text: 'Shape editor: Project › EPP › New shape. Drag corners on the grid (Vertex grid snapping Free / Square / Triangle, the grid drawn follows); each edge shows its length (2, 1/2, 1.41). Vertex tool: tap an edge to add a corner, select one and Delete corner. Edge tool: drag an edge; tap one to mark it as not a whole unit (orange, dashed). Angle tool: drag a corner up to widen it, down to narrow it, by the Angle step. Lock vertex: a locked corner doesn’t move. The four checks (Closes, Doesn’t cross itself, Whole units, Convex) and the red banner follow every change. Multi-shape: draw lines across the outline, each closed area gets its own checks; Save as rosette opens a rosette of those shapes. Print tab: paper and fabric templates of the shape.',
+    to: '/project',
+  },
+  {
+    id: 'TC-281',
+    group: G.epp027,
+    text: 'Rosette editor: Project › EPP › New rosette. Free: pick Hexagon, a ghost follows the mouse and snaps; tap to place seven into a flower, each flush. Drag a piece: it snaps to the others. Grow: hover a free edge (green), picker cards show which shapes fit, tap the edge to attach the picked shape. Grid: shapes sit on the grid; Drag grid moves it until it lines up with a placed corner; Sync grid to selected size follows the Scale slider. Scale 2 pieces snap along 1U ones. Turn, Mirror, Delete. Leave a gap and use Close space: a new shape fills it (red outline and banner if it isn’t usable). Colorings: paint pieces, New coloring, Copy, remove. Place the Hexagon Flower rosette into another rosette: its pieces are copied in.',
+    to: '/project',
+  },
+  {
+    id: 'TC-282',
+    group: G.epp027,
+    text: 'EPP section: Project › EPP lists your shapes and rosettes, the libraries’ ones below (built-in: Hexagon, Half Hexagon, Honeycomb, Elongated Hexagon, Triangle, Half Square, Square, 60° and 45° Diamond, Kite, Jewel, Pentagon, Octagon; rosettes Hexagon Flower, Double Flower, Six-Diamond Star, Tumbling Block, Octagon and Square). Card menu: Duplicate, Edit a copy (library items), Export (.rrqepp) then Import it into another project, Add to My library, Delete (refused while used). Libraries page: Type › EPP shows them; Copy to My library and Delete from My library. Save and reopen the project: everything comes back.',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-283',
+    group: G.epp027,
+    text: 'Rosette print: a rosette’s Print tab (or Print on its card). 1U length and How many rosettes change the counts (Hexagon Flower × 4 = 28 hexagons). Rosette sheet, Paper templates (finished size) and Fabric templates (with seam allowance) each on or off. Print at 100 % and measure: a 1 in hexagon’s edge is 1 in; a fabric template is one seam allowance larger all round.',
+    to: '/project',
   },
 ];
 

@@ -9,7 +9,7 @@ import { parseLibraryValue } from '@/model/library-file';
 describe('built-in EPP starters', () => {
   const { shapes, rosettes } = eppStarters();
   it.each(shapes.map((s) => [s.notecard.name, s] as const))('%s passes every check', (_, s) => {
-    expect(checkOutline(s.outline)).toEqual({
+    expect(checkOutline(s.outline, s.marked)).toEqual({
       closes: true,
       simple: true,
       wholeUnits: true,
