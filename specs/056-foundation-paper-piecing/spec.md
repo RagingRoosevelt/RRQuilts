@@ -71,7 +71,9 @@ automatically; every section shows as sewable.
 
 - **FR-001**: The block editor MUST offer a Foundation view that proposes sections and sewing numbers
   and lets the quilter change them, showing which sections are sewable.
-- **FR-002**: Sections and numbers MUST be saved with the block (existing format field).
+- **FR-002**: Sections and numbers MUST be saved with the block. The existing foundation field holds
+  each section's sewing order; the join order of sections (A+B, then C) needs a new field, so this
+  feature brings a new project and block file format version with a migration (spec 003).
 - **FR-003**: Printing MUST produce mirrored foundation patterns at true size with numbers, seam
   allowance, fill style and page packing, plus oversize cutting sizes.
 - **FR-004**: Blocks that can't be foundation pieced MUST be reported with the reason.
