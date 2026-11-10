@@ -345,6 +345,12 @@ export const CHECKS: Check[] = [
     text: 'With no project open (after a reload, from a draft or a saved project in the Data Quilts list), Print instructions and Block by block show the preview and the sidebar.',
     last: '"something is bugged and now the print preview doesn\'t show up at all. i restarted the dev server just in case"',
   },
+  {
+    id: 'TC-272',
+    group: G.small,
+    text: 'Settings › Snapping gravity on a phone: each label and its note sit on their own line above the pull circle and the Off / Gentle / Normal / Strong switches (Touch gravity too). On a wide window they stay side by side.',
+    last: '"in settings, all of the snap settings sit side-by-side labels and toggle.  this is fine on desktop but on mobile it doens\'t leave enough room for the labels to be easy to read.  on mobile and narrow devices the labels should sit above the switches"',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

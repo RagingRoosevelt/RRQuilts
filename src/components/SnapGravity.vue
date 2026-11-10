@@ -5,7 +5,7 @@
       How close the pointer must come before it jumps onto each kind of point while drawing a block.
       Hold Alt (Option on a Mac) to draw without snapping.
     </div>
-    <div v-for="t in TARGETS" :key="t.target" class="row items-center" style="gap: 12px">
+    <div v-for="t in TARGETS" :key="t.target" class="row items-center item" style="gap: 12px">
       <div class="col">
         <div>{{ t.label }}</div>
         <div class="text-caption text-grey-7">{{ t.caption }}</div>
@@ -26,7 +26,7 @@
         @update:model-value="(v) => setStep(t.target, v)"
       />
     </div>
-    <div class="row items-center" style="gap: 12px">
+    <div class="row items-center item" style="gap: 12px">
       <div class="col">
         <div>Touch gravity</div>
         <div class="text-caption text-grey-7">A fingertip covers more than a mouse pointer.</div>
@@ -92,6 +92,16 @@ function ring(t: SnapTarget) {
 </script>
 
 <style scoped>
+/* Phones: the label on its own line above the switches, so it has room to read. */
+@media (max-width: 599px) {
+  .item {
+    flex-wrap: wrap;
+    row-gap: 4px !important;
+  }
+  .item > .col {
+    flex: 0 0 100%;
+  }
+}
 .pull {
   position: relative;
   width: 36px;
