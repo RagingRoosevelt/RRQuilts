@@ -315,6 +315,12 @@ export const CHECKS: Check[] = [
     text: 'Help › Guides › Data quilts › Make it day by day describes the Data Quilts tab, the calendar and day form, Cut, Assembled, Block assembled, Year, where data waits, Print instructions and Block by block, in the app’s words.',
     to: '/help/guides/data-quilts',
   },
+  {
+    id: 'TC-267',
+    group: G.make041,
+    text: 'On a phone (or a narrow window), each month in the data entry calendar folds and unfolds by tapping its title. A month whose days are all assembled (the day or its block) has a green ✓✓ and starts folded. Moving to a day in a folded month unfolds it. On a wide window months never fold.',
+    last: '"on mobile, make each month colapseable and colapse any months that have been finished"',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

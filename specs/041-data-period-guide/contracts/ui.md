@@ -36,6 +36,7 @@ Props: `{ projectId: string; quiltId: string }` (source resolved by the store). 
   - one dot per series (A to D) with an entry, in `dayColor`; an empty ring for a series without;
   - a **Cut** badge (scissors) and an **Assembled** badge (needle) when marked;
   - outside the period or past the plan: dimmed, not tappable.
+  - Phones: a month folds by tapping its title; finished months (all days assembled) start folded.
   - Selection: tap a day; shift-tap or long press then tap extends a range (for Print instructions).
 - **Entry form** below the calendar for the tapped day:
   - one input per series as the Data tab's entries (number with unit, or category select);

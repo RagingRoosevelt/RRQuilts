@@ -31,3 +31,6 @@ Each entry: what I had to decide, what I chose, and why. Change any of them free
    sample, so the demo pictures don't change.
 10. **Help** section title: "Make it day by day" (Guides › Data quilts), with "Print instructions" as
     a subsection.
+11. **Finished month** (folds on phones): every day of the period in that month is marked Assembled,
+    or its block is. Only the starting state follows that; a month folded or unfolded by hand stays
+    so while the dialog is open.

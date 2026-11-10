@@ -9,8 +9,19 @@
     @touchstart="touchStart"
   >
     <div v-for="m in months" :key="m.key" class="month" :data-month="m.key">
-      <div class="text-weight-medium q-mb-xs">{{ m.title }}</div>
-      <div class="grid">
+      <button
+        v-if="phone"
+        type="button"
+        class="month-title text-weight-medium q-mb-xs"
+        :aria-expanded="!shut(m)"
+        @click="toggle(m)"
+      >
+        <q-icon :name="shut(m) ? 'chevron_right' : 'expand_more'" size="18px" />
+        {{ m.title }}
+        <q-icon v-if="m.done" name="done_all" size="14px" class="text-positive" />
+      </button>
+      <div v-else class="text-weight-medium q-mb-xs">{{ m.title }}</div>
+      <div v-if="!shut(m)" class="grid">
         <div v-for="w in WEEKDAYS" :key="w" class="weekday">{{ w }}</div>
         <div v-for="i in m.pad" :key="`p${i}`" />
         <button
@@ -52,7 +63,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useQuasar } from 'quasar';
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { dataNumbers, dayColor, dayDate, periodLength, placeDays } from '@/model/data-quilt';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
@@ -77,6 +89,8 @@ const library = useLibraryStore();
 const root = ref<HTMLElement>();
 const today = todayKey();
 const plan = computed(() => props.quilt.data!);
+const $q = useQuasar();
+const phone = computed(() => $q.screen.lt.md);
 
 /** The period's months, each with every day of the month (days outside the period dimmed). */
 const months = computed(() => {
@@ -88,6 +102,8 @@ const months = computed(() => {
     title: string;
     pad: number;
     days: { date: string; day: number; inPeriod: boolean }[];
+    /** Every day of the period in it assembled (the day or its block). */
+    done: boolean;
   }[] = [];
   let y = Number(start.slice(0, 4));
   let m = Number(start.slice(5, 7)) - 1;
@@ -108,6 +124,12 @@ const months = computed(() => {
       }),
       pad: new Date(Date.UTC(y, m, 1)).getUTCDay(),
       days,
+      done: days.every(
+        (d) =>
+          !d.inPeriod ||
+          !!plan.value.made?.[d.date]?.assembled ||
+          !!plan.value.blocksMade?.[band.value.get(d.date) ?? 0],
+      ),
     });
     m++;
     if (m === 12) [y, m] = [y + 1, 0];
@@ -216,8 +238,14 @@ function click(date: string, e: MouseEvent) {
   emit('pick', date, e.shiftKey);
 }
 
-/** Bring a day's month into view. */
+// Phones: a month folds by its title; finished months start folded.
+const opened = reactive(new Map<string, boolean>());
+const shut = (m: { key: string; done: boolean }) => phone.value && !(opened.get(m.key) ?? !m.done);
+const toggle = (m: { key: string; done: boolean }) => opened.set(m.key, shut(m));
+
+/** Bring a day's month into view (unfolded). */
 function reveal(date: string, smooth = true) {
+  opened.set(date.slice(0, 7), true);
   const el = root.value?.querySelector(`[data-month="${date.slice(0, 7)}"]`);
   el?.scrollIntoView({ block: 'nearest', behavior: smooth ? 'smooth' : 'auto' });
 }
@@ -234,6 +262,18 @@ defineExpose({ reveal });
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
   gap: 16px;
+}
+.month-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
 .grid {
   display: grid;

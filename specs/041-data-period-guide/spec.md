@@ -133,6 +133,9 @@ for next steps. the user can select the days they want to get the printout for."
   colors for the days to make clear which days belong to which blocks, sort of like how some
   tables alternate rows to keep them visually distinct". Every other data block's days are shaded
   light gray in the calendar (weeks alternate week by week; months month by month).
+- Owner, 2026-11-09: "on mobile, make each month colapseable and colapse any months that have been
+  finished". On phones each calendar month folds by its title; a month whose days are all assembled
+  (the day or its block) starts folded and shows a green mark.
 
 ## Today
 
