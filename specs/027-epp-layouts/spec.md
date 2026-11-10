@@ -200,8 +200,9 @@ parallelogram); place it and print it.
    where dragged corners land and which grid is drawn, and an angle step setting sets the Angle
    tool's increments.
 4. **Given** an edge that isn't a whole number of units, **Then** it fails the whole-unit flag unless
-   the quilter marked it with the Edge tool as meant to be that length. A marked edge snaps only to
-   edges of the same length.
+   the quilter marked it with the Edge tool as meant to be that length. A marked edge of length L snaps to
+   edges of length L, a whole multiple of L (2L, 3L…), or L/2 or L/4, a shorter edge running along a
+   longer one in steps of its own length.
 5. **Given** an outline that doesn't close, crosses itself, isn't convex, or has an unmarked edge that
    isn't a whole number of units, **Then** the editor flags it and doesn't save it as a usable shape
    (FR-006 banner).
@@ -327,7 +328,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   print notes the trim line and its size.
 - **FR-002**: EPP shapes MUST be simple closed convex polygons whose edge lengths are whole multiples of
   the quilt's base dimension, except edges the quilter deliberately marks as another length
-  (FR-006a), which snap only to edges of the same length.
+  (FR-006a). A marked edge snaps to an edge of the same length, a whole multiple of it, or a half or a quarter of it (a shorter edge runs along a longer one in steps of its own length). Owner, 2026-11-10: "let's also allow snapping to an integer multiple of that length or to a 1/2
+  or 1/4 ofthat length".
 - **FR-003**: Placing and dragging pieces MUST snap equal-length edges together end to end (and short
   edges along long ones at whole-unit steps), with free placement off snap.
 - **FR-003a**: Each piece MUST have a whole-number scale from 1 to 4 that multiplies its shape's

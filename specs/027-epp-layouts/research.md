@@ -83,7 +83,8 @@ Decisions for the plan. Each: Decision, Rationale, Alternatives considered.
 ## R7. Snapping and placement modes
 
 - **Decision**: Port the prototype's snap (equal edges end to end, short edges along long ones at
-  whole-unit steps, marked edges only to equal lengths) into `model/epp/snap.ts`, in units with a
+  whole-unit steps, marked edges of length L to L, whole multiples of L, L/2 and L/4, shorter along longer in steps of
+  the shorter length) into `model/epp/snap.ts`, in units with a
   reach in screen pixels (`GRAVITY_PX`, `reachOf` from `editor/snap.ts`). Grow = attach the picked
   shape to a tapped free edge (fit test per picker shape for hover colors). Grid = lattice of the
   picked shape (`blocks/shape.ts` `lattice` for triangles and hexagons, squares trivial), offset by the
