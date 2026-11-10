@@ -2,6 +2,20 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.8.0 (2026-11-10)
+
+### New features
+
+- [major] Data Quilts: a new tab for entering your data into your data quilts as the year goes on.
+- A calendar for entering each day's values, with the quilt picture filling in as you go.
+- [major] Track which days are cut and assembled, and which blocks are done.
+- Printed instructions for making the days you pick, or a whole block at a time.
+- Enter data for a project without opening it.
+- [major] New data blocks: Swirls, Pinwheels and Quartered Pinwheels, square and hexagon.
+- Data block pictures can show the order the days go in.
+- Cornered Week and Month Strips are now pieced from straight strips.
+- Older projects open and are upgraded to the new file version.
+
 ## 0.7.4 (2026-10-30)
 
 ### New features
