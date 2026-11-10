@@ -54,8 +54,8 @@ justification).
   (a scale-1 edge runs along half of a scale-2 edge).
 - **Snap**: a dragged piece's edge settles onto a nearby edge of equal length, end to end, so the
   two would be sewn together.
-- **Rosette / group**: pieces picked together to move, turn, copy or recolor as one. Saved for
-  reuse, a group is a **stamp** (spec 050): a meta-block used interchangeably with shapes.
+- **Group**: pieces picked together to move, turn, copy or recolor as one. Saved for reuse, a group
+  is a **rosette** (spec 050): a meta-block used interchangeably with shapes.
 - **Outline**: an EPP quilt has no assumed shape and no quilt rectangle; binding and borders are
   optional, not assumed. Its edge is set by the **edge trim**:
   - **No trimming** (default): the edge is wherever the outer pieces end, often jagged (a hexagon
@@ -112,10 +112,10 @@ middle one, sharing a whole edge.
 5. **Given** pieces that would overlap, **Then** the overlap is shown (but allowed, so the quilter can
    rearrange), and printing warns about it.
 6. **Given** several pieces selected, **Then** they move, turn, mirror, copy, delete and recolor as a
-   group (detailed in spec 051), and a group can be saved as a **stamp** (spec 050) for reuse.
+   group (detailed in spec 051), and a group can be saved as a **rosette** (spec 050) for reuse.
 7. Undo and redo cover every change (spec 006).
 8. **Given** the toolbar, **Then** a three-way switch picks the placement mode: **Free**, **Grow** and
-   **Grid** (FR-003b). The Scale slider, the shape and stamp picker and colors and fabrics stay in the
+   **Grid** (FR-003b). The Scale slider, the shape and rosette picker and colors and fabrics stay in the
    sidebar; placement tools are in the toolbar, as in the other editors.
 9. **Given** Free mode and a shape picked, **When** the mouse is over the design and not over a placed
    piece (desktop), **Then** a ghost of the shape follows it, showing where a tap places it and how it
@@ -179,7 +179,7 @@ parallelogram); place it and print it.
 1. **Given** the built-in library, **Then** it has a starter set of EPP shapes: hexagon, equilateral
    triangle, square, 60° diamond, 45° diamond, half hexagon, jewel, kite, octagon, pentagon and a few
    stretched versions (for example a 2-unit long hexagon), filed by category.
-2. **Given** My library and packs (spec 011), **Then** EPP shapes (and stamps, spec 050) can be saved to My
+2. **Given** My library and packs (spec 011), **Then** EPP shapes (and rosettes, spec 050) can be saved to My
    library, shared in packs, copied from packs, synced and credited exactly like blocks, and the
    Libraries page and project tabs list and filter them as their own type.
 3. **Given** a project that uses library shapes, **Then** it embeds the ones it uses (spec 008).
@@ -270,7 +270,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 ### Functional Requirements
 
 - **FR-001**: The app MUST offer an EPP quilt type, separate from layout-engine quilts, with a base
-  dimension and a seam allowance per quilt.
+  dimension (the length of 1U, set in the Layout tab) and a seam allowance per quilt. Shapes and
+  rosettes have no size of their own (spec 050 Concepts).
 - **FR-001a**: An EPP quilt MUST NOT assume a rectangular (or any) outline. Borders and binding are
   off by default. The Layout tab MUST offer the edge trim: **No trimming** (edge follows the outer
   pieces), **Straight trim** (an adjustable rectangle) or **Custom trim** (an outline set in the
@@ -299,13 +300,13 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   not one editor (FR-014, spec 050 FR-009).
 - **FR-004**: Each piece MUST have exactly one fill: a color or a fabric.
 - **FR-005**: Pieces MUST support select, group, move, turn, mirror, copy, delete and recolor, with
-  undo; groups can be saved as stamps (spec 050).
+  undo; groups can be saved as rosettes (spec 050).
 - **FR-006**: Quilters MUST be able to create, copy and edit EPP shapes (edge lengths in units,
   angles, or a snapping grid) with validation that the outline closes and doesn't cross itself.
   Owner, 2026-11-10: "we should have a shape/stamp/rosette editor. it should have a banner that
   shows as long as at least one patche doesn't meet the following criteria: 1. closes, 2. doesn't
   cross itself, 3. every edge is a whole unit, 4. each shape is convex. each check should be shown
-  as a flag as you're editing." So shapes, stamps and rosettes share one editor (a shape is an item
+  as a flag as you're editing." So shapes and rosettes share one editor (a shape is an item
   of one patch), every patch shows four flags while editing (closes, doesn't cross itself, whole-unit
   edges, convex), and a banner names the failing patches until all pass. Shapes MUST be convex.
 - **FR-006a**: The shape editor MUST edit by dragging: corners on a 1-unit grid (Vertex grid snapping
@@ -321,7 +322,7 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   toolbox we can have an angle edit tool, and a vertex tool, an edge tool, and a lock vertex tool. I
   don't believe base unit matters for blocks and there's no reason to set a scale since we can just
   show a 1u grid and the user will see the number of units (or fractional units) an edge is"
-- **FR-007**: EPP shapes and stamps (spec 050) MUST be library items: built-in starters, My library, packs,
+- **FR-007**: EPP shapes and rosettes (spec 050) MUST be library items: built-in starters, My library, packs,
   embedding, sync and credits, as blocks are (specs 008, 009, 011).
 - **FR-008**: Printing MUST produce paper templates (no seam allowance) and fabric templates (with
   seam allowance) at true size, with counts per fill, labels, packing and yardage.
@@ -333,7 +334,7 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **FR-012**: Everything works offline; 3D rendering, any solver and STL export run in the app with
   no server calls.
 - **FR-013**: Libraries and projects MUST have an **EPP** section next to Blocks and Palettes, holding
-  EPP shapes and rosettes (stamps, spec 050), never mixed into the block lists.
+  EPP shapes and rosettes (spec 050), never mixed into the block lists.
 - **FR-014**: The EPP quilt type's designer MUST use the rosette editor's engine (placement modes,
   snapping, checks, paint) and add the quilt editor's **Layout** and **Borders** tabs, which the
   rosette editor doesn't have. Owner, 2026-11-10: "I think I'm going to go back on what I said about
@@ -345,9 +346,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   block space shape (square, triangle, diamond, hexagon; spec 026), so EPP rosettes can be mixed into
   normal block quilts. Owner, 2026-11-10: "in the standard block-based quilt designer, we should also
   show rosettes that match standard block layout shapes (triangle, diamond, hexagon, square) so that
-  EPP rosettes could be mixed into normal block quilts." Open for the plan: how a rosette is scaled
-  to a block space (block size sets the unit, or only spaces that are a whole number of units take
-  it), and how its pieces print (EPP templates in a block quilt's printout).
+  EPP rosettes could be mixed into normal block quilts." The block space sets the rosette's size (its
+  1U follows from the space), and its pieces print as EPP shapes (spec 050 User Story 4).
 
 ### Key Entities
 
@@ -356,7 +356,7 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **EppQuilt**: base dimension, seam allowance, edge trim (none / straight rectangle / custom
   outline), optional binding and borders (off by default), pieces, groups, colorways; later `joins` and a 3D flag.
 - **Piece**: shape ref, position, turn, mirror, scale (1-4), fill.
-- **Stamp**: see spec 050 (replaces the rosette: a saved group used like a shape).
+- **Rosette**: see spec 050 (a saved group used like a shape).
 - **Join** (later): two (piece, edge) pairs.
 
 ## Success Criteria *(mandatory)*

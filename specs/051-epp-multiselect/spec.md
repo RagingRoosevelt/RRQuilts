@@ -1,4 +1,4 @@
-# Feature Specification: EPP Multi-Select (a Selection That Acts Like a Stamp)
+# Feature Specification: EPP Multi-Select (a Selection That Acts Like a Rosette)
 
 **Feature Branch**: `TBD` (target 0.9.0, with specs 027 and 050; was 0.8.0)
 
@@ -13,19 +13,19 @@ rotated together, etc). stamps should be able to be included in that multi-selec
 
 ## Concepts
 
-- **Piece**: a placed shape (spec 027, the owner's "patch") or a placed stamp (spec 050).
+- **Piece**: a placed shape (spec 027, the owner's "patch") or a placed rosette (spec 050).
 - **Selection**: one or more pieces picked together. While picked, the selection behaves like a
-  temporary, unsaved stamp (spec 050): it moves, turns, mirrors, scales and snaps as one, keeping
+  temporary, unsaved rosette (spec 050): it moves, turns, mirrors, scales and snaps as one, keeping
   its pieces' arrangement. Nothing is linked or saved; deselecting leaves the pieces where they are,
   each on its own again.
-- A placed stamp in a selection is one piece of it (it isn't broken apart).
+- A placed rosette in a selection is one piece of it (it isn't broken apart).
 
 ## User Scenarios & Testing
 
 ### User Story 1 - Pick several pieces (Priority: P1)
 
-**Independent Test**: In a hexagon garden, drag a box around one flower plus a placed Flower stamp
-beside it: eight items show selected (seven hexagons and one stamp), with one outline and handles
+**Independent Test**: In a hexagon garden, drag a box around one flower plus a placed Flower rosette
+beside it: eight items show selected (seven hexagons and one rosette), with one outline and handles
 around them all.
 
 **Acceptance Scenarios**:
@@ -37,10 +37,10 @@ around them all.
    - on touch, long-press a piece to start multi-select, then tap more to add or remove; **Done**
      ends it;
    - **Select all** (Ctrl/Cmd+A, and the ⋮ menu), and **Select same** (every piece of the same shape
-     or stamp, or same fill).
+     or rosette, or same fill).
 2. **Given** a selection, **Then** each piece shows a light highlight, and one outline with handles
    (turn, mirror, scale) surrounds the whole selection.
-3. **Given** a selection of placed shapes and placed stamps, **Then** both kinds are treated alike.
+3. **Given** a selection of placed shapes and placed rosettes, **Then** both kinds are treated alike.
 4. **Given** Esc or a tap on empty space, **Then** the selection clears.
 
 ---
@@ -56,7 +56,7 @@ turn around the selection's middle, still joined.
 1. **Given** a selection, **When** any selected piece is dragged, **Then** the whole selection moves,
    arrangement unchanged.
 2. **Given** a selection dragged near unselected pieces, **Then** it snaps by the outside edges of the
-   selection to equal edges (or whole-unit runs) of the others, as a stamp does (spec 050, spec 027
+   selection to equal edges (or whole-unit runs) of the others, as a rosette does (spec 050, spec 027
    FR-003). Edges between selected pieces don't snap to anything.
 3. **Given** turn, **Then** the selection turns around its middle (or around a picked corner: tap a
    corner of the outline to set the turn point), in the steps that keep a shared edge with any
@@ -75,13 +75,13 @@ turn around the selection's middle, still joined.
 ### User Story 3 - Other actions on the selection (Priority: P1)
 
 1. **Copy / paste / duplicate**: the selection copies as one; paste places it under the pointer, as
-   one selection, ready to drag and snap. Placed stamps stay linked stamps in the copy.
+   one selection, ready to drag and snap. Placed rosettes stay linked rosettes in the copy.
 2. **Delete** removes every selected piece.
 3. **Paint**: with the Paint tool and a selection, painting a piece paints it, and scope **Selection**
-   (new, next to This / All) paints every selected piece with that fill (in a placed stamp, its slot
+   (new, next to This / All) paints every selected piece with that fill (in a placed rosette, its slot
    under the tap, spec 050).
-4. **Make stamp**: turns the selection into a stamp (spec 050 User Story 1); stamps in it nest.
-5. **Break apart**: on a selection with placed stamps, breaks each one apart; the result stays
+4. **Make rosette**: turns the selection into a rosette (spec 050 User Story 1); rosettes in it nest.
+5. **Break into patches**: on a selection with placed rosettes, breaks each one into patches; the result stays
    selected.
 6. **Bring forward / send back**, for overlaps (spec 027 allows them while arranging).
 
@@ -90,8 +90,8 @@ turn around the selection's middle, still joined.
 - **Selection touching only some neighbors**: dragging it away splits the joins; nothing else
   moves.
 - **Locked pieces** (if added later): left out of box selection.
-- **A piece inside a placed stamp**: can't be selected on its own from the quilt; the whole stamp is
-  picked (edit the stamp, or break it apart, to reach its pieces).
+- **A piece inside a placed rosette**: can't be selected on its own from the quilt; the whole rosette is
+  picked (edit the rosette, or break it apart, to reach its pieces).
 - **Very large selections** (hundreds of pieces): moving stays smooth; snapping checks only the
   selection's outside edges.
 - **Selection after undo**: undo restores the selection as it was before the step.
@@ -100,12 +100,12 @@ turn around the selection's middle, still joined.
 
 ## Requirements
 
-- **FR-001**: The EPP editor MUST support multi-select of placed shapes and placed stamps by tap with
+- **FR-001**: The EPP editor MUST support multi-select of placed shapes and placed rosettes by tap with
   a modifier, box, long-press multi-select on touch, Select all and Select same.
 - **FR-002**: A selection MUST move, turn (around its middle or a picked corner), mirror, scale and
   nudge as one, keeping its arrangement, with one undo step per action.
-- **FR-003**: A selection MUST snap by its outside edges only, exactly as a stamp does.
-- **FR-004**: Copy, paste, duplicate, delete, paint (scope Selection), Make stamp and Break apart MUST
+- **FR-003**: A selection MUST snap by its outside edges only, exactly as a rosette does.
+- **FR-004**: Copy, paste, duplicate, delete, paint (scope Selection), Make rosette and Break into patches MUST
   work on a selection.
 - **FR-005**: A selection is session state only: no format change; nothing is saved when it ends.
 
@@ -123,4 +123,4 @@ turn around the selection's middle, still joined.
 
 ## Out of scope
 
-- Saving a selection as a named group without making a stamp (a stamp does that).
+- Saving a selection as a named group without making a rosette (a rosette does that).
