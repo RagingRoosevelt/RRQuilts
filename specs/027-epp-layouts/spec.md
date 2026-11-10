@@ -295,8 +295,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   like all three of "free canvas", "grow", and "on a grid". let's support all three as various
   placement modes (three-way switch to change mode). we want to fit this into our existing
   paradigm, though, so scale, shape picker / stamp picker and colors/fabrics will be in the sidebar
-  and placement tools will be in the toolbar." Quilts, stamps and rosettes are assembled in the
-  same editor (spec 050 FR-009).
+  and placement tools will be in the toolbar." Quilts and rosettes share this editing engine but
+  not one editor (FR-014, spec 050 FR-009).
 - **FR-004**: Each piece MUST have exactly one fill: a color or a fabric.
 - **FR-005**: Pieces MUST support select, group, move, turn, mirror, copy, delete and recolor, with
   undo; groups can be saved as stamps (spec 050).
@@ -332,6 +332,22 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **FR-011** (stretch): The app SHOULD export STL cutting templates for paper and fabric.
 - **FR-012**: Everything works offline; 3D rendering, any solver and STL export run in the app with
   no server calls.
+- **FR-013**: Libraries and projects MUST have an **EPP** section next to Blocks and Palettes, holding
+  EPP shapes and rosettes (stamps, spec 050), never mixed into the block lists.
+- **FR-014**: The EPP quilt type's designer MUST use the rosette editor's engine (placement modes,
+  snapping, checks, paint) and add the quilt editor's **Layout** and **Borders** tabs, which the
+  rosette editor doesn't have. Owner, 2026-11-10: "I think I'm going to go back on what I said about
+  epp using the same editor for rosettes and quilts. under the hood I think this should be true, but
+  I think we should have a quilt type for EPP that for the designer uses the epp backend we're using
+  for rosettes, but adds the layout and borders editor tabs that would not be present in the rosette
+  editor."
+- **FR-015**: The block-based quilt designer MUST also offer rosettes whose outline matches a standard
+  block space shape (square, triangle, diamond, hexagon; spec 026), so EPP rosettes can be mixed into
+  normal block quilts. Owner, 2026-11-10: "in the standard block-based quilt designer, we should also
+  show rosettes that match standard block layout shapes (triangle, diamond, hexagon, square) so that
+  EPP rosettes could be mixed into normal block quilts." Open for the plan: how a rosette is scaled
+  to a block space (block size sets the unit, or only spaces that are a whole number of units take
+  it), and how its pieces print (EPP templates in a block quilt's printout).
 
 ### Key Entities
 

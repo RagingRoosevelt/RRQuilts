@@ -137,8 +137,9 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
   replacing spec 027's rosettes.
 - **FR-008**: The project format version that adds EPP (spec 027 FR-009) MUST include stamps and
   placed stamps; loading validates them (cycles, missing shapes, slot references).
-- **FR-009**: Quilts, stamps and rosettes MUST use one editor (spec 027 FR-003b placement modes).
-  A design becomes a stamp through an **Enable as stamp** toggle in its Details. Owner, 2026-11-10:
+- **FR-009**: Rosettes are edited in a rosette editor; EPP quilts use the same engine with Layout and
+  Borders tabs added (spec 027 FR-014, which replaces the earlier one-editor note). A design becomes
+  a stamp through an **Enable as stamp** toggle in its Details. Owner, 2026-11-10:
   "in details, we'll have a toggle for "enable as stamp". all stamps start out as grouped rosettes
   but can be broken down after placement and we'll have a toggle at the top of the rosette/stamp
   picker in the sidebar to "place as stamp/rosette"."
@@ -166,5 +167,6 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
 
 ## Out of scope
 
-- Stamps of blocks for layout-engine quilts.
+- Stamps of blocks for layout-engine quilts. (The reverse is in scope: rosettes whose outline matches
+  a block space shape are placed in block quilts, spec 027 FR-015.)
 - Auto-filling an area with a stamp (a tiling fill); a later idea.
