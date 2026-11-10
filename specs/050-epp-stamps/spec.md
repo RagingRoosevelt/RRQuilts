@@ -151,9 +151,10 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
 - **FR-008**: The project format version that adds EPP (spec 027 FR-009) MUST include rosettes and
   placed rosettes; loading validates them (cycles, missing shapes, slot references).
 - **FR-009**: Rosettes are edited in a rosette editor; EPP quilts use the same engine with Layout and
-  Borders tabs added (spec 027 FR-014, which replaces the earlier one-editor note). A design becomes
-  a rosette through an **Enable as rosette** toggle in its Details. Both editors have a **Break into
-  patches** tool and a **Place rosettes ungrouped** toggle. Owner, 2026-11-10:
+  Borders tabs added (spec 027 FR-014, which replaces the earlier one-editor note). Both editors have a
+  **Break into patches** tool and a **Place rosettes ungrouped** toggle. There is no Enable as
+  rosette toggle: rosettes are made in the rosette editor or with Make rosette (owner, 2026-11-10,
+  dropping the Details toggle from the first note below). Owner, 2026-11-10:
   "in details, we'll have a toggle for "enable as stamp". all stamps start out as grouped rosettes
   but can be broken down after placement and we'll have a toggle at the top of the rosette/stamp
   picker in the sidebar to "place as stamp/rosette"."
