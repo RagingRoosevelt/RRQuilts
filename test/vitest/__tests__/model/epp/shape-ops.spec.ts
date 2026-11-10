@@ -7,6 +7,7 @@ import {
   moveVertex,
   newShape,
   normalize,
+  removeEdge,
   removeVertex,
   setAngle,
   snapToGrid,
@@ -67,6 +68,20 @@ describe('shape operations', () => {
     expect(s.outline).toHaveLength(5);
     expect(s.marked).toEqual([1, 2]);
     expect(removeVertex(s, 2).outline).toHaveLength(4);
+  });
+
+  it('deleting an edge joins its corners at its middle; a triangle keeps its three', () => {
+    const s = toggleMarked(newShape('S'), 2);
+    const r = removeEdge(s, 0);
+    expect(r.outline).toHaveLength(3);
+    expect(r.outline[0]).toEqual([0.5, 1]);
+    // Edge 2 (corner 2 to 3) is now edge 1.
+    expect(r.marked).toEqual([1]);
+    expect(removeEdge(r, 0)).toBe(r);
+    // A locked corner stays where it is.
+    const l = removeEdge(toggleLocked(newShape('S'), 1), 0);
+    expect(l.outline[0]).toEqual([1, 1]);
+    expect(l.locked).toEqual([0]);
   });
 
   it('normalize reverses a clockwise outline and re-indexes locks and marks', () => {

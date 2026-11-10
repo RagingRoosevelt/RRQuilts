@@ -157,17 +157,6 @@
               @click="saveRosette"
             />
           </div>
-          <div v-if="selected !== null && tool === 'vertex' && !multi" class="row" style="gap: 8px">
-            <q-btn
-              outline
-              dense
-              no-caps
-              icon="delete"
-              label="Delete corner"
-              :disable="ro"
-              @click="deleteCorner"
-            />
-          </div>
           <q-separator />
           <div class="text-subtitle2">Checks</div>
           <div v-for="(p, i) in checks" :key="i" class="column" style="gap: 2px">
@@ -210,6 +199,7 @@ import {
   moveEdge,
   moveVertex,
   normalize,
+  removeEdge,
   removeVertex,
   setAngle,
   snapToGrid,
@@ -278,6 +268,12 @@ const tools: { id: ShapeTool; icon: string; label: string; hint: string }[] = [
     icon: 'lock',
     label: 'Lock vertex',
     hint: 'Lock vertex: tap a corner so nothing moves it',
+  },
+  {
+    id: 'delete',
+    icon: 'backspace',
+    label: 'Delete',
+    hint: 'Delete: tap a corner to remove it, or an edge to join its two corners into one',
   },
 ];
 const toolHint = computed(() =>
@@ -394,10 +390,36 @@ type Drag =
 const drag = ref<Drag | null>(null);
 const dragKey = ref('');
 
+/**
+ * Multi-shape line ends: the outline's corners and earlier lines' ends first, then a point on an
+ * outline edge or earlier line (a whole unit from one of its ends when that's close), then the grid.
+ */
 function snapPoint(p: Pt): Pt {
-  // Lines snap to the outline's corners first, then to the grid.
-  const c = outline.value.find((v) => dist(v, p) < px(12));
-  return c ?? snapToGrid(p, prefs.value.vertexGrid);
+  const ends = [...outline.value, ...lines.value.flat()];
+  const corner = ends.reduce<{ q: Pt | null; d: number }>(
+    (b, v) => (dist(v, p) < b.d ? { q: v, d: dist(v, p) } : b),
+    { q: null, d: px(18) },
+  ).q;
+  if (corner) return corner;
+  let best: Pt | null = null;
+  let bd = px(16);
+  for (const [a, b] of [...edges(outline.value), ...lines.value]) {
+    const L = dist(a, b);
+    if (L < 1e-9) continue;
+    const t = Math.max(
+      0,
+      Math.min(L, ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1])) / L),
+    );
+    const on = (u: number): Pt => [a[0] + ((b[0] - a[0]) * u) / L, a[1] + ((b[1] - a[1]) * u) / L];
+    const q = on(t);
+    const d = dist(q, p);
+    if (d >= bd) continue;
+    // Whole units from either end, when the pointer is near one: lines meet edges at even steps.
+    const steps = [Math.round(t), L - Math.round(L - t)].filter((u) => u > 0 && u < L);
+    const step = steps.map(on).find((x) => dist(x, q) < px(10));
+    [best, bd] = [step ?? q, d];
+  }
+  return best ?? snapToGrid(p, prefs.value.vertexGrid);
 }
 
 function claim(p: World, e: PointerEvent): boolean {
@@ -464,6 +486,13 @@ function onTap(p: World) {
   if (tab.value !== 'draw' || ro.value || multi.value) return;
   const c = cornerAt(p);
   if (tool.value === 'lock' && c !== null) return edit((s) => toggleLocked(s, c));
+  if (tool.value === 'delete') {
+    // Corners first (they sit on two edges); a shape keeps at least three corners.
+    if (c !== null) return edit((s) => normalize(removeVertex(s, c)));
+    const hit = edgeAt(p);
+    if (hit) edit((s) => normalize(removeEdge(s, hit.i)));
+    return;
+  }
   if (tool.value === 'vertex') {
     if (c !== null) return void (selected.value = c);
     const hit = edgeAt(p);
@@ -479,12 +508,6 @@ function onTap(p: World) {
 function onHover(p: World | null) {
   hover.value = p;
   tick.value++;
-}
-function deleteCorner() {
-  const i = selected.value;
-  if (i === null) return;
-  edit((s) => removeVertex(s, i));
-  selected.value = null;
 }
 
 async function saveRosette() {

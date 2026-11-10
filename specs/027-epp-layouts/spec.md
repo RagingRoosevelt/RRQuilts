@@ -195,7 +195,9 @@ parallelogram); place it and print it.
 2. **Given** the toolbar, **Then** it has four tools: **Vertex** (drag a corner), **Edge** (drag or
    split an edge, and mark it as not a whole unit), **Angle** (drag a corner's angle label right to
    widen the angle, left to narrow it, in steps set in the sidebar; the label itself is no change) and **Lock vertex** (tap a corner
-   so no tool moves it, tap again to free it).
+   so no tool moves it, tap again to free it) and **Delete** (tap a corner to remove it, or an edge to
+   join its two corners into one; a shape keeps at least three corners). Owner, 2026-11-10: "we
+   need to add a delete edge/vertex tool to the shape editor".
 3. **Given** the sidebar, **Then** a **Vertex grid snapping** setting (Free / Square / Triangle) sets
    where dragged corners land and which grid is drawn, and an angle step setting sets the Angle
    tool's increments.
@@ -209,7 +211,10 @@ parallelogram); place it and print it.
 6. **Given** the shape editor, **Then** it has no colors or fabrics, only the outline. Its
    **Multi-shape** mode lets the quilter draw an outline and lines across it; each closed area
    becomes a shape (each checked by the four flags), and the whole is saved as a self-contained
-   rosette whose shapes live inside it, not as separate library shapes (spec 050).
+   rosette whose shapes live inside it, not as separate library shapes (spec 050). Line ends snap
+   to the outline's corners and earlier lines' ends, then onto outline edges and earlier lines (at
+   whole units from an end when close), then to the grid. Owner, 2026-11-10: "it doesn't feel like
+   edges snap to existing exterior edges quite enough in multi-shape mode".
 7. **Given** a saved shape, **Then** it has a name, notecard (notes, tags, styles), a default fill, and
    credits and license (spec 009), like a block.
 8. A shape can be copied and edited; editing a shape used in a quilt updates its pieces, with undo.
@@ -370,7 +375,7 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **FR-006a**: The shape editor MUST edit by dragging: corners on a 1-unit grid (Vertex grid snapping
   Free / Square / Triangle, which also sets the grid drawn), angle labels dragged side to side (right
   widens, left narrows) in sidebar-set steps, locked corners that no tool moves, and edge lengths shown in units and fractions.
-  Tools: Vertex, Edge, Angle, Lock vertex. Shapes have no base unit or scale of their own. Owner,
+  Tools: Vertex, Edge, Angle, Lock vertex, Delete. Shapes have no base unit or scale of their own. Owner,
   2026-11-10: "nodes feel like they should be draggable. I don't like having to type in an angle. I
   also want to allow non-unit edges as long as the user is specifically picking to implment one.
   let's support locking a vertex so that it can't be moved. let's also support dragging the angle

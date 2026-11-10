@@ -89,6 +89,25 @@ export function removeVertex<T extends Outlined>(s: T, i: number): T {
   return withLists({ ...s, outline }, fix(s.locked), wasMarked ? (marked ?? [joined]) : marked);
 }
 
+/**
+ * Delete edge i: its two corners become one (at its middle, or where a locked one is). Unchanged
+ * when it would leave fewer than three corners or both corners are locked.
+ */
+export function removeEdge<T extends Outlined>(s: T, i: number): T {
+  const n = s.outline.length;
+  const j = (i + 1) % n;
+  if (n <= 3 || (locked(s, i) && locked(s, j))) return s;
+  const a = s.outline[i]!;
+  const b = s.outline[j]!;
+  const at: Pt = locked(s, i) ? a : locked(s, j) ? b : [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  const outline = s.outline.flatMap((v, k): Pt[] => (k === j ? [] : k === i ? [at] : [v]));
+  // Corner j goes: later ones move down one. Its outgoing edge now starts at the joined corner.
+  const next = (k: number) => (k < j ? k : k - 1);
+  const marked = s.marked?.filter((k) => k !== i).map((k) => next(k === j ? i : k));
+  const lockedList = s.locked?.map((k) => next(k === j ? i : k));
+  return withLists({ ...s, outline }, lockedList, marked);
+}
+
 function withLists<T extends Outlined>(s: T, lockedList?: number[], marked?: number[]): T {
   const out = { ...s };
   if (lockedList?.length) out.locked = [...new Set(lockedList)].sort((a, b) => a - b);
