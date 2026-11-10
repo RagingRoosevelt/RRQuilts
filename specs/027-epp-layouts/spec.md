@@ -37,13 +37,41 @@ spec 010 (printing, templates, yardage), spec 014 (fabrics), spec 026 (shaped bl
 60° diamond and hexagon outlines), constitution (offline, no server calls, new dependencies need
 justification).
 
+## Clarifications
+
+### Session 2026-11-10
+
+- Q: Is the shape editor its own editor or part of the rosette editor? → A: One engine, two
+  presentations. The **shape editor** edits outlines only (no colors) and has a **multi-shape mode**:
+  draw an outline and lines across it, and the assembly is split into its component shapes, saved as
+  a self-contained rosette whose shapes are defined inside it (not added to My library one by one).
+  The **rosette editor** places shapes and rosettes and can **close a space**: make a custom shape
+  that fills a gap no library shape fits, kept inside that rosette. Owner, 2026-11-10: "I think they
+  should be seperate editors but the shape editor should have a multi-shape mode where you can draw
+  out an outline and then the whole assembly is split into constituant component shapes. these
+  shapes wouldn't be saved as individual seperate shapes to my library but instead would be saved as
+  a self-contained rosette with only internal definitions of its shapes. the shape editor doesn't
+  need a color component, just the aspects for shape itself. [...] it would be ocasionally handy to
+  be able to create a custom shape to close a space in a rosette that we don't have a shape for.
+  [...] behind the scenes we can use the same editor but there would be two presentations of it, a
+  shape editor that can do that mutli-shape-to-self-contained-rosette mode, and the rosette editor
+  that can close up odd spaces to create shapes that are self-contained in the rosette."
+
+- Q: Which edges of an EPP quilt can have borders and binding? → A: Only a made edge, never the
+  jagged untrimmed one; with No trimming the Borders tab asks for an edge first. The quilter makes
+  the edge either by **cutting to a size** (a straight trim set to a size) or by **auto-closing**
+  (the app fills the notches along the outside with closing pieces up to a straight line, so nothing
+  is cut). Owner, 2026-11-10: "A. Users can choose between specifying auto cutting to a size or
+  auto-closing to create the edges."
+
 ## Concepts
 
 - **EPP quilt**: a quilt (or part of a project) made of **pieces** placed freely and joined edge to
   edge, not a grid of block spaces. It is a new quilt type next to the layout-engine quilts.
-- **EPP shape** (template shape): a simple polygon, such as a 60° diamond, square, equilateral
-  triangle, hexagon, octagon, a jewel or a kite. Every edge length is a whole number of **units**
-  (1, 2, 3…). Angles are free (any the polygon needs). A shape is a library item like a block.
+- **EPP shape** (template shape): a simple convex polygon, such as a 60° diamond, square,
+  equilateral triangle, hexagon, octagon, a jewel or a kite. Every edge length is a whole number of
+  **units** (1, 2, 3…), except edges the quilter deliberately marks as another length (FR-006a).
+  Angles are free (any under 180°). A shape is a library item, kept apart from blocks (FR-013).
 - **Base dimension** (unit): the finished length of one unit in this quilt, set by the quilter (for
   example 1 in, 1.5 in, 3 cm). A shape whose edges are 1 and 2 units is a 1 in × 2 in shape in a
   1 in quilt and twice that in a 2 in quilt.
@@ -60,8 +88,13 @@ justification).
   optional, not assumed. Its edge is set by the **edge trim**:
   - **No trimming** (default): the edge is wherever the outer pieces end, often jagged (a hexagon
     garden's zigzag edge).
-  - **Straight trim**: a rectangle cuts across the outer pieces. It starts as the largest rectangle
-    the pieces fill with no gaps, and the quilter can move its sides in the Layout tab.
+  - **Cut to size** (straight trim): a rectangle cuts across the outer pieces. It starts as the
+    largest rectangle the pieces fill with no gaps; the quilter can type a size or move its sides in
+    the Layout tab.
+  - **Auto-close**: nothing is cut. The app fills the notches along the outside with closing pieces
+    (internal shapes such as half hexagons, each made whole as a paper) up to a straight line, so the
+    edge is straight. Closing pieces print and count like other pieces and take a fill the quilter
+    picks (by default the background color).
   - **Custom trim**: a trim outline the quilter draws or edits in the Layout tab (straight sides and
     arcs, like a quilt target outline); pieces outside it are cut away.
 - **Seam allowance**: the fabric margin around the paper, set per quilt (default 3/8 in or 1 cm).
@@ -166,9 +199,13 @@ parallelogram); place it and print it.
 5. **Given** an outline that doesn't close, crosses itself, isn't convex, or has an unmarked edge that
    isn't a whole number of units, **Then** the editor flags it and doesn't save it as a usable shape
    (FR-006 banner).
-6. **Given** a saved shape, **Then** it has a name, notecard (notes, tags, styles), a default fill, and
+6. **Given** the shape editor, **Then** it has no colors or fabrics, only the outline. Its
+   **Multi-shape** mode lets the quilter draw an outline and lines across it; each closed area
+   becomes a shape (each checked by the four flags), and the whole is saved as a self-contained
+   rosette whose shapes live inside it, not as separate library shapes (spec 050).
+7. **Given** a saved shape, **Then** it has a name, notecard (notes, tags, styles), a default fill, and
    credits and license (spec 009), like a block.
-7. A shape can be copied and edited; editing a shape used in a quilt updates its pieces, with undo.
+8. A shape can be copied and edited; editing a shape used in a quilt updates its pieces, with undo.
 
 ---
 
@@ -249,7 +286,7 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   any overlap is, and the quilter rearranges.
 - **Mirror-image shapes** (e.g. a kite or a parallelogram): mirrored pieces print as their own
   templates (or flipped, with the template marked "reverse").
-- **No border or binding**: the default. With no trimming, printing, yardage and the quilt's size use
+- **No border or binding**: the default, and the only choice with No trimming. With no trimming, printing, yardage and the quilt's size use
   the pieces alone; the size shown is the bounding box, labeled as such.
 - **Trim through gaps**: a straight or custom trim line that crosses a hole or an empty area leaves
   the edge open there; the Layout tab warns about it.
@@ -273,10 +310,12 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   dimension (the length of 1U, set in the Layout tab) and a seam allowance per quilt. Shapes and
   rosettes have no size of their own (spec 050 Concepts).
 - **FR-001a**: An EPP quilt MUST NOT assume a rectangular (or any) outline. Borders and binding are
-  off by default. The Layout tab MUST offer the edge trim: **No trimming** (edge follows the outer
-  pieces), **Straight trim** (an adjustable rectangle) or **Custom trim** (an outline set in the
-  Layout tab). The quilt's size, the drawing, borders and binding follow the chosen edge; yardage
-  counts binding and borders only when on.
+  off by default. The Layout tab MUST offer the edge: **No trimming** (edge follows the outer
+  pieces), **Cut to size** (a rectangle, sized by typing or dragging), **Auto-close** (closing pieces
+  fill the outside notches up to a straight edge, nothing cut) or **Custom trim** (an outline set in
+  the Layout tab). Borders and binding MUST need a made edge (Cut to size, Auto-close or Custom
+  trim); with No trimming the Borders tab asks for one. The quilt's size, the drawing, borders and
+  binding follow the chosen edge; yardage counts binding and borders only when on.
 - **FR-001b**: Trimming MUST NOT change the templates: pieces are made whole (papers are whole
   shapes) and trimmed after assembly, so templates and fabric counts are for whole pieces; the
   print notes the trim line and its size.
@@ -301,14 +340,15 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **FR-004**: Each piece MUST have exactly one fill: a color or a fabric.
 - **FR-005**: Pieces MUST support select, group, move, turn, mirror, copy, delete and recolor, with
   undo; groups can be saved as rosettes (spec 050).
-- **FR-006**: Quilters MUST be able to create, copy and edit EPP shapes (edge lengths in units,
-  angles, or a snapping grid) with validation that the outline closes and doesn't cross itself.
+- **FR-006**: Quilters MUST be able to create, copy and edit EPP shapes (by dragging, FR-006a) with
+  validation that the outline closes, doesn't cross itself, has whole-unit edges and is convex.
   Owner, 2026-11-10: "we should have a shape/stamp/rosette editor. it should have a banner that
   shows as long as at least one patche doesn't meet the following criteria: 1. closes, 2. doesn't
   cross itself, 3. every edge is a whole unit, 4. each shape is convex. each check should be shown
-  as a flag as you're editing." So shapes and rosettes share one editor (a shape is an item
-  of one patch), every patch shows four flags while editing (closes, doesn't cross itself, whole-unit
-  edges, convex), and a banner names the failing patches until all pass. Shapes MUST be convex.
+  as a flag as you're editing." The shape editor and the rosette editor are two presentations of one
+  editing engine (Clarifications 2026-11-10): in both, every patch outline being drawn shows four
+  flags (closes, doesn't cross itself, whole-unit edges, convex), and a banner names the failing
+  patches until all pass. Shapes MUST be convex.
 - **FR-006a**: The shape editor MUST edit by dragging: corners on a 1-unit grid (Vertex grid snapping
   Free / Square / Triangle, which also sets the grid drawn), angle markers dragged up or down in
   sidebar-set steps, locked corners that no tool moves, and edge lengths shown in units and fractions.
@@ -351,10 +391,10 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 
 ### Key Entities
 
-- **EppShape**: id, notecard, outline (edge lengths in units and corner angles, or vertices in units),
-  default fill, credits, license; a library item type alongside blocks and palettes.
-- **EppQuilt**: base dimension, seam allowance, edge trim (none / straight rectangle / custom
-  outline), optional binding and borders (off by default), pieces, groups, colorways; later `joins` and a 3D flag.
+- **EppShape**: id, notecard, outline (vertices in units, locked corners, edges marked as not whole
+  units), default fill, credits, license; its own library item type, in the EPP section (FR-013).
+- **EppQuilt**: base dimension, seam allowance, edge (none / cut to size / auto-close with its
+  closing pieces' fill / custom outline), optional binding and borders (off by default), pieces, groups, colorways; later `joins` and a 3D flag.
 - **Piece**: shape ref, position, turn, mirror, scale (1-4), fill.
 - **Rosette**: see spec 050 (a saved group used like a shape).
 - **Join** (later): two (piece, edge) pairs.
@@ -375,8 +415,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   angle under 180°.
 - An EPP quilt has no target rectangle; the wizard's target sizes (spec 006) don't apply, though a
   size to aim at may be shown as a guide.
-- An EPP quilt is a whole quilt; mixing EPP pieces into a layout-engine quilt (e.g. appliquéd
-  rosettes on a background) is later.
+- An EPP quilt is a whole quilt. Rosettes can fill block spaces in block quilts (FR-015); loose EPP
+  pieces in a block quilt and appliqué onto a background are later.
 - Snap distance is in screen space (about the size of a fingertip), so it works zoomed in or out.
 - The 3D release needs new dependencies (a 3D renderer, maybe a constraint solver). Per the
   constitution they need justification in that release's plan; they're bundled for offline use.

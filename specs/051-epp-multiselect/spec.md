@@ -78,9 +78,10 @@ turn around the selection's middle, still joined.
    one selection, ready to drag and snap. Placed rosettes stay linked rosettes in the copy.
 2. **Delete** removes every selected piece.
 3. **Paint**: with the Paint tool and a selection, painting a piece paints it, and scope **Selection**
-   (new, next to This / All) paints every selected piece with that fill (in a placed rosette, its slot
-   under the tap, spec 050).
-4. **Make rosette**: turns the selection into a rosette (spec 050 User Story 1); rosettes in it nest.
+   (new, next to This / All) paints every selected piece with that fill (in a placed rosette, that piece of the
+   placement, spec 050).
+4. **Make rosette**: turns the selection into a rosette (spec 050 User Story 1); placed rosettes in it are
+   copied in as their pieces, unlinked (spec 050 FR-005).
 5. **Break into patches**: on a selection with placed rosettes, breaks each one into patches; the result stays
    selected.
 6. **Bring forward / send back**, for overlaps (spec 027 allows them while arranging).
