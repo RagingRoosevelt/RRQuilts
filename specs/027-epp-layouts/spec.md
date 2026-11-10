@@ -163,7 +163,9 @@ middle one, sharing a whole edge.
    sidebar; placement tools are in the toolbar, as in the other editors.
 9. **Given** Free mode and a shape picked, **When** the mouse is over the design and not over a placed
    piece (desktop), **Then** a ghost of the shape follows it, showing where a tap places it and how it
-   snaps. Snapping and turning work as in prototype A.
+   snaps. Snapping and turning work as in prototype A. On touch, with no hover, a one-finger drag from empty space is the
+   ghost, placed where it's let go (a tap places at the tap). Owner, 2026-11-10: "Single-finger drag
+   on empty space should do the hover ghost thing, no?"
 10. **Given** Grow mode, **When** the quilter taps a free edge, **Then** the picked shape is attached
     there (no separate "start with" and "place next" shapes). While the mouse is over an edge, each
     shape in the sidebar picker is shown in a color that says whether it fits that edge.

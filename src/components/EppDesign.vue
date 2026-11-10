@@ -372,7 +372,9 @@ function poseAt(p: Pt): Pose | null {
   return mode === 'grid' && s ? cellAt(s.outline, epp.scale, lattice.value, p) : pose;
 }
 const ghost = computed<Pose | null>(() =>
-  hover.value && tool.value === 'place' && !drag.value ? poseAt(hover.value) : null,
+  hover.value && tool.value === 'place' && (!drag.value || drag.value.kind === 'ghost')
+    ? poseAt(hover.value)
+    : null,
 );
 
 // --- Edits (each also brings the box and closing pieces up to date) ---
@@ -473,7 +475,9 @@ type Drag =
       others: ReturnType<typeof staticEdges>;
       statics: Pt[][];
     }
-  | { kind: 'grid'; origin: Pt; grab: Pt };
+  | { kind: 'grid'; origin: Pt; grab: Pt }
+  /** From empty space with something picked: the ghost follows, letting go places it. */
+  | { kind: 'ghost' };
 const drag = shallowRef<Drag | null>(null);
 function claim(p: World, e: PointerEvent) {
   if (e.button === 2) return false;
@@ -483,7 +487,14 @@ function claim(p: World, e: PointerEvent) {
   }
   if (ro.value || tool.value !== 'place') return false;
   const hit = leafAt(p);
-  if (!hit) return false;
+  if (!hit) {
+    // Touch has no hover: a drag from empty space is the ghost, placed where it's let go.
+    if (!epp.picked) return false;
+    drag.value = { kind: 'ghost' };
+    hover.value = p;
+    tick.value++;
+    return true;
+  }
   const piece = pieces.value.find((x) => x.id === hit.piece)!;
   drag.value = {
     kind: 'piece',
@@ -498,6 +509,11 @@ function claim(p: World, e: PointerEvent) {
 function onDrag(p: World) {
   const d = drag.value;
   if (!d) return;
+  if (d.kind === 'ghost') {
+    hover.value = p;
+    tick.value++;
+    return;
+  }
   if (d.kind === 'grid') {
     const moved: Pt = [d.origin[0] + p[0] - d.grab[0], d.origin[1] + p[1] - d.grab[1]];
     epp.gridOrigin = snapOrigin({ ...lattice.value, origin: moved }, allPolys.value.flat(), px(16));
@@ -521,9 +537,16 @@ function onDrag(p: World) {
   snapTarget.value = s?.target ?? null;
   edit((q) => movePiece(q, from.id, next), d.key);
 }
-function onDragEnd() {
+function onDragEnd(p: World, e: PointerEvent) {
+  const d = drag.value;
   drag.value = null;
   snapTarget.value = null;
+  if (d?.kind !== 'ghost') return;
+  const pose = poseAt(p);
+  if (pose) placeAt(pose);
+  // A finger leaves no hover behind.
+  if (e.pointerType !== 'mouse') hover.value = null;
+  tick.value++;
 }
 
 const readout = computed(() => {
