@@ -106,6 +106,19 @@
         <DetailsPanel v-if="tab === 'details'" kind="rosette" :id="rosette.id" />
         <PrintOptions v-else-if="tab === 'print'" kind="rosette" :id="rosette.id" />
         <template v-else>
+          <!-- As the quilt editor's Blocks / Colors: Colors is the Paint tool. -->
+          <q-tabs
+            :model-value="epp.rosetteTool === 'paint' ? 'colors' : 'shapes'"
+            dense
+            no-caps
+            align="justify"
+            @update:model-value="
+              (v: string) => (epp.rosetteTool = v === 'colors' ? 'paint' : 'place')
+            "
+          >
+            <q-tab name="shapes" label="Shapes" />
+            <q-tab name="colors" label="Colors" />
+          </q-tabs>
           <div class="text-caption text-grey-7">{{ toolHint }}</div>
           <!-- Paint: colorings and colors first; the shape picker steps aside. -->
           <template v-if="epp.rosetteTool === 'paint'">
@@ -197,9 +210,6 @@
             />
             <div class="text-caption text-grey-7">
               Rosettes placed in a rosette become its pieces (they don’t stay linked).
-            </div>
-            <div class="text-caption text-grey-7">
-              To color pieces, pick the <b>Paint</b> tool (the roller) in the toolbar.
             </div>
           </template>
         </template>

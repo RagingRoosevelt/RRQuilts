@@ -63,6 +63,17 @@
 
     <div v-show="sidebar" class="inspector q-pa-md scroll column no-wrap" style="gap: 12px">
       <QuiltColorways :quilt="quilt" mode="panel" :readonly="ro" />
+      <!-- As the quilt editor's Blocks / Colors: Colors is the Paint tool. -->
+      <q-tabs
+        :model-value="tool === 'paint' ? 'colors' : 'shapes'"
+        dense
+        no-caps
+        align="justify"
+        @update:model-value="(v: string) => (tool = v === 'colors' ? 'paint' : 'place')"
+      >
+        <q-tab name="shapes" label="Shapes" />
+        <q-tab name="colors" label="Colors" />
+      </q-tabs>
       <div class="text-caption text-grey-7">{{ toolHint }}</div>
       <!-- Paint: where it applies and the colors first; the shape picker steps aside. -->
       <template v-if="tool === 'paint'">
@@ -130,9 +141,6 @@
           :paint="cssFill"
           :fit="prefs.mode === 'grow' && hoverEdge ? fitOnEdge : undefined"
         />
-        <div class="text-caption text-grey-7">
-          To color pieces, pick the <b>Paint</b> tool (the roller) in the toolbar.
-        </div>
       </template>
     </div>
   </div>
