@@ -1,11 +1,12 @@
 import Type from 'typebox';
 import { Block } from './block';
+import { EppShape, Rosette } from './epp';
 import { Embroidery, Font, Palette, Photo } from './palette';
 import { Quilt } from './quilt';
 import { Id, ItemId, Socials } from './shared';
 
 export const FORMAT = 'rrq';
-export const VERSION = 11;
+export const VERSION = 12;
 
 export const Units = Type.Union([Type.Literal('in'), Type.Literal('cm')]);
 
@@ -43,6 +44,9 @@ export const Project = Type.Object({
   libraryPalettes: Type.Optional(Type.Array(ItemId)),
   /** Libraries this project's items come from, so a device without one can offer to add it. */
   libraries: Type.Optional(Type.Array(LibraryRef)),
+  /** EPP shapes and rosettes (specs 027, 050; v12). */
+  eppShapes: Type.Optional(Type.Array(EppShape)),
+  rosettes: Type.Optional(Type.Array(Rosette)),
   /** Saving embeds library fabric images too (256 px), for sharing with people without them. */
   includeLibraryImages: Type.Optional(Type.Boolean()),
 });

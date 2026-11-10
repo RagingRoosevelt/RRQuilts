@@ -51,14 +51,25 @@ export function findDuplicateIds(doc: RrqDoc): string[] {
       ...p.embroidery,
       ...p.quilts,
       ...p.fonts,
+      ...(p.eppShapes ?? []),
+      ...(p.rosettes ?? []),
     ].map((x) => x.id),
     'project',
     out,
   );
   for (const b of p.blocks) dupes(blockIds(b), `block ${b.id}`, out);
+  for (const r of p.rosettes ?? []) {
+    const ids = [...(r.shapes ?? []), ...r.pieces, ...r.colorings].map((x) => x.id);
+    dupes(ids, `rosette ${r.id}`, out);
+  }
   for (const q of p.quilts) {
     dupes(
-      [...Object.keys(q.colorings), ...q.layers.flatMap((l) => l.items.map((i) => i.id))],
+      [
+        ...Object.keys(q.colorings),
+        ...q.layers.flatMap((l) => l.items.map((i) => i.id)),
+        ...(q.epp?.pieces ?? []).map((x) => x.id),
+        ...(q.epp?.shapes ?? []).map((x) => x.id),
+      ],
       `quilt ${q.id}`,
       out,
     );

@@ -202,6 +202,17 @@ export function generateSlots(
     }
     center = t.center;
     trim = true;
+  } else if (layout.style === 'epp') {
+    // EPP quilts (spec 027) have no block spaces; their pieces live in `quilt.epp`.
+    const box: Bounds = [0, 0, 0, 0];
+    return {
+      slots: [],
+      center: box,
+      bounds: box,
+      unsupported,
+      edge: rectPath(0, 0, 0, 0),
+      trim: false,
+    };
   } else unsupported.push(`layout ${layout.style}`);
 
   const b = borderSlots(

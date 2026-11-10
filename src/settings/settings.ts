@@ -9,6 +9,14 @@ import type { Social } from './socials';
 import { validSortPrefs, type SortPref } from '@/model/palette-sort';
 import type { Gravity, SnapTarget } from '@/editor/snap';
 
+export interface EppPrefs {
+  vertexGrid: 'free' | 'square' | 'triangle';
+  angleStep: number;
+  mode: 'free' | 'grow' | 'grid';
+  ungrouped: boolean;
+  syncGrid: boolean;
+}
+
 export interface Settings {
   theme: Theme;
   units: Units;
@@ -35,7 +43,7 @@ export interface Settings {
   /** Quilt editor block sidebar: only blocks the quilt's layout takes. */
   compatibleBlocks: boolean;
   /** Project (sketchbook) page: last tab. */
-  projectTab: 'quilts' | 'blocks' | 'colors' | 'photos' | 'threads' | 'details';
+  projectTab: 'quilts' | 'blocks' | 'colors' | 'epp' | 'photos' | 'threads' | 'details';
   /** Id of the project opened last: reopening it keeps `projectTab`, another starts fresh. */
   lastProject: string;
   /** Your socials (GitHub, a pattern shop, …): a known or free-text type and a handle (or link). */
@@ -45,8 +53,11 @@ export interface Settings {
   hideLibraryPalettes: boolean;
   /** Project Blocks tab: a My-library block shows once, as its synced project copy. */
   hideSyncedMine: boolean;
-  /** Libraries page: Type picker — blocks, palettes ('colors'), or all (''). */
-  libraryType: 'block' | 'colors' | '';
+  /** Libraries page: Type picker — blocks, palettes ('colors'), EPP shapes and rosettes, or all (''). */
+  libraryType: 'block' | 'colors' | 'epp' | '';
+  /** EPP editors (specs 027, 050): where dragged corners land, the Angle tool's step, the
+   *  placement mode, Place rosettes ungrouped, Sync grid to selected size. */
+  epp: EppPrefs;
   /** Labels of inspector sections the user collapsed. */
   collapsedSections: string[];
   /** How each palette's swatches show (spec 032), by palette id; none = saved order. */
@@ -116,6 +127,7 @@ export const defaults = (): Settings => ({
   showTraces: false,
   dataTab: 'auto',
   libraryType: 'block',
+  epp: { vertexGrid: 'square', angleStep: 15, mode: 'free', ungrouped: false, syncGrid: true },
   socials: [],
   hideLibraryBlocks: false,
   hideLibraryPalettes: false,
@@ -176,7 +188,16 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   // 'styles' (before spec 029) falls back to the default.
   libraryGroupBy: (v) =>
     v === 'none' || v === 'category' || v === 'tags' || v === 'techniques' || v === 'shape',
-  libraryType: (v) => v === 'block' || v === 'colors' || v === '',
+  libraryType: (v) => v === 'block' || v === 'colors' || v === 'epp' || v === '',
+  epp: (v) =>
+    isObject(v) &&
+    ['free', 'square', 'triangle'].includes(v.vertexGrid as string) &&
+    typeof v.angleStep === 'number' &&
+    v.angleStep >= 1 &&
+    v.angleStep <= 90 &&
+    ['free', 'grow', 'grid'].includes(v.mode as string) &&
+    typeof v.ungrouped === 'boolean' &&
+    typeof v.syncGrid === 'boolean',
   socials: (v) =>
     Array.isArray(v) &&
     v.length <= 50 &&
@@ -194,7 +215,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   hideSyncedMine: (v) => typeof v === 'boolean',
   projectTab: (v) =>
     typeof v === 'string' &&
-    ['quilts', 'blocks', 'colors', 'photos', 'threads', 'details'].includes(v),
+    ['quilts', 'blocks', 'colors', 'epp', 'photos', 'threads', 'details'].includes(v),
   compatibleBlocks: (v) => typeof v === 'boolean',
   lastProject: (v) => typeof v === 'string' && v.length <= 200,
   print: (v) => isObject(v),

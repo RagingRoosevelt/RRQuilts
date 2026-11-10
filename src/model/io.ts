@@ -115,6 +115,8 @@ export const migrations: Migrations = {
   // v11 (spec 041): a data plan may carry made marks (days cut and assembled, blocks assembled);
   // nothing to change.
   10: (doc) => doc,
+  // v12 (specs 027, 050): EPP shapes, rosettes and EPP quilts, all optional; nothing to change.
+  11: (doc) => doc,
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */
@@ -310,6 +312,16 @@ export function danglingReferences(doc: RrqDoc): string[] {
   };
 
   for (const b of p.blocks) for (const c of b.colorings) checkColoring(c, `block ${b.id}`);
+  // EPP (spec 027): pieces point at shapes (library or internal) and rosettes.
+  const shapes = has(p.eppShapes ?? []);
+  const rosettes = new Map((p.rosettes ?? []).map((r) => [r.id, r]));
+  for (const r of p.rosettes ?? []) {
+    const own = has(r.shapes ?? []);
+    for (const piece of r.pieces)
+      if (!shapes.has(piece.shape) && !own.has(piece.shape))
+        out.push(`rosette ${r.id}: missing shape ${piece.shape}`);
+    for (const c of r.colorings) checkColoring(c, `rosette ${r.id}`);
+  }
   for (const e of p.embroidery) {
     for (const t of e.threads)
       if (!threads.has(t)) out.push(`embroidery ${e.id}: missing thread ${t}`);
@@ -320,6 +332,19 @@ export function danglingReferences(doc: RrqDoc): string[] {
     for (const c of dataColorings([q])) checkColoring(c, `${where} data`);
     for (const id of dataBlocks(q))
       if (!blocks.has(id)) out.push(`${where} data: missing block ${id}`);
+    const closing = has(q.epp?.shapes ?? []);
+    for (const piece of q.epp?.pieces ?? []) {
+      if (!piece.shape === !piece.rosette)
+        out.push(`${where} piece ${piece.id}: needs one shape or one rosette`);
+      if (piece.shape && !shapes.has(piece.shape) && !closing.has(piece.shape))
+        out.push(`${where} piece ${piece.id}: missing shape ${piece.shape}`);
+      const r = piece.rosette ? rosettes.get(piece.rosette) : undefined;
+      if (piece.rosette && !r)
+        out.push(`${where} piece ${piece.id}: missing rosette ${piece.rosette}`);
+      if (piece.coloring && r && !r.colorings.some((c) => c.id === piece.coloring))
+        out.push(`${where} piece ${piece.id}: missing coloring ${piece.coloring}`);
+      if (piece.fills) checkColoring({ fills: piece.fills }, `${where} piece ${piece.id}`);
+    }
     for (const [slot, s] of Object.entries(q.layers[0].slots)) {
       if (!blocks.has(s.block)) out.push(`${where} ${slot}: missing block ${s.block}`);
       if (!(s.coloring in q.colorings))

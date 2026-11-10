@@ -9,6 +9,7 @@ import { canonicalContent, contentVersion, itemId, stableStringify } from './ide
 import { creditCopy, noSharing, settleCredits } from './credits';
 import type { LibraryLookup } from './library-items';
 import type { Block } from './schema/block';
+import type { EppShape, Rosette } from './schema/epp';
 import {
   LIBRARY_FORMAT,
   LIBRARY_VERSION,
@@ -40,10 +41,9 @@ const toInches = (b: Block, units: Units): Block =>
   units === 'cm' ? { ...b, size: [b.size[0] / 2.54, b.size[1] / 2.54] } : b;
 
 /** A project item as library content: credits settled, no project `source`, current version. */
-async function asLibraryData<T extends Block | Color | Fabric | ColorCollection>(
-  item: T,
-  revision: number,
-): Promise<T> {
+async function asLibraryData<
+  T extends Block | Color | Fabric | ColorCollection | EppShape | Rosette,
+>(item: T, revision: number): Promise<T> {
   const clean = produce(item, (d) => {
     settleCredits(d);
     if (!d.credits?.length) delete d.credits;
@@ -111,7 +111,7 @@ async function blockFabrics(doc: RrqDoc, block: Block, kept: readonly Fabric[] =
 
 /** A library item's fabrics: a palette's, or (v5) those a block carries. */
 export const itemFabrics = (i: LibraryItem): Fabric[] =>
-  (i.type === 'colors' ? i.data.fabrics : i.fabrics) ?? [];
+  (i.type === 'colors' ? i.data.fabrics : i.type === 'epp-shape' ? [] : i.fabrics) ?? [];
 
 const findBlock = (lib: LibraryDoc, id: string) =>
   lib.items.find(
@@ -590,7 +590,7 @@ export async function copyToMine(
   me: string,
   license?: string,
 ): Promise<LibraryDoc> {
-  const fresh = <T extends Block | Color | ColorCollection>(x: T): T =>
+  const fresh = <T extends Block | Color | ColorCollection | EppShape | Rosette>(x: T): T =>
     produce(x, (d) => {
       creditCopy(d, me, license);
       d.id = itemId(me);
@@ -598,18 +598,20 @@ export async function copyToMine(
       delete d.revision;
     });
   const data =
-    item.type === 'block'
-      ? await asLibraryData(fresh(item.data), 1)
-      : await asLibraryData(
+    item.type === 'colors'
+      ? await asLibraryData(
           {
             ...fresh(item.data),
             colors: await Promise.all(item.data.colors.map((c) => asLibraryData(fresh(c), 1))),
           },
           1,
-        );
-  const colors = item.type === 'block' && item.colors ? { colors: item.colors } : {};
-  const fabrics = item.type === 'block' && item.fabrics ? { fabrics: item.fabrics } : {};
-  const copy = { type: item.type, data, ...colors, ...fabrics } as LibraryItem;
+        )
+      : await asLibraryData(fresh(item.data), 1);
+  const carries = item.type === 'block' || item.type === 'rosette';
+  const colors = carries && item.colors ? { colors: item.colors } : {};
+  const fabrics = carries && item.fabrics ? { fabrics: item.fabrics } : {};
+  const shapes = item.type === 'rosette' && item.shapes ? { shapes: item.shapes } : {};
+  const copy = { type: item.type, data, ...colors, ...fabrics, ...shapes } as LibraryItem;
   return { ...lib, items: [...lib.items, copy] };
 }
 
@@ -626,7 +628,7 @@ export function withSources(lib: LibraryDoc) {
     ...(x.author || lib.author?.name ? { author: x.author ?? lib.author!.name } : {}),
     ...(lib.license ? { license: lib.license } : {}),
   });
-  const stamp = <T extends Block | Color | Fabric>(x: T): T =>
+  const stamp = <T extends Block | Color | Fabric | EppShape | Rosette>(x: T): T =>
     x.source && !x.source.derived && x.source.libraryId === lib.id
       ? x
       : { ...x, source: { ...source(x), name: x.notecard.name } };
@@ -634,12 +636,19 @@ export function withSources(lib: LibraryDoc) {
   const collections: ColorCollection[] = [];
   const blockColors: Color[] = [];
   const blockFabricList: Fabric[] = [];
+  const eppShapes: EppShape[] = [];
+  const rosettes: Rosette[] = [];
   for (const i of lib.items) {
-    if (i.type === 'block') {
-      blocks.push(stamp(i.data));
+    if (i.type === 'block' || i.type === 'rosette') {
+      if (i.type === 'block') blocks.push(stamp(i.data));
+      else {
+        rosettes.push(stamp(i.data));
+        eppShapes.push(...(i.shapes ?? []).map(stamp));
+      }
       blockColors.push(...(i.colors ?? []).map(stamp));
       blockFabricList.push(...(i.fabrics ?? []).map(stamp));
-    } else
+    } else if (i.type === 'epp-shape') eppShapes.push(stamp(i.data));
+    else
       collections.push({
         ...i.data,
         colors: i.data.colors.map(stamp),
@@ -650,6 +659,9 @@ export function withSources(lib: LibraryDoc) {
   return {
     blocks,
     collections,
+    // A rosette's carried shapes come after the library's own (first one wins in lookups).
+    eppShapes: [...new Map(eppShapes.reverse().map((s) => [s.id, s])).values()].reverse(),
+    rosettes,
     colors: [...collections.flatMap((c) => c.colors), ...blockColors],
     // Palette fabrics first, then those only a block carries.
     fabrics: [...collections.flatMap((c) => c.fabrics ?? []), ...blockFabricList],
@@ -663,7 +675,11 @@ export function lookupOf(views: readonly LibraryView[]): LibraryLookup {
   const colors = new Map<string, Color>();
   const fabrics = new Map<string, Fabric>();
   const collections = new Map<string, ColorCollection>();
+  const eppShapes = new Map<string, EppShape>();
+  const rosettes = new Map<string, Rosette>();
   for (const v of [...views].reverse()) {
+    for (const s of v.eppShapes) eppShapes.set(s.id, s);
+    for (const r of v.rosettes) rosettes.set(r.id, r);
     for (const b of v.blocks) blocks.set(b.id, b);
     for (const c of [...v.colors].reverse()) colors.set(c.id, c);
     for (const f of v.fabrics) fabrics.set(f.id, f);
@@ -674,6 +690,8 @@ export function lookupOf(views: readonly LibraryView[]): LibraryLookup {
     color: (id) => colors.get(id),
     fabric: (id) => fabrics.get(id),
     collection: (id) => collections.get(id),
+    eppShape: (id) => eppShapes.get(id),
+    rosette: (id) => rosettes.get(id),
   };
 }
 

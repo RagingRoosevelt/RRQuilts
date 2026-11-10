@@ -80,11 +80,13 @@ const isLibraryItem = (x: { source?: { derived?: boolean } }) => !!x.source && !
  */
 export async function stampVersions(doc: RrqDoc): Promise<RrqDoc> {
   const p = doc.project;
-  const own = [...p.blocks, ...p.palette.colors].filter((x) => !isLibraryItem(x));
+  const epp = [...(p.eppShapes ?? []), ...(p.rosettes ?? [])];
+  const own = [...p.blocks, ...p.palette.colors, ...epp].filter((x) => !isLibraryItem(x));
   const versions = new Map<string, string>();
   for (const x of own) versions.set(x.id, await contentVersion(x, doc.units));
   return produce(doc, (d) => {
-    for (const x of [...d.project.blocks, ...d.project.palette.colors]) {
+    const epp = [...(d.project.eppShapes ?? []), ...(d.project.rosettes ?? [])];
+    for (const x of [...d.project.blocks, ...d.project.palette.colors, ...epp]) {
       const v = versions.get(x.id);
       if (!v || v === x.version) continue;
       x.version = v;

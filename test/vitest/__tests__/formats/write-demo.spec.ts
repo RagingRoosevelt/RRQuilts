@@ -108,7 +108,7 @@ it.skipIf(!dir)('write the demo project', async () => {
     if (add.data) doc = await dataQuilt(doc, quilt.id);
     if (add.weeks) doc = await weeksQuilt(doc, quilt.id);
   }
-  if (VERSION === 11) doc = madeMarks(doc);
+  if ((VERSION as number) === 11) doc = madeMarks(doc);
   writeFileSync(`${dir}/demo-v${VERSION}.rrq`, serializeProject(doc));
 });
 

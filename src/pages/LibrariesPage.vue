@@ -2002,8 +2002,10 @@ const inScope = computed(() =>
   ),
 );
 /** Items of the type shown (Blocks, Palettes, or All): filters only offer what they use. */
-const ofType = (i: LibraryItem) =>
-  !settings.settings.libraryType || i.type === settings.settings.libraryType;
+const ofType = (i: LibraryItem) => {
+  const t = settings.settings.libraryType;
+  return !t || (t === 'epp' ? i.type === 'epp-shape' || i.type === 'rosette' : i.type === t);
+};
 const typedItems = computed(() => inScope.value.flatMap((v) => v.doc.items.filter(ofType)));
 /** The quilter's tags on an item (spec 029): its own, and those kept in My library for it. */
 const tagsOfItem = (i: LibraryItem) => tagsFor(i.data.notecard.tags, [i.data.id], library.kept);
@@ -2359,10 +2361,14 @@ async function copyMine(v: LibraryView, id: string) {
   const item = v.doc.items.find((i) => i.data.id === id);
   if (!item) return;
   // Copy what projects see (with its library attribution), so credits name the source.
-  const stamped =
+  const stamped: LibraryItem =
     item.type === 'block'
       ? { ...item, data: v.blocks.find((b) => b.id === id)! }
-      : { ...item, data: v.collections.find((c) => c.id === id)! };
+      : item.type === 'colors'
+        ? { ...item, data: v.collections.find((c) => c.id === id)! }
+        : item.type === 'epp-shape'
+          ? { ...item, data: v.eppShapes.find((s) => s.id === id)! }
+          : { ...item, data: v.rosettes.find((r) => r.id === id)! };
   const author = await askAuthor();
   await update((l) => copyToMine(l, stamped, author, DEFAULT_LICENSE));
   $q.notify({ type: 'positive', message: `Copied “${item.data.notecard.name}” to ${MY_LIBRARY}.` });

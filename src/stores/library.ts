@@ -79,6 +79,8 @@ export const useLibraryStore = defineStore('library', () => {
       blocks: views.value.flatMap((v) => v.blocks).filter(once),
       colors: views.value.flatMap((v) => v.colors).filter(once),
       fabrics: views.value.flatMap((v) => v.fabrics).filter(once),
+      eppShapes: views.value.flatMap((v) => v.eppShapes).filter(once),
+      rosettes: views.value.flatMap((v) => v.rosettes).filter(once),
     };
   });
 

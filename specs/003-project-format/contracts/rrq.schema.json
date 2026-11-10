@@ -14,7 +14,7 @@
     },
     "version": {
       "type": "number",
-      "const": 11
+      "const": 12
     },
     "app": {
       "type": "string"
@@ -7840,6 +7840,327 @@
                   {
                     "type": "object",
                     "required": [
+                      "style",
+                      "unit",
+                      "seam",
+                      "edge"
+                    ],
+                    "properties": {
+                      "style": {
+                        "type": "string",
+                        "const": "epp"
+                      },
+                      "unit": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "seam": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "edge": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "required": [
+                              "kind"
+                            ],
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "none"
+                              }
+                            }
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "kind",
+                              "rect"
+                            ],
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "cut"
+                              },
+                              "rect": {
+                                "type": "array",
+                                "additionalItems": false,
+                                "items": [
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "number"
+                                  }
+                                ],
+                                "minItems": 4
+                              }
+                            }
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "kind"
+                            ],
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "close"
+                              },
+                              "fill": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "fabric",
+                                      "offset",
+                                      "rotation"
+                                    ],
+                                    "properties": {
+                                      "fabric": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                      },
+                                      "offset": {
+                                        "type": "array",
+                                        "additionalItems": false,
+                                        "items": [
+                                          {
+                                            "type": "number"
+                                          },
+                                          {
+                                            "type": "number"
+                                          }
+                                        ],
+                                        "minItems": 2
+                                      },
+                                      "rotation": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "color"
+                                    ],
+                                    "properties": {
+                                      "color": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "data"
+                                    ],
+                                    "properties": {
+                                      "data": {
+                                        "type": "object",
+                                        "required": [
+                                          "n"
+                                        ],
+                                        "properties": {
+                                          "n": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 366
+                                          },
+                                          "slot": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 3
+                                          }
+                                        }
+                                      },
+                                      "under": {
+                                        "anyOf": [
+                                          {
+                                            "type": "object",
+                                            "required": [
+                                              "fabric",
+                                              "offset",
+                                              "rotation"
+                                            ],
+                                            "properties": {
+                                              "fabric": {
+                                                "type": "string",
+                                                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                              },
+                                              "offset": {
+                                                "type": "array",
+                                                "additionalItems": false,
+                                                "items": [
+                                                  {
+                                                    "type": "number"
+                                                  },
+                                                  {
+                                                    "type": "number"
+                                                  }
+                                                ],
+                                                "minItems": 2
+                                              },
+                                              "rotation": {
+                                                "type": "number"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "object",
+                                            "required": [
+                                              "color"
+                                            ],
+                                            "properties": {
+                                              "color": {
+                                                "type": "string",
+                                                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "kind",
+                              "outline"
+                            ],
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "custom"
+                              },
+                              "outline": {
+                                "type": "array",
+                                "items": {
+                                  "anyOf": [
+                                    {
+                                      "type": "array",
+                                      "additionalItems": false,
+                                      "items": [
+                                        {
+                                          "type": "string",
+                                          "const": "M"
+                                        },
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "number"
+                                        }
+                                      ],
+                                      "minItems": 3
+                                    },
+                                    {
+                                      "type": "array",
+                                      "additionalItems": false,
+                                      "items": [
+                                        {
+                                          "type": "string",
+                                          "const": "L"
+                                        },
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "number"
+                                        }
+                                      ],
+                                      "minItems": 3
+                                    },
+                                    {
+                                      "type": "array",
+                                      "additionalItems": false,
+                                      "items": [
+                                        {
+                                          "type": "string",
+                                          "const": "A"
+                                        },
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "number",
+                                          "exclusiveMinimum": -360,
+                                          "exclusiveMaximum": 360,
+                                          "not": {
+                                            "const": 0
+                                          }
+                                        }
+                                      ],
+                                      "minItems": 4
+                                    },
+                                    {
+                                      "type": "array",
+                                      "additionalItems": false,
+                                      "items": [
+                                        {
+                                          "type": "string",
+                                          "const": "C"
+                                        },
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "number"
+                                        }
+                                      ],
+                                      "minItems": 7
+                                    },
+                                    {
+                                      "type": "array",
+                                      "additionalItems": false,
+                                      "items": [
+                                        {
+                                          "type": "string",
+                                          "const": "Z"
+                                        }
+                                      ],
+                                      "minItems": 1
+                                    }
+                                  ]
+                                },
+                                "maxItems": 1000
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
                       "style"
                     ],
                     "properties": {
@@ -9637,6 +9958,236 @@
                     }
                   }
                 }
+              },
+              "epp": {
+                "type": "object",
+                "required": [
+                  "pieces"
+                ],
+                "properties": {
+                  "shapes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "outline"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]{1,32}$"
+                        },
+                        "outline": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "additionalItems": false,
+                            "items": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ],
+                            "minItems": 2
+                          },
+                          "minItems": 3,
+                          "maxItems": 24
+                        },
+                        "marked": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 23
+                          },
+                          "maxItems": 24
+                        }
+                      }
+                    },
+                    "maxItems": 5000
+                  },
+                  "pieces": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "at",
+                        "turn",
+                        "scale"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]{1,32}$"
+                        },
+                        "shape": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                        },
+                        "rosette": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                        },
+                        "at": {
+                          "type": "array",
+                          "additionalItems": false,
+                          "items": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "number"
+                            }
+                          ],
+                          "minItems": 2
+                        },
+                        "turn": {
+                          "type": "number"
+                        },
+                        "mirror": {
+                          "type": "boolean"
+                        },
+                        "scale": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 4
+                        },
+                        "coloring": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]{1,32}$"
+                        },
+                        "fills": {
+                          "type": "object",
+                          "patternProperties": {
+                            "^.*$": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "fabric",
+                                    "offset",
+                                    "rotation"
+                                  ],
+                                  "properties": {
+                                    "fabric": {
+                                      "type": "string",
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                    },
+                                    "offset": {
+                                      "type": "array",
+                                      "additionalItems": false,
+                                      "items": [
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "number"
+                                        }
+                                      ],
+                                      "minItems": 2
+                                    },
+                                    "rotation": {
+                                      "type": "number"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "color"
+                                  ],
+                                  "properties": {
+                                    "color": {
+                                      "type": "string",
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "data"
+                                  ],
+                                  "properties": {
+                                    "data": {
+                                      "type": "object",
+                                      "required": [
+                                        "n"
+                                      ],
+                                      "properties": {
+                                        "n": {
+                                          "type": "integer",
+                                          "minimum": 1,
+                                          "maximum": 366
+                                        },
+                                        "slot": {
+                                          "type": "integer",
+                                          "minimum": 0,
+                                          "maximum": 3
+                                        }
+                                      }
+                                    },
+                                    "under": {
+                                      "anyOf": [
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "fabric",
+                                            "offset",
+                                            "rotation"
+                                          ],
+                                          "properties": {
+                                            "fabric": {
+                                              "type": "string",
+                                              "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                            },
+                                            "offset": {
+                                              "type": "array",
+                                              "additionalItems": false,
+                                              "items": [
+                                                {
+                                                  "type": "number"
+                                                },
+                                                {
+                                                  "type": "number"
+                                                }
+                                              ],
+                                              "minItems": 2
+                                            },
+                                            "rotation": {
+                                              "type": "number"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "color"
+                                          ],
+                                          "properties": {
+                                            "color": {
+                                              "type": "string",
+                                              "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "maxItems": 5000
+                  }
+                }
               }
             }
           }
@@ -9742,6 +10293,745 @@
             }
           }
         },
+        "eppShapes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "notecard",
+              "outline"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+              },
+              "notecard": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "reference": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "techniques": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "fpp"
+                        },
+                        {
+                          "type": "string",
+                          "const": "applique"
+                        },
+                        {
+                          "type": "string",
+                          "const": "hand"
+                        },
+                        {
+                          "type": "string",
+                          "const": "strip"
+                        },
+                        {
+                          "type": "string",
+                          "const": "quick-units"
+                        },
+                        {
+                          "type": "string",
+                          "const": "stitch-flip"
+                        }
+                      ]
+                    }
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "source": {
+                "type": "object",
+                "required": [
+                  "libraryId",
+                  "itemId",
+                  "revision"
+                ],
+                "properties": {
+                  "libraryId": {
+                    "type": "string"
+                  },
+                  "itemId": {
+                    "type": "string"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "library": {
+                    "type": "string"
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  },
+                  "derived": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{12}$"
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "author": {
+                "type": "string"
+              },
+              "license": {
+                "type": "string"
+              },
+              "credits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "author": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "license": {
+                      "type": "string"
+                    },
+                    "library": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "outline": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "additionalItems": false,
+                  "items": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "minItems": 2
+                },
+                "minItems": 3,
+                "maxItems": 24
+              },
+              "locked": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 23
+                },
+                "maxItems": 24
+              },
+              "marked": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 23
+                },
+                "maxItems": 24
+              },
+              "fill": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "fabric",
+                      "offset",
+                      "rotation"
+                    ],
+                    "properties": {
+                      "fabric": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                      },
+                      "offset": {
+                        "type": "array",
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ],
+                        "minItems": 2
+                      },
+                      "rotation": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "color"
+                    ],
+                    "properties": {
+                      "color": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "data"
+                    ],
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "required": [
+                          "n"
+                        ],
+                        "properties": {
+                          "n": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 366
+                          },
+                          "slot": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3
+                          }
+                        }
+                      },
+                      "under": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "required": [
+                              "fabric",
+                              "offset",
+                              "rotation"
+                            ],
+                            "properties": {
+                              "fabric": {
+                                "type": "string",
+                                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                              },
+                              "offset": {
+                                "type": "array",
+                                "additionalItems": false,
+                                "items": [
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "number"
+                                  }
+                                ],
+                                "minItems": 2
+                              },
+                              "rotation": {
+                                "type": "number"
+                              }
+                            }
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "color"
+                            ],
+                            "properties": {
+                              "color": {
+                                "type": "string",
+                                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "rosettes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "notecard",
+              "pieces",
+              "colorings"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+              },
+              "notecard": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "reference": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "techniques": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "fpp"
+                        },
+                        {
+                          "type": "string",
+                          "const": "applique"
+                        },
+                        {
+                          "type": "string",
+                          "const": "hand"
+                        },
+                        {
+                          "type": "string",
+                          "const": "strip"
+                        },
+                        {
+                          "type": "string",
+                          "const": "quick-units"
+                        },
+                        {
+                          "type": "string",
+                          "const": "stitch-flip"
+                        }
+                      ]
+                    }
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "source": {
+                "type": "object",
+                "required": [
+                  "libraryId",
+                  "itemId",
+                  "revision"
+                ],
+                "properties": {
+                  "libraryId": {
+                    "type": "string"
+                  },
+                  "itemId": {
+                    "type": "string"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{12}$"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "library": {
+                    "type": "string"
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  },
+                  "derived": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{12}$"
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "author": {
+                "type": "string"
+              },
+              "license": {
+                "type": "string"
+              },
+              "credits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "author": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "license": {
+                      "type": "string"
+                    },
+                    "library": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "shapes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "outline"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9]{1,32}$"
+                    },
+                    "outline": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ],
+                        "minItems": 2
+                      },
+                      "minItems": 3,
+                      "maxItems": 24
+                    },
+                    "marked": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 23
+                      },
+                      "maxItems": 24
+                    }
+                  }
+                },
+                "maxItems": 500
+              },
+              "pieces": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "shape",
+                    "at",
+                    "turn",
+                    "scale"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9]{1,32}$"
+                    },
+                    "shape": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                    },
+                    "at": {
+                      "type": "array",
+                      "additionalItems": false,
+                      "items": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "number"
+                        }
+                      ],
+                      "minItems": 2
+                    },
+                    "turn": {
+                      "type": "number"
+                    },
+                    "mirror": {
+                      "type": "boolean"
+                    },
+                    "scale": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 4
+                    }
+                  }
+                },
+                "maxItems": 500
+              },
+              "colorings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "fills"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9]{1,32}$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "fills": {
+                      "type": "object",
+                      "patternProperties": {
+                        "^.*$": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "required": [
+                                "fabric",
+                                "offset",
+                                "rotation"
+                              ],
+                              "properties": {
+                                "fabric": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                },
+                                "offset": {
+                                  "type": "array",
+                                  "additionalItems": false,
+                                  "items": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "number"
+                                    }
+                                  ],
+                                  "minItems": 2
+                                },
+                                "rotation": {
+                                  "type": "number"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "color"
+                              ],
+                              "properties": {
+                                "color": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "data"
+                              ],
+                              "properties": {
+                                "data": {
+                                  "type": "object",
+                                  "required": [
+                                    "n"
+                                  ],
+                                  "properties": {
+                                    "n": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 366
+                                    },
+                                    "slot": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 3
+                                    }
+                                  }
+                                },
+                                "under": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "fabric",
+                                        "offset",
+                                        "rotation"
+                                      ],
+                                      "properties": {
+                                        "fabric": {
+                                          "type": "string",
+                                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                        },
+                                        "offset": {
+                                          "type": "array",
+                                          "additionalItems": false,
+                                          "items": [
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ],
+                                          "minItems": 2
+                                        },
+                                        "rotation": {
+                                          "type": "number"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "color"
+                                      ],
+                                      "properties": {
+                                        "color": {
+                                          "type": "string",
+                                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "threads": {
+                      "type": "object",
+                      "patternProperties": {
+                        "^.*$": {
+                          "type": "object",
+                          "required": [
+                            "thread",
+                            "style",
+                            "weight"
+                          ],
+                          "properties": {
+                            "thread": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                            },
+                            "style": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "solid"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "dashed"
+                                }
+                              ]
+                            },
+                            "weight": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "base": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9]{1,32}$"
+                    },
+                    "cleared": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "minItems": 1,
+                "maxItems": 100
+              },
+              "colorVariant": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
         "includeLibraryImages": {
           "type": "boolean"
         }
@@ -9749,6 +11039,6 @@
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v11.json",
-  "title": "RRQuilts project (.rrq) v11"
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v12.json",
+  "title": "RRQuilts project (.rrq) v12"
 }
