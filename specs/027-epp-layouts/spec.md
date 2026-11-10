@@ -365,7 +365,10 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   fill the outside notches up to a straight edge, nothing cut) or **Custom trim** (an outline set in
   the Layout tab). Borders and binding MUST need a made edge (Cut to size, Auto-close or Custom
   trim); with No trimming the Borders tab asks for one. The quilt's size, the drawing, borders and
-  binding follow the chosen edge; yardage counts binding and borders only when on.
+  binding follow the chosen edge; yardage counts binding and borders only when on. Custom trim
+  waits for spec 055 (quilt shapes), which brings circles, diamonds and polygons to every quilt; the
+  first EPP release has No trimming, Cut to size and Auto-close. Owner, 2026-11-10: "custom trim:
+  yeah, that's the right call".
 - **FR-001b**: Trimming MUST NOT change the templates: pieces are made whole (papers are whole
   shapes) and trimmed after assembly, so templates and fabric counts are for whole pieces; the
   print notes the trim line and its size.

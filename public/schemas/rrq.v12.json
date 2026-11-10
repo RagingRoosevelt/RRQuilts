@@ -10186,6 +10186,69 @@
                       }
                     },
                     "maxItems": 5000
+                  },
+                  "box": {
+                    "type": "array",
+                    "additionalItems": false,
+                    "items": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "minItems": 4
+                  },
+                  "closing": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "outline"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]{1,32}$"
+                        },
+                        "outline": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "additionalItems": false,
+                            "items": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ],
+                            "minItems": 2
+                          },
+                          "minItems": 3,
+                          "maxItems": 24
+                        },
+                        "marked": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 23
+                          },
+                          "maxItems": 24
+                        }
+                      }
+                    },
+                    "maxItems": 5000
                   }
                 }
               }

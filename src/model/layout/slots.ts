@@ -133,6 +133,8 @@ export function generateSlots(
   borders: Border[],
   /** On-Point: edge positions holding blocks (`edgeBlocks`); they move that side's edge in. */
   held?: ReadonlyMap<string, string>,
+  /** EPP quilts: the box of the pieces or of the cut, in units (`quilt.epp.box`). */
+  eppBox?: Bounds,
 ): Generated {
   const unsupported: string[] = [];
   let slots: Slot[] = [];
@@ -203,16 +205,22 @@ export function generateSlots(
     center = t.center;
     trim = true;
   } else if (layout.style === 'epp') {
-    // EPP quilts (spec 027) have no block spaces; their pieces live in `quilt.epp`.
-    const box: Bounds = [0, 0, 0, 0];
-    return {
-      slots: [],
-      center: box,
-      bounds: box,
-      unsupported,
-      edge: rectPath(0, 0, 0, 0),
-      trim: false,
-    };
+    // EPP quilts (spec 027) have no block spaces; their pieces live in `quilt.epp`. Borders go
+    // round a made edge (Cut to size, Auto-close) only; with No trimming there are none.
+    const u = layout.unit;
+    const [a, b, c, d] = eppBox ?? [0, 0, 0, 0];
+    const box: Bounds = [a * u, b * u, c * u, d * u];
+    if (layout.edge.kind === 'none' || !eppBox)
+      return {
+        slots: [],
+        center: box,
+        bounds: box,
+        unsupported,
+        edge: rectPath(box[0], box[1], box[2] - box[0], box[3] - box[1]),
+        trim: false,
+      };
+    center = box;
+    trim = layout.edge.kind === 'cut';
   } else unsupported.push(`layout ${layout.style}`);
 
   const b = borderSlots(
@@ -255,7 +263,7 @@ export function edgeBlocks(quilt: Quilt): Map<string, string> {
 
 /** The quilt's spaces, given what's placed in it. */
 export const generateFor = (quilt: Quilt) =>
-  generateSlots(quilt.layout, quilt.borders, edgeBlocks(quilt));
+  generateSlots(quilt.layout, quilt.borders, edgeBlocks(quilt), quilt.epp?.box);
 
 export interface Reconciled {
   slots: Record<string, SlotContent>;

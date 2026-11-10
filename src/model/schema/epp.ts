@@ -85,10 +85,17 @@ export const EppLayout = Type.Object({
   edge: EppEdge,
 });
 
+const Box = Type.Tuple([Type.Number(), Type.Number(), Type.Number(), Type.Number()]);
+
 export const EppDesign = Type.Object({
-  /** Closing pieces (Auto-close), rebuilt when the pieces change. */
+  /** Shapes made in this quilt (Close space). */
   shapes: Type.Optional(Type.Array(InternalShape, { maxItems: 5000 })),
   pieces: Type.Array(EppPiece, { maxItems: 5000 }),
+  /** The quilt's box in units: the pieces' bounds, or the Cut to size rectangle. Kept up to date
+   *  with every edit, so the layout (borders, size) needs no shape lookups. */
+  box: Type.Optional(Box),
+  /** Auto-close: the closing pieces, outlines in units where they sit, rebuilt with every edit. */
+  closing: Type.Optional(Type.Array(InternalShape, { maxItems: 5000 })),
 });
 
 export type EppShape = Type.Static<typeof EppShape>;
