@@ -330,7 +330,10 @@ watch(
   { immediate: true },
 );
 
-const lookup = computed(() => lookupEpp(project.doc!.project, [], library.lookup));
+// This rosette's own (internal) shapes too: dragging, turning and snapping look pieces up here.
+const lookup = computed(() =>
+  lookupEpp(project.doc!.project, rosette.value?.shapes ?? [], library.lookup),
+);
 const leaves = computed<Leaf[]>(() =>
   rosette.value ? rosetteLeaves(rosette.value, lookup.value, coloringId.value) : [],
 );
