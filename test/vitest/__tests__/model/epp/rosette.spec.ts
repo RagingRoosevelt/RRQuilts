@@ -20,7 +20,10 @@ import {
   newRosette,
   paintPiece,
   removePieces,
+  splitPiece,
+  fillGap,
 } from '@/model/epp/rosette-ops';
+import { lineCut } from '@/model/epp/faces';
 import type { EppShape } from '@/model/schema/epp';
 
 function regular(n: number): Poly {
@@ -148,6 +151,54 @@ describe('rosette operations', () => {
     );
     expect([...overlapping(leaves.map((l) => l.poly))]).toEqual([]);
     expect(lk.shape('hex')).toBeDefined();
+  });
+
+  it('close space line: a corner-to-corner line closes the smaller gap or splits a piece, known shapes used', () => {
+    let r = newRosette('Ring');
+    for (let k = 0; k < 6; k++) {
+      const a = (Math.PI / 3) * k + Math.PI / 6;
+      r = addPiece(r, 'hex', {
+        at: [Math.sqrt(3) * Math.cos(a), Math.sqrt(3) * Math.sin(a)],
+        turn: 0,
+        scale: 1,
+      });
+    }
+    const h = Math.sqrt(3) / 2;
+    const half = {
+      id: 'half',
+      outline: orient([
+        [1, 0],
+        [0.5, h],
+        [-0.5, h],
+        [-1, 0],
+      ]),
+    };
+    const polys = r.pieces.map((p) => place(hex.outline, p));
+    // Across the hole: half of it, as the known half hexagon.
+    const cut = lineCut(polys, [1, 0], [-1, 0]);
+    expect(cut && 'gap' in cut).toBe(true);
+    const one = fillGap(r, (cut as { gap: Poly }).gap, [half]);
+    expect(one.pieces.at(-1)!.shape).toBe('half');
+    expect(one.shapes).toBeUndefined();
+    // Fill the whole hole (a new shape), paint it, then split it along the same line.
+    let full = closeSpace(r, polys, [0, 0])!;
+    const mid = full.pieces.at(-1)!;
+    full = paintPiece(full, full.colorings[0]!.id, mid.id, { color: 'x' });
+    const all = full.pieces.map((p) =>
+      place((p.shape === 'hex' ? hex : full.shapes![0]!).outline, p),
+    );
+    const s = lineCut(all, [1, 0], [-1, 0]);
+    expect(s && 'piece' in s && s.piece).toBe(6);
+    const split = splitPiece(full, mid.id, (s as { parts: Poly[] }).parts, [half]);
+    expect(split.pieces).toHaveLength(8);
+    expect(split.pieces.slice(6).map((p) => p.shape)).toEqual(['half', 'half']);
+    expect(split.shapes).toBeUndefined();
+    expect(split.pieces.slice(6).map((p) => split.colorings[0]!.fills[p.id])).toEqual([
+      { color: 'x' },
+      { color: 'x' },
+    ]);
+    // Along an edge both sides are pieces: nothing.
+    expect(lineCut(polys, [1, 0], [0.5, h])).toBeNull();
   });
 
   it('colorings: add a copy, paint, delete; removing a piece drops its fills', () => {

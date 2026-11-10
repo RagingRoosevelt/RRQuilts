@@ -9,8 +9,7 @@ import type { Pt } from '../geometry/path';
 import { rosetteLocal, type EppLookup } from './expand';
 import { centroid, type Pose, type Poly } from './geometry';
 import { gapAt } from './faces';
-import { matchShape } from './match';
-import { nonWholeEdges } from './checks';
+import { pieceFor, piecePose } from './match';
 
 export function newRosette(name: string, author = '', license = DEFAULT_LICENSE): Rosette {
   return {
@@ -129,28 +128,62 @@ export function copyIn(
   return out;
 }
 
-/** Close space (spec 050): the gap under p becomes an internal shape, placed. Null: no gap there. */
+type Known = readonly { id: string; outline: Poly }[];
+
+/** Close space (spec 050): the gap under p becomes a piece. Null: no gap there. */
 export function closeSpace(
   r: Rosette,
   polys: readonly Poly[],
   p: Pt,
   /** Shapes to use when the gap is one of them (yours, then the libraries'). */
-  known: readonly { id: string; outline: Poly }[] = [],
+  known: Known = [],
 ): Rosette | null {
   const gap = gapAt(polys, p);
-  if (!gap) return null;
-  const m = matchShape(gap, known);
-  if (m) return addPiece(r, m.shape.id, m.pose);
-  const c = centroid(gap);
-  const outline = gap.map(([x, y]): Pt => [x - c[0], y - c[1]]);
-  // Its edges are its neighbors': ones that aren't whole units are meant, so marked.
-  const marked = nonWholeEdges(outline);
-  const shape: InternalShape = { id: newId(), outline, ...(marked.length ? { marked } : {}) };
-  return addPiece({ ...r, shapes: [...(r.shapes ?? []), shape] }, shape.id, {
-    at: c,
-    turn: 0,
-    scale: 1,
-  });
+  return gap ? fillGap(r, gap, known) : null;
+}
+
+/** An area (in rosette units) placed as a piece: a known shape, or a new internal one. */
+export function fillGap(r: Rosette, gap: Poly, known: Known = []): Rosette {
+  const { shape, pose, added } = pieceFor(gap, known);
+  return addPiece(added ? { ...r, shapes: [...(r.shapes ?? []), added] } : r, shape, pose);
+}
+
+/**
+ * Close space's line across a piece: the piece becomes `parts` (each a known shape or a new
+ * internal one), each part in the piece's fill in every coloring.
+ */
+export function splitPiece(
+  r: Rosette,
+  id: string,
+  parts: readonly Poly[],
+  known: Known = [],
+): Rosette {
+  const old = r.pieces.find((p) => p.id === id);
+  if (!old) return r;
+  const made = parts.map((poly) => ({ id: newId(), ...pieceFor(poly, known) }));
+  const pieces: RosettePiece[] = made.map((m) => ({
+    id: m.id,
+    shape: m.shape,
+    ...piecePose(m.pose),
+  }));
+  const rest = r.pieces.filter((p) => p.id !== id);
+  // The old piece's own shape goes when nothing else uses it.
+  const shapes = [
+    ...(r.shapes ?? []).filter((s) => s.id !== old.shape || rest.some((p) => p.shape === s.id)),
+    ...made.flatMap((m) => (m.added ? [m.added] : [])),
+  ];
+  const out: Rosette = {
+    ...r,
+    pieces: [...rest, ...pieces],
+    colorings: r.colorings.map((c) => {
+      const { [id]: fill, ...fills } = c.fills;
+      if (fill) for (const m of made) fills[m.id] = fill;
+      return { ...c, fills };
+    }),
+  };
+  if (shapes.length) out.shapes = shapes;
+  else delete out.shapes;
+  return out;
 }
 
 // --- Colorings (as a block's) ---

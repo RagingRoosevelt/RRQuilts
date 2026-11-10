@@ -161,24 +161,24 @@ import type { World } from '@/composables/viewport';
 import { fillFor } from '@/editor/paint';
 import { checkOutline, passes } from '@/model/epp/checks';
 import { expand, expandAll, lookupEpp, type Leaf } from '@/model/epp/expand';
-import { gapAt } from '@/model/epp/faces';
-import { centroid, outerEdges, overlapping, type Edge, type Pose } from '@/model/epp/geometry';
+import { gapAt, lineCut } from '@/model/epp/faces';
+import { outerEdges, overlapping, type Edge, type Pose } from '@/model/epp/geometry';
 import { cellAt, gridKindFor, snapOrigin, type Lattice } from '@/model/epp/grid';
 import { attach } from '@/model/epp/grow';
-import { matchShape, piecePose } from '@/model/epp/match';
+import { piecePose } from '@/model/epp/match';
 import {
   addPiece,
   breakIntoPatches,
+  fillGap,
   movePiece,
   paint,
   refresh,
   removePieces,
+  splitPiece,
   type PaintScope,
 } from '@/model/epp/quilt-ops';
 import { landsOver, nextTurn, snap, snapPose, staticEdges } from '@/model/epp/snap';
-import { nonWholeEdges } from '@/model/epp/checks';
 import { dist, pointInPolygon, type Pt } from '@/model/geometry/path';
-import { newId } from '@/model/ids';
 import { isLibraryItem } from '@/model/library-items';
 import { shownColorway, swapper } from '@/model/colorways';
 import type { Fill } from '@/model/schema/coloring';
@@ -248,7 +248,7 @@ const TOOLS: { id: Tool; icon: string; label: string; hint: string }[] = [
     id: 'close',
     icon: 'format_shapes',
     label: 'Close space',
-    hint: 'Close space: tap a gap to fill it with a shape',
+    hint: 'Close space: tap a gap to fill it with a shape; drag from corner to corner to close part of a gap or split a piece',
   },
   {
     id: 'paint',
@@ -439,25 +439,7 @@ function onTap(p: World) {
     if (hit) return;
     const gap = gapAt(allPolys.value, p);
     if (!gap) return void $q.notify({ message: 'No closed gap there to fill.', timeout: 1500 });
-    const known = [...(project.doc!.project.eppShapes ?? []), ...library.items.eppShapes].filter(
-      (x) => passes(checkOutline(x.outline, x.marked)),
-    );
-    const m = matchShape(gap, known);
-    if (m) return edit((q) => addPiece(q, { shape: m.shape.id, ...piecePose(m.pose) }).quilt);
-    const c = centroid(gap);
-    const outline = gap.map(([x, y]): Pt => [x - c[0], y - c[1]]);
-    const marked = nonWholeEdges(outline);
-    const id = newId();
-    return edit((q) => {
-      const withShape = {
-        ...q,
-        epp: {
-          ...q.epp!,
-          shapes: [...(q.epp?.shapes ?? []), { id, outline, ...(marked.length ? { marked } : {}) }],
-        },
-      };
-      return addPiece(withShape, { shape: id, at: c, turn: 0, scale: 1 }).quilt;
-    });
+    return edit((q) => fillGap(q, gap, known.value));
   }
   if (!hit) return;
   const piece = pieces.value.find((x) => x.id === hit.piece)!;
@@ -480,6 +462,67 @@ function onTap(p: World) {
     return edit((q) => movePiece(q, piece.id, s ? snapPose(pose, s) : pose));
   }
 }
+/** Shapes Close space uses when an area is one of them (yours, then the libraries'). */
+const known = computed(() =>
+  [...(project.doc!.project.eppShapes ?? []), ...library.items.eppShapes].filter((x) =>
+    passes(checkOutline(x.outline, x.marked)),
+  ),
+);
+/** The piece corner within reach of p (Close space lines run corner to corner). */
+function cornerNear(p: Pt, not?: Pt): Pt | null {
+  let best: Pt | null = null;
+  let d = px(14);
+  for (const c of allPolys.value.flat()) {
+    if (not && dist(c, not) < 1e-6) continue;
+    const e = dist(p, c);
+    if (e < d) [best, d] = [c, e];
+  }
+  return best;
+}
+/** A Close space line from a to b: fill the smaller gap beside it, or split the piece it crosses. */
+function closeLine(a: Pt, b: Pt) {
+  const cut = lineCut(allPolys.value, a, b);
+  if (!cut)
+    return void $q.notify({
+      message: 'That line doesn’t close a gap or cross a piece.',
+      timeout: 1500,
+    });
+  if ('gap' in cut) return edit((q) => fillGap(q, cut.gap, known.value));
+  const piece = pieces.value.find((x) => x.id === leaves.value[cut.piece]!.piece);
+  if (!piece?.shape)
+    return void $q.notify({
+      message: 'Break the rosette into patches to split its pieces.',
+      timeout: 2000,
+    });
+  edit((q) => splitPiece(q, piece.id, cut.parts, known.value));
+}
+/** Close space: the line being drawn, and the corner under the mouse. */
+function drawCloseLine({ ctx, px: p }: Decor) {
+  if (tool.value !== 'close') return;
+  const d = drag.value;
+  const dot = (c: Pt) => {
+    ctx.beginPath();
+    ctx.arc(c[0], c[1], p(5), 0, 2 * Math.PI);
+    ctx.fill();
+  };
+  ctx.save();
+  ctx.fillStyle = ctx.strokeStyle = '#2e7d32';
+  if (d?.kind === 'line') {
+    const to = d.b ?? d.end;
+    ctx.lineWidth = p(2.5);
+    if (!d.b) ctx.setLineDash([p(6), p(4)]);
+    ctx.beginPath();
+    ctx.moveTo(d.a[0], d.a[1]);
+    ctx.lineTo(to[0], to[1]);
+    ctx.stroke();
+    dot(d.a);
+    if (d.b) dot(d.b);
+  } else {
+    const c = hover.value && cornerNear(hover.value);
+    if (c) dot(c);
+  }
+  ctx.restore();
+}
 function onHover(p: World | null) {
   hover.value = p;
   tick.value++;
@@ -495,6 +538,8 @@ type Drag =
       statics: Pt[][];
     }
   | { kind: 'grid'; origin: Pt; grab: Pt }
+  /** Close space: a line from corner a, ending on corner b when one is in reach. */
+  | { kind: 'line'; a: Pt; end: Pt; b: Pt | null }
   /** From empty space with something picked: the ghost follows, letting go places it. */
   | { kind: 'ghost' };
 const drag = shallowRef<Drag | null>(null);
@@ -502,6 +547,12 @@ function claim(p: World, e: PointerEvent) {
   if (e.button === 2) return false;
   if (prefs.value.mode === 'grid' && epp.draggingGrid) {
     drag.value = { kind: 'grid', origin: epp.gridOrigin, grab: p };
+    return true;
+  }
+  if (!ro.value && tool.value === 'close') {
+    const a = cornerNear(p);
+    if (!a) return false;
+    drag.value = { kind: 'line', a, end: p, b: null };
     return true;
   }
   if (ro.value || tool.value !== 'place') return false;
@@ -533,6 +584,11 @@ function onDrag(p: World) {
     tick.value++;
     return;
   }
+  if (d.kind === 'line') {
+    drag.value = { ...d, end: p, b: cornerNear(p, d.a) };
+    tick.value++;
+    return;
+  }
   if (d.kind === 'grid') {
     const moved: Pt = [d.origin[0] + p[0] - d.grab[0], d.origin[1] + p[1] - d.grab[1]];
     epp.gridOrigin = snapOrigin({ ...lattice.value, origin: moved }, allPolys.value.flat(), px(16));
@@ -560,6 +616,12 @@ function onDragEnd(p: World, e: PointerEvent) {
   const d = drag.value;
   drag.value = null;
   snapTarget.value = null;
+  if (d?.kind === 'line') {
+    const b = cornerNear(p, d.a);
+    if (b) closeLine(d.a, b);
+    tick.value++;
+    return;
+  }
   if (d?.kind !== 'ghost') return;
   const pose = poseAt(p);
   if (pose) placeAt(pose);
@@ -576,7 +638,9 @@ const readout = computed(() => {
   return `${n} ${n === 1 ? 'piece' : 'pieces'} · 1U = ${+u.toFixed(3)} ${units}${o ? ` · ${o} overlapping` : ''}`;
 });
 
-function decorate({ ctx, px: p }: Decor) {
+function decorate(dec: Decor) {
+  const { ctx, px: p } = dec;
+  drawCloseLine(dec);
   // Cut to size: the cut line.
   const e0 = edge.value;
   if (e0?.kind === 'cut') {

@@ -11,7 +11,9 @@ import {
   piecePolys,
   refresh,
   setEdge,
+  splitPiece,
 } from '@/model/epp/quilt-ops';
+import { lineCut } from '@/model/epp/faces';
 import { generateFor } from '@/model/layout/slots';
 import { signedArea } from '@/model/geometry/path';
 import type { Quilt } from '@/model/schema/quilt';
@@ -153,5 +155,30 @@ describe('EPP quilt print pieces', () => {
     const cut = eppQuiltPieces(setEdge(q, { kind: 'cut', rect: [-1, -1, 1, 1] }, lookup), lookup);
     expect(cut.outside).toBeGreaterThan(0);
     expect(cut.pieces.length + cut.outside).toBe(19);
+  });
+
+  it('close space line splits a square into two library Half Squares in its fill', () => {
+    const q = addPiece(newEppQuilt('S', 'in'), {
+      shape: sqId,
+      at: [0, 0],
+      turn: 0,
+      scale: 1,
+      fills: { '': { color: 'c' } },
+    }).quilt;
+    const sq = piecePolys(q, lookup)[0]!;
+    const cut = lineCut([sq], sq[0]!, sq[2]!);
+    expect(cut && 'piece' in cut).toBe(true);
+    const out = splitPiece(
+      q,
+      q.epp!.pieces[0]!.id,
+      (cut as { parts: (typeof sq)[] }).parts,
+      shapes,
+    );
+    expect(out.epp!.pieces.map((p) => p.shape)).toEqual([
+      'rrquilts.epp-half-square',
+      'rrquilts.epp-half-square',
+    ]);
+    expect(out.epp!.pieces.map((p) => p.fills?.[''])).toEqual([{ color: 'c' }, { color: 'c' }]);
+    expect(out.epp!.shapes).toBeUndefined();
   });
 });

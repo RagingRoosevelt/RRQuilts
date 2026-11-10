@@ -143,6 +143,12 @@ export const CHECKS: Check[] = [
     text: 'EPP quilt print: Quilt picture, Yardage estimate, Paper templates (finished size) and Fabric templates (the quilt’s own seam allowance, not the print setting). At 1U = 2 in a hexagon’s paper template edge measures 2 in at 100 %; the fabric one is 3/8 in bigger all round. Closing pieces print too; with Cut to size, pieces wholly outside the cut are left out (the page says how many).',
     to: '/project',
   },
+  {
+    id: 'TC-286',
+    group: G.epp027,
+    text: 'Close space lines (rosette editor and EPP quilt Design): with Close space, a corner under the mouse shows a green dot. Drag from one piece corner to another: the line is dashed until it reaches a corner, then solid. Across a gap (a ring of six hexagons, opposite corners of the hole): the smaller side fills, here a library Half Hexagon. Across a piece (a hexagon, left to right corner): it splits in two Half Hexagons in its color. A split square gives two Half Squares. An area no shape matches becomes a new shape (orange or red outline when it needs it). In a quilt, a line across a placed rosette asks to break it into patches first. Along an edge or nowhere useful: a note says the line does nothing. Tapping a gap still fills it all.',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

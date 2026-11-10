@@ -1,6 +1,9 @@
 // A drawn outline that is an existing shape (owner, 2026-11-10: Multi-shape pieces that match a
 // library shape use it): the shape and the pose (turn, mirror, whole scale) that make it.
 import { dist, type Pt } from '../geometry/path';
+import { newId } from '../ids';
+import type { InternalShape } from '../schema/epp';
+import { nonWholeEdges } from './checks';
 import { centroid, edges, edgeLength, place, type Pose, type Poly } from './geometry';
 
 const EPS = 1e-6;
@@ -47,4 +50,22 @@ export function matchShape<T extends { id: string; outline: Poly }>(
     if (pose) return { shape: c, pose: { ...pose, turn: Math.round(pose.turn / EPS) * EPS } };
   }
   return null;
+}
+
+/**
+ * An area made by Close space as a piece: a known shape when it is one (owner, 2026-11-10: a
+ * reference, not a copy), otherwise a new internal shape (`added`) at scale 1.
+ */
+export function pieceFor(
+  poly: Poly,
+  known: readonly { id: string; outline: Poly }[],
+): { shape: string; pose: Pose; added?: InternalShape } {
+  const m = matchShape(poly, known);
+  if (m) return { shape: m.shape.id, pose: m.pose };
+  const c = centroid(poly);
+  const outline = poly.map(([x, y]): Pt => [x - c[0], y - c[1]]);
+  // Its edges are its neighbors': ones that aren't whole units are meant, so marked.
+  const marked = nonWholeEdges(outline);
+  const added: InternalShape = { id: newId(), outline, ...(marked.length ? { marked } : {}) };
+  return { shape: added.id, pose: { at: c, turn: 0, scale: 1 }, added };
 }

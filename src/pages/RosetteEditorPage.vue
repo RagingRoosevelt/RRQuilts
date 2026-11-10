@@ -253,10 +253,13 @@ import {
   closeSpace,
   copyIn,
   deleteColoring,
+  fillGap,
   movePiece,
   paintPiece,
   removePieces,
+  splitPiece,
 } from '@/model/epp/rosette-ops';
+import { lineCut } from '@/model/epp/faces';
 import { landsOver, nextTurn, snap, snapPose, staticEdges } from '@/model/epp/snap';
 import { dist, pointInPolygon, type Pt } from '@/model/geometry/path';
 import { isLibraryItem } from '@/model/library-items';
@@ -328,7 +331,7 @@ const TOOLS: { id: RosetteTool; icon: string; label: string; hint: string }[] = 
     id: 'close',
     icon: 'format_shapes',
     label: 'Close space',
-    hint: 'Close space: tap a gap to fill it with a new shape',
+    hint: 'Close space: tap a gap to fill it with a shape; drag from corner to corner to close part of a gap or split a piece',
   },
   {
     id: 'paint',
@@ -555,10 +558,7 @@ function onTap(p: World) {
   }
   if (t === 'close') {
     if (hit) return;
-    const known = [...(project.doc!.project.eppShapes ?? []), ...library.items.eppShapes].filter(
-      (x) => passes(checkOutline(x.outline, x.marked)),
-    );
-    const r = rosette.value && closeSpace(rosette.value, allPolys.value, p, known);
+    const r = rosette.value && closeSpace(rosette.value, allPolys.value, p, known.value);
     if (r) edit(() => r);
     else $q.notify({ message: 'No closed gap there to fill.', timeout: 1500 });
     return;
@@ -581,6 +581,62 @@ function onTap(p: World) {
     return edit((r) => movePiece(r, piece.id, next));
   }
 }
+/** Shapes Close space uses when an area is one of them (yours, then the libraries'). */
+const known = computed(() =>
+  [...(project.doc!.project.eppShapes ?? []), ...library.items.eppShapes].filter((x) =>
+    passes(checkOutline(x.outline, x.marked)),
+  ),
+);
+/** The piece corner within reach of p (Close space lines run corner to corner). */
+function cornerNear(p: Pt, not?: Pt): Pt | null {
+  let best: Pt | null = null;
+  let d = px(14);
+  for (const c of allPolys.value.flat()) {
+    if (not && dist(c, not) < 1e-6) continue;
+    const e = dist(p, c);
+    if (e < d) [best, d] = [c, e];
+  }
+  return best;
+}
+/** Close space: the line being drawn, and the corner under the mouse. */
+function drawCloseLine({ ctx, px: p }: Decor) {
+  if (epp.rosetteTool !== 'close') return;
+  const d = drag.value;
+  const dot = (c: Pt) => {
+    ctx.beginPath();
+    ctx.arc(c[0], c[1], p(5), 0, 2 * Math.PI);
+    ctx.fill();
+  };
+  ctx.save();
+  ctx.fillStyle = ctx.strokeStyle = '#2e7d32';
+  if (d?.kind === 'line') {
+    const to = d.b ?? d.end;
+    ctx.lineWidth = p(2.5);
+    if (!d.b) ctx.setLineDash([p(6), p(4)]);
+    ctx.beginPath();
+    ctx.moveTo(d.a[0], d.a[1]);
+    ctx.lineTo(to[0], to[1]);
+    ctx.stroke();
+    dot(d.a);
+    if (d.b) dot(d.b);
+  } else {
+    const c = hover.value && cornerNear(hover.value);
+    if (c) dot(c);
+  }
+  ctx.restore();
+}
+/** A Close space line from a to b: fill the smaller gap beside it, or split the piece it crosses. */
+function closeLine(a: Pt, b: Pt) {
+  const cut = lineCut(allPolys.value, a, b);
+  if (!cut)
+    return void $q.notify({
+      message: 'That line doesn’t close a gap or cross a piece.',
+      timeout: 1500,
+    });
+  if ('gap' in cut) return edit((r) => fillGap(r, cut.gap, known.value));
+  const part = leaves.value[cut.piece]!.part!;
+  edit((r) => splitPiece(r, part, cut.parts, known.value));
+}
 const pickedPolysFor = (shape: string, pose: Pose) => {
   const s = lookup.value.shape(shape);
   return s ? [place(s.outline, pose)] : [];
@@ -602,6 +658,8 @@ type Drag =
       others: ReturnType<typeof staticEdges>;
     }
   | { kind: 'grid'; origin: Pt; grab: Pt }
+  /** Close space: a line from corner a, ending on corner b when one is in reach. */
+  | { kind: 'line'; a: Pt; end: Pt; b: Pt | null }
   /** From empty space with something picked: the ghost follows, letting go places it. */
   | { kind: 'ghost' };
 const drag = shallowRef<Drag | null>(null);
@@ -609,6 +667,12 @@ function claim(p: World, e: PointerEvent) {
   if (tab.value !== 'design' || e.button === 2) return false;
   if (prefs.value.mode === 'grid' && epp.draggingGrid) {
     drag.value = { kind: 'grid', origin: epp.gridOrigin, grab: p };
+    return true;
+  }
+  if (!ro.value && epp.rosetteTool === 'close') {
+    const a = cornerNear(p);
+    if (!a) return false;
+    drag.value = { kind: 'line', a, end: p, b: null };
     return true;
   }
   if (ro.value || epp.rosetteTool !== 'place') return false;
@@ -641,6 +705,11 @@ function onDrag(p: World) {
     tick.value++;
     return;
   }
+  if (d.kind === 'line') {
+    drag.value = { ...d, end: p, b: cornerNear(p, d.a) };
+    tick.value++;
+    return;
+  }
   if (d.kind === 'grid') {
     const moved: Pt = [d.origin[0] + p[0] - d.grab[0], d.origin[1] + p[1] - d.grab[1]];
     const corners = allPolys.value.flat();
@@ -667,6 +736,12 @@ function onDragEnd(p: World, e: PointerEvent) {
   const d = drag.value;
   drag.value = null;
   snapTarget.value = null;
+  if (d?.kind === 'line') {
+    const b = cornerNear(p, d.a);
+    if (b) closeLine(d.a, b);
+    tick.value++;
+    return;
+  }
   if (d?.kind !== 'ghost') return;
   const pose = poseAt(p);
   if (pose) placeAt(pose);
@@ -691,7 +766,9 @@ const readout = computed(() => {
   return `${n} ${n === 1 ? 'piece' : 'pieces'}${o ? ` · ${o} overlapping` : ''}`;
 });
 
-function decorate({ ctx, px: p }: Decor) {
+function decorate(dec: Decor) {
+  const { ctx, px: p } = dec;
+  drawCloseLine(dec);
   const e = hoverEdge.value ?? snapTarget.value;
   if (e) {
     ctx.strokeStyle = '#2e7d32';

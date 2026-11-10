@@ -9,7 +9,8 @@ import { newId } from '../ids';
 import { expand, expandAll, rosetteLocal, type EppLookup } from './expand';
 import { centroid, type Pose } from './geometry';
 import { autoClose, cutRect, type Box } from './edge';
-import { bbox } from './geometry';
+import { bbox, type Poly } from './geometry';
+import { pieceFor, piecePose } from './match';
 
 /** Defaults (owner, 2026-11-10): 1U = 2 in (5 cm), seam allowance 3/8 in (1 cm). */
 export const eppDefaults = (units: Units) =>
@@ -191,5 +192,42 @@ export function breakIntoPatches(q: Quilt, lookup: EppLookup, id: string): Quilt
     pieces: q.epp!.pieces.flatMap((x) => (x.id === id ? pieces : [x])),
   };
   if (added.length) epp.shapes = [...(q.epp?.shapes ?? []), ...added];
+  return { ...q, epp };
+}
+
+type Known = readonly { id: string; outline: Poly }[];
+
+/** Close space: an area (in units) placed as a piece, a known shape or a new internal one. */
+export function fillGap(q: Quilt, gap: Poly, known: Known = []): Quilt {
+  const { shape, pose, added } = pieceFor(gap, known);
+  const withShape = added
+    ? { ...q, epp: { ...q.epp!, shapes: [...(q.epp?.shapes ?? []), added] } }
+    : q;
+  return addPiece(withShape, { shape, ...piecePose(pose) }).quilt;
+}
+
+/** Close space's line across a shape piece: it becomes `parts`, each in the piece's fill. */
+export function splitPiece(q: Quilt, id: string, parts: readonly Poly[], known: Known = []): Quilt {
+  const old = q.epp?.pieces.find((p) => p.id === id);
+  if (!old?.shape) return q;
+  const fill = old.fills?.[''];
+  const made = parts.map((poly) => pieceFor(poly, known));
+  const rest = q.epp!.pieces.filter((p) => p.id !== id);
+  const pieces: EppPiece[] = made.map((m) => ({
+    id: newId(),
+    shape: m.shape,
+    ...piecePose(m.pose),
+    ...(fill ? { fills: { '': fill } } : {}),
+  }));
+  // The old piece's own shape goes when nothing else uses it.
+  const shapes = [
+    ...(q.epp!.shapes ?? []).filter(
+      (s) => s.id !== old.shape || rest.some((p) => p.shape === s.id),
+    ),
+    ...made.flatMap((m) => (m.added ? [m.added] : [])),
+  ];
+  const epp = { ...q.epp!, pieces: [...rest, ...pieces] };
+  if (shapes.length) epp.shapes = shapes;
+  else delete epp.shapes;
   return { ...q, epp };
 }
