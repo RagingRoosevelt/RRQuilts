@@ -358,7 +358,7 @@ const pickerGroups = computed<PickerGroup[]>(() => {
   ];
 });
 const cssFill = (f: Fill | undefined) => {
-  const v = colorLookup(project.doc!)(f);
+  const v = colorLookup(project.doc!, library.items.colors, undefined, library.items.fabrics)(f);
   return typeof v === 'string' ? v : undefined;
 };
 

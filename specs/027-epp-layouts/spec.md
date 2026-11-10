@@ -193,8 +193,8 @@ parallelogram); place it and print it.
    or lengths are typed, and there is no base unit or scale: each edge is labeled with its length in
    units (or fractions of a unit) read off the grid.
 2. **Given** the toolbar, **Then** it has four tools: **Vertex** (drag a corner), **Edge** (drag or
-   split an edge, and mark it as not a whole unit), **Angle** (drag a corner's angle marker up to
-   widen the angle, down to narrow it, in steps set in the sidebar) and **Lock vertex** (tap a corner
+   split an edge, and mark it as not a whole unit), **Angle** (drag a corner's angle label right to
+   widen the angle, left to narrow it, in steps set in the sidebar; the label itself is no change) and **Lock vertex** (tap a corner
    so no tool moves it, tap again to free it).
 3. **Given** the sidebar, **Then** a **Vertex grid snapping** setting (Free / Square / Triangle) sets
    where dragged corners land and which grid is drawn, and an angle step setting sets the Angle
@@ -368,8 +368,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   flags (closes, doesn't cross itself, whole-unit edges, convex), and a banner names the failing
   patches until all pass. Shapes MUST be convex.
 - **FR-006a**: The shape editor MUST edit by dragging: corners on a 1-unit grid (Vertex grid snapping
-  Free / Square / Triangle, which also sets the grid drawn), angle markers dragged up or down in
-  sidebar-set steps, locked corners that no tool moves, and edge lengths shown in units and fractions.
+  Free / Square / Triangle, which also sets the grid drawn), angle labels dragged side to side (right
+  widens, left narrows) in sidebar-set steps, locked corners that no tool moves, and edge lengths shown in units and fractions.
   Tools: Vertex, Edge, Angle, Lock vertex. Shapes have no base unit or scale of their own. Owner,
   2026-11-10: "nodes feel like they should be draggable. I don't like having to type in an angle. I
   also want to allow non-unit edges as long as the user is specifically picking to implment one.
@@ -379,7 +379,10 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   snapping" setting for "free/square/triangle" that also changes the grid that is shown. in the
   toolbox we can have an angle edit tool, and a vertex tool, an edge tool, and a lock vertex tool. I
   don't believe base unit matters for blocks and there's no reason to set a scale since we can just
-  show a 1u grid and the user will see the number of units (or fractional units) an edge is"
+  show a 1u grid and the user will see the number of units (or fractional units) an edge is". Then: "when starting an EPP shape, start with a
+  viewport that's roughly 8u x 8u. not 3u x 3u. the drag point for shape angle should start on the angle value's label, not on the edge. the control
+  should be side-to-side from the label with the label itself representing 0 change and to the
+  right representing an increasing value, to the left representing decreasing"
 - **FR-007**: EPP shapes and rosettes (spec 050) MUST be library items: built-in starters, My library, packs,
   embedding, sync and credits, as blocks are (specs 008, 009, 011).
 - **FR-008**: Printing MUST produce paper templates (no seam allowance) and fabric templates (with

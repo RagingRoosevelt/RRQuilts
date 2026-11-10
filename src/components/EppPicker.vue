@@ -118,6 +118,8 @@ const groups = computed(() =>
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
   gap: 6px;
 }
 .card {

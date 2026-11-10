@@ -30,6 +30,7 @@ import type { Fill } from '@/model/schema/coloring';
 import type { RrqDoc } from '@/model/schema/project';
 import { colorLookup, type View } from '@/render/draw';
 import { imagesTick } from '@/render/fabric-images';
+import { useLibraryStore } from '@/stores/library';
 
 export interface CanvasPoly {
   poly: Poly;
@@ -59,13 +60,21 @@ const props = withDefaults(
     unitLength?: number;
     /** Bounds to fit when nothing is placed. */
     empty?: [number, number, number, number];
+    /** Fit shows at least this many units across (a new shape opens on about 8U × 8U). */
+    minSpan?: number;
     decorate?: (d: Decor) => void;
     claim?: (p: World, e: PointerEvent) => boolean;
     pan?: boolean;
     /** Redraw when this changes (hover, ghosts…). */
     tick?: unknown;
   }>(),
-  { grid: () => ({ kind: 'square' }), unitLength: 1, empty: () => [-3, -3, 3, 3], pan: false },
+  {
+    grid: () => ({ kind: 'square' }),
+    unitLength: 1,
+    empty: () => [-4, -4, 4, 4],
+    minSpan: 8,
+    pan: false,
+  },
 );
 const emit = defineEmits<{
   'update:view': [v: View];
@@ -76,13 +85,18 @@ const emit = defineEmits<{
 }>();
 
 const $q = useQuasar();
+const library = useLibraryStore();
 const host = ref<HTMLDivElement>();
 const canvas = ref<HTMLCanvasElement>();
 
+/** What Fit shows: the pieces with a 1U margin, at least `minSpan` units across. */
 function bounds(): [number, number, number, number] {
   if (!props.polys.length) return props.empty;
   const [x0, y0, x1, y1] = bbox(props.polys.map((p) => p.poly));
-  return [x0 - 1, y0 - 1, x1 + 1, y1 + 1];
+  const [cx, cy] = [(x0 + x1) / 2, (y0 + y1) / 2];
+  const w = Math.max(x1 - x0 + 2, props.minSpan) / 2;
+  const h = Math.max(y1 - y0 + 2, props.minSpan) / 2;
+  return [cx - w, cy - h, cx + w, cy + h];
 }
 
 function drawGrid(ctx: CanvasRenderingContext2D, view: View, w: number, h: number) {
@@ -138,10 +152,13 @@ const vp = useViewport({
     ctx.fillRect(0, 0, c.width, c.height);
     ctx.setTransform(dpr * view.scale, 0, 0, dpr * view.scale, dpr * view.tx, dpr * view.ty);
     drawGrid(ctx, view, c.width / dpr, c.height / dpr);
-    const paint = colorLookup(props.doc, [], {
-      ctx,
-      devicePerUnit: (dpr * view.scale) / props.unitLength,
-    });
+    // Library colors too: a library rosette (read-only) isn't embedded in the project.
+    const paint = colorLookup(
+      props.doc,
+      library.items.colors,
+      { ctx, devicePerUnit: (dpr * view.scale) / props.unitLength },
+      library.items.fabrics,
+    );
     const line = 1 / view.scale;
     for (const p of props.polys) {
       ctx.beginPath();

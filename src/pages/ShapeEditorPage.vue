@@ -271,7 +271,7 @@ const tools: { id: ShapeTool; icon: string; label: string; hint: string }[] = [
     id: 'angle',
     icon: 'architecture',
     label: 'Angle',
-    hint: 'Angle: drag a corner up to widen it, down to narrow it',
+    hint: 'Angle: drag a corner’s angle label right to widen it, left to narrow it',
   },
   {
     id: 'lock',
@@ -355,6 +355,24 @@ function edgeAt(p: Pt): { i: number; t: number } | null {
   return best;
 }
 
+/** Where corner i's angle label sits: a little way in from the corner, toward the middle. */
+function angleLabel(poly: Poly, i: number): Pt {
+  const v = poly[i]!;
+  const c = centroidOf(poly);
+  const dir: Pt = [c[0] - v[0], c[1] - v[1]];
+  const L = Math.hypot(dir[0], dir[1]) || 1;
+  return [v[0] + (dir[0] / L) * px(30), v[1] + (dir[1] / L) * px(30)];
+}
+function angleLabelAt(p: Pt): number | null {
+  let best: number | null = null;
+  let d = px(18);
+  outline.value.forEach((_, i) => {
+    const e = dist(angleLabel(outline.value, i), p);
+    if (e < d) [best, d] = [i, e];
+  });
+  return best;
+}
+
 // --- Edits ---
 function edit(fn: (s: EppShape) => EppShape, coalesce?: string) {
   if (ro.value) return;
@@ -371,7 +389,7 @@ function edit(fn: (s: EppShape) => EppShape, coalesce?: string) {
 type Drag =
   | { kind: 'vertex'; i: number }
   | { kind: 'edge'; i: number; grab: Pt; from: Pt }
-  | { kind: 'angle'; i: number; y0: number; a0: number }
+  | { kind: 'angle'; i: number; x0: number; a0: number }
   | { kind: 'line'; from: Pt; to: Pt };
 const drag = ref<Drag | null>(null);
 const dragKey = ref('');
@@ -396,12 +414,13 @@ function claim(p: World, e: PointerEvent): boolean {
     selected.value = c;
     return true;
   }
-  if (tool.value === 'angle' && c !== null) {
+  const a = tool.value === 'angle' ? angleLabelAt(p) : null;
+  if (a !== null) {
     drag.value = {
       kind: 'angle',
-      i: c,
-      y0: e.clientY,
-      a0: cornerAngles(orient(outline.value))[c]!,
+      i: a,
+      x0: e.clientX,
+      a0: cornerAngles(orient(outline.value))[a]!,
     };
     return true;
   }
@@ -424,8 +443,8 @@ function onDrag(p: World, e: PointerEvent) {
     const target: Pt = [d.from[0] + p[0] - d.grab[0], d.from[1] + p[1] - d.grab[1]];
     edit((s) => moveEdge(s, d.i, target, prefs.value.vertexGrid), dragKey.value);
   } else {
-    // Up widens, down narrows: one step per 12 pixels.
-    const steps = Math.round((d.y0 - e.clientY) / 12);
+    // From the angle's label: right widens, left narrows, one step per 12 pixels.
+    const steps = Math.round((e.clientX - d.x0) / 12);
     const deg = Math.min(179, Math.max(1, d.a0 + steps * prefs.value.angleStep));
     edit((s) => setAngle(s, d.i, deg), dragKey.value);
   }
@@ -564,15 +583,17 @@ function decorate({ ctx, px: p }: Decor) {
       ctx.fillRect(v[0] - p(2), v[1] - p(1), p(4), p(3));
     }
     if (tool.value === 'angle') {
-      const c = centroidOf(s.outline);
-      const dir: Pt = [c[0] - v[0], c[1] - v[1]];
-      const L = Math.hypot(dir[0], dir[1]) || 1;
-      ctx.fillStyle = '#7b1fa2';
-      ctx.fillText(
-        `${Math.round(ang[i]! * 10) / 10}°`,
-        v[0] + (dir[0] / L) * p(22),
-        v[1] + (dir[1] / L) * p(22),
-      );
+      const at = angleLabel(s.outline, i);
+      const text = `${Math.round(ang[i]! * 10) / 10}°`;
+      const w = ctx.measureText(text).width + p(10);
+      // A grab handle: drag it right to widen the angle, left to narrow it.
+      ctx.fillStyle = drag.value?.kind === 'angle' && drag.value.i === i ? '#7b1fa2' : '#f3e5f5';
+      ctx.fillRect(at[0] - w / 2, at[1] - p(9), w, p(18));
+      ctx.strokeStyle = '#7b1fa2';
+      ctx.lineWidth = p(1);
+      ctx.strokeRect(at[0] - w / 2, at[1] - p(9), w, p(18));
+      ctx.fillStyle = drag.value?.kind === 'angle' && drag.value.i === i ? '#fff' : '#7b1fa2';
+      ctx.fillText(text, at[0], at[1]);
     }
   });
 }

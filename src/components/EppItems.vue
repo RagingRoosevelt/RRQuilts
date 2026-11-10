@@ -123,7 +123,7 @@ const filter = ref<'all' | 'shapes' | 'rosettes'>('all');
 
 const lookup = computed(() => lookupEpp(project.doc!.project, [], library.lookup));
 const css = computed(() => {
-  const paint = colorLookup(project.doc!);
+  const paint = colorLookup(project.doc!, library.items.colors, undefined, library.items.fabrics);
   return (f: Parameters<typeof paint>[0]) => {
     const v = paint(f);
     return typeof v === 'string' ? v : undefined;
