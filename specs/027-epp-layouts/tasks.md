@@ -175,7 +175,7 @@ limits are listed in the plan's research).
 
 - [ ] T059 [P] [US7] Selection ops in src/model/epp/selection.ts: `boxSelect(polys, rect)`, `selectSame(pieces, id)`, `transformSelection(pieces, ids, turn | mirror | scale | translate, pivot)`, `copySelection`, `pasteSelection` (fresh ids, placed rosettes stay linked), outside-edge snapping of the group via `snapPiece`; tests in test/vitest/__tests__/model/epp/selection.spec.ts
 - [ ] T060 [US7] Gestures in EppCanvas/EppDesign/RosetteEditorPage: Shift/Ctrl tap, box drag on empty canvas, long-press then tap on touch, Select all, Select same, Copy/Paste/Duplicate/Delete, nudge with arrow keys, Paint scope **Selection**, Make rosette and Break into patches on the selection, Bring forward / Send back; one undo step per action
-- [ ] T061 [US7] Checklist TC-286 (multi-select on desktop and touch)
+- [ ] T061 [US7] Checklist TC-290 or the next free id (multi-select on desktop and touch)
 
 ---
 
@@ -188,7 +188,7 @@ limits are listed in the plan's research).
 - [ ] T062 [P] [US8] Create src/model/epp/as-block.ts: `rosetteShape(rosette)` → `'square' | BlockShape | null` (outline matches a square, triangle, 60° diamond or hexagon up to turn), `rosetteBlock(rosette)` → hidden derived `Block` (`rosette: ItemId`, drawing = pieces fitted into the shape's unit outline via `fitShape`, patches keyed by piece ids, colorings mapped); add optional `rosette` to the block schema in src/model/schema/block.ts; rebuilt in `syncDraft` like data variants; tests in test/vitest/__tests__/model/epp/as-block.spec.ts
 - [ ] T063 [US8] Block picker: **Rosettes** filter and EPP badge in src/components/PaletteTray.vue / BlockFilter.vue; offer only rosettes whose shape `takesBlock` accepts (src/editor/scope.ts)
 - [ ] T064 [US8] Printing: block print paths (rotary in src/model/print/rotary.ts, block templates in pieces.ts, foundations) skip blocks with `rosette`; an **EPP templates** section in the quilt print lists their patches through `eppTemplates` (paper + fabric per patch, unit from the space size); test in test/vitest/__tests__/model/epp/block-print.spec.ts
-- [ ] T065 [US8] Checklist TC-287 (rosettes in a hexagon quilt: filter, placement, coloring, EPP templates, absent from rotary)
+- [ ] T065 [US8] Checklist next free TC id (rosettes in a hexagon quilt: filter, placement, coloring, EPP templates, absent from rotary)
 
 ---
 
@@ -198,6 +198,12 @@ limits are listed in the plan's research).
 - [X] T072 [US1] Close space lines: drag corner to corner to fill the closed spaces on each side of the line or split the piece it crosses; areas that are existing shapes become references (`faces.ts` `lineCut`, `match.ts` `pieceFor`, `rosette-ops`/`quilt-ops` `fillGap`/`splitPiece`, both editors; TC-286, fix TC-287)
 - [X] T073 [US1] Cut to size fits the pieces: grid cells count only when fully covered, then each side pushed out to the pieces (`edge.ts` `cutRect`; owner, 2026-11-10: "cut-to-size is leaving weird bumps on the top of the quilt"; TC-288)
 - [X] T074 [US1] Largest rectangle the pieces fill snaps its corners to piece corners within 1/4 U, in or out, landing as many corners as it can, then the smallest move (`edge.ts` `snapCorners`; owner, 2026-11-10; TC-289)
+- [ ] T075 [US5] Cut to size sides draggable on the Design canvas (left out of T051: today only Width and Height inputs in src/components/EppLayoutSection.vue; the Design tab draws the cut line in src/components/EppDesign.vue, no handles)
+- [ ] T076 [US5] Pieces wholly outside the cut shown faded on the Design canvas (left out of T053: EppDesign draws only the cut line; `drawQuilt` in src/render/draw.ts clips to the cut, no fade)
+- [ ] T077 [US2] Edit an internal shape's outline from the rosette editor (outline tools, as the shape editor's)
+- [ ] T078 [US2] Palette swap for rosette colorings (`PaletteSwapDialog` as for block colorings; TC-281 names it, RosetteEditorPage has none)
+- [ ] T079 [US3] Fabric photos carried in `.rrqepp` exports (src/model/epp-file.ts embeds fabrics without image data)
+- [ ] T080 [US3] Libraries page sidebar counts EPP items (check src/pages/LibrariesPage.vue)
 
 - [ ] T066 [P] Help guides src/help/guides/epp-shapes.md, rosettes.md, epp-quilts.md (front matter, help style rules, UI labels as in the UI), HelpLink from each editor; link checks pass (topics test)
 - [ ] T067 [P] Layout gallery and picture check: an EPP quilt variation (G### newest on top) in src/dev/variations.ts if gallery quilts can carry EPP; Print examples in src/dev/print-examples.ts for a rosette and an EPP quilt
