@@ -173,9 +173,9 @@ limits are listed in the plan's research).
 
 **Independent Test**: quickstart Phase 3 step 1.
 
-- [ ] T059 [P] [US7] Selection ops in src/model/epp/selection.ts: `boxSelect(polys, rect)`, `selectSame(pieces, id)`, `transformSelection(pieces, ids, turn | mirror | scale | translate, pivot)`, `copySelection`, `pasteSelection` (fresh ids, placed rosettes stay linked), outside-edge snapping of the group via `snapPiece`; tests in test/vitest/__tests__/model/epp/selection.spec.ts
-- [ ] T060 [US7] Gestures in EppCanvas/EppDesign/RosetteEditorPage: Shift/Ctrl tap, box drag on empty canvas, long-press then tap on touch, Select all, Select same, Copy/Paste/Duplicate/Delete, nudge with arrow keys, Paint scope **Selection**, Make rosette and Break into patches on the selection, Bring forward / Send back; one undo step per action
-- [ ] T061 [US7] Checklist TC-290 or the next free id (multi-select on desktop and touch)
+- [X] T059 [P] [US7] Selection ops in src/model/epp/selection.ts: `boxSelect(polys, rect)`, `selectSame(pieces, id)`, `transformSelection(pieces, ids, turn | mirror | scale | translate, pivot)`, `copySelection`, `pasteSelection` (fresh ids, placed rosettes stay linked), outside-edge snapping of the group via `snapPiece`; tests in test/vitest/__tests__/model/epp/selection.spec.ts
+- [X] T060 [US7] Gestures in EppCanvas/EppDesign/RosetteEditorPage: Shift/Ctrl tap, box drag on empty canvas, long-press then tap on touch, Select all, Select same, Copy/Paste/Duplicate/Delete, nudge with arrow keys, Paint scope **Selection**, Make rosette and Break into patches on the selection, Bring forward / Send back; one undo step per action
+- [X] T061 [US7] Checklist TC-290 (multi-select on desktop and touch)
 
 ---
 
@@ -204,6 +204,7 @@ limits are listed in the plan's research).
 - [ ] T078 [US2] Palette swap for rosette colorings (`PaletteSwapDialog` as for block colorings; TC-281 names it, RosetteEditorPage has none)
 - [ ] T079 [US3] Fabric photos carried in `.rrqepp` exports (src/model/epp-file.ts embeds fabrics without image data)
 - [ ] T080 [US3] Libraries page sidebar counts EPP items (check src/pages/LibrariesPage.vue)
+- [ ] T081 [US7] Multi-select left for later (spec 051): turn about a picked corner of the outline (the selection turns about its middle), arrow keys nudging to the next snap (they nudge 1U, Shift a grid step), the outline's own drag handles (the bar's buttons do turn, mirror and scale), Make rosette's note when the pieces don't touch (spec 050 US1 scenario 2) and Make rosette inside the rosette editor
 
 - [ ] T066 [P] Help guides src/help/guides/epp-shapes.md, rosettes.md, epp-quilts.md (front matter, help style rules, UI labels as in the UI), HelpLink from each editor; link checks pass (topics test)
 - [ ] T067 [P] Layout gallery and picture check: an EPP quilt variation (G### newest on top) in src/dev/variations.ts if gallery quilts can carry EPP; Print examples in src/dev/print-examples.ts for a rosette and an EPP quilt

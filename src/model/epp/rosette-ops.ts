@@ -4,12 +4,13 @@ import { DEFAULT_LICENSE } from '../credits';
 import { itemId } from '../identity';
 import { newId } from '../ids';
 import type { Fill } from '../schema/coloring';
-import type { InternalShape, Rosette, RosettePiece } from '../schema/epp';
-import type { Pt } from '../geometry/path';
+import type { EppPiece, InternalShape, Rosette, RosettePiece } from '../schema/epp';
+import { add, sub, type Pt } from '../geometry/path';
 import { rosetteLocal, type EppLookup } from './expand';
 import { centroid, type Pose, type Poly } from './geometry';
 import { gapAt } from './faces';
 import { pieceFor, piecePose } from './match';
+import type { Clip } from './selection';
 
 export function newRosette(name: string, author = '', license = DEFAULT_LICENSE): Rosette {
   return {
@@ -223,3 +224,66 @@ export const renameColoring = (r: Rosette, id: string, name: string): Rosette =>
   ...r,
   colorings: r.colorings.map((c) => (c.id === id ? { ...c, name } : c)),
 });
+
+/** Copy (spec 051): the pieces as quilt pieces, each with its fill in `coloring`; their shapes. */
+export function copyPieces(r: Rosette, ids: ReadonlySet<string>, mid: Pt, coloring?: string): Clip {
+  const c = r.colorings.find((x) => x.id === coloring) ?? r.colorings[0];
+  const pieces: EppPiece[] = r.pieces
+    .filter((p) => ids.has(p.id))
+    .map((p) => {
+      const f = c?.fills[p.id];
+      return { ...p, ...(f ? { fills: { '': f } } : {}) };
+    });
+  const used = new Set(pieces.map((p) => p.shape));
+  const fills = Object.fromEntries(
+    pieces.map((p) => [
+      p.id,
+      Object.fromEntries(
+        r.colorings.flatMap((k) => (k.fills[p.id] ? [[k.id, k.fills[p.id]!]] : [])),
+      ),
+    ]),
+  );
+  return {
+    pieces,
+    shapes: (r.shapes ?? []).filter((s) => used.has(s.id)),
+    middle: mid,
+    from: { rosette: r.id, fills },
+  };
+}
+
+/**
+ * Paste: copied shapes as pieces (their fill in every coloring), copied rosettes as their pieces
+ * (never nested), the middle at `at`; the new pieces' ids.
+ */
+export function pastePieces(
+  r: Rosette,
+  clip: Clip,
+  lookup: EppLookup,
+  at: Pt,
+): { rosette: Rosette; ids: string[] } {
+  const d = sub(at, clip.middle);
+  const have = new Set((r.shapes ?? []).map((s) => s.id));
+  const extra = clip.shapes.filter((s) => !have.has(s.id));
+  let out: Rosette = extra.length ? { ...r, shapes: [...(r.shapes ?? []), ...extra] } : r;
+  for (const p of clip.pieces) {
+    const pose: Pose = { at: add(p.at, d), turn: p.turn, scale: p.scale, mirror: !!p.mirror };
+    const same = clip.from?.rosette === r.id ? clip.from.fills[p.id] : undefined;
+    if (p.shape && same) {
+      // Back into the rosette it came from: each coloring keeps its own fill.
+      out = addPiece(out, p.shape, pose);
+      const id = out.pieces.at(-1)!.id;
+      out = {
+        ...out,
+        colorings: out.colorings.map((k) =>
+          same[k.id] ? { ...k, fills: { ...k.fills, [id]: same[k.id]! } } : k,
+        ),
+      };
+    } else if (p.shape) out = addPiece(out, p.shape, pose, p.fills?.['']);
+    else {
+      const other = p.rosette ? lookup.rosette(p.rosette) : undefined;
+      if (other) out = copyIn(out, other, lookup, pose, p.coloring);
+    }
+  }
+  const before = new Set(r.pieces.map((p) => p.id));
+  return { rosette: out, ids: out.pieces.filter((p) => !before.has(p.id)).map((p) => p.id) };
+}

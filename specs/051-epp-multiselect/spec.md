@@ -4,8 +4,15 @@
 
 **Created**: 2026-10-29
 
-**Status**: Draft (spec only; not implemented). Details spec 027 User Story 2, scenario 6 (groups)
-and FR-005.
+**Status**: Built 2026-11-12 on `027-epp-layouts` (tasks T059-T061, checklist TC-290). Details
+spec 027 User Story 2, scenario 6 (groups) and FR-005.
+
+**As built**: a Select tool in both editors and a bar over the canvas whose buttons stand in for
+the outline's handles (they work the same with a finger). The selection turns about its middle,
+snapped selections to the next edge that fits, as one piece does. Duplicate puts the copy 1U right
+and down, selected. Paint scope Selection paints every piece of the selected ones (rosettes too).
+Not yet (task T081): turning about a picked corner, nudging to the next snap, drag handles on the
+outline, Make rosette's note for pieces that don't touch, Make rosette in the rosette editor.
 
 **Input**: Owner, 2026-10-29: "we should also add a spec for EPP so that patches can be
 multi-selected and moved around as if they were a stamp (where the patches are kept together,

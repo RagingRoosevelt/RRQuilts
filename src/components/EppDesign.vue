@@ -57,6 +57,31 @@
         @hover="onHover"
         @drag="onDrag"
         @drag-end="onDragEnd"
+        @long-press="onHold"
+      />
+      <EppSelectionBar
+        v-if="!ro && (tool === 'select' || epp.selection.size || sel.adding.value)"
+        :count="epp.selection.size"
+        :adding="sel.adding.value"
+        :can-paste="!!epp.clip"
+        quilt
+        :has-rosette="hasRosette"
+        @all="sel.all()"
+        @same="sel.same"
+        @paste="sel.paste()"
+        @turn="sel.turn()"
+        @flip-x="sel.flip('x')"
+        @flip-y="sel.flip('y')"
+        @bigger="sel.resize(1)"
+        @smaller="sel.resize(-1)"
+        @copy="sel.copy()"
+        @duplicate="sel.duplicate()"
+        @front="sel.front()"
+        @back="sel.back()"
+        @remove="sel.remove()"
+        @make="makeFromSelection"
+        @break="breakSelection"
+        @clear="sel.clear()"
       />
       <div class="readout q-pa-xs text-caption">{{ readout }}</div>
     </div>
@@ -88,6 +113,7 @@
               { label: 'All', value: 'all' },
               { label: 'Same shape', value: 'shape' },
               { label: 'Same fill', value: 'fill' },
+              ...(epp.selection.size ? [{ label: 'Selection', value: 'selection' }] : []),
             ]"
           />
         </div>
@@ -153,10 +179,12 @@ import { useQuasar } from 'quasar';
 import { computed, ref, shallowRef } from 'vue';
 import EppCanvas, { type CanvasPoly, type Decor, type Grid } from '@/components/EppCanvas.vue';
 import EppPicker, { type PickerGroup } from '@/components/EppPicker.vue';
+import EppSelectionBar from '@/components/EppSelectionBar.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { ERASER } from '@/components/icons';
+import { useEppSelection } from '@/composables/epp-selection';
 import type { World } from '@/composables/viewport';
 import { fillFor } from '@/editor/paint';
 import { checkOutline, passes } from '@/model/epp/checks';
@@ -166,10 +194,15 @@ import { outerEdges, overlapping, type Edge, type Pose } from '@/model/epp/geome
 import { cellAt, gridKindFor, snapOrigin, type Lattice } from '@/model/epp/grid';
 import { attach } from '@/model/epp/grow';
 import { piecePose } from '@/model/epp/match';
+import { newRosette } from '@/model/epp/rosette-ops';
 import {
   addPiece,
+  breakAll,
   breakIntoPatches,
+  copyPieces,
   fillGap,
+  makeRosette,
+  pastePieces,
   movePiece,
   paint,
   refresh,
@@ -192,7 +225,7 @@ import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 import type { EppPrefs } from '@/settings/settings';
 
-type Tool = 'place' | 'turn' | 'mirror' | 'break' | 'erase' | 'close' | 'paint';
+type Tool = 'select' | 'place' | 'turn' | 'mirror' | 'break' | 'erase' | 'close' | 'paint';
 
 const props = defineProps<{ quilt: Quilt; sidebar: boolean }>();
 const project = useProjectStore();
@@ -224,6 +257,12 @@ const MODES: { id: EppPrefs['mode']; label: string; hint: string }[] = [
   },
 ];
 const TOOLS: { id: Tool; icon: string; label: string; hint: string }[] = [
+  {
+    id: 'select',
+    icon: 'highlight_alt',
+    label: 'Select',
+    hint: 'Select: tap a piece; Shift or Ctrl and tap adds or removes one; drag a box round pieces (Alt: every piece it touches); on a phone, press and hold a piece, then tap more. Drag the selection to move it as one',
+  },
   {
     id: 'place',
     icon: 'touch_app',
@@ -281,6 +320,7 @@ const polys = computed<CanvasPoly[]>(() => [
   ...leaves.value.map((l, i) => ({
     poly: l.poly,
     fill: swap.value(l.fill),
+    selected: epp.selection.has(l.piece),
     overlap: overlaps.value.has(i),
   })),
   // Auto-close's closing pieces: drawn, not edited.
@@ -403,7 +443,7 @@ function edit(fn: (q: Quilt) => Quilt, coalesce?: string) {
       const k = d.project.quilts.findIndex((q) => q.id === props.quilt.id);
       if (k >= 0) d.project.quilts[k] = refresh(fn(d.project.quilts[k] as Quilt), lookup.value);
     },
-    coalesce ? { coalesce } : {},
+    { ...(coalesce ? { coalesce } : {}), session: sel.session() },
   );
 }
 const paintNow = () => (editor.color ? fillFor(editor.color) : undefined);
@@ -426,13 +466,15 @@ function placeAt(pose: Pose) {
   });
 }
 
-function onTap(p: World) {
+function onTap(p: World, e: PointerEvent) {
   if (ro.value) return;
   const hit = leafAt(p);
   const t = tool.value;
+  if (t === 'select') return sel.pick(hit?.piece ?? null, e);
   if (t === 'place') {
     const pose = hit ? null : poseAt(p);
     if (pose) placeAt(pose);
+    else if (!hit && !epp.picked) sel.clear();
     return;
   }
   if (t === 'close') {
@@ -443,6 +485,13 @@ function onTap(p: World) {
   }
   if (!hit) return;
   const piece = pieces.value.find((x) => x.id === hit.piece)!;
+  // A tap on a piece of a selection acts on the whole selection.
+  if (epp.selection.size > 1 && epp.selection.has(piece.id)) {
+    if (t === 'erase') return sel.remove();
+    if (t === 'mirror') return sel.flip('x');
+    if (t === 'turn') return sel.turn();
+    if (t === 'break') return breakSelection();
+  }
   if (t === 'erase') return edit((q) => removePieces(q, new Set([piece.id])));
   if (t === 'mirror') return edit((q) => movePiece(q, piece.id, { mirror: !piece.mirror }));
   if (t === 'break') {
@@ -451,7 +500,9 @@ function onTap(p: World) {
     return edit((q) => breakIntoPatches(q, lookup.value, piece.id));
   }
   if (t === 'paint')
-    return edit((q) => paint(q, lookup.value, piece.id, hit.part, paintNow() ?? null, scope.value));
+    return edit((q) =>
+      paint(q, lookup.value, piece.id, hit.part, paintNow() ?? null, scope.value, epp.selection),
+    );
   if (t === 'turn') {
     const others = staticEdges(leaves.value.filter((l) => l.piece !== piece.id).map((l) => l.poly));
     const along = nextTurn(polysOf(piece), others);
@@ -556,8 +607,19 @@ function claim(p: World, e: PointerEvent) {
     drag.value = { kind: 'line', a, end: p, b: null };
     return true;
   }
-  if (ro.value || tool.value !== 'place') return false;
+  if (ro.value) return false;
   const hit = leafAt(p);
+  if (tool.value === 'select') {
+    if (hit) sel.startMove(p, hit.piece, e);
+    else sel.startBox(p, e);
+    return true;
+  }
+  if (tool.value !== 'place') return false;
+  // Dragging a piece of a selection moves the selection.
+  if (hit && epp.selection.size > 1 && epp.selection.has(hit.piece)) {
+    sel.startMove(p, hit.piece, e);
+    return true;
+  }
   if (!hit) {
     // Touch has no hover: a drag from empty space is the ghost, placed where it's let go.
     if (!epp.picked) return false;
@@ -578,6 +640,7 @@ function claim(p: World, e: PointerEvent) {
   return true;
 }
 function onDrag(p: World) {
+  if (sel.onDrag(p)) return void tick.value++;
   const d = drag.value;
   if (!d) return;
   if (d.kind === 'ghost') {
@@ -614,6 +677,7 @@ function onDrag(p: World) {
   edit((q) => movePiece(q, from.id, next), d.key);
 }
 function onDragEnd(p: World, e: PointerEvent) {
+  if (sel.onDragEnd()) return void tick.value++;
   const d = drag.value;
   drag.value = null;
   snapTarget.value = null;
@@ -631,6 +695,87 @@ function onDragEnd(p: World, e: PointerEvent) {
   tick.value++;
 }
 
+// --- Multi-select (spec 051) ---
+const sel = useEppSelection({
+  items: () => pieces.value,
+  leaves: () => leaves.value.map((l) => ({ item: l.piece, poly: l.poly, fill: l.fill })),
+  update: (fn, coalesce) =>
+    edit((q) => ({ ...q, epp: { ...q.epp!, pieces: fn(q.epp?.pieces ?? []) } }), coalesce),
+  px,
+  kindOf: (id) => {
+    const p = pieces.value.find((x) => x.id === id);
+    return p?.rosette ?? p?.shape;
+  },
+  sides: (id) => {
+    const p = pieces.value.find((x) => x.id === id);
+    return p?.shape ? (lookup.value.shape(p.shape)?.outline.length ?? 4) : 6;
+  },
+  gridStep: () => lattice.value.step,
+  active: () => !ro.value,
+  hover: () => hover.value,
+  remove: (ids) => edit((q) => removePieces(q, ids)),
+  copy: (ids, mid) => copyPieces(props.quilt, ids, mid),
+  paste: (clip, at) => {
+    let ids: string[] = [];
+    edit((q) => {
+      const out = pastePieces(q, clip, at);
+      ids = out.ids;
+      return out.quilt;
+    });
+    return ids;
+  },
+});
+const hasRosette = computed(() => pieces.value.some((p) => p.rosette && epp.selection.has(p.id)));
+/** Press and hold a piece (touch): multi-select starts with it. */
+function onHold(p: World) {
+  const hit = ro.value ? undefined : leafAt(p);
+  if (!hit) return;
+  tool.value = 'select';
+  sel.hold(hit.piece);
+  tick.value++;
+}
+function breakSelection() {
+  let ids: string[] = [];
+  edit((q) => {
+    const out = breakAll(q, lookup.value, epp.selection);
+    ids = out.ids;
+    return out.quilt;
+  });
+  epp.selection = new Set(ids);
+}
+/** Make rosette (spec 050 US1): the selection becomes a project rosette, placed where it was. */
+function makeFromSelection() {
+  const ids = epp.selection;
+  if (ro.value) return;
+  if (ids.size < 2)
+    return void $q.notify({
+      message: 'Select two or more pieces to make a rosette.',
+      timeout: 1500,
+    });
+  $q.dialog({
+    title: 'Make rosette',
+    message: 'The selected pieces become one rosette, saved in this project and placed here.',
+    prompt: { model: 'New rosette', type: 'text' },
+    cancel: true,
+  }).onOk((name: string) => {
+    const blank = newRosette(name.trim() || 'New rosette', app.settings.author);
+    let made = '';
+    project.change(
+      (d) => {
+        const k = d.project.quilts.findIndex((q) => q.id === props.quilt.id);
+        if (k < 0) return;
+        const out = makeRosette(d.project.quilts[k] as Quilt, lookup.value, ids, blank);
+        (d.project.rosettes ??= []).push(out.rosette);
+        const look = lookupEpp(d.project, out.quilt.epp?.shapes ?? [], library.lookup);
+        d.project.quilts[k] = refresh(out.quilt, look);
+        made = out.id;
+      },
+      { session: sel.session() },
+    );
+    if (made) epp.selection = new Set([made]);
+  });
+}
+
 const readout = computed(() => {
   const n = leaves.value.length;
   const o = overlaps.value.size;
@@ -642,6 +787,7 @@ const readout = computed(() => {
 function decorate(dec: Decor) {
   const { ctx, px: p } = dec;
   drawCloseLine(dec);
+  sel.decorate(dec);
   // Cut to size: the cut line.
   const e0 = edge.value;
   if (e0?.kind === 'cut') {

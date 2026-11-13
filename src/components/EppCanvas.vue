@@ -23,7 +23,7 @@
 // EPP quilts. It draws polygons in units with their fills, a unit grid, and whatever the page adds
 // through `decorate`; pointer input comes back in units.
 import { useQuasar } from 'quasar';
-import { ref, watch } from 'vue';
+import { getCurrentInstance, ref, watch } from 'vue';
 import { useViewport, type World } from '@/composables/viewport';
 import { bbox, type Poly } from '@/model/epp/geometry';
 import type { Fill } from '@/model/schema/coloring';
@@ -84,6 +84,7 @@ const emit = defineEmits<{
   hover: [p: World | null, e: PointerEvent | null];
   drag: [p: World, e: PointerEvent];
   'drag-end': [p: World, e: PointerEvent];
+  'long-press': [p: World, e: PointerEvent];
 }>();
 
 const $q = useQuasar();
@@ -191,6 +192,10 @@ const vp = useViewport({
   onDragStart: (p, e) => props.claim?.(p, e) ?? false,
   onDrag: (p, e) => emit('drag', p, e),
   onDragEnd: (p, e) => emit('drag-end', p, e),
+  // Only where the page listens: elsewhere a long hold is still a tap.
+  ...(getCurrentInstance()?.vnode.props?.onLongPress
+    ? { onLongPress: (p: World, e: PointerEvent) => emit('long-press', p, e) }
+    : {}),
 });
 
 watch(

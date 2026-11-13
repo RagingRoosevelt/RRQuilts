@@ -164,6 +164,12 @@ export const CHECKS: Check[] = [
     last: 'largest rectangle fill should snap to close vertices after finding the largest rectangle / shouldn’t necessarily be inward. just look for vertices in a 0.25u radius of the rectangle vertex and maximize the number of rectangle vertices that end up sharing a vertex with a shape vertex',
     to: '/project',
   },
+  {
+    id: 'TC-290',
+    group: G.epp027,
+    text: 'Multi-select (spec 051), in an EPP quilt’s Design tab and in the rosette editor. Select tool (top of the rail): tap a piece; Shift or Ctrl and tap adds or removes one; drag a box round pieces (holding Alt picks every piece the box touches); tap empty space or Esc clears. A placed rosette is one piece. On a phone: press and hold a piece, tap more, Done. The bar over the canvas: Select all (Ctrl+A), Same shape or rosette, Same fill, Turn, Mirror both ways, one size bigger or smaller, Copy (Ctrl+C), Paste (Ctrl+V, under the mouse), Duplicate (Ctrl+D), Bring to front, Send to back, Delete. In a quilt also Make rosette (name it: the pieces become one placed rosette and the rosette is in the picker) and Break into patches. Drag a selected piece: the whole selection moves and snaps by its outside edges. Arrow keys nudge 1U. With the Place tool, dragging a selected piece moves the selection too; Turn, Mirror and Delete taps on a selected piece act on the selection; Paint has a Selection scope (quilt; in a rosette, painting a selected piece paints them all). Each action is one undo step and undo brings the selection back.',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

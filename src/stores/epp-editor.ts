@@ -2,11 +2,12 @@
 // selection, grid offset, views. Lasting preferences (vertex grid, angle step, placement mode,
 // ungrouped, sync grid) are in settings `epp`.
 import { defineStore } from 'pinia';
-import { reactive, ref } from 'vue';
+import { reactive, ref, shallowRef } from 'vue';
+import type { Clip } from '@/model/epp/selection';
 import type { View } from '@/render/draw';
 
 export type ShapeTool = 'vertex' | 'edge' | 'angle' | 'lock' | 'delete' | 'line';
-export type RosetteTool = 'place' | 'turn' | 'mirror' | 'erase' | 'close' | 'paint';
+export type RosetteTool = 'select' | 'place' | 'turn' | 'mirror' | 'erase' | 'close' | 'paint';
 
 export const useEppEditorStore = defineStore('epp-editor', () => {
   const shapeTool = ref<ShapeTool>('vertex');
@@ -16,7 +17,10 @@ export const useEppEditorStore = defineStore('epp-editor', () => {
   /** The shape or rosette the picker has picked (item id). */
   const picked = ref<string | null>(null);
   const scale = ref(1);
-  const selection = ref(new Set<string>());
+  /** Selected pieces (spec 051), replaced, never mutated in place. */
+  const selection = shallowRef<ReadonlySet<string>>(new Set());
+  /** Copied pieces, pasted into any EPP quilt or rosette. */
+  const clip = shallowRef<Clip | null>(null);
   /** Grid mode: where the grid starts, moved by Drag grid. */
   const gridOrigin = ref<[number, number]>([0, 0]);
   const draggingGrid = ref(false);
@@ -31,6 +35,7 @@ export const useEppEditorStore = defineStore('epp-editor', () => {
     picked,
     scale,
     selection,
+    clip,
     gridOrigin,
     draggingGrid,
     views,

@@ -98,6 +98,27 @@
           @hover="onHover"
           @drag="onDrag"
           @drag-end="onDragEnd"
+          @long-press="onHold"
+        />
+        <EppSelectionBar
+          v-if="!ro && (epp.rosetteTool === 'select' || epp.selection.size || sel.adding.value)"
+          :count="epp.selection.size"
+          :adding="sel.adding.value"
+          :can-paste="!!epp.clip"
+          @all="sel.all()"
+          @same="sel.same"
+          @paste="sel.paste()"
+          @turn="sel.turn()"
+          @flip-x="sel.flip('x')"
+          @flip-y="sel.flip('y')"
+          @bigger="sel.resize(1)"
+          @smaller="sel.resize(-1)"
+          @copy="sel.copy()"
+          @duplicate="sel.duplicate()"
+          @front="sel.front()"
+          @back="sel.back()"
+          @remove="sel.remove()"
+          @clear="sel.clear()"
         />
         <div class="readout q-pa-xs text-caption">{{ readout }}</div>
       </div>
@@ -227,12 +248,14 @@ import { useRoute } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import EppCanvas, { type CanvasPoly, type Decor, type Grid } from '@/components/EppCanvas.vue';
 import EppPicker, { type PickerGroup } from '@/components/EppPicker.vue';
+import EppSelectionBar from '@/components/EppSelectionBar.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { ERASER } from '@/components/icons';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
+import { useEppSelection } from '@/composables/epp-selection';
 import type { World } from '@/composables/viewport';
 import { fillFor } from '@/editor/paint';
 import { checkOutline, failing, passes, problems, unmarked } from '@/model/epp/checks';
@@ -252,10 +275,12 @@ import {
   addPiece,
   closeSpace,
   copyIn,
+  copyPieces,
   deleteColoring,
   fillGap,
   movePiece,
   paintPiece,
+  pastePieces,
   removePieces,
   splitPiece,
 } from '@/model/epp/rosette-ops';
@@ -313,6 +338,12 @@ const MODES: { id: EppPrefs['mode']; icon: string; label: string; hint: string }
   { id: 'grid', icon: 'grid_on', label: 'Grid', hint: 'Grid: shapes sit on a grid' },
 ];
 const TOOLS: { id: RosetteTool; icon: string; label: string; hint: string }[] = [
+  {
+    id: 'select',
+    icon: 'highlight_alt',
+    label: 'Select',
+    hint: 'Select: tap a piece; Shift or Ctrl and tap adds or removes one; drag a box round pieces (Alt: every piece it touches); on a phone, press and hold a piece, then tap more. Drag the selection to move it as one',
+  },
   {
     id: 'place',
     icon: 'touch_app',
@@ -531,7 +562,7 @@ function edit(fn: (r: Rosette) => Rosette, coalesce?: string) {
       const k = list.findIndex((r) => r.id === id.value);
       if (k >= 0) list[k] = fn(list[k] as Rosette);
     },
-    coalesce ? { coalesce } : {},
+    { ...(coalesce ? { coalesce } : {}), session: sel.session() },
   );
 }
 const paintNow = () => (editor.color ? fillFor(editor.color) : undefined);
@@ -547,13 +578,15 @@ function placeAt(pose: Pose) {
   if (other) edit((r) => copyIn(r, other, lookup.value, pose, epp.coloringOf.get(pick)));
 }
 
-function onTap(p: World) {
+function onTap(p: World, e: PointerEvent) {
   if (tab.value !== 'design' || ro.value) return;
   const hit = pieceAt(p);
   const t = epp.rosetteTool;
+  if (t === 'select') return sel.pick(hit?.part ?? null, e);
   if (t === 'place') {
     const pose = hit ? null : poseAt(p);
     if (pose) placeAt(pose);
+    else if (!hit && !epp.picked) sel.clear();
     return;
   }
   if (t === 'close') {
@@ -565,6 +598,16 @@ function onTap(p: World) {
   }
   if (!hit) return;
   const piece = rosette.value!.pieces.find((x) => x.id === hit.part)!;
+  // A tap on a piece of a selection acts on the whole selection.
+  if (epp.selection.size > 1 && epp.selection.has(piece.id)) {
+    if (t === 'erase') return sel.remove();
+    if (t === 'mirror') return sel.flip('x');
+    if (t === 'turn') return sel.turn();
+    if (t === 'paint' && coloringId.value) {
+      const [k, f, ids] = [coloringId.value, paintNow() ?? null, [...epp.selection]];
+      return edit((r) => ids.reduce((out, id) => paintPiece(out, k, id, f), r));
+    }
+  }
   if (t === 'erase') return edit((r) => removePieces(r, new Set([piece.id])));
   if (t === 'mirror') return edit((r) => movePiece(r, piece.id, { mirror: !piece.mirror }));
   if (t === 'paint' && coloringId.value)
@@ -676,8 +719,19 @@ function claim(p: World, e: PointerEvent) {
     drag.value = { kind: 'line', a, end: p, b: null };
     return true;
   }
-  if (ro.value || epp.rosetteTool !== 'place') return false;
+  if (ro.value) return false;
   const hit = pieceAt(p);
+  if (epp.rosetteTool === 'select') {
+    if (hit) sel.startMove(p, hit.part!, e);
+    else sel.startBox(p, e);
+    return true;
+  }
+  if (epp.rosetteTool !== 'place') return false;
+  // Dragging a piece of a selection moves the selection.
+  if (hit && epp.selection.size > 1 && epp.selection.has(hit.part!)) {
+    sel.startMove(p, hit.part!, e);
+    return true;
+  }
   if (!hit) {
     // Touch has no hover: a drag from empty space is the ghost, placed where it's let go.
     if (!epp.picked) return false;
@@ -699,6 +753,7 @@ function claim(p: World, e: PointerEvent) {
   return true;
 }
 function onDrag(p: World) {
+  if (sel.onDrag(p)) return void tick.value++;
   const d = drag.value;
   if (!d) return;
   if (d.kind === 'ghost') {
@@ -734,6 +789,7 @@ function onDrag(p: World) {
   edit((r) => movePiece(r, d.id, next), d.key);
 }
 function onDragEnd(p: World, e: PointerEvent) {
+  if (sel.onDragEnd()) return void tick.value++;
   const d = drag.value;
   drag.value = null;
   snapTarget.value = null;
@@ -748,6 +804,42 @@ function onDragEnd(p: World, e: PointerEvent) {
   if (pose) placeAt(pose);
   // A finger leaves no hover behind.
   if (e.pointerType !== 'mouse') hover.value = null;
+  tick.value++;
+}
+
+// --- Multi-select (spec 051) ---
+const sel = useEppSelection({
+  items: () => rosette.value?.pieces ?? [],
+  leaves: () => leaves.value.map((l) => ({ item: l.part!, poly: l.poly, fill: l.fill })),
+  update: (fn, coalesce) => edit((r) => ({ ...r, pieces: fn(r.pieces) }), coalesce),
+  px,
+  kindOf: (pid) => rosette.value?.pieces.find((x) => x.id === pid)?.shape,
+  sides: (pid) => {
+    const s = rosette.value?.pieces.find((x) => x.id === pid)?.shape;
+    return (s && lookup.value.shape(s)?.outline.length) || 4;
+  },
+  gridStep: () => lattice.value.step,
+  active: () => tab.value === 'design' && !ro.value,
+  hover: () => hover.value,
+  remove: (ids) => edit((r) => removePieces(r, ids)),
+  copy: (ids, mid) => copyPieces(rosette.value!, ids, mid, coloringId.value),
+  paste: (clip, at) => {
+    let ids: string[] = [];
+    edit((r) => {
+      const out = pastePieces(r, clip, lookup.value, at);
+      ids = out.ids;
+      return out.rosette;
+    });
+    return ids;
+  },
+});
+watch(id, () => sel.clear());
+/** Press and hold a piece (touch): multi-select starts with it. */
+function onHold(p: World) {
+  const hit = tab.value !== 'design' || ro.value ? undefined : pieceAt(p);
+  if (!hit) return;
+  epp.rosetteTool = 'select';
+  sel.hold(hit.part!);
   tick.value++;
 }
 
@@ -770,6 +862,7 @@ const readout = computed(() => {
 function decorate(dec: Decor) {
   const { ctx, px: p } = dec;
   drawCloseLine(dec);
+  sel.decorate(dec);
   const e = hoverEdge.value ?? snapTarget.value;
   if (e) {
     ctx.strokeStyle = '#2e7d32';
