@@ -41,6 +41,7 @@
 
 1. Select several pieces (Shift-click, box, long-press on touch): move, turn, mirror, scale and snap as
    one; Make rosette; Break into patches.
-2. In a hexagon (shaped) block quilt, the block picker's Rosettes filter offers the hexagon flower
-   rosette; Set places it; Print shows an EPP templates section with a paper and a fabric template for
-   each of its patches, and the rosette is missing from rotary cutting and block templates.
+2. In a hexagon (shaped) block quilt, the block picker's Rosettes filter offers the Tumbling Block
+   (its outline is a hexagon; the Hexagon Flower's jagged one isn't, so it isn't offered); Set places
+   it; Print's Templates show a paper and a fabric template for each of its patches, and the rosette
+   is missing from rotary cutting and block templates.

@@ -1016,8 +1016,11 @@ interface View {
   /** Quilts: blocks made by others (or based on others' work), with their chains. */
   blocks: { name: string; author?: string | undefined; license: string; basedOn: Credit[] }[];
   pieces: Piece[];
-  /** A data quilt (spec 025): the pieces its yardage counts (worst case), and its legend. */
+  /** A data quilt (spec 025): the pieces its yardage counts (worst case), and its legend. A block
+   *  quilt with rosettes: all its pieces, theirs too. */
   yardPieces?: Piece[];
+  /** A block quilt's rosette patches (spec 027 FR-015): paper and fabric templates. */
+  eppPieces?: Piece[];
   legend?: { label: string; items: { fill: string; text: string }[] }[];
   /** Picture: outlines (+ fills) in their own coordinates. */
   picture: { d: string; css: string }[];
@@ -1088,7 +1091,10 @@ const view = computed<View | undefined>(() => {
     if (!quilt) return undefined;
     if (quilt.layout.style === 'epp') return eppQuiltView(dd, quilt);
     const g = generateFor(quilt);
-    const pieces = quiltPieces(dd, quilt);
+    const all = quiltPieces(dd, quilt);
+    // Rosettes' patches (spec 027 FR-015) get paper and fabric templates, not rotary cuts.
+    const pieces = all.filter((p) => !p.epp);
+    const eppPieces = all.filter((p) => p.epp);
     const [x0, y0, x1, y1] = g.bounds;
     return {
       title: quilt.notecard.name,
@@ -1104,6 +1110,7 @@ const view = computed<View | undefined>(() => {
         basedOn: u.credits,
       })),
       pieces,
+      ...(eppPieces.length ? { eppPieces, yardPieces: all } : {}),
       ...(quilt.data?.on
         ? {
             yardPieces: dataYardagePieces(dd, quilt),
@@ -1118,7 +1125,7 @@ const view = computed<View | undefined>(() => {
           d: d(flattenLoop(pathToSegs(s.outline, [1, 1]), 0.01)),
           css: '#fff',
         })),
-        ...pieces.map((p) => ({ d: d(p.shown ?? p.poly), css: shapeFill(p.fill) })),
+        ...all.map((p) => ({ d: d(p.shown ?? p.poly), css: shapeFill(p.fill) })),
       ],
       pictureBox: g.bounds,
       edge: flattenLoop(pathToSegs(g.edge, [1, 1]), 0.01),
@@ -1635,6 +1642,27 @@ const logical = computed<Sheet[]>(() => {
             bigKey: true,
           }),
         );
+      }
+      // Rosettes (spec 027 FR-015): a paper and a fabric cutting template for every patch, keyed on
+      // where the rosettes sit in the quilt, as an EPP quilt prints them.
+      const epp = v.eppPieces ?? [];
+      if (epp.length) {
+        const xs = epp.flatMap((p) => p.poly.map((q) => q[0]));
+        const ys = epp.flatMap((p) => p.poly.map((q) => q[1]));
+        const [kx, ky] = [Math.min(...xs), Math.min(...ys)];
+        const key = epp.map((p) => ({ ...p, poly: p.poly.map(([x, y]): Pt => [x - kx, y - ky]) }));
+        for (const paper of [true, false])
+          out.push(
+            ...templateSheets({
+              pieces: epp,
+              size: [Math.max(...xs) - kx, Math.max(...ys) - ky],
+              keyPieces: key,
+              heading: paper ? 'Paper templates: rosettes' : 'Fabric templates: rosettes',
+              prefix: paper ? 'P' : 'F',
+              bigKey: true,
+              withSeam: !paper,
+            }),
+          );
       }
     }
     if (section === 'rotary') {

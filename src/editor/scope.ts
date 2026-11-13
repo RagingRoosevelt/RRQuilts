@@ -13,16 +13,18 @@ const SHAPED = new Set(['triangle', 'diamond60', 'hexagon', 'clamshell', 'spool'
 /**
  * Whether a block may be set here: block spaces, setting pieces (the block is trimmed there), and
  * square cornerstones (the strips on both sides the same width). Sashing and borders take fabric.
+ * `exact`: a rosette's block (spec 027 FR-015), never stretched, so a square one takes only square
+ * spaces.
  * A shaped space takes only blocks of its shape, and a shaped block only those spaces (spec 026);
  * with no `shape` given, any block that fits.
  */
-export const takesBlock = (s: Space, shape?: BlockShape | null) => {
+const square = (s: Space) =>
+  !!s.size && Math.abs(s.size[0] - s.size[1]) < 1e-9 * Math.max(1, ...s.size);
+export const takesBlock = (s: Space, shape?: BlockShape | null, exact = false) => {
   const kindOk =
-    s.kind === 'cs'
-      ? !!s.size && Math.abs(s.size[0] - s.size[1]) < 1e-9 * Math.max(1, ...s.size)
-      : s.kind === undefined || s.kind === 'block' || s.kind === 'set';
+    s.kind === 'cs' ? square(s) : s.kind === undefined || s.kind === 'block' || s.kind === 'set';
   if (!kindOk || shape === undefined) return kindOk;
-  return shape ? s.shape === shape : !SHAPED.has(s.shape ?? 'rect');
+  return shape ? s.shape === shape : !SHAPED.has(s.shape ?? 'rect') && (!exact || square(s));
 };
 
 /** Spaces of the same kind as `tapped` (block spaces, sashes, cornerstones, one border). */
@@ -45,11 +47,12 @@ export function setTargets(
   tapped: string,
   scope: Scope,
   shape: BlockShape | null = null,
+  exact = false,
 ): string[] {
   const here = spaces.find((s) => s.id === tapped);
-  if (here && !takesBlock(here, shape)) return [];
+  if (here && !takesBlock(here, shape, exact)) return [];
   if (scope === 'this') return [tapped];
-  const fits = sameKind(spaces, tapped).filter((s) => takesBlock(s, shape));
+  const fits = sameKind(spaces, tapped).filter((s) => takesBlock(s, shape, exact));
   return scoped(fits, spaces, tapped, scope);
 }
 

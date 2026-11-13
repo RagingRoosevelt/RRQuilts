@@ -456,6 +456,17 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   (finished size) and a **fabric cutting template** (with the seam allowance), counted by shape,
   size and fill, in the block quilt's printout as in an EPP quilt's. Owner, 2026-11-10: "EPP "blocks" should print different than traditional blocks. we need to
   provide both paper and fabric cutting templates for each of the patches in an EPP rosette/block."
+  A rosette matches a space's shape only when its outline is exactly that shape: its pieces fill a
+  regular hexagon, equilateral triangle, 60° diamond or square with no gap or overlap, every side one
+  straight edge. Owner, 2026-11-12: "we want to require that the edges are actually the required
+  shape, not the required shape only after cutting. so for example if it counts as a hexagon, it
+  needs a perimeter with 6 fully straight edges." (Of the built-in rosettes, the Tumbling Block is a
+  hexagon; the Hexagon Flower, Six-Diamond Star and Octagon and Square aren't.) A square rosette goes
+  only in square spaces: rosettes are never stretched. Built 2026-11-12: a placed rosette is a hidden
+  block made from it (`block.rosette`), rebuilt on every change; the tray's Blocks tab has a Blocks /
+  Rosettes switch when some rosette fits the quilt, tiles badged EPP. In print, its patches stay out
+  of rotary cutting and come under Templates as "Paper templates: rosettes" and "Fabric templates:
+  rosettes" (the fabric ones with the print's seam allowance), and count in the yardage.
 
 ### Key Entities
 

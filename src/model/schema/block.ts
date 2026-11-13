@@ -106,6 +106,8 @@ const blockBase = {
   /** A recoloring of a library block: the drawing is locked, only colorings change. */
   colorVariant: Type.Optional(Type.Boolean()),
   data: Type.Optional(DataBlockInfo),
+  /** The rosette this hidden block is made from (spec 027 FR-015): rebuilt on every change. */
+  rosette: Type.Optional(ItemId),
 };
 
 const seamPart = {

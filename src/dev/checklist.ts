@@ -171,6 +171,13 @@ export const CHECKS: Check[] = [
     last: 'the flip tools should flip the pieces individually, not as a group. rotate should still function for the group, though. and rotate should be based on the least common multiple among the rosettes / shapes in the group (if you have a hex and an octogon selected then there should be 3*2*2 = 12 rotation points)',
     to: '/project',
   },
+  {
+    id: 'TC-293',
+    group: G.epp027,
+    text: 'Rosettes in block quilts. New quilt › Shaped Blocks (hexagons). Design › Blocks shows a Blocks / Rosettes switch; Rosettes lists only rosettes whose outline is exactly a hexagon (the built-in Tumbling Block, badged EPP), not the Hexagon Flower or the Six-Diamond Star. Pick it and tap spaces: it fills them exactly, turns and colors like a block, and a rosette with several colorings offers them on its tile. Make your own rosette (EPP section › New rosette): six triangles round a point make a hexagon, two make a 60° diamond (for Diamond Point or Shaped Blocks diamonds), four squares make a square (Straight Set with square blocks; not offered for rectangular blocks); one with a gap or a jagged edge is not offered. Edit a placed rosette in the rosette editor: the quilt follows. Print: the rosette is not in the rotary cutting chart or the block pages; Templates end with Paper templates: rosettes and Fabric templates: rosettes, one per patch shape and fill.',
+    last: 'we want to require that the edges are actually the required shape, not the required shape only after cutting. so for example if it counts as a hexagon, it needs a perimeter with 6 fully straight edges.',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

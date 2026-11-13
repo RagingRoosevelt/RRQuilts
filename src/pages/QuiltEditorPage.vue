@@ -325,6 +325,7 @@ import TargetSection from '@/components/TargetSection.vue';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import LayoutInspector from '@/components/LayoutInspector.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
+import { useRosetteBlocks } from '@/composables/rosette-blocks';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
@@ -625,7 +626,14 @@ const borderInner = computed((): Bounds => {
   return [x0 - sum(0), y0 - sum(1), x1 + sum(2), y1 + sum(3)];
 });
 /** Whether some space of this quilt takes the block (its shape: spec 026). */
-const fitsQuilt = (b: Block) => generated.value.slots.some((s) => takesBlock(s, b.shape ?? null));
+const fitsQuilt = (b: Block) =>
+  generated.value.slots.some((s) => takesBlock(s, b.shape ?? null, !!b.rosette));
+/** The Set tool also finds rosettes' blocks (spec 027 FR-015), made in the project when placed. */
+const rosetteBlocks = useRosetteBlocks();
+const toolLibrary = computed(() => ({
+  ...library.lookup,
+  block: (id: string) => library.lookup.block(id) ?? rosetteBlocks.block(id),
+}));
 /** Some space takes a block (patch layouts and pieced strips take only colors and fabrics). */
 const hasBlockSpaces = computed(() => generated.value.slots.some((s) => takesBlock(s)));
 const bordersSetAside = computed(
@@ -675,7 +683,7 @@ function onTap(hit: Hit) {
   if (editor.tool === 'number' || editor.tool === 'entry') return onDataTap(hit);
   const r = applyTool(project.doc, quilt.value.id, generated.value.slots, hit, {
     ...editor.$state,
-    library: library.lookup,
+    library: toolLibrary.value,
   });
   // Find on a data block: the block itself, not the variant its space shows.
   const place = quilt.value.data?.on ? placeOf(quilt.value.data, hit.slotId) : undefined;
@@ -723,7 +731,7 @@ function onPick(hit: Hit) {
   const r = applyTool(doc, q.id, generated.value.slots, hit, {
     ...editor.$state,
     tool: 'eyedropper',
-    library: library.lookup,
+    library: toolLibrary.value,
   });
   if (block && block.id !== PLAIN_BLOCK && !block.data) {
     editor.block = block.id;

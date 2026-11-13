@@ -12,6 +12,8 @@ import { assignIds, remapColoring } from './blocks/remap';
 import { pathPolygon } from './geometry/path';
 import { variationName } from './new-quilt';
 import type { Block } from './schema/block';
+import { rosetteOfBlockId, syncRosetteBlocks } from './epp/as-block';
+import { lookupEpp } from './epp/expand';
 import type { EppShape, Rosette } from './schema/epp';
 import type { ColoringBody, Fill } from './schema/coloring';
 import type { Color, Fabric } from './schema/palette';
@@ -126,7 +128,12 @@ export const blocksUsed = (p: RrqDoc['project']) => new Set(p.quilts.flatMap(qui
 /** EPP shapes and rosettes in use (specs 027, 050): placed in EPP quilts, or a rosette's pieces. */
 export function eppUsed(p: RrqDoc['project']) {
   const pieces = p.quilts.flatMap((q) => q.epp?.pieces ?? []);
-  const rosettes = new Set(pieces.flatMap((x) => (x.rosette ? [x.rosette] : [])));
+  const inBlocks = blocksUsed(p);
+  const rosettes = new Set([
+    ...pieces.flatMap((x) => (x.rosette ? [x.rosette] : [])),
+    // In block quilts, through their hidden blocks.
+    ...p.blocks.flatMap((b) => (b.rosette && inBlocks.has(b.id) ? [b.rosette] : [])),
+  ]);
   const shapes = new Set([
     ...pieces.flatMap((x) => (x.shape ? [x.shape] : [])),
     ...(p.rosettes ?? []).flatMap((r) => r.pieces.map((x) => x.shape)),
@@ -156,6 +163,17 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
       const b = !have.has(id) ? lib.block(id) : undefined;
       if (b) p.blocks.push(toUnits(b, d.units));
     }
+  }
+  // Rosettes placed in block quilts (spec 027 FR-015): their hidden blocks, made and kept in step.
+  const inUse = blocksUsed(p);
+  if (p.blocks.some((b) => b.rosette) || [...inUse].some((id) => rosetteOfBlockId(id))) {
+    const rosettes = syncRosetteBlocks(
+      p.blocks,
+      inUse,
+      (id) => p.rosettes?.find((r) => r.id === id) ?? lib?.rosette?.(id),
+      lookupEpp(p, [], lib),
+    );
+    if (rosettes) p.blocks = castDraft(rosettes);
   }
   followColorVariants(d, lib);
   // Data quilts (spec 025): placed spaces show their type's variant for their number's days.

@@ -36,6 +36,9 @@ export interface Piece {
   shown?: Pt[];
   /** A setting piece: cut a little large by custom, so rounding up is fine. */
   setting?: boolean;
+  /** A patch of a rosette in a block quilt (spec 027 FR-015): paper and fabric templates, never
+   *  rotary cut. */
+  epp?: boolean;
 }
 
 const isCurved = (path: readonly (readonly (string | number)[])[]) =>
@@ -113,6 +116,7 @@ export function quiltPieces(
       ...(shown ? { shown } : {}),
       ...(window ? { shown: clipConvex(piece.poly.map(at), window) } : {}),
       ...(slotPoly && slot.kind === 'set' ? { setting: true } : {}),
+      ...(block.rosette ? { epp: true } : {}),
       curved: slotPoly ? isCurved(slot.cut ?? slot.outline) : piece.curved,
       marks: piece.marks.map((m) => ({ p: at(m.p), n: dir(m.n) })),
     }));

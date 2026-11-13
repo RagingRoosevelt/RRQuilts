@@ -35,140 +35,196 @@
       This quilt layout doesn't support blocks. Its pieces take colors and fabrics: use the Colors
       tab.
     </div>
-    <div v-else-if="tab === 'blocks'" class="strip q-pa-sm" style="gap: 8px">
-      <div v-if="blockGroups.length === 1" class="text-caption text-grey-7 q-pa-xs">
-        Pick library blocks in the project's Blocks tab.
+    <!-- Rosettes whose outline is a space's shape (spec 027 FR-015), behind their own filter. -->
+    <template v-else-if="tab === 'blocks'">
+      <div v-if="rosetteTiles.length" class="q-px-sm q-pt-sm">
+        <SlidePicker
+          v-model="blockKind"
+          :options="[
+            { value: 'blocks', label: 'Blocks' },
+            { value: 'rosettes', label: 'Rosettes' },
+          ]"
+        />
       </div>
-      <!-- Sidebar: each library in collapsible category sections; strip: one run per source. -->
-      <template v-if="sidebar">
-        <!-- Only blocks this quilt's block spaces take (spec 035 C); off, all show, and the Shape
-             filter (which it makes moot) comes back. -->
-        <q-toggle
-          v-if="fitsQuilt"
-          v-model="app.settings.compatibleBlocks"
-          dense
-          class="q-my-sm"
-          label="Compatible with this layout"
-        />
-        <BlockFilter
-          v-if="!compatibleOnly"
-          v-model:shape="filterShape"
-          hide-layout
-          class="q-mb-sm"
-        />
-        <div
-          v-if="!blockSectionGroups.length && (compatibleOnly || filterShape)"
-          class="text-caption text-grey-7 q-pa-xs"
-        >
-          No blocks fit. Clear a filter to see more.
+      <div
+        v-if="blockKind === 'rosettes' && rosetteTiles.length"
+        class="strip q-pa-sm"
+        style="gap: 8px"
+      >
+        <div v-if="sidebar" class="text-caption text-grey-7 q-pa-xs" style="width: 100%">
+          English paper piecing rosettes that are exactly this quilt's space shapes. They print as
+          paper and fabric templates.
         </div>
-        <BlockSections
-          v-for="g in blockSectionGroups"
-          :key="g.lib"
-          :sections="g.sections"
-          :lib="g.lib"
-          :title="g.label"
-          compact
+        <button
+          v-for="b in rosetteTiles"
+          :key="b.id"
+          class="tile"
+          :class="{ active: editor.block === b.id }"
+          :data-block="b.id"
+          :title="b.notecard.name"
+          @click="pickBlock(b)"
         >
-          <template #default="{ block: b }">
-            <button
-              class="tile"
-              :class="{ active: editor.block === b.id }"
-              :data-block="b.id"
-              :title="b.notecard.name"
-              @click="pickBlock(b)"
-            >
-              <img :src="thumb(b, shown(b))" :alt="b.notecard.name" />
-              <FavoriteBadge v-if="isFavorite(b)" small />
-              <q-badge
-                v-if="b.colorVariant"
-                class="variant"
-                color="secondary"
-                title="Color variant"
+          <img :src="thumb(b, shown(b))" :alt="b.notecard.name" />
+          <q-badge class="variant" color="teal" label="EPP" title="English paper piecing rosette" />
+          <span
+            v-if="offered(b).length > 1"
+            class="count"
+            role="button"
+            title="Choose coloring"
+            @click.stop
+            >{{ offered(b).length }}
+            <q-menu>
+              <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+                <button
+                  v-for="(c, i) in offered(b)"
+                  :key="c.id"
+                  v-close-popup
+                  class="tile"
+                  :class="{ active: shown(b) === c.id }"
+                  :title="c.name ?? `Coloring ${i + 1}`"
+                  @click="chooseColoring(b.id, c.id)"
+                >
+                  <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
+                </button>
+              </div> </q-menu
+          ></span>
+        </button>
+      </div>
+      <div v-else class="strip q-pa-sm" style="gap: 8px">
+        <div v-if="blockGroups.length === 1" class="text-caption text-grey-7 q-pa-xs">
+          Pick library blocks in the project's Blocks tab.
+        </div>
+        <!-- Sidebar: each library in collapsible category sections; strip: one run per source. -->
+        <template v-if="sidebar">
+          <!-- Only blocks this quilt's block spaces take (spec 035 C); off, all show, and the Shape
+             filter (which it makes moot) comes back. -->
+          <q-toggle
+            v-if="fitsQuilt"
+            v-model="app.settings.compatibleBlocks"
+            dense
+            class="q-my-sm"
+            label="Compatible with this layout"
+          />
+          <BlockFilter
+            v-if="!compatibleOnly"
+            v-model:shape="filterShape"
+            hide-layout
+            class="q-mb-sm"
+          />
+          <div
+            v-if="!blockSectionGroups.length && (compatibleOnly || filterShape)"
+            class="text-caption text-grey-7 q-pa-xs"
+          >
+            No blocks fit. Clear a filter to see more.
+          </div>
+          <BlockSections
+            v-for="g in blockSectionGroups"
+            :key="g.lib"
+            :sections="g.sections"
+            :lib="g.lib"
+            :title="g.label"
+            compact
+          >
+            <template #default="{ block: b }">
+              <button
+                class="tile"
+                :class="{ active: editor.block === b.id }"
+                :data-block="b.id"
+                :title="b.notecard.name"
+                @click="pickBlock(b)"
               >
-                <q-icon name="palette" size="12px" />
-              </q-badge>
-              <!-- Blocks with several colorings: click the count to choose which one to set. -->
-              <span
-                v-if="offered(b).length > 1"
-                class="count"
-                role="button"
-                title="Choose coloring"
-                @click.stop
-                >{{ offered(b).length }}
-                <q-menu>
-                  <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
-                    <button
-                      v-for="(c, i) in offered(b)"
-                      :key="c.id"
-                      v-close-popup
-                      class="tile"
-                      :class="{
-                        active: shown(b) === c.id,
-                      }"
-                      :title="c.name ?? `Coloring ${i + 1}`"
-                      @click="chooseColoring(b.id, c.id)"
-                    >
-                      <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
-                    </button>
-                  </div> </q-menu
-              ></span>
-            </button>
-          </template>
-        </BlockSections>
-      </template>
-      <template v-else>
-        <template v-for="group in blockGroups" :key="group.label">
-          <TraySection v-if="group.items.length" :label="group.label" kind="blocks">
-            <button
-              v-for="b in group.items"
-              :key="b.id"
-              class="tile"
-              :class="{ active: editor.block === b.id }"
-              :data-block="b.id"
-              :title="b.notecard.name"
-              @click="pickBlock(b)"
-            >
-              <img :src="thumb(b, shown(b))" :alt="b.notecard.name" />
-              <FavoriteBadge v-if="isFavorite(b)" small />
-              <q-badge
-                v-if="b.colorVariant"
-                class="variant"
-                color="secondary"
-                title="Color variant"
-              >
-                <q-icon name="palette" size="12px" />
-              </q-badge>
-              <!-- Blocks with several colorings: click the count to choose which one to set. -->
-              <span
-                v-if="offered(b).length > 1"
-                class="count"
-                role="button"
-                title="Choose coloring"
-                @click.stop
-                >{{ offered(b).length }}
-                <q-menu>
-                  <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
-                    <button
-                      v-for="(c, i) in offered(b)"
-                      :key="c.id"
-                      v-close-popup
-                      class="tile"
-                      :class="{
-                        active: shown(b) === c.id,
-                      }"
-                      :title="c.name ?? `Coloring ${i + 1}`"
-                      @click="chooseColoring(b.id, c.id)"
-                    >
-                      <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
-                    </button>
-                  </div> </q-menu
-              ></span>
-            </button>
-          </TraySection>
+                <img :src="thumb(b, shown(b))" :alt="b.notecard.name" />
+                <FavoriteBadge v-if="isFavorite(b)" small />
+                <q-badge
+                  v-if="b.colorVariant"
+                  class="variant"
+                  color="secondary"
+                  title="Color variant"
+                >
+                  <q-icon name="palette" size="12px" />
+                </q-badge>
+                <!-- Blocks with several colorings: click the count to choose which one to set. -->
+                <span
+                  v-if="offered(b).length > 1"
+                  class="count"
+                  role="button"
+                  title="Choose coloring"
+                  @click.stop
+                  >{{ offered(b).length }}
+                  <q-menu>
+                    <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+                      <button
+                        v-for="(c, i) in offered(b)"
+                        :key="c.id"
+                        v-close-popup
+                        class="tile"
+                        :class="{
+                          active: shown(b) === c.id,
+                        }"
+                        :title="c.name ?? `Coloring ${i + 1}`"
+                        @click="chooseColoring(b.id, c.id)"
+                      >
+                        <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
+                      </button>
+                    </div> </q-menu
+                ></span>
+              </button>
+            </template>
+          </BlockSections>
         </template>
-      </template>
-    </div>
+        <template v-else>
+          <template v-for="group in blockGroups" :key="group.label">
+            <TraySection v-if="group.items.length" :label="group.label" kind="blocks">
+              <button
+                v-for="b in group.items"
+                :key="b.id"
+                class="tile"
+                :class="{ active: editor.block === b.id }"
+                :data-block="b.id"
+                :title="b.notecard.name"
+                @click="pickBlock(b)"
+              >
+                <img :src="thumb(b, shown(b))" :alt="b.notecard.name" />
+                <FavoriteBadge v-if="isFavorite(b)" small />
+                <q-badge
+                  v-if="b.colorVariant"
+                  class="variant"
+                  color="secondary"
+                  title="Color variant"
+                >
+                  <q-icon name="palette" size="12px" />
+                </q-badge>
+                <!-- Blocks with several colorings: click the count to choose which one to set. -->
+                <span
+                  v-if="offered(b).length > 1"
+                  class="count"
+                  role="button"
+                  title="Choose coloring"
+                  @click.stop
+                  >{{ offered(b).length }}
+                  <q-menu>
+                    <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
+                      <button
+                        v-for="(c, i) in offered(b)"
+                        :key="c.id"
+                        v-close-popup
+                        class="tile"
+                        :class="{
+                          active: shown(b) === c.id,
+                        }"
+                        :title="c.name ?? `Coloring ${i + 1}`"
+                        @click="chooseColoring(b.id, c.id)"
+                      >
+                        <img :src="thumb(b, c.id)" :alt="c.name ?? ''" />
+                      </button>
+                    </div> </q-menu
+                ></span>
+              </button>
+            </TraySection>
+          </template>
+        </template>
+      </div>
+    </template>
 
     <!-- Colors: the slot's content instead when given (a quilt colorway's mapping). -->
     <slot v-else-if="$slots.colors" name="colors" />
@@ -306,6 +362,7 @@ import type { Color, Fabric } from '@/model/schema/palette';
 import { produce } from 'immer';
 import type { Block } from '@/model/schema/block';
 import { useProjectStore } from '@/stores/project';
+import { useRosetteBlocks } from '@/composables/rosette-blocks';
 
 const $q = useQuasar();
 const project = useProjectStore();
@@ -416,6 +473,12 @@ const blockGroups = computed(() => {
   const avail = lib.filter((b) => picked.has(b.id) || embedded.has(b.id));
   return [{ label: 'Mine', items: mine }, ...libraryGroups(avail, library.views, 'blocks')];
 });
+/** Rosettes (spec 027 FR-015): only in a quilt, only those some space takes. */
+const rosetteBlocks = useRosetteBlocks();
+const blockKind = ref<'blocks' | 'rosettes'>('blocks');
+const rosetteTiles = computed(() =>
+  props.fitsQuilt ? rosetteBlocks.blocks.value.filter(props.fitsQuilt) : [],
+);
 /** Sidebar: Mine, then each library's available blocks in category sections. */
 const filterShape = ref<ShapeFilter | null>(null);
 const compatibleOnly = computed(() => !!props.fitsQuilt && app.settings.compatibleBlocks);

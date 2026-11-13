@@ -121,10 +121,19 @@ export function applyTool(
     case 'set': {
       const block = s.block ? (blocks.get(s.block) ?? s.library?.block(s.block)) : undefined;
       if (!block) return { message: 'Pick a block in the tray first.' };
-      const targets = setTargets(spaces, hit.slotId, s.scope, block.shape ?? null);
+      const targets = setTargets(spaces, hit.slotId, s.scope, block.shape ?? null, !!block.rosette);
       const here = spaces.find((x) => x.id === hit.slotId);
       const spaceShape =
         here?.shape && here.shape in SHAPE_NAME ? (here.shape as BlockShape) : null;
+      if (
+        !targets.length &&
+        here &&
+        takesBlock(here) &&
+        block.rosette &&
+        !block.shape &&
+        !spaceShape
+      )
+        return { message: 'A square rosette goes in square spaces only (it isn’t stretched).' };
       if (!targets.length && here && takesBlock(here))
         return {
           message: spaceShape
