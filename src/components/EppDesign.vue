@@ -34,11 +34,22 @@
         :color="tool === t.id ? 'primary' : undefined"
         dense
         :icon="t.icon"
+        :class="t.cls"
         :aria-label="t.label"
         :disable="ro"
-        @click="tool = t.id"
+        @click="onToolClick(t.id)"
       >
         <q-tooltip anchor="center right" self="center left">{{ t.hint }}</q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        dense
+        icon="library_add"
+        aria-label="Duplicate"
+        :disable="ro || !epp.selection.size"
+        @click="sel.duplicate()"
+      >
+        <q-tooltip anchor="center right" self="center left">{{ DUPLICATE_HINT }}</q-tooltip>
       </q-btn>
     </div>
 
@@ -57,31 +68,6 @@
         @hover="onHover"
         @drag="onDrag"
         @drag-end="onDragEnd"
-        @long-press="onHold"
-      />
-      <EppSelectionBar
-        v-if="!ro && (tool === 'select' || epp.selection.size || sel.adding.value)"
-        :count="epp.selection.size"
-        :adding="sel.adding.value"
-        :can-paste="!!epp.clip"
-        quilt
-        :has-rosette="hasRosette"
-        @all="sel.all()"
-        @same="sel.same"
-        @paste="sel.paste()"
-        @turn="sel.turn()"
-        @flip-x="sel.flip('x')"
-        @flip-y="sel.flip('y')"
-        @bigger="sel.resize(1)"
-        @smaller="sel.resize(-1)"
-        @copy="sel.copy()"
-        @duplicate="sel.duplicate()"
-        @front="sel.front()"
-        @back="sel.back()"
-        @remove="sel.remove()"
-        @make="makeFromSelection"
-        @break="breakSelection"
-        @clear="sel.clear()"
       />
       <div class="readout q-pa-xs text-caption">{{ readout }}</div>
     </div>
@@ -113,7 +99,6 @@
               { label: 'All', value: 'all' },
               { label: 'Same shape', value: 'shape' },
               { label: 'Same fill', value: 'fill' },
-              ...(epp.selection.size ? [{ label: 'Selection', value: 'selection' }] : []),
             ]"
           />
         </div>
@@ -159,8 +144,9 @@
         </template>
         <EppPicker
           v-model:picked="epp.picked"
-          v-model:scale="epp.scale"
+          :scale="sel.size.value ?? epp.scale"
           v-model:ungrouped="ungrouped"
+          @update:scale="setScale"
           show-ungrouped
           :groups="pickerGroups"
           :lookup="lookup"
@@ -179,7 +165,6 @@ import { useQuasar } from 'quasar';
 import { computed, ref, shallowRef } from 'vue';
 import EppCanvas, { type CanvasPoly, type Decor, type Grid } from '@/components/EppCanvas.vue';
 import EppPicker, { type PickerGroup } from '@/components/EppPicker.vue';
-import EppSelectionBar from '@/components/EppSelectionBar.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
@@ -194,14 +179,14 @@ import { outerEdges, overlapping, type Edge, type Pose } from '@/model/epp/geome
 import { cellAt, gridKindFor, snapOrigin, type Lattice } from '@/model/epp/grid';
 import { attach } from '@/model/epp/grow';
 import { piecePose } from '@/model/epp/match';
-import { newRosette } from '@/model/epp/rosette-ops';
+import { DUPLICATE_ID, movePose } from '@/model/epp/selection';
 import {
   addPiece,
   breakAll,
   breakIntoPatches,
+  clipRosette,
   copyPieces,
   fillGap,
-  makeRosette,
   pastePieces,
   movePiece,
   paint,
@@ -225,7 +210,8 @@ import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 import type { EppPrefs } from '@/settings/settings';
 
-type Tool = 'select' | 'place' | 'turn' | 'mirror' | 'break' | 'erase' | 'close' | 'paint';
+type Tool =
+  'select' | 'place' | 'turn' | 'mirror' | 'mirrorY' | 'break' | 'erase' | 'close' | 'paint';
 
 const props = defineProps<{ quilt: Quilt; sidebar: boolean }>();
 const project = useProjectStore();
@@ -256,12 +242,12 @@ const MODES: { id: EppPrefs['mode']; label: string; hint: string }[] = [
     hint: 'Pieces sit on a grid; a neighbor’s edge in reach snaps first.',
   },
 ];
-const TOOLS: { id: Tool; icon: string; label: string; hint: string }[] = [
+const TOOLS: { id: Tool; icon: string; label: string; hint: string; cls?: string }[] = [
   {
     id: 'select',
     icon: 'highlight_alt',
     label: 'Select',
-    hint: 'Select: tap a piece; Shift or Ctrl and tap adds or removes one; drag a box round pieces (Alt: every piece it touches); on a phone, press and hold a piece, then tap more. Drag the selection to move it as one',
+    hint: 'Select: tap pieces to pick or unpick them; drag from empty space to box them (Alt: every piece the box touches); drag a picked piece to move them all. Turn, Mirror, Delete, Break into patches, Duplicate and the Scale act on what is picked',
   },
   {
     id: 'place',
@@ -275,7 +261,19 @@ const TOOLS: { id: Tool; icon: string; label: string; hint: string }[] = [
     label: 'Turn',
     hint: 'Turn: tap a piece; a snapped piece turns to its next edge that fits the same neighbor',
   },
-  { id: 'mirror', icon: 'flip', label: 'Mirror', hint: 'Mirror: tap a piece to flip it' },
+  {
+    id: 'mirror',
+    icon: 'flip',
+    label: 'Mirror left to right',
+    hint: 'Mirror left to right: tap a piece to flip it',
+  },
+  {
+    id: 'mirrorY',
+    icon: 'flip',
+    cls: 'turned',
+    label: 'Mirror up and down',
+    hint: 'Mirror up and down: tap a piece to flip it',
+  },
   {
     id: 'break',
     icon: 'scatter_plot',
@@ -296,6 +294,8 @@ const TOOLS: { id: Tool; icon: string; label: string; hint: string }[] = [
     hint: 'Paint: tap a piece with the picked color or fabric',
   },
 ];
+const DUPLICATE_HINT =
+  'Duplicate (Ctrl+D): the picked pieces become a temporary rosette at the top of the sidebar, to place as often as you like until the next Duplicate';
 const toolHint = computed(() => TOOLS.find((t) => t.id === tool.value)?.hint ?? '');
 
 const view = computed({
@@ -305,9 +305,16 @@ const view = computed({
 const canvasRef = ref<InstanceType<typeof EppCanvas>>();
 const px = (n: number) => n * (canvasRef.value?.worldPerPx() ?? 0.02);
 
-const lookup = computed(() =>
+const base = computed(() =>
   lookupEpp(project.doc!.project, props.quilt.epp?.shapes ?? [], library.lookup),
 );
+/** Duplicate's temporary rosette: in the picker and the ghost, never in the quilt. */
+const dupe = computed(() => (epp.clip ? clipRosette(epp.clip, base.value) : null));
+const lookup = computed(() => {
+  const l = base.value;
+  const d = dupe.value;
+  return d ? { ...l, rosette: (id: string) => (id === DUPLICATE_ID ? d : l.rosette(id)) } : l;
+});
 const pieces = computed(() => props.quilt.epp?.pieces ?? []);
 const leaves = computed<Leaf[]>(() => expandAll(pieces.value, lookup.value));
 const swap = computed(() => swapper(shownColorway(props.quilt)));
@@ -337,6 +344,7 @@ const pickerGroups = computed<PickerGroup[]>(() => {
   const mineRosettes = (p.rosettes ?? []).filter((r) => !isLibraryItem(r));
   const seen = new Set([...mineShapes, ...mineRosettes].map((x) => x.id));
   return [
+    ...(dupe.value ? [{ label: 'Duplicate', shapes: [], rosettes: [dupe.value] }] : []),
     { label: 'This project', shapes: mineShapes, rosettes: mineRosettes },
     {
       label: 'Libraries',
@@ -420,7 +428,8 @@ function poseAt(p: Pt): Pose | null {
     const e = edgeNear(p);
     return e && s ? attach(s.outline, epp.scale, e, allPolys.value, p) : null;
   }
-  const pose: Pose = { at: p, turn: 0, scale: epp.scale };
+  // A duplicate goes in at the sizes it was made at.
+  const pose: Pose = { at: p, turn: 0, scale: epp.picked === DUPLICATE_ID ? 1 : epp.scale };
   const moving = polysOf(pickedPiece(pose));
   // A rosette meets others by its outside edges: no snap that lands it over other pieces.
   const reject = s ? undefined : landsOver(moving, allPolys.value);
@@ -451,6 +460,8 @@ const paintNow = () => (editor.color ? fillFor(editor.color) : undefined);
 function placeAt(pose: Pose) {
   const pick = epp.picked;
   if (!pick) return;
+  const clip = epp.clip;
+  if (pick === DUPLICATE_ID) return void (clip && edit((q) => pastePieces(q, clip, pose).quilt));
   const s = lookup.value.shape(pick);
   const fill = paintNow() ?? (s && 'fill' in s ? s.fill : undefined);
   const piece = {
@@ -466,11 +477,11 @@ function placeAt(pose: Pose) {
   });
 }
 
-function onTap(p: World, e: PointerEvent) {
+function onTap(p: World) {
   if (ro.value) return;
   const hit = leafAt(p);
   const t = tool.value;
-  if (t === 'select') return sel.pick(hit?.piece ?? null, e);
+  if (t === 'select') return sel.pick(hit?.piece ?? null);
   if (t === 'place') {
     const pose = hit ? null : poseAt(p);
     if (pose) placeAt(pose);
@@ -489,20 +500,26 @@ function onTap(p: World, e: PointerEvent) {
   if (epp.selection.size > 1 && epp.selection.has(piece.id)) {
     if (t === 'erase') return sel.remove();
     if (t === 'mirror') return sel.flip('x');
+    if (t === 'mirrorY') return sel.flip('y');
     if (t === 'turn') return sel.turn();
     if (t === 'break') return breakSelection();
+    if (t === 'paint') {
+      const f = paintNow() ?? null;
+      return edit((q) => paint(q, lookup.value, piece.id, hit.part, f, 'selection', epp.selection));
+    }
   }
   if (t === 'erase') return edit((q) => removePieces(q, new Set([piece.id])));
-  if (t === 'mirror') return edit((q) => movePiece(q, piece.id, { mirror: !piece.mirror }));
+  if (t === 'mirror' || t === 'mirrorY') {
+    const flipped = movePose(piece, { pivot: piece.at, flip: t === 'mirror' ? 'x' : 'y' });
+    return edit((q) => movePiece(q, piece.id, { ...flipped, mirror: !!flipped.mirror }));
+  }
   if (t === 'break') {
     if (!piece.rosette)
       return void $q.notify({ message: 'That piece is already a single shape.', timeout: 1500 });
     return edit((q) => breakIntoPatches(q, lookup.value, piece.id));
   }
   if (t === 'paint')
-    return edit((q) =>
-      paint(q, lookup.value, piece.id, hit.part, paintNow() ?? null, scope.value, epp.selection),
-    );
+    return edit((q) => paint(q, lookup.value, piece.id, hit.part, paintNow() ?? null, scope.value));
   if (t === 'turn') {
     const others = staticEdges(leaves.value.filter((l) => l.piece !== piece.id).map((l) => l.poly));
     const along = nextTurn(polysOf(piece), others);
@@ -610,14 +627,14 @@ function claim(p: World, e: PointerEvent) {
   if (ro.value) return false;
   const hit = leafAt(p);
   if (tool.value === 'select') {
-    if (hit) sel.startMove(p, hit.piece, e);
+    if (hit) sel.startMove(p, hit.piece);
     else sel.startBox(p, e);
     return true;
   }
   if (tool.value !== 'place') return false;
   // Dragging a piece of a selection moves the selection.
   if (hit && epp.selection.size > 1 && epp.selection.has(hit.piece)) {
-    sel.startMove(p, hit.piece, e);
+    sel.startMove(p, hit.piece);
     return true;
   }
   if (!hit) {
@@ -695,44 +712,38 @@ function onDragEnd(p: World, e: PointerEvent) {
   tick.value++;
 }
 
-// --- Multi-select (spec 051) ---
+// --- Multi-select (spec 051; owner, 2026-11-12) ---
 const sel = useEppSelection({
   items: () => pieces.value,
-  leaves: () => leaves.value.map((l) => ({ item: l.piece, poly: l.poly, fill: l.fill })),
+  leaves: () => leaves.value.map((l) => ({ item: l.piece, poly: l.poly })),
   update: (fn, coalesce) =>
     edit((q) => ({ ...q, epp: { ...q.epp!, pieces: fn(q.epp?.pieces ?? []) } }), coalesce),
   px,
-  kindOf: (id) => {
-    const p = pieces.value.find((x) => x.id === id);
-    return p?.rosette ?? p?.shape;
-  },
   sides: (id) => {
     const p = pieces.value.find((x) => x.id === id);
     return p?.shape ? (lookup.value.shape(p.shape)?.outline.length ?? 4) : 6;
   },
   gridStep: () => lattice.value.step,
   active: () => !ro.value,
-  hover: () => hover.value,
   remove: (ids) => edit((q) => removePieces(q, ids)),
   copy: (ids, mid) => copyPieces(props.quilt, ids, mid),
-  paste: (clip, at) => {
-    let ids: string[] = [];
-    edit((q) => {
-      const out = pastePieces(q, clip, at);
-      ids = out.ids;
-      return out.quilt;
-    });
-    return ids;
-  },
+  duplicated: () => (tool.value = 'place'),
 });
-const hasRosette = computed(() => pieces.value.some((p) => p.rosette && epp.selection.has(p.id)));
-/** Press and hold a piece (touch): multi-select starts with it. */
-function onHold(p: World) {
-  const hit = ro.value ? undefined : leafAt(p);
-  if (!hit) return;
-  tool.value = 'select';
-  sel.hold(hit.piece);
-  tick.value++;
+/** With pieces picked, Turn, the Mirrors, Delete and Break act on them at once. */
+function onToolClick(id: Tool) {
+  if (epp.selection.size) {
+    if (id === 'turn') return sel.turn();
+    if (id === 'mirror') return sel.flip('x');
+    if (id === 'mirrorY') return sel.flip('y');
+    if (id === 'erase') return sel.remove();
+    if (id === 'break') return breakSelection();
+  }
+  tool.value = id;
+}
+/** The sidebar's Scale: the picked pieces' size when there are any, else the size to place at. */
+function setScale(v: number) {
+  if (epp.selection.size) sel.scaleTo(v);
+  else epp.scale = v;
 }
 function breakSelection() {
   let ids: string[] = [];
@@ -743,45 +754,14 @@ function breakSelection() {
   });
   epp.selection = new Set(ids);
 }
-/** Make rosette (spec 050 US1): the selection becomes a project rosette, placed where it was. */
-function makeFromSelection() {
-  const ids = epp.selection;
-  if (ro.value) return;
-  if (ids.size < 2)
-    return void $q.notify({
-      message: 'Select two or more pieces to make a rosette.',
-      timeout: 1500,
-    });
-  $q.dialog({
-    title: 'Make rosette',
-    message: 'The selected pieces become one rosette, saved in this project and placed here.',
-    prompt: { model: 'New rosette', type: 'text' },
-    cancel: true,
-  }).onOk((name: string) => {
-    const blank = newRosette(name.trim() || 'New rosette', app.settings.author);
-    let made = '';
-    project.change(
-      (d) => {
-        const k = d.project.quilts.findIndex((q) => q.id === props.quilt.id);
-        if (k < 0) return;
-        const out = makeRosette(d.project.quilts[k] as Quilt, lookup.value, ids, blank);
-        (d.project.rosettes ??= []).push(out.rosette);
-        const look = lookupEpp(d.project, out.quilt.epp?.shapes ?? [], library.lookup);
-        d.project.quilts[k] = refresh(out.quilt, look);
-        made = out.id;
-      },
-      { session: sel.session() },
-    );
-    if (made) epp.selection = new Set([made]);
-  });
-}
 
 const readout = computed(() => {
   const n = leaves.value.length;
   const o = overlaps.value.size;
   const u = props.quilt.layout.style === 'epp' ? props.quilt.layout.unit : 1;
   const units = project.doc!.units;
-  return `${n} ${n === 1 ? 'piece' : 'pieces'} · 1U = ${+u.toFixed(3)} ${units}${o ? ` · ${o} overlapping` : ''}`;
+  const k = epp.selection.size;
+  return `${n} ${n === 1 ? 'piece' : 'pieces'} · 1U = ${+u.toFixed(3)} ${units}${o ? ` · ${o} overlapping` : ''}${k ? ` · ${k} picked` : ''}`;
 });
 
 function decorate(dec: Decor) {
@@ -868,6 +848,9 @@ function decorate(dec: Decor) {
   .inspector {
     width: 95%;
   }
+}
+.turned :deep(.q-icon) {
+  transform: rotate(90deg);
 }
 .readout {
   position: absolute;

@@ -68,11 +68,22 @@
             :color="epp.rosetteTool === t.id ? 'primary' : undefined"
             dense
             :icon="t.icon"
+            :class="t.cls"
             :aria-label="t.label"
             :disable="ro"
-            @click="epp.rosetteTool = t.id"
+            @click="onToolClick(t.id)"
           >
             <q-tooltip anchor="center right" self="center left">{{ t.hint }}</q-tooltip>
+          </q-btn>
+          <q-btn
+            flat
+            dense
+            icon="library_add"
+            aria-label="Duplicate"
+            :disable="ro || !epp.selection.size"
+            @click="sel.duplicate()"
+          >
+            <q-tooltip anchor="center right" self="center left">{{ DUPLICATE_HINT }}</q-tooltip>
           </q-btn>
         </template>
       </div>
@@ -98,27 +109,6 @@
           @hover="onHover"
           @drag="onDrag"
           @drag-end="onDragEnd"
-          @long-press="onHold"
-        />
-        <EppSelectionBar
-          v-if="!ro && (epp.rosetteTool === 'select' || epp.selection.size || sel.adding.value)"
-          :count="epp.selection.size"
-          :adding="sel.adding.value"
-          :can-paste="!!epp.clip"
-          @all="sel.all()"
-          @same="sel.same"
-          @paste="sel.paste()"
-          @turn="sel.turn()"
-          @flip-x="sel.flip('x')"
-          @flip-y="sel.flip('y')"
-          @bigger="sel.resize(1)"
-          @smaller="sel.resize(-1)"
-          @copy="sel.copy()"
-          @duplicate="sel.duplicate()"
-          @front="sel.front()"
-          @back="sel.back()"
-          @remove="sel.remove()"
-          @clear="sel.clear()"
         />
         <div class="readout q-pa-xs text-caption">{{ readout }}</div>
       </div>
@@ -223,7 +213,8 @@
             </template>
             <EppPicker
               v-model:picked="epp.picked"
-              v-model:scale="epp.scale"
+              :scale="sel.size.value ?? epp.scale"
+              @update:scale="setScale"
               :groups="pickerGroups"
               :lookup="lookup"
               :paint="cssFill"
@@ -248,7 +239,6 @@ import { useRoute } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import EppCanvas, { type CanvasPoly, type Decor, type Grid } from '@/components/EppCanvas.vue';
 import EppPicker, { type PickerGroup } from '@/components/EppPicker.vue';
-import EppSelectionBar from '@/components/EppSelectionBar.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { ERASER } from '@/components/icons';
@@ -256,6 +246,7 @@ import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
 import { useEppSelection } from '@/composables/epp-selection';
+import { DUPLICATE_ID, movePose } from '@/model/epp/selection';
 import type { World } from '@/composables/viewport';
 import { fillFor } from '@/editor/paint';
 import { checkOutline, failing, passes, problems, unmarked } from '@/model/epp/checks';
@@ -285,6 +276,7 @@ import {
   splitPiece,
 } from '@/model/epp/rosette-ops';
 import { lineCut } from '@/model/epp/faces';
+import { clipRosette } from '@/model/epp/quilt-ops';
 import { landsOver, nextTurn, snap, snapPose, staticEdges } from '@/model/epp/snap';
 import { dist, pointInPolygon, type Pt } from '@/model/geometry/path';
 import { isLibraryItem } from '@/model/library-items';
@@ -337,12 +329,12 @@ const MODES: { id: EppPrefs['mode']; icon: string; label: string; hint: string }
   },
   { id: 'grid', icon: 'grid_on', label: 'Grid', hint: 'Grid: shapes sit on a grid' },
 ];
-const TOOLS: { id: RosetteTool; icon: string; label: string; hint: string }[] = [
+const TOOLS: { id: RosetteTool; icon: string; label: string; hint: string; cls?: string }[] = [
   {
     id: 'select',
     icon: 'highlight_alt',
     label: 'Select',
-    hint: 'Select: tap a piece; Shift or Ctrl and tap adds or removes one; drag a box round pieces (Alt: every piece it touches); on a phone, press and hold a piece, then tap more. Drag the selection to move it as one',
+    hint: 'Select: tap pieces to pick or unpick them; drag from empty space to box them (Alt: every piece the box touches); drag a picked piece to move them all. Turn, Mirror, Delete, Duplicate and the Scale act on what is picked',
   },
   {
     id: 'place',
@@ -356,7 +348,19 @@ const TOOLS: { id: RosetteTool; icon: string; label: string; hint: string }[] = 
     label: 'Turn',
     hint: 'Turn: tap a piece to turn it; a snapped piece turns to its next edge that fits the same neighbor',
   },
-  { id: 'mirror', icon: 'flip', label: 'Mirror', hint: 'Mirror: tap a piece to flip it' },
+  {
+    id: 'mirror',
+    icon: 'flip',
+    label: 'Mirror left to right',
+    hint: 'Mirror left to right: tap a piece to flip it',
+  },
+  {
+    id: 'mirrorY',
+    icon: 'flip',
+    cls: 'turned',
+    label: 'Mirror up and down',
+    hint: 'Mirror up and down: tap a piece to flip it',
+  },
   { id: 'erase', icon: ERASER, label: 'Delete', hint: 'Delete: tap a piece to remove it' },
   {
     id: 'close',
@@ -371,6 +375,8 @@ const TOOLS: { id: RosetteTool; icon: string; label: string; hint: string }[] = 
     hint: 'Paint: tap a piece to paint it in this coloring',
   },
 ];
+const DUPLICATE_HINT =
+  'Duplicate (Ctrl+D): the picked pieces become a temporary rosette at the top of the sidebar, to place as often as you like until the next Duplicate';
 const toolHint = computed(() => TOOLS.find((t) => t.id === epp.rosetteTool)?.hint ?? '');
 
 const view = computed({
@@ -391,9 +397,18 @@ watch(
 );
 
 // This rosette's own (internal) shapes too: dragging, turning and snapping look pieces up here.
-const lookup = computed(() =>
+const base = computed(() =>
   lookupEpp(project.doc!.project, rosette.value?.shapes ?? [], library.lookup),
 );
+/** Duplicate's temporary rosette: in the picker and the ghost, never saved. */
+const dupe = computed(() => (epp.clip ? clipRosette(epp.clip, base.value) : null));
+const lookup = computed(() => {
+  const l = base.value;
+  const d = dupe.value;
+  return d ? { ...l, rosette: (rid: string) => (rid === DUPLICATE_ID ? d : l.rosette(rid)) } : l;
+});
+/** A duplicate goes in at the sizes it was made at. */
+const placeScale = () => (epp.picked === DUPLICATE_ID ? 1 : epp.scale);
 const leaves = computed<Leaf[]>(() =>
   rosette.value ? rosetteLeaves(rosette.value, lookup.value, coloringId.value) : [],
 );
@@ -422,6 +437,7 @@ const pickerGroups = computed<PickerGroup[]>(() => {
   const mineRosettes = (p.rosettes ?? []).filter((r) => !isLibraryItem(r) && r.id !== id.value);
   const seen = new Set([...mineShapes, ...mineRosettes].map((x) => x.id));
   return [
+    ...(dupe.value ? [{ label: 'Duplicate', shapes: [], rosettes: [dupe.value] }] : []),
     { label: 'This project', shapes: mineShapes, rosettes: mineRosettes },
     {
       label: 'Libraries',
@@ -512,12 +528,12 @@ function poseAt(p: Pt): Pose | null {
   if (mode === 'grid') {
     // A neighbor's edge in reach wins; otherwise the grid.
     const s = pickedShape.value;
-    const free: Pose = { at: p, turn: 0, scale: epp.scale };
+    const free: Pose = { at: p, turn: 0, scale: placeScale() };
     const e = snap(pickedPolys(free), index.value, px(16), DRAG_TURN, SNAP_SHARE);
     if (e) return snapPose(free, e);
     return s ? cellAt(s.outline, epp.scale, lattice.value, p) : null;
   }
-  const pose: Pose = { at: p, turn: 0, scale: epp.scale };
+  const pose: Pose = { at: p, turn: 0, scale: placeScale() };
   const moving = pickedPolys(pose);
   // A rosette meets the pieces by its outside edges: no snap that lands it over them.
   const reject = pickedShape.value ? undefined : landsOver(moving, allPolys.value);
@@ -570,6 +586,9 @@ const paintNow = () => (editor.color ? fillFor(editor.color) : undefined);
 function placeAt(pose: Pose) {
   const pick = epp.picked;
   if (!pick) return;
+  const clip = epp.clip;
+  if (pick === DUPLICATE_ID)
+    return void (clip && edit((r) => pastePieces(r, clip, base.value, pose).rosette));
   const s = lookup.value.shape(pick);
   if (s)
     return edit((r) => addPiece(r, pick, pose, paintNow() ?? ('fill' in s ? s.fill : undefined)));
@@ -578,11 +597,11 @@ function placeAt(pose: Pose) {
   if (other) edit((r) => copyIn(r, other, lookup.value, pose, epp.coloringOf.get(pick)));
 }
 
-function onTap(p: World, e: PointerEvent) {
+function onTap(p: World) {
   if (tab.value !== 'design' || ro.value) return;
   const hit = pieceAt(p);
   const t = epp.rosetteTool;
-  if (t === 'select') return sel.pick(hit?.part ?? null, e);
+  if (t === 'select') return sel.pick(hit?.part ?? null);
   if (t === 'place') {
     const pose = hit ? null : poseAt(p);
     if (pose) placeAt(pose);
@@ -602,6 +621,7 @@ function onTap(p: World, e: PointerEvent) {
   if (epp.selection.size > 1 && epp.selection.has(piece.id)) {
     if (t === 'erase') return sel.remove();
     if (t === 'mirror') return sel.flip('x');
+    if (t === 'mirrorY') return sel.flip('y');
     if (t === 'turn') return sel.turn();
     if (t === 'paint' && coloringId.value) {
       const [k, f, ids] = [coloringId.value, paintNow() ?? null, [...epp.selection]];
@@ -609,7 +629,10 @@ function onTap(p: World, e: PointerEvent) {
     }
   }
   if (t === 'erase') return edit((r) => removePieces(r, new Set([piece.id])));
-  if (t === 'mirror') return edit((r) => movePiece(r, piece.id, { mirror: !piece.mirror }));
+  if (t === 'mirror' || t === 'mirrorY') {
+    const flipped = movePose(piece, { pivot: piece.at, flip: t === 'mirror' ? 'x' : 'y' });
+    return edit((r) => movePiece(r, piece.id, { ...flipped, mirror: !!flipped.mirror }));
+  }
   if (t === 'paint' && coloringId.value)
     return edit((r) => paintPiece(r, coloringId.value!, piece.id, paintNow() ?? null));
   if (t === 'turn') {
@@ -722,14 +745,14 @@ function claim(p: World, e: PointerEvent) {
   if (ro.value) return false;
   const hit = pieceAt(p);
   if (epp.rosetteTool === 'select') {
-    if (hit) sel.startMove(p, hit.part!, e);
+    if (hit) sel.startMove(p, hit.part!);
     else sel.startBox(p, e);
     return true;
   }
   if (epp.rosetteTool !== 'place') return false;
   // Dragging a piece of a selection moves the selection.
   if (hit && epp.selection.size > 1 && epp.selection.has(hit.part!)) {
-    sel.startMove(p, hit.part!, e);
+    sel.startMove(p, hit.part!);
     return true;
   }
   if (!hit) {
@@ -807,40 +830,37 @@ function onDragEnd(p: World, e: PointerEvent) {
   tick.value++;
 }
 
-// --- Multi-select (spec 051) ---
+// --- Multi-select (spec 051; owner, 2026-11-12) ---
 const sel = useEppSelection({
   items: () => rosette.value?.pieces ?? [],
-  leaves: () => leaves.value.map((l) => ({ item: l.part!, poly: l.poly, fill: l.fill })),
+  leaves: () => leaves.value.map((l) => ({ item: l.part!, poly: l.poly })),
   update: (fn, coalesce) => edit((r) => ({ ...r, pieces: fn(r.pieces) }), coalesce),
   px,
-  kindOf: (pid) => rosette.value?.pieces.find((x) => x.id === pid)?.shape,
   sides: (pid) => {
     const s = rosette.value?.pieces.find((x) => x.id === pid)?.shape;
     return (s && lookup.value.shape(s)?.outline.length) || 4;
   },
   gridStep: () => lattice.value.step,
   active: () => tab.value === 'design' && !ro.value,
-  hover: () => hover.value,
   remove: (ids) => edit((r) => removePieces(r, ids)),
   copy: (ids, mid) => copyPieces(rosette.value!, ids, mid, coloringId.value),
-  paste: (clip, at) => {
-    let ids: string[] = [];
-    edit((r) => {
-      const out = pastePieces(r, clip, lookup.value, at);
-      ids = out.ids;
-      return out.rosette;
-    });
-    return ids;
-  },
+  duplicated: () => (epp.rosetteTool = 'place'),
 });
 watch(id, () => sel.clear());
-/** Press and hold a piece (touch): multi-select starts with it. */
-function onHold(p: World) {
-  const hit = tab.value !== 'design' || ro.value ? undefined : pieceAt(p);
-  if (!hit) return;
-  epp.rosetteTool = 'select';
-  sel.hold(hit.part!);
-  tick.value++;
+/** With pieces picked, Turn, the Mirrors and Delete act on them at once. */
+function onToolClick(t: RosetteTool) {
+  if (epp.selection.size) {
+    if (t === 'turn') return sel.turn();
+    if (t === 'mirror') return sel.flip('x');
+    if (t === 'mirrorY') return sel.flip('y');
+    if (t === 'erase') return sel.remove();
+  }
+  epp.rosetteTool = t;
+}
+/** The sidebar's Scale: the picked pieces' size when there are any, else the size to place at. */
+function setScale(v: number) {
+  if (epp.selection.size) sel.scaleTo(v);
+  else epp.scale = v;
 }
 
 function newColoring(copyOf?: string) {
@@ -856,7 +876,8 @@ function newColoring(copyOf?: string) {
 const readout = computed(() => {
   const n = leaves.value.length;
   const o = overlaps.value.size;
-  return `${n} ${n === 1 ? 'piece' : 'pieces'}${o ? ` · ${o} overlapping` : ''}`;
+  const k = epp.selection.size;
+  return `${n} ${n === 1 ? 'piece' : 'pieces'}${o ? ` · ${o} overlapping` : ''}${k ? ` · ${k} picked` : ''}`;
 });
 
 function decorate(dec: Decor) {
@@ -945,6 +966,9 @@ function decorate(dec: Decor) {
   .inspector {
     width: 95%;
   }
+}
+.turned :deep(.q-icon) {
+  transform: rotate(90deg);
 }
 .readout {
   position: absolute;

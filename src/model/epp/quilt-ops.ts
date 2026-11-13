@@ -18,8 +18,9 @@ import { centroid, type Pose } from './geometry';
 import { autoClose, cutRect, type Box } from './edge';
 import { bbox, type Poly } from './geometry';
 import { pieceFor, piecePose } from './match';
-import type { Clip } from './selection';
-import { add, sub, type Pt } from '../geometry/path';
+import { clipAt, DUPLICATE_ID, type Clip } from './selection';
+import type { Pt } from '../geometry/path';
+import { DEFAULT_LICENSE } from '../credits';
 
 /** Defaults (owner, 2026-11-10): 1U = 2 in (5 cm), seam allowance 3/8 in (1 cm). */
 export const eppDefaults = (units: Units) =>
@@ -258,82 +259,64 @@ export function breakAll(
   return { quilt: out, ids: made.map((p) => p.id) };
 }
 
-/** Lookups that also see `extra` internal shapes (made by breaking rosettes mid-edit). */
-const withShapes = (l: EppLookup, extra: readonly InternalShape[]): EppLookup => ({
-  shape: (id) => extra.find((s) => s.id === id) ?? l.shape(id),
-  rosette: (id) => l.rosette(id),
-});
-
 /**
- * Make rosette (spec 050 US1, spec 051): the selected pieces become `blank`'s pieces (placed rosettes
- * come in as their pieces, unlinked; the fills they show its first coloring), and in the quilt one
- * placed rosette takes their place.
+ * The duplicate (spec 051) as a rosette, for the picker and the ghost: its placed rosettes as their
+ * pieces, the fills it shows as its one coloring. Never saved: placing it places `clip`'s pieces.
  */
-export function makeRosette(
-  q: Quilt,
-  lookup: EppLookup,
-  ids: ReadonlySet<string>,
-  blank: Rosette,
-): { quilt: Quilt; rosette: Rosette; id: string } {
-  const broken = breakAll(q, lookup, ids);
-  const work = broken.quilt;
-  const shapes = work.epp?.shapes ?? [];
-  const look = withShapes(lookup, shapes);
-  const picked = (work.epp?.pieces ?? []).filter((p) => p.shape && broken.ids.includes(p.id));
-  const leaves = expandAll(picked, look);
-  // A placed rosette sits on the mean of its pieces' corners (expand's rosetteLocal).
-  const pts = leaves.flatMap((l) => l.poly);
-  const c: Pt = [
-    pts.reduce((s, p) => s + p[0], 0) / (pts.length || 1),
-    pts.reduce((s, p) => s + p[1], 0) / (pts.length || 1),
-  ];
-  const shown = new Map(leaves.map((l) => [l.piece, l.fill]));
+export function clipRosette(clip: Clip, lookup: EppLookup): Rosette {
+  const look: EppLookup = {
+    shape: (id) => clip.shapes.find((s) => s.id === id) ?? lookup.shape(id),
+    rosette: (id) => lookup.rosette(id),
+  };
+  const base = newEppQuilt('', 'in');
+  const q: Quilt = {
+    ...base,
+    epp: { pieces: clip.pieces, ...(clip.shapes.length ? { shapes: clip.shapes } : {}) },
+  };
+  const flat = breakAll(q, look, new Set(clip.pieces.map((p) => p.id))).quilt.epp!;
+  const own = flat.shapes ?? [];
+  const shown = new Map(
+    expandAll(flat.pieces, {
+      ...look,
+      shape: (id) => own.find((s) => s.id === id) ?? look.shape(id),
+    }).map((l) => [l.piece, l.fill]),
+  );
   const fills: Record<string, Fill> = {};
-  const pieces: RosettePiece[] = picked.map((p) => {
-    const id = newId();
+  const pieces: RosettePiece[] = flat.pieces.flatMap((p) => {
+    if (!p.shape) return [];
     const f = shown.get(p.id);
-    if (f) fills[id] = f;
-    return {
-      id,
-      shape: p.shape!,
-      at: sub(p.at, c),
-      turn: p.turn,
-      scale: p.scale,
-      ...(p.mirror ? { mirror: true } : {}),
-    };
+    if (f) fills[p.id] = f;
+    return [
+      {
+        id: p.id,
+        shape: p.shape,
+        at: p.at,
+        turn: p.turn,
+        scale: p.scale,
+        ...(p.mirror ? { mirror: true } : {}),
+      },
+    ];
   });
-  const used = new Set(pieces.map((p) => p.shape));
-  const own = shapes.filter((s) => used.has(s.id));
-  const rosette: Rosette = {
-    ...blank,
+  return {
+    id: DUPLICATE_ID,
+    notecard: { name: 'Duplicate' },
+    license: DEFAULT_LICENSE,
     pieces,
-    colorings: blank.colorings.map((k, i) => (i ? k : { ...k, fills })),
+    ...(own.length ? { shapes: own } : {}),
+    colorings: [{ id: 'c', name: 'Duplicate', fills }],
   };
-  if (own.length) rosette.shapes = own;
-  const id = newId();
-  const gone = new Set(picked.map((p) => p.id));
-  const rest = work.epp!.pieces.filter((p) => !gone.has(p.id));
-  const left = shapes.filter((s) => rest.some((p) => p.shape === s.id));
-  const epp = {
-    ...work.epp!,
-    pieces: [...rest, { id, rosette: rosette.id, at: c, turn: 0, scale: 1 }],
-  };
-  if (left.length) epp.shapes = left;
-  else delete epp.shapes;
-  return { quilt: { ...q, epp }, rosette, id };
 }
 
-/** Copy (spec 051): the pieces as they are (placed rosettes stay linked), their internal shapes. */
+/** Duplicate (spec 051): the pieces as they are (placed rosettes stay linked), their internal shapes. */
 export function copyPieces(q: Quilt, ids: ReadonlySet<string>, mid: Pt): Clip {
   const pieces = (q.epp?.pieces ?? []).filter((p) => ids.has(p.id));
   const used = new Set(pieces.map((p) => p.shape));
   return { pieces, shapes: (q.epp?.shapes ?? []).filter((s) => used.has(s.id)), middle: mid };
 }
 
-/** Paste: copied pieces with fresh ids, their middle at `at`; the new pieces' ids. */
-export function pastePieces(q: Quilt, clip: Clip, at: Pt): { quilt: Quilt; ids: string[] } {
-  const d = sub(at, clip.middle);
-  const pieces = clip.pieces.map((p) => ({ ...p, id: newId(), at: add(p.at, d) }));
+/** The duplicate placed as a rosette at `pose` would be: its pieces with fresh ids, and their ids. */
+export function pastePieces(q: Quilt, clip: Clip, pose: Pose): { quilt: Quilt; ids: string[] } {
+  const pieces = clipAt(clip, pose).map((p) => ({ ...p, id: newId() }));
   const have = new Set((q.epp?.shapes ?? []).map((s) => s.id));
   const shapes = [...(q.epp?.shapes ?? []), ...clip.shapes.filter((s) => !have.has(s.id))];
   const epp = { ...q.epp!, pieces: [...(q.epp?.pieces ?? []), ...pieces] };

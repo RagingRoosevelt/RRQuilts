@@ -1,22 +1,38 @@
 # Feature Specification: EPP Multi-Select (a Selection That Acts Like a Rosette)
 
-**Feature Branch**: `TBD` (target 0.9.0, with specs 027 and 050; was 0.8.0)
+**Feature Branch**: `027-epp-layouts` (target 0.9.0, with specs 027 and 050; was 0.8.0)
 
 **Created**: 2026-10-29
 
-**Status**: Built 2026-11-12 on `027-epp-layouts` (tasks T059-T061, checklist TC-290). Details
-spec 027 User Story 2, scenario 6 (groups) and FR-005.
-
-**As built**: a Select tool in both editors and a bar over the canvas whose buttons stand in for
-the outline's handles (they work the same with a finger). The selection turns about its middle,
-snapped selections to the next edge that fits, as one piece does. Duplicate puts the copy 1U right
-and down, selected. Paint scope Selection paints every piece of the selected ones (rosettes too).
-Not yet (task T081): turning about a picked corner, nudging to the next snap, drag handles on the
-outline, Make rosette's note for pieces that don't touch, Make rosette in the rosette editor.
+**Status**: Built 2026-11-12 on `027-epp-layouts` (tasks T059-T061, T082; checklist TC-291), then
+reworked the same day to the owner's design below. Details spec 027 User Story 2, scenario 6
+(groups) and FR-005.
 
 **Input**: Owner, 2026-10-29: "we should also add a spec for EPP so that patches can be
 multi-selected and moved around as if they were a stamp (where the patches are kept together,
 rotated together, etc). stamps should be able to be included in that multi-select".
+
+## Clarifications
+
+### Session 2026-11-12
+
+- Q: How much does multi-select add to the editors? → A: Picking only, no toolbar of its own; the
+  rail's own buttons and the sidebar act on what is picked, plus a Duplicate button. Owner,
+  2026-11-12, after trying a first version with a floating bar of selection actions: "I don't think
+  we need to have dedicated buttons for the various functions like you added in the new toolbar
+  (in fact, we should kill it). here's what I think we should do: - multi-select only allows for
+  multi selecting and doesn't add that new floating toolbar - multi select/deselect happens just
+  from a click/touch when using that tool - the normal, pre-existing toolbar buttons work on
+  multi-select items - when in multi-select mode, a drag started on a shape moves the pieces - a
+  drag started not on a shape does the box select - changing the scale in the sidebar when
+  mutli-selection is made changes the scale of the selected pieces - we add a duplicate button in
+  the toolbar that acts on mutli-selected items that creates a temporary virtual rosette in the
+  sidebar that can then be placed (until a new temporary virtual rosette is made). this isn't an
+  actual entity, just a collection of whatever items were mutli-selected." Then: "let's just have
+  two buttons for mirror-x and mirror-y".
+  Dropped with the bar: Shift/Ctrl taps, press and hold, Select same, copy and paste, bring forward
+  and send back, and Make rosette in quilts (rosettes are made in the rosette editor or the shape
+  editor's Multi-shape mode, spec 050).
 
 ## Concepts
 
@@ -32,23 +48,17 @@ rotated together, etc). stamps should be able to be included in that multi-selec
 ### User Story 1 - Pick several pieces (Priority: P1)
 
 **Independent Test**: In a hexagon garden, drag a box around one flower plus a placed Flower rosette
-beside it: eight items show selected (seven hexagons and one rosette), with one outline and handles
-around them all.
+beside it: eight items show picked (seven hexagons and one rosette), with one outline around them
+all.
 
 **Acceptance Scenarios**:
 
-1. **Given** the Select tool, **Then** pieces are picked by:
-   - tap or click: just that piece;
-   - Shift (or Ctrl/Cmd) plus tap: add or remove a piece;
-   - dragging a box on empty space: every piece wholly inside (holding Alt: every piece touched);
-   - on touch, long-press a piece to start multi-select, then tap more to add or remove; **Done**
-     ends it;
-   - **Select all** (Ctrl/Cmd+A, and the ⋮ menu), and **Select same** (every piece of the same shape
-     or rosette, or same fill).
-2. **Given** a selection, **Then** each piece shows a light highlight, and one outline with handles
-   (turn, mirror, scale) surrounds the whole selection.
+1. **Given** the **Select** tool, **Then** a tap on a piece picks it or, picked already, unpicks it;
+   a tap on empty space unpicks everything; a drag from empty space draws a box that adds every
+   piece wholly inside (holding Alt: every piece it touches). Ctrl/Cmd+A picks all, Esc unpicks.
+2. **Given** pieces picked, **Then** each shows a blue outline, a dashed outline surrounds them all,
+   and the readout counts them ("· 3 picked"). There is no toolbar of its own.
 3. **Given** a selection of placed shapes and placed rosettes, **Then** both kinds are treated alike.
-4. **Given** Esc or a tap on empty space, **Then** the selection clears.
 
 ---
 
@@ -60,38 +70,41 @@ turn around the selection's middle, still joined.
 
 **Acceptance Scenarios**:
 
-1. **Given** a selection, **When** any selected piece is dragged, **Then** the whole selection moves,
-   arrangement unchanged.
+1. **Given** the Select tool, **When** a drag starts on a piece, **Then** the piece joins the
+   selection if it wasn't picked and the whole selection moves, arrangement unchanged (with the
+   Place tool, dragging a picked piece moves the selection too).
 2. **Given** a selection dragged near unselected pieces, **Then** it snaps by the outside edges of the
    selection to equal edges (or whole-unit runs) of the others, as a rosette does (spec 050, spec 027
    FR-003). Edges between selected pieces don't snap to anything.
-3. **Given** turn, **Then** the selection turns around its middle (or around a picked corner: tap a
-   corner of the outline to set the turn point), in the steps that keep a shared edge with any
-   neighbor it's snapped to, or freely off snap.
-4. **Given** mirror (across or up and down), **Then** the whole selection mirrors; mirrored shapes
-   follow spec 027 (printed as their own or reversed templates).
-5. **Given** the Scale slider, **Then** every selected piece's scale and position scale together
-   around the middle, so the arrangement keeps its joins (each piece's scale stays 1 to 4: if one
-   would leave the range, the step is refused with a note).
-6. **Given** arrow keys, **Then** the selection nudges one unit (Shift: one grid step); with
-   snapping on, it nudges to the next snap.
+3. **Given** pieces picked, **When** the rail's **Turn** button is pressed, **Then** the selection
+   turns around its middle, to the next edge that fits a neighbor it's snapped to, or by one corner
+   step off snap. (With the Turn tool, a tap on a picked piece does the same.)
+4. **Given** pieces picked, **When** **Mirror left to right** or **Mirror up and down** is pressed
+   (two buttons, also for single pieces with a tap), **Then** the whole selection mirrors about its
+   middle; mirrored shapes follow spec 027 (printed as their own or reversed templates).
+5. **Given** pieces picked, **Then** the sidebar's **Scale** shows the smallest picked piece's size,
+   and changing it sets that size, the others and their positions in proportion around the
+   middle, so the arrangement keeps its joins (sizes stay whole, 1 to 4: a size some piece can't
+   take is refused with a note). With nothing picked, Scale is the size to place at.
+6. **Given** arrow keys, **Then** the selection nudges one unit (Shift: one grid step).
 7. **Given** any of these, **Then** each move, turn, mirror or scale is one undo step.
 
 ---
 
 ### User Story 3 - Other actions on the selection (Priority: P1)
 
-1. **Copy / paste / duplicate**: the selection copies as one; paste places it under the pointer, as
-   one selection, ready to drag and snap. Placed rosettes stay linked rosettes in the copy.
-2. **Delete** removes every selected piece.
-3. **Paint**: with the Paint tool and a selection, painting a piece paints it, and scope **Selection**
-   (new, next to This / All) paints every selected piece with that fill (in a placed rosette, that piece of the
-   placement, spec 050).
-4. **Make rosette**: turns the selection into a rosette (spec 050 User Story 1); placed rosettes in it are
-   copied in as their pieces, unlinked (spec 050 FR-005).
-5. **Break into patches**: on a selection with placed rosettes, breaks each one into patches; the result stays
-   selected.
-6. **Bring forward / send back**, for overlaps (spec 027 allows them while arranging).
+1. **Delete** (the rail's button, or the Delete key) removes every picked piece.
+2. **Break into patches** (quilts) breaks each picked placed rosette into patches; the result stays
+   picked.
+3. **Paint**: with the Paint tool, a tap on a picked piece paints every picked piece with that fill
+   (every piece of a picked placed rosette); a tap elsewhere paints as before (This / All / Same
+   shape / Same fill).
+4. **Duplicate** (a rail button, Ctrl/Cmd+D): the picked pieces become a temporary rosette at the
+   top of the sidebar's picker, picked and ready to place with the Place tool, as often as wanted,
+   until the next Duplicate replaces it. It is no entity (nothing is saved): placing it adds the
+   pieces themselves at the ghost's spot, snapped by their outside edges like a rosette. Placed
+   rosettes in it stay linked rosettes in a quilt; in a rosette they come in as their pieces
+   (spec 050 FR-005). Made in a rosette and placed back in it, each coloring keeps its fills.
 
 ### Edge Cases
 
@@ -108,13 +121,15 @@ turn around the selection's middle, still joined.
 
 ## Requirements
 
-- **FR-001**: The EPP editor MUST support multi-select of placed shapes and placed rosettes by tap with
-  a modifier, box, long-press multi-select on touch, Select all and Select same.
-- **FR-002**: A selection MUST move, turn (around its middle or a picked corner), mirror, scale and
-  nudge as one, keeping its arrangement, with one undo step per action.
+- **FR-001**: The EPP editors MUST support multi-select of placed shapes and placed rosettes with a
+  Select tool: tap to pick or unpick, a box dragged from empty space, Select all; no toolbar of
+  its own (owner, 2026-11-12).
+- **FR-002**: A selection MUST move, turn (around its middle), mirror (left to right, up and down),
+  scale (the sidebar's Scale) and nudge as one, keeping its arrangement, with one undo step per
+  action; the rail's existing buttons act on it.
 - **FR-003**: A selection MUST snap by its outside edges only, exactly as a rosette does.
-- **FR-004**: Copy, paste, duplicate, delete, paint (scope Selection), Make rosette and Break into patches MUST
-  work on a selection.
+- **FR-004**: Delete, paint, Break into patches and Duplicate (a temporary rosette in the picker, never
+  saved, replaced by the next one) MUST work on a selection.
 - **FR-005**: A selection is session state only: no format change; nothing is saved when it ends.
 
 ## Success Criteria
@@ -126,9 +141,11 @@ turn around the selection's middle, still joined.
 ## Assumptions
 
 - "Patches" in the owner's note are spec 027's placed shapes.
-- The quilt editor's existing selection tools (spec 006) are the model where they fit; EPP adds the
-  box, the outline handles and snap-as-one.
+- The editors' existing buttons are the selection's actions (owner, 2026-11-12); EPP adds the
+  Select tool, the box, snap-as-one and Duplicate.
 
 ## Out of scope
 
-- Saving a selection as a named group without making a rosette (a rosette does that).
+- Saving a selection as a named group (a rosette does that, made in the rosette editor).
+- Turning about a picked corner, nudging to the next snap, Select same, copy and paste, bring
+  forward and send back (dropped 2026-11-12 with the toolbar).

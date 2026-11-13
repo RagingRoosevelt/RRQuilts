@@ -1,5 +1,6 @@
 // EPP multi-select (spec 051): a selection moves, turns, mirrors, scales and snaps as one, keeping
-// its arrangement, like a temporary rosette. Pure, over any placed items (quilt or rosette pieces).
+// its arrangement, like a temporary rosette; Duplicate makes it one to place. Pure, over any placed
+// items (quilt or rosette pieces).
 import { add, mul, sub, type Pt } from '../geometry/path';
 import type { Fill } from '../schema/coloring';
 import type { EppPiece, InternalShape } from '../schema/epp';
@@ -18,12 +19,12 @@ export interface Placed {
 
 /**
  * A move of the whole selection about `pivot` (default the origin): mirror (`x`: left to right,
- * `y`: up and down), then scale (a factor that keeps scales whole, see `scaleStep`), then turn
+ * `y`: up and down), then scale (a factor that keeps scales whole, see `scaleTo`), then turn
  * (degrees), then `move`.
  */
 export interface GroupMove {
   pivot?: Pt;
-  flip?: 'x' | 'y';
+  flip?: 'x' | 'y' | undefined;
   scale?: number;
   turn?: number;
   move?: Pt;
@@ -50,7 +51,12 @@ export function movePose<T extends Placed>(p: T, g: GroupMove): T {
     at = rot(at, g.turn * RAD);
     turn += g.turn;
   }
-  const out: T = { ...p, at: add(add(at, c), g.move ?? [0, 0]), turn: (turn + 360) % 360, scale };
+  const out: T = {
+    ...p,
+    at: add(add(at, c), g.move ?? [0, 0]),
+    turn: ((turn % 360) + 360) % 360,
+    scale,
+  };
   if (mirror) out.mirror = true;
   else delete out.mirror;
   return out;
@@ -69,27 +75,41 @@ export const snapGroup = <T extends Placed>(
   s: Snap,
 ) => moveGroup(items, ids, { turn: s.rot / RAD, move: s.move });
 
+/** The selection's size: its smallest piece's scale (the sidebar's Scale shows it). */
+export function scaleOf(items: readonly Placed[], ids: ReadonlySet<string>): number | null {
+  const sel = items.filter((p) => ids.has(p.id));
+  return sel.length ? Math.min(...sel.map((p) => p.scale)) : null;
+}
+
 /**
- * The factor that makes the selection's smallest piece one size bigger (+1) or smaller (−1), the
- * others in proportion; null when a piece would leave whole sizes 1 to 4.
+ * The factor that brings the selection's smallest piece to `size`, the others in proportion; null
+ * when a piece would leave whole sizes 1 to 4.
  */
-export function scaleStep(
+export function scaleTo(
   items: readonly Placed[],
   ids: ReadonlySet<string>,
-  dir: 1 | -1,
+  size: number,
 ): number | null {
-  const sel = items.filter((p) => ids.has(p.id));
-  if (!sel.length) return null;
-  const m = Math.min(...sel.map((p) => p.scale));
-  const k = (m + dir) / m;
+  const m = scaleOf(items, ids);
+  if (m === null) return null;
+  const k = size / m;
   const ok = (s: number) => Math.abs(s - Math.round(s)) < 1e-9 && s > 0.5 && s < 4.5;
-  return sel.every((p) => ok(p.scale * k)) ? k : null;
+  return items.every((p) => !ids.has(p.id) || ok(p.scale * k)) ? k : null;
 }
 
 /** The middle of polygons (of their bounds): where a selection turns, mirrors and scales. */
 export function middle(polys: readonly Poly[]): Pt {
   const [x0, y0, x1, y1] = bbox(polys);
   return [(x0 + x1) / 2, (y0 + y1) / 2];
+}
+
+/** The mean of polygons' corners: where a placed rosette, and so a duplicate, is centered. */
+export function centre(polys: readonly Poly[]): Pt {
+  const pts = polys.flat();
+  return mul(
+    pts.reduce((s, p) => add(s, p), [0, 0] as Pt),
+    1 / (pts.length || 1),
+  );
 }
 
 /** Indexes of the polygons a box picks: wholly inside, or (`touched`) any part inside. */
@@ -111,24 +131,27 @@ export function boxPick(
   );
 }
 
-/** Bring to front / send to back (drawn last / first), keeping the selection's own order. */
-export const toFront = <T extends { id: string }>(
-  items: readonly T[],
-  ids: ReadonlySet<string>,
-) => [...items.filter((p) => !ids.has(p.id)), ...items.filter((p) => ids.has(p.id))];
-export const toBack = <T extends { id: string }>(items: readonly T[], ids: ReadonlySet<string>) => [
-  ...items.filter((p) => ids.has(p.id)),
-  ...items.filter((p) => !ids.has(p.id)),
-];
+/** The picker's id for the duplicate: shown and placed like a rosette, never saved. */
+export const DUPLICATE_ID = 'rrquilts.session-duplicate';
 
 /**
- * Copied pieces (session only): as quilt pieces (a shape's fill under ''), the internal shapes they
- * use, and their middle (pasting puts it under the pointer).
+ * Duplicate (owner, 2026-11-12: "a temporary virtual rosette in the sidebar that can then be placed
+ * (until a new temporary virtual rosette is made)"): the selected pieces as quilt pieces (a shape's
+ * fill under ''), the internal shapes they use, and their `centre` (where a placed rosette sits).
  */
 export interface Clip {
   pieces: EppPiece[];
   shapes: InternalShape[];
   middle: Pt;
-  /** Copied in a rosette: its id and each piece's fill per coloring (pasting back keeps them). */
+  /** Made in a rosette: its id and each piece's fill per coloring (placing it there keeps them). */
   from?: { rosette: string; fills: Record<string, Record<string, Fill>> };
 }
+
+/** The duplicate's pieces where a rosette placed at `pose` would put them (about their centre). */
+export const clipAt = (clip: Clip, pose: { at: Pt; turn: number; mirror?: boolean | undefined }) =>
+  moveGroup(clip.pieces, new Set(clip.pieces.map((p) => p.id)), {
+    pivot: clip.middle,
+    flip: pose.mirror ? 'x' : undefined,
+    turn: pose.turn,
+    move: sub(pose.at, clip.middle),
+  });

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { eppStarters } from '@/content/epp';
-import { expandAll, lookupEpp, rosetteLeaves } from '@/model/epp/expand';
+import { expand, expandAll, lookupEpp } from '@/model/epp/expand';
 import { place, type Poly } from '@/model/epp/geometry';
 import {
   addPiece,
   breakAll,
+  clipRosette,
   copyPieces,
-  makeRosette,
   newEppQuilt,
   paint,
   pastePieces,
@@ -14,13 +14,14 @@ import {
 import * as rops from '@/model/epp/rosette-ops';
 import {
   boxPick,
+  centre,
+  DUPLICATE_ID,
   middle,
   moveGroup,
   movePose,
-  scaleStep,
+  scaleOf,
+  scaleTo,
   snapGroup,
-  toBack,
-  toFront,
   type Placed,
 } from '@/model/epp/selection';
 import { snapPose, type Snap } from '@/model/epp/snap';
@@ -85,15 +86,17 @@ describe('EPP selection moves as one', () => {
     }
   });
 
-  it('scales in whole sizes about the middle, keeping joins; refuses sizes past 1 to 4', () => {
-    const k = scaleStep(two, ab, 1)!;
+  it('the Scale sets the smallest piece’s size, the others in proportion, sizes whole 1 to 4', () => {
+    expect(scaleOf(two, ab)).toBe(1);
+    const k = scaleTo(two, ab, 2)!;
     expect(k).toBe(2);
     const out = moveGroup(two, ab, { pivot: [0, 0], scale: k });
     expect(out.map((p) => p.scale)).toEqual([2, 4, 1]);
     expect(out[1]!.at).toEqual([4.2, -1.4]);
-    expect(scaleStep(out, ab, 1)).toBeNull(); // 2 → 3 makes 4 → 6
-    expect(scaleStep(out, ab, -1)).toBe(0.5);
-    expect(scaleStep(two, ab, -1)).toBeNull(); // 1 → 0
+    expect(scaleTo(out, ab, 3)).toBeNull(); // 2 → 3 makes 4 → 6
+    expect(scaleTo(out, ab, 1)).toBe(0.5);
+    expect(scaleTo(two, ab, 3)).toBeNull(); // 2 → 6
+    expect(scaleOf(two, new Set())).toBeNull();
   });
 
   it('a snap moves every selected piece as snapPose moves one', () => {
@@ -133,12 +136,6 @@ describe('EPP selection picking and order', () => {
     const [mx, my] = middle(polys.slice(0, 2));
     expect([mx, my].map((v) => +v.toFixed(9))).toEqual([1, 0.5]);
   });
-  it('bring to front and send to back keep the selection’s own order', () => {
-    const xs = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
-    const ids = new Set(['1', '3']);
-    expect(toFront(xs, ids).map((x) => x.id)).toEqual(['2', '4', '1', '3']);
-    expect(toBack(xs, new Set(['4', '2'])).map((x) => x.id)).toEqual(['2', '4', '1', '3']);
-  });
 });
 
 /** Two squares side by side and a placed Hexagon Flower to their right. */
@@ -165,22 +162,33 @@ function sample(): { q: Quilt; ids: string[] } {
 const polysOf = (q: Quilt, look = lookup) => expandAll(q.epp!.pieces, look).map((l) => l.poly);
 
 describe('EPP selection in a quilt', () => {
-  it('Make rosette: the pieces become a rosette, placed where they were (rosettes copied in)', () => {
+  it('Duplicate shows as a rosette, and placing it puts the pieces where the ghost was', () => {
     const { q, ids } = sample();
-    const before = key(polysOf(q));
-    const blank = rops.newRosette('Mine');
-    const out = makeRosette(q, lookup, new Set(ids), blank);
-    expect(out.quilt.epp!.pieces).toHaveLength(1);
-    expect(out.quilt.epp!.pieces[0]).toMatchObject({ rosette: blank.id, turn: 0, scale: 1 });
-    expect(out.rosette.pieces).toHaveLength(2 + 7);
-    expect(out.rosette.pieces.every((p) => p.shape)).toBe(true);
-    const look = lookupEpp({ eppShapes: shapes, rosettes: [...rosettes, out.rosette] });
-    expect(key(polysOf(out.quilt, look))).toEqual(before);
-    // The fills shown become the first coloring.
-    const leaves = rosetteLeaves(out.rosette, look);
-    expect(leaves.filter((l) => l.fill && 'color' in l.fill && l.fill.color === 'x')).toHaveLength(
-      1,
-    );
+    const all = new Set(ids);
+    const clip = copyPieces(q, all, centre(polysOf(q)));
+    const dupe = clipRosette(clip, lookup);
+    expect(dupe.id).toBe(DUPLICATE_ID);
+    expect(dupe.pieces).toHaveLength(2 + 7);
+    const look = {
+      ...lookup,
+      rosette: (id: string) => (id === DUPLICATE_ID ? dupe : lookup.rosette(id)),
+    };
+    for (const pose of [
+      { at: [3, 10] as [number, number], turn: 0, scale: 1 },
+      { at: [-2, 4] as [number, number], turn: 60, scale: 1, mirror: true },
+    ]) {
+      const ghost = expand({ id: 'g', rosette: DUPLICATE_ID, ...pose }, look).map((l) => l.poly);
+      const out = pastePieces(q, clip, pose);
+      expect(out.ids).toHaveLength(3);
+      const added = out.quilt.epp!.pieces.filter((p) => out.ids.includes(p.id));
+      expect(key(expandAll(added, lookup).map((l) => l.poly))).toEqual(key(ghost));
+      // Placed rosettes stay linked; ids are fresh.
+      expect(added[2]!.rosette).toBe(flowerId);
+      expect(ids.some((i) => out.ids.includes(i))).toBe(false);
+    }
+    // The fills it shows are the duplicate's.
+    const fills = Object.values(dupe.colorings[0]!.fills);
+    expect(fills.filter((f) => 'color' in f && f.color === 'x')).toHaveLength(1);
   });
 
   it('Break into patches on a selection keeps the shapes and returns all the loose pieces', () => {
@@ -188,22 +196,6 @@ describe('EPP selection in a quilt', () => {
     const out = breakAll(q, lookup, new Set(ids));
     expect(out.ids).toHaveLength(2 + 7);
     expect(out.quilt.epp!.pieces.every((p) => p.shape)).toBe(true);
-  });
-
-  it('copy and paste: fresh ids, the middle under the pointer, rosettes still linked', () => {
-    const { q, ids } = sample();
-    const clip = copyPieces(q, new Set(ids), [3, 0]);
-    const out = pastePieces(q, clip, [3, 10]);
-    expect(out.ids).toHaveLength(3);
-    const added = out.quilt.epp!.pieces.slice(3);
-    expect(added.map((p) => p.at)).toEqual([
-      [0.5, 10.5],
-      [1.5, 10.5],
-      [6, 10],
-    ]);
-    expect(added[2]!.rosette).toBe(flowerId);
-    expect(new Set(added.map((p) => p.id)).size).toBe(3);
-    expect(ids.some((i) => out.ids.includes(i))).toBe(false);
   });
 
   it('paint scope Selection paints every piece of the selected ones', () => {
@@ -218,19 +210,20 @@ describe('EPP selection in a quilt', () => {
 });
 
 describe('EPP selection in a rosette', () => {
-  it('copies across rosettes in the shown coloring, and back into its own with every coloring', () => {
+  it('duplicates across rosettes in the shown coloring, and back into its own with every coloring', () => {
     let r = rops.newRosette('R');
     r = rops.addPiece(r, sqId, { at: [0.5, 0.5], turn: 0, scale: 1 }, { color: 'red' });
     const { rosette: r2, id: k2 } = rops.addColoring(r);
     r = rops.paintPiece(r2, k2, r2.pieces[0]!.id, { color: 'blue' });
     const clip = rops.copyPieces(r, new Set([r.pieces[0]!.id]), [0.5, 0.5], k2);
+    const at = (x: number, y: number) => ({ at: [x, y] as [number, number], turn: 0, scale: 1 });
     expect(clip.pieces[0]!.fills).toEqual({ '': { color: 'blue' } });
 
-    const other = rops.pastePieces(rops.newRosette('O'), clip, lookup, [5, 5]);
+    const other = rops.pastePieces(rops.newRosette('O'), clip, lookup, at(5, 5));
     expect(other.rosette.pieces[0]!.at).toEqual([5, 5]);
     expect(other.rosette.colorings[0]!.fills[other.ids[0]!]).toEqual({ color: 'blue' });
 
-    const back = rops.pastePieces(r, clip, lookup, [1.5, 0.5]);
+    const back = rops.pastePieces(r, clip, lookup, at(1.5, 0.5));
     const id = back.ids[0]!;
     expect(back.rosette.colorings.map((k) => k.fills[id])).toEqual([
       { color: 'red' },
@@ -238,10 +231,14 @@ describe('EPP selection in a rosette', () => {
     ]);
   });
 
-  it('a copied placed rosette pastes into a rosette as its pieces', () => {
+  it('a duplicated placed rosette goes into a rosette as its pieces', () => {
     const { q, ids } = sample();
     const clip = copyPieces(q, new Set([ids[2]!]), [6, 0]);
-    const out = rops.pastePieces(rops.newRosette('O'), clip, lookup, [0, 0]);
+    const out = rops.pastePieces(rops.newRosette('O'), clip, lookup, {
+      at: [0, 0],
+      turn: 0,
+      scale: 1,
+    });
     expect(out.ids).toHaveLength(7);
   });
 });

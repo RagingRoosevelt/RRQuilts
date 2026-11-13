@@ -23,8 +23,6 @@ export interface ViewportOptions {
   onDragStart?: (p: World, e: PointerEvent) => boolean;
   onDrag?: (p: World, e: PointerEvent) => void;
   onDragEnd?: (p: World, e: PointerEvent) => void;
-  /** A finger or pen held still (no tap follows). */
-  onLongPress?: (p: World, e: PointerEvent) => void;
 }
 
 export function useViewport(o: ViewportOptions) {
@@ -87,11 +85,6 @@ export function useViewport(o: ViewportOptions) {
   let start: (P & { mode: 'pending' | 'pan' | 'drag' | 'none' }) | null = null;
   let pinch: { dist: number; view: View; mid: P } | null = null;
   const two = () => [...pointers.values()] as [P, P];
-  let press = 0;
-  const unpress = () => {
-    clearTimeout(press);
-    press = 0;
-  };
 
   function down(e: PointerEvent) {
     o.canvas.value!.setPointerCapture(e.pointerId);
@@ -108,16 +101,7 @@ export function useViewport(o: ViewportOptions) {
       start = null;
     } else {
       start = { ...p, mode: 'pending' };
-      if (o.onLongPress && e.pointerType !== 'mouse') {
-        const s = start;
-        press = window.setTimeout(() => {
-          if (start !== s || s.mode !== 'pending') return;
-          s.mode = 'none';
-          o.onLongPress!(toWorld(s), e);
-        }, 500);
-      }
     }
-    if (pointers.size === 2) unpress();
   }
 
   function move(e: PointerEvent) {
@@ -140,7 +124,6 @@ export function useViewport(o: ViewportOptions) {
     }
     if (!start) return;
     if (start.mode === 'pending' && Math.hypot(p.x - start.x, p.y - start.y) > 6) {
-      unpress();
       const wantsPan = o.panOnly() || e.buttons !== 1;
       if (!wantsPan && o.onDragStart?.(toWorld(start), e)) start.mode = 'drag';
       else start.mode = wantsPan ? 'pan' : 'none';
@@ -155,7 +138,6 @@ export function useViewport(o: ViewportOptions) {
   }
 
   function up(e: PointerEvent) {
-    unpress();
     const p = local(e);
     const s = start;
     pointers.delete(e.pointerId);
@@ -167,7 +149,6 @@ export function useViewport(o: ViewportOptions) {
   }
 
   function cancel(e: PointerEvent) {
-    unpress();
     pointers.delete(e.pointerId);
     pinch = null;
     if (start?.mode === 'drag') o.onDragEnd?.(toWorld(local(e)), e);

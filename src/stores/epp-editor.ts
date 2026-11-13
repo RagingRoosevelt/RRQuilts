@@ -7,7 +7,8 @@ import type { Clip } from '@/model/epp/selection';
 import type { View } from '@/render/draw';
 
 export type ShapeTool = 'vertex' | 'edge' | 'angle' | 'lock' | 'delete' | 'line';
-export type RosetteTool = 'select' | 'place' | 'turn' | 'mirror' | 'erase' | 'close' | 'paint';
+export type RosetteTool =
+  'select' | 'place' | 'turn' | 'mirror' | 'mirrorY' | 'erase' | 'close' | 'paint';
 
 export const useEppEditorStore = defineStore('epp-editor', () => {
   const shapeTool = ref<ShapeTool>('vertex');

@@ -1,51 +1,49 @@
-// EPP multi-select (spec 051), shared by the rosette editor and an EPP quilt's Design tab: picking
-// (tap, Shift/Ctrl tap, box, press and hold then taps, Select all, Select same), the selection moved,
-// turned, mirrored, scaled and nudged as one (snapping by its outside edges), the outline round it,
-// and the keys. The page supplies its pieces and the edits that need its own model.
+// EPP multi-select (spec 051; owner, 2026-11-12), shared by the rosette editor and an EPP quilt's
+// Design tab: the Select tool picks and unpicks pieces by tapping and by a box dragged from empty
+// space, and a drag from a piece moves them all (snapping by their outside edges). The rail's own
+// buttons, the sidebar's Scale and Duplicate act on the selection through `turn`, `flip`, `remove`,
+// `scaleTo` and `duplicate`.
 import { useQuasar } from 'quasar';
-import type { SessionRestore } from '@/editor/undo';
-import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import type { Decor } from '@/components/EppCanvas.vue';
+import type { SessionRestore } from '@/editor/undo';
 import { bbox, type Edge, type Poly } from '@/model/epp/geometry';
 import {
   boxPick,
+  centre,
+  DUPLICATE_ID,
   middle,
   moveGroup,
   movePose,
-  scaleStep,
+  scaleOf,
+  scaleTo as scaleFactor,
   snapGroup,
-  toBack,
-  toFront,
   type Clip,
   type Placed,
 } from '@/model/epp/selection';
 import { landsOver, nextTurn, snap, staticEdges } from '@/model/epp/snap';
 import type { Pt } from '@/model/geometry/path';
-import type { Fill } from '@/model/schema/coloring';
 import { useEppEditorStore } from '@/stores/epp-editor';
 
 export type ItemsFn = <T extends Placed>(items: readonly T[]) => T[];
 
 export interface SelectionHost {
   items: () => readonly Placed[];
-  /** Drawn polygons in order, each with the item it belongs to and its fill. */
-  leaves: () => readonly { item: string; poly: Poly; fill?: Fill | undefined }[];
+  /** Drawn polygons in order, each with the item it belongs to. */
+  leaves: () => readonly { item: string; poly: Poly }[];
   /** One undo step per call (or per `coalesce` key, for drags). */
   update: (fn: ItemsFn, coalesce?: string) => void;
   /** CSS pixels → units. */
   px: (n: number) => number;
-  /** What an item is (its shape or rosette), for Select same. */
-  kindOf: (id: string) => string | undefined;
   /** Corners of an item's shape: a free turn is 360° / that. */
   sides: (id: string) => number;
   gridStep: () => number;
   /** The Design view is showing and editable. */
   active: () => boolean;
-  hover: () => Pt | null;
   remove: (ids: ReadonlySet<string>) => void;
-  copy: (ids: ReadonlySet<string>, mid: Pt) => Clip;
-  /** Pastes and returns the new pieces' ids (selected next). */
-  paste: (clip: Clip, at: Pt) => string[];
+  copy: (ids: ReadonlySet<string>, centre: Pt) => Clip;
+  /** After Duplicate: the page goes to placing it. */
+  duplicated: () => void;
 }
 
 const RAD = Math.PI / 180;
@@ -64,22 +62,13 @@ type Drag =
     }
   | { kind: 'box'; a: Pt; b: Pt; touched: boolean; base: ReadonlySet<string> };
 
-type Mods = { shiftKey?: boolean; ctrlKey?: boolean; metaKey?: boolean };
-
 export function useEppSelection(h: SelectionHost) {
   const epp = useEppEditorStore();
   const $q = useQuasar();
-  /** Touch: after press and hold, taps add or remove pieces until Done. */
-  const adding = ref(false);
-  /** The piece picked last (Select same goes by it). */
-  let last: string | null = null;
 
   const set = (next: Iterable<string>) => (epp.selection = new Set(next));
   const has = (id: string) => epp.selection.has(id);
-  const clear = () => {
-    set([]);
-    adding.value = false;
-  };
+  const clear = () => set([]);
   const toggle = (id: string) => {
     const s = new Set(epp.selection);
     if (s.has(id)) s.delete(id);
@@ -96,13 +85,6 @@ export function useEppSelection(h: SelectionHost) {
       set([...epp.selection].filter((i) => live.has(i)));
   });
 
-  const polysOf = (inSel: boolean) =>
-    h
-      .leaves()
-      .filter((l) => has(l.item) === inSel)
-      .map((l) => l.poly);
-  const pivot = () => middle(polysOf(true));
-
   /** For an edit's undo step: undo brings back the selection from before it, redo the one after. */
   function session(): SessionRestore {
     const before = epp.selection;
@@ -116,35 +98,18 @@ export function useEppSelection(h: SelectionHost) {
     };
   }
 
-  // --- Picking ---
-  function pick(item: string | null, e?: Mods) {
-    const more = adding.value || e?.shiftKey || e?.ctrlKey || e?.metaKey;
-    if (!item) return void (more || clear());
-    last = item;
-    if (more) toggle(item);
-    else set([item]);
-  }
-  /** Press and hold on a piece: multi-select starts with it. */
-  function hold(item: string | null) {
-    if (!item) return;
-    adding.value = true;
-    last = item;
-    if (!has(item)) toggle(item);
-  }
-  const all = () => set(h.items().map((p) => p.id));
-  function same(by: 'shape' | 'fill') {
-    const anchor = last && has(last) ? last : [...epp.selection][0];
-    if (!anchor) return;
-    if (by === 'shape') {
-      const k = h.kindOf(anchor);
-      return set(h.items().flatMap((p) => (h.kindOf(p.id) === k ? [p.id] : [])));
-    }
-    const key = (f: Fill | undefined) => JSON.stringify(f ?? null);
-    const want = key(h.leaves().find((l) => l.item === anchor)?.fill);
-    set(new Set(h.leaves().flatMap((l) => (key(l.fill) === want ? [l.item] : []))));
-  }
+  const polysOf = (inSel: boolean) =>
+    h
+      .leaves()
+      .filter((l) => has(l.item) === inSel)
+      .map((l) => l.poly);
+  const pivot = () => middle(polysOf(true));
 
-  // --- Actions, one undo step each ---
+  /** A tap with the Select tool: a piece joins or leaves; empty space clears. */
+  const pick = (item: string | null) => (item ? toggle(item) : clear());
+  const all = () => set(h.items().map((p) => p.id));
+
+  // --- Acting on the selection, one undo step each ---
   function turn() {
     const sel = epp.selection;
     if (!sel.size) return;
@@ -152,7 +117,7 @@ export function useEppSelection(h: SelectionHost) {
     const along = nextTurn(polysOf(true), staticEdges(polysOf(false)));
     if (along) return h.update((xs) => snapGroup(xs, sel, along));
     const c = pivot();
-    const step = 360 / h.sides(last && sel.has(last) ? last : [...sel][0]!);
+    const step = 360 / h.sides([...sel][0]!);
     h.update((xs) => moveGroup(xs, sel, { pivot: c, turn: step }));
   }
   function flip(axis: 'x' | 'y') {
@@ -161,52 +126,41 @@ export function useEppSelection(h: SelectionHost) {
     const c = pivot();
     h.update((xs) => moveGroup(xs, sel, { pivot: c, flip: axis }));
   }
-  function resize(dir: 1 | -1) {
+  /** The sidebar's Scale with a selection: the smallest piece's scale. */
+  const size = computed(() => scaleOf(h.items(), epp.selection));
+  function scaleTo(v: number) {
     const sel = epp.selection;
-    const k = scaleStep(h.items(), sel, dir);
+    const k = scaleFactor(h.items(), sel, v);
     if (k === null)
       return void $q.notify({
-        message: `The pieces can’t all go a size ${dir > 0 ? 'bigger' : 'smaller'} (sizes are whole, 1 to 4).`,
+        message: 'The selected pieces can’t all take that size (sizes are whole, 1 to 4).',
         timeout: 2000,
       });
+    if (k === 1) return;
     const c = pivot();
-    h.update((xs) => moveGroup(xs, sel, { pivot: c, scale: k }));
+    h.update((xs) => moveGroup(xs, sel, { pivot: c, scale: k }), 'epp-selection-scale');
   }
   function nudge(dx: number, dy: number) {
     const sel = epp.selection;
     h.update((xs) => moveGroup(xs, sel, { move: [dx, dy] }));
   }
-  const front = () => h.update((xs) => toFront(xs, epp.selection));
-  const back = () => h.update((xs) => toBack(xs, epp.selection));
   function remove() {
     h.remove(epp.selection);
     clear();
   }
-  function copy() {
-    const n = epp.selection.size;
-    if (!n) return;
-    epp.clip = h.copy(epp.selection, pivot());
-    $q.notify({ message: `Copied ${n} ${n === 1 ? 'piece' : 'pieces'}.`, timeout: 1000 });
-  }
-  function paste() {
-    const clip = epp.clip;
-    if (!clip) return;
-    const at = h.hover() ?? [clip.middle[0] + 1, clip.middle[1] + 1];
-    set(h.paste(clip, at));
-  }
-  /** A copy beside the selection, selected (the clipboard keeps what it had). */
+  /** The selection as the picker's temporary rosette (replacing the last one), picked to place. */
   function duplicate() {
     if (!epp.selection.size) return;
-    const c = pivot();
-    set(h.paste(h.copy(epp.selection, c), [c[0] + 1, c[1] + 1]));
+    epp.clip = h.copy(epp.selection, centre(polysOf(true)));
+    epp.picked = DUPLICATE_ID;
+    h.duplicated();
   }
 
-  // --- Drags: the selection moved, or a box drawn ---
+  // --- Drags with the Select tool: from a piece the selection moves, from empty space a box ---
   const drag = shallowRef<Drag | null>(null);
   const snapTarget = ref<Edge | null>(null);
-  /** A drag from a piece moves the selection (the piece first joins it, or replaces it). */
-  function startMove(p: Pt, item: string, e: Mods) {
-    if (!has(item)) pick(item, e);
+  function startMove(p: Pt, item: string) {
+    if (!has(item)) toggle(item);
     const sel = epp.selection;
     const statics = polysOf(false);
     drag.value = {
@@ -219,15 +173,9 @@ export function useEppSelection(h: SelectionHost) {
       others: staticEdges(statics),
     };
   }
-  function startBox(p: Pt, e: Mods & { altKey?: boolean }) {
-    const more = adding.value || e.shiftKey || e.ctrlKey || e.metaKey;
-    drag.value = {
-      kind: 'box',
-      a: p,
-      b: p,
-      touched: !!e.altKey,
-      base: more ? epp.selection : new Set(),
-    };
+  /** The box adds what it picks (Alt: every piece it touches, not only those wholly inside). */
+  function startBox(p: Pt, e: { altKey?: boolean }) {
+    drag.value = { kind: 'box', a: p, b: p, touched: !!e.altKey, base: epp.selection };
   }
   function boxPicks(d: Extract<Drag, { kind: 'box' }>) {
     const leaves = h.leaves();
@@ -286,6 +234,7 @@ export function useEppSelection(h: SelectionHost) {
     return !!was;
   }
 
+  /** The box being dragged, the outline round the selection, the edge it snaps to. */
   function decorate({ ctx, px }: Decor) {
     const d = drag.value;
     ctx.save();
@@ -335,9 +284,7 @@ export function useEppSelection(h: SelectionHost) {
       return clear();
     }
     if (mod && k === 'a') return void (e.preventDefault(), all());
-    if (mod && k === 'v' && epp.clip) return void (e.preventDefault(), paste());
     if (!epp.selection.size) return;
-    if (mod && k === 'c') return void (e.preventDefault(), copy());
     if (mod && k === 'd') return void (e.preventDefault(), duplicate());
     if (k === 'delete' || k === 'backspace') return void (e.preventDefault(), remove());
     const a = ARROWS[k];
@@ -352,27 +299,19 @@ export function useEppSelection(h: SelectionHost) {
 
   return {
     session,
-    adding,
     has,
     pick,
-    hold,
-    all,
     clear,
-    same,
     turn,
     flip,
-    resize,
-    front,
-    back,
+    size,
+    scaleTo,
     remove,
-    copy,
-    paste,
     duplicate,
     startMove,
     startBox,
     onDrag,
     onDragEnd,
     decorate,
-    dragging: () => !!drag.value,
   };
 }
