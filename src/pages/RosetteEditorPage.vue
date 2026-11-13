@@ -836,10 +836,6 @@ const sel = useEppSelection({
   leaves: () => leaves.value.map((l) => ({ item: l.part!, poly: l.poly })),
   update: (fn, coalesce) => edit((r) => ({ ...r, pieces: fn(r.pieces) }), coalesce),
   px,
-  sides: (pid) => {
-    const s = rosette.value?.pieces.find((x) => x.id === pid)?.shape;
-    return (s && lookup.value.shape(s)?.outline.length) || 4;
-  },
   gridStep: () => lattice.value.step,
   active: () => tab.value === 'design' && !ro.value,
   remove: (ids) => edit((r) => removePieces(r, ids)),

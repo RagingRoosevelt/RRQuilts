@@ -12,16 +12,16 @@ import {
   boxPick,
   centre,
   DUPLICATE_ID,
-  middle,
+  flipEach,
   moveGroup,
   movePose,
   scaleOf,
   scaleTo as scaleFactor,
-  snapGroup,
+  turnStep,
   type Clip,
   type Placed,
 } from '@/model/epp/selection';
-import { landsOver, nextTurn, snap, staticEdges } from '@/model/epp/snap';
+import { landsOver, snap, staticEdges } from '@/model/epp/snap';
 import type { Pt } from '@/model/geometry/path';
 import { useEppEditorStore } from '@/stores/epp-editor';
 
@@ -35,8 +35,6 @@ export interface SelectionHost {
   update: (fn: ItemsFn, coalesce?: string) => void;
   /** CSS pixels → units. */
   px: (n: number) => number;
-  /** Corners of an item's shape: a free turn is 360° / that. */
-  sides: (id: string) => number;
   gridStep: () => number;
   /** The Design view is showing and editable. */
   active: () => boolean;
@@ -103,28 +101,29 @@ export function useEppSelection(h: SelectionHost) {
       .leaves()
       .filter((l) => has(l.item) === inSel)
       .map((l) => l.poly);
-  const pivot = () => middle(polysOf(true));
+  /** Where the selection turns and scales: its corners' mean, so turns come back round exactly. */
+  const pivot = () => centre(polysOf(true));
 
   /** A tap with the Select tool: a piece joins or leaves; empty space clears. */
   const pick = (item: string | null) => (item ? toggle(item) : clear());
   const all = () => set(h.items().map((p) => p.id));
 
   // --- Acting on the selection, one undo step each ---
+  /** One step: 360° over the lcm of the picked shapes' and rosettes' own turn stops. */
   function turn() {
     const sel = epp.selection;
     if (!sel.size) return;
-    // Snapped: to the next edge that fits the same neighbor, as one piece turns.
-    const along = nextTurn(polysOf(true), staticEdges(polysOf(false)));
-    if (along) return h.update((xs) => snapGroup(xs, sel, along));
+    const byItem = new Map<string, Poly[]>();
+    for (const l of h.leaves())
+      if (sel.has(l.item)) byItem.set(l.item, [...(byItem.get(l.item) ?? []), l.poly]);
     const c = pivot();
-    const step = 360 / h.sides([...sel][0]!);
+    const step = turnStep([...byItem.values()]);
     h.update((xs) => moveGroup(xs, sel, { pivot: c, turn: step }));
   }
+  /** Each picked piece flips where it is. */
   function flip(axis: 'x' | 'y') {
     const sel = epp.selection;
-    if (!sel.size) return;
-    const c = pivot();
-    h.update((xs) => moveGroup(xs, sel, { pivot: c, flip: axis }));
+    if (sel.size) h.update((xs) => flipEach(xs, sel, axis));
   }
   /** The sidebar's Scale with a selection: the smallest piece's scale. */
   const size = computed(() => scaleOf(h.items(), epp.selection));

@@ -719,10 +719,6 @@ const sel = useEppSelection({
   update: (fn, coalesce) =>
     edit((q) => ({ ...q, epp: { ...q.epp!, pieces: fn(q.epp?.pieces ?? []) } }), coalesce),
   px,
-  sides: (id) => {
-    const p = pieces.value.find((x) => x.id === id);
-    return p?.shape ? (lookup.value.shape(p.shape)?.outline.length ?? 4) : 6;
-  },
   gridStep: () => lattice.value.step,
   active: () => !ro.value,
   remove: (ids) => edit((q) => removePieces(q, ids)),

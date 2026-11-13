@@ -16,15 +16,15 @@ import {
   boxPick,
   centre,
   DUPLICATE_ID,
-  middle,
+  flipEach,
   moveGroup,
   movePose,
   scaleOf,
   scaleTo,
-  snapGroup,
+  turnStep,
+  turnStops,
   type Placed,
 } from '@/model/epp/selection';
-import { snapPose, type Snap } from '@/model/epp/snap';
 import type { Quilt } from '@/model/schema/quilt';
 
 const { shapes, rosettes } = eppStarters();
@@ -99,23 +99,44 @@ describe('EPP selection moves as one', () => {
     expect(scaleOf(two, new Set())).toBeNull();
   });
 
-  it('a snap moves every selected piece as snapPose moves one', () => {
-    const s: Snap = {
-      rot: 0.3,
-      move: [1, -2],
-      score: 0,
-      target: [
-        [0, 0],
-        [1, 0],
-      ],
-    };
-    const out = snapGroup(two, ab, s);
-    for (const i of [0, 1]) {
-      const want = snapPose(two[i]!, s);
-      expect(out[i]!.at[0]).toBeCloseTo(want.at[0]);
-      expect(out[i]!.at[1]).toBeCloseTo(want.at[1]);
-      expect(out[i]!.turn).toBeCloseTo((want.turn + 360) % 360);
+  it('Mirror flips each picked piece where it is (owner, 2026-11-12), not the group', () => {
+    for (const flip of ['x', 'y'] as const) {
+      const out = flipEach(two, ab, flip);
+      for (const i of [0, 1]) {
+        const p = two[i]!;
+        const was = place(jewel, p);
+        const want = was.map(([x, y]): [number, number] =>
+          flip === 'x' ? [2 * p.at[0] - x, y] : [x, 2 * p.at[1] - y],
+        );
+        expect(out[i]!.at).toEqual(p.at);
+        expect(key([place(jewel, out[i]!)])).toEqual(key([want]));
+      }
+      expect(out[2]).toBe(two[2]);
     }
+  });
+
+  it('turn stops: hexagon 6, octagon 8, square 4, triangle and diamond 6, Hexi Kite 12', () => {
+    const at = { at: [0, 0] as [number, number], turn: 17, scale: 1 };
+    const stops = (id: string) => turnStops([place(shapes.find((s) => s.id === id)!.outline, at)]);
+    expect(stops('rrquilts.epp-hexagon')).toBe(6);
+    expect(stops('rrquilts.epp-octagon')).toBe(8);
+    expect(stops(sqId)).toBe(4);
+    expect(stops('rrquilts.epp-triangle')).toBe(6);
+    expect(stops('rrquilts.epp-60-diamond')).toBe(6);
+    expect(stops('rrquilts.epp-hexi-kite')).toBe(12);
+    // A rosette counts its pieces together: the Six-Diamond Star turns in sixths.
+    const star = rosettes.find((r) => r.notecard.name === 'Six-Diamond Star')!;
+    const leaves = expand({ id: 's', rosette: star.id, ...at }, lookup).map((l) => l.poly);
+    expect(turnStops(leaves)).toBe(6);
+  });
+
+  it('a group turns in steps of 360° over the lcm of its items’ stops', () => {
+    const at = { at: [0, 0] as [number, number], turn: 0, scale: 1 };
+    const poly = (id: string) => [place(shapes.find((s) => s.id === id)!.outline, at)];
+    const hex = poly('rrquilts.epp-hexagon');
+    expect(turnStep([hex, poly('rrquilts.epp-octagon')])).toBe(15); // lcm(6, 8) = 24
+    expect(turnStep([hex, poly(sqId)])).toBe(30); // lcm(6, 4) = 12
+    expect(turnStep([hex, hex])).toBe(60);
   });
 
   it('a move with nothing to do leaves the pose as it was (no mirror flag added)', () => {
@@ -133,8 +154,6 @@ describe('EPP selection picking and order', () => {
   it('a box picks pieces wholly inside, or with Alt every piece it touches', () => {
     expect(boxPick(polys, [-0.1, -0.1, 1.2, 1.2])).toEqual([0]);
     expect(boxPick(polys, [-0.1, -0.1, 1.2, 1.2], true)).toEqual([0, 1]);
-    const [mx, my] = middle(polys.slice(0, 2));
-    expect([mx, my].map((v) => +v.toFixed(9))).toEqual([1, 0.5]);
   });
 });
 

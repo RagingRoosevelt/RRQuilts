@@ -4,8 +4,7 @@
 import { add, mul, sub, type Pt } from '../geometry/path';
 import type { Fill } from '../schema/coloring';
 import type { EppPiece, InternalShape } from '../schema/epp';
-import { bbox, overlaps, rot, type Poly } from './geometry';
-import type { Snap } from './snap';
+import { edges, overlaps, rot, type Poly } from './geometry';
 
 const RAD = Math.PI / 180;
 
@@ -68,12 +67,49 @@ export const moveGroup = <T extends Placed>(
   g: GroupMove,
 ): T[] => items.map((p) => (ids.has(p.id) ? movePose(p, g) : p));
 
-/** The selection after a snap of its polygons (a turn about the origin, then a move). */
-export const snapGroup = <T extends Placed>(
+/** Mirror on picked pieces (owner, 2026-11-12): each one flips where it is, not the group. */
+export const flipEach = <T extends Placed>(
   items: readonly T[],
   ids: ReadonlySet<string>,
-  s: Snap,
-) => moveGroup(items, ids, { turn: s.rot / RAD, move: s.move });
+  flip: 'x' | 'y',
+): T[] => items.map((p) => (ids.has(p.id) ? movePose(p, { pivot: p.at, flip }) : p));
+
+const gcd = (a: number, b: number): number => (b < 1e-3 ? a : gcd(b, a % b));
+
+/**
+ * Stops in a full turn for one item (a shape, or a rosette's pieces together): 360° over the
+ * largest angle that steps between all its edge directions (as lines). Hexagon 6, octagon 8, square
+ * 4, triangles and 60° diamonds 6, the Hexi Kite 12.
+ * shortcut: a shape whose edges meet at odd angles (finer than 15°) counts its corners instead.
+ */
+export function turnStops(polys: readonly Poly[]): number {
+  const dirs = polys
+    .flatMap((p) => edges(p))
+    .filter(([a, b]) => Math.hypot(b[0] - a[0], b[1] - a[1]) > 1e-9)
+    .map(([a, b]) => Math.atan2(b[1] - a[1], b[0] - a[0]) / RAD);
+  if (!dirs.length) return 1;
+  let g = 180;
+  for (const d of dirs) {
+    const diff = Math.round(((((d - dirs[0]!) % 180) + 180) % 180) * 1000) / 1000;
+    if (diff > 1e-3 && diff < 180 - 1e-3) g = gcd(g, diff);
+  }
+  const n = Math.round(360 / g);
+  return n > 24 ? polys[0]!.length : n;
+}
+
+/**
+ * Turn on picked pieces (owner, 2026-11-12: "rotate should be based on the least common multiple
+ * among the rosettes / shapes in the group"): degrees per step, 360° over the lcm of each item's
+ * `turnStops`.
+ */
+export function turnStep(items: readonly (readonly Poly[])[]): number {
+  let n = 1;
+  for (const polys of items) {
+    const k = turnStops(polys);
+    n = Math.min(360, (n / Math.round(gcd(n, k))) * k);
+  }
+  return 360 / n;
+}
 
 /** The selection's size: its smallest piece's scale (the sidebar's Scale shows it). */
 export function scaleOf(items: readonly Placed[], ids: ReadonlySet<string>): number | null {
@@ -95,12 +131,6 @@ export function scaleTo(
   const k = size / m;
   const ok = (s: number) => Math.abs(s - Math.round(s)) < 1e-9 && s > 0.5 && s < 4.5;
   return items.every((p) => !ids.has(p.id) || ok(p.scale * k)) ? k : null;
-}
-
-/** The middle of polygons (of their bounds): where a selection turns, mirrors and scales. */
-export function middle(polys: readonly Poly[]): Pt {
-  const [x0, y0, x1, y1] = bbox(polys);
-  return [(x0 + x1) / 2, (y0 + y1) / 2];
 }
 
 /** The mean of polygons' corners: where a placed rosette, and so a duplicate, is centered. */

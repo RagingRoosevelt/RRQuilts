@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-29
 
-**Status**: Built 2026-11-12 on `027-epp-layouts` (tasks T059-T061, T082; checklist TC-291), then
+**Status**: Built 2026-11-12 on `027-epp-layouts` (tasks T059-T061, T082, T083; checklist TC-292), then
 reworked the same day to the owner's design below. Details spec 027 User Story 2, scenario 6
 (groups) and FR-005.
 
@@ -30,6 +30,12 @@ rotated together, etc). stamps should be able to be included in that multi-selec
   sidebar that can then be placed (until a new temporary virtual rosette is made). this isn't an
   actual entity, just a collection of whatever items were mutli-selected." Then: "let's just have
   two buttons for mirror-x and mirror-y".
+  Then: "the flip tools should flip the pieces individually, not as a group. rotate should still
+  function for the group, though. and rotate should be based on the least common multiple among
+  the rosettes / shapes in the group (if you have a hex and an octogon selected then there should
+  be 3*2*2 = 12 rotation points)". Each item's stops come from its edge directions (hexagon 6,
+  octagon 8, square 4, triangles and 60° diamonds 6); the lcm of a hexagon and an octagon is 24
+  (15° steps), a hexagon and a square 12 (30°), noted to the owner.
   Dropped with the bar: Shift/Ctrl taps, press and hold, Select same, copy and paste, bring forward
   and send back, and Make rosette in quilts (rosettes are made in the rosette editor or the shape
   editor's Multi-shape mode, spec 050).
@@ -77,11 +83,15 @@ turn around the selection's middle, still joined.
    selection to equal edges (or whole-unit runs) of the others, as a rosette does (spec 050, spec 027
    FR-003). Edges between selected pieces don't snap to anything.
 3. **Given** pieces picked, **When** the rail's **Turn** button is pressed, **Then** the selection
-   turns around its middle, to the next edge that fits a neighbor it's snapped to, or by one corner
-   step off snap. (With the Turn tool, a tap on a picked piece does the same.)
+   turns as one around its middle (the mean of its corners, so a full round of turns comes back
+   exactly) by 360° over the least common multiple of each picked shape's or rosette's turn stops
+   (an item's stops: 360° over the largest angle that steps between all its edge directions, as
+   lines). A hexagon and an octagon turn in 15° steps, a hexagon and a square in 30°, hexagons alone
+   in 60°. (With the Turn tool, a tap on a picked piece does the same.)
 4. **Given** pieces picked, **When** **Mirror left to right** or **Mirror up and down** is pressed
-   (two buttons, also for single pieces with a tap), **Then** the whole selection mirrors about its
-   middle; mirrored shapes follow spec 027 (printed as their own or reversed templates).
+   (two buttons, also for single pieces with a tap), **Then** each picked piece flips where it
+   is, not the group (owner, 2026-11-12); mirrored shapes follow spec 027 (printed as their own or
+   reversed templates).
 5. **Given** pieces picked, **Then** the sidebar's **Scale** shows the smallest picked piece's size,
    and changing it sets that size, the others and their positions in proportion around the
    middle, so the arrangement keeps its joins (sizes stay whole, 1 to 4: a size some piece can't
@@ -124,9 +134,10 @@ turn around the selection's middle, still joined.
 - **FR-001**: The EPP editors MUST support multi-select of placed shapes and placed rosettes with a
   Select tool: tap to pick or unpick, a box dragged from empty space, Select all; no toolbar of
   its own (owner, 2026-11-12).
-- **FR-002**: A selection MUST move, turn (around its middle), mirror (left to right, up and down),
-  scale (the sidebar's Scale) and nudge as one, keeping its arrangement, with one undo step per
-  action; the rail's existing buttons act on it.
+- **FR-002**: A selection MUST move, turn (around its middle, in steps from the lcm of its items'
+  turn stops), scale (the sidebar's Scale) and nudge as one, keeping its arrangement; mirror (left
+  to right, up and down) flips each picked piece in place. One undo step per action; the rail's
+  existing buttons act on it.
 - **FR-003**: A selection MUST snap by its outside edges only, exactly as a rosette does.
 - **FR-004**: Delete, paint, Break into patches and Duplicate (a temporary rosette in the picker, never
   saved, replaced by the next one) MUST work on a selection.
@@ -136,7 +147,7 @@ turn around the selection's middle, still joined.
 
 - **SC-001**: A quilter selects a flower of seven hexagons in one box drag and moves it to the other
   side of the quilt, snapped, in under 10 seconds.
-- **SC-002**: Turning and mirroring a selection never changes which of its pieces share an edge.
+- **SC-002**: Turning a selection never changes which of its pieces share an edge.
 
 ## Assumptions
 
