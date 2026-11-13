@@ -35,7 +35,8 @@ rotated together, etc). stamps should be able to be included in that multi-selec
   the rosettes / shapes in the group (if you have a hex and an octogon selected then there should
   be 3*2*2 = 12 rotation points)". Each item's stops come from its edge directions (hexagon 6,
   octagon 8, square 4, triangles and 60° diamonds 6); the lcm of a hexagon and an octagon is 24
-  (15° steps), a hexagon and a square 12 (30°), noted to the owner.
+  (15° steps), a hexagon and a square 12 (30°). Owner, 2026-11-12: "24 steps for a hex+oct is
+  right".
   Dropped with the bar: Shift/Ctrl taps, press and hold, Select same, copy and paste, bring forward
   and send back, and Make rosette in quilts (rosettes are made in the rosette editor or the shape
   editor's Multi-shape mode, spec 050).
