@@ -424,12 +424,12 @@
 import type { RrqDoc } from '@/model/schema/project';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import TintPicker from '@/components/TintPicker.vue';
-import { computed, ref, watch } from 'vue';
+import { computed, watch } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import HelpLink from '@/components/HelpLink.vue';
 import LengthInput from '@/components/LengthInput.vue';
+import { useBlockPrintSize } from '@/composables/block-print-size';
 import { generateFor } from '@/model/layout/slots';
-import { fmtLen } from '@/model/print/format';
 import {
   FABRIC_STEPS,
   PAPERS,
@@ -575,29 +575,13 @@ const setSections = (v: string[]) =>
         ? set('blockSections', v as PrintPrefs['blockSections'])
         : set('quiltSections', v as PrintPrefs['quiltSections']);
 
-// Block size: its own, as used in a quilt (counts from that quilt), or custom.
-const block = computed(() =>
-  (props.doc ?? project.doc)!.project.blocks.find((b) => b.id === props.id),
+// Block size: its own, as used in a quilt (counts from that quilt), or custom. Blocks only: the
+// steps printout may come from a project that isn't open.
+const { block, sizeOptions, sizeSource, custom, fromQuilt } = useBlockPrintSize(
+  () => props.id,
+  () => props.kind === 'block',
+  () => props.doc ?? project.doc,
 );
-const fmtSize = (s: [number, number]) =>
-  `${fmtLen(s[0], units.value)} × ${fmtLen(s[1], units.value)}`;
-// Blocks only: the steps printout may come from a project that isn't open.
-const quiltSizes = computed(() =>
-  (props.kind === 'block' ? project.doc!.project.quilts : []).flatMap((q) => {
-    const slot = generateFor(q).slots.find((s) => q.layers[0].slots[s.id]?.block === props.id);
-    return slot ? [{ quilt: q, size: slot.size }] : [];
-  }),
-);
-const sizeOptions = computed(() => [
-  ...quiltSizes.value.map((u) => ({
-    value: `quilt:${u.quilt.id}`,
-    label: `As in “${u.quilt.notecard.name}” (${fmtSize(u.size)})`,
-  })),
-  ...(block.value ? [{ value: 'own', label: `Block size (${fmtSize(block.value.size)})` }] : []),
-  { value: 'custom', label: 'Custom size' },
-]);
-const sizeSource = ref(sizeOptions.value[0]!.value);
-const custom = ref<[number, number]>(block.value ? [...block.value.size] : [10, 10]);
 
 const LABELS = [
   { key: 'letter', label: 'Letter' },
@@ -609,8 +593,7 @@ const LABELS = [
 // What the preview prints (sent up whenever it changes).
 const target = computed<PrintTarget>(() => {
   if (props.kind !== 'block') return {};
-  const fromQuilt = quiltSizes.value.find((u) => `quilt:${u.quilt.id}` === sizeSource.value);
-  if (fromQuilt) return { quilt: fromQuilt.quilt.id };
+  if (fromQuilt.value) return { quilt: fromQuilt.value.quilt.id };
   const size = sizeSource.value === 'custom' ? custom.value : block.value!.size;
   return { size: [size[0], size[1]], coloring: props.coloringId };
 });

@@ -178,6 +178,13 @@ export const CHECKS: Check[] = [
     last: 'we want to require that the edges are actually the required shape, not the required shape only after cutting. so for example if it counts as a hexagon, it needs a perimeter with 6 fully straight edges.',
     to: '/project',
   },
+  {
+    id: 'TC-294',
+    group: G.epp027,
+    text: '3D-printed templates (STL), from the prototype into the app. Libraries › an EPP shape or rosette: click it, the preview has Preview and 3D print tabs; a rosette has a tab per shape. Block, rosette and quilt editors: a 3D Print tab right of Print, the template in the middle (drag to turn, scroll to zoom), the sidebar with Shape (which piece; a shape’s Size in U and 1U length; a block’s size; an EPP quilt’s 1U and seam allowance shown, not set), Template (Paper / Fabric, seam allowance, Trim points on by default, a note when a shape has nothing to trim) and Advanced (collapsed: height, floor, wall, radii, chamfers, text depth, Back to defaults). Text: Edge: and SA: for EPP shapes, Size: w × h and SA: for block and quilt pieces, SA: 0 on paper templates; 6 mm per inch of edge, then the biggest hole that fits (3/4 or 3/8 inch) above the text. Concave pieces (a Drunkard’s Path) say they can’t be made yet. Download STL and open it in your slicer: one closed solid.',
+    last: 'this implmentation looks good. let’s add it to the actual app with the following interfaces that use it: as the preview dialog when clicking on a shape or rosette (rosette should have a set of tabs to click through each of the shapes that make up the rosette); as a new 3D Print tab to the right of Print in the block, rosette, and quilt workbenches',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

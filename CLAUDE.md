@@ -240,6 +240,10 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - Print tabs: `components/PrintOptions.vue` (inspector) + `components/PrintPreview.vue` in place of
   the canvas (sheets at true size in SVG, zoomed to fit on screen). A second `printOnly` copy is
   teleported to `<body>`; `@media print` hides `#q-app`, so only sheets print. `@page` injected
+- 3D-printed templates (spec 027): `model/print/stl.ts` (`buildTemplate`: a convex outline in mm →
+  STL solid, debossed size and SA, hanging hole; letters from `stl-font.ts`, made by
+  `scripts/stl-font.py`), `composables/stl.ts` + `StlPreview.vue` / `StlOptions.vue` = the **3D Print**
+  tab (block, rosette, quilt editors) and the Libraries EPP preview
 
 ## Block editor (spec 007)
 

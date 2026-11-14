@@ -6,7 +6,7 @@ import type { DataKind } from '@/model/schema/block';
 import type { StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 
-export type Mode = 'layout' | 'borders' | 'design' | 'print' | 'details';
+export type Mode = 'layout' | 'borders' | 'design' | 'print' | 'print3d' | 'details';
 /** `number`: a data quilt's brush, placing numbers on block spaces; `entry`: its Data tab, a tap
  *  on a day's piece opens that day's entry (spec 025). */
 export type Tool =
@@ -23,7 +23,7 @@ export type Tool =
   | 'number'
   | 'entry';
 
-export type BlockMode = 'draw' | 'color' | 'print' | 'details';
+export type BlockMode = 'draw' | 'color' | 'print' | 'print3d' | 'details';
 export type BlockTool =
   'select' | 'node' | 'line' | 'arc' | 'grid' | 'pan' | 'paint' | 'spray' | 'eyedropper';
 

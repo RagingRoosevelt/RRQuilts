@@ -11,6 +11,7 @@
         <q-tab name="borders" icon="crop_square" label="Borders" />
         <q-tab name="design" icon="palette" label="Design" />
         <q-tab name="print" icon="print" label="Print" />
+        <q-tab name="print3d" icon="view_in_ar" label="3D Print" />
       </q-tabs>
       <HelpLink v-bind="help" />
       <q-btn
@@ -59,7 +60,7 @@
           <q-separator />
           <PrintZoom />
         </template>
-        <template v-if="editor.mode !== 'print'">
+        <template v-if="editor.mode !== 'print' && editor.mode !== 'print3d'">
           <q-btn
             flat
             dense
@@ -148,6 +149,7 @@
       </div>
 
       <PrintPreview v-if="editor.mode === 'print'" kind="quilt" :id="quilt.id" />
+      <StlPreview v-else-if="editor.mode === 'print3d'" :stl="stl" />
       <!-- Canvas -->
       <div v-else class="col relative-position">
         <QuiltCanvas
@@ -282,6 +284,7 @@
         />
         <DetailsPanel v-else-if="editor.mode === 'details'" kind="quilt" :id="quilt.id" />
         <PrintOptions v-else-if="editor.mode === 'print'" kind="quilt" :id="quilt.id" />
+        <StlOptions v-else-if="editor.mode === 'print3d'" :stl="stl" />
       </div>
     </div>
   </q-page>
@@ -328,6 +331,9 @@ import PaletteTray from '@/components/PaletteTray.vue';
 import { useRosetteBlocks } from '@/composables/rosette-blocks';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
+import StlOptions from '@/components/StlOptions.vue';
+import StlPreview from '@/components/StlPreview.vue';
+import { useStl } from '@/composables/stl';
 import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
@@ -366,6 +372,8 @@ const dataTypes = useDataTypes();
 const appSettings = useSettingsStore();
 
 const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === route.params.id));
+/** The 3D Print tab (spec 027): a template for each of the quilt's pieces. */
+const stl = useStl(() => (quilt.value ? { kind: 'quilt', id: quilt.value.id } : null));
 /** An EPP quilt (spec 027), and whether its edge is finished (borders need one). */
 const isEpp = computed(() => quilt.value?.layout.style === 'epp');
 const eppEdgeMade = computed(
@@ -431,6 +439,7 @@ const QUILT_HELP: Record<string, { topic: string; label: string }> = {
   borders: { topic: 'math/borders', label: 'Borders' },
   design: { topic: 'guides/designing-a-quilt', label: 'Designing a quilt' },
   print: { topic: 'guides/printing', label: 'Printing' },
+  print3d: { topic: 'guides/printing#3d-printed-templates', label: '3D-printed templates' },
 };
 const help = computed(() =>
   editor.mode === 'design' && quilt.value?.data?.on

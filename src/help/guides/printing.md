@@ -1,7 +1,7 @@
 ---
 title: Printing
 order: 90
-summary: Block templates, the rotary cutting chart, yardage, and mitered corner guides.
+summary: Block templates, the rotary cutting chart, yardage, mitered corner guides, and 3D-printed templates.
 ---
 
 Both editors have a **Print** tab. It replaces the canvas with a preview of the pages at true size, and puts the print options in the side panel.
@@ -42,3 +42,15 @@ Options are remembered in your settings. The numbers use the same formulas as th
 
 Fabrics print as their images, tiled at their real size, using the largest image on this device.
 Fabrics marked "≈" print at the default 8 in until you set their real size.
+
+## 3D-printed templates
+
+The block, rosette and quilt editors also have a **3D Print** tab. It makes a template you can print on a 3D printer and cut around: a tray with a raised rim, 4 mm high, with its size, its seam allowance and a hanging hole in the floor. In **Libraries**, click an EPP shape or rosette and choose **3D print**.
+
+1. Under **Shape**, pick the piece. A rosette has one template per shape, a block or quilt one per distinct piece. For an EPP shape, choose its **Size** in U and the **1U length**. A quilt's 1U and seam allowance come from the quilt.
+2. Under **Template**, choose **Paper (finished size)** to cut papers, or **Fabric (with seam allowance)** to cut fabric. Fabric templates trim points sharper than 90 degrees unless you untick **Trim points sharper than 90°**.
+3. Click **Download STL** and open the file in your 3D printer's slicer.
+
+The floor says `Edge:` and the edge length for EPP shapes, or `Size:` and the finished width and height for other pieces, then `SA:` and the seam allowance. Paper templates say `SA: 0`. The text is 6 mm for each inch of edge, smaller when it doesn't fit. The hanging hole is 3/4 in when it fits beside the text, else 3/8 in.
+
+**Advanced** holds the build: height, floor, outer wall, corner radii, edge chamfers and text depth, in millimeters. Pieces with an inward corner (an L shape, the inner curve of a Drunkard's Path) can't be made yet.

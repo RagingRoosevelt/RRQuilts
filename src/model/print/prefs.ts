@@ -1,6 +1,7 @@
 // Print preferences (app settings, spec 010). Values that differ by unit system are kept per system
 // and in that system's units: inches for `in`, centimeters for `cm`.
 import type { Units } from '../schema/project';
+import { STL_BUILD } from './stl';
 
 export type BlockSection = 'templates' | 'rotary' | 'picture';
 export type QuiltSection = 'picture' | 'blocks' | 'yardage' | 'rotary' | 'templates';
@@ -92,6 +93,8 @@ export const PRINT_DEFAULTS = {
   /** A rosette has no size: the length of 1U it prints at, and how many rosettes to cut for. */
   rosetteUnit: perUnits(1, 2.5),
   rosetteCount: 1,
+  /** 3D-printed templates (spec 027): fabric (else paper), trim points, and the build in mm. */
+  stl: { fabric: false, trim: true, ...STL_BUILD },
 };
 export type PrintPrefs = typeof PRINT_DEFAULTS;
 

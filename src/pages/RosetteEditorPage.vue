@@ -5,6 +5,7 @@
         <q-tab name="details" icon="info" label="Details" />
         <q-tab name="design" icon="hive" label="Design" />
         <q-tab name="print" icon="print" label="Print" />
+        <q-tab name="print3d" icon="view_in_ar" label="3D Print" />
       </q-tabs>
       <q-btn flat round dense icon="menu" :aria-label="sidebarLabel" @click="sidebar = !sidebar">
         <q-tooltip>{{ sidebarLabel }}</q-tooltip>
@@ -95,6 +96,7 @@
         :doc="project.doc"
         :target="{ coloring: coloringId }"
       />
+      <StlPreview v-else-if="tab === 'print3d'" :stl="stl" />
       <div v-else class="col relative-position column no-wrap">
         <EppCanvas
           ref="canvasRef"
@@ -116,6 +118,7 @@
       <div v-show="sidebar" class="inspector q-pa-md scroll column no-wrap" style="gap: 12px">
         <DetailsPanel v-if="tab === 'details'" kind="rosette" :id="rosette.id" />
         <PrintOptions v-else-if="tab === 'print'" kind="rosette" :id="rosette.id" />
+        <StlOptions v-else-if="tab === 'print3d'" :stl="stl" />
         <template v-else>
           <!-- As the quilt editor's Blocks / Colors: Colors is the Paint tool. -->
           <q-tabs
@@ -244,6 +247,9 @@ import SlidePicker from '@/components/SlidePicker.vue';
 import { ERASER } from '@/components/icons';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
+import StlOptions from '@/components/StlOptions.vue';
+import StlPreview from '@/components/StlPreview.vue';
+import { useStl } from '@/composables/stl';
 import PrintZoom from '@/components/PrintZoom.vue';
 import { useEppSelection } from '@/composables/epp-selection';
 import { DUPLICATE_ID, movePose } from '@/model/epp/selection';
@@ -306,7 +312,9 @@ const rosette = computed<Rosette | undefined>(
 );
 const ro = computed(() => project.readOnly || !own.value || isLibraryItem(own.value));
 
-const tab = ref<'details' | 'design' | 'print'>(route.query.print ? 'print' : 'design');
+const tab = ref<'details' | 'design' | 'print' | 'print3d'>(route.query.print ? 'print' : 'design');
+/** The 3D Print tab (spec 027): a template for each of the rosette's shapes. */
+const stl = useStl(() => (rosette.value ? { kind: 'rosette', id: rosette.value.id } : null));
 const sidebar = ref(!$q.screen.lt.md);
 const sidebarLabel = computed(() => (sidebar.value ? 'Hide sidebar' : 'Show sidebar'));
 const swapped = computed(() => app.settings.sidesSwapped);

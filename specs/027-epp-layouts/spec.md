@@ -329,8 +329,7 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
    templates: a paper template (finished size) and a fabric template (with seam allowance), so
    quilters can cut papers and fabric themselves.
 2. Owner, 2026-11-13 (prototype `prototypes/stl/template.html` on branch `proto/epp-stl`):
-   - Export from an EPP shape's preview, the rosette editor and the EPP quilt, with the size picked
-     as a number of U (1U to 4U) and the 1U length.
+   - An EPP shape's size is picked as a number of U (1U to 4U) and the 1U length.
    - Build: the outline extruded 4 mm, shelled with an open top 1.2 mm thick, walls brought in to
      4 mm, outside corners rounded 2 mm, pocket corners 6 mm, outer edges chamfered 0.4 mm, inner
      edges (4 − 1.2) / 2 mm.
@@ -339,6 +338,19 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
    - Text 0.6 mm deep, aiming for 6 mm per inch of edge (12 mm at 2"), smaller only to fit; then a
      hanging hole, 3/4" if it still fits, else 3/8", above the text if possible.
    - Fabric templates trim points sharper than 90° by default (the quilter can turn it off).
+3. Owner, 2026-11-13, in the app (built in 0.9.0):
+   - **Libraries**: clicking an EPP shape or rosette opens a preview (as library blocks do) with
+     **Preview** and **3D print** tabs; a rosette's 3D print has a tab per shape it's made of. In a
+     project, clicking a card still opens its editor.
+   - **3D Print** tab right of **Print** in the block, rosette and quilt editors: the template in
+     the middle, and the sidebar as other tabs: **Shape** (which piece; a shape's Size in U and 1U
+     length; a block's size), **Template** (paper or fabric, seam allowance, trim points) and
+     **Advanced** (collapsed: the build numbers above).
+   - Every template shows its nominal size and seam allowance: `Edge:` for EPP shapes, `Size: w × h`
+     (finished) for block and quilt pieces. A quilt's 1U (and an EPP quilt's seam allowance) come
+     from the quilt and aren't set here.
+   - Concave pieces (an L, a Drunkard's Path inner curve) are listed with a note and no template;
+     concave outlines come later.
 
 ### Edge Cases
 
@@ -443,7 +455,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   migration (spec 003); loaded EPP data is validated like the rest.
 - **FR-010** (later release): EPP designs MUST support joins between equal edges and a 3D view that
   folds the net, reports conflicting joins, and prints an assembly sheet.
-- **FR-011** (stretch): The app SHOULD export STL cutting templates for paper and fabric.
+- **FR-011** (stretch, built in 0.9.0): The app SHOULD export STL cutting templates for paper
+  and fabric (convex pieces; see the stretch goal story).
 - **FR-012**: Everything works offline; 3D rendering, any solver and STL export run in the app with
   no server calls.
 - **FR-013**: Libraries and projects MUST have an **EPP** section next to Blocks and Palettes, holding
@@ -514,5 +527,6 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 ## Out of Scope (first release)
 
 - Drawing custom shapes straight into the quilt design (shapes are made in the shape editor).
-- 3D designs (second release) and STL export (stretch).
+- 3D designs (second release). STL cutting templates were a stretch goal and came in 0.9.0 (convex
+  pieces).
 - Fussy-cutting fabric inside a piece, curved shapes, and appliqué onto a background.
