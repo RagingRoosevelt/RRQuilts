@@ -678,7 +678,8 @@ function draw() {
 }
 
 for (const n of Object.keys(SHAPES)) $('shape').add(new Option(n));
-document.querySelectorAll('input, select').forEach((el) => el.addEventListener('input', update));
+// Some browsers fire only `change` for checkboxes and radio buttons.
+document.querySelectorAll('input, select').forEach((el) => { el.addEventListener('input', update); el.addEventListener('change', update); });
 $('unit').addEventListener('change', () => {
   // Keep the sizes when switching units.
   const k = $('unit').value === 'mm' ? 25.4 : 1 / 25.4;
