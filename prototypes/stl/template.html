@@ -26,6 +26,7 @@
   .stats { color: var(--mute); }
   .ok { color: var(--ok); } .bad { color: var(--bad); }
   .note { color: var(--mute); font-size: 12px; }
+  .fab[hidden] { display: none; }
   svg text { fill: var(--fg); font-size: 11px; }
 </style>
 </head>
@@ -46,9 +47,9 @@
       <legend>Template</legend>
       <label><input type="radio" name="kind" value="paper" checked> Paper (finished size)</label>
       <label><input type="radio" name="kind" value="fabric"> Fabric (with seam allowance)</label>
-      <label class="row"><span>Seam allowance (<span id="seamUnit">in</span>)</span> <input id="seam" type="number" step="any" value="0.375"></label>
-      <label><input id="trim" type="checkbox"> Trim points sharper than 90°</label>
-      <div id="trimNote" class="note"></div>
+      <label class="row fab"><span>Seam allowance (<span id="seamUnit">in</span>)</span> <input id="seam" type="number" step="any" value="0.375"></label>
+      <label class="fab"><input id="trim" type="checkbox"> Trim points sharper than 90°</label>
+      <div id="trimNote" class="note fab"></div>
     </fieldset>
     <fieldset>
       <legend>Build (mm)</legend>
@@ -579,11 +580,11 @@ function update() {
   const fabric = document.querySelector('input[name=kind]:checked').value === 'fabric';
   const name = $('shape').value;
   let P = SHAPES[name].map(([x, y]) => [x * unit, y * unit]);
-  // Trimming only changes fabric templates of shapes with corners under 90° (it adds a point per trimmed corner).
-  const canTrim = fabric && seamOffset(P, seam * mm, true).length !== seamOffset(P, seam * mm, false).length;
-  $('seam').disabled = !fabric;
-  $('trim').disabled = !canTrim;
-  $('trimNote').textContent = !fabric ? 'Fabric templates only.' : canTrim ? '' : 'This shape has no corners sharper than 90°.';
+  // Seam allowance and trimming are fabric-only; trimming changes only shapes with corners under 90°
+  // (it adds a point per trimmed corner).
+  document.querySelectorAll('.fab').forEach((el) => (el.hidden = !fabric));
+  const canTrim = seamOffset(P, seam * mm, true).length !== seamOffset(P, seam * mm, false).length;
+  $('trimNote').textContent = canTrim ? '' : 'This shape has no corners sharper than 90°: nothing to trim.';
   if (fabric) P = ccw(seamOffset(P, seam * mm, $('trim').checked));
   $('seamUnit').textContent = $('unit').value;
   $('cIn').placeholder = `auto ${((params().height - params().floor) / 2).toFixed(2)}`;
@@ -707,6 +708,8 @@ cv.addEventListener('pointermove', (e) => {
 cv.addEventListener('pointerup', () => (dragFrom = null));
 cv.addEventListener('wheel', (e) => { e.preventDefault(); view.zoom = Math.min(8, Math.max(0.3, view.zoom * Math.exp(-e.deltaY * 0.001))); draw(); }, { passive: false });
 window.addEventListener('resize', draw);
+// After a reload the browser may restore the controls once the script has run: redraw to match them.
+window.addEventListener('pageshow', update);
 window.proto = { SHAPES, build, check, stl, seamOffset, ccw, view, get cur() { return cur; } };
 update();
 </script>
