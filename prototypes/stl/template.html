@@ -48,6 +48,7 @@
       <label><input type="radio" name="kind" value="fabric"> Fabric (with seam allowance)</label>
       <label class="row"><span>Seam allowance (<span id="seamUnit">in</span>)</span> <input id="seam" type="number" step="any" value="0.375"></label>
       <label><input id="trim" type="checkbox"> Trim points sharper than 90°</label>
+      <div id="trimNote" class="note"></div>
     </fieldset>
     <fieldset>
       <legend>Build (mm)</legend>
@@ -578,7 +579,12 @@ function update() {
   const fabric = document.querySelector('input[name=kind]:checked').value === 'fabric';
   const name = $('shape').value;
   let P = SHAPES[name].map(([x, y]) => [x * unit, y * unit]);
-  if (fabric) P = ccw(seamOffset(P, parseFloat($('seam').value) * mm, $('trim').checked));
+  // Trimming only changes fabric templates of shapes with corners under 90° (it adds a point per trimmed corner).
+  const canTrim = fabric && seamOffset(P, seam * mm, true).length !== seamOffset(P, seam * mm, false).length;
+  $('seam').disabled = !fabric;
+  $('trim').disabled = !canTrim;
+  $('trimNote').textContent = !fabric ? 'Fabric templates only.' : canTrim ? '' : 'This shape has no corners sharper than 90°.';
+  if (fabric) P = ccw(seamOffset(P, seam * mm, $('trim').checked));
   $('seamUnit').textContent = $('unit').value;
   $('cIn').placeholder = `auto ${((params().height - params().floor) / 2).toFixed(2)}`;
   const lines = [`Edge: ${fmt(edge, u)}`, fabric ? `SA: ${fmt(seam, u)}` : 'SA: 0'];
