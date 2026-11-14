@@ -18,7 +18,7 @@ length, download the STL, open it in a slicer.
 
 Paper templates use the finished shape. Fabric templates add the seam allowance the same way the
 app's print does (mitred corners, bevelled where a mitre would pass 4× the allowance, points
-sharper than 90° optionally trimmed).
+sharper than 90° trimmed by default).
 
 ## Text and hanging hole (owner, 2026-11-13)
 
