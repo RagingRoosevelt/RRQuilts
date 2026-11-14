@@ -336,8 +336,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
      edges (4 − 1.2) / 2 mm.
    - The edge size and seam allowance debossed in the floor in smooth letters (`Edge: 1"`,
      `SA: 3/8"`, or mm); paper templates say `SA: 0`, which marks them as paper.
-   - Text as big as fits up to 6 mm first, then a hanging hole, 3/4" if it still fits, else 3/8",
-     above the text if possible.
+   - Text 0.6 mm deep, aiming for 6 mm per inch of edge (12 mm at 2"), smaller only to fit; then a
+     hanging hole, 3/4" if it still fits, else 3/8", above the text if possible.
 
 ### Edge Cases
 
