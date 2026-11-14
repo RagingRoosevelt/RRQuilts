@@ -334,8 +334,10 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
    - Build: the outline extruded 4 mm, shelled with an open top 1.2 mm thick, walls brought in to
      4 mm, outside corners rounded 2 mm, pocket corners 6 mm, outer edges chamfered 0.4 mm, inner
      edges (4 − 1.2) / 2 mm.
-   - The edge size and seam allowance debossed in the floor (`Edge: 1"`, `SA: 3/8"`, or mm), and
-     a hanging hole, 3/8" or 3/4" depending on the template's size.
+   - The edge size and seam allowance debossed in the floor in smooth letters (`Edge: 1"`,
+     `SA: 3/8"`, or mm); paper templates say `SA: 0`, which marks them as paper.
+   - Text as big as fits up to 6 mm first, then a hanging hole, 3/4" if it still fits, else 3/8",
+     above the text if possible.
 
 ### Edge Cases
 
