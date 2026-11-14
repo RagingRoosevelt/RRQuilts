@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EPP template STL</title>
+<style>
+  :root { --bg: #fafafa; --fg: #222; --mute: #666; --line: #ddd; --accent: #1976d2; --bad: #c62828; --ok: #2e7d32; --solid: #5a96dc; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1e1e1e; --fg: #eee; --mute: #aaa; --line: #444; --accent: #64b5f6; --bad: #ef9a9a; --ok: #a5d6a7; }
+  }
+  body { margin: 0; font: 14px/1.4 system-ui, sans-serif; background: var(--bg); color: var(--fg); }
+  header { padding: 10px 16px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 18px; margin: 0; }
+  header p { margin: 2px 0 0; color: var(--mute); }
+  main { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; }
+  aside { width: 270px; display: flex; flex-direction: column; gap: 10px; }
+  fieldset { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; margin: 0; display: grid; gap: 6px; }
+  legend { color: var(--mute); padding: 0 4px; }
+  label.row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  input[type=number] { width: 72px; }
+  select, input, button { font: inherit; }
+  button { padding: 6px 12px; border-radius: 4px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+  .view { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 12px; }
+  canvas { width: 100%; height: 440px; border: 1px solid var(--line); border-radius: 6px; touch-action: none; cursor: grab; }
+  .stats { color: var(--mute); }
+  .ok { color: var(--ok); } .bad { color: var(--bad); }
+  .note { color: var(--mute); font-size: 12px; }
+  svg text { fill: var(--fg); font-size: 11px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>EPP cutting template (STL)</h1>
+  <p>Prototype for spec 027 stretch goal: a 3D-printed template from a shape's outline, built the owner's way. Drag to turn, wheel to zoom.</p>
+</header>
+<main>
+  <aside>
+    <fieldset>
+      <legend>Shape</legend>
+      <select id="shape"></select>
+      <label class="row">Side (1U) <span><input id="side" type="number" step="any" value="1"> <select id="unit"><option>in</option><option>mm</option></select></span></label>
+    </fieldset>
+    <fieldset>
+      <legend>Template</legend>
+      <label><input type="radio" name="kind" value="paper" checked> Paper (finished size)</label>
+      <label><input type="radio" name="kind" value="fabric"> Fabric (with seam allowance)</label>
+      <label class="row">Seam allowance (<span id="seamUnit">in</span>) <input id="seam" type="number" step="any" value="0.375"></label>
+      <label><input id="trim" type="checkbox"> Trim points sharper than 90°</label>
+    </fieldset>
+    <fieldset>
+      <legend>Build (mm)</legend>
+      <label class="row">Height <input id="height" type="number" step="0.1" value="4"></label>
+      <label class="row">Floor (shell) <input id="floor" type="number" step="0.1" value="1.2"></label>
+      <label class="row">Outer wall <input id="wall" type="number" step="0.1" value="4"></label>
+      <label class="row">Outer corner radius <input id="rOut" type="number" step="0.1" value="2"></label>
+      <label class="row">Inner corner radius <input id="rIn" type="number" step="0.1" value="6"></label>
+      <label class="row">Outer edge chamfer <input id="cOut" type="number" step="0.1" value="0.4"></label>
+      <label class="row">Inner edge chamfer <input id="cIn" type="number" step="0.1" placeholder="auto"></label>
+      <div class="note">Inner chamfer blank: (height − floor) / 2.</div>
+    </fieldset>
+    <button id="download">Download STL</button>
+    <div id="msgs"></div>
+  </aside>
+  <section class="view">
+    <canvas id="cv"></canvas>
+    <div id="stats" class="stats"></div>
+    <div>
+      <div class="note">Section through a straight side (outline on the left, pocket on the right), 20 px per mm:</div>
+      <svg id="profile" height="150"></svg>
+    </div>
+  </section>
+</main>
+<script>
+'use strict';
+const RAD = Math.PI / 180;
+const S3 = Math.sqrt(3);
+const $ = (id) => document.getElementById(id);
+
+// --- Shapes: the app's starters (src/content/epp.ts), in units, y up, counter-clockwise ---
+const area2 = (p) => p.reduce((s, a, i) => { const b = p[(i + 1) % p.length]; return s + a[0] * b[1] - b[0] * a[1]; }, 0);
+const ccw = (p) => (area2(p) < 0 ? [...p].reverse() : p);
+/** Corners from edge lengths and turns, as the app draws them on screen (y down), flipped to y up. */
+function turtle(lengths, turns) {
+  let x = 0, y = 0, h = 0;
+  const pts = [];
+  lengths.forEach((L, i) => {
+    pts.push([x, -y]);
+    x += L * Math.cos(h * RAD);
+    y += L * Math.sin(h * RAD);
+    h += turns[i];
+  });
+  return ccw(pts);
+}
+const regular = (n) => turtle(Array(n).fill(1), Array(n).fill(360 / n));
+const SHAPES = {
+  Hexagon: regular(6),
+  'Half Hexagon': turtle([2, 1, 1, 1], [120, 60, 60, 120]),
+  Honeycomb: turtle([1, 1, 1, 1, 1, 1], [45, 45, 90, 45, 45, 90]),
+  'Elongated Hexagon': turtle([1, 2, 1, 1, 2, 1], [45, 45, 90, 45, 45, 90]),
+  Triangle: regular(3),
+  'Half Square': turtle([1, 1, Math.SQRT2], [90, 135, 135]),
+  Square: regular(4),
+  '60° Diamond': turtle([1, 1, 1, 1], [120, 60, 120, 60]),
+  '45° Diamond': turtle([1, 1, 1, 1], [135, 45, 135, 45]),
+  'Hexi Kite': ccw([[0, 0], [1.5, S3 / 2], [2, 0], [1.5, -S3 / 2]]),
+  Jewel: turtle([1, 1, 2, 2, 1], [60, 60, 120, 60, 60]),
+  Pentagon: regular(5),
+  Octagon: regular(8),
+};
+
+// --- 2D: seam allowance (the app's print offset), insets, rounded rings ---
+/** The app's seam allowance (src/model/print/polygon.ts offset): mitred, bevelled past 4×d, optional trimmed points. */
+function seamOffset(poly, d, trim) {
+  const p = ccw(poly), n = p.length;
+  const edges = p.map((a, i) => {
+    const b = p[(i + 1) % n];
+    const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const dir = [(b[0] - a[0]) / L, (b[1] - a[1]) / L];
+    const nrm = [dir[1], -dir[0]];
+    return { a, dir, nrm, start: [a[0] + nrm[0] * d, a[1] + nrm[1] * d] };
+  });
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const prev = edges[(i + n - 1) % n], cur = edges[i], v = cur.a;
+    const den = prev.dir[0] * cur.dir[1] - prev.dir[1] * cur.dir[0];
+    if (Math.abs(den) < 1e-9) { out.push(cur.start); continue; }
+    const turn = Math.atan2(den, prev.dir[0] * cur.dir[0] + prev.dir[1] * cur.dir[1]);
+    if (trim && turn > Math.PI / 2 + 1e-6) {
+      const bx = prev.nrm[0] + cur.nrm[0], by = prev.nrm[1] + cur.nrm[1], bl = Math.hypot(bx, by);
+      const b = [bx / bl, by / bl];
+      const at = (e) => {
+        const t = (d - ((e.start[0] - v[0]) * b[0] + (e.start[1] - v[1]) * b[1])) / (e.dir[0] * b[0] + e.dir[1] * b[1]);
+        return [e.start[0] + e.dir[0] * t, e.start[1] + e.dir[1] * t];
+      };
+      out.push(at(prev), at(cur));
+      continue;
+    }
+    const w = [cur.start[0] - prev.start[0], cur.start[1] - prev.start[1]];
+    const t = (w[0] * cur.dir[1] - w[1] * cur.dir[0]) / den;
+    const x = [prev.start[0] + prev.dir[0] * t, prev.start[1] + prev.dir[1] * t];
+    if (Math.hypot(x[0] - v[0], x[1] - v[1]) > 4 * d) out.push([v[0] + prev.nrm[0] * d, v[1] + prev.nrm[1] * d], cur.start);
+    else out.push(x);
+  }
+  return out;
+}
+
+/** Drop repeated and straight-through corners. */
+function clean(p) {
+  let q = p.filter((a, i) => { const b = p[(i + p.length - 1) % p.length]; return Math.hypot(a[0] - b[0], a[1] - b[1]) > 1e-4; });
+  q = q.filter((b, i) => {
+    const a = q[(i + q.length - 1) % q.length], c = q[(i + 1) % q.length];
+    return Math.abs((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])) > 1e-9;
+  });
+  return q;
+}
+
+/**
+ * A convex outline moved in by d: every side moved in, the rest cut away (sides that vanish go).
+ * shortcut: convex outlines only (every built-in shape); a concave custom shape needs a general offset.
+ */
+function inset(P, d) {
+  let poly = P;
+  for (let i = 0; i < P.length; i++) {
+    const a = P[i], b = P[(i + 1) % P.length];
+    const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const nx = (b[1] - a[1]) / L, ny = -(b[0] - a[0]) / L;
+    const f = (p) => nx * (p[0] - a[0]) + ny * (p[1] - a[1]) + d;
+    const out = [];
+    poly.forEach((p, j) => {
+      const q = poly[(j + 1) % poly.length], fp = f(p), fq = f(q);
+      if (fp <= 0) out.push(p);
+      if ((fp < 0 && fq > 0) || (fp > 0 && fq < 0)) {
+        const t = fp / (fp - fq);
+        out.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]);
+      }
+    });
+    poly = out;
+    if (poly.length < 3) return null;
+  }
+  poly = clean(poly);
+  return poly.length >= 3 && area2(poly) > 1e-6 ? poly : null;
+}
+
+/** The biggest inset that leaves anything. */
+function inradius(P) {
+  let lo = 0, hi = Math.max(...P.map((p) => Math.hypot(p[0], p[1]))) * 2;
+  for (let k = 0; k < 40; k++) { const m = (lo + hi) / 2; if (inset(P, m)) lo = m; else hi = m; }
+  return lo;
+}
+
+/**
+ * Where rounded rings take their points, from the outline's corners: at each corner, outward
+ * directions from the side before to the side after. Every ring (any inset of the outline, any
+ * radius) has a point at each of these directions, so two rings join by trapezoids with parallel
+ * sides, which cannot flip or cross.
+ */
+function directions(P, step = 4 * RAD) {
+  const n = P.length, out = [];
+  for (let i = 0; i < n; i++) {
+    const p = P[(i + n - 1) % n], c = P[i], q = P[(i + 1) % n];
+    const a0 = Math.atan2(-(c[0] - p[0]), c[1] - p[1]);
+    let sweep = Math.atan2(-(q[0] - c[0]), q[1] - c[1]) - a0;
+    while (sweep <= 0) sweep += 2 * Math.PI;
+    const k = Math.max(1, Math.ceil(sweep / step));
+    const m = a0 + sweep / 2;
+    out.push({ mid: [Math.cos(m), Math.sin(m)], dirs: Array.from({ length: k + 1 }, (_, j) => a0 + (sweep * j) / k) });
+  }
+  return out;
+}
+
+/** Inset Q grown by rho with round corners: per outline corner, an arc around Q's corner facing it. */
+function roundRing(D, Q, rho) {
+  const pts = [];
+  for (const { mid, dirs } of D) {
+    // A side that vanished in Q leaves two outline corners on one Q corner.
+    const c = Q.reduce((b, q) => (q[0] * mid[0] + q[1] * mid[1] > b[0] * mid[0] + b[1] * mid[1] ? q : b));
+    for (const a of dirs) pts.push([c[0] + rho * Math.cos(a), c[1] + rho * Math.sin(a)]);
+  }
+  return pts;
+}
+
+// --- The template: the owner's steps, as rings stacked up and joined ---
+// 1 extrude the outline to `height`; 2 shell it, open top, `floor` thick; 3 walls brought in to
+// `wall`; 4 outside corners rounded `rOut`; 5 pocket corners rounded `rIn`; 6 outside top and bottom
+// edges chamfered `cOut`; 7 the pocket's top edge and its edge on the floor chamfered `cIn` (at half
+// the pocket depth the two meet: the pocket wall is one 45° slope).
+function build(P, o) {
+  const { height: H, floor: F, wall: W, rOut, rIn: rIn0, cOut, cIn } = o;
+  const errors = [], notes = [];
+  if (![H, F, W, rOut, rIn0, cOut, cIn].every((v) => Number.isFinite(v) && v >= 0)) errors.push('Every size must be a number, 0 or more.');
+  if (!(F > 0 && F < H)) errors.push('The floor must be thinner than the height.');
+  if (!(cOut < rOut)) errors.push('The outer chamfer must be smaller than the outer corner radius.');
+  if (!(2 * cOut < H)) errors.push('The outer chamfers are too big for the height.');
+  if (!(2 * cIn <= H - F + 1e-9)) errors.push('The inner chamfers can be at most half the pocket depth.');
+  if (!(rIn0 > cIn)) errors.push('The inner corner radius must be bigger than the inner chamfer.');
+  if (!(W - cIn > cOut)) errors.push('The wall is too thin for its chamfers (no flat top left).');
+  if (errors.length) return { errors };
+  const Qo = inset(P, rOut);
+  if (!Qo) return { errors: ['The shape is too small for the outer corner radius.'] };
+  const room = inradius(P) - W - 0.25;
+  let pocket = null;
+  if (room > cIn + 0.2) {
+    const rIn = Math.min(rIn0, room);
+    if (rIn < rIn0) notes.push(`Inner corner radius cut to ${rIn.toFixed(2)} mm so the pocket fits.`);
+    pocket = { Q: inset(P, W + rIn), rIn };
+  } else notes.push('Too small for a pocket: the template is solid.');
+
+  const D = directions(P);
+  const V = [], T = [];
+  /** A ring's vertex per direction; points that fall together share a vertex. */
+  const ring = (Q, rho, z) => {
+    const idx = [];
+    roundRing(D, Q, rho).forEach(([x, y], k) => {
+      const prev = k ? V[idx[k - 1]] : null;
+      if (prev && Math.hypot(prev[0] - x, prev[1] - y) < 1e-7) idx.push(idx[k - 1]);
+      else idx.push(V.push([x, y, z]) - 1);
+    });
+    const L = idx[idx.length - 1], f = V[idx[0]], l = V[L];
+    if (L !== idx[0] && Math.hypot(f[0] - l[0], f[1] - l[1]) < 1e-7) {
+      V.pop();
+      return idx.map((i) => (i === L ? idx[0] : i));
+    }
+    return idx;
+  };
+  const tri = (a, b, c) => { if (a !== b && b !== c && a !== c) T.push([a, b, c]); };
+  // Levels at the same height are one ring (no chamfer there).
+  const levels = (list) => list.filter((l, i) => i === 0 || Math.abs(l[0] - list[i - 1][0]) > 1e-9);
+  /** Band from an outer or lower ring `a` to `b`: a wall facing out (or in, for the pocket), or the flat top. */
+  const stitch = (a, b, out) => {
+    for (let i = 0; i < a.length; i++) {
+      const j = (i + 1) % a.length;
+      const [p, q, r, s] = [a[i], a[j], b[j], b[i]];
+      if (out) { tri(p, q, r); tri(p, r, s); } else { tri(p, r, q); tri(p, s, r); }
+    }
+  };
+  /** A flat convex face facing up or down. */
+  const fan = (idx, up) => {
+    const u = idx.filter((v, k) => v !== idx[(k + idx.length - 1) % idx.length]);
+    for (let k = 1; k + 1 < u.length; k++) up ? tri(u[0], u[k], u[k + 1]) : tri(u[0], u[k + 1], u[k]);
+  };
+
+  const outer = levels([[0, rOut - cOut], [cOut, rOut], [H - cOut, rOut], [H, rOut - cOut]]).map(([z, r]) => ring(Qo, r, z));
+  for (let k = 0; k + 1 < outer.length; k++) stitch(outer[k], outer[k + 1], true);
+  fan(outer[0], false);
+  let profile;
+  if (pocket) {
+    const { Q, rIn } = pocket;
+    const inner = levels([[H, rIn + cIn], [H - cIn, rIn], [F + cIn, rIn], [F, rIn - cIn]]).map(([z, r]) => ring(Q, r, z));
+    for (let k = 0; k + 1 < inner.length; k++) stitch(inner[k + 1], inner[k], false);
+    fan(inner[inner.length - 1], true);
+    stitch(outer[outer.length - 1], inner[0], true);
+    profile = [[cOut, 0], [0, cOut], [0, H - cOut], [cOut, H], [W - cIn, H], [W, H - cIn], [W, F + cIn], [W + cIn, F], [W + cIn + 3, F], [W + cIn + 3, 0]];
+  } else {
+    fan(outer[outer.length - 1], true);
+    profile = [[cOut, 0], [0, cOut], [0, H - cOut], [cOut, H], [W + 3, H], [W + 3, 0]];
+  }
+  return { V, T, notes, profile, pocket: !!pocket };
+}
+
+// --- Checks and STL ---
+const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+
+/** Closed and consistently turned: every edge used once each way. Volume > 0: faces point out. Flat faces: tops up, bottom down. */
+function check(V, T) {
+  const dir = new Map();
+  let degenerate = 0, flipped = 0, volume = 0;
+  for (const t of T) {
+    for (let k = 0; k < 3; k++) { const key = `${t[k]},${t[(k + 1) % 3]}`; dir.set(key, (dir.get(key) || 0) + 1); }
+    const [a, b, c] = t.map((i) => V[i]);
+    const n = cross(sub(b, a), sub(c, a));
+    if (Math.hypot(...n) < 1e-9) degenerate++;
+    if (a[2] === b[2] && b[2] === c[2] && n[2] * (a[2] < 1e-9 ? -1 : 1) <= 0) flipped++;
+    volume += dot(a, cross(b, c)) / 6;
+  }
+  let badEdges = 0;
+  for (const [key, n] of dir) { const [a, b] = key.split(','); if (n !== 1 || dir.get(`${b},${a}`) !== 1) badEdges++; }
+  return { badEdges, degenerate, flipped, volume };
+}
+
+function stl(V, T, name) {
+  const buf = new ArrayBuffer(84 + 50 * T.length), dv = new DataView(buf);
+  const head = `RRQuilts ${name}`.slice(0, 80);
+  for (let i = 0; i < head.length; i++) dv.setUint8(i, head.charCodeAt(i) & 0x7f);
+  dv.setUint32(80, T.length, true);
+  let o = 84;
+  for (const t of T) {
+    const [a, b, c] = t.map((i) => V[i]);
+    const n = cross(sub(b, a), sub(c, a)), L = Math.hypot(...n) || 1;
+    for (const v of [n.map((x) => x / L), a, b, c]) for (const x of v) { dv.setFloat32(o, x, true); o += 4; }
+    o += 2;
+  }
+  return buf;
+}
+
+// --- Page ---
+const view = { yaw: 25 * RAD, pitch: 55 * RAD, zoom: 1 };
+let cur = null;
+
+function params() {
+  const num = (id) => parseFloat($(id).value);
+  const height = num('height'), floor = num('floor');
+  const cIn = $('cIn').value.trim() === '' ? (height - floor) / 2 : num('cIn');
+  return { height, floor, wall: num('wall'), rOut: num('rOut'), rIn: num('rIn'), cOut: num('cOut'), cIn };
+}
+
+function update() {
+  const mm = $('unit').value === 'in' ? 25.4 : 1;
+  const unit = parseFloat($('side').value) * mm;
+  const fabric = document.querySelector('input[name=kind]:checked').value === 'fabric';
+  const name = $('shape').value;
+  let P = SHAPES[name].map(([x, y]) => [x * unit, y * unit]);
+  if (fabric) P = ccw(seamOffset(P, parseFloat($('seam').value) * mm, $('trim').checked));
+  $('seamUnit').textContent = $('unit').value;
+  $('cIn').placeholder = `auto ${((params().height - params().floor) / 2).toFixed(2)}`;
+  const r = Number.isFinite(unit) && unit > 0 ? build(P, params()) : { errors: ['Side must be more than 0.'] };
+  const msgs = $('msgs');
+  msgs.innerHTML = '';
+  for (const e of r.errors || []) msgs.insertAdjacentHTML('beforeend', `<div class="bad">${e}</div>`);
+  for (const n of r.notes || []) msgs.insertAdjacentHTML('beforeend', `<div class="note">${n}</div>`);
+  if (r.errors) { cur = null; $('stats').textContent = ''; draw(); return; }
+  const c = check(r.V, r.T);
+  const xs = r.V.map((v) => v[0]), ys = r.V.map((v) => v[1]);
+  const size = [Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)];
+  const sideTxt = `${$('side').value} ${$('unit').value}`;
+  cur = { ...r, check: c, file: `${name.replace(/[^A-Za-z0-9]+/g, '-')}-${sideTxt.replace(/[^0-9a-z.]+/g, '')}-${fabric ? 'fabric' : 'paper'}.stl` };
+  const good = c.badEdges === 0 && c.degenerate === 0 && c.flipped === 0 && c.volume > 0;
+  $('stats').innerHTML =
+    `${size[0].toFixed(1)} × ${size[1].toFixed(1)} × ${params().height} mm · ${r.T.length} triangles · ` +
+    `${(c.volume / 1000).toFixed(2)} cm³ · ` +
+    (good ? '<span class="ok">closed solid, faces out</span>'
+      : `<span class="bad">mesh problem: ${c.badEdges} open or doubled edges, ${c.degenerate} flat triangles, ${c.flipped} flipped flat triangles, volume ${c.volume.toFixed(1)}</span>`);
+  drawProfile(r.profile);
+  draw();
+}
+
+function drawProfile(pts) {
+  const s = 20, pad = 24, svg = $('profile');
+  const w = Math.max(...pts.map((p) => p[0])) * s + pad * 2 + 120;
+  svg.setAttribute('width', w);
+  const H = Math.max(...pts.map((p) => p[1]));
+  const X = (d) => pad + d * s, Y = (z) => 20 + (H - z) * s;
+  const poly = pts.map(([d, z]) => `${X(d)},${Y(z)}`).join(' ');
+  const last = pts[pts.length - 1][0];
+  svg.innerHTML =
+    `<line x1="${X(0)}" y1="4" x2="${X(0)}" y2="${Y(0) + 12}" stroke="currentColor" stroke-dasharray="3 3" opacity="0.5"/>` +
+    `<polygon points="${poly}" fill="var(--solid)" fill-opacity="0.35" stroke="var(--accent)"/>` +
+    `<text x="${X(0) + 2}" y="${Y(0) + 24}">outline</text>` +
+    `<text x="${X(last) + 8}" y="${Y(H / 2)}">${cur && cur.pocket ? 'floor continues' : 'solid continues'}</text>`;
+}
+
+function draw() {
+  const cv = $('cv'), ctx = cv.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.round(cv.clientWidth * dpr), h = Math.round(cv.clientHeight * dpr);
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  const bg = getComputedStyle(document.body).backgroundColor.match(/\d+/g).map(Number);
+  const img = ctx.createImageData(w, h), px = img.data;
+  for (let i = 0; i < w * h; i++) { px[i * 4] = bg[0]; px[i * 4 + 1] = bg[1]; px[i * 4 + 2] = bg[2]; px[i * 4 + 3] = 255; }
+  if (cur) {
+    const { V, T } = cur;
+    const lo = [0, 1, 2].map((k) => Math.min(...V.map((v) => v[k]))), hi = [0, 1, 2].map((k) => Math.max(...V.map((v) => v[k])));
+    const mid = lo.map((l, k) => (l + hi[k]) / 2), R = Math.hypot(...hi.map((x, k) => x - lo[k])) / 2;
+    const s = (view.zoom * Math.min(w, h)) / (2.2 * R);
+    const [cy, sy, cp, sp] = [Math.cos(view.yaw), Math.sin(view.yaw), Math.cos(view.pitch), Math.sin(view.pitch)];
+    // Turn about the up axis, then tilt toward the viewer; x right, y up, z toward the viewer.
+    const P = V.map((v) => {
+      const [x, y, z] = sub(v, mid);
+      const x1 = x * cy - y * sy, y1 = x * sy + y * cy;
+      return [x1, y1 * cp + z * sp, -y1 * sp + z * cp];
+    });
+    const zb = new Float32Array(w * h).fill(-Infinity);
+    const L = [-0.35, 0.5, 0.8], Ll = Math.hypot(...L);
+    for (const t of T) {
+      const [a, b, c] = t.map((i) => P[i]);
+      const n = cross(sub(b, a), sub(c, a)), nl = Math.hypot(...n);
+      if (n[2] <= 0 || nl === 0) continue;
+      const shade = 0.3 + 0.7 * Math.max(0, dot(n, L) / nl / Ll);
+      const col = [90 * shade, 150 * shade, 220 * shade];
+      const S = [a, b, c].map((p) => [w / 2 + p[0] * s, h / 2 - p[1] * s, p[2]]);
+      const x0 = Math.max(0, Math.floor(Math.min(S[0][0], S[1][0], S[2][0]))), x1 = Math.min(w - 1, Math.ceil(Math.max(S[0][0], S[1][0], S[2][0])));
+      const y0 = Math.max(0, Math.floor(Math.min(S[0][1], S[1][1], S[2][1]))), y1 = Math.min(h - 1, Math.ceil(Math.max(S[0][1], S[1][1], S[2][1])));
+      const e = (p, q, x, y) => (q[0] - p[0]) * (y - p[1]) - (q[1] - p[1]) * (x - p[0]);
+      const area = e(S[0], S[1], S[2][0], S[2][1]);
+      if (area === 0) continue;
+      for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+        const fx = x + 0.5, fy = y + 0.5;
+        const w0 = e(S[1], S[2], fx, fy) / area, w1 = e(S[2], S[0], fx, fy) / area, w2 = 1 - w0 - w1;
+        if (w0 < 0 || w1 < 0 || w2 < 0) continue;
+        const z = w0 * S[0][2] + w1 * S[1][2] + w2 * S[2][2], i = y * w + x;
+        if (z <= zb[i]) continue;
+        zb[i] = z;
+        px[i * 4] = col[0]; px[i * 4 + 1] = col[1]; px[i * 4 + 2] = col[2];
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+for (const n of Object.keys(SHAPES)) $('shape').add(new Option(n));
+document.querySelectorAll('input, select').forEach((el) => el.addEventListener('input', update));
+$('unit').addEventListener('change', () => {
+  // Keep the sizes when switching units.
+  const k = $('unit').value === 'mm' ? 25.4 : 1 / 25.4;
+  for (const id of ['side', 'seam']) $(id).value = +(parseFloat($(id).value) * k).toFixed(3);
+  update();
+});
+$('download').addEventListener('click', () => {
+  if (!cur) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([stl(cur.V, cur.T, cur.file)], { type: 'model/stl' }));
+  a.download = cur.file;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+const cv = $('cv');
+let dragFrom = null;
+cv.addEventListener('pointerdown', (e) => { dragFrom = [e.clientX, e.clientY]; cv.setPointerCapture(e.pointerId); });
+cv.addEventListener('pointermove', (e) => {
+  if (!dragFrom) return;
+  view.yaw += (e.clientX - dragFrom[0]) * 0.01;
+  view.pitch = Math.min(Math.PI, Math.max(0, view.pitch + (e.clientY - dragFrom[1]) * 0.01));
+  dragFrom = [e.clientX, e.clientY];
+  draw();
+});
+cv.addEventListener('pointerup', () => (dragFrom = null));
+cv.addEventListener('wheel', (e) => { e.preventDefault(); view.zoom = Math.min(8, Math.max(0.3, view.zoom * Math.exp(-e.deltaY * 0.001))); draw(); }, { passive: false });
+window.addEventListener('resize', draw);
+window.proto = { SHAPES, build, check, stl, seamOffset, ccw, get cur() { return cur; } };
+update();
+</script>
+</body>
+</html>
