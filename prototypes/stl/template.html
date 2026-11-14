@@ -39,13 +39,14 @@
     <fieldset>
       <legend>Shape</legend>
       <select id="shape"></select>
-      <label class="row">Side (1U) <span><input id="side" type="number" step="any" value="1"> <select id="unit"><option>in</option><option>mm</option></select></span></label>
+      <label class="row">Size <select id="nU"><option value="1">1U</option><option value="2">2U</option><option value="3">3U</option><option value="4">4U</option></select></label>
+      <label class="row">1U = <span><input id="side" type="number" step="any" value="1"> <select id="unit"><option>in</option><option>mm</option></select></span></label>
     </fieldset>
     <fieldset>
       <legend>Template</legend>
       <label><input type="radio" name="kind" value="paper" checked> Paper (finished size)</label>
       <label><input type="radio" name="kind" value="fabric"> Fabric (with seam allowance)</label>
-      <label class="row">Seam allowance (<span id="seamUnit">in</span>) <input id="seam" type="number" step="any" value="0.375"></label>
+      <label class="row"><span>Seam allowance (<span id="seamUnit">in</span>)</span> <input id="seam" type="number" step="any" value="0.375"></label>
       <label><input id="trim" type="checkbox"> Trim points sharper than 90°</label>
     </fieldset>
     <fieldset>
@@ -58,6 +59,7 @@
       <label class="row">Outer edge chamfer <input id="cOut" type="number" step="0.1" value="0.4"></label>
       <label class="row">Inner edge chamfer <input id="cIn" type="number" step="0.1" placeholder="auto"></label>
       <div class="note">Inner chamfer blank: (height − floor) / 2.</div>
+      <label class="row">Text depth <input id="depth" type="number" step="0.1" value="0.6"></label>
     </fieldset>
     <button id="download">Download STL</button>
     <div id="msgs"></div>
@@ -155,29 +157,37 @@ function clean(p) {
   return q;
 }
 
+/** The part of a convex polygon where nx·x + ny·y ≤ c. */
+function clipHalf(poly, nx, ny, c) {
+  const out = [];
+  poly.forEach((p, j) => {
+    const q = poly[(j + 1) % poly.length];
+    const fp = nx * p[0] + ny * p[1] - c, fq = nx * q[0] + ny * q[1] - c;
+    if (fp <= 0) out.push(p);
+    if ((fp < 0 && fq > 0) || (fp > 0 && fq < 0)) {
+      const t = fp / (fp - fq);
+      out.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]);
+    }
+  });
+  return out;
+}
+
 /**
- * A convex outline moved in by d: every side moved in, the rest cut away (sides that vanish go).
+ * A convex outline moved in by d (or d(side's outward normal)): every side moved in, the rest cut
+ * away (sides that vanish go), then cut by any `extra` half-planes [nx, ny, c].
  * shortcut: convex outlines only (every built-in shape); a concave custom shape needs a general offset.
  */
-function inset(P, d) {
+function inset(P, d, extra = []) {
+  const dist = typeof d === 'function' ? d : () => d;
   let poly = P;
-  for (let i = 0; i < P.length; i++) {
+  for (let i = 0; i < P.length && poly.length >= 3; i++) {
     const a = P[i], b = P[(i + 1) % P.length];
     const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
     const nx = (b[1] - a[1]) / L, ny = -(b[0] - a[0]) / L;
-    const f = (p) => nx * (p[0] - a[0]) + ny * (p[1] - a[1]) + d;
-    const out = [];
-    poly.forEach((p, j) => {
-      const q = poly[(j + 1) % poly.length], fp = f(p), fq = f(q);
-      if (fp <= 0) out.push(p);
-      if ((fp < 0 && fq > 0) || (fp > 0 && fq < 0)) {
-        const t = fp / (fp - fq);
-        out.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]);
-      }
-    });
-    poly = out;
-    if (poly.length < 3) return null;
+    poly = clipHalf(poly, nx, ny, nx * a[0] + ny * a[1] - dist(nx, ny));
   }
+  for (const [nx, ny, c] of extra) if (poly.length >= 3) poly = clipHalf(poly, nx, ny, c);
+  if (poly.length < 3) return null;
   poly = clean(poly);
   return poly.length >= 3 && area2(poly) > 1e-6 ? poly : null;
 }
@@ -220,6 +230,159 @@ function roundRing(D, Q, rho) {
   return pts;
 }
 
+// --- Flat faces with holes ---
+/**
+ * Triangles of a flat face, counter-clockwise seen from above: `outer` minus `holes` (vertex ids,
+ * all counter-clockwise). Each hole is cut open to the outline from its rightmost point, then ears
+ * are clipped. Every ear turns the right way, so the triangles cover the face exactly once.
+ * shortcut: O(n²) ear search, fine for a few thousand points.
+ */
+function faceTris(outer, holes, V) {
+  const X = (id) => V[id][0], Y = (id) => V[id][1];
+  const inTri = (p, a, b, c) => {
+    const s = (u, v) => (v[0] - u[0]) * (p[1] - u[1]) - (v[1] - u[1]) * (p[0] - u[0]);
+    const d = [s(a, b), s(b, c), s(c, a)];
+    return d.every((x) => x >= 0) || d.every((x) => x <= 0);
+  };
+  let poly = outer.slice();
+  const order = holes.map((h) => ({ h, m: h.reduce((b, id) => (X(id) > X(b) ? id : b)) })).sort((a, b) => X(b.m) - X(a.m));
+  for (const { h, m } of order) {
+    const M = [X(m), Y(m)];
+    let best = Infinity, k = -1;
+    poly.forEach((a, i) => {
+      const b = poly[(i + 1) % poly.length];
+      if (Y(a) > M[1] === Y(b) > M[1]) return;
+      const x = X(a) + ((M[1] - Y(a)) * (X(b) - X(a))) / (Y(b) - Y(a));
+      if (x >= M[0] && x < best) { best = x; k = i; }
+    });
+    if (k < 0) return null;
+    const pt = (i) => [X(poly[i]), Y(poly[i])];
+    let iP = X(poly[k]) > X(poly[(k + 1) % poly.length]) ? k : (k + 1) % poly.length;
+    // A point inside the triangle (hole point, ray crossing, P) would block the cut: take the one
+    // nearest the ray's direction.
+    const P0 = pt(iP), tri0 = [M, [best, M[1]], P0];
+    let tan = Math.abs(P0[1] - M[1]) / Math.max(P0[0] - M[0], 1e-12);
+    poly.forEach((v, i) => {
+      const q = [X(v), Y(v)];
+      if ((q[0] === P0[0] && q[1] === P0[1]) || q[0] <= M[0] || !inTri(q, ...tri0)) return;
+      const t = Math.abs(q[1] - M[1]) / (q[0] - M[0]);
+      if (t < tan) { tan = t; iP = i; }
+    });
+    // A point used twice (an earlier cut's end) joins on the copy whose corner opens toward m.
+    const ang = (u, v) => { const t = Math.atan2(v[1], v[0]) - Math.atan2(u[1], u[0]); return t < 0 ? t + 2 * Math.PI : t; };
+    const facesM = (i) => {
+      const nn = poly.length, b = pt(i), a = pt((i + nn - 1) % nn), c = pt((i + 1) % nn);
+      const out = [c[0] - b[0], c[1] - b[1]], t = ang(out, [M[0] - b[0], M[1] - b[1]]);
+      return t > 0 && t < ang(out, [a[0] - b[0], a[1] - b[1]]);
+    };
+    const Pp = pt(iP);
+    const copies = poly.flatMap((v, i) => (X(v) === Pp[0] && Y(v) === Pp[1] ? [i] : []));
+    if (copies.length > 1) iP = copies.find(facesM) ?? iP;
+    const j0 = h.indexOf(m), n = h.length;
+    const walk = Array.from({ length: n }, (_, t) => h[(j0 - t + n) % n]);
+    poly = [...poly.slice(0, iP + 1), ...walk, m, poly[iP], ...poly.slice(iP + 1)];
+  }
+  const n = poly.length, P = poly.map((id) => [X(id), Y(id)]);
+  const prev = poly.map((_, i) => (i + n - 1) % n), next = poly.map((_, i) => (i + 1) % n);
+  const cr = (a, b, c) => (P[b][0] - P[a][0]) * (P[c][1] - P[a][1]) - (P[b][1] - P[a][1]) * (P[c][0] - P[a][0]);
+  const same = (a, b) => P[a][0] === P[b][0] && P[a][1] === P[b][1];
+  const isEar = (b) => {
+    const a = prev[b], c = next[b];
+    if (cr(a, b, c) <= 1e-10) return false;
+    for (let p = next[c]; p !== a; p = next[p]) {
+      if (same(p, a) || same(p, b) || same(p, c)) continue;
+      if (cr(a, b, p) >= 0 && cr(b, c, p) >= 0 && cr(c, a, p) >= 0) return false;
+    }
+    return true;
+  };
+  const out = [];
+  let left = n, b = 0, miss = 0;
+  while (left > 3) {
+    if (isEar(b)) {
+      const a = prev[b], c = next[b];
+      out.push([poly[a], poly[b], poly[c]]);
+      next[a] = c; prev[c] = a; left--; miss = 0; b = a;
+    } else if (++miss > left) return null;
+    else b = next[b];
+  }
+  out.push([poly[prev[b]], poly[b], poly[next[b]]]);
+  return out;
+}
+
+/**
+ * Text as a grid of cells (true = debossed), bottom row first, with a clear border. Cells that
+ * touch only at a corner get filled in (a corner shared by four walls can't be printed as one solid).
+ */
+function textGrid(lines, fontMM, cell, marginMM) {
+  const px = fontMM / cell, mg = Math.ceil(marginMM / cell);
+  const cv = document.createElement('canvas'), g = cv.getContext('2d');
+  const font = `bold ${px}px sans-serif`;
+  g.font = font;
+  const ms = lines.map((t) => g.measureText(t));
+  const gap = px * 0.3;
+  const wd = Math.max(...ms.map((m) => m.actualBoundingBoxLeft + m.actualBoundingBoxRight));
+  const hs = ms.map((m) => m.actualBoundingBoxAscent + m.actualBoundingBoxDescent);
+  const nx = Math.ceil(wd) + 2 * mg, ny = Math.ceil(hs.reduce((a, b) => a + b, 0) + gap * (lines.length - 1)) + 2 * mg;
+  cv.width = nx;
+  cv.height = ny;
+  g.font = font;
+  let y = mg;
+  ms.forEach((m, k) => {
+    const lw = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+    g.fillText(lines[k], mg + (wd - lw) / 2 + m.actualBoundingBoxLeft, y + m.actualBoundingBoxAscent);
+    y += hs[k] + gap;
+  });
+  const alpha = g.getImageData(0, 0, nx, ny).data;
+  const grid = Array.from({ length: ny }, (_, j) =>
+    Array.from({ length: nx }, (_, i) => i > 0 && j > 0 && i < nx - 1 && j < ny - 1 && alpha[((ny - 1 - j) * nx + i) * 4 + 3] > 127));
+  for (let pass = 0, changed = true; changed && pass < 8; pass++) {
+    changed = false;
+    for (let j = 0; j + 1 < ny; j++) for (let i = 0; i + 1 < nx; i++) {
+      const [a, b, c, d] = [grid[j][i], grid[j][i + 1], grid[j + 1][i], grid[j + 1][i + 1]];
+      if (a === d && b === c && a !== b) { if (a) grid[j][i + 1] = true; else grid[j][i] = true; changed = true; }
+    }
+  }
+  return { nx, ny, grid, w: nx * cell, h: ny * cell };
+}
+
+const HOLES = [[19.05, '3/4"'], [9.525, '3/8"']];
+const FONTS = [4, 3.5, 3, 2.5];
+
+/**
+ * Where the hanging hole and the text go on a flat convex face: the hole as high as it fits, the
+ * text centred in the room below it. Tries a 3/4" hole with text 3 mm or more, then a 3/8" hole,
+ * then text alone, then the hole alone.
+ */
+function placeMarks(face, lines, cell, clr = 1) {
+  const holeAt = (d) => {
+    const Q = inset(face, d / 2 + clr);
+    if (!Q) return null;
+    const top = Math.max(...Q.map((p) => p[1]));
+    const t = Q.filter((p) => p[1] > top - 1e-6);
+    return { c: [t.reduce((s, p) => s + p[0], 0) / t.length, top], r: d / 2 };
+  };
+  const textAt = (font, hole) => {
+    if (!lines.length) return null;
+    const tg = textGrid(lines, font, cell, 0.6);
+    const extra = hole ? [[0, 1, hole.c[1] - hole.r - clr - tg.h / 2]] : [];
+    const room = inset(face, (nx, ny) => clr + (Math.abs(nx) * tg.w) / 2 + (Math.abs(ny) * tg.h) / 2, extra);
+    if (!room) return null;
+    const c = room.reduce((s, p) => [s[0] + p[0] / room.length, s[1] + p[1] / room.length], [0, 0]);
+    return { ...tg, font, x0: c[0] - tg.w / 2, y0: c[1] - tg.h / 2 };
+  };
+  for (const [d, label] of HOLES) {
+    const hole = holeAt(d);
+    if (!hole) continue;
+    for (const f of FONTS.filter((f) => d < 19 || f >= 3)) {
+      const text = textAt(f, hole);
+      if (text) return { hole: { ...hole, label }, text };
+    }
+  }
+  for (const f of FONTS) { const text = textAt(f, null); if (text) return { hole: null, text }; }
+  for (const [d, label] of HOLES.slice(1)) { const hole = holeAt(d); if (hole) return { hole: { ...hole, label }, text: null }; }
+  return { hole: null, text: null };
+}
+
 // --- The template: the owner's steps, as rings stacked up and joined ---
 // 1 extrude the outline to `height`; 2 shell it, open top, `floor` thick; 3 walls brought in to
 // `wall`; 4 outside corners rounded `rOut`; 5 pocket corners rounded `rIn`; 6 outside top and bottom
@@ -235,6 +398,7 @@ function build(P, o) {
   if (!(2 * cIn <= H - F + 1e-9)) errors.push('The inner chamfers can be at most half the pocket depth.');
   if (!(rIn0 > cIn)) errors.push('The inner corner radius must be bigger than the inner chamfer.');
   if (!(W - cIn > cOut)) errors.push('The wall is too thin for its chamfers (no flat top left).');
+  if (!(o.depth > 0 && o.depth <= F - 0.2)) errors.push('The text depth must leave at least 0.2 mm of floor.');
   if (errors.length) return { errors };
   const Qo = inset(P, rOut);
   if (!Qo) return { errors: ['The shape is too small for the outer corner radius.'] };
@@ -274,28 +438,85 @@ function build(P, o) {
       if (out) { tri(p, q, r); tri(p, r, s); } else { tri(p, r, q); tri(p, s, r); }
     }
   };
-  /** A flat convex face facing up or down. */
-  const fan = (idx, up) => {
-    const u = idx.filter((v, k) => v !== idx[(k + idx.length - 1) % idx.length]);
-    for (let k = 1; k + 1 < u.length; k++) up ? tri(u[0], u[k], u[k + 1]) : tri(u[0], u[k + 1], u[k]);
+  const uniq = (idx) => idx.filter((v, k) => v !== idx[(k + idx.length - 1) % idx.length]);
+  /** A flat face facing up (or down) with holes; null if it can't be cut into triangles. */
+  const face = (outerIds, holes, up) => {
+    const ts = faceTris(uniq(outerIds), holes, V);
+    if (!ts) return false;
+    for (const [a, b, c] of ts) up ? tri(a, b, c) : tri(a, c, b);
+    return true;
+  };
+  /** A wall quad turned to face `dir`. */
+  const quad = (a, b, c, d, dir) => {
+    const n = cross(sub(V[b], V[a]), sub(V[c], V[a]));
+    if (dot(n, dir) >= 0) { tri(a, b, c); tri(a, c, d); } else { tri(a, c, b); tri(a, d, c); }
+  };
+  const circle = (c, r, z) => Array.from({ length: 64 }, (_, k) => V.push([c[0] + r * Math.cos((k * Math.PI) / 32), c[1] + r * Math.sin((k * Math.PI) / 32), z]) - 1);
+  /** Debossed text, cells `cell` mm, sunk `depth` from zTop; returns its outline (a hole in the face). */
+  const deboss = (t, cell, zTop, depth) => {
+    const top = new Map(), low = new Map();
+    const at = (map, z) => (i, j) => {
+      const k = i * (t.ny + 1) + j;
+      if (!map.has(k)) map.set(k, V.push([t.x0 + i * cell, t.y0 + j * cell, z]) - 1);
+      return map.get(k);
+    };
+    const Tv = at(top, zTop), Bv = at(low, zTop - depth);
+    // The floor between letters first, then the letters (their triangles drawn darker).
+    for (const sunk of [false, true]) {
+      if (sunk) textFrom = T.length;
+      for (let j = 0; j < t.ny; j++) for (let i = 0; i < t.nx; i++) {
+        if (t.grid[j][i] !== sunk) continue;
+        const v = sunk ? Bv : Tv;
+        tri(v(i, j), v(i + 1, j), v(i + 1, j + 1));
+        tri(v(i, j), v(i + 1, j + 1), v(i, j + 1));
+      }
+    }
+    for (let j = 0; j < t.ny; j++) for (let i = 1; i < t.nx; i++) {
+      const [l, r] = [t.grid[j][i - 1], t.grid[j][i]];
+      if (l !== r) quad(Tv(i, j), Tv(i, j + 1), Bv(i, j + 1), Bv(i, j), [l ? -1 : 1, 0, 0]);
+    }
+    for (let j = 1; j < t.ny; j++) for (let i = 0; i < t.nx; i++) {
+      const [d, u] = [t.grid[j - 1][i], t.grid[j][i]];
+      if (d !== u) quad(Tv(i, j), Tv(i + 1, j), Bv(i + 1, j), Bv(i, j), [0, d ? -1 : 1, 0]);
+    }
+    const loop = [];
+    for (let i = 0; i < t.nx; i++) loop.push(Tv(i, 0));
+    for (let j = 0; j < t.ny; j++) loop.push(Tv(t.nx, j));
+    for (let i = t.nx; i > 0; i--) loop.push(Tv(i, t.ny));
+    for (let j = t.ny; j > 0; j--) loop.push(Tv(0, j));
+    return loop;
   };
 
   const outer = levels([[0, rOut - cOut], [cOut, rOut], [H - cOut, rOut], [H, rOut - cOut]]).map(([z, r]) => ring(Qo, r, z));
   for (let k = 0; k + 1 < outer.length; k++) stitch(outer[k], outer[k + 1], true);
-  fan(outer[0], false);
-  let profile;
+  let profile, inner;
   if (pocket) {
     const { Q, rIn } = pocket;
-    const inner = levels([[H, rIn + cIn], [H - cIn, rIn], [F + cIn, rIn], [F, rIn - cIn]]).map(([z, r]) => ring(Q, r, z));
+    inner = levels([[H, rIn + cIn], [H - cIn, rIn], [F + cIn, rIn], [F, rIn - cIn]]).map(([z, r]) => ring(Q, r, z));
     for (let k = 0; k + 1 < inner.length; k++) stitch(inner[k + 1], inner[k], false);
-    fan(inner[inner.length - 1], true);
     stitch(outer[outer.length - 1], inner[0], true);
     profile = [[cOut, 0], [0, cOut], [0, H - cOut], [cOut, H], [W - cIn, H], [W, H - cIn], [W, F + cIn], [W + cIn, F], [W + cIn + 3, F], [W + cIn + 3, 0]];
-  } else {
-    fan(outer[outer.length - 1], true);
-    profile = [[cOut, 0], [0, cOut], [0, H - cOut], [cOut, H], [W + 3, H], [W + 3, 0]];
-  }
-  return { V, T, notes, profile, pocket: !!pocket };
+  } else profile = [[cOut, 0], [0, cOut], [0, H - cOut], [cOut, H], [W + 3, H], [W + 3, 0]];
+
+  // The floor (or a solid template's top) carries the text and the hanging hole.
+  const zTop = pocket ? F : H;
+  const flat = pocket ? inner[inner.length - 1] : outer[outer.length - 1];
+  const cell = 0.2;
+  const marks = placeMarks(uniq(flat).map((i) => V[i]), o.lines, cell);
+  const holes = [];
+  let textFrom = T.length;
+  if (marks.text) holes.push(deboss(marks.text, cell, zTop, o.depth));
+  else if (o.lines.length) notes.push('No room for the text.');
+  const textTris = [textFrom, T.length];
+  let ringLow = null;
+  if (marks.hole) {
+    ringLow = circle(marks.hole.c, marks.hole.r, 0);
+    const ringTop = circle(marks.hole.c, marks.hole.r, zTop);
+    stitch(ringLow, ringTop, false);
+    holes.push(ringTop);
+  } else notes.push('No room for a hanging hole.');
+  if (!face(flat, holes, true) || !face(outer[0], ringLow ? [ringLow] : [], false)) return { errors: ['Could not cut a flat face into triangles.'] };
+  return { V, T, notes, profile, pocket: !!pocket, marks, textTris };
 }
 
 // --- Checks and STL ---
@@ -343,19 +564,32 @@ function params() {
   const num = (id) => parseFloat($(id).value);
   const height = num('height'), floor = num('floor');
   const cIn = $('cIn').value.trim() === '' ? (height - floor) / 2 : num('cIn');
-  return { height, floor, wall: num('wall'), rOut: num('rOut'), rIn: num('rIn'), cOut: num('cOut'), cIn };
+  return { height, floor, wall: num('wall'), rOut: num('rOut'), rIn: num('rIn'), cOut: num('cOut'), cIn, depth: num('depth') };
+}
+
+/** A length as quilters write it: inches in sixteenths ("1 1/2"), else mm. */
+function fmt(v, unit) {
+  if (unit === 'mm') return `${+v.toFixed(1)}mm`;
+  const whole = Math.floor(v + 1e-9), n16 = Math.round((v - whole) * 16);
+  if (Math.abs((v - whole) * 16 - n16) > 1e-3) return `${+v.toFixed(3)}"`;
+  if (n16 === 0) return `${whole}"`;
+  let [n, d] = [n16, 16];
+  while (n % 2 === 0) { n /= 2; d /= 2; }
+  return `${whole ? `${whole} ` : ''}${n}/${d}"`;
 }
 
 function update() {
-  const mm = $('unit').value === 'in' ? 25.4 : 1;
-  const unit = parseFloat($('side').value) * mm;
+  const u = $('unit').value, mm = u === 'in' ? 25.4 : 1;
+  const edge = parseFloat($('side').value) * Number($('nU').value), seam = parseFloat($('seam').value);
+  const unit = edge * mm;
   const fabric = document.querySelector('input[name=kind]:checked').value === 'fabric';
   const name = $('shape').value;
   let P = SHAPES[name].map(([x, y]) => [x * unit, y * unit]);
   if (fabric) P = ccw(seamOffset(P, parseFloat($('seam').value) * mm, $('trim').checked));
   $('seamUnit').textContent = $('unit').value;
   $('cIn').placeholder = `auto ${((params().height - params().floor) / 2).toFixed(2)}`;
-  const r = Number.isFinite(unit) && unit > 0 ? build(P, params()) : { errors: ['Side must be more than 0.'] };
+  const lines = [`Edge: ${fmt(edge, u)}`, ...(fabric ? [`SA: ${fmt(seam, u)}`] : [])];
+  const r = Number.isFinite(unit) && unit > 0 ? build(P, { ...params(), lines }) : { errors: ['1U must be more than 0.'] };
   const msgs = $('msgs');
   msgs.innerHTML = '';
   for (const e of r.errors || []) msgs.insertAdjacentHTML('beforeend', `<div class="bad">${e}</div>`);
@@ -364,12 +598,14 @@ function update() {
   const c = check(r.V, r.T);
   const xs = r.V.map((v) => v[0]), ys = r.V.map((v) => v[1]);
   const size = [Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)];
-  const sideTxt = `${$('side').value} ${$('unit').value}`;
-  cur = { ...r, check: c, file: `${name.replace(/[^A-Za-z0-9]+/g, '-')}-${sideTxt.replace(/[^0-9a-z.]+/g, '')}-${fabric ? 'fabric' : 'paper'}.stl` };
+  const sideTxt = fmt(edge, u).replace(/"/g, 'in').replace(/ /g, '-').replace(/\//g, '_');
+  cur = { ...r, check: c, file: `${name.replace(/[^A-Za-z0-9]+/g, '-')}-${sideTxt}-${fabric ? 'fabric' : 'paper'}.stl` };
   const good = c.badEdges === 0 && c.degenerate === 0 && c.flipped === 0 && c.volume > 0;
   $('stats').innerHTML =
     `${size[0].toFixed(1)} × ${size[1].toFixed(1)} × ${params().height} mm · ${r.T.length} triangles · ` +
     `${(c.volume / 1000).toFixed(2)} cm³ · ` +
+    (r.marks.hole ? `${r.marks.hole.label} hole · ` : '') +
+    (r.marks.text ? `text ${r.marks.text.font} mm · ` : '') +
     (good ? '<span class="ok">closed solid, faces out</span>'
       : `<span class="bad">mesh problem: ${c.badEdges} open or doubled edges, ${c.degenerate} flat triangles, ${c.flipped} flipped flat triangles, volume ${c.volume.toFixed(1)}</span>`);
   drawProfile(r.profile);
@@ -413,18 +649,21 @@ function draw() {
     });
     const zb = new Float32Array(w * h).fill(-Infinity);
     const L = [-0.35, 0.5, 0.8], Ll = Math.hypot(...L);
-    for (const t of T) {
+    const [t0, t1] = cur.textTris;
+    T.forEach((t, k) => {
       const [a, b, c] = t.map((i) => P[i]);
       const n = cross(sub(b, a), sub(c, a)), nl = Math.hypot(...n);
-      if (n[2] <= 0 || nl === 0) continue;
+      if (n[2] <= 0 || nl === 0) return;
       const shade = 0.3 + 0.7 * Math.max(0, dot(n, L) / nl / Ll);
-      const col = [90 * shade, 150 * shade, 220 * shade];
+      // Debossed text drawn darker so it reads in the preview.
+      const base = k >= t0 && k < t1 ? [40, 70, 120] : [90, 150, 220];
+      const col = base.map((x) => x * shade);
       const S = [a, b, c].map((p) => [w / 2 + p[0] * s, h / 2 - p[1] * s, p[2]]);
       const x0 = Math.max(0, Math.floor(Math.min(S[0][0], S[1][0], S[2][0]))), x1 = Math.min(w - 1, Math.ceil(Math.max(S[0][0], S[1][0], S[2][0])));
       const y0 = Math.max(0, Math.floor(Math.min(S[0][1], S[1][1], S[2][1]))), y1 = Math.min(h - 1, Math.ceil(Math.max(S[0][1], S[1][1], S[2][1])));
       const e = (p, q, x, y) => (q[0] - p[0]) * (y - p[1]) - (q[1] - p[1]) * (x - p[0]);
       const area = e(S[0], S[1], S[2][0], S[2][1]);
-      if (area === 0) continue;
+      if (area === 0) return;
       for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
         const fx = x + 0.5, fy = y + 0.5;
         const w0 = e(S[1], S[2], fx, fy) / area, w1 = e(S[2], S[0], fx, fy) / area, w2 = 1 - w0 - w1;
@@ -434,7 +673,7 @@ function draw() {
         zb[i] = z;
         px[i * 4] = col[0]; px[i * 4 + 1] = col[1]; px[i * 4 + 2] = col[2];
       }
-    }
+    });
   }
   ctx.putImageData(img, 0, 0);
 }
@@ -461,14 +700,14 @@ cv.addEventListener('pointerdown', (e) => { dragFrom = [e.clientX, e.clientY]; c
 cv.addEventListener('pointermove', (e) => {
   if (!dragFrom) return;
   view.yaw += (e.clientX - dragFrom[0]) * 0.01;
-  view.pitch = Math.min(Math.PI, Math.max(0, view.pitch + (e.clientY - dragFrom[1]) * 0.01));
+  view.pitch = Math.min(Math.PI, Math.max(0, view.pitch - (e.clientY - dragFrom[1]) * 0.01));
   dragFrom = [e.clientX, e.clientY];
   draw();
 });
 cv.addEventListener('pointerup', () => (dragFrom = null));
 cv.addEventListener('wheel', (e) => { e.preventDefault(); view.zoom = Math.min(8, Math.max(0.3, view.zoom * Math.exp(-e.deltaY * 0.001))); draw(); }, { passive: false });
 window.addEventListener('resize', draw);
-window.proto = { SHAPES, build, check, stl, seamOffset, ccw, get cur() { return cur; } };
+window.proto = { SHAPES, build, check, stl, seamOffset, ccw, view, get cur() { return cur; } };
 update();
 </script>
 </body>
