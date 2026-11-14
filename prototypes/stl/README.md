@@ -22,12 +22,13 @@ sharper than 90° optionally trimmed).
 
 ## Text and hanging hole (owner, 2026-11-13)
 
-- Debossed into the floor (a solid template's top), 0.6 mm deep (Text depth): `Edge: 1"` and, on
-  fabric templates, `SA: 3/8"` (mm when 1U is in mm). Paper templates have no seam allowance, so
-  they show only the edge. Bold system sans, as a 0.2 mm grid; 4 mm text, smaller (to 2.5 mm) to fit.
-- A hanging hole through the floor, as high up as it fits, the text centred below it. 3/4" when
-  that fits with text 3 mm or more, else 3/8". Too small for both: text alone, then the hole alone,
-  then neither (a note says what was left out). A 1 in triangle has room for neither.
+- Debossed into the floor (a solid template's top), 0.6 mm deep (Text depth): `Edge: 1"` and
+  `SA: 3/8"` (mm when 1U is in mm). Paper templates say `SA: 0`, which marks them as paper.
+- Smooth letters: Noto Sans Bold outlines (SIL Open Font License 1.1) for just the characters
+  used, embedded in the page, so the text is the same on every machine.
+- Text first: the biggest size up to 6 mm (font size) that fits, down to 2.5 mm. Then the biggest
+  hanging hole that still fits with it (3/4", else 3/8"), above the text if it can, else below.
+  No room for text: the hole alone. A note says what was left out.
 
 When the pocket doesn't fit, the pocket's corner radius shrinks until it does (a note says so).
 Smaller still (about 1/2 in triangles and diamonds), the template is solid.
@@ -36,8 +37,9 @@ Smaller still (about 1/2 in triangles and diamonds), the template is solid.
 
 Every step is an offset of the outline, so the solid is a stack of rounded rings joined by bands:
 no CAD kernel needed. Each ring takes a point at the same outward directions (from the outline's
-corners), so every band is made of trapezoids that can't flip. The floor, with the text and the
-hole cut out of it, is split into triangles by ear clipping. The page checks each mesh (closed,
+corners), so every band is made of trapezoids that can't flip. The floor, with the letters and the
+hole cut out of it, is split into triangles by ear clipping (each hole cut open to the outside
+first). The page checks each mesh (closed,
 each edge used once each way, faces out, flat faces the right way up). All 13 built-in shapes, at
 1/2, 1, 1 1/2 and 2 in, paper and fabric (with and without trimmed points), with text and hole,
 pass, and trimesh agrees (watertight, one solid).
@@ -53,6 +55,3 @@ renderer to stay one file. In the app, three.js would only be the 3D view.
 - Paper templates: the 2 mm outside rounding blunts the paper's corners (a 60° diamond's point
   loses about 2 mm). Keep it, or sharp outside corners on paper templates?
 - Tiny shapes going solid: fine, or a smaller wall for them?
-- Hole: is "3/4" when it fits beside the text" the right rule, or a fixed size cutoff? Hole at the
-  top of the floor, or somewhere else (a corner, through the rim)?
-- Text on paper templates: edge only (as here), or also something like "Paper"?

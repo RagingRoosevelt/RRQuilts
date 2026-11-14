@@ -78,6 +78,9 @@
 const RAD = Math.PI / 180;
 const S3 = Math.sqrt(3);
 const $ = (id) => document.getElementById(id);
+// Noto Sans Bold (SIL Open Font License 1.1): outlines of the characters the template text uses,
+// curves flattened, font units, y up, every contour counter-clockwise.
+const FONT = {"name":"Noto Sans Bold","license":"SIL Open Font License 1.1","upm":1000,"glyphs":{" ":{"adv":260,"shapes":[]},"\"":{"adv":472,"shapes":[{"outer":[[65,714],[85,456],[181,456],[201,714]],"holes":[]},{"outer":[[271,714],[291,456],[387,456],[407,714]],"holes":[]}]},".":{"adv":285,"shapes":[{"outer":[[57.0,70.0],[63.2,32.1],[82.0,6.5],[143.0,-13.0],[203.0,6.5],[221.8,32.1],[228.0,70.0],[221.8,109.1],[203.0,134.5],[143.0,153.0],[82.0,134.5],[63.2,109.1]],"holes":[]}]},"/":{"adv":413,"shapes":[{"outer":[[273,714],[7,0],[142,0],[408,714]],"holes":[]}]},"0":{"adv":572,"shapes":[{"outer":[[535.0,357.0],[528.2,464.4],[507.9,554.8],[474.0,628.0],[425.9,681.9],[362.9,714.2],[285.0,725.0],[203.0,714.0],[139.0,681.0],[91.8,627.5],[60.0,555.0],[42.0,464.5],[36.0,357.0],[51.0,203.6],[96.0,87.5],[143.7,33.3],[206.7,0.8],[285.0,-10.0],[367.6,1.0],[431.5,34.0],[478.5,87.5],[510.5,160.0],[528.9,250.2]],"holes":[[[191.2,250.1],[207.0,173.5],[237.0,127.4],[285.0,112.0],[332.5,127.2],[363.0,173.0],[379.5,249.5],[385.0,357.0],[379.5,464.0],[363.0,541.0],[332.5,587.5],[285.0,603.0],[237.0,587.5],[207.0,541.0],[191.2,464.0],[186.0,357.0]]]}]},"1":{"adv":572,"shapes":[{"outer":[[413,714],[289,714],[59,531],[132,440],[214.0,506.0],[244.5,533.5],[266.0,555.0],[263.5,481.0],[262,413],[262,0],[413,0]],"holes":[]}]},"2":{"adv":572,"shapes":[{"outer":[[539,127],[228,127],[228,134],[320.0,220.0],[427.5,326.0],[495.5,423.0],[513.1,474.5],[519.0,531.0],[512.1,583.1],[491.5,629.5],[458.2,668.5],[413.5,698.5],[358.1,717.6],[293.0,724.0],[183.5,709.5],[103.5,672.0],[38,622],[120.0,525.0],[202.0,579.0],[282.0,598.0],[317.9,592.8],[345.5,577.0],[363.1,550.5],[369.0,513.0],[354.0,447.5],[306.0,379.5],[267.8,337.4],[219,286],[40,105],[40,0],[539,0]],"holes":[]}]},"3":{"adv":572,"shapes":[{"outer":[[511.0,554.0],[494.9,625.9],[446.5,679.5],[370.6,712.9],[272.0,724.0],[199.4,719.0],[137.5,704.0],[39,654],[109.0,550.0],[172.5,584.5],[261.0,602.0],[308.1,596.6],[339.5,580.5],[357.1,554.9],[363.0,521.0],[350.5,471.5],[303.5,437.5],[261.1,428.1],[203,425],[148,425],[148,309],[202.0,309.0],[261.6,306.4],[306.5,298.5],[338.4,285.5],[359.0,267.5],[374.0,217.0],[365.9,171.8],[341.5,138.0],[296.9,117.0],[228.0,110.0],[134.5,122.0],[38,157],[38.0,29.0],[134.5,-0.2],[244.0,-10.0],[334.9,-2.9],[407.5,18.5],[462.8,52.2],[501.5,96.5],[524.4,149.1],[532.0,208.0],[520.9,271.8],[487.5,321.0],[432.6,355.0],[357,373],[357.0,376.0],[416.9,399.0],[466.5,436.0],[499.9,487.5]],"holes":[]}]},"4":{"adv":572,"shapes":[{"outer":[[555,265],[469,265],[469,714],[330,714],[17,253],[17,148],[322,148],[322,0],[469,0],[469,148],[555,148]],"holes":[[[322,386],[323.0,442.0],[325.5,503.5],[328.0,541.0],[324,541],[305.0,502.0],[281.0,463.0],[150,265],[322,265]]]}]},"5":{"adv":572,"shapes":[{"outer":[[300.0,456.0],[245.5,452.5],[209,446],[222,586],[477,586],[477,714],[90,714],[63,350],[123.0,318.0],[173.0,328.5],[231.0,334.0],[310.4,322.0],[358.1,286.0],[374.0,226.0],[365.1,175.6],[338.5,140.5],[295.1,119.9],[236.0,113.0],[138.0,126.5],[49,159],[49.0,29.0],[135.5,0.0],[241.0,-10.0],[364.8,6.6],[454.0,56.5],[508.0,135.4],[526.0,239.0],[518.6,304.2],[496.5,358.0],[461.6,400.2],[416.0,431.0],[361.5,449.8]],"holes":[]}]},"6":{"adv":572,"shapes":[{"outer":[[35.0,303.0],[43.8,205.4],[70.0,126.5],[111.0,66.0],[164.0,23.5],[226.5,-1.6],[296.0,-10.0],[396.4,6.5],[473.5,56.0],[522.6,134.5],[539.0,238.0],[525.2,333.8],[484.0,405.0],[419.2,449.2],[335.0,464.0],[280.6,458.0],[237.5,440.0],[180,381],[174.0,381.0],[197.0,497.5],[224.1,542.4],[265.5,576.0],[324.1,597.0],[403.0,604.0],[447.5,601.5],[489,594],[489.0,715.0],[442.0,720.5],[393.0,722.0],[310.6,716.1],[241.5,698.5],[184.5,670.5],[138.5,633.5],[75.5,538.5],[44.0,425.0]],"holes":[[[333.0,118.6],[365.0,141.5],[386.0,180.4],[393.0,236.0],[387.0,282.5],[369.0,318.0],[338.8,340.5],[296.0,348.0],[238.0,333.5],[199.0,296.0],[185.0,249.0],[197.0,184.5],[233.5,132.0],[293.0,111.0]]]}]},"7":{"adv":572,"shapes":[{"outer":[[269,0],[539,619],[539,714],[27,714],[27,587],[379,587],[111,0]],"holes":[]}]},"8":{"adv":572,"shapes":[{"outer":[[286.0,723.0],[173.5,704.0],[126.1,680.2],[89.0,647.0],[65.0,604.2],[57.0,552.0],[65.4,493.4],[90.5,445.5],[172.0,373.0],[119.2,340.8],[75.0,300.0],[45.0,247.8],[35.0,181.0],[51.4,101.5],[100.5,41.0],[179.6,2.8],[286.0,-10.0],[355.6,-4.0],[416.5,14.0],[466.8,43.0],[504.5,82.0],[528.1,129.8],[536.0,185.0],[530.6,229.9],[514.5,268.5],[458.5,330.5],[386.0,377.0],[477.5,445.5],[504.9,492.6],[514.0,551.0],[506.1,604.0],[482.5,647.0],[446.0,680.2],[399.5,704.0]],"holes":[[[223.5,594.0],[205.1,571.0],[199.0,540.0],[205.5,506.5],[225.0,480.0],[286.0,440.0],[346.0,478.5],[365.5,505.1],[372.0,540.0],[365.9,571.0],[347.5,594.0],[285.0,613.0]],[[181.9,154.5],[202.5,126.0],[236.6,107.2],[284.0,101.0],[333.0,107.0],[368.0,125.0],[389.0,153.0],[396.0,189.0],[380.0,236.5],[340.5,273.5],[292.0,304.0],[279,311],[204.0,260.0],[182.2,228.0],[175.0,190.0]]]}]},"9":{"adv":572,"shapes":[{"outer":[[536.0,409.0],[527.2,506.6],[501.0,585.5],[460.0,646.0],[407.0,688.5],[344.5,713.6],[275.0,722.0],[174.6,705.5],[97.5,656.0],[48.4,577.5],[32.0,474.0],[45.8,378.2],[87.0,307.0],[151.0,262.8],[233.0,248.0],[292.6,254.0],[335.5,272.0],[391,331],[397.0,331.0],[374.0,215.0],[346.9,170.4],[305.5,136.5],[246.9,115.1],[168.0,108.0],[124.0,111.0],[82,118],[82.0,-3.0],[129.0,-8.5],[178.0,-10.0],[260.4,-4.1],[329.5,13.5],[386.5,41.5],[432.5,78.5],[495.5,173.5],[527.0,287.5]],"holes":[[[238.0,593.5],[206.0,571.0],[185.0,532.2],[178.0,476.0],[184.0,429.5],[202.0,394.0],[232.2,371.5],[275.0,364.0],[333.5,379.0],[372.0,416.5],[386.0,463.0],[374.0,528.0],[338.0,580.5],[278.0,601.0]]]}]},":":{"adv":285,"shapes":[{"outer":[[57.0,473.0],[63.2,435.1],[82.0,409.5],[143.0,390.0],[203.0,409.5],[221.8,435.1],[228.0,473.0],[221.8,512.1],[203.0,537.5],[143.0,556.0],[82.0,537.5],[63.2,512.1]],"holes":[]},{"outer":[[57.0,70.0],[63.2,32.1],[82.0,6.5],[143.0,-13.0],[203.0,6.5],[221.8,32.1],[228.0,70.0],[221.8,109.1],[203.0,134.5],[143.0,153.0],[82.0,134.5],[63.2,109.1]],"holes":[]}]},"A":{"adv":690,"shapes":[{"outer":[[690,0],[437,717],[252,717],[0,0],[163,0],[215,170],[475,170],[527,0]],"holes":[[[387,463],[374.0,506.0],[358.0,559.0],[345.0,606.0],[331.5,556.5],[315.5,500.5],[304.0,463.0],[253,297],[439,297]]]}]},"E":{"adv":560,"shapes":[{"outer":[[501,125],[241,125],[241,309],[483,309],[483,433],[241,433],[241,590],[501,590],[501,714],[90,714],[90,0],[501,0]],"holes":[]}]},"S":{"adv":551,"shapes":[{"outer":[[511.0,198.0],[505.8,249.5],[490.0,292.0],[430.5,358.0],[337.0,412.0],[278.2,441.5],[236.0,466.0],[210.5,492.0],[202.0,526.0],[207.8,555.0],[225.0,578.0],[253.0,593.0],[291.0,598.0],[371.0,587.0],[459,556],[508.0,674.0],[402.5,711.0],[296.0,724.0],[195.8,710.6],[119.0,670.5],[70.2,606.4],[54.0,521.0],[71.0,437.0],[114.5,377.5],[170.0,336.5],[224.0,308.0],[295.0,272.5],[344.5,237.0],[363.0,191.0],[357.1,160.9],[339.5,136.5],[307.9,120.4],[260.0,115.0],[151.5,133.5],[46,174],[46.0,33.0],[141.0,0.8],[248.0,-10.0],[359.6,4.1],[442.5,46.5],[493.9,112.6]],"holes":[]}]},"d":{"adv":633,"shapes":[{"outer":[[251.0,-10.0],[304.5,-4.1],[347.0,13.5],[406,71],[412,71],[441,0],[555,0],[555,760],[406,760],[406.0,585.0],[410.0,522.5],[417,476],[412.0,476.0],[352.0,533.0],[308.8,550.2],[255.0,556.0],[170.0,538.0],[103.0,484.0],[59.5,395.0],[45.0,272.0],[59.4,149.9],[102.5,61.5],[168.4,7.9]],"holes":[[[355.8,118.1],[390.0,145.5],[409.0,191.1],[416.0,255.0],[416,271],[409.9,341.5],[391.5,393.0],[356.6,424.5],[301.0,435.0],[257.2,424.4],[224.0,392.5],[203.0,340.6],[196.0,270.0],[203.0,199.9],[224.0,149.5],[257.8,119.1],[303.0,109.0]]]}]},"e":{"adv":591,"shapes":[{"outer":[[303.0,556.0],[230.8,548.0],[168.0,524.0],[116.4,484.1],[77.5,428.5],[53.1,356.9],[45.0,269.0],[54.0,183.0],[81.0,113.0],[123.8,58.9],[180.0,20.5],[247.8,-2.4],[325.0,-10.0],[432.5,-0.5],[517,29],[517.0,144.0],[428.0,111.5],[332.0,101.0],[275.9,110.0],[233.5,137.0],[206.4,179.8],[196,236],[548,236],[548.0,308.0],[531.5,413.4],[482.0,491.5],[404.2,539.9]],"holes":[[[264.6,443.0],[232.5,422.0],[209.9,386.2],[199.0,335.0],[408,335],[401.0,380.6],[382.0,417.5],[350.0,441.9],[304.0,450.0]]]}]},"g":{"adv":633,"shapes":[{"outer":[[255.0,556.0],[167.5,537.2],[101.0,481.0],[59.0,391.2],[45.0,272.0],[58.6,153.6],[99.5,64.5],[164.6,8.6],[251.0,-10.0],[339.0,9.0],[375.2,34.0],[406,71],[410.0,71.0],[407.5,39.0],[406,4],[406.0,-7.0],[393.2,-75.9],[354.9,-117.2],[291.0,-131.0],[181.8,-120.5],[78,-89],[78.0,-208.0],[174.5,-233.0],[282.0,-240.0],[400.5,-224.8],[486.0,-179.0],[537.8,-104.0],[555,-1],[555,546],[429,546],[417,476],[413.0,476.0],[345.0,536.0]],"holes":[[[243.7,416.7],[208.7,361.7],[197.0,270.0],[208.9,179.4],[244.6,125.1],[304.0,107.0],[353.6,115.1],[388.5,139.5],[409.1,184.1],[416.0,253.0],[416,271],[409.2,346.5],[389.0,397.0],[353.8,425.5],[302.0,435.0]]]}]},"m":{"adv":982,"shapes":[{"outer":[[719.0,556.0],[627.5,537.0],[587.9,512.2],[558,476],[545.0,476.0],[518.0,511.6],[481.0,536.5],[434.5,551.1],[379.0,556.0],[288.5,537.0],[249.6,512.2],[220,476],[212,476],[192,546],[78,546],[78,0],[227,0],[227.0,257.0],[232.9,333.9],[250.5,390.5],[283.6,425.4],[336.0,437.0],[381.6,423.9],[408.9,384.6],[418,319],[418,0],[567,0],[567.0,274.0],[573.2,343.8],[592.0,395.0],[625.5,426.5],[676.0,437.0],[721.6,423.9],[748.9,384.6],[758,319],[758,0],[907,0],[907.0,356.0],[895.1,446.6],[859.5,508.5],[800.6,544.1]],"holes":[]}]}}};
 
 // --- Shapes: the app's starters (src/content/epp.ts), in units, y up, counter-clockwise ---
 const area2 = (p) => p.reduce((s, a, i) => { const b = p[(i + 1) % p.length]; return s + a[0] * b[1] - b[0] * a[1]; }, 0);
@@ -261,12 +264,13 @@ function faceTris(outer, holes, V) {
     // A point inside the triangle (hole point, ray crossing, P) would block the cut: take the one
     // nearest the ray's direction.
     const P0 = pt(iP), tri0 = [M, [best, M[1]], P0];
-    let tan = Math.abs(P0[1] - M[1]) / Math.max(P0[0] - M[0], 1e-12);
+    let tan = Math.abs(P0[1] - M[1]) / Math.max(P0[0] - M[0], 1e-12), dist = P0[0] - M[0];
     poly.forEach((v, i) => {
       const q = [X(v), Y(v)];
       if ((q[0] === P0[0] && q[1] === P0[1]) || q[0] <= M[0] || !inTri(q, ...tri0)) return;
-      const t = Math.abs(q[1] - M[1]) / (q[0] - M[0]);
-      if (t < tan) { tan = t; iP = i; }
+      // Same direction (letters share heights): the nearest, so the cut passes through nothing.
+      const t = Math.abs(q[1] - M[1]) / (q[0] - M[0]), dx = q[0] - M[0];
+      if (t < tan - 1e-12 || (t <= tan + 1e-12 && dx < dist)) { tan = t; dist = dx; iP = i; }
     });
     // A point used twice (an earlier cut's end) joins on the copy whose corner opens toward m.
     const ang = (u, v) => { const t = Math.atan2(v[1], v[0]) - Math.atan2(u[1], u[0]); return t < 0 ? t + 2 * Math.PI : t; };
@@ -310,76 +314,75 @@ function faceTris(outer, holes, V) {
 }
 
 /**
- * Text as a grid of cells (true = debossed), bottom row first, with a clear border. Cells that
- * touch only at a corner get filled in (a corner shared by four walls can't be printed as one solid).
+ * Text as outlines in mm: each letter part's outline and its holes (e, d, g, 0...), lines centred,
+ * the block's lower-left corner (margin included) at 0, 0.
  */
-function textGrid(lines, fontMM, cell, marginMM) {
-  const px = fontMM / cell, mg = Math.ceil(marginMM / cell);
-  const cv = document.createElement('canvas'), g = cv.getContext('2d');
-  const font = `bold ${px}px sans-serif`;
-  g.font = font;
-  const ms = lines.map((t) => g.measureText(t));
-  const gap = px * 0.3;
-  const wd = Math.max(...ms.map((m) => m.actualBoundingBoxLeft + m.actualBoundingBoxRight));
-  const hs = ms.map((m) => m.actualBoundingBoxAscent + m.actualBoundingBoxDescent);
-  const nx = Math.ceil(wd) + 2 * mg, ny = Math.ceil(hs.reduce((a, b) => a + b, 0) + gap * (lines.length - 1)) + 2 * mg;
-  cv.width = nx;
-  cv.height = ny;
-  g.font = font;
-  let y = mg;
-  ms.forEach((m, k) => {
-    const lw = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
-    g.fillText(lines[k], mg + (wd - lw) / 2 + m.actualBoundingBoxLeft, y + m.actualBoundingBoxAscent);
-    y += hs[k] + gap;
-  });
-  const alpha = g.getImageData(0, 0, nx, ny).data;
-  const grid = Array.from({ length: ny }, (_, j) =>
-    Array.from({ length: nx }, (_, i) => i > 0 && j > 0 && i < nx - 1 && j < ny - 1 && alpha[((ny - 1 - j) * nx + i) * 4 + 3] > 127));
-  for (let pass = 0, changed = true; changed && pass < 8; pass++) {
-    changed = false;
-    for (let j = 0; j + 1 < ny; j++) for (let i = 0; i + 1 < nx; i++) {
-      const [a, b, c, d] = [grid[j][i], grid[j][i + 1], grid[j + 1][i], grid[j + 1][i + 1]];
-      if (a === d && b === c && a !== b) { if (a) grid[j][i + 1] = true; else grid[j][i] = true; changed = true; }
+function textShape(lines, fontMM, marginMM) {
+  const k = fontMM / FONT.upm, gap = fontMM * 0.3;
+  const move = (pts, dx, dy) => pts.map(([x, y]) => [x + dx, y + dy]);
+  const laid = lines.map((t) => {
+    let x = 0;
+    const shapes = [];
+    for (const ch of t) {
+      const g = FONT.glyphs[ch];
+      if (!g) continue;
+      for (const sh of g.shapes) shapes.push({ outer: move(sh.outer, x / k, 0).map(([a, b]) => [a * k, b * k]), holes: sh.holes.map((h) => move(h, x / k, 0).map(([a, b]) => [a * k, b * k])) });
+      x += g.adv * k;
     }
+    const pts = shapes.flatMap((sh) => sh.outer);
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    return { shapes, x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+  });
+  const w = Math.max(...laid.map((l) => l.x1 - l.x0));
+  const h = laid.reduce((sum, l) => sum + l.y1 - l.y0, 0) + gap * (laid.length - 1);
+  const shapes = [];
+  let top = marginMM + h;
+  for (const l of laid) {
+    const dx = marginMM + (w - (l.x1 - l.x0)) / 2 - l.x0, dy = top - l.y1;
+    for (const sh of l.shapes) shapes.push({ outer: move(sh.outer, dx, dy), holes: sh.holes.map((hh) => move(hh, dx, dy)) });
+    top -= l.y1 - l.y0 + gap;
   }
-  return { nx, ny, grid, w: nx * cell, h: ny * cell };
+  return { shapes, w: w + 2 * marginMM, h: h + 2 * marginMM };
 }
 
 const HOLES = [[19.05, '3/4"'], [9.525, '3/8"']];
-const FONTS = [4, 3.5, 3, 2.5];
+const FONTS = [6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5];
 
 /**
- * Where the hanging hole and the text go on a flat convex face: the hole as high as it fits, the
- * text centred in the room below it. Tries a 3/4" hole with text 3 mm or more, then a 3/8" hole,
- * then text alone, then the hole alone.
+ * Where the text and the hanging hole go on a flat convex face (owner, 2026-11-13): the biggest text
+ * up to 6 mm first, then the biggest hole that still fits, above the text if it can (else below).
+ * No room for text: the hole alone.
  */
-function placeMarks(face, lines, cell, clr = 1) {
-  const holeAt = (d) => {
+function placeMarks(face, lines, clr = 1) {
+  /** The hole as high (or low) as it fits. */
+  const holeAt = (d, up) => {
     const Q = inset(face, d / 2 + clr);
     if (!Q) return null;
-    const top = Math.max(...Q.map((p) => p[1]));
-    const t = Q.filter((p) => p[1] > top - 1e-6);
-    return { c: [t.reduce((s, p) => s + p[0], 0) / t.length, top], r: d / 2 };
+    const y = up ? Math.max(...Q.map((p) => p[1])) : Math.min(...Q.map((p) => p[1]));
+    const t = Q.filter((p) => Math.abs(p[1] - y) < 1e-6);
+    return { c: [t.reduce((s, p) => s + p[0], 0) / t.length, y], r: d / 2 };
   };
-  const textAt = (font, hole) => {
+  /** The text centred in the room left (below a hole at the top, above one at the bottom). */
+  const textAt = (font, hole, up) => {
     if (!lines.length) return null;
-    const tg = textGrid(lines, font, cell, 0.6);
-    const extra = hole ? [[0, 1, hole.c[1] - hole.r - clr - tg.h / 2]] : [];
+    const tg = textShape(lines, font, 0.6);
+    const extra = !hole ? [] : up ? [[0, 1, hole.c[1] - hole.r - clr - tg.h / 2]] : [[0, -1, -(hole.c[1] + hole.r + clr + tg.h / 2)]];
     const room = inset(face, (nx, ny) => clr + (Math.abs(nx) * tg.w) / 2 + (Math.abs(ny) * tg.h) / 2, extra);
     if (!room) return null;
     const c = room.reduce((s, p) => [s[0] + p[0] / room.length, s[1] + p[1] / room.length], [0, 0]);
     return { ...tg, font, x0: c[0] - tg.w / 2, y0: c[1] - tg.h / 2 };
   };
-  for (const [d, label] of HOLES) {
-    const hole = holeAt(d);
-    if (!hole) continue;
-    for (const f of FONTS.filter((f) => d < 19 || f >= 3)) {
-      const text = textAt(f, hole);
+  for (const f of FONTS) {
+    const alone = textAt(f, null);
+    if (!alone) continue;
+    for (const [d, label] of HOLES) for (const up of [true, false]) {
+      const hole = holeAt(d, up);
+      const text = hole && textAt(f, hole, up);
       if (text) return { hole: { ...hole, label }, text };
     }
+    return { hole: null, text: alone };
   }
-  for (const f of FONTS) { const text = textAt(f, null); if (text) return { hole: null, text }; }
-  for (const [d, label] of HOLES.slice(1)) { const hole = holeAt(d); if (hole) return { hole: { ...hole, label }, text: null }; }
+  for (const [d, label] of HOLES) { const hole = holeAt(d, true); if (hole) return { hole: { ...hole, label }, text: null }; }
   return { hole: null, text: null };
 }
 
@@ -452,39 +455,25 @@ function build(P, o) {
     if (dot(n, dir) >= 0) { tri(a, b, c); tri(a, c, d); } else { tri(a, c, b); tri(a, d, c); }
   };
   const circle = (c, r, z) => Array.from({ length: 64 }, (_, k) => V.push([c[0] + r * Math.cos((k * Math.PI) / 32), c[1] + r * Math.sin((k * Math.PI) / 32), z]) - 1);
-  /** Debossed text, cells `cell` mm, sunk `depth` from zTop; returns its outline (a hole in the face). */
-  const deboss = (t, cell, zTop, depth) => {
-    const top = new Map(), low = new Map();
-    const at = (map, z) => (i, j) => {
-      const k = i * (t.ny + 1) + j;
-      if (!map.has(k)) map.set(k, V.push([t.x0 + i * cell, t.y0 + j * cell, z]) - 1);
-      return map.get(k);
-    };
-    const Tv = at(top, zTop), Bv = at(low, zTop - depth);
-    // The floor between letters first, then the letters (their triangles drawn darker).
-    for (const sunk of [false, true]) {
-      if (sunk) textFrom = T.length;
-      for (let j = 0; j < t.ny; j++) for (let i = 0; i < t.nx; i++) {
-        if (t.grid[j][i] !== sunk) continue;
-        const v = sunk ? Bv : Tv;
-        tri(v(i, j), v(i + 1, j), v(i + 1, j + 1));
-        tri(v(i, j), v(i + 1, j + 1), v(i, j + 1));
-      }
+  /**
+   * Debossed text sunk `depth` from zTop: letter outlines become holes in the face (returned), their
+   * holes stay at face height as islands, walls and bottoms below.
+   */
+  const deboss = (t, zTop, depth) => {
+    const loop = (pts, z) => pts.map(([x, y]) => V.push([t.x0 + x, t.y0 + y, z]) - 1);
+    const parts = t.shapes.map((sh) => ({
+      top: loop(sh.outer, zTop),
+      low: loop(sh.outer, zTop - depth),
+      holes: sh.holes.map((hh) => ({ top: loop(hh, zTop), low: loop(hh, zTop - depth) })),
+    }));
+    for (const p of parts) for (const hh of p.holes) faceOk = face(hh.top, [], true) && faceOk;
+    textFrom = T.length;
+    for (const p of parts) {
+      stitch(p.low, p.top, false);
+      for (const hh of p.holes) stitch(hh.low, hh.top, true);
+      faceOk = face(p.low, p.holes.map((hh) => hh.low), true) && faceOk;
     }
-    for (let j = 0; j < t.ny; j++) for (let i = 1; i < t.nx; i++) {
-      const [l, r] = [t.grid[j][i - 1], t.grid[j][i]];
-      if (l !== r) quad(Tv(i, j), Tv(i, j + 1), Bv(i, j + 1), Bv(i, j), [l ? -1 : 1, 0, 0]);
-    }
-    for (let j = 1; j < t.ny; j++) for (let i = 0; i < t.nx; i++) {
-      const [d, u] = [t.grid[j - 1][i], t.grid[j][i]];
-      if (d !== u) quad(Tv(i, j), Tv(i + 1, j), Bv(i + 1, j), Bv(i, j), [0, d ? -1 : 1, 0]);
-    }
-    const loop = [];
-    for (let i = 0; i < t.nx; i++) loop.push(Tv(i, 0));
-    for (let j = 0; j < t.ny; j++) loop.push(Tv(t.nx, j));
-    for (let i = t.nx; i > 0; i--) loop.push(Tv(i, t.ny));
-    for (let j = t.ny; j > 0; j--) loop.push(Tv(0, j));
-    return loop;
+    return parts.map((p) => p.top);
   };
 
   const outer = levels([[0, rOut - cOut], [cOut, rOut], [H - cOut, rOut], [H, rOut - cOut]]).map(([z, r]) => ring(Qo, r, z));
@@ -501,11 +490,10 @@ function build(P, o) {
   // The floor (or a solid template's top) carries the text and the hanging hole.
   const zTop = pocket ? F : H;
   const flat = pocket ? inner[inner.length - 1] : outer[outer.length - 1];
-  const cell = 0.2;
-  const marks = placeMarks(uniq(flat).map((i) => V[i]), o.lines, cell);
+  const marks = placeMarks(uniq(flat).map((i) => V[i]), o.lines);
   const holes = [];
-  let textFrom = T.length;
-  if (marks.text) holes.push(deboss(marks.text, cell, zTop, o.depth));
+  let textFrom = T.length, faceOk = true;
+  if (marks.text) holes.push(...deboss(marks.text, zTop, o.depth));
   else if (o.lines.length) notes.push('No room for the text.');
   const textTris = [textFrom, T.length];
   let ringLow = null;
@@ -515,7 +503,7 @@ function build(P, o) {
     stitch(ringLow, ringTop, false);
     holes.push(ringTop);
   } else notes.push('No room for a hanging hole.');
-  if (!face(flat, holes, true) || !face(outer[0], ringLow ? [ringLow] : [], false)) return { errors: ['Could not cut a flat face into triangles.'] };
+  if (!faceOk || !face(flat, holes, true) || !face(outer[0], ringLow ? [ringLow] : [], false)) return { errors: ['Could not cut a flat face into triangles.'] };
   return { V, T, notes, profile, pocket: !!pocket, marks, textTris };
 }
 
@@ -588,7 +576,7 @@ function update() {
   if (fabric) P = ccw(seamOffset(P, parseFloat($('seam').value) * mm, $('trim').checked));
   $('seamUnit').textContent = $('unit').value;
   $('cIn').placeholder = `auto ${((params().height - params().floor) / 2).toFixed(2)}`;
-  const lines = [`Edge: ${fmt(edge, u)}`, ...(fabric ? [`SA: ${fmt(seam, u)}`] : [])];
+  const lines = [`Edge: ${fmt(edge, u)}`, fabric ? `SA: ${fmt(seam, u)}` : 'SA: 0'];
   const r = Number.isFinite(unit) && unit > 0 ? build(P, { ...params(), lines }) : { errors: ['1U must be more than 0.'] };
   const msgs = $('msgs');
   msgs.innerHTML = '';
