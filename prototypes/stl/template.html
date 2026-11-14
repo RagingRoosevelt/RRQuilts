@@ -346,14 +346,19 @@ function textShape(lines, fontMM, marginMM) {
 }
 
 const HOLES = [[19.05, '3/4"'], [9.525, '3/8"']];
-const FONTS = [6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5];
+/** Text sizes to try: the target, then 5% smaller each step, down to 2.5 mm. */
+const textSizes = (target) => {
+  const out = [];
+  for (let f = target; f > 2.5; f *= 0.95) out.push(+f.toFixed(2));
+  return [...out, 2.5];
+};
 
 /**
  * Where the text and the hanging hole go on a flat convex face (owner, 2026-11-13): the biggest text
- * up to 6 mm first, then the biggest hole that still fits, above the text if it can (else below).
+ * up to `target` mm first, then the biggest hole that still fits, above the text if it can (else below).
  * No room for text: the hole alone.
  */
-function placeMarks(face, lines, clr = 1) {
+function placeMarks(face, lines, target, clr = 1) {
   /** The hole as high (or low) as it fits. */
   const holeAt = (d, up) => {
     const Q = inset(face, d / 2 + clr);
@@ -372,7 +377,7 @@ function placeMarks(face, lines, clr = 1) {
     const c = room.reduce((s, p) => [s[0] + p[0] / room.length, s[1] + p[1] / room.length], [0, 0]);
     return { ...tg, font, x0: c[0] - tg.w / 2, y0: c[1] - tg.h / 2 };
   };
-  for (const f of FONTS) {
+  for (const f of textSizes(target)) {
     const alone = textAt(f, null);
     if (!alone) continue;
     for (const [d, label] of HOLES) for (const up of [true, false]) {
@@ -490,7 +495,7 @@ function build(P, o) {
   // The floor (or a solid template's top) carries the text and the hanging hole.
   const zTop = pocket ? F : H;
   const flat = pocket ? inner[inner.length - 1] : outer[outer.length - 1];
-  const marks = placeMarks(uniq(flat).map((i) => V[i]), o.lines);
+  const marks = placeMarks(uniq(flat).map((i) => V[i]), o.lines, o.textSize);
   const holes = [];
   let textFrom = T.length, faceOk = true;
   if (marks.text) holes.push(...deboss(marks.text, zTop, o.depth));
@@ -577,7 +582,7 @@ function update() {
   $('seamUnit').textContent = $('unit').value;
   $('cIn').placeholder = `auto ${((params().height - params().floor) / 2).toFixed(2)}`;
   const lines = [`Edge: ${fmt(edge, u)}`, fabric ? `SA: ${fmt(seam, u)}` : 'SA: 0'];
-  const r = Number.isFinite(unit) && unit > 0 ? build(P, { ...params(), lines }) : { errors: ['1U must be more than 0.'] };
+  const r = Number.isFinite(unit) && unit > 0 ? build(P, { ...params(), lines, textSize: (6 * unit) / 25.4 }) : { errors: ['1U must be more than 0.'] };
   const msgs = $('msgs');
   msgs.innerHTML = '';
   for (const e of r.errors || []) msgs.insertAdjacentHTML('beforeend', `<div class="bad">${e}</div>`);

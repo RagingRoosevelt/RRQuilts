@@ -26,7 +26,8 @@ sharper than 90° optionally trimmed).
   `SA: 3/8"` (mm when 1U is in mm). Paper templates say `SA: 0`, which marks them as paper.
 - Smooth letters: Noto Sans Bold outlines (SIL Open Font License 1.1) for just the characters
   used, embedded in the page, so the text is the same on every machine.
-- Text first: the biggest size up to 6 mm (font size) that fits, down to 2.5 mm. Then the biggest
+- Text first: aim for 6 mm (font size) per inch of edge (12 mm at 2", 3 mm at 1/2"), 5% smaller
+  each step until it fits, down to 2.5 mm. Then the biggest
   hanging hole that still fits with it (3/4", else 3/8"), above the text if it can, else below.
   No room for text: the hole alone. A note says what was left out.
 
