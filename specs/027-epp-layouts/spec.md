@@ -326,8 +326,16 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 ### Stretch goal - STL cutting templates
 
 1. **Given** any shape, **When** exporting, **Then** the app writes STL files for 3D-printed cutting
-   templates: a paper template (finished size) and a fabric template (with seam allowance), with a
-   chosen thickness and an optional rim or handle, so quilters can cut papers and fabric themselves.
+   templates: a paper template (finished size) and a fabric template (with seam allowance), so
+   quilters can cut papers and fabric themselves.
+2. Owner, 2026-11-13 (prototype `prototypes/stl/template.html` on branch `proto/epp-stl`):
+   - Export from an EPP shape's preview, the rosette editor and the EPP quilt, with the size picked
+     as a number of U (1U to 4U) and the 1U length.
+   - Build: the outline extruded 4 mm, shelled with an open top 1.2 mm thick, walls brought in to
+     4 mm, outside corners rounded 2 mm, pocket corners 6 mm, outer edges chamfered 0.4 mm, inner
+     edges (4 − 1.2) / 2 mm.
+   - The edge size and seam allowance debossed in the floor (`Edge: 1"`, `SA: 3/8"`, or mm), and
+     a hanging hole, 3/8" or 3/4" depending on the template's size.
 
 ### Edge Cases
 
