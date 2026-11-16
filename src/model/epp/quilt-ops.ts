@@ -1,5 +1,5 @@
 // EPP quilt edits (spec 027 US1-3): pieces placed, moved, painted, broken into patches; the quilt's
-// 1U length, seam allowance and edge. `refresh` keeps the derived box and closing pieces current.
+// 1U length and edge (the seam allowance is the project's, `model/seams.ts`). `refresh` keeps the derived box and closing pieces current.
 import type { Fill } from '../schema/coloring';
 import type {
   EppEdge,
@@ -22,16 +22,13 @@ import { clipAt, DUPLICATE_ID, type Clip } from './selection';
 import type { Pt } from '../geometry/path';
 import { DEFAULT_LICENSE } from '../credits';
 
-/** Defaults (owner, 2026-11-10): 1U = 2 in (5 cm), seam allowance 3/8 in (1 cm). */
-export const eppDefaults = (units: Units) =>
-  units === 'cm' ? { unit: 5, seam: 1 } : { unit: 2, seam: 0.375 };
+/** Defaults (owner, 2026-11-10): 1U = 2 in (5 cm). */
+export const eppDefaults = (units: Units) => (units === 'cm' ? { unit: 5 } : { unit: 2 });
 
-export function newEppQuilt(name: string, units: Units, unit?: number, seam?: number): Quilt {
-  const d = eppDefaults(units);
+export function newEppQuilt(name: string, units: Units, unit?: number): Quilt {
   const layout: EppLayout = {
     style: 'epp',
-    unit: unit ?? d.unit,
-    seam: seam ?? d.seam,
+    unit: unit ?? eppDefaults(units).unit,
     edge: { kind: 'none' },
   };
   return { ...createQuilt(name, layout, []), epp: { pieces: [] } };

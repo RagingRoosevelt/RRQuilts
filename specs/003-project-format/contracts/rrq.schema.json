@@ -7862,7 +7862,6 @@
                     "required": [
                       "style",
                       "unit",
-                      "seam",
                       "edge"
                     ],
                     "properties": {
@@ -7873,10 +7872,6 @@
                       "unit": {
                         "type": "number",
                         "exclusiveMinimum": 0
-                      },
-                      "seam": {
-                        "type": "number",
-                        "minimum": 0
                       },
                       "edge": {
                         "anyOf": [
@@ -11117,6 +11112,19 @@
         },
         "includeLibraryImages": {
           "type": "boolean"
+        },
+        "seams": {
+          "type": "object",
+          "properties": {
+            "piecing": {
+              "type": "number",
+              "minimum": 0
+            },
+            "epp": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
         }
       }
     }

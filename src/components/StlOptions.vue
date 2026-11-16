@@ -33,8 +33,7 @@
         @update:model-value="stl.setNU"
       />
       <div v-if="stl.fromQuilt" class="text-caption text-grey-7">
-        1U = {{ fmtLen(stl.unit, stl.units) }} and the seam allowance
-        {{ fmtLen(stl.seam, stl.units) }}, as set for the quilt.
+        1U = {{ fmtLen(stl.unit, stl.units) }}, as set for the quilt.
       </div>
       <LengthInput
         v-else-if="stl.kind === 'shape' || stl.kind === 'rosette'"
@@ -86,11 +85,13 @@
       />
       <template v-if="stl.opts.fabric">
         <LengthInput
-          v-if="!stl.fromQuilt"
           class="q-mt-sm"
           :model-value="stl.seam"
-          label="Seam allowance"
+          :label="stl.epp ? 'EPP seam allowance (project)' : 'Seam allowance (project)'"
           :units="stl.units"
+          :min="0"
+          :step="seamStep(stl.units)"
+          :readonly="!stl.canSetSeam"
           @update:model-value="stl.setSeam"
         />
         <q-checkbox
@@ -137,6 +138,7 @@ import LengthInput from '@/components/LengthInput.vue';
 import type { Stl } from '@/composables/stl';
 import type { Pt } from '@/model/geometry/path';
 import { fmtLen } from '@/model/print/format';
+import { seamStep } from '@/model/seams';
 import { STL_BUILD, type StlBuild } from '@/model/print/stl';
 
 const props = defineProps<{ stl: Stl; hideItems?: boolean }>();

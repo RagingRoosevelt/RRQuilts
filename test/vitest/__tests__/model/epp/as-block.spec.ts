@@ -14,7 +14,7 @@ import type { Layout } from '@/model/schema/quilt';
 import { createQuilt } from '@/model/new-quilt';
 import { generateSlots } from '@/model/layout/slots';
 import { flattenLoop, pathToSegs } from '@/model/geometry/path';
-import { quiltPieces } from '@/model/print/pieces';
+import { quiltPieces, quiltRosettes } from '@/model/print/pieces';
 import { takesBlock } from '@/editor/scope';
 
 const { shapes, rosettes } = eppStarters();
@@ -194,6 +194,12 @@ describe('rosettes in a block quilt', () => {
         ),
       ) / 2;
     expect(pieces.reduce((s, p) => s + area(p.poly), 0)).toBeCloseTo(area(space), 6);
+    // Its 1U where it sits is a diamond's edge (3D templates say `Edge:`, owner 2026-11-14).
+    const rs = quiltRosettes(doc, doc.project.quilts[0]!);
+    expect(rs).toHaveLength(1);
+    expect(rs[0]!.rosette).toBe(r.id);
+    const [a, b] = pieces[0]!.poly;
+    expect(rs[0]!.unit).toBeCloseTo(Math.hypot(b![0] - a![0], b![1] - a![1]), 6);
   });
 
   it('a square rosette goes only in square spaces (never stretched)', () => {

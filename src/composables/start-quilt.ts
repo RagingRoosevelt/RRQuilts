@@ -5,6 +5,7 @@ import { DEFAULT_LICENSE } from '@/model/credits';
 import { takesBlock } from '@/editor/scope';
 import { generateFor } from '@/model/layout/slots';
 import { createQuilt } from '@/model/new-quilt';
+import { setSeam } from '@/model/seams';
 import type { Border, Layout, QuiltTarget } from '@/model/schema/quilt';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
@@ -22,6 +23,8 @@ export function useStartQuilt() {
     target?: QuiltTarget,
     fresh = false,
     data?: DataPlan['plan'],
+    /** An EPP quilt: the project's EPP seam allowance, from the wizard. */
+    eppSeam?: number,
   ) => {
     if (fresh || !project.isOpen) await project.newProject();
     const n = project.doc!.project.quilts.length + 1;
@@ -40,7 +43,10 @@ export function useStartQuilt() {
           }
         : {}),
     };
-    project.change((d) => void d.project.quilts.push(quilt));
+    project.change((d) => {
+      d.project.quilts.push(quilt);
+      if (eppSeam !== undefined) setSeam(d, 'epp', eppSeam);
+    });
     editor.mode = 'design';
     // Layouts without block spaces (patches, pieced strips) start on Colors with Paint.
     editor.tool = generateFor(quilt).slots.some((s) => takesBlock(s)) ? 'set' : 'paint';

@@ -54,6 +54,48 @@ describe('3D-printed templates (spec 027 stretch goal, owner 2026-11-13)', () =>
     expect(r.hole).toBe('3/4"');
   });
 
+  it('the hanging hole sits on a line from the middle out to a corner (owner, 2026-11-13)', () => {
+    for (const name of ['Hexagon', 'Square', 'Triangle', 'Pentagon', 'Octagon', '60° Diamond'])
+      for (const inches of [1, 2, 3]) {
+        const P = mm(name, inches);
+        const r = buildTemplate(P, STL_BUILD, lines, 6 * inches);
+        if (!r.holeAt) continue;
+        // Regular shapes and the diamond: the middle of the floor is the middle of the outline.
+        const o: Pt = [
+          P.reduce((s, p) => s + p[0], 0) / P.length,
+          P.reduce((s, p) => s + p[1], 0) / P.length,
+        ];
+        const h: Pt = [r.holeAt[0] - o[0], r.holeAt[1] - o[1]];
+        const onLine = P.some(([x, y]) => {
+          const v: Pt = [x - o[0], y - o[1]];
+          const cross = (h[0] * v[1] - h[1] * v[0]) / Math.hypot(...v);
+          return Math.abs(cross) < 0.01 && h[0] * v[0] + h[1] * v[1] > 0;
+        });
+        expect(onLine, `${name} ${inches}"`).toBe(true);
+      }
+    // A 60° diamond's hole goes toward a sharp corner, where there's the most room.
+    const D = mm('60° Diamond', 2);
+    const r = buildTemplate(D, STL_BUILD, lines, 12);
+    const o: Pt = [D.reduce((s, p) => s + p[0], 0) / 4, D.reduce((s, p) => s + p[1], 0) / 4];
+    const far = Math.max(...D.map(([x, y]) => Math.hypot(x - o[0], y - o[1])));
+    const sharp = D.filter(([x, y]) => Math.hypot(x - o[0], y - o[1]) > far - 1e-6);
+    const toward = sharp.some(
+      ([x, y]) => (x - o[0]) * (r.holeAt![0] - o[0]) + (y - o[1]) * (r.holeAt![1] - o[1]) > 0,
+    );
+    expect(toward).toBe(true);
+  });
+
+  it('the text shrinks up to a quarter to make room for a hole (owner, 2026-11-13)', () => {
+    // A 2" Half Hexagon paper: 12 mm text fills the floor; at 10.83 mm a 3/8" hole fits.
+    const r = buildTemplate(mm('Half Hexagon', 2), STL_BUILD, ['Edge: 2"', 'SA: 0'], 12);
+    expect(r.hole).toBe('3/8"');
+    expect(r.textSize).toBeLessThan(12);
+    expect(r.textSize).toBeGreaterThanOrEqual(9);
+    // No more than a quarter: a 1 1/2" Half Hexagon paper keeps its text and has no hole.
+    const s = buildTemplate(mm('Half Hexagon', 1.5), STL_BUILD, ['Edge: 1 1/2"', 'SA: 0'], 9);
+    expect(s.hole).toBeUndefined();
+  });
+
   it('concave outlines are refused; settings that leave no floor or no flat top are errors', () => {
     const L: Pt[] = [
       [0, 0],
@@ -82,6 +124,7 @@ describe('3D-printed templates (spec 027 stretch goal, owner 2026-11-13)', () =>
     expect(stlLength(0.375, 'in')).toBe('3/8"');
     expect(stlLength(2, 'in')).toBe('2"');
     expect(stlLength(2.5, 'cm')).toBe('25mm');
+    expect(stlLength(0.95, 'cm')).toBe('9.5mm');
     for (const ch of 'Edge: Size SA: 0123456789/".m×') expect(STL_FONT.glyphs[ch]).toBeDefined();
   });
 });

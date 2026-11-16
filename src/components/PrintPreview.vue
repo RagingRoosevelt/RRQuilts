@@ -105,8 +105,17 @@
                   >
                     Fabrics: {{ fabricLegend }}
                   </text>
+                  <text
+                    v-for="(line, j) in p.keyBlock.note ?? []"
+                    :key="`n${j}`"
+                    :x="0"
+                    :y="p.keyBlock.height + font * ((fabricLegend ? 3.1 : 2) + j * 0.9)"
+                    :font-size="font * 0.7"
+                  >
+                    {{ line }}
+                  </text>
                 </template>
-                <TemplatePiece v-else :piece="p" :look="look" :fmt="fmt" />
+                <TemplatePiece v-else :piece="p" :look="lookFor(p)" :fmt="fmt" />
               </g>
             </svg>
 
@@ -117,7 +126,7 @@
               :height="`${s.tile.h}${units}`"
               :viewBox="`${s.tile.x} ${s.tile.y} ${s.tile.w} ${s.tile.h}`"
             >
-              <TemplatePiece :piece="s.piece" :look="look" :fmt="fmt" />
+              <TemplatePiece :piece="s.piece" :look="lookFor(s.piece)" :fmt="fmt" />
               <rect
                 v-for="(o, j) in s.tile.overlaps"
                 :key="j"
@@ -727,6 +736,7 @@ import {
   quiltLock,
 } from '@/model/credits';
 import { pathToSegs, flattenLoop, sub, type Pt } from '@/model/geometry/path';
+import { projectSeams } from '@/model/seams';
 import { lookupEpp } from '@/model/epp/expand';
 import { eppQuiltPieces, rosettePieces, shapeAsRosette } from '@/model/epp/print';
 import { generateFor } from '@/model/layout/slots';
@@ -798,11 +808,28 @@ const paper = computed(() => pick(PAPERS, prefs.value.paper[units.value]));
 /** Millimeters per project unit. */
 const mm = computed(() => (units.value === 'in' ? 25.4 : 10));
 const fmt = (x: number) => fmtLen(x, units.value);
-/** The seam allowance: an EPP quilt's own (spec 027), else the print setting. */
+/** The project's seam allowances (owner, 2026-11-14): standard piecing, and EPP templates'. */
+const seams = computed(() => projectSeams(doc.value, units.value));
+const eppSeam = computed(() => seams.value.epp);
+/**
+ * Rosettes in a block quilt are cut with the EPP seam allowance (owner, 2026-11-14): when it differs
+ * from the quilt's, their outer edges need matching up before they're sewn in.
+ */
+const rosetteSeamNote = computed(() => {
+  const { piecing: p, epp: e } = seams.value;
+  if (Math.abs(p - e) < 1e-9) return '';
+  const head = `Rosettes are cut with the EPP seam allowance (${fmt(e)}); the rest of the quilt uses ${fmt(p)}.`;
+  return e > p
+    ? `${head} Before sewing a rosette into the quilt, trim its outer edge to ${fmt(p)} beyond the sewing line, or sew those seams at ${fmt(e)}.`
+    : `${head} Sew a rosette into the quilt along its sewing line: line up the sewing lines, not the cut edges.`;
+});
+/** The seam allowance: EPP's for a rosette or an EPP quilt, else standard piecing's. */
 const seam = computed(() => {
   const q =
     props.kind === 'quilt' ? doc.value?.project.quilts.find((x) => x.id === props.id) : undefined;
-  return q?.layout.style === 'epp' ? q.layout.seam : prefs.value.seam[units.value];
+  return props.kind === 'rosette' || q?.layout.style === 'epp'
+    ? eppSeam.value
+    : seams.value.piecing;
 });
 /** A mitered strip's cut edge reaches this far past the finished corner. */
 const miterA = computed(() => seam.value * (1 + Math.SQRT2));
@@ -903,6 +930,20 @@ const look = computed(() => ({
   seam: prefs.value.seamAllowance && prefs.value.seamLabel ? seam.value : 0,
   seamText: `SA = ${fmt(seam.value)}`,
 }));
+/** An EPP template's look: its own seam allowance, fabric (`epp`) or paper, whatever the print's
+ *  Include seam allowance. */
+function lookFor(p: PlacedPiece) {
+  if (p.epp === undefined) return look.value;
+  const s = eppSeam.value;
+  return {
+    ...look.value,
+    sewLine: p.epp ? prefs.value.sewLine : 'none',
+    shade: p.epp && prefs.value.shadeSeam,
+    markLength: p.epp ? s : s / 2,
+    seam: p.epp && prefs.value.seamLabel ? s : 0,
+    seamText: `SA = ${fmt(s)}`,
+  };
+}
 /** Scale squares on templates: the largest that fits, `big` on pieces at least `bigAt` a side. */
 const SQUARES = {
   in: { sizes: [1, 0.5, 0.25], big: 2, bigAt: 6 },
@@ -1246,6 +1287,8 @@ function templateItems(
 ) {
   const { mirror, trimPoints, tint, labels } = prefs.value;
   const seamAllowance = withSeam ?? prefs.value.seamAllowance;
+  // EPP templates (withSeam set) take the EPP seam allowance.
+  const sa = withSeam === undefined ? seam.value : eppSeam.value;
   // Tinted or color-keyed: one template per fabric.
   const lettered = templates(pieces, prefix).map((t) => ({
     ...t,
@@ -1257,7 +1300,7 @@ function templateItems(
       : [t],
   );
   const items: (PlacedPiece & { w: number; h: number })[] = list.map((t) => {
-    const cut = seamAllowance ? offset(t.poly, seam.value, trimPoints) : t.poly;
+    const cut = seamAllowance ? offset(t.poly, sa, trimPoints) : t.poly;
     let rad = snugRotation(cut);
     const turnVec = ([x, y]: Pt): Pt => {
       const [rx, ry] = rotate([[x, y]], rad)[0]!;
@@ -1306,6 +1349,7 @@ function templateItems(
           const info = fillInfo(f);
           return { n, ...info, pill: `${n} · ${info.name} ×${t.counts.get(f)}` };
         }),
+      ...(withSeam === undefined ? {} : { epp: withSeam }),
       x: 0,
       y: 0,
       w: x1 - x0,
@@ -1451,6 +1495,22 @@ interface KeyBlock {
   height: number;
   paths: string[];
   labels: { x: number; y: number; text: string }[];
+  /** A note under the key, in lines. */
+  note?: string[];
+}
+
+/** `text` in lines of at most about `width` (project units) at `size`. */
+function wrapText(text: string, width: number, size: number): string[] {
+  const max = Math.max(12, Math.floor(width / (size * 0.52)));
+  const lines: string[] = [];
+  let line = '';
+  for (const word of text.split(' ')) {
+    if (line && line.length + 1 + word.length > max) {
+      lines.push(line);
+      line = word;
+    } else line = line ? `${line} ${word}` : word;
+  }
+  return line ? [...lines, line] : lines;
 }
 
 const logical = computed<Sheet[]>(() => {
@@ -1661,6 +1721,7 @@ const logical = computed<Sheet[]>(() => {
               prefix: paper ? 'P' : 'F',
               bigKey: true,
               withSeam: !paper,
+              ...(paper || !rosetteSeamNote.value ? {} : { keyNote: rosetteSeamNote.value }),
             }),
           );
       }
@@ -1926,6 +1987,8 @@ function templateSheets(src: {
   days?: Map<string, string[]>;
   /** EPP: paper (false) or fabric (true) templates. */
   withSeam?: boolean;
+  /** A note under the key. */
+  keyNote?: string;
 }): Sheet[] {
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
@@ -1936,6 +1999,11 @@ function templateSheets(src: {
   const keyScale = src.bigKey
     ? Math.min(aw, ah * 0.8) / Math.max(...src.size)
     : Math.min(aw, ah) / 4 / Math.max(...src.size);
+  // A note under the key, as wide as the key or about 30 characters, whichever is wider.
+  const noteW = src.keyNote
+    ? Math.min(aw, Math.max(src.size[0] * keyScale, font.value * 0.7 * 0.52 * 30))
+    : 0;
+  const note = src.keyNote ? wrapText(src.keyNote, noteW, font.value * 0.7) : [];
   const keyItem = {
     key: 'key',
     letter: '',
@@ -1951,9 +2019,13 @@ function templateSheets(src: {
     fabrics: [],
     x: 0,
     y: 0,
-    w: src.size[0] * keyScale,
-    h: src.size[1] * keyScale + font.value * (fabricLegend.value ? 2.7 : 1.5),
+    w: noteW ? Math.max(noteW, src.size[0] * keyScale) : src.size[0] * keyScale,
+    h:
+      src.size[1] * keyScale +
+      font.value * (fabricLegend.value ? 2.7 : 1.5) +
+      note.length * font.value * 0.9,
     keyBlock: {
+      ...(note.length ? { note } : {}),
       height: src.size[1] * keyScale,
       paths: src.keyPieces.map((p) => d(p.poly.map(([x, y]): Pt => [x * keyScale, y * keyScale]))),
       labels: keyLabels(src.keyPieces, prefix).map((l) => ({

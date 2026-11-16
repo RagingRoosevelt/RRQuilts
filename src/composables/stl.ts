@@ -1,12 +1,21 @@
 // 3D-printed templates (spec 027 stretch goal; owner, 2026-11-13): the templates a workbench's
 // 3D Print tab (or a library preview) offers, the picked one's solid, and its STL download. Settings
-// are the print preferences: the seam allowance and a rosette's 1U length shared with the Print tab,
-// plus `stl` (paper or fabric, trim points, the build). An EPP quilt's own 1U and seam allowance win.
+// are the print preferences, shared with the Print tab: a rosette's 1U length, plus `stl` (paper or
+// fabric, trim points, the build). The seam allowance is the project's (owner, 2026-11-14): EPP for
+// shapes, rosettes and EPP quilts, standard piecing for block and quilt pieces. An EPP quilt's own 1U
+// wins.
 import { computed, reactive, ref, watch } from 'vue';
 import { useBlockPrintSize } from '@/composables/block-print-size';
+import { useProjectSeams } from '@/composables/seams';
 import { expandAll, lookupEpp, rosetteLocal, type EppLookup, type Leaf } from '@/model/epp/expand';
 import type { Pt } from '@/model/geometry/path';
-import { blockPieces, quiltPieces, templates, type Piece } from '@/model/print/pieces';
+import {
+  blockPieces,
+  quiltPieces,
+  quiltRosettes,
+  templates,
+  type Piece,
+} from '@/model/print/pieces';
 import { bounds, offset, rotate, snugRotation } from '@/model/print/polygon';
 import { printPrefs, type PrintPrefs } from '@/model/print/prefs';
 import { buildTemplate, isConvex, stlBytes, stlLength } from '@/model/print/stl';
@@ -107,7 +116,18 @@ export function useStl(target: () => StlTarget | null) {
   );
   /** 1U: an EPP quilt's own, else the print setting a rosette prints at. */
   const unit = computed(() => eppQuilt.value?.layout.unit ?? prefs.value.rosetteUnit[units.value]);
-  const seam = computed(() => eppQuilt.value?.layout.seam ?? prefs.value.seam[units.value]);
+  /** EPP pieces (a shape, a rosette, an EPP quilt's, a block quilt's rosette patch) take the
+   *  project's EPP seam allowance. */
+  const epp = computed(
+    () =>
+      kind.value === 'shape' ||
+      kind.value === 'rosette' ||
+      !!eppQuilt.value ||
+      item.value?.edge !== undefined,
+  );
+  const seamKind = computed(() => (epp.value ? 'epp' : 'piecing'));
+  const projectSeams = useProjectSeams();
+  const seam = computed(() => projectSeams.seams.value[seamKind.value]);
 
   const title = computed(() => {
     const t = target();
@@ -155,9 +175,30 @@ export function useStl(target: () => StlTarget | null) {
         ...pieceItems(closing, units.value, 'Closing '),
       ];
     }
-    return quilt.value && project.doc
-      ? pieceItems(quiltPieces(project.doc, quilt.value), units.value)
-      : [];
+    if (!quilt.value || !project.doc) return [];
+    // A block quilt's rosettes (spec 027 FR-015) print as EPP templates, each shape at the 1U it's
+    // placed at; the other pieces as block pieces.
+    const epp = new Map<string, StlItem>();
+    for (const { rosette, unit: u } of quiltRosettes(project.doc, quilt.value)) {
+      const r = lookup.value.rosette(rosette);
+      if (!r) continue;
+      for (const it of eppItems(rosetteLocal(r, lookup.value), lookup.value, u)) {
+        const key = `${it.key}:${it.edge!.toFixed(6)}`;
+        if (!epp.has(key)) epp.set(key, { ...it, key });
+      }
+    }
+    // The same shape at two sizes: say which.
+    const named = [...epp.values()];
+    const twice = (it: StlItem) => named.filter((x) => x.label === it.label).length > 1;
+    return [
+      ...named.map((it) =>
+        twice(it) ? { ...it, label: `${it.label} · ${stlLength(it.edge!, units.value)}` } : it,
+      ),
+      ...pieceItems(
+        quiltPieces(project.doc, quilt.value).filter((x) => !x.epp),
+        units.value,
+      ),
+    ];
   });
 
   const picked = ref(0);
@@ -202,7 +243,7 @@ export function useStl(target: () => StlTarget | null) {
 
   const set = (patch: Partial<PrintPrefs['stl']>) =>
     (app.settings.print = { ...app.settings.print, stl: { ...opts.value, ...patch } });
-  const setPer = (key: 'seam' | 'rosetteUnit', v: number) =>
+  const setPer = (key: 'rosetteUnit', v: number) =>
     (app.settings.print = {
       ...app.settings.print,
       [key]: { ...prefs.value[key], [units.value]: v },
@@ -227,9 +268,12 @@ export function useStl(target: () => StlTarget | null) {
     opts,
     set,
     seam,
-    /** An EPP quilt's own seam allowance and 1U: shown, not set here. */
+    /** An EPP quilt's own 1U: shown, not set here. */
     fromQuilt: computed(() => !!eppQuilt.value),
-    setSeam: (v: number) => setPer('seam', v),
+    /** The project's seam allowance (EPP or standard piecing), set here as in the Print tab. */
+    setSeam: (v: number) => projectSeams.set(seamKind.value, v),
+    canSetSeam: projectSeams.canSet,
+    epp,
     unit,
     setUnit: (v: number) => setPer('rosetteUnit', v),
     nU,

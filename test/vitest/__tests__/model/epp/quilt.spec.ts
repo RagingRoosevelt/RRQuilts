@@ -35,10 +35,10 @@ function garden(): Quilt {
 }
 
 describe('EPP quilt', () => {
-  it('starts at 1U = 2 in (5 cm) and 3/8 in (1 cm) seam allowance, no edge', () => {
+  it('starts at 1U = 2 in (5 cm), no edge; the seam allowance is the project’s', () => {
     const q = newEppQuilt('Q', 'in');
-    expect(q.layout).toEqual({ style: 'epp', unit: 2, seam: 0.375, edge: { kind: 'none' } });
-    expect(newEppQuilt('Q', 'cm').layout).toMatchObject({ unit: 5, seam: 1 });
+    expect(q.layout).toEqual({ style: 'epp', unit: 2, edge: { kind: 'none' } });
+    expect(newEppQuilt('Q', 'cm').layout).toMatchObject({ unit: 5 });
   });
 
   it('its size follows the 1U length; the arrangement stays', () => {

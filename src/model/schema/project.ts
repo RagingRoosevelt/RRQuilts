@@ -49,6 +49,14 @@ export const Project = Type.Object({
   rosettes: Type.Optional(Type.Array(Rosette)),
   /** Saving embeds library fabric images too (256 px), for sharing with people without them. */
   includeLibraryImages: Type.Optional(Type.Boolean()),
+  /** Seam allowances in project units (v12; owner, 2026-11-14): standard piecing and EPP. Unset:
+   *  1/4 in or 6 mm, and 3/8 in or 10 mm (`model/seams.ts`). */
+  seams: Type.Optional(
+    Type.Object({
+      piecing: Type.Optional(Type.Number({ minimum: 0 })),
+      epp: Type.Optional(Type.Number({ minimum: 0 })),
+    }),
+  ),
 });
 
 export const RrqDoc = Type.Object(

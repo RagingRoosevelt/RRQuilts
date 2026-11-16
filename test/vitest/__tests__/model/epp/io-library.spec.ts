@@ -31,11 +31,7 @@ const flower: Rosette = {
 
 function eppDoc(): RrqDoc {
   const doc = createProject('EPP');
-  const q = createQuilt(
-    'Garden',
-    { style: 'epp', unit: 1, seam: 0.375, edge: { kind: 'none' } },
-    [],
-  );
+  const q = createQuilt('Garden', { style: 'epp', unit: 1, edge: { kind: 'none' } }, []);
   return produce(doc, (d) => {
     d.project.eppShapes = [hex];
     d.project.rosettes = [flower];

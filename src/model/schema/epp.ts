@@ -77,11 +77,11 @@ export const EppEdge = Type.Union([
   }),
 ]);
 
-/** The EPP quilt type: a layout style with no block spaces. `unit` and `seam` in project units. */
+/** The EPP quilt type: a layout style with no block spaces. `unit` in project units; the seam
+ *  allowance is the project's (`project.seams.epp`). */
 export const EppLayout = Type.Object({
   style: Type.Literal('epp'),
   unit: Type.Number({ exclusiveMinimum: 0 }),
-  seam: Type.Number({ minimum: 0 }),
   edge: EppEdge,
 });
 

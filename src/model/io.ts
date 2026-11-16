@@ -269,6 +269,7 @@ export async function parseProject(
   }
   // Spec 029: styles become tags; techniques this version doesn't know are dropped.
   raw = upgradeNotecards(raw);
+  raw = upgradeEppSeams(raw);
   if (!Value.Check(RrqDoc, raw)) {
     return { ok: false, error: `Project file is damaged: ${firstError(raw)}` };
   }
@@ -278,6 +279,36 @@ export async function parseProject(
 
   const report = [...danglingReferences(doc), ...(await badAssets(doc))];
   return { ok: true, doc, report };
+}
+
+/**
+ * Development v12 files gave each EPP quilt its own seam allowance; it's the project's now (owner,
+ * 2026-11-14): the first one becomes the project's EPP seam allowance (if unset), the rest go.
+ */
+function upgradeEppSeams(raw: unknown): unknown {
+  if (!isObject(raw) || !isObject(raw.project) || !Array.isArray(raw.project.quilts)) return raw;
+  const quilts = raw.project.quilts as unknown[];
+  const seams = quilts
+    .map((q) =>
+      isObject(q) && isObject(q.layout) && q.layout.style === 'epp' ? q.layout.seam : undefined,
+    )
+    .filter((s): s is number => typeof s === 'number');
+  if (!seams.length) return raw;
+  const p = raw.project;
+  const old = isObject(p.seams) ? p.seams : {};
+  return {
+    ...raw,
+    project: {
+      ...p,
+      seams: { ...old, epp: old.epp ?? seams[0] },
+      quilts: quilts.map((q) => {
+        if (!isObject(q) || !isObject(q.layout) || q.layout.style !== 'epp') return q;
+        const layout = { ...q.layout };
+        delete layout.seam;
+        return { ...q, layout };
+      }),
+    },
+  };
 }
 
 export function serializeProject(doc: RrqDoc): string {

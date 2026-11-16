@@ -26,7 +26,8 @@ export const STL_BUILD: StlBuild = {
   floor: 1.2,
   wall: 4,
   rOut: 2,
-  rIn: 6,
+  /** Owner, 2026-11-14: 2 mm, as the outside corners (was 6). */
+  rIn: 2,
   cOut: 0.4,
   cIn: -1,
   depth: 0.6,
@@ -44,8 +45,9 @@ export interface StlResult {
   mesh?: StlMesh;
   errors: string[];
   notes: string[];
-  /** The hanging hole's size label, and the text size (mm). */
+  /** The hanging hole's size label and middle (mm), and the text size (mm). */
   hole?: string;
+  holeAt?: Pt;
   textSize?: number;
 }
 
@@ -359,6 +361,8 @@ const HOLES: [number, string][] = [
   [19.05, '3/4"'],
   [9.525, '3/8"'],
 ];
+/** How small the text may get to make room for a hanging hole (owner, 2026-11-13). */
+const TEXT_FOR_HOLE = 0.75;
 /** Text sizes to try: the target, then 5% smaller each step, down to 2.5 mm. */
 function textSizes(target: number): number[] {
   const out: number[] = [];
@@ -370,54 +374,139 @@ interface Marks {
   hole: { c: Pt; r: number; label: string } | null;
   text: (TextShape & { font: number; x0: number; y0: number }) | null;
 }
+interface HoleSpot {
+  c: Pt;
+  r: number;
+  /** Unit direction from the middle of the face toward the hole. */
+  u: Pt;
+}
+
+/** A polygon's area centroid. */
+function centroid(p: readonly Pt[]): Pt {
+  let a = 0;
+  let x = 0;
+  let y = 0;
+  p.forEach((s, i) => {
+    const t = p[(i + 1) % p.length]!;
+    const cr = s[0] * t[1] - t[0] * s[1];
+    a += cr;
+    x += (s[0] + t[0]) * cr;
+    y += (s[1] + t[1]) * cr;
+  });
+  return Math.abs(a) < 1e-12 ? p[0]! : [x / (3 * a), y / (3 * a)];
+}
+
+/** The farthest point from `o` along unit direction `u` that's inside convex counter-clockwise `Q`. */
+function farthestAlong(Q: readonly Pt[], o: Pt, u: Pt): Pt | null {
+  let lo = 0;
+  let hi = Infinity;
+  for (let i = 0; i < Q.length; i++) {
+    const a = Q[i]!;
+    const b = Q[(i + 1) % Q.length]!;
+    const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const nx = (b[1] - a[1]) / L;
+    const ny = -(b[0] - a[0]) / L;
+    const s = nx * (o[0] - a[0]) + ny * (o[1] - a[1]);
+    const du = nx * u[0] + ny * u[1];
+    if (Math.abs(du) < 1e-12) {
+      if (s > 1e-9) return null;
+    } else if (du > 0) hi = Math.min(hi, -s / du);
+    else lo = Math.max(lo, -s / du);
+  }
+  return hi === Infinity || hi < lo - 1e-9 ? null : [o[0] + hi * u[0], o[1] + hi * u[1]];
+}
+
 /**
- * Where the text and the hanging hole go on a flat convex face (owner, 2026-11-13): the biggest text
- * up to `target` mm first, then the biggest hole that still fits, above the text if it can (else
- * below). No room for text: the hole alone.
+ * Where a hole of diameter `d` can go, best first (owner, 2026-11-13): on a line from the middle of
+ * the face out to a corner of the piece, as far out as it fits; the corner that leaves it farthest
+ * from the middle first (ties: the higher, then the further left). Then the old spots, the middle
+ * of the top and of the bottom.
  */
-function placeMarks(face: Pt[], lines: readonly string[], target: number, clr = 1): Marks {
-  const holeAt = (d: number, up: boolean) => {
-    const Q = inset(face, d / 2 + clr);
-    if (!Q) return null;
-    const ys = Q.map((p) => p[1]);
+function holeSpots(face: Pt[], corners: readonly Pt[], d: number, clr: number): HoleSpot[] {
+  const Q = inset(face, d / 2 + clr);
+  if (!Q) return [];
+  const r = d / 2;
+  const o = centroid(face);
+  const out: (HoleSpot & { k: number })[] = [];
+  for (const v of corners) {
+    const L = Math.hypot(v[0] - o[0], v[1] - o[1]);
+    if (L < 1e-9) continue;
+    const u: Pt = [(v[0] - o[0]) / L, (v[1] - o[1]) / L];
+    const c = farthestAlong(Q, o, u);
+    if (c) out.push({ c, r, u, k: Math.hypot(c[0] - o[0], c[1] - o[1]) });
+  }
+  // Rounded corners are drawn in steps, so equal corners can differ by a hair.
+  const near = (a: number, b: number) => Math.abs(a - b) < 0.05;
+  out.sort((a, b) =>
+    !near(a.k, b.k) ? b.k - a.k : !near(a.c[1], b.c[1]) ? b.c[1] - a.c[1] : a.c[0] - b.c[0],
+  );
+  const ys = Q.map((p) => p[1]);
+  for (const up of [true, false]) {
     const y = up ? Math.max(...ys) : Math.min(...ys);
     const t = Q.filter((p) => Math.abs(p[1] - y) < 1e-6);
-    return { c: [t.reduce((s, p) => s + p[0], 0) / t.length, y] as Pt, r: d / 2 };
-  };
-  const textAt = (font: number, hole: { c: Pt; r: number } | null, up: boolean) => {
+    const c: Pt = [t.reduce((s, p) => s + p[0], 0) / t.length, y];
+    out.push({ c, r, u: [0, up ? 1 : -1], k: 0 });
+  }
+  return out.map(({ c, u }) => ({ c, r, u }));
+}
+
+/**
+ * Where the text and the hanging hole go on a flat convex face (owner, 2026-11-13): the biggest text
+ * up to `target` mm first, then the biggest hole that still fits, on a line from the middle out to
+ * one of the piece's `corners` (`holeSpots`), the text clear of it. No hole fits: the text shrinks,
+ * down to `TEXT_FOR_HOLE` of its size, until one does (else the text alone). No room for text: the
+ * hole alone.
+ */
+function placeMarks(
+  face: Pt[],
+  corners: readonly Pt[],
+  lines: readonly string[],
+  target: number,
+  clr = 1,
+): Marks {
+  const textAt = (font: number, hole: HoleSpot | null) => {
     if (!lines.length) return null;
     const tg = textShape(lines, font, 0.6);
-    const extra: [number, number, number][] = !hole
-      ? []
-      : up
-        ? [[0, 1, hole.c[1] - hole.r - clr - tg.h / 2]]
-        : [[0, -1, -(hole.c[1] + hole.r + clr + tg.h / 2)]];
-    const room = inset(
-      face,
-      (nx, ny) => clr + (Math.abs(nx) * tg.w) / 2 + (Math.abs(ny) * tg.h) / 2,
-      extra,
-    );
-    if (!room) return null;
-    const c = room.reduce<Pt>(
-      (s, p) => [s[0] + p[0] / room.length, s[1] + p[1] / room.length],
-      [0, 0],
-    );
-    return { ...tg, font, x0: c[0] - tg.w / 2, y0: c[1] - tg.h / 2 };
+    const support = (nx: number, ny: number) =>
+      (Math.abs(nx) * tg.w) / 2 + (Math.abs(ny) * tg.h) / 2;
+    // The text stays on the far side of a line past the hole: across `u`, or level or upright
+    // (below, above or beside it), whichever leaves room first.
+    const across: (Pt | null)[] = hole
+      ? ([hole.u, [0, 1], [0, -1], [1, 0], [-1, 0]] as Pt[]).filter(
+          (n, i) => i === 0 || n[0] * hole.u[0] + n[1] * hole.u[1] > 1e-6,
+        )
+      : [null];
+    for (const n of across) {
+      const extra: [number, number, number][] =
+        hole && n
+          ? [[n[0], n[1], n[0] * hole.c[0] + n[1] * hole.c[1] - hole.r - clr - support(n[0], n[1])]]
+          : [];
+      const room = inset(face, (nx, ny) => clr + support(nx, ny), extra);
+      if (!room) continue;
+      const c = room.reduce<Pt>(
+        (s, p) => [s[0] + p[0] / room.length, s[1] + p[1] / room.length],
+        [0, 0],
+      );
+      return { ...tg, font, x0: c[0] - tg.w / 2, y0: c[1] - tg.h / 2 };
+    }
+    return null;
   };
-  for (const f of textSizes(target)) {
-    const alone = textAt(f, null, true);
+  const sizes = textSizes(target);
+  for (const [i, best] of sizes.entries()) {
+    const alone = textAt(best, null);
     if (!alone) continue;
-    for (const [d, label] of HOLES)
-      for (const up of [true, false]) {
-        const hole = holeAt(d, up);
-        const text = hole && textAt(f, hole, up);
-        if (hole && text) return { hole: { ...hole, label }, text };
-      }
+    // The biggest text that fits, made up to a quarter smaller if that makes room for a hole.
+    for (const f of sizes.slice(i).filter((f) => f >= best * TEXT_FOR_HOLE - 1e-9))
+      for (const [d, label] of HOLES)
+        for (const hole of holeSpots(face, corners, d, clr)) {
+          const text = textAt(f, hole);
+          if (text) return { hole: { c: hole.c, r: hole.r, label }, text };
+        }
     return { hole: null, text: alone };
   }
   for (const [d, label] of HOLES) {
-    const hole = holeAt(d, true);
-    if (hole) return { hole: { ...hole, label }, text: null };
+    const hole = holeSpots(face, corners, d, clr)[0];
+    if (hole) return { hole: { c: hole.c, r: hole.r, label }, text: null };
   }
   return { hole: null, text: null };
 }
@@ -573,6 +662,7 @@ export function buildTemplate(
   const flat = pocket ? inner[inner.length - 1]! : outer[outer.length - 1]!;
   const marks = placeMarks(
     uniq(flat).map((i): Pt => [V[i]![0], V[i]![1]]),
+    P,
     lines,
     textSize,
   );
@@ -595,7 +685,7 @@ export function buildTemplate(
     mesh: { V, T, textTris },
     errors,
     notes,
-    ...(marks.hole ? { hole: marks.hole.label } : {}),
+    ...(marks.hole ? { hole: marks.hole.label, holeAt: marks.hole.c } : {}),
     ...(marks.text ? { textSize: marks.text.font } : {}),
   };
 }

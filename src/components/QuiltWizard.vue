@@ -58,7 +58,13 @@
                 :units="units"
                 :min="units === 'cm' ? 0.5 : 0.25"
               />
-              <LengthInput v-model="eppSeam" label="Seam allowance" :units="units" :min="0" />
+              <LengthInput
+                v-model="eppSeam"
+                label="EPP seam allowance (project)"
+                :units="units"
+                :min="0"
+                :step="seamStep(units)"
+              />
             </div>
             <!-- Style cards: each drawn by the layout engine; later styles join the list. -->
             <div
@@ -395,6 +401,7 @@
 
 <script setup lang="ts">
 import { eppDefaults } from '@/model/epp/quilt-ops';
+import { SEAM_DEFAULTS, seamStep } from '@/model/seams';
 import DataSpaceCount from '@/components/DataSpaceCount.vue';
 import { defaultDataYear, newDataPlan, numberCount } from '@/model/data-quilt';
 import type { DataPlan } from '@/model/schema/data-quilt';
@@ -435,9 +442,20 @@ import type {
 import { useEditorStore } from '@/stores/editor';
 import { useSettingsStore } from '@/stores/settings';
 
-const props = defineProps<{ units: 'in' | 'cm' }>();
+const props = defineProps<{
+  units: 'in' | 'cm';
+  /** The open project's EPP seam allowance; unset when the quilt starts a new project. */
+  projectEppSeam?: number | undefined;
+}>();
 const emit = defineEmits<{
-  create: [layout: Layout, borders: Border[], target?: QuiltTarget, data?: DataPlan['plan']];
+  create: [
+    layout: Layout,
+    borders: Border[],
+    target?: QuiltTarget,
+    data?: DataPlan['plan'],
+    /** An EPP quilt: the project's EPP seam allowance. */
+    eppSeam?: number,
+  ];
 }>();
 
 const open = ref(false);
@@ -457,8 +475,9 @@ const steps = ['blocks', 'detail', 'sashing', 'borders'];
 const next = computed(() =>
   mode.value === 'epp' ? undefined : steps[steps.indexOf(step.value) + 1],
 );
-const eppUnit = ref(2);
-const eppSeam = ref(0.375);
+const eppUnit = ref(eppDefaults(props.units).unit);
+/** The project's EPP seam allowance (`projectEppSeam`; a new project: the default), set on create. */
+const eppSeam = ref(props.projectEppSeam ?? SEAM_DEFAULTS[props.units].epp);
 const detailTitle = computed(() =>
   isStrip.value
     ? 'Strips'
@@ -751,10 +770,9 @@ function create() {
     const layout: Layout = {
       style: 'epp',
       unit: eppUnit.value,
-      seam: eppSeam.value,
       edge: { kind: 'none' },
     };
-    return emit('create', layout, []);
+    return emit('create', layout, [], undefined, undefined, eppSeam.value);
   }
   // A plain copy: the project freezes what it's given, and these are live, editable objects.
   const t = targetShape.value;
@@ -781,7 +799,8 @@ function show() {
   const cm = props.units === 'cm';
   step.value = 'blocks';
   mode.value = 'blocks';
-  ({ unit: eppUnit.value, seam: eppSeam.value } = eppDefaults(props.units));
+  eppUnit.value = eppDefaults(props.units).unit;
+  eppSeam.value = props.projectEppSeam ?? SEAM_DEFAULTS[props.units].epp;
   dataOn.value = false;
   dataPlan.value = 'months';
   style.value = 'straight-set';

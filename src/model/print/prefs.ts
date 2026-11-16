@@ -25,7 +25,6 @@ export const PRINT_DEFAULTS = {
   landscape: false,
   /** Page margins on every side (most printers can't print the outer ¼″). */
   margin: perUnits(0.5, 1.25),
-  seam: perUnits(0.25, 0.75),
   /** Rounding step for cut sizes; 0 = exact. */
   rounding: perUnits(0.125, 0.5),
   /** Extra length on mitered border strips, trimmed after sewing (0 = cut exact). */
@@ -90,8 +89,9 @@ export const PRINT_DEFAULTS = {
   quiltSections: ['picture', 'blocks', 'yardage', 'rotary', 'templates'] as QuiltSection[],
   rosetteSections: ['picture', 'paper', 'fabric'] as RosetteSection[],
   eppQuiltSections: ['picture', 'yardage', 'paper', 'fabric'] as EppQuiltSection[],
-  /** A rosette has no size: the length of 1U it prints at, and how many rosettes to cut for. */
-  rosetteUnit: perUnits(1, 2.5),
+  /** A rosette has no size: the length of 1U it prints at (owner, 2026-11-13: 2 in or 50 mm, as a
+   *  new EPP quilt), and how many rosettes to cut for. */
+  rosetteUnit: perUnits(2, 5),
   rosetteCount: 1,
   /** 3D-printed templates (spec 027): fabric (else paper), trim points, and the build in mm. */
   stl: { fabric: false, trim: true, ...STL_BUILD },

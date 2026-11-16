@@ -139,6 +139,8 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   fabrics by id); `syncPalettes` (in `syncDraft`) files loose own items into the first palette. v4
   `source` links one to a My library palette (`base` = per-item hashes at the last sync;
   `resolveSync` decides each difference's direction, conflicts go to the user)
+- `seams.ts` — project seam allowances (`project.seams`: standard piecing 1/4 in / 6 mm, EPP 3/8 in /
+  10 mm, unset = default); `composables/seams.ts` for the fields (Print, 3D Print, EPP Layout tab)
 - `coloring.ts` `paint` — copy-on-write quilt colorings (this / allIdentical / alternate)
 - `layout/` — one engine: `engine.ts` `tile(Tiling)` = bands of a repeating cell stepped by a, b, one
   affine `map`, `merges` (triangle grids), `clip` to the quilt (`clip.ts`, curved outlines too);

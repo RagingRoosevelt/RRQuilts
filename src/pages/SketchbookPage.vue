@@ -1409,7 +1409,8 @@
     <QuiltWizard
       ref="wizard"
       :units="project.doc.units"
-      @create="(l, b, t, d) => startQuilt(l, b, t, false, d)"
+      :project-epp-seam="projectSeams(project.doc).epp"
+      @create="(l, b, t, d, s) => startQuilt(l, b, t, false, d, s)"
     />
     <!-- Tags (and technique on the project's own blocks), spec 029 -->
     <KeepWhichDialog
@@ -1543,6 +1544,7 @@ import type { LibraryDoc } from '@/model/schema/library';
 import { absorbFabrics, absorbImages, embedFabrics } from '@/storage/fabric-files';
 import EppItems from '@/components/EppItems.vue';
 import { importProjectQuilts } from '@/model/import-quilts';
+import { projectSeams } from '@/model/seams';
 import {
   fabricToUnits,
   isLibraryItem,

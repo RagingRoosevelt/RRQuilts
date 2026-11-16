@@ -78,6 +78,29 @@ function trimmed(slot: Slot) {
   return seen < whole * (1 - 1e-6);
 }
 
+/**
+ * The rosettes a block quilt places (spec 027 FR-015), each with its 1U length where it sits (project
+ * units): its hidden block is 1 unit per U, so 1U is the placement's scale.
+ */
+export function quiltRosettes(
+  doc: RrqDoc,
+  quilt: Quilt,
+  slots = generateFor(quilt).slots,
+): { rosette: string; unit: number }[] {
+  const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
+  const out = new Map<string, { rosette: string; unit: number }>();
+  for (const slot of slots) {
+    const content = quilt.layers[0].slots[slot.id];
+    const block = content && blocks.get(content.block);
+    if (!content || !block?.rosette) continue;
+    const [a, b, c, d] = placementMatrix(slot, content, block);
+    const unit = Math.sqrt(Math.abs(a * d - b * c));
+    const k = `${block.rosette}:${unit.toFixed(6)}`;
+    if (!out.has(k)) out.set(k, { rosette: block.rosette, unit });
+  }
+  return [...out.values()];
+}
+
 /** Every piece of a quilt as placed (optionally only slots holding `blockId`; `slots` for tests). */
 export function quiltPieces(
   doc: RrqDoc,
@@ -145,6 +168,8 @@ export interface PlacedPiece {
   marks: { p: Pt; n: Pt }[];
   /** Fabrics it's cut from: number, name, color (pills under it when the color key is off). */
   fabrics: { n: number; name: string; css: string; pill?: string }[];
+  /** EPP templates: fabric (with the EPP seam allowance) or paper; unset: the print settings. */
+  epp?: boolean | undefined;
   x: number;
   y: number;
   w: number;

@@ -3,6 +3,7 @@
 import { produce } from 'immer';
 import type { ColoringBody } from './schema/coloring';
 import type { RrqDoc, Units } from './schema/project';
+import { SEAM_DEFAULTS } from './seams';
 
 const CM_PER_IN = 2.54;
 
@@ -34,6 +35,16 @@ export function convertUnits(doc: RrqDoc, to: Units): RrqDoc {
     out.units = to;
     if (k === 1) return;
     const p = out.project;
+    // Seam allowances: a default stays the default (1/4 in → 6 mm, not 6.35); others scale.
+    if (p.seams) {
+      for (const kind of ['piecing', 'epp'] as const) {
+        const v = p.seams[kind];
+        if (v === undefined) continue;
+        if (Math.abs(v - SEAM_DEFAULTS[doc.units][kind]) < 1e-9) delete p.seams[kind];
+        else p.seams[kind] = len(v);
+      }
+      if (!Object.keys(p.seams).length) delete p.seams;
+    }
     for (const f of p.palette.fabrics) f.size = scalePair(f.size);
     for (const b of p.blocks) {
       b.size = scalePair(b.size);

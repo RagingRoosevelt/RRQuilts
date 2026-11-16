@@ -331,7 +331,7 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 2. Owner, 2026-11-13 (prototype `prototypes/stl/template.html` on branch `proto/epp-stl`):
    - An EPP shape's size is picked as a number of U (1U to 4U) and the 1U length.
    - Build: the outline extruded 4 mm, shelled with an open top 1.2 mm thick, walls brought in to
-     4 mm, outside corners rounded 2 mm, pocket corners 6 mm, outer edges chamfered 0.4 mm, inner
+     4 mm, outside corners rounded 2 mm, pocket corners 2 mm (6 mm until 2026-11-14), outer edges chamfered 0.4 mm, inner
      edges (4 − 1.2) / 2 mm.
    - The edge size and seam allowance debossed in the floor in smooth letters (`Edge: 1"`,
      `SA: 3/8"`, or mm); paper templates say `SA: 0`, which marks them as paper.
@@ -351,6 +351,44 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
      from the quilt and aren't set here.
    - Concave pieces (an L, a Drunkard's Path inner curve) are listed with a note and no template;
      concave outlines come later.
+4. Owner, 2026-11-13: "let's update the algo for placing the hole in the 3d print template to try to
+   place the hole on a line going from the midpoint out to a vertex" and "let's also set the default
+   1U length to 2" for imperial or 50mm for metric".
+   - The hanging hole sits on a line from the middle of the floor out to a corner, as far out as it
+     fits; the corner that leaves it farthest out first (ties: the higher, then the left). The text
+     still comes first and stays clear of the hole. If no corner works, the middle of the top or
+     bottom edge, as before.
+   - The 1U length a rosette or shape prints at defaults to 2 in (50 mm), as a new EPP quilt's.
+   - Owner, 2026-11-13: "why does 1u, 2in/u half hexagon paper not get a hanging hole? is the font
+     maxed out? can it be shrunk a bit to fit a hole?" When no hole fits beside the biggest text, the
+     text shrinks (5% steps, up to a quarter smaller) until a hole fits; past that, text and no hole.
+   - Owner, 2026-11-14: "lets drop the inner corner radius to 4mm", then "drop those radius to 2mm?":
+     the pocket's corners 2 mm (was 6 mm), as the outside corners.
+   - Owner, 2026-11-14: "for the various settings dialogs for 3d prints, the default seam allowance
+     should be 3/8" or 10mm (and increment should be 1/8" or 1mm)", then "scratch that. 9.5mm with
+     0.5mm increment", then "nope, going back to 10mm and 1mm", then "more specifically, the 3/8" and
+     10mm seam allowance default is an EPP setting, not a 3d print setting": EPP templates have their
+     own seam allowance, 3/8 in or 10 mm, apart from the Print tab's (1/4 in, for pieced blocks). It
+     applies to a rosette's or shape's Print and 3D Print tabs and to the rosettes in a block quilt's
+     printout; an EPP quilt has its own (also 3/8 in or 10 mm for a new one). Every EPP seam
+     allowance steps by 1/8 in or 1 mm (new-quilt wizard, EPP quilt Layout tab, rosette Print,
+     3D Print). 3D templates of block and quilt pieces keep the Print tab's seam allowance.
+   - Owner, 2026-11-14: "seam allowance for epp and for standard piecing should be a project level
+     setting. we already decided on 3/8 & 10mm for epp. lets use 1/4 & 6mm for standard piecing."
+     Both are saved in the project (`project.seams`, rrq v12; unset = the default for the units). An
+     EPP quilt no longer has its own: the Layout tab and the new-quilt wizard edit the project's EPP
+     seam allowance (decided without the owner's answer: recommended option). Standard piecing's
+     replaces the app-wide Print setting (was 1/4 in or 7.5 mm) everywhere: cut sizes, rotary chart,
+     templates, miter guides, Help calculators. Changing units keeps a default a default (1/4 in →
+     6 mm) and scales other values. Every seam allowance field steps 1/8 in or 1 mm.
+   - Owner, 2026-11-14: "when I use the tumbling block rosette in a block quilt, why does the 3d
+     print for the epp shape say "size: .... x ...." instead of giving the edge dimension?" and "epp
+     rosettes in a block quilt should still use the epp seam allowance but a note should be added to
+     a paper printout that their outer seam edge will need to be reconciled with the rest of the
+     quilt's SA". A block quilt's 3D Print lists its rosettes' shapes as EPP templates (`Edge:` at
+     the 1U where the rosette sits, the EPP seam allowance); its printout's rosette fabric templates
+     carry a note under the key when the two seam allowances differ (trim the outer edge to the
+     quilt's, or sew those seams at the EPP one).
 
 ### Edge Cases
 

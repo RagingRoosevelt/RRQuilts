@@ -185,6 +185,41 @@ export const CHECKS: Check[] = [
     last: 'this implmentation looks good. let’s add it to the actual app with the following interfaces that use it: as the preview dialog when clicking on a shape or rosette (rosette should have a set of tabs to click through each of the shapes that make up the rosette); as a new 3D Print tab to the right of Print in the block, rosette, and quilt workbenches',
     to: '/libraries',
   },
+  {
+    id: 'TC-295',
+    group: G.epp027,
+    text: '3D Print hanging hole toward a corner, default 1U 2 in. Libraries › Hexagon › 3D print: the hole sits on a line from the middle of the floor out to a corner (the top-left one for a hexagon or square), not in the middle of an edge; the text is still as big as before and clear of the hole. Try a 60° Diamond: the hole goes toward a sharp corner. Change Size to 1U and 3U and switch Paper / Fabric: the hole stays on a corner line. 1U length starts at 2 in in an inch project (50 mm in a cm project; reset print settings or use a fresh browser profile to see the default), in the 3D print tab and in a rosette’s Print tab. New quilt › EPP in a cm project: 1U 5 cm, seam allowance 1 cm (was 2 cm and 0.375 cm).',
+    last: 'let’s update the algo for placing the hole in the 3d print template to try to place the hole on a line going form the midpoint out to a vertex / let’s also set the default 1U length to 2" for imperial or 50mm for metric',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-296',
+    group: G.epp027,
+    text: '3D Print text shrinks a little for a hanging hole. Libraries › Half Hexagon › 3D print, Paper, Size 1U, 1U length 2 in: a 3/8 in hanging hole and text about 10.8 mm (it was 12 mm with no hole). Size 1U at 1 1/2 in: no hole still (the text would have to shrink more than a quarter). Hexagon at 2 in: full 12 mm text and the 3/4 in hole, as before.',
+    last: 'why does 1u, 2in/u half hexagon paper not get a hanging hole? is the font maxed out? can it be shrunk a bit to fit a hole?',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-297',
+    group: G.epp027,
+    text: '3D Print inner corner radius 2 mm. Libraries › Hexagon › 3D print › Advanced: Inner corner radius shows 2, as Outer corner radius (if it shows 6 or 4, an earlier Advanced change saved the old build: set it to 2 or reset print settings). The pocket’s corners are visibly tighter than before; the downloaded STL opens in the slicer as one solid.',
+    last: 'lets drop the inner corner radius to 4mm / drop those radius to 2mm?',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-298',
+    group: G.epp027,
+    text: 'Seam allowances are project settings: standard piecing 1/4 in (6 mm), EPP 3/8 in (10 mm), fields step 1/8 in (1 mm). New inch project › a block’s Print tab › Cutting: Seam allowance (project) 1/4 in; set 3/8 in, open the block’s 3D Print › Fabric: 3/8 in too; Help › Quilt math › Half-square triangles shows 3/8 in. Undo puts it back. Save, reopen: kept. Another project still has 1/4 in. A rosette’s Print tab and its 3D Print: EPP seam allowance (project) 3/8 in, fabric templates labeled SA = 3/8″; Libraries › Hexagon › 3D print with that project open shows the same. EPP quilt: Layout tab Seam allowance edits the project’s (caption says so); New quilt › EPP shows it too. A block quilt with a rosette: the rosette’s fabric templates 3/8 in, the rotary chart 1/4 in. Details › Units to cm: 6 mm and 10 mm (a changed value scales). Cm project from new: 0.6 cm and 1 cm, steps 0.1 cm. No project open (Libraries): the fields show the defaults, read-only.',
+    last: 'for the various settings dialogs for 3d prints, the default seam allowance should be 3/8" or 10mm (and increment should be 1/8" or 1mm) / scratch that. 9.5mm with 0.5mm increment / nope, going back to 10mm and 1mm / more specifically, the 3/8" and 10mm seam allowance default is an EPP setting, not a 3d print setting / seam allowance for epp and for standard piecing should be a project level setting. we already decided on 3/8 & 10mm for epp. lets use 1/4 & 6mm for standard piecing.',
+    to: '/project',
+  },
+  {
+    id: 'TC-299',
+    group: G.epp027,
+    text: 'Rosettes in a block quilt, 3D Print and printout. New quilt › Shaped Blocks (hexagons) › Design › Rosettes › Tumbling Block, All, tap the quilt. 3D Print: the shape is 60° Diamond, the floor says Edge: 4" (a diamond’s side where it sits), Fabric shows EPP seam allowance (project) 3/8 in and SA: 3/8". Print: the Cutting field says Seam allowance (project) 1/4 in; the Fabric templates: rosettes page has a note under the key: rosettes cut with 3/8″, the quilt 1/4″, trim the outer edge to 1/4″ or sew those seams at 3/8″. Set the EPP seam allowance to 1/4 in: the note goes. Also: Start a quilt › EPP from the home page: the EPP seam allowance can be changed (it was read-only) and the new project has it.',
+    last: 'when I use the tumbling block rosette in a block quilt, why does the 3d print for the epp shape say "size: .... x ...." instead of giving the edge dimension? / epp rosettes in a block quilt should still use the epp seam allowance but a note should be added to a paper printout that their outer seam edge will need to be reconciled with the rest of the quilt’s SA',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

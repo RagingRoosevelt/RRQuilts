@@ -200,12 +200,16 @@
             label="How cut sizes are worked out"
           />
         </div>
+        <!-- The project's seam allowances (owner, 2026-11-14): EPP for rosettes and EPP quilts,
+             standard piecing for the rest. -->
         <LengthInput
-          :model-value="prefs.seam[units]"
-          label="Seam allowance"
+          :model-value="seams[seamKind]"
+          :label="seamKind === 'epp' ? 'EPP seam allowance (project)' : 'Seam allowance (project)'"
           :units="units"
           :min="0"
-          @update:model-value="(v: number) => setUnit('seam', v)"
+          :step="seamStep(units)"
+          :readonly="!canSetSeam"
+          @update:model-value="(v: number) => setSeam(seamKind, v)"
         />
         <q-select
           :model-value="prefs.rounding[units]"
@@ -428,6 +432,8 @@ import { computed, watch } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import HelpLink from '@/components/HelpLink.vue';
 import LengthInput from '@/components/LengthInput.vue';
+import { useProjectSeams } from '@/composables/seams';
+import { seamStep } from '@/model/seams';
 import { useBlockPrintSize } from '@/composables/block-print-size';
 import { generateFor } from '@/model/layout/slots';
 import {
@@ -507,7 +513,6 @@ type PerUnit =
   | 'paper'
   | 'rosetteUnit'
   | 'margin'
-  | 'seam'
   | 'rounding'
   | 'miterSlack'
   | 'fabricStep'
@@ -529,6 +534,8 @@ const fabricStepOptions = computed(() =>
 );
 
 const eppQuilt = computed(() => props.kind === 'quilt' && printQuilt.value?.layout.style === 'epp');
+const { seams, canSet: canSetSeam, set: setSeam } = useProjectSeams();
+const seamKind = computed(() => (props.kind === 'rosette' || eppQuilt.value ? 'epp' : 'piecing'));
 const sectionOptions = computed(() =>
   eppQuilt.value
     ? [

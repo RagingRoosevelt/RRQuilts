@@ -8,13 +8,20 @@
       :readonly="readonly"
       @update:model-value="(v: number) => set({ unit: v }, 'epp-unit')"
     />
-    <LengthInput
-      :model-value="layout.seam"
-      label="Seam allowance"
-      :units="units"
-      :readonly="readonly"
-      @update:model-value="(v: number) => set({ seam: v }, 'epp-seam')"
-    />
+    <div>
+      <LengthInput
+        :model-value="seams.epp"
+        label="Seam allowance"
+        :units="units"
+        :min="0"
+        :step="seamStep(units)"
+        :readonly="readonly"
+        @update:model-value="(v: number) => setSeam('epp', v)"
+      />
+      <div class="text-caption text-grey-7 q-mt-xs">
+        The project’s EPP seam allowance, for every EPP quilt and rosette in it.
+      </div>
+    </div>
     <div>
       <div class="text-subtitle2">Edge</div>
       <SlidePicker
@@ -85,14 +92,16 @@
 </template>
 
 <script setup lang="ts">
-// An EPP quilt's Layout tab (spec 027 FR-001, FR-001a): the length of 1U, the seam allowance and
-// the edge. Custom trim waits for spec 055 (owner, 2026-11-10).
+// An EPP quilt's Layout tab (spec 027 FR-001, FR-001a): the length of 1U, the project's EPP seam
+// allowance and the edge. Custom trim waits for spec 055 (owner, 2026-11-10).
 import { computed } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { fillFor } from '@/editor/paint';
 import { lookupEpp } from '@/model/epp/expand';
 import { refresh, setEdge } from '@/model/epp/quilt-ops';
+import { useProjectSeams } from '@/composables/seams';
+import { seamStep } from '@/model/seams';
 import type { EppEdge, EppLayout } from '@/model/schema/epp';
 import type { Quilt } from '@/model/schema/quilt';
 import { colorLookup } from '@/render/draw';
@@ -104,6 +113,8 @@ const props = defineProps<{ quilt: Quilt; units: string; readonly: boolean }>();
 const project = useProjectStore();
 const library = useLibraryStore();
 const editor = useEditorStore();
+const { seams: seamsRef, set: setSeam } = useProjectSeams();
+const seams = computed(() => seamsRef.value);
 
 const EDGE_HINTS: Record<EppEdge['kind'], string> = {
   none: 'The edge follows the outer pieces. No borders or binding.',
