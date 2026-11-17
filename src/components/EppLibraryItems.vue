@@ -1,39 +1,48 @@
 <template>
-  <div class="column" style="gap: 6px">
-    <div class="text-subtitle2">EPP shapes and rosettes</div>
-    <div class="cards">
-      <div v-for="c in cards" :key="c.id" class="card">
-        <button class="thumb" :aria-label="`Preview ${c.name}`" @click="preview(c)">
-          <EppThumb :polys="c.polys" :size="0" />
-        </button>
-        <div class="row items-center no-wrap">
-          <q-icon v-if="c.kind === 'rosette'" name="hive" size="xs" color="grey-7" class="q-mr-xs">
-            <q-tooltip>Rosette</q-tooltip>
-          </q-icon>
-          <FullName class="col" :name="c.name" />
-          <q-btn flat round dense icon="more_vert" aria-label="Actions">
-            <q-menu auto-close>
-              <q-list dense style="min-width: 180px">
-                <q-item v-if="!mine" clickable @click="copyMine(c)">
-                  <q-item-section avatar class="menu-icon"
-                    ><q-icon name="content_copy"
-                  /></q-item-section>
-                  <q-item-section>Copy to {{ MY_LIBRARY }}</q-item-section>
-                </q-item>
-                <q-item v-if="mine" clickable @click="remove(c)">
-                  <q-item-section avatar class="menu-icon"
-                    ><q-icon name="delete" color="negative"
-                  /></q-item-section>
-                  <q-item-section class="text-negative"
-                    >Delete from {{ MY_LIBRARY }}</q-item-section
-                  >
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-btn>
+  <!-- A block box, not a flex column: Firefox stretched the cards' grid rows to a two-column guess. -->
+  <div>
+    <!-- In category sections, as the library's blocks (BlockSections). -->
+    <BlockSections :sections="sections" :lib="`epp:${view.doc.id}`" title="EPP shapes and rosettes">
+      <template #default="{ block: x }">
+        <div v-for="c in cardFor(x)" :key="c.id" class="card">
+          <button class="thumb" :aria-label="`Preview ${c.name}`" @click="preview(c)">
+            <EppThumb :polys="c.polys" :size="0" />
+          </button>
+          <div class="row items-center no-wrap">
+            <q-icon
+              v-if="c.kind === 'rosette'"
+              name="hive"
+              size="xs"
+              color="grey-7"
+              class="q-mr-xs"
+            >
+              <q-tooltip>Rosette</q-tooltip>
+            </q-icon>
+            <FullName class="col" :name="c.name" />
+            <q-btn flat round dense icon="more_vert" aria-label="Actions">
+              <q-menu auto-close>
+                <q-list dense style="min-width: 180px">
+                  <q-item v-if="!mine" clickable @click="copyMine(c)">
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="content_copy"
+                    /></q-item-section>
+                    <q-item-section>Copy to {{ MY_LIBRARY }}</q-item-section>
+                  </q-item>
+                  <q-item v-if="mine" clickable @click="remove(c)">
+                    <q-item-section avatar class="menu-icon"
+                      ><q-icon name="delete" color="negative"
+                    /></q-item-section>
+                    <q-item-section class="text-negative"
+                      >Delete from {{ MY_LIBRARY }}</q-item-section
+                    >
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </div>
         </div>
-      </div>
-    </div>
+      </template>
+    </BlockSections>
 
     <!-- Preview (as library blocks): the shape or rosette, and its 3D-printed templates (spec 027). -->
     <q-dialog :model-value="!!previewing" @update:model-value="previewing = null">
@@ -84,6 +93,7 @@
 // read-only: copy them to My library to make them yours.
 import { useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
+import BlockSections from '@/components/BlockSections.vue';
 import DialogClose from '@/components/DialogClose.vue';
 import EppThumb from '@/components/EppThumb.vue';
 import StlOptions from '@/components/StlOptions.vue';
@@ -94,7 +104,13 @@ import { useAuthor } from '@/composables/author';
 import { lookupEpp, rosetteLocal } from '@/model/epp/expand';
 import { place } from '@/model/epp/geometry';
 import { DEFAULT_LICENSE } from '@/model/credits';
-import { copyToMine, MY_LIBRARY, removeItem, type LibraryView } from '@/model/library';
+import {
+  blockSections,
+  copyToMine,
+  MY_LIBRARY,
+  removeItem,
+  type LibraryView,
+} from '@/model/library';
 import type { EppShape, Rosette } from '@/model/schema/epp';
 import { useLibraryStore } from '@/stores/library';
 
@@ -132,6 +148,16 @@ const cards = computed(() => [
 ]);
 
 type Card = (typeof cards.value)[number];
+const byId = computed(() => new Map(cards.value.map((c) => [c.id, c])));
+/** The card for a listed item (none or one, for the sections' slot). */
+const cardFor = (x: { id: string }) => {
+  const c = byId.value.get(x.id);
+  return c ? [c] : [];
+};
+/** By category, as a project's EPP tab (the page's Group by is for blocks). */
+const sections = computed(() =>
+  blockSections(props.view.doc, [...props.shapes, ...props.rosettes], 'category'),
+);
 const previewing = ref<Card | null>(null);
 const previewTab = ref<'preview' | 'print3d'>('preview');
 function preview(c: Card) {
@@ -171,14 +197,6 @@ function remove(c: { id: string; name: string }) {
 </script>
 
 <style scoped>
-/* As the block cards. */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  grid-auto-rows: max-content;
-  align-items: start;
-  gap: 16px;
-}
 .card {
   border: 1px solid rgba(128, 128, 128, 0.3);
   border-radius: 8px;

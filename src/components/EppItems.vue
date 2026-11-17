@@ -9,96 +9,119 @@
         { value: 'rosettes', label: 'Rosettes' },
       ]"
     />
-    <template v-for="(g, k) in groups" :key="g.label">
-      <div class="text-subtitle2">{{ g.label }}</div>
-      <div class="cards">
-        <div v-if="k === 0 && !ro" class="stack">
-          <button class="card add" @click="newShapeItem">
-            <q-icon name="add" size="md" />
-            <div>New shape</div>
-          </button>
-          <button class="card add" @click="newRosetteItem">
-            <q-icon name="hive" size="md" />
-            <div>New rosette</div>
-          </button>
-          <button class="card add" @click="importFile">
-            <q-icon name="upload_file" size="md" />
-            <div>Import <span class="text-caption">.rrqepp</span></div>
-          </button>
-        </div>
-        <div v-for="c in g.cards" :key="c.id" class="card">
-          <button class="thumb" :aria-label="`Open ${c.name}`" @click="open(c)">
-            <EppThumb :polys="c.polys" :size="0" />
-          </button>
-          <div class="row items-center no-wrap">
-            <q-icon
-              v-if="c.kind === 'rosette'"
-              name="hive"
-              size="xs"
-              color="grey-7"
-              class="q-mr-xs"
-            >
-              <q-tooltip>Rosette</q-tooltip>
-            </q-icon>
-            <FullName class="col" :name="c.name" />
-            <q-btn flat round dense icon="more_vert" aria-label="Actions">
-              <q-menu auto-close>
-                <q-list dense style="min-width: 180px">
-                  <q-item clickable @click="open(c)">
-                    <q-item-section avatar class="menu-icon"><q-icon name="edit" /></q-item-section>
-                    <q-item-section>Open</q-item-section>
-                  </q-item>
-                  <q-item clickable @click="printItem(c)">
-                    <q-item-section avatar class="menu-icon"
-                      ><q-icon name="print"
-                    /></q-item-section>
-                    <q-item-section>Print</q-item-section>
-                  </q-item>
-                  <q-item v-if="c.mine && !ro" clickable @click="duplicate(c)">
-                    <q-item-section avatar class="menu-icon"
-                      ><q-icon name="content_copy"
-                    /></q-item-section>
-                    <q-item-section>Duplicate</q-item-section>
-                  </q-item>
-                  <q-item v-if="!c.mine && !ro" clickable @click="copyToProject(c)">
-                    <q-item-section avatar class="menu-icon"
-                      ><q-icon name="content_copy"
-                    /></q-item-section>
-                    <q-item-section>Edit a copy</q-item-section>
-                  </q-item>
-                  <q-item v-if="c.inProject" clickable @click="exportItem(c)">
-                    <q-item-section avatar class="menu-icon"
-                      ><q-icon name="file_download"
-                    /></q-item-section>
-                    <q-item-section>Export (.rrqepp)</q-item-section>
-                  </q-item>
-                  <q-item v-if="c.mine && !c.linked && !ro" clickable @click="toLibrary(c)">
-                    <q-item-section avatar class="menu-icon"
-                      ><q-icon name="collections_bookmark"
-                    /></q-item-section>
-                    <q-item-section>Add to {{ MY_LIBRARY }}</q-item-section>
-                  </q-item>
-                  <q-item v-if="c.mine && !ro" clickable @click="remove(c)">
-                    <q-item-section avatar class="menu-icon"
-                      ><q-icon name="delete" color="negative"
-                    /></q-item-section>
-                    <q-item-section class="text-negative">Delete</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-btn>
-          </div>
-        </div>
-      </div>
-    </template>
+    <div class="text-subtitle2">Mine</div>
+    <div v-if="!ro" class="stack">
+      <button class="card add" @click="newShapeItem">
+        <q-icon name="add" size="md" />
+        <div>New shape</div>
+      </button>
+      <button class="card add" @click="newRosetteItem">
+        <q-icon name="hive" size="md" />
+        <div>New rosette</div>
+      </button>
+      <button class="card add" @click="importFile">
+        <q-icon name="upload_file" size="md" />
+        <div>Import <span class="text-caption">.rrqepp</span></div>
+      </button>
+    </div>
+    <!-- Mine, then each library in category sections, as the Blocks tab's library blocks. A block
+         box, not a flex column: Firefox stretched the cards' grid rows to a two-column guess. -->
+    <div>
+      <template v-for="(g, k) in groups" :key="g.lib">
+        <div v-if="k === 1" class="text-subtitle2 q-mt-md">Libraries</div>
+        <BlockSections :sections="g.sections" :lib="`epp:${g.lib}`" :title="g.label">
+          <template #default="{ block: x }">
+            <div v-for="c in cardFor(x)" :key="c.id" class="card">
+              <button class="thumb" :aria-label="`Open ${c.name}`" @click="open(c)">
+                <EppThumb :polys="c.polys" :size="0" />
+              </button>
+              <div class="row items-center no-wrap">
+                <q-icon
+                  v-if="c.kind === 'rosette'"
+                  name="hive"
+                  size="xs"
+                  color="grey-7"
+                  class="q-mr-xs"
+                >
+                  <q-tooltip>Rosette</q-tooltip>
+                </q-icon>
+                <FullName class="col" :name="c.name">
+                  <q-icon
+                    v-if="c.inProject && !c.mine"
+                    name="check_circle"
+                    color="primary"
+                    size="xs"
+                  >
+                    <q-tooltip>Used in this project</q-tooltip>
+                  </q-icon>
+                </FullName>
+                <q-btn flat round dense icon="more_vert" aria-label="Actions">
+                  <q-menu auto-close>
+                    <q-list dense style="min-width: 180px">
+                      <q-item clickable @click="open(c)">
+                        <q-item-section avatar class="menu-icon"
+                          ><q-icon name="edit"
+                        /></q-item-section>
+                        <q-item-section>Open</q-item-section>
+                      </q-item>
+                      <q-item clickable @click="printItem(c)">
+                        <q-item-section avatar class="menu-icon"
+                          ><q-icon name="print"
+                        /></q-item-section>
+                        <q-item-section>Print</q-item-section>
+                      </q-item>
+                      <q-item v-if="c.mine && !ro" clickable @click="duplicate(c)">
+                        <q-item-section avatar class="menu-icon"
+                          ><q-icon name="content_copy"
+                        /></q-item-section>
+                        <q-item-section>Duplicate</q-item-section>
+                      </q-item>
+                      <q-item v-if="!c.mine && !ro" clickable @click="copyToProject(c)">
+                        <q-item-section avatar class="menu-icon"
+                          ><q-icon name="content_copy"
+                        /></q-item-section>
+                        <q-item-section>Edit a copy</q-item-section>
+                      </q-item>
+                      <q-item v-if="c.inProject" clickable @click="exportItem(c)">
+                        <q-item-section avatar class="menu-icon"
+                          ><q-icon name="file_download"
+                        /></q-item-section>
+                        <q-item-section>Export (.rrqepp)</q-item-section>
+                      </q-item>
+                      <q-item v-if="c.mine && !c.linked && !ro" clickable @click="toLibrary(c)">
+                        <q-item-section avatar class="menu-icon"
+                          ><q-icon name="collections_bookmark"
+                        /></q-item-section>
+                        <q-item-section>Add to {{ MY_LIBRARY }}</q-item-section>
+                      </q-item>
+                      <q-item v-if="c.mine && !ro" clickable @click="remove(c)">
+                        <q-item-section avatar class="menu-icon"
+                          ><q-icon name="delete" color="negative"
+                        /></q-item-section>
+                        <q-item-section class="text-negative">Delete</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-btn>
+              </div>
+            </div>
+          </template>
+        </BlockSections>
+      </template>
+    </div>
+    <div v-if="app.settings.hideLibraryBlocks" class="text-caption text-grey-7">
+      Library shapes and rosettes are turned off in Settings › Project.
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// The project's EPP tab (spec 027 FR-013): its shapes and rosettes, and the libraries' ones.
+// The project's EPP tab (spec 027 FR-013): its shapes and rosettes, and the libraries' ones by
+// library and category (BlockSections, as the Blocks tab).
 import { useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import BlockSections from '@/components/BlockSections.vue';
 import EppThumb from '@/components/EppThumb.vue';
 import FullName from '@/components/FullName.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
@@ -110,7 +133,7 @@ import { newShape } from '@/model/epp/shape-ops';
 import { eppFile, importEpp, parseEppFile, serializeEpp } from '@/model/epp-file';
 import { creditCopy } from '@/model/credits';
 import { itemId } from '@/model/identity';
-import { addEpp, MY_LIBRARY } from '@/model/library';
+import { addEpp, blocksByLibrary, MY_LIBRARY } from '@/model/library';
 import { eppUsed, isLibraryItem } from '@/model/library-items';
 import { variationName } from '@/model/new-quilt';
 import type { EppShape, Rosette } from '@/model/schema/epp';
@@ -172,39 +195,60 @@ function rosetteCard(r: Rosette, inProject: boolean): Card {
   };
 }
 
+/** Mine (own items, project order), then each library's in its category sections (spec 027
+ *  FR-013, owner 2026-11-16: grouped as the Blocks tab's library blocks). A library item the project
+ *  holds shows as the project's copy, marked used; one no library on this device has goes under
+ *  Other libraries. */
 const groups = computed(() => {
   const p = project.doc!.project;
-  const shapes = filter.value !== 'rosettes';
-  const rosettes = filter.value !== 'shapes';
-  const own = [
-    ...(shapes
-      ? (p.eppShapes ?? []).filter((s) => !isLibraryItem(s)).map((s) => shapeCard(s, true))
-      : []),
-    ...(rosettes
-      ? (p.rosettes ?? []).filter((r) => !isLibraryItem(r)).map((r) => rosetteCard(r, true))
-      : []),
+  const kinds = (shapes: EppShape[], rosettes: Rosette[]): (EppShape | Rosette)[] => [
+    ...(filter.value !== 'rosettes' ? shapes : []),
+    ...(filter.value !== 'shapes' ? rosettes : []),
   ];
+  const own = kinds(p.eppShapes ?? [], p.rosettes ?? []).filter((x) => !isLibraryItem(x));
   const have = new Set([...(p.eppShapes ?? []), ...(p.rosettes ?? [])].map((x) => x.id));
-  const used = [
-    ...(shapes ? (p.eppShapes ?? []).filter(isLibraryItem).map((s) => shapeCard(s, true)) : []),
-    ...(rosettes ? (p.rosettes ?? []).filter(isLibraryItem).map((r) => rosetteCard(r, true)) : []),
-  ];
-  const libs = app.settings.hideLibraryBlocks
+  const fromLibs = app.settings.hideLibraryBlocks
     ? []
     : [
-        ...(shapes
-          ? library.items.eppShapes.filter((s) => !have.has(s.id)).map((s) => shapeCard(s, false))
-          : []),
-        ...(rosettes
-          ? library.items.rosettes.filter((r) => !have.has(r.id)).map((r) => rosetteCard(r, false))
-          : []),
+        ...kinds(p.eppShapes ?? [], p.rosettes ?? []).filter(isLibraryItem),
+        ...kinds(library.items.eppShapes, library.items.rosettes).filter((x) => !have.has(x.id)),
       ];
+  const r = blocksByLibrary(library.views, fromLibs, 'category', undefined, (v) => [
+    ...v.eppShapes,
+    ...v.rosettes,
+  ]);
+  const one = (lib: string, label: string | undefined, xs: (EppShape | Rosette)[]) => ({
+    lib,
+    label,
+    sections: [{ key: '', label: '', blocks: xs, count: xs.length }],
+  });
   return [
-    { label: 'Mine', cards: own },
-    { label: 'From libraries, used here', cards: used },
-    { label: 'Libraries', cards: libs },
-  ].filter((g, i) => i === 0 || g.cards.length);
+    one('mine', undefined, own),
+    ...r.groups.map((g) => ({
+      lib: g.id,
+      label: g.label,
+      sections: g.sections,
+    })),
+    ...(r.other.length ? [one('other', 'Other libraries', r.other)] : []),
+  ];
 });
+const cards = computed(() => {
+  const p = project.doc!.project;
+  const inProject = new Set([...(p.eppShapes ?? []), ...(p.rosettes ?? [])].map((x) => x.id));
+  return new Map(
+    groups.value
+      .flatMap((g) => g.sections.flatMap((x) => x.blocks))
+      .map((x) => [
+        x.id,
+        'outline' in x ? shapeCard(x, inProject.has(x.id)) : rosetteCard(x, inProject.has(x.id)),
+      ]),
+  );
+});
+/** The card for a listed item (none or one, for the sections' slot). */
+const cardFor = (x: { id: string }) => {
+  const c = cards.value.get(x.id);
+  return c ? [c] : [];
+};
 
 const open = (c: Card) => void router.push(`/project/${c.kind}/${c.id}`);
 const printItem = (c: Card) => void router.push(`/project/${c.kind}/${c.id}?print=1`);
@@ -324,14 +368,6 @@ function remove(c: Card) {
 </script>
 
 <style scoped>
-/* As the project's quilt and block cards (SketchbookPage). */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  grid-auto-rows: max-content;
-  align-items: start;
-  gap: 16px;
-}
 .card {
   position: relative;
   border: 1px solid rgba(128, 128, 128, 0.3);
@@ -350,8 +386,6 @@ function remove(c: Card) {
   cursor: pointer;
 }
 .stack {
-  /* A short row of its own across the grid, above the cards. */
-  grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

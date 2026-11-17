@@ -148,6 +148,9 @@ const vp = useViewport({
   bounds,
   panOnly: () => props.pan,
   draw(ctx, view, dpr) {
+    // Keep the first fit: until then every draw fits the pieces, so dragging one moved and zoomed
+    // the view. Now only zoom, pan, pinch and Fit change it (owner, 2026-11-16).
+    if (!props.view) emit('update:view', view);
     const c = canvas.value!;
     const dark = $q.dark.isActive;
     ctx.fillStyle = dark ? '#2b2b2b' : '#f0f0f0';

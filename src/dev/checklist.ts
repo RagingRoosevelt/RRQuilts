@@ -220,6 +220,48 @@ export const CHECKS: Check[] = [
     last: 'when I use the tumbling block rosette in a block quilt, why does the 3d print for the epp shape say "size: .... x ...." instead of giving the edge dimension? / epp rosettes in a block quilt should still use the epp seam allowance but a note should be added to a paper printout that their outer seam edge will need to be reconciled with the rest of the quilt’s SA',
     to: '/project',
   },
+  {
+    id: 'TC-300',
+    group: G.epp027,
+    text: 'Shape editor 3D Print tab. Open an EPP shape in the shape editor (your own or a library one): tabs Details, Draw, Print, 3D Print. 3D Print shows the shape’s template in the middle (drag to turn, scroll to zoom) and the sidebar as in Libraries › the shape › 3D print: Size in U, 1U length, Paper / Fabric with the project’s EPP seam allowance, Trim points, Advanced. Change the outline in Draw, go back to 3D Print: the template follows. A concave shape says it can’t be made yet. Download STL: one solid in the slicer.',
+    last: 'we added a 3d print tab to the epp rosette editor but we didn’t add the tab to the epp shape editor',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-301',
+    group: G.epp027,
+    text: 'Even edge length, under the block size in the Layout tab (collapsed at first). Straight Set quilt with an Ohio Star: open it, the Block list shows Ohio Star; click the corner square, then its right edge (orange): This edge 3.333″ (~ 3 5/16″) in a 10″ block, buttons every 1/8″ from 3″ to 4″ (3″, 3⅛″, 3¼″ … 4″) with the block size each gives (9″ … 12″). Click 4″: Width and Height become 12, the edge reads 4″; Undo puts 10 back. Width 10, Height 8 (not equal): a choice scales both, patches keep their shape. Also: On-Point (Finished block size), Diamond Point (Leg), Shaped Blocks (Side), Baby Blocks (Diamond side), a strip quilt (Strip length; a block in two strips of different counts is listed twice with its sizes). A rosette (Tumbling Block) in a Shaped Blocks hexagon quilt: its three diamonds to pick from. An edge already a whole inch (2″) offers 1″ to 3″ by eighths, 2″ greyed out. A cm project: every 1 mm between whole cm. An EPP quilt’s Layout tab has no Even edge length (1U does it). Curved edges can’t be picked.',
+    last: 'let’s add a utility to the quilt layout interface that will adjust the block size so that a user-selected patch from a user chosen block (that’s currently in use in the quilt) has an edge length that’s nicely rounded … this feature should work on both block and epp quilts, and if chosing an epp "block" in a block quilt, should also function. / change the accodian summary to "even edge length" / actually, let’s skip this feature on EPP quilts since it’s already addressed by the U system. it’s only necessary on block quilts (including ones that use EPP blocks / the increments shown in the interface should be in 1/8" incrments or 1mm increments and should, between the min and max value shown, show all increments of that amount',
+    to: '/project',
+  },
+  {
+    id: 'TC-302',
+    group: G.epp027,
+    text: 'New projects start with every built-in block picked. Home › New project › Blocks tab: Library blocks says 439 of 439 selected, Built-In and every category ticked. New quilt › Design: the tray has the built-in blocks without picking any. Untick a category: its blocks leave the tray; save, reopen: kept. Settings › Hide library blocks from projects on, then a new project: no library blocks in the tray (they couldn’t be unpicked there). Projects opened from a file keep their own picks.',
+    last: 'let’s change the default behavior for new projects to be having all built in block categories enabled',
+    to: '/',
+  },
+  {
+    id: 'TC-303',
+    group: G.epp027,
+    text: 'EPP shapes and rosettes grouped as library blocks. A project’s EPP tab: Mine (New shape, New rosette, Import, your own), then Libraries: Built-In · 18 with EPP · 18 and Hexagons, Triangles, Squares, Diamonds, Polygons, Rosettes, each collapsible with Expand all / Collapse all, as the Blocks tab’s library blocks (collapsing here doesn’t collapse the Blocks tab). Use a library shape in a rosette: it stays in its library’s section with a check mark (Used in this project). Shapes / Rosettes switch filters the sections. Cards are as tall as their content (no empty space under a row). Libraries › EPP: under each library, EPP shapes and rosettes in the same category sections. A My library shape without a category: Uncategorized.',
+    last: 'let’s update the EPP project & library tabs to do grouping for shapes / rosettes by library source. let’s use the same UI components for that grouping as we use in the block interface.',
+    to: '/project',
+  },
+  {
+    id: 'TC-304',
+    group: G.epp027,
+    text: 'EPP editors don’t move the view on their own. A new rosette: place two hexagons apart, drag one far away (and off toward an edge): the other stays put on screen, nothing zooms. Same in the shape editor (drag a corner far out) and an EPP quilt’s Design tab. The view changes only with the wheel, a pinch, panning (Pan tool, right or middle drag), the + / − buttons and Fit. Reopen the rosette: it opens where you left it.',
+    last: 'let’s update the epp shape/rosette editor so that dragging around doesn’t cause the viewport to change zoom/pan. the user should have to click/scroll/pinch to change the viewport for the designer interface',
+    to: '/project',
+  },
+  {
+    id: 'TC-305',
+    group: G.epp027,
+    text: 'Shape editor › Multi-shape: Save as shapes, below Save as rosette (disabled until lines make two or more pieces). New shape (a square), draw one diagonal: Save as shapes says every piece is a shape you already have (Half Square). Clear lines, draw both diagonals: Saved 1 shape (four identical triangles make one), the project’s EPP tab opens with it under Mine, named after the shape (New shape 1). Open it: centered, its new edges marked orange if not whole units. A line making two different pieces: two shapes. Save as rosette still works as before.',
+    last: 'let’s add a "save as shapes" button below "save as rosette" in the epp shape editor',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

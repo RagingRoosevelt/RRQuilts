@@ -45,7 +45,7 @@ Fabrics marked "≈" print at the default 8 in until you set their real size.
 
 ## 3D-printed templates
 
-The block, rosette and quilt editors also have a **3D Print** tab. It makes a template you can print on a 3D printer and cut around: a tray with a raised rim, 4 mm high, with its size, its seam allowance and a hanging hole in the floor. In **Libraries**, click an EPP shape or rosette and choose **3D print**.
+The block, shape, rosette and quilt editors also have a **3D Print** tab. It makes a template you can print on a 3D printer and cut around: a tray with a raised rim, 4 mm high, with its size, its seam allowance and a hanging hole in the floor. In **Libraries**, click an EPP shape or rosette and choose **3D print**.
 
 1. Under **Shape**, pick the piece. A rosette has one template per shape, a block or quilt one per distinct piece. For an EPP shape, choose its **Size** in U and the **1U length**. An EPP quilt's 1U comes from the quilt.
 2. Under **Template**, choose **Paper (finished size)** to cut papers, or **Fabric (with seam allowance)** to cut fabric. Fabric templates use the project's seam allowance: the EPP one (3/8 in or 10 mm) for EPP shapes, rosettes and EPP quilts, the standard one (1/4 in or 6 mm) for block and quilt pieces. Changing it here changes it for the project. Fabric templates trim points sharper than 90 degrees unless you untick **Trim points sharper than 90°**.

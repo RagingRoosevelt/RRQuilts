@@ -237,7 +237,11 @@ parallelogram); place it and print it.
    becomes a shape (each checked by the four flags), and the whole is saved as a self-contained
    rosette whose shapes live inside it, not as separate library shapes (spec 050). A piece that is an
    existing shape (the project's, then the libraries', at any turn, mirrored or not, scale 1 to 4)
-   uses that shape instead; Close space does the same. Owner, 2026-11-10: "if a
+   uses that shape instead; Close space does the same. **Save as shapes** (below Save as rosette;
+   owner, 2026-11-16: "let's add a "save as shapes" button below "save as rosette" in the epp shape
+   editor") saves the pieces as the project's own shapes instead: centered, counter-clockwise, new
+   edges marked; a piece that is an existing shape is skipped and identical pieces make one shape;
+   then the project's EPP tab opens. Owner, 2026-11-10: "if a
    mutli-shape-to-rosette ends up with an internal-to-the-rosette shape that's the same as a library
    shape, it should be replaced by that library shape". Line ends snap
    to the outline's corners and earlier lines' ends, then onto outline edges and earlier lines (at
@@ -342,7 +346,7 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
    - **Libraries**: clicking an EPP shape or rosette opens a preview (as library blocks do) with
      **Preview** and **3D print** tabs; a rosette's 3D print has a tab per shape it's made of. In a
      project, clicking a card still opens its editor.
-   - **3D Print** tab right of **Print** in the block, rosette and quilt editors: the template in
+   - **3D Print** tab right of **Print** in the block, shape, rosette and quilt editors: the template in
      the middle, and the sidebar as other tabs: **Shape** (which piece; a shape's Size in U and 1U
      length; a block's size), **Template** (paper or fabric, seam allowance, trim points) and
      **Advanced** (collapsed: the build numbers above).
@@ -392,6 +396,11 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 
 ### Edge Cases
 
+- **The view while editing**: the shape, rosette and EPP quilt editors fit the pieces once when
+  opened; after that only zoom, pan, pinch and Fit move the view, never placing or dragging pieces.
+  Owner, 2026-11-16: "let's update the epp shape/rosette editor so that dragging around doesn't
+  cause the viewport to change zoom/pan. the user should have to click/scroll/pinch to change the
+  viewport for the designer interface".
 - **Base dimension tiny or huge**: limits (for example 1/4 in to 6 in), with a warning when a
   template won't fit on a page.
 - **Snap ambiguity**: several edges in reach; the nearest edge wins, and the one it would join is
@@ -498,7 +507,13 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **FR-012**: Everything works offline; 3D rendering, any solver and STL export run in the app with
   no server calls.
 - **FR-013**: Libraries and projects MUST have an **EPP** section next to Blocks and Palettes, holding
-  EPP shapes and rosettes (spec 050), never mixed into the block lists.
+  EPP shapes and rosettes (spec 050), never mixed into the block lists. Library shapes and
+  rosettes are grouped by library and then category with the block lists' collapsible sections
+  (`BlockSections`): in a project's EPP tab after Mine (a library item the project holds shows as
+  its copy, marked used; one no library here has goes under Other libraries), and under each
+  library on the Libraries page (always by category). Owner, 2026-11-16: "let's update the EPP
+  project & library tabs to do grouping for shapes / rosettes by library source. let's use the
+  same UI components for that grouping as we use in the block interface."
 - **FR-014**: The EPP quilt type's designer MUST use the rosette editor's engine (placement modes,
   snapping, checks, paint) and add the quilt editor's **Layout** and **Borders** tabs, which the
   rosette editor doesn't have. Owner, 2026-11-10: "I think I'm going to go back on what I said about
@@ -529,6 +544,26 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   Rosettes switch when some rosette fits the quilt, tiles badged EPP. In print, its patches stay out
   of rotary cutting and come under Templates as "Paper templates: rosettes" and "Fabric templates:
   rosettes" (the fabric ones with the print's seam allowance), and count in the yardage.
+- **FR-016** (built 2026-11-16): A block quilt's Layout tab MUST offer **Even edge length**, a
+  section under the block size (a strip quilt's strip length), collapsed by default: pick a block
+  placed in the quilt's block spaces (a rosette in a block quilt counts as a block), one of its
+  patches, and one of the patch's straight edges. It shows that edge's finished length where the block sits and every 1/8 inch (cm
+  projects: 1 mm) from the whole inch (cm) below it to the one above (a whole-inch edge: the inch on
+  each side, its own length greyed out), each with the block size it gives. Choosing one scales the block size so the edge is that length: width and
+  height together (patches keep their shape), sashing and borders unchanged, strip quilts by their
+  length. Not in EPP quilts, where 1U already sets edge lengths. A block used at two sizes is listed once per size. Owner, 2026-11-16:
+  "let's add a utility to the quilt layout interface that will adjust the block size so that a
+  user-selected patch from a user chosen block (that's currently in use in the quilt) has an edge
+  length that's nicely rounded. this utility will be in a (normally collapsed) subsection of the
+  block size setting after picking. after selecting the block and patch, the user should then be
+  able to pick one of the edges of the patch and then the block size is set to a value that makes
+  that chosen edge a nice length. this feature should work on both block and epp quilts, and if
+  chosing an epp "block" in a block quilt, should also function." Owner's answers: pick from nearby
+  lengths, keep proportions; named "even edge length". Owner, later the same day: "actually, let's
+  skip this feature on EPP quilts since it's already addressed by the U system. it's only necessary
+  on block quilts (including ones that use EPP blocks". And: "the increments shown in the interface
+  should be in 1/8" incrments or 1mm increments and should, between the min and max value shown,
+  show all increments of that amount".
 
 ### Key Entities
 

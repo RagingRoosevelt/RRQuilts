@@ -151,7 +151,9 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   delete/swap/set, square fixes); `slots.ts` `Slot` has kind/shape/turns/
   alt/size/cut, `Generated` has edge/trim; `reconcile`/`applyLayout`/`convertLayout` on changes. Add
   a style = a preset + its id grammar in `specs/003-project-format/contracts/slot-ids.md`; test-only
-  presets (`__tests__/model/layout-presets.ts`) prove the planned ones
+  presets (`__tests__/model/layout-presets.ts`) prove the planned ones. `even-edge.ts` +
+  `components/EvenEdge.vue` = Even edge length (block quilts' Layout tab, under the block size): a
+  placed block's patch edges at their real length, `scaleBlockSize`
 - `colorways.ts` — quilt colorways (palette swaps of the primary colorway, the quilt's own colors:
   `from` fill key → `to` fill; `shownColorway` saved, `primaryName`; deleting the primary bakes the
   next in); applied in `drawQuilt`, `quiltPieces`. `components/QuiltColorways.vue` (badge / row /
@@ -245,7 +247,7 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - 3D-printed templates (spec 027): `model/print/stl.ts` (`buildTemplate`: a convex outline in mm →
   STL solid, debossed size and SA, hanging hole; letters from `stl-font.ts`, made by
   `scripts/stl-font.py`), `composables/stl.ts` + `StlPreview.vue` / `StlOptions.vue` = the **3D Print**
-  tab (block, rosette, quilt editors) and the Libraries EPP preview
+  tab (block, shape, rosette, quilt editors) and the Libraries EPP preview
 
 ## Block editor (spec 007)
 

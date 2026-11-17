@@ -259,6 +259,7 @@
           <LayoutInspector
             :key="quilt.id"
             :layout="quilt.layout"
+            :quilt="quilt"
             :units="units"
             :readonly="project.readOnly"
             :has-borders="quilt.borders.length > 0"

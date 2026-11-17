@@ -253,7 +253,11 @@ export function useStl(target: () => StlTarget | null) {
     const mesh = result.value?.mesh;
     const it = item.value;
     if (!mesh || !it) return;
-    const name = [title.value, it.label, opts.value.fabric ? 'fabric' : 'paper'].join(' ');
+    // A lone shape's label is its name: don't say it twice.
+    const label = it.label === title.value ? '' : it.label;
+    const name = [title.value, label, opts.value.fabric ? 'fabric' : 'paper']
+      .filter(Boolean)
+      .join(' ');
     download(name, new Uint8Array(stlBytes(mesh, name)), 'stl');
   }
 

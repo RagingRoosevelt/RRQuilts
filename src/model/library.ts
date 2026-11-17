@@ -768,17 +768,19 @@ export function libraryGroups<
  * `blocks` by library, in sections: a library's category sections, or for a library of packs
  * (spec 014) one section per pack under the library's name. Blocks no library has are left out.
  */
-export function blocksByLibrary(
+export function blocksByLibrary<T extends Sectioned = Block>(
   views: readonly LibraryView[],
-  blocks: readonly Block[],
+  blocks: readonly T[],
   by: GroupBy = 'category',
-  tagsOf?: (b: Block) => readonly string[],
+  tagsOf?: (b: T) => readonly string[],
+  /** Which of a library's lists `blocks` come from (EPP: its shapes and rosettes). */
+  listOf: (v: LibraryView) => readonly { id: string }[] = (v) => v.blocks,
 ) {
   const byId = new Map(blocks.map((b) => [b.id, b]));
   const seen = new Set<string>();
-  const out = new Map<string, { id: string; label: string; sections: BlockSection[] }>();
+  const out = new Map<string, { id: string; label: string; sections: BlockSection<T>[] }>();
   for (const v of views) {
-    const bs = v.blocks
+    const bs = listOf(v)
       .filter((b) => byId.has(b.id) && !seen.has(b.id))
       .map((b) => byId.get(b.id)!);
     bs.forEach((b) => seen.add(b.id));
@@ -801,23 +803,30 @@ export function blocksByLibrary(
 
 export type GroupBy = 'none' | 'category' | 'tags' | 'techniques' | 'shape';
 
+/** What `blockSections` sorts and files: blocks, and EPP shapes and rosettes (no `shape`). */
+export interface Sectioned {
+  id: string;
+  shape?: string | undefined;
+  notecard: Block['notecard'];
+}
+
 /** Shape order for lists (spec 049): square and rectangle blocks, then `BLOCK_SHAPES`. */
-const SHAPE_ORDER = ['', ...BLOCK_SHAPES];
-const shapeRank = (b: Block) => SHAPE_ORDER.indexOf(b.shape ?? '');
+const SHAPE_ORDER: string[] = ['', ...BLOCK_SHAPES];
+const shapeRank = (b: Sectioned) => SHAPE_ORDER.indexOf(b.shape ?? '');
 const byName = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
 /** Library blocks as listed (spec 049): by shape, then name (case-insensitive, numbers in number
  *  order); ties keep their order. A new array: the library's own order isn't changed. */
-export function byShapeAndName(blocks: readonly Block[]): Block[] {
+export function byShapeAndName<T extends Sectioned>(blocks: readonly T[]): T[] {
   return [...blocks].sort(
     (a, b) => shapeRank(a) - shapeRank(b) || byName.compare(a.notecard.name, b.notecard.name),
   );
 }
-export interface BlockSection {
+export interface BlockSection<T = Block> {
   /** Unique within the library; a subcategory's is "Parent / Child". */
   key: string;
   label: string;
-  blocks: Block[];
+  blocks: T[];
   /** Blocks in it, its subcategories' included. */
   count: number;
   /** A subcategory: its top-level category's key. */
@@ -831,14 +840,14 @@ export interface BlockSection {
  * section. Inside each, blocks by shape then name (`byShapeAndName`). `tagsOf`: the quilter's tags on
  * a block (spec 029: with those kept in My library); default its own.
  */
-export function blockSections(
+export function blockSections<T extends Sectioned = Block>(
   doc: LibraryDoc,
-  blocks: Block[],
+  blocks: T[],
   by: GroupBy,
-  tagsOf: (b: Block) => readonly string[] = (b) => visibleTags(b.notecard.tags),
-): BlockSection[] {
+  tagsOf: (b: T) => readonly string[] = (b) => visibleTags(b.notecard.tags),
+): BlockSection<T>[] {
   blocks = byShapeAndName(blocks);
-  const sec = (key: string, label: string, bs: Block[], parent?: string): BlockSection => ({
+  const sec = (key: string, label: string, bs: T[], parent?: string): BlockSection<T> => ({
     key,
     label,
     blocks: bs,
@@ -873,7 +882,7 @@ export function blockSections(
     const none = blocks.filter((b) => !known.has(catOf.get(b.id) ?? ''));
     return none.length ? [...out, sec('Uncategorized', 'Uncategorized', none)] : out;
   }
-  const keysOf = (b: Block): readonly string[] =>
+  const keysOf = (b: T): readonly string[] =>
     by === 'tags' ? tagsOf(b) : (b.notecard.techniques ?? []);
   const used = new Set(blocks.flatMap(keysOf));
   const keys = by === 'tags' ? sortTags(used) : Object.keys(TECHNIQUES).filter((t) => used.has(t));

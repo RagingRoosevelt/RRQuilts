@@ -52,7 +52,9 @@ While a filter is on, blocks can't be moved.
    placed in a quilt, is in My library, or has changed since it was saved there. Drag My blocks into
    order as you do quilts, or tab to the handle left of a block's name and use the arrow keys.
 4. **Library blocks** lists blocks from the built-in set and your libraries, grouped by library and
-   category. Tick the ones to use in this project's quilts. You can't edit them directly. **Edit
+   category. Tick the ones to use in this project's quilts. A new project starts with every built-in
+   block ticked (none when **Hide library blocks from projects** is on in Settings). You can't edit
+   them directly. **Edit
    (make a copy)** makes your own copy, and **Create a coloration variant** keeps the drawing but
    lets you recolor it ([Block colorings](/help/guides/block-colorings)). A project has one
    coloration variant per library block: asking again adds a new coloring to the one you have. **Open in block

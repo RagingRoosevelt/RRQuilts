@@ -5,6 +5,7 @@
         <q-tab name="details" icon="info" label="Details" />
         <q-tab name="draw" icon="draw" label="Draw" />
         <q-tab name="print" icon="print" label="Print" />
+        <q-tab name="print3d" icon="view_in_ar" label="3D Print" />
       </q-tabs>
       <q-btn flat round dense icon="menu" :aria-label="sidebarLabel" @click="sidebar = !sidebar">
         <q-tooltip>{{ sidebarLabel }}</q-tooltip>
@@ -76,6 +77,7 @@
       </div>
 
       <PrintPreview v-if="tab === 'print'" kind="rosette" :id="shape.id" :doc="project.doc" />
+      <StlPreview v-else-if="tab === 'print3d'" :stl="stl" />
       <div v-else class="col relative-position column no-wrap">
         <EppCanvas
           ref="canvasRef"
@@ -97,6 +99,7 @@
       <div v-show="sidebar" class="inspector q-pa-md scroll column no-wrap" style="gap: 12px">
         <DetailsPanel v-if="tab === 'details'" kind="shape" :id="shape.id" />
         <PrintOptions v-else-if="tab === 'print'" kind="rosette" :id="shape.id" />
+        <StlOptions v-else-if="tab === 'print3d'" :stl="stl" />
         <template v-else>
           <SlidePicker
             :model-value="multi ? 'multi' : 'single'"
@@ -163,6 +166,15 @@
               :disable="!!saveBlocked"
               @click="saveRosette"
             />
+            <q-btn
+              outline
+              color="primary"
+              no-caps
+              icon="category"
+              label="Save as shapes"
+              :disable="!!saveBlocked"
+              @click="saveShapes"
+            />
           </div>
           <q-separator />
           <div class="text-subtitle2">Checks</div>
@@ -193,10 +205,13 @@ import { useRoute, useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import EppCanvas, { type CanvasPoly, type Decor } from '@/components/EppCanvas.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
+import StlOptions from '@/components/StlOptions.vue';
+import StlPreview from '@/components/StlPreview.vue';
 import { ERASER } from '@/components/icons';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
 import PrintZoom from '@/components/PrintZoom.vue';
+import { useStl } from '@/composables/stl';
 import type { World } from '@/composables/viewport';
 import { checkOutline, nonWholeEdges, passes, problems, type Flags } from '@/model/epp/checks';
 import { matchShape, piecePose } from '@/model/epp/match';
@@ -206,6 +221,7 @@ import { newRosette } from '@/model/epp/rosette-ops';
 import {
   lengthLabel,
   moveEdge,
+  newShape,
   moveVertex,
   normalize,
   removeEdge,
@@ -243,7 +259,8 @@ const shape = computed<EppShape | undefined>(
 );
 const ro = computed(() => project.readOnly || !own.value || isLibraryItem(own.value));
 
-const tab = ref<'details' | 'draw' | 'print'>(route.query.print ? 'print' : 'draw');
+const tab = ref<'details' | 'draw' | 'print' | 'print3d'>(route.query.print ? 'print' : 'draw');
+const stl = useStl(() => (shape.value ? { kind: 'shape', id: shape.value.id } : null));
 const sidebar = ref(!$q.screen.lt.md);
 const sidebarLabel = computed(() => (sidebar.value ? 'Hide sidebar' : 'Show sidebar'));
 const swapped = computed(() => app.settings.sidesSwapped);
@@ -615,6 +632,41 @@ async function saveRosette() {
   lines.value = [];
   multi.value = false;
   await router.push(`/project/rosette/${r.id}`);
+}
+/**
+ * Each piece as a shape of the project's own (owner, 2026-11-16), centered and counter-clockwise,
+ * edges that aren't whole units marked as meant. A piece that is a shape you or a library already
+ * have is skipped, and identical pieces make one shape. Then the project's EPP tab shows them.
+ */
+async function saveShapes() {
+  const s = shape.value;
+  if (!s) return;
+  const known = [...(project.doc?.project.eppShapes ?? []), ...library.items.eppShapes].filter(
+    (x) => passes(checkOutline(x.outline, x.marked)),
+  );
+  const made: EppShape[] = [];
+  for (const p of parts.value) {
+    if (matchShape(p.outline, [...known, ...made])) continue;
+    const c = centroidOf(p.outline);
+    const marked = nonWholeEdges(p.outline);
+    made.push(
+      normalize({
+        ...newShape(`${s.notecard.name} ${made.length + 1}`, app.settings.author),
+        outline: p.outline.map(([x, y]): Pt => [x - c[0], y - c[1]]),
+        ...(marked.length ? { marked } : {}),
+      }),
+    );
+  }
+  if (!made.length) return void $q.notify({ message: 'Every piece is a shape you already have.' });
+  project.change((d) => void (d.project.eppShapes ??= []).push(...made));
+  lines.value = [];
+  multi.value = false;
+  $q.notify({
+    type: 'positive',
+    message: `Saved ${made.length} shape${made.length === 1 ? '' : 's'} to this project.`,
+  });
+  app.settings.projectTab = 'epp';
+  await router.push('/project');
 }
 /** Internal shapes are placed around their centroid; this is where each sits. */
 function centroidOf(poly: Poly): Pt {

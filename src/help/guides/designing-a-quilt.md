@@ -31,6 +31,24 @@ Below the layout settings, **Reference overlay** draws a size to aim for as a da
 the quilt: a bed with its drop, a placemat, a garment piece, or a custom size. Pick it under
 **Target size**, as in the new quilt wizard. It's saved with the quilt. **Show** hides or shows the outline, **Fill** sets how strongly it's shaded, the color swatch picks its tint, **Invert** shades outside the shape instead, and **None** removes it.
 
+### Even edge length
+
+Under the block size, **Even edge length** sizes the blocks so that one edge of one patch comes out
+a length you can measure on a ruler. It starts closed.
+
+1. Open **Even edge length** and pick a **Block** that's in the quilt. A block used at two sizes is
+   listed once for each.
+2. Click a patch in the picture, then click one of its edges. Curved edges can't be picked.
+3. **This edge** shows the edge's finished length now. Each button below it is an even length nearby,
+   with the block size it gives underneath. Click one.
+
+The choices go up by 1/8 inch, from the whole inch below the edge to the whole inch above it (by
+1 mm between whole centimeters in a centimeter project). An edge that's already a whole inch gets
+the inch on each side. Width and height change together, so every patch keeps its shape.
+Sashing and borders stay as they are. In a strip quilt the strip length changes. A rosette in a block
+quilt works like any other block. EPP quilts don't need it: set **1U length** to the edge you want.
+Undo puts the old size back.
+
 ## On-point layouts
 
 Choose **On-Point** as the **Style** to turn the blocks 45° so they sit as diamonds. A second set of

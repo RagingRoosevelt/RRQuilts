@@ -60,14 +60,16 @@
         <ShapeBadges />
       </template>
     </q-select>
-    <StripsInspector
-      v-if="layout.style === 'horizontal-strip' || layout.style === 'vertical-strip'"
-      :layout="layout"
-      :units="units"
-      :readonly="readonly"
-      :hint="hint"
-      @change="(l, k) => emit('change', l, k)"
-    />
+    <template v-if="layout.style === 'horizontal-strip' || layout.style === 'vertical-strip'">
+      <StripsInspector
+        :layout="layout"
+        :units="units"
+        :readonly="readonly"
+        :hint="hint"
+        @change="(l, k) => emit('change', l, k)"
+      />
+      <EvenEdge v-if="quilt" :quilt="quilt" :units="units" :readonly="readonly" @scale="round" />
+    </template>
     <template
       v-else-if="
         layout.style === 'on-point' ||
@@ -147,6 +149,13 @@
               Width on point: {{ fmtLen(layout.block * Math.SQRT2, lu) }}
             </div>
           </div>
+          <EvenEdge
+            v-if="quilt && layout.style !== 'variable-point'"
+            :quilt="quilt"
+            :units="units"
+            :readonly="readonly"
+            @scale="round"
+          />
         </div>
       </FieldGroup>
       <FieldGroup label="Sashing">
@@ -350,6 +359,13 @@
               />
             </div>
           </template>
+          <EvenEdge
+            v-if="quilt && (layout.style === 'shaped-blocks' || layout.style === 'baby-blocks')"
+            :quilt="quilt"
+            :units="units"
+            :readonly="readonly"
+            @scale="round"
+          />
         </div>
       </FieldGroup>
       <FieldGroup label="Edge">
@@ -446,6 +462,13 @@
               @update:model-value="(v) => setPair('block', 1, v, squareBlock)"
             />
           </div>
+          <EvenEdge
+            v-if="quilt"
+            :quilt="quilt"
+            :units="units"
+            :readonly="readonly"
+            @scale="round"
+          />
         </div>
       </FieldGroup>
       <FieldGroup label="Sashing (0 for none)">
@@ -495,7 +518,9 @@ import ShapeBadges from '@/components/ShapeBadges.vue';
 import ShapeSize from '@/components/ShapeSize.vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import LengthInput from '@/components/LengthInput.vue';
+import EvenEdge from '@/components/EvenEdge.vue';
 import StripsInspector from '@/components/StripsInspector.vue';
+import { scaleBlockSize } from '@/model/layout/even-edge';
 import { convertLayout, FLOWS } from '@/model/layout/slots';
 import { picture, sampleStrips, STYLES } from '@/render/layout-samples';
 import { fmtLen } from '@/model/print/format';
@@ -503,6 +528,7 @@ import type {
   HorizontalLayout,
   Layout,
   OnePatchLayout,
+  Quilt,
   OnPointLayout,
   PatchShape,
   TumblingLayout,
@@ -515,8 +541,12 @@ const props = defineProps<{
   readonly: boolean;
   hasBorders?: boolean;
   hint?: string | undefined;
+  /** The quilt being edited: Even edge length measures its blocks. */
+  quilt?: Quilt;
 }>();
 const emit = defineEmits<{ change: [layout: Layout, coalesce: string] }>();
+/** Even edge length: the blocks `k` times the size. */
+const round = (k: number) => emit('change', scaleBlockSize(props.layout, k), '');
 const op = (patch: Partial<OnPointLayout> | Partial<VariablePointLayout>, k = '') =>
   emit('change', { ...(props.layout as OnPointLayout), ...patch } as Layout, k);
 const tile = (patch: Partial<OnePatchLayout> | Partial<TumblingLayout>, k = '') =>
