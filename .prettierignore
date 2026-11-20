@@ -8,3 +8,4 @@ reference
 node_modules
 package-lock.json
 public/schemas
+prototypes/*/vendor

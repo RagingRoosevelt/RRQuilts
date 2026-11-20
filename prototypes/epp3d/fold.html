@@ -1,0 +1,1682 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>3D EPP Fold</title>
+    <style>
+      :root {
+        --bg: #f6f5f2;
+        --panel: #ffffff;
+        --fg: #1f1f1f;
+        --muted: #666;
+        --line: #d8d6d0;
+        --edge: #2a2a2a;
+        --accent: #1976d2;
+        --bad: #c62828;
+        --ok: #2e7d32;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #121212;
+          --panel: #1c1c1c;
+          --fg: #eeeeee;
+          --muted: #aaaaaa;
+          --line: #3a3a3a;
+          --edge: #e8e8e8;
+          --accent: #64b5f6;
+          --bad: #ef9a9a;
+          --ok: #a5d6a7;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font: 14px/1.45 system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        align-items: center;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--line);
+      }
+      h1 {
+        font-size: 16px;
+        margin: 0 8px 0 0;
+      }
+      select,
+      button {
+        font: inherit;
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--fg);
+      }
+      button {
+        cursor: pointer;
+      }
+      #status {
+        padding: 6px 16px;
+        min-height: 2.2em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--line);
+      }
+      #status .bad {
+        color: var(--bad);
+      }
+      #status .ok {
+        color: var(--ok);
+      }
+      main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: minmax(0, 1fr);
+        gap: 1px;
+        background: var(--line);
+        height: min(68vh, 640px);
+      }
+      .pane {
+        position: relative;
+        background: var(--panel);
+        min-width: 0;
+        overflow: hidden;
+      }
+      .pane h2 {
+        position: absolute;
+        top: 8px;
+        left: 12px;
+        margin: 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        pointer-events: none;
+      }
+      .exploded {
+        position: absolute;
+        top: 6px;
+        right: 12px;
+        z-index: 1;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        background: var(--accent);
+        color: var(--panel);
+        pointer-events: none;
+      }
+      .hint {
+        position: absolute;
+        bottom: 6px;
+        left: 12px;
+        right: 12px;
+        font-size: 12px;
+        color: var(--muted);
+        pointer-events: none;
+      }
+      /* Out of the flow, so the canvas's own size never grows its panel. */
+      svg,
+      canvas {
+        position: absolute;
+        inset: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+      canvas {
+        cursor: grab;
+      }
+      @media (max-width: 760px) {
+        main {
+          grid-template-columns: 1fr;
+          grid-template-rows: none;
+          height: auto;
+        }
+        .pane {
+          height: 55vh;
+        }
+      }
+      .notes {
+        padding: 8px 16px 24px;
+        max-width: 900px;
+      }
+      .notes h3 {
+        font-size: 14px;
+        margin: 16px 0 4px;
+      }
+      .notes ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+      /* 2D view */
+      .free .vis {
+        stroke: var(--edge);
+        stroke-width: 1.5px;
+      }
+      .shared .vis {
+        stroke: var(--edge);
+        stroke-width: 1px;
+        stroke-dasharray: 5 4;
+        opacity: 0.7;
+      }
+      .seam .vis {
+        stroke-width: 4px;
+      }
+      .open .vis {
+        stroke: var(--bad) !important;
+        stroke-dasharray: 3 3;
+      }
+      .vis {
+        vector-effect: non-scaling-stroke;
+        stroke-linecap: round;
+      }
+      .hit {
+        stroke: transparent;
+        stroke-width: 0.22px;
+        cursor: pointer;
+      }
+      .edge:hover .vis {
+        stroke: var(--accent) !important;
+        stroke-width: 4px;
+      }
+      .picked .vis {
+        stroke: var(--accent) !important;
+        stroke-width: 5px;
+      }
+      .front-mark {
+        fill: var(--fg);
+        stroke: var(--panel);
+        stroke-width: 0.05px;
+        pointer-events: none;
+      }
+      .front-mark.ring {
+        fill: none;
+        stroke: var(--fg);
+        stroke-width: 0.04px;
+      }
+      .label {
+        font-size: 0.3px;
+        font-weight: 700;
+        text-anchor: middle;
+        dominant-baseline: central;
+        paint-order: stroke;
+        stroke: var(--panel);
+        stroke-width: 0.08px;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>3D EPP fold</h1>
+      <label
+        >Design
+        <select id="preset">
+          <optgroup label="Open">
+            <option value="star">Five-diamond star</option>
+            <option value="ruffle">Ruffle: seven triangles round a point</option>
+            <option value="openbox">Box with no lid</option>
+            <option value="basket">Pentagon basket</option>
+          </optgroup>
+          <optgroup label="Closed">
+            <option value="cube1">Cube, one assembly</option>
+            <option value="cube2">Cube, two assemblies</option>
+            <option value="cube6">Cube, six loose squares</option>
+            <option value="tetra">Tetrahedron (4 triangles)</option>
+            <option value="octa">Octahedron (8 triangles)</option>
+            <option value="icosa">Icosahedron (20 triangles)</option>
+            <option value="pyramid">Square pyramid</option>
+            <option value="hexprism">Hexagonal prism</option>
+            <option value="ttetra">Truncated tetrahedron (hexagons, triangles)</option>
+            <option value="cubocta">Cuboctahedron (squares, triangles)</option>
+            <option value="tocta">Truncated octahedron (hexagons, squares)</option>
+            <option value="dodeca">Ball: two pentagon rosettes</option>
+            <option value="soccer">Soccer ball (pentagons, hexagons)</option>
+          </optgroup>
+        </select>
+      </label>
+      <label
+        >Exploded seams
+        <select id="seamLook">
+          <option value="stitches">Stitches</option>
+          <option value="glue">Glue</option>
+        </select>
+      </label>
+      <label
+        >Lighting
+        <select id="lighting">
+          <option value="shadows">Fixed light, shadows</option>
+          <option value="plain">Plain (lamp on the camera)</option>
+        </select>
+      </label>
+      <label><input id="stuffed" type="checkbox" /> Stuffed</label>
+      <button id="refold" title="Start again from the flat design">Fold again</button>
+      <button id="clear" title="Remove every explicit seam">Clear explicit seams</button>
+      <button id="view" title="Turn the 3D view back to the start">Reset view</button>
+    </header>
+    <div id="status"></div>
+    <main>
+      <div class="pane">
+        <h2>2D design</h2>
+        <svg id="net" aria-label="2D design"></svg>
+        <div class="hint">
+          Dashed: shared edges, already seams. Click two free edges of equal length to sew them
+          (numbered). Click a numbered edge to remove its seam. ◉ marks the piece facing front.
+        </div>
+      </div>
+      <div class="pane">
+        <h2>3D assembly</h2>
+        <canvas id="view3d" aria-label="3D assembly"></canvas>
+        <div id="exploded" class="exploded" hidden>Exploded: click to close up</div>
+        <div class="hint">
+          Click the object to spread its pieces apart, click again to close it up. Double-click a
+          piece to make it face front. Drag to turn it, scroll to zoom. Red lines: seams still open.
+          Pale side: the paper side.
+        </div>
+      </div>
+    </main>
+    <section class="notes">
+      <h3>How the fold works</h3>
+      <ul>
+        <li>Every piece is a flat, rigid plate. Every seam is a hinge about the seam line.</li>
+        <li>Edges that touch in 2D are seams on their own. Explicit seams pull separate pieces and
+          assemblies together.</li>
+        <li>Fabric would rather lie flat: each hinge bends only as far as closing the seams needs.
+          The fold starts by curling the design away from you, so the right side ends up outside.</li>
+        <li>Seams that still don't close once the fold settles are listed above and drawn red.</li>
+      </ul>
+      <h3>Questions this raises</h3>
+      <ul>
+        <li>Stuffed: is a simple dome per piece close enough, or should firmer stuffing round the whole shape out?</li>
+        <li>Pieces may pass through each other on the way (there's no collision yet). Does that
+          matter once the fold has settled?</li>
+        <li>The star can still flex (it isn't rigid). Should the quilter be able to pull a piece
+          by hand to see that?</li>
+        <li>Should the 2D design show which side each piece folds to (mountain or valley)?</li>
+      </ul>
+    </section>
+
+    <script src="vendor/three.min.js"></script>
+    <script>
+      'use strict';
+      // 3D EPP fold prototype (spec 027 User Story 7). Plain script, no build, nothing fetched.
+      // Units: 1 = one edge unit (1U). Net coordinates are y-up; the SVG flips them.
+
+      // ---------- vectors and quaternions ----------
+      const add = (a, b) => a.map((x, i) => x + b[i]);
+      const sub = (a, b) => a.map((x, i) => x - b[i]);
+      const mul = (a, k) => a.map((x) => x * k);
+      const dot = (a, b) => a.reduce((s, x, i) => s + x * b[i], 0);
+      const len = (a) => Math.hypot(...a);
+      const unit = (a) => mul(a, 1 / (len(a) || 1));
+      const cross2 = (a, b) => a[0] * b[1] - a[1] * b[0];
+      const cross3 = (a, b) => [
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0],
+      ];
+      const mean = (ps) => mul(ps.reduce(add), 1 / ps.length);
+      // [x, y, z, w]
+      const qconj = (q) => [-q[0], -q[1], -q[2], q[3]];
+      const qmul = (a, b) => [
+        a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1],
+        a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0],
+        a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3],
+        a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2],
+      ];
+      function qrot(q, v) {
+        const u = [q[0], q[1], q[2]];
+        const t = mul(cross3(u, v), 2);
+        return add(add(v, mul(t, q[3])), cross3(u, t));
+      }
+      /** Best rotation for a 3x3 moment matrix (columns A), warm-started from q
+       *  (Müller et al. 2016, "A robust method to extract the rotational part of deformations"). */
+      function fitRotation(A, q, iters) {
+        for (let i = 0; i < iters; i++) {
+          let num = [0, 0, 0];
+          let den = 0;
+          for (let k = 0; k < 3; k++) {
+            const r = qrot(q, [k === 0 ? 1 : 0, k === 1 ? 1 : 0, k === 2 ? 1 : 0]);
+            num = add(num, cross3(r, A[k]));
+            den += dot(r, A[k]);
+          }
+          const om = mul(num, 1 / (Math.abs(den) + 1e-9));
+          const w = len(om);
+          if (w < 1e-10) break;
+          const s = Math.sin(w / 2) / w;
+          q = unit(qmul([om[0] * s, om[1] * s, om[2] * s, Math.cos(w / 2)], q));
+        }
+        return q;
+      }
+
+      // ---------- designs ----------
+      // A design: pieces [{ pts: [[x, y], ...] counterclockwise, color }] and explicit seams
+      // [{ a: [piece, edge], b: [piece, edge] }]. Edge k runs from pts[k] to pts[k + 1].
+      const PHI = (1 + Math.sqrt(5)) / 2;
+
+      function starDesign() {
+        const d = (deg) => [Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180)];
+        const colors = ['#c0392b', '#e67e22', '#c0392b', '#e67e22', '#8e44ad'];
+        const pieces = [0, 1, 2, 3, 4].map((k) => {
+          const a = d(60 * k + 90);
+          const b = d(60 * k + 150);
+          return { pts: [[0, 0], a, add(a, b), b], color: colors[k] };
+        });
+        // The fifth diamond's last edge to the first diamond's first edge.
+        return { pieces, seams: [{ a: [4, 3], b: [0, 0] }] };
+      }
+
+      /** Faces of a convex polyhedron from its corners: each face counterclockwise from outside. */
+      function hullFaces(V) {
+        const faces = [];
+        const seen = new Set();
+        for (let i = 0; i < V.length; i++)
+          for (let j = i + 1; j < V.length; j++)
+            for (let k = j + 1; k < V.length; k++) {
+              let n = cross3(sub(V[j], V[i]), sub(V[k], V[i]));
+              if (len(n) < 1e-9) continue;
+              n = unit(n);
+              let pos = 0;
+              let neg = 0;
+              for (const v of V) {
+                const s = dot(n, sub(v, V[i]));
+                if (s > 1e-7) pos++;
+                else if (s < -1e-7) neg++;
+              }
+              if (pos && neg) continue;
+              if (pos) n = mul(n, -1);
+              const on = V.map((_, x) => x).filter((x) => Math.abs(dot(n, sub(V[x], V[i]))) < 1e-7);
+              const key = on.join(',');
+              if (seen.has(key)) continue;
+              seen.add(key);
+              const c = mean(on.map((x) => V[x]));
+              const e1 = unit(sub(V[on[0]], c));
+              const e2 = cross3(n, e1);
+              const ang = (x) => Math.atan2(dot(sub(V[x], c), e2), dot(sub(V[x], c), e1));
+              on.sort((a, b) => ang(a) - ang(b));
+              faces.push({ v: on, n });
+            }
+        return faces;
+      }
+
+      /** Two convex polygons overlap (touching along an edge or at a corner doesn't count). */
+      function overlaps(P, Q) {
+        for (const poly of [P, Q])
+          for (let i = 0; i < poly.length; i++) {
+            const e = sub(poly[(i + 1) % poly.length], poly[i]);
+            const n = [-e[1], e[0]];
+            const a = P.map((x) => dot(x, n));
+            const b = Q.map((x) => dot(x, n));
+            if (Math.max(...a) <= Math.min(...b) + 1e-6 || Math.max(...b) <= Math.min(...a) + 1e-6) return false;
+          }
+        return true;
+      }
+
+      /** Unfold a polyhedron into assemblies laid flat on a grid; every polyhedron edge not used
+       *  inside an assembly becomes an explicit seam. Assemblies are either given (`groups`, each
+       *  grown from its first face) or grown one after another (from `seeds` first, the seed with
+       *  the most faces still free around it, at most `maxSize` faces each). A face that would
+       *  overlap its assembly in 2D waits for a later one. `omit` leaves faces out (open shapes). */
+      function unfold(V, faces, colorOf, { groups = null, seeds = [], maxSize = Infinity, omit = [] } = {}) {
+        const edgeFace = new Map();
+        faces.forEach((f, fi) =>
+          f.v.forEach((a, k) => edgeFace.set(`${a}>${f.v[(k + 1) % f.v.length]}`, [fi, k])),
+        );
+        // Each face in its own plane, its first edge along x (so a root face sits level).
+        const flat = (fi) => {
+          const f = faces[fi];
+          const c = mean(f.v.map((x) => V[x]));
+          const e1 = unit(sub(V[f.v[1]], V[f.v[0]]));
+          const e2 = cross3(f.n, e1);
+          return f.v.map((x) => [dot(sub(V[x], c), e1), dot(sub(V[x], c), e2)]);
+        };
+        const gone = new Set(omit);
+        const done = new Set(gone);
+        const free = (fi) =>
+          faces[fi].v.filter((a, k) => !done.has(edgeFace.get(`${faces[fi].v[(k + 1) % faces[fi].v.length]}>${a}`)[0])).length;
+        const tree = new Set();
+        const ekey = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
+        const placedGroups = [];
+        const roots = [];
+        for (let gi = 0; done.size < faces.length; gi++) {
+          let root;
+          let allowed = null;
+          if (groups) {
+            if (gi >= groups.length) break;
+            [root] = groups[gi];
+            allowed = new Set(groups[gi]);
+          } else {
+            const open = seeds.filter((f) => !done.has(f));
+            root = open.length
+              ? open.reduce((b, f) => (free(f) > free(b) ? f : b))
+              : faces.findIndex((_, f) => !done.has(f));
+          }
+          const placed = new Map([[root, flat(root)]]);
+          done.add(root);
+          roots.push(root);
+          const queue = [root];
+          while (queue.length) {
+            const fi = queue.shift();
+            const f = faces[fi];
+            const P = placed.get(fi);
+            f.v.forEach((a, k) => {
+              const b = f.v[(k + 1) % f.v.length];
+              const [fj, kj] = edgeFace.get(`${b}>${a}`);
+              if (done.has(fj) || (allowed && !allowed.has(fj)) || placed.size >= maxSize) return;
+              const Q = flat(fj);
+              const qb = Q[kj];
+              const qa = Q[(kj + 1) % Q.length];
+              const pa = P[k];
+              const pb = P[(k + 1) % P.length];
+              const turn =
+                Math.atan2(pb[1] - pa[1], pb[0] - pa[0]) - Math.atan2(qb[1] - qa[1], qb[0] - qa[0]);
+              const [cs, sn] = [Math.cos(turn), Math.sin(turn)];
+              const R = Q.map((x) => {
+                const d = sub(x, qa);
+                return add(pa, [d[0] * cs - d[1] * sn, d[0] * sn + d[1] * cs]);
+              });
+              if ([...placed.values()].some((S) => overlaps(S, R))) return;
+              placed.set(fj, R);
+              done.add(fj);
+              tree.add(ekey(a, b));
+              queue.push(fj);
+            });
+          }
+          placedGroups.push(placed);
+        }
+        // Lay the assemblies out on a grid, each centered in its cell.
+        const boxes = placedGroups.map((pl) => {
+          const ps = [...pl.values()].flat();
+          const xs = ps.map((q) => q[0]);
+          const ys = ps.map((q) => q[1]);
+          return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+        });
+        const cw = Math.max(...boxes.map((b) => b[2] - b[0])) + 0.8;
+        const ch = Math.max(...boxes.map((b) => b[3] - b[1])) + 0.8;
+        const cols = Math.ceil(Math.sqrt(placedGroups.length));
+        const pieces = [];
+        const pieceOf = new Map();
+        placedGroups.forEach((pl, gi) => {
+          const b = boxes[gi];
+          const off = [
+            (gi % cols) * cw - (b[0] + b[2]) / 2,
+            -Math.floor(gi / cols) * ch - (b[1] + b[3]) / 2,
+          ];
+          for (const [fi, P] of pl) {
+            pieceOf.set(fi, pieces.length);
+            pieces.push({ pts: P.map((q) => add(q, off)), color: colorOf(fi, gi, fi === roots[gi]) });
+          }
+        });
+        const seams = [];
+        faces.forEach((f, fi) =>
+          f.v.forEach((a, k) => {
+            const b = f.v[(k + 1) % f.v.length];
+            if (a > b || tree.has(ekey(a, b)) || gone.has(fi)) return;
+            const [fj, kj] = edgeFace.get(`${b}>${a}`);
+            if (gone.has(fj)) return; // an edge of a left-out face stays free
+            seams.push({ a: [pieceOf.get(fi), k], b: [pieceOf.get(fj), kj] });
+          }),
+        );
+        return { pieces, seams };
+      }
+
+      const nearest = (faces, dir) =>
+        faces.reduce((best, f, i) => (dot(f.n, dir) > dot(faces[best].n, dir) ? i : best), 0);
+
+      // Corner lists: every permutation, cyclic (even) permutations, every sign change.
+      const perms = ([a, b, c]) => [[a, b, c], [a, c, b], [b, a, c], [b, c, a], [c, a, b], [c, b, a]];
+      const cyclic = ([a, b, c]) => [[a, b, c], [b, c, a], [c, a, b]];
+      const signs = (v) => v.reduce((out, x) => out.flatMap((o) => (x ? [[...o, x], [...o, -x]] : [[...o, 0]])), [[]]);
+      /** Unique corners, scaled so the shortest edge is 1U. */
+      function corners(vs) {
+        const m = new Map(vs.map((v) => [v.map((x) => x.toFixed(6)).join(','), v]));
+        const V = [...m.values()];
+        let e = Infinity;
+        for (let i = 0; i < V.length; i++) for (let j = i + 1; j < V.length; j++) e = Math.min(e, len(sub(V[i], V[j])));
+        return V.map((v) => mul(v, 1 / e));
+      }
+      // Two shades per kind of piece (by number of sides), alternating by assembly.
+      const SIDE_COLORS = {
+        3: ['#e67e22', '#f5b041'],
+        4: ['#2e86c1', '#5dade2'],
+        5: ['#1c2833', '#34495e'],
+        6: ['#fdfefe', '#d5dbdb'],
+      };
+      /** A solid from its corners, its faces colored by number of sides. */
+      function solid(vs, opts = () => ({})) {
+        const V = corners(vs);
+        const F = hullFaces(V);
+        return unfold(V, F, (fi, gi) => SIDE_COLORS[F[fi].v.length][gi % 2], opts(F, V));
+      }
+      const kinds = (F, n) => F.map((f, i) => (f.v.length === n ? i : -1)).filter((i) => i >= 0);
+
+      function cubeDesign(kind) {
+        const V = [];
+        for (const x of [-0.5, 0.5]) for (const y of [-0.5, 0.5]) for (const z of [-0.5, 0.5]) V.push([x, y, z]);
+        const F = hullFaces(V);
+        const f = (d) => nearest(F, d);
+        const [top, bottom, front, back, left, right] = [
+          f([0, 0, 1]), f([0, 0, -1]), f([0, -1, 0]), f([0, 1, 0]), f([-1, 0, 0]), f([1, 0, 0]),
+        ];
+        const groups =
+          kind === 1
+            ? [[front, top, bottom, left, right, back]]
+            : kind === 2
+              ? [[front, top, bottom], [back, left, right]]
+              : [[top], [front], [right], [back], [left], [bottom]];
+        const colors = ['#2e86c1', '#28b463', '#f1c40f', '#e74c3c', '#8e44ad', '#e67e22'];
+        return unfold(V, F, (fi) => colors[fi % colors.length], { groups });
+      }
+
+      function dodecaFaces() {
+        const vs = [];
+        for (const a of [-1, 1])
+          for (const b of [-1, 1]) {
+            for (const c of [-1, 1]) vs.push([a, b, c]);
+            vs.push([0, a / PHI, b * PHI], [a / PHI, b * PHI, 0], [a * PHI, 0, b / PHI]);
+          }
+        const V = corners(vs);
+        const F = hullFaces(V);
+        const ring = (fi) =>
+          F.map((_, j) => j).filter((j) => j !== fi && Math.abs(dot(F[j].n, F[fi].n) - 1 / Math.sqrt(5)) < 1e-6);
+        const top = 0;
+        const bottom = nearest(F, mul(F[0].n, -1));
+        return { V, F, g1: [top, ...ring(top)], g2: [bottom, ...ring(bottom)] };
+      }
+      function dodecaDesign() {
+        const { V, F, g1, g2 } = dodecaFaces();
+        return unfold(V, F, (fi, gi, root) =>
+          root ? '#f4d03f' : gi === 0 ? (g1.indexOf(fi) % 2 ? '#1f618d' : '#5dade2') : g2.indexOf(fi) % 2 ? '#b03a2e' : '#ec7063',
+        { groups: [g1, g2] });
+      }
+      /** Half a dodecahedron: a pentagon rosette whose petals are sewn to each other. */
+      function basketDesign() {
+        const { V, F, g1 } = dodecaFaces();
+        const keep = new Set(g1);
+        return unfold(V, F, (fi, gi, root) => (root ? '#f4d03f' : g1.indexOf(fi) % 2 ? '#1f618d' : '#5dade2'), {
+          groups: [g1],
+          omit: F.map((_, i) => i).filter((i) => !keep.has(i)),
+        });
+      }
+      function openBoxDesign() {
+        const V = [];
+        for (const x of [-0.5, 0.5]) for (const y of [-0.5, 0.5]) for (const z of [-0.5, 0.5]) V.push([x, y, z]);
+        const F = hullFaces(V);
+        const lid = nearest(F, [0, 0, 1]);
+        const bottom = nearest(F, [0, 0, -1]);
+        const colors = ['#2e86c1', '#28b463', '#f1c40f', '#e74c3c', '#8e44ad', '#e67e22'];
+        return unfold(V, F, (fi) => colors[fi % colors.length], {
+          groups: [[bottom, ...F.map((_, i) => i).filter((i) => i !== lid && i !== bottom)]],
+          omit: [lid],
+        });
+      }
+      /** Seven triangles round one corner: more than a flat circle, so it ruffles. Two fans of
+       *  four and three triangles, sewn into one ring. */
+      function ruffleDesign() {
+        const d = (deg) => [Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180)];
+        const fan = (o, n) => Array.from({ length: n }, (_, k) => [o, add(o, d(60 * k)), add(o, d(60 * k + 60))]);
+        const tri = [...fan([0, 0], 4), ...fan([2.6, -0.4], 3)];
+        const colors = ['#e67e22', '#f5b041'];
+        return {
+          pieces: tri.map((pts, i) => ({ pts, color: colors[i % 2] })),
+          // Fan one's last spoke to fan two's first, and fan two's last to fan one's first.
+          seams: [
+            { a: [3, 2], b: [4, 0] },
+            { a: [6, 2], b: [0, 0] },
+          ],
+        };
+      }
+
+      const PRESETS = {
+        star: starDesign,
+        ruffle: ruffleDesign,
+        openbox: openBoxDesign,
+        basket: basketDesign,
+        cube1: () => cubeDesign(1),
+        cube2: () => cubeDesign(2),
+        cube6: () => cubeDesign(6),
+        tetra: () => solid([[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]]),
+        octa: () => solid(perms([1, 0, 0]).flatMap(signs)),
+        icosa: () => solid(cyclic([0, 1, PHI]).flatMap(signs)),
+        pyramid: () => {
+          // The base would face front by default; the side drawn above it (point up) shows the point.
+          const d = solid([...signs([0.5, 0.5, 0]), [0, 0, Math.SQRT1_2]], (F) => ({ seeds: kinds(F, 4) }));
+          const high = (i) => (d.pieces[i].pts.length === 3 ? mean(d.pieces[i].pts)[1] : -Infinity);
+          return { ...d, front: d.pieces.reduce((b, _, i) => (high(i) > high(b) ? i : b), 0) };
+        },
+        hexprism: () =>
+          solid(Array.from({ length: 12 }, (_, i) => [Math.cos((i * Math.PI) / 3), Math.sin((i * Math.PI) / 3), i < 6 ? 0.5 : -0.5])),
+        ttetra: () =>
+          solid(
+            perms([3, 1, 1])
+              .flatMap(signs)
+              .filter((v) => v.filter((x) => x < 0).length % 2 === 0),
+            (F) => ({ seeds: kinds(F, 6) }),
+          ),
+        cubocta: () => solid(perms([1, 1, 0]).flatMap(signs), (F) => ({ seeds: kinds(F, 4) })),
+        tocta: () => solid(perms([0, 1, 2]).flatMap(signs), (F) => ({ seeds: kinds(F, 6) })),
+        dodeca: dodecaDesign,
+        soccer: () =>
+          solid(
+            [[0, 1, 3 * PHI], [1, 2 + PHI, 2 * PHI], [PHI, 2, 2 * PHI + 1]].flatMap(cyclic).flatMap(signs),
+            (F) => ({ seeds: kinds(F, 5), maxSize: 6 }),
+          ),
+      };
+
+      // ---------- model: pieces, nodes, hinges ----------
+      const EDGE_EPS = 1e-6;
+      const CLOSED = 0.02; // a seam counts as closed within 2% of a unit
+
+      /** Where edge p→q of one piece and r→s of another overlap, running opposite ways. */
+      function overlap(p, q, r, s) {
+        const L = len(sub(q, p));
+        const u = mul(sub(q, p), 1 / L);
+        if (Math.abs(cross2(u, sub(r, p))) > EDGE_EPS || Math.abs(cross2(u, sub(s, p))) > EDGE_EPS) return null;
+        const tr = dot(sub(r, p), u);
+        const ts = dot(sub(s, p), u);
+        if (ts >= tr) return null;
+        const lo = Math.max(0, ts);
+        const hi = Math.min(L, tr);
+        return hi - lo > EDGE_EPS ? [add(p, mul(u, lo)), add(p, mul(u, hi))] : null;
+      }
+
+      function edgeOf(design, [p, e]) {
+        const pts = design.pieces[p].pts;
+        return [pts[e], pts[(e + 1) % pts.length]];
+      }
+
+      function buildModel(design) {
+        const pieces = design.pieces.map((d, i) => ({
+          i,
+          pts: d.pts,
+          color: d.color,
+          c: mean(d.pts),
+          area: d.pts.reduce((a, q, k) => a + cross2(q, d.pts[(k + 1) % d.pts.length]) / 2, 0),
+          nodes: [],
+          keys: new Map(),
+        }));
+        // Node 0 of every piece is its middle (bending springs pull on it).
+        const nodeOf = (pi, pt) => {
+          const P = pieces[pi];
+          const key = pt.map((x) => Math.round(x * 1e5)).join(',');
+          if (!P.keys.has(key)) {
+            P.keys.set(key, P.nodes.length);
+            P.nodes.push([pt[0] - P.c[0], pt[1] - P.c[1], 0]);
+          }
+          return P.keys.get(key);
+        };
+        pieces.forEach((P) => {
+          nodeOf(P.i, P.c);
+          P.pts.forEach((pt) => nodeOf(P.i, pt));
+        });
+        const use = pieces.map((P) => P.pts.map(() => null));
+        const hinges = [];
+        for (let i = 0; i < pieces.length; i++)
+          for (let j = i + 1; j < pieces.length; j++)
+            pieces[i].pts.forEach((p, ea) => {
+              const q = pieces[i].pts[(ea + 1) % pieces[i].pts.length];
+              pieces[j].pts.forEach((r, eb) => {
+                const s = pieces[j].pts[(eb + 1) % pieces[j].pts.length];
+                const o = overlap(p, q, r, s);
+                if (!o) return;
+                hinges.push({ kind: 'shared', A: i, B: j, pa: o, pb: o });
+                use[i][ea] = use[j][eb] = 'shared';
+              });
+            });
+        design.seams.forEach((s, k) => {
+          const [a0, a1] = edgeOf(design, s.a);
+          const [b0, b1] = edgeOf(design, s.b);
+          hinges.push({ kind: 'explicit', n: k + 1, A: s.a[0], B: s.b[0], pa: [a0, a1], pb: [b1, b0] });
+          use[s.a[0]][s.a[1]] = use[s.b[0]][s.b[1]] = k;
+        });
+        // Welds: each hinge's two ends meet. Union-find over (piece, node).
+        hinges.forEach((h) => {
+          h.na = h.pa.map((pt) => nodeOf(h.A, pt));
+          h.nb = h.pb.map((pt) => nodeOf(h.B, pt));
+        });
+        const base = [];
+        let total = 0;
+        pieces.forEach((P) => {
+          base.push(total);
+          total += P.nodes.length;
+        });
+        const parent = [...Array(total).keys()];
+        const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
+        hinges.forEach((h) =>
+          [0, 1].forEach((k) => {
+            parent[find(base[h.A] + h.na[k])] = find(base[h.B] + h.nb[k]);
+          }),
+        );
+        const byRoot = new Map();
+        pieces.forEach((P, p) =>
+          P.nodes.forEach((_, n) => {
+            const r = find(base[p] + n);
+            if (!byRoot.has(r)) byRoot.set(r, []);
+            byRoot.get(r).push([p, n]);
+          }),
+        );
+        const groups = [...byRoot.values()].filter((g) => g.length > 1);
+        // Assemblies: pieces linked by shared edges.
+        const asm = [...pieces.keys()];
+        const af = (x) => (asm[x] === x ? x : (asm[x] = af(asm[x])));
+        hinges.forEach((h) => h.kind === 'shared' && (asm[af(h.A)] = af(h.B)));
+        const assemblies = new Set(pieces.map((_, i) => af(i))).size;
+        const perimeter = pieces.reduce(
+          (s, P) => s + P.pts.reduce((t, p, k) => t + len(sub(P.pts[(k + 1) % P.pts.length], p)), 0),
+          0,
+        );
+        const sewn = hinges.reduce((s, h) => s + 2 * len(sub(h.pa[1], h.pa[0])), 0);
+        const assemblyOf = pieces.map((_, i) => af(i));
+        const closed = Math.abs(perimeter - sewn) < 1e-6;
+        return { pieces, hinges, groups, use, assemblies, assemblyOf, closed };
+      }
+
+      // ---------- solver: rigid plates, hinged seams ----------
+      // Each pass: seam ends move to their meeting point, bent hinges spring a little toward flat,
+      // then each plate takes the rigid pose that best fits where its points were sent.
+      const BEND = 0.05;
+
+      function startPoses(m) {
+        const all = m.pieces.flatMap((P) => P.pts);
+        const C = mean(all);
+        const R = Math.max(...all.map((p) => len(sub(p, C)))) || 1;
+        let seed = 7;
+        const noise = () => ((seed = (seed * 16807) % 2147483647) / 2147483647 - 0.5) * 0.004;
+        m.q = [];
+        m.t = [];
+        m.pieces.forEach((P) => {
+          // Curl the design away from the viewer, so the right side (toward you) ends up outside.
+          const target = P.nodes.map((n) => {
+            const x = n[0] + P.c[0] - C[0];
+            const y = n[1] + P.c[1] - C[1];
+            return [x, y, (-0.45 * (x * x + y * y)) / R + noise()];
+          });
+          fitPose(m, P.i, P.nodes, target, [0, 0, 0, 1], 60);
+        });
+      }
+
+      /** Plate p's rigid pose that best carries its rest points onto `target`. */
+      function fitPose(m, p, rest, target, q0, iters) {
+        const rc = mean(rest);
+        const tc = mean(target);
+        const A = [
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0],
+        ];
+        rest.forEach((r, i) => {
+          const d = sub(target[i], tc);
+          const rr = sub(r, rc);
+          for (let k = 0; k < 3; k++) A[k] = add(A[k], mul(d, rr[k]));
+        });
+        m.q[p] = fitRotation(A, q0, iters);
+        m.t[p] = sub(tc, qrot(m.q[p], rc));
+      }
+
+      const world = (m) => m.pieces.map((P, p) => P.nodes.map((r) => add(qrot(m.q[p], r), m.t[p])));
+
+      function relax(m, bend) {
+        const W = world(m);
+        const T = W.map((ns) => ns.map((x) => x.slice()));
+        for (const g of m.groups) {
+          const c = mean(g.map(([p, n]) => W[p][n]));
+          g.forEach(([p, n]) => (T[p][n] = add(T[p][n], sub(c, W[p][n]))));
+        }
+        // Each hinge turns both plates a share of its fold back toward flat, about the seam line.
+        if (bend)
+          m.hinges.forEach((h) => {
+            const h0 = W[h.A][h.na[0]];
+            const e = unit(sub(W[h.A][h.na[1]], h0));
+            const fold = foldAngle(m, h, e);
+            const turn = (p, ang) =>
+              W[p].forEach((w, n) => {
+                T[p][n] = add(T[p][n], sub(add(h0, rotAbout(e, ang, sub(w, h0))), w));
+              });
+            turn(h.B, (-bend * fold) / 2);
+            turn(h.A, (bend * fold) / 2);
+          });
+        const before = m.pieces.map((_, p) => [m.q[p], m.t[p]]);
+        m.pieces.forEach((P, p) => fitPose(m, p, P.nodes, T[p], m.q[p], 3));
+        // Those turns don't balance, so take back any drift or spin of the whole object.
+        pin(m, W.flat());
+        return Math.max(...before.map(([q, t], p) => len(sub(m.t[p], t)) + len(sub(m.q[p], q))));
+      }
+
+      /** Move the whole object rigidly so its points sit as close as they can to `was`. */
+      function pin(m, was) {
+        const now = world(m).flat();
+        const cn = mean(now);
+        const cw = mean(was);
+        const A = [
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0],
+        ];
+        now.forEach((p, i) => {
+          const d = sub(was[i], cw);
+          const r = sub(p, cn);
+          for (let k = 0; k < 3; k++) A[k] = add(A[k], mul(d, r[k]));
+        });
+        const R = fitRotation(A, [0, 0, 0, 1], 50);
+        m.pieces.forEach((_, p) => {
+          m.q[p] = unit(qmul(R, m.q[p]));
+          m.t[p] = add(qrot(R, sub(m.t[p], cn)), cw);
+        });
+      }
+
+      /** Turn of v about unit axis k by ang (Rodrigues). */
+      function rotAbout(k, ang, v) {
+        const [c, s] = [Math.cos(ang), Math.sin(ang)];
+        return add(add(mul(v, c), mul(cross3(k, v), s)), mul(k, dot(k, v) * (1 - c)));
+      }
+
+      /** Every hinge's fold, in radians. */
+      function folds(m) {
+        const W = world(m);
+        return m.hinges.map((h) => foldAngle(m, h, unit(sub(W[h.A][h.na[1]], W[h.A][h.na[0]]))));
+      }
+
+      /** How far a hinge is folded: the turn from plate A's right side to plate B's about axis e. */
+      function foldAngle(m, h, e) {
+        const nA = qrot(m.q[h.A], [0, 0, 1]);
+        const nB = qrot(m.q[h.B], [0, 0, 1]);
+        return Math.atan2(dot(e, cross3(nA, nB)), dot(nA, nB));
+      }
+
+      function gaps(m) {
+        const W = world(m);
+        return m.hinges.map((h) =>
+          Math.max(...[0, 1].map((k) => len(sub(W[h.A][h.na[k]], W[h.B][h.nb[k]])))),
+        );
+      }
+
+      /** Signed volume of a closed fold: below zero, the paper side is outside. */
+      function volume(m) {
+        let v = 0;
+        m.pieces.forEach((P, p) => {
+          const ps = P.pts.map((pt) => add(qrot(m.q[p], [pt[0] - P.c[0], pt[1] - P.c[1], 0]), m.t[p]));
+          for (let k = 1; k + 1 < ps.length; k++) v += dot(ps[0], cross3(ps[k], ps[k + 1])) / 6;
+        });
+        return v;
+      }
+
+      // ---------- app state ----------
+      let design;
+      let model;
+      let picked = null;
+      // `best` and `since` spot a fold that keeps moving without settling (the ruffle's wave rolls
+      // round its middle forever, every position equally good).
+      const run = { phase: 'fold', iters: 0, frames: 0, calm: 0, settle: 0, best: Infinity, since: 0, open: [] };
+      // Slow at first so you can watch pieces come together, faster once they have.
+      const passesThisFrame = () => Math.min(8, 1 + Math.floor(run.frames / 20));
+      const statusEl = document.getElementById('status');
+      const say = (html) => (statusEl.innerHTML = html);
+      const fmt = (x) => (+x.toFixed(2)).toString();
+
+      function load(name) {
+        design = PRESETS[name]();
+        picked = null;
+        rebuild();
+        fitCamera(true);
+        refit = true; // frame the folded object once it settles (it's smaller than the flat design)
+      }
+
+      // Every change folds again from the curled start: from flat, a seam can't lift pieces out of
+      // the plane, and the curl keeps the right side out.
+      function rebuild() {
+        if (model) setExploded(false);
+        explodeAmt = 0;
+        model = buildModel(design);
+        startPoses(model);
+        run.phase = 'fold';
+        run.iters = run.frames = run.calm = run.settle = run.since = 0;
+        run.best = Infinity;
+        run.open = [];
+        makeMeshes();
+        draw2d();
+        summary();
+      }
+
+      function summary(extra = '') {
+        const shared = model.hinges.filter((h) => h.kind === 'shared').length;
+        const n = design.seams.length;
+        const a = model.assemblies;
+        say(
+          `${a} assembl${a === 1 ? 'y' : 'ies'} · ${shared} shared edge${shared === 1 ? '' : 's'} · ` +
+            `${n} explicit seam${n === 1 ? '' : 's'}${extra ? ` · ${extra}` : ''}`,
+        );
+      }
+
+      function report() {
+        const g = gaps(model);
+        run.open = model.hinges.map((h, i) => (g[i] > CLOSED ? i : -1)).filter((i) => i >= 0);
+        let msg;
+        if (!run.open.length) {
+          msg = '<span class="ok">Folded: every seam closes.</span>';
+          if (model.closed)
+            msg +=
+              volume(model) > 0
+                ? ' <span class="ok">Closed shape, right side out.</span>'
+                : ' <span class="bad">Closed shape, but inside out (paper side out).</span>';
+        } else {
+          const open = run.open.map((i) => model.hinges[i]);
+          const names = open.filter((h) => h.kind === 'explicit').map((h) => `seam ${h.n}`);
+          const shared = open.filter((h) => h.kind === 'shared').length;
+          if (shared) names.push(`${shared} shared edge${shared === 1 ? '' : 's'}`);
+          const worst = Math.max(...run.open.map((i) => g[i]));
+          msg =
+            `<span class="bad">Not closing: ${names.join(' and ')} (gaps up to ${fmt(worst)}U).</span> ` +
+            'Showing the closest fold found.';
+        }
+        summary(msg);
+        draw2d();
+      }
+
+      // ---------- 2D view ----------
+      const svg = document.getElementById('net');
+
+      function draw2d() {
+        const all = design.pieces.flatMap((p) => p.pts);
+        const xs = all.map((p) => p[0]);
+        const ys = all.map((p) => -p[1]);
+        const pad = 0.6;
+        const [x0, y0] = [Math.min(...xs) - pad, Math.min(...ys) - pad];
+        svg.setAttribute(
+          'viewBox',
+          `${x0} ${y0 - 0.4} ${Math.max(...xs) + pad - x0} ${Math.max(...ys) + pad - y0 + 0.8}`,
+        );
+        const P = (p) => `${p[0]},${-p[1]}`;
+        const openSeams = new Set(run.open.map((i) => model.hinges[i]).filter((h) => h.kind === 'explicit').map((h) => h.n - 1));
+        let out = '';
+        design.pieces.forEach((pc) => {
+          out += `<polygon points="${pc.pts.map(P).join(' ')}" fill="${pc.color}" />`;
+        });
+        let labels = '';
+        design.pieces.forEach((pc, p) =>
+          pc.pts.forEach((a, e) => {
+            const b = pc.pts[(e + 1) % pc.pts.length];
+            const u = model.use[p][e];
+            const isPicked = picked && picked[0] === p && picked[1] === e;
+            let cls = u === 'shared' ? 'shared' : typeof u === 'number' ? 'seam' : 'free';
+            if (typeof u === 'number' && openSeams.has(u)) cls += ' open';
+            if (isPicked) cls += ' picked';
+            const color = typeof u === 'number' ? `style="stroke:${seamColor(u)}"` : '';
+            const line = `x1="${a[0]}" y1="${-a[1]}" x2="${b[0]}" y2="${-b[1]}"`;
+            out += `<g class="edge ${cls}" data-p="${p}" data-e="${e}"><line class="vis" ${line} ${color}/><line class="hit" ${line}/></g>`;
+            if (typeof u === 'number') {
+              const mid = mul(add(a, b), 0.5);
+              const d = unit(sub(b, a));
+              const at = add(mid, mul([-d[1], d[0]], 0.22));
+              labels += `<text class="label" x="${at[0]}" y="${-at[1]}" fill="${seamColor(u)}">${u + 1}</text>`;
+            }
+          }),
+        );
+        const f = frontPiece(model);
+        if (f !== null) {
+          const c = model.pieces[f].c;
+          labels += `<circle class="front-mark ring" cx="${c[0]}" cy="${-c[1]}" r="0.13" /><circle class="front-mark" cx="${c[0]}" cy="${-c[1]}" r="0.06" />`;
+        }
+        svg.innerHTML = out + labels;
+      }
+
+      const seamColor = (k) => `hsl(${(k * 47 + 200) % 360} 70% 42%)`;
+
+      svg.addEventListener('click', (ev) => {
+        const g = ev.target.closest('.edge');
+        if (!g) {
+          if (picked) (picked = null), draw2d();
+          return;
+        }
+        pickEdge(+g.dataset.p, +g.dataset.e);
+      });
+
+      function pickEdge(p, e) {
+        const u = model.use[p][e];
+        if (u === 'shared') return summary('That edge touches its neighbor, so it is a seam already.');
+        if (typeof u === 'number') {
+          design.seams.splice(u, 1);
+          picked = null;
+          rebuild();
+          return summary(`Removed seam ${u + 1}.`);
+        }
+        if (!picked) {
+          picked = [p, e];
+          draw2d();
+          return summary('Now click the edge to sew it to.');
+        }
+        if (picked[0] === p) {
+          if (picked[1] !== e) summary("A piece can't be sewn to itself.");
+          picked = null;
+          return draw2d();
+        }
+        const la = len(sub(...edgeOf(design, picked)));
+        const lb = len(sub(...edgeOf(design, [p, e])));
+        if (Math.abs(la - lb) > 1e-6) {
+          picked = null;
+          draw2d();
+          return summary(`Those edges differ (${fmt(la)}U and ${fmt(lb)}U). Seams join equal edges.`);
+        }
+        design.seams.push({ a: picked, b: [p, e] });
+        picked = null;
+        rebuild();
+      }
+
+      // ---------- 3D view (three.js) ----------
+      const canvas = document.getElementById('view3d');
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer.setPixelRatio(window.devicePixelRatio || 1);
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(getComputedStyle(canvas.parentElement).backgroundColor);
+      const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 1000);
+      scene.add(camera);
+      // Lighting, against the inside-out illusion (2026-11-19). "shadows": a light fixed above the
+      // object that doesn't turn with the view, pieces shading each other, and a wider lens for
+      // stronger perspective. "plain": the first look, a lamp on the camera and a narrow lens.
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x808080, 1.6);
+      const headlamp = new THREE.DirectionalLight(0xffffff, 1.8);
+      headlamp.position.set(2, 3, 4);
+      camera.add(headlamp);
+      const key = new THREE.DirectionalLight(0xffffff, 2.6);
+      key.castShadow = true;
+      key.shadow.mapSize.set(2048, 2048);
+      key.shadow.bias = -0.0005;
+      key.shadow.normalBias = 0.02;
+      scene.add(hemi, key, key.target);
+      // Above and a little in front: the piece facing you is lit, and the inside of a hollow seen
+      // from behind still has a shaded upper side and lit lower pieces.
+      const KEY_DIR = unit([0.3, 1, 0.5]);
+      const LOOKS = {
+        shadows: { fov: 50, hemi: 1.1, headlamp: 0, key: 2.4 },
+        plain: { fov: 35, hemi: 1.6, headlamp: 1.8, key: 0 },
+      };
+      let lighting = 'shadows';
+      let refit = false;
+      // Stuffed (2026-11-19): each piece puffs out on its right side like a pillow, highest in the
+      // middle and flat at its seams, so the seams sink in. Display only; the fold is unchanged.
+      const STUFF = 0.4; // how high a piece puffs, as a share of the distance from its middle to an edge
+      const PILLOW_RINGS = 6;
+      const PILLOW_STEPS = 4; // points along each edge
+      let stuffed = false;
+      let stuffing = 0; // eases toward 1 when stuffed, 0 when not
+      let shownStuffing = -1;
+      /** A piece as rings from its middle out to its outline, ready to puff (flat to start). */
+      function pillow(P) {
+        const rim = [];
+        P.pts.forEach((a, k) => {
+          const b = P.pts[(k + 1) % P.pts.length];
+          for (let i = 0; i < PILLOW_STEPS; i++) rim.push(add(sub(a, P.c), mul(sub(b, a), i / PILLOW_STEPS)));
+        });
+        const n = rim.length;
+        const xy = [[0, 0]];
+        const ring = [0];
+        for (let r = 1; r <= PILLOW_RINGS; r++)
+          rim.forEach((q) => {
+            xy.push(mul(q, r / PILLOW_RINGS));
+            ring.push(r / PILLOW_RINGS);
+          });
+        const idx = [];
+        const at = (r, k) => 1 + (r - 1) * n + (k % n);
+        for (let k = 0; k < n; k++) {
+          idx.push(0, at(1, k), at(1, k + 1));
+          for (let r = 1; r < PILLOW_RINGS; r++)
+            idx.push(at(r, k), at(r + 1, k), at(r + 1, k + 1), at(r, k), at(r + 1, k + 1), at(r, k + 1));
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(xy.flatMap(([x, y]) => [x, y, 0])), 3));
+        geo.setIndex(idx);
+        geo.computeVertexNormals();
+        // Height in the middle: a share of the distance from the middle to the nearest edge.
+        const inner = Math.min(
+          ...P.pts.map((a, k) => {
+            const b = P.pts[(k + 1) % P.pts.length];
+            return Math.abs(cross2(unit(sub(b, a)), sub(P.c, a)));
+          }),
+        );
+        geo.userData = { ring, xy, n, top: STUFF * inner };
+        return geo;
+      }
+      // A closed shape rounds out as a whole (owner, 2026-11-19: stuffing moves seams and corners
+      // too): every point moves part of the way toward the ball with the same surface area, so
+      // face middles and seams push out and corners pull in a little, as fabric that can't stretch
+      // does. An open shape has no inside to stuff, so each piece just puffs into a dome.
+      const ROUND = 0.6; // how far toward that ball a fully stuffed shape goes
+      function stuffRound(W) {
+        if (!model.closed || stuffing <= 0) return null;
+        const area = model.pieces.reduce((a, P) => a + P.area, 0);
+        return { c: bounds(W).c, R: Math.sqrt(area / (4 * Math.PI)) };
+      }
+      /** Where a point of the folded surface sits once stuffed. */
+      function stuffWorld(w, round) {
+        if (!round) return w;
+        const d = sub(w, round.c);
+        const r = len(d) || 1e-9;
+        return add(w, mul(d, (round.R / r - 1) * ROUND * stuffing));
+      }
+      /** Shape every piece to the current stuffing; its outline follows its rim. */
+      function shapePillows() {
+        const moving = run.phase !== 'done' && stuffing > 0;
+        if (Math.abs(stuffing - shownStuffing) < 1e-3 && !moving) return;
+        shownStuffing = stuffing;
+        const round = stuffRound(world(model));
+        plates.forEach((g, p) => {
+          const geo = g.userData.pillow;
+          const { ring, xy, n, top } = geo.userData;
+          const pos = geo.attributes.position;
+          ring.forEach((s, i) => {
+            if (!round) return pos.setXYZ(i, xy[i][0], xy[i][1], stuffing * top * (1 - s * s));
+            const w = add(qrot(model.q[p], [xy[i][0], xy[i][1], 0]), model.t[p]);
+            pos.setXYZ(i, ...qrot(qconj(model.q[p]), sub(stuffWorld(w, round), model.t[p])));
+          });
+          pos.needsUpdate = true;
+          geo.computeVertexNormals();
+          geo.computeBoundingSphere();
+          const ol = g.userData.outline.geometry;
+          for (let k = 0; k < n; k++) ol.attributes.position.setXYZ(k, pos.getX(ring.length - n + k), pos.getY(ring.length - n + k), pos.getZ(ring.length - n + k));
+          ol.attributes.position.needsUpdate = true;
+          ol.computeBoundingSphere();
+        });
+      }
+      function applyLighting() {
+        const look = LOOKS[lighting];
+        // Keep the object the same size on screen when the lens changes.
+        const half = (deg) => Math.sin((deg / 2) * (Math.PI / 180));
+        orbit.dist *= half(camera.fov) / half(look.fov);
+        camera.fov = look.fov;
+        camera.updateProjectionMatrix();
+        hemi.intensity = look.hemi;
+        headlamp.intensity = look.headlamp;
+        key.intensity = look.key;
+        key.visible = look.key > 0;
+      }
+      /** Keep the fixed light and its shadow box on the object as it moves. */
+      function aimKey() {
+        const { c, r } = bounds();
+        key.target.position.set(...c);
+        key.position.set(...add(c, mul(KEY_DIR, 4 * r)));
+        const box = key.shadow.camera;
+        box.left = box.bottom = -1.6 * r;
+        box.right = box.top = 1.6 * r;
+        box.near = 0.1 * r;
+        box.far = 8 * r;
+        box.updateProjectionMatrix();
+      }
+      const PAPER = 0xf1ede3;
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x222222 });
+      const gapMat = new THREE.LineBasicMaterial({ color: 0xe53935 });
+      const glueMat = new THREE.MeshStandardMaterial({
+        color: 0xffcf66,
+        transparent: true,
+        opacity: 0.4,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        roughness: 0.6,
+      });
+      const arcMat = new THREE.LineBasicMaterial({ color: 0xb07d00 });
+      // Stitches: a white thread with a soft magenta glow (two see-through sleeves) around it, so
+      // it stands out on the pieces and on a light or dark background.
+      const THREAD = { core: 0.014, layers: [[0.026, 0.4], [0.04, 0.12]] }; // radii in U, opacity
+      const threadMats = [
+        new THREE.MeshBasicMaterial({ color: 0xffffff }),
+        ...THREAD.layers.map(([, o]) => new THREE.MeshBasicMaterial({ color: 0xff2d95, transparent: true, opacity: o, depthWrite: false })),
+      ];
+      const threadGeo = new THREE.CylinderGeometry(1, 1, 1, 10, 1, true);
+      const STITCHES_PER_U = 6;
+      const SHARED_MATS = [lineMat, gapMat, glueMat, arcMat, ...threadMats];
+      const GLUE_STEPS = 12; // segments along each glue arc
+      let root = null;
+      let plates = [];
+      let hitMeshes = [];
+      let gapLines = null;
+      let glue = null; // see-through strip across each seam, shown when exploded
+      let arcs = null; // the strips' arc-shaped open ends
+      let threads = []; // stitch segments: [core, glow, glow] instanced cylinders
+      let seamLook = 'stitches';
+
+      function makeMeshes() {
+        if (root) {
+          scene.remove(root);
+          root.traverse((o) => {
+            if (o.isInstancedMesh) o.dispose();
+            else o.geometry?.dispose();
+            if (o.material && !SHARED_MATS.includes(o.material)) o.material.dispose();
+          });
+        }
+        root = new THREE.Group();
+        plates = [];
+        hitMeshes = [];
+        model.pieces.forEach((P) => {
+          const geo = pillow(P);
+          const opts = { roughness: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 };
+          const front = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ ...opts, color: P.color, side: THREE.FrontSide }));
+          const back = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ ...opts, color: PAPER, side: THREE.BackSide }));
+          const { xy, n } = geo.userData;
+          const outline = new THREE.LineLoop(
+            new THREE.BufferGeometry().setFromPoints(xy.slice(-n).map(([x, y]) => new THREE.Vector3(x, y, 0))),
+            lineMat,
+          );
+          front.userData.p = back.userData.p = P.i;
+          front.castShadow = back.castShadow = front.receiveShadow = back.receiveShadow = true;
+          const g = new THREE.Group();
+          g.add(front, back, outline);
+          g.userData.pillow = geo;
+          g.userData.outline = outline;
+          root.add(g);
+          plates.push(g);
+          hitMeshes.push(front, back);
+        });
+        shownStuffing = -1; // shape the new pillows on the next frame
+        const explicit = model.hinges.filter((h) => h.kind === 'explicit');
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(explicit.length * 6), 3));
+        gapLines = new THREE.LineSegments(geo, gapMat);
+        // Glue: per seam a strip of (GLUE_STEPS + 1) pairs of points, one on each end arc.
+        const nh = model.hinges.length;
+        const ggeo = new THREE.BufferGeometry();
+        ggeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(nh * (GLUE_STEPS + 1) * 6), 3));
+        const idx = [];
+        for (let h = 0; h < nh; h++)
+          for (let i = 0; i < GLUE_STEPS; i++) {
+            const a = (h * (GLUE_STEPS + 1) + i) * 2;
+            idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+          }
+        ggeo.setIndex(idx);
+        glue = new THREE.Mesh(ggeo, glueMat);
+        const ageo = new THREE.BufferGeometry();
+        ageo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(nh * 2 * GLUE_STEPS * 6), 3));
+        arcs = new THREE.LineSegments(ageo, arcMat);
+        // Stitches: per seam, a thread lacing back and forth across the gap.
+        const segs = model.hinges.reduce((n, h) => n + 2 * stitchCount(h), 0);
+        threads = threadMats.map((m) => new THREE.InstancedMesh(threadGeo, m, Math.max(1, segs)));
+        threads.forEach((t, i) => (t.renderOrder = i)); // core first, then the glow over it
+        root.add(gapLines, glue, arcs, ...threads);
+        scene.add(root);
+        syncMeshes();
+      }
+
+      function syncMeshes() {
+        const W = world(model);
+        // Exploded: each plate moves out from the object's middle (along its own right side when
+        // it sits on the middle), a share of the object's size. Display only; the fold is unchanged.
+        const { c, r } = bounds(W);
+        const off = model.pieces.map((_, p) => {
+          let d = sub(W[p][0], c);
+          if (len(d) < 0.05 * r) d = qrot(model.q[p], [0, 0, 1]);
+          return mul(unit(d), EXPLODE * r * explodeAmt);
+        });
+        plates.forEach((g, p) => {
+          g.position.set(...add(model.t[p], off[p]));
+          g.quaternion.set(...model.q[p]);
+        });
+        if (seamLook === 'glue') syncGlue(W, off);
+        else glue.visible = arcs.visible = false;
+        syncStitches(W, off);
+        gapLines.visible = explodeAmt < 0.01; // open-seam lines only make sense closed up
+        const pos = gapLines.geometry.attributes.position;
+        let k = 0;
+        model.hinges.forEach((h) => {
+          if (h.kind !== 'explicit') return;
+          const a = mul(add(W[h.A][h.na[0]], W[h.A][h.na[1]]), 0.5);
+          const b = mul(add(W[h.B][h.nb[0]], W[h.B][h.nb[1]]), 0.5);
+          pos.setXYZ(k++, ...a);
+          pos.setXYZ(k++, ...b);
+        });
+        pos.needsUpdate = true;
+        gapLines.geometry.computeBoundingSphere();
+      }
+
+      // Glue (owner, 2026-11-19): exploded, each seam shows a see-through film stretched between
+      // the two pieces' edges. Like glue pulled thin by surface tension, its open ends bow inward
+      // in circular arcs, more as the pieces spread, so the film narrows at its waist.
+      const GLUE_PINCH = 0.3; // each open end bows in this share of the gap it spans
+      function syncGlue(W, off) {
+        glue.visible = arcs.visible = explodeAmt > 0.01;
+        if (!glue.visible) return;
+        const gp = glue.geometry.attributes.position;
+        const ap = arcs.geometry.attributes.position;
+        let gi = 0;
+        let ai = 0;
+        const round = stuffRound(W);
+        model.hinges.forEach((h) => {
+          const a = h.na.map((n) => add(stuffWorld(W[h.A][n], round), off[h.A]));
+          const b = h.nb.map((n) => add(stuffWorld(W[h.B][n], round), off[h.B]));
+          const L = len(sub(a[1], a[0]));
+          const along = unit(sub(a[1], a[0]));
+          // Each open end runs from a piece-A corner to its piece-B partner, bowing toward the
+          // other end (into the film); the pinch never lets the two ends meet.
+          const ends = [0, 1].map((k) => {
+            const chord = sub(b[k], a[k]);
+            const c = len(chord);
+            const u = unit(chord);
+            let inward = unit(sub(along, mul(u, dot(along, u))));
+            if (k === 1) inward = mul(inward, -1);
+            const hgt = Math.min(GLUE_PINCH * c, 0.45 * L);
+            return Array.from({ length: GLUE_STEPS + 1 }, (_, i) => {
+              const t = i / GLUE_STEPS;
+              return add(add(a[k], mul(chord, t)), mul(inward, arcOffset(c, hgt, t)));
+            });
+          });
+          for (let i = 0; i <= GLUE_STEPS; i++) for (const arc of ends) gp.setXYZ(gi++, ...arc[i]);
+          for (const arc of ends)
+            for (let i = 0; i < GLUE_STEPS; i++) {
+              ap.setXYZ(ai++, ...arc[i]);
+              ap.setXYZ(ai++, ...arc[i + 1]);
+            }
+        });
+        gp.needsUpdate = ap.needsUpdate = true;
+        glue.geometry.computeVertexNormals();
+        glue.geometry.computeBoundingSphere();
+        arcs.geometry.computeBoundingSphere();
+      }
+
+      /** Stitches across a seam: about STITCHES_PER_U per unit of edge, at least 3. */
+      function stitchCount(h) {
+        return Math.max(3, Math.round(STITCHES_PER_U * len(sub(h.pa[1], h.pa[0]))));
+      }
+
+      // Stitches (owner, 2026-11-19): exploded, each seam shows thread lacing back and forth between
+      // its two edges, inset a little from the corners.
+      const _m = new THREE.Matrix4();
+      const _q = new THREE.Quaternion();
+      const _up = new THREE.Vector3(0, 1, 0);
+      function syncStitches(W, off) {
+        const show = seamLook === 'stitches' && explodeAmt > 0.01;
+        threads.forEach((t) => (t.visible = show));
+        if (!show) return;
+        let k = 0;
+        const round = stuffRound(W);
+        model.hinges.forEach((h) => {
+          const a = { e: h.na.map((n) => W[h.A][n]), off: off[h.A] };
+          const b = { e: h.nb.map((n) => W[h.B][n]), off: off[h.B] };
+          const n = stitchCount(h);
+          const at = (S, s) => add(stuffWorld(add(S.e[0], mul(sub(S.e[1], S.e[0]), 0.08 + 0.84 * s)), round), S.off);
+          for (let i = 0; i < 2 * n; i++) {
+            const [from, to] = i % 2 ? [b, a] : [a, b];
+            const p = at(from, i / (2 * n));
+            const q = at(to, (i + 1) / (2 * n));
+            const d = sub(q, p);
+            const L = len(d) || 1e-9;
+            _q.setFromUnitVectors(_up, new THREE.Vector3(...mul(d, 1 / L)));
+            const mid = new THREE.Vector3(...mul(add(p, q), 0.5));
+            [THREAD.core, ...THREAD.layers.map(([r]) => r)].forEach((r, layer) => {
+              threads[layer].setMatrixAt(k, _m.compose(mid, _q, new THREE.Vector3(r, L, r)));
+            });
+            k++;
+          }
+        });
+        threads.forEach((t) => {
+          t.count = k;
+          t.instanceMatrix.needsUpdate = true;
+          t.computeBoundingSphere();
+        });
+      }
+
+      /** How far a circular arc of chord c and height hgt sits off its chord at t (0 to 1) along. */
+      function arcOffset(c, hgt, t) {
+        if (hgt < 1e-9) return 0;
+        const R = (hgt * hgt + (c * c) / 4) / (2 * hgt);
+        return Math.sqrt(Math.max(0, R * R - ((t - 0.5) * c) ** 2)) - (R - hgt);
+      }
+
+      // Orbit around a target: theta turns about the up axis, phi tilts from the top.
+      const START = { theta: 0.55, phi: 1.1 };
+      const orbit = { ...START, dist: 6, target: new THREE.Vector3() };
+      function bounds(W = world(model)) {
+        const ps = W.flat();
+        const c = mean(ps);
+        return { c, r: Math.max(0.5, ...ps.map((p) => len(sub(p, c)))) };
+      }
+      function fitCamera(reset) {
+        const { c, r } = bounds();
+        orbit.target.set(...c);
+        orbit.dist = (r / Math.sin(((camera.fov / 2) * Math.PI) / 180)) * 1.1;
+        if (reset) Object.assign(orbit, START);
+      }
+      function placeCamera() {
+        const { theta, phi, dist, target } = orbit;
+        camera.position.set(
+          target.x + dist * Math.sin(phi) * Math.sin(theta),
+          target.y + dist * Math.cos(phi),
+          target.z + dist * Math.sin(phi) * Math.cos(theta),
+        );
+        camera.lookAt(target);
+      }
+
+      // Explode (owner, 2026-11-19): a click on the object toggles explode mode, where every piece
+      // moves a bit away from the middle. Drags only turn the view and leave the mode as it is.
+      const ray = new THREE.Raycaster();
+      const CLICK_SLOP = 4; // px a press may move and still count as a click
+      const EXPLODE = 0.25; // how far pieces move out, as a share of the object's radius
+      let press = null; // { x, y, last, moved, piece }
+      let exploded = false;
+      let explodeAmt = 0; // eases toward 1 when exploded, 0 when not
+      const explodeBadge = document.getElementById('exploded');
+      function ndc(ev) {
+        const r = canvas.getBoundingClientRect();
+        return new THREE.Vector2(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+      }
+      function setExploded(on) {
+        exploded = on;
+        explodeBadge.hidden = !on;
+      }
+      // A single click waits a moment, so a double-click on a piece (face front) doesn't explode.
+      const DOUBLE_MS = 250;
+      let pending = null; // { piece, timer } of a single click not acted on yet
+      function click(piece) {
+        if (pending) {
+          clearTimeout(pending.timer);
+          const first = pending.piece;
+          pending = null;
+          if (piece !== null && piece === first) return faceFront(piece);
+        }
+        pending = {
+          piece,
+          timer: setTimeout(() => {
+            pending = null;
+            setExploded(!exploded && piece !== null);
+          }, DOUBLE_MS),
+        };
+      }
+      canvas.addEventListener('pointerdown', (ev) => {
+        canvas.setPointerCapture(ev.pointerId);
+        ray.setFromCamera(ndc(ev), camera);
+        const hit = ray.intersectObjects(hitMeshes, false)[0];
+        const piece = hit ? hit.object.userData.p : null;
+        press = { x: ev.clientX, y: ev.clientY, last: [ev.clientX, ev.clientY], moved: false, piece };
+      });
+      canvas.addEventListener('pointermove', (ev) => {
+        if (!press) return;
+        if (!press.moved && Math.hypot(ev.clientX - press.x, ev.clientY - press.y) > CLICK_SLOP) {
+          press.moved = true;
+          canvas.style.cursor = 'grabbing';
+        }
+        if (!press.moved) return;
+        orbit.theta -= (ev.clientX - press.last[0]) * 0.01;
+        orbit.phi = Math.min(Math.PI - 0.05, Math.max(0.05, orbit.phi - (ev.clientY - press.last[1]) * 0.01));
+        press.last = [ev.clientX, ev.clientY];
+      });
+      canvas.addEventListener('pointerup', () => {
+        if (!press) return;
+        if (!press.moved) click(press.piece);
+        press = null;
+        canvas.style.cursor = '';
+      });
+      canvas.addEventListener('pointercancel', () => {
+        press = null;
+        canvas.style.cursor = '';
+      });
+      canvas.addEventListener(
+        'wheel',
+        (ev) => {
+          ev.preventDefault();
+          orbit.dist *= Math.exp(ev.deltaY * 0.001);
+          refit = false;
+        },
+        { passive: false },
+      );
+
+      function resize() {
+        const { clientWidth: w, clientHeight: h } = canvas;
+        if (!w || !h) return;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      }
+      new ResizeObserver(resize).observe(canvas);
+
+      // ---------- front (owner, 2026-11-19) ----------
+      // Which way the object faces you. An open shape (the star) faces the way its right side faces
+      // overall (each piece's direction weighted by its size). A closed shape has no overall
+      // direction, so one piece faces you: by default the piece nearest the middle of the largest
+      // assembly; double-clicking a piece picks it. Up is the 2D design's up. Once a fold settles,
+      // the object turns until that front faces you and up is up; the fixed light and the starting
+      // view are then the same for every shape.
+      function frontPiece(m) {
+        if (design.front !== undefined) return design.front;
+        if (!m.closed) return null;
+        const count = new Map();
+        m.assemblyOf.forEach((a) => count.set(a, (count.get(a) ?? 0) + 1));
+        const big = [...count].reduce((b, x) => (x[1] > b[1] ? x : b))[0];
+        const members = m.pieces.filter((_, i) => m.assemblyOf[i] === big);
+        const area = members.reduce((a, P) => a + P.area, 0);
+        const mid = members.reduce((c, P) => add(c, mul(P.c, P.area / area)), [0, 0]);
+        return members.reduce((b, P) => (len(sub(P.c, mid)) < len(sub(b.c, mid)) ? P : b)).i;
+      }
+      function facing(m) {
+        const f = frontPiece(m);
+        const pick = f === null ? m.pieces.map((_, i) => i) : [f];
+        const sum = (v) => pick.reduce((a, p) => add(a, mul(qrot(m.q[p], v), m.pieces[p].area)), [0, 0, 0]);
+        let front = sum([0, 0, 1]);
+        if (len(front) < 1e-9) front = [0, 0, 1];
+        front = unit(front);
+        let up = sum([0, 1, 0]);
+        up = sub(up, mul(front, dot(up, front)));
+        if (len(up) < 1e-9) up = Math.abs(front[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+        return { front, up: unit(sub(up, mul(front, dot(up, front)))) };
+      }
+      /** Turn the whole object a step toward front facing you (+z) and up up (+y). */
+      function turnToFront(m) {
+        const { front, up } = facing(m);
+        const V = (v) => new THREE.Vector3(...v);
+        const basis = new THREE.Matrix4().makeBasis(V(cross3(up, front)), V(up), V(front)).transpose();
+        const Q = new THREE.Quaternion().setFromRotationMatrix(basis);
+        const angle = 2 * Math.acos(Math.min(1, Math.abs(Q.w)));
+        if (angle < 1e-4) return;
+        const step = new THREE.Quaternion().slerp(Q, angle < 0.01 ? 1 : 0.15);
+        const qs = [step.x, step.y, step.z, step.w];
+        const { c } = bounds();
+        m.pieces.forEach((_, p) => {
+          m.q[p] = unit(qmul(qs, m.q[p]));
+          m.t[p] = add(qrot(qs, sub(m.t[p], c)), c);
+        });
+      }
+      function faceFront(piece) {
+        design.front = piece;
+        draw2d();
+        summary('That piece now faces front.');
+      }
+
+      // ---------- loop ----------
+      function tick() {
+        if (run.phase !== 'done') {
+          const bend = run.phase === 'fold' ? BEND : 0;
+          const passes = passesThisFrame();
+          let moved = 0;
+          for (let i = 0; i < passes; i++) moved = relax(model, bend);
+          run.iters += passes;
+          run.frames++;
+          if (run.phase === 'fold') {
+            run.calm = moved < 1e-7 ? run.calm + 1 : 0;
+            if (moved < run.best * 0.5) {
+              run.best = moved;
+              run.since = 0;
+            } else run.since += passes;
+            if (run.calm > 8 || run.since > 400 || run.iters > 8000) {
+              run.phase = 'settle';
+              run.settle = 0;
+            }
+          } else {
+            run.settle += passes;
+            if (moved < 1e-7 || run.settle > 2000) {
+              run.phase = 'done';
+              report();
+            }
+          }
+          const { c } = bounds();
+          orbit.target.lerp(new THREE.Vector3(...c), 0.1);
+        }
+        if (run.phase === 'done') {
+          turnToFront(model);
+          if (refit) {
+            const { c, r } = bounds();
+            const want = (r / Math.sin(((camera.fov / 2) * Math.PI) / 180)) * 1.5; // room to explode
+            orbit.dist += (want - orbit.dist) * 0.12;
+            orbit.target.lerp(new THREE.Vector3(...c), 0.12);
+            if (Math.abs(want - orbit.dist) < 0.01 * want) refit = false;
+          }
+        }
+        explodeAmt += ((exploded ? 1 : 0) - explodeAmt) * 0.15;
+        stuffing += ((stuffed ? 1 : 0) - stuffing) * 0.15;
+        if (Math.abs(stuffing - (stuffed ? 1 : 0)) < 1e-3) stuffing = stuffed ? 1 : 0;
+        shapePillows();
+        syncMeshes();
+        if (key.visible) aimKey();
+        placeCamera();
+        renderer.render(scene, camera);
+        requestAnimationFrame(tick);
+      }
+
+      // ---------- controls ----------
+      const presetEl = document.getElementById('preset');
+      presetEl.addEventListener('change', () => load(presetEl.value));
+      document.getElementById('seamLook').addEventListener('change', (ev) => (seamLook = ev.target.value));
+      document.getElementById('stuffed').addEventListener('change', (ev) => (stuffed = ev.target.checked));
+      document.getElementById('lighting').addEventListener('change', (ev) => {
+        lighting = ev.target.value;
+        applyLighting();
+      });
+      document.getElementById('refold').addEventListener('click', () => {
+        rebuild();
+        fitCamera(false);
+      });
+      document.getElementById('clear').addEventListener('click', () => {
+        design.seams = [];
+        picked = null;
+        rebuild();
+      });
+      document.getElementById('view').addEventListener('click', () => fitCamera(true));
+
+      // For automated checks: the fold's state once it settles.
+      window.epp3d = {
+        load: (name) => ((presetEl.value = name), load(name)),
+        get state() {
+          const g = gaps(model);
+          return {
+            phase: run.phase,
+            iters: run.iters,
+            maxGap: Math.max(0, ...g),
+            open: run.open.length,
+            closed: model.closed,
+            volume: model.closed ? volume(model) : null,
+            assemblies: model.assemblies,
+            explicit: design.seams.length,
+            folds: folds(model).map((f) => Math.round((f * 180) / Math.PI)),
+            exploded,
+          };
+        },
+      };
+
+      resize();
+      applyLighting();
+      load(presetEl.value);
+      requestAnimationFrame(tick);
+    </script>
+  </body>
+</html>
