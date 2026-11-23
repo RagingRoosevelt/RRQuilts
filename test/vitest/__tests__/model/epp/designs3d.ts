@@ -436,17 +436,21 @@ export function dodecahedron(): Design {
     { groups: [g1, g2] },
   );
 }
-/** d10: a pentagonal trapezohedron (ten kites), the dual of the pentagonal antiprism with unit
- *  edges: each antiprism face's plane gives a corner. */
+/**
+ * d10: the pentagonal trapezohedron of real dice, every corner on a sphere (owner, 2026-11-23: "the
+ * standard kite shape that would be found in a typical d10"). Its kites have two right angles, a
+ * 51.8° tip at the pole and 128.2° at the bottom; the long edges are 2.06 times the short (1U, so
+ * the long ones are marked). The rings sit at ±tan²18° for the kites to be flat.
+ */
 export function trapezohedron(): Design {
-  const R = 1 / (2 * Math.sin(Math.PI / 5));
-  const a = Math.sqrt((1 - 2 * R * R * (1 - Math.cos(Math.PI / 5))) / 4);
-  const anti: V3[] = Array.from({ length: 10 }, (_, i) => {
+  const c = Math.cos(Math.PI / 5);
+  const z = (1 - c) / (1 + c);
+  const r = Math.sqrt(1 - z * z);
+  const ring = Array.from({ length: 10 }, (_, i): V3 => {
     const t = (i * Math.PI) / 5;
-    return [R * Math.cos(t), R * Math.sin(t), i % 2 ? -a : a];
+    return [r * Math.cos(t), r * Math.sin(t), i % 2 ? -z : z];
   });
-  const dual = hullFaces(anti).map((f) => mul3(f.n, 1 / dot3(f.n, anti[f.v[0]!]!)));
-  return solid(dual, () => ({}), { 4: ['Teal', 'Aqua'] });
+  return solid([[0, 0, 1], [0, 0, -1], ...ring], () => ({}), { 4: ['Teal', 'Aqua'] });
 }
 export const hexagonalPrism = () =>
   solid(

@@ -93,12 +93,13 @@
       </div>
       <div>
         <q-toggle
-          v-model="showStuffing"
+          :model-value="designStuffed && showStuffing"
           dense
           checked-icon="visibility"
           unchecked-icon="visibility_off"
           label="Enable simulation view"
           :disable="!designStuffed"
+          @update:model-value="(on: boolean) => (showStuffing = on)"
         />
         <div class="text-caption text-grey-7 q-mt-xs">
           {{

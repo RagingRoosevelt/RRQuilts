@@ -243,6 +243,7 @@ multi-select).
 - [X] T105 [3D] Stuffed design, a quilt setting (`EppLayout.stuffed`, `setStuffedDesign`) in the Layout tab (3D only) and the 3D assembly tab, plus the tab's Show stuffing (this view) switch in place of Stuff and Unstuff; a stuffed design stuffs once folded and turned; stuffed, the fold's open seams no longer show red; demo: star pillow, twisted pincushion and soccer ball stuffed (owner, 2026-11-23; TC-315)
 - [X] T106 [3D] 3D EPP quilts listed under Quilts again, with a 3D badge, as well as in the EPP tab (src/pages/SketchbookPage.vue) (owner, 2026-11-23; TC-316)
 - [X] T107 [3D] "Not closing" (red text, red seams in the net) follows the Stuffed design setting, not the view; the view switch renamed **Enable simulation view**, on whenever the tab opens a stuffed design (and when the tab shows another quilt) (owner, 2026-11-23; TC-317)
+- [X] T108 [3D] Demo d10 uses a real die's kite (corners on a sphere: two right angles, 51.8° tip, long edges 2.06U marked) instead of the antiprism dual's 108°/36° kite (`trapezohedron` in test/vitest/__tests__/model/epp/designs3d.ts, tested); Enable simulation view shows off when the design isn't stuffed (owner, 2026-11-23; TC-318)
 - [ ] T100 [3D] Link the demo from the help once the owner hosts it as a gist
 - [ ] T101 [3D] CLAUDE.md: 3D EPP (model/epp fold, stuff, net; EppAssembly; three.js) with T069
 

@@ -80,9 +80,21 @@ describe('3D EPP fold', () => {
     expect(foldReport(m).volume).toBeCloseTo(7.663, 2);
   });
 
-  it('folds the d10’s kites shut', () => {
+  it('folds the d10’s kites shut: a real die’s kite (two right angles, 51.8° tip)', () => {
     const d = trapezohedron();
     expect(d.pieces).toHaveLength(10);
+    const [a, b, c, e] = d.pieces[0]!.pts;
+    const angle = (p: number[], q: number[], r: number[]) => {
+      const u = [p[0]! - q[0]!, p[1]! - q[1]!];
+      const v = [r[0]! - q[0]!, r[1]! - q[1]!];
+      return (
+        (Math.acos((u[0]! * v[0]! + u[1]! * v[1]!) / Math.hypot(...u) / Math.hypot(...v)) * 180) /
+        Math.PI
+      );
+    };
+    const angles = [angle(e!, a!, b!), angle(a!, b!, c!), angle(b!, c!, e!), angle(c!, e!, a!)];
+    expect(angles.filter((x) => Math.abs(x - 90) < 1e-6)).toHaveLength(2);
+    expect(angles.some((x) => Math.abs(x - 51.827) < 1e-3)).toBe(true);
     const m = fold(d);
     expect(foldReport(m).open).toEqual([]);
     expect(foldReport(m).volume).toBeGreaterThan(0);

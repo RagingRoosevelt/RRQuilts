@@ -326,6 +326,14 @@ export const CHECKS: Check[] = [
     last: 'the not closing warning should only show based on the stuffed design toggle, not based on the stuffed design view toggle. the show stuffing should be renamed to "enable simulation view" and should be on any time that 3d assembly view is loaded if the quilt is a stuffed design',
     to: '/project',
   },
+  {
+    id: 'TC-318',
+    group: G.epp3d,
+    text: 'Demo › d10 (kites): the kites are a real d10’s (two right angles at the sides, a narrow 52° tip, a wide 128° bottom corner; long edges about twice the short, marked orange in the project’s d10 Kite shape). 3D assembly: it folds shut and looks like a d10. Enable simulation view shows off (greyed) while Stuffed design is off.',
+    last: 'the d10 kites demo should use the standard kite shape that would be found in a typical d10',
+    file: 'epp3d-demo.rrq',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

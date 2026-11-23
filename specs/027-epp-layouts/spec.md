@@ -123,7 +123,10 @@ justification).
   built that has the following designs (will be hosting it as a gist that can be linked to from the
   help)", "star pillow with a a phase rotation of where the seams go compared to where we have them
   now, so that they interlock rather than line up" and "let's also include the twisted pincushion
-  in the demo rqq".
+  in the demo rqq". The d10 is a real die's: every corner on a sphere, so each kite has two right
+  angles, a 51.8° tip and a 128.2° bottom corner, short edges 1U and long edges 2.06U (marked);
+  not the 108°/36° kite of the dual of the uniform antiprism. Owner, 2026-11-23: "the d10 kites
+  demo should use the standard kite shape that would be found in a typical d10".
 
 ## Concepts
 
