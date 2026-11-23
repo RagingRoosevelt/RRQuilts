@@ -6,7 +6,6 @@ import type {
   EppEdgeRef,
   EppLayout,
   EppPiece,
-  EppSeam,
   InternalShape,
   Rosette,
   RosettePiece,
@@ -47,9 +46,10 @@ export const addSeam = (q: Quilt, a: EppEdgeRef, b: EppEdgeRef): Quilt => ({
   epp: { ...q.epp!, seams: [...(q.epp?.seams ?? []), { a, b }] },
 });
 
-export function removeSeam(q: Quilt, seam: EppSeam): Quilt {
+/** Unpick seam k of `epp.seams` (by place: edits run on drafts, where items aren't the originals). */
+export function removeSeam(q: Quilt, k: number): Quilt {
   const { seams: old = [], ...rest } = q.epp!;
-  const seams = old.filter((x) => x !== seam);
+  const seams = old.filter((_, i) => i !== k);
   return { ...q, epp: seams.length ? { ...rest, seams } : rest };
 }
 

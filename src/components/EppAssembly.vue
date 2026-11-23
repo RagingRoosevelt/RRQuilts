@@ -4,21 +4,41 @@
     :class="{ reverse: swapped }"
     style="min-height: 0; position: relative"
   >
-    <div ref="host" class="col relative-position view">
-      <canvas
-        ref="canvas"
-        class="absolute-full"
-        :style="{ cursor: grabbing ? 'grabbing' : 'grab' }"
-        @pointerdown="down"
-        @pointermove="move"
-        @pointerup="up"
-        @pointercancel="cancel"
-        @wheel.prevent="wheel"
-      />
-      <q-badge v-if="exploded" color="primary" class="exploded">Exploded</q-badge>
-      <div class="hint q-pa-xs text-caption">{{ HINT }}</div>
-      <div v-if="!leaves.length" class="absolute-center text-body2 text-grey-7 text-center">
-        No pieces yet. Place them in the Design tab.
+    <!-- The flat net (seams editable) and the folded object: stacked or side by side (Settings ›
+         Interface › 3D EPP; owner, 2026-11-23). -->
+    <div class="col panes no-wrap" :class="vertical ? 'column split-v' : 'row split-h'">
+      <div class="col relative-position column no-wrap net">
+        <EppCanvas
+          :key="netKey"
+          ref="netRef"
+          v-model:view="netView"
+          :doc="project.doc!"
+          :polys="netPolys"
+          :grid="{ kind: 'none' }"
+          :unit-length="unit"
+          :decorate="decorateNet"
+          :tick="netTick"
+          @tap="(p: World) => !ro && seams.tap(p)"
+          @hover="onNetHover"
+        />
+        <div class="hint q-pa-xs text-caption">{{ NET_HINT }}</div>
+      </div>
+      <div ref="host" class="col relative-position view">
+        <canvas
+          ref="canvas"
+          class="absolute-full"
+          :style="{ cursor: grabbing ? 'grabbing' : 'grab' }"
+          @pointerdown="down"
+          @pointermove="move"
+          @pointerup="up"
+          @pointercancel="cancel"
+          @wheel.prevent="wheel"
+        />
+        <q-badge v-if="exploded" color="primary" class="exploded">Exploded</q-badge>
+        <div class="hint q-pa-xs text-caption">{{ HINT }}</div>
+        <div v-if="!leaves.length" class="absolute-center text-body2 text-grey-7 text-center">
+          No pieces yet. Place them in the Design tab.
+        </div>
       </div>
     </div>
 
@@ -123,7 +143,7 @@ import {
   type Hinge,
   type V3,
 } from '@/model/epp/fold';
-import { quiltNet } from '@/model/epp/net';
+import { quiltNet, seamMarks } from '@/model/epp/net';
 import { setFront } from '@/model/epp/quilt-ops';
 import {
   buildCloth,
@@ -136,7 +156,11 @@ import {
   type PieceMesh,
 } from '@/model/epp/stuff';
 import type { Quilt } from '@/model/schema/quilt';
-import { colorLookup } from '@/render/draw';
+import EppCanvas, { type CanvasPoly, type Decor } from '@/components/EppCanvas.vue';
+import { useEppSeams } from '@/composables/epp-seams';
+import type { World } from '@/composables/viewport';
+import { colorLookup, type View } from '@/render/draw';
+import { useEppEditorStore } from '@/stores/epp-editor';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
@@ -145,11 +169,14 @@ const props = defineProps<{ quilt: Quilt; sidebar: boolean }>();
 const project = useProjectStore();
 const library = useLibraryStore();
 const app = useSettingsStore();
+const eppStore = useEppEditorStore();
 const $q = useQuasar();
 const ro = computed(() => project.readOnly);
 const swapped = computed(() => app.settings.sidesSwapped);
 
 const HINT = 'Click: explode · Drag: turn · Wheel or pinch: zoom · Double-click a piece: front';
+const NET_HINT =
+  'Tap a free edge, then an equal edge of another piece, to sew them · Tap a numbered edge to unpick it';
 /** How far pieces move out when exploded, as a share of the object's radius. */
 const EXPLODE = 0.25;
 /** Flat pieces sit a hair off their right side, so two layers folded onto each other (a pillow
@@ -248,6 +275,47 @@ const stuffable = computed(() => {
   return { ok: true, why: 'Every edge is sewn, so the shape is closed.' };
 });
 const fmt = (x: number) => (+x.toFixed(2)).toString();
+
+// ---------- the flat net ----------
+const vertical = computed(() => app.settings.epp3dSplit !== 'horizontal');
+const unit = computed(() => (props.quilt.layout.style === 'epp' ? props.quilt.layout.unit : 1));
+const netRef = ref<InstanceType<typeof EppCanvas>>();
+// One view per split: each pane shape fits on its first draw (EPP canvases then keep their view).
+const netKey = computed(() => `assembly:${app.settings.epp3dSplit}:${props.quilt.id}`);
+const netView = computed({
+  get: () => eppStore.views.get(netKey.value),
+  set: (v: View | undefined) => v && eppStore.views.set(netKey.value, v),
+});
+const swap = computed(() => swapper(shownColorway(props.quilt)));
+const netPolys = computed<CanvasPoly[]>(() =>
+  leaves.value.map((l) => ({ poly: l.poly, fill: swap.value(l.fill) })),
+);
+/** Seams (by number - 1) the fold leaves open: red in the net. */
+const openSeams = computed(() => {
+  const r = report.value;
+  const m = fold;
+  return new Set(
+    r && m ? r.open.flatMap((i) => (m.hinges[i]!.seam === null ? [] : [m.hinges[i]!.seam])) : [],
+  );
+});
+const seams = useEppSeams({
+  quilt: () => props.quilt,
+  leaves: () => leaves.value,
+  lookup: () => lookup.value,
+  px: (n) => n * (netRef.value?.worldPerPx() ?? 0.02),
+  edit: (fn) => {
+    if (ro.value) return;
+    project.change((d) => {
+      const k = d.project.quilts.findIndex((q) => q.id === props.quilt.id);
+      if (k >= 0) d.project.quilts[k] = fn(d.project.quilts[k] as Quilt);
+    });
+  },
+  open: () => openSeams.value,
+});
+const netHover = ref<World | null>(null);
+const netTick = computed(() => [netHover.value, seams.start.value, openSeams.value]);
+const onNetHover = (p: World | null) => (netHover.value = p);
+const decorateNet = (dec: Decor) => seams.decorate(dec, ro.value ? null : netHover.value);
 
 // ---------- three.js ----------
 const host = ref<HTMLDivElement>();
@@ -864,7 +932,21 @@ if (import.meta.env.DEV)
           stuffSettled: cloth?.settled ?? null,
           stuffVolume: cloth?.vol ?? null,
           exploded: exploded.value,
+          seams: seams.placed.value.length,
+          openSeams: [...openSeams.value],
         };
+      },
+      /** Page point at the middle of seam n's first edge in the net. */
+      seamPoint(n: number) {
+        const m = seamMarks(leaves.value, props.quilt.epp?.seams ?? [], 0).find((x) => x.n === n);
+        const v = netView.value;
+        const c = netRef.value?.$el.querySelector('canvas')?.getBoundingClientRect();
+        if (!m || !v || !c) return null;
+        const [a, b] = m.edge;
+        return [
+          c.left + ((a[0] + b[0]) / 2) * v.scale + v.tx,
+          c.top + ((a[1] + b[1]) / 2) * v.scale + v.ty,
+        ];
       },
     },
   });
@@ -874,6 +956,23 @@ if (import.meta.env.DEV)
 .view {
   overflow: hidden;
   touch-action: none;
+}
+.panes {
+  min-width: 0;
+  min-height: 0;
+}
+.panes > .col {
+  min-width: 0;
+  min-height: 0;
+}
+.split-v > .net {
+  border-bottom: 1px solid rgba(128, 128, 128, 0.35);
+}
+.split-h > .net {
+  border-right: 1px solid rgba(128, 128, 128, 0.35);
+}
+.net .hint {
+  right: 48px;
 }
 /* A canvas keeps its own size unless told to fill. */
 .view canvas {

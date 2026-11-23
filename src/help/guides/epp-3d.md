@@ -26,6 +26,8 @@ The layout can hold several separate groups of pieces joined only by seams. The 
 
 ## The 3D assembly tab
 
+The tab shows the flat design above the folded object. **Settings** › **Interface** › **3D EPP** can put them side by side instead. In the flat design, tap edges to sew or unpick seams as with the Seam tool. Seams the fold can't close are red there.
+
 The design folds the way fabric with stiff papers inside does. Each piece stays flat and every seam bends like a hinge. Pieces fold no further than the seams need, so five diamonds sewn into a ring make a shallow star.
 
 - Drag to turn the object. Use the mouse wheel or pinch to zoom.

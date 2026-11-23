@@ -376,7 +376,13 @@ fifth diamond's free edge to the first's; the 3D assembly tab shows a shallow fi
    borders); an EPP quilt's Layout tab has the same toggle, either way (turning 3D on removes the
    edge and borders, turning it off keeps the seams unused). Owner, 2026-11-23: "the interface when
    the epp option has been picked should have a toggle for 3d epp mode" and "we don't appear to
-   have the toggle for epp in layout of the quilt design, either".
+   have the toggle for epp in layout of the quilt design, either". The 3D assembly tab splits its
+   view: the flat net (seams editable there too, those the fold can't close in red, the front
+   ringed) above the 3D view, or beside it by a setting (Settings › Interface › 3D EPP: vertical
+   or horizontal split, vertical by default). Owner, 2026-11-23: "the 3d assembly section should
+   have a vertical viewport split for the 2d seam assembly on top and the 3d preview on the bottom.
+   there should be an option in app user preferences/interface/3d epp for switching between
+   vertical split and horizontal split".
 2. **Given** the 2D layout, **Then** pieces sharing an edge have a seam there with nothing to add,
    and the quilter adds **explicit seams** only between edges that don't touch: pick an edge of one
    piece and an edge of another of equal length; a numbered callout links them in the 2D view. The

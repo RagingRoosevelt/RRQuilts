@@ -1,3 +1,4 @@
+import { produce } from 'immer';
 import { describe, expect, it } from 'vitest';
 import { eppStarters } from '@/content/epp';
 import { expandAll, lookupEpp } from '@/model/epp/expand';
@@ -21,6 +22,7 @@ import {
   newEppQuilt,
   refresh,
   removePieces,
+  removeSeam,
 } from '@/model/epp/quilt-ops';
 import { buildCloth, clothStretch, pieceMesh, solveCloth } from '@/model/epp/stuff';
 import type { Quilt } from '@/model/schema/quilt';
@@ -148,6 +150,13 @@ describe('3D EPP quilt', () => {
       expect(ref.edge).toBe(2);
       expect(endAt([leaf!], ref)).toEqual([0, long]);
     }
+  });
+
+  it('unpicks a seam inside an edit (an Immer draft, as project.change runs it)', () => {
+    const q = designQuilt(cube(), 'Cube', shapes, lookup, fill);
+    const out = produce(q, (d) => removeSeam(d as Quilt, 2));
+    expect(out.epp!.seams).toHaveLength(6);
+    expect(out.epp!.seams).not.toContainEqual(q.epp!.seams![2]);
   });
 
   it('seams go with deleted pieces, and move to the loose pieces when a rosette breaks', () => {

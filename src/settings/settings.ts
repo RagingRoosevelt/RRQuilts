@@ -58,6 +58,8 @@ export interface Settings {
   /** EPP editors (specs 027, 050): where dragged corners land, the Angle tool's step, the
    *  placement mode, Place rosettes ungrouped, Sync grid to selected size. */
   epp: EppPrefs;
+  /** The 3D assembly tab's panes (spec 027 User Story 7): the 2D net above the 3D view, or beside it. */
+  epp3dSplit: 'vertical' | 'horizontal';
   /** Labels of inspector sections the user collapsed. */
   collapsedSections: string[];
   /** How each palette's swatches show (spec 032), by palette id; none = saved order. */
@@ -128,6 +130,7 @@ export const defaults = (): Settings => ({
   dataTab: 'auto',
   libraryType: 'block',
   epp: { vertexGrid: 'square', angleStep: 15, mode: 'free', ungrouped: false, syncGrid: true },
+  epp3dSplit: 'vertical',
   socials: [],
   hideLibraryBlocks: false,
   hideLibraryPalettes: false,
@@ -189,6 +192,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   libraryGroupBy: (v) =>
     v === 'none' || v === 'category' || v === 'tags' || v === 'techniques' || v === 'shape',
   libraryType: (v) => v === 'block' || v === 'colors' || v === 'epp' || v === '',
+  epp3dSplit: (v) => v === 'vertical' || v === 'horizontal',
   epp: (v) =>
     isObject(v) &&
     ['free', 'square', 'triangle'].includes(v.vertexGrid as string) &&

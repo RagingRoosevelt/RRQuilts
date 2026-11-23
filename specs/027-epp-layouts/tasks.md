@@ -239,6 +239,7 @@ multi-select).
 - [X] T099 [3D] Help src/help/guides/epp-3d.md, linked from the 3D assembly tab
 - [X] T102 New-quilt wizard, EPP mode: no Size or Sashing step (no block spaces), Borders kept (none by default, passed to the quilt; they show once it has a made edge) (src/components/QuiltWizard.vue; owner, 2026-11-23; TC-312)
 - [X] T103 [3D] **3D EPP** toggle in the wizard's EPP mode (Layout step only when on) and in an EPP quilt's Layout tab (src/components/EppLayoutSection.vue `setThreeD`: on clears the edge and borders, off keeps the seams) (owner, 2026-11-23; TC-313)
+- [X] T104 [3D] 3D assembly tab split: the flat net (src/components/EppCanvas.vue, seams tapped on and off, open seams red, front ringed) above the 3D view, or beside it; setting `epp3dSplit` (src/settings/settings.ts, Settings › Interface › 3D EPP, vertical by default); the Seam tool's code shared as src/composables/epp-seams.ts; `removeSeam` by index (seams never came off through a draft) (owner, 2026-11-23; TC-314)
 - [ ] T100 [3D] Link the demo from the help once the owner hosts it as a gist
 - [ ] T101 [3D] CLAUDE.md: 3D EPP (model/epp fold, stuff, net; EppAssembly; three.js) with T069
 

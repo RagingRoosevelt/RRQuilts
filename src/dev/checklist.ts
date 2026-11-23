@@ -318,6 +318,13 @@ export const CHECKS: Check[] = [
     last: 'the interface when the epp option has been picked should have a toggle for 3d epp mode; we don’t appear to have the toggle for epp in layout of the quilt design, either',
     to: '/',
   },
+  {
+    id: 'TC-314',
+    group: G.epp3d,
+    text: 'Demo › Star pillow › 3D assembly: the flat design on top, the 3D view below, a line between. Its seams show red and dashed (the fold can’t close them), the front piece ringed. Tap a numbered edge in the flat design: the seam goes and the object folds again; Undo brings it back; tap two equal free edges: a new seam. Settings › Interface › 3D EPP › Horizontal split: the flat design left, 3D right, both stars in view; back to Vertical. The 3D view keeps turning, exploding and stuffing as before in both.',
+    last: 'the 3d assembly section should have a vertical viewport split for the 2d seam assembly on top and the 3d preview on the bottom. there should be an option in app user preferences/interface/3d epp for switching between vertical split and horizontal split',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
