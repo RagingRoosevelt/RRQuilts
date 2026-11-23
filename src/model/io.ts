@@ -376,6 +376,12 @@ export function danglingReferences(doc: RrqDoc): string[] {
         out.push(`${where} piece ${piece.id}: missing coloring ${piece.coloring}`);
       if (piece.fills) checkColoring({ fills: piece.fills }, `${where} piece ${piece.id}`);
     }
+    // 3D EPP: explicit seams and the front piece point at pieces.
+    const pieceIds = new Set((q.epp?.pieces ?? []).map((x) => x.id));
+    for (const e of (q.epp?.seams ?? []).flatMap((x) => [x.a, x.b]))
+      if (!pieceIds.has(e.piece)) out.push(`${where} seam: missing piece ${e.piece}`);
+    if (q.epp?.front && !pieceIds.has(q.epp.front.piece))
+      out.push(`${where} front: missing piece ${q.epp.front.piece}`);
     for (const [slot, s] of Object.entries(q.layers[0].slots)) {
       if (!blocks.has(s.block)) out.push(`${where} ${slot}: missing block ${s.block}`);
       if (!(s.coloring in q.colorings))

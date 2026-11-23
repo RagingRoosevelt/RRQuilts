@@ -45,6 +45,7 @@ expansion to polygons.
 | unit | number (project units) | 1/4 in to 6 in (or cm equivalent); default 1 in / 2.5 cm |
 | seam | number | default 3/8 in / 1 cm |
 | edge | `{ kind: 'none' }` \| `{ kind: 'cut', rect: [x0, y0, x1, y1] }` \| `{ kind: 'close', fill?: Fill }` \| `{ kind: 'custom', outline: PathCommand[] }` | borders and binding only when kind ≠ none (clarify Q4) |
+| threeD | `true`, optional | a 3D EPP quilt (User Story 7, owner 2026-11-23: in v12): edge `none`, no borders, a 3D assembly tab, listed in the project's EPP tab |
 
 **quilt.epp**:
 
@@ -52,6 +53,13 @@ expansion to polygons.
 | --- | --- | --- |
 | shapes | InternalShape[] | optional; closing pieces (Auto-close) live here, rebuilt when pieces change |
 | pieces | EppPiece[] | up to 5000 |
+| seams | `{ a: EppEdgeRef, b: EppEdgeRef }[]`, optional | 3D explicit seams between equal edges that don't touch (touching edges are seams without one); up to 5000; dropped with their pieces |
+| front | `{ piece: Id, part?: Id }`, optional | 3D: the piece picked to face front (double-click in the 3D assembly tab) |
+
+**EppEdgeRef**: `{ piece: Id, part?: Id, edge: 0-23 }`: a placed piece, the rosette piece inside it
+for a placed rosette, and the edge's index in its shape's outline (corner i to i + 1), so a seam
+stays on its edge when the piece turns or mirrors; Break into patches moves it to the loose piece.
+A seam whose edges no longer match (a piece scaled) is kept but not sewn.
 
 **EppPiece**: `{ id, shape?: ItemId, rosette?: ItemId, at, turn, mirror?, scale: 1-4, coloring?: Id,
 fills?: Record<string, Fill> }`; exactly one of `shape` / `rosette`. A shape piece's fill is

@@ -4,8 +4,9 @@
 
 **Created**: 2026-10-18
 
-**Status**: Draft (spec only; not implemented). Two releases: **2D** first (User Stories 1-6),
-**3D** later (User Stories 7-8). STL cutting templates are a stretch goal.
+**Status**: Draft (spec only; not implemented). **2D** (User Stories 1-6) and **3D** (User Story
+7; User Story 8 later) both ship in 0.9.0 (owner, 2026-11-23; first planned as two releases). STL
+cutting templates are a stretch goal.
 
 **Input**: Owner, 2026-10-18: a new type of layout for English paper piecing (EPP). EPP is made by
 sewing shapes together along common edges, typically diamonds and regular polygons. A new type of
@@ -70,6 +71,60 @@ justification).
   section (paper and fabric templates) for their pieces, left out of rotary cutting. Owner,
   2026-11-10: "your recomendation for how rosettes show up in a block quilt looks right."
 
+### Session 2026-11-19 (3D, before the prototype)
+
+- Q: How do the parts of a 3D design come together? → A: The 2D design may hold several separate
+  **assemblies** that don't touch in 2D, with seams between edges of different assemblies; the 3D
+  view pulls them together until those seams line up. Owner, 2026-11-19: "I expect that in the 2d
+  design view, we'll be likely to have several seperate assemblies that don't touch in 2d but have
+  seams between edges of the assemblies. In 3d view they'll get pulled together to align their
+  seams."
+- Q: What does the fold treat as a seam, and how does a seam move? → A: Every seam is a **hinge**
+  whose axis is the seam line. Two pieces sharing an edge in 2D have a seam there automatically;
+  **explicit seams** (formerly "joins") are only added for edges that aren't shared in 2D. Any seam
+  bends when the forces call for it. Owner, 2026-11-19: "We should treat seams as hinges when
+  solving the fold. The seam line is the axis of the hinge. When two pieces share a common edge,
+  they should be assumed to have a seam between them. Explicit seams are only required for edges
+  that aren't shared between pieces in 2d view." and "We expect that all shared edges will serve as
+  a hinge if force dictates that they should bend."
+- Q: Where does 3D EPP live in the app? → A: A **3D EPP quilt** is its own quilt type. The project
+  lists it in the EPP tab with a "3D" badge. It uses the EPP quilt designer for the 2D layout plus
+  a **3D assembly** tab in the workbench, and the standard shapes and rosettes; quilters tag
+  rosettes meant for 3D themselves (tags, spec 029). Owner, 2026-11-19: "3d epp is its own type of
+  quilt but in the project view, they'll show up in the epp tab right a "3d" badge. It'll use the
+  same designer for 2d layout and just add a 3d assembly tab to the workbench. It should use
+  standard 2d shapes and rosettes. We'll leave it up to the user to employ a tab to differentiate
+  rosettes intended for 3d from ones intended for 2d."
+- Q: Which 3D library? → A: three.js, the one the STL prototype's notes named for the app's 3D view
+  (the 3D Print preview was built without one). Owner, 2026-11-19: "We should use that for this
+  too."
+- Q: Flat or puffy (stuffed) faces? → A: Flat for the prototype; puffy is decided after seeing it.
+  Owner, 2026-11-19: "For the prototype, let's see how it looks assuming flat faced and decide if
+  we need puffy later."
+
+### Session 2026-11-23 (3D, after the prototypes)
+
+- Q: What did the prototypes settle? → A: Physical stuffing at the firmest setting (no firmness
+  setting in the app), the fixed light with shadows (no lighting choice), stitches when exploded
+  (no glue). The 3D view says clearly whether the design can be stuffed and, when it can't, why.
+  When the flat pieces can't close every seam but the design is closed, it says stuffing might
+  close the rest. Owner, 2026-11-23: "firmness to the max of the slider", "fixed light & shadows
+  works well", "stitches for the explode mode", "we should have a clear indication of if the
+  current design is allowed to be stuffed as well as a callout why it isn't" and "let's add a note
+  that when it can't be joined but stuffing might help".
+- Q: When does 3D ship? → A: In 0.9.0 with the rest of the EPP work (rrq v12, still unreleased,
+  carries the 3D fields), built on its own branch off `027-epp-layouts` and merged back. Owner,
+  2026-11-23: "this will be releasing with the other epp work we've been doing".
+- Q: Is there a sample? → A: A demo project, hosted by the owner as a gist and linked from the help,
+  with a 3D EPP quilt each: a star pillow whose two stars are turned half a point against each
+  other so their points interlock, the twisted pincushion, the dice shapes d4 (tetrahedron), d6
+  (cube, one assembly), d8 (octahedron), d10 (kites), d12 (dodecahedron) and d20 (icosahedron), a
+  hexagonal prism, a truncated tetrahedron and a soccer ball. Owner, 2026-11-23: "I want a demo rqq
+  built that has the following designs (will be hosting it as a gist that can be linked to from the
+  help)", "star pillow with a a phase rotation of where the seams go compared to where we have them
+  now, so that they interlock rather than line up" and "let's also include the twisted pincushion
+  in the demo rqq".
+
 ## Concepts
 
 - **EPP quilt**: a quilt (or part of a project) made of **pieces** placed freely and joined edge to
@@ -104,9 +159,10 @@ justification).
   - **Custom trim**: a trim outline the quilter draws or edits in the Layout tab (straight sides and
     arcs, like a quilt target outline); pieces outside it are cut away.
 - **Seam allowance**: the fabric margin around the paper, set per quilt (default 3/8 in or 1 cm).
-- **3D (later)**: a **net** is a 2D arrangement plus **joins**: callouts saying edge A of one piece
-  is sewn to edge B of another, though they don't touch in 2D. Folding the net so every join closes
-  gives a 3D object.
+- **3D (later)**: a **net** is a 2D arrangement of one or more **assemblies** (pieces joined by
+  shared edges) plus **explicit seams**: callouts saying edge A of one piece is sewn to edge B of
+  another, though they don't touch in 2D. Every seam, shared or explicit, is a **hinge** about the
+  seam line. Folding the net so every seam closes gives a 3D object.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -299,24 +355,80 @@ parallelogram); place it and print it.
 
 ---
 
-### User Story 7 - 3D: a net with joins (Priority: P3, later release)
+### User Story 7 - 3D: a net with seams (Priority: P3, 0.9.0)
 
 A quilter wants a 3D star: five 60° diamonds edge to edge, with the last edge sewn to the first.
 
-**Independent Test**: Place five 60° diamonds in a fan (they leave a gap in 2D), add a join from the
-fifth diamond's free edge to the first's; the 3D view shows a shallow five-point star.
+**Independent Test**: Place five 60° diamonds in a fan (they leave a gap in 2D), add a seam from the
+fifth diamond's free edge to the first's; the 3D assembly tab shows a shallow five-point star.
 
 **Acceptance Scenarios**:
 
-1. **Given** an EPP design marked as 3D, **Then** the quilter can add **joins**: pick an edge of one
-   piece and an edge of another of equal length; a callout links them in the 2D view.
-2. **Given** a net with joins, **Then** a 3D view folds the pieces so every join and every snapped
-   edge closes, the pieces stay flat and their sizes unchanged, and the quilter can turn the object
-   around to look at it.
-3. **Given** joins that can't all close (impossible or conflicting), **Then** the 3D view says which
-   joins conflict and shows the closest fold it found.
-4. **Given** a 3D design, **Then** printing gives the same paper and fabric templates as 2D, plus an
-   assembly sheet: the net with each join numbered on both edges.
+1. **Given** a 3D EPP quilt (its own quilt type, listed in the project's EPP tab with a "3D" badge),
+   **Then** it opens in the EPP quilt designer with the standard shapes and rosettes, plus a **3D
+   assembly** tab in the workbench.
+2. **Given** the 2D layout, **Then** pieces sharing an edge have a seam there with nothing to add,
+   and the quilter adds **explicit seams** only between edges that don't touch: pick an edge of one
+   piece and an edge of another of equal length; a numbered callout links them in the 2D view. The
+   layout may hold several separate assemblies joined only by explicit seams.
+3. **Given** a net with seams, **Then** the 3D assembly tab folds it: every seam is a hinge about
+   the seam line, separate assemblies are pulled together until their seams line up, every seam
+   closes, the pieces stay flat and their sizes unchanged, and the quilter can turn the object
+   around to look at it. Faces are flat, with a **Stuffed** toggle: a closed shape rounds out as a
+   whole (faces push out, seams bow outward, corners pull in a little, as unstretchy fabric does),
+   and an open shape's pieces each puff into a dome. Owner, 2026-11-19: "For the prototype, let's
+   see how it looks assuming flat faced and decide if we need puffy later", then "can we add a
+   toggle for stuff/inflate?" and "shouldn't stuffing impact the seams and vertices too?"
+   A **physical stuffing** pass runs after the fold: the pieces become fabric (seams sewn by
+   shared points, fabric that hardly stretches but bunches up easily), stuffing pressure pushes
+   outward, and the shape settles; it also closes seams the rigid fold can't (a pillow's two sides,
+   a twisted pincushion). Owner, 2026-11-19: "is it visual or does it impact the folding?", then
+   "Let's make a new copy of the prototype to do a physical stuffer. Let's do the fold solve first
+   then the stuffing sim. I expect that we'll have shapes that don't have a fold solution until
+   stuffed." (prototype `prototypes/epp3d/stuff.html`). In the app (owner, 2026-11-23): only
+   physical stuffing, at the prototype's firmest setting, with no firmness setting; **Stuff** is
+   offered only for a closed design (every edge sewn), and the 3D view always says whether the
+   design can be stuffed and, when it can't, why (edges left open, or the fold still running).
+   When a closed design's seams don't all close as flat pieces, it says stuffing might close the
+   rest.
+   **Explode**: a single click on the folded object toggles explode mode, where every piece moves
+   a bit away from the middle (the fold itself is unchanged); another click closes it up. Drags
+   only turn the view and leave the object closed or exploded as it was. Nothing follows the
+   pointer without a button held. Owner, 2026-11-19 (first called flex mode): "let's add an
+   action for a single click on the folded object to put it into flex mode that doesn't require
+   dragging. another single click returns to unflexed mode. dragging when in flexed mode behaves
+   as if the drag put it into flex mode and when the drag ends, it goes to non-flexed mode." and,
+   after a first try that pulled the clicked piece along with the pointer, "click toggles flex
+   mode. click+drag out of flex mode turns on flex mode and then lets the user orbit. click+drag
+   when already in flex mode just does the orbiting but exits flex mode when the drag ends" and
+   "I'm thinking of more of an "explode" mode where all pieces move a bit away from the center",
+   then "let's have click-to-drag not reset back to unexploded" and "it'll leave it in whatever
+   mode it's presently in". Exploded, every seam shows **glue**: a see-through film stretched
+   between the two pieces' edges, its open ends bowing inward in arcs like glue pulled thin by
+   surface tension, more as the pieces spread. Owner, 2026-11-19: "the explode mode should show
+   a "glue" shape that spans between the two edges when exploded. it should be a transparent
+   surface that has arcs on the open ends and be aligned with the piece edges" and, after a first
+   try curving round from one piece's surface to the other's, "the curve should look kinda like
+   surface tension as the glue stretches, not a curve tangent to the faces where they meet". The
+   default exploded look is **stitches**: thread lacing back and forth across each seam's gap,
+   with a soft glow around the thread so it stands out from the background; glue stayed as the
+   other choice in the prototype, and the app has stitches only (owner, 2026-11-23: "stitches for
+   the explode mode"). Owner, 2026-11-19: "ok, don't throw that away, but let's switch to a new mode
+   that just shows a bunch of thread stitching between them. render a bit of glow around the
+   edges of the thread so that it stands out from the background".
+   **Front**: once folded, the object turns so its front faces the quilter and the 2D design's up
+   is up. An open shape faces the way its right side faces overall (each piece's direction
+   weighted by its area); a closed shape has no overall direction, so one piece faces front: by
+   default the piece nearest the middle of the largest assembly, or one the quilter picks
+   (double-click in the prototype), marked in the 2D view. Owner, 2026-11-19: "how do we decide
+   where the front is? for example with five-diamond star?", then "yeah, that would be good." to
+   this proposal.
+4. **Given** seams that can't all close (impossible or conflicting), **Then** the 3D view says which
+   seams don't close and shows the closest fold it found.
+5. **Given** a 3D design, **Then** printing gives the same paper and fabric templates as 2D, plus an
+   assembly sheet: the net with each explicit seam numbered on both edges.
+
+Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
 
 ---
 
@@ -424,8 +536,9 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   moved.
 - **Loaded files**: shapes whose outline doesn't close, or a piece referring to a missing shape, are
   reported on open and never crash the app (spec 003).
-- **3D**: a join between edges of different lengths isn't allowed; a net that doesn't stay in one
-  piece (disconnected) folds each part on its own.
+- **3D**: an explicit seam between edges of different lengths isn't allowed, nor one between two
+  edges of the same piece; an edge already shared in 2D needs no explicit seam. Assemblies with no
+  seam linking them to the rest fold on their own.
 
 ## Requirements *(mandatory)*
 
@@ -500,8 +613,11 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   seam allowance) at true size, with counts per fill, labels, packing and yardage.
 - **FR-009**: The project format MUST gain a version with EPP quilts, shapes and pieces, and a
   migration (spec 003); loaded EPP data is validated like the rest.
-- **FR-010** (later release): EPP designs MUST support joins between equal edges and a 3D view that
-  folds the net, reports conflicting joins, and prints an assembly sheet.
+- **FR-010** (0.9.0, owner 2026-11-23): A 3D EPP quilt type MUST support explicit seams between
+  equal edges (shared edges are seams already) and a 3D assembly tab that folds the net with every
+  seam as a hinge, pulls separate assemblies together, reports seams that don't close, stuffs a
+  closed design (saying whether it can be stuffed and why not), and prints the net with its explicit
+  seams numbered (the assembly sheet is the quilt picture).
 - **FR-011** (stretch, built in 0.9.0): The app SHOULD export STL cutting templates for paper
   and fabric (convex pieces; see the stretch goal story).
 - **FR-012**: Everything works offline; 3D rendering, any solver and STL export run in the app with
@@ -570,10 +686,12 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - **EppShape**: id, notecard, outline (vertices in units, locked corners, edges marked as not whole
   units), default fill, credits, license; its own library item type, in the EPP section (FR-013).
 - **EppQuilt**: base dimension, seam allowance, edge (none / cut to size / auto-close with its
-  closing pieces' fill / custom outline), optional binding and borders (off by default), pieces, groups, colorways; later `joins` and a 3D flag.
+  closing pieces' fill / custom outline), optional binding and borders (off by default), pieces, groups, colorways; a 3D EPP quilt (`threeD`) also has explicit `seams` and a `front` piece.
 - **Piece**: shape ref, position, turn, mirror, scale (1-4), fill.
 - **Rosette**: see spec 050 (a saved group used like a shape).
-- **Join** (later): two (piece, edge) pairs.
+- **Explicit seam** (formerly "join"): two (piece, edge) pairs of equal length that don't touch in
+  2D; each end names a placed piece, the rosette piece inside it, and an edge of its shape (rrq v12
+  `epp.seams`, data-model.md).
 
 ## Success Criteria *(mandatory)*
 
@@ -583,7 +701,8 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
   are exactly one seam allowance larger on every side.
 - **SC-003**: A custom shape saved to a pack opens in another person's app and places and prints the
   same.
-- **SC-004** (later): The five-diamond star folds in the 3D view with every join closed.
+- **SC-004**: The five-diamond star folds in the 3D view with every seam closed (every hinge about
+  42°, test/vitest/__tests__/model/epp/fold.spec.ts).
 
 ## Assumptions
 
@@ -594,12 +713,14 @@ fifth diamond's free edge to the first's; the 3D view shows a shallow five-point
 - An EPP quilt is a whole quilt. Rosettes can fill block spaces in block quilts (FR-015); loose EPP
   pieces in a block quilt and appliqué onto a background are later.
 - Snap distance is in screen space (about the size of a fingertip), so it works zoomed in or out.
-- The 3D release needs new dependencies (a 3D renderer, maybe a constraint solver). Per the
-  constitution they need justification in that release's plan; they're bundled for offline use.
+- 3D needs a new dependency, three.js (owner, 2026-11-19), for the 3D view; the fold and the
+  stuffing are solved in our own code (pieces as rigid plates, seams as hinges, then fabric under
+  pressure). The justification is in plan.md; it's bundled for offline use and loaded only when a
+  3D assembly tab opens.
 
 ## Out of Scope (first release)
 
 - Drawing custom shapes straight into the quilt design (shapes are made in the shape editor).
-- 3D designs (second release). STL cutting templates were a stretch goal and came in 0.9.0 (convex
-  pieces).
+- 3D libraries of objects (User Story 8). STL cutting templates were a stretch goal and came in
+  0.9.0 (convex pieces).
 - Fussy-cutting fabric inside a piece, curved shapes, and appliqué onto a background.

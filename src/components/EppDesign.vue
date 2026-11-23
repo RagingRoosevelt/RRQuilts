@@ -27,7 +27,7 @@
       </q-btn>
       <q-separator />
       <q-btn
-        v-for="t in TOOLS"
+        v-for="t in shownTools"
         :key="t.id"
         :flat="tool !== t.id"
         :unelevated="tool === t.id"
@@ -162,7 +162,7 @@
 // An EPP quilt's Design tab (spec 027 FR-014): the rosette editor's engine on the quilt's pieces,
 // which are shapes or whole (linked) rosettes, at the quilt's 1U length.
 import { useQuasar } from 'quasar';
-import { computed, ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import EppCanvas, { type CanvasPoly, type Decor, type Grid } from '@/components/EppCanvas.vue';
 import EppPicker, { type PickerGroup } from '@/components/EppPicker.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
@@ -175,7 +175,7 @@ import { fillFor } from '@/editor/paint';
 import { checkOutline, passes } from '@/model/epp/checks';
 import { expand, expandAll, lookupEpp, type Leaf } from '@/model/epp/expand';
 import { gapAt, lineCut } from '@/model/epp/faces';
-import { outerEdges, overlapping, type Edge, type Pose } from '@/model/epp/geometry';
+import { centroid, outerEdges, overlapping, type Edge, type Pose } from '@/model/epp/geometry';
 import { cellAt, gridKindFor, snapOrigin, type Lattice } from '@/model/epp/grid';
 import { attach } from '@/model/epp/grow';
 import { piecePose } from '@/model/epp/match';
@@ -186,8 +186,11 @@ import {
   breakIntoPatches,
   clipRosette,
   copyPieces,
+  addSeam,
   fillGap,
+  is3d,
   pastePieces,
+  removeSeam,
   movePiece,
   paint,
   refresh,
@@ -196,6 +199,8 @@ import {
   type PaintScope,
 } from '@/model/epp/quilt-ops';
 import { landsOver, nextTurn, snap, snapPose, staticEdges } from '@/model/epp/snap';
+import { buildFold, frontPiece } from '@/model/epp/fold';
+import { edgeRef, quiltNet, seamMarks, seamsAt } from '@/model/epp/net';
 import { dist, pointInPolygon, type Pt } from '@/model/geometry/path';
 import { isLibraryItem } from '@/model/library-items';
 import { shownColorway, swapper } from '@/model/colorways';
@@ -211,7 +216,16 @@ import { useSettingsStore } from '@/stores/settings';
 import type { EppPrefs } from '@/settings/settings';
 
 type Tool =
-  'select' | 'place' | 'turn' | 'mirror' | 'mirrorY' | 'break' | 'erase' | 'close' | 'paint';
+  | 'select'
+  | 'place'
+  | 'turn'
+  | 'mirror'
+  | 'mirrorY'
+  | 'break'
+  | 'erase'
+  | 'close'
+  | 'seam'
+  | 'paint';
 
 const props = defineProps<{ quilt: Quilt; sidebar: boolean }>();
 const project = useProjectStore();
@@ -288,12 +302,21 @@ const TOOLS: { id: Tool; icon: string; label: string; hint: string; cls?: string
     hint: 'Close space: tap a gap to fill it with a shape; drag from corner to corner to close part of a gap or split a piece',
   },
   {
+    id: 'seam',
+    icon: 'link',
+    label: 'Seam',
+    hint: 'Seam (3D): edges that touch are sewn already. Tap a free edge, then an edge of the same length on another piece, to sew them; tap a numbered edge to unpick its seam',
+  },
+  {
     id: 'paint',
     icon: 'format_paint',
     label: 'Paint',
     hint: 'Paint: tap a piece with the picked color or fabric',
   },
 ];
+/** The Seam tool only in a 3D EPP quilt. */
+const threeD = computed(() => is3d(props.quilt));
+const shownTools = computed(() => (threeD.value ? TOOLS : TOOLS.filter((t) => t.id !== 'seam')));
 const DUPLICATE_HINT =
   'Duplicate (Ctrl+D): the picked pieces become a temporary rosette at the top of the sidebar, to place as often as you like until the next Duplicate';
 const toolHint = computed(() => TOOLS.find((t) => t.id === tool.value)?.hint ?? '');
@@ -481,6 +504,7 @@ function onTap(p: World) {
   if (ro.value) return;
   const hit = leafAt(p);
   const t = tool.value;
+  if (t === 'seam') return seamTap(p);
   if (t === 'select') return sel.pick(hit?.piece ?? null);
   if (t === 'place') {
     const pose = hit ? null : poseAt(p);
@@ -751,18 +775,144 @@ function breakSelection() {
   epp.selection = new Set(ids);
 }
 
+// --- Seams (3D, spec 027 User Story 7) ---
+/** The explicit seams that fit, placed: (leaf, edge of its outline) each end, numbered in order. */
+const placedSeams = computed(() =>
+  threeD.value ? seamsAt(leaves.value, props.quilt.epp?.seams ?? []) : [],
+);
+const edgeKey = (a: Pt, b: Pt) => [...a, ...b].map((x) => x.toFixed(4)).join(',');
+const freeKeys = computed(() => new Set(free.value.map(([a, b]) => edgeKey(a, b))));
+/** The first edge picked for a new seam: leaf index and edge of its outline. */
+const seamStart = ref<[number, number] | null>(null);
+watch(seamStart, () => tick.value++);
+watch(tool, () => (seamStart.value = null));
+const leafEdge = ([i, k]: [number, number]): Edge => {
+  const poly = leaves.value[i]!.poly;
+  return [poly[k]!, poly[(k + 1) % poly.length]!];
+};
+/** The piece edge nearest p within reach: leaf index and edge of its outline. */
+function leafEdgeNear(p: Pt): [number, number] | null {
+  let best: [number, number] | null = null;
+  let d = px(14);
+  leaves.value.forEach((l, i) =>
+    l.poly.forEach((a, k) => {
+      const b = l.poly[(k + 1) % l.poly.length]!;
+      const ab: Pt = [b[0] - a[0], b[1] - a[1]];
+      const t = Math.max(
+        0,
+        Math.min(1, ((p[0] - a[0]) * ab[0] + (p[1] - a[1]) * ab[1]) / (ab[0] ** 2 + ab[1] ** 2)),
+      );
+      const e = dist(p, [a[0] + ab[0] * t, a[1] + ab[1] * t]);
+      if (e < d) [best, d] = [[i, k], e];
+    }),
+  );
+  return best;
+}
+const say = (message: string) => void $q.notify({ message, timeout: 2000 });
+function seamTap(p: Pt) {
+  const at = leafEdgeNear(p);
+  if (!at) return void (seamStart.value = null);
+  const same = (x: [number, number]) => x[0] === at[0] && x[1] === at[1];
+  const sewn = placedSeams.value.find((s) => same(s.a) || same(s.b));
+  if (sewn) {
+    seamStart.value = null;
+    return edit((q) => removeSeam(q, sewn.seam));
+  }
+  if (!freeKeys.value.has(edgeKey(...leafEdge(at)))) {
+    seamStart.value = null;
+    return say('That edge touches its neighbor, so it is sewn already.');
+  }
+  const start = seamStart.value;
+  if (!start) return void (seamStart.value = at);
+  seamStart.value = null;
+  if (start[0] === at[0]) {
+    if (start[1] !== at[1]) say('A piece can’t be sewn to itself.');
+    return;
+  }
+  const la = dist(...leafEdge(start));
+  const lb = dist(...leafEdge(at));
+  if (Math.abs(la - lb) > 1e-6)
+    return say(
+      `Those edges differ (${+la.toFixed(2)}U and ${+lb.toFixed(2)}U). Seams join equal edges.`,
+    );
+  const [a, b] = [start, at].map(([i, k]) => edgeRef(leaves.value[i]!, k)) as [
+    ReturnType<typeof edgeRef>,
+    ReturnType<typeof edgeRef>,
+  ];
+  edit((q) => addSeam(q, a, b));
+}
+/** The piece that faces front in 3D (picked, or the default for a closed shape). */
+const frontLeaf = computed(() => {
+  if (!threeD.value || !leaves.value.length) return null;
+  const f = frontPiece(buildFold(quiltNet(props.quilt, lookup.value).net));
+  return f === null ? null : leaves.value[f]!;
+});
+/** Seams: both edges in the seam's color with its number outside; the front piece ringed. */
+function drawSeams({ ctx, px: p }: Decor) {
+  if (!threeD.value) return;
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.font = `bold ${p(13)}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (const m of seamMarks(leaves.value, props.quilt.epp?.seams ?? [], p(12))) {
+    const [a, b] = m.edge;
+    ctx.strokeStyle = ctx.fillStyle = m.color;
+    ctx.lineWidth = p(4);
+    ctx.beginPath();
+    ctx.moveTo(a[0], a[1]);
+    ctx.lineTo(b[0], b[1]);
+    ctx.stroke();
+    if (m.label) ctx.fillText(String(m.n), m.label[0], m.label[1]);
+  }
+  const start = seamStart.value;
+  const hoverAt = tool.value === 'seam' && hover.value ? leafEdgeNear(hover.value) : null;
+  for (const [e, dash] of [
+    [start, false],
+    [hoverAt, true],
+  ] as const) {
+    if (!e) continue;
+    const [a, b] = leafEdge(e);
+    ctx.strokeStyle = '#2e7d32';
+    ctx.lineWidth = p(5);
+    ctx.setLineDash(dash ? [p(6), p(4)] : []);
+    ctx.beginPath();
+    ctx.moveTo(a[0], a[1]);
+    ctx.lineTo(b[0], b[1]);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  const f = frontLeaf.value;
+  if (f) {
+    const c = centroid(f.poly);
+    ctx.strokeStyle = '#212121';
+    ctx.fillStyle = '#212121';
+    ctx.lineWidth = p(2);
+    ctx.beginPath();
+    ctx.arc(c[0], c[1], p(9), 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(c[0], c[1], p(4), 0, 2 * Math.PI);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
 const readout = computed(() => {
   const n = leaves.value.length;
   const o = overlaps.value.size;
   const u = props.quilt.layout.style === 'epp' ? props.quilt.layout.unit : 1;
   const units = project.doc!.units;
   const k = epp.selection.size;
-  return `${n} ${n === 1 ? 'piece' : 'pieces'} · 1U = ${+u.toFixed(3)} ${units}${o ? ` · ${o} overlapping` : ''}${k ? ` · ${k} picked` : ''}`;
+  const sn = placedSeams.value.length;
+  const seams = threeD.value ? ` · ${sn} ${sn === 1 ? 'seam' : 'seams'}` : '';
+  return `${n} ${n === 1 ? 'piece' : 'pieces'} · 1U = ${+u.toFixed(3)} ${units}${seams}${o ? ` · ${o} overlapping` : ''}${k ? ` · ${k} picked` : ''}`;
 });
 
 function decorate(dec: Decor) {
   const { ctx, px: p } = dec;
   drawCloseLine(dec);
+  drawSeams(dec);
   sel.decorate(dec);
   // Cut to size: the cut line.
   const e0 = edge.value;

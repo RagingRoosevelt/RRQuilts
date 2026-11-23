@@ -1,5 +1,6 @@
-// English paper piecing (specs 027, 050, rrq v12, rrqlib v8). Geometry is in units: 1U is one edge
-// of a scale-1 piece. Shapes and rosettes have no real size; an EPP quilt's `unit` gives 1U a length.
+// English paper piecing (specs 027, 050, rrq v12, rrqlib v8; 3D EPP quilts too). Geometry is in
+// units: 1U is one edge of a scale-1 piece. Shapes and rosettes have no real size; an EPP quilt's
+// `unit` gives 1U a length.
 import Type from 'typebox';
 import { Coloring, Fill } from './coloring';
 import { Id, ItemId, itemBase, PathCommand, Vec2 } from './shared';
@@ -83,7 +84,21 @@ export const EppLayout = Type.Object({
   style: Type.Literal('epp'),
   unit: Type.Number({ exclusiveMinimum: 0 }),
   edge: EppEdge,
+  /** A 3D EPP quilt (spec 027 User Story 7): its pieces are a net folded into an object. */
+  threeD: Type.Optional(Type.Literal(true)),
 });
+
+/** One edge of a piece in a 3D EPP quilt: the placed piece, the rosette piece inside it when it's a
+ *  placed rosette, and the edge's index in its shape's outline (corner i to i + 1). */
+export const EppEdgeRef = Type.Object({
+  piece: Id,
+  part: Type.Optional(Id),
+  edge: Type.Integer({ minimum: 0, maximum: 23 }),
+});
+
+/** An explicit seam (3D): two equal edges that don't touch in 2D, sewn together. Edges that touch
+ *  in 2D are seams without one. */
+export const EppSeam = Type.Object({ a: EppEdgeRef, b: EppEdgeRef });
 
 const Box = Type.Tuple([Type.Number(), Type.Number(), Type.Number(), Type.Number()]);
 
@@ -96,6 +111,9 @@ export const EppDesign = Type.Object({
   box: Type.Optional(Box),
   /** Auto-close: the closing pieces, outlines in units where they sit, rebuilt with every edit. */
   closing: Type.Optional(Type.Array(InternalShape, { maxItems: 5000 })),
+  /** 3D: explicit seams, and the piece the quilter picked to face front. */
+  seams: Type.Optional(Type.Array(EppSeam, { maxItems: 5000 })),
+  front: Type.Optional(Type.Object({ piece: Id, part: Type.Optional(Id) })),
 });
 
 export type EppShape = Type.Static<typeof EppShape>;
@@ -105,4 +123,6 @@ export type Rosette = Type.Static<typeof Rosette>;
 export type EppPiece = Type.Static<typeof EppPiece>;
 export type EppEdge = Type.Static<typeof EppEdge>;
 export type EppLayout = Type.Static<typeof EppLayout>;
+export type EppEdgeRef = Type.Static<typeof EppEdgeRef>;
+export type EppSeam = Type.Static<typeof EppSeam>;
 export type EppDesign = Type.Static<typeof EppDesign>;

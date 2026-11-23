@@ -3,8 +3,10 @@
 import type { Fill } from '../schema/coloring';
 import type {
   EppEdge,
+  EppEdgeRef,
   EppLayout,
   EppPiece,
+  EppSeam,
   InternalShape,
   Rosette,
   RosettePiece,
@@ -25,16 +27,38 @@ import { DEFAULT_LICENSE } from '../credits';
 /** Defaults (owner, 2026-11-10): 1U = 2 in (5 cm). */
 export const eppDefaults = (units: Units) => (units === 'cm' ? { unit: 5 } : { unit: 2 });
 
-export function newEppQuilt(name: string, units: Units, unit?: number): Quilt {
+export function newEppQuilt(name: string, units: Units, unit?: number, threeD = false): Quilt {
   const layout: EppLayout = {
     style: 'epp',
     unit: unit ?? eppDefaults(units).unit,
     edge: { kind: 'none' },
+    ...(threeD ? { threeD: true as const } : {}),
   };
   return { ...createQuilt(name, layout, []), epp: { pieces: [] } };
 }
 
 export const isEpp = (q: Quilt): q is Quilt & { layout: EppLayout } => q.layout.style === 'epp';
+/** A 3D EPP quilt (spec 027 User Story 7): a net folded into an object. */
+export const is3d = (q: Quilt) => isEpp(q) && !!q.layout.threeD;
+
+/** Sew two edges that don't touch (3D). */
+export const addSeam = (q: Quilt, a: EppEdgeRef, b: EppEdgeRef): Quilt => ({
+  ...q,
+  epp: { ...q.epp!, seams: [...(q.epp?.seams ?? []), { a, b }] },
+});
+
+export function removeSeam(q: Quilt, seam: EppSeam): Quilt {
+  const { seams: old = [], ...rest } = q.epp!;
+  const seams = old.filter((x) => x !== seam);
+  return { ...q, epp: seams.length ? { ...rest, seams } : rest };
+}
+
+/** The piece that faces front in 3D (null: the default). */
+export function setFront(q: Quilt, front: { piece: string; part?: string } | null): Quilt {
+  const { front: _old, ...rest } = q.epp!;
+  void _old;
+  return { ...q, epp: front ? { ...rest, front } : rest };
+}
 
 /** The quilt's pieces as polygons in units (closing pieces not included). */
 export const piecePolys = (q: Quilt, lookup: EppLookup) =>
@@ -56,6 +80,14 @@ export function refresh(q: Quilt, lookup: EppLookup): Quilt {
   else delete epp.box;
   if (closing.length) epp.closing = closing;
   else delete epp.closing;
+  // 3D: seams and the front go with their pieces.
+  const ids = new Set(q.epp.pieces.map((p) => p.id));
+  if (epp.seams) {
+    const seams = epp.seams.filter((x) => ids.has(x.a.piece) && ids.has(x.b.piece));
+    if (seams.length !== epp.seams.length) epp.seams = seams;
+    if (!seams.length) delete epp.seams;
+  }
+  if (epp.front && !ids.has(epp.front.piece)) delete epp.front;
   return { ...q, epp };
 }
 
@@ -202,6 +234,16 @@ export function breakIntoPatches(q: Quilt, lookup: EppLookup, id: string): Quilt
     pieces: q.epp!.pieces.flatMap((x) => (x.id === id ? pieces : [x])),
   };
   if (added.length) epp.shapes = [...(q.epp?.shapes ?? []), ...added];
+  // 3D: seams and the front on the rosette's pieces move to the loose pieces (same shape edges).
+  const loose = new Map(leaves.map((l, i) => [l.part, pieces[i]!.id]));
+  const move = <T extends { piece: string; part?: string | undefined }>(e: T): T => {
+    if (e.piece !== id || !loose.has(e.part)) return e;
+    const out = { ...e, piece: loose.get(e.part)! };
+    delete out.part;
+    return out;
+  };
+  if (epp.seams) epp.seams = epp.seams.map((x) => ({ a: move(x.a), b: move(x.b) }));
+  if (epp.front) epp.front = move(epp.front);
   return { ...q, epp };
 }
 

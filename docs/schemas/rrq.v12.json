@@ -8170,6 +8170,10 @@
                             }
                           }
                         ]
+                      },
+                      "threeD": {
+                        "type": "boolean",
+                        "const": true
                       }
                     }
                   },
@@ -10264,6 +10268,79 @@
                       }
                     },
                     "maxItems": 5000
+                  },
+                  "seams": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "a",
+                        "b"
+                      ],
+                      "properties": {
+                        "a": {
+                          "type": "object",
+                          "required": [
+                            "piece",
+                            "edge"
+                          ],
+                          "properties": {
+                            "piece": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]{1,32}$"
+                            },
+                            "part": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]{1,32}$"
+                            },
+                            "edge": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 23
+                            }
+                          }
+                        },
+                        "b": {
+                          "type": "object",
+                          "required": [
+                            "piece",
+                            "edge"
+                          ],
+                          "properties": {
+                            "piece": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]{1,32}$"
+                            },
+                            "part": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]{1,32}$"
+                            },
+                            "edge": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 23
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "maxItems": 5000
+                  },
+                  "front": {
+                    "type": "object",
+                    "required": [
+                      "piece"
+                    ],
+                    "properties": {
+                      "piece": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9]{1,32}$"
+                      },
+                      "part": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9]{1,32}$"
+                      }
+                    }
                   }
                 }
               }

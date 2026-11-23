@@ -28,12 +28,13 @@ export interface Check {
   to?: string;
   /** The owner's note from the last round this check (or the fix it checks) answers. */
   last?: string;
-  /** A sample file to try it with (test/fixtures/formats/<file>), offered for download. */
+  /** A sample file to try it with (test/fixtures/formats/<file>, or test/fixtures/<file>),
+   *  offered for download. */
   file?: string;
 }
 
 const samples = import.meta.glob<string>(
-  '/test/fixtures/formats/*.{rrq,rrqlib,rrqbl,rrqplt,rrqconf}',
+  ['/test/fixtures/formats/*.{rrq,rrqlib,rrqbl,rrqplt,rrqconf}', '/test/fixtures/epp3d-demo.rrq'],
   {
     query: '?url',
     import: 'default',
@@ -41,7 +42,8 @@ const samples = import.meta.glob<string>(
   },
 );
 /** A sample's download address (undefined if there's no such file). */
-export const sampleUrl = (file: string) => samples[`/test/fixtures/formats/${file}`];
+export const sampleUrl = (file: string) =>
+  samples[`/test/fixtures/formats/${file}`] ?? samples[`/test/fixtures/${file}`];
 
 const G = {
   files: 'Every release',
@@ -60,6 +62,7 @@ const G = {
   swirl025: 'Swirl and Pinwheel data blocks, traces in block pictures (spec 025)',
   make041: 'Data Quilts: data entry and printed instructions (spec 041)',
   epp027: 'English paper piecing: shapes, rosettes, EPP section (specs 027, 050)',
+  epp3d: '3D EPP (spec 027 User Story 7)',
 };
 
 export const CHECKS: Check[] = [
@@ -260,6 +263,45 @@ export const CHECKS: Check[] = [
     group: G.epp027,
     text: 'Shape editor › Multi-shape: Save as shapes, below Save as rosette (disabled until lines make two or more pieces). New shape (a square), draw one diagonal: Save as shapes says every piece is a shape you already have (Half Square). Clear lines, draw both diagonals: Saved 1 shape (four identical triangles make one), the project’s EPP tab opens with it under Mine, named after the shape (New shape 1). Open it: centered, its new edges marked orange if not whole units. A line making two different pieces: two shapes. Save as rosette still works as before.',
     last: 'let’s add a "save as shapes" button below "save as rosette" in the epp shape editor',
+    to: '/project',
+  },
+  {
+    id: 'TC-306',
+    group: G.epp3d,
+    text: 'Open the 3D EPP demo (download it here). Project › EPP: 17 items, eleven 3D designs with a 3D badge and their nets as pictures (Star pillow first, Soccer ball last), the d10 Kite under Mine; the 3D filter shows only the designs. Quilts (0): 3D designs aren’t listed there. Save and reopen: all still there.',
+    file: 'epp3d-demo.rrq',
+    to: '/project',
+  },
+  {
+    id: 'TC-307',
+    group: G.epp3d,
+    text: 'Open each demo design’s 3D assembly tab: d4, d6, d8, d10, d12, d20, hexagonal prism, truncated tetrahedron and soccer ball fold shut in a few seconds ("Folded: every seam closes. A closed shape, right side out."), then turn to face you with the design’s up up. Drag turns the view, wheel or pinch zooms. A click explodes the object with glowing stitches across every seam, another click closes it; a drag leaves it as it was. Double-click a piece: it turns to the front (the Design tab rings it), Default front undoes that. Lighting: a fixed light above and in front, each piece shaded only by itself.',
+    last: 'fixed light & shadows works well; stitches for the explode mode',
+    to: '/project',
+  },
+  {
+    id: 'TC-308',
+    group: G.epp3d,
+    text: 'Stuffing. A closed design shows "Can be stuffed" (green) and Stuff: the cube rounds to about 1.28 U³, the soccer ball to about 58 U³, the side panel shows the volume in U³ and cubic inches and the stretch. Unstuff goes back. Star pillow and Twisted pincushion: the fold reports seams not closing, with the note that stuffing might close them; Stuff closes them (star points interlock: each point of one star meets a notch of the other). Firmness is the prototype’s firmest, with no setting. A new 3D design with no pieces, or a design with a free edge, shows "Can’t be stuffed" and why (how many edges are free), with Stuff off.',
+    last: 'firmness to the max of the slider; we should have a clear indication of if the current design is allowed to be stuffed as well as a callout why it isn’t; let’s add a note that when it can’t be joined but stuffing might help',
+    to: '/project',
+  },
+  {
+    id: 'TC-309',
+    group: G.epp3d,
+    text: 'EPP tab › New 3D design: opens a new 3D design (Details, Layout, Design, 3D assembly, Print, 3D Print; no Borders). Layout shows 1U and the seam allowance, no Edge. Place five 60° diamonds in a fan in the Design tab, choose the Seam tool, tap the fifth diamond’s free outer edge then the first’s: both turn the same color with a 1 outside them, the readout counts 1 seam. 3D assembly: a shallow five-point star (every hinge about 42°), "Can’t be stuffed" (edges free). Tap a numbered edge with the Seam tool: the seam goes. Tapping an edge that touches its neighbor, two edges of one piece, or edges of different lengths says why nothing was sewn.',
+    to: '/project',
+  },
+  {
+    id: 'TC-310',
+    group: G.epp3d,
+    text: 'Seams follow their pieces: in a 3D design, sew an edge of a placed rosette’s piece to another piece, then Break into patches: the seam stays on the same edge. Turn or mirror a sewn piece: the seam stays on its edge (it may then not close). Delete a sewn piece: its seams go. Undo brings them back.',
+    to: '/project',
+  },
+  {
+    id: 'TC-311',
+    group: G.epp3d,
+    text: 'Print a demo design (d12): the quilt picture shows each seam’s two edges in the seam’s color with its number (one number between two edges that meet at a corner), with no edge line round the picture; paper and fabric templates as for any EPP quilt.',
     to: '/project',
   },
 ];

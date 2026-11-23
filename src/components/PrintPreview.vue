@@ -581,6 +581,27 @@
                   stroke="#000"
                   :stroke-width="(stroke / s.scale) * 1.5"
                 />
+                <!-- A 3D EPP quilt: each explicit seam's edges, numbered (spec 027 US7). -->
+                <g v-for="(m, j) in s.seams ?? []" :key="`seam${j}`">
+                  <path
+                    :d="m.d"
+                    fill="none"
+                    :stroke="m.css"
+                    :stroke-width="(stroke / s.scale) * 3"
+                  />
+                  <text
+                    v-if="m.at"
+                    :x="m.at[0]"
+                    :y="m.at[1]"
+                    :fill="m.css"
+                    :font-size="m.size"
+                    font-weight="bold"
+                    text-anchor="middle"
+                    dominant-baseline="central"
+                  >
+                    {{ m.n }}
+                  </text>
+                </g>
                 <g v-if="s.overlay">
                   <clipPath v-if="s.overlay.shade" :id="`quilt${i}`">
                     <rect
@@ -737,7 +758,9 @@ import {
 } from '@/model/credits';
 import { pathToSegs, flattenLoop, sub, type Pt } from '@/model/geometry/path';
 import { projectSeams } from '@/model/seams';
-import { lookupEpp } from '@/model/epp/expand';
+import { expandAll, lookupEpp, type EppLookup } from '@/model/epp/expand';
+import { seamMarks } from '@/model/epp/net';
+import { is3d } from '@/model/epp/quilt-ops';
 import { eppQuiltPieces, rosettePieces, shapeAsRosette } from '@/model/epp/print';
 import { generateFor } from '@/model/layout/slots';
 import { fmtFabric, fmtLen, splitApprox } from '@/model/print/format';
@@ -1065,6 +1088,8 @@ interface View {
   legend?: { label: string; items: { fill: string; text: string }[] }[];
   /** Picture: outlines (+ fills) in their own coordinates. */
   picture: { d: string; css: string }[];
+  /** A 3D EPP quilt's picture: each explicit seam's edges and number (spec 027 US7). */
+  seams?: { d: string; css: string; n: number; at: Pt | null; size: number }[];
   pictureBox: readonly [number, number, number, number];
   /** Quilts: the outer edge (pieces are clipped to it) and whether to trim to it after piecing. */
   edge?: Pt[];
@@ -1221,6 +1246,8 @@ function eppQuiltView(dd: RrqDoc, quilt: Quilt): View {
   const xs = pieces.flatMap((p) => p.poly.map((q) => q[0]));
   const ys = pieces.flatMap((p) => p.poly.map((q) => q[1]));
   const [kx, ky] = [Math.min(...xs), Math.min(...ys)];
+  const threeD = is3d(quilt) && quilt.layout.style === 'epp';
+  const u = quilt.layout.style === 'epp' ? quilt.layout.unit : 1;
   return {
     title: quilt.notecard.name,
     size:
@@ -1240,11 +1267,26 @@ function eppQuiltView(dd: RrqDoc, quilt: Quilt): View {
       ...pieces.map((p) => ({ d: d(p.poly), css: shapeFill(p.fill) })),
     ],
     pictureBox: g.bounds,
-    edge: flattenLoop(pathToSegs(g.edge, [1, 1]), 0.01),
+    // A 3D quilt has no edge: its seams instead.
+    ...(threeD
+      ? { seams: seamPicture(quilt, lookup, u) }
+      : { edge: flattenLoop(pathToSegs(g.edge, [1, 1]), 0.01) }),
     trim: g.trim,
     blockSize: pieces.length ? [Math.max(...xs) - kx, Math.max(...ys) - ky] : [1, 1],
     keyPieces: pieces.map((p) => ({ ...p, poly: p.poly.map(([x, y]): Pt => [x - kx, y - ky]) })),
   };
+}
+
+/** A 3D EPP quilt's explicit seams on its picture, in project units (`u` per 1U). */
+function seamPicture(quilt: Quilt, lookup: EppLookup, u: number): NonNullable<View['seams']> {
+  const leaves = expandAll(quilt.epp?.pieces ?? [], lookup);
+  return seamMarks(leaves, quilt.epp?.seams ?? [], 0.22).map((m) => ({
+    d: d(m.edge.map(([x, y]): Pt => [x * u, y * u])),
+    css: m.color,
+    n: m.n,
+    at: m.label && [m.label[0] * u, m.label[1] * u],
+    size: 0.3 * u,
+  }));
 }
 
 /** A rosette (spec 050 FR-006a): its pieces at the chosen 1U length, for the chosen number. */
@@ -1433,6 +1475,7 @@ type Sheet = (
       heading: string;
       legend?: View['legend'];
       polys: { d: string; css: string }[];
+      seams?: View['seams'];
       edge?: string | undefined;
       trim?: boolean | undefined;
       /** The quilt's reference overlay (print option, when enabled in Layout). */
@@ -1590,7 +1633,14 @@ const logical = computed<Sheet[]>(() => {
         prefs.value.showOverlay && q?.target?.visible
           ? placeTarget(q.target, [...v.pictureBox] as [number, number, number, number])
           : null;
-      const box = v.pictureBox;
+      // A 3D quilt's seam numbers sit outside its pieces: room for them.
+      const pad = v.seams?.[0]?.size ?? 0;
+      const box = [
+        v.pictureBox[0] - pad,
+        v.pictureBox[1] - pad,
+        v.pictureBox[2] + pad,
+        v.pictureBox[3] + pad,
+      ] as const;
       const [x0, y0, x1, y1] = placed
         ? [
             Math.min(box[0], placed.box[0]),
@@ -1618,6 +1668,7 @@ const logical = computed<Sheet[]>(() => {
         heading: isBlock ? 'Block' : 'Quilt',
         ...(v.legend ? { legend: v.legend } : {}),
         polys: v.picture,
+        ...(v.seams ? { seams: v.seams } : {}),
         edge: v.edge && d(v.edge),
         trim: v.trim,
         overlay: placed

@@ -14,7 +14,7 @@
     </div>
     <div class="row items-center no-wrap">
       <q-tabs v-model="tab" dense no-caps align="left" class="col proj-tabs">
-        <q-tab name="quilts" :label="`Quilts (${quilts.length})`" />
+        <q-tab name="quilts" :label="`Quilts (${quilts.filter((q) => !is3d(q)).length})`" />
         <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
         <q-tab name="colors" :label="`Palettes (${ownPalettes.length + pickedPalettes.length})`" />
         <q-tab name="epp" :label="`EPP (${eppCount})`" />
@@ -77,7 +77,7 @@
       </div>
       <div
         v-for="(q, i) in quilts"
-        v-show="quiltKind === 'all' || (quiltKind === 'data') === !!q.data?.on"
+        v-show="!is3d(q) && (quiltKind === 'all' || (quiltKind === 'data') === !!q.data?.on)"
         :key="q.id"
         class="card"
         :class="[quiltGlow(i), { dragged: quiltFrom === i }]"
@@ -1478,6 +1478,7 @@ import { describeSlot } from '@/model/plain';
 import type { Block, DataKind } from '@/model/schema/block';
 import { saveBlockImage, saveQuiltImage } from '@/render/save-image';
 import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
+import { is3d } from '@/model/epp/quilt-ops';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
@@ -1600,7 +1601,9 @@ const inUseDialog = ref<{
 /** EPP shapes and rosettes of this project (spec 027 FR-013). */
 const eppCount = computed(
   () =>
-    (project.doc?.project.eppShapes?.length ?? 0) + (project.doc?.project.rosettes?.length ?? 0),
+    (project.doc?.project.eppShapes?.length ?? 0) +
+    (project.doc?.project.rosettes?.length ?? 0) +
+    (project.doc?.project.quilts ?? []).filter(is3d).length,
 );
 const tab = computed({
   get: () => settings.settings.projectTab,

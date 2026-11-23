@@ -223,6 +223,25 @@ limits are listed in the plan's research).
 
 ---
 
+## Phase 12: 3D EPP (spec User Story 7; owner 2026-11-23: ships in 0.9.0)
+
+Branch `027-epp-3d` off `027-epp-layouts`, merged back before the release. Prototypes:
+`prototypes/epp3d/fold.html` and `stuff.html` on `proto/epp-3d`. Tagged [3D] (this file's US7 is
+multi-select).
+
+- [X] T092 [3D] Format (rrq v12, unreleased): `EppLayout.threeD`, `EppDesign.seams` (`EppSeam`, `EppEdgeRef`) and `front` in src/model/schema/epp.ts; dangling seam and front pieces reported by `danglingReferences` (src/model/io.ts); published schema regenerated
+- [X] T093 [3D] Fold solver src/model/epp/fold.ts (rigid plates, hinged seams, curl start, settle, `foldReport`, `openEdges`, front and `turnToFront`) and stuffing src/model/epp/stuff.ts (fabric under pressure at the firmest setting); src/model/epp/net.ts (quilt → net: y flipped, seam ends by shape edge, `seamsAt`, `seamMarks`); quilt ops `is3d`, `addSeam`, `removeSeam`, `setFront`, seams follow `breakIntoPatches` and go with deleted pieces; tests test/vitest/__tests__/model/epp/fold.spec.ts
+- [X] T094 [3D] 3D assembly tab src/components/EppAssembly.vue (three.js 0.187, loaded on first use): fold, explode with stitches, fixed light with self-shadows, front, Stuff with "Can be stuffed" or why not, the note when stuffing might close what the fold can't (owner, 2026-11-23); tab and mode `assembly` in src/pages/QuiltEditorPage.vue, no Borders tab and no Edge for 3D quilts (TC-307, TC-308)
+- [X] T095 [3D] Seam tool in src/components/EppDesign.vue (3D quilts): tap a free edge then an equal edge on another piece, tap a numbered edge to unpick; seams drawn in color with their numbers, the front piece ringed, seams counted in the readout (TC-309, TC-310)
+- [X] T096 [3D] Project EPP tab (src/components/EppItems.vue): 3D filter, New 3D design, cards with a 3D badge (open, print, copy, delete); not listed under Quilts (src/pages/SketchbookPage.vue) (TC-306, TC-309)
+- [X] T097 [3D] Print: the quilt picture of a 3D quilt shows each explicit seam's edges, colored and numbered, and no edge line (src/components/PrintPreview.vue `seamPicture`) (TC-311)
+- [X] T098 [3D] Demo project test/fixtures/epp3d-demo.rrq (owner, 2026-11-23): star pillow (stars turned half a point, interlocking), twisted pincushion, d4, d6 (one assembly), d8, d10 (kites, a project shape), d12, d20, hexagonal prism, truncated tetrahedron, soccer ball; written by test/vitest/__tests__/model/epp/demo3d.spec.ts with `EPP3D_DEMO=<file>` (designs in designs3d.ts), which checks each folds shut or closes once stuffed; offered in the checklist (TC-306)
+- [X] T099 [3D] Help src/help/guides/epp-3d.md, linked from the 3D assembly tab
+- [ ] T100 [3D] Link the demo from the help once the owner hosts it as a gist
+- [ ] T101 [3D] CLAUDE.md: 3D EPP (model/epp fold, stuff, net; EppAssembly; three.js) with T069
+
+---
+
 ## Dependencies & Execution Order
 
 - Phase 1 → Phase 2 (all stories need the schema, geometry, library branches, canvas).

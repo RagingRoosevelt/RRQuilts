@@ -22,7 +22,8 @@
         The project’s EPP seam allowance, for every EPP quilt and rosette in it.
       </div>
     </div>
-    <div>
+    <!-- A 3D EPP quilt folds into an object: no edge, borders or binding. -->
+    <div v-if="!layout.threeD">
       <div class="text-subtitle2">Edge</div>
       <SlidePicker
         :model-value="layout.edge.kind"
@@ -93,7 +94,7 @@
 
 <script setup lang="ts">
 // An EPP quilt's Layout tab (spec 027 FR-001, FR-001a): the length of 1U, the project's EPP seam
-// allowance and the edge. Custom trim waits for spec 055 (owner, 2026-11-10).
+// allowance and the edge (not for 3D). Custom trim waits for spec 055 (owner, 2026-11-10).
 import { computed } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import SlidePicker from '@/components/SlidePicker.vue';

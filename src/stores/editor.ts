@@ -6,7 +6,8 @@ import type { DataKind } from '@/model/schema/block';
 import type { StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
 
-export type Mode = 'layout' | 'borders' | 'design' | 'print' | 'print3d' | 'details';
+/** `assembly`: a 3D EPP quilt's 3D assembly tab (spec 027 User Story 7). */
+export type Mode = 'layout' | 'borders' | 'design' | 'assembly' | 'print' | 'print3d' | 'details';
 /** `number`: a data quilt's brush, placing numbers on block spaces; `entry`: its Data tab, a tap
  *  on a day's piece opens that day's entry (spec 025). */
 export type Tool =

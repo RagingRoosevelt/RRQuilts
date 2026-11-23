@@ -8,8 +8,9 @@
       <q-tabs v-model="editor.mode" dense no-caps inline-label class="col">
         <q-tab name="details" icon="info" label="Details" />
         <q-tab name="layout" icon="grid_on" label="Layout" />
-        <q-tab name="borders" icon="crop_square" label="Borders" />
+        <q-tab v-if="!is3d" name="borders" icon="crop_square" label="Borders" />
         <q-tab name="design" icon="palette" label="Design" />
+        <q-tab v-if="is3d" name="assembly" icon="3d_rotation" label="3D assembly" />
         <q-tab name="print" icon="print" label="Print" />
         <q-tab name="print3d" icon="view_in_ar" label="3D Print" />
       </q-tabs>
@@ -28,6 +29,12 @@
 
     <!-- An EPP quilt's Design tab (spec 027): its own canvas, tools and picker. -->
     <EppDesign v-if="isEpp && editor.mode === 'design'" :quilt="quilt" :sidebar="editor.sidebar" />
+    <!-- A 3D EPP quilt's 3D assembly tab (spec 027 User Story 7). -->
+    <EppAssembly
+      v-else-if="is3d && editor.mode === 'assembly'"
+      :quilt="quilt"
+      :sidebar="editor.sidebar"
+    />
     <div
       v-else
       class="row col no-wrap"
@@ -292,6 +299,7 @@
 </template>
 
 <script setup lang="ts">
+import EppAssembly from '@/components/EppAssembly.vue';
 import EppDesign from '@/components/EppDesign.vue';
 import EppLayoutSection from '@/components/EppLayoutSection.vue';
 import { ERASER } from '@/components/icons';
@@ -340,6 +348,7 @@ import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
 import { takesBlock } from '@/editor/scope';
 import { STRIP_STYLES, stripOf, swapStrips, setStrip } from '@/model/layout/strips';
+import { is3d as is3dQuilt } from '@/model/epp/quilt-ops';
 import { applyLayout, generateFor, reconcile, type Bounds } from '@/model/layout/slots';
 import { PLAIN_BLOCK, slotGroup } from '@/model/plain';
 import type { Border, Layout, QuiltTarget, StripLayout, StripStyle } from '@/model/schema/quilt';
@@ -377,6 +386,15 @@ const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === ro
 const stl = useStl(() => (quilt.value ? { kind: 'quilt', id: quilt.value.id } : null));
 /** An EPP quilt (spec 027), and whether its edge is finished (borders need one). */
 const isEpp = computed(() => quilt.value?.layout.style === 'epp');
+/** A 3D EPP quilt: a 3D assembly tab, no borders. */
+const is3d = computed(() => !!quilt.value && is3dQuilt(quilt.value));
+watch(
+  [is3d, () => editor.mode],
+  ([d, m]) => {
+    if ((m === 'assembly' && !d) || (m === 'borders' && d)) editor.mode = 'design';
+  },
+  { immediate: true },
+);
 const eppEdgeMade = computed(
   () => quilt.value?.layout.style === 'epp' && quilt.value.layout.edge.kind !== 'none',
 );
@@ -441,6 +459,7 @@ const QUILT_HELP: Record<string, { topic: string; label: string }> = {
   design: { topic: 'guides/designing-a-quilt', label: 'Designing a quilt' },
   print: { topic: 'guides/printing', label: 'Printing' },
   print3d: { topic: 'guides/printing#3d-printed-templates', label: '3D-printed templates' },
+  assembly: { topic: 'guides/epp-3d', label: '3D EPP' },
 };
 const help = computed(() =>
   editor.mode === 'design' && quilt.value?.data?.on
