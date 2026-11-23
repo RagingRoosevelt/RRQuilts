@@ -253,6 +253,7 @@ multi-select).
 - [X] T115 [3D] 3D EPP quilts only under Quilts: the EPP tab lists shapes and rosettes again (no 3D filter, cards or New 3D design; src/components/EppItems.vue), its count without them (owner, 2026-11-23; TC-326)
 - [X] T116 Temperature quilts demo public/demo/temperature.rrq (365 days of highs, a month per row, highs and lows by week; a year of sample entries, the first weeks cut and sewn), written and checked by test/vitest/__tests__/model/temperature-demo.spec.ts (`TEMPERATURE_DEMO`); linked from guides/data-quilts.md (owner, 2026-11-23; TC-328)
 - [X] T117 Demos in the welcome wizard (a Demos step after Help) and on the home page (Open a demo, right of Open from a gist): src/components/DemoList.vue from `DEMOS` (src/storage/demo.ts), opened by src/composables/open-demo.ts (also behind `?open_url=`); help in guides/getting-started.md (owner, 2026-11-23; TC-328)
+- [ ] T118 `?open_url=` should open any link, not only the app's demos (bug: specs/bugs/open-url-any-url.md; needs a Principle II exception; owner, 2026-11-23)
 - [X] T100 [3D] Link the demo from the help (guides/epp-3d.md links `/?open_url=3d-epp.rrq`; first planned as a gist)
 - [ ] T101 [3D] CLAUDE.md: 3D EPP (model/epp fold, stuff, net; EppAssembly; three.js) with T069
 
