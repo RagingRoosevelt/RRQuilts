@@ -45,7 +45,8 @@ expansion to polygons.
 | unit | number (project units) | 1/4 in to 6 in (or cm equivalent); default 1 in / 2.5 cm |
 | seam | number | default 3/8 in / 1 cm |
 | edge | `{ kind: 'none' }` \| `{ kind: 'cut', rect: [x0, y0, x1, y1] }` \| `{ kind: 'close', fill?: Fill }` \| `{ kind: 'custom', outline: PathCommand[] }` | borders and binding only when kind ≠ none (clarify Q4) |
-| threeD | `true`, optional | a 3D EPP quilt (User Story 7, owner 2026-11-23: in v12): edge `none`, no borders, a 3D assembly tab, listed in the project's EPP tab |
+| threeD | `true`, optional | a 3D EPP quilt (User Story 7, owner 2026-11-23: in v12): edge `none`, no borders, a 3D assembly tab, a 3D badge in the project's quilts and EPP tab |
+| stuffed | `true`, optional | 3D: a stuffed design (Layout and 3D assembly tabs); the 3D assembly tab shows it stuffed |
 
 **quilt.epp**:
 

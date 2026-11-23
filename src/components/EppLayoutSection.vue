@@ -12,9 +12,23 @@
       <div class="text-caption text-grey-7 q-mt-xs">
         {{
           layout.threeD
-            ? 'Sewn into an object: it has a 3D assembly tab and is listed in the project’s EPP tab. Turned off, its seams wait unused until it is 3D again.'
+            ? 'Sewn into an object: it has a 3D assembly tab, and a 3D badge among the project’s quilts and in its EPP tab. Turned off, its seams wait unused until it is 3D again.'
             : 'Sew the pieces into an object instead. A 3D design has no edge or borders, so turning this on removes them (Undo brings them back).'
         }}
+      </div>
+    </div>
+    <!-- The design's stuffing setting, also in the 3D assembly tab (owner, 2026-11-23). -->
+    <div v-if="layout.threeD">
+      <q-toggle
+        :model-value="!!layout.stuffed"
+        dense
+        label="Stuffed design"
+        :disable="readonly"
+        @update:model-value="(on: boolean) => change((q) => setStuffedDesign(q, on))"
+      />
+      <div class="text-caption text-grey-7 q-mt-xs">
+        Filled with stuffing once sewn. The 3D assembly tab shows it stuffed, and its Show stuffing
+        switch hides the stuffing in that view only.
       </div>
     </div>
     <LengthInput
@@ -117,7 +131,7 @@ import LengthInput from '@/components/LengthInput.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { fillFor } from '@/editor/paint';
 import { lookupEpp } from '@/model/epp/expand';
-import { refresh, setEdge } from '@/model/epp/quilt-ops';
+import { refresh, setEdge, setStuffedDesign } from '@/model/epp/quilt-ops';
 import { useProjectSeams } from '@/composables/seams';
 import { seamStep } from '@/model/seams';
 import type { EppEdge, EppLayout } from '@/model/schema/epp';

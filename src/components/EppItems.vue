@@ -29,8 +29,9 @@
         <div>Import <span class="text-caption">.rrqepp</span></div>
       </button>
     </div>
-    <!-- 3D EPP quilts (spec 027 User Story 7): listed here with a 3D badge, not under Quilts. In a
-         block box: Firefox stretches a grid's rows straight inside a flex column. -->
+    <!-- 3D EPP quilts (spec 027 User Story 7): listed here with a 3D badge, and under Quilts as
+         2D EPP quilts are (owner, 2026-11-23). In a block box: Firefox stretches a grid's rows
+         straight inside a flex column. -->
     <div v-if="designs.length && (filter === 'all' || filter === '3d')">
       <div class="designs">
         <div v-for="q in designs" :key="q.id" class="card">
@@ -532,6 +533,6 @@ function remove(c: Card) {
 .badge3d {
   position: absolute;
   top: 6px;
-  left: 6px;
+  right: 6px;
 }
 </style>

@@ -11,6 +11,7 @@ import { lookupEpp } from '@/model/epp/expand';
 import { buildFold, foldReport, solveFold } from '@/model/epp/fold';
 import { centroid } from '@/model/epp/geometry';
 import { quiltNet } from '@/model/epp/net';
+import { setStuffedDesign } from '@/model/epp/quilt-ops';
 import { buildCloth, pieceMesh, solveCloth } from '@/model/epp/stuff';
 import { DEFAULT_LICENSE } from '@/model/credits';
 import { itemId } from '@/model/identity';
@@ -39,7 +40,7 @@ import {
 const out = process.env.EPP3D_DEMO;
 const AUTHOR = 'RRQuilts contributors';
 
-/** Name, design, and whether it closes by folding or only once stuffed. */
+/** Name, design, whether it closes by folding or only once stuffed. */
 const DESIGNS: [string, () => Design, 'fold' | 'stuff'][] = [
   ['Star pillow', starPillow, 'stuff'],
   ['Twisted pincushion', twistedPincushion, 'stuff'],
@@ -53,6 +54,9 @@ const DESIGNS: [string, () => Design, 'fold' | 'stuff'][] = [
   ['Truncated tetrahedron', truncatedTetrahedron, 'fold'],
   ['Soccer ball', soccerBall, 'fold'],
 ];
+
+/** Stuffed designs (the Stuffed design setting): the pillows, and the ball. */
+const STUFFED = new Set(['Star pillow', 'Twisted pincushion', 'Soccer ball']);
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const fill = (color: string) => ({ color: `rrquilts.${slug(color)}` });
@@ -79,11 +83,14 @@ async function demo(): Promise<RrqDoc> {
   const kite = kiteShape();
   const known = [...shapes, kite];
   const lookup = lookupEpp({ eppShapes: known, rosettes });
-  const quilts = DESIGNS.map(([name, d]) => ({
-    ...designQuilt(d(), name, known, lookup, fill),
-    author: AUTHOR,
-    license: DEFAULT_LICENSE,
-  }));
+  const quilts = DESIGNS.map(([name, d]) => {
+    const q = designQuilt(d(), name, known, lookup, fill);
+    return {
+      ...(STUFFED.has(name) ? setStuffedDesign(q, true) : q),
+      author: AUTHOR,
+      license: DEFAULT_LICENSE,
+    };
+  });
   const doc = createProject('3D EPP demo', 'in', 'demo');
   return produce(doc, (d) => {
     d.project.license = DEFAULT_LICENSE;
@@ -103,6 +110,7 @@ describe('3D EPP demo project', () => {
       const m = solveFold(buildFold(quiltNet(q, lookup).net));
       const r = foldReport(m);
       expect(m.closed, name).toBe(true);
+      expect(q.layout.style === 'epp' && !!q.layout.stuffed, name).toBe(STUFFED.has(name));
       if (closes === 'fold') {
         expect(r.open, name).toEqual([]);
         expect(r.volume, name).toBeGreaterThan(0);

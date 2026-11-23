@@ -14,7 +14,7 @@
     </div>
     <div class="row items-center no-wrap">
       <q-tabs v-model="tab" dense no-caps align="left" class="col proj-tabs">
-        <q-tab name="quilts" :label="`Quilts (${quilts.filter((q) => !is3d(q)).length})`" />
+        <q-tab name="quilts" :label="`Quilts (${quilts.length})`" />
         <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
         <q-tab name="colors" :label="`Palettes (${ownPalettes.length + pickedPalettes.length})`" />
         <q-tab name="epp" :label="`EPP (${eppCount})`" />
@@ -77,7 +77,7 @@
       </div>
       <div
         v-for="(q, i) in quilts"
-        v-show="!is3d(q) && (quiltKind === 'all' || (quiltKind === 'data') === !!q.data?.on)"
+        v-show="quiltKind === 'all' || (quiltKind === 'data') === !!q.data?.on"
         :key="q.id"
         class="card"
         :class="[quiltGlow(i), { dragged: quiltFrom === i }]"
@@ -95,6 +95,7 @@
             />
           </button>
           <QuiltColorways :quilt="q" :readonly="project.readOnly" />
+          <q-badge v-if="is3d(q)" color="primary" class="badge3d">3D</q-badge>
         </div>
         <div class="row items-center no-wrap">
           <button
@@ -3197,6 +3198,12 @@ watch(
   position: absolute;
   top: 12px;
   left: 12px;
+}
+/* A 3D EPP quilt (spec 027 User Story 7), as in the EPP tab. */
+.card .badge3d {
+  position: absolute;
+  top: 6px;
+  right: 6px;
 }
 .card .pick-box {
   position: absolute;

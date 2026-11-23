@@ -8174,6 +8174,10 @@
                       "threeD": {
                         "type": "boolean",
                         "const": true
+                      },
+                      "stuffed": {
+                        "type": "boolean",
+                        "const": true
                       }
                     }
                   },

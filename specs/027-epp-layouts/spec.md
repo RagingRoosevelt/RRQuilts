@@ -376,7 +376,10 @@ fifth diamond's free edge to the first's; the 3D assembly tab shows a shallow fi
    borders); an EPP quilt's Layout tab has the same toggle, either way (turning 3D on removes the
    edge and borders, turning it off keeps the seams unused). Owner, 2026-11-23: "the interface when
    the epp option has been picked should have a toggle for 3d epp mode" and "we don't appear to
-   have the toggle for epp in layout of the quilt design, either". The 3D assembly tab splits its
+   have the toggle for epp in layout of the quilt design, either". 3D EPP quilts are listed with the
+   project's quilts as 2D EPP quilts are, with a 3D badge, and in the EPP tab too. Owner,
+   2026-11-23: "3d epp quilts should show up in the projects quilt tab just like 2d epp quilts do".
+   The 3D assembly tab splits its
    view: the flat net (seams editable there too, those the fold can't close in red, the front
    ringed) above the 3D view, or beside it by a setting (Settings › Interface › 3D EPP: vertical
    or horizontal split, vertical by default). Owner, 2026-11-23: "the 3d assembly section should
@@ -402,9 +405,16 @@ fifth diamond's free edge to the first's; the 3D assembly tab shows a shallow fi
    "Let's make a new copy of the prototype to do a physical stuffer. Let's do the fold solve first
    then the stuffing sim. I expect that we'll have shapes that don't have a fold solution until
    stuffed." (prototype `prototypes/epp3d/stuff.html`). In the app (owner, 2026-11-23): only
-   physical stuffing, at the prototype's firmest setting, with no firmness setting; **Stuff** is
-   offered only for a closed design (every edge sewn), and the 3D view always says whether the
-   design can be stuffed and, when it can't, why (edges left open, or the fold still running).
+   physical stuffing, at the prototype's firmest setting, with no firmness setting. **Stuffed
+   design** is a quilt setting (`layout.stuffed`), in the Layout tab (3D quilts only) and in the
+   3D assembly tab; a stuffed design stuffs once folded and turned to its front, and the tab's
+   **Show stuffing (this view)** switch hides or shows the stuffing without saving anything.
+   Owner, 2026-11-23: "Stuffing should be a quilt setting with a toggle in the assbly interface to
+   show or hide the stuffing. The setting should be in layout and visible only if it's a 3d epp
+   quilt and it should be available as well in the 3d assembly interface. The label for the view
+   toggle and the setting should be clearly distinguished". Only a closed design (every edge sewn)
+   stuffs, and the 3D view says whether the design can be stuffed and, when it can't, why (edges
+   left open, or the fold still running).
    When a closed design's seams don't all close as flat pieces, it says stuffing might close the
    rest.
    **Explode**: a single click on the folded object toggles explode mode, where every piece moves

@@ -266,24 +266,10 @@ export const CHECKS: Check[] = [
     to: '/project',
   },
   {
-    id: 'TC-306',
-    group: G.epp3d,
-    text: 'Open the 3D EPP demo (download it here). Project › EPP: 17 items, eleven 3D designs with a 3D badge and their nets as pictures (Star pillow first, Soccer ball last), the d10 Kite under Mine; the 3D filter shows only the designs. Quilts (0): 3D designs aren’t listed there. Save and reopen: all still there.',
-    file: 'epp3d-demo.rrq',
-    to: '/project',
-  },
-  {
     id: 'TC-307',
     group: G.epp3d,
     text: 'Open each demo design’s 3D assembly tab: d4, d6, d8, d10, d12, d20, hexagonal prism, truncated tetrahedron and soccer ball fold shut in a few seconds ("Folded: every seam closes. A closed shape, right side out."), then turn to face you with the design’s up up. Drag turns the view, wheel or pinch zooms. A click explodes the object with glowing stitches across every seam, another click closes it; a drag leaves it as it was. Double-click a piece: it turns to the front (the Design tab rings it), Default front undoes that. Lighting: a fixed light above and in front, each piece shaded only by itself.',
     last: 'fixed light & shadows works well; stitches for the explode mode',
-    to: '/project',
-  },
-  {
-    id: 'TC-308',
-    group: G.epp3d,
-    text: 'Stuffing. A closed design shows "Can be stuffed" (green) and Stuff: the cube rounds to about 1.28 U³, the soccer ball to about 58 U³, the side panel shows the volume in U³ and cubic inches and the stretch. Unstuff goes back. Star pillow and Twisted pincushion: the fold reports seams not closing, with the note that stuffing might close them; Stuff closes them (star points interlock: each point of one star meets a notch of the other). Firmness is the prototype’s firmest, with no setting. A new 3D design with no pieces, or a design with a free edge, shows "Can’t be stuffed" and why (how many edges are free), with Stuff off.',
-    last: 'firmness to the max of the slider; we should have a clear indication of if the current design is allowed to be stuffed as well as a callout why it isn’t; let’s add a note that when it can’t be joined but stuffing might help',
     to: '/project',
   },
   {
@@ -323,6 +309,21 @@ export const CHECKS: Check[] = [
     group: G.epp3d,
     text: 'Demo › Star pillow › 3D assembly: the flat design on top, the 3D view below, a line between. Its seams show red and dashed (the fold can’t close them), the front piece ringed. Tap a numbered edge in the flat design: the seam goes and the object folds again; Undo brings it back; tap two equal free edges: a new seam. Settings › Interface › 3D EPP › Horizontal split: the flat design left, 3D right, both stars in view; back to Vertical. The 3D view keeps turning, exploding and stuffing as before in both.',
     last: 'the 3d assembly section should have a vertical viewport split for the 2d seam assembly on top and the 3d preview on the bottom. there should be an option in app user preferences/interface/3d epp for switching between vertical split and horizontal split',
+    to: '/project',
+  },
+  {
+    id: 'TC-315',
+    group: G.epp3d,
+    text: 'Stuffing as a design setting. Demo › Star pillow › 3D assembly: Stuffed design on; it folds, turns to its front, then stuffs by itself (the flat design’s red seams and the red Not closing line give way to "Stuffed: the fabric closes…"). Show stuffing (this view) off: the flat pieces again, Stuffed design stays on (Layout tab too); on again: stuffed. d6 (cube): Stuffed design off, Show stuffing greyed; turn Stuffed design on: the cube stuffs (about 1.28 U³) and Layout › Stuffed design is on; turn it off in Layout: the cube shows flat. A design with a free edge and Stuffed design on: "Can’t be stuffed" and why. A 2D EPP quilt’s Layout tab has no Stuffed design. Firmness is the prototype’s firmest, with no setting.',
+    last: 'Stuffing should be a quilt setting with a toggle in the assbly interface to show or hide the stuffing. The setting should be in layout and visible only if it’s a 3d epp quilt and it should be available as well in the 3d assembly interface. The label for the view toggle and the setting should be clearly distinguished',
+    to: '/project',
+  },
+  {
+    id: 'TC-316',
+    group: G.epp3d,
+    text: 'Open the 3D EPP demo (download it here). Project › Quilts (11): the eleven 3D designs with a 3D badge (top right) and their nets as pictures, beside any other quilts; they open, copy and delete as other quilts. EPP tab: the same designs with the badge (the 3D filter shows only them), plus the d10 Kite under Mine.',
+    last: '3d epp quilts should show up in the projects quilt tab just like 2d epp quilts do',
+    file: 'epp3d-demo.rrq',
     to: '/project',
   },
 ];

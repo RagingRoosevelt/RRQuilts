@@ -86,6 +86,8 @@ export const EppLayout = Type.Object({
   edge: EppEdge,
   /** A 3D EPP quilt (spec 027 User Story 7): its pieces are a net folded into an object. */
   threeD: Type.Optional(Type.Literal(true)),
+  /** 3D: the object is filled with stuffing (its 3D assembly tab shows it stuffed). */
+  stuffed: Type.Optional(Type.Literal(true)),
 });
 
 /** One edge of a piece in a 3D EPP quilt: the placed piece, the rosette piece inside it when it's a

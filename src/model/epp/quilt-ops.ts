@@ -40,6 +40,15 @@ export const isEpp = (q: Quilt): q is Quilt & { layout: EppLayout } => q.layout.
 /** A 3D EPP quilt (spec 027 User Story 7): a net folded into an object. */
 export const is3d = (q: Quilt) => isEpp(q) && !!q.layout.threeD;
 
+/** A 3D quilt's Stuffed design setting (owner, 2026-11-23: a quilt setting, in Layout and the 3D
+ *  assembly tab). */
+export function setStuffedDesign(q: Quilt, on: boolean): Quilt {
+  if (!isEpp(q)) return q;
+  const { stuffed: _old, ...layout } = q.layout;
+  void _old;
+  return { ...q, layout: on ? { ...layout, stuffed: true } : layout };
+}
+
 /** Sew two edges that don't touch (3D). */
 export const addSeam = (q: Quilt, a: EppEdgeRef, b: EppEdgeRef): Quilt => ({
   ...q,

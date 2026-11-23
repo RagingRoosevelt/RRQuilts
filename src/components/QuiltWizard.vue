@@ -70,7 +70,7 @@
                 <q-toggle v-model="eppThreeD" dense label="3D EPP" />
                 <div class="text-caption text-grey-7 q-mt-xs">
                   Sew the pieces into an object, such as a ball, a die or a stuffed star. It has a
-                  3D assembly tab and is listed in the project's EPP tab.
+                  3D assembly tab and a 3D badge among the project's quilts and in its EPP tab.
                 </div>
               </div>
             </div>

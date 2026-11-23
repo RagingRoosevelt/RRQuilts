@@ -4,7 +4,7 @@ order: 37
 summary: Sew EPP pieces into an object with seams between edges that don't touch, fold it in the 3D assembly tab, and stuff it.
 ---
 
-A 3D EPP design is a flat layout of pieces whose edges are sewn into an object, such as a ball, a die or a stuffed star. It is listed in the project's **EPP** tab with a **3D** badge.
+A 3D EPP design is a flat layout of pieces whose edges are sewn into an object, such as a ball, a die or a stuffed star. It is listed with the project's quilts and in its **EPP** tab, with a **3D** badge.
 
 ## Start a 3D design
 
@@ -39,7 +39,11 @@ The side panel says whether every seam closes. Seams that can't close are listed
 
 ## Stuffing
 
-**Stuff** fills a closed shape. The pieces become fabric, the stuffing pushes them out, and the shape rounds the way fabric that hardly stretches does. A shape is closed when every edge is sewn. The side panel says whether the design can be stuffed and, when it can't, why. **Unstuff** goes back to the fold.
+**Stuffed design** is a setting of the design, saved with it. It is in the **Layout** tab and in the 3D assembly tab's side panel. A stuffed design fills once it has folded: the pieces become fabric, the stuffing pushes them out, and the shape rounds the way fabric that hardly stretches does.
+
+Only a closed shape can be stuffed, and a shape is closed when every edge is sewn. The side panel says whether the design can be stuffed and, when it can't, why.
+
+**Show stuffing (this view)** only changes what the 3D assembly tab shows. Turn it off to see the flat pieces of a stuffed design. Nothing is saved, and it is on again next time.
 
 Some designs only close once stuffed. Two stars sewn back to back lie flat as papers, and a pincushion sewn one edge round can't close with flat pieces at all. When a closed design has seams that don't close, the side panel says stuffing might close them.
 

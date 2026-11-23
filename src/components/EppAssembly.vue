@@ -50,7 +50,9 @@
       <div class="text-body2" :class="foldClass">{{ foldText }}</div>
       <div v-if="mightClose" class="note text-body2">
         <q-icon name="lightbulb" class="q-mr-xs" />The design is closed, so stuffing might close
-        these seams: the fabric bends where flat pieces can't.
+        these seams: the fabric bends where flat pieces can't.<template v-if="!designStuffed">
+          Turn on Stuffed design to see.</template
+        >
       </div>
       <q-btn
         outline
@@ -64,7 +66,25 @@
       />
       <q-separator />
       <div class="text-subtitle2">Stuffing</div>
-      <div class="stuffable row no-wrap items-start" :class="stuffable.ok ? 'ok' : 'no'">
+      <!-- The design's setting (saved, also in Layout) and this view's switch (not saved), kept
+           apart (owner, 2026-11-23). -->
+      <div>
+        <q-toggle
+          :model-value="designStuffed"
+          dense
+          label="Stuffed design"
+          :disable="ro"
+          @update:model-value="setDesignStuffed"
+        />
+        <div class="text-caption text-grey-7 q-mt-xs">
+          Saved with the design, as in the Layout tab: it is filled with stuffing once sewn.
+        </div>
+      </div>
+      <div
+        v-if="designStuffed"
+        class="stuffable row no-wrap items-start"
+        :class="stuffable.ok ? 'ok' : 'no'"
+      >
         <q-icon :name="stuffable.ok ? 'check_circle' : 'block'" size="20px" class="q-mr-sm" />
         <div>
           <div class="text-weight-medium">
@@ -73,16 +93,23 @@
           <div class="text-caption">{{ stuffable.why }}</div>
         </div>
       </div>
-      <q-btn
-        unelevated
-        no-caps
-        color="primary"
-        :icon="stuffed ? 'compress' : 'expand'"
-        :label="stuffed ? 'Unstuff' : 'Stuff'"
-        class="self-start"
-        :disable="!stuffed && !stuffable.ok"
-        @click="setStuffed(!stuffed)"
-      />
+      <div>
+        <q-toggle
+          v-model="showStuffing"
+          dense
+          checked-icon="visibility"
+          unchecked-icon="visibility_off"
+          label="Show stuffing (this view)"
+          :disable="!designStuffed"
+        />
+        <div class="text-caption text-grey-7 q-mt-xs">
+          {{
+            designStuffed
+              ? 'Only how this view looks: off shows the flat pieces. Nothing is saved.'
+              : 'For a stuffed design.'
+          }}
+        </div>
+      </div>
       <div v-if="stuffText" class="text-body2">{{ stuffText }}</div>
       <q-separator />
       <div class="text-subtitle2">Front</div>
@@ -144,7 +171,7 @@ import {
   type V3,
 } from '@/model/epp/fold';
 import { quiltNet, seamMarks } from '@/model/epp/net';
-import { setFront } from '@/model/epp/quilt-ops';
+import { setFront, setStuffedDesign } from '@/model/epp/quilt-ops';
 import {
   buildCloth,
   clothMiddle,
@@ -243,6 +270,8 @@ const foldText = computed(() => {
       ? 'Folded: every seam closes. A closed shape, right side out.'
       : 'Folded: every seam closes. A closed shape, but inside out (paper side out).';
   }
+  // Stuffed, the fabric closes what flat pieces couldn't (sewn by shared points).
+  if (stuffed.value) return 'Stuffed: the fabric closes the seams the flat pieces couldn’t.';
   const open = r.open.map((i) => fold!.hinges[i]!);
   const sewn = open.filter((h) => h.seam !== null);
   const names = sewn.length > 3 ? [`${sewn.length} seams`] : sewn.map((h) => `seam ${h.seam! + 1}`);
@@ -251,7 +280,7 @@ const foldText = computed(() => {
   return `Not closing: ${names.join(' and ')} (gaps up to ${fmt(r.worst)}U). Showing the closest fold found.`;
 });
 const foldClass = computed(() =>
-  phase.value === 'done' && report.value?.open.length ? 'text-negative' : '',
+  phase.value === 'done' && report.value?.open.length && !stuffed.value ? 'text-negative' : '',
 );
 /** Owner, 2026-11-23: "let's add a note that when it can't be joined but stuffing might help". */
 const mightClose = computed(
@@ -276,6 +305,25 @@ const stuffable = computed(() => {
 });
 const fmt = (x: number) => (+x.toFixed(2)).toString();
 
+// ---------- stuffing: the design's setting and this view's switch (owner, 2026-11-23) ----------
+const designStuffed = computed(
+  () => props.quilt.layout.style === 'epp' && !!props.quilt.layout.stuffed,
+);
+/** Not saved: hides the stuffing in this view (on each time the tab opens). */
+const showStuffing = ref(true);
+const wantStuffing = () => designStuffed.value && showStuffing.value && stuffable.value.ok;
+function setDesignStuffed(on: boolean) {
+  if (ro.value) return;
+  project.change((d) => {
+    const k = d.project.quilts.findIndex((q) => q.id === props.quilt.id);
+    if (k >= 0) d.project.quilts[k] = setStuffedDesign(d.project.quilts[k] as Quilt, on);
+  });
+  if (on) showStuffing.value = true;
+}
+watch([designStuffed, showStuffing], ([d, v]) => {
+  if ((!d || !v) && cloth) stuffNow(false);
+});
+
 // ---------- the flat net ----------
 const vertical = computed(() => app.settings.epp3dSplit !== 'horizontal');
 const unit = computed(() => (props.quilt.layout.style === 'epp' ? props.quilt.layout.unit : 1));
@@ -294,6 +342,7 @@ const netPolys = computed<CanvasPoly[]>(() =>
 const openSeams = computed(() => {
   const r = report.value;
   const m = fold;
+  if (stuffed.value) return new Set<number>();
   return new Set(
     r && m ? r.open.flatMap((i) => (m.hinges[i]!.seam === null ? [] : [m.hinges[i]!.seam])) : [],
   );
@@ -697,7 +746,7 @@ function aimKey() {
 const toward = (from: V3, to: V3, k: number): V3 => add3(from, mul3(sub3(to, from), k));
 
 // ---------- stuffing ----------
-function setStuffed(on: boolean) {
+function stuffNow(on: boolean) {
   if (!fold) return;
   if (on) {
     cloth = buildCloth(fold, meshes);
@@ -735,7 +784,9 @@ function tick() {
     orbit.target = toward(orbit.target, objectBounds().c, 0.1);
     dirty = true;
   } else if (!cloth) {
+    // A stuffed design stuffs once folded and turned to face front.
     if (turnToFront(m) > 0) dirty = true;
+    else if (wantStuffing()) stuffNow(true);
     if (refit) {
       const { c, r } = objectBounds();
       const want = distFor(r, 1.5); // room to explode
@@ -908,7 +959,10 @@ function click(piece: number | null) {
 function pickFront(piece: number | null) {
   if (ro.value) return;
   if (cloth)
-    return void $q.notify({ message: 'Unstuff first to change the front.', timeout: 1500 });
+    return void $q.notify({
+      message: 'Turn off Show stuffing first to change the front.',
+      timeout: 1500,
+    });
   const leaf = piece === null ? null : leaves.value[piece];
   const front = leaf ? { piece: leaf.piece, ...(leaf.part ? { part: leaf.part } : {}) } : null;
   project.change((d) => {
