@@ -27,7 +27,8 @@ nothing fetched. Open `fold.html` in a browser (file:// works).
 - Lighting (picker in the header), against the inside-out illusion when turning a hollow shape:
   **Fixed light, shadows** (default): a light above and a little in front that stays put as the
   view turns,
-  pieces casting shadows on each other (three.js soft shadow maps), a soft fill, and a 50° lens
+  pieces casting shadows on each other (three.js soft shadow maps; in `stuff.html` each piece
+  shades only itself, owner 2026-11-20: one shadow pass per piece), a soft fill, and a 50° lens
   for stronger perspective. **Plain**: the first look, a lamp on the camera and a 35° lens.
   Seen from behind, the star's hollow now reads as a bowl: darker upper inside, lit lower inside.
   Not tried yet: a floor with the object's shadow on it, and darkening in the creases (ambient

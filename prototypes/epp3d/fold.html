@@ -34,7 +34,9 @@
       }
       body {
         margin: 0;
-        font: 14px/1.45 system-ui, sans-serif;
+        font:
+          14px/1.45 system-ui,
+          sans-serif;
         background: var(--bg);
         color: var(--fg);
       }
@@ -285,19 +287,30 @@
       <h3>How the fold works</h3>
       <ul>
         <li>Every piece is a flat, rigid plate. Every seam is a hinge about the seam line.</li>
-        <li>Edges that touch in 2D are seams on their own. Explicit seams pull separate pieces and
-          assemblies together.</li>
-        <li>Fabric would rather lie flat: each hinge bends only as far as closing the seams needs.
-          The fold starts by curling the design away from you, so the right side ends up outside.</li>
+        <li>
+          Edges that touch in 2D are seams on their own. Explicit seams pull separate pieces and
+          assemblies together.
+        </li>
+        <li>
+          Fabric would rather lie flat: each hinge bends only as far as closing the seams needs. The
+          fold starts by curling the design away from you, so the right side ends up outside.
+        </li>
         <li>Seams that still don't close once the fold settles are listed above and drawn red.</li>
       </ul>
       <h3>Questions this raises</h3>
       <ul>
-        <li>Stuffed: is a simple dome per piece close enough, or should firmer stuffing round the whole shape out?</li>
-        <li>Pieces may pass through each other on the way (there's no collision yet). Does that
-          matter once the fold has settled?</li>
-        <li>The star can still flex (it isn't rigid). Should the quilter be able to pull a piece
-          by hand to see that?</li>
+        <li>
+          Stuffed: is a simple dome per piece close enough, or should firmer stuffing round the
+          whole shape out?
+        </li>
+        <li>
+          Pieces may pass through each other on the way (there's no collision yet). Does that matter
+          once the fold has settled?
+        </li>
+        <li>
+          The star can still flex (it isn't rigid). Should the quilter be able to pull a piece by
+          hand to see that?
+        </li>
         <li>Should the 2D design show which side each piece folds to (mountain or valley)?</li>
       </ul>
     </section>
@@ -413,7 +426,8 @@
             const n = [-e[1], e[0]];
             const a = P.map((x) => dot(x, n));
             const b = Q.map((x) => dot(x, n));
-            if (Math.max(...a) <= Math.min(...b) + 1e-6 || Math.max(...b) <= Math.min(...a) + 1e-6) return false;
+            if (Math.max(...a) <= Math.min(...b) + 1e-6 || Math.max(...b) <= Math.min(...a) + 1e-6)
+              return false;
           }
         return true;
       }
@@ -423,7 +437,12 @@
        *  grown from its first face) or grown one after another (from `seeds` first, the seed with
        *  the most faces still free around it, at most `maxSize` faces each). A face that would
        *  overlap its assembly in 2D waits for a later one. `omit` leaves faces out (open shapes). */
-      function unfold(V, faces, colorOf, { groups = null, seeds = [], maxSize = Infinity, omit = [] } = {}) {
+      function unfold(
+        V,
+        faces,
+        colorOf,
+        { groups = null, seeds = [], maxSize = Infinity, omit = [] } = {},
+      ) {
         const edgeFace = new Map();
         faces.forEach((f, fi) =>
           f.v.forEach((a, k) => edgeFace.set(`${a}>${f.v[(k + 1) % f.v.length]}`, [fi, k])),
@@ -439,7 +458,10 @@
         const gone = new Set(omit);
         const done = new Set(gone);
         const free = (fi) =>
-          faces[fi].v.filter((a, k) => !done.has(edgeFace.get(`${faces[fi].v[(k + 1) % faces[fi].v.length]}>${a}`)[0])).length;
+          faces[fi].v.filter(
+            (a, k) =>
+              !done.has(edgeFace.get(`${faces[fi].v[(k + 1) % faces[fi].v.length]}>${a}`)[0]),
+          ).length;
         const tree = new Set();
         const ekey = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
         const placedGroups = [];
@@ -510,7 +532,10 @@
           ];
           for (const [fi, P] of pl) {
             pieceOf.set(fi, pieces.length);
-            pieces.push({ pts: P.map((q) => add(q, off)), color: colorOf(fi, gi, fi === roots[gi]) });
+            pieces.push({
+              pts: P.map((q) => add(q, off)),
+              color: colorOf(fi, gi, fi === roots[gi]),
+            });
           }
         });
         const seams = [];
@@ -530,15 +555,39 @@
         faces.reduce((best, f, i) => (dot(f.n, dir) > dot(faces[best].n, dir) ? i : best), 0);
 
       // Corner lists: every permutation, cyclic (even) permutations, every sign change.
-      const perms = ([a, b, c]) => [[a, b, c], [a, c, b], [b, a, c], [b, c, a], [c, a, b], [c, b, a]];
-      const cyclic = ([a, b, c]) => [[a, b, c], [b, c, a], [c, a, b]];
-      const signs = (v) => v.reduce((out, x) => out.flatMap((o) => (x ? [[...o, x], [...o, -x]] : [[...o, 0]])), [[]]);
+      const perms = ([a, b, c]) => [
+        [a, b, c],
+        [a, c, b],
+        [b, a, c],
+        [b, c, a],
+        [c, a, b],
+        [c, b, a],
+      ];
+      const cyclic = ([a, b, c]) => [
+        [a, b, c],
+        [b, c, a],
+        [c, a, b],
+      ];
+      const signs = (v) =>
+        v.reduce(
+          (out, x) =>
+            out.flatMap((o) =>
+              x
+                ? [
+                    [...o, x],
+                    [...o, -x],
+                  ]
+                : [[...o, 0]],
+            ),
+          [[]],
+        );
       /** Unique corners, scaled so the shortest edge is 1U. */
       function corners(vs) {
         const m = new Map(vs.map((v) => [v.map((x) => x.toFixed(6)).join(','), v]));
         const V = [...m.values()];
         let e = Infinity;
-        for (let i = 0; i < V.length; i++) for (let j = i + 1; j < V.length; j++) e = Math.min(e, len(sub(V[i], V[j])));
+        for (let i = 0; i < V.length; i++)
+          for (let j = i + 1; j < V.length; j++) e = Math.min(e, len(sub(V[i], V[j])));
         return V.map((v) => mul(v, 1 / e));
       }
       // Two shades per kind of piece (by number of sides), alternating by assembly.
@@ -558,17 +607,26 @@
 
       function cubeDesign(kind) {
         const V = [];
-        for (const x of [-0.5, 0.5]) for (const y of [-0.5, 0.5]) for (const z of [-0.5, 0.5]) V.push([x, y, z]);
+        for (const x of [-0.5, 0.5])
+          for (const y of [-0.5, 0.5]) for (const z of [-0.5, 0.5]) V.push([x, y, z]);
         const F = hullFaces(V);
         const f = (d) => nearest(F, d);
         const [top, bottom, front, back, left, right] = [
-          f([0, 0, 1]), f([0, 0, -1]), f([0, -1, 0]), f([0, 1, 0]), f([-1, 0, 0]), f([1, 0, 0]),
+          f([0, 0, 1]),
+          f([0, 0, -1]),
+          f([0, -1, 0]),
+          f([0, 1, 0]),
+          f([-1, 0, 0]),
+          f([1, 0, 0]),
         ];
         const groups =
           kind === 1
             ? [[front, top, bottom, left, right, back]]
             : kind === 2
-              ? [[front, top, bottom], [back, left, right]]
+              ? [
+                  [front, top, bottom],
+                  [back, left, right],
+                ]
               : [[top], [front], [right], [back], [left], [bottom]];
         const colors = ['#2e86c1', '#28b463', '#f1c40f', '#e74c3c', '#8e44ad', '#e67e22'];
         return unfold(V, F, (fi) => colors[fi % colors.length], { groups });
@@ -584,29 +642,49 @@
         const V = corners(vs);
         const F = hullFaces(V);
         const ring = (fi) =>
-          F.map((_, j) => j).filter((j) => j !== fi && Math.abs(dot(F[j].n, F[fi].n) - 1 / Math.sqrt(5)) < 1e-6);
+          F.map((_, j) => j).filter(
+            (j) => j !== fi && Math.abs(dot(F[j].n, F[fi].n) - 1 / Math.sqrt(5)) < 1e-6,
+          );
         const top = 0;
         const bottom = nearest(F, mul(F[0].n, -1));
         return { V, F, g1: [top, ...ring(top)], g2: [bottom, ...ring(bottom)] };
       }
       function dodecaDesign() {
         const { V, F, g1, g2 } = dodecaFaces();
-        return unfold(V, F, (fi, gi, root) =>
-          root ? '#f4d03f' : gi === 0 ? (g1.indexOf(fi) % 2 ? '#1f618d' : '#5dade2') : g2.indexOf(fi) % 2 ? '#b03a2e' : '#ec7063',
-        { groups: [g1, g2] });
+        return unfold(
+          V,
+          F,
+          (fi, gi, root) =>
+            root
+              ? '#f4d03f'
+              : gi === 0
+                ? g1.indexOf(fi) % 2
+                  ? '#1f618d'
+                  : '#5dade2'
+                : g2.indexOf(fi) % 2
+                  ? '#b03a2e'
+                  : '#ec7063',
+          { groups: [g1, g2] },
+        );
       }
       /** Half a dodecahedron: a pentagon rosette whose petals are sewn to each other. */
       function basketDesign() {
         const { V, F, g1 } = dodecaFaces();
         const keep = new Set(g1);
-        return unfold(V, F, (fi, gi, root) => (root ? '#f4d03f' : g1.indexOf(fi) % 2 ? '#1f618d' : '#5dade2'), {
-          groups: [g1],
-          omit: F.map((_, i) => i).filter((i) => !keep.has(i)),
-        });
+        return unfold(
+          V,
+          F,
+          (fi, gi, root) => (root ? '#f4d03f' : g1.indexOf(fi) % 2 ? '#1f618d' : '#5dade2'),
+          {
+            groups: [g1],
+            omit: F.map((_, i) => i).filter((i) => !keep.has(i)),
+          },
+        );
       }
       function openBoxDesign() {
         const V = [];
-        for (const x of [-0.5, 0.5]) for (const y of [-0.5, 0.5]) for (const z of [-0.5, 0.5]) V.push([x, y, z]);
+        for (const x of [-0.5, 0.5])
+          for (const y of [-0.5, 0.5]) for (const z of [-0.5, 0.5]) V.push([x, y, z]);
         const F = hullFaces(V);
         const lid = nearest(F, [0, 0, 1]);
         const bottom = nearest(F, [0, 0, -1]);
@@ -620,7 +698,8 @@
        *  four and three triangles, sewn into one ring. */
       function ruffleDesign() {
         const d = (deg) => [Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180)];
-        const fan = (o, n) => Array.from({ length: n }, (_, k) => [o, add(o, d(60 * k)), add(o, d(60 * k + 60))]);
+        const fan = (o, n) =>
+          Array.from({ length: n }, (_, k) => [o, add(o, d(60 * k)), add(o, d(60 * k + 60))]);
         const tri = [...fan([0, 0], 4), ...fan([2.6, -0.4], 3)];
         const colors = ['#e67e22', '#f5b041'];
         return {
@@ -641,17 +720,31 @@
         cube1: () => cubeDesign(1),
         cube2: () => cubeDesign(2),
         cube6: () => cubeDesign(6),
-        tetra: () => solid([[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]]),
+        tetra: () =>
+          solid([
+            [1, 1, 1],
+            [1, -1, -1],
+            [-1, 1, -1],
+            [-1, -1, 1],
+          ]),
         octa: () => solid(perms([1, 0, 0]).flatMap(signs)),
         icosa: () => solid(cyclic([0, 1, PHI]).flatMap(signs)),
         pyramid: () => {
           // The base would face front by default; the side drawn above it (point up) shows the point.
-          const d = solid([...signs([0.5, 0.5, 0]), [0, 0, Math.SQRT1_2]], (F) => ({ seeds: kinds(F, 4) }));
+          const d = solid([...signs([0.5, 0.5, 0]), [0, 0, Math.SQRT1_2]], (F) => ({
+            seeds: kinds(F, 4),
+          }));
           const high = (i) => (d.pieces[i].pts.length === 3 ? mean(d.pieces[i].pts)[1] : -Infinity);
           return { ...d, front: d.pieces.reduce((b, _, i) => (high(i) > high(b) ? i : b), 0) };
         },
         hexprism: () =>
-          solid(Array.from({ length: 12 }, (_, i) => [Math.cos((i * Math.PI) / 3), Math.sin((i * Math.PI) / 3), i < 6 ? 0.5 : -0.5])),
+          solid(
+            Array.from({ length: 12 }, (_, i) => [
+              Math.cos((i * Math.PI) / 3),
+              Math.sin((i * Math.PI) / 3),
+              i < 6 ? 0.5 : -0.5,
+            ]),
+          ),
         ttetra: () =>
           solid(
             perms([3, 1, 1])
@@ -664,7 +757,13 @@
         dodeca: dodecaDesign,
         soccer: () =>
           solid(
-            [[0, 1, 3 * PHI], [1, 2 + PHI, 2 * PHI], [PHI, 2, 2 * PHI + 1]].flatMap(cyclic).flatMap(signs),
+            [
+              [0, 1, 3 * PHI],
+              [1, 2 + PHI, 2 * PHI],
+              [PHI, 2, 2 * PHI + 1],
+            ]
+              .flatMap(cyclic)
+              .flatMap(signs),
             (F) => ({ seeds: kinds(F, 5), maxSize: 6 }),
           ),
       };
@@ -677,7 +776,8 @@
       function overlap(p, q, r, s) {
         const L = len(sub(q, p));
         const u = mul(sub(q, p), 1 / L);
-        if (Math.abs(cross2(u, sub(r, p))) > EDGE_EPS || Math.abs(cross2(u, sub(s, p))) > EDGE_EPS) return null;
+        if (Math.abs(cross2(u, sub(r, p))) > EDGE_EPS || Math.abs(cross2(u, sub(s, p))) > EDGE_EPS)
+          return null;
         const tr = dot(sub(r, p), u);
         const ts = dot(sub(s, p), u);
         if (ts >= tr) return null;
@@ -732,7 +832,14 @@
         design.seams.forEach((s, k) => {
           const [a0, a1] = edgeOf(design, s.a);
           const [b0, b1] = edgeOf(design, s.b);
-          hinges.push({ kind: 'explicit', n: k + 1, A: s.a[0], B: s.b[0], pa: [a0, a1], pb: [b1, b0] });
+          hinges.push({
+            kind: 'explicit',
+            n: k + 1,
+            A: s.a[0],
+            B: s.b[0],
+            pa: [a0, a1],
+            pb: [b1, b0],
+          });
           use[s.a[0]][s.a[1]] = use[s.b[0]][s.b[1]] = k;
         });
         // Welds: each hinge's two ends meet. Union-find over (piece, node).
@@ -768,7 +875,8 @@
         hinges.forEach((h) => h.kind === 'shared' && (asm[af(h.A)] = af(h.B)));
         const assemblies = new Set(pieces.map((_, i) => af(i))).size;
         const perimeter = pieces.reduce(
-          (s, P) => s + P.pts.reduce((t, p, k) => t + len(sub(P.pts[(k + 1) % P.pts.length], p)), 0),
+          (s, P) =>
+            s + P.pts.reduce((t, p, k) => t + len(sub(P.pts[(k + 1) % P.pts.length], p)), 0),
           0,
         );
         const sewn = hinges.reduce((s, h) => s + 2 * len(sub(h.pa[1], h.pa[0])), 0);
@@ -900,7 +1008,9 @@
       function volume(m) {
         let v = 0;
         m.pieces.forEach((P, p) => {
-          const ps = P.pts.map((pt) => add(qrot(m.q[p], [pt[0] - P.c[0], pt[1] - P.c[1], 0]), m.t[p]));
+          const ps = P.pts.map((pt) =>
+            add(qrot(m.q[p], [pt[0] - P.c[0], pt[1] - P.c[1], 0]), m.t[p]),
+          );
           for (let k = 1; k + 1 < ps.length; k++) v += dot(ps[0], cross3(ps[k], ps[k + 1])) / 6;
         });
         return v;
@@ -912,7 +1022,16 @@
       let picked = null;
       // `best` and `since` spot a fold that keeps moving without settling (the ruffle's wave rolls
       // round its middle forever, every position equally good).
-      const run = { phase: 'fold', iters: 0, frames: 0, calm: 0, settle: 0, best: Infinity, since: 0, open: [] };
+      const run = {
+        phase: 'fold',
+        iters: 0,
+        frames: 0,
+        calm: 0,
+        settle: 0,
+        best: Infinity,
+        since: 0,
+        open: [],
+      };
       // Slow at first so you can watch pieces come together, faster once they have.
       const passesThisFrame = () => Math.min(8, 1 + Math.floor(run.frames / 20));
       const statusEl = document.getElementById('status');
@@ -992,7 +1111,12 @@
           `${x0} ${y0 - 0.4} ${Math.max(...xs) + pad - x0} ${Math.max(...ys) + pad - y0 + 0.8}`,
         );
         const P = (p) => `${p[0]},${-p[1]}`;
-        const openSeams = new Set(run.open.map((i) => model.hinges[i]).filter((h) => h.kind === 'explicit').map((h) => h.n - 1));
+        const openSeams = new Set(
+          run.open
+            .map((i) => model.hinges[i])
+            .filter((h) => h.kind === 'explicit')
+            .map((h) => h.n - 1),
+        );
         let out = '';
         design.pieces.forEach((pc) => {
           out += `<polygon points="${pc.pts.map(P).join(' ')}" fill="${pc.color}" />`;
@@ -1030,7 +1154,7 @@
       svg.addEventListener('click', (ev) => {
         const g = ev.target.closest('.edge');
         if (!g) {
-          if (picked) (picked = null), draw2d();
+          if (picked) ((picked = null), draw2d());
           return;
         }
         pickEdge(+g.dataset.p, +g.dataset.e);
@@ -1038,7 +1162,8 @@
 
       function pickEdge(p, e) {
         const u = model.use[p][e];
-        if (u === 'shared') return summary('That edge touches its neighbor, so it is a seam already.');
+        if (u === 'shared')
+          return summary('That edge touches its neighbor, so it is a seam already.');
         if (typeof u === 'number') {
           design.seams.splice(u, 1);
           picked = null;
@@ -1060,7 +1185,9 @@
         if (Math.abs(la - lb) > 1e-6) {
           picked = null;
           draw2d();
-          return summary(`Those edges differ (${fmt(la)}U and ${fmt(lb)}U). Seams join equal edges.`);
+          return summary(
+            `Those edges differ (${fmt(la)}U and ${fmt(lb)}U). Seams join equal edges.`,
+          );
         }
         design.seams.push({ a: picked, b: [p, e] });
         picked = null;
@@ -1112,7 +1239,8 @@
         const rim = [];
         P.pts.forEach((a, k) => {
           const b = P.pts[(k + 1) % P.pts.length];
-          for (let i = 0; i < PILLOW_STEPS; i++) rim.push(add(sub(a, P.c), mul(sub(b, a), i / PILLOW_STEPS)));
+          for (let i = 0; i < PILLOW_STEPS; i++)
+            rim.push(add(sub(a, P.c), mul(sub(b, a), i / PILLOW_STEPS)));
         });
         const n = rim.length;
         const xy = [[0, 0]];
@@ -1127,10 +1255,20 @@
         for (let k = 0; k < n; k++) {
           idx.push(0, at(1, k), at(1, k + 1));
           for (let r = 1; r < PILLOW_RINGS; r++)
-            idx.push(at(r, k), at(r + 1, k), at(r + 1, k + 1), at(r, k), at(r + 1, k + 1), at(r, k + 1));
+            idx.push(
+              at(r, k),
+              at(r + 1, k),
+              at(r + 1, k + 1),
+              at(r, k),
+              at(r + 1, k + 1),
+              at(r, k + 1),
+            );
         }
         const geo = new THREE.BufferGeometry();
-        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(xy.flatMap(([x, y]) => [x, y, 0])), 3));
+        geo.setAttribute(
+          'position',
+          new THREE.BufferAttribute(new Float32Array(xy.flatMap(([x, y]) => [x, y, 0])), 3),
+        );
         geo.setIndex(idx);
         geo.computeVertexNormals();
         // Height in the middle: a share of the distance from the middle to the nearest edge.
@@ -1179,7 +1317,13 @@
           geo.computeVertexNormals();
           geo.computeBoundingSphere();
           const ol = g.userData.outline.geometry;
-          for (let k = 0; k < n; k++) ol.attributes.position.setXYZ(k, pos.getX(ring.length - n + k), pos.getY(ring.length - n + k), pos.getZ(ring.length - n + k));
+          for (let k = 0; k < n; k++)
+            ol.attributes.position.setXYZ(
+              k,
+              pos.getX(ring.length - n + k),
+              pos.getY(ring.length - n + k),
+              pos.getZ(ring.length - n + k),
+            );
           ol.attributes.position.needsUpdate = true;
           ol.computeBoundingSphere();
         });
@@ -1222,10 +1366,24 @@
       const arcMat = new THREE.LineBasicMaterial({ color: 0xb07d00 });
       // Stitches: a white thread with a soft magenta glow (two see-through sleeves) around it, so
       // it stands out on the pieces and on a light or dark background.
-      const THREAD = { core: 0.014, layers: [[0.026, 0.4], [0.04, 0.12]] }; // radii in U, opacity
+      const THREAD = {
+        core: 0.014,
+        layers: [
+          [0.026, 0.4],
+          [0.04, 0.12],
+        ],
+      }; // radii in U, opacity
       const threadMats = [
         new THREE.MeshBasicMaterial({ color: 0xffffff }),
-        ...THREAD.layers.map(([, o]) => new THREE.MeshBasicMaterial({ color: 0xff2d95, transparent: true, opacity: o, depthWrite: false })),
+        ...THREAD.layers.map(
+          ([, o]) =>
+            new THREE.MeshBasicMaterial({
+              color: 0xff2d95,
+              transparent: true,
+              opacity: o,
+              depthWrite: false,
+            }),
+        ),
       ];
       const threadGeo = new THREE.CylinderGeometry(1, 1, 1, 10, 1, true);
       const STITCHES_PER_U = 6;
@@ -1254,12 +1412,25 @@
         hitMeshes = [];
         model.pieces.forEach((P) => {
           const geo = pillow(P);
-          const opts = { roughness: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 };
-          const front = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ ...opts, color: P.color, side: THREE.FrontSide }));
-          const back = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ ...opts, color: PAPER, side: THREE.BackSide }));
+          const opts = {
+            roughness: 0.9,
+            polygonOffset: true,
+            polygonOffsetFactor: 1,
+            polygonOffsetUnits: 1,
+          };
+          const front = new THREE.Mesh(
+            geo,
+            new THREE.MeshStandardMaterial({ ...opts, color: P.color, side: THREE.FrontSide }),
+          );
+          const back = new THREE.Mesh(
+            geo,
+            new THREE.MeshStandardMaterial({ ...opts, color: PAPER, side: THREE.BackSide }),
+          );
           const { xy, n } = geo.userData;
           const outline = new THREE.LineLoop(
-            new THREE.BufferGeometry().setFromPoints(xy.slice(-n).map(([x, y]) => new THREE.Vector3(x, y, 0))),
+            new THREE.BufferGeometry().setFromPoints(
+              xy.slice(-n).map(([x, y]) => new THREE.Vector3(x, y, 0)),
+            ),
             lineMat,
           );
           front.userData.p = back.userData.p = P.i;
@@ -1275,12 +1446,18 @@
         shownStuffing = -1; // shape the new pillows on the next frame
         const explicit = model.hinges.filter((h) => h.kind === 'explicit');
         const geo = new THREE.BufferGeometry();
-        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(explicit.length * 6), 3));
+        geo.setAttribute(
+          'position',
+          new THREE.BufferAttribute(new Float32Array(explicit.length * 6), 3),
+        );
         gapLines = new THREE.LineSegments(geo, gapMat);
         // Glue: per seam a strip of (GLUE_STEPS + 1) pairs of points, one on each end arc.
         const nh = model.hinges.length;
         const ggeo = new THREE.BufferGeometry();
-        ggeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(nh * (GLUE_STEPS + 1) * 6), 3));
+        ggeo.setAttribute(
+          'position',
+          new THREE.BufferAttribute(new Float32Array(nh * (GLUE_STEPS + 1) * 6), 3),
+        );
         const idx = [];
         for (let h = 0; h < nh; h++)
           for (let i = 0; i < GLUE_STEPS; i++) {
@@ -1290,7 +1467,10 @@
         ggeo.setIndex(idx);
         glue = new THREE.Mesh(ggeo, glueMat);
         const ageo = new THREE.BufferGeometry();
-        ageo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(nh * 2 * GLUE_STEPS * 6), 3));
+        ageo.setAttribute(
+          'position',
+          new THREE.BufferAttribute(new Float32Array(nh * 2 * GLUE_STEPS * 6), 3),
+        );
         arcs = new THREE.LineSegments(ageo, arcMat);
         // Stitches: per seam, a thread lacing back and forth across the gap.
         const segs = model.hinges.reduce((n, h) => n + 2 * stitchCount(h), 0);
@@ -1396,7 +1576,8 @@
           const a = { e: h.na.map((n) => W[h.A][n]), off: off[h.A] };
           const b = { e: h.nb.map((n) => W[h.B][n]), off: off[h.B] };
           const n = stitchCount(h);
-          const at = (S, s) => add(stuffWorld(add(S.e[0], mul(sub(S.e[1], S.e[0]), 0.08 + 0.84 * s)), round), S.off);
+          const at = (S, s) =>
+            add(stuffWorld(add(S.e[0], mul(sub(S.e[1], S.e[0]), 0.08 + 0.84 * s)), round), S.off);
           for (let i = 0; i < 2 * n; i++) {
             const [from, to] = i % 2 ? [b, a] : [a, b];
             const p = at(from, i / (2 * n));
@@ -1460,7 +1641,10 @@
       const explodeBadge = document.getElementById('exploded');
       function ndc(ev) {
         const r = canvas.getBoundingClientRect();
-        return new THREE.Vector2(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+        return new THREE.Vector2(
+          ((ev.clientX - r.left) / r.width) * 2 - 1,
+          -((ev.clientY - r.top) / r.height) * 2 + 1,
+        );
       }
       function setExploded(on) {
         exploded = on;
@@ -1489,7 +1673,13 @@
         ray.setFromCamera(ndc(ev), camera);
         const hit = ray.intersectObjects(hitMeshes, false)[0];
         const piece = hit ? hit.object.userData.p : null;
-        press = { x: ev.clientX, y: ev.clientY, last: [ev.clientX, ev.clientY], moved: false, piece };
+        press = {
+          x: ev.clientX,
+          y: ev.clientY,
+          last: [ev.clientX, ev.clientY],
+          moved: false,
+          piece,
+        };
       });
       canvas.addEventListener('pointermove', (ev) => {
         if (!press) return;
@@ -1499,7 +1689,10 @@
         }
         if (!press.moved) return;
         orbit.theta -= (ev.clientX - press.last[0]) * 0.01;
-        orbit.phi = Math.min(Math.PI - 0.05, Math.max(0.05, orbit.phi - (ev.clientY - press.last[1]) * 0.01));
+        orbit.phi = Math.min(
+          Math.PI - 0.05,
+          Math.max(0.05, orbit.phi - (ev.clientY - press.last[1]) * 0.01),
+        );
         press.last = [ev.clientX, ev.clientY];
       });
       canvas.addEventListener('pointerup', () => {
@@ -1552,7 +1745,8 @@
       function facing(m) {
         const f = frontPiece(m);
         const pick = f === null ? m.pieces.map((_, i) => i) : [f];
-        const sum = (v) => pick.reduce((a, p) => add(a, mul(qrot(m.q[p], v), m.pieces[p].area)), [0, 0, 0]);
+        const sum = (v) =>
+          pick.reduce((a, p) => add(a, mul(qrot(m.q[p], v), m.pieces[p].area)), [0, 0, 0]);
         let front = sum([0, 0, 1]);
         if (len(front) < 1e-9) front = [0, 0, 1];
         front = unit(front);
@@ -1565,7 +1759,9 @@
       function turnToFront(m) {
         const { front, up } = facing(m);
         const V = (v) => new THREE.Vector3(...v);
-        const basis = new THREE.Matrix4().makeBasis(V(cross3(up, front)), V(up), V(front)).transpose();
+        const basis = new THREE.Matrix4()
+          .makeBasis(V(cross3(up, front)), V(up), V(front))
+          .transpose();
         const Q = new THREE.Quaternion().setFromRotationMatrix(basis);
         const angle = 2 * Math.acos(Math.min(1, Math.abs(Q.w)));
         if (angle < 1e-4) return;
@@ -1636,8 +1832,12 @@
       // ---------- controls ----------
       const presetEl = document.getElementById('preset');
       presetEl.addEventListener('change', () => load(presetEl.value));
-      document.getElementById('seamLook').addEventListener('change', (ev) => (seamLook = ev.target.value));
-      document.getElementById('stuffed').addEventListener('change', (ev) => (stuffed = ev.target.checked));
+      document
+        .getElementById('seamLook')
+        .addEventListener('change', (ev) => (seamLook = ev.target.value));
+      document
+        .getElementById('stuffed')
+        .addEventListener('change', (ev) => (stuffed = ev.target.checked));
       document.getElementById('lighting').addEventListener('change', (ev) => {
         lighting = ev.target.value;
         applyLighting();
