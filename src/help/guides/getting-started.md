@@ -56,6 +56,9 @@ The round save button in the header has a small colored dot:
 
 - On the home page choose **Open a project file** and pick a `.rrq` file, or drag a `.rrq` file
   onto the window.
+- **Open a demo** opens one of the demo projects that come with the app: temperature quilts, and 3D
+  English paper piecing. They open like a project file, so saving makes a copy of your own. The
+  welcome steps on your first visit list them too.
 - **Open from a gist** opens a project someone shared as a GitHub gist. Paste the gist's link. The
   app shows the gist's name and the GitHub account that shared it, and the project opens when you
   choose **Open**. If the gist has more than one `.rrq` file, pick the one to open. This needs an internet connection, and

@@ -4,11 +4,11 @@ order: 37
 summary: Sew EPP pieces into an object with seams between edges that don't touch, fold it in the 3D assembly tab, and stuff it.
 ---
 
-A 3D EPP design is a flat layout of pieces whose edges are sewn into an object, such as a ball, a die or a stuffed star. The [3D EPP demo](/?open_url=3d-epp.rrq) has a pillow, a pincushion, the dice from d4 to d20, a prism, a truncated tetrahedron and a soccer ball to look at and try. It is listed with the project's quilts and in its **EPP** tab, with a **3D** badge, and its card shows the folded object (stuffed, for a stuffed design).
+A 3D EPP design is a flat layout of pieces whose edges are sewn into an object, such as a ball, a die or a stuffed star. The [3D EPP demo](/?open_url=3d-epp.rrq) has a pillow, a pincushion, the dice from d4 to d20, a prism, a truncated tetrahedron and a soccer ball to look at and try. It is listed with the project's quilts, with a **3D** badge, and its card shows the folded object (stuffed, for a stuffed design).
 
 ## Start a 3D design
 
-1. Open the project's **EPP** tab and click **New 3D design**. Or start a quilt, choose **EPP** and turn on **3D EPP**.
+1. Start a quilt, choose **EPP** and turn on **3D EPP**.
 2. In the **Design** tab, place shapes and rosettes as in any EPP quilt. Pieces that touch are sewn along the edges they share.
 3. Set the **1U length** in the **Layout** tab. A 3D design has no edge, borders or binding.
 

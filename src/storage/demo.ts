@@ -2,6 +2,24 @@
 // /?open_url=<name>.rrq (owner, 2026-11-23). Only files in the app's own demo folder: a bare name,
 // demo/<name>, or this site's link to one. Never another site (constitution Principle II).
 
+/** The demo projects in public/demo, for the welcome wizard and the home page's Open a demo. */
+export const DEMOS = [
+  {
+    file: 'temperature.rrq',
+    title: 'Temperature quilts',
+    about:
+      'A year of daily highs as 365 squares, a month per row, and highs and lows week by week.',
+    icon: 'thermostat',
+  },
+  {
+    file: '3d-epp.rrq',
+    title: '3D English paper piecing',
+    about:
+      'A star pillow, a pincushion, dice from d4 to d20 and a soccer ball, folded and stuffed.',
+    icon: '3d_rotation',
+  },
+] as const;
+
 const NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*\.rrq$/i;
 const MAX = 50 * 1024 * 1024;
 

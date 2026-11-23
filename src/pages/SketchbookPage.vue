@@ -1602,9 +1602,7 @@ const inUseDialog = ref<{
 /** EPP shapes and rosettes of this project (spec 027 FR-013). */
 const eppCount = computed(
   () =>
-    (project.doc?.project.eppShapes?.length ?? 0) +
-    (project.doc?.project.rosettes?.length ?? 0) +
-    (project.doc?.project.quilts ?? []).filter(is3d).length,
+    (project.doc?.project.eppShapes?.length ?? 0) + (project.doc?.project.rosettes?.length ?? 0),
 );
 const tab = computed({
   get: () => settings.settings.projectTab,

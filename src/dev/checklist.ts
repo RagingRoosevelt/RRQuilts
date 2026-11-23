@@ -271,12 +271,6 @@ export const CHECKS: Check[] = [
     to: '/project',
   },
   {
-    id: 'TC-309',
-    group: G.epp3d,
-    text: 'EPP tab › New 3D design: opens a new 3D design (Details, Layout, Design, 3D assembly, Print, 3D Print; no Borders). Layout shows 1U and the seam allowance, no Edge. Place five 60° diamonds in a fan in the Design tab, choose the Seam tool, tap the fifth diamond’s free outer edge then the first’s: both turn the same color with a 1 outside them, the readout counts 1 seam. 3D assembly: a shallow five-point star (every hinge about 42°), "Can’t be stuffed" (edges free). Tap a numbered edge with the Seam tool: the seam goes. Tapping an edge that touches its neighbor, two edges of one piece, or edges of different lengths says why nothing was sewn.',
-    to: '/project',
-  },
-  {
     id: 'TC-310',
     group: G.epp3d,
     text: 'Seams follow their pieces: in a 3D design, sew an edge of a placed rosette’s piece to another piece, then Break into patches: the seam stays on the same edge. Turn or mirror a sewn piece: the seam stays on its edge (it may then not close). Delete a sewn piece: its seams go. Undo brings them back.',
@@ -296,25 +290,11 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-313',
-    group: G.epp3d,
-    text: 'Start a quilt › EPP › 3D EPP on: only the Layout step, the summary starts with 3D; Create: a 3D design (tabs Details, Layout, Design, 3D assembly, Print, 3D Print), listed in the project’s EPP tab. An EPP quilt with a border: Layout › 3D EPP on: Borders tab goes, 3D assembly appears, the border is gone (Undo brings it back); off again: Borders tab back, any seams kept for next time.',
-    last: 'the interface when the epp option has been picked should have a toggle for 3d epp mode; we don’t appear to have the toggle for epp in layout of the quilt design, either',
-    to: '/',
-  },
-  {
     id: 'TC-314',
     group: G.epp3d,
     text: 'Demo › Star pillow › 3D assembly: the flat design on top, the 3D view below, a line between. Its seams show red and dashed (the fold can’t close them), the front piece ringed. Tap a numbered edge in the flat design: the seam goes and the object folds again; Undo brings it back; tap two equal free edges: a new seam. Settings › Interface › 3D EPP › Horizontal split: the flat design left, 3D right, both stars in view; back to Vertical. The 3D view keeps turning, exploding and stuffing as before in both.',
     last: 'the 3d assembly section should have a vertical viewport split for the 2d seam assembly on top and the 3d preview on the bottom. there should be an option in app user preferences/interface/3d epp for switching between vertical split and horizontal split',
     to: '/project',
-  },
-  {
-    id: 'TC-316',
-    group: G.epp3d,
-    text: 'Open the 3D EPP demo (this check’s link opens it). Project › Quilts (11): the eleven 3D designs with a 3D badge (top right) and their nets as pictures, beside any other quilts; they open, copy and delete as other quilts. EPP tab: the same designs with the badge (the 3D filter shows only them), plus the d10 Kite under Mine.',
-    last: '3d epp quilts should show up in the projects quilt tab just like 2d epp quilts do',
-    to: '/?open_url=3d-epp.rrq',
   },
   {
     id: 'TC-317',
@@ -346,13 +326,6 @@ export const CHECKS: Check[] = [
     to: '/?open_url=3d-epp.rrq',
   },
   {
-    id: 'TC-322',
-    group: G.epp3d,
-    text: 'Open the 3D EPP demo: in Project › Quilts and › EPP, each 3D card turns from the flat net into the folded object within a couple of seconds (star pillow, twisted pincushion and soccer ball stuffed; the dice and solids flat-faced, seen from a little above and to the right, as the 3D assembly tab opens), on a light and a dark theme; the page stays usable meanwhile. Change a design (a color, a seam, Stuffed design): its card updates.',
-    last: 'can we change the thumbnails for 3d epp quilts to use a 3d render of the quilt?',
-    to: '/?open_url=3d-epp.rrq',
-  },
-  {
     id: 'TC-323',
     group: G.epp3d,
     text: 'Print a demo design (Soccer ball, d12): the quilt picture page shows the flat design with its numbered seams on top and the folded object below it (stuffed for the soccer ball), then the title and caption, all on one page; for a moment it may say "Drawing the 3D view…". Print to PDF: both views come out.',
@@ -372,6 +345,27 @@ export const CHECKS: Check[] = [
     text: 'Demo links. Open localhost:9000/RRQuilts/?open_url=3d-epp.rrq: the 3D EPP demo opens at once (11 quilts), with Save asking where. Help › 3D EPP › "3D EPP demo" link: the same. ?open_url=nope.rrq: "There’s no demo project called…". ?open_url=https://example.com/x.rrq: "That link doesn’t point at a demo project." With unsaved work open, the demo link keeps it in a draft as opening any file does. After a release (make serve, or the live site): the link works offline once the app has been loaded.',
     last: 'let’s add a demo folder that’s included in the deployed app and a similar route to open_gist called ?open_url= that can load rrq files from the demo folder that are passed in',
     to: '/?open_url=3d-epp.rrq',
+  },
+  {
+    id: 'TC-326',
+    group: G.epp3d,
+    text: 'Open the 3D EPP demo (this check’s link opens it). Project › Quilts (11): the eleven 3D designs with a 3D badge (top right), each card turning from the flat net into the folded object within a couple of seconds (star pillow, twisted pincushion and soccer ball stuffed), on a light and a dark theme; they open, copy and delete as other quilts; change a design (a color, a seam, Stuffed design) and its card updates. EPP (6): shapes and rosettes only (the d10 Kite under Mine), with All / Shapes / Rosettes, no 3D designs and no New 3D design.',
+    last: '3d epp quilts should show up in the projects quilt tab just like 2d epp quilts do; the epp 3d quilts are showing up in the epp shapes/rosette tab; can we change the thumbnails for 3d epp quilts to use a 3d render of the quilt?',
+    to: '/?open_url=3d-epp.rrq',
+  },
+  {
+    id: 'TC-327',
+    group: G.epp3d,
+    text: 'Start a quilt › EPP › 3D EPP on: only the Layout step, the summary starts with 3D; Create: a 3D design (tabs Details, Layout, Design, 3D assembly, Print, 3D Print; no Borders), listed under Quilts with a 3D badge. Layout shows 1U and the seam allowance, no Edge. Place five 60° diamonds in a fan in the Design tab, choose the Seam tool, tap the fifth diamond’s free outer edge then the first’s: both turn the same color with a 1 outside them, the readout counts 1 seam. 3D assembly: a shallow five-point star (every hinge about 42°), and with Stuffed design on, "Can’t be stuffed" (edges free). Tap a numbered edge with the Seam tool: the seam goes. Tapping an edge that touches its neighbor, two edges of one piece, or edges of different lengths says why nothing was sewn. An EPP quilt with a border: Layout › 3D EPP on: Borders tab goes, 3D assembly appears, the border is gone (Undo brings it back); off again: Borders tab back, any seams kept for next time.',
+    last: 'the epp 3d quilts are showing up in the epp shapes/rosette tab; the interface when the epp option has been picked should have a toggle for 3d epp mode; we don’t appear to have the toggle for epp in layout of the quilt design, either',
+    to: '/',
+  },
+  {
+    id: 'TC-328',
+    group: G.files,
+    text: 'Demos. Settings › You › Show the welcome again (or a fresh browser): the steps end with Demos after Help, listing Temperature quilts and 3D English paper piecing; the last button says Start quilting; clicking a demo closes the welcome and opens it. Home: Open a demo, right of Open from a gist, opens the same list (with unsaved work open, it asks first). Temperature quilts demo: Quilts (3): 365 days of highs, A month per row, Highs and lows week by week, each colored by a year of entered temperatures (Data tab: Real data), the first weeks marked cut and sewn (January and February sewn as months). Help › Data quilts links it.',
+    last: 'let’s add a "demos" step to the welcome wizard after help; and let’s also have a demo of temperature quilts; let’s add a button to the right of "open rpoject file" and "open github gist" for "open a demo"',
+    to: '/',
   },
 ];
 

@@ -42,7 +42,30 @@
           no-caps
           @click="openGist"
         />
+        <q-btn
+          outline
+          class="col"
+          icon="auto_stories"
+          label="Open a demo"
+          no-caps
+          @click="demoPick = true"
+        />
       </div>
+      <!-- The demo projects shipped with the app (public/demo; owner, 2026-11-23). -->
+      <q-dialog v-model="demoPick">
+        <q-card style="width: 520px; max-width: 95vw">
+          <DialogClose />
+          <q-card-section class="text-h6">Open a demo</q-card-section>
+          <q-card-section class="q-pt-none">
+            <DemoList
+              @open="(f: string) => ((demoPick = false), confirmLeave(() => openDemo(f)))"
+            />
+            <div class="text-caption text-grey-7 q-mt-sm">
+              A demo opens like a project file. Save keeps your own copy.
+            </div>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
       <div class="text-caption text-grey-7">…or drop a .rrq file anywhere on this window.</div>
 
       <!-- Recent projects; unsaved work shows here too (opened from its draft) instead of a popup. -->
@@ -222,7 +245,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { pickProject, supportsFileAccess } from '@/storage/files';
 import { recentProjects, type RecentEntry } from '@/storage/recent';
 import { gistId, gistProjects, gistText, type GistFile } from '@/storage/gist';
-import { demoName, demoText } from '@/storage/demo';
+import { demoName } from '@/storage/demo';
+import { useOpenDemo } from '@/composables/open-demo';
+import DemoList from '@/components/DemoList.vue';
 import { useProjectStore } from '@/stores/project';
 import { useOpenProject } from '@/composables/open-project';
 import { useStartQuilt } from '@/composables/start-quilt';
@@ -358,23 +383,9 @@ async function openGistFile() {
   }
 }
 
-/** A demo project: opened like a picked file with no place to save back to (Save asks where). */
-async function openDemo(name: string) {
-  const done = $q.notify({
-    group: false,
-    timeout: 0,
-    spinner: true,
-    message: `Opening ${name}…`,
-  });
-  try {
-    const text = await demoText(name);
-    await openWith(() => project.openFile({ file: new File([text], name) }));
-  } catch (e) {
-    openFail(e);
-  } finally {
-    done();
-  }
-}
+/** Demo projects (public/demo): from a link, or picked in Open a demo. */
+const openDemo = useOpenDemo();
+const demoPick = ref(false);
 
 function openRecent(r: RecentEntry) {
   const d = draftOf(r.id);

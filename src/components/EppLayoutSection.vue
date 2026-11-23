@@ -12,7 +12,7 @@
       <div class="text-caption text-grey-7 q-mt-xs">
         {{
           layout.threeD
-            ? 'Sewn into an object: it has a 3D assembly tab, and a 3D badge among the project’s quilts and in its EPP tab. Turned off, its seams wait unused until it is 3D again.'
+            ? 'Sewn into an object: it has a 3D assembly tab, and a 3D badge among the project’s quilts. Turned off, its seams wait unused until it is 3D again.'
             : 'Sew the pieces into an object instead. A 3D design has no edge or borders, so turning this on removes them (Undo brings them back).'
         }}
       </div>

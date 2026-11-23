@@ -36,9 +36,12 @@ like sketchbook/worktable are fine).
   draft / pending); `DataEntryDialog` (calendar, day form, Year); `/data/steps` = PrintPreview kind
   `steps` from `model/print/data-steps.ts` (days or Block by block). Nav tab: setting `dataTab`
   (`composables/data-tab.ts`).
-- **Demo projects**: `public/demo/*.rrq` (deployed, precached), opened by `/?open_url=<name>.rrq`
-  (`storage/demo.ts`: the demo folder only, never another site), beside `/?open_gist=`. The 3D EPP
-  demo `3d-epp.rrq` is written by `test/vitest/__tests__/model/epp/demo3d.spec.ts` (`EPP3D_DEMO`).
+- **Demo projects**: `public/demo/*.rrq` (deployed, precached), listed in `DEMOS` (`storage/demo.ts`)
+  for the welcome wizard's Demos step and the home page's Open a demo (`DemoList.vue`,
+  `composables/open-demo.ts`), and opened by `/?open_url=<name>.rrq` (the demo folder only, never
+  another site), beside `/?open_gist=`. Written by tests: `3d-epp.rrq` by
+  `__tests__/model/epp/demo3d.spec.ts` (`EPP3D_DEMO=<file>`), `temperature.rrq` by
+  `__tests__/model/temperature-demo.spec.ts` (`TEMPERATURE_DEMO=<file>`).
 - **Resource repositories**: git repos of extra library content, fetched on user request (the only
   network use). Cached for offline. Untrusted: validate, never execute. Projects embed used items.
 - **Library files**: `.rrqlib` (JSON) — one format for personal-library backup and shareable

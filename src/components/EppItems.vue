@@ -7,7 +7,6 @@
         { value: 'all', label: 'All' },
         { value: 'shapes', label: 'Shapes' },
         { value: 'rosettes', label: 'Rosettes' },
-        { value: '3d', label: '3D' },
       ]"
     />
     <div class="text-subtitle2">Mine</div>
@@ -20,64 +19,10 @@
         <q-icon name="hive" size="md" />
         <div>New rosette</div>
       </button>
-      <button class="card add" @click="new3d">
-        <q-icon name="3d_rotation" size="md" />
-        <div>New 3D design</div>
-      </button>
       <button class="card add" @click="importFile">
         <q-icon name="upload_file" size="md" />
         <div>Import <span class="text-caption">.rrqepp</span></div>
       </button>
-    </div>
-    <!-- 3D EPP quilts (spec 027 User Story 7): listed here with a 3D badge, and under Quilts as
-         2D EPP quilts are (owner, 2026-11-23). In a block box: Firefox stretches a grid's rows
-         straight inside a flex column. -->
-    <div v-if="designs.length && (filter === 'all' || filter === '3d')">
-      <div class="designs">
-        <div v-for="q in designs" :key="q.id" class="card">
-          <div class="relative-position">
-            <button class="thumb" :aria-label="`Open ${q.notecard.name}`" @click="openDesign(q.id)">
-              <img
-                :src="quiltPicture(project.doc!, q, 240, $q.dark.isActive)"
-                :alt="q.notecard.name"
-                draggable="false"
-              />
-            </button>
-            <q-badge color="primary" class="badge3d">3D</q-badge>
-          </div>
-          <div class="row items-center no-wrap">
-            <FullName class="col" :name="q.notecard.name" />
-            <q-btn flat round dense icon="more_vert" aria-label="Actions">
-              <q-menu auto-close>
-                <q-list dense style="min-width: 180px">
-                  <q-item clickable @click="openDesign(q.id)">
-                    <q-item-section avatar class="menu-icon"><q-icon name="edit" /></q-item-section>
-                    <q-item-section>Open</q-item-section>
-                  </q-item>
-                  <q-item clickable @click="openDesign(q.id, 'print')">
-                    <q-item-section avatar class="menu-icon"
-                      ><q-icon name="print"
-                    /></q-item-section>
-                    <q-item-section>Print</q-item-section>
-                  </q-item>
-                  <q-item v-if="!ro" clickable @click="copyDesign(q.id)">
-                    <q-item-section avatar class="menu-icon"
-                      ><q-icon name="content_copy"
-                    /></q-item-section>
-                    <q-item-section>Create copy</q-item-section>
-                  </q-item>
-                  <q-item v-if="!ro" clickable @click="deleteDesign(q.id)">
-                    <q-item-section avatar class="menu-icon"
-                      ><q-icon name="delete" color="negative"
-                    /></q-item-section>
-                    <q-item-section class="text-negative">Delete</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-btn>
-          </div>
-        </div>
-      </div>
     </div>
     <!-- Mine, then each library in category sections, as the Blocks tab's library blocks. A block
          box, not a flex column: Firefox stretched the cards' grid rows to a two-column guess. -->
@@ -191,11 +136,6 @@ import { itemId } from '@/model/identity';
 import { addEpp, blocksByLibrary, MY_LIBRARY } from '@/model/library';
 import { eppUsed, isLibraryItem } from '@/model/library-items';
 import { variationName } from '@/model/new-quilt';
-import { DEFAULT_LICENSE } from '@/model/credits';
-import { newId } from '@/model/ids';
-import { is3d, newEppQuilt } from '@/model/epp/quilt-ops';
-import { useQuiltPicture } from '@/composables/quilt-picture';
-import { useEditorStore } from '@/stores/editor';
 import type { EppShape, Rosette } from '@/model/schema/epp';
 import { colorLookup } from '@/render/draw';
 import { exportFile, pickFile } from '@/storage/files';
@@ -218,13 +158,10 @@ const project = useProjectStore();
 const library = useLibraryStore();
 const app = useSettingsStore();
 const router = useRouter();
-const editor = useEditorStore();
-/** 3D designs' pictures: the folded object (owner, 2026-11-23). */
-const quiltPicture = useQuiltPicture();
 const askAuthor = useAuthor();
 const $q = useQuasar();
 const ro = computed(() => project.readOnly);
-const filter = ref<'all' | 'shapes' | 'rosettes' | '3d'>('all');
+const filter = ref<'all' | 'shapes' | 'rosettes'>('all');
 
 const lookup = computed(() => lookupEpp(project.doc!.project, [], library.lookup));
 const css = computed(() => {
@@ -416,51 +353,6 @@ async function toLibrary(c: Card) {
   $q.notify({ type: 'positive', message: `Added "${c.name}" to ${MY_LIBRARY}.` });
 }
 
-// --- 3D designs (3D EPP quilts) ---
-const designs = computed(() => project.doc!.project.quilts.filter(is3d));
-function openDesign(id: string, mode: 'assembly' | 'print' = 'assembly') {
-  const q = designs.value.find((x) => x.id === id);
-  editor.mode = mode === 'assembly' && !q?.epp?.pieces.length ? 'design' : mode;
-  void router.push(`/project/quilt/${id}`);
-}
-async function new3d() {
-  const d = project.doc!;
-  const author = await askAuthor();
-  const name = variationName(
-    '3D design',
-    d.project.quilts.map((q) => q.notecard.name),
-  );
-  const q = {
-    ...newEppQuilt(name, d.units, undefined, true),
-    ...(author ? { author } : {}),
-    license: d.project.license ?? DEFAULT_LICENSE,
-  };
-  project.change((x) => void x.project.quilts.push(q));
-  openDesign(q.id, 'assembly');
-}
-function copyDesign(id: string) {
-  const quilts = project.doc!.project.quilts;
-  const q = quilts.find((x) => x.id === id);
-  if (!q) return;
-  const copy = { ...structuredClone(q), id: newId() };
-  copy.notecard.name = variationName(
-    q.notecard.name,
-    quilts.map((x) => x.notecard.name),
-  );
-  project.change((d) => void d.project.quilts.splice(quilts.indexOf(q) + 1, 0, copy));
-}
-function deleteDesign(id: string) {
-  const q = designs.value.find((x) => x.id === id);
-  $q.dialog({
-    title: `Delete "${q?.notecard.name}"?`,
-    message: 'You can undo this.',
-    cancel: true,
-    ok: { label: 'Delete', color: 'negative', flat: true },
-  }).onOk(() =>
-    project.change((d) => void (d.project.quilts = d.project.quilts.filter((x) => x.id !== id))),
-  );
-}
-
 function remove(c: Card) {
   const p = project.doc!.project;
   const used = eppUsed(p);
@@ -520,21 +412,5 @@ function remove(c: Card) {
 .menu-icon {
   min-width: 0;
   padding-right: 12px;
-}
-.designs {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-}
-.thumb img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: contain;
-}
-.badge3d {
-  position: absolute;
-  top: 6px;
-  right: 6px;
 }
 </style>

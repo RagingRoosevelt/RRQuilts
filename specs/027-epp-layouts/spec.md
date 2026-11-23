@@ -133,7 +133,14 @@ justification).
   demo folder (precached), opened by the link `/?open_url=3d-epp.rrq` (like `/?open_gist=`, but only
   for files in the demo folder) that the help uses. Owner, 2026-11-23: "let's add a demo folder
   that's included in the deployed app and a similar route to open_gist called ?open_url= that can
-  load rrq files from the demo folder that are passed in". The d10 is a real die's: every corner on a sphere, so each kite has two right
+  load rrq files from the demo folder that are passed in". A second demo, `temperature.rrq`: three
+  temperature quilts (365 days of highs, a month per row, highs and lows week by week) with a year
+  of sample entries, the first weeks marked cut and sewn. The welcome wizard gets a **Demos** step
+  after Help, and the home page an **Open a demo** button right of Open a project file and Open
+  from a gist, both listing the demos (`DEMOS` in src/storage/demo.ts). Owner, 2026-11-23: "and
+  let's also have a demo of temperature quilts", "let's add a "demos" step to the welcome wizard
+  after help" and "let's add a button to the right of "open rpoject file" and "open github gist"
+  for "open a demo"". The d10 is a real die's: every corner on a sphere, so each kite has two right
   angles, a 51.8° tip and a 128.2° bottom corner, short edges 1U and long edges 2.06U (marked);
   not the 108°/36° kite of the dual of the uniform antiprism. Owner, 2026-11-23: "the d10 kites
   demo should use the standard kite shape that would be found in a typical d10".
@@ -390,8 +397,10 @@ fifth diamond's free edge to the first's; the 3D assembly tab shows a shallow fi
    edge and borders, turning it off keeps the seams unused). Owner, 2026-11-23: "the interface when
    the epp option has been picked should have a toggle for 3d epp mode" and "we don't appear to
    have the toggle for epp in layout of the quilt design, either". 3D EPP quilts are listed with the
-   project's quilts as 2D EPP quilts are, with a 3D badge, and in the EPP tab too. Owner,
-   2026-11-23: "3d epp quilts should show up in the projects quilt tab just like 2d epp quilts do".
+   project's quilts as 2D EPP quilts are, with a 3D badge, and not in the EPP tab (shapes and
+   rosettes only; the EPP tab's New 3D design went with them). Owner, 2026-11-23: "3d epp quilts
+   should show up in the projects quilt tab just like 2d epp quilts do" and "the epp 3d quilts are
+   showing up in the epp shapes/rosette tab".
    Their cards show the folded object as the 3D assembly tab first does (turned to its front,
    stuffed for a stuffed design), drawn in the background; the flat picture until it's ready.
    Owner, 2026-11-23: "can we change the thumbnails for 3d epp quilts to use a 3d render of the
