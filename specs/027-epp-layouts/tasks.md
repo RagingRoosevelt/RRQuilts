@@ -237,6 +237,8 @@ multi-select).
 - [X] T097 [3D] Print: the quilt picture of a 3D quilt shows each explicit seam's edges, colored and numbered, and no edge line (src/components/PrintPreview.vue `seamPicture`) (TC-311)
 - [X] T098 [3D] Demo project test/fixtures/epp3d-demo.rrq (owner, 2026-11-23): star pillow (stars turned half a point, interlocking), twisted pincushion, d4, d6 (one assembly), d8, d10 (kites, a project shape), d12, d20, hexagonal prism, truncated tetrahedron, soccer ball; written by test/vitest/__tests__/model/epp/demo3d.spec.ts with `EPP3D_DEMO=<file>` (designs in designs3d.ts), which checks each folds shut or closes once stuffed; offered in the checklist (TC-306)
 - [X] T099 [3D] Help src/help/guides/epp-3d.md, linked from the 3D assembly tab
+- [X] T102 New-quilt wizard, EPP mode: no Size or Sashing step (no block spaces), Borders kept (none by default, passed to the quilt; they show once it has a made edge) (src/components/QuiltWizard.vue; owner, 2026-11-23; TC-312)
+- [X] T103 [3D] **3D EPP** toggle in the wizard's EPP mode (Layout step only when on) and in an EPP quilt's Layout tab (src/components/EppLayoutSection.vue `setThreeD`: on clears the edge and borders, off keeps the seams) (owner, 2026-11-23; TC-313)
 - [ ] T100 [3D] Link the demo from the help once the owner hosts it as a gist
 - [ ] T101 [3D] CLAUDE.md: 3D EPP (model/epp fold, stuff, net; EppAssembly; three.js) with T069
 

@@ -176,7 +176,12 @@ the shape library beside it.
 **Acceptance Scenarios**:
 
 1. **Given** the project's quilt list, **Then** **EPP quilt** is offered next to the existing quilt
-   wizard and asks for a name, the base dimension and the seam allowance (both editable later).
+   wizard and asks for a name, the base dimension and the seam allowance (both editable later). In
+   the new-quilt wizard's EPP mode the steps are Layout (1U, seam allowance, **3D EPP** toggle) and
+   Borders (none by default, shown once the quilt has a made edge), with no Size or Sashing step
+   (no block spaces). Owner, 2026-11-23: "in the new quilt wizard, even in epp mode, currently size
+   has columns/rows and block size which don't apply to epp. I believe sashing should also be cut.
+   we should leave borders, though".
 2. **Given** a new EPP quilt, **Then** it opens on an empty design area with the shapes available to
    this project beside it, filtered and grouped like blocks (spec 026 filters, categories).
 3. **Given** the base dimension changes later, **Then** every piece scales with it; the arrangement
@@ -366,7 +371,12 @@ fifth diamond's free edge to the first's; the 3D assembly tab shows a shallow fi
 
 1. **Given** a 3D EPP quilt (its own quilt type, listed in the project's EPP tab with a "3D" badge),
    **Then** it opens in the EPP quilt designer with the standard shapes and rosettes, plus a **3D
-   assembly** tab in the workbench.
+   assembly** tab in the workbench. It is made from the EPP tab's **New 3D design**, or with the
+   **3D EPP** toggle in the new-quilt wizard's EPP mode (Layout step only: a 3D design has no
+   borders); an EPP quilt's Layout tab has the same toggle, either way (turning 3D on removes the
+   edge and borders, turning it off keeps the seams unused). Owner, 2026-11-23: "the interface when
+   the epp option has been picked should have a toggle for 3d epp mode" and "we don't appear to
+   have the toggle for epp in layout of the quilt design, either".
 2. **Given** the 2D layout, **Then** pieces sharing an edge have a seam there with nothing to add,
    and the quilter adds **explicit seams** only between edges that don't touch: pick an edge of one
    piece and an edge of another of equal length; a numbered callout links them in the 2D view. The

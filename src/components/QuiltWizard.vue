@@ -65,6 +65,14 @@
                 :min="0"
                 :step="seamStep(units)"
               />
+              <!-- 3D EPP (spec 027 User Story 7; owner, 2026-11-23). -->
+              <div>
+                <q-toggle v-model="eppThreeD" dense label="3D EPP" />
+                <div class="text-caption text-grey-7 q-mt-xs">
+                  Sew the pieces into an object, such as a ball, a die or a stuffed star. It has a
+                  3D assembly tab and is listed in the project's EPP tab.
+                </div>
+              </div>
             </div>
             <!-- Style cards: each drawn by the layout engine; later styles join the list. -->
             <div
@@ -104,7 +112,13 @@
               hint="Shown as an outline over the preview, to size the quilt to"
             />
           </q-step>
-          <q-step name="detail" :title="detailTitle" :icon="isStrip ? 'view_stream' : 'straighten'">
+          <!-- EPP quilts have no block spaces: no size or sashing (owner, 2026-11-23). -->
+          <q-step
+            v-if="mode !== 'epp'"
+            name="detail"
+            :title="detailTitle"
+            :icon="isStrip ? 'view_stream' : 'straighten'"
+          >
             <div class="text-subtitle1 q-mb-md">{{ styleLabel }}</div>
             <DataSpaceCount
               v-if="dataOn"
@@ -316,7 +330,7 @@
               </div>
             </template>
           </q-step>
-          <q-step name="sashing" title="Sashing" icon="view_comfy">
+          <q-step v-if="mode !== 'epp'" name="sashing" title="Sashing" icon="view_comfy">
             <div v-if="isStrip" class="text-caption">
               Strip quilts have no sashing. Strips sit edge to edge.
             </div>
@@ -332,7 +346,16 @@
               :disable="!sash"
             />
           </q-step>
-          <q-step name="borders" title="Borders" icon="crop_square">
+          <q-step
+            v-if="mode !== 'epp' || !eppThreeD"
+            name="borders"
+            title="Borders"
+            icon="crop_square"
+          >
+            <div v-if="mode === 'epp'" class="text-caption text-grey-7 q-mb-sm">
+              Borders go round a finished edge. They show once you pick Cut to size or Auto-close in
+              the quilt's Layout tab.
+            </div>
             <q-input
               v-model.number="borderCount"
               dense
@@ -355,7 +378,11 @@
         <!-- Live preview of the layout as it's being chosen (beside the steps; below on phones). -->
         <div class="preview q-pa-md">
           <div v-if="mode === 'epp'" class="text-caption text-grey-7">
-            An EPP quilt starts empty: you place shapes and rosettes in its Design tab.
+            {{
+              eppThreeD
+                ? 'A 3D EPP design starts empty: you place shapes and rosettes in its Design tab and sew edges that don’t touch with the Seam tool.'
+                : 'An EPP quilt starts empty: you place shapes and rosettes in its Design tab.'
+            }}
           </div>
           <svg
             v-else-if="preview"
@@ -469,12 +496,19 @@ const dataNeed = computed(() =>
     plan: dataPlan.value as DataPlan['plan'],
   }),
 );
-// Layout and target size first; the chosen layout's own settings next (spec 006 FR-001a).
-const steps = ['blocks', 'detail', 'sashing', 'borders'];
-// An EPP quilt has only the first step (its edge and borders come later, in the editor).
-const next = computed(() =>
-  mode.value === 'epp' ? undefined : steps[steps.indexOf(step.value) + 1],
+/** A 3D EPP quilt (spec 027 User Story 7): folds into an object, so no borders. */
+const eppThreeD = ref(false);
+watch(eppThreeD, (on) => on && (step.value = 'blocks'));
+// Layout and target size first; the chosen layout's own settings next (spec 006 FR-001a). An EPP
+// quilt has no block spaces, so no size or sashing: its unit, then borders (its edge comes later).
+const steps = computed(() =>
+  mode.value !== 'epp'
+    ? ['blocks', 'detail', 'sashing', 'borders']
+    : eppThreeD.value
+      ? ['blocks']
+      : ['blocks', 'borders'],
 );
+const next = computed(() => steps.value[steps.value.indexOf(step.value) + 1]);
 const eppUnit = ref(eppDefaults(props.units).unit);
 /** The project's EPP seam allowance (`projectEppSeam`; a new project: the default), set on create. */
 const eppSeam = ref(props.projectEppSeam ?? SEAM_DEFAULTS[props.units].epp);
@@ -500,7 +534,10 @@ watch(isGarment, (g) => {
 const style = ref<Style>('straight-set');
 /** Block layouts or patch layouts (spec 026). */
 const mode = ref<'blocks' | 'patches' | 'epp'>('blocks');
-watch(mode, (m) => {
+watch(mode, (m, was) => {
+  // EPP quilts start with no borders (spec 027: off by default); leaving brings the default back.
+  if (m === 'epp') borderCount.value = 0;
+  else if (was === 'epp' && borderCount.value === 0 && !isGarment.value) borderCount.value = 1;
   if (m === 'epp') return void (step.value = 'blocks');
   if (!STYLES.find((x) => x.value === style.value)!.modes.includes(m))
     style.value = STYLES.find((x) => x.modes.includes(m))!.value;
@@ -754,7 +791,7 @@ const styleCards = computed(() =>
 
 const summary = computed(() => {
   if (mode.value === 'epp')
-    return `1U = ${+eppUnit.value.toFixed(3)} ${props.units} · seam allowance ${+eppSeam.value.toFixed(3)} ${props.units}`;
+    return `${eppThreeD.value ? '3D · ' : ''}1U = ${+eppUnit.value.toFixed(3)} ${props.units} · seam allowance ${+eppSeam.value.toFixed(3)} ${props.units}${eppThreeD.value ? '' : ` · ${borders.value.length} border${borders.value.length === 1 ? '' : 's'}`}`;
   const [x0, y0, x1, y1] = generated.value.bounds;
   const n = (v: number) => +v.toFixed(2);
   const done = `Finished ${n(x1 - x0)} × ${n(y1 - y0)} ${props.units}`;
@@ -771,8 +808,10 @@ function create() {
       style: 'epp',
       unit: eppUnit.value,
       edge: { kind: 'none' },
+      ...(eppThreeD.value ? { threeD: true as const } : {}),
     };
-    return emit('create', layout, [], undefined, undefined, eppSeam.value);
+    const b = eppThreeD.value ? [] : borders.value;
+    return emit('create', layout, b, undefined, undefined, eppSeam.value);
   }
   // A plain copy: the project freezes what it's given, and these are live, editable objects.
   const t = targetShape.value;
@@ -800,6 +839,7 @@ function show() {
   step.value = 'blocks';
   mode.value = 'blocks';
   eppUnit.value = eppDefaults(props.units).unit;
+  eppThreeD.value = false;
   eppSeam.value = props.projectEppSeam ?? SEAM_DEFAULTS[props.units].epp;
   dataOn.value = false;
   dataPlan.value = 'months';

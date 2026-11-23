@@ -1,5 +1,22 @@
 <template>
   <div class="column" style="gap: 12px">
+    <!-- 3D EPP (spec 027 User Story 7; owner, 2026-11-23): either way, as in the new-quilt wizard. -->
+    <div>
+      <q-toggle
+        :model-value="!!layout.threeD"
+        dense
+        label="3D EPP"
+        :disable="readonly"
+        @update:model-value="setThreeD"
+      />
+      <div class="text-caption text-grey-7 q-mt-xs">
+        {{
+          layout.threeD
+            ? 'Sewn into an object: it has a 3D assembly tab and is listed in the project’s EPP tab. Turned off, its seams wait unused until it is 3D again.'
+            : 'Sew the pieces into an object instead. A 3D design has no edge or borders, so turning this on removes them (Undo brings them back).'
+        }}
+      </div>
+    </div>
     <LengthInput
       :model-value="layout.unit"
       label="1U length"
@@ -140,6 +157,18 @@ function change(fn: (q: Quilt) => Quilt, coalesce?: string) {
 }
 const set = (patch: Partial<EppLayout>, key: string) =>
   change((q) => ({ ...q, layout: { ...(q.layout as EppLayout), ...patch } }), key);
+
+/** 3D folds into an object: no edge, no borders (the Borders tab goes too). */
+function setThreeD(on: boolean) {
+  change((q) => {
+    const l = { ...(q.layout as EppLayout) };
+    if (!on) {
+      delete l.threeD;
+      return { ...q, layout: l };
+    }
+    return { ...q, layout: { ...l, threeD: true, edge: { kind: 'none' } }, borders: [] };
+  });
+}
 
 function setEdgeKind(kind: string, fresh = false) {
   const e: EppEdge =

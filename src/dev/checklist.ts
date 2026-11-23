@@ -304,6 +304,20 @@ export const CHECKS: Check[] = [
     text: 'Print a demo design (d12): the quilt picture shows each seam’s two edges in the seam’s color with its number (one number between two edges that meet at a corner), with no edge line round the picture; paper and fabric templates as for any EPP quilt.',
     to: '/project',
   },
+  {
+    id: 'TC-312',
+    group: G.epp027,
+    text: 'Start a quilt › EPP: the steps are Layout and Borders only (no Size, no Sashing); Next goes to Borders, which says borders show once the quilt has a finished edge, with 0 borders to start. Set 2: the summary says 2 borders. Create: the quilt keeps them (Layout › Cut to size or Auto-close shows them). Back to Blocks or Patches: all four steps, 1 border again.',
+    last: 'in the new quilt wizard, even in epp mode, currently size has columns/rows and block size which don’t apply to epp. I believe sashing should also be cut. we should leave borders, though',
+    to: '/',
+  },
+  {
+    id: 'TC-313',
+    group: G.epp3d,
+    text: 'Start a quilt › EPP › 3D EPP on: only the Layout step, the summary starts with 3D; Create: a 3D design (tabs Details, Layout, Design, 3D assembly, Print, 3D Print), listed in the project’s EPP tab. An EPP quilt with a border: Layout › 3D EPP on: Borders tab goes, 3D assembly appears, the border is gone (Undo brings it back); off again: Borders tab back, any seams kept for next time.',
+    last: 'the interface when the epp option has been picked should have a toggle for 3d epp mode; we don’t appear to have the toggle for epp in layout of the quilt design, either',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
