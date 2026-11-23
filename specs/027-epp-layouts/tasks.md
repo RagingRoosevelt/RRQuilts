@@ -242,6 +242,7 @@ multi-select).
 - [X] T104 [3D] 3D assembly tab split: the flat net (src/components/EppCanvas.vue, seams tapped on and off, open seams red, front ringed) above the 3D view, or beside it; setting `epp3dSplit` (src/settings/settings.ts, Settings › Interface › 3D EPP, vertical by default); the Seam tool's code shared as src/composables/epp-seams.ts; `removeSeam` by index (seams never came off through a draft) (owner, 2026-11-23; TC-314)
 - [X] T105 [3D] Stuffed design, a quilt setting (`EppLayout.stuffed`, `setStuffedDesign`) in the Layout tab (3D only) and the 3D assembly tab, plus the tab's Show stuffing (this view) switch in place of Stuff and Unstuff; a stuffed design stuffs once folded and turned; stuffed, the fold's open seams no longer show red; demo: star pillow, twisted pincushion and soccer ball stuffed (owner, 2026-11-23; TC-315)
 - [X] T106 [3D] 3D EPP quilts listed under Quilts again, with a 3D badge, as well as in the EPP tab (src/pages/SketchbookPage.vue) (owner, 2026-11-23; TC-316)
+- [X] T107 [3D] "Not closing" (red text, red seams in the net) follows the Stuffed design setting, not the view; the view switch renamed **Enable simulation view**, on whenever the tab opens a stuffed design (and when the tab shows another quilt) (owner, 2026-11-23; TC-317)
 - [ ] T100 [3D] Link the demo from the help once the owner hosts it as a gist
 - [ ] T101 [3D] CLAUDE.md: 3D EPP (model/epp fold, stuff, net; EppAssembly; three.js) with T069
 

@@ -43,9 +43,9 @@ The side panel says whether every seam closes. Seams that can't close are listed
 
 Only a closed shape can be stuffed, and a shape is closed when every edge is sewn. The side panel says whether the design can be stuffed and, when it can't, why.
 
-**Show stuffing (this view)** only changes what the 3D assembly tab shows. Turn it off to see the flat pieces of a stuffed design. Nothing is saved, and it is on again next time.
+**Enable simulation view** only changes what the 3D assembly tab shows. It is on whenever the tab opens a stuffed design. Turn it off to see the flat pieces. Nothing is saved.
 
-Some designs only close once stuffed. Two stars sewn back to back lie flat as papers, and a pincushion sewn one edge round can't close with flat pieces at all. When a closed design has seams that don't close, the side panel says stuffing might close them.
+Some designs only close once stuffed. Two stars sewn back to back lie flat as papers, and a pincushion sewn one edge round can't close with flat pieces at all. For a stuffed design the side panel says the fabric closes those seams, with the simulation view on or off. For a closed design that isn't stuffed, it lists them and says stuffing might close them.
 
 ## Print
 

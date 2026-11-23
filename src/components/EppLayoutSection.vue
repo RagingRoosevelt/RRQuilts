@@ -27,8 +27,8 @@
         @update:model-value="(on: boolean) => change((q) => setStuffedDesign(q, on))"
       />
       <div class="text-caption text-grey-7 q-mt-xs">
-        Filled with stuffing once sewn. The 3D assembly tab shows it stuffed, and its Show stuffing
-        switch hides the stuffing in that view only.
+        Filled with stuffing once sewn. The 3D assembly tab simulates the stuffing, and its Enable
+        simulation view switch turns that off in the tab only.
       </div>
     </div>
     <LengthInput

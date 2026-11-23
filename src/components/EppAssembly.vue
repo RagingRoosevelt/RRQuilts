@@ -50,9 +50,7 @@
       <div class="text-body2" :class="foldClass">{{ foldText }}</div>
       <div v-if="mightClose" class="note text-body2">
         <q-icon name="lightbulb" class="q-mr-xs" />The design is closed, so stuffing might close
-        these seams: the fabric bends where flat pieces can't.<template v-if="!designStuffed">
-          Turn on Stuffed design to see.</template
-        >
+        these seams: the fabric bends where flat pieces can't. Turn on Stuffed design to see.
       </div>
       <q-btn
         outline
@@ -99,13 +97,13 @@
           dense
           checked-icon="visibility"
           unchecked-icon="visibility_off"
-          label="Show stuffing (this view)"
+          label="Enable simulation view"
           :disable="!designStuffed"
         />
         <div class="text-caption text-grey-7 q-mt-xs">
           {{
             designStuffed
-              ? 'Only how this view looks: off shows the flat pieces. Nothing is saved.'
+              ? 'Simulates the stuffing in this view, on whenever the tab opens. Off shows the flat pieces. Nothing is saved.'
               : 'For a stuffed design.'
           }}
         </div>
@@ -271,7 +269,10 @@ const foldText = computed(() => {
       : 'Folded: every seam closes. A closed shape, but inside out (paper side out).';
   }
   // Stuffed, the fabric closes what flat pieces couldn't (sewn by shared points).
-  if (stuffed.value) return 'Stuffed: the fabric closes the seams the flat pieces couldn’t.';
+  // A stuffed design's fabric closes what flat pieces can't: the setting decides, not the view
+  // (owner, 2026-11-23).
+  if (fabricCloses.value)
+    return 'Stuffed design: the fabric closes the seams the flat pieces can’t.';
   const open = r.open.map((i) => fold!.hinges[i]!);
   const sewn = open.filter((h) => h.seam !== null);
   const names = sewn.length > 3 ? [`${sewn.length} seams`] : sewn.map((h) => `seam ${h.seam! + 1}`);
@@ -279,12 +280,15 @@ const foldText = computed(() => {
   if (shared) names.push(`${shared} shared edge${shared === 1 ? '' : 's'}`);
   return `Not closing: ${names.join(' and ')} (gaps up to ${fmt(r.worst)}U). Showing the closest fold found.`;
 });
+/** A stuffed design that can be stuffed: its seams close in fabric, whatever this view shows. */
+const fabricCloses = computed(() => designStuffed.value && closed.value);
 const foldClass = computed(() =>
-  phase.value === 'done' && report.value?.open.length && !stuffed.value ? 'text-negative' : '',
+  phase.value === 'done' && report.value?.open.length && !fabricCloses.value ? 'text-negative' : '',
 );
 /** Owner, 2026-11-23: "let's add a note that when it can't be joined but stuffing might help". */
 const mightClose = computed(
-  () => phase.value === 'done' && closed.value && !!report.value?.open.length && !stuffed.value,
+  () =>
+    phase.value === 'done' && closed.value && !!report.value?.open.length && !designStuffed.value,
 );
 /** Whether the design can be stuffed, and why not (owner, 2026-11-23). */
 const stuffable = computed(() => {
@@ -309,8 +313,13 @@ const fmt = (x: number) => (+x.toFixed(2)).toString();
 const designStuffed = computed(
   () => props.quilt.layout.style === 'epp' && !!props.quilt.layout.stuffed,
 );
-/** Not saved: hides the stuffing in this view (on each time the tab opens). */
+/** Enable simulation view: not saved, on whenever the tab opens (owner, 2026-11-23), and for each
+ *  quilt it shows. */
 const showStuffing = ref(true);
+watch(
+  () => props.quilt.id,
+  () => (showStuffing.value = true),
+);
 const wantStuffing = () => designStuffed.value && showStuffing.value && stuffable.value.ok;
 function setDesignStuffed(on: boolean) {
   if (ro.value) return;
@@ -342,7 +351,7 @@ const netPolys = computed<CanvasPoly[]>(() =>
 const openSeams = computed(() => {
   const r = report.value;
   const m = fold;
-  if (stuffed.value) return new Set<number>();
+  if (fabricCloses.value) return new Set<number>();
   return new Set(
     r && m ? r.open.flatMap((i) => (m.hinges[i]!.seam === null ? [] : [m.hinges[i]!.seam])) : [],
   );
@@ -960,7 +969,7 @@ function pickFront(piece: number | null) {
   if (ro.value) return;
   if (cloth)
     return void $q.notify({
-      message: 'Turn off Show stuffing first to change the front.',
+      message: 'Turn off Enable simulation view first to change the front.',
       timeout: 1500,
     });
   const leaf = piece === null ? null : leaves.value[piece];

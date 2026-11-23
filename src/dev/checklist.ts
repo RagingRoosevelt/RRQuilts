@@ -312,18 +312,18 @@ export const CHECKS: Check[] = [
     to: '/project',
   },
   {
-    id: 'TC-315',
-    group: G.epp3d,
-    text: 'Stuffing as a design setting. Demo › Star pillow › 3D assembly: Stuffed design on; it folds, turns to its front, then stuffs by itself (the flat design’s red seams and the red Not closing line give way to "Stuffed: the fabric closes…"). Show stuffing (this view) off: the flat pieces again, Stuffed design stays on (Layout tab too); on again: stuffed. d6 (cube): Stuffed design off, Show stuffing greyed; turn Stuffed design on: the cube stuffs (about 1.28 U³) and Layout › Stuffed design is on; turn it off in Layout: the cube shows flat. A design with a free edge and Stuffed design on: "Can’t be stuffed" and why. A 2D EPP quilt’s Layout tab has no Stuffed design. Firmness is the prototype’s firmest, with no setting.',
-    last: 'Stuffing should be a quilt setting with a toggle in the assbly interface to show or hide the stuffing. The setting should be in layout and visible only if it’s a 3d epp quilt and it should be available as well in the 3d assembly interface. The label for the view toggle and the setting should be clearly distinguished',
-    to: '/project',
-  },
-  {
     id: 'TC-316',
     group: G.epp3d,
     text: 'Open the 3D EPP demo (download it here). Project › Quilts (11): the eleven 3D designs with a 3D badge (top right) and their nets as pictures, beside any other quilts; they open, copy and delete as other quilts. EPP tab: the same designs with the badge (the 3D filter shows only them), plus the d10 Kite under Mine.',
     last: '3d epp quilts should show up in the projects quilt tab just like 2d epp quilts do',
     file: 'epp3d-demo.rrq',
+    to: '/project',
+  },
+  {
+    id: 'TC-317',
+    group: G.epp3d,
+    text: 'Stuffing as a design setting. Demo › Star pillow › 3D assembly: Stuffed design on, Enable simulation view on; it folds, turns to its front, then stuffs. The side panel says "Stuffed design: the fabric closes the seams the flat pieces can’t." with no red Not closing line and no red seams in the flat design, and stays so with Enable simulation view off (the flat pieces show; Stuffed design stays on, Layout too). Leave the tab and come back, or open another stuffed design: Enable simulation view is on again. Stuffed design off: the red Not closing line, red seams and the note that stuffing might close them. d6 (cube): Enable simulation view greyed until Stuffed design is on, then the cube stuffs (about 1.28 U³); Layout › Stuffed design off shows it flat. A design with a free edge and Stuffed design on: "Can’t be stuffed" and why. A 2D EPP quilt’s Layout tab has no Stuffed design.',
+    last: 'the not closing warning should only show based on the stuffed design toggle, not based on the stuffed design view toggle. the show stuffing should be renamed to "enable simulation view" and should be on any time that 3d assembly view is loaded if the quilt is a stuffed design',
     to: '/project',
   },
 ];

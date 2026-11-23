@@ -408,7 +408,14 @@ fifth diamond's free edge to the first's; the 3D assembly tab shows a shallow fi
    physical stuffing, at the prototype's firmest setting, with no firmness setting. **Stuffed
    design** is a quilt setting (`layout.stuffed`), in the Layout tab (3D quilts only) and in the
    3D assembly tab; a stuffed design stuffs once folded and turned to its front, and the tab's
-   **Show stuffing (this view)** switch hides or shows the stuffing without saving anything.
+   **Enable simulation view** switch (on whenever the tab opens a stuffed design) turns the
+   simulation off and on without saving anything. A stuffed design's seams the flat pieces can't
+   close aren't reported as not closing (the fabric closes them), whatever the switch shows; a
+   design that isn't stuffed gets the warning and the note that stuffing might help. Owner,
+   2026-11-23: "the not closing warning should only show based on the stuffed design toggle, not
+   based on the stuffed design view toggle. the show stuffing should be renamed to "enable
+   simulation view" and should be on any time that 3d assembly view is loaded if the quilt is a
+   stuffed design".
    Owner, 2026-11-23: "Stuffing should be a quilt setting with a toggle in the assbly interface to
    show or hide the stuffing. The setting should be in layout and visible only if it's a 3d epp
    quilt and it should be available as well in the 3d assembly interface. The label for the view
