@@ -4,7 +4,7 @@ order: 37
 summary: Sew EPP pieces into an object with seams between edges that don't touch, fold it in the 3D assembly tab, and stuff it.
 ---
 
-A 3D EPP design is a flat layout of pieces whose edges are sewn into an object, such as a ball, a die or a stuffed star. It is listed with the project's quilts and in its **EPP** tab, with a **3D** badge.
+A 3D EPP design is a flat layout of pieces whose edges are sewn into an object, such as a ball, a die or a stuffed star. It is listed with the project's quilts and in its **EPP** tab, with a **3D** badge, and its card shows the folded object (stuffed, for a stuffed design).
 
 ## Start a 3D design
 

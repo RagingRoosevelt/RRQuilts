@@ -38,7 +38,7 @@
           <div class="relative-position">
             <button class="thumb" :aria-label="`Open ${q.notecard.name}`" @click="openDesign(q.id)">
               <img
-                :src="quiltThumbnail(project.doc!, q, 240, $q.dark.isActive, true)"
+                :src="quiltPicture(project.doc!, q, 240, $q.dark.isActive)"
                 :alt="q.notecard.name"
                 draggable="false"
               />
@@ -194,7 +194,7 @@ import { variationName } from '@/model/new-quilt';
 import { DEFAULT_LICENSE } from '@/model/credits';
 import { newId } from '@/model/ids';
 import { is3d, newEppQuilt } from '@/model/epp/quilt-ops';
-import { quiltThumbnail } from '@/render/thumbnail';
+import { useQuiltPicture } from '@/composables/quilt-picture';
 import { useEditorStore } from '@/stores/editor';
 import type { EppShape, Rosette } from '@/model/schema/epp';
 import { colorLookup } from '@/render/draw';
@@ -219,6 +219,8 @@ const library = useLibraryStore();
 const app = useSettingsStore();
 const router = useRouter();
 const editor = useEditorStore();
+/** 3D designs' pictures: the folded object (owner, 2026-11-23). */
+const quiltPicture = useQuiltPicture();
 const askAuthor = useAuthor();
 const $q = useQuasar();
 const ro = computed(() => project.readOnly);

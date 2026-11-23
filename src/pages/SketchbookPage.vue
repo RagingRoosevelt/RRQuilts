@@ -86,7 +86,7 @@
         <div class="relative-position">
           <button class="thumb" @click="openQuilt(q.id)">
             <img
-              :src="quiltThumbnail(project.doc, q, 240, $q.dark.isActive, true)"
+              :src="quiltPicture(project.doc, q, 240, $q.dark.isActive)"
               :alt="q.notecard.name"
               draggable="false"
             />
@@ -1477,6 +1477,7 @@ import type { Block, DataKind } from '@/model/schema/block';
 import { saveBlockImage, saveQuiltImage } from '@/render/save-image';
 import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 import { is3d, isEpp } from '@/model/epp/quilt-ops';
+import { useQuiltPicture } from '@/composables/quilt-picture';
 import { takesBlock } from '@/editor/scope';
 import { generateFor } from '@/model/layout/slots';
 import { useEditorStore } from '@/stores/editor';
@@ -1649,6 +1650,8 @@ const KINDS: [QuiltKind, string][] = [
 ];
 /** Each quilt's type: a data quilt, an EPP quilt (2D or 3D), else blocks when it has block spaces
  *  (as the editor opens it on Set) or patches. */
+/** Card pictures: 3D EPP quilts as their folded object (owner, 2026-11-23). */
+const quiltPicture = useQuiltPicture();
 const kindOf = computed(
   () =>
     new Map(

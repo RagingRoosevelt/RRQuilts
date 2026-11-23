@@ -388,6 +388,10 @@ fifth diamond's free edge to the first's; the 3D assembly tab shows a shallow fi
    have the toggle for epp in layout of the quilt design, either". 3D EPP quilts are listed with the
    project's quilts as 2D EPP quilts are, with a 3D badge, and in the EPP tab too. Owner,
    2026-11-23: "3d epp quilts should show up in the projects quilt tab just like 2d epp quilts do".
+   Their cards show the folded object as the 3D assembly tab first does (turned to its front,
+   stuffed for a stuffed design), drawn in the background; the flat picture until it's ready.
+   Owner, 2026-11-23: "can we change the thumbnails for 3d epp quilts to use a 3d render of the
+   quilt?".
    The 3D assembly tab splits its
    view: the flat net (seams editable there too, those the fold can't close in red, the front
    ringed) above the 3D view, or beside it by a setting (Settings › Interface › 3D EPP: vertical

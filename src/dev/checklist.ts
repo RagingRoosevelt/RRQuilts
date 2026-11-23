@@ -350,6 +350,14 @@ export const CHECKS: Check[] = [
     file: 'epp3d-demo.rrq',
     to: '/project',
   },
+  {
+    id: 'TC-322',
+    group: G.epp3d,
+    text: 'Open the 3D EPP demo: in Project › Quilts and › EPP, each 3D card turns from the flat net into the folded object within a couple of seconds (star pillow, twisted pincushion and soccer ball stuffed; the dice and solids flat-faced, seen from a little above and to the right, as the 3D assembly tab opens), on a light and a dark theme; the page stays usable meanwhile. Change a design (a color, a seam, Stuffed design): its card updates.',
+    last: 'can we change the thumbnails for 3d epp quilts to use a 3d render of the quilt?',
+    file: 'epp3d-demo.rrq',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
