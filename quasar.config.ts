@@ -132,7 +132,7 @@ export default defineConfig(() => ({
       // The published schemas are for outside tools (the app never reads them), and version.json
       // must always come from the network (spec 054).
       opts.globIgnores = [...(opts.globIgnores ?? []), 'schemas/**', 'version.json'];
-      // Demo projects (public/demo, opened by /?open_url=) work offline too.
+      // Demo projects (public/demo, opened by /?open_demo=) work offline too.
       opts.globPatterns = [...(opts.globPatterns ?? []), 'demo/*.rrq'];
     },
     extendPWAManifestJson(json) {

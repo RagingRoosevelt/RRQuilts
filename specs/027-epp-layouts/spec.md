@@ -130,7 +130,7 @@ justification).
   help)", "star pillow with a a phase rotation of where the seams go compared to where we have them
   now, so that they interlock rather than line up" and "let's also include the twisted pincushion
   in the demo rqq". It ships with the app instead: `public/demo/3d-epp.rrq`, in the deployed site's
-  demo folder (precached), opened by the link `/?open_url=3d-epp.rrq` (like `/?open_gist=`, but only
+  demo folder (precached), opened by the link `/?open_demo=3d-epp.rrq` (first called `open_url`; like `/?open_gist=`, but only
   for files in the demo folder) that the help uses. Owner, 2026-11-23: "let's add a demo folder
   that's included in the deployed app and a similar route to open_gist called ?open_url= that can
   load rrq files from the demo folder that are passed in". A second demo, `temperature.rrq`: three

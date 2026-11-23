@@ -308,7 +308,7 @@ export const CHECKS: Check[] = [
     group: G.epp3d,
     text: 'Demo › d10 (kites): the kites are a real d10’s (two right angles at the sides, a narrow 52° tip, a wide 128° bottom corner; long edges about twice the short, marked orange in the project’s d10 Kite shape). 3D assembly: it folds shut and looks like a d10. Enable simulation view shows off (greyed) while Stuffed design is off.',
     last: 'the d10 kites demo should use the standard kite shape that would be found in a typical d10',
-    to: '/?open_url=3d-epp.rrq',
+    to: '/?open_demo=3d-epp.rrq',
   },
   {
     id: 'TC-319',
@@ -323,35 +323,28 @@ export const CHECKS: Check[] = [
     group: G.epp3d,
     text: 'Stuffed pieces are smooth through the middle: demo Soccer ball, Star pillow, and d6 (cube) with Stuffed design on: zoom in on a stuffed face. No star of creases from the middle out to the corners (the middle no longer looks pinched); faces dome evenly, wrinkles only near the seams and corners. Stuffing settles in a few seconds as before.',
     last: 'in the stuffing simulation, why does it look like the centroid is pinched? is there some sort of a boundary condidtion thing there?',
-    to: '/?open_url=3d-epp.rrq',
+    to: '/?open_demo=3d-epp.rrq',
   },
   {
     id: 'TC-323',
     group: G.epp3d,
     text: 'Print a demo design (Soccer ball, d12): the quilt picture page shows the flat design with its numbered seams on top and the folded object below it (stuffed for the soccer ball), then the title and caption, all on one page; for a moment it may say "Drawing the 3D view…". Print to PDF: both views come out.',
     last: 'the print out should show both 2d and 3d view',
-    to: '/?open_url=3d-epp.rrq',
+    to: '/?open_demo=3d-epp.rrq',
   },
   {
     id: 'TC-324',
     group: G.epp3d,
     text: 'Print a demo design (d6): under the 3D view, "Click to turn it". Click: a live view; drag turns the object. Move the pointer off it: the picture comes back from the new side (a moment later, redrawn sharp). Print again or reopen the file after saving: the same side. Click, then leave the pointer on it untouched for 15 seconds: the picture comes back, unchanged. Undo after turning: the earlier side. On a phone: tap, drag with a finger, then wait 15 seconds. The printed copy never shows the hint.',
     last: 'let’s allow click-to-orbit on the 3d preview in the printout. we’ll record the orientation. clicking switches from showing an image to the orbitable view and mouse exit or 15seconds uninteracted will revert back to image view',
-    to: '/?open_url=3d-epp.rrq',
-  },
-  {
-    id: 'TC-325',
-    group: G.files,
-    text: 'Demo links. Open localhost:9000/RRQuilts/?open_url=3d-epp.rrq: the 3D EPP demo opens at once (11 quilts), with Save asking where. Help › 3D EPP › "3D EPP demo" link: the same. ?open_url=nope.rrq: "There’s no demo project called…". ?open_url=https://example.com/x.rrq: "That link doesn’t point at a demo project." With unsaved work open, the demo link keeps it in a draft as opening any file does. After a release (make serve, or the live site): the link works offline once the app has been loaded.',
-    last: 'let’s add a demo folder that’s included in the deployed app and a similar route to open_gist called ?open_url= that can load rrq files from the demo folder that are passed in',
-    to: '/?open_url=3d-epp.rrq',
+    to: '/?open_demo=3d-epp.rrq',
   },
   {
     id: 'TC-326',
     group: G.epp3d,
     text: 'Open the 3D EPP demo (this check’s link opens it). Project › Quilts (11): the eleven 3D designs with a 3D badge (top right), each card turning from the flat net into the folded object within a couple of seconds (star pillow, twisted pincushion and soccer ball stuffed), on a light and a dark theme; they open, copy and delete as other quilts; change a design (a color, a seam, Stuffed design) and its card updates. EPP (6): shapes and rosettes only (the d10 Kite under Mine), with All / Shapes / Rosettes, no 3D designs and no New 3D design.',
     last: '3d epp quilts should show up in the projects quilt tab just like 2d epp quilts do; the epp 3d quilts are showing up in the epp shapes/rosette tab; can we change the thumbnails for 3d epp quilts to use a 3d render of the quilt?',
-    to: '/?open_url=3d-epp.rrq',
+    to: '/?open_demo=3d-epp.rrq',
   },
   {
     id: 'TC-327',
@@ -366,6 +359,13 @@ export const CHECKS: Check[] = [
     text: 'Demos. Settings › You › Show the welcome again (or a fresh browser): the steps end with Demos after Help, listing Temperature quilts and 3D English paper piecing; the last button says Start quilting; clicking a demo closes the welcome and opens it. Home: Open a demo, right of Open from a gist, opens the same list (with unsaved work open, it asks first). Temperature quilts demo: Quilts (3): 365 days of highs, A month per row, Highs and lows week by week, each colored by a year of entered temperatures (Data tab: Real data), the first weeks marked cut and sewn (January and February sewn as months). Help › Data quilts links it.',
     last: 'let’s add a "demos" step to the welcome wizard after help; and let’s also have a demo of temperature quilts; let’s add a button to the right of "open rpoject file" and "open github gist" for "open a demo"',
     to: '/',
+  },
+  {
+    id: 'TC-329',
+    group: G.files,
+    text: 'Demo links, now ?open_demo=. Open localhost:9000/RRQuilts/?open_demo=3d-epp.rrq: the 3D EPP demo opens at once (11 quilts), with Save asking where. Help › 3D EPP › "3D EPP demo" and Help › Data quilts › "temperature quilts demo" links: the same for their demos. ?open_demo=nope.rrq: "There’s no demo project called…". ?open_demo=https://example.com/x.rrq: "That link doesn’t point at a demo project." With unsaved work open, a demo link keeps it in a draft as opening any file does. After a release (make serve, or the live site): the links work offline once the app has been loaded. (?open_url= for any link is still to come.)',
+    last: 'let’s add a demo folder that’s included in the deployed app and a similar route to open_gist called ?open_url= that can load rrq files from the demo folder that are passed in; the current method should be renamed to open_demo',
+    to: '/?open_demo=3d-epp.rrq',
   },
 ];
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { demoName } from '@/storage/demo';
 
-describe('demo links (/?open_url=)', () => {
+describe('demo links (/?open_demo=)', () => {
   const at = (v: string) => demoName(v, 'https://ragingroosevelt.github.io', '/RRQuilts/');
   it('take a file in the app’s demo folder', () => {
     expect(at('3d-epp.rrq')).toBe('3d-epp.rrq');

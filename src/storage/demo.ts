@@ -1,5 +1,5 @@
 // Demo projects shipped with the app (public/demo, precached for offline use), opened by a link:
-// /?open_url=<name>.rrq (owner, 2026-11-23). Only files in the app's own demo folder: a bare name,
+// /?open_demo=<name>.rrq (owner, 2026-11-23). Only files in the app's own demo folder: a bare name,
 // demo/<name>, or this site's link to one. Never another site (constitution Principle II).
 
 /** The demo projects in public/demo, for the welcome wizard and the home page's Open a demo. */

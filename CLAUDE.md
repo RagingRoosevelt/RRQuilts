@@ -38,7 +38,7 @@ like sketchbook/worktable are fine).
   (`composables/data-tab.ts`).
 - **Demo projects**: `public/demo/*.rrq` (deployed, precached), listed in `DEMOS` (`storage/demo.ts`)
   for the welcome wizard's Demos step and the home page's Open a demo (`DemoList.vue`,
-  `composables/open-demo.ts`), and opened by `/?open_url=<name>.rrq` (the demo folder only, never
+  `composables/open-demo.ts`), and opened by `/?open_demo=<name>.rrq` (the demo folder only, never
   another site), beside `/?open_gist=`. Written by tests: `3d-epp.rrq` by
   `__tests__/model/epp/demo3d.spec.ts` (`EPP3D_DEMO=<file>`), `temperature.rrq` by
   `__tests__/model/temperature-demo.spec.ts` (`TEMPERATURE_DEMO=<file>`).

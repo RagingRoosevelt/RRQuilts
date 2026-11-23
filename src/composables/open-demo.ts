@@ -1,4 +1,4 @@
-// Open a demo project (public/demo): from a /?open_url= link, the welcome wizard, or the home page.
+// Open a demo project (public/demo): from a /?open_demo= link, the welcome wizard, or the home page.
 // Opened like a picked file with no place to save back to: Save asks where.
 import { useQuasar } from 'quasar';
 import { useOpenProject } from '@/composables/open-project';

@@ -1,5 +1,5 @@
 // The 3D EPP demo project (spec 027 User Story 7, owner 2026-11-23): public/demo/3d-epp.rrq, shipped
-// with the app and opened by /?open_url=3d-epp.rrq (linked from the help): a 3D EPP quilt for each
+// with the app and opened by /?open_demo=3d-epp.rrq (linked from the help): a 3D EPP quilt for each
 // design. The test checks every design folds shut, or, for the pillows no flat fold closes, that
 // stuffing does. EPP3D_DEMO=<file> also writes the project (public/demo/3d-epp.rrq).
 import { writeFileSync } from 'node:fs';

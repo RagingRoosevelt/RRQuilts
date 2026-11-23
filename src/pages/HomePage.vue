@@ -30,7 +30,7 @@
           outline
           class="col"
           icon="folder_open"
-          label="Open a project file"
+          label="Open a project"
           no-caps
           @click="openPicked"
         />
@@ -286,9 +286,9 @@ onMounted(async () => {
     if (!id) $q.notify({ type: 'negative', message: 'That link doesn’t point at a GitHub gist.' });
     else void fetchGist(id);
   }
-  // A demo project shipped with the app (/?open_url=<name>.rrq, the demo folder only): ours, so
+  // A demo project shipped with the app (/?open_demo=<name>.rrq, the demo folder only): ours, so
   // it opens at once (owner, 2026-11-23).
-  const demo = route.query.open_url;
+  const demo = route.query.open_demo;
   if (typeof demo === 'string') {
     await updateBeforeLink();
     await router.replace({ path: '/' });

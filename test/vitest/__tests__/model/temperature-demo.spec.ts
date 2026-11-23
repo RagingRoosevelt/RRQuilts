@@ -1,5 +1,5 @@
 // The temperature quilts demo (owner, 2026-11-23: "let's also have a demo of temperature quilts"):
-// public/demo/temperature.rrq, opened by /?open_url=temperature.rrq. Three data quilts over 2027 with
+// public/demo/temperature.rrq, opened by /?open_demo=temperature.rrq. Three data quilts over 2027 with
 // a full year of real entries from the built-in sample (made-up, shaped on a temperate climate), the
 // first weeks cut and sewn: 365 days of highs (a Day Square each), a month per row (Month Strip),
 // and highs and lows week by week (Week Strips side by side). TEMPERATURE_DEMO=<file> writes it.

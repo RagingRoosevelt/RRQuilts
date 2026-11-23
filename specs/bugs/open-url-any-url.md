@@ -1,16 +1,18 @@
-# Bug: `?open_url=` opens only the app's demos
+# Bug: `?open_url=` opens only the app's demos (now `?open_demo=`; `?open_url=` for any link to come)
 
 **Reported**: 2026-11-23 (owner) · **Status**: Open · **Area**: open links (`src/storage/demo.ts`,
 `src/pages/HomePage.vue`), constitution Principle II
 
 Owner, 2026-11-23: "open_url seems to only know how to open demos. it should be able to open any
-url. let's log this as a bug."
+url. let's log this as a bug." Then: "the current method should be renamed to open_demo" (done the
+same day: the demo-only link is `?open_demo=`, so `?open_url=` is free for any link).
 
 ## What happens
 
-`/?open_url=<link>` opens a project only when the link names a file in the app's own demo folder (a
+`/?open_demo=<name>` (first called `open_url`) opens a project only from the app's own demo folder (a
 bare name such as `3d-epp.rrq`, `demo/<name>`, or this site's link to one). Any other link, such as
-`?open_url=https://example.com/quilt.rrq`, says "That link doesn't point at a demo project."
+`?open_demo=https://example.com/quilt.rrq`, says "That link doesn't point at a demo project", and
+`?open_url=` does nothing yet.
 
 ## Why it's that way
 
@@ -33,4 +35,4 @@ third exception.
 ## Expected
 
 `?open_url=<https link to a .rrq file>` opens that project (after asking, for another site), and any
-link that can't open says why.
+link that can't open says why. `?open_demo=` stays as it is.
