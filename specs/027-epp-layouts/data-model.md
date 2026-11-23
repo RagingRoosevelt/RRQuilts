@@ -56,6 +56,7 @@ expansion to polygons.
 | pieces | EppPiece[] | up to 5000 |
 | seams | `{ a: EppEdgeRef, b: EppEdgeRef }[]`, optional | 3D explicit seams between equal edges that don't touch (touching edges are seams without one); up to 5000; dropped with their pieces |
 | front | `{ piece: Id, part?: Id }`, optional | 3D: the piece picked to face front (double-click in the 3D assembly tab) |
+| printView | `{ theta, phi }` (radians), optional | 3D: where the printout's 3D view sees the object from, turned by hand in the Print tab (default 0.55, 1.1, as the 3D assembly tab opens) |
 
 **EppEdgeRef**: `{ piece: Id, part?: Id, edge: 0-23 }`: a placed piece, the rosette piece inside it
 for a placed rosette, and the edge's index in its shape's outline (corner i to i + 1), so a seam

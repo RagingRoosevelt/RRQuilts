@@ -636,15 +636,16 @@
                   />
                 </g>
               </svg>
-              <!-- A 3D quilt: the folded object, as the 3D assembly tab first shows it. -->
-              <div
+              <!-- A 3D quilt: the folded object; a click turns it by hand (owner, 2026-11-23). -->
+              <Epp3dPrintView
                 v-if="s.view3d"
-                class="view3d column items-center justify-center"
-                :style="{ width: `${s.view3d.size}${units}`, height: `${s.view3d.size}${units}` }"
-              >
-                <img v-if="s.view3d.url" :src="s.view3d.url" alt="The folded object" />
-                <div v-else class="text-caption text-grey-7">Drawing the 3D view…</div>
-              </div>
+                :url="s.view3d.url"
+                :shape="s.view3d.shape"
+                :view="s.view3d.view"
+                :size="`${s.view3d.size}${units}`"
+                :interactive="!printOnly && !project.readOnly"
+                @update:view="savePrintView"
+              />
               <!-- A data quilt's legend: each value's colors (spec 025). -->
               <div v-if="s.legend" class="legend self-stretch column" style="gap: 4px">
                 <div
@@ -771,6 +772,8 @@ import { expandAll, lookupEpp, type EppLookup } from '@/model/epp/expand';
 import { seamMarks } from '@/model/epp/net';
 import { is3d } from '@/model/epp/quilt-ops';
 import { useQuiltPicture } from '@/composables/quilt-picture';
+import Epp3dPrintView from '@/components/Epp3dPrintView.vue';
+import { START_VIEW, type View3d } from '@/render/epp3d-picture';
 import { eppQuiltPieces, rosettePieces, shapeAsRosette } from '@/model/epp/print';
 import { generateFor } from '@/model/layout/slots';
 import { fmtFabric, fmtLen, splitApprox } from '@/model/print/format';
@@ -834,6 +837,14 @@ const project = useProjectStore();
 const library = useLibraryStore();
 /** A 3D quilt's folded object for its picture page. */
 const quiltPicture = useQuiltPicture();
+/** Where the printout's 3D view sees the object from, as turned by hand: saved with the quilt. */
+function savePrintView(v: View3d) {
+  if (project.readOnly || props.kind !== 'quilt') return;
+  project.change((d) => {
+    const q = d.project.quilts.find((x) => x.id === props.id);
+    if (q?.epp) q.epp.printView = { theta: v.theta, phi: v.phi };
+  });
+}
 const app = useSettingsStore();
 
 const doc = computed(() => props.doc ?? project.doc);
@@ -1488,8 +1499,9 @@ type Sheet = (
       legend?: View['legend'];
       polys: { d: string; css: string }[];
       seams?: View['seams'];
-      /** A 3D quilt's folded object (null while it's drawn) and its size in page units. */
-      view3d?: { url: string | null; size: number };
+      /** A 3D quilt's folded object (null while it's drawn), its shape key, where it's seen from,
+       *  and its size in page units. */
+      view3d?: { url: string | null; shape: string; view: View3d; size: number };
       edge?: string | undefined;
       trim?: boolean | undefined;
       /** The quilt's reference overlay (print option, when enabled in Layout). */
@@ -1667,10 +1679,9 @@ const logical = computed<Sheet[]>(() => {
       const h = y1 - y0 + 0.0001;
       // A 3D quilt: its folded object under the net (owner, 2026-11-23: "the print out should show
       // both 2d and 3d view"), drawn in the background (null until then).
-      const view3d =
-        q && is3d(q) && q.epp?.pieces.length
-          ? { url: quiltPicture.view3d(doc.value!, q, 900), size: Math.min(aw, ah * 0.38) }
-          : undefined;
+      const view = q?.epp?.printView ?? START_VIEW;
+      const pic = q ? quiltPicture.view3d(doc.value!, q, 900, view) : null;
+      const view3d = pic ? { ...pic, view, size: Math.min(aw, ah * 0.38) } : undefined;
       const room3d = view3d ? view3d.size + font.value : 0;
       // Leave room for the notes under the picture and the scale square above the footer.
       const room =
@@ -2551,11 +2562,6 @@ onMounted(() => {
   text-align: left;
 }
 /* Outlines are centred on the shape's edge: let the outer half show instead of clipping it. */
-.view3d img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
 .bleed {
   overflow: visible;
 }

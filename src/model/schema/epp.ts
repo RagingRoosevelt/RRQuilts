@@ -116,6 +116,9 @@ export const EppDesign = Type.Object({
   /** 3D: explicit seams, and the piece the quilter picked to face front. */
   seams: Type.Optional(Type.Array(EppSeam, { maxItems: 5000 })),
   front: Type.Optional(Type.Object({ piece: Id, part: Type.Optional(Id) })),
+  /** 3D: where the printout's 3D view sees the object from (turn about the up axis, tilt from
+   *  the top, radians), as turned by hand in the Print tab. */
+  printView: Type.Optional(Type.Object({ theta: Type.Number(), phi: Type.Number() })),
 });
 
 export type EppShape = Type.Static<typeof EppShape>;

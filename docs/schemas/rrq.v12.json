@@ -10345,6 +10345,21 @@
                         "pattern": "^[a-z0-9]{1,32}$"
                       }
                     }
+                  },
+                  "printView": {
+                    "type": "object",
+                    "required": [
+                      "theta",
+                      "phi"
+                    ],
+                    "properties": {
+                      "theta": {
+                        "type": "number"
+                      },
+                      "phi": {
+                        "type": "number"
+                      }
+                    }
                   }
                 }
               }

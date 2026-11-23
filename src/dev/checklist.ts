@@ -366,6 +366,14 @@ export const CHECKS: Check[] = [
     file: 'epp3d-demo.rrq',
     to: '/project',
   },
+  {
+    id: 'TC-324',
+    group: G.epp3d,
+    text: 'Print a demo design (d6): under the 3D view, "Click to turn it". Click: a live view; drag turns the object. Move the pointer off it: the picture comes back from the new side (a moment later, redrawn sharp). Print again or reopen the file after saving: the same side. Click, then leave the pointer on it untouched for 15 seconds: the picture comes back, unchanged. Undo after turning: the earlier side. On a phone: tap, drag with a finger, then wait 15 seconds. The printed copy never shows the hint.',
+    last: 'let’s allow click-to-orbit on the 3d preview in the printout. we’ll record the orientation. clicking switches from showing an image to the orbitable view and mouse exit or 15seconds uninteracted will revert back to image view',
+    file: 'epp3d-demo.rrq',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

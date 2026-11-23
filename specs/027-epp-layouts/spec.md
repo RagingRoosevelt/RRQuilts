@@ -664,7 +664,12 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
   seam as a hinge, pulls separate assemblies together, reports seams that don't close, stuffs a
   closed design (saying whether it can be stuffed and why not), and prints the net with its explicit
   seams numbered and the folded object below it (the assembly sheet is the quilt picture; owner,
-  2026-11-23: "the print out should show both 2d and 3d view").
+  2026-11-23: "the print out should show both 2d and 3d view"). In the print preview a click on
+  the 3D view swaps in a live view to turn by dragging; the pointer leaving or 15 seconds untouched
+  swap the picture back, seen from there, and that view is saved with the quilt (`epp.printView`).
+  Owner, 2026-11-23: "let's allow click-to-orbit on the 3d preview in the printout. we'll record
+  the orientation. clicking switches from showing an image to the orbitable view and mouse exit or
+  15seconds uninteracted will revert back to image view".
 - **FR-011** (stretch, built in 0.9.0): The app SHOULD export STL cutting templates for paper
   and fabric (convex pieces; see the stretch goal story).
 - **FR-012**: Everything works offline; 3D rendering, any solver and STL export run in the app with
