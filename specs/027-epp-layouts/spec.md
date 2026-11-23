@@ -663,7 +663,8 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
   equal edges (shared edges are seams already) and a 3D assembly tab that folds the net with every
   seam as a hinge, pulls separate assemblies together, reports seams that don't close, stuffs a
   closed design (saying whether it can be stuffed and why not), and prints the net with its explicit
-  seams numbered (the assembly sheet is the quilt picture).
+  seams numbered and the folded object below it (the assembly sheet is the quilt picture; owner,
+  2026-11-23: "the print out should show both 2d and 3d view").
 - **FR-011** (stretch, built in 0.9.0): The app SHOULD export STL cutting templates for paper
   and fabric (convex pieces; see the stretch goal story).
 - **FR-012**: Everything works offline; 3D rendering, any solver and STL export run in the app with

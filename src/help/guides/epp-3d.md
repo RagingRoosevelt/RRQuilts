@@ -49,4 +49,4 @@ Some designs only close once stuffed. Two stars sewn back to back lie flat as pa
 
 ## Print
 
-The **Print** tab gives paper and fabric templates as for any EPP quilt. The quilt picture shows each seam's two edges in its color with its number, so you can match them up while sewing.
+The **Print** tab gives paper and fabric templates as for any EPP quilt. The quilt picture page shows the flat design, each seam's two edges in its color with its number so you can match them up while sewing, and below it the folded object as the 3D assembly tab first shows it.

@@ -358,6 +358,14 @@ export const CHECKS: Check[] = [
     file: 'epp3d-demo.rrq',
     to: '/project',
   },
+  {
+    id: 'TC-323',
+    group: G.epp3d,
+    text: 'Print a demo design (Soccer ball, d12): the quilt picture page shows the flat design with its numbered seams on top and the folded object below it (stuffed for the soccer ball), then the title and caption, all on one page; for a moment it may say "Drawing the 3D view…". Print to PDF: both views come out.',
+    last: 'the print out should show both 2d and 3d view',
+    file: 'epp3d-demo.rrq',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

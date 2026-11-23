@@ -636,6 +636,15 @@
                   />
                 </g>
               </svg>
+              <!-- A 3D quilt: the folded object, as the 3D assembly tab first shows it. -->
+              <div
+                v-if="s.view3d"
+                class="view3d column items-center justify-center"
+                :style="{ width: `${s.view3d.size}${units}`, height: `${s.view3d.size}${units}` }"
+              >
+                <img v-if="s.view3d.url" :src="s.view3d.url" alt="The folded object" />
+                <div v-else class="text-caption text-grey-7">Drawing the 3D view…</div>
+              </div>
               <!-- A data quilt's legend: each value's colors (spec 025). -->
               <div v-if="s.legend" class="legend self-stretch column" style="gap: 4px">
                 <div
@@ -761,6 +770,7 @@ import { projectSeams } from '@/model/seams';
 import { expandAll, lookupEpp, type EppLookup } from '@/model/epp/expand';
 import { seamMarks } from '@/model/epp/net';
 import { is3d } from '@/model/epp/quilt-ops';
+import { useQuiltPicture } from '@/composables/quilt-picture';
 import { eppQuiltPieces, rosettePieces, shapeAsRosette } from '@/model/epp/print';
 import { generateFor } from '@/model/layout/slots';
 import { fmtFabric, fmtLen, splitApprox } from '@/model/print/format';
@@ -822,6 +832,8 @@ const props = defineProps<{
 }>();
 const project = useProjectStore();
 const library = useLibraryStore();
+/** A 3D quilt's folded object for its picture page. */
+const quiltPicture = useQuiltPicture();
 const app = useSettingsStore();
 
 const doc = computed(() => props.doc ?? project.doc);
@@ -1476,6 +1488,8 @@ type Sheet = (
       legend?: View['legend'];
       polys: { d: string; css: string }[];
       seams?: View['seams'];
+      /** A 3D quilt's folded object (null while it's drawn) and its size in page units. */
+      view3d?: { url: string | null; size: number };
       edge?: string | undefined;
       trim?: boolean | undefined;
       /** The quilt's reference overlay (print option, when enabled in Layout). */
@@ -1651,9 +1665,19 @@ const logical = computed<Sheet[]>(() => {
         : box;
       const w = x1 - x0;
       const h = y1 - y0 + 0.0001;
+      // A 3D quilt: its folded object under the net (owner, 2026-11-23: "the print out should show
+      // both 2d and 3d view"), drawn in the background (null until then).
+      const view3d =
+        q && is3d(q) && q.epp?.pieces.length
+          ? { url: quiltPicture.view3d(doc.value!, q, 900), size: Math.min(aw, ah * 0.38) }
+          : undefined;
+      const room3d = view3d ? view3d.size + font.value : 0;
       // Leave room for the notes under the picture and the scale square above the footer.
       const room =
-        (v.notes ? ah * 0.7 : ah - 2 * font.value) - (isBlock ? 0 : titleRoom()) - font.value * 1.5;
+        (v.notes ? ah * 0.7 : ah - 2 * font.value) -
+        (isBlock ? 0 : titleRoom()) -
+        font.value * 1.5 -
+        room3d;
       // The quilt's picture can be made smaller (print settings › Quilt picture › Picture size).
       const size = isBlock ? 1 : Math.max(0.75, Math.min(1.5, prefs.value.pictureSize));
       // The page, less a caption (and a data quilt's legend: a line per 4 entries).
@@ -1661,7 +1685,7 @@ const logical = computed<Sheet[]>(() => {
         (n, l) => n + 1 + Math.ceil(l.items.length / 4),
         0,
       );
-      const most = Math.min(aw / w, (ah - font.value * (3 + legendLines * 1.8)) / h);
+      const most = Math.min(aw / w, (ah - room3d - font.value * (3 + legendLines * 1.8)) / h);
       const scale = Math.min(1, most, Math.min(aw / w, room / h) * size);
       out.push({
         kind: 'picture',
@@ -1669,6 +1693,7 @@ const logical = computed<Sheet[]>(() => {
         ...(v.legend ? { legend: v.legend } : {}),
         polys: v.picture,
         ...(v.seams ? { seams: v.seams } : {}),
+        ...(view3d ? { view3d } : {}),
         edge: v.edge && d(v.edge),
         trim: v.trim,
         overlay: placed
@@ -2526,6 +2551,11 @@ onMounted(() => {
   text-align: left;
 }
 /* Outlines are centred on the shape's edge: let the outer half show instead of clipping it. */
+.view3d img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 .bleed {
   overflow: visible;
 }
