@@ -245,6 +245,7 @@ multi-select).
 - [X] T107 [3D] "Not closing" (red text, red seams in the net) follows the Stuffed design setting, not the view; the view switch renamed **Enable simulation view**, on whenever the tab opens a stuffed design (and when the tab shows another quilt) (owner, 2026-11-23; TC-317)
 - [X] T108 [3D] Demo d10 uses a real die's kite (corners on a sphere: two right angles, 51.8° tip, long edges 2.06U marked) instead of the antiprism dual's 108°/36° kite (`trapezohedron` in test/vitest/__tests__/model/epp/designs3d.ts, tested); Enable simulation view shows off when the design isn't stuffed (owner, 2026-11-23; TC-318)
 - [X] T109 Project Quilts tab Show: All, Data, Block, Patch and EPP quilts (block = has block spaces, as the editor opens it on Set), only types the project has, hidden with one type (src/pages/SketchbookPage.vue `kindOf`, `kindOptions`); help in guides/sketchbook.md (owner, 2026-11-23; TC-319)
+- [X] T110 [3D] Stuffing mesh: each piece an even triangle mesh (a lattice inside it plus its outline, 6 points per unit, Delaunay; `pieceMesh` in src/model/epp/stuff.ts) in place of rings shrunk from the outline, whose spokes to the corners became folds all meeting in the middle (owner, 2026-11-23: the stuffed middle looked pinched); concave pieces keep the rings; mesh test in fold.spec.ts (TC-321)
 - [ ] T100 [3D] Link the demo from the help once the owner hosts it as a gist
 - [ ] T101 [3D] CLAUDE.md: 3D EPP (model/epp fold, stuff, net; EppAssembly; three.js) with T069
 

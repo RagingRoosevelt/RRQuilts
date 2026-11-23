@@ -1,6 +1,6 @@
 // 3D EPP stuffing (spec 027 User Story 7; prototype prototypes/epp3d/stuff.html). Fold first, then
-// stuff (owner, 2026-11-19): each piece becomes fabric, the mesh it's drawn with (rings from its
-// middle to its outline, MESH_PER_U points per unit along each edge, so seams line up). Seams are
+// stuff (owner, 2026-11-19): each piece becomes fabric, the mesh it's drawn with (even triangles,
+// MESH_PER_U points per unit along each edge, so seams line up). Seams are
 // sewn by sharing points, so a seam the rigid fold couldn't close is closed by the fabric bending.
 // Each step: stuffing pushes every bit of fabric outward (pressure × area, along the right side), the
 // fabric moves (with damping), then every mesh edge is put back to its length a few times over
@@ -9,7 +9,7 @@
 import type { Pt } from '../geometry/path';
 import { add3, cross3, dot3, len3, mean3, qrot, sub3, type Fold, type V3 } from './fold';
 
-const MESH_PER_U = 4;
+const MESH_PER_U = 6;
 const RINGS = 6;
 const SUBSTEPS = 4;
 const PASSES = 12;
@@ -20,13 +20,21 @@ const PRESSURE = 0.03;
  *  squashed edge is pushed back only this share as hard as a stretched one is pulled. */
 const SQUASH = 0.03;
 
-/** A piece as rings from its middle out to its outline, flat, around the piece's middle: points
- *  `xy` (the middle first, the outline's `n` points last) and triangles `tris`. */
+/** A piece's mesh, flat, around the piece's middle: points `xy` (the outline's `n` points last, in
+ *  order, MESH_PER_U per unit of edge so neighbors' seams share points) and triangles `tris`,
+ *  counter-clockwise. */
 export interface PieceMesh {
   xy: Pt[];
   n: number;
   tris: number[];
 }
+
+/**
+ * An even mesh: a triangular lattice of points inside the piece (as far apart as the outline's) and
+ * the outline, joined by Delaunay triangles. Owner, 2026-11-23: rings shrunk from the outline lined
+ * their corners up on spokes from the middle to the corners, and stuffing folded the fabric along
+ * those, all meeting in the middle (a pinch). A concave piece (a Close space shape) keeps the rings.
+ */
 export function pieceMesh(pts: readonly Pt[], c: Pt): PieceMesh {
   const rim: Pt[] = [];
   pts.forEach((a, k) => {
@@ -38,6 +46,102 @@ export function pieceMesh(pts: readonly Pt[], c: Pt): PieceMesh {
         a[1] - c[1] + ((b[1] - a[1]) * i) / steps,
       ]);
   });
+  const convex = pts.every((a, k) => {
+    const b = pts[(k + 1) % pts.length]!;
+    const d = pts[(k + 2) % pts.length]!;
+    return (b[0] - a[0]) * (d[1] - b[1]) - (b[1] - a[1]) * (d[0] - b[0]) > 1e-9;
+  });
+  const even = convex && evenMesh(rim);
+  return even || ringMesh(rim);
+}
+
+function evenMesh(rim: Pt[]): PieceMesh | null {
+  const h = 1 / MESH_PER_U;
+  const n = rim.length;
+  // Inside every edge by at least half a step (no slivers along the outline).
+  const room = (p: Pt) =>
+    Math.min(
+      ...rim.map((a, k) => {
+        const b = rim[(k + 1) % n]!;
+        const L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+        return ((b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])) / L;
+      }),
+    );
+  const xs = rim.map((p) => p[0]);
+  const ys = rim.map((p) => p[1]);
+  const inner: Pt[] = [];
+  const dy = (h * Math.sqrt(3)) / 2;
+  // A lattice through the middle, rows along x, so a regular piece's mesh is symmetric.
+  for (let j = Math.floor(Math.min(...ys) / dy); j * dy <= Math.max(...ys); j++)
+    for (let i = Math.floor(Math.min(...xs) / h) - 1; i * h <= Math.max(...xs) + h; i++) {
+      const p: Pt = [(i + (j % 2 ? 0.5 : 0)) * h, j * dy];
+      if (room(p) >= 0.5 * h) inner.push(p);
+    }
+  const xy = [...inner, ...rim];
+  const tris = delaunay(xy);
+  // Every outline step must be a triangle's edge (a seam runs along them).
+  const has = new Set<string>();
+  for (let t = 0; t < tris.length; t += 3)
+    for (let k = 0; k < 3; k++) has.add(`${tris[t + k]},${tris[t + ((k + 1) % 3)]}`);
+  const m = inner.length;
+  for (let k = 0; k < n; k++) if (!has.has(`${m + k},${m + ((k + 1) % n)}`)) return null;
+  return { xy, n, tris };
+}
+
+/**
+ * Delaunay triangles of points (Bowyer-Watson), counter-clockwise. Fine for the points of a convex
+ * piece: points along a straight edge never make a flat triangle, since a circle through two of them
+ * holds no third point of their line.
+ */
+function delaunay(P: readonly Pt[]): number[] {
+  const N = P.length;
+  const xs = P.map((p) => p[0]);
+  const ys = P.map((p) => p[1]);
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const d = 10 * Math.max(x1 - x0, y1 - y0, 1e-9);
+  const [mx, my] = [(x0 + x1) / 2, (y0 + y1) / 2];
+  const V: Pt[] = [...P, [mx - 2 * d, my - d], [mx + 2 * d, my - d], [mx, my + 2 * d]];
+  type Tri = { v: [number, number, number]; cx: number; cy: number; r2: number };
+  const tri = (a: number, b: number, e: number): Tri => {
+    const [A, B, C] = [V[a]!, V[b]!, V[e]!];
+    const D = 2 * (A[0] * (B[1] - C[1]) + B[0] * (C[1] - A[1]) + C[0] * (A[1] - B[1]));
+    const a2 = A[0] ** 2 + A[1] ** 2;
+    const b2 = B[0] ** 2 + B[1] ** 2;
+    const c2 = C[0] ** 2 + C[1] ** 2;
+    const cx = (a2 * (B[1] - C[1]) + b2 * (C[1] - A[1]) + c2 * (A[1] - B[1])) / D;
+    const cy = (a2 * (C[0] - B[0]) + b2 * (A[0] - C[0]) + c2 * (B[0] - A[0])) / D;
+    return { v: [a, b, e], cx, cy, r2: (A[0] - cx) ** 2 + (A[1] - cy) ** 2 };
+  };
+  let tris: Tri[] = [tri(N, N + 1, N + 2)];
+  for (let i = 0; i < N; i++) {
+    const [px, py] = V[i]!;
+    const bad = tris.filter((t) => (px - t.cx) ** 2 + (py - t.cy) ** 2 < t.r2 * (1 - 1e-12));
+    // The hole's rim: edges of exactly one bad triangle.
+    const rimEdges = new Map<string, [number, number]>();
+    for (const t of bad)
+      for (let k = 0; k < 3; k++) {
+        const [a, b] = [t.v[k]!, t.v[(k + 1) % 3]!];
+        const key = a < b ? `${a},${b}` : `${b},${a}`;
+        if (rimEdges.has(key)) rimEdges.delete(key);
+        else rimEdges.set(key, [a, b]);
+      }
+    const gone = new Set(bad);
+    tris = tris.filter((t) => !gone.has(t));
+    for (const [a, b] of rimEdges.values()) tris.push(tri(a, b, i));
+  }
+  const out: number[] = [];
+  for (const { v } of tris) {
+    if (v.some((x) => x >= N)) continue;
+    const [A, B, C] = v.map((x) => V[x]!) as [Pt, Pt, Pt];
+    const area = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
+    if (Math.abs(area) < 1e-12) continue;
+    out.push(...(area > 0 ? v : [v[0], v[2], v[1]]));
+  }
+  return out;
+}
+
+/** Rings from the middle out to the outline (concave pieces). */
+function ringMesh(rim: Pt[]): PieceMesh {
   const n = rim.length;
   const xy: Pt[] = [[0, 0]];
   for (let r = 1; r <= RINGS; r++)

@@ -108,6 +108,42 @@ describe('3D EPP fold', () => {
     expect(facing(m).front[2]).toBeCloseTo(1, 3);
   });
 
+  it('stuffing meshes a piece evenly: its outline steps, area covered, no slivers', () => {
+    const hex = Array.from({ length: 6 }, (_, k): [number, number] => [
+      Math.cos((k * Math.PI) / 3),
+      Math.sin((k * Math.PI) / 3),
+    ]);
+    const m = pieceMesh(hex, [0, 0]);
+    expect(m.n).toBe(36);
+    const area = (a: number[], b: number[], c: number[]) =>
+      ((b[0]! - a[0]!) * (c[1]! - a[1]!) - (b[1]! - a[1]!) * (c[0]! - a[0]!)) / 2;
+    let total = 0;
+    let smallest = Infinity;
+    const edges = new Set<string>();
+    for (let t = 0; t < m.tris.length; t += 3) {
+      const [a, b, c] = [m.tris[t]!, m.tris[t + 1]!, m.tris[t + 2]!];
+      const A = area(m.xy[a]!, m.xy[b]!, m.xy[c]!);
+      total += A;
+      smallest = Math.min(smallest, A);
+      for (const [x, y] of [
+        [a, b],
+        [b, c],
+        [c, a],
+      ])
+        edges.add(`${x},${y}`);
+    }
+    expect(total).toBeCloseTo((3 * Math.sqrt(3)) / 2, 9);
+    expect(smallest).toBeGreaterThan(0.005);
+    const first = m.xy.length - m.n;
+    for (let k = 0; k < m.n; k++)
+      expect(edges.has(`${first + k},${first + ((k + 1) % m.n)}`)).toBe(true);
+    // A middle point that every corner's spoke runs to is gone: no point has more than 8 neighbors.
+    const degree = new Map<number, number>();
+    for (const e of edges)
+      for (const v of e.split(',').map(Number)) degree.set(v, (degree.get(v) ?? 0) + 1);
+    expect(Math.max(...degree.values()) / 2).toBeLessThanOrEqual(8);
+  });
+
   it('a pillow folds flat, then stuffing fills it', () => {
     const m = fold(squarePillow());
     const r = foldReport(m);

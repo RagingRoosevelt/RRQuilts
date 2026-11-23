@@ -121,8 +121,9 @@ stores, components, pages; tests mirror `src/model`.
 Built on `027-epp-3d` from the prototypes on `proto/epp-3d` (`prototypes/epp3d/fold.html`,
 `stuff.html`). Model in `src/model/epp`: `fold.ts` (rigid plates, seams as hinges, shape matching
 with Müller 2016 rotation fits, curl start so the right side ends up out, settle, front), `stuff.ts`
-(each piece a ring mesh, seams sewn by shared points, pressure and position-based edge lengths,
-squashing 3% as stiff as stretching), `net.ts` (a quilt's pieces and seams as a net, y flipped).
+(each piece an even triangle mesh, 6 points per unit of edge, Delaunay over a lattice inside it;
+concave pieces keep rings from the middle; seams sewn by shared points, pressure and position-based
+edge lengths, squashing 3% as stiff as stretching), `net.ts` (a quilt's pieces and seams as a net, y flipped).
 Pure TypeScript, tested headless (fold.spec.ts, demo3d.spec.ts). `src/components/EppAssembly.vue`
 draws with three.js, imported dynamically so the main bundle doesn't grow; it renders only when
 something changes. Format: `EppLayout.threeD`, `EppDesign.seams` and `front` in rrq v12 (unreleased,

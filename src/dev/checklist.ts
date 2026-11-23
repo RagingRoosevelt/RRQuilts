@@ -342,6 +342,14 @@ export const CHECKS: Check[] = [
     file: 'demo-v11.rrq',
     to: '/project',
   },
+  {
+    id: 'TC-321',
+    group: G.epp3d,
+    text: 'Stuffed pieces are smooth through the middle: demo Soccer ball, Star pillow, and d6 (cube) with Stuffed design on: zoom in on a stuffed face. No star of creases from the middle out to the corners (the middle no longer looks pinched); faces dome evenly, wrinkles only near the seams and corners. Stuffing settles in a few seconds as before.',
+    last: 'in the stuffing simulation, why does it look like the centroid is pinched? is there some sort of a boundary condidtion thing there?',
+    file: 'epp3d-demo.rrq',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
