@@ -28,13 +28,12 @@ export interface Check {
   to?: string;
   /** The owner's note from the last round this check (or the fix it checks) answers. */
   last?: string;
-  /** A sample file to try it with (test/fixtures/formats/<file>, or test/fixtures/<file>),
-   *  offered for download. */
+  /** A sample file to try it with (test/fixtures/formats/<file>), offered for download. */
   file?: string;
 }
 
 const samples = import.meta.glob<string>(
-  ['/test/fixtures/formats/*.{rrq,rrqlib,rrqbl,rrqplt,rrqconf}', '/test/fixtures/epp3d-demo.rrq'],
+  '/test/fixtures/formats/*.{rrq,rrqlib,rrqbl,rrqplt,rrqconf}',
   {
     query: '?url',
     import: 'default',
@@ -42,8 +41,7 @@ const samples = import.meta.glob<string>(
   },
 );
 /** A sample's download address (undefined if there's no such file). */
-export const sampleUrl = (file: string) =>
-  samples[`/test/fixtures/formats/${file}`] ?? samples[`/test/fixtures/${file}`];
+export const sampleUrl = (file: string) => samples[`/test/fixtures/formats/${file}`];
 
 const G = {
   files: 'Every release',
@@ -314,10 +312,9 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-316',
     group: G.epp3d,
-    text: 'Open the 3D EPP demo (download it here). Project › Quilts (11): the eleven 3D designs with a 3D badge (top right) and their nets as pictures, beside any other quilts; they open, copy and delete as other quilts. EPP tab: the same designs with the badge (the 3D filter shows only them), plus the d10 Kite under Mine.',
+    text: 'Open the 3D EPP demo (this check’s link opens it). Project › Quilts (11): the eleven 3D designs with a 3D badge (top right) and their nets as pictures, beside any other quilts; they open, copy and delete as other quilts. EPP tab: the same designs with the badge (the 3D filter shows only them), plus the d10 Kite under Mine.',
     last: '3d epp quilts should show up in the projects quilt tab just like 2d epp quilts do',
-    file: 'epp3d-demo.rrq',
-    to: '/project',
+    to: '/?open_url=3d-epp.rrq',
   },
   {
     id: 'TC-317',
@@ -331,8 +328,7 @@ export const CHECKS: Check[] = [
     group: G.epp3d,
     text: 'Demo › d10 (kites): the kites are a real d10’s (two right angles at the sides, a narrow 52° tip, a wide 128° bottom corner; long edges about twice the short, marked orange in the project’s d10 Kite shape). 3D assembly: it folds shut and looks like a d10. Enable simulation view shows off (greyed) while Stuffed design is off.',
     last: 'the d10 kites demo should use the standard kite shape that would be found in a typical d10',
-    file: 'epp3d-demo.rrq',
-    to: '/project',
+    to: '/?open_url=3d-epp.rrq',
   },
   {
     id: 'TC-319',
@@ -347,32 +343,35 @@ export const CHECKS: Check[] = [
     group: G.epp3d,
     text: 'Stuffed pieces are smooth through the middle: demo Soccer ball, Star pillow, and d6 (cube) with Stuffed design on: zoom in on a stuffed face. No star of creases from the middle out to the corners (the middle no longer looks pinched); faces dome evenly, wrinkles only near the seams and corners. Stuffing settles in a few seconds as before.',
     last: 'in the stuffing simulation, why does it look like the centroid is pinched? is there some sort of a boundary condidtion thing there?',
-    file: 'epp3d-demo.rrq',
-    to: '/project',
+    to: '/?open_url=3d-epp.rrq',
   },
   {
     id: 'TC-322',
     group: G.epp3d,
     text: 'Open the 3D EPP demo: in Project › Quilts and › EPP, each 3D card turns from the flat net into the folded object within a couple of seconds (star pillow, twisted pincushion and soccer ball stuffed; the dice and solids flat-faced, seen from a little above and to the right, as the 3D assembly tab opens), on a light and a dark theme; the page stays usable meanwhile. Change a design (a color, a seam, Stuffed design): its card updates.',
     last: 'can we change the thumbnails for 3d epp quilts to use a 3d render of the quilt?',
-    file: 'epp3d-demo.rrq',
-    to: '/project',
+    to: '/?open_url=3d-epp.rrq',
   },
   {
     id: 'TC-323',
     group: G.epp3d,
     text: 'Print a demo design (Soccer ball, d12): the quilt picture page shows the flat design with its numbered seams on top and the folded object below it (stuffed for the soccer ball), then the title and caption, all on one page; for a moment it may say "Drawing the 3D view…". Print to PDF: both views come out.',
     last: 'the print out should show both 2d and 3d view',
-    file: 'epp3d-demo.rrq',
-    to: '/project',
+    to: '/?open_url=3d-epp.rrq',
   },
   {
     id: 'TC-324',
     group: G.epp3d,
     text: 'Print a demo design (d6): under the 3D view, "Click to turn it". Click: a live view; drag turns the object. Move the pointer off it: the picture comes back from the new side (a moment later, redrawn sharp). Print again or reopen the file after saving: the same side. Click, then leave the pointer on it untouched for 15 seconds: the picture comes back, unchanged. Undo after turning: the earlier side. On a phone: tap, drag with a finger, then wait 15 seconds. The printed copy never shows the hint.',
     last: 'let’s allow click-to-orbit on the 3d preview in the printout. we’ll record the orientation. clicking switches from showing an image to the orbitable view and mouse exit or 15seconds uninteracted will revert back to image view',
-    file: 'epp3d-demo.rrq',
-    to: '/project',
+    to: '/?open_url=3d-epp.rrq',
+  },
+  {
+    id: 'TC-325',
+    group: G.files,
+    text: 'Demo links. Open localhost:9000/RRQuilts/?open_url=3d-epp.rrq: the 3D EPP demo opens at once (11 quilts), with Save asking where. Help › 3D EPP › "3D EPP demo" link: the same. ?open_url=nope.rrq: "There’s no demo project called…". ?open_url=https://example.com/x.rrq: "That link doesn’t point at a demo project." With unsaved work open, the demo link keeps it in a draft as opening any file does. After a release (make serve, or the live site): the link works offline once the app has been loaded.',
+    last: 'let’s add a demo folder that’s included in the deployed app and a similar route to open_gist called ?open_url= that can load rrq files from the demo folder that are passed in',
+    to: '/?open_url=3d-epp.rrq',
   },
 ];
 

@@ -222,6 +222,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { pickProject, supportsFileAccess } from '@/storage/files';
 import { recentProjects, type RecentEntry } from '@/storage/recent';
 import { gistId, gistProjects, gistText, type GistFile } from '@/storage/gist';
+import { demoName, demoText } from '@/storage/demo';
 import { useProjectStore } from '@/stores/project';
 import { useOpenProject } from '@/composables/open-project';
 import { useStartQuilt } from '@/composables/start-quilt';
@@ -259,6 +260,17 @@ onMounted(async () => {
     const id = gistId(link);
     if (!id) $q.notify({ type: 'negative', message: 'That link doesn’t point at a GitHub gist.' });
     else void fetchGist(id);
+  }
+  // A demo project shipped with the app (/?open_url=<name>.rrq, the demo folder only): ours, so
+  // it opens at once (owner, 2026-11-23).
+  const demo = route.query.open_url;
+  if (typeof demo === 'string') {
+    await updateBeforeLink();
+    await router.replace({ path: '/' });
+    const name = demoName(demo);
+    if (!name)
+      $q.notify({ type: 'negative', message: 'That link doesn’t point at a demo project.' });
+    else void openDemo(name);
   }
   if (supportsFileAccess())
     recent.value = (await recentProjects().catch(() => [])).filter((r) => r.handle);
@@ -304,7 +316,7 @@ function openGist() {
     ok: { label: 'Open', flat: true },
   }).onOk((v: string) => void fetchGist(gistId(v)!));
 }
-const gistFail = (e: unknown) =>
+const openFail = (e: unknown) =>
   void $q.notify({ type: 'negative', message: e instanceof Error ? e.message : String(e) });
 /** The gist being asked about: who shared what, and the file picked (when it has several). */
 const gistAsk = ref<{ title: string; owner: string; files: GistFile[]; pick: number } | null>(null);
@@ -321,7 +333,7 @@ async function fetchGist(id: string) {
     // Who shared it (GitHub's account name, not the link's) and what, before anything opens.
     gistAsk.value = { ...g, pick: 0 };
   } catch (e) {
-    gistFail(e);
+    openFail(e);
   } finally {
     wait();
   }
@@ -340,7 +352,25 @@ async function openGistFile() {
     // Opened like a picked file with no place to save back to: Save asks where.
     await openWith(() => project.openFile({ file: new File([text], f.name) }));
   } catch (e) {
-    gistFail(e);
+    openFail(e);
+  } finally {
+    done();
+  }
+}
+
+/** A demo project: opened like a picked file with no place to save back to (Save asks where). */
+async function openDemo(name: string) {
+  const done = $q.notify({
+    group: false,
+    timeout: 0,
+    spinner: true,
+    message: `Opening ${name}…`,
+  });
+  try {
+    const text = await demoText(name);
+    await openWith(() => project.openFile({ file: new File([text], name) }));
+  } catch (e) {
+    openFail(e);
   } finally {
     done();
   }

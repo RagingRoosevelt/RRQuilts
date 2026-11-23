@@ -129,7 +129,11 @@ justification).
   built that has the following designs (will be hosting it as a gist that can be linked to from the
   help)", "star pillow with a a phase rotation of where the seams go compared to where we have them
   now, so that they interlock rather than line up" and "let's also include the twisted pincushion
-  in the demo rqq". The d10 is a real die's: every corner on a sphere, so each kite has two right
+  in the demo rqq". It ships with the app instead: `public/demo/3d-epp.rrq`, in the deployed site's
+  demo folder (precached), opened by the link `/?open_url=3d-epp.rrq` (like `/?open_gist=`, but only
+  for files in the demo folder) that the help uses. Owner, 2026-11-23: "let's add a demo folder
+  that's included in the deployed app and a similar route to open_gist called ?open_url= that can
+  load rrq files from the demo folder that are passed in". The d10 is a real die's: every corner on a sphere, so each kite has two right
   angles, a 51.8° tip and a 128.2° bottom corner, short edges 1U and long edges 2.06U (marked);
   not the 108°/36° kite of the dual of the uniform antiprism. Owner, 2026-11-23: "the d10 kites
   demo should use the standard kite shape that would be found in a typical d10".

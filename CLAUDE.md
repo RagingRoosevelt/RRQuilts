@@ -36,6 +36,9 @@ like sketchbook/worktable are fine).
   draft / pending); `DataEntryDialog` (calendar, day form, Year); `/data/steps` = PrintPreview kind
   `steps` from `model/print/data-steps.ts` (days or Block by block). Nav tab: setting `dataTab`
   (`composables/data-tab.ts`).
+- **Demo projects**: `public/demo/*.rrq` (deployed, precached), opened by `/?open_url=<name>.rrq`
+  (`storage/demo.ts`: the demo folder only, never another site), beside `/?open_gist=`. The 3D EPP
+  demo `3d-epp.rrq` is written by `test/vitest/__tests__/model/epp/demo3d.spec.ts` (`EPP3D_DEMO`).
 - **Resource repositories**: git repos of extra library content, fetched on user request (the only
   network use). Cached for offline. Untrusted: validate, never execute. Projects embed used items.
 - **Library files**: `.rrqlib` (JSON) — one format for personal-library backup and shareable
