@@ -244,6 +244,7 @@ multi-select).
 - [X] T106 [3D] 3D EPP quilts listed under Quilts again, with a 3D badge, as well as in the EPP tab (src/pages/SketchbookPage.vue) (owner, 2026-11-23; TC-316)
 - [X] T107 [3D] "Not closing" (red text, red seams in the net) follows the Stuffed design setting, not the view; the view switch renamed **Enable simulation view**, on whenever the tab opens a stuffed design (and when the tab shows another quilt) (owner, 2026-11-23; TC-317)
 - [X] T108 [3D] Demo d10 uses a real die's kite (corners on a sphere: two right angles, 51.8° tip, long edges 2.06U marked) instead of the antiprism dual's 108°/36° kite (`trapezohedron` in test/vitest/__tests__/model/epp/designs3d.ts, tested); Enable simulation view shows off when the design isn't stuffed (owner, 2026-11-23; TC-318)
+- [X] T109 Project Quilts tab Show: All, Data, Block, Patch and EPP quilts (block = has block spaces, as the editor opens it on Set), only types the project has, hidden with one type (src/pages/SketchbookPage.vue `kindOf`, `kindOptions`); help in guides/sketchbook.md (owner, 2026-11-23; TC-319)
 - [ ] T100 [3D] Link the demo from the help once the owner hosts it as a gist
 - [ ] T101 [3D] CLAUDE.md: 3D EPP (model/epp fold, stuff, net; EppAssembly; three.js) with T069
 

@@ -51,15 +51,12 @@
     </div>
     <q-separator class="q-mb-md" />
 
-    <!-- Data quilts (spec 025) or the others. -->
+    <!-- Quilts by type (data quilts spec 025; owner, 2026-11-23: block, patch and EPP too), only the
+         types the project has, and only when it has more than one. -->
     <SlidePicker
-      v-if="tab === 'quilts'"
+      v-if="tab === 'quilts' && kindOptions.length > 2"
       v-model="quiltKind"
-      :options="[
-        { value: 'all', label: 'All quilts' },
-        { value: 'data', label: 'Data quilts' },
-        { value: 'other', label: 'Other quilts' },
-      ]"
+      :options="kindOptions"
       label="Show"
       class="q-mb-md"
       style="max-width: 420px"
@@ -77,7 +74,7 @@
       </div>
       <div
         v-for="(q, i) in quilts"
-        v-show="quiltKind === 'all' || (quiltKind === 'data') === !!q.data?.on"
+        v-show="quiltKind === 'all' || kindOf.get(q.id) === quiltKind"
         :key="q.id"
         class="card"
         :class="[quiltGlow(i), { dragged: quiltFrom === i }]"
@@ -1479,7 +1476,9 @@ import { describeSlot } from '@/model/plain';
 import type { Block, DataKind } from '@/model/schema/block';
 import { saveBlockImage, saveQuiltImage } from '@/render/save-image';
 import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
-import { is3d } from '@/model/epp/quilt-ops';
+import { is3d, isEpp } from '@/model/epp/quilt-ops';
+import { takesBlock } from '@/editor/scope';
+import { generateFor } from '@/model/layout/slots';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
@@ -1640,7 +1639,42 @@ const {
 });
 
 const quilts = computed(() => project.doc!.project.quilts);
-const quiltKind = ref<'all' | 'data' | 'other'>('all');
+type QuiltKind = 'data' | 'blocks' | 'patches' | 'epp';
+const quiltKind = ref<'all' | QuiltKind>('all');
+const KINDS: [QuiltKind, string][] = [
+  ['data', 'Data quilts'],
+  ['blocks', 'Block quilts'],
+  ['patches', 'Patch quilts'],
+  ['epp', 'EPP quilts'],
+];
+/** Each quilt's type: a data quilt, an EPP quilt (2D or 3D), else blocks when it has block spaces
+ *  (as the editor opens it on Set) or patches. */
+const kindOf = computed(
+  () =>
+    new Map(
+      quilts.value.map((q): [string, QuiltKind] => [
+        q.id,
+        q.data?.on
+          ? 'data'
+          : isEpp(q)
+            ? 'epp'
+            : generateFor(q).slots.some((s) => takesBlock(s))
+              ? 'blocks'
+              : 'patches',
+      ]),
+    ),
+);
+const kindOptions = computed(() => {
+  const have = new Set(kindOf.value.values());
+  return [
+    { value: 'all', label: 'All quilts' },
+    ...KINDS.filter(([k]) => have.has(k)).map(([value, label]) => ({ value, label })),
+  ];
+});
+// A type whose last quilt goes (deleted, or the only type left) falls back to All.
+watch(kindOptions, (o) => {
+  if (o.length <= 2 || !o.some((x) => x.value === quiltKind.value)) quiltKind.value = 'all';
+});
 const split = computed(() => {
   const own = project.doc!.project.blocks.filter((b) => !b.notecard.tags?.includes('system'));
   // My-library items this project has a linked copy of show once, as that copy in My blocks.

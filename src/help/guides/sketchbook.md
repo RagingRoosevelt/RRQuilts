@@ -14,20 +14,21 @@ across the whole project.
 
 1. Choose **New quilt** to open the wizard (see [Getting started](/help/guides/getting-started)), or
    click a quilt's picture to open it.
-2. **Import quilts** reads another project file (`.rrq`). Tick the quilts to add to this project.
+2. With quilts of more than one type, **Show** picks which to list: **All quilts**, or only the **Data quilts**, **Block quilts** (with block spaces), **Patch quilts** or **EPP quilts** (3D ones too). It offers only the types the project has.
+3. **Import quilts** reads another project file (`.rrq`). Tick the quilts to add to this project.
    The blocks, colors and fabrics they use come with them. Anything already here is shared, and a
    block that differs from your version of it comes in as a copy. Undo removes
    the whole import.
-3. Use the three-dot **Actions** menu on a card for **Open**, **Create copy** (a copy to
+4. Use the three-dot **Actions** menu on a card for **Open**, **Create copy** (a copy to
    try other colors on), **Export quilt…**, **Details**, and **Delete** (you can undo). **Export
    quilt…** saves a project file holding just that quilt and the blocks, colors and fabrics it uses.
    Open it as a project, or bring the quilt into another project with **Import quilts**.
-4. Drag cards to reorder them, with a mouse or, on a touch screen, by pressing a card until it lifts.
+5. Drag cards to reorder them, with a mouse or, on a touch screen, by pressing a card until it lifts.
    The handle left of a card's name drags straight away.
    The card you move stays faded in its place while a copy follows your finger or pointer, and the
    edges either side of where the quilt will land light up. Let go anywhere and it lands there. Esc
    puts it back. Near the top or bottom of the window the page scrolls.
-5. With the keyboard, tab to the handle left of a quilt's name and use the arrow keys, or Home and
+6. With the keyboard, tab to the handle left of a quilt's name and use the arrow keys, or Home and
    End to move it to the start or end.
 
 ## Blocks

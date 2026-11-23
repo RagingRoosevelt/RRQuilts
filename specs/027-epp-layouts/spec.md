@@ -112,6 +112,12 @@ justification).
   works well", "stitches for the explode mode", "we should have a clear indication of if the
   current design is allowed to be stuffed as well as a callout why it isn't" and "let's add a note
   that when it can't be joined but stuffing might help".
+- Q: How does the project's Quilts tab filter its quilts now that there are EPP quilts? → A: **Show**
+  offers All quilts, then Data, Block (with block spaces), Patch and EPP quilts (2D and 3D), only
+  the types the project has, and only when it has more than one type ("Other" is gone). Owner,
+  2026-11-23: "in the toggles for quilt types in the project view, we should add a toggle for epp",
+  "let's also seperate other into "block" and "patch"" and "and then only show the toggle options
+  for quilt types that exist in the project".
 - Q: When does 3D ship? → A: In 0.9.0 with the rest of the EPP work (rrq v12, still unreleased,
   carries the 3D fields), built on its own branch off `027-epp-layouts` and merged back. Owner,
   2026-11-23: "this will be releasing with the other epp work we've been doing".

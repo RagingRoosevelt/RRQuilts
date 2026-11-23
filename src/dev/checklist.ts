@@ -334,6 +334,14 @@ export const CHECKS: Check[] = [
     file: 'epp3d-demo.rrq',
     to: '/project',
   },
+  {
+    id: 'TC-319',
+    group: G.epp027,
+    text: 'Project › Quilts › Show. Open the v11 demo (16 quilts): All quilts, Data quilts (2), Block quilts (10, Nine Blocks to Diamond Point Half Rows with block spaces), Patch quilts (4: Variable Point, One Patch, Baby Blocks, Variable Blocks); no EPP quilts option. Add an EPP quilt: EPP quilts appears and lists it. Delete it: the option goes and the list goes back to All. The 3D EPP demo (EPP quilts only): no Show picker.',
+    last: 'in the toggles for quilt types in the project view, we should add a toggle for epp; let’s also seperate other into "block" and "patch"; and then only show the toggle options for quilt types that exist in the project',
+    file: 'demo-v11.rrq',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
