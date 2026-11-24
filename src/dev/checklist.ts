@@ -71,6 +71,20 @@ export const CHECKS: Check[] = [
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
   },
+  {
+    id: 'TC-349',
+    group: G.small,
+    text: "Libraries: search Bull's Eye. The block is the same top to bottom and left to right: half-square triangles on the left edge of the lower half, and the dark triangles at the top and bottom middle are the same dark blue as the squares beside them. Check its themed colorings too.",
+    last: '"the bull\'s eye block is missing the two half-square triangles that are needed along the left edge on the lower side. also, there are two half-square triangles that use the wrong dark blue color that should match the dark blue of their immediate neighbors"',
+    to: '/libraries',
+  },
+  {
+    id: 'TC-350',
+    group: G.small,
+    text: 'Header: a bug button sits just left of the settings gear on every page (phone width too). It opens Help › About › Got an idea?.',
+    last: '"let\'s also add a "bug" button immediatly to the left of the user settings icon that takes the user to the "help / about / Got an Idea?" page"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
