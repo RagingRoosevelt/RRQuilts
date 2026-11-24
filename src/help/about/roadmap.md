@@ -8,12 +8,13 @@ These are the plans for the next few versions. Plans change as people use the ap
 may move to another version, arrive in a different form, or not at all. To ask for something that
 isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
-## 0.9.0
+## 0.9.1
 
-- English paper piecing layouts, such as hexagon flower gardens, with printable paper templates.
-- Rosettes for English paper piecing: save a group of shapes, such as a hexagon flower, and place it
-  like a single shape.
-- Select several English paper piecing shapes and rosettes and move, turn or mirror them together.
+- Help guides for English paper piecing shapes, rosettes and quilts.
+- Change the coloring of a rosette already placed in a quilt.
+- Drag the sides of an English paper piecing quilt's cut, with the pieces outside it faded.
+- Palette swaps for rosette colorings.
+- Open a shared project from a web link, as you can from a gist.
 
 ## 0.10.0
 

@@ -2,6 +2,23 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.9.0 (2026-11-24)
+
+### New features
+
+- [major] English paper piecing shapes and rosettes, each with its own editor.
+- [major] English paper piecing quilts, with borders.
+- [major] 3D English paper piecing, folded and stuffed on screen.
+- Paper and fabric templates for English paper piecing.
+- [major] 3D-printable cutting templates.
+- Rosettes in block quilts.
+- English paper piecing shapes and rosettes in libraries and packs.
+- Demo projects to open and explore.
+- Even edge length tool for block sizes.
+- Seam allowances as a project setting.
+- Title, author, license and notes in the new quilt wizard.
+- Older projects open and are upgraded to the new file version.
+
 ## 0.8.0 (2026-11-10)
 
 ### New features
