@@ -117,7 +117,9 @@ justification).
   the types the project has, and only when it has more than one type ("Other" is gone). Owner,
   2026-11-23: "in the toggles for quilt types in the project view, we should add a toggle for epp",
   "let's also seperate other into "block" and "patch"" and "and then only show the toggle options
-  for quilt types that exist in the project".
+  for quilt types that exist in the project". The labels are short: All quilts, Data, Block, Patch,
+  EPP. Owner, 2026-11-24: "Let's change the switch titles to "all quilts", "data", "block",
+  "patch", "epp"".
 - Q: When does 3D ship? → A: In 0.9.0 with the rest of the EPP work (rrq v12, still unreleased,
   carries the 3D fields), built on its own branch off `027-epp-layouts` and merged back. Owner,
   2026-11-23: "this will be releasing with the other epp work we've been doing".
@@ -517,7 +519,8 @@ fifth diamond's free edge to the first's; the 3D assembly tab shows a shallow fi
 4. **Given** seams that can't all close (impossible or conflicting), **Then** the 3D view says which
    seams don't close and shows the closest fold it found.
 5. **Given** a 3D design, **Then** printing gives the same paper and fabric templates as 2D, plus an
-   assembly sheet: the net with each explicit seam numbered on both edges.
+   assembly sheet: the net with each explicit seam's two edges in its color (not numbered: owner,
+   2026-11-24, "don't show the seam join labels in the 2d quilt picture").
 
 Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
 
@@ -708,7 +711,7 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
   equal edges (shared edges are seams already) and a 3D assembly tab that folds the net with every
   seam as a hinge, pulls separate assemblies together, reports seams that don't close, stuffs a
   closed design (saying whether it can be stuffed and why not), and prints the net with its explicit
-  seams numbered and the folded object below it (the assembly sheet is the quilt picture; owner,
+  seams colored (not numbered, owner 2026-11-24) and the folded object below it (the assembly sheet is the quilt picture; owner,
   2026-11-23: "the print out should show both 2d and 3d view"). In the print preview a click on
   the 3D view swaps in a live view to turn by dragging; the pointer leaving or 15 seconds untouched
   swap the picture back, seen from there, and that view is saved with the quilt (`epp.printView`).

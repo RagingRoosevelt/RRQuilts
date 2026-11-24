@@ -581,27 +581,16 @@
                   stroke="#000"
                   :stroke-width="(stroke / s.scale) * 1.5"
                 />
-                <!-- A 3D EPP quilt: each explicit seam's edges, numbered (spec 027 US7). -->
-                <g v-for="(m, j) in s.seams ?? []" :key="`seam${j}`">
-                  <path
-                    :d="m.d"
-                    fill="none"
-                    :stroke="m.css"
-                    :stroke-width="(stroke / s.scale) * 3"
-                  />
-                  <text
-                    v-if="m.at"
-                    :x="m.at[0]"
-                    :y="m.at[1]"
-                    :fill="m.css"
-                    :font-size="m.size"
-                    font-weight="bold"
-                    text-anchor="middle"
-                    dominant-baseline="central"
-                  >
-                    {{ m.n }}
-                  </text>
-                </g>
+                <!-- A 3D EPP quilt: each explicit seam's edges in its color, not numbered (owner,
+                     2026-11-24: "don't show the seam join labels in the 2d quilt picture"). -->
+                <path
+                  v-for="(m, j) in s.seams ?? []"
+                  :key="`seam${j}`"
+                  :d="m.d"
+                  fill="none"
+                  :stroke="m.css"
+                  :stroke-width="(stroke / s.scale) * 3"
+                />
                 <g v-if="s.overlay">
                   <clipPath v-if="s.overlay.shade" :id="`quilt${i}`">
                     <rect
@@ -1111,8 +1100,8 @@ interface View {
   legend?: { label: string; items: { fill: string; text: string }[] }[];
   /** Picture: outlines (+ fills) in their own coordinates. */
   picture: { d: string; css: string }[];
-  /** A 3D EPP quilt's picture: each explicit seam's edges and number (spec 027 US7). */
-  seams?: { d: string; css: string; n: number; at: Pt | null; size: number }[];
+  /** A 3D EPP quilt's picture: each explicit seam's edges, in its color (spec 027 US7). */
+  seams?: { d: string; css: string }[];
   pictureBox: readonly [number, number, number, number];
   /** Quilts: the outer edge (pieces are clipped to it) and whether to trim to it after piecing. */
   edge?: Pt[];
@@ -1303,12 +1292,9 @@ function eppQuiltView(dd: RrqDoc, quilt: Quilt): View {
 /** A 3D EPP quilt's explicit seams on its picture, in project units (`u` per 1U). */
 function seamPicture(quilt: Quilt, lookup: EppLookup, u: number): NonNullable<View['seams']> {
   const leaves = expandAll(quilt.epp?.pieces ?? [], lookup);
-  return seamMarks(leaves, quilt.epp?.seams ?? [], 0.22).map((m) => ({
+  return seamMarks(leaves, quilt.epp?.seams ?? [], 0).map((m) => ({
     d: d(m.edge.map(([x, y]): Pt => [x * u, y * u])),
     css: m.color,
-    n: m.n,
-    at: m.label && [m.label[0] * u, m.label[1] * u],
-    size: 0.3 * u,
   }));
 }
 
@@ -1659,14 +1645,7 @@ const logical = computed<Sheet[]>(() => {
         prefs.value.showOverlay && q?.target?.visible
           ? placeTarget(q.target, [...v.pictureBox] as [number, number, number, number])
           : null;
-      // A 3D quilt's seam numbers sit outside its pieces: room for them.
-      const pad = v.seams?.[0]?.size ?? 0;
-      const box = [
-        v.pictureBox[0] - pad,
-        v.pictureBox[1] - pad,
-        v.pictureBox[2] + pad,
-        v.pictureBox[3] + pad,
-      ] as const;
+      const box = v.pictureBox;
       const [x0, y0, x1, y1] = placed
         ? [
             Math.min(box[0], placed.box[0]),

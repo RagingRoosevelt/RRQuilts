@@ -14,7 +14,7 @@ across the whole project.
 
 1. Choose **New quilt** to open the wizard (see [Getting started](/help/guides/getting-started)), or
    click a quilt's picture to open it.
-2. With quilts of more than one type, **Show** picks which to list: **All quilts**, or only the **Data quilts**, **Block quilts** (with block spaces), **Patch quilts** or **EPP quilts** (3D ones too). It offers only the types the project has.
+2. With quilts of more than one type, **Show** picks which to list: **All quilts**, or only the **Data**, **Block** (with block spaces), **Patch** or **EPP** quilts (3D ones too). It offers only the types the project has.
 3. **Import quilts** reads another project file (`.rrq`). Tick the quilts to add to this project.
    The blocks, colors and fabrics they use come with them. Anything already here is shared, and a
    block that differs from your version of it comes in as a copy. Undo removes

@@ -1640,11 +1640,13 @@ const {
 const quilts = computed(() => project.doc!.project.quilts);
 type QuiltKind = 'data' | 'blocks' | 'patches' | 'epp';
 const quiltKind = ref<'all' | QuiltKind>('all');
+// Short labels (owner, 2026-11-24: "change the switch titles to "all quilts", "data", "block",
+// "patch", "epp"").
 const KINDS: [QuiltKind, string][] = [
-  ['data', 'Data quilts'],
-  ['blocks', 'Block quilts'],
-  ['patches', 'Patch quilts'],
-  ['epp', 'EPP quilts'],
+  ['data', 'Data'],
+  ['blocks', 'Block'],
+  ['patches', 'Patch'],
+  ['epp', 'EPP'],
 ];
 /** Each quilt's type: a data quilt, an EPP quilt (2D or 3D), else blocks when it has block spaces
  *  (as the editor opens it on Set) or patches. */
