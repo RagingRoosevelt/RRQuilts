@@ -23,8 +23,10 @@ function turtle(lengths: number[], turns: number[]): Poly {
 const regular = (n: number) => turtle(Array(n).fill(1), Array(n).fill(360 / n));
 
 /**
- * Starter shapes (owner, 2026-11-10). Jewel: a gem of edges 1, 1, 2, 2, 1 (point 60°, other
- * corners 120°). Honeycomb: six 1U edges with 90° end corners (the rest 135°); Elongated Hexagon:
+ * Starter shapes (owner, 2026-11-10; categories owner, 2026-11-23: "rename polygons to "regular
+ * polygons" and move square, triangle, and hexagon into it. rename the current hexagons to
+ * irregular hexigons. rename triagnels to irregular triangles"). Jewel: a gem of edges 1, 1, 2,
+ * 2, 1 (point 60°, other corners 120°). Honeycomb: six 1U edges with 90° end corners (the rest 135°); Elongated Hexagon:
  * the same with its two long sides 2U. Half Square: its long edge is √2, marked.
  */
 /** Hexi Kite (owner, 2026-11-10; first called Kite): from a 2U hexagon, its center, an edge's midpoint, the next
@@ -42,31 +44,35 @@ function kite(): Poly {
 const S3 = Math.sqrt(3);
 
 const STARTER_SHAPES: { name: string; category: string; outline: Poly; marked?: number[] }[] = [
-  { name: 'Hexagon', category: 'Hexagons', outline: regular(6) },
-  { name: 'Half Hexagon', category: 'Hexagons', outline: turtle([2, 1, 1, 1], [120, 60, 60, 120]) },
+  { name: 'Triangle', category: 'Regular Polygons', outline: regular(3) },
+  { name: 'Square', category: 'Regular Polygons', outline: regular(4) },
+  { name: 'Pentagon', category: 'Regular Polygons', outline: regular(5) },
+  { name: 'Hexagon', category: 'Regular Polygons', outline: regular(6) },
+  { name: 'Octagon', category: 'Regular Polygons', outline: regular(8) },
+  {
+    name: 'Half Hexagon',
+    category: 'Irregular Hexagons',
+    outline: turtle([2, 1, 1, 1], [120, 60, 60, 120]),
+  },
   {
     name: 'Honeycomb',
-    category: 'Hexagons',
+    category: 'Irregular Hexagons',
     outline: turtle([1, 1, 1, 1, 1, 1], [45, 45, 90, 45, 45, 90]),
   },
   {
     name: 'Elongated Hexagon',
-    category: 'Hexagons',
+    category: 'Irregular Hexagons',
     outline: turtle([1, 2, 1, 1, 2, 1], [45, 45, 90, 45, 45, 90]),
   },
-  { name: 'Triangle', category: 'Triangles', outline: regular(3) },
   {
     name: 'Half Square',
-    category: 'Triangles',
+    category: 'Irregular Triangles',
     outline: turtle([1, 1, Math.SQRT2], [90, 135, 135]),
   },
-  { name: 'Square', category: 'Squares', outline: regular(4) },
   { name: '60° Diamond', category: 'Diamonds', outline: turtle([1, 1, 1, 1], [120, 60, 120, 60]) },
   { name: '45° Diamond', category: 'Diamonds', outline: turtle([1, 1, 1, 1], [135, 45, 135, 45]) },
   { name: 'Hexi Kite', category: 'Diamonds', outline: kite() },
   { name: 'Jewel', category: 'Diamonds', outline: turtle([1, 1, 2, 2, 1], [60, 60, 120, 60, 60]) },
-  { name: 'Pentagon', category: 'Polygons', outline: regular(5) },
-  { name: 'Octagon', category: 'Polygons', outline: regular(8) },
 ];
 // Marked edges (not whole units), found by length so they follow the outline's order.
 for (const s of STARTER_SHAPES) {
@@ -91,11 +97,10 @@ const color = (name: string): Fill => ({ color: `rrquilts.${slug(name)}` });
 
 export const EPP_CATEGORIES = [
   'EPP',
-  'EPP/Hexagons',
-  'EPP/Triangles',
-  'EPP/Squares',
+  'EPP/Regular Polygons',
+  'EPP/Irregular Hexagons',
+  'EPP/Irregular Triangles',
   'EPP/Diamonds',
-  'EPP/Polygons',
   'EPP/Rosettes',
 ];
 
@@ -129,7 +134,7 @@ export function eppStarters(): {
     category: s.category,
   }));
   const hexId = shapeId('Hexagon');
-  const hex = STARTER_SHAPES[0]!.outline;
+  const hex = STARTER_SHAPES.find((s) => s.name === 'Hexagon')!.outline;
   // Neighbors' centers: twice each edge's middle.
   const across = edges(hex).map(([a, b]) => mul(lerp(a, b, 0.5), 2));
   const at = (p: Pt) => ({ shape: hexId, at: p, turn: 0, scale: 1 });

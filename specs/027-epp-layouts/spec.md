@@ -383,7 +383,11 @@ parallelogram); place it and print it.
    extracted from a hexagon and is formed from the center of the hexagon to the midpoint of one
    edge, connected to a natural vertex, connected to the next midpoint of the edge, connected back
    to the center. the edges between midpoint and natural vertex would be 1u leaving the long edges
-   an odd length".
+   an odd length". Categories: Regular Polygons (triangle, square, pentagon, hexagon, octagon),
+   Irregular Hexagons (half hexagon, honeycomb, elongated hexagon), Irregular Triangles (half
+   square), Diamonds (60°, 45°, kite, jewel), then Rosettes. Owner, 2026-11-23: "in built-in epp
+   shapes, rename polygons to "regular polygons" and move square, triangle, and hexagon into it.
+   rename the current hexagons to irregular hexigons. rename triagnels to irregular triangles".
 2. **Given** My library and packs (spec 011), **Then** EPP shapes (and rosettes, spec 050) can be saved to My
    library, shared in packs, copied from packs, synced and credited exactly like blocks, and the
    Libraries page and project tabs list and filter them as their own type.

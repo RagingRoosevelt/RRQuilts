@@ -245,7 +245,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-303',
     group: G.epp027,
-    text: 'EPP shapes and rosettes grouped as library blocks. A project’s EPP tab: Mine (New shape, New rosette, Import, your own), then Libraries: Built-In · 18 with EPP · 18 and Hexagons, Triangles, Squares, Diamonds, Polygons, Rosettes, each collapsible with Expand all / Collapse all, as the Blocks tab’s library blocks (collapsing here doesn’t collapse the Blocks tab). Use a library shape in a rosette: it stays in its library’s section with a check mark (Used in this project). Shapes / Rosettes switch filters the sections. Cards are as tall as their content (no empty space under a row). Libraries › EPP: under each library, EPP shapes and rosettes in the same category sections. A My library shape without a category: Uncategorized.',
+    text: 'EPP shapes and rosettes grouped as library blocks. A project’s EPP tab: Mine (New shape, New rosette, Import, your own), then Libraries: Built-In · 18 with EPP · 18 and Regular Polygons, Irregular Hexagons, Irregular Triangles, Diamonds, Rosettes, each collapsible with Expand all / Collapse all, as the Blocks tab’s library blocks (collapsing here doesn’t collapse the Blocks tab). Use a library shape in a rosette: it stays in its library’s section with a check mark (Used in this project). Shapes / Rosettes switch filters the sections. Cards are as tall as their content (no empty space under a row). Libraries › EPP: under each library, EPP shapes and rosettes in the same category sections. A My library shape without a category: Uncategorized.',
     last: 'let’s update the EPP project & library tabs to do grouping for shapes / rosettes by library source. let’s use the same UI components for that grouping as we use in the block interface.',
     to: '/project',
   },
@@ -373,6 +373,13 @@ export const CHECKS: Check[] = [
     text: 'Traditional EPP demo (Home › Open a demo, second; Help › Getting started links it). Quilts (3). Grandmother’s Flower Garden: 19-hexagon flowers (yellow middles, six colorings, no two touching flowers alike) with a diamond of four green hexagons between them, dark middle pair and lighter ends; cut straight at 36 × 45 in; a 3 in border of squares in three greens. EPP tab: Garden Flower (6 colorings) and Leaf rosettes. Lone Star: eight points of 6 × 6 diamonds in rings from butter to navy, cream setting squares and triangles (the card too, not white: that was a bug, a library color used only for Auto-close wasn’t saved with the project), 1 in gold and 4 in navy borders. Cube corners: each big hexagon reads as a cube with a corner cut out, or a small cube in a corner; its faces are two half hexagons each, the middle three 60° diamonds; cut straight, 1 in powder blue and 3 in navy borders.',
     last: 'add a demo for traditional epp patterns. do a grandma’s garden with little groups of four green hexis between the flowers for leaves. do a cut border of green blocks; do an epp diamond lone star; and then do the optical illusion cube corners in the same epp demo; I believe it’s built from half hexis; put borders on the lone star and cube corners quilt demos; move traditional EPP to position 2 in the demo list',
     to: '/?open_demo=traditional-epp.rrq',
+  },
+  {
+    id: 'TC-334',
+    group: G.epp027,
+    text: 'Built-in EPP shape categories (a project’s EPP tab, and Libraries › EPP under Built-In): Regular Polygons (Hexagon, Octagon, Pentagon, Square, Triangle), Irregular Hexagons (Half Hexagon, Honeycomb, Elongated Hexagon), Irregular Triangles (Half Square), Diamonds (60° Diamond, 45° Diamond, Hexi Kite, Jewel), Rosettes. No Squares, Triangles, Hexagons or Polygons section. The new quilt wizard’s and Layout tab’s patch shapes are unchanged.',
+    last: 'in built-in epp shapes, rename polygons to "regular polygons" and move square, triangle, and hexagon into it. rename the current hexagons to irregular hexigons. rename triagnels to irregular triangles',
+    to: '/project',
   },
   {
     id: 'TC-332',

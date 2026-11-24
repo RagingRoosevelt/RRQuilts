@@ -8,6 +8,7 @@ import { produce } from 'immer';
 const { shapes, rosettes } = eppStarters();
 const flower = rosettes[0]!;
 const plain = shapes.map((s) => ({ ...s, category: undefined }));
+const hexagon = plain.find((s) => s.id === 'rrquilts.epp-hexagon')!;
 const lookup = {
   shape: (id: string) => plain.find((s) => s.id === id),
   color: (id: string) => ({
@@ -48,7 +49,7 @@ describe('.rrqepp', () => {
 
   it('add to My library links the project copy', async () => {
     const doc = produce(createProject('A'), (d) => {
-      d.project.eppShapes = [plain[0]!];
+      d.project.eppShapes = [hexagon];
       d.project.rosettes = [flower];
     });
     const r = await addEpp(emptyPersonal('me.x'), doc, flower.id);
