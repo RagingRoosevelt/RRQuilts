@@ -1,0 +1,1191 @@
+{
+  "format": "rrq",
+  "version": 12,
+  "app": "0.9.0",
+  "units": "in",
+  "project": {
+    "id": "2k5ynrxi5s",
+    "name": "Moravian Star",
+    "palette": {
+      "fabrics": [],
+      "colors": [
+        {
+          "id": "rrquilts.coral",
+          "notecard": {"name": "Coral"},
+          "rgb": [240, 120, 96],
+          "revision": 1,
+          "version": "ecc2750516dd",
+          "source": {
+            "libraryId": "rrquilts-novelty-blocks-memes",
+            "itemId": "rrquilts.coral",
+            "revision": 1,
+            "version": "ecc2750516dd",
+            "library": "Memes",
+            "author": "RagingRoosevelt",
+            "license": "CC-BY-SA-4.0",
+            "name": "Coral"
+          }
+        },
+        {
+          "id": "rrquilts.pink",
+          "notecard": {"name": "Pink"},
+          "rgb": [240, 168, 184],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.pink",
+            "revision": 1,
+            "name": "Pink",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "4968a0d81ea6"
+        },
+        {
+          "id": "rrquilts.red",
+          "notecard": {"name": "Red"},
+          "rgb": [196, 40, 44],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.red",
+            "revision": 1,
+            "name": "Red",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "3dd1fb39a343"
+        },
+        {
+          "id": "rrquilts.barn-red",
+          "notecard": {"name": "Barn Red"},
+          "rgb": [140, 34, 38],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.barn-red",
+            "revision": 1,
+            "name": "Barn Red",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "ab6028a5ec1f"
+        },
+        {
+          "id": "rrquilts.rose",
+          "notecard": {"name": "Rose"},
+          "rgb": [208, 92, 120],
+          "revision": 1,
+          "version": "0fc8ac9282de",
+          "source": {
+            "libraryId": "rrquilts-novelty-blocks-memes",
+            "itemId": "rrquilts.rose",
+            "revision": 1,
+            "version": "0fc8ac9282de",
+            "library": "Memes",
+            "author": "RagingRoosevelt",
+            "license": "CC-BY-SA-4.0",
+            "name": "Rose"
+          }
+        },
+        {
+          "id": "rrquilts.yellow",
+          "notecard": {"name": "Yellow"},
+          "rgb": [248, 216, 72],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.yellow",
+            "revision": 1,
+            "name": "Yellow",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "00208b640222"
+        },
+        {
+          "id": "rrquilts.gold",
+          "notecard": {"name": "Gold"},
+          "rgb": [218, 168, 40],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.gold",
+            "revision": 1,
+            "name": "Gold",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "d52341c9390b"
+        },
+        {
+          "id": "rrquilts.orange",
+          "notecard": {"name": "Orange"},
+          "rgb": [236, 128, 40],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.orange",
+            "revision": 1,
+            "name": "Orange",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "3cfecc79c00c"
+        },
+        {
+          "id": "rrquilts.butter",
+          "notecard": {"name": "Butter"},
+          "rgb": [250, 236, 160],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.butter",
+            "revision": 1,
+            "name": "Butter",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "8300aa0a358a"
+        },
+        {
+          "id": "rrquilts.brown",
+          "notecard": {"name": "Brown"},
+          "rgb": [120, 80, 50],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.brown",
+            "revision": 1,
+            "name": "Brown",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "88306c7c09d0"
+        },
+        {
+          "id": "rrquilts.tan",
+          "notecard": {"name": "Tan"},
+          "rgb": [205, 180, 140],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.tan",
+            "revision": 1,
+            "name": "Tan",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "30468d5ed201"
+        },
+        {
+          "id": "rrquilts.linen",
+          "notecard": {"name": "Linen"},
+          "rgb": [230, 220, 200],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.linen",
+            "revision": 1,
+            "name": "Linen",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "7629f55472ce"
+        }
+      ],
+      "threads": []
+    },
+    "blocks": [],
+    "photos": [],
+    "embroidery": [],
+    "quilts": [
+      {
+        "id": "lslc73t0k9",
+        "notecard": {"name": "Moravian Star"},
+        "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "at": [2.711329857674859, -1.7127077336055443],
+              "turn": 300,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "yst7c7svz1",
+              "fills": {
+                "9md7pcis0r": {"color": "rrquilts.coral"},
+                "fcidkzul9p": {"color": "rrquilts.coral"},
+                "rzl21j6c4w": {"color": "rrquilts.coral"},
+                "y1kwnmpbd7": {"color": "rrquilts.coral"},
+                "ew0hr0ygc5": {"color": "rrquilts.coral"}
+              }
+            },
+            {
+              "at": [4.3017201825786815, 0.7374621522283576],
+              "turn": 240,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "nf02b71etu",
+              "fills": {
+                "fcidkzul9p": {"color": "rrquilts.pink"},
+                "rzl21j6c4w": {"color": "rrquilts.pink"},
+                "y1kwnmpbd7": {"color": "rrquilts.pink"},
+                "ew0hr0ygc5": {"color": "rrquilts.pink"},
+                "9md7pcis0r": {"color": "rrquilts.pink"}
+              }
+            },
+            {
+              "at": [5.688961437819903, 5.383176478791862],
+              "turn": 0,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "8d0mbn2jg1",
+              "fills": {
+                "ew0hr0ygc5": {"color": "rrquilts.red"},
+                "9md7pcis0r": {"color": "rrquilts.red"},
+                "fcidkzul9p": {"color": "rrquilts.red"},
+                "rzl21j6c4w": {"color": "rrquilts.red"},
+                "y1kwnmpbd7": {"color": "rrquilts.red"}
+              }
+            },
+            {
+              "at": [7.074074455747803, 0.755304041344774],
+              "turn": 120,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "tw8l82iizz",
+              "fills": {
+                "ew0hr0ygc5": {"color": "rrquilts.barn-red"},
+                "9md7pcis0r": {"color": "rrquilts.barn-red"},
+                "fcidkzul9p": {"color": "rrquilts.barn-red"},
+                "rzl21j6c4w": {"color": "rrquilts.barn-red"},
+                "y1kwnmpbd7": {"color": "rrquilts.barn-red"}
+              }
+            },
+            {
+              "at": [5.702565880991861, -1.638161641537172],
+              "turn": 0,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "ye6uys3wsl",
+              "fills": {
+                "fcidkzul9p": {"color": "rrquilts.rose"},
+                "rzl21j6c4w": {"color": "rrquilts.rose"},
+                "y1kwnmpbd7": {"color": "rrquilts.rose"},
+                "9md7pcis0r": {"color": "rrquilts.rose"},
+                "ew0hr0ygc5": {"color": "rrquilts.rose"}
+              }
+            },
+            {
+              "at": [10.447274463034754, -2.7450385749651183],
+              "turn": 240,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "ezk0x5v65g",
+              "fills": {
+                "ew0hr0ygc5": {"color": "rrquilts.yellow"},
+                "9md7pcis0r": {"color": "rrquilts.yellow"},
+                "fcidkzul9p": {"color": "rrquilts.yellow"},
+                "rzl21j6c4w": {"color": "rrquilts.yellow"},
+                "y1kwnmpbd7": {"color": "rrquilts.yellow"}
+              }
+            },
+            {
+              "at": [8.647274463034753, -1.7058080904237896],
+              "turn": 60,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "pmqikg108f",
+              "fills": {
+                "ew0hr0ygc5": {"color": "rrquilts.gold"},
+                "9md7pcis0r": {"color": "rrquilts.gold"},
+                "fcidkzul9p": {"color": "rrquilts.gold"},
+                "y1kwnmpbd7": {"color": "rrquilts.gold"},
+                "rzl21j6c4w": {"color": "rrquilts.gold"}
+              }
+            },
+            {
+              "at": [5.702565880991861, -3.716622610619826],
+              "turn": 180,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "akwc07w8t2",
+              "fills": {
+                "y1kwnmpbd7": {"color": "rrquilts.orange"},
+                "rzl21j6c4w": {"color": "rrquilts.orange"},
+                "fcidkzul9p": {"color": "rrquilts.orange"},
+                "9md7pcis0r": {"color": "rrquilts.orange"},
+                "ew0hr0ygc5": {"color": "rrquilts.orange"}
+              }
+            },
+            {
+              "at": [8.874074455747806, 1.794534525886099],
+              "turn": 300,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "aqi4vh4zq0",
+              "fills": {
+                "y1kwnmpbd7": {"color": "rrquilts.butter"},
+                "rzl21j6c4w": {"color": "rrquilts.butter"},
+                "fcidkzul9p": {"color": "rrquilts.butter"},
+                "9md7pcis0r": {"color": "rrquilts.butter"},
+                "ew0hr0ygc5": {"color": "rrquilts.butter"}
+              }
+            },
+            {
+              "at": [0.9113298576748579, -2.7519382181468703],
+              "turn": 120,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "lufv8dhq6j",
+              "fills": {
+                "9md7pcis0r": {"color": "rrquilts.brown"},
+                "fcidkzul9p": {"color": "rrquilts.brown"},
+                "rzl21j6c4w": {"color": "rrquilts.brown"},
+                "y1kwnmpbd7": {"color": "rrquilts.brown"},
+                "ew0hr0ygc5": {"color": "rrquilts.brown"}
+              }
+            },
+            {
+              "at": [5.688961437819904, 3.304715509709208],
+              "turn": 180,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "omc267o8pc",
+              "fills": {
+                "y1kwnmpbd7": {"color": "rrquilts.tan"},
+                "rzl21j6c4w": {"color": "rrquilts.tan"},
+                "fcidkzul9p": {"color": "rrquilts.tan"},
+                "9md7pcis0r": {"color": "rrquilts.tan"},
+                "ew0hr0ygc5": {"color": "rrquilts.tan"}
+              }
+            },
+            {
+              "at": [2.5017201825786812, 1.776692636769684],
+              "turn": 60.00000000000006,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "im1axffuhz",
+              "fills": {
+                "ew0hr0ygc5": {"color": "rrquilts.linen"},
+                "9md7pcis0r": {"color": "rrquilts.linen"},
+                "fcidkzul9p": {"color": "rrquilts.linen"},
+                "rzl21j6c4w": {"color": "rrquilts.linen"},
+                "y1kwnmpbd7": {"color": "rrquilts.linen"}
+              }
+            }
+          ],
+          "box": [
+            -0.43867014232514223,
+            -5.275468337431816,
+            11.797274463034753,
+            6.942022205603852
+          ],
+          "seams": [
+            {
+              "a": {"piece": "nf02b71etu", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "ye6uys3wsl", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "ye6uys3wsl", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "tw8l82iizz", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "tw8l82iizz", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "nf02b71etu", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "nf02b71etu", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "ye6uys3wsl", "part": "rzl21j6c4w", "edge": 0}
+            },
+            {
+              "a": {"piece": "nf02b71etu", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "yst7c7svz1", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "ye6uys3wsl", "part": "rzl21j6c4w", "edge": 3},
+              "b": {"piece": "yst7c7svz1", "part": "fcidkzul9p", "edge": 0}
+            },
+            {
+              "a": {"piece": "ye6uys3wsl", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "yst7c7svz1", "part": "9md7pcis0r", "edge": 1}
+            },
+            {
+              "a": {"piece": "yst7c7svz1", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "nf02b71etu", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "yst7c7svz1", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "yst7c7svz1", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "ye6uys3wsl", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "ye6uys3wsl", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "tw8l82iizz", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "tw8l82iizz", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "nf02b71etu", "part": "ew0hr0ygc5", "edge": 3},
+              "b": {"piece": "nf02b71etu", "part": "y1kwnmpbd7", "edge": 2}
+            },
+            {
+              "a": {"piece": "tw8l82iizz", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "ye6uys3wsl", "part": "9md7pcis0r", "edge": 1}
+            },
+            {
+              "a": {"piece": "tw8l82iizz", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "nf02b71etu", "part": "rzl21j6c4w", "edge": 0}
+            },
+            {
+              "a": {"piece": "akwc07w8t2", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "akwc07w8t2", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "ezk0x5v65g", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "aqi4vh4zq0", "part": "ew0hr0ygc5", "edge": 3},
+              "b": {"piece": "aqi4vh4zq0", "part": "y1kwnmpbd7", "edge": 2}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "omc267o8pc", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "im1axffuhz", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "im1axffuhz", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "im1axffuhz", "part": "ew0hr0ygc5", "edge": 2},
+              "b": {"piece": "nf02b71etu", "part": "y1kwnmpbd7", "edge": 3}
+            },
+            {
+              "a": {"piece": "nf02b71etu", "part": "ew0hr0ygc5", "edge": 2},
+              "b": {"piece": "im1axffuhz", "part": "y1kwnmpbd7", "edge": 3}
+            },
+            {
+              "a": {"piece": "im1axffuhz", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "yst7c7svz1", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "yst7c7svz1", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "im1axffuhz", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "lufv8dhq6j", "part": "ew0hr0ygc5", "edge": 3},
+              "b": {"piece": "lufv8dhq6j", "part": "y1kwnmpbd7", "edge": 2}
+            },
+            {
+              "a": {"piece": "im1axffuhz", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "lufv8dhq6j", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "lufv8dhq6j", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "im1axffuhz", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "yst7c7svz1", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "akwc07w8t2", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "akwc07w8t2", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "yst7c7svz1", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "akwc07w8t2", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "lufv8dhq6j", "part": "y1kwnmpbd7", "edge": 0}
+            },
+            {
+              "a": {"piece": "lufv8dhq6j", "part": "rzl21j6c4w", "edge": 3},
+              "b": {"piece": "akwc07w8t2", "part": "fcidkzul9p", "edge": 0}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "ew0hr0ygc5", "edge": 3},
+              "b": {"piece": "pmqikg108f", "part": "y1kwnmpbd7", "edge": 2}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "tw8l82iizz", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "fcidkzul9p", "edge": 3},
+              "b": {"piece": "ye6uys3wsl", "part": "9md7pcis0r", "edge": 2}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "ye6uys3wsl", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "tw8l82iizz", "part": "y1kwnmpbd7", "edge": 0}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "aqi4vh4zq0", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "ew0hr0ygc5", "edge": 1},
+              "b": {"piece": "aqi4vh4zq0", "part": "9md7pcis0r", "edge": 2}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "aqi4vh4zq0", "part": "9md7pcis0r", "edge": 1}
+            },
+            {
+              "a": {"piece": "aqi4vh4zq0", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "ezk0x5v65g", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "akwc07w8t2", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "pmqikg108f", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "akwc07w8t2", "part": "rzl21j6c4w", "edge": 3},
+              "b": {"piece": "pmqikg108f", "part": "y1kwnmpbd7", "edge": 0}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "ew0hr0ygc5", "edge": 1},
+              "b": {"piece": "akwc07w8t2", "part": "rzl21j6c4w", "edge": 0}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "akwc07w8t2", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "lufv8dhq6j", "part": "rzl21j6c4w", "edge": 0}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "lufv8dhq6j", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "8d0mbn2jg1", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "8d0mbn2jg1", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "nf02b71etu", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "fcidkzul9p", "edge": 3},
+              "b": {"piece": "tw8l82iizz", "part": "9md7pcis0r", "edge": 2}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "tw8l82iizz", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "nf02b71etu", "part": "y1kwnmpbd7", "edge": 0}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "rzl21j6c4w", "edge": 3},
+              "b": {"piece": "aqi4vh4zq0", "part": "y1kwnmpbd7", "edge": 0}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "aqi4vh4zq0", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "im1axffuhz", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "ew0hr0ygc5", "edge": 1},
+              "b": {"piece": "im1axffuhz", "part": "9md7pcis0r", "edge": 2}
+            },
+            {
+              "a": {"piece": "8d0mbn2jg1", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "im1axffuhz", "part": "9md7pcis0r", "edge": 1}
+            },
+            {
+              "a": {"piece": "im1axffuhz", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "8d0mbn2jg1", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "8d0mbn2jg1", "part": "ew0hr0ygc5", "edge": 1},
+              "b": {"piece": "aqi4vh4zq0", "part": "rzl21j6c4w", "edge": 0}
+            },
+            {
+              "a": {"piece": "aqi4vh4zq0", "part": "fcidkzul9p", "edge": 3},
+              "b": {"piece": "8d0mbn2jg1", "part": "9md7pcis0r", "edge": 2}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "8d0mbn2jg1", "part": "9md7pcis0r", "edge": 1}
+            },
+            {
+              "a": {"piece": "8d0mbn2jg1", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "ezk0x5v65g", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "8d0mbn2jg1", "part": "fcidkzul9p", "edge": 3},
+              "b": {"piece": "lufv8dhq6j", "part": "fcidkzul9p", "edge": 0}
+            },
+            {
+              "a": {"piece": "lufv8dhq6j", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "8d0mbn2jg1", "part": "rzl21j6c4w", "edge": 0}
+            }
+          ]
+        },
+        "author": "RagingRoosevelt",
+        "license": "CC-BY-SA-4.0"
+      }
+    ],
+    "fonts": [],
+    "libraryPalettes": ["rrquilts.basic-colors"],
+    "libraryBlocks": [
+      "rrquilts.four-patch",
+      "rrquilts.nine-patch",
+      "rrquilts.half-square-triangle",
+      "rrquilts.pinwheel",
+      "rrquilts.hourglass",
+      "rrquilts.flying-geese",
+      "rrquilts.square-in-a-square",
+      "rrquilts.rail-fence",
+      "rrquilts.basic-log-cabin",
+      "rrquilts.churn-dash",
+      "rrquilts.ohio-star",
+      "rrquilts.drunkard-s-path",
+      "rrquilts.sixteen-patch",
+      "rrquilts.scot-s-plaid",
+      "rrquilts.autumn-tints",
+      "rrquilts.shadow-box",
+      "rrquilts.jewel",
+      "rrquilts.cotton-reels",
+      "rrquilts.shoofly",
+      "rrquilts.blockade",
+      "rrquilts.friendship",
+      "rrquilts.twelve-triangles",
+      "rrquilts.friday-the-thirteenth",
+      "rrquilts.yankee-puzzle",
+      "rrquilts.big-dipper",
+      "rrquilts.broken-dishes",
+      "rrquilts.right-and-left",
+      "rrquilts.three-color-economy",
+      "rrquilts.two-color-economy",
+      "rrquilts.economy-pinwheel",
+      "rrquilts.four-h",
+      "rrquilts.sixteen-patch-plaid",
+      "rrquilts.white-house-steps",
+      "rrquilts.bright-hopes",
+      "rrquilts.cogwheels",
+      "rrquilts.red-cross",
+      "rrquilts.steps-to-glory",
+      "rrquilts.latticed-irish-chain",
+      "rrquilts.simple-five-patch",
+      "rrquilts.flying-square",
+      "rrquilts.blocks-in-a-box",
+      "rrquilts.children-s-delight-five-patch",
+      "rrquilts.plaid",
+      "rrquilts.star-and-cross",
+      "rrquilts.double-irish-chain-a",
+      "rrquilts.double-irish-chain-b",
+      "rrquilts.carpenter-s-square",
+      "rrquilts.steps-to-the-altar",
+      "rrquilts.greek-cross",
+      "rrquilts.king-s-crown-b",
+      "rrquilts.sawtooth-five-patch",
+      "rrquilts.double-sawtooth-five-patch",
+      "rrquilts.lady-of-the-lake",
+      "rrquilts.tent-of-armageddon",
+      "rrquilts.alaska-homestead",
+      "rrquilts.wishing-ring",
+      "rrquilts.duck-and-ducklings",
+      "rrquilts.simple-wedding-ring",
+      "rrquilts.wedding-rings",
+      "rrquilts.double-wrench",
+      "rrquilts.philadelphia-pavements-five-patch",
+      "rrquilts.ombre",
+      "rrquilts.flying-geese-five-patch",
+      "rrquilts.fool-s-square",
+      "rrquilts.e-z-quilt",
+      "rrquilts.farmer-s-daughter",
+      "rrquilts.cain-and-abel",
+      "rrquilts.david-and-goliath",
+      "rrquilts.oregon",
+      "rrquilts.providence-block-b",
+      "rrquilts.cathedral-window-five-patch",
+      "rrquilts.domino-five-patch",
+      "rrquilts.domino-chicken-foot",
+      "rrquilts.grandmother-s-puzzle",
+      "rrquilts.garden-of-eden",
+      "rrquilts.georgia",
+      "rrquilts.grandmother-s-choice",
+      "rrquilts.mrs-keller-s-patch",
+      "rrquilts.red-cross-five-patch",
+      "rrquilts.album-five-patch",
+      "rrquilts.memory-block",
+      "rrquilts.joseph-s-coat-b",
+      "rrquilts.easy-do-five-patch",
+      "rrquilts.mexican-cross-a",
+      "rrquilts.alaska-territory",
+      "rrquilts.goose-in-the-pond",
+      "rrquilts.clown",
+      "rrquilts.widower-choice",
+      "rrquilts.leap-frog",
+      "rrquilts.bachelor-s-puzzle-five-patch",
+      "rrquilts.broken-arrows",
+      "rrquilts.honey-s-choice",
+      "rrquilts.propeller",
+      "rrquilts.crazy-house",
+      "rrquilts.hartford",
+      "rrquilts.jack-in-the-box",
+      "rrquilts.square-and-a-half",
+      "rrquilts.handy-andy-five-patch",
+      "rrquilts.z-and-cross",
+      "rrquilts.st-louis",
+      "rrquilts.golden-royalty",
+      "rrquilts.king-david-s-crown",
+      "rrquilts.bull-s-eye",
+      "rrquilts.queen-charlotte-s-crown",
+      "rrquilts.bird-s-nest",
+      "rrquilts.grape-vine",
+      "rrquilts.zig-zag",
+      "rrquilts.mare-s-nest",
+      "rrquilts.indian-chain-and-squares",
+      "rrquilts.milky-way",
+      "rrquilts.captain-s-wheel",
+      "rrquilts.maryland",
+      "rrquilts.minnesota",
+      "rrquilts.follow-the-leader",
+      "rrquilts.pinwheel-square",
+      "rrquilts.crazy-ann-five-patch",
+      "rrquilts.pigeon-toes",
+      "rrquilts.grandmother-s-own-c",
+      "rrquilts.grandmother-s-cross-b",
+      "rrquilts.hemstitch",
+      "rrquilts.country-roads",
+      "rrquilts.city-square",
+      "rrquilts.walls-of-jericho",
+      "rrquilts.lovers-tiff",
+      "rrquilts.queen-victoria-s-crown",
+      "rrquilts.lincoln-s-platform",
+      "rrquilts.hens-and-chickens",
+      "rrquilts.bear-s-paws",
+      "rrquilts.road-to-california-seven-patch",
+      "rrquilts.arkansas",
+      "rrquilts.four-queens",
+      "rrquilts.prickly-pear",
+      "rrquilts.dove-in-a-window-cross",
+      "rrquilts.dove-in-a-window-b",
+      "rrquilts.basic-nine-patch",
+      "rrquilts.red-cross-a",
+      "rrquilts.nine-patch-variation-a",
+      "rrquilts.h-block",
+      "rrquilts.patience-nine-patch",
+      "rrquilts.basketweave-a",
+      "rrquilts.two-color-double-nine-patch",
+      "rrquilts.pussy-in-the-corner",
+      "rrquilts.puss-in-the-corner",
+      "rrquilts.building-blocks",
+      "rrquilts.homeward-bound",
+      "rrquilts.pennsylvania",
+      "rrquilts.patience-corner",
+      "rrquilts.handweave",
+      "rrquilts.two-color-domino",
+      "rrquilts.two-color-garden-path",
+      "rrquilts.nine-patch-plaid",
+      "rrquilts.alabama",
+      "rrquilts.four-color-domino",
+      "rrquilts.streak-of-lightning",
+      "rrquilts.tree-everlasting-a",
+      "rrquilts.lightning-streaks",
+      "rrquilts.hourglass-b",
+      "rrquilts.practical-orchard",
+      "rrquilts.sawtooth",
+      "rrquilts.sawtooth-square",
+      "rrquilts.triplet",
+      "rrquilts.clown-s-choice",
+      "rrquilts.malvina-s-chain",
+      "rrquilts.the-x-patch",
+      "rrquilts.checkerboard",
+      "rrquilts.arbor-window",
+      "rrquilts.nine-patch-variation-b",
+      "rrquilts.nine-patch-on-point",
+      "rrquilts.hourglass-c",
+      "rrquilts.aunt-vinah-s-favorite",
+      "rrquilts.jefferson-city",
+      "rrquilts.nine-patch-frame",
+      "rrquilts.aunt-sukey-s-choice",
+      "rrquilts.illinois",
+      "rrquilts.crosspatch",
+      "rrquilts.at-the-square",
+      "rrquilts.chain-and-hourglass",
+      "rrquilts.mother-s-dream-nine-patch",
+      "rrquilts.box-kite",
+      "rrquilts.londontown-roads",
+      "rrquilts.beggar-block",
+      "rrquilts.no-name-nine-patch",
+      "rrquilts.mollie-s-choice",
+      "rrquilts.jackknife",
+      "rrquilts.handy-andy-b",
+      "rrquilts.crab-claws",
+      "rrquilts.color-wheel",
+      "rrquilts.castles-in-the-air",
+      "rrquilts.boxes",
+      "rrquilts.card-tricks",
+      "rrquilts.cards-with-diamonds",
+      "rrquilts.fort-sumter",
+      "rrquilts.garden-path",
+      "rrquilts.grandmother-s-own-d",
+      "rrquilts.lucky-clover",
+      "rrquilts.mrs-cleveland-s-choice",
+      "rrquilts.gentleman-s-fancy",
+      "rrquilts.stone-mason-s-puzzle",
+      "rrquilts.california",
+      "rrquilts.merry-kite",
+      "rrquilts.flying-dutchman-b",
+      "rrquilts.swing-in-the-center",
+      "rrquilts.dumbbell-block",
+      "rrquilts.saint-george-s-cross",
+      "rrquilts.capital-t",
+      "rrquilts.robbing-peter-to-pay-paul-nine-patch",
+      "rrquilts.love-in-a-mist",
+      "rrquilts.indian-puzzle",
+      "rrquilts.fancy-contrary-wife",
+      "rrquilts.weathervane",
+      "rrquilts.arizona-b",
+      "rrquilts.union-square",
+      "rrquilts.wyoming-valley",
+      "rrquilts.morning",
+      "rrquilts.contrary-wife",
+      "rrquilts.attic-window-a",
+      "rrquilts.four-t-square",
+      "rrquilts.nonesuch",
+      "rrquilts.steps-to-the-altar-b",
+      "rrquilts.railroad-b",
+      "rrquilts.rocky-road-to-california",
+      "rrquilts.road-to-the-white-house",
+      "rrquilts.kelly-s-block",
+      "rrquilts.broken-sugar-bowl",
+      "rrquilts.jacob-s-ladder",
+      "rrquilts.mixed-t",
+      "rrquilts.dublin-chain",
+      "rrquilts.massachusetts",
+      "rrquilts.54-40-or-fight",
+      "rrquilts.patch-as-patch-can",
+      "rrquilts.flower-garden-path",
+      "rrquilts.battlegrounds",
+      "rrquilts.cat-s-cradle",
+      "rrquilts.winged-square",
+      "rrquilts.formal-garden",
+      "rrquilts.darting-bird",
+      "rrquilts.calico-puzzle",
+      "rrquilts.nine-patch-water-wheel",
+      "rrquilts.mississippi",
+      "rrquilts.silver-lane",
+      "rrquilts.ranger-s-pride",
+      "rrquilts.rolling-pinwheel-b",
+      "rrquilts.four-winds",
+      "rrquilts.flutter-wheel",
+      "rrquilts.wheeling-nine-patch",
+      "rrquilts.octagon",
+      "rrquilts.shoofly-b",
+      "rrquilts.double-pinwheel-c",
+      "rrquilts.churn-dash-nine-patch",
+      "rrquilts.greek-cross-b",
+      "rrquilts.kitchen-woodbox",
+      "rrquilts.grecian-design",
+      "rrquilts.square-greek-cross",
+      "rrquilts.montana",
+      "rrquilts.london-roads",
+      "rrquilts.golden-gate",
+      "rrquilts.cups-and-saucers",
+      "rrquilts.album-cross",
+      "rrquilts.new-album-a",
+      "rrquilts.sawtooth-patch",
+      "rrquilts.four-color-air-castle",
+      "rrquilts.card-basket",
+      "rrquilts.prairie-queen",
+      "rrquilts.corn-and-beans",
+      "rrquilts.wctu",
+      "rrquilts.santa-fe",
+      "rrquilts.tile-puzzle",
+      "rrquilts.single-wedding-ring-b",
+      "rrquilts.rolling-stone",
+      "rrquilts.uppercase-a",
+      "rrquilts.lowercase-a",
+      "rrquilts.uppercase-b",
+      "rrquilts.lowercase-b",
+      "rrquilts.uppercase-c",
+      "rrquilts.lowercase-c",
+      "rrquilts.uppercase-d",
+      "rrquilts.lowercase-d",
+      "rrquilts.uppercase-e",
+      "rrquilts.lowercase-e",
+      "rrquilts.uppercase-f",
+      "rrquilts.lowercase-f",
+      "rrquilts.uppercase-g",
+      "rrquilts.lowercase-g",
+      "rrquilts.uppercase-h",
+      "rrquilts.lowercase-h",
+      "rrquilts.uppercase-i",
+      "rrquilts.lowercase-i",
+      "rrquilts.uppercase-j",
+      "rrquilts.lowercase-j",
+      "rrquilts.uppercase-k",
+      "rrquilts.lowercase-k",
+      "rrquilts.uppercase-l",
+      "rrquilts.lowercase-l",
+      "rrquilts.uppercase-m",
+      "rrquilts.lowercase-m",
+      "rrquilts.uppercase-n",
+      "rrquilts.lowercase-n",
+      "rrquilts.uppercase-o",
+      "rrquilts.lowercase-o",
+      "rrquilts.uppercase-p",
+      "rrquilts.lowercase-p",
+      "rrquilts.uppercase-q",
+      "rrquilts.lowercase-q",
+      "rrquilts.uppercase-r",
+      "rrquilts.lowercase-r",
+      "rrquilts.uppercase-s",
+      "rrquilts.lowercase-s",
+      "rrquilts.uppercase-t",
+      "rrquilts.lowercase-t",
+      "rrquilts.uppercase-u",
+      "rrquilts.lowercase-u",
+      "rrquilts.uppercase-v",
+      "rrquilts.lowercase-v",
+      "rrquilts.uppercase-w",
+      "rrquilts.lowercase-w",
+      "rrquilts.uppercase-x",
+      "rrquilts.lowercase-x",
+      "rrquilts.uppercase-y",
+      "rrquilts.lowercase-y",
+      "rrquilts.uppercase-z",
+      "rrquilts.lowercase-z",
+      "rrquilts.number-1",
+      "rrquilts.number-2",
+      "rrquilts.number-3",
+      "rrquilts.number-4",
+      "rrquilts.number-5",
+      "rrquilts.number-6",
+      "rrquilts.number-7",
+      "rrquilts.number-8",
+      "rrquilts.number-9",
+      "rrquilts.number-0",
+      "rrquilts.log-cabin-i",
+      "rrquilts.split-center",
+      "rrquilts.four-patch-center",
+      "rrquilts.nine-patch-center",
+      "rrquilts.courthouse-steps",
+      "rrquilts.cabin-in-the-cotton",
+      "rrquilts.cornerstones",
+      "rrquilts.chimneys-and-cornerstones",
+      "rrquilts.wide-and-narrow",
+      "rrquilts.centers-in-the-corners",
+      "rrquilts.double-strips",
+      "rrquilts.pineapple",
+      "rrquilts.london-steps",
+      "rrquilts.fence-rail",
+      "rrquilts.random-country-calico",
+      "rrquilts.attic-window-ii",
+      "rrquilts.basket-weave-i",
+      "rrquilts.city-streets",
+      "rrquilts.square-red-cross",
+      "rrquilts.lantern-patch",
+      "rrquilts.garden-gazebo",
+      "rrquilts.ribbons-ii",
+      "rrquilts.mexican-cross-ii",
+      "rrquilts.cobweb",
+      "rrquilts.amish-center-diamond",
+      "rrquilts.amish-center-square",
+      "rrquilts.sawtooth-medallion",
+      "rrquilts.nested-squares",
+      "rrquilts.flying-geese-medallion",
+      "rrquilts.hourglass-medallion",
+      "rrquilts.piano-keys-medallion",
+      "rrquilts.framed-hourglass",
+      "rrquilts.diamond-border-medallion",
+      "rrquilts.diamond-in-the-square",
+      "rrquilts.checkerboard-medallion",
+      "rrquilts.framed-diamond",
+      "rrquilts.economy-border-medallion",
+      "rrquilts.pinwheel-corners-medallion",
+      "rrquilts.framed-cross",
+      "rrquilts.double-sawtooth-medallion",
+      "rrquilts.hourglass-corners-medallion",
+      "rrquilts.window-pane-medallion",
+      "rrquilts.mitered-frame-medallion",
+      "rrquilts.hexagon-web-i",
+      "rrquilts.madison-block",
+      "rrquilts.hexagon-web-ii",
+      "rrquilts.wonder-of-egypt",
+      "rrquilts.hexagon-whirligig",
+      "rrquilts.arrowheads-iii",
+      "rrquilts.round-and-round-60-degree-triangle",
+      "rrquilts.round-and-round-60-degree-diamond",
+      "rrquilts.symmetrical-60-degree-diamond",
+      "rrquilts.symmetrical-parallelogram",
+      "rrquilts.round-and-round-parallelogram",
+      "rrquilts.round-and-round-hexagon",
+      "rrquilts.opposite-hexagon",
+      "rrquilts.symmetrical-hexagon",
+      "rrquilts.eisenhower-star",
+      "rrquilts.hexagon-star",
+      "rrquilts.tea-box",
+      "rrquilts.block-puzzle",
+      "rrquilts.cosmos",
+      "rrquilts.interlocked-star",
+      "rrquilts.ozark-diamonds",
+      "rrquilts.kentucky",
+      "rrquilts.columbia",
+      "rrquilts.old-glory",
+      "rrquilts.hexagon-beauty",
+      "rrquilts.four-triangles",
+      "rrquilts.triangle-nine-patch",
+      "rrquilts.trip-around-the-triangle",
+      "rrquilts.thousand-pyramids",
+      "rrquilts.hexagon-triangle",
+      "rrquilts.triangle-star",
+      "rrquilts.rail-triangle",
+      "rrquilts.flying-geese-triangle",
+      "rrquilts.arrowhead-strips",
+      "rrquilts.twisted-triangle",
+      "rrquilts.christmas-tree",
+      "rrquilts.three-kites",
+      "rrquilts.triangle-pinwheel",
+      "rrquilts.sunburst-triangle",
+      "rrquilts.peacock-fan",
+      "rrquilts.framed-triangle",
+      "rrquilts.slanted-rails",
+      "rrquilts.sailboat",
+      "rrquilts.spike-star",
+      "rrquilts.hexagon-orange-peel",
+      "rrquilts.rising-sun-triangle",
+      "rrquilts.month-strip",
+      "rrquilts.curved-month-strip",
+      "rrquilts.cornered-month-strip",
+      "rrquilts.month-fan",
+      "rrquilts.month-swirl",
+      "rrquilts.hexagon-month-swirl",
+      "rrquilts.month-pinwheel",
+      "rrquilts.hexagon-month-pinwheel",
+      "rrquilts.quartered-month-pinwheel",
+      "rrquilts.week-strip",
+      "rrquilts.curved-week-strip",
+      "rrquilts.cornered-week-strip",
+      "rrquilts.week-fan",
+      "rrquilts.week-swirl",
+      "rrquilts.hexagon-week-swirl",
+      "rrquilts.week-pinwheel",
+      "rrquilts.hexagon-week-pinwheel",
+      "rrquilts.quartered-week-pinwheel",
+      "rrquilts.day-square"
+    ],
+    "author": "RagingRoosevelt",
+    "authorSocials": [
+      {"type": "Printables", "handle": "RagingRoosevelt", "credit": true},
+      {"type": "YouTube", "handle": "RagingRoosevelt"},
+      {"type": "Threadloop", "handle": "ragingroosevelt"}
+    ],
+    "eppShapes": [
+      {
+        "id": "rrquilts.epp-60-diamond",
+        "notecard": {"name": "60° Diamond"},
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0",
+        "outline": [
+          [-0.7499999999999999, 0.4330127018922194],
+          [0.2500000000000001, 0.4330127018922193],
+          [0.7499999999999999, -0.4330127018922194],
+          [-0.2500000000000001, -0.4330127018922194]
+        ],
+        "version": "b05781a3f09c",
+        "source": {
+          "libraryId": "rrquilts-starter",
+          "itemId": "rrquilts.epp-60-diamond",
+          "revision": 1,
+          "version": "b05781a3f09c",
+          "library": "Built-In",
+          "author": "RRQuilts contributors",
+          "license": "PDM-1.0",
+          "name": "60° Diamond"
+        }
+      }
+    ],
+    "rosettes": [
+      {
+        "id": "ragingroosevelt.rna3yn6fp1",
+        "notecard": {"name": "Moravian Star Face"},
+        "pieces": [
+          {
+            "id": "ew0hr0ygc5",
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [1.2632146812659168, -1.731748726655348],
+            "turn": 0,
+            "scale": 1
+          },
+          {
+            "id": "9md7pcis0r",
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [1.263214681265917, -0.8657233228709089],
+            "turn": 60.00000000000001,
+            "scale": 1
+          },
+          {
+            "id": "fcidkzul9p",
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [0.513214681265917, -0.4327106209786894],
+            "turn": -60.00000000000001,
+            "scale": 1
+          },
+          {
+            "id": "rzl21j6c4w",
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [-0.23678531873408304, -0.8657233228709088],
+            "turn": 2.5444437451708134e-14,
+            "scale": 1
+          },
+          {
+            "id": "y1kwnmpbd7",
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [-0.23678531873408226, -1.7317487266553477],
+            "turn": 60.00000000000005,
+            "scale": 1
+          }
+        ],
+        "colorings": [{"id": "dcx3pxsmi5", "name": "Coloring 1", "fills": {}}],
+        "author": "RagingRoosevelt",
+        "license": "CC-BY-SA-4.0"
+      }
+    ],
+    "libraries": [
+      {
+        "id": "rrquilts-novelty-blocks",
+        "name": "RagingRoosevelt's Novelty",
+        "url": "https://github.com/RagingRoosevelt/rrquilts-novelty-blocks",
+        "packs": ["rrquilts-novelty-blocks-memes"]
+      },
+      {
+        "id": "rrquilts-starter",
+        "name": "Built-In",
+        "author": "RRQuilts contributors",
+        "packs": ["rrquilts-starter"]
+      }
+    ]
+  }
+}

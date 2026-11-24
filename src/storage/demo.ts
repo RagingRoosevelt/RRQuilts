@@ -29,7 +29,7 @@ export const DEMOS = [
     file: '3d-epp.rrq',
     title: '3D English paper piecing',
     about:
-      'A star pillow, a pincushion, dice from d4 to d20 and a soccer ball, folded and stuffed.',
+      'A star pillow, a pincushion, dice from d4 to d20, a soccer ball and a Moravian star, folded and stuffed.',
     icon: '3d_rotation',
   },
 ] as const;

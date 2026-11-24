@@ -1,8 +1,10 @@
 // The 3D EPP demo project (spec 027 User Story 7, owner 2026-11-23): public/demo/3d-epp.rrq, shipped
 // with the app and opened by /?open_demo=3d-epp.rrq (linked from the help): a 3D EPP quilt for each
 // design. The test checks every design folds shut, or, for the pillows no flat fold closes, that
-// stuffing does. EPP3D_DEMO=<file> also writes the project (public/demo/3d-epp.rrq).
-import { writeFileSync } from 'node:fs';
+// stuffing does. EPP3D_DEMO=<file> also writes the project (public/demo/3d-epp.rrq). Last, the
+// owner's Moravian Star, made in the app (test/fixtures/moravian-star.rrq, imported as it is; owner,
+// 2026-11-24: "can you add this quilt to the 3d epp demo?").
+import { readFileSync, writeFileSync } from 'node:fs';
 import { produce } from 'immer';
 import { describe, expect, it } from 'vitest';
 import { starterKit } from '@/dev/fill-quilt';
@@ -17,6 +19,7 @@ import { buildCloth, pieceMesh, solveCloth } from '@/model/epp/stuff';
 import { DEFAULT_LICENSE } from '@/model/credits';
 import { itemId } from '@/model/identity';
 import { parseProject, serializeProject } from '@/model/io';
+import { importProjectQuilts } from '@/model/import-quilts';
 import { syncDraft } from '@/model/library-items';
 import { createProject } from '@/model/new-project';
 import type { Pt } from '@/model/geometry/path';
@@ -92,12 +95,18 @@ async function demo(): Promise<RrqDoc> {
       license: DEFAULT_LICENSE,
     };
   });
-  const doc = createProject('3D EPP demo', 'in', 'demo');
-  return produce(doc, (d) => {
+  const doc = produce(createProject('3D EPP demo', 'in', 'demo'), (d) => {
     d.project.license = DEFAULT_LICENSE;
     d.project.author = AUTHOR;
     d.project.eppShapes = [kite];
     d.project.quilts.push(...quilts);
+    syncDraft(d, kit.lookup);
+  });
+  // The owner's Moravian Star, with its rosette and colors, credited to them.
+  const star = await parseProject(readFileSync('test/fixtures/moravian-star.rrq', 'utf8'));
+  if (!star.ok) throw new Error(star.error);
+  const ids = star.doc.project.quilts.map((q) => q.id);
+  return produce(importProjectQuilts(doc, star.doc, AUTHOR, ids).doc, (d) => {
     syncDraft(d, kit.lookup);
   });
 }
@@ -127,6 +136,13 @@ describe('3D EPP demo project', () => {
         expect(c.vol, name).toBeGreaterThan(0.5);
       }
     }
+    // The Moravian Star folds shut by itself (not stuffed).
+    const star = doc.project.quilts.at(-1)!;
+    expect(star.notecard.name).toBe('Moravian Star');
+    expect(star.author).toBe('RagingRoosevelt');
+    const sm = solveFold(buildFold(quiltNet(star, lookup).net));
+    expect(sm.closed).toBe(true);
+    expect(foldReport(sm).open).toEqual([]);
     const text = serializeProject(doc);
     const back = await parseProject(text);
     if (!back.ok) throw new Error(back.error);

@@ -127,6 +127,13 @@ export const CHECKS: Check[] = [
     last: 'shy am I getting Can’t be stuffed. Some edges are sewn only part of the way along, so the shape is open.',
     to: '/project',
   },
+  {
+    id: 'TC-347',
+    group: G.epp3d,
+    text: '3D EPP demo (Home › Open a demo, or a fresh ?open_demo=3d-epp.rrq): the last quilt is your Moravian Star, by RagingRoosevelt (Details: CC BY-SA 4.0), its card the folded star in its colors; the EPP tab has its Moravian Star Face rosette. 3D assembly: “Folded: every seam closes. A closed shape, right side out.” No notice about a missing library on opening. The demo’s description (Open a demo, welcome Demos step) and Help › 3D EPP mention the Moravian star.',
+    last: 'can you add this quilt to the 3d epp demo?',
+    to: '/?open_demo=3d-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
