@@ -71,20 +71,6 @@ export const CHECKS: Check[] = [
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
   },
-  {
-    id: 'TC-337',
-    group: G.small,
-    text: 'New quilt wizard (Home › Start a quilt, or a project’s Quilts › New quilt), every type (blocks, patches, EPP, 3D EPP): the last step is Details with Title (blank shows the next name, Quilt N), Author (your name from Settings), License (the project’s, terms under it) and Notes. Fill them in and Create quilt: the quilt’s Details tab shows them. Leave them as they are: Quilt N, your name, the project’s license, no notes. Help › Getting started lists five steps.',
-    last: 'at the end of the new quilt wizard, add a "details" tab that has entry for title, author, license, notes',
-    to: '/',
-  },
-  {
-    id: 'TC-338',
-    group: G.small,
-    text: 'Home › Start a quilt with a project open (unsaved changes or not): no "Close …?" prompt; the wizard uses the project’s units and license and offers the next name; Create quilt adds the quilt to that project (Quilts tab shows it beside the others). With no project open: it starts a new project as before. With the project read-only in this tab (open in another tab): a new project.',
-    last: 'if there’s already a project open, the home page’s "start a quilt" should add a quilt to the existing project and skip creating a new project. it should only create a new project if there isn’t one already open.',
-    to: '/',
-  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
