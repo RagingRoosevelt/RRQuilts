@@ -5,11 +5,11 @@ import { produce } from 'immer';
 import { builtinItems } from '@/content/starter';
 import { eppStarters } from '@/content/epp';
 import { applyTool } from '@/editor/actions';
-import { rosetteBlockId } from '@/model/epp/as-block';
+import { rosetteBlock } from '@/model/epp/as-block';
 import { lookupEpp } from '@/model/epp/expand';
 import { orient } from '@/model/epp/geometry';
 import { addPiece, newEppQuilt, setEdge } from '@/model/epp/quilt-ops';
-import { generateSlots } from '@/model/layout/slots';
+import { generateFor } from '@/model/layout/slots';
 import { syncDraft, type LibraryLookup } from '@/model/library-items';
 import { createQuilt } from '@/model/new-quilt';
 import type { Pt } from '@/model/geometry/path';
@@ -72,8 +72,9 @@ export function addEppV12(doc: RrqDoc): RrqDoc {
   const flower = sampleFlower();
   const lookup = lookupEpp({ eppShapes: [...shapes, domino], rosettes: [...rosettes, flower] });
 
-  // EPP quilt: three flowers (one in its second coloring), loose dominoes and a hexagon repainted,
-  // Auto-close in cream, a border.
+  // EPP quilt: three flowers (one in its second coloring), dominoes sewn under two of them, a
+  // hexagon repainted, Auto-close in cream, a border. (Auto-close covers a piece touching nothing:
+  // every piece here touches another or the edge.)
   let epp = newEppQuilt('EPP Quilt', 'in', 1);
   for (const [k, x] of [0, 6, 12].entries())
     epp = addPiece(epp, {
@@ -83,9 +84,10 @@ export function addEppV12(doc: RrqDoc): RrqDoc {
       scale: 1,
       ...(k === 1 ? { coloring: 'c2' } : {}),
     }).quilt;
+  const below = Math.sqrt(3) * 1.5; // a flower's lowest edge
   for (const [x, y, turn] of [
-    [3, 4, 0],
-    [9, 4, 90],
+    [0, below + 0.5, 0],
+    [6, below + 1, 90],
   ] as const)
     epp = addPiece(epp, {
       shape: domino.id,
@@ -122,42 +124,43 @@ export function addEppV12(doc: RrqDoc): RrqDoc {
     { style: 'long-horizontal', sides: [2, 2, 2, 2] },
   ]);
   const tumbling = rosettes.find((r) => r.notecard.name === 'Tumbling Block')!;
-  const spaces = generateSlots(layout, held.borders).slots;
+  // As the app's block tray offers it: a rosette that fits a space is a block (`<id>-epp`).
+  const tumblingBlock = rosetteBlock(tumbling, lookup)!;
+  const library: LibraryLookup = {
+    ...v12Library,
+    block: (id) => (id === tumblingBlock.id ? tumblingBlock : v12Library.block(id)),
+  };
   let out = produce(doc, (d) => {
     d.project.eppShapes = [...(d.project.eppShapes ?? []), domino];
     d.project.rosettes = [...(d.project.rosettes ?? []), flower];
-    const q = { ...held, colorings: { ...held.colorings, r: { fills: {} } } };
-    spaces
-      .filter((s) => s.shape === 'hexagon')
-      .forEach((s, i) => {
-        if (i % 2 === 0)
-          q.layers[0].slots[s.id] = {
-            block: rosetteBlockId(tumbling.id),
-            coloring: 'r',
-            rotation: 0,
-            flip: false,
-          };
-      });
-    d.project.quilts.push(epp, threeD, q);
-    syncDraft(d, v12Library);
+    d.project.quilts.push(epp, threeD, held);
+    syncDraft(d, library);
   });
-  const id = out.project.quilts.at(-1)!.id;
-  for (const s of spaces) {
-    if (out.project.quilts.at(-1)!.layers[0].slots[s.id]) continue;
-    const r = applyTool(
-      out,
-      id,
-      spaces,
-      { slotId: s.id },
-      {
-        tool: 'paint',
-        scope: 'this',
-        block: null,
-        color: color(s.kind === 'border' ? 'Navy' : 'Cream'),
-        library: v12Library,
-      },
-    );
-    if (r.doc) out = produce(r.doc, (d) => void syncDraft(d, v12Library));
+  // Set and Paint, space by space: Tumbling Blocks in every other hexagon, cream in the rest, navy
+  // borders (both quilts').
+  for (const q of [epp, held]) {
+    const spaces = generateFor(out.project.quilts.find((x) => x.id === q.id)!).slots;
+    let hex = 0;
+    for (const s of spaces) {
+      const set = s.shape === 'hexagon' && hex++ % 2 === 0;
+      const r = applyTool(
+        out,
+        q.id,
+        spaces,
+        { slotId: s.id },
+        set
+          ? { tool: 'set', scope: 'this', block: tumblingBlock.id, color: null, library }
+          : {
+              tool: 'paint',
+              scope: 'this',
+              block: null,
+              color: color(s.kind === 'border' ? 'Navy' : 'Cream'),
+              library,
+            },
+      );
+      if (!r.doc) throw new Error(`${q.notecard.name} ${s.id}: ${r.message}`);
+      out = produce(r.doc, (d) => void syncDraft(d, library));
+    }
   }
   return out;
 }
