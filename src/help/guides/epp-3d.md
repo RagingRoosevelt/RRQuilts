@@ -36,7 +36,7 @@ The design folds the way fabric with stiff papers inside does. Each piece stays 
 - Once folded, the object turns so its front faces you and the design's up is up. An open shape faces the way its pieces face overall. A closed shape shows one piece in front, the piece nearest the middle of its largest group unless you double-click another. **Default front** goes back to that piece. The Design tab rings the front piece.
 - **Fold again** starts the fold over.
 
-The side panel says whether every seam closes. Seams that can't close are listed and drawn red, and the object shows the closest fold it found.
+The side panel says whether every seam closes. Seams that can't close are listed and drawn red, and the object shows the closest fold it found. Under it, the panel counts the edges that aren't part of any seam. Turn on **Highlight unsewn edges** to find them: they show in amber in the flat design and on the object, and everything else fades.
 
 ## Stuffing
 

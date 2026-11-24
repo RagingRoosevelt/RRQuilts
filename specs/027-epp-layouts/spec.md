@@ -720,7 +720,11 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
   stitches show, closed up too, thicker and brighter, while the others fade. Owner, 2026-11-24:
   "when hoving or long pressing a seam in the 2d view, it fades out the other seams and highlights
   that seam's made in the 2d view and in the 3d view, it fades the other seams and highlights the
-  active seam's stitching".
+  active seam's stitching". Under the fold result, the count of edges in no seam and a **Highlight
+  unsewn edges** switch (a view setting): those edges in amber on the net and as tubes on the
+  object, the pieces faded (see-through in 3D). Owner, 2026-11-24: "let's add a toggle near the note
+  about how the fold solve went that will highlight the edges that arent part of a seam and fade the
+  rest".
   Owner, 2026-11-23: "let's allow click-to-orbit on the 3d preview in the printout. we'll record
   the orientation. clicking switches from showing an image to the orbitable view and mouse exit or
   15seconds uninteracted will revert back to image view".

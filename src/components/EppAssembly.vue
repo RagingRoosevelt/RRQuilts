@@ -72,6 +72,10 @@
         <div class="text-caption text-grey-7">{{ counts }}</div>
       </div>
       <div class="text-body2" :class="foldClass">{{ foldText }}</div>
+      <div>
+        <q-toggle v-model="unsewn" dense label="Highlight unsewn edges" :disable="!leaves.length" />
+        <div class="text-caption text-grey-7">{{ unsewnText }}</div>
+      </div>
       <div v-if="mightClose" class="note text-body2">
         <q-icon name="lightbulb" class="q-mr-xs" />The design is closed, so stuffing might close
         these seams: the fabric bends where flat pieces can't. Turn on Stuffed design to see.
@@ -244,6 +248,8 @@ const STITCHES_PER_U = 6;
 /** The seam picked out from the net (owner, 2026-11-24): its stitches thicker and brighter, the
  *  others faded to this share. */
 const HOT = { scale: 1.6, opacity: [0.75, 0.35], fade: 0.2 };
+/** Unsewn edges: amber tubes (core and glow radii in U), the pieces faded to `fade`. */
+const RAW = { color: 0xff9800, core: 0.02, glow: 0.05, opacity: 0.35, fade: 0.25 };
 const CLICK_SLOP = 4;
 const DOUBLE_MS = 250;
 
@@ -308,6 +314,19 @@ const foldText = computed(() => {
   const shared = open.length - sewn.length;
   if (shared) names.push(`${shared} shared edge${shared === 1 ? '' : 's'}`);
   return `Not closing: ${names.join(' and ')} (gaps up to ${fmt(r.worst)}U). Showing the closest fold found.`;
+});
+/** Highlight unsewn edges (owner, 2026-11-24: "a toggle near the note about how the fold solve
+ *  went that will highlight the edges that arent part of a seam and fade the rest"): a view
+ *  setting, not saved. */
+const unsewn = ref(false);
+const unsewnText = computed(() => {
+  void phase.value;
+  void shapeKey.value;
+  if (!fold || !leaves.value.length) return '';
+  const n = openEdges(fold);
+  return n
+    ? `${n} edge${n === 1 ? ' isn’t' : 's aren’t'} part of any seam.`
+    : 'Every edge is part of a seam.';
 });
 /** A stuffed design that can be stuffed: its seams close in fabric, whatever this view shows. */
 const fabricCloses = computed(() => designStuffed.value && closed.value);
@@ -400,7 +419,7 @@ const seams = useEppSeams({
   open: () => openSeams.value,
 });
 const netHover = ref<World | null>(null);
-const netTick = computed(() => [netHover.value, seams.start.value, openSeams.value]);
+const netTick = computed(() => [netHover.value, seams.start.value, openSeams.value, unsewn.value]);
 const onNetHover = (p: World | null) => (netHover.value = p);
 /** The seam under the pointer on the net, or under a held finger (owner, 2026-11-24: "when hoving
  *  or long pressing a seam in the 2d view, it fades out the other seams and highlights that seam's
@@ -408,7 +427,11 @@ const onNetHover = (p: World | null) => (netHover.value = p);
  *  stitching"). Read-only too: it only shows. */
 const activeSeam = computed(() => (netHover.value ? seams.activeAt(netHover.value) : null));
 const decorateNet = (dec: Decor) =>
-  seams.decorate(dec, netHover.value, { pick: !ro.value, active: activeSeam.value });
+  seams.decorate(dec, netHover.value, {
+    pick: !ro.value,
+    active: activeSeam.value,
+    unsewn: unsewn.value,
+  });
 
 // ---------- three.js ----------
 const host = ref<HTMLDivElement>();
@@ -424,10 +447,14 @@ let hitMeshes: Three.Mesh[] = [];
 let gapLines: Three.LineSegments | null = null;
 let threads: Three.InstancedMesh[] = [];
 let hotThreads: Three.InstancedMesh[] = [];
+let rawThreads: Three.InstancedMesh[] = [];
+/** Unsewn edges as outline segments: plate, from and to rim point (its outline, mesh points last). */
+let rawSegs: [number, number, number][] = [];
 let lineMat: Three.LineBasicMaterial;
 let gapMat: Three.LineBasicMaterial;
 let threadMats: Three.Material[] = [];
 let hotMats: Three.Material[] = [];
+let rawMats: Three.Material[] = [];
 let threadGeo: Three.CylinderGeometry;
 let frame = 0;
 let dirty = true;
@@ -482,6 +509,15 @@ onMounted(async () => {
         }),
     ),
   ];
+  rawMats = [
+    new three.MeshBasicMaterial({ color: RAW.color }),
+    new three.MeshBasicMaterial({
+      color: RAW.color,
+      transparent: true,
+      opacity: RAW.opacity,
+      depthWrite: false,
+    }),
+  ];
   threadGeo = new three.CylinderGeometry(1, 1, 1, 10, 1, true);
   setBackground();
   resizeObs = new ResizeObserver(resize);
@@ -497,7 +533,7 @@ onBeforeUnmount(() => {
   resizeObs?.disconnect();
   if (pending) clearTimeout(pending.timer);
   clearMeshes();
-  for (const m of [lineMat, gapMat, ...threadMats, ...hotMats]) m?.dispose();
+  for (const m of [lineMat, gapMat, ...threadMats, ...hotMats, ...rawMats]) m?.dispose();
   threadGeo?.dispose();
   renderer?.dispose();
   renderer = null;
@@ -562,8 +598,8 @@ function clearMeshes() {
     if ((o as Three.InstancedMesh).isInstancedMesh) (o as Three.InstancedMesh).dispose();
     else if (x.geometry && x.geometry !== threadGeo) x.geometry.dispose();
     const mat = x.material as Three.Material | undefined;
-    if (mat && mat !== lineMat && mat !== gapMat && ![...threadMats, ...hotMats].includes(mat))
-      mat.dispose();
+    const kept = [lineMat, gapMat, ...threadMats, ...hotMats, ...rawMats];
+    if (mat && !kept.includes(mat)) mat.dispose();
   });
   root = null;
 }
@@ -628,7 +664,26 @@ function makeMeshes() {
   const most = Math.max(1, ...m.hinges.map((h) => 2 * stitchCount(h)));
   hotThreads = hotMats.map((mat) => new three.InstancedMesh(threadGeo, mat, most));
   hotThreads.forEach((t, i) => (t.renderOrder = threads.length + i));
-  root.add(gapLines, ...threads, ...hotThreads);
+  // Unsewn edges: each piece's outline segments along edges the fold sews to nothing.
+  rawSegs = [];
+  m.plates.forEach((P, p) => {
+    const { xy, n } = meshes[p]!;
+    const rim = xy.slice(-n);
+    const corner = P.pts.map(([x, y]) =>
+      rim.findIndex(([u, v]) => u === x - P.c[0] && v === y - P.c[1]),
+    );
+    P.pts.forEach((_, e) => {
+      const [from, to] = [corner[e]!, corner[(e + 1) % P.pts.length]!];
+      if (m.use[p]![e] !== null || from < 0 || to < 0) return;
+      for (let r = from; r !== to; r = (r + 1) % n) rawSegs.push([p, r, (r + 1) % n]);
+    });
+  });
+  rawThreads = rawMats.map(
+    (mat) => new three.InstancedMesh(threadGeo, mat, Math.max(1, rawSegs.length)),
+  );
+  rawThreads.forEach((t, i) => (t.renderOrder = threads.length + hotThreads.length + i));
+  root.add(gapLines, ...threads, ...hotThreads, ...rawThreads);
+  fadePieces();
   scene.add(root);
 }
 
@@ -654,6 +709,12 @@ function syncFolded() {
     const [p, ns] = side ? [h.B, h.nb] : [h.A, h.na];
     const a = W[p]![ns[0]]!;
     return add3(add3(a, mul3(sub3(W[p]![ns[1]]!, a), s)), off[p]!);
+  });
+  syncRaw((p, r) => {
+    const { xy, n } = meshes[p]!;
+    const [x, y] = xy[xy.length - n + r]!;
+    const lift = mul3(qrot(m.q[p]!, [0, 0, 1]), LIFT);
+    return add3(add3(qrot(m.q[p]!, [x, y, 0]), m.t[p]!), add3(off[p]!, lift));
   });
   // Open explicit seams: a red line between the edges' middles (closed up only).
   gapLines!.visible = explodeAmt < 0.01;
@@ -706,6 +767,10 @@ function syncStuffed() {
     const a = clothPt(c, path[i]!);
     return add3(add3(a, mul3(sub3(clothPt(c, path[i + 1]!), a), x - i)), off[side ? h.B : h.A]!);
   });
+  syncRaw((p, r) => {
+    const ids = c.pieceIds[p]!;
+    return add3(clothPt(c, ids[ids.length - meshes[p]!.n + r]!), off[p]!);
+  });
   gapLines!.visible = false;
 }
 
@@ -751,6 +816,54 @@ function hotHinge(): number {
 }
 watch(activeSeam, () => (dirty = true));
 
+/** Highlight unsewn edges: the pieces (and their outlines) fade, see-through. */
+function fadePieces() {
+  const on = unsewn.value;
+  const mats = [
+    ...plates.flatMap((g) => g.children.slice(0, 2).map((o) => (o as Three.Mesh).material)),
+    lineMat,
+  ] as Three.Material[];
+  for (const mat of mats) {
+    if (mat.transparent !== on) {
+      mat.transparent = on;
+      mat.needsUpdate = true;
+    }
+    mat.opacity = on ? RAW.fade : 1;
+    mat.depthWrite = !on;
+  }
+  dirty = true;
+}
+watch(unsewn, () => T && fadePieces());
+
+/** The unsewn edges' tubes, segment by segment, where `at` says each outline point is. */
+function syncRaw(at: (p: number, r: number) => V3) {
+  const on = unsewn.value && rawSegs.length > 0;
+  rawThreads.forEach((t) => (t.visible = on));
+  if (!on) return;
+  const three = T!;
+  const mtx = new three.Matrix4();
+  const q = new three.Quaternion();
+  const up = new three.Vector3(0, 1, 0);
+  const dir = new three.Vector3();
+  const mid = new three.Vector3();
+  const size = new three.Vector3();
+  rawSegs.forEach(([p, a, b], k) => {
+    const [s, e] = [at(p, a), at(p, b)];
+    const d = sub3(e, s);
+    const L = len3(d) || 1e-9;
+    q.setFromUnitVectors(up, dir.set(d[0] / L, d[1] / L, d[2] / L));
+    mid.set(...mul3(add3(s, e), 0.5));
+    [RAW.core, RAW.glow].forEach((r, layer) =>
+      rawThreads[layer]!.setMatrixAt(k, mtx.compose(mid, q, size.set(r, L, r))),
+    );
+  });
+  for (const t of rawThreads) {
+    t.count = rawSegs.length;
+    t.instanceMatrix.needsUpdate = true;
+    t.computeBoundingSphere();
+  }
+}
+
 /** While a seam is picked out, the other stitches fade. */
 function fadeThreads(on: boolean) {
   const [core, ...glows] = threadMats;
@@ -769,7 +882,7 @@ function syncStitches(seamAt: SeamAt) {
   const three = T!;
   const show = explodeAmt > 0.01;
   const hot = hotHinge();
-  fadeThreads(hot >= 0);
+  fadeThreads(hot >= 0 || unsewn.value);
   threads.forEach((t) => (t.visible = show));
   hotThreads.forEach((t) => (t.visible = hot >= 0));
   if (!show && hot < 0) return;
@@ -1107,6 +1220,8 @@ if (import.meta.env.DEV)
           active: activeSeam.value,
           hotHinge: hotHinge(),
           hotStitches: hotThreads[0]?.visible ? hotThreads[0].count : 0,
+          unsewn: unsewn.value,
+          unsewnSegments: rawThreads[0]?.visible ? rawThreads[0].count : 0,
           stitches: threads[0]?.visible ? threads[0].count : 0,
         };
       },

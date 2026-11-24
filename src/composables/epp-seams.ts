@@ -18,6 +18,8 @@ type At = [number, number];
 const OPEN = '#e53935';
 /** The shared-edge highlight: the stitches' glow color in 3D. */
 const HOT = '#ff2d95';
+/** Unsewn edges (Highlight unsewn edges), as their tubes in 3D. */
+const RAW = '#ff9800';
 
 /** A seam picked out on the net: an explicit seam (its number - 1), or an edge shared with a
  *  neighbor (leaf, edge of its outline). */
@@ -98,6 +100,16 @@ export function useEppSeams(o: {
     ];
     o.edit((q) => addSeam(q, a, b));
   }
+  /** Edges that aren't part of any seam: touching no neighbor and in no explicit seam. */
+  const unsewnEdges = computed(() => {
+    const sewn = new Set(placed.value.flatMap((s) => [s.a, s.b]).map(([i, k]) => `${i}:${k}`));
+    return o.leaves().flatMap((l, i) =>
+      l.poly.flatMap((a, k) => {
+        const b = l.poly[(k + 1) % l.poly.length]!;
+        return free.value.has(edgeKey(a, b)) && !sewn.has(`${i}:${k}`) ? [[a, b] as [Pt, Pt]] : [];
+      }),
+    );
+  });
   /** The seam whose edge is under p: explicit, or shared with a neighbor (free edges are none). */
   function activeAt(p: Pt): ActiveSeam | null {
     const at = near(p);
@@ -118,14 +130,27 @@ export function useEppSeams(o: {
   /**
    * Seams, the edge being picked and the one under `hover` (null: none; `pick`: as a pick to sew),
    * the front ring. `active`: that seam stands out (both its edges, glowing) and the others fade.
+   * `unsewn`: the edges in no seam stand out, everything else fades.
    */
   function decorate(
     { ctx, px: p }: Decor,
     hover: Pt | null,
-    { pick = true, active = null }: { pick?: boolean; active?: ActiveSeam | null } = {},
+    {
+      pick = true,
+      active = null,
+      unsewn = false,
+    }: { pick?: boolean; active?: ActiveSeam | null; unsewn?: boolean } = {},
   ) {
     const open = o.open?.() ?? new Set<number>();
     ctx.save();
+    if (unsewn) {
+      // A veil over the pieces (the canvas's background color, see-through).
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = $q.dark.isActive ? 'rgba(43,43,43,0.7)' : 'rgba(240,240,240,0.7)';
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.restore();
+    }
     ctx.lineCap = 'round';
     ctx.font = `bold ${p(13)}px sans-serif`;
     ctx.textAlign = 'center';
@@ -140,7 +165,7 @@ export function useEppSeams(o: {
     };
     for (const m of seamMarks(o.leaves(), o.quilt().epp?.seams ?? [], p(12))) {
       const on = active?.seam === m.n - 1;
-      const faded = !!active && !on;
+      const faded = (!!active || unsewn) && !on;
       ctx.strokeStyle = ctx.fillStyle = open.has(m.n - 1) ? OPEN : m.color;
       ctx.setLineDash(open.has(m.n - 1) && !on ? [p(6), p(4)] : []);
       if (on) line(m.edge, p(14), 0.3); // a glow under it
@@ -148,6 +173,15 @@ export function useEppSeams(o: {
       if (m.label) ctx.fillText(String(m.n), m.label[0], m.label[1]);
     }
     ctx.globalAlpha = 1;
+    if (unsewn) {
+      ctx.strokeStyle = RAW;
+      ctx.setLineDash([]);
+      for (const e of unsewnEdges.value) {
+        line(e, p(14), 0.35);
+        line(e, p(5));
+      }
+      ctx.globalAlpha = 1;
+    }
     if (active && active.seam === null) {
       ctx.strokeStyle = HOT;
       ctx.setLineDash([]);

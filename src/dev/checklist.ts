@@ -99,6 +99,13 @@ export const CHECKS: Check[] = [
     last: 'we need to add the toolbar with undo/redo that we have in other design views',
     to: '/?open_demo=3d-epp.rrq',
   },
+  {
+    id: 'TC-343',
+    group: G.epp3d,
+    text: '3D assembly: unsewn edges. Open the 3D EPP demo’s d12, 3D assembly tab: under the fold result it says “Every edge is part of a seam.” Tap a numbered seam to unpick it: “2 edges aren’t part of any seam.” Turn on Highlight unsewn edges: in the flat net those two edges show in amber and the rest fades; on the object the pieces turn see-through and the open edges show as amber tubes (turn it to see them, explode too). Turn it off: back to normal. Undo the unpick: the count goes back to every edge. Your own designs with open edges (a bag, a box without a lid) show them all.',
+    last: 'let’s add a toggle near the note about how the fold solve went that will highlight the edges that arent part of a seam and fade the rest',
+    to: '/?open_demo=3d-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
