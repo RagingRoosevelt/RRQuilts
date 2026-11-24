@@ -2,6 +2,24 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.9.1 (2026-11-24)
+
+### New features
+
+- [major] Help guides for English paper piecing.
+- [major] Seam finder in the 3D assembly tab.
+- Highlight unsewn edges and stretched seams in 3D assembly.
+- Undo and redo in the 3D assembly tab.
+- Finer turn steps for English paper piecing shapes.
+- [major] A Moravian star in the 3D EPP demo.
+
+### Fixes
+
+- Exported English paper piecing quilts keep their colors and rosettes.
+- Imported English paper piecing quilts bring their shapes and rosettes.
+- 3D designs with a seam sewn twice can be stuffed.
+- Seams that meet within 0.04U count as closed.
+
 ## 0.9.0 (2026-11-24)
 
 ### New features

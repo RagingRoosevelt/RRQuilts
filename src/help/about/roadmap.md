@@ -8,10 +8,6 @@ These are the plans for the next few versions. Plans change as people use the ap
 may move to another version, arrive in a different form, or not at all. To ask for something that
 isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
-## 0.9.1
-
-- Help guides for English paper piecing shapes, rosettes and quilts.
-
 ## 0.9.2
 
 - Change the coloring of a rosette already placed in a quilt.

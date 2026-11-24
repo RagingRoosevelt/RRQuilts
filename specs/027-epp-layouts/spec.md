@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-18
 
-**Status**: Released in 0.9.0 (2026-11-24); follow-ups: help guides planned for 0.9.1; placed rosette colorings, cut handles, rosette palette swap and any-link opening for 0.9.2 (owner, 2026-11-24). Was: Draft (spec only; not implemented). **2D** (User Stories 1-6) and **3D** (User Story
+**Status**: Released in 0.9.0 (2026-11-24); 0.9.1 (2026-11-24) added the help guides and 3D assembly tools (seam finder, unsewn and stretched highlights); placed rosette colorings, cut handles, rosette palette swap and any-link opening planned for 0.9.2 (owner, 2026-11-24). Was: Draft (spec only; not implemented). **2D** (User Stories 1-6) and **3D** (User Story
 7; User Story 8 later) both ship in 0.9.0 (owner, 2026-11-23; first planned as two releases). STL
 cutting templates are a stretch goal.
 
