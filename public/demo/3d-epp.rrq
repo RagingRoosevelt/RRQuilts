@@ -1,0 +1,2455 @@
+{
+  "format": "rrq",
+  "version": 12,
+  "app": "demo",
+  "units": "in",
+  "project": {
+    "id": "l4hdnu0iwf",
+    "name": "3D EPP demo",
+    "palette": {
+      "fabrics": [],
+      "colors": [
+        {
+          "id": "rrquilts.red",
+          "notecard": {"name": "Red"},
+          "rgb": [196, 40, 44],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.red",
+            "revision": 1,
+            "name": "Red",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "3dd1fb39a343"
+        },
+        {
+          "id": "rrquilts.rose",
+          "notecard": {"name": "Rose"},
+          "rgb": [208, 92, 120],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.rose",
+            "revision": 1,
+            "name": "Rose",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "0fc8ac9282de"
+        },
+        {
+          "id": "rrquilts.purple",
+          "notecard": {"name": "Purple"},
+          "rgb": [112, 64, 150],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.purple",
+            "revision": 1,
+            "name": "Purple",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "f85aee3cb1c9"
+        },
+        {
+          "id": "rrquilts.lavender",
+          "notecard": {"name": "Lavender"},
+          "rgb": [190, 170, 220],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.lavender",
+            "revision": 1,
+            "name": "Lavender",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "d241170447d5"
+        },
+        {
+          "id": "rrquilts.gold",
+          "notecard": {"name": "Gold"},
+          "rgb": [218, 168, 40],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.gold",
+            "revision": 1,
+            "name": "Gold",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "d52341c9390b"
+        },
+        {
+          "id": "rrquilts.sky",
+          "notecard": {"name": "Sky"},
+          "rgb": [150, 196, 232],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.sky",
+            "revision": 1,
+            "name": "Sky",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "5b799604b9a3"
+        },
+        {
+          "id": "rrquilts.coral",
+          "notecard": {"name": "Coral"},
+          "rgb": [240, 120, 96],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.coral",
+            "revision": 1,
+            "name": "Coral",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "ecc2750516dd"
+        },
+        {
+          "id": "rrquilts.orange",
+          "notecard": {"name": "Orange"},
+          "rgb": [236, 128, 40],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.orange",
+            "revision": 1,
+            "name": "Orange",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "3cfecc79c00c"
+        },
+        {
+          "id": "rrquilts.green",
+          "notecard": {"name": "Green"},
+          "rgb": [72, 150, 72],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.green",
+            "revision": 1,
+            "name": "Green",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "f07b3da8fd3e"
+        },
+        {
+          "id": "rrquilts.blue",
+          "notecard": {"name": "Blue"},
+          "rgb": [48, 104, 176],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.blue",
+            "revision": 1,
+            "name": "Blue",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "d4e48d6d40b6"
+        },
+        {
+          "id": "rrquilts.yellow",
+          "notecard": {"name": "Yellow"},
+          "rgb": [248, 216, 72],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.yellow",
+            "revision": 1,
+            "name": "Yellow",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "00208b640222"
+        },
+        {
+          "id": "rrquilts.teal",
+          "notecard": {"name": "Teal"},
+          "rgb": [32, 128, 128],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.teal",
+            "revision": 1,
+            "name": "Teal",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "dac30af41fe6"
+        },
+        {
+          "id": "rrquilts.white",
+          "notecard": {"name": "White"},
+          "rgb": [250, 250, 248],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.white",
+            "revision": 1,
+            "name": "White",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "5b06b24632ee"
+        },
+        {
+          "id": "rrquilts.navy",
+          "notecard": {"name": "Navy"},
+          "rgb": [28, 36, 72],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.navy",
+            "revision": 1,
+            "name": "Navy",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "82a99bc3b388"
+        },
+        {
+          "id": "rrquilts.indigo",
+          "notecard": {"name": "Indigo"},
+          "rgb": [38, 52, 110],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.indigo",
+            "revision": 1,
+            "name": "Indigo",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "226bd8c0b5bf"
+        },
+        {
+          "id": "rrquilts.pale-gray",
+          "notecard": {"name": "Pale Gray"},
+          "rgb": [214, 214, 210],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.pale-gray",
+            "revision": 1,
+            "name": "Pale Gray",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "0b930723be95"
+        }
+      ],
+      "threads": []
+    },
+    "blocks": [],
+    "photos": [],
+    "embroidery": [],
+    "quilts": [
+      {
+        "id": "i30je6qust",
+        "notecard": {"name": "Star pillow"},
+        "layout": {
+          "style": "epp",
+          "unit": 2,
+          "edge": {"kind": "none"},
+          "threeD": true,
+          "stuffed": true
+        },
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [-0.43301270189221924, -0.75],
+              "turn": -90,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.red"}},
+              "id": "jfo1awmbhc"
+            },
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [-0.8660254037844386, 7.478188224824971e-17],
+              "turn": -150,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.rose"}},
+              "id": "m9jklokne6"
+            },
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [-0.4330127018922193, 0.7499999999999998],
+              "turn": -210,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.red"}},
+              "id": "kras1zreqk"
+            },
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [0.433012701892219, 0.7500000000000001],
+              "turn": -270,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.rose"}},
+              "id": "7mu1ej4l3t"
+            },
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [0.8660254037844388, 5.66205679879605e-16],
+              "turn": -330,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.red"}},
+              "id": "ylxzm83yhf"
+            },
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [0.4330127018922197, -0.7499999999999996],
+              "turn": -30,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.rose"}},
+              "id": "6oyxx3mnrd"
+            },
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [4.031088913245535, -0.7499999999999997],
+              "turn": -90,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.purple"}},
+              "id": "d1tgh48rvx"
+            },
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [3.5980762113533147, 1.2819751242557092e-16],
+              "turn": -150,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.lavender"}},
+              "id": "bg2n3pp6dh"
+            },
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [4.031088913245535, 0.75],
+              "turn": -210,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.purple"}},
+              "id": "r5hid9t51l"
+            },
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [4.897114317029974, 0.7500000000000003],
+              "turn": -270,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.lavender"}},
+              "id": "0ollle71yz"
+            },
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [5.330127018922193, 5.982550579859977e-16],
+              "turn": -330,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.purple"}},
+              "id": "1khpe8cboo"
+            },
+            {
+              "shape": "rrquilts.epp-60-diamond",
+              "at": [4.897114317029973, -0.7499999999999997],
+              "turn": -30,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.lavender"}},
+              "id": "aaoubksx2i"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "jfo1awmbhc", "edge": 1},
+              "b": {"piece": "d1tgh48rvx", "edge": 1}
+            },
+            {
+              "a": {"piece": "jfo1awmbhc", "edge": 2},
+              "b": {"piece": "aaoubksx2i", "edge": 2}
+            },
+            {
+              "a": {"piece": "m9jklokne6", "edge": 1},
+              "b": {"piece": "aaoubksx2i", "edge": 1}
+            },
+            {
+              "a": {"piece": "m9jklokne6", "edge": 2},
+              "b": {"piece": "1khpe8cboo", "edge": 2}
+            },
+            {
+              "a": {"piece": "kras1zreqk", "edge": 1},
+              "b": {"piece": "1khpe8cboo", "edge": 1}
+            },
+            {
+              "a": {"piece": "kras1zreqk", "edge": 2},
+              "b": {"piece": "0ollle71yz", "edge": 2}
+            },
+            {
+              "a": {"piece": "7mu1ej4l3t", "edge": 1},
+              "b": {"piece": "0ollle71yz", "edge": 1}
+            },
+            {
+              "a": {"piece": "7mu1ej4l3t", "edge": 2},
+              "b": {"piece": "r5hid9t51l", "edge": 2}
+            },
+            {
+              "a": {"piece": "ylxzm83yhf", "edge": 1},
+              "b": {"piece": "r5hid9t51l", "edge": 1}
+            },
+            {
+              "a": {"piece": "ylxzm83yhf", "edge": 2},
+              "b": {"piece": "bg2n3pp6dh", "edge": 2}
+            },
+            {
+              "a": {"piece": "6oyxx3mnrd", "edge": 1},
+              "b": {"piece": "bg2n3pp6dh", "edge": 1}
+            },
+            {
+              "a": {"piece": "6oyxx3mnrd", "edge": 2},
+              "b": {"piece": "d1tgh48rvx", "edge": 2}
+            }
+          ],
+          "box": [-1.7320508075688772, -1.5, 6.196152422706631, 1.5000000000000004]
+        },
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0"
+      },
+      {
+        "id": "4ojsxaf7bx",
+        "notecard": {"name": "Twisted pincushion"},
+        "layout": {
+          "style": "epp",
+          "unit": 2,
+          "edge": {"kind": "none"},
+          "threeD": true,
+          "stuffed": true
+        },
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [0, 3.5610420118214146e-17],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.gold"}},
+              "id": "stkyv6jlk8"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [1.5, -0.8660254037844384],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.sky"}},
+              "id": "f83zi5e0ja"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [8.807187196425451e-17, -1.7320508075688772],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.sky"}},
+              "id": "smgx2dykdc"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [-1.5, -0.8660254037844384],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.sky"}},
+              "id": "ybvdsofpwg"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [-1.4999999999999998, 0.8660254037844389],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.sky"}},
+              "id": "zwcdr89kno"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [-2.5639502485114184e-16, 1.732050807568877],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.sky"}},
+              "id": "lubi8wdp4r"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [1.4999999999999991, 0.8660254037844393],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.sky"}},
+              "id": "hnicfrhin1"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [6.000000000000002, -1.1395334437828528e-16],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.gold"}},
+              "id": "cngkl1673a"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [7.499999999999999, -0.8660254037844382],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.coral"}},
+              "id": "9esi94nhyo"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [6, -1.7320508075688772],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.coral"}},
+              "id": "3it9j9yd09"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [4.5, -0.8660254037844384],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.coral"}},
+              "id": "cu198tswfj"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [4.5, 0.8660254037844384],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.coral"}},
+              "id": "gghl5m0d19"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [6.000000000000001, 1.7320508075688772],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.coral"}},
+              "id": "ssxkykhork"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [7.499999999999999, 0.8660254037844395],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.coral"}},
+              "id": "66zqhbk5o0"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "smgx2dykdc", "edge": 0},
+              "b": {"piece": "3it9j9yd09", "edge": 0}
+            },
+            {
+              "a": {"piece": "smgx2dykdc", "edge": 1},
+              "b": {"piece": "9esi94nhyo", "edge": 1}
+            },
+            {
+              "a": {"piece": "smgx2dykdc", "edge": 2},
+              "b": {"piece": "9esi94nhyo", "edge": 0}
+            },
+            {
+              "a": {"piece": "ybvdsofpwg", "edge": 1},
+              "b": {"piece": "9esi94nhyo", "edge": 5}
+            },
+            {
+              "a": {"piece": "ybvdsofpwg", "edge": 2},
+              "b": {"piece": "66zqhbk5o0", "edge": 0}
+            },
+            {
+              "a": {"piece": "ybvdsofpwg", "edge": 3},
+              "b": {"piece": "66zqhbk5o0", "edge": 5}
+            },
+            {
+              "a": {"piece": "zwcdr89kno", "edge": 2},
+              "b": {"piece": "66zqhbk5o0", "edge": 4}
+            },
+            {
+              "a": {"piece": "zwcdr89kno", "edge": 3},
+              "b": {"piece": "ssxkykhork", "edge": 5}
+            },
+            {
+              "a": {"piece": "zwcdr89kno", "edge": 4},
+              "b": {"piece": "ssxkykhork", "edge": 4}
+            },
+            {
+              "a": {"piece": "lubi8wdp4r", "edge": 3},
+              "b": {"piece": "ssxkykhork", "edge": 3}
+            },
+            {
+              "a": {"piece": "lubi8wdp4r", "edge": 4},
+              "b": {"piece": "gghl5m0d19", "edge": 4}
+            },
+            {
+              "a": {"piece": "lubi8wdp4r", "edge": 5},
+              "b": {"piece": "gghl5m0d19", "edge": 3}
+            },
+            {
+              "a": {"piece": "hnicfrhin1", "edge": 4},
+              "b": {"piece": "gghl5m0d19", "edge": 2}
+            },
+            {
+              "a": {"piece": "hnicfrhin1", "edge": 5},
+              "b": {"piece": "cu198tswfj", "edge": 3}
+            },
+            {
+              "a": {"piece": "hnicfrhin1", "edge": 0},
+              "b": {"piece": "cu198tswfj", "edge": 2}
+            },
+            {
+              "a": {"piece": "f83zi5e0ja", "edge": 5},
+              "b": {"piece": "cu198tswfj", "edge": 1}
+            },
+            {
+              "a": {"piece": "f83zi5e0ja", "edge": 0},
+              "b": {"piece": "3it9j9yd09", "edge": 2}
+            },
+            {
+              "a": {"piece": "f83zi5e0ja", "edge": 1},
+              "b": {"piece": "3it9j9yd09", "edge": 1}
+            }
+          ],
+          "box": [-2.5, -2.598076211353316, 8.5, 2.598076211353316]
+        },
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0"
+      },
+      {
+        "id": "pc8tc0lf42",
+        "notecard": {"name": "d4 (tetrahedron)"},
+        "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [1.4956376449649947e-16, -0.28867513459481264],
+              "turn": 60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "cwc2bvb59b"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [2.884444029575347e-16, 0.288675134594813],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "iwk02tq2t3"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [0.4999999999999999, -0.5773502691896254],
+              "turn": -240,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "iy14f0ckqh"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-0.49999999999999983, -0.5773502691896257],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "94oo62i0lz"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "iy14f0ckqh", "edge": 1},
+              "b": {"piece": "iwk02tq2t3", "edge": 0}
+            },
+            {
+              "a": {"piece": "iwk02tq2t3", "edge": 2},
+              "b": {"piece": "94oo62i0lz", "edge": 2}
+            },
+            {
+              "a": {"piece": "94oo62i0lz", "edge": 1},
+              "b": {"piece": "iy14f0ckqh", "edge": 2}
+            }
+          ],
+          "box": [-1, -0.8660254037844386, 1, 0.8660254037844387]
+        },
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0"
+      },
+      {
+        "id": "w6y18qn1e2",
+        "notecard": {"name": "d6 (cube)"},
+        "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [0, -0.5],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.green"}},
+              "id": "or4ba35xwc"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [-5.551115123125783e-17, 0.5],
+              "turn": -90,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.blue"}},
+              "id": "0i4xr4juks"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [1, -0.5],
+              "turn": -270,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.yellow"}},
+              "id": "00qgwfwwo6"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [0, -1.5],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "r6zp6fw6wu"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [-1, -0.5],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.red"}},
+              "id": "3jgzrpbt1a"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [-1.8503717077085943e-16, 1.5],
+              "turn": -90,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.purple"}},
+              "id": "dk78kl8unb"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "0i4xr4juks", "edge": 2},
+              "b": {"piece": "3jgzrpbt1a", "edge": 0}
+            },
+            {
+              "a": {"piece": "00qgwfwwo6", "edge": 1},
+              "b": {"piece": "0i4xr4juks", "edge": 0}
+            },
+            {
+              "a": {"piece": "00qgwfwwo6", "edge": 2},
+              "b": {"piece": "dk78kl8unb", "edge": 0}
+            },
+            {
+              "a": {"piece": "3jgzrpbt1a", "edge": 2},
+              "b": {"piece": "r6zp6fw6wu", "edge": 3}
+            },
+            {
+              "a": {"piece": "dk78kl8unb", "edge": 2},
+              "b": {"piece": "3jgzrpbt1a", "edge": 3}
+            },
+            {
+              "a": {"piece": "r6zp6fw6wu", "edge": 1},
+              "b": {"piece": "00qgwfwwo6", "edge": 3}
+            },
+            {
+              "a": {"piece": "r6zp6fw6wu", "edge": 2},
+              "b": {"piece": "dk78kl8unb", "edge": 3}
+            }
+          ],
+          "box": [-1.5, -2, 1.5, 2]
+        },
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0"
+      },
+      {
+        "id": "blj4xdja2h",
+        "notecard": {"name": "d8 (octahedron)"},
+        "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-9.614813431917823e-17, -0.2886751345948128],
+              "turn": 60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "q3hhxbxe7v"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-4.2732504141856984e-17, 0.2886751345948129],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "val9hy21h2"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [0.49999999999999956, -0.5773502691896255],
+              "turn": -240,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "lb09b5f57n"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-0.5000000000000001, -0.5773502691896257],
+              "turn": -120,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "0e8xzp0r05"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [0.4999999999999999, 0.5773502691896256],
+              "turn": -60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "mn61w9lkiy"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-0.5000000000000001, 0.5773502691896257],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "yi81wg70ps"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [0.4999999999999994, -1.154700538379251],
+              "turn": -60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "aled2giswl"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [0.4999999999999999, 1.1547005383792512],
+              "turn": -240,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "omlw85udyt"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "lb09b5f57n", "edge": 1},
+              "b": {"piece": "mn61w9lkiy", "edge": 0}
+            },
+            {
+              "a": {"piece": "0e8xzp0r05", "edge": 1},
+              "b": {"piece": "yi81wg70ps", "edge": 0}
+            },
+            {
+              "a": {"piece": "aled2giswl", "edge": 1},
+              "b": {"piece": "0e8xzp0r05", "edge": 0}
+            },
+            {
+              "a": {"piece": "yi81wg70ps", "edge": 1},
+              "b": {"piece": "omlw85udyt", "edge": 0}
+            },
+            {
+              "a": {"piece": "omlw85udyt", "edge": 1},
+              "b": {"piece": "aled2giswl", "edge": 0}
+            }
+          ],
+          "box": [-1, -1.7320508075688767, 1, 1.732050807568877]
+        },
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0"
+      },
+      {
+        "id": "ouo6mgfe0l",
+        "notecard": {"name": "d10 (kites)"},
+        "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts-contributors.3z9qfyko61",
+              "at": [-0.11921069204107794, -0.6030056647916491],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.teal"}},
+              "id": "b88hf767e4"
+            },
+            {
+              "shape": "rrquilts-contributors.3z9qfyko61",
+              "at": [-0.11921069204107788, 0.6030056647916495],
+              "turn": -51.827292,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.teal"}},
+              "id": "bau67disko"
+            },
+            {
+              "shape": "rrquilts-contributors.3z9qfyko61",
+              "at": [0.8288967763018944, -1.348361657291579],
+              "turn": 51.827292,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.teal"}},
+              "id": "pj03il01vk"
+            },
+            {
+              "shape": "rrquilts-contributors.3z9qfyko61",
+              "at": [-0.9672237917171241, -2.015028323958247],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.teal"}},
+              "id": "bt7tl5392o"
+            },
+            {
+              "shape": "rrquilts-contributors.3z9qfyko61",
+              "at": [-1.7533751694745476, -0.39699433520835054],
+              "turn": 180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.teal"}},
+              "id": "txsz8gt8i5"
+            },
+            {
+              "shape": "rrquilts-contributors.3z9qfyko61",
+              "at": [0.8288967763018944, 1.3483616572915798],
+              "turn": 256.345415,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.teal"}},
+              "id": "y025dosptz"
+            },
+            {
+              "shape": "rrquilts-contributors.3z9qfyko61",
+              "at": [-0.9672237917171232, 2.0150283239582465],
+              "turn": -231.827292,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.teal"}},
+              "id": "xfwmuup47a"
+            },
+            {
+              "shape": "rrquilts-contributors.3z9qfyko61",
+              "at": [2.000822057149038, -1.0636610018750168],
+              "turn": -256.345415,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.teal"}},
+              "id": "g0vm9idsoh"
+            },
+            {
+              "shape": "rrquilts-contributors.3z9qfyko61",
+              "at": [1.4148594167254664, -2.8877063202082107],
+              "turn": 231.827292,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.teal"}},
+              "id": "cfca4yb6j5"
+            },
+            {
+              "shape": "rrquilts-contributors.3z9qfyko61",
+              "at": [1.4148594167254664, 2.8877063202082116],
+              "turn": -283.654585,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.teal"}},
+              "id": "okatx6ihjf"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "bau67disko", "edge": 2},
+              "b": {"piece": "txsz8gt8i5", "edge": 2}
+            },
+            {
+              "a": {"piece": "y025dosptz", "edge": 2},
+              "b": {"piece": "xfwmuup47a", "edge": 2}
+            },
+            {
+              "a": {"piece": "g0vm9idsoh", "edge": 1},
+              "b": {"piece": "y025dosptz", "edge": 0}
+            },
+            {
+              "a": {"piece": "g0vm9idsoh", "edge": 2},
+              "b": {"piece": "okatx6ihjf", "edge": 2}
+            },
+            {
+              "a": {"piece": "g0vm9idsoh", "edge": 3},
+              "b": {"piece": "cfca4yb6j5", "edge": 3}
+            },
+            {
+              "a": {"piece": "bt7tl5392o", "edge": 1},
+              "b": {"piece": "txsz8gt8i5", "edge": 0}
+            },
+            {
+              "a": {"piece": "bt7tl5392o", "edge": 3},
+              "b": {"piece": "pj03il01vk", "edge": 3}
+            },
+            {
+              "a": {"piece": "txsz8gt8i5", "edge": 1},
+              "b": {"piece": "xfwmuup47a", "edge": 0}
+            },
+            {
+              "a": {"piece": "xfwmuup47a", "edge": 1},
+              "b": {"piece": "okatx6ihjf", "edge": 0}
+            },
+            {
+              "a": {"piece": "okatx6ihjf", "edge": 1},
+              "b": {"piece": "cfca4yb6j5", "edge": 0}
+            },
+            {
+              "a": {"piece": "cfca4yb6j5", "edge": 1},
+              "b": {"piece": "bt7tl5392o", "edge": 0}
+            }
+          ],
+          "box": [
+            -2.9944639580293053,
+            -4.236067975592521,
+            2.9944639571002116,
+            4.236067978798742
+          ]
+        },
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0"
+      },
+      {
+        "id": "hah8q3f66x",
+        "notecard": {"name": "d12 (dodecahedron)"},
+        "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [-4.732195558704059e-16, -0.21266270208800964],
+              "turn": -36,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.gold"}},
+              "id": "urszlw8wtk"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [-5.592594751195711e-16, 1.1637192183831637],
+              "turn": -72,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.blue"}},
+              "id": "q7dbumu980"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [1.3090169943749472, 0.2126627020880104],
+              "turn": -144,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.sky"}},
+              "id": "4b0splz64r"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [0.8090169943749472, -1.3261790664996167],
+              "turn": -288,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.blue"}},
+              "id": "icjsd3knws"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [-0.8090169943749479, -1.3261790664996165],
+              "turn": -288,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.blue"}},
+              "id": "7o5a5k5i40"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [-1.3090169943749475, 0.21266270208801027],
+              "turn": -72,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.sky"}},
+              "id": "039p06vz93"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [5.036067977499792, -0.21266270208801008],
+              "turn": -36,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.gold"}},
+              "id": "8ydwu4zaoa"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [5.0360679774997905, 1.163719218383163],
+              "turn": -288,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.coral"}},
+              "id": "0emsqz22xv"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [6.345084971874737, 0.21266270208801008],
+              "turn": -72,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.red"}},
+              "id": "9kckx0aqfe"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [5.8450849718747335, -1.3261790664996156],
+              "turn": -72,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.red"}},
+              "id": "8zb7mwn7gd"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [4.227050983124842, -1.326179066499617],
+              "turn": -144,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.coral"}},
+              "id": "s2gwrpsxf7"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [3.7270509831248413, 0.2126627020880098],
+              "turn": -216,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.red"}},
+              "id": "qu5ix2ze0c"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "icjsd3knws", "edge": 2},
+              "b": {"piece": "4b0splz64r", "edge": 1}
+            },
+            {
+              "a": {"piece": "icjsd3knws", "edge": 3},
+              "b": {"piece": "8zb7mwn7gd", "edge": 1}
+            },
+            {
+              "a": {"piece": "icjsd3knws", "edge": 4},
+              "b": {"piece": "9kckx0aqfe", "edge": 1}
+            },
+            {
+              "a": {"piece": "4b0splz64r", "edge": 3},
+              "b": {"piece": "q7dbumu980", "edge": 1}
+            },
+            {
+              "a": {"piece": "4b0splz64r", "edge": 4},
+              "b": {"piece": "s2gwrpsxf7", "edge": 1}
+            },
+            {
+              "a": {"piece": "7o5a5k5i40", "edge": 3},
+              "b": {"piece": "icjsd3knws", "edge": 0}
+            },
+            {
+              "a": {"piece": "039p06vz93", "edge": 0},
+              "b": {"piece": "q7dbumu980", "edge": 3}
+            },
+            {
+              "a": {"piece": "039p06vz93", "edge": 2},
+              "b": {"piece": "7o5a5k5i40", "edge": 1}
+            },
+            {
+              "a": {"piece": "039p06vz93", "edge": 3},
+              "b": {"piece": "0emsqz22xv", "edge": 1}
+            },
+            {
+              "a": {"piece": "8zb7mwn7gd", "edge": 2},
+              "b": {"piece": "4b0splz64r", "edge": 0}
+            },
+            {
+              "a": {"piece": "8zb7mwn7gd", "edge": 3},
+              "b": {"piece": "s2gwrpsxf7", "edge": 0}
+            },
+            {
+              "a": {"piece": "q7dbumu980", "edge": 4},
+              "b": {"piece": "qu5ix2ze0c", "edge": 1}
+            },
+            {
+              "a": {"piece": "s2gwrpsxf7", "edge": 2},
+              "b": {"piece": "q7dbumu980", "edge": 0}
+            },
+            {
+              "a": {"piece": "s2gwrpsxf7", "edge": 3},
+              "b": {"piece": "qu5ix2ze0c", "edge": 0}
+            },
+            {
+              "a": {"piece": "qu5ix2ze0c", "edge": 2},
+              "b": {"piece": "039p06vz93", "edge": 4}
+            },
+            {
+              "a": {"piece": "0emsqz22xv", "edge": 0},
+              "b": {"piece": "qu5ix2ze0c", "edge": 3}
+            },
+            {
+              "a": {"piece": "0emsqz22xv", "edge": 2},
+              "b": {"piece": "7o5a5k5i40", "edge": 0}
+            },
+            {
+              "a": {"piece": "0emsqz22xv", "edge": 3},
+              "b": {"piece": "9kckx0aqfe", "edge": 4}
+            },
+            {
+              "a": {"piece": "9kckx0aqfe", "edge": 0},
+              "b": {"piece": "7o5a5k5i40", "edge": 4}
+            },
+            {
+              "a": {"piece": "9kckx0aqfe", "edge": 2},
+              "b": {"piece": "8zb7mwn7gd", "edge": 0}
+            }
+          ],
+          "box": [
+            -2.118033988749895,
+            -2.014370026735204,
+            7.1541019662496845,
+            2.014370026735204
+          ]
+        },
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0"
+      },
+      {
+        "id": "lbg12cycyl",
+        "notecard": {"name": "d20 (icosahedron)"},
+        "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [4.914237976313555e-16, -0.28867513459481237],
+              "turn": 60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "bapml4g4pk"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [5.55522553844141e-16, 0.2886751345948131],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "b00ta1iogo"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [0.5000000000000002, -0.5773502691896254],
+              "turn": -240,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "r8rlt1atpm"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-0.49999999999999956, -0.5773502691896251],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "f1nvdx7nxq"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [0.5000000000000003, 0.5773502691896258],
+              "turn": -60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "b71wsvryxd"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-0.49999999999999933, 0.5773502691896257],
+              "turn": 60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "cjvzgalm9l"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [1, -0.28867513459481287],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "68yuey5tu4"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [0.4999999999999999, -1.1547005383792512],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "rp6jd9ztv6"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-0.4999999999999994, -1.1547005383792508],
+              "turn": 60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "cvu17w0i7x"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-0.9999999999999998, -0.2886751345948125],
+              "turn": -60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "3gy217w1jl"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [0.5000000000000004, 1.1547005383792512],
+              "turn": -240,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "4wtkgrgdjv"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-0.4999999999999992, 1.1547005383792517],
+              "turn": -240,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "xzjzkzft0n"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [1.4999999999999996, -0.577350269189626],
+              "turn": -240,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "rvswq23fbo"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [0.9999999999999998, -1.443375672974064],
+              "turn": -120,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "pj43d92env"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-0.9999999999999994, -1.4433756729740632],
+              "turn": -120,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "792ml37m6k"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-1.4999999999999996, -0.5773502691896254],
+              "turn": -120,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "n5m54ozm8b"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [1.0000000000000002, 1.4433756729740643],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "csj2752wbl"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-0.9999999999999993, 1.443375672974064],
+              "turn": 60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "yirkww75xl"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [1.0000000000000009, -2.0207259421636907],
+              "turn": -60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "kaek3nrc5x"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [1.0000000000000007, 2.02072594216369],
+              "turn": -120,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "9ki0u2ut4n"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "68yuey5tu4", "edge": 1},
+              "b": {"piece": "b71wsvryxd", "edge": 0}
+            },
+            {
+              "a": {"piece": "9ki0u2ut4n", "edge": 1},
+              "b": {"piece": "yirkww75xl", "edge": 0}
+            },
+            {
+              "a": {"piece": "9ki0u2ut4n", "edge": 2},
+              "b": {"piece": "kaek3nrc5x", "edge": 0}
+            },
+            {
+              "a": {"piece": "xzjzkzft0n", "edge": 1},
+              "b": {"piece": "4wtkgrgdjv", "edge": 0}
+            },
+            {
+              "a": {"piece": "cvu17w0i7x", "edge": 1},
+              "b": {"piece": "rp6jd9ztv6", "edge": 0}
+            },
+            {
+              "a": {"piece": "792ml37m6k", "edge": 1},
+              "b": {"piece": "n5m54ozm8b", "edge": 0}
+            },
+            {
+              "a": {"piece": "n5m54ozm8b", "edge": 1},
+              "b": {"piece": "yirkww75xl", "edge": 2}
+            },
+            {
+              "a": {"piece": "kaek3nrc5x", "edge": 1},
+              "b": {"piece": "792ml37m6k", "edge": 0}
+            },
+            {
+              "a": {"piece": "cjvzgalm9l", "edge": 2},
+              "b": {"piece": "3gy217w1jl", "edge": 2}
+            },
+            {
+              "a": {"piece": "rvswq23fbo", "edge": 1},
+              "b": {"piece": "csj2752wbl", "edge": 2}
+            },
+            {
+              "a": {"piece": "pj43d92env", "edge": 2},
+              "b": {"piece": "rvswq23fbo", "edge": 2}
+            }
+          ],
+          "box": [
+            -1.9999999999999993,
+            -2.5980762113533165,
+            1.9999999999999998,
+            2.5980762113533156
+          ]
+        },
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0"
+      },
+      {
+        "id": "zn9k4z3tkq",
+        "notecard": {"name": "Hexagonal prism"},
+        "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [-1.4244168047285624e-16, -0.8660254037844398],
+              "turn": -60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "bbms1ncjdx"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [-1.850371707708575e-17, 0.5000000000000004],
+              "turn": -90,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.blue"}},
+              "id": "0mw3o8xxdd"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [1.1830127018922205, -0.18301270189222016],
+              "turn": -240,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.blue"}},
+              "id": "2c01sje6u0"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [1.1830127018922205, -1.5490381056766598],
+              "turn": -210,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.blue"}},
+              "id": "gi8c1oyw24"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [-4.348373513115191e-16, -2.23205080756888],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.blue"}},
+              "id": "k10yggn1oz"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [-1.183012701892221, -1.5490381056766602],
+              "turn": -60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.blue"}},
+              "id": "6iskhu6099"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [-1.1830127018922212, -0.18301270189221985],
+              "turn": -30,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.blue"}},
+              "id": "696n7yzluu"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [5.733277639032467e-16, 1.8660254037844404],
+              "turn": -300,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "t3amo8myhk"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "k10yggn1oz", "edge": 1},
+              "b": {"piece": "gi8c1oyw24", "edge": 0}
+            },
+            {
+              "a": {"piece": "k10yggn1oz", "edge": 2},
+              "b": {"piece": "t3amo8myhk", "edge": 2}
+            },
+            {
+              "a": {"piece": "gi8c1oyw24", "edge": 2},
+              "b": {"piece": "2c01sje6u0", "edge": 3}
+            },
+            {
+              "a": {"piece": "6iskhu6099", "edge": 1},
+              "b": {"piece": "k10yggn1oz", "edge": 3}
+            },
+            {
+              "a": {"piece": "6iskhu6099", "edge": 2},
+              "b": {"piece": "t3amo8myhk", "edge": 1}
+            },
+            {
+              "a": {"piece": "696n7yzluu", "edge": 2},
+              "b": {"piece": "6iskhu6099", "edge": 3}
+            },
+            {
+              "a": {"piece": "696n7yzluu", "edge": 3},
+              "b": {"piece": "t3amo8myhk", "edge": 0}
+            },
+            {
+              "a": {"piece": "0mw3o8xxdd", "edge": 2},
+              "b": {"piece": "696n7yzluu", "edge": 0}
+            },
+            {
+              "a": {"piece": "2c01sje6u0", "edge": 1},
+              "b": {"piece": "0mw3o8xxdd", "edge": 0}
+            },
+            {
+              "a": {"piece": "2c01sje6u0", "edge": 2},
+              "b": {"piece": "t3amo8myhk", "edge": 4}
+            },
+            {
+              "a": {"piece": "t3amo8myhk", "edge": 3},
+              "b": {"piece": "gi8c1oyw24", "edge": 3}
+            }
+          ],
+          "box": [
+            -1.8660254037844406,
+            -2.73205080756888,
+            1.86602540378444,
+            2.7320508075688794
+          ]
+        },
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0"
+      },
+      {
+        "id": "xoda8g2wvu",
+        "notecard": {"name": "Truncated tetrahedron"},
+        "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [1.0683126035464246e-16, -0.8660254037844382],
+              "turn": -60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "vyikt2xxb2"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [2.5639502485114194e-16, 0.8660254037844389],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "v323crhyks"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [0.9999999999999998, -0.2886751345948124],
+              "turn": -60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "31p5vvccxk"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [1.4999999999999993, -1.7320508075688767],
+              "turn": -240,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "9zmyepwdm2"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [8.5465008283714e-17, -2.02072594216369],
+              "turn": 60,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "6mndrbdi6j"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [-1.5000000000000002, -1.732050807568877],
+              "turn": -240,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "ektl84xo1v"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [-0.9999999999999997, -0.28867513459481237],
+              "turn": -180,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "l33650lsx1"
+            },
+            {
+              "shape": "rrquilts.epp-triangle",
+              "at": [7.264525704115686e-16, 2.02072594216369],
+              "turn": -120,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "wp8al3hq2q"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "9zmyepwdm2", "edge": 3},
+              "b": {"piece": "31p5vvccxk", "edge": 0}
+            },
+            {
+              "a": {"piece": "9zmyepwdm2", "edge": 4},
+              "b": {"piece": "v323crhyks", "edge": 5}
+            },
+            {
+              "a": {"piece": "31p5vvccxk", "edge": 2},
+              "b": {"piece": "v323crhyks", "edge": 0}
+            },
+            {
+              "a": {"piece": "6mndrbdi6j", "edge": 1},
+              "b": {"piece": "9zmyepwdm2", "edge": 1}
+            },
+            {
+              "a": {"piece": "6mndrbdi6j", "edge": 2},
+              "b": {"piece": "ektl84xo1v", "edge": 5}
+            },
+            {
+              "a": {"piece": "v323crhyks", "edge": 3},
+              "b": {"piece": "ektl84xo1v", "edge": 2}
+            },
+            {
+              "a": {"piece": "ektl84xo1v", "edge": 0},
+              "b": {"piece": "9zmyepwdm2", "edge": 0}
+            },
+            {
+              "a": {"piece": "ektl84xo1v", "edge": 3},
+              "b": {"piece": "l33650lsx1", "edge": 0}
+            },
+            {
+              "a": {"piece": "l33650lsx1", "edge": 1},
+              "b": {"piece": "v323crhyks", "edge": 2}
+            },
+            {
+              "a": {"piece": "wp8al3hq2q", "edge": 1},
+              "b": {"piece": "ektl84xo1v", "edge": 1}
+            },
+            {
+              "a": {"piece": "wp8al3hq2q", "edge": 2},
+              "b": {"piece": "9zmyepwdm2", "edge": 5}
+            }
+          ],
+          "box": [-2.5, -2.598076211353316, 2.499999999999999, 2.5980762113533156]
+        },
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0"
+      },
+      {
+        "id": "2z6n93ft5f",
+        "notecard": {"name": "Soccer ball"},
+        "layout": {
+          "style": "epp",
+          "unit": 2,
+          "edge": {"kind": "none"},
+          "threeD": true,
+          "stuffed": true
+        },
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [1.8283482840447513e-16, -0.08416621050417519],
+              "turn": -36,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.navy"}},
+              "id": "c3dnih8tpx"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [3.325201638993666e-16, 1.4700501535158499],
+              "turn": -120,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "8sbfb0vo47"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [1.4781476007338052, 0.3961130589136527],
+              "turn": -192,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "9l0y5g6l34"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [0.9135454576426013, -1.3415536619320154],
+              "turn": -264,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "2othy2cwli"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [-0.9135454576426003, -1.341553661932015],
+              "turn": -336,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "fug8547zsx"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [-1.478147600733805, 0.39611305891365234],
+              "turn": -168,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "0ldtws1wc4"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [5.712590402935226, -0.08416621050417523],
+              "turn": -36,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.indigo"}},
+              "id": "uvzkc494d8"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [5.71259040293522, 1.4700501535158494],
+              "turn": -120,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.pale-gray"}},
+              "id": "hk4bzmnn6e"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [7.190738003669025, 0.39611305891365256],
+              "turn": -192,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.pale-gray"}},
+              "id": "04y65ve9ha"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [6.626135860577819, -1.3415536619320145],
+              "turn": -264,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.pale-gray"}},
+              "id": "a8f0v3p6r3"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [4.79904494529262, -1.341553661932015],
+              "turn": -336,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.pale-gray"}},
+              "id": "hqag96u39j"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [4.234442802201416, 0.39611305891365245],
+              "turn": -288,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.pale-gray"}},
+              "id": "5ut1zhafi1"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [11.425180805870434, -0.08416621050417536],
+              "turn": -36,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.navy"}},
+              "id": "2ioxd9usuj"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [11.425180805870442, 1.470050153515849],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "3s9c1z1syn"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [12.903328406604247, 0.39611305891365334],
+              "turn": -192,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "rf73omsxaa"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [12.338726263513031, -1.3415536619320143],
+              "turn": -264,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "ruerbtuofa"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [10.511635348227836, -1.341553661932016],
+              "turn": -96,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "wtv6h0dsuf"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [9.94703320513663, 0.396113058913652],
+              "turn": -288,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "rh4xa93xan"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [0.18680956873307572, 5.759557316835098],
+              "turn": -36,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.indigo"}},
+              "id": "x0eksaoarw"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [0.1868095687330758, 7.313773680855125],
+              "turn": -360,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.pale-gray"}},
+              "id": "seckgvb1zb"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [-0.7267358889095251, 4.502169865407259],
+              "turn": -96,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.pale-gray"}},
+              "id": "2y1hsshzt8"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [-1.29133803200073, 6.239836586252927],
+              "turn": -168,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.pale-gray"}},
+              "id": "av8j9nblhv"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [-1.1591812854857477, 8.090881862865135],
+              "turn": -156,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.indigo"}},
+              "id": "gul0d2v6xu"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [1.5328004229518997, 8.090881862865135],
+              "turn": -276,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.indigo"}},
+              "id": "act6nopru1"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [6.993002235302856, 5.467400103330328],
+              "turn": -36,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.navy"}},
+              "id": "gmgf84f9ky"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [5.5148546345690495, 5.947679372748154],
+              "turn": -168,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.white"}},
+              "id": "s63bv3xw4y"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [4.359846785975273, 4.907705634678571],
+              "turn": -300,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.navy"}},
+              "id": "kh1qij0alc"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [5.19171488242902, 7.467932380235563],
+              "turn": -132,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.navy"}},
+              "id": "vz5es3d0zs"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [12.344311412229304, 5.224324182175465],
+              "turn": -36,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.indigo"}},
+              "id": "9bklteqr2a"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [10.866163811495504, 5.704603451593294],
+              "turn": -288,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.pale-gray"}},
+              "id": "v3b31vu3lu"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [10.543024059355451, 7.224856459080694],
+              "turn": -132,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.indigo"}},
+              "id": "lh1dqkjky4"
+            },
+            {
+              "shape": "rrquilts.epp-pentagon",
+              "at": [1.7207983849832971e-16, 12.511821804214165],
+              "turn": -36,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.navy"}},
+              "id": "2huc0xh4rw"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "2othy2cwli", "edge": 1},
+              "b": {"piece": "fug8547zsx", "edge": 3}
+            },
+            {
+              "a": {"piece": "2othy2cwli", "edge": 3},
+              "b": {"piece": "9l0y5g6l34", "edge": 1}
+            },
+            {
+              "a": {"piece": "2othy2cwli", "edge": 4},
+              "b": {"piece": "2huc0xh4rw", "edge": 1}
+            },
+            {
+              "a": {"piece": "9l0y5g6l34", "edge": 4},
+              "b": {"piece": "lh1dqkjky4", "edge": 4}
+            },
+            {
+              "a": {"piece": "9l0y5g6l34", "edge": 5},
+              "b": {"piece": "2y1hsshzt8", "edge": 3}
+            },
+            {
+              "a": {"piece": "04y65ve9ha", "edge": 4},
+              "b": {"piece": "vz5es3d0zs", "edge": 4}
+            },
+            {
+              "a": {"piece": "04y65ve9ha", "edge": 5},
+              "b": {"piece": "wtv6h0dsuf", "edge": 3}
+            },
+            {
+              "a": {"piece": "a8f0v3p6r3", "edge": 1},
+              "b": {"piece": "hqag96u39j", "edge": 3}
+            },
+            {
+              "a": {"piece": "a8f0v3p6r3", "edge": 3},
+              "b": {"piece": "04y65ve9ha", "edge": 1}
+            },
+            {
+              "a": {"piece": "a8f0v3p6r3", "edge": 4},
+              "b": {"piece": "act6nopru1", "edge": 1}
+            },
+            {
+              "a": {"piece": "2huc0xh4rw", "edge": 0},
+              "b": {"piece": "3s9c1z1syn", "edge": 2}
+            },
+            {
+              "a": {"piece": "2huc0xh4rw", "edge": 2},
+              "b": {"piece": "9l0y5g6l34", "edge": 0}
+            },
+            {
+              "a": {"piece": "act6nopru1", "edge": 2},
+              "b": {"piece": "04y65ve9ha", "edge": 0}
+            },
+            {
+              "a": {"piece": "act6nopru1", "edge": 4},
+              "b": {"piece": "ruerbtuofa", "edge": 0}
+            },
+            {
+              "a": {"piece": "0ldtws1wc4", "edge": 1},
+              "b": {"piece": "fug8547zsx", "edge": 1}
+            },
+            {
+              "a": {"piece": "0ldtws1wc4", "edge": 3},
+              "b": {"piece": "5ut1zhafi1", "edge": 1}
+            },
+            {
+              "a": {"piece": "0ldtws1wc4", "edge": 4},
+              "b": {"piece": "9bklteqr2a", "edge": 1}
+            },
+            {
+              "a": {"piece": "5ut1zhafi1", "edge": 2},
+              "b": {"piece": "gmgf84f9ky", "edge": 1}
+            },
+            {
+              "a": {"piece": "5ut1zhafi1", "edge": 5},
+              "b": {"piece": "hqag96u39j", "edge": 1}
+            },
+            {
+              "a": {"piece": "gmgf84f9ky", "edge": 0},
+              "b": {"piece": "hk4bzmnn6e", "edge": 4}
+            },
+            {
+              "a": {"piece": "gmgf84f9ky", "edge": 2},
+              "b": {"piece": "0ldtws1wc4", "edge": 2}
+            },
+            {
+              "a": {"piece": "rf73omsxaa", "edge": 4},
+              "b": {"piece": "2huc0xh4rw", "edge": 4}
+            },
+            {
+              "a": {"piece": "rf73omsxaa", "edge": 5},
+              "b": {"piece": "2y1hsshzt8", "edge": 1}
+            },
+            {
+              "a": {"piece": "ruerbtuofa", "edge": 1},
+              "b": {"piece": "wtv6h0dsuf", "edge": 1}
+            },
+            {
+              "a": {"piece": "ruerbtuofa", "edge": 3},
+              "b": {"piece": "rf73omsxaa", "edge": 1}
+            },
+            {
+              "a": {"piece": "ruerbtuofa", "edge": 4},
+              "b": {"piece": "x0eksaoarw", "edge": 1}
+            },
+            {
+              "a": {"piece": "9bklteqr2a", "edge": 0},
+              "b": {"piece": "8sbfb0vo47", "edge": 4}
+            },
+            {
+              "a": {"piece": "9bklteqr2a", "edge": 2},
+              "b": {"piece": "5ut1zhafi1", "edge": 0}
+            },
+            {
+              "a": {"piece": "x0eksaoarw", "edge": 2},
+              "b": {"piece": "rf73omsxaa", "edge": 0}
+            },
+            {
+              "a": {"piece": "s63bv3xw4y", "edge": 1},
+              "b": {"piece": "fug8547zsx", "edge": 5}
+            },
+            {
+              "a": {"piece": "s63bv3xw4y", "edge": 3},
+              "b": {"piece": "rh4xa93xan", "edge": 1}
+            },
+            {
+              "a": {"piece": "rh4xa93xan", "edge": 2},
+              "b": {"piece": "kh1qij0alc", "edge": 1}
+            },
+            {
+              "a": {"piece": "rh4xa93xan", "edge": 5},
+              "b": {"piece": "wtv6h0dsuf", "edge": 5}
+            },
+            {
+              "a": {"piece": "kh1qij0alc", "edge": 0},
+              "b": {"piece": "3s9c1z1syn", "edge": 0}
+            },
+            {
+              "a": {"piece": "kh1qij0alc", "edge": 4},
+              "b": {"piece": "2othy2cwli", "edge": 0}
+            },
+            {
+              "a": {"piece": "vz5es3d0zs", "edge": 0},
+              "b": {"piece": "hk4bzmnn6e", "edge": 0}
+            },
+            {
+              "a": {"piece": "vz5es3d0zs", "edge": 2},
+              "b": {"piece": "rh4xa93xan", "edge": 0}
+            },
+            {
+              "a": {"piece": "v3b31vu3lu", "edge": 5},
+              "b": {"piece": "hqag96u39j", "edge": 5}
+            },
+            {
+              "a": {"piece": "av8j9nblhv", "edge": 1},
+              "b": {"piece": "2y1hsshzt8", "edge": 5}
+            },
+            {
+              "a": {"piece": "av8j9nblhv", "edge": 3},
+              "b": {"piece": "v3b31vu3lu", "edge": 1}
+            },
+            {
+              "a": {"piece": "av8j9nblhv", "edge": 4},
+              "b": {"piece": "gul0d2v6xu", "edge": 1}
+            },
+            {
+              "a": {"piece": "lh1dqkjky4", "edge": 0},
+              "b": {"piece": "8sbfb0vo47", "edge": 0}
+            },
+            {
+              "a": {"piece": "lh1dqkjky4", "edge": 2},
+              "b": {"piece": "av8j9nblhv", "edge": 2}
+            },
+            {
+              "a": {"piece": "gul0d2v6xu", "edge": 2},
+              "b": {"piece": "v3b31vu3lu", "edge": 0}
+            },
+            {
+              "a": {"piece": "gul0d2v6xu", "edge": 4},
+              "b": {"piece": "a8f0v3p6r3", "edge": 0}
+            },
+            {
+              "a": {"piece": "fug8547zsx", "edge": 0},
+              "b": {"piece": "gmgf84f9ky", "edge": 3}
+            },
+            {
+              "a": {"piece": "fug8547zsx", "edge": 4},
+              "b": {"piece": "kh1qij0alc", "edge": 3}
+            },
+            {
+              "a": {"piece": "hk4bzmnn6e", "edge": 1},
+              "b": {"piece": "04y65ve9ha", "edge": 3}
+            },
+            {
+              "a": {"piece": "hk4bzmnn6e", "edge": 3},
+              "b": {"piece": "5ut1zhafi1", "edge": 3}
+            },
+            {
+              "a": {"piece": "hk4bzmnn6e", "edge": 5},
+              "b": {"piece": "s63bv3xw4y", "edge": 5}
+            },
+            {
+              "a": {"piece": "3s9c1z1syn", "edge": 1},
+              "b": {"piece": "2othy2cwli", "edge": 5}
+            },
+            {
+              "a": {"piece": "3s9c1z1syn", "edge": 3},
+              "b": {"piece": "rf73omsxaa", "edge": 3}
+            },
+            {
+              "a": {"piece": "3s9c1z1syn", "edge": 5},
+              "b": {"piece": "rh4xa93xan", "edge": 3}
+            },
+            {
+              "a": {"piece": "wtv6h0dsuf", "edge": 2},
+              "b": {"piece": "act6nopru1", "edge": 3}
+            },
+            {
+              "a": {"piece": "wtv6h0dsuf", "edge": 4},
+              "b": {"piece": "vz5es3d0zs", "edge": 3}
+            },
+            {
+              "a": {"piece": "8sbfb0vo47", "edge": 1},
+              "b": {"piece": "9l0y5g6l34", "edge": 3}
+            },
+            {
+              "a": {"piece": "8sbfb0vo47", "edge": 3},
+              "b": {"piece": "0ldtws1wc4", "edge": 5}
+            },
+            {
+              "a": {"piece": "8sbfb0vo47", "edge": 5},
+              "b": {"piece": "v3b31vu3lu", "edge": 3}
+            },
+            {
+              "a": {"piece": "hqag96u39j", "edge": 0},
+              "b": {"piece": "9bklteqr2a", "edge": 3}
+            },
+            {
+              "a": {"piece": "hqag96u39j", "edge": 4},
+              "b": {"piece": "gul0d2v6xu", "edge": 3}
+            },
+            {
+              "a": {"piece": "2y1hsshzt8", "edge": 2},
+              "b": {"piece": "2huc0xh4rw", "edge": 3}
+            },
+            {
+              "a": {"piece": "2y1hsshzt8", "edge": 4},
+              "b": {"piece": "lh1dqkjky4", "edge": 3}
+            },
+            {
+              "a": {"piece": "seckgvb1zb", "edge": 1},
+              "b": {"piece": "a8f0v3p6r3", "edge": 5}
+            },
+            {
+              "a": {"piece": "seckgvb1zb", "edge": 3},
+              "b": {"piece": "ruerbtuofa", "edge": 5}
+            },
+            {
+              "a": {"piece": "seckgvb1zb", "edge": 5},
+              "b": {"piece": "av8j9nblhv", "edge": 5}
+            }
+          ],
+          "box": [
+            -2.4562952014676105,
+            -2.3360755573002896,
+            13.881476007338053,
+            13.200012764449752
+          ]
+        },
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0"
+      }
+    ],
+    "fonts": [],
+    "libraryPalettes": ["rrquilts.basic-colors"],
+    "license": "CC-BY-SA-4.0",
+    "author": "RRQuilts contributors",
+    "eppShapes": [
+      {
+        "id": "rrquilts-contributors.3z9qfyko61",
+        "notecard": {"name": "d10 Kite"},
+        "author": "RRQuilts contributors",
+        "license": "CC-BY-SA-4.0",
+        "outline": [
+          [-0.8170822387167348, 0.6030056647916494],
+          [1.241088788554758, 0.6030056647916494],
+          [-0.030930860959311343, -1.0150283239582458],
+          [-0.8170822387167347, -0.3969943352083509]
+        ],
+        "marked": [0, 1]
+      },
+      {
+        "id": "rrquilts.epp-60-diamond",
+        "notecard": {"name": "60° Diamond"},
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0",
+        "outline": [
+          [-0.7499999999999999, 0.4330127018922194],
+          [0.2500000000000001, 0.4330127018922193],
+          [0.7499999999999999, -0.4330127018922194],
+          [-0.2500000000000001, -0.4330127018922194]
+        ],
+        "version": "b05781a3f09c",
+        "source": {
+          "libraryId": "rrquilts-starter",
+          "itemId": "rrquilts.epp-60-diamond",
+          "revision": 1,
+          "version": "b05781a3f09c",
+          "library": "Built-In",
+          "author": "RRQuilts contributors",
+          "license": "PDM-1.0",
+          "name": "60° Diamond"
+        }
+      },
+      {
+        "id": "rrquilts.epp-hexagon",
+        "notecard": {"name": "Hexagon"},
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0",
+        "outline": [
+          [-1, 4.440892098500626e-16],
+          [-0.4999999999999996, 0.8660254037844389],
+          [0.5000000000000004, 0.8660254037844387],
+          [1.0000000000000002, 1.1102230246251565e-16],
+          [0.5000000000000002, -0.8660254037844385],
+          [-0.49999999999999983, -0.8660254037844385]
+        ],
+        "version": "99ba864f5a1b",
+        "source": {
+          "libraryId": "rrquilts-starter",
+          "itemId": "rrquilts.epp-hexagon",
+          "revision": 1,
+          "version": "99ba864f5a1b",
+          "library": "Built-In",
+          "author": "RRQuilts contributors",
+          "license": "PDM-1.0",
+          "name": "Hexagon"
+        }
+      },
+      {
+        "id": "rrquilts.epp-triangle",
+        "notecard": {"name": "Triangle"},
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0",
+        "outline": [
+          [1.1102230246251565e-16, 0.5773502691896257],
+          [0.4999999999999999, -0.2886751345948129],
+          [-0.5000000000000001, -0.2886751345948129]
+        ],
+        "version": "9437a7ed64a4",
+        "source": {
+          "libraryId": "rrquilts-starter",
+          "itemId": "rrquilts.epp-triangle",
+          "revision": 1,
+          "version": "9437a7ed64a4",
+          "library": "Built-In",
+          "author": "RRQuilts contributors",
+          "license": "PDM-1.0",
+          "name": "Triangle"
+        }
+      },
+      {
+        "id": "rrquilts.epp-square",
+        "notecard": {"name": "Square"},
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0",
+        "outline": [
+          [-0.5, 0.5000000000000001],
+          [0.5, 0.4999999999999999],
+          [0.5, -0.5000000000000001],
+          [-0.5, -0.5000000000000001]
+        ],
+        "version": "a24a34a46b7b",
+        "source": {
+          "libraryId": "rrquilts-starter",
+          "itemId": "rrquilts.epp-square",
+          "revision": 1,
+          "version": "a24a34a46b7b",
+          "library": "Built-In",
+          "author": "RRQuilts contributors",
+          "license": "PDM-1.0",
+          "name": "Square"
+        }
+      },
+      {
+        "id": "rrquilts.epp-pentagon",
+        "notecard": {"name": "Pentagon"},
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0",
+        "outline": [
+          [-0.8090169943749473, 0.2628655560595671],
+          [1.1102230246251565e-16, 0.8506508083520401],
+          [0.8090169943749475, 0.26286555605956685],
+          [0.5, -0.6881909602355867],
+          [-0.5, -0.6881909602355867]
+        ],
+        "version": "943c33071ecf",
+        "source": {
+          "libraryId": "rrquilts-starter",
+          "itemId": "rrquilts.epp-pentagon",
+          "revision": 1,
+          "version": "943c33071ecf",
+          "library": "Built-In",
+          "author": "RRQuilts contributors",
+          "license": "PDM-1.0",
+          "name": "Pentagon"
+        }
+      }
+    ]
+  }
+}

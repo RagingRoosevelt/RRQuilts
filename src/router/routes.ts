@@ -29,6 +29,16 @@ const routes: RouteRecordRaw[] = [
     meta: project,
   },
   {
+    path: '/project/shape/:id',
+    component: () => import('@/pages/ShapeEditorPage.vue'),
+    meta: project,
+  },
+  {
+    path: '/project/rosette/:id',
+    component: () => import('@/pages/RosetteEditorPage.vue'),
+    meta: project,
+  },
+  {
     path: '/project/image/:id',
     component: placeholder,
     props: { title: 'Image editor' },

@@ -115,6 +115,8 @@ export const migrations: Migrations = {
   // v11 (spec 041): a data plan may carry made marks (days cut and assembled, blocks assembled);
   // nothing to change.
   10: (doc) => doc,
+  // v12 (specs 027, 050): EPP shapes, rosettes and EPP quilts, all optional; nothing to change.
+  11: (doc) => doc,
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */
@@ -267,6 +269,7 @@ export async function parseProject(
   }
   // Spec 029: styles become tags; techniques this version doesn't know are dropped.
   raw = upgradeNotecards(raw);
+  raw = upgradeEppSeams(raw);
   if (!Value.Check(RrqDoc, raw)) {
     return { ok: false, error: `Project file is damaged: ${firstError(raw)}` };
   }
@@ -276,6 +279,36 @@ export async function parseProject(
 
   const report = [...danglingReferences(doc), ...(await badAssets(doc))];
   return { ok: true, doc, report };
+}
+
+/**
+ * Development v12 files gave each EPP quilt its own seam allowance; it's the project's now (owner,
+ * 2026-11-14): the first one becomes the project's EPP seam allowance (if unset), the rest go.
+ */
+function upgradeEppSeams(raw: unknown): unknown {
+  if (!isObject(raw) || !isObject(raw.project) || !Array.isArray(raw.project.quilts)) return raw;
+  const quilts = raw.project.quilts as unknown[];
+  const seams = quilts
+    .map((q) =>
+      isObject(q) && isObject(q.layout) && q.layout.style === 'epp' ? q.layout.seam : undefined,
+    )
+    .filter((s): s is number => typeof s === 'number');
+  if (!seams.length) return raw;
+  const p = raw.project;
+  const old = isObject(p.seams) ? p.seams : {};
+  return {
+    ...raw,
+    project: {
+      ...p,
+      seams: { ...old, epp: old.epp ?? seams[0] },
+      quilts: quilts.map((q) => {
+        if (!isObject(q) || !isObject(q.layout) || q.layout.style !== 'epp') return q;
+        const layout = { ...q.layout };
+        delete layout.seam;
+        return { ...q, layout };
+      }),
+    },
+  };
 }
 
 export function serializeProject(doc: RrqDoc): string {
@@ -310,6 +343,16 @@ export function danglingReferences(doc: RrqDoc): string[] {
   };
 
   for (const b of p.blocks) for (const c of b.colorings) checkColoring(c, `block ${b.id}`);
+  // EPP (spec 027): pieces point at shapes (library or internal) and rosettes.
+  const shapes = has(p.eppShapes ?? []);
+  const rosettes = new Map((p.rosettes ?? []).map((r) => [r.id, r]));
+  for (const r of p.rosettes ?? []) {
+    const own = has(r.shapes ?? []);
+    for (const piece of r.pieces)
+      if (!shapes.has(piece.shape) && !own.has(piece.shape))
+        out.push(`rosette ${r.id}: missing shape ${piece.shape}`);
+    for (const c of r.colorings) checkColoring(c, `rosette ${r.id}`);
+  }
   for (const e of p.embroidery) {
     for (const t of e.threads)
       if (!threads.has(t)) out.push(`embroidery ${e.id}: missing thread ${t}`);
@@ -320,6 +363,25 @@ export function danglingReferences(doc: RrqDoc): string[] {
     for (const c of dataColorings([q])) checkColoring(c, `${where} data`);
     for (const id of dataBlocks(q))
       if (!blocks.has(id)) out.push(`${where} data: missing block ${id}`);
+    const closing = has(q.epp?.shapes ?? []);
+    for (const piece of q.epp?.pieces ?? []) {
+      if (!piece.shape === !piece.rosette)
+        out.push(`${where} piece ${piece.id}: needs one shape or one rosette`);
+      if (piece.shape && !shapes.has(piece.shape) && !closing.has(piece.shape))
+        out.push(`${where} piece ${piece.id}: missing shape ${piece.shape}`);
+      const r = piece.rosette ? rosettes.get(piece.rosette) : undefined;
+      if (piece.rosette && !r)
+        out.push(`${where} piece ${piece.id}: missing rosette ${piece.rosette}`);
+      if (piece.coloring && r && !r.colorings.some((c) => c.id === piece.coloring))
+        out.push(`${where} piece ${piece.id}: missing coloring ${piece.coloring}`);
+      if (piece.fills) checkColoring({ fills: piece.fills }, `${where} piece ${piece.id}`);
+    }
+    // 3D EPP: explicit seams and the front piece point at pieces.
+    const pieceIds = new Set((q.epp?.pieces ?? []).map((x) => x.id));
+    for (const e of (q.epp?.seams ?? []).flatMap((x) => [x.a, x.b]))
+      if (!pieceIds.has(e.piece)) out.push(`${where} seam: missing piece ${e.piece}`);
+    if (q.epp?.front && !pieceIds.has(q.epp.front.piece))
+      out.push(`${where} front: missing piece ${q.epp.front.piece}`);
     for (const [slot, s] of Object.entries(q.layers[0].slots)) {
       if (!blocks.has(s.block)) out.push(`${where} ${slot}: missing block ${s.block}`);
       if (!(s.coloring in q.colorings))

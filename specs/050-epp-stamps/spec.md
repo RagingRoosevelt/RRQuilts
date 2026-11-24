@@ -83,19 +83,19 @@ interchangably with individual patchblocks when designing an EPP quilt".
 
 A quilter arranges seven hexagons into a flower and saves it as a rosette.
 
-**Independent Test**: In an EPP quilt, select seven snapped hexagons, **Make rosette**, name it
-"Flower". It appears in the picker next to the shapes, with a picture, and the seven pieces become
-one placed Flower.
+**Independent Test**: In the EPP section, **New rosette**, place seven hexagons snapped into a
+flower, name it "Flower". It appears in the picker next to the shapes, with a picture, ready to
+place in a quilt.
 
 **Acceptance Scenarios**:
 
-1. **Given** pieces selected (shapes or rosettes, at least two, joined edge to edge), **When** the
-   quilter chooses **Make rosette**, **Then** they name it, and it's saved to the project's EPP items
-   with the arrangement (placed rosettes in the selection are copied in as their pieces, unlinked),
-   the pieces' fills as its first coloring, and the selection is replaced by
-   one placed rosette in the same spot.
-2. **Given** pieces that don't touch each other, **Then** Make rosette warns that the rosette is in
-   parts (allowed: a rosette can be a spaced motif), and its outline is each part's.
+1. **Given** the rosette editor, **When** the quilter places shapes and rosettes (rosettes come in
+   as their pieces, unlinked) and names it, **Then** it's saved to the project's EPP items with the
+   arrangement and its colorings. In a quilt, picked pieces don't become a rosette there: spec 051's
+   **Duplicate** gives a temporary rosette to place copies with, never saved (owner, 2026-11-12;
+   the earlier Make rosette in quilts went with the selection toolbar).
+2. **Given** pieces that don't touch each other, **Then** the rosette is in parts (allowed: a
+   rosette can be a spaced motif), and its outline is each part's.
 3. **Given** the rosette, **Then** it can also be made or edited in the **rosette editor**, opened
    from the EPP section or the picker's ⋮ menu. It shares its engine with the shape editor
    (Clarifications 2026-11-10), with the four patch flags and banner (spec 027 FR-006).
@@ -103,6 +103,16 @@ one placed Flower.
    space** in the rosette editor, **Then** a new internal shape fills it (its outline taken from the
    gap's edges, editable with the shape tools, checked by the four flags) and is kept inside this
    rosette only.
+   Close space also draws lines: a drag from a piece corner to another corner either fills the
+   closed spaces on each side of the line (both, when the line splits a gap in two) or, across a piece, splits that piece in two (each
+   part in the piece's fills). Every area it makes that is an existing shape (yours or a library's)
+   becomes that shape, not a new internal one. Same in EPP quilts (a placed rosette is broken into
+   patches first). Owner, 2026-11-10: "update the fill tool so that it can drag a line between
+   vertices to make a fill part or split an existing fill part. when it makes a fill part or splits
+   a fill part, it should check if that shape matches a library fill shape and replace it with a
+   reference if there is one".
+   Then: "it only filled in one of the spaces produced by the gap fill I made" (the first version
+   filled only the smaller side).
 5. **Given** the rosette editor, **Then** the quilter paints pieces with real colors and fabrics in
    the current coloring, adds, copies and deletes colorings, and swaps palettes, as in the block
    editor.
@@ -128,7 +138,11 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
    it as one piece; turning offers the turns that keep a shared edge.
 4. **Given** the Paint tool on a placed rosette, **Then** tapping a piece of it paints that piece
    for this placement only (scope This), or for every placement of the rosette (scope All), as
-   painting a block in a quilt does. The rosette's colorings can be picked per placement.
+   painting a block in a quilt does. The rosette's colorings can be picked per placement. In the
+   picker, a rosette card with several colorings has a count badge to choose the one it's placed in.
+   Still to do: a way to change the coloring of a rosette already placed. Owner, 2026-11-10: "We
+   should have a method to change a rosette's selected color variation. We can leave that as a note
+   for now".
 5. **Given** a placed rosette, **When** the quilter uses the **Break into patches** tool, **Then** it becomes its
    individual pieces (fills kept, undoable), no longer linked. A rosette stays together until broken
    into patches.
@@ -217,7 +231,7 @@ menu opens the same.
 - **FR-009**: Rosettes are edited in a rosette editor; EPP quilts use the same engine with Layout and
   Borders tabs added (spec 027 FR-014, which replaces the earlier one-editor note). Both editors have a
   **Break into patches** tool and a **Place rosettes ungrouped** toggle. There is no Enable as
-  rosette toggle: rosettes are made in the rosette editor or with Make rosette (owner, 2026-11-10,
+  rosette toggle: rosettes are made in the rosette editor or the shape editor's Multi-shape mode (owner, 2026-11-10,
   dropping the Details toggle from the first note below). Owner, 2026-11-10:
   "in details, we'll have a toggle for "enable as stamp". all stamps start out as grouped rosettes
   but can be broken down after placement and we'll have a toggle at the top of the rosette/stamp

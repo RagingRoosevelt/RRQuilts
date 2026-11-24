@@ -26,6 +26,7 @@ export const FILE_TYPES = {
   rrq: 'RRQuilts project file',
   rrqbl: 'RRQuilts block file',
   rrqplt: 'RRQuilts palette file',
+  rrqepp: 'RRQuilts EPP shape or rosette file',
   rrqlib: 'RRQuilts library file',
   rrqconf: 'RRQuilts settings file',
   png: 'PNG image',

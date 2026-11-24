@@ -43,12 +43,14 @@ const props = withDefaults(
     units: string;
     min?: number;
     readonly?: boolean;
+    /** The −/+ step; default 1/4 in or 0.5 cm. */
+    step?: number | undefined;
   }>(),
   { min: 0, readonly: false },
 );
 const emit = defineEmits<{ 'update:modelValue': [v: number] }>();
 
-const step = computed(() => (props.units === 'cm' ? 0.5 : 0.25));
+const step = computed(() => props.step ?? (props.units === 'cm' ? 0.5 : 0.25));
 const u = computed(() => (props.units === 'cm' ? 'cm' : 'in'));
 // Shown and stored rounded, which also cleans up float noise in older values.
 const display = computed(() => roundLen(props.modelValue, u.value));

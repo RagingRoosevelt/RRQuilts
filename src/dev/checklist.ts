@@ -59,46 +59,11 @@ const G = {
   snap031: 'Snapping gravity and Line up (spec 031)',
   swirl025: 'Swirl and Pinwheel data blocks, traces in block pictures (spec 025)',
   make041: 'Data Quilts: data entry and printed instructions (spec 041)',
+  epp027: 'English paper piecing: shapes, rosettes, EPP section (specs 027, 050)',
+  epp3d: '3D EPP (spec 027 User Story 7)',
 };
 
 export const CHECKS: Check[] = [
-  {
-    id: 'TC-003',
-    group: G.files,
-    text: 'Picture check: every picture matches (look at any flagged in red).',
-    to: '/dev/pictures',
-  },
-  {
-    id: 'TC-011',
-    group: G.tests,
-    text: 'Layout gallery: each picture matches its Expect line.',
-    to: '/dev/gallery',
-  },
-  {
-    id: 'TC-012',
-    group: G.tests,
-    text: 'Borders: corners meet cleanly, repeats even.',
-    to: '/dev/borders',
-  },
-  {
-    id: 'TC-013',
-    group: G.tests,
-    text: 'Sweeps: each row steps as its Expect says.',
-    to: '/dev/sweeps',
-  },
-  {
-    id: 'TC-014',
-    group: G.tests,
-    text: 'Extremes: pictures right, build and draw times acceptable.',
-    to: '/dev/extremes',
-  },
-  { id: 'TC-015', group: G.tests, text: 'Blocks: scroll all built-in blocks.', to: '/dev/blocks' },
-  {
-    id: 'TC-016',
-    group: G.tests,
-    text: 'Print P1 to P4: sheets as their checks say; cut sizes match the Help calculators.',
-    to: '/dev/print',
-  },
   {
     id: 'TC-188',
     group: G.data046,

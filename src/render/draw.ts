@@ -14,6 +14,7 @@ import { blockPaths, toPath2D } from './paths';
 import { placementMatrix } from './placement';
 import { fabricFill } from './fabric-images';
 import { PLAIN_BLOCK, PLAIN_PATCH } from '@/model/plain';
+import { expandAll, lookupEpp } from '@/model/epp/expand';
 
 export interface View {
   scale: number;
@@ -175,6 +176,7 @@ export function drawQuilt(
   }
 
   ctx.setTransform(...base);
+  if (quilt.layout.style === 'epp') drawEppPieces(ctx, doc, quilt, fillOf, px, o);
   if (o.labels) drawLabels(ctx, quilt, generated, blocks, base, o.dpr);
   const overlay = o.target && quilt.target?.visible;
   if (overlay)
@@ -215,6 +217,49 @@ export function drawQuilt(
     ctx.globalAlpha = 1;
     ctx.lineWidth = hi * px;
     ctx.stroke(path);
+  }
+  ctx.restore();
+}
+
+/**
+ * An EPP quilt's pieces and closing pieces (spec 027), in quilt units (1U × the layout's unit),
+ * colored through the shown colorway. With Cut to size, clipped to the cut.
+ */
+function drawEppPieces(
+  ctx: CanvasRenderingContext2D,
+  doc: RrqDoc,
+  quilt: Quilt,
+  fillOf: (f: Fill | undefined) => string | CanvasPattern | undefined,
+  px: number,
+  o: DrawOptions,
+) {
+  if (quilt.layout.style !== 'epp' || !quilt.epp) return;
+  const u = quilt.layout.unit;
+  const edge = quilt.layout.edge;
+  const lookup = lookupEpp(doc.project, quilt.epp.shapes ?? []);
+  const close = edge.kind === 'close' ? edge.fill : undefined;
+  const polys = [
+    ...expandAll(quilt.epp.pieces, lookup).map((l) => ({ poly: l.poly, fill: l.fill })),
+    ...(quilt.epp.closing ?? []).map((c) => ({ poly: c.outline, fill: close })),
+  ];
+  ctx.save();
+  if (edge.kind === 'cut') {
+    const [x0, y0, x1, y1] = edge.rect;
+    ctx.beginPath();
+    ctx.rect(x0 * u, y0 * u, (x1 - x0) * u, (y1 - y0) * u);
+    ctx.clip();
+  }
+  for (const p of polys) {
+    ctx.beginPath();
+    p.poly.forEach(([x, y], i) => (i ? ctx.lineTo(x * u, y * u) : ctx.moveTo(x * u, y * u)));
+    ctx.closePath();
+    ctx.fillStyle = fillOf(p.fill) ?? (o.dark ? '#555' : '#ffffff');
+    ctx.fill();
+    if (o.outlines) {
+      ctx.lineWidth = px;
+      ctx.strokeStyle = o.dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
+      ctx.stroke();
+    }
   }
   ctx.restore();
 }

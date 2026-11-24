@@ -17,6 +17,27 @@
       />
     </div>
 
+    <template v-if="kind === 'rosette'">
+      <LengthInput
+        :model-value="prefs.rosetteUnit[units]"
+        label="1U length"
+        :units="units"
+        :min="units === 'in' ? 0.25 : 0.5"
+        @update:model-value="(v: number) => setUnit('rosetteUnit', v)"
+      />
+      <q-input
+        :model-value="prefs.rosetteCount"
+        type="number"
+        dense
+        outlined
+        label="How many rosettes"
+        :min="1"
+        :max="999"
+        @update:model-value="
+          (v) => set('rosetteCount', Math.min(999, Math.max(1, Math.round(Number(v) || 1))))
+        "
+      />
+    </template>
     <template v-if="kind === 'block'">
       <q-select
         v-model="sizeSource"
@@ -179,12 +200,16 @@
             label="How cut sizes are worked out"
           />
         </div>
+        <!-- The project's seam allowances (owner, 2026-11-14): EPP for rosettes and EPP quilts,
+             standard piecing for the rest. -->
         <LengthInput
-          :model-value="prefs.seam[units]"
-          label="Seam allowance"
+          :model-value="seams[seamKind]"
+          :label="seamKind === 'epp' ? 'EPP seam allowance (project)' : 'Seam allowance (project)'"
           :units="units"
           :min="0"
-          @update:model-value="(v: number) => setUnit('seam', v)"
+          :step="seamStep(units)"
+          :readonly="!canSetSeam"
+          @update:model-value="(v: number) => setSeam(seamKind, v)"
         />
         <q-select
           :model-value="prefs.rounding[units]"
@@ -403,12 +428,14 @@
 import type { RrqDoc } from '@/model/schema/project';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import TintPicker from '@/components/TintPicker.vue';
-import { computed, ref, watch } from 'vue';
+import { computed, watch } from 'vue';
 import FieldGroup from '@/components/FieldGroup.vue';
 import HelpLink from '@/components/HelpLink.vue';
 import LengthInput from '@/components/LengthInput.vue';
+import { useProjectSeams } from '@/composables/seams';
+import { seamStep } from '@/model/seams';
+import { useBlockPrintSize } from '@/composables/block-print-size';
 import { generateFor } from '@/model/layout/slots';
-import { fmtLen } from '@/model/print/format';
 import {
   FABRIC_STEPS,
   PAPERS,
@@ -425,7 +452,7 @@ import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
   /** `steps`: a data quilt's Print instructions (spec 041): paper, cutting, templates, look. */
-  kind: 'block' | 'quilt' | 'steps';
+  kind: 'block' | 'quilt' | 'steps' | 'rosette';
   id: string;
   coloringId?: string | undefined;
   /** The document to print from (the block editor's read-only view of a library block). */
@@ -484,8 +511,8 @@ function set<K extends keyof PrintPrefs>(key: K, value: PrintPrefs[K]) {
 }
 type PerUnit =
   | 'paper'
+  | 'rosetteUnit'
   | 'margin'
-  | 'seam'
   | 'rounding'
   | 'miterSlack'
   | 'fabricStep'
@@ -506,52 +533,62 @@ const fabricStepOptions = computed(() =>
   FABRIC_STEPS[units.value].map((f) => ({ value: f.value, label: `Up to the next ${f.label}` })),
 );
 
+const eppQuilt = computed(() => props.kind === 'quilt' && printQuilt.value?.layout.style === 'epp');
+const { seams, canSet: canSetSeam, set: setSeam } = useProjectSeams();
+const seamKind = computed(() => (props.kind === 'rosette' || eppQuilt.value ? 'epp' : 'piecing'));
 const sectionOptions = computed(() =>
-  props.kind === 'block'
+  eppQuilt.value
     ? [
-        { value: 'picture', label: 'Block page (picture, fabric, credits)' },
-        { value: 'rotary', label: 'Rotary cutting chart' },
-        { value: 'templates', label: 'Templates' },
-      ]
-    : [
         { value: 'picture', label: 'Quilt picture' },
-        { value: 'blocks', label: 'Block pages (picture, fabric, credits)' },
         { value: 'yardage', label: 'Yardage estimate' },
-        { value: 'rotary', label: 'Rotary cutting chart' },
-        { value: 'templates', label: 'Templates (blocks and quilt pieces)' },
-      ],
+        { value: 'paper', label: 'Paper templates (finished size)' },
+        { value: 'fabric', label: 'Fabric templates (with the quilt’s seam allowance)' },
+      ]
+    : props.kind === 'rosette'
+      ? [
+          { value: 'picture', label: 'Rosette sheet' },
+          { value: 'paper', label: 'Paper templates (finished size)' },
+          { value: 'fabric', label: 'Fabric templates (with seam allowance)' },
+        ]
+      : props.kind === 'block'
+        ? [
+            { value: 'picture', label: 'Block page (picture, fabric, credits)' },
+            { value: 'rotary', label: 'Rotary cutting chart' },
+            { value: 'templates', label: 'Templates' },
+          ]
+        : [
+            { value: 'picture', label: 'Quilt picture' },
+            { value: 'blocks', label: 'Block pages (picture, fabric, credits)' },
+            { value: 'yardage', label: 'Yardage estimate' },
+            { value: 'rotary', label: 'Rotary cutting chart' },
+            { value: 'templates', label: 'Templates (blocks and quilt pieces)' },
+          ],
 );
 const sections = computed<string[]>(() =>
-  props.kind === 'block' ? prefs.value.blockSections : prefs.value.quiltSections,
+  eppQuilt.value
+    ? prefs.value.eppQuiltSections
+    : props.kind === 'rosette'
+      ? prefs.value.rosetteSections
+      : props.kind === 'block'
+        ? prefs.value.blockSections
+        : prefs.value.quiltSections,
 );
 const setSections = (v: string[]) =>
-  props.kind === 'block'
-    ? set('blockSections', v as PrintPrefs['blockSections'])
-    : set('quiltSections', v as PrintPrefs['quiltSections']);
+  eppQuilt.value
+    ? set('eppQuiltSections', v as PrintPrefs['eppQuiltSections'])
+    : props.kind === 'rosette'
+      ? set('rosetteSections', v as PrintPrefs['rosetteSections'])
+      : props.kind === 'block'
+        ? set('blockSections', v as PrintPrefs['blockSections'])
+        : set('quiltSections', v as PrintPrefs['quiltSections']);
 
-// Block size: its own, as used in a quilt (counts from that quilt), or custom.
-const block = computed(() =>
-  (props.doc ?? project.doc)!.project.blocks.find((b) => b.id === props.id),
+// Block size: its own, as used in a quilt (counts from that quilt), or custom. Blocks only: the
+// steps printout may come from a project that isn't open.
+const { block, sizeOptions, sizeSource, custom, fromQuilt } = useBlockPrintSize(
+  () => props.id,
+  () => props.kind === 'block',
+  () => props.doc ?? project.doc,
 );
-const fmtSize = (s: [number, number]) =>
-  `${fmtLen(s[0], units.value)} × ${fmtLen(s[1], units.value)}`;
-// Blocks only: the steps printout may come from a project that isn't open.
-const quiltSizes = computed(() =>
-  (props.kind === 'block' ? project.doc!.project.quilts : []).flatMap((q) => {
-    const slot = generateFor(q).slots.find((s) => q.layers[0].slots[s.id]?.block === props.id);
-    return slot ? [{ quilt: q, size: slot.size }] : [];
-  }),
-);
-const sizeOptions = computed(() => [
-  ...quiltSizes.value.map((u) => ({
-    value: `quilt:${u.quilt.id}`,
-    label: `As in “${u.quilt.notecard.name}” (${fmtSize(u.size)})`,
-  })),
-  ...(block.value ? [{ value: 'own', label: `Block size (${fmtSize(block.value.size)})` }] : []),
-  { value: 'custom', label: 'Custom size' },
-]);
-const sizeSource = ref(sizeOptions.value[0]!.value);
-const custom = ref<[number, number]>(block.value ? [...block.value.size] : [10, 10]);
 
 const LABELS = [
   { key: 'letter', label: 'Letter' },
@@ -563,8 +600,7 @@ const LABELS = [
 // What the preview prints (sent up whenever it changes).
 const target = computed<PrintTarget>(() => {
   if (props.kind !== 'block') return {};
-  const fromQuilt = quiltSizes.value.find((u) => `quilt:${u.quilt.id}` === sizeSource.value);
-  if (fromQuilt) return { quilt: fromQuilt.quilt.id };
+  if (fromQuilt.value) return { quilt: fromQuilt.value.quilt.id };
   const size = sizeSource.value === 'custom' ? custom.value : block.value!.size;
   return { size: [size[0], size[1]], coloring: props.coloringId };
 });

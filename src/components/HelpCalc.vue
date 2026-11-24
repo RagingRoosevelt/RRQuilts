@@ -8,7 +8,8 @@
       </div>
       <div class="text-caption text-grey-7">
         Seam allowance {{ fmtLen(ctx.seam, units) }} · cut sizes rounded up to
-        {{ ctx.step ? fmtLen(ctx.step, units) : 'exact sizes' }} (change in Print settings)
+        {{ ctx.step ? fmtLen(ctx.step, units) : 'exact sizes' }} (seam allowance: the project's, in
+        the Print tab)
       </div>
     </q-card-section>
     <q-card-section class="inputs row q-pt-none">
@@ -70,6 +71,7 @@
 import { computed, reactive, ref, watch } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import { boltWidths, CALCULATORS, calcContext, type CalcInput } from '@/help/calc';
+import { projectSeams } from '@/model/seams';
 import { fmtLen } from '@/model/print/format';
 import { printPrefs, WIDTHS } from '@/model/print/prefs';
 import { useProjectStore } from '@/stores/project';
@@ -83,7 +85,15 @@ const calc = computed(() => CALCULATORS[props.name]);
 const units = computed(() => project.doc?.units ?? app.settings.units);
 const width = ref(boltWidths(units.value)[0]!.id);
 watch(units, (u) => (width.value = boltWidths(u)[0]!.id));
-const ctx = computed(() => calcContext(units.value, printPrefs(app.settings.print), width.value));
+// The open project's standard seam allowance (a project setting), else the default.
+const ctx = computed(() =>
+  calcContext(
+    units.value,
+    printPrefs(app.settings.print),
+    width.value,
+    projectSeams(project.doc, units.value).piecing,
+  ),
+);
 const values = reactive<Record<string, number>>(
   Object.fromEntries((calc.value?.inputs ?? []).map((i) => [i.key, i.start[units.value]])),
 );

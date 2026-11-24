@@ -21,6 +21,7 @@ sizes, and help.
 - **Units for new projects** can be **Inches** or **Centimeters**. An open project's units are in its **Details** tab.
 - **Show help buttons** shows the **?** buttons that open help about a screen or section.
 - **Editor layout** puts the panels either as **Toolbar left, sidebar right** or as **Sidebar left, toolbar right**.
+- **3D EPP** sets how a 3D design's **3D assembly** tab shows the flat design and the folded object, with **Vertical split (2D above 3D)** or **Horizontal split (2D beside 3D)**.
 
 ## Project
 

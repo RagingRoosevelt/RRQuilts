@@ -10,7 +10,7 @@
           label="Start a quilt"
           no-caps
           class="col"
-          @click="confirmLeave(() => wizard?.show())"
+          @click="wizard?.show()"
         />
         <HelpLink topic="guides/getting-started#start-a-quilt" label="Start a quilt" />
       </div>
@@ -30,7 +30,7 @@
           outline
           class="col"
           icon="folder_open"
-          label="Open a project file"
+          label="Open a project"
           no-caps
           @click="openPicked"
         />
@@ -42,7 +42,30 @@
           no-caps
           @click="openGist"
         />
+        <q-btn
+          outline
+          class="col"
+          icon="auto_stories"
+          label="Open a demo"
+          no-caps
+          @click="demoPick = true"
+        />
       </div>
+      <!-- The demo projects shipped with the app (public/demo; owner, 2026-11-23). -->
+      <q-dialog v-model="demoPick">
+        <q-card style="width: 520px; max-width: 95vw">
+          <DialogClose />
+          <q-card-section class="text-h6">Open a demo</q-card-section>
+          <q-card-section class="q-pt-none">
+            <DemoList
+              @open="(f: string) => ((demoPick = false), confirmLeave(() => openDemo(f)))"
+            />
+            <div class="text-caption text-grey-7 q-mt-sm">
+              A demo opens like a project file. Save keeps your own copy.
+            </div>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
       <div class="text-caption text-grey-7">…or drop a .rrq file anywhere on this window.</div>
 
       <!-- Recent projects; unsaved work shows here too (opened from its draft) instead of a popup. -->
@@ -202,10 +225,15 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <!-- With a project open (and editable here), the quilt joins it; otherwise it starts a new
+         project (owner, 2026-11-24). -->
     <QuiltWizard
       ref="wizard"
-      :units="settings.settings.units"
-      @create="(l, b, t, d) => startQuilt(l, b, t, true, d)"
+      :units="addTo?.units ?? settings.settings.units"
+      :project-epp-seam="addTo ? projectSeams(addTo).epp : undefined"
+      :project-license="addTo?.project.license"
+      :next-name="`Quilt ${(addTo?.project.quilts.length ?? 0) + 1}`"
+      @create="(l, b, t, d, s, x) => startQuilt(l, b, t, !addTo, d, s, x)"
     />
   </q-page>
 </template>
@@ -222,9 +250,13 @@ import { useRoute, useRouter } from 'vue-router';
 import { pickProject, supportsFileAccess } from '@/storage/files';
 import { recentProjects, type RecentEntry } from '@/storage/recent';
 import { gistId, gistProjects, gistText, type GistFile } from '@/storage/gist';
+import { demoName } from '@/storage/demo';
+import { useOpenDemo } from '@/composables/open-demo';
+import DemoList from '@/components/DemoList.vue';
 import { useProjectStore } from '@/stores/project';
 import { useOpenProject } from '@/composables/open-project';
 import { useStartQuilt } from '@/composables/start-quilt';
+import { projectSeams } from '@/model/seams';
 import QuiltWizard from '@/components/QuiltWizard.vue';
 import RestoreDrafts from '@/components/RestoreDrafts.vue';
 import DataEntryDialog from '@/components/DataEntryDialog.vue';
@@ -244,6 +276,8 @@ const settings = useSettingsStore();
 const wizard = ref<InstanceType<typeof QuiltWizard>>();
 const backups = ref<InstanceType<typeof RestoreDrafts>>();
 const startQuilt = useStartQuilt();
+/** The project Start a quilt adds to: the open one, unless it's read-only here. */
+const addTo = computed(() => (project.isOpen && !project.readOnly ? project.doc : null));
 
 onMounted(async () => {
   if (route.query.notice === 'open-project') {
@@ -259,6 +293,17 @@ onMounted(async () => {
     const id = gistId(link);
     if (!id) $q.notify({ type: 'negative', message: 'That link doesn’t point at a GitHub gist.' });
     else void fetchGist(id);
+  }
+  // A demo project shipped with the app (/?open_demo=<name>.rrq, the demo folder only): ours, so
+  // it opens at once (owner, 2026-11-23).
+  const demo = route.query.open_demo;
+  if (typeof demo === 'string') {
+    await updateBeforeLink();
+    await router.replace({ path: '/' });
+    const name = demoName(demo);
+    if (!name)
+      $q.notify({ type: 'negative', message: 'That link doesn’t point at a demo project.' });
+    else void openDemo(name);
   }
   if (supportsFileAccess())
     recent.value = (await recentProjects().catch(() => [])).filter((r) => r.handle);
@@ -304,7 +349,7 @@ function openGist() {
     ok: { label: 'Open', flat: true },
   }).onOk((v: string) => void fetchGist(gistId(v)!));
 }
-const gistFail = (e: unknown) =>
+const openFail = (e: unknown) =>
   void $q.notify({ type: 'negative', message: e instanceof Error ? e.message : String(e) });
 /** The gist being asked about: who shared what, and the file picked (when it has several). */
 const gistAsk = ref<{ title: string; owner: string; files: GistFile[]; pick: number } | null>(null);
@@ -321,7 +366,7 @@ async function fetchGist(id: string) {
     // Who shared it (GitHub's account name, not the link's) and what, before anything opens.
     gistAsk.value = { ...g, pick: 0 };
   } catch (e) {
-    gistFail(e);
+    openFail(e);
   } finally {
     wait();
   }
@@ -340,11 +385,15 @@ async function openGistFile() {
     // Opened like a picked file with no place to save back to: Save asks where.
     await openWith(() => project.openFile({ file: new File([text], f.name) }));
   } catch (e) {
-    gistFail(e);
+    openFail(e);
   } finally {
     done();
   }
 }
+
+/** Demo projects (public/demo): from a link, or picked in Open a demo. */
+const openDemo = useOpenDemo();
+const demoPick = ref(false);
 
 function openRecent(r: RecentEntry) {
   const d = draftOf(r.id);

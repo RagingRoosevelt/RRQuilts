@@ -69,7 +69,8 @@
   </template>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends { id: string }">
+// Blocks, or EPP shapes and rosettes (spec 027): anything with an id; cards come from the slot.
 import { ROOT, sectionAnchor, sectionKey } from '@/composables/block-sections';
 import type { BlockSection } from '@/model/library';
 import { useSettingsStore } from '@/stores/settings';
@@ -77,14 +78,14 @@ import { useSettingsStore } from '@/stores/settings';
 /** `title`: the library's own collapsible header around all its sections. */
 /** `compact`: small tiles that wrap (the quilt editor's sidebar). */
 const props = defineProps<{
-  sections: BlockSection[];
+  sections: BlockSection<T>[];
   lib: string;
-  title?: string;
+  title?: string | undefined;
   compact?: boolean;
 }>();
 
 /** Section headers sit under the library header, subcategories under their category (blocks don't indent). */
-const indent = (sec: BlockSection) => ({
+const indent = (sec: BlockSection<T>) => ({
   marginLeft: `${((props.title ? 1 : 0) + (sec.parent ? 1 : 0)) * 20}px`,
 });
 const settings = useSettingsStore();
@@ -94,7 +95,7 @@ const isOpen = (k: string) => !settings.settings.collapsedSections.includes(key(
  * One button for a level's children: when the level or any child is closed it expands them all
  * (the level too); otherwise it collapses the children, leaving the level open.
  */
-function allButton(children: BlockSection[], self?: string) {
+function allButton(children: BlockSection<T>[], self?: string) {
   const keys = children.map((x) => key(x.key));
   const all = self ? [...keys, key(self)] : keys;
   const anyClosed = all.some((k) => settings.settings.collapsedSections.includes(k));
@@ -114,7 +115,7 @@ function allButton(children: BlockSection[], self?: string) {
   };
 }
 /** A section's blocks, its subcategories' included. */
-const blocksIn = (sec: BlockSection) => [
+const blocksIn = (sec: BlockSection<T>) => [
   ...sec.blocks,
   ...props.sections.filter((x) => x.parent === sec.key).flatMap((x) => x.blocks),
 ];

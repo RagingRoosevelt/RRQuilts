@@ -1,7 +1,8 @@
 # File format samples
 
 One file per released version of each file format, named `<format>-v<N>.<ext>`: project (`.rrq`),
-library (`.rrqlib`), block (`.rrqbl`), palette (`.rrqplt`), settings (`.rrqconf`).
+library (`.rrqlib`), block (`.rrqbl`), palette (`.rrqplt`), settings (`.rrqconf`), EPP shape or
+rosette (`.rrqepp`).
 `__tests__/formats/samples.spec.ts` opens every one with today's code, so a schema change that
 forgets a migration fails. Open them in the app to test by hand. Never rewrite an existing sample:
 each one is what that release wrote.
@@ -24,6 +25,10 @@ that release's code, plus a quilt for each layout capability the version added (
 - v11: no new layouts (it added data quilt Cut and Assembled marks: both data quilts have Jan 1 to
   14 entered, Jan 1 to 10 cut, Jan 1 to 7 assembled, and the Weeks quilt's first two blocks
   assembled)
+- v12: EPP Quilt (three flower rosettes, one in its second coloring, loose dominoes and a hexagon,
+  Auto-close, a border), 3D EPP Cube, Rosette Blocks (Tumbling Block rosettes in hexagon spaces),
+  plus a project shape (Domino) and rosette (Sample Flower): `__tests__/formats/epp-v12.ts`, which
+  the project sample uses too
 
 `demo-v<N>/` holds a PNG of each of its quilts and blocks, saved with the app's Save image by a
 release that writes that version.
@@ -63,7 +68,8 @@ uv run scripts/format-images.py docs test/fixtures/formats/demo-vN.rrq
 - project v9, library v6, block v4: written by release v0.7.0's code.
 - project v10, library v7, block v5: written by release v0.7.2's code.
 - project v11: written by release v0.8.0's code.
-- demo v4, v5, v6, v7, v8, v9, v10, v11: written by releases v0.1.0, v0.3.0, v0.4.0, v0.5.0,
-  v0.6.0, v0.7.0, v0.7.2 and v0.8.0. Pictures: v4 by v0.2.0 (v0.1.0 had no Save image; both write
-  v4), v5 by v0.3.0, v6 by v0.4.0, v7 by v0.5.0, v8 by v0.6.0, v9 by v0.7.0, v10 by v0.7.2, v11 by
-  v0.8.0.
+- project v12, library v8, EPP v1: written by release v0.9.0's code.
+- demo v4, v5, v6, v7, v8, v9, v10, v11, v12: written by releases v0.1.0, v0.3.0, v0.4.0, v0.5.0,
+  v0.6.0, v0.7.0, v0.7.2, v0.8.0 and v0.9.0. Pictures: v4 by v0.2.0 (v0.1.0 had no Save image;
+  both write v4), v5 by v0.3.0, v6 by v0.4.0, v7 by v0.5.0, v8 by v0.6.0, v9 by v0.7.0, v10 by
+  v0.7.2, v11 by v0.8.0, v12 by v0.9.0.

@@ -26,7 +26,8 @@ Build order (owner, 2026-11-10), each phase stops for the owner to try it:
 
 **Language/Version**: TypeScript (strict), Vue 3, Quasar 2 (app-vite)
 
-**Primary Dependencies**: existing only (Pinia, Immer, TypeBox). No new dependency.
+**Primary Dependencies**: existing (Pinia, Immer, TypeBox), plus three.js 0.187 for the 3D
+assembly tab only (User Story 7, added 2026-11-23; see Complexity Tracking).
 
 **Storage**: `.rrq` v12 (`project.eppShapes`, `project.rosettes`, `EppLayout`, `quilt.epp`); `.rrqlib`
 v8 (item types `epp-shape`, `rosette`); new `.rrqepp` v1; settings `libraryType` and `projectTab`
@@ -115,6 +116,21 @@ stores, components, pages; tests mirror `src/model`.
 - **Help**: new guides (EPP shapes, rosettes, EPP quilts) in `src/help/guides/`, following the help
   style rules, as each phase lands.
 
+## 3D EPP (User Story 7, added 2026-11-23)
+
+Built on `027-epp-3d` from the prototypes on `proto/epp-3d` (`prototypes/epp3d/fold.html`,
+`stuff.html`). Model in `src/model/epp`: `fold.ts` (rigid plates, seams as hinges, shape matching
+with Müller 2016 rotation fits, curl start so the right side ends up out, settle, front), `stuff.ts`
+(each piece an even triangle mesh, 6 points per unit of edge, Delaunay over a lattice inside it;
+concave pieces keep rings from the middle; seams sewn by shared points, pressure and position-based
+edge lengths, squashing 3% as stiff as stretching), `net.ts` (a quilt's pieces and seams as a net, y flipped).
+Pure TypeScript, tested headless (fold.spec.ts, demo3d.spec.ts). `src/components/EppAssembly.vue`
+draws with three.js, imported dynamically so the main bundle doesn't grow; it renders only when
+something changes. Format: `EppLayout.threeD`, `EppDesign.seams` and `front` in rrq v12 (unreleased,
+so no version bump).
+
 ## Complexity Tracking
 
-No violations.
+| Violation | Why needed | Simpler alternative rejected because |
+| --- | --- | --- |
+| New runtime dependency three.js (V. Simplicity) | The 3D assembly tab draws lit, shadowed, turnable pieces with stitches; the owner chose three.js (2026-11-19) | The 3D Print preview's software renderer draws one solid without lighting, shadows or picking; growing it into a scene renderer would be far more code than the dependency. three.js is MIT, bundled (precached for offline) and loaded only when a 3D assembly tab opens. |

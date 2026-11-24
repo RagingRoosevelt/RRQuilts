@@ -6,6 +6,7 @@ import { parseLibrary } from '@/model/library-file';
 import { parseBlockFile } from '@/model/block-file';
 import { parseCollectionFile } from '@/model/collection-file';
 import { parseConf } from '@/settings/settings';
+import { parseEppFile } from '@/model/epp-file';
 
 const dir = 'test/fixtures/formats';
 const files = readdirSync(dir).filter((f) => /-v\d+\.rrq/.test(f));
@@ -17,6 +18,7 @@ describe('format samples', () => {
     expect([...kinds].sort()).toEqual([
       'block',
       'demo',
+      'epp',
       'library',
       'palette',
       'project',
@@ -34,7 +36,9 @@ describe('format samples', () => {
           ? parseBlockFile(text)
           : f.endsWith('.rrqplt')
             ? parseCollectionFile(text)
-            : parseConf(text);
+            : f.endsWith('.rrqepp')
+              ? parseEppFile(text)
+              : parseConf(text);
     expect(r.ok ? '' : r.error).toBe('');
     if ('skipped' in r) expect(r.skipped).toEqual([]);
     if ('invalid' in r) expect(r.invalid).toEqual([]);

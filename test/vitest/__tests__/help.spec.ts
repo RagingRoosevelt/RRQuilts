@@ -48,8 +48,13 @@ describe('help', () => {
   it('calculators use the printouts’ math: a 3″ half-square triangle is cut from 3⅞″', () => {
     const c = calcContext('in', printPrefs({}));
     expect(CALCULATORS.hst!.rows({ f: 3 }, c)[0]!.value).toContain('3⅞″ square');
+    // 6 mm seam allowance (owner, 2026-11-14): 8 + 0.6 × 3.5 = 10.1, up to the next 0.5 cm.
     const cm = calcContext('cm', printPrefs({}));
-    expect(CALCULATORS.hst!.rows({ f: 8 }, cm)[0]!.value).toContain('11 cm square');
+    expect(CALCULATORS.hst!.rows({ f: 8 }, cm)[0]!.value).toContain('10.5 cm square');
+    // The project's seam allowance when given.
+    expect(
+      CALCULATORS.hst!.rows({ f: 8 }, calcContext('cm', printPrefs({}), undefined, 0.75))[0]!.value,
+    ).toContain('11 cm square');
     for (const [name, calc] of Object.entries(CALCULATORS)) {
       const v = Object.fromEntries(calc.inputs.map((i) => [i.key, i.start.in]));
       expect(calc.rows(v, c).length, name).toBeGreaterThan(0);

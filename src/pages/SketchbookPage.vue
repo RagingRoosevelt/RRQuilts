@@ -17,6 +17,7 @@
         <q-tab name="quilts" :label="`Quilts (${quilts.length})`" />
         <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
         <q-tab name="colors" :label="`Palettes (${ownPalettes.length + pickedPalettes.length})`" />
+        <q-tab name="epp" :label="`EPP (${eppCount})`" />
         <q-tab name="photos" label="Photos" />
         <q-tab name="threads" label="Threads" />
         <q-tab name="details" label="Details" />
@@ -50,15 +51,12 @@
     </div>
     <q-separator class="q-mb-md" />
 
-    <!-- Data quilts (spec 025) or the others. -->
+    <!-- Quilts by type (data quilts spec 025; owner, 2026-11-23: block, patch and EPP too), only the
+         types the project has, and only when it has more than one. -->
     <SlidePicker
-      v-if="tab === 'quilts'"
+      v-if="tab === 'quilts' && kindOptions.length > 2"
       v-model="quiltKind"
-      :options="[
-        { value: 'all', label: 'All quilts' },
-        { value: 'data', label: 'Data quilts' },
-        { value: 'other', label: 'Other quilts' },
-      ]"
+      :options="kindOptions"
       label="Show"
       class="q-mb-md"
       style="max-width: 420px"
@@ -76,7 +74,7 @@
       </div>
       <div
         v-for="(q, i) in quilts"
-        v-show="quiltKind === 'all' || (quiltKind === 'data') === !!q.data?.on"
+        v-show="quiltKind === 'all' || kindOf.get(q.id) === quiltKind"
         :key="q.id"
         class="card"
         :class="[quiltGlow(i), { dragged: quiltFrom === i }]"
@@ -88,12 +86,13 @@
         <div class="relative-position">
           <button class="thumb" @click="openQuilt(q.id)">
             <img
-              :src="quiltThumbnail(project.doc, q, 240, $q.dark.isActive, true)"
+              :src="quiltPicture(project.doc, q, 240, $q.dark.isActive)"
               :alt="q.notecard.name"
               draggable="false"
             />
           </button>
           <QuiltColorways :quilt="q" :readonly="project.readOnly" />
+          <q-badge v-if="is3d(q)" color="primary" class="badge3d">3D</q-badge>
         </div>
         <div class="row items-center no-wrap">
           <button
@@ -612,6 +611,8 @@
     </template>
 
     <DetailsPanel v-else-if="tab === 'details'" kind="project" />
+
+    <EppItems v-else-if="tab === 'epp'" />
 
     <template v-else-if="tab === 'colors'">
       <div class="row no-wrap-md" style="gap: 16px">
@@ -1406,7 +1407,10 @@
     <QuiltWizard
       ref="wizard"
       :units="project.doc.units"
-      @create="(l, b, t, d) => startQuilt(l, b, t, false, d)"
+      :project-epp-seam="projectSeams(project.doc).epp"
+      :project-license="project.doc.project.license"
+      :next-name="`Quilt ${project.doc.project.quilts.length + 1}`"
+      @create="(l, b, t, d, s, x) => startQuilt(l, b, t, false, d, s, x)"
     />
     <!-- Tags (and technique on the project's own blocks), spec 029 -->
     <KeepWhichDialog
@@ -1474,6 +1478,10 @@ import { describeSlot } from '@/model/plain';
 import type { Block, DataKind } from '@/model/schema/block';
 import { saveBlockImage, saveQuiltImage } from '@/render/save-image';
 import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
+import { is3d, isEpp } from '@/model/epp/quilt-ops';
+import { useQuiltPicture } from '@/composables/quilt-picture';
+import { takesBlock } from '@/editor/scope';
+import { generateFor } from '@/model/layout/slots';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 import BlockSections from '@/components/BlockSections.vue';
@@ -1538,7 +1546,9 @@ import {
 import { collectionFile } from '@/model/collection-file';
 import type { LibraryDoc } from '@/model/schema/library';
 import { absorbFabrics, absorbImages, embedFabrics } from '@/storage/fabric-files';
+import EppItems from '@/components/EppItems.vue';
 import { importProjectQuilts } from '@/model/import-quilts';
+import { projectSeams } from '@/model/seams';
 import {
   fabricToUnits,
   isLibraryItem,
@@ -1591,6 +1601,11 @@ const inUseDialog = ref<{
   where: { quilt: string; spots: string[] }[];
   remove: () => void;
 } | null>(null);
+/** EPP shapes and rosettes of this project (spec 027 FR-013). */
+const eppCount = computed(
+  () =>
+    (project.doc?.project.eppShapes?.length ?? 0) + (project.doc?.project.rosettes?.length ?? 0),
+);
 const tab = computed({
   get: () => settings.settings.projectTab,
   set: (v) => (settings.settings.projectTab = v),
@@ -1625,7 +1640,46 @@ const {
 });
 
 const quilts = computed(() => project.doc!.project.quilts);
-const quiltKind = ref<'all' | 'data' | 'other'>('all');
+type QuiltKind = 'data' | 'blocks' | 'patches' | 'epp';
+const quiltKind = ref<'all' | QuiltKind>('all');
+// Short labels (owner, 2026-11-24: "change the switch titles to "all quilts", "data", "block",
+// "patch", "epp"").
+const KINDS: [QuiltKind, string][] = [
+  ['data', 'Data'],
+  ['blocks', 'Block'],
+  ['patches', 'Patch'],
+  ['epp', 'EPP'],
+];
+/** Each quilt's type: a data quilt, an EPP quilt (2D or 3D), else blocks when it has block spaces
+ *  (as the editor opens it on Set) or patches. */
+/** Card pictures: 3D EPP quilts as their folded object (owner, 2026-11-23). */
+const quiltPicture = useQuiltPicture();
+const kindOf = computed(
+  () =>
+    new Map(
+      quilts.value.map((q): [string, QuiltKind] => [
+        q.id,
+        q.data?.on
+          ? 'data'
+          : isEpp(q)
+            ? 'epp'
+            : generateFor(q).slots.some((s) => takesBlock(s))
+              ? 'blocks'
+              : 'patches',
+      ]),
+    ),
+);
+const kindOptions = computed(() => {
+  const have = new Set(kindOf.value.values());
+  return [
+    { value: 'all', label: 'All quilts' },
+    ...KINDS.filter(([k]) => have.has(k)).map(([value, label]) => ({ value, label })),
+  ];
+});
+// A type whose last quilt goes (deleted, or the only type left) falls back to All.
+watch(kindOptions, (o) => {
+  if (o.length <= 2 || !o.some((x) => x.value === quiltKind.value)) quiltKind.value = 'all';
+});
 const split = computed(() => {
   const own = project.doc!.project.blocks.filter((b) => !b.notecard.tags?.includes('system'));
   // My-library items this project has a linked copy of show once, as that copy in My blocks.
@@ -3184,6 +3238,12 @@ watch(
   top: 12px;
   left: 12px;
 }
+/* A 3D EPP quilt (spec 027 User Story 7), as in the EPP tab. */
+.card .badge3d {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
 .card .pick-box {
   position: absolute;
   top: 0;
@@ -3229,6 +3289,9 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 8px;
+  /* The same height with or without cards beside it (a card's height), not stretched by its row. */
+  align-self: start;
+  height: 204px;
 }
 .stack .card.add {
   flex: 1;
