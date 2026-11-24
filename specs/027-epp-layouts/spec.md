@@ -154,7 +154,7 @@ justification).
   sashing, and a variable patch without sashing. let's have a men's XL shirt back over the strips
   one and a queen XL over the on point quilt." Shaped Blocks has no sashing, so the shaped quilt is
   Diamond Point; the US list has no Queen XL, so the target is Queen (both the owner's picks, the
-  same day). A fourth demo, `traditional-epp.rrq` (third in the list): Grandmother's Flower Garden
+  same day). A fourth demo, `traditional-epp.rrq` (second in the list): Grandmother's Flower Garden
   (19-hexagon flowers in six colorings on a grid where they leave exactly one four-hexagon diamond
   between them, the leaves; cut straight, with a border of green squares), a Lone Star (eight
   points of 6 × 6 45° diamonds in rings, Auto-close setting pieces in cream) and Cube corners (each
@@ -164,7 +164,7 @@ justification).
   little groups of four green hexis between the flowers for leaves. do a cut border of green
   blocks", "do an epp diamond lone star", "and then do the optical illusion cube corners in the
   same epp demo", "I believe it's built from half hexis", "put borders on the lone star and cube
-  corners quilt demos". Building it found a bug: a library color used only as the Auto-close fill
+  corners quilt demos", "move traditional EPP to position 2 in the demo list". Building it found a bug: a library color used only as the Auto-close fill
   wasn't embedded in the project, so cards (which color from the project) drew the closing pieces
   white. Now embedded like any color in use. Both overlays inverted: the shirt back black at full strength, the bed #757575 at 15%.
   Owner, 2026-11-23: "for both overlays, do tint of #000000, max opacity, invert", then "actually,

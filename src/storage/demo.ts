@@ -12,18 +12,18 @@ export const DEMOS = [
     icon: 'grid_view',
   },
   {
-    file: 'temperature.rrq',
-    title: 'Temperature quilts',
-    about:
-      'A year of daily highs as 365 squares, a month per row, highs and lows week by week, and month pinwheels.',
-    icon: 'thermostat',
-  },
-  {
     file: 'traditional-epp.rrq',
     title: 'Traditional English paper piecing',
     about:
       'Grandmother’s Flower Garden with leaves and a green border, a Lone Star, and cube corners in half hexagons.',
     icon: 'hexagon',
+  },
+  {
+    file: 'temperature.rrq',
+    title: 'Temperature quilts',
+    about:
+      'A year of daily highs as 365 squares, a month per row, highs and lows week by week, and month pinwheels.',
+    icon: 'thermostat',
   },
   {
     file: '3d-epp.rrq',
