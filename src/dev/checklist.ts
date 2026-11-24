@@ -120,6 +120,13 @@ export const CHECKS: Check[] = [
     last: 'for determining closing, let’s allow up to 0.04U gaps',
     to: '/?open_demo=3d-epp.rrq',
   },
+  {
+    id: 'TC-346',
+    group: G.epp3d,
+    text: 'Your Moravian Star (3D EPP project), 3D assembly tab: Stuffing says Can be stuffed (every edge is sewn), not “Some edges are sewn only part of the way along”, and it stuffs. Its seams 65 and 66 sew edges that already touch in the flat design (pieces moved together after sewing): they’re harmless now; tap their numbers to unpick them if you like, nothing changes in 3D. To reproduce: in a 3D design sew two edges with the Seam tool, then move one piece so those edges touch.',
+    last: 'shy am I getting Can’t be stuffed. Some edges are sewn only part of the way along, so the shape is open.',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
