@@ -252,7 +252,7 @@ import StlPreview from '@/components/StlPreview.vue';
 import { useStl } from '@/composables/stl';
 import PrintZoom from '@/components/PrintZoom.vue';
 import { useEppSelection } from '@/composables/epp-selection';
-import { DUPLICATE_ID, movePose } from '@/model/epp/selection';
+import { DUPLICATE_ID, movePose, turnStops } from '@/model/epp/selection';
 import type { World } from '@/composables/viewport';
 import { fillFor } from '@/editor/paint';
 import { checkOutline, failing, passes, problems, unmarked } from '@/model/epp/checks';
@@ -648,8 +648,8 @@ function onTap(p: World) {
     // Snapped: turn to the next edge that fits the neighbor it lies along.
     const along = nextTurn(pickedPolysFor(piece.shape, piece), others);
     if (along) return edit((r) => movePiece(r, piece.id, snapPose(piece, along)));
-    const n = lookup.value.shape(piece.shape)?.outline.length ?? 4;
-    const pose: Pose = { ...piece, turn: piece.turn + 360 / n };
+    const step = 360 / turnStops(pickedPolysFor(piece.shape, piece));
+    const pose: Pose = { ...piece, turn: piece.turn + step };
     const s = snap(pickedPolysFor(piece.shape, pose), others, px(16), Math.PI / 12);
     const next = s ? snapPose(pose, s) : pose;
     return edit((r) => movePiece(r, piece.id, next));

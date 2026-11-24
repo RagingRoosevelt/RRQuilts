@@ -78,8 +78,9 @@ const gcd = (a: number, b: number): number => (b < 1e-3 ? a : gcd(b, a % b));
 
 /**
  * Stops in a full turn for one item (a shape, or a rosette's pieces together): 360° over the
- * largest angle that steps between all its edge directions (as lines). Hexagon 6, octagon 8, square
- * 4, triangles and 60° diamonds 6, the Hexi Kite 12.
+ * largest angle that steps between all its edge directions (as lines), and for a single shape the
+ * lcm of that and its corners (owner, 2026-11-24: "let's use the LCM of edge direction and the
+ * 360/#corners"). Hexagon 6, octagon 8, square 4, triangle 6, 60° diamond and Hexi Kite 12.
  * shortcut: a shape whose edges meet at odd angles (finer than 15°) counts its corners instead.
  */
 export function turnStops(polys: readonly Poly[]): number {
@@ -94,7 +95,10 @@ export function turnStops(polys: readonly Poly[]): number {
     if (diff > 1e-3 && diff < 180 - 1e-3) g = gcd(g, diff);
   }
   const n = Math.round(360 / g);
-  return n > 24 ? polys[0]!.length : n;
+  if (n > 24) return polys[0]!.length;
+  if (polys.length !== 1) return n;
+  const corners = polys[0]!.length;
+  return (n / gcd(n, corners)) * corners;
 }
 
 /**

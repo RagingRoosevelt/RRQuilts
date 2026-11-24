@@ -180,7 +180,7 @@ import { outerEdges, overlapping, type Edge, type Pose } from '@/model/epp/geome
 import { cellAt, gridKindFor, snapOrigin, type Lattice } from '@/model/epp/grid';
 import { attach } from '@/model/epp/grow';
 import { piecePose } from '@/model/epp/match';
-import { DUPLICATE_ID, movePose } from '@/model/epp/selection';
+import { DUPLICATE_ID, movePose, turnStops } from '@/model/epp/selection';
 import {
   addPiece,
   breakAll,
@@ -545,8 +545,7 @@ function onTap(p: World) {
     const others = staticEdges(leaves.value.filter((l) => l.piece !== piece.id).map((l) => l.poly));
     const along = nextTurn(polysOf(piece), others);
     if (along) return edit((q) => movePiece(q, piece.id, snapPose(piece, along)));
-    const n = piece.shape ? (lookup.value.shape(piece.shape)?.outline.length ?? 4) : 6;
-    const pose: Pose = { ...piece, turn: piece.turn + 360 / n };
+    const pose: Pose = { ...piece, turn: piece.turn + 360 / turnStops(polysOf(piece)) };
     const s = snap(polysOf({ ...piece, turn: pose.turn }), others, px(16), Math.PI / 12);
     return edit((q) => movePiece(q, piece.id, s ? snapPose(pose, s) : pose));
   }

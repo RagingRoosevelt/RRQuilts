@@ -71,6 +71,13 @@ export const CHECKS: Check[] = [
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
   },
+  {
+    id: 'TC-339',
+    group: G.epp027,
+    text: 'Turn steps. In a rosette and in an EPP quilt’s Design tab, place a Hexi Kite away from other pieces and tap it with Turn: it turns 30° a tap (12 taps round, was 90°). Others: 60° Diamond and Half Hexagon 30°, Triangle 60°, Pentagon 36°, 45° Diamond 45°, Half Square, Honeycomb and Elongated Hexagon 15°, Jewel 12°, Square 90°, Hexagon 60°, Octagon 45°. A kite snapped against a neighbor still turns to its next edge that fits. Select several pieces and Turn: steps from the lcm of each one’s stops (a kite with a hexagon: 30°).',
+    last: 'for rotation angles, the kite rotates by 90 degree incrments. we should consider the center-to-vertex angles that are present in addition to the number of vertices when deciding which angles to rotate by; let’s use the LCM of edge direction and the 360/#corners we were using before',
+    to: '/project',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

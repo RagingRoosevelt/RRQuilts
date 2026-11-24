@@ -115,15 +115,27 @@ describe('EPP selection moves as one', () => {
     }
   });
 
-  it('turn stops: hexagon 6, octagon 8, square 4, triangle and diamond 6, Hexi Kite 12', () => {
+  // Owner, 2026-11-24: "for rotation angles, the kite rotates by 90 degree incrments", then "let's
+  // use the LCM of edge direction and the 360/#corners we were using before".
+  it('turn stops: the lcm of edge directions and corners (Hexi Kite 12, not 4)', () => {
     const at = { at: [0, 0] as [number, number], turn: 17, scale: 1 };
     const stops = (id: string) => turnStops([place(shapes.find((s) => s.id === id)!.outline, at)]);
-    expect(stops('rrquilts.epp-hexagon')).toBe(6);
-    expect(stops('rrquilts.epp-octagon')).toBe(8);
-    expect(stops(sqId)).toBe(4);
-    expect(stops('rrquilts.epp-triangle')).toBe(6);
-    expect(stops('rrquilts.epp-60-diamond')).toBe(6);
-    expect(stops('rrquilts.epp-hexi-kite')).toBe(12);
+    const want: Record<string, number> = {
+      hexagon: 6,
+      octagon: 8,
+      square: 4,
+      triangle: 6,
+      pentagon: 10,
+      '60-diamond': 12,
+      '45-diamond': 8,
+      'hexi-kite': 12,
+      'half-hexagon': 12,
+      'half-square': 24,
+      honeycomb: 24,
+      'elongated-hexagon': 24,
+      jewel: 30,
+    };
+    for (const [id, n] of Object.entries(want)) expect(stops(`rrquilts.epp-${id}`), id).toBe(n);
     // A rosette counts its pieces together: the Six-Diamond Star turns in sixths.
     const star = rosettes.find((r) => r.notecard.name === 'Six-Diamond Star')!;
     const leaves = expand({ id: 's', rosette: star.id, ...at }, lookup).map((l) => l.poly);
@@ -136,6 +148,7 @@ describe('EPP selection moves as one', () => {
     const hex = poly('rrquilts.epp-hexagon');
     expect(turnStep([hex, poly('rrquilts.epp-octagon')])).toBe(15); // lcm(6, 8) = 24
     expect(turnStep([hex, poly(sqId)])).toBe(30); // lcm(6, 4) = 12
+    expect(turnStep([poly('rrquilts.epp-hexi-kite')])).toBe(30);
     expect(turnStep([hex, hex])).toBe(60);
   });
 
