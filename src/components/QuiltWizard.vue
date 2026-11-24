@@ -374,6 +374,60 @@
               :min="0.25"
             />
           </q-step>
+          <!-- Title, author, license and notes up front (owner, 2026-11-24); the quilt's Details
+               tab changes them later. -->
+          <q-step name="details" title="Details" icon="info">
+            <div class="column" style="gap: 12px">
+              <q-input
+                v-model="details.name"
+                dense
+                outlined
+                label="Title"
+                stack-label
+                :placeholder="nextName ?? 'Quilt 1'"
+                maxlength="100"
+              />
+              <q-input
+                v-model="details.author"
+                dense
+                outlined
+                label="Author"
+                stack-label
+                placeholder="anonymous"
+                maxlength="100"
+              />
+              <q-select
+                v-model="details.license"
+                :options="licenseOptions"
+                label="License"
+                dense
+                outlined
+                emit-value
+                map-options
+                :hint="LICENSES.find((l) => l.id === details.license)?.terms"
+              >
+                <template #option="scope">
+                  <q-item v-bind="scope.itemProps">
+                    <q-item-section>
+                      <q-item-label>{{ scope.opt.label }}</q-item-label>
+                      <q-item-label caption>{{ scope.opt.terms }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+              <q-input
+                v-model="details.notes"
+                dense
+                outlined
+                autogrow
+                type="textarea"
+                label="Notes"
+              />
+              <div class="text-caption text-grey-7">
+                The quilt’s Details tab changes these later.
+              </div>
+            </div>
+          </q-step>
         </q-stepper>
         <!-- Live preview of the layout as it's being chosen (beside the steps; below on phones). -->
         <div class="preview q-pa-md">
@@ -428,6 +482,8 @@
 
 <script setup lang="ts">
 import { eppDefaults } from '@/model/epp/quilt-ops';
+import { DEFAULT_LICENSE, LICENSES, licenseName } from '@/model/credits';
+import type { QuiltDetails } from '@/composables/start-quilt';
 import { SEAM_DEFAULTS, seamStep } from '@/model/seams';
 import DataSpaceCount from '@/components/DataSpaceCount.vue';
 import { defaultDataYear, newDataPlan, numberCount } from '@/model/data-quilt';
@@ -473,6 +529,9 @@ const props = defineProps<{
   units: 'in' | 'cm';
   /** The open project's EPP seam allowance; unset when the quilt starts a new project. */
   projectEppSeam?: number | undefined;
+  /** The open project's license (new quilts default to it) and the next default title. */
+  projectLicense?: string | undefined;
+  nextName?: string | undefined;
 }>();
 const emit = defineEmits<{
   create: [
@@ -482,6 +541,7 @@ const emit = defineEmits<{
     data?: DataPlan['plan'],
     /** An EPP quilt: the project's EPP seam allowance. */
     eppSeam?: number,
+    details?: QuiltDetails,
   ];
 }>();
 
@@ -501,13 +561,22 @@ const eppThreeD = ref(false);
 watch(eppThreeD, (on) => on && (step.value = 'blocks'));
 // Layout and target size first; the chosen layout's own settings next (spec 006 FR-001a). An EPP
 // quilt has no block spaces, so no size or sashing: its unit, then borders (its edge comes later).
-const steps = computed(() =>
-  mode.value !== 'epp'
+const steps = computed(() => [
+  ...(mode.value !== 'epp'
     ? ['blocks', 'detail', 'sashing', 'borders']
     : eppThreeD.value
       ? ['blocks']
-      : ['blocks', 'borders'],
-);
+      : ['blocks', 'borders']),
+  'details',
+]);
+const details = reactive<QuiltDetails>({ name: '', author: '', license: '', notes: '' });
+const licenseOptions = computed(() => [
+  ...LICENSES.map((l) => ({ value: l.id, label: l.name, terms: l.terms })),
+  // A project license we don't offer stays pickable as-is.
+  ...(details.license && !LICENSES.some((l) => l.id === details.license)
+    ? [{ value: details.license, label: licenseName(details.license), terms: '' }]
+    : []),
+]);
 const next = computed(() => steps.value[steps.value.indexOf(step.value) + 1]);
 const eppUnit = ref(eppDefaults(props.units).unit);
 /** The project's EPP seam allowance (`projectEppSeam`; a new project: the default), set on create. */
@@ -811,7 +880,7 @@ function create() {
       ...(eppThreeD.value ? { threeD: true as const } : {}),
     };
     const b = eppThreeD.value ? [] : borders.value;
-    return emit('create', layout, b, undefined, undefined, eppSeam.value);
+    return emit('create', layout, b, undefined, undefined, eppSeam.value, { ...details });
   }
   // A plain copy: the project freezes what it's given, and these are live, editable objects.
   const t = targetShape.value;
@@ -830,6 +899,8 @@ function create() {
     borders.value,
     target && (JSON.parse(JSON.stringify(target)) as QuiltTarget),
     dataOn.value ? (dataPlan.value as DataPlan['plan']) : undefined,
+    undefined,
+    { ...details },
   );
 }
 
@@ -857,6 +928,12 @@ function show() {
   stripLayout.value = stripDefaults(cm ? 2.5 : 1);
   loadTile();
   useEditorStore().selectedStrip = null;
+  Object.assign(details, {
+    name: '',
+    author: useSettingsStore().settings.author,
+    license: props.projectLicense ?? DEFAULT_LICENSE,
+    notes: '',
+  });
   open.value = true;
 }
 defineExpose({ show });
@@ -885,6 +962,16 @@ defineExpose({ show });
 .steps {
   flex: 1 1 400px;
   min-width: 0;
+}
+/* Five steps on one row: narrower tabs instead of a second header row. */
+.steps :deep(.q-stepper__header) {
+  flex-wrap: nowrap;
+}
+.steps :deep(.q-stepper__tab) {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-left: 4px;
+  padding-right: 4px;
 }
 .preview {
   flex: 1 1 260px;

@@ -72,18 +72,18 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-335',
-    group: G.epp027,
-    text: 'Project › Quilts › Show, in a project with more than one type of quilt (the v11 demo; or a demo with an EPP quilt added): the choices read All quilts, Data, Block, Patch, EPP (only the types the project has). Help › Sketchbook says the same.',
-    last: 'Let’s change the switch titles to "all quilts", "data", "block", "patch", "epp"',
-    file: 'demo-v11.rrq',
+    id: 'TC-337',
+    group: G.small,
+    text: 'New quilt wizard (Home › Start a quilt, or a project’s Quilts › New quilt), every type (blocks, patches, EPP, 3D EPP): the last step is Details with Title (blank shows the next name, Quilt N), Author (your name from Settings), License (the project’s, terms under it) and Notes. Fill them in and Create quilt: the quilt’s Details tab shows them. Leave them as they are: Quilt N, your name, the project’s license, no notes. Help › Getting started lists five steps.',
+    last: 'at the end of the new quilt wizard, add a "details" tab that has entry for title, author, license, notes',
+    to: '/',
   },
   {
-    id: 'TC-336',
-    group: G.epp3d,
-    text: 'Print a 3D demo design with explicit seams (Soccer ball, d12): the quilt picture page shows the flat design with each explicit seam’s two edges in its color but no numbers beside them, and no extra margin round the picture for them. The folded object below it as before.',
-    last: 'don’t show the seam join labels in the 2d quilt picture',
-    to: '/?open_demo=3d-epp.rrq',
+    id: 'TC-338',
+    group: G.small,
+    text: 'Home › Start a quilt with a project open (unsaved changes or not): no "Close …?" prompt; the wizard uses the project’s units and license and offers the next name; Create quilt adds the quilt to that project (Quilts tab shows it beside the others). With no project open: it starts a new project as before. With the project read-only in this tab (open in another tab): a new project.',
+    last: 'if there’s already a project open, the home page’s "start a quilt" should add a quilt to the existing project and skip creating a new project. it should only create a new project if there isn’t one already open.',
+    to: '/',
   },
 ];
 

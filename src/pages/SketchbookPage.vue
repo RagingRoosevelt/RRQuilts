@@ -1408,7 +1408,9 @@
       ref="wizard"
       :units="project.doc.units"
       :project-epp-seam="projectSeams(project.doc).epp"
-      @create="(l, b, t, d, s) => startQuilt(l, b, t, false, d, s)"
+      :project-license="project.doc.project.license"
+      :next-name="`Quilt ${project.doc.project.quilts.length + 1}`"
+      @create="(l, b, t, d, s, x) => startQuilt(l, b, t, false, d, s, x)"
     />
     <!-- Tags (and technique on the project's own blocks), spec 029 -->
     <KeepWhichDialog

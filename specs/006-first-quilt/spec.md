@@ -192,7 +192,11 @@ zoom, drag-pan, and Fit.
 - **FR-001**: "Start a quilt" MUST open a three-step skippable wizard (columns/rows + block size,
   sashing + sash border, borders) defaulting to 5×5 blocks of 10" (25 cm), no sashing, one 2" (5 cm)
   long-horizontal border. *Amended by spec 016 FR-013: the first step also picks the style
-  (Horizontal or On-Point), and a live preview shows the quilt as choices are made.*
+  (Horizontal or On-Point), and a live preview shows the quilt as choices are made.* *Amended
+  2026-11-24: a last step, **Details**, takes the title (blank: Quilt N), author (the settings'
+  author to start), license (the project's to start) and notes, as the quilt's Details tab has
+  them. Owner: "at the end of the new quilt wizard, add a "details" tab that has entry for title,
+  author, license, notes".*
 - **FR-001a**: The wizard's first page MUST pick the layout style and a target size: None (default),
   Placemat 18 × 13, Table runner 72 × 14, Wall hanging 36 × 36, Throw 50 × 65, or a bed by its
   mattress top: Crib 28 × 52, Twin 39 × 75, Double (Full) 54 × 75, Queen 60 × 80, King 76 × 80,

@@ -10,7 +10,7 @@
           label="Start a quilt"
           no-caps
           class="col"
-          @click="confirmLeave(() => wizard?.show())"
+          @click="wizard?.show()"
         />
         <HelpLink topic="guides/getting-started#start-a-quilt" label="Start a quilt" />
       </div>
@@ -225,10 +225,15 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <!-- With a project open (and editable here), the quilt joins it; otherwise it starts a new
+         project (owner, 2026-11-24). -->
     <QuiltWizard
       ref="wizard"
-      :units="settings.settings.units"
-      @create="(l, b, t, d, s) => startQuilt(l, b, t, true, d, s)"
+      :units="addTo?.units ?? settings.settings.units"
+      :project-epp-seam="addTo ? projectSeams(addTo).epp : undefined"
+      :project-license="addTo?.project.license"
+      :next-name="`Quilt ${(addTo?.project.quilts.length ?? 0) + 1}`"
+      @create="(l, b, t, d, s, x) => startQuilt(l, b, t, !addTo, d, s, x)"
     />
   </q-page>
 </template>
@@ -251,6 +256,7 @@ import DemoList from '@/components/DemoList.vue';
 import { useProjectStore } from '@/stores/project';
 import { useOpenProject } from '@/composables/open-project';
 import { useStartQuilt } from '@/composables/start-quilt';
+import { projectSeams } from '@/model/seams';
 import QuiltWizard from '@/components/QuiltWizard.vue';
 import RestoreDrafts from '@/components/RestoreDrafts.vue';
 import DataEntryDialog from '@/components/DataEntryDialog.vue';
@@ -270,6 +276,8 @@ const settings = useSettingsStore();
 const wizard = ref<InstanceType<typeof QuiltWizard>>();
 const backups = ref<InstanceType<typeof RestoreDrafts>>();
 const startQuilt = useStartQuilt();
+/** The project Start a quilt adds to: the open one, unless it's read-only here. */
+const addTo = computed(() => (project.isOpen && !project.readOnly ? project.doc : null));
 
 onMounted(async () => {
   if (route.query.notice === 'open-project') {

@@ -9,8 +9,9 @@ work lives in a **project**, one file (ending in `.rrq`) that holds your quilts,
 
 ## Start a quilt
 
-1. On the home page (the **RRQuilts** button in the header), choose **Start a quilt**.
-2. The wizard has four steps. Use **Next** to move on, or click a step's title. A picture of the
+1. On the home page (the **RRQuilts** button in the header), choose **Start a quilt**. With a
+   project open, the new quilt is added to it. Otherwise the quilt starts a new project.
+2. The wizard has five steps. Use **Next** to move on, or click a step's title. A picture of the
    quilt beside the steps (under them on a phone) changes as you choose.
    - **Layout** picks the style, such as **Straight Set** (blocks in rows and columns), **On-Point**
      (blocks turned to sit as diamonds), **One Patch**, or **Strips**. **Target size** can show a
@@ -30,6 +31,9 @@ work lives in a **project**, one file (ending in `.rrq`) that holds your quilts,
    - **Sashing** has **Sashing width (0 for none)**. Horizontal quilts can also have **Sashing
      around the outside**.
    - **Borders** takes the **Number of borders** and the **Width of each**.
+   - **Details** takes the quilt's **Title** (left blank, it's Quilt 1, Quilt 2 and so on),
+     **Author** (your name from Settings to start with), **License** (the project's to start with)
+     and **Notes**. The quilt's **Details** tab changes them later.
 3. Choose **Create quilt**. The quilt opens in the Design tab, ready for you to place blocks. See
    [Designing a quilt](/help/guides/designing-a-quilt).
 

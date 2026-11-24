@@ -215,7 +215,11 @@ chart; editing controls are absent with a "edit on tablet or desktop" note.
 **First run & help**
 
 - **FR-050**: "Start a quilt" MUST open a three-step skippable wizard (layout, blocks, borders) ending
-  in the quilt editor.
+  in the quilt editor. *Amended 2026-11-24: with a project open (and editable in this tab) the quilt
+  is added to it, with no prompt to close it; only with none open does it start a new project.
+  Owner: "if there's already a project open, the home page's "start a quilt" should add a quilt to
+  the existing project and skip creating a new project. it should only create a new project if
+  there isn't one already open."*
 - **FR-051**: Samples MUST open as untitled copies.
 - **FR-052**: Each editor mode MUST show one dismissible first-use hint; hints can be reset in
   Settings. No forced tour.
