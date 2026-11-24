@@ -113,6 +113,13 @@ export const CHECKS: Check[] = [
     last: 'let’s also add a toggle for highlighting seams that are being stretched in the fold because they’re crossing really far or something. threshold should be 0.1u, maybe?',
     to: '/?open_demo=3d-epp.rrq',
   },
+  {
+    id: 'TC-345',
+    group: G.epp3d,
+    text: 'Closing tolerance 0.04U. The 3D EPP demo’s designs that closed still say “Folded: every seam closes.” A design of yours whose seams were listed as Not closing with gaps of 0.02U to 0.04U (“gaps up to 0.03U”) now says every seam closes. Gaps over 0.04U are still listed and red. Help › 3D EPP says “to within 0.04U”.',
+    last: 'for determining closing, let’s allow up to 0.04U gaps',
+    to: '/?open_demo=3d-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

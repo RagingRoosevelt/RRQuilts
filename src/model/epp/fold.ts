@@ -142,8 +142,9 @@ export interface Fold {
 }
 
 const EDGE_EPS = 1e-6;
-/** A seam counts as closed within 2% of a unit. */
-export const CLOSED = 0.02;
+/** A seam counts as closed within 4% of a unit (owner, 2026-11-24: "for determining closing,
+ *  let's allow up to 0.04U gaps"; was 2%). */
+export const CLOSED = 0.04;
 /** How hard each hinge springs back toward flat, per pass. */
 const BEND = 0.05;
 

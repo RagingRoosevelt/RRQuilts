@@ -728,7 +728,8 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
   apart once folded, counted, their edges and stitches (shown closed up too) in pink, the rest
   faded. Owner, 2026-11-24: "let's also add a toggle for highlighting seams that are being stretched
   in the fold because they're crossing really far or something. threshold should be 0.1u,
-  maybe?".
+  maybe?". A seam counts as closed when its ends meet within 0.04U (was 0.02U). Owner,
+  2026-11-24: "for determining closing, let's allow up to 0.04U gaps".
   Owner, 2026-11-23: "let's allow click-to-orbit on the 3d preview in the printout. we'll record
   the orientation. clicking switches from showing an image to the orbitable view and mouse exit or
   15seconds uninteracted will revert back to image view".
