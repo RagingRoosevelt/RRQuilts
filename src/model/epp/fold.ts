@@ -142,8 +142,9 @@ export interface Fold {
 }
 
 const EDGE_EPS = 1e-6;
-/** A seam counts as closed within 2% of a unit. */
-export const CLOSED = 0.02;
+/** A seam counts as closed within 4% of a unit (owner, 2026-11-24: "for determining closing,
+ *  let's allow up to 0.04U gaps"; was 2%). */
+export const CLOSED = 0.04;
 /** How hard each hinge springs back toward flat, per pass. */
 const BEND = 0.05;
 
@@ -208,6 +209,10 @@ export function buildFold(net: Net): Fold {
   net.seams.forEach((s, k) => {
     const [a0, a1] = edgeOf(net.pieces[s.a.piece]!, s.a.edge);
     const [b0, b1] = edgeOf(net.pieces[s.b.piece]!, s.b.edge);
+    // Edges that touch are sewn already: a seam sewn between them (made while the pieces were
+    // apart, then moved together) would sew them twice and the shape would never count as closed
+    // (owner's Moravian Star, 2026-11-24).
+    if (overlap(a0, a1, b0, b1)) return;
     hinges.push({ seam: k, A: s.a.piece, B: s.b.piece, pa: [a0, a1], pb: [b1, b0] });
     use[s.a.piece]![s.a.edge] = use[s.b.piece]![s.b.edge] = k;
   });
@@ -244,6 +249,7 @@ export function buildFold(net: Net): Fold {
     0,
   );
   const sewn = full.reduce((s, h) => s + 2 * len2(sub2(h.pa[1], h.pa[0])), 0);
+  const edgeCount = plates.reduce((n, P) => n + P.pts.length, 0);
   const m: Fold = {
     net,
     plates,
@@ -252,7 +258,8 @@ export function buildFold(net: Net): Fold {
     use,
     assemblyOf,
     assemblies: new Set(assemblyOf).size,
-    closed: plates.length > 0 && Math.abs(perimeter - sewn) < 1e-6,
+    // Rounding adds up over many edges (marked lengths aren't whole): a millionth per edge.
+    closed: plates.length > 0 && Math.abs(perimeter - sewn) < 1e-6 * edgeCount,
     q: [],
     t: [],
     run: { phase: 'fold', iters: 0, frames: 0, calm: 0, settle: 0, best: Infinity, since: 0 },

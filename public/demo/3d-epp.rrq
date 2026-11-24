@@ -4,7 +4,7 @@
   "app": "demo",
   "units": "in",
   "project": {
-    "id": "l4hdnu0iwf",
+    "id": "waofantz7w",
     "name": "3D EPP demo",
     "palette": {
       "fabrics": [],
@@ -264,6 +264,102 @@
           },
           "revision": 1,
           "version": "0b930723be95"
+        },
+        {
+          "id": "rrquilts.pink",
+          "notecard": {"name": "Pink"},
+          "rgb": [240, 168, 184],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.pink",
+            "revision": 1,
+            "name": "Pink",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "4968a0d81ea6"
+        },
+        {
+          "id": "rrquilts.barn-red",
+          "notecard": {"name": "Barn Red"},
+          "rgb": [140, 34, 38],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.barn-red",
+            "revision": 1,
+            "name": "Barn Red",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "ab6028a5ec1f"
+        },
+        {
+          "id": "rrquilts.butter",
+          "notecard": {"name": "Butter"},
+          "rgb": [250, 236, 160],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.butter",
+            "revision": 1,
+            "name": "Butter",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "8300aa0a358a"
+        },
+        {
+          "id": "rrquilts.brown",
+          "notecard": {"name": "Brown"},
+          "rgb": [120, 80, 50],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.brown",
+            "revision": 1,
+            "name": "Brown",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "88306c7c09d0"
+        },
+        {
+          "id": "rrquilts.tan",
+          "notecard": {"name": "Tan"},
+          "rgb": [205, 180, 140],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.tan",
+            "revision": 1,
+            "name": "Tan",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "30468d5ed201"
+        },
+        {
+          "id": "rrquilts.linen",
+          "notecard": {"name": "Linen"},
+          "rgb": [230, 220, 200],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.linen",
+            "revision": 1,
+            "name": "Linen",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1,
+          "version": "7629f55472ce"
         }
       ],
       "threads": []
@@ -273,7 +369,7 @@
     "embroidery": [],
     "quilts": [
       {
-        "id": "i30je6qust",
+        "id": "3x4g7no7tn",
         "notecard": {"name": "Star pillow"},
         "layout": {
           "style": "epp",
@@ -297,7 +393,7 @@
               "turn": -90,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.red"}},
-              "id": "jfo1awmbhc"
+              "id": "s9tvlybahv"
             },
             {
               "shape": "rrquilts.epp-60-diamond",
@@ -305,7 +401,7 @@
               "turn": -150,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.rose"}},
-              "id": "m9jklokne6"
+              "id": "71hyjhf0rk"
             },
             {
               "shape": "rrquilts.epp-60-diamond",
@@ -313,7 +409,7 @@
               "turn": -210,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.red"}},
-              "id": "kras1zreqk"
+              "id": "2lqx25d5bc"
             },
             {
               "shape": "rrquilts.epp-60-diamond",
@@ -321,7 +417,7 @@
               "turn": -270,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.rose"}},
-              "id": "7mu1ej4l3t"
+              "id": "h5zr4y6upe"
             },
             {
               "shape": "rrquilts.epp-60-diamond",
@@ -329,7 +425,7 @@
               "turn": -330,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.red"}},
-              "id": "ylxzm83yhf"
+              "id": "qd7f4ks9fs"
             },
             {
               "shape": "rrquilts.epp-60-diamond",
@@ -337,7 +433,7 @@
               "turn": -30,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.rose"}},
-              "id": "6oyxx3mnrd"
+              "id": "cogexd8tzo"
             },
             {
               "shape": "rrquilts.epp-60-diamond",
@@ -345,7 +441,7 @@
               "turn": -90,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.purple"}},
-              "id": "d1tgh48rvx"
+              "id": "bbnz7daati"
             },
             {
               "shape": "rrquilts.epp-60-diamond",
@@ -353,7 +449,7 @@
               "turn": -150,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.lavender"}},
-              "id": "bg2n3pp6dh"
+              "id": "9wls3jepl5"
             },
             {
               "shape": "rrquilts.epp-60-diamond",
@@ -361,7 +457,7 @@
               "turn": -210,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.purple"}},
-              "id": "r5hid9t51l"
+              "id": "qb246xcaqk"
             },
             {
               "shape": "rrquilts.epp-60-diamond",
@@ -369,7 +465,7 @@
               "turn": -270,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.lavender"}},
-              "id": "0ollle71yz"
+              "id": "yiybcmrl54"
             },
             {
               "shape": "rrquilts.epp-60-diamond",
@@ -377,7 +473,7 @@
               "turn": -330,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.purple"}},
-              "id": "1khpe8cboo"
+              "id": "jok1n23fo6"
             },
             {
               "shape": "rrquilts.epp-60-diamond",
@@ -385,57 +481,57 @@
               "turn": -30,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.lavender"}},
-              "id": "aaoubksx2i"
+              "id": "kx8ca678wx"
             }
           ],
           "seams": [
             {
-              "a": {"piece": "jfo1awmbhc", "edge": 1},
-              "b": {"piece": "d1tgh48rvx", "edge": 1}
+              "a": {"piece": "s9tvlybahv", "edge": 1},
+              "b": {"piece": "bbnz7daati", "edge": 1}
             },
             {
-              "a": {"piece": "jfo1awmbhc", "edge": 2},
-              "b": {"piece": "aaoubksx2i", "edge": 2}
+              "a": {"piece": "s9tvlybahv", "edge": 2},
+              "b": {"piece": "kx8ca678wx", "edge": 2}
             },
             {
-              "a": {"piece": "m9jklokne6", "edge": 1},
-              "b": {"piece": "aaoubksx2i", "edge": 1}
+              "a": {"piece": "71hyjhf0rk", "edge": 1},
+              "b": {"piece": "kx8ca678wx", "edge": 1}
             },
             {
-              "a": {"piece": "m9jklokne6", "edge": 2},
-              "b": {"piece": "1khpe8cboo", "edge": 2}
+              "a": {"piece": "71hyjhf0rk", "edge": 2},
+              "b": {"piece": "jok1n23fo6", "edge": 2}
             },
             {
-              "a": {"piece": "kras1zreqk", "edge": 1},
-              "b": {"piece": "1khpe8cboo", "edge": 1}
+              "a": {"piece": "2lqx25d5bc", "edge": 1},
+              "b": {"piece": "jok1n23fo6", "edge": 1}
             },
             {
-              "a": {"piece": "kras1zreqk", "edge": 2},
-              "b": {"piece": "0ollle71yz", "edge": 2}
+              "a": {"piece": "2lqx25d5bc", "edge": 2},
+              "b": {"piece": "yiybcmrl54", "edge": 2}
             },
             {
-              "a": {"piece": "7mu1ej4l3t", "edge": 1},
-              "b": {"piece": "0ollle71yz", "edge": 1}
+              "a": {"piece": "h5zr4y6upe", "edge": 1},
+              "b": {"piece": "yiybcmrl54", "edge": 1}
             },
             {
-              "a": {"piece": "7mu1ej4l3t", "edge": 2},
-              "b": {"piece": "r5hid9t51l", "edge": 2}
+              "a": {"piece": "h5zr4y6upe", "edge": 2},
+              "b": {"piece": "qb246xcaqk", "edge": 2}
             },
             {
-              "a": {"piece": "ylxzm83yhf", "edge": 1},
-              "b": {"piece": "r5hid9t51l", "edge": 1}
+              "a": {"piece": "qd7f4ks9fs", "edge": 1},
+              "b": {"piece": "qb246xcaqk", "edge": 1}
             },
             {
-              "a": {"piece": "ylxzm83yhf", "edge": 2},
-              "b": {"piece": "bg2n3pp6dh", "edge": 2}
+              "a": {"piece": "qd7f4ks9fs", "edge": 2},
+              "b": {"piece": "9wls3jepl5", "edge": 2}
             },
             {
-              "a": {"piece": "6oyxx3mnrd", "edge": 1},
-              "b": {"piece": "bg2n3pp6dh", "edge": 1}
+              "a": {"piece": "cogexd8tzo", "edge": 1},
+              "b": {"piece": "9wls3jepl5", "edge": 1}
             },
             {
-              "a": {"piece": "6oyxx3mnrd", "edge": 2},
-              "b": {"piece": "d1tgh48rvx", "edge": 2}
+              "a": {"piece": "cogexd8tzo", "edge": 2},
+              "b": {"piece": "bbnz7daati", "edge": 2}
             }
           ],
           "box": [-1.7320508075688772, -1.5, 6.196152422706631, 1.5000000000000004]
@@ -444,7 +540,7 @@
         "license": "CC-BY-SA-4.0"
       },
       {
-        "id": "4ojsxaf7bx",
+        "id": "dyizwnaepj",
         "notecard": {"name": "Twisted pincushion"},
         "layout": {
           "style": "epp",
@@ -468,7 +564,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.gold"}},
-              "id": "stkyv6jlk8"
+              "id": "pyj5xsyu2v"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -476,7 +572,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.sky"}},
-              "id": "f83zi5e0ja"
+              "id": "6vqxh0f3uo"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -484,7 +580,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.sky"}},
-              "id": "smgx2dykdc"
+              "id": "wv8xfdivwy"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -492,7 +588,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.sky"}},
-              "id": "ybvdsofpwg"
+              "id": "quxcnxrk55"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -500,7 +596,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.sky"}},
-              "id": "zwcdr89kno"
+              "id": "ccbib84cjj"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -508,7 +604,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.sky"}},
-              "id": "lubi8wdp4r"
+              "id": "8eeuka6y6i"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -516,7 +612,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.sky"}},
-              "id": "hnicfrhin1"
+              "id": "g2eta3x9bz"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -524,7 +620,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.gold"}},
-              "id": "cngkl1673a"
+              "id": "bjgg1ziq59"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -532,7 +628,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.coral"}},
-              "id": "9esi94nhyo"
+              "id": "7wih7xn6qg"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -540,7 +636,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.coral"}},
-              "id": "3it9j9yd09"
+              "id": "sn9nznt00s"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -548,7 +644,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.coral"}},
-              "id": "cu198tswfj"
+              "id": "k1ff13am0o"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -556,7 +652,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.coral"}},
-              "id": "gghl5m0d19"
+              "id": "v722ptgn7t"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -564,7 +660,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.coral"}},
-              "id": "ssxkykhork"
+              "id": "43gxib7f53"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -572,81 +668,81 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.coral"}},
-              "id": "66zqhbk5o0"
+              "id": "41vubfbdde"
             }
           ],
           "seams": [
             {
-              "a": {"piece": "smgx2dykdc", "edge": 0},
-              "b": {"piece": "3it9j9yd09", "edge": 0}
+              "a": {"piece": "wv8xfdivwy", "edge": 0},
+              "b": {"piece": "sn9nznt00s", "edge": 0}
             },
             {
-              "a": {"piece": "smgx2dykdc", "edge": 1},
-              "b": {"piece": "9esi94nhyo", "edge": 1}
+              "a": {"piece": "wv8xfdivwy", "edge": 1},
+              "b": {"piece": "7wih7xn6qg", "edge": 1}
             },
             {
-              "a": {"piece": "smgx2dykdc", "edge": 2},
-              "b": {"piece": "9esi94nhyo", "edge": 0}
+              "a": {"piece": "wv8xfdivwy", "edge": 2},
+              "b": {"piece": "7wih7xn6qg", "edge": 0}
             },
             {
-              "a": {"piece": "ybvdsofpwg", "edge": 1},
-              "b": {"piece": "9esi94nhyo", "edge": 5}
+              "a": {"piece": "quxcnxrk55", "edge": 1},
+              "b": {"piece": "7wih7xn6qg", "edge": 5}
             },
             {
-              "a": {"piece": "ybvdsofpwg", "edge": 2},
-              "b": {"piece": "66zqhbk5o0", "edge": 0}
+              "a": {"piece": "quxcnxrk55", "edge": 2},
+              "b": {"piece": "41vubfbdde", "edge": 0}
             },
             {
-              "a": {"piece": "ybvdsofpwg", "edge": 3},
-              "b": {"piece": "66zqhbk5o0", "edge": 5}
+              "a": {"piece": "quxcnxrk55", "edge": 3},
+              "b": {"piece": "41vubfbdde", "edge": 5}
             },
             {
-              "a": {"piece": "zwcdr89kno", "edge": 2},
-              "b": {"piece": "66zqhbk5o0", "edge": 4}
+              "a": {"piece": "ccbib84cjj", "edge": 2},
+              "b": {"piece": "41vubfbdde", "edge": 4}
             },
             {
-              "a": {"piece": "zwcdr89kno", "edge": 3},
-              "b": {"piece": "ssxkykhork", "edge": 5}
+              "a": {"piece": "ccbib84cjj", "edge": 3},
+              "b": {"piece": "43gxib7f53", "edge": 5}
             },
             {
-              "a": {"piece": "zwcdr89kno", "edge": 4},
-              "b": {"piece": "ssxkykhork", "edge": 4}
+              "a": {"piece": "ccbib84cjj", "edge": 4},
+              "b": {"piece": "43gxib7f53", "edge": 4}
             },
             {
-              "a": {"piece": "lubi8wdp4r", "edge": 3},
-              "b": {"piece": "ssxkykhork", "edge": 3}
+              "a": {"piece": "8eeuka6y6i", "edge": 3},
+              "b": {"piece": "43gxib7f53", "edge": 3}
             },
             {
-              "a": {"piece": "lubi8wdp4r", "edge": 4},
-              "b": {"piece": "gghl5m0d19", "edge": 4}
+              "a": {"piece": "8eeuka6y6i", "edge": 4},
+              "b": {"piece": "v722ptgn7t", "edge": 4}
             },
             {
-              "a": {"piece": "lubi8wdp4r", "edge": 5},
-              "b": {"piece": "gghl5m0d19", "edge": 3}
+              "a": {"piece": "8eeuka6y6i", "edge": 5},
+              "b": {"piece": "v722ptgn7t", "edge": 3}
             },
             {
-              "a": {"piece": "hnicfrhin1", "edge": 4},
-              "b": {"piece": "gghl5m0d19", "edge": 2}
+              "a": {"piece": "g2eta3x9bz", "edge": 4},
+              "b": {"piece": "v722ptgn7t", "edge": 2}
             },
             {
-              "a": {"piece": "hnicfrhin1", "edge": 5},
-              "b": {"piece": "cu198tswfj", "edge": 3}
+              "a": {"piece": "g2eta3x9bz", "edge": 5},
+              "b": {"piece": "k1ff13am0o", "edge": 3}
             },
             {
-              "a": {"piece": "hnicfrhin1", "edge": 0},
-              "b": {"piece": "cu198tswfj", "edge": 2}
+              "a": {"piece": "g2eta3x9bz", "edge": 0},
+              "b": {"piece": "k1ff13am0o", "edge": 2}
             },
             {
-              "a": {"piece": "f83zi5e0ja", "edge": 5},
-              "b": {"piece": "cu198tswfj", "edge": 1}
+              "a": {"piece": "6vqxh0f3uo", "edge": 5},
+              "b": {"piece": "k1ff13am0o", "edge": 1}
             },
             {
-              "a": {"piece": "f83zi5e0ja", "edge": 0},
-              "b": {"piece": "3it9j9yd09", "edge": 2}
+              "a": {"piece": "6vqxh0f3uo", "edge": 0},
+              "b": {"piece": "sn9nznt00s", "edge": 2}
             },
             {
-              "a": {"piece": "f83zi5e0ja", "edge": 1},
-              "b": {"piece": "3it9j9yd09", "edge": 1}
+              "a": {"piece": "6vqxh0f3uo", "edge": 1},
+              "b": {"piece": "sn9nznt00s", "edge": 1}
             }
           ],
           "box": [-2.5, -2.598076211353316, 8.5, 2.598076211353316]
@@ -655,7 +751,7 @@
         "license": "CC-BY-SA-4.0"
       },
       {
-        "id": "pc8tc0lf42",
+        "id": "hpf7vonui7",
         "notecard": {"name": "d4 (tetrahedron)"},
         "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
         "borders": [],
@@ -673,7 +769,7 @@
               "turn": 60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "cwc2bvb59b"
+              "id": "82lnb5p28n"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -681,7 +777,7 @@
               "turn": 0,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "iwk02tq2t3"
+              "id": "xuv1oabba8"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -689,7 +785,7 @@
               "turn": -240,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "iy14f0ckqh"
+              "id": "hb2a1psyzf"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -697,21 +793,21 @@
               "turn": 0,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "94oo62i0lz"
+              "id": "ynxfva9lmp"
             }
           ],
           "seams": [
             {
-              "a": {"piece": "iy14f0ckqh", "edge": 1},
-              "b": {"piece": "iwk02tq2t3", "edge": 0}
+              "a": {"piece": "hb2a1psyzf", "edge": 1},
+              "b": {"piece": "xuv1oabba8", "edge": 0}
             },
             {
-              "a": {"piece": "iwk02tq2t3", "edge": 2},
-              "b": {"piece": "94oo62i0lz", "edge": 2}
+              "a": {"piece": "xuv1oabba8", "edge": 2},
+              "b": {"piece": "ynxfva9lmp", "edge": 2}
             },
             {
-              "a": {"piece": "94oo62i0lz", "edge": 1},
-              "b": {"piece": "iy14f0ckqh", "edge": 2}
+              "a": {"piece": "ynxfva9lmp", "edge": 1},
+              "b": {"piece": "hb2a1psyzf", "edge": 2}
             }
           ],
           "box": [-1, -0.8660254037844386, 1, 0.8660254037844387]
@@ -720,7 +816,7 @@
         "license": "CC-BY-SA-4.0"
       },
       {
-        "id": "w6y18qn1e2",
+        "id": "0vhgtykegc",
         "notecard": {"name": "d6 (cube)"},
         "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
         "borders": [],
@@ -738,7 +834,7 @@
               "turn": 0,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.green"}},
-              "id": "or4ba35xwc"
+              "id": "ilx78blit1"
             },
             {
               "shape": "rrquilts.epp-square",
@@ -746,7 +842,7 @@
               "turn": -90,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.blue"}},
-              "id": "0i4xr4juks"
+              "id": "m8p8u75p5e"
             },
             {
               "shape": "rrquilts.epp-square",
@@ -754,7 +850,7 @@
               "turn": -270,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.yellow"}},
-              "id": "00qgwfwwo6"
+              "id": "ekk3xll53n"
             },
             {
               "shape": "rrquilts.epp-square",
@@ -762,7 +858,7 @@
               "turn": 0,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "r6zp6fw6wu"
+              "id": "kg52y7xiuj"
             },
             {
               "shape": "rrquilts.epp-square",
@@ -770,7 +866,7 @@
               "turn": 0,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.red"}},
-              "id": "3jgzrpbt1a"
+              "id": "eld7zk1qgr"
             },
             {
               "shape": "rrquilts.epp-square",
@@ -778,37 +874,37 @@
               "turn": -90,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.purple"}},
-              "id": "dk78kl8unb"
+              "id": "d8hlh851fs"
             }
           ],
           "seams": [
             {
-              "a": {"piece": "0i4xr4juks", "edge": 2},
-              "b": {"piece": "3jgzrpbt1a", "edge": 0}
+              "a": {"piece": "m8p8u75p5e", "edge": 2},
+              "b": {"piece": "eld7zk1qgr", "edge": 0}
             },
             {
-              "a": {"piece": "00qgwfwwo6", "edge": 1},
-              "b": {"piece": "0i4xr4juks", "edge": 0}
+              "a": {"piece": "ekk3xll53n", "edge": 1},
+              "b": {"piece": "m8p8u75p5e", "edge": 0}
             },
             {
-              "a": {"piece": "00qgwfwwo6", "edge": 2},
-              "b": {"piece": "dk78kl8unb", "edge": 0}
+              "a": {"piece": "ekk3xll53n", "edge": 2},
+              "b": {"piece": "d8hlh851fs", "edge": 0}
             },
             {
-              "a": {"piece": "3jgzrpbt1a", "edge": 2},
-              "b": {"piece": "r6zp6fw6wu", "edge": 3}
+              "a": {"piece": "eld7zk1qgr", "edge": 2},
+              "b": {"piece": "kg52y7xiuj", "edge": 3}
             },
             {
-              "a": {"piece": "dk78kl8unb", "edge": 2},
-              "b": {"piece": "3jgzrpbt1a", "edge": 3}
+              "a": {"piece": "d8hlh851fs", "edge": 2},
+              "b": {"piece": "eld7zk1qgr", "edge": 3}
             },
             {
-              "a": {"piece": "r6zp6fw6wu", "edge": 1},
-              "b": {"piece": "00qgwfwwo6", "edge": 3}
+              "a": {"piece": "kg52y7xiuj", "edge": 1},
+              "b": {"piece": "ekk3xll53n", "edge": 3}
             },
             {
-              "a": {"piece": "r6zp6fw6wu", "edge": 2},
-              "b": {"piece": "dk78kl8unb", "edge": 3}
+              "a": {"piece": "kg52y7xiuj", "edge": 2},
+              "b": {"piece": "d8hlh851fs", "edge": 3}
             }
           ],
           "box": [-1.5, -2, 1.5, 2]
@@ -817,7 +913,7 @@
         "license": "CC-BY-SA-4.0"
       },
       {
-        "id": "blj4xdja2h",
+        "id": "soigjj9mu8",
         "notecard": {"name": "d8 (octahedron)"},
         "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
         "borders": [],
@@ -835,7 +931,7 @@
               "turn": 60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "q3hhxbxe7v"
+              "id": "mjgldz5bny"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -843,7 +939,7 @@
               "turn": 0,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "val9hy21h2"
+              "id": "e4d7kd9dle"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -851,7 +947,7 @@
               "turn": -240,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "lb09b5f57n"
+              "id": "vmgcx2cfyc"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -859,7 +955,7 @@
               "turn": -120,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "0e8xzp0r05"
+              "id": "dv6v1vcvq0"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -867,7 +963,7 @@
               "turn": -60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "mn61w9lkiy"
+              "id": "koko97juc2"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -875,7 +971,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "yi81wg70ps"
+              "id": "591enn5ort"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -883,7 +979,7 @@
               "turn": -60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "aled2giswl"
+              "id": "3fi0j3xikq"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -891,29 +987,29 @@
               "turn": -240,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "omlw85udyt"
+              "id": "qc6x3cphxa"
             }
           ],
           "seams": [
             {
-              "a": {"piece": "lb09b5f57n", "edge": 1},
-              "b": {"piece": "mn61w9lkiy", "edge": 0}
+              "a": {"piece": "vmgcx2cfyc", "edge": 1},
+              "b": {"piece": "koko97juc2", "edge": 0}
             },
             {
-              "a": {"piece": "0e8xzp0r05", "edge": 1},
-              "b": {"piece": "yi81wg70ps", "edge": 0}
+              "a": {"piece": "dv6v1vcvq0", "edge": 1},
+              "b": {"piece": "591enn5ort", "edge": 0}
             },
             {
-              "a": {"piece": "aled2giswl", "edge": 1},
-              "b": {"piece": "0e8xzp0r05", "edge": 0}
+              "a": {"piece": "3fi0j3xikq", "edge": 1},
+              "b": {"piece": "dv6v1vcvq0", "edge": 0}
             },
             {
-              "a": {"piece": "yi81wg70ps", "edge": 1},
-              "b": {"piece": "omlw85udyt", "edge": 0}
+              "a": {"piece": "591enn5ort", "edge": 1},
+              "b": {"piece": "qc6x3cphxa", "edge": 0}
             },
             {
-              "a": {"piece": "omlw85udyt", "edge": 1},
-              "b": {"piece": "aled2giswl", "edge": 0}
+              "a": {"piece": "qc6x3cphxa", "edge": 1},
+              "b": {"piece": "3fi0j3xikq", "edge": 0}
             }
           ],
           "box": [-1, -1.7320508075688767, 1, 1.732050807568877]
@@ -922,7 +1018,7 @@
         "license": "CC-BY-SA-4.0"
       },
       {
-        "id": "ouo6mgfe0l",
+        "id": "93jpm7hgdh",
         "notecard": {"name": "d10 (kites)"},
         "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
         "borders": [],
@@ -935,130 +1031,130 @@
         "epp": {
           "pieces": [
             {
-              "shape": "rrquilts-contributors.3z9qfyko61",
+              "shape": "rrquilts-contributors.u8qqhjd7e1",
               "at": [-0.11921069204107794, -0.6030056647916491],
               "turn": 0,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.teal"}},
-              "id": "b88hf767e4"
+              "id": "mo2mv7bfxn"
             },
             {
-              "shape": "rrquilts-contributors.3z9qfyko61",
+              "shape": "rrquilts-contributors.u8qqhjd7e1",
               "at": [-0.11921069204107788, 0.6030056647916495],
               "turn": -51.827292,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.teal"}},
-              "id": "bau67disko"
+              "id": "id6ujw32b3"
             },
             {
-              "shape": "rrquilts-contributors.3z9qfyko61",
+              "shape": "rrquilts-contributors.u8qqhjd7e1",
               "at": [0.8288967763018944, -1.348361657291579],
               "turn": 51.827292,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.teal"}},
-              "id": "pj03il01vk"
+              "id": "y2ezthfiga"
             },
             {
-              "shape": "rrquilts-contributors.3z9qfyko61",
+              "shape": "rrquilts-contributors.u8qqhjd7e1",
               "at": [-0.9672237917171241, -2.015028323958247],
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.teal"}},
-              "id": "bt7tl5392o"
+              "id": "lq5anuojgd"
             },
             {
-              "shape": "rrquilts-contributors.3z9qfyko61",
+              "shape": "rrquilts-contributors.u8qqhjd7e1",
               "at": [-1.7533751694745476, -0.39699433520835054],
               "turn": 180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.teal"}},
-              "id": "txsz8gt8i5"
+              "id": "fjxgbjlwf2"
             },
             {
-              "shape": "rrquilts-contributors.3z9qfyko61",
+              "shape": "rrquilts-contributors.u8qqhjd7e1",
               "at": [0.8288967763018944, 1.3483616572915798],
               "turn": 256.345415,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.teal"}},
-              "id": "y025dosptz"
+              "id": "hrnqb85asd"
             },
             {
-              "shape": "rrquilts-contributors.3z9qfyko61",
+              "shape": "rrquilts-contributors.u8qqhjd7e1",
               "at": [-0.9672237917171232, 2.0150283239582465],
               "turn": -231.827292,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.teal"}},
-              "id": "xfwmuup47a"
+              "id": "6bzke8vlmz"
             },
             {
-              "shape": "rrquilts-contributors.3z9qfyko61",
+              "shape": "rrquilts-contributors.u8qqhjd7e1",
               "at": [2.000822057149038, -1.0636610018750168],
               "turn": -256.345415,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.teal"}},
-              "id": "g0vm9idsoh"
+              "id": "3sxk0tk57j"
             },
             {
-              "shape": "rrquilts-contributors.3z9qfyko61",
+              "shape": "rrquilts-contributors.u8qqhjd7e1",
               "at": [1.4148594167254664, -2.8877063202082107],
               "turn": 231.827292,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.teal"}},
-              "id": "cfca4yb6j5"
+              "id": "oiaw7apcsm"
             },
             {
-              "shape": "rrquilts-contributors.3z9qfyko61",
+              "shape": "rrquilts-contributors.u8qqhjd7e1",
               "at": [1.4148594167254664, 2.8877063202082116],
               "turn": -283.654585,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.teal"}},
-              "id": "okatx6ihjf"
+              "id": "zzrk895qvv"
             }
           ],
           "seams": [
             {
-              "a": {"piece": "bau67disko", "edge": 2},
-              "b": {"piece": "txsz8gt8i5", "edge": 2}
+              "a": {"piece": "id6ujw32b3", "edge": 2},
+              "b": {"piece": "fjxgbjlwf2", "edge": 2}
             },
             {
-              "a": {"piece": "y025dosptz", "edge": 2},
-              "b": {"piece": "xfwmuup47a", "edge": 2}
+              "a": {"piece": "hrnqb85asd", "edge": 2},
+              "b": {"piece": "6bzke8vlmz", "edge": 2}
             },
             {
-              "a": {"piece": "g0vm9idsoh", "edge": 1},
-              "b": {"piece": "y025dosptz", "edge": 0}
+              "a": {"piece": "3sxk0tk57j", "edge": 1},
+              "b": {"piece": "hrnqb85asd", "edge": 0}
             },
             {
-              "a": {"piece": "g0vm9idsoh", "edge": 2},
-              "b": {"piece": "okatx6ihjf", "edge": 2}
+              "a": {"piece": "3sxk0tk57j", "edge": 2},
+              "b": {"piece": "zzrk895qvv", "edge": 2}
             },
             {
-              "a": {"piece": "g0vm9idsoh", "edge": 3},
-              "b": {"piece": "cfca4yb6j5", "edge": 3}
+              "a": {"piece": "3sxk0tk57j", "edge": 3},
+              "b": {"piece": "oiaw7apcsm", "edge": 3}
             },
             {
-              "a": {"piece": "bt7tl5392o", "edge": 1},
-              "b": {"piece": "txsz8gt8i5", "edge": 0}
+              "a": {"piece": "lq5anuojgd", "edge": 1},
+              "b": {"piece": "fjxgbjlwf2", "edge": 0}
             },
             {
-              "a": {"piece": "bt7tl5392o", "edge": 3},
-              "b": {"piece": "pj03il01vk", "edge": 3}
+              "a": {"piece": "lq5anuojgd", "edge": 3},
+              "b": {"piece": "y2ezthfiga", "edge": 3}
             },
             {
-              "a": {"piece": "txsz8gt8i5", "edge": 1},
-              "b": {"piece": "xfwmuup47a", "edge": 0}
+              "a": {"piece": "fjxgbjlwf2", "edge": 1},
+              "b": {"piece": "6bzke8vlmz", "edge": 0}
             },
             {
-              "a": {"piece": "xfwmuup47a", "edge": 1},
-              "b": {"piece": "okatx6ihjf", "edge": 0}
+              "a": {"piece": "6bzke8vlmz", "edge": 1},
+              "b": {"piece": "zzrk895qvv", "edge": 0}
             },
             {
-              "a": {"piece": "okatx6ihjf", "edge": 1},
-              "b": {"piece": "cfca4yb6j5", "edge": 0}
+              "a": {"piece": "zzrk895qvv", "edge": 1},
+              "b": {"piece": "oiaw7apcsm", "edge": 0}
             },
             {
-              "a": {"piece": "cfca4yb6j5", "edge": 1},
-              "b": {"piece": "bt7tl5392o", "edge": 0}
+              "a": {"piece": "oiaw7apcsm", "edge": 1},
+              "b": {"piece": "lq5anuojgd", "edge": 0}
             }
           ],
           "box": [
@@ -1072,7 +1168,7 @@
         "license": "CC-BY-SA-4.0"
       },
       {
-        "id": "hah8q3f66x",
+        "id": "vemgqmiguy",
         "notecard": {"name": "d12 (dodecahedron)"},
         "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
         "borders": [],
@@ -1090,7 +1186,7 @@
               "turn": -36,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.gold"}},
-              "id": "urszlw8wtk"
+              "id": "t8eab4qa7i"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1098,7 +1194,7 @@
               "turn": -72,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.blue"}},
-              "id": "q7dbumu980"
+              "id": "7pmzvlnhj3"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1106,7 +1202,7 @@
               "turn": -144,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.sky"}},
-              "id": "4b0splz64r"
+              "id": "l3wmuipkxu"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1114,7 +1210,7 @@
               "turn": -288,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.blue"}},
-              "id": "icjsd3knws"
+              "id": "kn3um5b4z6"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1122,7 +1218,7 @@
               "turn": -288,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.blue"}},
-              "id": "7o5a5k5i40"
+              "id": "ty1t0kbfcw"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1130,7 +1226,7 @@
               "turn": -72,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.sky"}},
-              "id": "039p06vz93"
+              "id": "fbn004qg19"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1138,7 +1234,7 @@
               "turn": -36,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.gold"}},
-              "id": "8ydwu4zaoa"
+              "id": "zpbjuoeiqe"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1146,7 +1242,7 @@
               "turn": -288,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.coral"}},
-              "id": "0emsqz22xv"
+              "id": "5me1o2rbuu"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1154,7 +1250,7 @@
               "turn": -72,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.red"}},
-              "id": "9kckx0aqfe"
+              "id": "kjtdqchw0o"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1162,7 +1258,7 @@
               "turn": -72,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.red"}},
-              "id": "8zb7mwn7gd"
+              "id": "sbc2v33w0p"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1170,7 +1266,7 @@
               "turn": -144,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.coral"}},
-              "id": "s2gwrpsxf7"
+              "id": "wu4ldr8k19"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1178,89 +1274,89 @@
               "turn": -216,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.red"}},
-              "id": "qu5ix2ze0c"
+              "id": "52pambn3vc"
             }
           ],
           "seams": [
             {
-              "a": {"piece": "icjsd3knws", "edge": 2},
-              "b": {"piece": "4b0splz64r", "edge": 1}
+              "a": {"piece": "kn3um5b4z6", "edge": 2},
+              "b": {"piece": "l3wmuipkxu", "edge": 1}
             },
             {
-              "a": {"piece": "icjsd3knws", "edge": 3},
-              "b": {"piece": "8zb7mwn7gd", "edge": 1}
+              "a": {"piece": "kn3um5b4z6", "edge": 3},
+              "b": {"piece": "sbc2v33w0p", "edge": 1}
             },
             {
-              "a": {"piece": "icjsd3knws", "edge": 4},
-              "b": {"piece": "9kckx0aqfe", "edge": 1}
+              "a": {"piece": "kn3um5b4z6", "edge": 4},
+              "b": {"piece": "kjtdqchw0o", "edge": 1}
             },
             {
-              "a": {"piece": "4b0splz64r", "edge": 3},
-              "b": {"piece": "q7dbumu980", "edge": 1}
+              "a": {"piece": "l3wmuipkxu", "edge": 3},
+              "b": {"piece": "7pmzvlnhj3", "edge": 1}
             },
             {
-              "a": {"piece": "4b0splz64r", "edge": 4},
-              "b": {"piece": "s2gwrpsxf7", "edge": 1}
+              "a": {"piece": "l3wmuipkxu", "edge": 4},
+              "b": {"piece": "wu4ldr8k19", "edge": 1}
             },
             {
-              "a": {"piece": "7o5a5k5i40", "edge": 3},
-              "b": {"piece": "icjsd3knws", "edge": 0}
+              "a": {"piece": "ty1t0kbfcw", "edge": 3},
+              "b": {"piece": "kn3um5b4z6", "edge": 0}
             },
             {
-              "a": {"piece": "039p06vz93", "edge": 0},
-              "b": {"piece": "q7dbumu980", "edge": 3}
+              "a": {"piece": "fbn004qg19", "edge": 0},
+              "b": {"piece": "7pmzvlnhj3", "edge": 3}
             },
             {
-              "a": {"piece": "039p06vz93", "edge": 2},
-              "b": {"piece": "7o5a5k5i40", "edge": 1}
+              "a": {"piece": "fbn004qg19", "edge": 2},
+              "b": {"piece": "ty1t0kbfcw", "edge": 1}
             },
             {
-              "a": {"piece": "039p06vz93", "edge": 3},
-              "b": {"piece": "0emsqz22xv", "edge": 1}
+              "a": {"piece": "fbn004qg19", "edge": 3},
+              "b": {"piece": "5me1o2rbuu", "edge": 1}
             },
             {
-              "a": {"piece": "8zb7mwn7gd", "edge": 2},
-              "b": {"piece": "4b0splz64r", "edge": 0}
+              "a": {"piece": "sbc2v33w0p", "edge": 2},
+              "b": {"piece": "l3wmuipkxu", "edge": 0}
             },
             {
-              "a": {"piece": "8zb7mwn7gd", "edge": 3},
-              "b": {"piece": "s2gwrpsxf7", "edge": 0}
+              "a": {"piece": "sbc2v33w0p", "edge": 3},
+              "b": {"piece": "wu4ldr8k19", "edge": 0}
             },
             {
-              "a": {"piece": "q7dbumu980", "edge": 4},
-              "b": {"piece": "qu5ix2ze0c", "edge": 1}
+              "a": {"piece": "7pmzvlnhj3", "edge": 4},
+              "b": {"piece": "52pambn3vc", "edge": 1}
             },
             {
-              "a": {"piece": "s2gwrpsxf7", "edge": 2},
-              "b": {"piece": "q7dbumu980", "edge": 0}
+              "a": {"piece": "wu4ldr8k19", "edge": 2},
+              "b": {"piece": "7pmzvlnhj3", "edge": 0}
             },
             {
-              "a": {"piece": "s2gwrpsxf7", "edge": 3},
-              "b": {"piece": "qu5ix2ze0c", "edge": 0}
+              "a": {"piece": "wu4ldr8k19", "edge": 3},
+              "b": {"piece": "52pambn3vc", "edge": 0}
             },
             {
-              "a": {"piece": "qu5ix2ze0c", "edge": 2},
-              "b": {"piece": "039p06vz93", "edge": 4}
+              "a": {"piece": "52pambn3vc", "edge": 2},
+              "b": {"piece": "fbn004qg19", "edge": 4}
             },
             {
-              "a": {"piece": "0emsqz22xv", "edge": 0},
-              "b": {"piece": "qu5ix2ze0c", "edge": 3}
+              "a": {"piece": "5me1o2rbuu", "edge": 0},
+              "b": {"piece": "52pambn3vc", "edge": 3}
             },
             {
-              "a": {"piece": "0emsqz22xv", "edge": 2},
-              "b": {"piece": "7o5a5k5i40", "edge": 0}
+              "a": {"piece": "5me1o2rbuu", "edge": 2},
+              "b": {"piece": "ty1t0kbfcw", "edge": 0}
             },
             {
-              "a": {"piece": "0emsqz22xv", "edge": 3},
-              "b": {"piece": "9kckx0aqfe", "edge": 4}
+              "a": {"piece": "5me1o2rbuu", "edge": 3},
+              "b": {"piece": "kjtdqchw0o", "edge": 4}
             },
             {
-              "a": {"piece": "9kckx0aqfe", "edge": 0},
-              "b": {"piece": "7o5a5k5i40", "edge": 4}
+              "a": {"piece": "kjtdqchw0o", "edge": 0},
+              "b": {"piece": "ty1t0kbfcw", "edge": 4}
             },
             {
-              "a": {"piece": "9kckx0aqfe", "edge": 2},
-              "b": {"piece": "8zb7mwn7gd", "edge": 0}
+              "a": {"piece": "kjtdqchw0o", "edge": 2},
+              "b": {"piece": "sbc2v33w0p", "edge": 0}
             }
           ],
           "box": [
@@ -1274,7 +1370,7 @@
         "license": "CC-BY-SA-4.0"
       },
       {
-        "id": "lbg12cycyl",
+        "id": "u1agwbxbur",
         "notecard": {"name": "d20 (icosahedron)"},
         "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
         "borders": [],
@@ -1292,7 +1388,7 @@
               "turn": 60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "bapml4g4pk"
+              "id": "h0pyiu6foh"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1300,7 +1396,7 @@
               "turn": 0,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "b00ta1iogo"
+              "id": "v591g2vai2"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1308,7 +1404,7 @@
               "turn": -240,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "r8rlt1atpm"
+              "id": "no3i75qptt"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1316,7 +1412,7 @@
               "turn": 0,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "f1nvdx7nxq"
+              "id": "v916jw4ttx"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1324,7 +1420,7 @@
               "turn": -60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "b71wsvryxd"
+              "id": "xf2k4oev14"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1332,7 +1428,7 @@
               "turn": 60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "cjvzgalm9l"
+              "id": "b1vbotkyye"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1340,7 +1436,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "68yuey5tu4"
+              "id": "pd2pna231d"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1348,7 +1444,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "rp6jd9ztv6"
+              "id": "dt6cuv3wm2"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1356,7 +1452,7 @@
               "turn": 60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "cvu17w0i7x"
+              "id": "t8tqqh4xb3"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1364,7 +1460,7 @@
               "turn": -60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "3gy217w1jl"
+              "id": "zbfl2c6svt"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1372,7 +1468,7 @@
               "turn": -240,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "4wtkgrgdjv"
+              "id": "svfcy1n86c"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1380,7 +1476,7 @@
               "turn": -240,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "xzjzkzft0n"
+              "id": "698owbsrau"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1388,7 +1484,7 @@
               "turn": -240,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "rvswq23fbo"
+              "id": "bsh2t71q8t"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1396,7 +1492,7 @@
               "turn": -120,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "pj43d92env"
+              "id": "pnj49fb532"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1404,7 +1500,7 @@
               "turn": -120,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "792ml37m6k"
+              "id": "hy0qexzukj"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1412,7 +1508,7 @@
               "turn": -120,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "n5m54ozm8b"
+              "id": "up987h2msg"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1420,7 +1516,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "csj2752wbl"
+              "id": "z80rqeefeg"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1428,7 +1524,7 @@
               "turn": 60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "yirkww75xl"
+              "id": "vpp5cp0l95"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1436,7 +1532,7 @@
               "turn": -60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "kaek3nrc5x"
+              "id": "tqy5kw9xsh"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1444,53 +1540,53 @@
               "turn": -120,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "9ki0u2ut4n"
+              "id": "lv8zamrs6z"
             }
           ],
           "seams": [
             {
-              "a": {"piece": "68yuey5tu4", "edge": 1},
-              "b": {"piece": "b71wsvryxd", "edge": 0}
+              "a": {"piece": "pd2pna231d", "edge": 1},
+              "b": {"piece": "xf2k4oev14", "edge": 0}
             },
             {
-              "a": {"piece": "9ki0u2ut4n", "edge": 1},
-              "b": {"piece": "yirkww75xl", "edge": 0}
+              "a": {"piece": "lv8zamrs6z", "edge": 1},
+              "b": {"piece": "vpp5cp0l95", "edge": 0}
             },
             {
-              "a": {"piece": "9ki0u2ut4n", "edge": 2},
-              "b": {"piece": "kaek3nrc5x", "edge": 0}
+              "a": {"piece": "lv8zamrs6z", "edge": 2},
+              "b": {"piece": "tqy5kw9xsh", "edge": 0}
             },
             {
-              "a": {"piece": "xzjzkzft0n", "edge": 1},
-              "b": {"piece": "4wtkgrgdjv", "edge": 0}
+              "a": {"piece": "698owbsrau", "edge": 1},
+              "b": {"piece": "svfcy1n86c", "edge": 0}
             },
             {
-              "a": {"piece": "cvu17w0i7x", "edge": 1},
-              "b": {"piece": "rp6jd9ztv6", "edge": 0}
+              "a": {"piece": "t8tqqh4xb3", "edge": 1},
+              "b": {"piece": "dt6cuv3wm2", "edge": 0}
             },
             {
-              "a": {"piece": "792ml37m6k", "edge": 1},
-              "b": {"piece": "n5m54ozm8b", "edge": 0}
+              "a": {"piece": "hy0qexzukj", "edge": 1},
+              "b": {"piece": "up987h2msg", "edge": 0}
             },
             {
-              "a": {"piece": "n5m54ozm8b", "edge": 1},
-              "b": {"piece": "yirkww75xl", "edge": 2}
+              "a": {"piece": "up987h2msg", "edge": 1},
+              "b": {"piece": "vpp5cp0l95", "edge": 2}
             },
             {
-              "a": {"piece": "kaek3nrc5x", "edge": 1},
-              "b": {"piece": "792ml37m6k", "edge": 0}
+              "a": {"piece": "tqy5kw9xsh", "edge": 1},
+              "b": {"piece": "hy0qexzukj", "edge": 0}
             },
             {
-              "a": {"piece": "cjvzgalm9l", "edge": 2},
-              "b": {"piece": "3gy217w1jl", "edge": 2}
+              "a": {"piece": "b1vbotkyye", "edge": 2},
+              "b": {"piece": "zbfl2c6svt", "edge": 2}
             },
             {
-              "a": {"piece": "rvswq23fbo", "edge": 1},
-              "b": {"piece": "csj2752wbl", "edge": 2}
+              "a": {"piece": "bsh2t71q8t", "edge": 1},
+              "b": {"piece": "z80rqeefeg", "edge": 2}
             },
             {
-              "a": {"piece": "pj43d92env", "edge": 2},
-              "b": {"piece": "rvswq23fbo", "edge": 2}
+              "a": {"piece": "pnj49fb532", "edge": 2},
+              "b": {"piece": "bsh2t71q8t", "edge": 2}
             }
           ],
           "box": [
@@ -1504,7 +1600,7 @@
         "license": "CC-BY-SA-4.0"
       },
       {
-        "id": "zn9k4z3tkq",
+        "id": "gcvaj54z9t",
         "notecard": {"name": "Hexagonal prism"},
         "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
         "borders": [],
@@ -1522,7 +1618,7 @@
               "turn": -60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "bbms1ncjdx"
+              "id": "paxx4vzsfp"
             },
             {
               "shape": "rrquilts.epp-square",
@@ -1530,7 +1626,7 @@
               "turn": -90,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.blue"}},
-              "id": "0mw3o8xxdd"
+              "id": "tkqmo5eh1v"
             },
             {
               "shape": "rrquilts.epp-square",
@@ -1538,7 +1634,7 @@
               "turn": -240,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.blue"}},
-              "id": "2c01sje6u0"
+              "id": "rhos20i933"
             },
             {
               "shape": "rrquilts.epp-square",
@@ -1546,7 +1642,7 @@
               "turn": -210,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.blue"}},
-              "id": "gi8c1oyw24"
+              "id": "ea2ddff7wr"
             },
             {
               "shape": "rrquilts.epp-square",
@@ -1554,7 +1650,7 @@
               "turn": 0,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.blue"}},
-              "id": "k10yggn1oz"
+              "id": "agb0mjl529"
             },
             {
               "shape": "rrquilts.epp-square",
@@ -1562,7 +1658,7 @@
               "turn": -60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.blue"}},
-              "id": "6iskhu6099"
+              "id": "15hwgh87x1"
             },
             {
               "shape": "rrquilts.epp-square",
@@ -1570,7 +1666,7 @@
               "turn": -30,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.blue"}},
-              "id": "696n7yzluu"
+              "id": "o9qbw6erfb"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1578,53 +1674,53 @@
               "turn": -300,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "t3amo8myhk"
+              "id": "s761w6555g"
             }
           ],
           "seams": [
             {
-              "a": {"piece": "k10yggn1oz", "edge": 1},
-              "b": {"piece": "gi8c1oyw24", "edge": 0}
+              "a": {"piece": "agb0mjl529", "edge": 1},
+              "b": {"piece": "ea2ddff7wr", "edge": 0}
             },
             {
-              "a": {"piece": "k10yggn1oz", "edge": 2},
-              "b": {"piece": "t3amo8myhk", "edge": 2}
+              "a": {"piece": "agb0mjl529", "edge": 2},
+              "b": {"piece": "s761w6555g", "edge": 2}
             },
             {
-              "a": {"piece": "gi8c1oyw24", "edge": 2},
-              "b": {"piece": "2c01sje6u0", "edge": 3}
+              "a": {"piece": "ea2ddff7wr", "edge": 2},
+              "b": {"piece": "rhos20i933", "edge": 3}
             },
             {
-              "a": {"piece": "6iskhu6099", "edge": 1},
-              "b": {"piece": "k10yggn1oz", "edge": 3}
+              "a": {"piece": "15hwgh87x1", "edge": 1},
+              "b": {"piece": "agb0mjl529", "edge": 3}
             },
             {
-              "a": {"piece": "6iskhu6099", "edge": 2},
-              "b": {"piece": "t3amo8myhk", "edge": 1}
+              "a": {"piece": "15hwgh87x1", "edge": 2},
+              "b": {"piece": "s761w6555g", "edge": 1}
             },
             {
-              "a": {"piece": "696n7yzluu", "edge": 2},
-              "b": {"piece": "6iskhu6099", "edge": 3}
+              "a": {"piece": "o9qbw6erfb", "edge": 2},
+              "b": {"piece": "15hwgh87x1", "edge": 3}
             },
             {
-              "a": {"piece": "696n7yzluu", "edge": 3},
-              "b": {"piece": "t3amo8myhk", "edge": 0}
+              "a": {"piece": "o9qbw6erfb", "edge": 3},
+              "b": {"piece": "s761w6555g", "edge": 0}
             },
             {
-              "a": {"piece": "0mw3o8xxdd", "edge": 2},
-              "b": {"piece": "696n7yzluu", "edge": 0}
+              "a": {"piece": "tkqmo5eh1v", "edge": 2},
+              "b": {"piece": "o9qbw6erfb", "edge": 0}
             },
             {
-              "a": {"piece": "2c01sje6u0", "edge": 1},
-              "b": {"piece": "0mw3o8xxdd", "edge": 0}
+              "a": {"piece": "rhos20i933", "edge": 1},
+              "b": {"piece": "tkqmo5eh1v", "edge": 0}
             },
             {
-              "a": {"piece": "2c01sje6u0", "edge": 2},
-              "b": {"piece": "t3amo8myhk", "edge": 4}
+              "a": {"piece": "rhos20i933", "edge": 2},
+              "b": {"piece": "s761w6555g", "edge": 4}
             },
             {
-              "a": {"piece": "t3amo8myhk", "edge": 3},
-              "b": {"piece": "gi8c1oyw24", "edge": 3}
+              "a": {"piece": "s761w6555g", "edge": 3},
+              "b": {"piece": "ea2ddff7wr", "edge": 3}
             }
           ],
           "box": [
@@ -1638,7 +1734,7 @@
         "license": "CC-BY-SA-4.0"
       },
       {
-        "id": "xoda8g2wvu",
+        "id": "e4wtrrkltu",
         "notecard": {"name": "Truncated tetrahedron"},
         "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
         "borders": [],
@@ -1656,7 +1752,7 @@
               "turn": -60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "vyikt2xxb2"
+              "id": "c2x742d57u"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1664,7 +1760,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "v323crhyks"
+              "id": "61sf8k2c1y"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1672,7 +1768,7 @@
               "turn": -60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "31p5vvccxk"
+              "id": "v3zgk8r4xw"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1680,7 +1776,7 @@
               "turn": -240,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "9zmyepwdm2"
+              "id": "wtd60oo7cj"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1688,7 +1784,7 @@
               "turn": 60,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "6mndrbdi6j"
+              "id": "9oz48jz9b0"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1696,7 +1792,7 @@
               "turn": -240,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "ektl84xo1v"
+              "id": "d2bwb10zjn"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1704,7 +1800,7 @@
               "turn": -180,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "l33650lsx1"
+              "id": "1glekfc5id"
             },
             {
               "shape": "rrquilts.epp-triangle",
@@ -1712,53 +1808,53 @@
               "turn": -120,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.orange"}},
-              "id": "wp8al3hq2q"
+              "id": "2q1mbjiw28"
             }
           ],
           "seams": [
             {
-              "a": {"piece": "9zmyepwdm2", "edge": 3},
-              "b": {"piece": "31p5vvccxk", "edge": 0}
+              "a": {"piece": "wtd60oo7cj", "edge": 3},
+              "b": {"piece": "v3zgk8r4xw", "edge": 0}
             },
             {
-              "a": {"piece": "9zmyepwdm2", "edge": 4},
-              "b": {"piece": "v323crhyks", "edge": 5}
+              "a": {"piece": "wtd60oo7cj", "edge": 4},
+              "b": {"piece": "61sf8k2c1y", "edge": 5}
             },
             {
-              "a": {"piece": "31p5vvccxk", "edge": 2},
-              "b": {"piece": "v323crhyks", "edge": 0}
+              "a": {"piece": "v3zgk8r4xw", "edge": 2},
+              "b": {"piece": "61sf8k2c1y", "edge": 0}
             },
             {
-              "a": {"piece": "6mndrbdi6j", "edge": 1},
-              "b": {"piece": "9zmyepwdm2", "edge": 1}
+              "a": {"piece": "9oz48jz9b0", "edge": 1},
+              "b": {"piece": "wtd60oo7cj", "edge": 1}
             },
             {
-              "a": {"piece": "6mndrbdi6j", "edge": 2},
-              "b": {"piece": "ektl84xo1v", "edge": 5}
+              "a": {"piece": "9oz48jz9b0", "edge": 2},
+              "b": {"piece": "d2bwb10zjn", "edge": 5}
             },
             {
-              "a": {"piece": "v323crhyks", "edge": 3},
-              "b": {"piece": "ektl84xo1v", "edge": 2}
+              "a": {"piece": "61sf8k2c1y", "edge": 3},
+              "b": {"piece": "d2bwb10zjn", "edge": 2}
             },
             {
-              "a": {"piece": "ektl84xo1v", "edge": 0},
-              "b": {"piece": "9zmyepwdm2", "edge": 0}
+              "a": {"piece": "d2bwb10zjn", "edge": 0},
+              "b": {"piece": "wtd60oo7cj", "edge": 0}
             },
             {
-              "a": {"piece": "ektl84xo1v", "edge": 3},
-              "b": {"piece": "l33650lsx1", "edge": 0}
+              "a": {"piece": "d2bwb10zjn", "edge": 3},
+              "b": {"piece": "1glekfc5id", "edge": 0}
             },
             {
-              "a": {"piece": "l33650lsx1", "edge": 1},
-              "b": {"piece": "v323crhyks", "edge": 2}
+              "a": {"piece": "1glekfc5id", "edge": 1},
+              "b": {"piece": "61sf8k2c1y", "edge": 2}
             },
             {
-              "a": {"piece": "wp8al3hq2q", "edge": 1},
-              "b": {"piece": "ektl84xo1v", "edge": 1}
+              "a": {"piece": "2q1mbjiw28", "edge": 1},
+              "b": {"piece": "d2bwb10zjn", "edge": 1}
             },
             {
-              "a": {"piece": "wp8al3hq2q", "edge": 2},
-              "b": {"piece": "9zmyepwdm2", "edge": 5}
+              "a": {"piece": "2q1mbjiw28", "edge": 2},
+              "b": {"piece": "wtd60oo7cj", "edge": 5}
             }
           ],
           "box": [-2.5, -2.598076211353316, 2.499999999999999, 2.5980762113533156]
@@ -1767,7 +1863,7 @@
         "license": "CC-BY-SA-4.0"
       },
       {
-        "id": "2z6n93ft5f",
+        "id": "8c9wp1f6rv",
         "notecard": {"name": "Soccer ball"},
         "layout": {
           "style": "epp",
@@ -1791,7 +1887,7 @@
               "turn": -36,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.navy"}},
-              "id": "c3dnih8tpx"
+              "id": "aek2sruwuk"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1799,7 +1895,7 @@
               "turn": -120,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "8sbfb0vo47"
+              "id": "qhx5thj0wt"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1807,7 +1903,7 @@
               "turn": -192,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "9l0y5g6l34"
+              "id": "eqlxwdlbhx"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1815,7 +1911,7 @@
               "turn": -264,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "2othy2cwli"
+              "id": "wr45fuv0ou"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1823,7 +1919,7 @@
               "turn": -336,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "fug8547zsx"
+              "id": "ppr3k867xb"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1831,7 +1927,7 @@
               "turn": -168,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "0ldtws1wc4"
+              "id": "dil0nnd63e"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1839,7 +1935,7 @@
               "turn": -36,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.indigo"}},
-              "id": "uvzkc494d8"
+              "id": "bjt55g742x"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1847,7 +1943,7 @@
               "turn": -120,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.pale-gray"}},
-              "id": "hk4bzmnn6e"
+              "id": "st2k7oyvdu"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1855,7 +1951,7 @@
               "turn": -192,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.pale-gray"}},
-              "id": "04y65ve9ha"
+              "id": "c80zdpb7ji"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1863,7 +1959,7 @@
               "turn": -264,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.pale-gray"}},
-              "id": "a8f0v3p6r3"
+              "id": "3qaorumlyn"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1871,7 +1967,7 @@
               "turn": -336,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.pale-gray"}},
-              "id": "hqag96u39j"
+              "id": "ahvta5s2zd"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1879,7 +1975,7 @@
               "turn": -288,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.pale-gray"}},
-              "id": "5ut1zhafi1"
+              "id": "ekfyg7fkke"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1887,7 +1983,7 @@
               "turn": -36,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.navy"}},
-              "id": "2ioxd9usuj"
+              "id": "xgf60muqu3"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1895,7 +1991,7 @@
               "turn": 0,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "3s9c1z1syn"
+              "id": "927u82niwb"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1903,7 +1999,7 @@
               "turn": -192,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "rf73omsxaa"
+              "id": "j7awdkobmr"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1911,7 +2007,7 @@
               "turn": -264,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "ruerbtuofa"
+              "id": "u3b0y36o6i"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1919,7 +2015,7 @@
               "turn": -96,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "wtv6h0dsuf"
+              "id": "rvf37lenql"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1927,7 +2023,7 @@
               "turn": -288,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "rh4xa93xan"
+              "id": "gv1sm9tfmz"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1935,7 +2031,7 @@
               "turn": -36,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.indigo"}},
-              "id": "x0eksaoarw"
+              "id": "5qjq3dauur"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1943,7 +2039,7 @@
               "turn": -360,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.pale-gray"}},
-              "id": "seckgvb1zb"
+              "id": "ys20l459n9"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1951,7 +2047,7 @@
               "turn": -96,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.pale-gray"}},
-              "id": "2y1hsshzt8"
+              "id": "0x5xi0r6ji"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1959,7 +2055,7 @@
               "turn": -168,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.pale-gray"}},
-              "id": "av8j9nblhv"
+              "id": "o24wo4ybd4"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1967,7 +2063,7 @@
               "turn": -156,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.indigo"}},
-              "id": "gul0d2v6xu"
+              "id": "p1bpuind31"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1975,7 +2071,7 @@
               "turn": -276,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.indigo"}},
-              "id": "act6nopru1"
+              "id": "sajeji1nfh"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1983,7 +2079,7 @@
               "turn": -36,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.navy"}},
-              "id": "gmgf84f9ky"
+              "id": "hm0q140onh"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -1991,7 +2087,7 @@
               "turn": -168,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.white"}},
-              "id": "s63bv3xw4y"
+              "id": "vxgu2kglry"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -1999,7 +2095,7 @@
               "turn": -300,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.navy"}},
-              "id": "kh1qij0alc"
+              "id": "hep7bexdqw"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -2007,7 +2103,7 @@
               "turn": -132,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.navy"}},
-              "id": "vz5es3d0zs"
+              "id": "thvbupqvjf"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -2015,7 +2111,7 @@
               "turn": -36,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.indigo"}},
-              "id": "9bklteqr2a"
+              "id": "6fqsnaeyvw"
             },
             {
               "shape": "rrquilts.epp-hexagon",
@@ -2023,7 +2119,7 @@
               "turn": -288,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.pale-gray"}},
-              "id": "v3b31vu3lu"
+              "id": "r5lz1lglaa"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -2031,7 +2127,7 @@
               "turn": -132,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.indigo"}},
-              "id": "lh1dqkjky4"
+              "id": "ak40l3z2qr"
             },
             {
               "shape": "rrquilts.epp-pentagon",
@@ -2039,269 +2135,269 @@
               "turn": -36,
               "scale": 1,
               "fills": {"": {"color": "rrquilts.navy"}},
-              "id": "2huc0xh4rw"
+              "id": "gseloqk3nz"
             }
           ],
           "seams": [
             {
-              "a": {"piece": "2othy2cwli", "edge": 1},
-              "b": {"piece": "fug8547zsx", "edge": 3}
+              "a": {"piece": "wr45fuv0ou", "edge": 1},
+              "b": {"piece": "ppr3k867xb", "edge": 3}
             },
             {
-              "a": {"piece": "2othy2cwli", "edge": 3},
-              "b": {"piece": "9l0y5g6l34", "edge": 1}
+              "a": {"piece": "wr45fuv0ou", "edge": 3},
+              "b": {"piece": "eqlxwdlbhx", "edge": 1}
             },
             {
-              "a": {"piece": "2othy2cwli", "edge": 4},
-              "b": {"piece": "2huc0xh4rw", "edge": 1}
+              "a": {"piece": "wr45fuv0ou", "edge": 4},
+              "b": {"piece": "gseloqk3nz", "edge": 1}
             },
             {
-              "a": {"piece": "9l0y5g6l34", "edge": 4},
-              "b": {"piece": "lh1dqkjky4", "edge": 4}
+              "a": {"piece": "eqlxwdlbhx", "edge": 4},
+              "b": {"piece": "ak40l3z2qr", "edge": 4}
             },
             {
-              "a": {"piece": "9l0y5g6l34", "edge": 5},
-              "b": {"piece": "2y1hsshzt8", "edge": 3}
+              "a": {"piece": "eqlxwdlbhx", "edge": 5},
+              "b": {"piece": "0x5xi0r6ji", "edge": 3}
             },
             {
-              "a": {"piece": "04y65ve9ha", "edge": 4},
-              "b": {"piece": "vz5es3d0zs", "edge": 4}
+              "a": {"piece": "c80zdpb7ji", "edge": 4},
+              "b": {"piece": "thvbupqvjf", "edge": 4}
             },
             {
-              "a": {"piece": "04y65ve9ha", "edge": 5},
-              "b": {"piece": "wtv6h0dsuf", "edge": 3}
+              "a": {"piece": "c80zdpb7ji", "edge": 5},
+              "b": {"piece": "rvf37lenql", "edge": 3}
             },
             {
-              "a": {"piece": "a8f0v3p6r3", "edge": 1},
-              "b": {"piece": "hqag96u39j", "edge": 3}
+              "a": {"piece": "3qaorumlyn", "edge": 1},
+              "b": {"piece": "ahvta5s2zd", "edge": 3}
             },
             {
-              "a": {"piece": "a8f0v3p6r3", "edge": 3},
-              "b": {"piece": "04y65ve9ha", "edge": 1}
+              "a": {"piece": "3qaorumlyn", "edge": 3},
+              "b": {"piece": "c80zdpb7ji", "edge": 1}
             },
             {
-              "a": {"piece": "a8f0v3p6r3", "edge": 4},
-              "b": {"piece": "act6nopru1", "edge": 1}
+              "a": {"piece": "3qaorumlyn", "edge": 4},
+              "b": {"piece": "sajeji1nfh", "edge": 1}
             },
             {
-              "a": {"piece": "2huc0xh4rw", "edge": 0},
-              "b": {"piece": "3s9c1z1syn", "edge": 2}
+              "a": {"piece": "gseloqk3nz", "edge": 0},
+              "b": {"piece": "927u82niwb", "edge": 2}
             },
             {
-              "a": {"piece": "2huc0xh4rw", "edge": 2},
-              "b": {"piece": "9l0y5g6l34", "edge": 0}
+              "a": {"piece": "gseloqk3nz", "edge": 2},
+              "b": {"piece": "eqlxwdlbhx", "edge": 0}
             },
             {
-              "a": {"piece": "act6nopru1", "edge": 2},
-              "b": {"piece": "04y65ve9ha", "edge": 0}
+              "a": {"piece": "sajeji1nfh", "edge": 2},
+              "b": {"piece": "c80zdpb7ji", "edge": 0}
             },
             {
-              "a": {"piece": "act6nopru1", "edge": 4},
-              "b": {"piece": "ruerbtuofa", "edge": 0}
+              "a": {"piece": "sajeji1nfh", "edge": 4},
+              "b": {"piece": "u3b0y36o6i", "edge": 0}
             },
             {
-              "a": {"piece": "0ldtws1wc4", "edge": 1},
-              "b": {"piece": "fug8547zsx", "edge": 1}
+              "a": {"piece": "dil0nnd63e", "edge": 1},
+              "b": {"piece": "ppr3k867xb", "edge": 1}
             },
             {
-              "a": {"piece": "0ldtws1wc4", "edge": 3},
-              "b": {"piece": "5ut1zhafi1", "edge": 1}
+              "a": {"piece": "dil0nnd63e", "edge": 3},
+              "b": {"piece": "ekfyg7fkke", "edge": 1}
             },
             {
-              "a": {"piece": "0ldtws1wc4", "edge": 4},
-              "b": {"piece": "9bklteqr2a", "edge": 1}
+              "a": {"piece": "dil0nnd63e", "edge": 4},
+              "b": {"piece": "6fqsnaeyvw", "edge": 1}
             },
             {
-              "a": {"piece": "5ut1zhafi1", "edge": 2},
-              "b": {"piece": "gmgf84f9ky", "edge": 1}
+              "a": {"piece": "ekfyg7fkke", "edge": 2},
+              "b": {"piece": "hm0q140onh", "edge": 1}
             },
             {
-              "a": {"piece": "5ut1zhafi1", "edge": 5},
-              "b": {"piece": "hqag96u39j", "edge": 1}
+              "a": {"piece": "ekfyg7fkke", "edge": 5},
+              "b": {"piece": "ahvta5s2zd", "edge": 1}
             },
             {
-              "a": {"piece": "gmgf84f9ky", "edge": 0},
-              "b": {"piece": "hk4bzmnn6e", "edge": 4}
+              "a": {"piece": "hm0q140onh", "edge": 0},
+              "b": {"piece": "st2k7oyvdu", "edge": 4}
             },
             {
-              "a": {"piece": "gmgf84f9ky", "edge": 2},
-              "b": {"piece": "0ldtws1wc4", "edge": 2}
+              "a": {"piece": "hm0q140onh", "edge": 2},
+              "b": {"piece": "dil0nnd63e", "edge": 2}
             },
             {
-              "a": {"piece": "rf73omsxaa", "edge": 4},
-              "b": {"piece": "2huc0xh4rw", "edge": 4}
+              "a": {"piece": "j7awdkobmr", "edge": 4},
+              "b": {"piece": "gseloqk3nz", "edge": 4}
             },
             {
-              "a": {"piece": "rf73omsxaa", "edge": 5},
-              "b": {"piece": "2y1hsshzt8", "edge": 1}
+              "a": {"piece": "j7awdkobmr", "edge": 5},
+              "b": {"piece": "0x5xi0r6ji", "edge": 1}
             },
             {
-              "a": {"piece": "ruerbtuofa", "edge": 1},
-              "b": {"piece": "wtv6h0dsuf", "edge": 1}
+              "a": {"piece": "u3b0y36o6i", "edge": 1},
+              "b": {"piece": "rvf37lenql", "edge": 1}
             },
             {
-              "a": {"piece": "ruerbtuofa", "edge": 3},
-              "b": {"piece": "rf73omsxaa", "edge": 1}
+              "a": {"piece": "u3b0y36o6i", "edge": 3},
+              "b": {"piece": "j7awdkobmr", "edge": 1}
             },
             {
-              "a": {"piece": "ruerbtuofa", "edge": 4},
-              "b": {"piece": "x0eksaoarw", "edge": 1}
+              "a": {"piece": "u3b0y36o6i", "edge": 4},
+              "b": {"piece": "5qjq3dauur", "edge": 1}
             },
             {
-              "a": {"piece": "9bklteqr2a", "edge": 0},
-              "b": {"piece": "8sbfb0vo47", "edge": 4}
+              "a": {"piece": "6fqsnaeyvw", "edge": 0},
+              "b": {"piece": "qhx5thj0wt", "edge": 4}
             },
             {
-              "a": {"piece": "9bklteqr2a", "edge": 2},
-              "b": {"piece": "5ut1zhafi1", "edge": 0}
+              "a": {"piece": "6fqsnaeyvw", "edge": 2},
+              "b": {"piece": "ekfyg7fkke", "edge": 0}
             },
             {
-              "a": {"piece": "x0eksaoarw", "edge": 2},
-              "b": {"piece": "rf73omsxaa", "edge": 0}
+              "a": {"piece": "5qjq3dauur", "edge": 2},
+              "b": {"piece": "j7awdkobmr", "edge": 0}
             },
             {
-              "a": {"piece": "s63bv3xw4y", "edge": 1},
-              "b": {"piece": "fug8547zsx", "edge": 5}
+              "a": {"piece": "vxgu2kglry", "edge": 1},
+              "b": {"piece": "ppr3k867xb", "edge": 5}
             },
             {
-              "a": {"piece": "s63bv3xw4y", "edge": 3},
-              "b": {"piece": "rh4xa93xan", "edge": 1}
+              "a": {"piece": "vxgu2kglry", "edge": 3},
+              "b": {"piece": "gv1sm9tfmz", "edge": 1}
             },
             {
-              "a": {"piece": "rh4xa93xan", "edge": 2},
-              "b": {"piece": "kh1qij0alc", "edge": 1}
+              "a": {"piece": "gv1sm9tfmz", "edge": 2},
+              "b": {"piece": "hep7bexdqw", "edge": 1}
             },
             {
-              "a": {"piece": "rh4xa93xan", "edge": 5},
-              "b": {"piece": "wtv6h0dsuf", "edge": 5}
+              "a": {"piece": "gv1sm9tfmz", "edge": 5},
+              "b": {"piece": "rvf37lenql", "edge": 5}
             },
             {
-              "a": {"piece": "kh1qij0alc", "edge": 0},
-              "b": {"piece": "3s9c1z1syn", "edge": 0}
+              "a": {"piece": "hep7bexdqw", "edge": 0},
+              "b": {"piece": "927u82niwb", "edge": 0}
             },
             {
-              "a": {"piece": "kh1qij0alc", "edge": 4},
-              "b": {"piece": "2othy2cwli", "edge": 0}
+              "a": {"piece": "hep7bexdqw", "edge": 4},
+              "b": {"piece": "wr45fuv0ou", "edge": 0}
             },
             {
-              "a": {"piece": "vz5es3d0zs", "edge": 0},
-              "b": {"piece": "hk4bzmnn6e", "edge": 0}
+              "a": {"piece": "thvbupqvjf", "edge": 0},
+              "b": {"piece": "st2k7oyvdu", "edge": 0}
             },
             {
-              "a": {"piece": "vz5es3d0zs", "edge": 2},
-              "b": {"piece": "rh4xa93xan", "edge": 0}
+              "a": {"piece": "thvbupqvjf", "edge": 2},
+              "b": {"piece": "gv1sm9tfmz", "edge": 0}
             },
             {
-              "a": {"piece": "v3b31vu3lu", "edge": 5},
-              "b": {"piece": "hqag96u39j", "edge": 5}
+              "a": {"piece": "r5lz1lglaa", "edge": 5},
+              "b": {"piece": "ahvta5s2zd", "edge": 5}
             },
             {
-              "a": {"piece": "av8j9nblhv", "edge": 1},
-              "b": {"piece": "2y1hsshzt8", "edge": 5}
+              "a": {"piece": "o24wo4ybd4", "edge": 1},
+              "b": {"piece": "0x5xi0r6ji", "edge": 5}
             },
             {
-              "a": {"piece": "av8j9nblhv", "edge": 3},
-              "b": {"piece": "v3b31vu3lu", "edge": 1}
+              "a": {"piece": "o24wo4ybd4", "edge": 3},
+              "b": {"piece": "r5lz1lglaa", "edge": 1}
             },
             {
-              "a": {"piece": "av8j9nblhv", "edge": 4},
-              "b": {"piece": "gul0d2v6xu", "edge": 1}
+              "a": {"piece": "o24wo4ybd4", "edge": 4},
+              "b": {"piece": "p1bpuind31", "edge": 1}
             },
             {
-              "a": {"piece": "lh1dqkjky4", "edge": 0},
-              "b": {"piece": "8sbfb0vo47", "edge": 0}
+              "a": {"piece": "ak40l3z2qr", "edge": 0},
+              "b": {"piece": "qhx5thj0wt", "edge": 0}
             },
             {
-              "a": {"piece": "lh1dqkjky4", "edge": 2},
-              "b": {"piece": "av8j9nblhv", "edge": 2}
+              "a": {"piece": "ak40l3z2qr", "edge": 2},
+              "b": {"piece": "o24wo4ybd4", "edge": 2}
             },
             {
-              "a": {"piece": "gul0d2v6xu", "edge": 2},
-              "b": {"piece": "v3b31vu3lu", "edge": 0}
+              "a": {"piece": "p1bpuind31", "edge": 2},
+              "b": {"piece": "r5lz1lglaa", "edge": 0}
             },
             {
-              "a": {"piece": "gul0d2v6xu", "edge": 4},
-              "b": {"piece": "a8f0v3p6r3", "edge": 0}
+              "a": {"piece": "p1bpuind31", "edge": 4},
+              "b": {"piece": "3qaorumlyn", "edge": 0}
             },
             {
-              "a": {"piece": "fug8547zsx", "edge": 0},
-              "b": {"piece": "gmgf84f9ky", "edge": 3}
+              "a": {"piece": "ppr3k867xb", "edge": 0},
+              "b": {"piece": "hm0q140onh", "edge": 3}
             },
             {
-              "a": {"piece": "fug8547zsx", "edge": 4},
-              "b": {"piece": "kh1qij0alc", "edge": 3}
+              "a": {"piece": "ppr3k867xb", "edge": 4},
+              "b": {"piece": "hep7bexdqw", "edge": 3}
             },
             {
-              "a": {"piece": "hk4bzmnn6e", "edge": 1},
-              "b": {"piece": "04y65ve9ha", "edge": 3}
+              "a": {"piece": "st2k7oyvdu", "edge": 1},
+              "b": {"piece": "c80zdpb7ji", "edge": 3}
             },
             {
-              "a": {"piece": "hk4bzmnn6e", "edge": 3},
-              "b": {"piece": "5ut1zhafi1", "edge": 3}
+              "a": {"piece": "st2k7oyvdu", "edge": 3},
+              "b": {"piece": "ekfyg7fkke", "edge": 3}
             },
             {
-              "a": {"piece": "hk4bzmnn6e", "edge": 5},
-              "b": {"piece": "s63bv3xw4y", "edge": 5}
+              "a": {"piece": "st2k7oyvdu", "edge": 5},
+              "b": {"piece": "vxgu2kglry", "edge": 5}
             },
             {
-              "a": {"piece": "3s9c1z1syn", "edge": 1},
-              "b": {"piece": "2othy2cwli", "edge": 5}
+              "a": {"piece": "927u82niwb", "edge": 1},
+              "b": {"piece": "wr45fuv0ou", "edge": 5}
             },
             {
-              "a": {"piece": "3s9c1z1syn", "edge": 3},
-              "b": {"piece": "rf73omsxaa", "edge": 3}
+              "a": {"piece": "927u82niwb", "edge": 3},
+              "b": {"piece": "j7awdkobmr", "edge": 3}
             },
             {
-              "a": {"piece": "3s9c1z1syn", "edge": 5},
-              "b": {"piece": "rh4xa93xan", "edge": 3}
+              "a": {"piece": "927u82niwb", "edge": 5},
+              "b": {"piece": "gv1sm9tfmz", "edge": 3}
             },
             {
-              "a": {"piece": "wtv6h0dsuf", "edge": 2},
-              "b": {"piece": "act6nopru1", "edge": 3}
+              "a": {"piece": "rvf37lenql", "edge": 2},
+              "b": {"piece": "sajeji1nfh", "edge": 3}
             },
             {
-              "a": {"piece": "wtv6h0dsuf", "edge": 4},
-              "b": {"piece": "vz5es3d0zs", "edge": 3}
+              "a": {"piece": "rvf37lenql", "edge": 4},
+              "b": {"piece": "thvbupqvjf", "edge": 3}
             },
             {
-              "a": {"piece": "8sbfb0vo47", "edge": 1},
-              "b": {"piece": "9l0y5g6l34", "edge": 3}
+              "a": {"piece": "qhx5thj0wt", "edge": 1},
+              "b": {"piece": "eqlxwdlbhx", "edge": 3}
             },
             {
-              "a": {"piece": "8sbfb0vo47", "edge": 3},
-              "b": {"piece": "0ldtws1wc4", "edge": 5}
+              "a": {"piece": "qhx5thj0wt", "edge": 3},
+              "b": {"piece": "dil0nnd63e", "edge": 5}
             },
             {
-              "a": {"piece": "8sbfb0vo47", "edge": 5},
-              "b": {"piece": "v3b31vu3lu", "edge": 3}
+              "a": {"piece": "qhx5thj0wt", "edge": 5},
+              "b": {"piece": "r5lz1lglaa", "edge": 3}
             },
             {
-              "a": {"piece": "hqag96u39j", "edge": 0},
-              "b": {"piece": "9bklteqr2a", "edge": 3}
+              "a": {"piece": "ahvta5s2zd", "edge": 0},
+              "b": {"piece": "6fqsnaeyvw", "edge": 3}
             },
             {
-              "a": {"piece": "hqag96u39j", "edge": 4},
-              "b": {"piece": "gul0d2v6xu", "edge": 3}
+              "a": {"piece": "ahvta5s2zd", "edge": 4},
+              "b": {"piece": "p1bpuind31", "edge": 3}
             },
             {
-              "a": {"piece": "2y1hsshzt8", "edge": 2},
-              "b": {"piece": "2huc0xh4rw", "edge": 3}
+              "a": {"piece": "0x5xi0r6ji", "edge": 2},
+              "b": {"piece": "gseloqk3nz", "edge": 3}
             },
             {
-              "a": {"piece": "2y1hsshzt8", "edge": 4},
-              "b": {"piece": "lh1dqkjky4", "edge": 3}
+              "a": {"piece": "0x5xi0r6ji", "edge": 4},
+              "b": {"piece": "ak40l3z2qr", "edge": 3}
             },
             {
-              "a": {"piece": "seckgvb1zb", "edge": 1},
-              "b": {"piece": "a8f0v3p6r3", "edge": 5}
+              "a": {"piece": "ys20l459n9", "edge": 1},
+              "b": {"piece": "3qaorumlyn", "edge": 5}
             },
             {
-              "a": {"piece": "seckgvb1zb", "edge": 3},
-              "b": {"piece": "ruerbtuofa", "edge": 5}
+              "a": {"piece": "ys20l459n9", "edge": 3},
+              "b": {"piece": "u3b0y36o6i", "edge": 5}
             },
             {
-              "a": {"piece": "seckgvb1zb", "edge": 5},
-              "b": {"piece": "av8j9nblhv", "edge": 5}
+              "a": {"piece": "ys20l459n9", "edge": 5},
+              "b": {"piece": "o24wo4ybd4", "edge": 5}
             }
           ],
           "box": [
@@ -2313,6 +2409,448 @@
         },
         "author": "RRQuilts contributors",
         "license": "CC-BY-SA-4.0"
+      },
+      {
+        "id": "lslc73t0k9",
+        "notecard": {"name": "Moravian Star"},
+        "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "at": [2.711329857674859, -1.7127077336055443],
+              "turn": 300,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "yst7c7svz1",
+              "fills": {
+                "9md7pcis0r": {"color": "rrquilts.coral"},
+                "fcidkzul9p": {"color": "rrquilts.coral"},
+                "rzl21j6c4w": {"color": "rrquilts.coral"},
+                "y1kwnmpbd7": {"color": "rrquilts.coral"},
+                "ew0hr0ygc5": {"color": "rrquilts.coral"}
+              }
+            },
+            {
+              "at": [4.3017201825786815, 0.7374621522283576],
+              "turn": 240,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "nf02b71etu",
+              "fills": {
+                "fcidkzul9p": {"color": "rrquilts.pink"},
+                "rzl21j6c4w": {"color": "rrquilts.pink"},
+                "y1kwnmpbd7": {"color": "rrquilts.pink"},
+                "ew0hr0ygc5": {"color": "rrquilts.pink"},
+                "9md7pcis0r": {"color": "rrquilts.pink"}
+              }
+            },
+            {
+              "at": [5.688961437819903, 5.383176478791862],
+              "turn": 0,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "8d0mbn2jg1",
+              "fills": {
+                "ew0hr0ygc5": {"color": "rrquilts.red"},
+                "9md7pcis0r": {"color": "rrquilts.red"},
+                "fcidkzul9p": {"color": "rrquilts.red"},
+                "rzl21j6c4w": {"color": "rrquilts.red"},
+                "y1kwnmpbd7": {"color": "rrquilts.red"}
+              }
+            },
+            {
+              "at": [7.074074455747803, 0.755304041344774],
+              "turn": 120,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "tw8l82iizz",
+              "fills": {
+                "ew0hr0ygc5": {"color": "rrquilts.barn-red"},
+                "9md7pcis0r": {"color": "rrquilts.barn-red"},
+                "fcidkzul9p": {"color": "rrquilts.barn-red"},
+                "rzl21j6c4w": {"color": "rrquilts.barn-red"},
+                "y1kwnmpbd7": {"color": "rrquilts.barn-red"}
+              }
+            },
+            {
+              "at": [5.702565880991861, -1.638161641537172],
+              "turn": 0,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "ye6uys3wsl",
+              "fills": {
+                "fcidkzul9p": {"color": "rrquilts.rose"},
+                "rzl21j6c4w": {"color": "rrquilts.rose"},
+                "y1kwnmpbd7": {"color": "rrquilts.rose"},
+                "9md7pcis0r": {"color": "rrquilts.rose"},
+                "ew0hr0ygc5": {"color": "rrquilts.rose"}
+              }
+            },
+            {
+              "at": [10.447274463034754, -2.7450385749651183],
+              "turn": 240,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "ezk0x5v65g",
+              "fills": {
+                "ew0hr0ygc5": {"color": "rrquilts.yellow"},
+                "9md7pcis0r": {"color": "rrquilts.yellow"},
+                "fcidkzul9p": {"color": "rrquilts.yellow"},
+                "rzl21j6c4w": {"color": "rrquilts.yellow"},
+                "y1kwnmpbd7": {"color": "rrquilts.yellow"}
+              }
+            },
+            {
+              "at": [8.647274463034753, -1.7058080904237896],
+              "turn": 60,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "pmqikg108f",
+              "fills": {
+                "ew0hr0ygc5": {"color": "rrquilts.gold"},
+                "9md7pcis0r": {"color": "rrquilts.gold"},
+                "fcidkzul9p": {"color": "rrquilts.gold"},
+                "y1kwnmpbd7": {"color": "rrquilts.gold"},
+                "rzl21j6c4w": {"color": "rrquilts.gold"}
+              }
+            },
+            {
+              "at": [5.702565880991861, -3.716622610619826],
+              "turn": 180,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "akwc07w8t2",
+              "fills": {
+                "y1kwnmpbd7": {"color": "rrquilts.orange"},
+                "rzl21j6c4w": {"color": "rrquilts.orange"},
+                "fcidkzul9p": {"color": "rrquilts.orange"},
+                "9md7pcis0r": {"color": "rrquilts.orange"},
+                "ew0hr0ygc5": {"color": "rrquilts.orange"}
+              }
+            },
+            {
+              "at": [8.874074455747806, 1.794534525886099],
+              "turn": 300,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "aqi4vh4zq0",
+              "fills": {
+                "y1kwnmpbd7": {"color": "rrquilts.butter"},
+                "rzl21j6c4w": {"color": "rrquilts.butter"},
+                "fcidkzul9p": {"color": "rrquilts.butter"},
+                "9md7pcis0r": {"color": "rrquilts.butter"},
+                "ew0hr0ygc5": {"color": "rrquilts.butter"}
+              }
+            },
+            {
+              "at": [0.9113298576748579, -2.7519382181468703],
+              "turn": 120,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "lufv8dhq6j",
+              "fills": {
+                "9md7pcis0r": {"color": "rrquilts.brown"},
+                "fcidkzul9p": {"color": "rrquilts.brown"},
+                "rzl21j6c4w": {"color": "rrquilts.brown"},
+                "y1kwnmpbd7": {"color": "rrquilts.brown"},
+                "ew0hr0ygc5": {"color": "rrquilts.brown"}
+              }
+            },
+            {
+              "at": [5.688961437819904, 3.304715509709208],
+              "turn": 180,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "omc267o8pc",
+              "fills": {
+                "y1kwnmpbd7": {"color": "rrquilts.tan"},
+                "rzl21j6c4w": {"color": "rrquilts.tan"},
+                "fcidkzul9p": {"color": "rrquilts.tan"},
+                "9md7pcis0r": {"color": "rrquilts.tan"},
+                "ew0hr0ygc5": {"color": "rrquilts.tan"}
+              }
+            },
+            {
+              "at": [2.5017201825786812, 1.776692636769684],
+              "turn": 60.00000000000006,
+              "scale": 1,
+              "rosette": "ragingroosevelt.rna3yn6fp1",
+              "id": "im1axffuhz",
+              "fills": {
+                "ew0hr0ygc5": {"color": "rrquilts.linen"},
+                "9md7pcis0r": {"color": "rrquilts.linen"},
+                "fcidkzul9p": {"color": "rrquilts.linen"},
+                "rzl21j6c4w": {"color": "rrquilts.linen"},
+                "y1kwnmpbd7": {"color": "rrquilts.linen"}
+              }
+            }
+          ],
+          "box": [
+            -0.43867014232514223,
+            -5.275468337431816,
+            11.797274463034753,
+            6.942022205603852
+          ],
+          "seams": [
+            {
+              "a": {"piece": "nf02b71etu", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "ye6uys3wsl", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "ye6uys3wsl", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "tw8l82iizz", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "tw8l82iizz", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "nf02b71etu", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "nf02b71etu", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "ye6uys3wsl", "part": "rzl21j6c4w", "edge": 0}
+            },
+            {
+              "a": {"piece": "nf02b71etu", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "yst7c7svz1", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "ye6uys3wsl", "part": "rzl21j6c4w", "edge": 3},
+              "b": {"piece": "yst7c7svz1", "part": "fcidkzul9p", "edge": 0}
+            },
+            {
+              "a": {"piece": "ye6uys3wsl", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "yst7c7svz1", "part": "9md7pcis0r", "edge": 1}
+            },
+            {
+              "a": {"piece": "yst7c7svz1", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "nf02b71etu", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "yst7c7svz1", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "yst7c7svz1", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "ye6uys3wsl", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "ye6uys3wsl", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "tw8l82iizz", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "tw8l82iizz", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "nf02b71etu", "part": "ew0hr0ygc5", "edge": 3},
+              "b": {"piece": "nf02b71etu", "part": "y1kwnmpbd7", "edge": 2}
+            },
+            {
+              "a": {"piece": "tw8l82iizz", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "ye6uys3wsl", "part": "9md7pcis0r", "edge": 1}
+            },
+            {
+              "a": {"piece": "tw8l82iizz", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "nf02b71etu", "part": "rzl21j6c4w", "edge": 0}
+            },
+            {
+              "a": {"piece": "akwc07w8t2", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "akwc07w8t2", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "ezk0x5v65g", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "aqi4vh4zq0", "part": "ew0hr0ygc5", "edge": 3},
+              "b": {"piece": "aqi4vh4zq0", "part": "y1kwnmpbd7", "edge": 2}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "omc267o8pc", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "im1axffuhz", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "im1axffuhz", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "im1axffuhz", "part": "ew0hr0ygc5", "edge": 2},
+              "b": {"piece": "nf02b71etu", "part": "y1kwnmpbd7", "edge": 3}
+            },
+            {
+              "a": {"piece": "nf02b71etu", "part": "ew0hr0ygc5", "edge": 2},
+              "b": {"piece": "im1axffuhz", "part": "y1kwnmpbd7", "edge": 3}
+            },
+            {
+              "a": {"piece": "im1axffuhz", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "yst7c7svz1", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "yst7c7svz1", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "im1axffuhz", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "lufv8dhq6j", "part": "ew0hr0ygc5", "edge": 3},
+              "b": {"piece": "lufv8dhq6j", "part": "y1kwnmpbd7", "edge": 2}
+            },
+            {
+              "a": {"piece": "im1axffuhz", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "lufv8dhq6j", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "lufv8dhq6j", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "im1axffuhz", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "yst7c7svz1", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "akwc07w8t2", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "akwc07w8t2", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "yst7c7svz1", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "akwc07w8t2", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "lufv8dhq6j", "part": "y1kwnmpbd7", "edge": 0}
+            },
+            {
+              "a": {"piece": "lufv8dhq6j", "part": "rzl21j6c4w", "edge": 3},
+              "b": {"piece": "akwc07w8t2", "part": "fcidkzul9p", "edge": 0}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "ew0hr0ygc5", "edge": 3},
+              "b": {"piece": "pmqikg108f", "part": "y1kwnmpbd7", "edge": 2}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "tw8l82iizz", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "fcidkzul9p", "edge": 3},
+              "b": {"piece": "ye6uys3wsl", "part": "9md7pcis0r", "edge": 2}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "ye6uys3wsl", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "tw8l82iizz", "part": "y1kwnmpbd7", "edge": 0}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "aqi4vh4zq0", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "pmqikg108f", "part": "ew0hr0ygc5", "edge": 1},
+              "b": {"piece": "aqi4vh4zq0", "part": "9md7pcis0r", "edge": 2}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "aqi4vh4zq0", "part": "9md7pcis0r", "edge": 1}
+            },
+            {
+              "a": {"piece": "aqi4vh4zq0", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "ezk0x5v65g", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "akwc07w8t2", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "pmqikg108f", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "akwc07w8t2", "part": "rzl21j6c4w", "edge": 3},
+              "b": {"piece": "pmqikg108f", "part": "y1kwnmpbd7", "edge": 0}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "ew0hr0ygc5", "edge": 1},
+              "b": {"piece": "akwc07w8t2", "part": "rzl21j6c4w", "edge": 0}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "akwc07w8t2", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "lufv8dhq6j", "part": "rzl21j6c4w", "edge": 0}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "lufv8dhq6j", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "8d0mbn2jg1", "part": "y1kwnmpbd7", "edge": 2},
+              "b": {"piece": "8d0mbn2jg1", "part": "ew0hr0ygc5", "edge": 3}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "nf02b71etu", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "fcidkzul9p", "edge": 3},
+              "b": {"piece": "tw8l82iizz", "part": "9md7pcis0r", "edge": 2}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "tw8l82iizz", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "nf02b71etu", "part": "y1kwnmpbd7", "edge": 0}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "rzl21j6c4w", "edge": 3},
+              "b": {"piece": "aqi4vh4zq0", "part": "y1kwnmpbd7", "edge": 0}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "aqi4vh4zq0", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "9md7pcis0r", "edge": 2},
+              "b": {"piece": "im1axffuhz", "part": "ew0hr0ygc5", "edge": 1}
+            },
+            {
+              "a": {"piece": "omc267o8pc", "part": "ew0hr0ygc5", "edge": 1},
+              "b": {"piece": "im1axffuhz", "part": "9md7pcis0r", "edge": 2}
+            },
+            {
+              "a": {"piece": "8d0mbn2jg1", "part": "y1kwnmpbd7", "edge": 0},
+              "b": {"piece": "im1axffuhz", "part": "9md7pcis0r", "edge": 1}
+            },
+            {
+              "a": {"piece": "im1axffuhz", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "8d0mbn2jg1", "part": "rzl21j6c4w", "edge": 3}
+            },
+            {
+              "a": {"piece": "8d0mbn2jg1", "part": "ew0hr0ygc5", "edge": 1},
+              "b": {"piece": "aqi4vh4zq0", "part": "rzl21j6c4w", "edge": 0}
+            },
+            {
+              "a": {"piece": "aqi4vh4zq0", "part": "fcidkzul9p", "edge": 3},
+              "b": {"piece": "8d0mbn2jg1", "part": "9md7pcis0r", "edge": 2}
+            },
+            {
+              "a": {"piece": "ezk0x5v65g", "part": "rzl21j6c4w", "edge": 0},
+              "b": {"piece": "8d0mbn2jg1", "part": "9md7pcis0r", "edge": 1}
+            },
+            {
+              "a": {"piece": "8d0mbn2jg1", "part": "fcidkzul9p", "edge": 0},
+              "b": {"piece": "ezk0x5v65g", "part": "fcidkzul9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "8d0mbn2jg1", "part": "fcidkzul9p", "edge": 3},
+              "b": {"piece": "lufv8dhq6j", "part": "fcidkzul9p", "edge": 0}
+            },
+            {
+              "a": {"piece": "lufv8dhq6j", "part": "9md7pcis0r", "edge": 1},
+              "b": {"piece": "8d0mbn2jg1", "part": "rzl21j6c4w", "edge": 0}
+            }
+          ]
+        },
+        "author": "RagingRoosevelt",
+        "license": "CC-BY-SA-4.0"
       }
     ],
     "fonts": [],
@@ -2321,7 +2859,7 @@
     "author": "RRQuilts contributors",
     "eppShapes": [
       {
-        "id": "rrquilts-contributors.3z9qfyko61",
+        "id": "rrquilts-contributors.u8qqhjd7e1",
         "notecard": {"name": "d10 Kite"},
         "author": "RRQuilts contributors",
         "license": "CC-BY-SA-4.0",
@@ -2449,6 +2987,52 @@
           "license": "PDM-1.0",
           "name": "Pentagon"
         }
+      }
+    ],
+    "rosettes": [
+      {
+        "id": "ragingroosevelt.rna3yn6fp1",
+        "notecard": {"name": "Moravian Star Face"},
+        "pieces": [
+          {
+            "id": "ew0hr0ygc5",
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [1.2632146812659168, -1.731748726655348],
+            "turn": 0,
+            "scale": 1
+          },
+          {
+            "id": "9md7pcis0r",
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [1.263214681265917, -0.8657233228709089],
+            "turn": 60.00000000000001,
+            "scale": 1
+          },
+          {
+            "id": "fcidkzul9p",
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [0.513214681265917, -0.4327106209786894],
+            "turn": -60.00000000000001,
+            "scale": 1
+          },
+          {
+            "id": "rzl21j6c4w",
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [-0.23678531873408304, -0.8657233228709088],
+            "turn": 2.5444437451708134e-14,
+            "scale": 1
+          },
+          {
+            "id": "y1kwnmpbd7",
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [-0.23678531873408226, -1.7317487266553477],
+            "turn": 60.00000000000005,
+            "scale": 1
+          }
+        ],
+        "colorings": [{"id": "dcx3pxsmi5", "name": "Coloring 1", "fills": {}}],
+        "author": "RagingRoosevelt",
+        "license": "CC-BY-SA-4.0"
       }
     ]
   }

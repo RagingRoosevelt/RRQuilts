@@ -464,7 +464,11 @@ const QUILT_HELP: Record<string, { topic: string; label: string }> = {
 const help = computed(() =>
   editor.mode === 'design' && quilt.value?.data?.on
     ? { topic: 'guides/data-quilts', label: 'Data quilts' }
-    : (QUILT_HELP[editor.mode] ?? QUILT_HELP.design!),
+    : isEpp.value && ['design', 'layout', 'details'].includes(editor.mode)
+      ? is3d.value
+        ? { topic: 'guides/epp-3d', label: '3D EPP' }
+        : { topic: 'guides/epp-quilts', label: 'English paper piecing' }
+      : (QUILT_HELP[editor.mode] ?? QUILT_HELP.design!),
 );
 /** A data quilt places its blocks by number (spec 025): no Set, Erase or Find. */
 const shownTools = computed(() =>

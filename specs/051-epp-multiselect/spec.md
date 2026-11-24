@@ -36,7 +36,13 @@ rotated together, etc). stamps should be able to be included in that multi-selec
   be 3*2*2 = 12 rotation points)". Each item's stops come from its edge directions (hexagon 6,
   octagon 8, square 4, triangles and 60° diamonds 6); the lcm of a hexagon and an octagon is 24
   (15° steps), a hexagon and a square 12 (30°). Owner, 2026-11-12: "24 steps for a hex+oct is
-  right".
+  right". Since 0.9.1 a single shape's stops are the lcm of its edge directions' and its corners
+  (Hexi Kite 12, 60° diamond 12, pentagon 10, half hexagon 12, jewel 30), and Turn on one piece
+  uses the same stops (it stepped 360° over its corners, so the kite turned by 90°). Owner,
+  2026-11-24: "for rotation angles, the kite rotates by 90 degree incrments. we should consider the
+  center-to-vertex angles that are present in addition to the number of vertices when deciding
+  which angles to rotate by", then "let's use the LCM of edge direction and the 360/#corners we were
+  using before".
   Dropped with the bar: Shift/Ctrl taps, press and hold, Select same, copy and paste, bring forward
   and send back, and Make rosette in quilts (rosettes are made in the rosette editor or the shape
   editor's Multi-shape mode, spec 050).

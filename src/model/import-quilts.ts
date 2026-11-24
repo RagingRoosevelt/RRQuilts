@@ -1,5 +1,5 @@
 // Quilts from another project (.rrq) into this one, with the blocks, colors, fabrics and threads
-// they use. Items already here are reused; an own block with the same id but another design comes
+// they use, and an EPP quilt's shapes and rosettes (0.9.1 fix). Items already here are reused; an own block with the same id but another design comes
 // in as a copy, and the quilts point at the copy.
 import { produce, type Draft } from 'immer';
 import { canonicalContent, itemId, stableStringify } from './identity';
@@ -48,6 +48,8 @@ export function importProjectQuilts(
   const pool = new Map<string, unknown>([
     ...from.project.blocks.map((b) => [b.id, b] as const),
     ...LISTS.flatMap((k) => from.project.palette[k].map((x) => [x.id, x] as const)),
+    ...(from.project.eppShapes ?? []).map((s) => [s.id, s] as const),
+    ...(from.project.rosettes ?? []).map((r) => [r.id, r] as const),
   ]);
   const need = new Set<string>();
   const queue = [...strings(quilts, new Set())];
@@ -70,6 +72,13 @@ export function importProjectQuilts(
       for (const x of from.project.palette[k])
         if (need.has(x.id) && !have.has(x.id)) (p.palette[k] as unknown[]).push(structuredClone(x));
     }
+    // EPP shapes and rosettes the quilts place: same id = same item, as colors.
+    const haveShapes = new Set((p.eppShapes ?? []).map((x) => x.id));
+    for (const s of from.project.eppShapes ?? [])
+      if (need.has(s.id) && !haveShapes.has(s.id)) (p.eppShapes ??= []).push(structuredClone(s));
+    const haveRosettes = new Set((p.rosettes ?? []).map((x) => x.id));
+    for (const r of from.project.rosettes ?? [])
+      if (need.has(r.id) && !haveRosettes.has(r.id)) (p.rosettes ??= []).push(structuredClone(r));
     for (const b of from.project.blocks) {
       if (!need.has(b.id)) continue;
       const here = p.blocks.find((x) => x.id === b.id);

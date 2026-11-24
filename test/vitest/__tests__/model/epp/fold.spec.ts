@@ -64,6 +64,31 @@ describe('3D EPP fold', () => {
     for (const f of folds(m)) expect(Math.abs(f)).toBeLessThan(1e-3);
   });
 
+  // Owner, 2026-11-24 ("Can't be stuffed: Some edges are sewn only part of the way along" on their
+  // Moravian Star): two explicit seams sewed edges that already touched, so they counted twice.
+  it('a seam sewn between edges that already touch is the same seam, not a second one', () => {
+    const net = toNet(cube());
+    const m0 = buildFold(net);
+    const h = m0.hinges.find((x) => x.seam === null)!;
+    const edgeOn = (piece: number, pts: [number, number][]) =>
+      net.pieces[piece]!.findIndex((a, k) => {
+        const b = net.pieces[piece]![(k + 1) % net.pieces[piece]!.length]!;
+        return pts.every(
+          ([x, y]) => Math.abs((b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0])) < 1e-9,
+        );
+      });
+    const twice = {
+      ...net,
+      seams: [
+        ...net.seams,
+        { a: { piece: h.A, edge: edgeOn(h.A, h.pa) }, b: { piece: h.B, edge: edgeOn(h.B, h.pb) } },
+      ],
+    };
+    const m = buildFold(twice);
+    expect(m.hinges).toHaveLength(m0.hinges.length);
+    expect(m.closed).toBe(true);
+  });
+
   it('folds a cube from a cross, right side out, volume 1', () => {
     const m = fold(cube());
     const r = foldReport(m);

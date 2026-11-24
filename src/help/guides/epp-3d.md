@@ -1,15 +1,15 @@
 ---
 title: 3D EPP
-order: 37
+order: 39
 summary: Sew EPP pieces into an object with seams between edges that don't touch, fold it in the 3D assembly tab, and stuff it.
 ---
 
-A 3D EPP design is a flat layout of pieces whose edges are sewn into an object, such as a ball, a die or a stuffed star. The [3D EPP demo](/?open_demo=3d-epp.rrq) has a pillow, a pincushion, the dice from d4 to d20, a prism, a truncated tetrahedron and a soccer ball to look at and try. It is listed with the project's quilts, with a **3D** badge, and its card shows the folded object (stuffed, for a stuffed design).
+A 3D EPP design is a flat layout of pieces whose edges are sewn into an object, such as a ball, a die or a stuffed star. The [3D EPP demo](/?open_demo=3d-epp.rrq) has a pillow, a pincushion, the dice from d4 to d20, a prism, a truncated tetrahedron, a soccer ball and a Moravian star to look at and try. It is listed with the project's quilts, with a **3D** badge, and its card shows the folded object (stuffed, for a stuffed design).
 
 ## Start a 3D design
 
 1. Start a quilt, choose **EPP** and turn on **3D EPP**.
-2. In the **Design** tab, place shapes and rosettes as in any EPP quilt. Pieces that touch are sewn along the edges they share.
+2. In the **Design** tab, place shapes and rosettes as in any EPP quilt (see [English paper piecing](/help/guides/epp-quilts)). Pieces that touch are sewn along the edges they share.
 3. Set the **1U length** in the **Layout** tab. A 3D design has no edge, borders or binding.
 
 An EPP quilt's **Layout** tab has the same **3D EPP** switch. Turning it on removes the quilt's edge and borders (Undo brings them back). Turning it off keeps the seams for when it is 3D again.
@@ -32,10 +32,11 @@ The design folds the way fabric with stiff papers inside does. Each piece stays 
 
 - Drag to turn the object. Use the mouse wheel or pinch to zoom.
 - Click the object to spread its pieces apart and see the stitches across every seam. Click again to close it up.
+- Hover a seam in the flat design, or press and hold it on a touch screen, to find it on the object. Both its edges and its stitches light up and the other seams fade.
 - Once folded, the object turns so its front faces you and the design's up is up. An open shape faces the way its pieces face overall. A closed shape shows one piece in front, the piece nearest the middle of its largest group unless you double-click another. **Default front** goes back to that piece. The Design tab rings the front piece.
 - **Fold again** starts the fold over.
 
-The side panel says whether every seam closes. Seams that can't close are listed and drawn red, and the object shows the closest fold it found.
+The side panel says whether every seam closes (to within 0.04U). Seams that can't close are listed and drawn red, and the object shows the closest fold it found. Under it, the panel counts the edges that aren't part of any seam. Turn on **Highlight unsewn edges** to find them: they show in amber in the flat design and on the object, and everything else fades. **Highlight stretched seams** does the same for seams the fold can't close to within 0.1U, the seams the flat pieces pull apart. Their edges and stitches light up in pink. A stuffed design's fold usually stretches many seams, which the fabric then closes.
 
 ## Stuffing
 
@@ -49,6 +50,6 @@ Some designs only close once stuffed. Two stars sewn back to back lie flat as pa
 
 ## Print
 
-The **Print** tab gives paper and fabric templates as for any EPP quilt. The quilt picture page shows the flat design, each seam's two edges in its color with its number so you can match them up while sewing, and below it the folded object as the 3D assembly tab first shows it.
+The **Print** tab gives paper and fabric templates as for any EPP quilt. The quilt picture page shows the flat design, each seam's two edges in its color so you can match them up while sewing, and below it the folded object as the 3D assembly tab first shows it.
 
 To print the object from another side, click it in the preview and drag to turn it. Move the pointer away, or leave it for 15 seconds, and the picture comes back from where you left it. The design keeps that view for its printouts (Undo goes back).

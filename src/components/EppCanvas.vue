@@ -69,6 +69,8 @@ const props = withDefaults(
     pan?: boolean;
     /** Redraw when this changes (hover, ghosts…). */
     tick?: unknown;
+    /** Touch: press and hold hovers until the finger lifts (`useViewport` `holdHover`). */
+    holdHover?: boolean;
   }>(),
   {
     grid: () => ({ kind: 'square' }),
@@ -76,6 +78,7 @@ const props = withDefaults(
     empty: () => [-4, -4, 4, 4],
     minSpan: 8,
     pan: false,
+    holdHover: false,
   },
 );
 const emit = defineEmits<{
@@ -191,6 +194,7 @@ const vp = useViewport({
   },
   onTap: (p, e) => emit('tap', p, e),
   onHover: (p, e) => emit('hover', p, e),
+  holdHover: () => props.holdHover,
   onDragStart: (p, e) => props.claim?.(p, e) ?? false,
   onDrag: (p, e) => emit('drag', p, e),
   onDragEnd: (p, e) => emit('drag-end', p, e),

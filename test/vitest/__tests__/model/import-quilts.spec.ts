@@ -5,6 +5,7 @@ import { importProjectQuilts } from '@/model/import-quilts';
 import { parseProject, serializeProject } from '@/model/io';
 import { createProject } from '@/model/new-project';
 import type { RrqDoc } from '@/model/schema/project';
+import { addEppV12 } from '../formats/epp-v12';
 
 const demo = async () => {
   const r = await parseProject(readFileSync('test/fixtures/formats/demo-v6.rrq', 'utf8'));
@@ -75,5 +76,19 @@ describe('import quilts from a project', () => {
     expect(doc.project.quilts).toHaveLength(from.project.quilts.length);
     expect(doc.project.quilts[1]!.id).toBe(q.id);
     expect(doc.project.quilts[1]!.notecard.name).toBe('From the file');
+  });
+
+  // Owner, 2026-11-24 (export bug): an EPP quilt's own shapes and rosettes, and the colors only a
+  // rosette uses, came along neither way.
+  it('an EPP quilt brings its shapes, rosettes and their colors', async () => {
+    const from = addEppV12(createProject('EPP', 'in'));
+    const q = from.project.quilts.find((x) => x.notecard.name === 'EPP Quilt')!;
+    const { doc } = importProjectQuilts(createProject('Here', 'in'), from, 'me', [q.id]);
+    expect(doc.project.rosettes?.map((r) => r.notecard.name)).toEqual(['Sample Flower']);
+    expect(doc.project.eppShapes?.map((s) => s.notecard.name)).toContain('Domino');
+    const colors = doc.project.palette.colors.map((c) => c.notecard.name);
+    for (const c of ['Gold', 'Rose', 'Teal', 'Yellow']) expect(colors).toContain(c);
+    const r = await parseProject(serializeProject(doc));
+    expect(r.ok && r.report).toEqual([]);
   });
 });

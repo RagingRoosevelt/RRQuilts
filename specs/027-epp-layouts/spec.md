@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-18
 
-**Status**: Released in 0.9.0 (2026-11-24); follow-ups (help guides, placed rosette colorings, cut handles, rosette palette swap, any-link opening) planned for 0.9.1. Was: Draft (spec only; not implemented). **2D** (User Stories 1-6) and **3D** (User Story
+**Status**: Released in 0.9.0 (2026-11-24); follow-ups: help guides planned for 0.9.1; placed rosette colorings, cut handles, rosette palette swap and any-link opening for 0.9.2 (owner, 2026-11-24). Was: Draft (spec only; not implemented). **2D** (User Stories 1-6) and **3D** (User Story
 7; User Story 8 later) both ship in 0.9.0 (owner, 2026-11-23; first planned as two releases). STL
 cutting templates are a stretch goal.
 
@@ -714,7 +714,22 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
   seams colored (not numbered, owner 2026-11-24) and the folded object below it (the assembly sheet is the quilt picture; owner,
   2026-11-23: "the print out should show both 2d and 3d view"). In the print preview a click on
   the 3D view swaps in a live view to turn by dragging; the pointer leaving or 15 seconds untouched
-  swap the picture back, seen from there, and that view is saved with the quilt (`epp.printView`).
+  swap the picture back, seen from there, and that view is saved with the quilt (`epp.printView`). In
+  the 3D assembly tab, hovering a seam in the flat net (or pressing and holding it on touch) picks it
+  out: its edges (both, for an explicit seam) glow and the other seams fade, and in the 3D view its
+  stitches show, closed up too, thicker and brighter, while the others fade. Owner, 2026-11-24:
+  "when hoving or long pressing a seam in the 2d view, it fades out the other seams and highlights
+  that seam's made in the 2d view and in the 3d view, it fades the other seams and highlights the
+  active seam's stitching". Under the fold result, the count of edges in no seam and a **Highlight
+  unsewn edges** switch (a view setting): those edges in amber on the net and as tubes on the
+  object, the pieces faded (see-through in 3D). Owner, 2026-11-24: "let's add a toggle near the note
+  about how the fold solve went that will highlight the edges that arent part of a seam and fade the
+  rest". Beside it **Highlight stretched seams**: seams whose ends stay more than 0.1U
+  apart once folded, counted, their edges and stitches (shown closed up too) in pink, the rest
+  faded. Owner, 2026-11-24: "let's also add a toggle for highlighting seams that are being stretched
+  in the fold because they're crossing really far or something. threshold should be 0.1u,
+  maybe?". A seam counts as closed when its ends meet within 0.04U (was 0.02U). Owner,
+  2026-11-24: "for determining closing, let's allow up to 0.04U gaps".
   Owner, 2026-11-23: "let's allow click-to-orbit on the 3d preview in the printout. we'll record
   the orientation. clicking switches from showing an image to the orbitable view and mouse exit or
   15seconds uninteracted will revert back to image view".

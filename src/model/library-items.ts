@@ -142,7 +142,7 @@ export function eppUsed(p: RrqDoc['project']) {
 }
 
 /** Colorings EPP items paint with: rosettes' colorings, pieces' repaints and Auto-close fills. */
-const eppColorings = (p: RrqDoc['project']): ColoringBody[] => [
+export const eppColorings = (p: RrqDoc['project']): ColoringBody[] => [
   ...(p.rosettes ?? []).flatMap((r) => r.colorings),
   ...p.quilts.flatMap((q) =>
     (q.epp?.pieces ?? []).flatMap((x) => (x.fills ? [{ fills: x.fills }] : [])),
