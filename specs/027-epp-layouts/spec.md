@@ -149,7 +149,9 @@ justification).
   sashing, and a variable patch without sashing. let's have a men's XL shirt back over the strips
   one and a queen XL over the on point quilt." Shaped Blocks has no sashing, so the shaped quilt is
   Diamond Point; the US list has no Queen XL, so the target is Queen (both the owner's picks, the
-  same day). The d10 is a real die's: every corner on a sphere, so each kite has two right
+  same day). Both overlays inverted: the shirt back black at full strength, the bed #757575 at 15%.
+  Owner, 2026-11-23: "for both overlays, do tint of #000000, max opacity, invert", then "actually,
+  for the medalians on point, do #757575 at 15%, inverted". The d10 is a real die's: every corner on a sphere, so each kite has two right
   angles, a 51.8° tip and a 128.2° bottom corner, short edges 1U and long edges 2.06U (marked);
   not the 108°/36° kite of the dual of the uniform antiprism. Owner, 2026-11-23: "the d10 kites
   demo should use the standard kite shape that would be found in a typical d10".

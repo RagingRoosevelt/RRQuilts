@@ -368,10 +368,10 @@ export const CHECKS: Check[] = [
     to: '/?open_demo=3d-epp.rrq',
   },
   {
-    id: 'TC-330',
+    id: 'TC-331',
     group: G.files,
-    text: 'Block and patch quilts demo (first in Home › Open a demo and the welcome’s Demos step; Help › Designing a quilt links it). Quilts (4), Show: All, Block quilts, Patch quilts. Medallions on point: three medallion blocks on point with cream sashing and red cornerstones, dark setting triangles, about 97 in square, the Queen with drop outline over it. Diamonds with sashing: Diamond Point, two log cabin diamond blocks, gold sashing, teal setting pieces, a dark 3 in border. Pieced strips: seven pattern strips edge to edge (points, checkerboards, diamonds, spaced squares, double diamonds), 28 × 29 in, the men’s XL top back outline over it. Tumbling cubes: Variable Patch, butter tops, teal and dark sides, 42 × 38½ in.',
-    last: 'let’s add a demo project with a handful of basic block and patch quilts. let’s do an on-point quilt with some medalians with sashing between them, a shaped blocks with sashing and a border, a strips (patches) without sashing, and a variable patch without sashing. let’s have a men’s XL shirt back over the strips one and a queen XL over the on point quilt.',
+    text: 'Block and patch quilts demo (first in Home › Open a demo and the welcome’s Demos step; Help › Designing a quilt links it). Quilts (4), Show: All, Block quilts, Patch quilts. Medallions on point: three medallion blocks on point with cream sashing and red cornerstones, dark setting triangles, about 97 in square, the Queen with drop outline over it. Diamonds with sashing: Diamond Point, two log cabin diamond blocks, gold sashing, teal setting pieces, a dark 3 in border. Pieced strips: seven pattern strips edge to edge (points, checkerboards, diamonds, spaced squares, double diamonds), 28 × 29 in, the men’s XL top back outline over it. Tumbling cubes: Variable Patch, butter tops, teal and dark sides, 42 × 38½ in. Both overlays have Invert on (the quilt outside the shape shaded, inside it as is): Pieced strips black at full strength (Layout › Reference overlay: black swatch, Fill 100%), Medallions on point a light gray wash (#757575, Fill 15%).',
+    last: 'let’s add a demo project with a handful of basic block and patch quilts. let’s do an on-point quilt with some medalians with sashing between them, a shaped blocks with sashing and a border, a strips (patches) without sashing, and a variable patch without sashing. let’s have a men’s XL shirt back over the strips one and a queen XL over the on point quilt; for both overlays, do tint of #000000, max opacity, invert; actually, for the medalians on point, do #757575 at 15%, inverted',
     to: '/?open_demo=block-quilts.rrq',
   },
 ];

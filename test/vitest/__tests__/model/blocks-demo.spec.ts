@@ -2,7 +2,8 @@
 // basic block and patch quilts"): public/demo/block-quilts.rrq, opened by
 // /?open_demo=block-quilts.rrq. Medallions on point with sashing (a Queen bed's outline over it),
 // diamond blocks in Diamond Point with sashing and a border, pieced strips without sashing (a men's
-// XL shirt back's outline), and Variable Patch cubes. Filled with the editor's Set and Paint tools.
+// XL shirt back's outline), and Variable Patch cubes. Both overlays inverted: the shirt back black at
+// full strength, the bed #757575 at 15% (owner, 2026-11-23). Filled with the editor's Set and Paint tools.
 // BLOCKS_DEMO=<file> writes it.
 import { writeFileSync } from 'node:fs';
 import { produce } from 'immer';
@@ -35,7 +36,8 @@ interface Plan {
   notes: string;
   layout: Layout;
   borders: Border[];
-  target?: TargetInput;
+  /** The target and its overlay's look (always inverted: the quilt outside the shape shaded). */
+  target?: { input: TargetInput; tint: string; opacity: number };
   fill: (s: Slot) => Fill;
 }
 
@@ -65,7 +67,11 @@ const PLANS: Plan[] = [
       'Three medallion blocks set on point, 14 in, with 2½ in sashing and red cornerstones between them and dark setting triangles. Big enough for a Queen bed with a 14 in drop (the outline).',
     layout: { ...onPointDefaults(1), cols: 4, rows: 4, block: 14, sash: 2.5 },
     borders: [],
-    target: startChoice('Queen', { choice: null, region: 'us' }, 'in'),
+    target: {
+      input: startChoice('Queen', { choice: null, region: 'us' }, 'in'),
+      tint: '#757575',
+      opacity: 0.15,
+    },
     fill: (s) => {
       if (s.kind === 'block') {
         if (s.alt === 1) return { block: 'Framed Diamond' };
@@ -107,9 +113,13 @@ const PLANS: Plan[] = [
     },
     borders: [],
     target: {
-      ...startChoice('top', { choice: null, region: 'us', fit: 'men' }, 'in'),
-      size: 'XL',
-      piece: 'back',
+      input: {
+        ...startChoice('top', { choice: null, region: 'us', fit: 'men' }, 'in'),
+        size: 'XL',
+        piece: 'back',
+      },
+      tint: '#000000',
+      opacity: 1,
     },
     fill: (s) => {
       const [, id, part] = s.id.split(':') as [string, string, string];
@@ -139,13 +149,13 @@ async function demo(): Promise<RrqDoc> {
   });
   for (const p of PLANS) {
     const q0 = createQuilt(p.name, p.layout, p.borders);
-    const t = p.target && resolveTarget(p.target, 'in');
+    const t = p.target && resolveTarget(p.target.input, 'in');
     const q: Quilt = {
       ...q0,
       author: AUTHOR,
       license: DEFAULT_LICENSE,
       notecard: { ...q0.notecard, notes: p.notes },
-      ...(t ? { target: { visible: true, input: p.target!, ...t } } : {}),
+      ...(t ? { target: { visible: true, invert: true, ...p.target!, ...t } } : {}),
     };
     d = produce(d, (x) => void x.project.quilts.push(q));
     const spaces = generateSlots(q.layout, q.borders).slots;
