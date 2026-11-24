@@ -1,0 +1,1244 @@
+{
+  "format": "rrq",
+  "version": 12,
+  "app": "0.0.1",
+  "units": "in",
+  "futureTopLevel": {"keep": true},
+  "project": {
+    "id": "proj1",
+    "name": "Everything",
+    "futureProjectKey": [1, 2, 3],
+    "palette": {
+      "fabrics": [
+        {
+          "id": "fab1",
+          "notecard": {
+            "name": "Indigo Dot",
+            "notes": "n",
+            "reference": "r",
+            "tags": ["blue"]
+          },
+          "image": {
+            "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+            "type": "image/png",
+            "sha256": "c414cd0e204de974f73753c7e28d7638e7b3691bb8b1a2bab6b25bb7fed7ce77",
+            "width": 1,
+            "height": 1
+          },
+          "size": [5, 5],
+          "average": [38, 52, 110],
+          "manufacturer": "Acme",
+          "sku": "A-1",
+          "source": {"libraryId": "lib1", "itemId": "indigo", "revision": 2}
+        }
+      ],
+      "colors": [
+        {"id": "col1", "notecard": {"name": "Cream"}, "rgb": [250, 245, 230]},
+        {"id": "col2", "notecard": {"name": "Red"}, "rgb": [200, 40, 40]},
+        {
+          "id": "rrquilts.cream",
+          "notecard": {"name": "Cream"},
+          "rgb": [244, 236, 216],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.cream",
+            "revision": 1,
+            "name": "Cream",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.orange",
+          "notecard": {"name": "Orange"},
+          "rgb": [236, 128, 40],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.orange",
+            "revision": 1,
+            "name": "Orange",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.charcoal",
+          "notecard": {"name": "Charcoal"},
+          "rgb": [64, 64, 66],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.charcoal",
+            "revision": 1,
+            "name": "Charcoal",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.gold",
+          "notecard": {"name": "Gold"},
+          "rgb": [218, 168, 40],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.gold",
+            "revision": 1,
+            "name": "Gold",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.rose",
+          "notecard": {"name": "Rose"},
+          "rgb": [208, 92, 120],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.rose",
+            "revision": 1,
+            "name": "Rose",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.yellow",
+          "notecard": {"name": "Yellow"},
+          "rgb": [248, 216, 72],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.yellow",
+            "revision": 1,
+            "name": "Yellow",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.teal",
+          "notecard": {"name": "Teal"},
+          "rgb": [32, 128, 128],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.teal",
+            "revision": 1,
+            "name": "Teal",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.navy",
+          "notecard": {"name": "Navy"},
+          "rgb": [28, 36, 72],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.navy",
+            "revision": 1,
+            "name": "Navy",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.sage",
+          "notecard": {"name": "Sage"},
+          "rgb": [150, 170, 140],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.sage",
+            "revision": 1,
+            "name": "Sage",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.green",
+          "notecard": {"name": "Green"},
+          "rgb": [72, 150, 72],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.green",
+            "revision": 1,
+            "name": "Green",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.blue",
+          "notecard": {"name": "Blue"},
+          "rgb": [48, 104, 176],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.blue",
+            "revision": 1,
+            "name": "Blue",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.red",
+          "notecard": {"name": "Red"},
+          "rgb": [196, 40, 44],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.red",
+            "revision": 1,
+            "name": "Red",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        },
+        {
+          "id": "rrquilts.purple",
+          "notecard": {"name": "Purple"},
+          "rgb": [112, 64, 150],
+          "source": {
+            "libraryId": "rrquilts-starter",
+            "itemId": "rrquilts.purple",
+            "revision": 1,
+            "name": "Purple",
+            "library": "Built-In",
+            "author": "RRQuilts contributors",
+            "license": "PDM-1.0"
+          },
+          "revision": 1
+        }
+      ],
+      "threads": [
+        {
+          "id": "thr1",
+          "notecard": {"name": "Gold"},
+          "rgb": [212, 175, 55],
+          "number": "5633",
+          "manufacturer": "Acme"
+        }
+      ],
+      "collections": [
+        {
+          "id": "project-palette",
+          "notecard": {"name": "Project palette"},
+          "colors": ["col1", "col2"],
+          "fabrics": []
+        }
+      ]
+    },
+    "blocks": [
+      {
+        "id": "seam1",
+        "kind": "seam",
+        "size": [9, 9],
+        "notecard": {"name": "Curved", "categories": ["Curves"]},
+        "drawing": {
+          "nodes": [
+            {"id": "n1", "x": 0, "y": 0},
+            {"id": "n2", "x": 1, "y": 1, "handle": "corner"},
+            {"id": "n3", "x": 1, "y": 0},
+            {"id": "n4", "x": 0, "y": 1}
+          ],
+          "segments": [
+            {"id": "s1", "from": "n1", "to": "n2", "kind": "line"},
+            {"id": "s2", "from": "n3", "to": "n4", "kind": "arc", "sweep": 90},
+            {
+              "id": "s3",
+              "from": "n1",
+              "to": "n3",
+              "kind": "bezier",
+              "c1": [0.3, 0.1],
+              "c2": [0.7, 0.1]
+            }
+          ]
+        },
+        "patches": [
+          {
+            "id": "p1",
+            "path": [["M", 0, 0], ["L", 1, 0], ["A", 0, 1, 90], ["Z"]]
+          },
+          {
+            "id": "p2",
+            "path": [["M", 0, 0], ["C", 0.3, 0.1, 0.7, 0.1, 1, 0], ["L", 0, 0], ["Z"]],
+            "flags": ["self-intersecting"]
+          }
+        ],
+        "unconnected": ["s3"],
+        "colorings": [
+          {
+            "id": "k1",
+            "fills": {
+              "p1": {"fabric": "fab1", "offset": [0.5, 0.25], "rotation": 45},
+              "p2": {"color": "col1"}
+            },
+            "threads": {"p1": {"thread": "thr1", "style": "dashed", "weight": 0.5}}
+          }
+        ],
+        "foundation": {
+          "sections": [{"id": "sec1", "patches": ["p1", "p2"], "needsReview": true}]
+        },
+        "editor": {"snaps": [12, 12], "futureEditorKey": "x"}
+      },
+      {
+        "id": "grid1",
+        "kind": "grid",
+        "size": [6, 6],
+        "notecard": {"name": "Grid"},
+        "grid": {"type": "circle", "params": {"rings": 3, "spokes": 8}},
+        "patches": [
+          {
+            "id": "p",
+            "path": [["M", 0, 0], ["L", 1, 0], ["L", 1, 1], ["L", 0, 1], ["Z"]]
+          }
+        ],
+        "colorings": []
+      },
+      {
+        "id": "app1",
+        "kind": "applique",
+        "size": [8, 8],
+        "notecard": {"name": "Flower"},
+        "patches": [
+          {
+            "id": "pa",
+            "path": [["M", 0.2, 0.2], ["L", 0.8, 0.2], ["L", 0.5, 0.8], ["Z"]]
+          }
+        ],
+        "stitches": [{"id": "st1", "path": [["M", 0.1, 0.1], ["L", 0.2, 0.3]]}],
+        "background": {
+          "id": "bg",
+          "path": [["M", 0, 0], ["L", 1, 0], ["L", 1, 1], ["L", 0, 1], ["Z"]]
+        },
+        "colorings": [{"id": "k1", "fills": {"bg": {"color": "col1"}}}]
+      },
+      {
+        "id": "mot1",
+        "kind": "motif",
+        "size": [4, 4],
+        "notecard": {"name": "Leaf"},
+        "patches": [
+          {
+            "id": "pa",
+            "path": [["M", 0, 0], ["L", 1, 0], ["L", 1, 1], ["L", 0, 1], ["Z"]]
+          }
+        ],
+        "stitches": [],
+        "colorings": []
+      },
+      {
+        "id": "sten1",
+        "kind": "stencil",
+        "size": [4, 4],
+        "notecard": {"name": "Feather"},
+        "patches": [],
+        "stitches": [{"id": "st", "path": [["M", 0, 0], ["C", 0.2, 0.5, 0.8, 0.5, 1, 1]]}],
+        "colorings": []
+      },
+      {
+        "id": "frm1",
+        "kind": "frame",
+        "size": [10, 10],
+        "notecard": {"name": "Frame"},
+        "patches": [
+          {
+            "id": "pa",
+            "path": [["M", 0, 0], ["L", 1, 0], ["L", 1, 1], ["L", 0, 1], ["Z"]]
+          }
+        ],
+        "stitches": [],
+        "colorings": []
+      },
+      {
+        "id": "cmb1",
+        "kind": "combo",
+        "size": [10, 10],
+        "notecard": {"name": "Combo"},
+        "pieced": {
+          "kind": "grid",
+          "grid": {"type": "rectangle", "params": {"cols": 2, "rows": 2}},
+          "patches": [
+            {
+              "id": "g1",
+              "path": [["M", 0, 0], ["L", 1, 0], ["L", 1, 1], ["L", 0, 1], ["Z"]]
+            }
+          ]
+        },
+        "applique": {
+          "patches": [
+            {
+              "id": "a1",
+              "path": [["M", 0, 0], ["L", 1, 0], ["L", 1, 1], ["L", 0, 1], ["Z"]]
+            }
+          ],
+          "stitches": []
+        },
+        "colorings": []
+      },
+      {
+        "id": "plain",
+        "kind": "grid",
+        "size": [1, 1],
+        "notecard": {"name": "Plain"},
+        "grid": {"type": "rectangle", "params": {}},
+        "patches": [
+          {
+            "id": "p",
+            "path": [["M", 0, 0], ["L", 1, 0], ["L", 1, 1], ["L", 0, 1], ["Z"]]
+          }
+        ],
+        "colorings": []
+      },
+      {
+        "id": "rrquilts.epp-tumbling-block-epp",
+        "notecard": {"name": "Tumbling Block", "tags": ["system"]},
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0",
+        "size": [1.7320508075688776, 2],
+        "shape": "hexagon",
+        "colorings": [
+          {
+            "id": "c1",
+            "name": "Coloring 1",
+            "fills": {
+              "p1": {"color": "rrquilts.cream"},
+              "p2": {"color": "rrquilts.orange"},
+              "p3": {"color": "rrquilts.charcoal"}
+            }
+          }
+        ],
+        "rosette": "rrquilts.epp-tumbling-block",
+        "kind": "seam",
+        "drawing": {
+          "nodes": [
+            {"id": "n1", "x": 0.5000000000000001, "y": 0},
+            {"id": "n2", "x": 0.5, "y": 0.49999999999999994},
+            {"id": "n3", "x": 0.9999999999999999, "y": 0.7499999999999999},
+            {"id": "n4", "x": 1, "y": 0.24999999999999994},
+            {"id": "n5", "x": 3.2049378106392725e-16, "y": 0.75},
+            {"id": "n6", "x": 0.5000000000000001, "y": 1},
+            {"id": "n7", "x": 0, "y": 0.2500000000000001}
+          ],
+          "segments": [
+            {"id": "s1", "from": "n1", "to": "n2", "kind": "line"},
+            {"id": "s2", "from": "n2", "to": "n3", "kind": "line"},
+            {"id": "s3", "from": "n3", "to": "n4", "kind": "line"},
+            {"id": "s4", "from": "n4", "to": "n1", "kind": "line"},
+            {"id": "s5", "from": "n2", "to": "n5", "kind": "line"},
+            {"id": "s6", "from": "n5", "to": "n6", "kind": "line"},
+            {"id": "s7", "from": "n6", "to": "n3", "kind": "line"},
+            {"id": "s8", "from": "n1", "to": "n7", "kind": "line"},
+            {"id": "s9", "from": "n7", "to": "n5", "kind": "line"}
+          ]
+        },
+        "patches": [
+          {
+            "id": "p1",
+            "path": [
+              ["M", 0.5000000000000001, 0],
+              ["L", 0.5, 0.49999999999999994],
+              ["L", 0.9999999999999999, 0.7499999999999999],
+              ["L", 1, 0.24999999999999994],
+              ["Z"]
+            ]
+          },
+          {
+            "id": "p2",
+            "path": [
+              ["M", 1, 0.7499999999999998],
+              ["L", 0.5000000000000001, 0.49999999999999994],
+              ["L", 3.2049378106392725e-16, 0.75],
+              ["L", 0.5000000000000001, 1],
+              ["Z"]
+            ]
+          },
+          {
+            "id": "p3",
+            "path": [
+              ["M", 2.563950248511418e-16, 0.7500000000000002],
+              ["L", 0.5000000000000001, 0.5],
+              ["L", 0.49999999999999983, 0],
+              ["L", 0, 0.2500000000000001],
+              ["Z"]
+            ]
+          }
+        ]
+      }
+    ],
+    "photos": [
+      {
+        "id": "pho1",
+        "notecard": {"name": "Photo"},
+        "image": {
+          "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+          "type": "image/png",
+          "sha256": "c414cd0e204de974f73753c7e28d7638e7b3691bb8b1a2bab6b25bb7fed7ce77",
+          "width": 1,
+          "height": 1
+        }
+      }
+    ],
+    "embroidery": [
+      {
+        "id": "emb1",
+        "notecard": {"name": "Rose"},
+        "file": {
+          "data": "data:application/octet-stream;base64,gAIAAG5vdC1yZWFsbHktc3RpdGNoZXM=",
+          "type": "application/octet-stream",
+          "sha256": "4d7b39b55e65e0925d762b8c09bb04d1c207f0949d1314b98499293ebb8688c2"
+        },
+        "threads": ["thr1"]
+      }
+    ],
+    "fonts": [{"id": "fnt1", "family": "Inter", "bundled": "inter"}],
+    "quilts": [
+      {
+        "id": "q1",
+        "notecard": {"name": "Version A"},
+        "futureQuiltKey": true,
+        "layout": {
+          "style": "straight-set",
+          "cols": 5,
+          "rows": 6,
+          "block": [9, 9],
+          "sash": [1, 1],
+          "sashBorder": true
+        },
+        "borders": [
+          {"style": "long-horizontal", "sides": [2, 2, 2, 2]},
+          {"style": "corner-blocks", "sides": [3, 3, 3, 3], "blocks": [4, 5]}
+        ],
+        "colorings": {
+          "qk1": {"fills": {"p1": {"color": "col2"}}},
+          "qk2": {
+            "fills": {"p": {"fabric": "fab1", "offset": [0, 0], "rotation": 0}}
+          }
+        },
+        "layers": [
+          {
+            "visible": true,
+            "slots": {
+              "b:r1c1": {
+                "block": "seam1",
+                "coloring": "qk1",
+                "rotation": 90,
+                "flip": true
+              },
+              "sash:v:r1c0": {
+                "block": "plain",
+                "coloring": "qk2",
+                "rotation": 0,
+                "flip": false
+              }
+            },
+            "items": []
+          },
+          {
+            "visible": true,
+            "items": [
+              {
+                "id": "it1",
+                "kind": "motif",
+                "ref": "mot1",
+                "x": 10,
+                "y": 10,
+                "w": 4,
+                "h": 4,
+                "rotation": 15,
+                "skew": [0, 0],
+                "flip": false,
+                "clip": "center"
+              },
+              {
+                "id": "it2",
+                "kind": "text",
+                "x": 1,
+                "y": 1,
+                "w": 20,
+                "h": 2,
+                "rotation": 0,
+                "skew": [0, 0],
+                "flip": false,
+                "clip": "none",
+                "text": {
+                  "value": "For Mom\n2026",
+                  "font": "fnt1",
+                  "size": 1.5,
+                  "bold": true,
+                  "italic": false,
+                  "align": "center"
+                }
+              },
+              {
+                "id": "it3",
+                "kind": "photo",
+                "ref": "pho1",
+                "x": 30,
+                "y": 5,
+                "w": 5,
+                "h": 7,
+                "rotation": 0,
+                "skew": [0.1, 0],
+                "flip": false,
+                "clip": "quilt"
+              }
+            ]
+          },
+          {
+            "visible": false,
+            "items": [
+              {
+                "id": "it4",
+                "kind": "stencil",
+                "ref": "sten1",
+                "x": 0,
+                "y": 0,
+                "w": 60,
+                "h": 70,
+                "rotation": 0,
+                "skew": [0, 0],
+                "flip": false,
+                "clip": "quilt"
+              },
+              {
+                "id": "it5",
+                "kind": "embroidery",
+                "ref": "emb1",
+                "x": 5,
+                "y": 5,
+                "w": 4,
+                "h": 4,
+                "rotation": 90,
+                "skew": [0, 0],
+                "flip": true,
+                "clip": "none"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "quunxw09hs",
+        "notecard": {"name": "EPP Quilt"},
+        "layout": {
+          "style": "epp",
+          "unit": 1,
+          "edge": {"kind": "close", "fill": {"color": "rrquilts.cream"}}
+        },
+        "borders": [{"style": "long-horizontal", "sides": [2, 2, 2, 2]}],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "rosette": "sample-author.flower",
+              "at": [0, 0],
+              "turn": 0,
+              "scale": 1,
+              "id": "nba09j58m4"
+            },
+            {
+              "rosette": "sample-author.flower",
+              "at": [6, 0],
+              "turn": 0,
+              "scale": 1,
+              "coloring": "c2",
+              "id": "q8yhwm8dnh"
+            },
+            {
+              "rosette": "sample-author.flower",
+              "at": [12, 0],
+              "turn": 0,
+              "scale": 1,
+              "id": "zh1d2qd4ha"
+            },
+            {
+              "shape": "sample-author.domino",
+              "at": [3, 4],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.navy"}},
+              "id": "9on7cgh9sf"
+            },
+            {
+              "shape": "sample-author.domino",
+              "at": [9, 4],
+              "turn": 90,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.navy"}},
+              "id": "f16kk5yvc7"
+            },
+            {
+              "shape": "rrquilts.epp-hexagon",
+              "at": [15, 4],
+              "turn": 0,
+              "scale": 2,
+              "fills": {"": {"color": "rrquilts.sage"}},
+              "id": "6u88twbqk5"
+            }
+          ],
+          "box": [-2.5000000000000004, -2.598076211353316, 17, 5.732050807568878],
+          "closing": [
+            {
+              "id": "jzdb368x1d",
+              "outline": [
+                [-2.5000000000000004, -2.598076211353316],
+                [-2.5000000000000004, -0.8660254037844384],
+                [-2.0000000000000004, -1.7320508075688772],
+                [-1.0000000000000004, -1.7320508075688772],
+                [-0.49999999999999994, -2.598076211353316]
+              ],
+              "marked": [0]
+            },
+            {
+              "id": "5fw5y5ceu6",
+              "outline": [
+                [0.49999999999999956, -2.598076211353316],
+                [1, -1.7320508075688774],
+                [2, -1.7320508075688776],
+                [2.5, -0.8660254037844388],
+                [2.0000000000000004, -2.484784864637255e-16],
+                [2.5000000000000004, 0.8660254037844384],
+                [2.0000000000000004, 1.7320508075688767],
+                [1.0000000000000004, 1.7320508075688772],
+                [0.5000000000000007, 2.5980762113533156],
+                [-0.49999999999999944, 2.598076211353316],
+                [-0.9999999999999998, 1.7320508075688774],
+                [-1.9999999999999998, 1.7320508075688776],
+                [-2.5000000000000004, 0.8660254037844393],
+                [-2.5000000000000004, 5.732050807568878],
+                [14, 5.732050807568878],
+                [13, 4.000000000000001],
+                [14, 2.2679491924311224],
+                [16, 2.2679491924311224],
+                [17, 4],
+                [17, -2.598076211353316],
+                [12.5, -2.598076211353316],
+                [13, -1.7320508075688774],
+                [14, -1.7320508075688776],
+                [14.5, -0.8660254037844388],
+                [14, -2.484784864637255e-16],
+                [14.5, 0.8660254037844384],
+                [14, 1.7320508075688767],
+                [13, 1.7320508075688772],
+                [12.5, 2.5980762113533156],
+                [11.5, 2.598076211353316],
+                [11, 1.7320508075688774],
+                [10, 1.7320508075688776],
+                [9.5, 0.8660254037844393],
+                [10, 3.0663302584885275e-16],
+                [9.5, -0.8660254037844382],
+                [10, -1.7320508075688772],
+                [11, -1.7320508075688772],
+                [11.5, -2.598076211353316],
+                [6.5, -2.598076211353316],
+                [7, -1.7320508075688774],
+                [8, -1.7320508075688776],
+                [8.5, -0.8660254037844388],
+                [8, -2.484784864637255e-16],
+                [8.5, 0.8660254037844384],
+                [8, 1.7320508075688767],
+                [7, 1.7320508075688772],
+                [6.500000000000001, 2.5980762113533156],
+                [5.500000000000001, 2.598076211353316],
+                [5, 1.7320508075688774],
+                [4, 1.7320508075688776],
+                [3.4999999999999996, 0.8660254037844393],
+                [4, 3.0663302584885275e-16],
+                [3.4999999999999996, -0.8660254037844382],
+                [3.9999999999999996, -1.7320508075688772],
+                [5, -1.7320508075688772],
+                [5.5, -2.598076211353316]
+              ],
+              "marked": [12, 13, 18, 19]
+            },
+            {
+              "id": "7rkxy1hgol",
+              "outline": [[17, 4], [16, 5.732050807568877], [17, 5.732050807568878]],
+              "marked": [2]
+            },
+            {
+              "id": "ba89fus556",
+              "outline": [
+                [-2.5000000000000004, 0.8660254037844402],
+                [-2, 3.0663302584885275e-16],
+                [-2.5000000000000004, -0.8660254037844382]
+              ],
+              "marked": [2]
+            }
+          ]
+        }
+      },
+      {
+        "id": "iekn8v8roh",
+        "notecard": {"name": "3D EPP Cube"},
+        "layout": {"style": "epp", "unit": 2, "edge": {"kind": "none"}, "threeD": true},
+        "borders": [],
+        "colorings": {},
+        "layers": [
+          {"visible": true, "slots": {}, "items": []},
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ],
+        "epp": {
+          "pieces": [
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [0, -0.5],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.green"}},
+              "id": "m1uxqzr1cv"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [-5.551115123125783e-17, 0.5],
+              "turn": -90,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.blue"}},
+              "id": "wtny31j6r5"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [1, -0.5],
+              "turn": -270,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.yellow"}},
+              "id": "zueh25aa7r"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [0, -1.5],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.orange"}},
+              "id": "1z9ascijnq"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [-1, -0.5],
+              "turn": 0,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.red"}},
+              "id": "or93ak5z9p"
+            },
+            {
+              "shape": "rrquilts.epp-square",
+              "at": [-1.8503717077085943e-16, 1.5],
+              "turn": -90,
+              "scale": 1,
+              "fills": {"": {"color": "rrquilts.purple"}},
+              "id": "gnbtrg9rum"
+            }
+          ],
+          "seams": [
+            {
+              "a": {"piece": "wtny31j6r5", "edge": 2},
+              "b": {"piece": "or93ak5z9p", "edge": 0}
+            },
+            {
+              "a": {"piece": "zueh25aa7r", "edge": 1},
+              "b": {"piece": "wtny31j6r5", "edge": 0}
+            },
+            {
+              "a": {"piece": "zueh25aa7r", "edge": 2},
+              "b": {"piece": "gnbtrg9rum", "edge": 0}
+            },
+            {
+              "a": {"piece": "or93ak5z9p", "edge": 2},
+              "b": {"piece": "1z9ascijnq", "edge": 3}
+            },
+            {
+              "a": {"piece": "gnbtrg9rum", "edge": 2},
+              "b": {"piece": "or93ak5z9p", "edge": 3}
+            },
+            {
+              "a": {"piece": "1z9ascijnq", "edge": 1},
+              "b": {"piece": "zueh25aa7r", "edge": 3}
+            },
+            {
+              "a": {"piece": "1z9ascijnq", "edge": 2},
+              "b": {"piece": "gnbtrg9rum", "edge": 3}
+            }
+          ],
+          "box": [-1.5, -2, 1.5, 2],
+          "printView": {"theta": 0.8, "phi": 1}
+        }
+      },
+      {
+        "id": "l4g6oejt4b",
+        "notecard": {"name": "Rosette Blocks"},
+        "layout": {
+          "style": "shaped-blocks",
+          "shape": "hexagons",
+          "cols": 4,
+          "rows": 3,
+          "width": 3,
+          "edge": "trim"
+        },
+        "borders": [{"style": "long-horizontal", "sides": [2, 2, 2, 2]}],
+        "colorings": {
+          "r": {"fills": {}},
+          "ld9c6jsrxz": {"fills": {"p": {"color": "rrquilts.cream"}}},
+          "oa3bje0tmh": {"fills": {"p": {"color": "rrquilts.cream"}}},
+          "q6h2hwdl8t": {"fills": {"p": {"color": "rrquilts.cream"}}},
+          "aa2111skbh": {"fills": {"p": {"color": "rrquilts.cream"}}},
+          "wzyk9zhs01": {"fills": {"p": {"color": "rrquilts.cream"}}},
+          "019oee8cpo": {"fills": {"p": {"color": "rrquilts.cream"}}},
+          "dl3lbgbzhp": {"fills": {"p": {"color": "rrquilts.cream"}}},
+          "wlcnxbeu8h": {"fills": {"p": {"color": "rrquilts.cream"}}},
+          "iuyv661rez": {"fills": {"p": {"color": "rrquilts.cream"}}},
+          "ia2na2ndwn": {"fills": {"p": {"color": "rrquilts.navy"}}},
+          "egfmrsudw4": {"fills": {"p": {"color": "rrquilts.navy"}}},
+          "p6s2fs71wj": {"fills": {"p": {"color": "rrquilts.navy"}}},
+          "koktzqiixu": {"fills": {"p": {"color": "rrquilts.navy"}}}
+        },
+        "layers": [
+          {
+            "visible": true,
+            "slots": {
+              "b:i0j0": {
+                "block": "rrquilts.epp-tumbling-block-epp",
+                "coloring": "r",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i2j0": {
+                "block": "rrquilts.epp-tumbling-block-epp",
+                "coloring": "r",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i0j2": {
+                "block": "rrquilts.epp-tumbling-block-epp",
+                "coloring": "r",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i2j2": {
+                "block": "rrquilts.epp-tumbling-block-epp",
+                "coloring": "r",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i-1j1": {
+                "block": "rrquilts.epp-tumbling-block-epp",
+                "coloring": "r",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i1j1": {
+                "block": "rrquilts.epp-tumbling-block-epp",
+                "coloring": "r",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i3j1": {
+                "block": "rrquilts.epp-tumbling-block-epp",
+                "coloring": "r",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i0j3": {
+                "block": "rrquilts.epp-tumbling-block-epp",
+                "coloring": "r",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i2j3": {
+                "block": "rrquilts.epp-tumbling-block-epp",
+                "coloring": "r",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i1j0": {
+                "block": "plain",
+                "coloring": "ld9c6jsrxz",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i3j0": {
+                "block": "plain",
+                "coloring": "oa3bje0tmh",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i1j2": {
+                "block": "plain",
+                "coloring": "q6h2hwdl8t",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i3j2": {
+                "block": "plain",
+                "coloring": "aa2111skbh",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i0j1": {
+                "block": "plain",
+                "coloring": "wzyk9zhs01",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i2j1": {
+                "block": "plain",
+                "coloring": "019oee8cpo",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i-1j3": {
+                "block": "plain",
+                "coloring": "dl3lbgbzhp",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i1j3": {
+                "block": "plain",
+                "coloring": "wlcnxbeu8h",
+                "rotation": 0,
+                "flip": false
+              },
+              "b:i3j3": {
+                "block": "plain",
+                "coloring": "iuyv661rez",
+                "rotation": 0,
+                "flip": false
+              },
+              "border:1:top": {
+                "block": "plain",
+                "coloring": "ia2na2ndwn",
+                "rotation": 0,
+                "flip": false
+              },
+              "border:1:bottom": {
+                "block": "plain",
+                "coloring": "egfmrsudw4",
+                "rotation": 0,
+                "flip": false
+              },
+              "border:1:left": {
+                "block": "plain",
+                "coloring": "p6s2fs71wj",
+                "rotation": 0,
+                "flip": false
+              },
+              "border:1:right": {
+                "block": "plain",
+                "coloring": "koktzqiixu",
+                "rotation": 0,
+                "flip": false
+              }
+            },
+            "items": []
+          },
+          {"visible": true, "items": []},
+          {"visible": true, "items": []}
+        ]
+      }
+    ],
+    "eppShapes": [
+      {
+        "id": "sample-author.domino",
+        "notecard": {"name": "Domino"},
+        "author": "Sample Author",
+        "license": "CC-BY-SA-4.0",
+        "outline": [[-1, 0.5], [1, 0.5], [1, -0.5], [-1, -0.5]]
+      },
+      {
+        "id": "rrquilts.epp-hexagon",
+        "notecard": {"name": "Hexagon"},
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0",
+        "outline": [
+          [-1, 4.440892098500626e-16],
+          [-0.4999999999999996, 0.8660254037844389],
+          [0.5000000000000004, 0.8660254037844387],
+          [1.0000000000000002, 1.1102230246251565e-16],
+          [0.5000000000000002, -0.8660254037844385],
+          [-0.49999999999999983, -0.8660254037844385]
+        ],
+        "category": "Regular Polygons"
+      },
+      {
+        "id": "rrquilts.epp-square",
+        "notecard": {"name": "Square"},
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0",
+        "outline": [
+          [-0.5, 0.5000000000000001],
+          [0.5, 0.4999999999999999],
+          [0.5, -0.5000000000000001],
+          [-0.5, -0.5000000000000001]
+        ],
+        "category": "Regular Polygons"
+      },
+      {
+        "id": "rrquilts.epp-60-diamond",
+        "notecard": {"name": "60° Diamond"},
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0",
+        "outline": [
+          [-0.7499999999999999, 0.4330127018922194],
+          [0.2500000000000001, 0.4330127018922193],
+          [0.7499999999999999, -0.4330127018922194],
+          [-0.2500000000000001, -0.4330127018922194]
+        ],
+        "category": "Diamonds"
+      }
+    ],
+    "rosettes": [
+      {
+        "id": "sample-author.flower",
+        "notecard": {"name": "Sample Flower"},
+        "author": "Sample Author",
+        "license": "CC-BY-SA-4.0",
+        "pieces": [
+          {
+            "shape": "rrquilts.epp-hexagon",
+            "at": [0, 0],
+            "turn": 0,
+            "scale": 1,
+            "id": "p1"
+          },
+          {
+            "shape": "rrquilts.epp-hexagon",
+            "at": [-1.4999999999999996, 0.8660254037844394],
+            "turn": 0,
+            "scale": 1,
+            "id": "p2"
+          },
+          {
+            "shape": "rrquilts.epp-hexagon",
+            "at": [7.771561172376096e-16, 1.7320508075688776],
+            "turn": 0,
+            "scale": 1,
+            "id": "p3"
+          },
+          {
+            "shape": "rrquilts.epp-hexagon",
+            "at": [1.5000000000000007, 0.8660254037844388],
+            "turn": 0,
+            "scale": 1,
+            "id": "p4"
+          },
+          {
+            "shape": "rrquilts.epp-hexagon",
+            "at": [1.5000000000000004, -0.8660254037844384],
+            "turn": 0,
+            "scale": 1,
+            "id": "p5"
+          },
+          {
+            "shape": "rrquilts.epp-hexagon",
+            "at": [4.440892098500626e-16, -1.732050807568877],
+            "turn": 0,
+            "scale": 1,
+            "id": "p6"
+          },
+          {
+            "shape": "rrquilts.epp-hexagon",
+            "at": [-1.5, -0.866025403784438],
+            "turn": 0,
+            "scale": 1,
+            "id": "p7"
+          }
+        ],
+        "colorings": [
+          {
+            "id": "c1",
+            "name": "Rose petals",
+            "fills": {
+              "p1": {"color": "rrquilts.gold"},
+              "p2": {"color": "rrquilts.rose"},
+              "p3": {"color": "rrquilts.rose"},
+              "p4": {"color": "rrquilts.rose"},
+              "p5": {"color": "rrquilts.rose"},
+              "p6": {"color": "rrquilts.rose"},
+              "p7": {"color": "rrquilts.rose"}
+            }
+          },
+          {
+            "id": "c2",
+            "name": "Teal petals",
+            "fills": {
+              "p1": {"color": "rrquilts.yellow"},
+              "p2": {"color": "rrquilts.teal"},
+              "p3": {"color": "rrquilts.teal"},
+              "p4": {"color": "rrquilts.teal"},
+              "p5": {"color": "rrquilts.teal"},
+              "p6": {"color": "rrquilts.teal"},
+              "p7": {"color": "rrquilts.teal"}
+            }
+          }
+        ]
+      },
+      {
+        "id": "rrquilts.epp-tumbling-block",
+        "notecard": {"name": "Tumbling Block"},
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0",
+        "pieces": [
+          {
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [-0.2500000000000001, -0.4330127018922193],
+            "turn": 0,
+            "scale": 1,
+            "id": "p1"
+          },
+          {
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [0.5, -1.942890293094024e-16],
+            "turn": 120,
+            "scale": 1,
+            "id": "p2"
+          },
+          {
+            "shape": "rrquilts.epp-60-diamond",
+            "at": [-0.24999999999999972, 0.4330127018922195],
+            "turn": 240,
+            "scale": 1,
+            "id": "p3"
+          }
+        ],
+        "colorings": [
+          {
+            "id": "c1",
+            "name": "Coloring 1",
+            "fills": {
+              "p1": {"color": "rrquilts.cream"},
+              "p2": {"color": "rrquilts.orange"},
+              "p3": {"color": "rrquilts.charcoal"}
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

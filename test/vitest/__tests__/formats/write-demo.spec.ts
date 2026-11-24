@@ -65,6 +65,9 @@ const ADDED: Record<number, Add[]> = {
   ],
   // v11 (spec 041) added made marks, no layouts: the data quilts get entries and marks (MARKS).
   11: [],
+  // v12 (specs 027, 050): EPP quilts, 3D EPP and rosettes as blocks, built by epp-v12.ts (they
+  // need pieces, not Set and Paint).
+  12: [],
   10: [
     {
       name: 'Data Weeks, Two Values',
@@ -109,6 +112,8 @@ it.skipIf(!dir)('write the demo project', async () => {
     if (add.weeks) doc = await weeksQuilt(doc, quilt.id);
   }
   if ((VERSION as number) === 11) doc = madeMarks(doc);
+  // Loaded only here: older releases' code (which this file also runs on) has no EPP.
+  if ((VERSION as number) === 12) doc = (await import('./epp-v12')).addEppV12(doc);
   writeFileSync(`${dir}/demo-v${VERSION}.rrq`, serializeProject(doc));
 });
 

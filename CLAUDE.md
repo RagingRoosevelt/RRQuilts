@@ -137,7 +137,7 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over `RrqDoc`.
 
 - `schema/` — TypeBox schemas = TS types + validation + published JSON Schema
-  (`public/schemas/rrq.v10.json`; regenerate with `npm run schema`, a test fails on drift)
+  (`public/schemas/rrq.v<N>.json`; regenerate with `npm run schema`, a test fails on drift)
 - `io.ts` — `parseProject` (JSON → migrate → validate → duplicate ids → dangling refs + asset
   hashes reported), `serializeProject`. New version: bump `VERSION`, add `migrations[old]`.
 - `units.ts` — only real lengths scale; block geometry is normalized 0…1
@@ -274,6 +274,31 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   Edit via `project.change(recipe, { coalesce? })` — mutate the draft or return a new document.
 - Don't pass Vue reactive proxies into Immer (`toRaw` if ever needed).
 - Model functions return frozen results; tests that hand-edit them must `structuredClone` first.
+
+## English paper piecing (specs 027, 050; rrq v12, rrqlib v8, `.rrqepp` v1)
+
+- `src/model/schema/epp.ts`: `EppShape` (outline in units, 1U = a scale-1 edge, CCW on screen,
+  `marked` non-whole edges), `Rosette` (pieces of shapes + colorings keyed by piece id, never nested;
+  `shapes` = its internal shapes), EPP quilt = layout `{style: 'epp', unit, edge}` (edge `none` /
+  `cut` rect / `close` = Auto-close with fill / `custom`) + `quilt.epp` (pieces = shapes or linked
+  rosettes, `box`, `closing`). Library items `epp-shape` and `rosette`; one item as a file:
+  `model/epp-file.ts` (`.rrqepp`)
+- `src/model/epp/` (framework-free): `geometry.ts` (place, orient), `expand.ts` (pieces → leaves,
+  `lookupEpp`), `snap.ts`/`grid.ts`/`grow.ts` (rosette Free/Grid/Grow), `checks.ts`, `faces.ts`
+  (gaps, Close space), `match.ts` (outline → shape + pose), `edge.ts` (Cut to size, Auto-close),
+  `quilt-ops.ts`/`rosette-ops.ts`/`shape-ops.ts` (pure edits; `refresh` keeps box/closing current),
+  `as-block.ts` (rosettes as blocks in block quilts: block id `<rosette>-epp`, made by `syncDraft`),
+  `print.ts` (templates). Built-ins: `content/epp.ts` (shapes by category, rosettes)
+- UI: `ShapeEditorPage`, `RosetteEditorPage`, `EppDesign.vue` (EPP quilt Design tab) on
+  `EppCanvas.vue`, `EppLayoutSection.vue` (Layout tab: unit, edge, 3D EPP, Stuffed design),
+  `EppItems.vue` (project EPP tab: shapes and rosettes only), `EppPicker.vue`
+- 3D EPP (spec 027 US7): `layout.threeD` (+ `stuffed`), `epp.seams` (edges sewn that don't touch in
+  2D), `epp.front`, `epp.printView`. `net.ts` (quilt → net, seam marks), `fold.ts` (rigid plates,
+  seam welds, fold → settle, `turnToFront`), `stuff.ts` (PBD cloth on a Delaunay mesh). Seam tool:
+  `composables/epp-seams.ts`. `EppAssembly.vue` = the 3D assembly tab (net + three.js view, split
+  by setting `epp3dSplit`); `render/epp3d-picture.ts` = card and print pictures (one offscreen
+  WebGL renderer, work in 12 ms slices) and the printout's live orbit (`Epp3dPrintView.vue`).
+  three.js is imported dynamically (3D only)
 
 ## Gotchas
 

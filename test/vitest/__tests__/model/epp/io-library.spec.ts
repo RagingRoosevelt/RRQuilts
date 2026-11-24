@@ -56,6 +56,24 @@ describe('rrq v12 EPP', () => {
     expect(r.doc.project.quilts[0]!.epp!.pieces).toHaveLength(2);
   });
 
+  // Bug (2026-11-24, found writing the v12 format samples): Auto-close filled a ragged gap with a
+  // closing piece of more than 24 corners, which saved but then wouldn't open ("damaged").
+  it('opens a quilt whose Auto-close piece has more than 24 corners', async () => {
+    const ragged = Array.from({ length: 30 }, (_, i): [number, number] => {
+      const a = (i / 30) * 2 * Math.PI;
+      const r = i % 2 ? 5 : 4;
+      return [r * Math.cos(a), r * Math.sin(a)];
+    });
+    const doc = produce(eppDoc(), (d) => {
+      const q = d.project.quilts[0]!;
+      q.layout = { style: 'epp', unit: 1, edge: { kind: 'close' } };
+      q.epp!.closing = [{ id: 'gap', outline: ragged, marked: [29] }];
+    });
+    const r = await parseProject(serializeProject(doc));
+    if (!r.ok) throw new Error(r.error);
+    expect(r.doc.project.quilts[0]!.epp!.closing![0]!.outline).toHaveLength(30);
+  });
+
   it('reports dangling shapes and rosettes without throwing', async () => {
     const doc = produce(eppDoc(), (d) => {
       d.project.eppShapes = [];

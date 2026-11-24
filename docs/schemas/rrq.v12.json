@@ -10017,16 +10017,16 @@
                             "minItems": 2
                           },
                           "minItems": 3,
-                          "maxItems": 24
+                          "maxItems": 1000
                         },
                         "marked": {
                           "type": "array",
                           "items": {
                             "type": "integer",
                             "minimum": 0,
-                            "maximum": 23
+                            "maximum": 999
                           },
-                          "maxItems": 24
+                          "maxItems": 1000
                         }
                       }
                     },
@@ -10258,16 +10258,16 @@
                             "minItems": 2
                           },
                           "minItems": 3,
-                          "maxItems": 24
+                          "maxItems": 1000
                         },
                         "marked": {
                           "type": "array",
                           "items": {
                             "type": "integer",
                             "minimum": 0,
-                            "maximum": 23
+                            "maximum": 999
                           },
-                          "maxItems": 24
+                          "maxItems": 1000
                         }
                       }
                     },
@@ -10300,7 +10300,7 @@
                             "edge": {
                               "type": "integer",
                               "minimum": 0,
-                              "maximum": 23
+                              "maximum": 999
                             }
                           }
                         },
@@ -10322,7 +10322,7 @@
                             "edge": {
                               "type": "integer",
                               "minimum": 0,
-                              "maximum": 23
+                              "maximum": 999
                             }
                           }
                         }
@@ -10948,16 +10948,16 @@
                         "minItems": 2
                       },
                       "minItems": 3,
-                      "maxItems": 24
+                      "maxItems": 1000
                     },
                     "marked": {
                       "type": "array",
                       "items": {
                         "type": "integer",
                         "minimum": 0,
-                        "maximum": 23
+                        "maximum": 999
                       },
-                      "maxItems": 24
+                      "maxItems": 1000
                     }
                   }
                 },

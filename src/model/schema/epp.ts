@@ -7,6 +7,11 @@ import { Id, ItemId, itemBase, PathCommand, Vec2 } from './shared';
 
 const Outline = Type.Array(Vec2, { minItems: 3, maxItems: 24 });
 const Indexes = Type.Array(Type.Integer({ minimum: 0, maximum: 23 }), { maxItems: 24 });
+/** Shapes the app makes to fill a gap (Close space, Auto-close) follow the gap, however ragged:
+ *  up to 1000 corners (bug 2026-11-24: an Auto-close piece over 24 corners saved a file that
+ *  wouldn't open). Shapes drawn in the shape editor keep 24. */
+const MadeOutline = Type.Array(Vec2, { minItems: 3, maxItems: 1000 });
+const MadeIndexes = Type.Array(Type.Integer({ minimum: 0, maximum: 999 }), { maxItems: 1000 });
 const Scale = Type.Integer({ minimum: 1, maximum: 4 });
 
 /** One EPP template shape (a library item): its corners in units, counter-clockwise. */
@@ -24,8 +29,8 @@ export const EppShape = Type.Object({
 /** A shape defined only inside one rosette or quilt (Multi-shape, Close space, Auto-close). */
 export const InternalShape = Type.Object({
   id: Id,
-  outline: Outline,
-  marked: Type.Optional(Indexes),
+  outline: MadeOutline,
+  marked: Type.Optional(MadeIndexes),
 });
 
 /** A piece of a rosette: a library shape (item id) or one of the rosette's internal shapes (id). */
@@ -95,7 +100,7 @@ export const EppLayout = Type.Object({
 export const EppEdgeRef = Type.Object({
   piece: Id,
   part: Type.Optional(Id),
-  edge: Type.Integer({ minimum: 0, maximum: 23 }),
+  edge: Type.Integer({ minimum: 0, maximum: 999 }),
 });
 
 /** An explicit seam (3D): two equal edges that don't touch in 2D, sewn together. Edges that touch
