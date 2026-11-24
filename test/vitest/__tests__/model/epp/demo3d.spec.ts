@@ -95,6 +95,7 @@ async function demo(): Promise<RrqDoc> {
   const doc = createProject('3D EPP demo', 'in', 'demo');
   return produce(doc, (d) => {
     d.project.license = DEFAULT_LICENSE;
+    d.project.author = AUTHOR;
     d.project.eppShapes = [kite];
     d.project.quilts.push(...quilts);
     syncDraft(d, kit.lookup);

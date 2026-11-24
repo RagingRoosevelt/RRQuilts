@@ -6,7 +6,7 @@ summary: Color a quilt from a year of data, such as daily temperatures or moods.
 
 A **data quilt** colors each day's place from that day's value: a temperature, a mood, hours of
 daylight, rainfall, or numbers and categories of your own. You design where each day goes and which
-color each value gets. The app fills in the colors from the data. The [temperature quilts demo](/?open_demo=temperature.rrq) has three, each with a year of daily temperatures entered.
+color each value gets. The app fills in the colors from the data. The [temperature quilts demo](/?open_demo=temperature.rrq) has four. Three have a year of daily temperatures entered, and the month pinwheels show simulated data.
 
 ## Make a data quilt
 

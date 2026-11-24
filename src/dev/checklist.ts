@@ -354,13 +354,6 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-328',
-    group: G.files,
-    text: 'Demos. Settings › You › Show the welcome again (or a fresh browser): the steps end with Demos after Help, listing Temperature quilts and 3D English paper piecing; the last button says Start quilting; clicking a demo closes the welcome and opens it. Home: Open a demo, right of Open from a gist, opens the same list (with unsaved work open, it asks first). Temperature quilts demo: Quilts (3): 365 days of highs, A month per row, Highs and lows week by week, each colored by a year of entered temperatures (Data tab: Real data), the first weeks marked cut and sewn (January and February sewn as months). Help › Data quilts links it.',
-    last: 'let’s add a "demos" step to the welcome wizard after help; and let’s also have a demo of temperature quilts; let’s add a button to the right of "open rpoject file" and "open github gist" for "open a demo"',
-    to: '/',
-  },
-  {
     id: 'TC-329',
     group: G.files,
     text: 'Demo links, now ?open_demo=. Open localhost:9000/RRQuilts/?open_demo=3d-epp.rrq: the 3D EPP demo opens at once (11 quilts), with Save asking where. Help › 3D EPP › "3D EPP demo" and Help › Data quilts › "temperature quilts demo" links: the same for their demos. ?open_demo=nope.rrq: "There’s no demo project called…". ?open_demo=https://example.com/x.rrq: "That link doesn’t point at a demo project." With unsaved work open, a demo link keeps it in a draft as opening any file does. After a release (make serve, or the live site): the links work offline once the app has been loaded. (?open_url= for any link is still to come.)',
@@ -373,6 +366,13 @@ export const CHECKS: Check[] = [
     text: 'Block and patch quilts demo (first in Home › Open a demo and the welcome’s Demos step; Help › Designing a quilt links it). Quilts (4), Show: All, Block quilts, Patch quilts. Medallions on point: three medallion blocks on point with cream sashing and red cornerstones, dark setting triangles, about 97 in square, the Queen with drop outline over it. Diamonds with sashing: Diamond Point, two log cabin diamond blocks, gold sashing, teal setting pieces, a dark 3 in border. Pieced strips: seven pattern strips edge to edge (points, checkerboards, diamonds, spaced squares, double diamonds), 28 × 29 in, the men’s XL top back outline over it. Tumbling cubes: Variable Patch, butter tops, teal and dark sides, 42 × 38½ in. Both overlays have Invert on (the quilt outside the shape shaded, inside it as is): Pieced strips black at full strength (Layout › Reference overlay: black swatch, Fill 100%), Medallions on point a light gray wash (#757575, Fill 15%).',
     last: 'let’s add a demo project with a handful of basic block and patch quilts. let’s do an on-point quilt with some medalians with sashing between them, a shaped blocks with sashing and a border, a strips (patches) without sashing, and a variable patch without sashing. let’s have a men’s XL shirt back over the strips one and a queen XL over the on point quilt; for both overlays, do tint of #000000, max opacity, invert; actually, for the medalians on point, do #757575 at 15%, inverted',
     to: '/?open_demo=block-quilts.rrq',
+  },
+  {
+    id: 'TC-332',
+    group: G.files,
+    text: 'Demos. Settings › You › Show the welcome again (or a fresh browser): the steps end with Demos after Help, listing Block and patch quilts, Temperature quilts and 3D English paper piecing; the last button says Start quilting; clicking a demo closes the welcome and opens it. Home: Open a demo, right of Open from a gist, opens the same list (with unsaved work open, it asks first). Each demo’s Details tab: author RRQuilts contributors. Temperature quilts demo: Quilts (4): 365 days of highs, A month per row, Highs and lows week by week (each colored by a year of entered temperatures, Data tab: Real data, the first weeks marked cut and sewn, January and February sewn as months; filler, borders and sashing colored), and Month pinwheels on point (a Quartered Month Pinwheel per month on simulated data, Cobweb blocks between and in the setting triangles). Help › Data quilts links it.',
+    last: 'let’s add a "demos" step to the welcome wizard after help; and let’s also have a demo of temperature quilts; let’s add a button to the right of "open rpoject file" and "open github gist" for "open a demo"; yeah, I meant to use that new temp demo. and we should update the author of the other demos to match',
+    to: '/',
   },
 ];
 

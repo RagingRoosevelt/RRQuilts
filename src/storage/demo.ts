@@ -15,7 +15,7 @@ export const DEMOS = [
     file: 'temperature.rrq',
     title: 'Temperature quilts',
     about:
-      'A year of daily highs as 365 squares, a month per row, and highs and lows week by week.',
+      'A year of daily highs as 365 squares, a month per row, highs and lows week by week, and month pinwheels.',
     icon: 'thermostat',
   },
   {

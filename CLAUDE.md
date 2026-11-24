@@ -41,8 +41,9 @@ like sketchbook/worktable are fine).
   `composables/open-demo.ts`), and opened by `/?open_demo=<name>.rrq` (the demo folder only, never
   another site), beside `/?open_gist=`. Written by tests: `block-quilts.rrq` by
   `__tests__/model/blocks-demo.spec.ts` (`BLOCKS_DEMO=<file>`), `3d-epp.rrq` by
-  `__tests__/model/epp/demo3d.spec.ts` (`EPP3D_DEMO=<file>`), `temperature.rrq` by
-  `__tests__/model/temperature-demo.spec.ts` (`TEMPERATURE_DEMO=<file>`).
+  `__tests__/model/epp/demo3d.spec.ts` (`EPP3D_DEMO=<file>`). `temperature.rrq` was finished by the
+  owner in the app, so the file is the source (`__tests__/model/temperature-demo.spec.ts` only checks
+  it). Project author on all: `RRQuilts contributors`.
 - **Resource repositories**: git repos of extra library content, fetched on user request (the only
   network use). Cached for offline. Untrusted: validate, never execute. Projects embed used items.
 - **Library files**: `.rrqlib` (JSON) — one format for personal-library backup and shareable

@@ -146,6 +146,7 @@ async function demo(): Promise<RrqDoc> {
   const kit = await starterKit();
   let d = produce(createProject('Block and patch quilts demo', 'in', 'demo'), (x) => {
     x.project.license = DEFAULT_LICENSE;
+    x.project.author = AUTHOR;
   });
   for (const p of PLANS) {
     const q0 = createQuilt(p.name, p.layout, p.borders);

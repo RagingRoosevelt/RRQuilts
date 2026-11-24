@@ -135,7 +135,12 @@ justification).
   that's included in the deployed app and a similar route to open_gist called ?open_url= that can
   load rrq files from the demo folder that are passed in". A second demo, `temperature.rrq`: three
   temperature quilts (365 days of highs, a month per row, highs and lows week by week) with a year
-  of sample entries, the first weeks marked cut and sewn. The welcome wizard gets a **Demos** step
+  of sample entries, the first weeks marked cut and sewn, then finished by the owner in the app:
+  filler, borders and sashing colored, and a fourth quilt, Month pinwheels on point (Quartered Month
+  Pinwheels on simulated data, Cobweb blocks between). The file is the source from then on; a test
+  only checks it, including that it names only the built-in library (the save had Denim from the
+  Novelty pack, which has the same color, so every device without that pack was asked to add it). Every demo's project author is "RRQuilts contributors". Owner, 2026-11-23: "yeah,
+  I meant to use that new temp demo. and we should update the author of the other demos to match". The welcome wizard gets a **Demos** step
   after Help, and the home page an **Open a demo** button right of Open a project file and Open
   from a gist, both listing the demos (`DEMOS` in src/storage/demo.ts). Owner, 2026-11-23: "and
   let's also have a demo of temperature quilts", "let's add a "demos" step to the welcome wizard
