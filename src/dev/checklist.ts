@@ -92,6 +92,13 @@ export const CHECKS: Check[] = [
     last: 'exporting an epp / 3d epp quilt doesn’t seem to have the contents in the export',
     to: '/?open_demo=3d-epp.rrq',
   },
+  {
+    id: 'TC-342',
+    group: G.epp3d,
+    text: '3D assembly tab: a rail on the left (right with sides swapped) with Undo and Redo, as in the Design tab. Tap a numbered seam to unpick it: Undo brings it back (the object folds again), Redo unpicks it again; the buttons grey out when there’s nothing to undo or redo.',
+    last: 'we need to add the toolbar with undo/redo that we have in other design views',
+    to: '/?open_demo=3d-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -4,6 +4,29 @@
     :class="{ reverse: swapped }"
     style="min-height: 0; position: relative"
   >
+    <!-- Undo and redo, as the other design views' rails (owner, 2026-11-24). -->
+    <div class="rail column no-wrap q-pa-xs" style="gap: 4px">
+      <q-btn
+        flat
+        dense
+        icon="undo"
+        aria-label="Undo"
+        :disable="!project.canUndo"
+        @click="project.undo()"
+      >
+        <q-tooltip anchor="center right" self="center left">Undo (Ctrl+Z)</q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        dense
+        icon="redo"
+        aria-label="Redo"
+        :disable="!project.canRedo"
+        @click="project.redo()"
+      >
+        <q-tooltip anchor="center right" self="center left">Redo (Ctrl+Shift+Z)</q-tooltip>
+      </q-btn>
+    </div>
     <!-- The flat net (seams editable) and the folded object: stacked or side by side (Settings ›
          Interface › 3D EPP; owner, 2026-11-23). -->
     <div class="col panes no-wrap" :class="vertical ? 'column split-v' : 'row split-h'">
@@ -1116,6 +1139,14 @@ if (import.meta.env.DEV)
 </script>
 
 <style scoped>
+.rail {
+  overflow-y: auto;
+  border-right: 1px solid rgba(128, 128, 128, 0.25);
+}
+.reverse > .rail {
+  border-right: none;
+  border-left: 1px solid rgba(128, 128, 128, 0.25);
+}
 .view {
   overflow: hidden;
   touch-action: none;
