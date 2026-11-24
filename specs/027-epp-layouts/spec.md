@@ -724,7 +724,11 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
   unsewn edges** switch (a view setting): those edges in amber on the net and as tubes on the
   object, the pieces faded (see-through in 3D). Owner, 2026-11-24: "let's add a toggle near the note
   about how the fold solve went that will highlight the edges that arent part of a seam and fade the
-  rest".
+  rest". Beside it **Highlight stretched seams**: seams whose ends stay more than 0.1U
+  apart once folded, counted, their edges and stitches (shown closed up too) in pink, the rest
+  faded. Owner, 2026-11-24: "let's also add a toggle for highlighting seams that are being stretched
+  in the fold because they're crossing really far or something. threshold should be 0.1u,
+  maybe?".
   Owner, 2026-11-23: "let's allow click-to-orbit on the 3d preview in the printout. we'll record
   the orientation. clicking switches from showing an image to the orbitable view and mouse exit or
   15seconds uninteracted will revert back to image view".

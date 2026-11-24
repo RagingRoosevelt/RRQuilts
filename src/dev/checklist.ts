@@ -106,6 +106,13 @@ export const CHECKS: Check[] = [
     last: 'let’s add a toggle near the note about how the fold solve went that will highlight the edges that arent part of a seam and fade the rest',
     to: '/?open_demo=3d-epp.rrq',
   },
+  {
+    id: 'TC-344',
+    group: G.epp3d,
+    text: '3D assembly: stretched seams. The 3D EPP demo’s d12: under Highlight unsewn edges, Highlight stretched seams says “No seam stretches more than 0.1U in the fold.” The Star pillow (or Twisted pincushion): “24 seams stretch more than 0.1U in the fold.” Turn it on: their edges glow pink in the flat net (numbers stay readable, the rest fades) and their stitches show pink on the object, closed up too, with the pieces see-through. Hovering a seam still picks it out on top. Turn it off: back to normal. Your own design with a seam that won’t close: just that seam lights up.',
+    last: 'let’s also add a toggle for highlighting seams that are being stretched in the fold because they’re crossing really far or something. threshold should be 0.1u, maybe?',
+    to: '/?open_demo=3d-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

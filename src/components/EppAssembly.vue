@@ -76,6 +76,15 @@
         <q-toggle v-model="unsewn" dense label="Highlight unsewn edges" :disable="!leaves.length" />
         <div class="text-caption text-grey-7">{{ unsewnText }}</div>
       </div>
+      <div>
+        <q-toggle
+          v-model="stretchOn"
+          dense
+          label="Highlight stretched seams"
+          :disable="!leaves.length"
+        />
+        <div class="text-caption text-grey-7">{{ stretchText }}</div>
+      </div>
       <div v-if="mightClose" class="note text-body2">
         <q-icon name="lightbulb" class="q-mr-xs" />The design is closed, so stuffing might close
         these seams: the fabric bends where flat pieces can't. Turn on Stuffed design to see.
@@ -185,6 +194,7 @@ import {
   buildFold,
   foldFrame,
   foldReport,
+  gaps,
   mul3,
   openEdges,
   qrot,
@@ -328,6 +338,34 @@ const unsewnText = computed(() => {
     ? `${n} edge${n === 1 ? ' isn’t' : 's aren’t'} part of any seam.`
     : 'Every edge is part of a seam.';
 });
+/** Highlight stretched seams (owner, 2026-11-24: "a toggle for highlighting seams that are being
+ *  stretched in the fold because they're crossing really far or something. threshold should be
+ *  0.1u, maybe?"): seams whose edges' ends end up more than STRETCH apart once folded. */
+const STRETCH = 0.1;
+const stretchOn = ref(false);
+/** Hinges stretched past STRETCH in the finished fold. */
+const stretchedHinges = shallowRef<number[]>([]);
+const stretchText = computed(() => {
+  if (!leaves.value.length || phase.value !== 'done') return '';
+  const n = stretchedHinges.value.length;
+  return n
+    ? `${n} seam${n === 1 ? '' : 's'} stretch${n === 1 ? 'es' : ''} more than ${STRETCH}U in the fold.`
+    : `No seam stretches more than ${STRETCH}U in the fold.`;
+});
+/** The stretched seams on the net: explicit seams' numbers, and every seam's edges (net y up → y down). */
+const stretched = computed(() => {
+  if (!stretchOn.value || !fold) return null;
+  const down = ([x, y]: Pt): Pt => [x, -y];
+  const hs = stretchedHinges.value.map((i) => fold!.hinges[i]!);
+  return {
+    seams: new Set(hs.flatMap((h) => (h.seam === null ? [] : [h.seam]))),
+    edges: hs.flatMap((h) =>
+      h.seam === null
+        ? [h.pa.map(down) as [Pt, Pt]]
+        : [h.pa.map(down) as [Pt, Pt], h.pb.map(down) as [Pt, Pt]],
+    ),
+  };
+});
 /** A stuffed design that can be stuffed: its seams close in fabric, whatever this view shows. */
 const fabricCloses = computed(() => designStuffed.value && closed.value);
 const foldClass = computed(() =>
@@ -419,7 +457,13 @@ const seams = useEppSeams({
   open: () => openSeams.value,
 });
 const netHover = ref<World | null>(null);
-const netTick = computed(() => [netHover.value, seams.start.value, openSeams.value, unsewn.value]);
+const netTick = computed(() => [
+  netHover.value,
+  seams.start.value,
+  openSeams.value,
+  unsewn.value,
+  stretched.value,
+]);
 const onNetHover = (p: World | null) => (netHover.value = p);
 /** The seam under the pointer on the net, or under a held finger (owner, 2026-11-24: "when hoving
  *  or long pressing a seam in the 2d view, it fades out the other seams and highlights that seam's
@@ -431,6 +475,7 @@ const decorateNet = (dec: Decor) =>
     pick: !ro.value,
     active: activeSeam.value,
     unsewn: unsewn.value,
+    stretched: stretched.value,
   });
 
 // ---------- three.js ----------
@@ -565,6 +610,7 @@ function rebuild(reframe: boolean) {
   explodeAmt = 0;
   phase.value = 'fold';
   report.value = null;
+  stretchedHinges.value = [];
   closed.value = fold.closed;
   meshes = fold.plates.map((P) => pieceMesh(P.pts, P.c));
   makeMeshes();
@@ -661,8 +707,7 @@ function makeMeshes() {
   const segs = m.hinges.reduce((s, h) => s + 2 * stitchCount(h), 0);
   threads = threadMats.map((mat) => new three.InstancedMesh(threadGeo, mat, Math.max(1, segs)));
   threads.forEach((t, i) => (t.renderOrder = i)); // core first, then the glow over it
-  const most = Math.max(1, ...m.hinges.map((h) => 2 * stitchCount(h)));
-  hotThreads = hotMats.map((mat) => new three.InstancedMesh(threadGeo, mat, most));
+  hotThreads = hotMats.map((mat) => new three.InstancedMesh(threadGeo, mat, Math.max(1, segs)));
   hotThreads.forEach((t, i) => (t.renderOrder = threads.length + i));
   // Unsewn edges: each piece's outline segments along edges the fold sews to nothing.
   rawSegs = [];
@@ -792,6 +837,13 @@ function flatten() {
 
 /** The fold's hinge for the seam picked out on the net, or -1. A shared edge's hinge lies along that
  *  edge of the piece (the net is the pieces with y flipped). */
+/** Hinges whose stitches stand out: the seam picked on the net, and the stretched ones when shown. */
+function hotHinges(): Set<number> {
+  const hot = new Set(stretchOn.value ? stretchedHinges.value : []);
+  const a = hotHinge();
+  if (a >= 0) hot.add(a);
+  return hot;
+}
 function hotHinge(): number {
   const a = activeSeam.value;
   const m = fold;
@@ -816,9 +868,9 @@ function hotHinge(): number {
 }
 watch(activeSeam, () => (dirty = true));
 
-/** Highlight unsewn edges: the pieces (and their outlines) fade, see-through. */
+/** Highlight unsewn edges or stretched seams: the pieces (and their outlines) fade, see-through. */
 function fadePieces() {
-  const on = unsewn.value;
+  const on = unsewn.value || stretchOn.value;
   const mats = [
     ...plates.flatMap((g) => g.children.slice(0, 2).map((o) => (o as Three.Mesh).material)),
     lineMat,
@@ -833,7 +885,8 @@ function fadePieces() {
   }
   dirty = true;
 }
-watch(unsewn, () => T && fadePieces());
+watch([unsewn, stretchOn], () => T && fadePieces());
+watch(stretchedHinges, () => (dirty = true));
 
 /** The unsewn edges' tubes, segment by segment, where `at` says each outline point is. */
 function syncRaw(at: (p: number, r: number) => V3) {
@@ -881,11 +934,11 @@ function fadeThreads(on: boolean) {
 function syncStitches(seamAt: SeamAt) {
   const three = T!;
   const show = explodeAmt > 0.01;
-  const hot = hotHinge();
-  fadeThreads(hot >= 0 || unsewn.value);
+  const hot = hotHinges();
+  fadeThreads(hot.size > 0 || unsewn.value || stretchOn.value);
   threads.forEach((t) => (t.visible = show));
-  hotThreads.forEach((t) => (t.visible = hot >= 0));
-  if (!show && hot < 0) return;
+  hotThreads.forEach((t) => (t.visible = hot.size > 0));
+  if (!show && !hot.size) return;
   const mtx = new three.Matrix4();
   const q = new three.Quaternion();
   const up = new three.Vector3(0, 1, 0);
@@ -896,7 +949,7 @@ function syncStitches(seamAt: SeamAt) {
   let k = 0;
   let kh = 0;
   fold!.hinges.forEach((h, hi) => {
-    const isHot = hi === hot;
+    const isHot = hot.has(hi);
     if (!show && !isHot) return;
     const set = isHot ? hotThreads : threads;
     const grow = isHot ? HOT.scale : 1;
@@ -1009,6 +1062,7 @@ function tick() {
     if (done) {
       phase.value = 'done';
       report.value = foldReport(m);
+      stretchedHinges.value = gaps(m).flatMap((g, i) => (g > STRETCH ? [i] : []));
     }
     orbit.target = toward(orbit.target, objectBounds().c, 0.1);
     dirty = true;
@@ -1222,6 +1276,7 @@ if (import.meta.env.DEV)
           hotStitches: hotThreads[0]?.visible ? hotThreads[0].count : 0,
           unsewn: unsewn.value,
           unsewnSegments: rawThreads[0]?.visible ? rawThreads[0].count : 0,
+          stretched: stretchedHinges.value.length,
           stitches: threads[0]?.visible ? threads[0].count : 0,
         };
       },

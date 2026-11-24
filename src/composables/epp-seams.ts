@@ -20,6 +20,14 @@ const OPEN = '#e53935';
 const HOT = '#ff2d95';
 /** Unsewn edges (Highlight unsewn edges), as their tubes in 3D. */
 const RAW = '#ff9800';
+/** Stretched seams (Highlight stretched seams): the 3D stitches' color, so both views match. */
+const STRETCHED = HOT;
+
+/** Seams the fold stretches: explicit ones by number - 1, and the edges (net, y down) to light up. */
+export interface Stretched {
+  seams: ReadonlySet<number>;
+  edges: readonly [Pt, Pt][];
+}
 
 /** A seam picked out on the net: an explicit seam (its number - 1), or an edge shared with a
  *  neighbor (leaf, edge of its outline). */
@@ -130,7 +138,8 @@ export function useEppSeams(o: {
   /**
    * Seams, the edge being picked and the one under `hover` (null: none; `pick`: as a pick to sew),
    * the front ring. `active`: that seam stands out (both its edges, glowing) and the others fade.
-   * `unsewn`: the edges in no seam stand out, everything else fades.
+   * `unsewn`: the edges in no seam stand out, everything else fades. `stretched`: those seams stand
+   * out (numbers kept), everything else fades.
    */
   function decorate(
     { ctx, px: p }: Decor,
@@ -139,11 +148,17 @@ export function useEppSeams(o: {
       pick = true,
       active = null,
       unsewn = false,
-    }: { pick?: boolean; active?: ActiveSeam | null; unsewn?: boolean } = {},
+      stretched = null,
+    }: {
+      pick?: boolean;
+      active?: ActiveSeam | null;
+      unsewn?: boolean;
+      stretched?: Stretched | null;
+    } = {},
   ) {
     const open = o.open?.() ?? new Set<number>();
     ctx.save();
-    if (unsewn) {
+    if (unsewn || stretched) {
       // A veil over the pieces (the canvas's background color, see-through).
       ctx.save();
       ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -165,7 +180,8 @@ export function useEppSeams(o: {
     };
     for (const m of seamMarks(o.leaves(), o.quilt().epp?.seams ?? [], p(12))) {
       const on = active?.seam === m.n - 1;
-      const faded = (!!active || unsewn) && !on;
+      const kept = on || !!stretched?.seams.has(m.n - 1);
+      const faded = (!!active || unsewn || !!stretched) && !kept;
       ctx.strokeStyle = ctx.fillStyle = open.has(m.n - 1) ? OPEN : m.color;
       ctx.setLineDash(open.has(m.n - 1) && !on ? [p(6), p(4)] : []);
       if (on) line(m.edge, p(14), 0.3); // a glow under it
@@ -173,6 +189,15 @@ export function useEppSeams(o: {
       if (m.label) ctx.fillText(String(m.n), m.label[0], m.label[1]);
     }
     ctx.globalAlpha = 1;
+    if (stretched) {
+      ctx.strokeStyle = STRETCHED;
+      ctx.setLineDash([]);
+      for (const e of stretched.edges) {
+        line(e, p(14), 0.35);
+        line(e, p(5));
+      }
+      ctx.globalAlpha = 1;
+    }
     if (unsewn) {
       ctx.strokeStyle = RAW;
       ctx.setLineDash([]);
