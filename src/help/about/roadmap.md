@@ -11,6 +11,9 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 ## 0.9.1
 
 - Help guides for English paper piecing shapes, rosettes and quilts.
+
+## 0.9.2
+
 - Change the coloring of a rosette already placed in a quilt.
 - Drag the sides of an English paper piecing quilt's cut, with the pieces outside it faded.
 - Palette swaps for rosette colorings.
