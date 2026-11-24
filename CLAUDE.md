@@ -36,6 +36,15 @@ like sketchbook/worktable are fine).
   draft / pending); `DataEntryDialog` (calendar, day form, Year); `/data/steps` = PrintPreview kind
   `steps` from `model/print/data-steps.ts` (days or Block by block). Nav tab: setting `dataTab`
   (`composables/data-tab.ts`).
+- **Demo projects**: `public/demo/*.rrq` (deployed, precached), listed in `DEMOS` (`storage/demo.ts`)
+  for the welcome wizard's Demos step and the home page's Open a demo (`DemoList.vue`,
+  `composables/open-demo.ts`), and opened by `/?open_demo=<name>.rrq` (the demo folder only, never
+  another site), beside `/?open_gist=`. Written by tests: `block-quilts.rrq` by
+  `__tests__/model/blocks-demo.spec.ts` (`BLOCKS_DEMO=<file>`), `3d-epp.rrq` by
+  `__tests__/model/epp/demo3d.spec.ts` (`EPP3D_DEMO=<file>`), `traditional-epp.rrq` by
+  `__tests__/model/epp/traditional-demo.spec.ts` (`EPP_DEMO=<file>`). `temperature.rrq` was finished by the
+  owner in the app, so the file is the source (`__tests__/model/temperature-demo.spec.ts` only checks
+  it). Project author on all: `RRQuilts contributors`.
 - **Resource repositories**: git repos of extra library content, fetched on user request (the only
   network use). Cached for offline. Untrusted: validate, never execute. Projects embed used items.
 - **Library files**: `.rrqlib` (JSON) — one format for personal-library backup and shareable
@@ -128,7 +137,7 @@ Host needs only Docker, make, git (no Node). Run `make` for the list.
 Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over `RrqDoc`.
 
 - `schema/` — TypeBox schemas = TS types + validation + published JSON Schema
-  (`public/schemas/rrq.v10.json`; regenerate with `npm run schema`, a test fails on drift)
+  (`public/schemas/rrq.v<N>.json`; regenerate with `npm run schema`, a test fails on drift)
 - `io.ts` — `parseProject` (JSON → migrate → validate → duplicate ids → dangling refs + asset
   hashes reported), `serializeProject`. New version: bump `VERSION`, add `migrations[old]`.
 - `units.ts` — only real lengths scale; block geometry is normalized 0…1
@@ -139,6 +148,8 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   fabrics by id); `syncPalettes` (in `syncDraft`) files loose own items into the first palette. v4
   `source` links one to a My library palette (`base` = per-item hashes at the last sync;
   `resolveSync` decides each difference's direction, conflicts go to the user)
+- `seams.ts` — project seam allowances (`project.seams`: standard piecing 1/4 in / 6 mm, EPP 3/8 in /
+  10 mm, unset = default); `composables/seams.ts` for the fields (Print, 3D Print, EPP Layout tab)
 - `coloring.ts` `paint` — copy-on-write quilt colorings (this / allIdentical / alternate)
 - `layout/` — one engine: `engine.ts` `tile(Tiling)` = bands of a repeating cell stepped by a, b, one
   affine `map`, `merges` (triangle grids), `clip` to the quilt (`clip.ts`, curved outlines too);
@@ -149,7 +160,9 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   delete/swap/set, square fixes); `slots.ts` `Slot` has kind/shape/turns/
   alt/size/cut, `Generated` has edge/trim; `reconcile`/`applyLayout`/`convertLayout` on changes. Add
   a style = a preset + its id grammar in `specs/003-project-format/contracts/slot-ids.md`; test-only
-  presets (`__tests__/model/layout-presets.ts`) prove the planned ones
+  presets (`__tests__/model/layout-presets.ts`) prove the planned ones. `even-edge.ts` +
+  `components/EvenEdge.vue` = Even edge length (block quilts' Layout tab, under the block size): a
+  placed block's patch edges at their real length, `scaleBlockSize`
 - `colorways.ts` — quilt colorways (palette swaps of the primary colorway, the quilt's own colors:
   `from` fill key → `to` fill; `shownColorway` saved, `primaryName`; deleting the primary bakes the
   next in); applied in `drawQuilt`, `quiltPieces`. `components/QuiltColorways.vue` (badge / row /
@@ -240,6 +253,10 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 - Print tabs: `components/PrintOptions.vue` (inspector) + `components/PrintPreview.vue` in place of
   the canvas (sheets at true size in SVG, zoomed to fit on screen). A second `printOnly` copy is
   teleported to `<body>`; `@media print` hides `#q-app`, so only sheets print. `@page` injected
+- 3D-printed templates (spec 027): `model/print/stl.ts` (`buildTemplate`: a convex outline in mm →
+  STL solid, debossed size and SA, hanging hole; letters from `stl-font.ts`, made by
+  `scripts/stl-font.py`), `composables/stl.ts` + `StlPreview.vue` / `StlOptions.vue` = the **3D Print**
+  tab (block, shape, rosette, quilt editors) and the Libraries EPP preview
 
 ## Block editor (spec 007)
 
@@ -257,6 +274,31 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   Edit via `project.change(recipe, { coalesce? })` — mutate the draft or return a new document.
 - Don't pass Vue reactive proxies into Immer (`toRaw` if ever needed).
 - Model functions return frozen results; tests that hand-edit them must `structuredClone` first.
+
+## English paper piecing (specs 027, 050; rrq v12, rrqlib v8, `.rrqepp` v1)
+
+- `src/model/schema/epp.ts`: `EppShape` (outline in units, 1U = a scale-1 edge, CCW on screen,
+  `marked` non-whole edges), `Rosette` (pieces of shapes + colorings keyed by piece id, never nested;
+  `shapes` = its internal shapes), EPP quilt = layout `{style: 'epp', unit, edge}` (edge `none` /
+  `cut` rect / `close` = Auto-close with fill / `custom`) + `quilt.epp` (pieces = shapes or linked
+  rosettes, `box`, `closing`). Library items `epp-shape` and `rosette`; one item as a file:
+  `model/epp-file.ts` (`.rrqepp`)
+- `src/model/epp/` (framework-free): `geometry.ts` (place, orient), `expand.ts` (pieces → leaves,
+  `lookupEpp`), `snap.ts`/`grid.ts`/`grow.ts` (rosette Free/Grid/Grow), `checks.ts`, `faces.ts`
+  (gaps, Close space), `match.ts` (outline → shape + pose), `edge.ts` (Cut to size, Auto-close),
+  `quilt-ops.ts`/`rosette-ops.ts`/`shape-ops.ts` (pure edits; `refresh` keeps box/closing current),
+  `as-block.ts` (rosettes as blocks in block quilts: block id `<rosette>-epp`, made by `syncDraft`),
+  `print.ts` (templates). Built-ins: `content/epp.ts` (shapes by category, rosettes)
+- UI: `ShapeEditorPage`, `RosetteEditorPage`, `EppDesign.vue` (EPP quilt Design tab) on
+  `EppCanvas.vue`, `EppLayoutSection.vue` (Layout tab: unit, edge, 3D EPP, Stuffed design),
+  `EppItems.vue` (project EPP tab: shapes and rosettes only), `EppPicker.vue`
+- 3D EPP (spec 027 US7): `layout.threeD` (+ `stuffed`), `epp.seams` (edges sewn that don't touch in
+  2D), `epp.front`, `epp.printView`. `net.ts` (quilt → net, seam marks), `fold.ts` (rigid plates,
+  seam welds, fold → settle, `turnToFront`), `stuff.ts` (PBD cloth on a Delaunay mesh). Seam tool:
+  `composables/epp-seams.ts`. `EppAssembly.vue` = the 3D assembly tab (net + three.js view, split
+  by setting `epp3dSplit`); `render/epp3d-picture.ts` = card and print pictures (one offscreen
+  WebGL renderer, work in 12 ms slices) and the printout's live orbit (`Epp3dPrintView.vue`).
+  three.js is imported dynamically (3D only)
 
 ## Gotchas
 

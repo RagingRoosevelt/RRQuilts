@@ -7,6 +7,7 @@ import { WIDTHS, type PrintPrefs, type WidthOption } from '@/model/print/prefs';
 import { cutFor, cutPlan, type Cut } from '@/model/print/rotary';
 import { BINDING_EXTRA, backing, binding, fabricNeeds } from '@/model/print/yardage';
 import type { Units } from '@/model/schema/project';
+import { SEAM_DEFAULTS } from '@/model/seams';
 
 export interface CalcInput {
   key: string;
@@ -51,12 +52,18 @@ export interface Calculator {
 /** Bolt widths a calculator can use (fat quarters are counted separately). */
 export const boltWidths = (units: Units) => WIDTHS[units].filter((w) => !w.fatQuarter);
 
-/** `width`: a fabric width id (WIDTHS); the first bolt width by default. */
-export function calcContext(units: Units, p: PrintPrefs, width?: string): CalcContext {
+/** `width`: a fabric width id (WIDTHS); the first bolt width by default. `seam`: the project's
+ *  standard seam allowance (1/4 in or 6 mm by default). */
+export function calcContext(
+  units: Units,
+  p: PrintPrefs,
+  width?: string,
+  seam = SEAM_DEFAULTS[units].piecing,
+): CalcContext {
   const fabric = WIDTHS[units].find((w) => w.id === width) ?? boltWidths(units)[0]!;
   return {
     units,
-    seam: p.seam[units],
+    seam,
     step: p.rounding[units],
     slack: p.miterSlack[units],
     usable: fabric.usable,

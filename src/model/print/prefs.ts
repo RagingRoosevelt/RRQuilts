@@ -1,9 +1,14 @@
 // Print preferences (app settings, spec 010). Values that differ by unit system are kept per system
 // and in that system's units: inches for `in`, centimeters for `cm`.
 import type { Units } from '../schema/project';
+import { STL_BUILD } from './stl';
 
 export type BlockSection = 'templates' | 'rotary' | 'picture';
 export type QuiltSection = 'picture' | 'blocks' | 'yardage' | 'rotary' | 'templates';
+/** Rosettes (spec 050 FR-006a): the rosette sheet, paper templates, fabric templates. */
+export type RosetteSection = 'picture' | 'paper' | 'fabric';
+/** EPP quilts (spec 027 US6). */
+export type EppQuiltSection = 'picture' | 'yardage' | 'paper' | 'fabric';
 
 const perUnits = <T>(inches: T, cm: T) => ({ in: inches, cm });
 
@@ -20,7 +25,6 @@ export const PRINT_DEFAULTS = {
   landscape: false,
   /** Page margins on every side (most printers can't print the outer ¼″). */
   margin: perUnits(0.5, 1.25),
-  seam: perUnits(0.25, 0.75),
   /** Rounding step for cut sizes; 0 = exact. */
   rounding: perUnits(0.125, 0.5),
   /** Extra length on mitered border strips, trimmed after sewing (0 = cut exact). */
@@ -83,6 +87,14 @@ export const PRINT_DEFAULTS = {
   },
   blockSections: ['templates', 'rotary'] as BlockSection[],
   quiltSections: ['picture', 'blocks', 'yardage', 'rotary', 'templates'] as QuiltSection[],
+  rosetteSections: ['picture', 'paper', 'fabric'] as RosetteSection[],
+  eppQuiltSections: ['picture', 'yardage', 'paper', 'fabric'] as EppQuiltSection[],
+  /** A rosette has no size: the length of 1U it prints at (owner, 2026-11-13: 2 in or 50 mm, as a
+   *  new EPP quilt), and how many rosettes to cut for. */
+  rosetteUnit: perUnits(2, 5),
+  rosetteCount: 1,
+  /** 3D-printed templates (spec 027): fabric (else paper), trim points, and the build in mm. */
+  stl: { fabric: false, trim: true, ...STL_BUILD },
 };
 export type PrintPrefs = typeof PRINT_DEFAULTS;
 

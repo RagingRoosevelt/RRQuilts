@@ -1,13 +1,15 @@
 // Library documents (.rrqlib, spec 002 amended by spec 011): My library backups and shareable packs.
 import Type from 'typebox';
 import { Block } from './block';
+import { EppShape, Rosette } from './epp';
 import { Color, Fabric } from './palette';
 import { Units } from './project';
 import { itemBase, Links, Socials } from './shared';
 
 export const LIBRARY_FORMAT = 'rrqlib';
-/** v6: data blocks (spec 025: data paints, kind, month variants). v7: 2-day variants (spec 046). */
-export const LIBRARY_VERSION = 7;
+/** v6: data blocks (spec 025: data paints, kind, month variants). v7: 2-day variants (spec 046).
+ *  v8: EPP shapes and rosettes (specs 027, 050). */
+export const LIBRARY_VERSION = 8;
 
 /**
  * A palette: a named set of colors and fabrics (spec 014); each keeps its own `id@version` so
@@ -32,6 +34,16 @@ export const LibraryItem = Type.Union([
     fabrics: Type.Optional(Type.Array(Fabric)),
   }),
   Type.Object({ type: Type.Literal('colors'), ...category, data: ColorCollection }),
+  Type.Object({ type: Type.Literal('epp-shape'), ...category, data: EppShape }),
+  Type.Object({
+    type: Type.Literal('rosette'),
+    ...category,
+    data: Rosette,
+    /** Library shapes its pieces use, so the rosette works on its own. */
+    shapes: Type.Optional(Type.Array(EppShape)),
+    colors: Type.Optional(Type.Array(Color)),
+    fabrics: Type.Optional(Type.Array(Fabric)),
+  }),
 ]);
 
 /** Two levels: a category with a `parent` is a subcategory of that top-level category. */

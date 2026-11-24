@@ -8,9 +8,11 @@
       <q-tabs v-model="editor.mode" dense no-caps inline-label class="col">
         <q-tab name="details" icon="info" label="Details" />
         <q-tab name="layout" icon="grid_on" label="Layout" />
-        <q-tab name="borders" icon="crop_square" label="Borders" />
+        <q-tab v-if="!is3d" name="borders" icon="crop_square" label="Borders" />
         <q-tab name="design" icon="palette" label="Design" />
+        <q-tab v-if="is3d" name="assembly" icon="3d_rotation" label="3D assembly" />
         <q-tab name="print" icon="print" label="Print" />
+        <q-tab name="print3d" icon="view_in_ar" label="3D Print" />
       </q-tabs>
       <HelpLink v-bind="help" />
       <q-btn
@@ -25,7 +27,16 @@
       </q-btn>
     </div>
 
+    <!-- An EPP quilt's Design tab (spec 027): its own canvas, tools and picker. -->
+    <EppDesign v-if="isEpp && editor.mode === 'design'" :quilt="quilt" :sidebar="editor.sidebar" />
+    <!-- A 3D EPP quilt's 3D assembly tab (spec 027 User Story 7). -->
+    <EppAssembly
+      v-else-if="is3d && editor.mode === 'assembly'"
+      :quilt="quilt"
+      :sidebar="editor.sidebar"
+    />
     <div
+      v-else
       class="row col no-wrap"
       :class="{ reverse: appSettings.settings.sidesSwapped }"
       style="min-height: 0; position: relative"
@@ -56,7 +67,7 @@
           <q-separator />
           <PrintZoom />
         </template>
-        <template v-if="editor.mode !== 'print'">
+        <template v-if="editor.mode !== 'print' && editor.mode !== 'print3d'">
           <q-btn
             flat
             dense
@@ -145,6 +156,7 @@
       </div>
 
       <PrintPreview v-if="editor.mode === 'print'" kind="quilt" :id="quilt.id" />
+      <StlPreview v-else-if="editor.mode === 'print3d'" :stl="stl" />
       <!-- Canvas -->
       <div v-else class="col relative-position">
         <QuiltCanvas
@@ -218,6 +230,31 @@
             </template>
           </PaletteTray>
         </template>
+        <EppLayoutSection
+          v-else-if="editor.mode === 'layout' && isEpp"
+          :quilt="quilt"
+          :units="units"
+          :readonly="project.readOnly"
+        />
+        <div
+          v-else-if="editor.mode === 'borders' && isEpp && !eppEdgeMade"
+          class="column"
+          style="gap: 8px"
+        >
+          <div class="text-body2">
+            Borders and binding go round a finished edge. Pick an edge in Layout first (Cut to size
+            or Auto-close).
+          </div>
+          <q-btn
+            outline
+            dense
+            no-caps
+            icon="grid_on"
+            label="Go to Layout"
+            class="self-start q-px-sm"
+            @click="editor.mode = 'layout'"
+          />
+        </div>
         <template v-else-if="editor.mode === 'layout' && quilt.layout.style !== 'custom-set'">
           <DataSpaceCount
             v-if="quilt.data?.on"
@@ -229,6 +266,7 @@
           <LayoutInspector
             :key="quilt.id"
             :layout="quilt.layout"
+            :quilt="quilt"
             :units="units"
             :readonly="project.readOnly"
             :has-borders="quilt.borders.length > 0"
@@ -254,12 +292,17 @@
         />
         <DetailsPanel v-else-if="editor.mode === 'details'" kind="quilt" :id="quilt.id" />
         <PrintOptions v-else-if="editor.mode === 'print'" kind="quilt" :id="quilt.id" />
+        <StlOptions v-else-if="editor.mode === 'print3d'" :stl="stl" />
       </div>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
+import EppAssembly from '@/components/EppAssembly.vue';
+import EppDesign from '@/components/EppDesign.vue';
+import EppLayoutSection from '@/components/EppLayoutSection.vue';
+import { ERASER } from '@/components/icons';
 import { useDataTab } from '@/composables/data-tab';
 import type { Block } from '@/model/schema/block';
 import QuiltColorways from '@/components/QuiltColorways.vue';
@@ -294,13 +337,18 @@ import TargetSection from '@/components/TargetSection.vue';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import LayoutInspector from '@/components/LayoutInspector.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
+import { useRosetteBlocks } from '@/composables/rosette-blocks';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
+import StlOptions from '@/components/StlOptions.vue';
+import StlPreview from '@/components/StlPreview.vue';
+import { useStl } from '@/composables/stl';
 import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { applyTool } from '@/editor/actions';
 import { takesBlock } from '@/editor/scope';
 import { STRIP_STYLES, stripOf, swapStrips, setStrip } from '@/model/layout/strips';
+import { is3d as is3dQuilt } from '@/model/epp/quilt-ops';
 import { applyLayout, generateFor, reconcile, type Bounds } from '@/model/layout/slots';
 import { PLAIN_BLOCK, slotGroup } from '@/model/plain';
 import type { Border, Layout, QuiltTarget, StripLayout, StripStyle } from '@/model/schema/quilt';
@@ -334,6 +382,22 @@ const dataTypes = useDataTypes();
 const appSettings = useSettingsStore();
 
 const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === route.params.id));
+/** The 3D Print tab (spec 027): a template for each of the quilt's pieces. */
+const stl = useStl(() => (quilt.value ? { kind: 'quilt', id: quilt.value.id } : null));
+/** An EPP quilt (spec 027), and whether its edge is finished (borders need one). */
+const isEpp = computed(() => quilt.value?.layout.style === 'epp');
+/** A 3D EPP quilt: a 3D assembly tab, no borders. */
+const is3d = computed(() => !!quilt.value && is3dQuilt(quilt.value));
+watch(
+  [is3d, () => editor.mode],
+  ([d, m]) => {
+    if ((m === 'assembly' && !d) || (m === 'borders' && d)) editor.mode = 'design';
+  },
+  { immediate: true },
+);
+const eppEdgeMade = computed(
+  () => quilt.value?.layout.style === 'epp' && quilt.value.layout.edge.kind !== 'none',
+);
 // Opening or making a data quilt shows the Data Quilts tab (unless it was hidden on purpose).
 const dataTab = useDataTab();
 watch(
@@ -359,10 +423,6 @@ const view = computed<View | undefined>({
     if (quilt.value && v) editor.views.set(quilt.value.id, v);
   },
 });
-
-// Eraser glyph ("ink_eraser", Material Symbols, Apache 2.0) — the bundled icon font has none.
-const ERASER =
-  'M690-240h190v80H610l80-80Zm-500 80-85-85q-23-23-23.5-57t22.5-58l440-456q23-24 56.5-24t56.5 23l199 199q23 23 23 57t-23 57L520-160H190Zm296-80 314-322-198-198-442 456 64 64h262Zm-6-240Z|0 -960 960 960';
 
 const tools: { id: Tool; icon: string; label: string }[] = [
   { id: 'set', icon: 'add_box', label: 'Set block' },
@@ -398,6 +458,8 @@ const QUILT_HELP: Record<string, { topic: string; label: string }> = {
   borders: { topic: 'math/borders', label: 'Borders' },
   design: { topic: 'guides/designing-a-quilt', label: 'Designing a quilt' },
   print: { topic: 'guides/printing', label: 'Printing' },
+  print3d: { topic: 'guides/printing#3d-printed-templates', label: '3D-printed templates' },
+  assembly: { topic: 'guides/epp-3d', label: '3D EPP' },
 };
 const help = computed(() =>
   editor.mode === 'design' && quilt.value?.data?.on
@@ -593,7 +655,14 @@ const borderInner = computed((): Bounds => {
   return [x0 - sum(0), y0 - sum(1), x1 + sum(2), y1 + sum(3)];
 });
 /** Whether some space of this quilt takes the block (its shape: spec 026). */
-const fitsQuilt = (b: Block) => generated.value.slots.some((s) => takesBlock(s, b.shape ?? null));
+const fitsQuilt = (b: Block) =>
+  generated.value.slots.some((s) => takesBlock(s, b.shape ?? null, !!b.rosette));
+/** The Set tool also finds rosettes' blocks (spec 027 FR-015), made in the project when placed. */
+const rosetteBlocks = useRosetteBlocks();
+const toolLibrary = computed(() => ({
+  ...library.lookup,
+  block: (id: string) => library.lookup.block(id) ?? rosetteBlocks.block(id),
+}));
 /** Some space takes a block (patch layouts and pieced strips take only colors and fabrics). */
 const hasBlockSpaces = computed(() => generated.value.slots.some((s) => takesBlock(s)));
 const bordersSetAside = computed(
@@ -643,7 +712,7 @@ function onTap(hit: Hit) {
   if (editor.tool === 'number' || editor.tool === 'entry') return onDataTap(hit);
   const r = applyTool(project.doc, quilt.value.id, generated.value.slots, hit, {
     ...editor.$state,
-    library: library.lookup,
+    library: toolLibrary.value,
   });
   // Find on a data block: the block itself, not the variant its space shows.
   const place = quilt.value.data?.on ? placeOf(quilt.value.data, hit.slotId) : undefined;
@@ -691,7 +760,7 @@ function onPick(hit: Hit) {
   const r = applyTool(doc, q.id, generated.value.slots, hit, {
     ...editor.$state,
     tool: 'eyedropper',
-    library: library.lookup,
+    library: toolLibrary.value,
   });
   if (block && block.id !== PLAIN_BLOCK && !block.data) {
     editor.block = block.id;

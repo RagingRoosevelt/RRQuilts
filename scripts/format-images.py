@@ -13,6 +13,7 @@ First run: `uv run --with playwright playwright install firefox`.
 import functools
 import http.server
 import json
+import re
 import sys
 import tempfile
 import threading
@@ -75,7 +76,8 @@ with sync_playwright() as p:
         page.reload()
         page.wait_for_timeout(2000)
         with page.expect_file_chooser() as fc:
-            page.get_by_role("button", name="Open a project file").click()
+            # "Open a project file" until 0.8.0, "Open a project" since.
+            page.get_by_role("button", name=re.compile(r"^Open a project( file)?$")).click()
         fc.value.set_files(str(rrq))
         page.wait_for_url("**/project**")
         page.wait_for_timeout(2000)

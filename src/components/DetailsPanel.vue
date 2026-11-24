@@ -286,7 +286,7 @@ import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
-  kind: 'project' | 'quilt' | 'block';
+  kind: 'project' | 'quilt' | 'block' | 'shape' | 'rosette';
   id?: string;
   /** The document to show it from (the block editor's read-only view of a library block). */
   doc?: RrqDoc;
@@ -303,6 +303,8 @@ const target = computed(() => {
   if (!p) return undefined;
   if (props.kind === 'quilt') return p.quilts.find((q) => q.id === props.id);
   if (props.kind === 'block') return p.blocks.find((b) => b.id === props.id);
+  if (props.kind === 'shape') return p.eppShapes?.find((x) => x.id === props.id);
+  if (props.kind === 'rosette') return p.rosettes?.find((x) => x.id === props.id);
   return undefined;
 });
 
@@ -328,7 +330,14 @@ const block = computed(() =>
 );
 /** Title, author, license and notes can't change: read-only project, or a library block (its own
  *  library's; the quilter's tags on it still can). */
-const fixed = computed(() => ro.value || (!!block.value && isLibraryItem(block.value)));
+const fixed = computed(
+  () =>
+    ro.value ||
+    (!!block.value && isLibraryItem(block.value)) ||
+    ((props.kind === 'shape' || props.kind === 'rosette') &&
+      !!target.value &&
+      isLibraryItem(target.value)),
+);
 const techniqueName = (t: Technique) => TECHNIQUES[t];
 /** The block's marked techniques among these, by name. */
 const markedIn = (ts: Technique[]) =>
@@ -505,7 +514,11 @@ function set(field: Field, raw: string | number | null, final = false) {
           ? p.quilts.find((q) => q.id === props.id)
           : props.kind === 'block'
             ? p.blocks.find((b) => b.id === props.id)
-            : undefined;
+            : props.kind === 'shape'
+              ? p.eppShapes?.find((x) => x.id === props.id)
+              : props.kind === 'rosette'
+                ? p.rosettes?.find((x) => x.id === props.id)
+                : undefined;
       if (props.kind !== 'project' && !t) return;
       // Items keep the license they had: pin those still following the old project license.
       if (field === 'license' && !t) {

@@ -216,6 +216,19 @@
                 The quilt and block editors; the Libraries filters follow the sidebar.
               </div>
             </SettingsCard>
+            <SettingsCard label="3D EPP">
+              <q-btn-toggle
+                v-model="store.settings.epp3dSplit"
+                no-caps
+                :options="[
+                  { label: 'Vertical split (2D above 3D)', value: 'vertical' },
+                  { label: 'Horizontal split (2D beside 3D)', value: 'horizontal' },
+                ]"
+              />
+              <div class="text-caption text-grey-7 q-mt-xs">
+                How the 3D assembly tab shows the flat design and the folded object.
+              </div>
+            </SettingsCard>
           </div>
         </q-expansion-item>
         <q-expansion-item default-opened label="Project" icon="grid_view">

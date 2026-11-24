@@ -105,8 +105,17 @@
                   >
                     Fabrics: {{ fabricLegend }}
                   </text>
+                  <text
+                    v-for="(line, j) in p.keyBlock.note ?? []"
+                    :key="`n${j}`"
+                    :x="0"
+                    :y="p.keyBlock.height + font * ((fabricLegend ? 3.1 : 2) + j * 0.9)"
+                    :font-size="font * 0.7"
+                  >
+                    {{ line }}
+                  </text>
                 </template>
-                <TemplatePiece v-else :piece="p" :look="look" :fmt="fmt" />
+                <TemplatePiece v-else :piece="p" :look="lookFor(p)" :fmt="fmt" />
               </g>
             </svg>
 
@@ -117,7 +126,7 @@
               :height="`${s.tile.h}${units}`"
               :viewBox="`${s.tile.x} ${s.tile.y} ${s.tile.w} ${s.tile.h}`"
             >
-              <TemplatePiece :piece="s.piece" :look="look" :fmt="fmt" />
+              <TemplatePiece :piece="s.piece" :look="lookFor(s.piece)" :fmt="fmt" />
               <rect
                 v-for="(o, j) in s.tile.overlaps"
                 :key="j"
@@ -572,6 +581,16 @@
                   stroke="#000"
                   :stroke-width="(stroke / s.scale) * 1.5"
                 />
+                <!-- A 3D EPP quilt: each explicit seam's edges in its color, not numbered (owner,
+                     2026-11-24: "don't show the seam join labels in the 2d quilt picture"). -->
+                <path
+                  v-for="(m, j) in s.seams ?? []"
+                  :key="`seam${j}`"
+                  :d="m.d"
+                  fill="none"
+                  :stroke="m.css"
+                  :stroke-width="(stroke / s.scale) * 3"
+                />
                 <g v-if="s.overlay">
                   <clipPath v-if="s.overlay.shade" :id="`quilt${i}`">
                     <rect
@@ -606,6 +625,16 @@
                   />
                 </g>
               </svg>
+              <!-- A 3D quilt: the folded object; a click turns it by hand (owner, 2026-11-23). -->
+              <Epp3dPrintView
+                v-if="s.view3d"
+                :url="s.view3d.url"
+                :shape="s.view3d.shape"
+                :view="s.view3d.view"
+                :size="`${s.view3d.size}${units}`"
+                :interactive="!printOnly && !project.readOnly"
+                @update:view="savePrintView"
+              />
               <!-- A data quilt's legend: each value's colors (spec 025). -->
               <div v-if="s.legend" class="legend self-stretch column" style="gap: 4px">
                 <div
@@ -720,12 +749,21 @@ import {
   authorOf,
   blockLock,
   blocksByOthers,
+  DEFAULT_LICENSE,
   effectiveLicense,
   licenseName,
   priorCredits,
   quiltLock,
 } from '@/model/credits';
 import { pathToSegs, flattenLoop, sub, type Pt } from '@/model/geometry/path';
+import { projectSeams } from '@/model/seams';
+import { expandAll, lookupEpp, type EppLookup } from '@/model/epp/expand';
+import { seamMarks } from '@/model/epp/net';
+import { is3d } from '@/model/epp/quilt-ops';
+import { useQuiltPicture } from '@/composables/quilt-picture';
+import Epp3dPrintView from '@/components/Epp3dPrintView.vue';
+import { START_VIEW, type View3d } from '@/render/epp3d-picture';
+import { eppQuiltPieces, rosettePieces, shapeAsRosette } from '@/model/epp/print';
 import { generateFor } from '@/model/layout/slots';
 import { fmtFabric, fmtLen, splitApprox } from '@/model/print/format';
 import { pack, pillWidth, splitFlow, tiles, wrapPills } from '@/model/print/pack';
@@ -761,6 +799,7 @@ import {
 import type { Block } from '@/model/schema/block';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
+import { shownColorway, swapper } from '@/model/colorways';
 import type { Credit } from '@/model/schema/shared';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
@@ -770,7 +809,7 @@ import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
   /** `steps`: a data quilt's instructions for `days` (spec 041). */
-  kind: 'block' | 'quilt' | 'steps';
+  kind: 'block' | 'quilt' | 'steps' | 'rosette';
   id: string;
   days?: readonly string[] | undefined;
   /** Block by block: the plan's numbers (1-based), every day of each. */
@@ -785,6 +824,16 @@ const props = defineProps<{
 }>();
 const project = useProjectStore();
 const library = useLibraryStore();
+/** A 3D quilt's folded object for its picture page. */
+const quiltPicture = useQuiltPicture();
+/** Where the printout's 3D view sees the object from, as turned by hand: saved with the quilt. */
+function savePrintView(v: View3d) {
+  if (project.readOnly || props.kind !== 'quilt') return;
+  project.change((d) => {
+    const q = d.project.quilts.find((x) => x.id === props.id);
+    if (q?.epp) q.epp.printView = { theta: v.theta, phi: v.phi };
+  });
+}
 const app = useSettingsStore();
 
 const doc = computed(() => props.doc ?? project.doc);
@@ -794,7 +843,29 @@ const paper = computed(() => pick(PAPERS, prefs.value.paper[units.value]));
 /** Millimeters per project unit. */
 const mm = computed(() => (units.value === 'in' ? 25.4 : 10));
 const fmt = (x: number) => fmtLen(x, units.value);
-const seam = computed(() => prefs.value.seam[units.value]);
+/** The project's seam allowances (owner, 2026-11-14): standard piecing, and EPP templates'. */
+const seams = computed(() => projectSeams(doc.value, units.value));
+const eppSeam = computed(() => seams.value.epp);
+/**
+ * Rosettes in a block quilt are cut with the EPP seam allowance (owner, 2026-11-14): when it differs
+ * from the quilt's, their outer edges need matching up before they're sewn in.
+ */
+const rosetteSeamNote = computed(() => {
+  const { piecing: p, epp: e } = seams.value;
+  if (Math.abs(p - e) < 1e-9) return '';
+  const head = `Rosettes are cut with the EPP seam allowance (${fmt(e)}); the rest of the quilt uses ${fmt(p)}.`;
+  return e > p
+    ? `${head} Before sewing a rosette into the quilt, trim its outer edge to ${fmt(p)} beyond the sewing line, or sew those seams at ${fmt(e)}.`
+    : `${head} Sew a rosette into the quilt along its sewing line: line up the sewing lines, not the cut edges.`;
+});
+/** The seam allowance: EPP's for a rosette or an EPP quilt, else standard piecing's. */
+const seam = computed(() => {
+  const q =
+    props.kind === 'quilt' ? doc.value?.project.quilts.find((x) => x.id === props.id) : undefined;
+  return props.kind === 'rosette' || q?.layout.style === 'epp'
+    ? eppSeam.value
+    : seams.value.piecing;
+});
 /** A mitered strip's cut edge reaches this far past the finished corner. */
 const miterA = computed(() => seam.value * (1 + Math.SQRT2));
 const step = computed(() => prefs.value.rounding[units.value]);
@@ -894,6 +965,20 @@ const look = computed(() => ({
   seam: prefs.value.seamAllowance && prefs.value.seamLabel ? seam.value : 0,
   seamText: `SA = ${fmt(seam.value)}`,
 }));
+/** An EPP template's look: its own seam allowance, fabric (`epp`) or paper, whatever the print's
+ *  Include seam allowance. */
+function lookFor(p: PlacedPiece) {
+  if (p.epp === undefined) return look.value;
+  const s = eppSeam.value;
+  return {
+    ...look.value,
+    sewLine: p.epp ? prefs.value.sewLine : 'none',
+    shade: p.epp && prefs.value.shadeSeam,
+    markLength: p.epp ? s : s / 2,
+    seam: p.epp && prefs.value.seamLabel ? s : 0,
+    seamText: `SA = ${fmt(s)}`,
+  };
+}
 /** Scale squares on templates: the largest that fits, `big` on pieces at least `bigAt` a side. */
 const SQUARES = {
   in: { sizes: [1, 0.5, 0.25], big: 2, bigAt: 6 },
@@ -1007,11 +1092,16 @@ interface View {
   /** Quilts: blocks made by others (or based on others' work), with their chains. */
   blocks: { name: string; author?: string | undefined; license: string; basedOn: Credit[] }[];
   pieces: Piece[];
-  /** A data quilt (spec 025): the pieces its yardage counts (worst case), and its legend. */
+  /** A data quilt (spec 025): the pieces its yardage counts (worst case), and its legend. A block
+   *  quilt with rosettes: all its pieces, theirs too. */
   yardPieces?: Piece[];
+  /** A block quilt's rosette patches (spec 027 FR-015): paper and fabric templates. */
+  eppPieces?: Piece[];
   legend?: { label: string; items: { fill: string; text: string }[] }[];
   /** Picture: outlines (+ fills) in their own coordinates. */
   picture: { d: string; css: string }[];
+  /** A 3D EPP quilt's picture: each explicit seam's edges, in its color (spec 027 US7). */
+  seams?: { d: string; css: string }[];
   pictureBox: readonly [number, number, number, number];
   /** Quilts: the outer edge (pieces are clipped to it) and whether to trim to it after piecing. */
   edge?: Pt[];
@@ -1077,8 +1167,12 @@ const view = computed<View | undefined>(() => {
   if (props.kind === 'quilt') {
     const quilt = dd.project.quilts.find((q) => q.id === id);
     if (!quilt) return undefined;
+    if (quilt.layout.style === 'epp') return eppQuiltView(dd, quilt);
     const g = generateFor(quilt);
-    const pieces = quiltPieces(dd, quilt);
+    const all = quiltPieces(dd, quilt);
+    // Rosettes' patches (spec 027 FR-015) get paper and fabric templates, not rotary cuts.
+    const pieces = all.filter((p) => !p.epp);
+    const eppPieces = all.filter((p) => p.epp);
     const [x0, y0, x1, y1] = g.bounds;
     return {
       title: quilt.notecard.name,
@@ -1094,6 +1188,7 @@ const view = computed<View | undefined>(() => {
         basedOn: u.credits,
       })),
       pieces,
+      ...(eppPieces.length ? { eppPieces, yardPieces: all } : {}),
       ...(quilt.data?.on
         ? {
             yardPieces: dataYardagePieces(dd, quilt),
@@ -1108,13 +1203,14 @@ const view = computed<View | undefined>(() => {
           d: d(flattenLoop(pathToSegs(s.outline, [1, 1]), 0.01)),
           css: '#fff',
         })),
-        ...pieces.map((p) => ({ d: d(p.shown ?? p.poly), css: shapeFill(p.fill) })),
+        ...all.map((p) => ({ d: d(p.shown ?? p.poly), css: shapeFill(p.fill) })),
       ],
       pictureBox: g.bounds,
       edge: flattenLoop(pathToSegs(g.edge, [1, 1]), 0.01),
       trim: g.trim,
     };
   }
+  if (props.kind === 'rosette') return rosetteView(dd, id);
   const block = dd.project.blocks.find((b) => b.id === id);
   if (!block) return undefined;
   const quilt = dd.project.quilts.find((q) => q.id === props.target?.quilt);
@@ -1153,14 +1249,97 @@ const view = computed<View | undefined>(() => {
   };
 });
 
+/** An EPP quilt (spec 027 US6): its pieces at its 1U length, borders round a made edge. */
+function eppQuiltView(dd: RrqDoc, quilt: Quilt): View {
+  const g = generateFor(quilt);
+  const lookup = lookupEpp(dd.project, quilt.epp?.shapes ?? [], library.lookup);
+  const { pieces, outside } = eppQuiltPieces(quilt, lookup, swapper(shownColorway(quilt)));
+  const [x0, y0, x1, y1] = g.bounds;
+  const xs = pieces.flatMap((p) => p.poly.map((q) => q[0]));
+  const ys = pieces.flatMap((p) => p.poly.map((q) => q[1]));
+  const [kx, ky] = [Math.min(...xs), Math.min(...ys)];
+  const threeD = is3d(quilt) && quilt.layout.style === 'epp';
+  const u = quilt.layout.style === 'epp' ? quilt.layout.unit : 1;
+  return {
+    title: quilt.notecard.name,
+    size:
+      sizeLabel(x1 - x0, y1 - y0) +
+      (outside ? ` · ${outside} pieces outside the cut left out` : ''),
+    byline: `By ${quilt.author ?? 'anonymous'} · ${licenseName(effectiveLicense(quilt, dd, quiltLock(dd, quilt)))}`,
+    author: quilt.author,
+    basedOn: priorCredits(quilt),
+    notes: quilt.notecard.notes,
+    blocks: [],
+    pieces,
+    picture: [
+      ...g.slots.map((s) => ({
+        d: d(flattenLoop(pathToSegs(s.outline, [1, 1]), 0.01)),
+        css: '#fff',
+      })),
+      ...pieces.map((p) => ({ d: d(p.poly), css: shapeFill(p.fill) })),
+    ],
+    pictureBox: g.bounds,
+    // A 3D quilt has no edge: its seams instead.
+    ...(threeD
+      ? { seams: seamPicture(quilt, lookup, u) }
+      : { edge: flattenLoop(pathToSegs(g.edge, [1, 1]), 0.01) }),
+    trim: g.trim,
+    blockSize: pieces.length ? [Math.max(...xs) - kx, Math.max(...ys) - ky] : [1, 1],
+    keyPieces: pieces.map((p) => ({ ...p, poly: p.poly.map(([x, y]): Pt => [x - kx, y - ky]) })),
+  };
+}
+
+/** A 3D EPP quilt's explicit seams on its picture, in project units (`u` per 1U). */
+function seamPicture(quilt: Quilt, lookup: EppLookup, u: number): NonNullable<View['seams']> {
+  const leaves = expandAll(quilt.epp?.pieces ?? [], lookup);
+  return seamMarks(leaves, quilt.epp?.seams ?? [], 0).map((m) => ({
+    d: d(m.edge.map(([x, y]): Pt => [x * u, y * u])),
+    css: m.color,
+  }));
+}
+
+/** A rosette (spec 050 FR-006a): its pieces at the chosen 1U length, for the chosen number. */
+function rosetteView(dd: RrqDoc, id: string): View | undefined {
+  // A shape (the shape editor's Print tab) prints as a rosette of one piece.
+  const shape = dd.project.eppShapes?.find((x) => x.id === id) ?? library.lookup.eppShape?.(id);
+  const r =
+    dd.project.rosettes?.find((x) => x.id === id) ??
+    library.lookup.rosette?.(id) ??
+    (shape && shapeAsRosette(shape));
+  if (!r) return undefined;
+  const unit = prefs.value.rosetteUnit[units.value];
+  const count = Math.max(1, Math.round(prefs.value.rosetteCount));
+  const lookup = lookupEpp(dd.project, [], library.lookup);
+  const { pieces: one, size } = rosettePieces(r, lookup, unit, props.target?.coloring);
+  return {
+    title: r.notecard.name,
+    size: `1U = ${fmt(unit)} · ${count} ${count === 1 ? 'rosette' : 'rosettes'}`,
+    byline: `By ${r.author ?? 'anonymous'} · ${licenseName(r.license ?? dd.project.license ?? DEFAULT_LICENSE)}`,
+    author: r.author,
+    basedOn: priorCredits(r),
+    notes: r.notecard.notes,
+    blocks: [],
+    pieces: Array.from({ length: count }, () => one).flat(),
+    picture: one.map((p) => ({ d: d(p.poly), css: shapeFill(p.fill) })),
+    pictureBox: [0, 0, size[0], size[1]],
+    blockSize: size,
+    keyPieces: one,
+  };
+}
+
 // Templates: each distinct shape, cut line around it, rotated snug, packed on pages.
 function templateItems(
   pieces: Piece[],
   prefix: string,
   letters?: Map<string, string>,
   days?: Map<string, string[]>,
+  /** EPP paper (false) and fabric (true) templates, whatever the Seam allowance setting. */
+  withSeam?: boolean,
 ) {
-  const { mirror, seamAllowance, trimPoints, tint, labels } = prefs.value;
+  const { mirror, trimPoints, tint, labels } = prefs.value;
+  const seamAllowance = withSeam ?? prefs.value.seamAllowance;
+  // EPP templates (withSeam set) take the EPP seam allowance.
+  const sa = withSeam === undefined ? seam.value : eppSeam.value;
   // Tinted or color-keyed: one template per fabric.
   const lettered = templates(pieces, prefix).map((t) => ({
     ...t,
@@ -1172,7 +1351,7 @@ function templateItems(
       : [t],
   );
   const items: (PlacedPiece & { w: number; h: number })[] = list.map((t) => {
-    const cut = seamAllowance ? offset(t.poly, seam.value, trimPoints) : t.poly;
+    const cut = seamAllowance ? offset(t.poly, sa, trimPoints) : t.poly;
     let rad = snugRotation(cut);
     const turnVec = ([x, y]: Pt): Pt => {
       const [rx, ry] = rotate([[x, y]], rad)[0]!;
@@ -1221,6 +1400,7 @@ function templateItems(
           const info = fillInfo(f);
           return { n, ...info, pill: `${n} · ${info.name} ×${t.counts.get(f)}` };
         }),
+      ...(withSeam === undefined ? {} : { epp: withSeam }),
       x: 0,
       y: 0,
       w: x1 - x0,
@@ -1304,6 +1484,10 @@ type Sheet = (
       heading: string;
       legend?: View['legend'];
       polys: { d: string; css: string }[];
+      seams?: View['seams'];
+      /** A 3D quilt's folded object (null while it's drawn), its shape key, where it's seen from,
+       *  and its size in page units. */
+      view3d?: { url: string | null; shape: string; view: View3d; size: number };
       edge?: string | undefined;
       trim?: boolean | undefined;
       /** The quilt's reference overlay (print option, when enabled in Layout). */
@@ -1366,23 +1550,64 @@ interface KeyBlock {
   height: number;
   paths: string[];
   labels: { x: number; y: number; text: string }[];
+  /** A note under the key, in lines. */
+  note?: string[];
+}
+
+/** `text` in lines of at most about `width` (project units) at `size`. */
+function wrapText(text: string, width: number, size: number): string[] {
+  const max = Math.max(12, Math.floor(width / (size * 0.52)));
+  const lines: string[] = [];
+  let line = '';
+  for (const word of text.split(' ')) {
+    if (line && line.length + 1 + word.length > max) {
+      lines.push(line);
+      line = word;
+    } else line = line ? `${line} ${word}` : word;
+  }
+  return line ? [...lines, line] : lines;
 }
 
 const logical = computed<Sheet[]>(() => {
   const v = view.value;
   if (!v) return [];
   const isBlock = props.kind === 'block';
-  const wanted: string[] = isBlock ? prefs.value.blockSections : prefs.value.quiltSections;
+  const eppQuilt =
+    props.kind === 'quilt' &&
+    doc.value!.project.quilts.find((q) => q.id === props.id)?.layout.style === 'epp';
+  const wanted: string[] = isBlock
+    ? prefs.value.blockSections
+    : eppQuilt
+      ? prefs.value.eppQuiltSections
+      : prefs.value.quiltSections;
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
   if (v.steps) return stepSheets(v.steps, v.notes, !!props.numbers?.length);
+  if (props.kind === 'rosette') return rosetteSheets(v);
 
   // One order whatever order the boxes were ticked in — quilt: picture, yardage, rotary, blocks,
   // templates (credits last); block: block page ("picture"), rotary, templates.
   const ORDER = isBlock
     ? ['picture', 'rotary', 'templates']
-    : ['picture', 'yardage', 'rotary', 'blocks', 'templates'];
+    : eppQuilt
+      ? ['picture', 'yardage', 'paper', 'fabric']
+      : ['picture', 'yardage', 'rotary', 'blocks', 'templates'];
   for (const section of ORDER.filter((x) => wanted.includes(x))) {
+    // EPP quilts: a paper and a fabric cutting template for every patch, keyed on the whole quilt.
+    if (section === 'paper' || section === 'fabric') {
+      out.push(
+        ...templateSheets({
+          pieces: v.pieces,
+          size: v.blockSize!,
+          keyPieces: v.keyPieces!,
+          heading: section === 'paper' ? 'Paper templates' : 'Fabric templates',
+          prefix: section === 'paper' ? 'P' : 'F',
+          bigKey: true,
+          withSeam: section === 'fabric',
+        }),
+      );
+      continue;
+    }
     if (section === 'picture' && isBlock && v.block) {
       const quilt = doc.value!.project.quilts.find((q) => q.id === props.target?.quilt);
       out.push(
@@ -1431,9 +1656,18 @@ const logical = computed<Sheet[]>(() => {
         : box;
       const w = x1 - x0;
       const h = y1 - y0 + 0.0001;
+      // A 3D quilt: its folded object under the net (owner, 2026-11-23: "the print out should show
+      // both 2d and 3d view"), drawn in the background (null until then).
+      const view = q?.epp?.printView ?? START_VIEW;
+      const pic = q ? quiltPicture.view3d(doc.value!, q, 900, view) : null;
+      const view3d = pic ? { ...pic, view, size: Math.min(aw, ah * 0.38) } : undefined;
+      const room3d = view3d ? view3d.size + font.value : 0;
       // Leave room for the notes under the picture and the scale square above the footer.
       const room =
-        (v.notes ? ah * 0.7 : ah - 2 * font.value) - (isBlock ? 0 : titleRoom()) - font.value * 1.5;
+        (v.notes ? ah * 0.7 : ah - 2 * font.value) -
+        (isBlock ? 0 : titleRoom()) -
+        font.value * 1.5 -
+        room3d;
       // The quilt's picture can be made smaller (print settings › Quilt picture › Picture size).
       const size = isBlock ? 1 : Math.max(0.75, Math.min(1.5, prefs.value.pictureSize));
       // The page, less a caption (and a data quilt's legend: a line per 4 entries).
@@ -1441,13 +1675,15 @@ const logical = computed<Sheet[]>(() => {
         (n, l) => n + 1 + Math.ceil(l.items.length / 4),
         0,
       );
-      const most = Math.min(aw / w, (ah - font.value * (3 + legendLines * 1.8)) / h);
+      const most = Math.min(aw / w, (ah - room3d - font.value * (3 + legendLines * 1.8)) / h);
       const scale = Math.min(1, most, Math.min(aw / w, room / h) * size);
       out.push({
         kind: 'picture',
         heading: isBlock ? 'Block' : 'Quilt',
         ...(v.legend ? { legend: v.legend } : {}),
         polys: v.picture,
+        ...(v.seams ? { seams: v.seams } : {}),
+        ...(view3d ? { view3d } : {}),
         edge: v.edge && d(v.edge),
         trim: v.trim,
         overlay: placed
@@ -1532,6 +1768,28 @@ const logical = computed<Sheet[]>(() => {
             bigKey: true,
           }),
         );
+      }
+      // Rosettes (spec 027 FR-015): a paper and a fabric cutting template for every patch, keyed on
+      // where the rosettes sit in the quilt, as an EPP quilt prints them.
+      const epp = v.eppPieces ?? [];
+      if (epp.length) {
+        const xs = epp.flatMap((p) => p.poly.map((q) => q[0]));
+        const ys = epp.flatMap((p) => p.poly.map((q) => q[1]));
+        const [kx, ky] = [Math.min(...xs), Math.min(...ys)];
+        const key = epp.map((p) => ({ ...p, poly: p.poly.map(([x, y]): Pt => [x - kx, y - ky]) }));
+        for (const paper of [true, false])
+          out.push(
+            ...templateSheets({
+              pieces: epp,
+              size: [Math.max(...xs) - kx, Math.max(...ys) - ky],
+              keyPieces: key,
+              heading: paper ? 'Paper templates: rosettes' : 'Fabric templates: rosettes',
+              prefix: paper ? 'P' : 'F',
+              bigKey: true,
+              withSeam: !paper,
+              ...(paper || !rosetteSeamNote.value ? {} : { keyNote: rosetteSeamNote.value }),
+            }),
+          );
       }
     }
     if (section === 'rotary') {
@@ -1755,6 +2013,29 @@ function stepSheets(steps: DayStep[], notes: string | undefined, blocks: boolean
 }
 
 /** Template pages for one block: a lettered key, then each distinct piece packed at true size. */
+/** A rosette's pages: the rosette sheet, then paper and fabric templates for every patch. */
+function rosetteSheets(v: View): Sheet[] {
+  const wanted = prefs.value.rosetteSections;
+  const [aw, ah] = area.value;
+  const out: Sheet[] = [];
+  const size = v.blockSize!;
+  if (wanted.includes('picture')) {
+    const [, , w, h] = v.pictureBox;
+    const scale = Math.min(1, aw / w, (ah * 0.6) / (h + 1e-4));
+    out.push({ kind: 'picture', heading: 'Rosette', polys: v.picture, x0: 0, y0: 0, w, h, scale });
+  }
+  const common = { pieces: v.pieces, size, keyPieces: v.keyPieces! };
+  if (wanted.includes('paper'))
+    out.push(
+      ...templateSheets({ ...common, heading: 'Paper templates', prefix: 'P', withSeam: false }),
+    );
+  if (wanted.includes('fabric'))
+    out.push(
+      ...templateSheets({ ...common, heading: 'Fabric templates', prefix: 'F', withSeam: true }),
+    );
+  return out;
+}
+
 function templateSheets(src: {
   pieces: Piece[];
   size: [number, number];
@@ -1770,16 +2051,25 @@ function templateSheets(src: {
   letters?: Map<string, string>;
   /** Data quilt instructions: the days each tinted template (letter and fabric) is for. */
   days?: Map<string, string[]>;
+  /** EPP: paper (false) or fabric (true) templates. */
+  withSeam?: boolean;
+  /** A note under the key. */
+  keyNote?: string;
 }): Sheet[] {
   const out: Sheet[] = [];
   const [aw, ah] = area.value;
   const gap = units.value === 'in' ? 0.25 : 0.6;
   const prefix = src.prefix ?? '';
-  const items = templateItems(src.pieces, prefix, src.letters, src.days);
+  const items = templateItems(src.pieces, prefix, src.letters, src.days, src.withSeam);
   // Key: the block with each patch's letter, about a quarter of the page wide.
   const keyScale = src.bigKey
     ? Math.min(aw, ah * 0.8) / Math.max(...src.size)
     : Math.min(aw, ah) / 4 / Math.max(...src.size);
+  // A note under the key, as wide as the key or about 30 characters, whichever is wider.
+  const noteW = src.keyNote
+    ? Math.min(aw, Math.max(src.size[0] * keyScale, font.value * 0.7 * 0.52 * 30))
+    : 0;
+  const note = src.keyNote ? wrapText(src.keyNote, noteW, font.value * 0.7) : [];
   const keyItem = {
     key: 'key',
     letter: '',
@@ -1795,9 +2085,13 @@ function templateSheets(src: {
     fabrics: [],
     x: 0,
     y: 0,
-    w: src.size[0] * keyScale,
-    h: src.size[1] * keyScale + font.value * (fabricLegend.value ? 2.7 : 1.5),
+    w: noteW ? Math.max(noteW, src.size[0] * keyScale) : src.size[0] * keyScale,
+    h:
+      src.size[1] * keyScale +
+      font.value * (fabricLegend.value ? 2.7 : 1.5) +
+      note.length * font.value * 0.9,
     keyBlock: {
+      ...(note.length ? { note } : {}),
       height: src.size[1] * keyScale,
       paths: src.keyPieces.map((p) => d(p.poly.map(([x, y]): Pt => [x * keyScale, y * keyScale]))),
       labels: keyLabels(src.keyPieces, prefix).map((l) => ({

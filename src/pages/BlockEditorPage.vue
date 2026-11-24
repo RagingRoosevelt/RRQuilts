@@ -14,6 +14,7 @@
         />
         <q-tab v-if="!libraryView" name="color" icon="palette" label="Color" />
         <q-tab name="print" icon="print" label="Print" />
+        <q-tab name="print3d" icon="view_in_ar" label="3D Print" />
       </q-tabs>
       <HelpLink v-bind="BLOCK_HELP[editor.blockMode] ?? BLOCK_HELP.draw!" />
       <q-btn
@@ -108,6 +109,7 @@
         :doc="viewDoc"
         :target="printTarget"
       />
+      <StlPreview v-else-if="editor.blockMode === 'print3d'" :stl="stl" />
       <div v-else class="col relative-position">
         <BlockCanvas
           v-model:view="view"
@@ -140,6 +142,7 @@
           :coloring-id="coloringId"
           @target="(t) => (printTarget = t)"
         />
+        <StlOptions v-else-if="editor.blockMode === 'print3d'" :stl="stl" />
         <DetailsPanel
           v-else-if="editor.blockMode === 'details'"
           kind="block"
@@ -288,6 +291,9 @@ import DetailsPanel from '@/components/DetailsPanel.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
 import PrintOptions from '@/components/PrintOptions.vue';
 import PrintPreview from '@/components/PrintPreview.vue';
+import StlOptions from '@/components/StlOptions.vue';
+import StlPreview from '@/components/StlPreview.vue';
+import { useStl } from '@/composables/stl';
 import PrintZoom from '@/components/PrintZoom.vue';
 import type { PrintTarget } from '@/model/print/prefs';
 import {
@@ -397,6 +403,12 @@ const block = computed(() => {
     ...(v.unconnected ? { unconnected: v.unconnected } : {}),
   };
 });
+/** The 3D Print tab (spec 027): a template for each of the block's pieces. */
+const stl = useStl(() =>
+  block.value
+    ? { kind: 'block', id: block.value.id, doc: viewDoc.value, block: block.value }
+    : null,
+);
 /** Numerals the shown drawing takes: its variant's days, else its kind's. */
 const numeralCount = computed(
   () => variantDays.value ?? KIND_DAYS[stored.value?.data?.kind ?? 'month'],
@@ -435,6 +447,7 @@ const BLOCK_HELP: Record<string, { topic: string; label: string }> = {
   draw: { topic: 'guides/drawing-blocks', label: 'Drawing blocks' },
   color: { topic: 'guides/block-colorings', label: 'Block colorings' },
   print: { topic: 'guides/printing', label: 'Printing' },
+  print3d: { topic: 'guides/printing#3d-printed-templates', label: '3D-printed templates' },
 };
 function pickColoring(id: string) {
   editor.coloringOf.set(block.value!.id, id);

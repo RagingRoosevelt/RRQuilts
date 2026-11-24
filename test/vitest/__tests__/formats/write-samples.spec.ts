@@ -12,6 +12,9 @@ import { emptyPersonal } from '@/model/library';
 import { builtinItems } from '@/content/starter';
 import { defaults, toConf, VERSION as CONF } from '@/settings/settings';
 import { fixtureText } from '../model/helpers';
+import { eppFile, serializeEpp, EPP_VERSION } from '@/model/epp-file';
+import { eppStarters } from '@/content/epp';
+import { addEppV12, domino, sampleFlower } from './epp-v12';
 
 const dir = process.env.FORMAT_SAMPLES;
 const app = 'samples';
@@ -22,7 +25,8 @@ it.skipIf(!dir)('write format samples', async () => {
 
   const parsed = await parseProject(fixtureText());
   if (!parsed.ok) throw new Error(parsed.error);
-  const doc = parsed.doc;
+  // v12 (specs 027, 050): EPP shapes, rosettes, EPP and 3D EPP quilts, rosettes as blocks.
+  const doc = addEppV12(parsed.doc);
   put(`project-v${RRQ}.rrq`, serializeProject(doc));
 
   // A few starter blocks (a shaped one too, where the format has them) and a palette.
@@ -44,8 +48,30 @@ it.skipIf(!dir)('write format samples', async () => {
   mine.items = [
     ...blocks.map((data) => ({ type: 'block' as const, data })),
     { type: 'colors' as const, data: collection },
+    // v8: EPP shapes and rosettes (a rosette carries the library shapes it uses).
+    { type: 'epp-shape' as const, data: domino },
+    {
+      type: 'rosette' as const,
+      data: sampleFlower(),
+      shapes: eppStarters().shapes.filter((s) => s.id === 'rrquilts.epp-hexagon'),
+    },
   ];
   put(`library-v${LIBRARY_VERSION}.rrqlib`, serializeLibrary(mine, app));
 
   put(`settings-v${CONF}.rrqconf`, JSON.stringify(toConf(defaults(), app)));
+
+  // One rosette as its own file (.rrqepp, v1): its shapes and colors go with it.
+  const hexagon = eppStarters().shapes.find((s) => s.id === 'rrquilts.epp-hexagon');
+  const file = eppFile(
+    doc,
+    sampleFlower().id,
+    {
+      shape: (id) => (id === hexagon?.id ? hexagon : undefined),
+      color: (id) => items.colors.find((c) => c.id === id),
+      fabric: () => undefined,
+    },
+    app,
+  );
+  if (!file) throw new Error('no .rrqepp for the sample rosette');
+  put(`epp-v${EPP_VERSION}.rrqepp`, serializeEpp(file));
 });

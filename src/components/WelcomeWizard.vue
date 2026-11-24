@@ -1,5 +1,5 @@
 <template>
-  <!-- First visit: name, units, your bed and clothes sizes, help. Every step can be skipped and
+  <!-- First visit: name, units, your bed and clothes sizes, help, demos. Every step can be skipped and
        everything can be changed later in Settings. -->
   <q-dialog v-model="open" persistent>
     <q-card class="welcome">
@@ -91,6 +91,16 @@
             the top.
           </div>
         </q-step>
+
+        <!-- Demo projects shipped with the app (owner, 2026-11-23). -->
+        <q-step name="demos" title="Demos" icon="auto_stories">
+          <p>Demo projects to look around in, made with RRQuilts:</p>
+          <DemoList @open="openDemo" />
+          <div class="text-caption text-grey-7 q-mt-sm">
+            A demo opens like a project file. Save keeps your own copy. They are also under Open a
+            demo on the home page.
+          </div>
+        </q-step>
       </q-stepper>
       <q-card-actions align="right">
         <q-btn flat no-caps label="Skip" @click="finish" />
@@ -99,8 +109,8 @@
           unelevated
           no-caps
           color="primary"
-          :label="step === 'help' ? 'Start quilting' : 'Next'"
-          @click="step === 'help' ? finish() : move(1)"
+          :label="step === 'demos' ? 'Start quilting' : 'Next'"
+          @click="step === 'demos' ? finish() : move(1)"
         />
       </q-card-actions>
     </q-card>
@@ -112,7 +122,9 @@ import DialogClose from './DialogClose.vue';
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import DemoList from '@/components/DemoList.vue';
 import OverlaySettings from '@/components/OverlaySettings.vue';
+import { useOpenDemo } from '@/composables/open-demo';
 import { createProject } from '@/model/new-project';
 import { blockThumbnail } from '@/render/thumbnail';
 import { useLibraryStore } from '@/stores/library';
@@ -135,7 +147,7 @@ const GUIDES = [
   { id: 'libraries', title: 'Libraries', about: 'keep, share, and add blocks and palettes' },
   { id: 'printing', title: 'Printing', about: 'templates, cutting charts, and yardage' },
 ] as const;
-const STEPS = ['name', 'units', 'sizes', 'help'];
+const STEPS = ['name', 'units', 'sizes', 'help', 'demos'];
 
 const settings = useSettingsStore().settings;
 const $q = useQuasar();
@@ -167,6 +179,11 @@ function finish() {
   settings.welcomeDone = true;
   settings.authorAsked = true;
   open.value = false;
+}
+const openDemoFile = useOpenDemo();
+function openDemo(file: string) {
+  finish();
+  void openDemoFile(file);
 }
 function openHelp(id: string) {
   finish();

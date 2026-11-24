@@ -36,7 +36,10 @@
   tab, library blocks grouped by library then category with collapsible library/category/
   subcategory sections, each library, category and subcategory with a select-all checkbox (the
   library's added 2026-10-20); and in Fabrics & Colors, palettes listed per library). Picks are saved in
-  the project (`libraryBlocks`, `libraryPalettes`); blocks already placed stay available. Tray
+  the project (`libraryBlocks`, `libraryPalettes`); blocks already placed stay available. New
+  projects start with every built-in block picked (owner, 2026-11-16: "let's change the default
+  behavior for new projects to be having all built in block categories enabled"), none when
+  library blocks are hidden from projects (Settings). Tray
   palettes are labelled "Palette · Library"; library colors in use outside picked palettes show
   under "In use". Block previews show a button per coloring to switch between them.
 - Q: Unpicking a palette whose colors are in use? → A: A "N colors in use" dialog lists each color

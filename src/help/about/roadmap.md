@@ -11,11 +11,25 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 ## 0.9.0
 
 - English paper piecing layouts, such as hexagon flower gardens, with printable paper templates.
-- Stamps for English paper piecing: save a group of shapes, such as a hexagon flower, and place it
+- Rosettes for English paper piecing: save a group of shapes, such as a hexagon flower, and place it
   like a single shape.
-- Select several English paper piecing shapes and stamps and move, turn or mirror them together.
+- Select several English paper piecing shapes and rosettes and move, turn or mirror them together.
 
 ## 0.10.0
+
+- Let one block fill several block spaces, such as a medallion in the middle of a quilt.
+
+## 0.11.0
+
+- Quilt shapes besides rectangles: circles, diamonds, and other regular or irregular polygons, with
+  borders and binding that follow the shape.
+
+## 0.12.0
+
+- Foundation paper piecing: split a block into sections with sewing numbers, and print mirrored
+  foundation patterns.
+
+## 0.13.0
 
 - Apply to Empty: set a block in, or color, only the spaces and pieces that are still empty.
 - Hints in a block's Details about which techniques may suit it, for the block's designer to tick.
@@ -23,7 +37,7 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - A Move tool for quilts: select several blocks to drag, turn or flip together, replacing what they
   land on.
 
-## 0.11.0
+## 0.14.0
 
 - Turn blocks before placing them: choose Rotate again and the block picker, and the blocks you
   set, turn with it.

@@ -1,6 +1,7 @@
 import Type from 'typebox';
 import { ColoringBody, Fill } from './coloring';
 import { DataPlan } from './data-quilt';
+import { EppDesign, EppLayout } from './epp';
 import { Id, ItemId, Size, Vec2, itemBase } from './shared';
 
 const count = Type.Integer({ minimum: 1, maximum: 100 });
@@ -167,6 +168,7 @@ export const Layout = Type.Union([
   OnePatchLayout,
   ShapedBlocksLayout,
   TumblingLayout,
+  EppLayout,
   OtherLayout,
 ]);
 
@@ -323,6 +325,8 @@ export const Quilt = Type.Object({
   shownColorway: Type.Optional(Id),
   /** Data quilt (spec 025, v9). */
   data: Type.Optional(DataPlan),
+  /** EPP quilt pieces (spec 027, v12), with `layout.style` 'epp'. */
+  epp: Type.Optional(EppDesign),
 });
 
 export type HorizontalLayout = Type.Static<typeof HorizontalLayout>;

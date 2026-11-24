@@ -14,7 +14,7 @@
         >
           <q-step name="blocks" title="Layout" icon="grid_on">
             <!-- Data quilt (spec 025): pieces colored from a year of data; set up in its Data tab. -->
-            <div class="row items-center q-mb-sm" style="gap: 12px">
+            <div v-if="mode !== 'epp'" class="row items-center q-mb-sm" style="gap: 12px">
               <q-toggle v-model="dataOn" dense label="Data quilt" />
               <SlidePicker
                 v-if="dataOn"
@@ -28,7 +28,7 @@
                 label="Data plan"
               />
             </div>
-            <div v-if="dataOn" class="text-caption text-grey-7 q-mb-md">
+            <div v-if="dataOn && mode !== 'epp'" class="text-caption text-grey-7 q-mb-md">
               Each day's data colors its place, such as a year of temperatures. Pick a layout with a
               block space per month or week, or patches for days; the Data tab does the rest.
             </div>
@@ -43,10 +43,44 @@
               :options="[
                 { label: 'Blocks', value: 'blocks' },
                 { label: 'Patches', value: 'patches' },
+                { label: 'EPP', value: 'epp' },
               ]"
             />
+            <!-- English paper piecing (spec 027): shapes and rosettes placed edge to edge. -->
+            <div v-if="mode === 'epp'" class="column q-mb-md" style="gap: 12px; max-width: 360px">
+              <div class="text-body2">
+                Shapes and rosettes joined edge to edge, cut on paper templates. Every edge is a
+                number of units: set how long one unit is (you can change it later).
+              </div>
+              <LengthInput
+                v-model="eppUnit"
+                label="1U length"
+                :units="units"
+                :min="units === 'cm' ? 0.5 : 0.25"
+              />
+              <LengthInput
+                v-model="eppSeam"
+                label="EPP seam allowance (project)"
+                :units="units"
+                :min="0"
+                :step="seamStep(units)"
+              />
+              <!-- 3D EPP (spec 027 User Story 7; owner, 2026-11-23). -->
+              <div>
+                <q-toggle v-model="eppThreeD" dense label="3D EPP" />
+                <div class="text-caption text-grey-7 q-mt-xs">
+                  Sew the pieces into an object, such as a ball, a die or a stuffed star. It has a
+                  3D assembly tab and a 3D badge among the project's quilts.
+                </div>
+              </div>
+            </div>
             <!-- Style cards: each drawn by the layout engine; later styles join the list. -->
-            <div class="styles q-mb-md" role="radiogroup" aria-label="Layout style">
+            <div
+              v-if="mode !== 'epp'"
+              class="styles q-mb-md"
+              role="radiogroup"
+              aria-label="Layout style"
+            >
               <button
                 v-for="c in styleCards"
                 :key="c.value"
@@ -72,12 +106,19 @@
               </button>
             </div>
             <TargetEditor
+              v-if="mode !== 'epp'"
               v-model="targetInput"
               :units="units"
               hint="Shown as an outline over the preview, to size the quilt to"
             />
           </q-step>
-          <q-step name="detail" :title="detailTitle" :icon="isStrip ? 'view_stream' : 'straighten'">
+          <!-- EPP quilts have no block spaces: no size or sashing (owner, 2026-11-23). -->
+          <q-step
+            v-if="mode !== 'epp'"
+            name="detail"
+            :title="detailTitle"
+            :icon="isStrip ? 'view_stream' : 'straighten'"
+          >
             <div class="text-subtitle1 q-mb-md">{{ styleLabel }}</div>
             <DataSpaceCount
               v-if="dataOn"
@@ -289,7 +330,7 @@
               </div>
             </template>
           </q-step>
-          <q-step name="sashing" title="Sashing" icon="view_comfy">
+          <q-step v-if="mode !== 'epp'" name="sashing" title="Sashing" icon="view_comfy">
             <div v-if="isStrip" class="text-caption">
               Strip quilts have no sashing. Strips sit edge to edge.
             </div>
@@ -305,7 +346,16 @@
               :disable="!sash"
             />
           </q-step>
-          <q-step name="borders" title="Borders" icon="crop_square">
+          <q-step
+            v-if="mode !== 'epp' || !eppThreeD"
+            name="borders"
+            title="Borders"
+            icon="crop_square"
+          >
+            <div v-if="mode === 'epp'" class="text-caption text-grey-7 q-mb-sm">
+              Borders go round a finished edge. They show once you pick Cut to size or Auto-close in
+              the quilt's Layout tab.
+            </div>
             <q-input
               v-model.number="borderCount"
               dense
@@ -324,11 +374,72 @@
               :min="0.25"
             />
           </q-step>
+          <!-- Title, author, license and notes up front (owner, 2026-11-24); the quilt's Details
+               tab changes them later. -->
+          <q-step name="details" title="Details" icon="info">
+            <div class="column" style="gap: 12px">
+              <q-input
+                v-model="details.name"
+                dense
+                outlined
+                label="Title"
+                stack-label
+                :placeholder="nextName ?? 'Quilt 1'"
+                maxlength="100"
+              />
+              <q-input
+                v-model="details.author"
+                dense
+                outlined
+                label="Author"
+                stack-label
+                placeholder="anonymous"
+                maxlength="100"
+              />
+              <q-select
+                v-model="details.license"
+                :options="licenseOptions"
+                label="License"
+                dense
+                outlined
+                emit-value
+                map-options
+                :hint="LICENSES.find((l) => l.id === details.license)?.terms"
+              >
+                <template #option="scope">
+                  <q-item v-bind="scope.itemProps">
+                    <q-item-section>
+                      <q-item-label>{{ scope.opt.label }}</q-item-label>
+                      <q-item-label caption>{{ scope.opt.terms }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+              <q-input
+                v-model="details.notes"
+                dense
+                outlined
+                autogrow
+                type="textarea"
+                label="Notes"
+              />
+              <div class="text-caption text-grey-7">
+                The quilt’s Details tab changes these later.
+              </div>
+            </div>
+          </q-step>
         </q-stepper>
         <!-- Live preview of the layout as it's being chosen (beside the steps; below on phones). -->
         <div class="preview q-pa-md">
+          <div v-if="mode === 'epp'" class="text-caption text-grey-7">
+            {{
+              eppThreeD
+                ? 'A 3D EPP design starts empty: you place shapes and rosettes in its Design tab and sew edges that don’t touch with the Seam tool.'
+                : 'An EPP quilt starts empty: you place shapes and rosettes in its Design tab.'
+            }}
+          </div>
           <svg
-            v-if="preview"
+            v-else-if="preview"
             :viewBox="preview.box"
             class="preview-art"
             preserveAspectRatio="xMidYMin meet"
@@ -370,6 +481,10 @@
 </template>
 
 <script setup lang="ts">
+import { eppDefaults } from '@/model/epp/quilt-ops';
+import { DEFAULT_LICENSE, LICENSES, licenseName } from '@/model/credits';
+import type { QuiltDetails } from '@/composables/start-quilt';
+import { SEAM_DEFAULTS, seamStep } from '@/model/seams';
 import DataSpaceCount from '@/components/DataSpaceCount.vue';
 import { defaultDataYear, newDataPlan, numberCount } from '@/model/data-quilt';
 import type { DataPlan } from '@/model/schema/data-quilt';
@@ -410,9 +525,24 @@ import type {
 import { useEditorStore } from '@/stores/editor';
 import { useSettingsStore } from '@/stores/settings';
 
-const props = defineProps<{ units: 'in' | 'cm' }>();
+const props = defineProps<{
+  units: 'in' | 'cm';
+  /** The open project's EPP seam allowance; unset when the quilt starts a new project. */
+  projectEppSeam?: number | undefined;
+  /** The open project's license (new quilts default to it) and the next default title. */
+  projectLicense?: string | undefined;
+  nextName?: string | undefined;
+}>();
 const emit = defineEmits<{
-  create: [layout: Layout, borders: Border[], target?: QuiltTarget, data?: DataPlan['plan']];
+  create: [
+    layout: Layout,
+    borders: Border[],
+    target?: QuiltTarget,
+    data?: DataPlan['plan'],
+    /** An EPP quilt: the project's EPP seam allowance. */
+    eppSeam?: number,
+    details?: QuiltDetails,
+  ];
 }>();
 
 const open = ref(false);
@@ -426,9 +556,31 @@ const dataNeed = computed(() =>
     plan: dataPlan.value as DataPlan['plan'],
   }),
 );
-// Layout and target size first; the chosen layout's own settings next (spec 006 FR-001a).
-const steps = ['blocks', 'detail', 'sashing', 'borders'];
-const next = computed(() => steps[steps.indexOf(step.value) + 1]);
+/** A 3D EPP quilt (spec 027 User Story 7): folds into an object, so no borders. */
+const eppThreeD = ref(false);
+watch(eppThreeD, (on) => on && (step.value = 'blocks'));
+// Layout and target size first; the chosen layout's own settings next (spec 006 FR-001a). An EPP
+// quilt has no block spaces, so no size or sashing: its unit, then borders (its edge comes later).
+const steps = computed(() => [
+  ...(mode.value !== 'epp'
+    ? ['blocks', 'detail', 'sashing', 'borders']
+    : eppThreeD.value
+      ? ['blocks']
+      : ['blocks', 'borders']),
+  'details',
+]);
+const details = reactive<QuiltDetails>({ name: '', author: '', license: '', notes: '' });
+const licenseOptions = computed(() => [
+  ...LICENSES.map((l) => ({ value: l.id, label: l.name, terms: l.terms })),
+  // A project license we don't offer stays pickable as-is.
+  ...(details.license && !LICENSES.some((l) => l.id === details.license)
+    ? [{ value: details.license, label: licenseName(details.license), terms: '' }]
+    : []),
+]);
+const next = computed(() => steps.value[steps.value.indexOf(step.value) + 1]);
+const eppUnit = ref(eppDefaults(props.units).unit);
+/** The project's EPP seam allowance (`projectEppSeam`; a new project: the default), set on create. */
+const eppSeam = ref(props.projectEppSeam ?? SEAM_DEFAULTS[props.units].epp);
 const detailTitle = computed(() =>
   isStrip.value
     ? 'Strips'
@@ -450,8 +602,12 @@ watch(isGarment, (g) => {
 });
 const style = ref<Style>('straight-set');
 /** Block layouts or patch layouts (spec 026). */
-const mode = ref<'blocks' | 'patches'>('blocks');
-watch(mode, (m) => {
+const mode = ref<'blocks' | 'patches' | 'epp'>('blocks');
+watch(mode, (m, was) => {
+  // EPP quilts start with no borders (spec 027: off by default); leaving brings the default back.
+  if (m === 'epp') borderCount.value = 0;
+  else if (was === 'epp' && borderCount.value === 0 && !isGarment.value) borderCount.value = 1;
+  if (m === 'epp') return void (step.value = 'blocks');
   if (!STYLES.find((x) => x.value === style.value)!.modes.includes(m))
     style.value = STYLES.find((x) => x.modes.includes(m))!.value;
 });
@@ -698,9 +854,13 @@ const shapeCards = SHAPES.map(([value, label]) => ({
 const blockShapeCards = shapeCards.filter((c) => FLOWS.includes(c.value));
 const allStyleCards = STYLES.map((x) => ({ ...x, picture: picture(x.sample, [])! }));
 /** The block shapes a Shaped Blocks quilt takes (spec 026), shown on its card. */
-const styleCards = computed(() => allStyleCards.filter((x) => x.modes.includes(mode.value)));
+const styleCards = computed(() =>
+  mode.value === 'epp' ? [] : allStyleCards.filter((x) => x.modes.includes(mode.value as 'blocks')),
+);
 
 const summary = computed(() => {
+  if (mode.value === 'epp')
+    return `${eppThreeD.value ? '3D · ' : ''}1U = ${+eppUnit.value.toFixed(3)} ${props.units} · seam allowance ${+eppSeam.value.toFixed(3)} ${props.units}${eppThreeD.value ? '' : ` · ${borders.value.length} border${borders.value.length === 1 ? '' : 's'}`}`;
   const [x0, y0, x1, y1] = generated.value.bounds;
   const n = (v: number) => +v.toFixed(2);
   const done = `Finished ${n(x1 - x0)} × ${n(y1 - y0)} ${props.units}`;
@@ -712,6 +872,16 @@ const summary = computed(() => {
 
 function create() {
   open.value = false;
+  if (mode.value === 'epp') {
+    const layout: Layout = {
+      style: 'epp',
+      unit: eppUnit.value,
+      edge: { kind: 'none' },
+      ...(eppThreeD.value ? { threeD: true as const } : {}),
+    };
+    const b = eppThreeD.value ? [] : borders.value;
+    return emit('create', layout, b, undefined, undefined, eppSeam.value, { ...details });
+  }
   // A plain copy: the project freezes what it's given, and these are live, editable objects.
   const t = targetShape.value;
   // The first garment or bed made becomes the quilter's own, until changed in Settings.
@@ -729,6 +899,8 @@ function create() {
     borders.value,
     target && (JSON.parse(JSON.stringify(target)) as QuiltTarget),
     dataOn.value ? (dataPlan.value as DataPlan['plan']) : undefined,
+    undefined,
+    { ...details },
   );
 }
 
@@ -737,6 +909,9 @@ function show() {
   const cm = props.units === 'cm';
   step.value = 'blocks';
   mode.value = 'blocks';
+  eppUnit.value = eppDefaults(props.units).unit;
+  eppThreeD.value = false;
+  eppSeam.value = props.projectEppSeam ?? SEAM_DEFAULTS[props.units].epp;
   dataOn.value = false;
   dataPlan.value = 'months';
   style.value = 'straight-set';
@@ -753,6 +928,12 @@ function show() {
   stripLayout.value = stripDefaults(cm ? 2.5 : 1);
   loadTile();
   useEditorStore().selectedStrip = null;
+  Object.assign(details, {
+    name: '',
+    author: useSettingsStore().settings.author,
+    license: props.projectLicense ?? DEFAULT_LICENSE,
+    notes: '',
+  });
   open.value = true;
 }
 defineExpose({ show });
@@ -781,6 +962,16 @@ defineExpose({ show });
 .steps {
   flex: 1 1 400px;
   min-width: 0;
+}
+/* Five steps on one row: narrower tabs instead of a second header row. */
+.steps :deep(.q-stepper__header) {
+  flex-wrap: nowrap;
+}
+.steps :deep(.q-stepper__tab) {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-left: 4px;
+  padding-right: 4px;
 }
 .preview {
   flex: 1 1 260px;

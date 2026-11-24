@@ -1,8 +1,8 @@
 import { Dialog } from 'quasar';
 import { categoryTree, ensureCategory } from '@/model/library';
-import type { LibraryDoc } from '@/model/schema/library';
+import type { LibraryDoc, LibraryItem } from '@/model/schema/library';
 
-type Kind = 'block' | 'colors';
+type Kind = LibraryItem['type'];
 import { useLibraryStore } from '@/stores/library';
 import CategoryPicker, { type PickerItem } from '@/components/CategoryPicker.vue';
 import { useAuthor } from './author';

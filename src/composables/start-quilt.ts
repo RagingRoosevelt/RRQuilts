@@ -5,11 +5,20 @@ import { DEFAULT_LICENSE } from '@/model/credits';
 import { takesBlock } from '@/editor/scope';
 import { generateFor } from '@/model/layout/slots';
 import { createQuilt } from '@/model/new-quilt';
+import { setSeam } from '@/model/seams';
 import type { Border, Layout, QuiltTarget } from '@/model/schema/quilt';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
+
+/** The new quilt wizard's Details step (owner, 2026-11-24): blank title = "Quilt N". */
+export interface QuiltDetails {
+  name: string;
+  author: string;
+  license: string;
+  notes: string;
+}
 
 /** Add a quilt (to a new project when `fresh` or none is open) and open it in Design mode. */
 export function useStartQuilt() {
@@ -22,15 +31,23 @@ export function useStartQuilt() {
     target?: QuiltTarget,
     fresh = false,
     data?: DataPlan['plan'],
+    /** An EPP quilt: the project's EPP seam allowance, from the wizard. */
+    eppSeam?: number,
+    details?: QuiltDetails,
   ) => {
     if (fresh || !project.isOpen) await project.newProject();
     const n = project.doc!.project.quilts.length + 1;
-    const author = useSettingsStore().settings.author;
+    const author = (details ? details.author : useSettingsStore().settings.author).trim();
+    const notes = details?.notes.trim();
+    const q = createQuilt(details?.name.trim() || `Quilt ${n}`, layout, borders);
     const quilt = {
-      ...createQuilt(`Quilt ${n}`, layout, borders),
+      ...q,
+      ...(notes ? { notecard: { ...q.notecard, notes } } : {}),
+      // An EPP quilt (spec 027) holds its pieces.
+      ...(layout.style === 'epp' ? { epp: { pieces: [] } } : {}),
       ...(target ? { target } : {}),
       ...(author ? { author } : {}),
-      license: project.doc!.project.license ?? DEFAULT_LICENSE,
+      license: details?.license || (project.doc!.project.license ?? DEFAULT_LICENSE),
       // A data quilt (spec 025): next year's plan, set up in the Design tab.
       ...(data
         ? {
@@ -38,7 +55,10 @@ export function useStartQuilt() {
           }
         : {}),
     };
-    project.change((d) => void d.project.quilts.push(quilt));
+    project.change((d) => {
+      d.project.quilts.push(quilt);
+      if (eppSeam !== undefined) setSeam(d, 'epp', eppSeam);
+    });
     editor.mode = 'design';
     // Layouts without block spaces (patches, pieced strips) start on Colors with Paint.
     editor.tool = generateFor(quilt).slots.some((s) => takesBlock(s)) ? 'set' : 'paint';

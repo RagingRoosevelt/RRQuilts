@@ -9,6 +9,7 @@ import { canonicalContent, contentVersion, itemId, stableStringify } from './ide
 import { creditCopy, noSharing, settleCredits } from './credits';
 import type { LibraryLookup } from './library-items';
 import type { Block } from './schema/block';
+import type { EppShape, Rosette } from './schema/epp';
 import {
   LIBRARY_FORMAT,
   LIBRARY_VERSION,
@@ -40,10 +41,9 @@ const toInches = (b: Block, units: Units): Block =>
   units === 'cm' ? { ...b, size: [b.size[0] / 2.54, b.size[1] / 2.54] } : b;
 
 /** A project item as library content: credits settled, no project `source`, current version. */
-async function asLibraryData<T extends Block | Color | Fabric | ColorCollection>(
-  item: T,
-  revision: number,
-): Promise<T> {
+async function asLibraryData<
+  T extends Block | Color | Fabric | ColorCollection | EppShape | Rosette,
+>(item: T, revision: number): Promise<T> {
   const clean = produce(item, (d) => {
     settleCredits(d);
     if (!d.credits?.length) delete d.credits;
@@ -111,7 +111,7 @@ async function blockFabrics(doc: RrqDoc, block: Block, kept: readonly Fabric[] =
 
 /** A library item's fabrics: a palette's, or (v5) those a block carries. */
 export const itemFabrics = (i: LibraryItem): Fabric[] =>
-  (i.type === 'colors' ? i.data.fabrics : i.fabrics) ?? [];
+  (i.type === 'colors' ? i.data.fabrics : i.type === 'epp-shape' ? [] : i.fabrics) ?? [];
 
 const findBlock = (lib: LibraryDoc, id: string) =>
   lib.items.find(
@@ -146,6 +146,49 @@ export async function addBlock(
       const b = d.project.blocks.find((x) => x.id === blockId)!;
       b.credits ??= []; // credits live in `credits`; a linked `source` isn't an earlier author
       b.source = link(lib, data);
+    }),
+  };
+}
+
+/**
+ * "Add to my library" for an own EPP shape or rosette (spec 027 FR-007): the library gets it (a
+ * rosette with the library shapes it uses), and the project's copy is linked to it.
+ */
+export async function addEpp(
+  lib: LibraryDoc,
+  doc: RrqDoc,
+  id: string,
+  category?: string,
+): Promise<{ lib: LibraryDoc; doc: RrqDoc }> {
+  const p = doc.project;
+  const shape = (p.eppShapes ?? []).find((s) => s.id === id);
+  const rosette = (p.rosettes ?? []).find((r) => r.id === id);
+  if (!shape && !rosette) return { lib, doc };
+  const cat = category ? { category } : {};
+  let item: LibraryItem;
+  if (shape) item = { type: 'epp-shape', ...cat, data: await asLibraryData(shape, 1) };
+  else {
+    const own = new Set((rosette!.shapes ?? []).map((s) => s.id));
+    const shapes = (p.eppShapes ?? []).filter(
+      (s) => !own.has(s.id) && rosette!.pieces.some((x) => x.shape === s.id),
+    );
+    item = {
+      type: 'rosette',
+      ...cat,
+      data: await asLibraryData(rosette!, 1),
+      ...(shapes.length ? { shapes } : {}),
+    };
+  }
+  const data = item.data;
+  return {
+    lib: { ...lib, items: [...lib.items.filter((i) => i.data.id !== data.id), item] },
+    doc: produce(doc, (d) => {
+      const x =
+        d.project.eppShapes?.find((s) => s.id === id) ??
+        d.project.rosettes?.find((r) => r.id === id);
+      if (!x) return;
+      x.credits ??= [];
+      x.source = link(lib, data);
     }),
   };
 }
@@ -590,7 +633,7 @@ export async function copyToMine(
   me: string,
   license?: string,
 ): Promise<LibraryDoc> {
-  const fresh = <T extends Block | Color | ColorCollection>(x: T): T =>
+  const fresh = <T extends Block | Color | ColorCollection | EppShape | Rosette>(x: T): T =>
     produce(x, (d) => {
       creditCopy(d, me, license);
       d.id = itemId(me);
@@ -598,18 +641,20 @@ export async function copyToMine(
       delete d.revision;
     });
   const data =
-    item.type === 'block'
-      ? await asLibraryData(fresh(item.data), 1)
-      : await asLibraryData(
+    item.type === 'colors'
+      ? await asLibraryData(
           {
             ...fresh(item.data),
             colors: await Promise.all(item.data.colors.map((c) => asLibraryData(fresh(c), 1))),
           },
           1,
-        );
-  const colors = item.type === 'block' && item.colors ? { colors: item.colors } : {};
-  const fabrics = item.type === 'block' && item.fabrics ? { fabrics: item.fabrics } : {};
-  const copy = { type: item.type, data, ...colors, ...fabrics } as LibraryItem;
+        )
+      : await asLibraryData(fresh(item.data), 1);
+  const carries = item.type === 'block' || item.type === 'rosette';
+  const colors = carries && item.colors ? { colors: item.colors } : {};
+  const fabrics = carries && item.fabrics ? { fabrics: item.fabrics } : {};
+  const shapes = item.type === 'rosette' && item.shapes ? { shapes: item.shapes } : {};
+  const copy = { type: item.type, data, ...colors, ...fabrics, ...shapes } as LibraryItem;
   return { ...lib, items: [...lib.items, copy] };
 }
 
@@ -626,7 +671,7 @@ export function withSources(lib: LibraryDoc) {
     ...(x.author || lib.author?.name ? { author: x.author ?? lib.author!.name } : {}),
     ...(lib.license ? { license: lib.license } : {}),
   });
-  const stamp = <T extends Block | Color | Fabric>(x: T): T =>
+  const stamp = <T extends Block | Color | Fabric | EppShape | Rosette>(x: T): T =>
     x.source && !x.source.derived && x.source.libraryId === lib.id
       ? x
       : { ...x, source: { ...source(x), name: x.notecard.name } };
@@ -634,12 +679,19 @@ export function withSources(lib: LibraryDoc) {
   const collections: ColorCollection[] = [];
   const blockColors: Color[] = [];
   const blockFabricList: Fabric[] = [];
+  const eppShapes: EppShape[] = [];
+  const rosettes: Rosette[] = [];
   for (const i of lib.items) {
-    if (i.type === 'block') {
-      blocks.push(stamp(i.data));
+    if (i.type === 'block' || i.type === 'rosette') {
+      if (i.type === 'block') blocks.push(stamp(i.data));
+      else {
+        rosettes.push(stamp(i.data));
+        eppShapes.push(...(i.shapes ?? []).map(stamp));
+      }
       blockColors.push(...(i.colors ?? []).map(stamp));
       blockFabricList.push(...(i.fabrics ?? []).map(stamp));
-    } else
+    } else if (i.type === 'epp-shape') eppShapes.push(stamp(i.data));
+    else
       collections.push({
         ...i.data,
         colors: i.data.colors.map(stamp),
@@ -650,6 +702,9 @@ export function withSources(lib: LibraryDoc) {
   return {
     blocks,
     collections,
+    // A rosette's carried shapes come after the library's own (first one wins in lookups).
+    eppShapes: [...new Map(eppShapes.reverse().map((s) => [s.id, s])).values()].reverse(),
+    rosettes,
     colors: [...collections.flatMap((c) => c.colors), ...blockColors],
     // Palette fabrics first, then those only a block carries.
     fabrics: [...collections.flatMap((c) => c.fabrics ?? []), ...blockFabricList],
@@ -663,7 +718,11 @@ export function lookupOf(views: readonly LibraryView[]): LibraryLookup {
   const colors = new Map<string, Color>();
   const fabrics = new Map<string, Fabric>();
   const collections = new Map<string, ColorCollection>();
+  const eppShapes = new Map<string, EppShape>();
+  const rosettes = new Map<string, Rosette>();
   for (const v of [...views].reverse()) {
+    for (const s of v.eppShapes) eppShapes.set(s.id, s);
+    for (const r of v.rosettes) rosettes.set(r.id, r);
     for (const b of v.blocks) blocks.set(b.id, b);
     for (const c of [...v.colors].reverse()) colors.set(c.id, c);
     for (const f of v.fabrics) fabrics.set(f.id, f);
@@ -674,6 +733,8 @@ export function lookupOf(views: readonly LibraryView[]): LibraryLookup {
     color: (id) => colors.get(id),
     fabric: (id) => fabrics.get(id),
     collection: (id) => collections.get(id),
+    eppShape: (id) => eppShapes.get(id),
+    rosette: (id) => rosettes.get(id),
   };
 }
 
@@ -707,17 +768,19 @@ export function libraryGroups<
  * `blocks` by library, in sections: a library's category sections, or for a library of packs
  * (spec 014) one section per pack under the library's name. Blocks no library has are left out.
  */
-export function blocksByLibrary(
+export function blocksByLibrary<T extends Sectioned = Block>(
   views: readonly LibraryView[],
-  blocks: readonly Block[],
+  blocks: readonly T[],
   by: GroupBy = 'category',
-  tagsOf?: (b: Block) => readonly string[],
+  tagsOf?: (b: T) => readonly string[],
+  /** Which of a library's lists `blocks` come from (EPP: its shapes and rosettes). */
+  listOf: (v: LibraryView) => readonly { id: string }[] = (v) => v.blocks,
 ) {
   const byId = new Map(blocks.map((b) => [b.id, b]));
   const seen = new Set<string>();
-  const out = new Map<string, { id: string; label: string; sections: BlockSection[] }>();
+  const out = new Map<string, { id: string; label: string; sections: BlockSection<T>[] }>();
   for (const v of views) {
-    const bs = v.blocks
+    const bs = listOf(v)
       .filter((b) => byId.has(b.id) && !seen.has(b.id))
       .map((b) => byId.get(b.id)!);
     bs.forEach((b) => seen.add(b.id));
@@ -740,23 +803,30 @@ export function blocksByLibrary(
 
 export type GroupBy = 'none' | 'category' | 'tags' | 'techniques' | 'shape';
 
+/** What `blockSections` sorts and files: blocks, and EPP shapes and rosettes (no `shape`). */
+export interface Sectioned {
+  id: string;
+  shape?: string | undefined;
+  notecard: Block['notecard'];
+}
+
 /** Shape order for lists (spec 049): square and rectangle blocks, then `BLOCK_SHAPES`. */
-const SHAPE_ORDER = ['', ...BLOCK_SHAPES];
-const shapeRank = (b: Block) => SHAPE_ORDER.indexOf(b.shape ?? '');
+const SHAPE_ORDER: string[] = ['', ...BLOCK_SHAPES];
+const shapeRank = (b: Sectioned) => SHAPE_ORDER.indexOf(b.shape ?? '');
 const byName = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
 /** Library blocks as listed (spec 049): by shape, then name (case-insensitive, numbers in number
  *  order); ties keep their order. A new array: the library's own order isn't changed. */
-export function byShapeAndName(blocks: readonly Block[]): Block[] {
+export function byShapeAndName<T extends Sectioned>(blocks: readonly T[]): T[] {
   return [...blocks].sort(
     (a, b) => shapeRank(a) - shapeRank(b) || byName.compare(a.notecard.name, b.notecard.name),
   );
 }
-export interface BlockSection {
+export interface BlockSection<T = Block> {
   /** Unique within the library; a subcategory's is "Parent / Child". */
   key: string;
   label: string;
-  blocks: Block[];
+  blocks: T[];
   /** Blocks in it, its subcategories' included. */
   count: number;
   /** A subcategory: its top-level category's key. */
@@ -770,14 +840,14 @@ export interface BlockSection {
  * section. Inside each, blocks by shape then name (`byShapeAndName`). `tagsOf`: the quilter's tags on
  * a block (spec 029: with those kept in My library); default its own.
  */
-export function blockSections(
+export function blockSections<T extends Sectioned = Block>(
   doc: LibraryDoc,
-  blocks: Block[],
+  blocks: T[],
   by: GroupBy,
-  tagsOf: (b: Block) => readonly string[] = (b) => visibleTags(b.notecard.tags),
-): BlockSection[] {
+  tagsOf: (b: T) => readonly string[] = (b) => visibleTags(b.notecard.tags),
+): BlockSection<T>[] {
   blocks = byShapeAndName(blocks);
-  const sec = (key: string, label: string, bs: Block[], parent?: string): BlockSection => ({
+  const sec = (key: string, label: string, bs: T[], parent?: string): BlockSection<T> => ({
     key,
     label,
     blocks: bs,
@@ -812,7 +882,7 @@ export function blockSections(
     const none = blocks.filter((b) => !known.has(catOf.get(b.id) ?? ''));
     return none.length ? [...out, sec('Uncategorized', 'Uncategorized', none)] : out;
   }
-  const keysOf = (b: Block): readonly string[] =>
+  const keysOf = (b: T): readonly string[] =>
     by === 'tags' ? tagsOf(b) : (b.notecard.techniques ?? []);
   const used = new Set(blocks.flatMap(keysOf));
   const keys = by === 'tags' ? sortTags(used) : Object.keys(TECHNIQUES).filter((t) => used.has(t));

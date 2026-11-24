@@ -7,7 +7,7 @@ import Value from 'typebox/value';
 
 // The published JSON Schema is the TypeBox schema serialized. `npm run schema` rewrites the files.
 const targets = [
-  'public/schemas/rrq.v11.json',
+  'public/schemas/rrq.v12.json',
   'specs/003-project-format/contracts/rrq.schema.json',
 ];
 const generated = JSON.stringify(RrqDoc, null, 2) + '\n';
@@ -36,11 +36,13 @@ describe('published format versions (template repositories check these)', () => 
   it('match the app', async () => {
     const { VERSION } = await import('@/model/schema/project');
     const { LIBRARY_VERSION } = await import('@/model/schema/library');
+    const { EPP_VERSION } = await import('@/model/epp-file');
     expect(JSON.parse(readFileSync('public/schemas/formats.json', 'utf8'))).toEqual({
       rrq: VERSION,
       rrqlib: LIBRARY_VERSION,
       'rrqlib-index': 1,
       rrqplt: COLLECTION_VERSION,
+      rrqepp: EPP_VERSION,
     });
   });
 });

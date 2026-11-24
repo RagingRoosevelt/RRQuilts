@@ -79,7 +79,14 @@ export function parseLibraryValue(raw: unknown, nested = false): LibraryParse {
       skipped.push(`${name}: ${firstError(LibraryItem, x)}`);
       return;
     }
-    const inner = x.type === 'block' ? blockIds(x.data) : x.data.colors.map((c) => c.id);
+    const inner =
+      x.type === 'block'
+        ? blockIds(x.data)
+        : x.type === 'colors'
+          ? x.data.colors.map((c) => c.id)
+          : x.type === 'rosette'
+            ? [...(x.data.shapes ?? []), ...x.data.pieces, ...x.data.colorings].map((c) => c.id)
+            : [];
     if (ids.has(x.data.id)) skipped.push(`${name}: another item has the same id`);
     else if (new Set(inner).size !== inner.length) skipped.push(`${name}: duplicate ids inside`);
     else {

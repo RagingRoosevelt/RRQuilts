@@ -14,7 +14,7 @@ grows by two of them.
 SA is the [seam allowance](/help/math/seam-allowance).
 
 Do it once for each side of a rectangle. With a ¼″ seam allowance that is the familiar "add ½″". With
-7.5 mm it is "add 1.5 cm".
+6 mm it is "add 1.2 cm".
 
 <svg viewBox="0 0 345 130" width="517" role="img" aria-label="A rectangle of fabric with the finished area dashed inside it and a seam allowance on every side. Brackets mark the finished length and width">
   <rect x="10" y="10" width="120" height="80" fill="#daa828" stroke="currentColor" stroke-width="1.5"/>

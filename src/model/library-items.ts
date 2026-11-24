@@ -12,6 +12,9 @@ import { assignIds, remapColoring } from './blocks/remap';
 import { pathPolygon } from './geometry/path';
 import { variationName } from './new-quilt';
 import type { Block } from './schema/block';
+import { rosetteOfBlockId, syncRosetteBlocks } from './epp/as-block';
+import { lookupEpp } from './epp/expand';
+import type { EppShape, Rosette } from './schema/epp';
 import type { ColoringBody, Fill } from './schema/coloring';
 import type { Color, Fabric } from './schema/palette';
 import type { ColorCollection } from './schema/library';
@@ -28,6 +31,9 @@ export interface LibraryLookup {
   fabric?(id: string): Fabric | undefined;
   /** Library palettes (spec 024 auto mapping); optional likewise. */
   collection?(id: string): ColorCollection | undefined;
+  /** EPP shapes and rosettes (specs 027, 050); optional likewise. */
+  eppShape?(id: string): EppShape | undefined;
+  rosette?(id: string): Rosette | undefined;
 }
 
 /** A library fabric (sizes in inches, like library blocks) in project units. */
@@ -119,6 +125,36 @@ export const quiltBlocks = (q: RrqDoc['project']['quilts'][number]): string[] =>
 
 export const blocksUsed = (p: RrqDoc['project']) => new Set(p.quilts.flatMap(quiltBlocks));
 
+/** EPP shapes and rosettes in use (specs 027, 050): placed in EPP quilts, or a rosette's pieces. */
+export function eppUsed(p: RrqDoc['project']) {
+  const pieces = p.quilts.flatMap((q) => q.epp?.pieces ?? []);
+  const inBlocks = blocksUsed(p);
+  const rosettes = new Set([
+    ...pieces.flatMap((x) => (x.rosette ? [x.rosette] : [])),
+    // In block quilts, through their hidden blocks.
+    ...p.blocks.flatMap((b) => (b.rosette && inBlocks.has(b.id) ? [b.rosette] : [])),
+  ]);
+  const shapes = new Set([
+    ...pieces.flatMap((x) => (x.shape ? [x.shape] : [])),
+    ...(p.rosettes ?? []).flatMap((r) => r.pieces.map((x) => x.shape)),
+  ]);
+  return { shapes, rosettes };
+}
+
+/** Colorings EPP items paint with: rosettes' colorings, pieces' repaints and Auto-close fills. */
+const eppColorings = (p: RrqDoc['project']): ColoringBody[] => [
+  ...(p.rosettes ?? []).flatMap((r) => r.colorings),
+  ...p.quilts.flatMap((q) =>
+    (q.epp?.pieces ?? []).flatMap((x) => (x.fills ? [{ fills: x.fills }] : [])),
+  ),
+  ...p.quilts.flatMap((q) =>
+    q.layout.style === 'epp' && q.layout.edge.kind === 'close' && q.layout.edge.fill
+      ? [{ fills: { '': q.layout.edge.fill } }]
+      : [],
+  ),
+  ...(p.eppShapes ?? []).flatMap((x) => (x.fill ? [{ fills: { '': x.fill } }] : [])),
+];
+
 /**
  * Keep library items in step with use, inside one edit: embed library blocks/colors that are
  * referenced but missing (converted to project units), then drop library items nothing uses.
@@ -132,6 +168,17 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
       const b = !have.has(id) ? lib.block(id) : undefined;
       if (b) p.blocks.push(toUnits(b, d.units));
     }
+  }
+  // Rosettes placed in block quilts (spec 027 FR-015): their hidden blocks, made and kept in step.
+  const inUse = blocksUsed(p);
+  if (p.blocks.some((b) => b.rosette) || [...inUse].some((id) => rosetteOfBlockId(id))) {
+    const rosettes = syncRosetteBlocks(
+      p.blocks,
+      inUse,
+      (id) => p.rosettes?.find((r) => r.id === id) ?? lib?.rosette?.(id),
+      lookupEpp(p, [], lib),
+    );
+    if (rosettes) p.blocks = castDraft(rosettes);
   }
   followColorVariants(d, lib);
   // Data quilts (spec 025): placed spaces show their type's variant for their number's days.
@@ -155,6 +202,7 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   const usedBlocks = blocksUsed(p);
   const keptBlocks = p.blocks.filter((b) => !isLibraryItem(b) || usedBlocks.has(b.id));
   if (keptBlocks.length !== p.blocks.length) p.blocks = keptBlocks;
+  syncEpp(d, lib);
   // Auto mapping (spec 024): worked out from the source colors and the palette as they are now.
   refreshAutoMappings(d, lib);
   const usedColors = new Set(
@@ -163,6 +211,7 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
       ...p.quilts.flatMap((q) => Object.values(q.colorings)),
       ...swapColorings(p.quilts),
       ...dataColorings(p.quilts),
+      ...eppColorings(p),
     ]),
   );
   if (lib) {
@@ -180,6 +229,7 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
     ...p.quilts.flatMap((q) => Object.values(q.colorings)),
     ...swapColorings(p.quilts),
     ...dataColorings(p.quilts),
+    ...eppColorings(p),
   ];
   const usedFabrics = new Set(fabricsIn(colorings));
   if (lib?.fabric) {
@@ -191,6 +241,36 @@ export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   }
   const keptFabrics = p.palette.fabrics.filter((f) => !isLibraryItem(f) || usedFabrics.has(f.id));
   if (keptFabrics.length !== p.palette.fabrics.length) p.palette.fabrics = keptFabrics;
+}
+
+/** Library rosettes, then the library shapes everything uses, embedded while used, as blocks are. */
+function syncEpp(d: Draft<RrqDoc>, lib?: LibraryLookup) {
+  const p = d.project;
+  let used = eppUsed(p);
+  if (lib?.rosette) {
+    const have = new Set((p.rosettes ?? []).map((r) => r.id));
+    for (const id of used.rosettes) {
+      const r = !have.has(id) ? lib.rosette(id) : undefined;
+      if (r) (p.rosettes ??= []).push(castDraft(r));
+    }
+    used = eppUsed(p);
+  }
+  if (lib?.eppShape) {
+    const have = new Set((p.eppShapes ?? []).map((x) => x.id));
+    for (const id of used.shapes) {
+      const x = !have.has(id) ? lib.eppShape(id) : undefined;
+      if (x) (p.eppShapes ??= []).push(castDraft(x));
+    }
+  }
+  if (p.rosettes) {
+    const kept = p.rosettes.filter((r) => !isLibraryItem(r) || used.rosettes.has(r.id));
+    if (kept.length !== p.rosettes.length) p.rosettes = kept;
+    used = eppUsed(p);
+  }
+  if (p.eppShapes) {
+    const kept = p.eppShapes.filter((x) => !isLibraryItem(x) || used.shapes.has(x.id));
+    if (kept.length !== p.eppShapes.length) p.eppShapes = kept;
+  }
 }
 
 function refreshAutoMappings(d: Draft<RrqDoc>, lib?: LibraryLookup) {

@@ -36,6 +36,9 @@ export interface Piece {
   shown?: Pt[];
   /** A setting piece: cut a little large by custom, so rounding up is fine. */
   setting?: boolean;
+  /** A patch of a rosette in a block quilt (spec 027 FR-015): paper and fabric templates, never
+   *  rotary cut. */
+  epp?: boolean;
 }
 
 const isCurved = (path: readonly (readonly (string | number)[])[]) =>
@@ -73,6 +76,29 @@ function trimmed(slot: Slot) {
   const whole = Math.abs(a * d - b * c) * share;
   const seen = Math.abs(signedArea(flattenLoop(pathToSegs(slot.outline, [1, 1]), 1e-3)));
   return seen < whole * (1 - 1e-6);
+}
+
+/**
+ * The rosettes a block quilt places (spec 027 FR-015), each with its 1U length where it sits (project
+ * units): its hidden block is 1 unit per U, so 1U is the placement's scale.
+ */
+export function quiltRosettes(
+  doc: RrqDoc,
+  quilt: Quilt,
+  slots = generateFor(quilt).slots,
+): { rosette: string; unit: number }[] {
+  const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
+  const out = new Map<string, { rosette: string; unit: number }>();
+  for (const slot of slots) {
+    const content = quilt.layers[0].slots[slot.id];
+    const block = content && blocks.get(content.block);
+    if (!content || !block?.rosette) continue;
+    const [a, b, c, d] = placementMatrix(slot, content, block);
+    const unit = Math.sqrt(Math.abs(a * d - b * c));
+    const k = `${block.rosette}:${unit.toFixed(6)}`;
+    if (!out.has(k)) out.set(k, { rosette: block.rosette, unit });
+  }
+  return [...out.values()];
 }
 
 /** Every piece of a quilt as placed (optionally only slots holding `blockId`; `slots` for tests). */
@@ -113,6 +139,7 @@ export function quiltPieces(
       ...(shown ? { shown } : {}),
       ...(window ? { shown: clipConvex(piece.poly.map(at), window) } : {}),
       ...(slotPoly && slot.kind === 'set' ? { setting: true } : {}),
+      ...(block.rosette ? { epp: true } : {}),
       curved: slotPoly ? isCurved(slot.cut ?? slot.outline) : piece.curved,
       marks: piece.marks.map((m) => ({ p: at(m.p), n: dir(m.n) })),
     }));
@@ -141,6 +168,8 @@ export interface PlacedPiece {
   marks: { p: Pt; n: Pt }[];
   /** Fabrics it's cut from: number, name, color (pills under it when the color key is off). */
   fabrics: { n: number; name: string; css: string; pill?: string }[];
+  /** EPP templates: fabric (with the EPP seam allowance) or paper; unset: the print settings. */
+  epp?: boolean | undefined;
   x: number;
   y: number;
   w: number;

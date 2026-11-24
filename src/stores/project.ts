@@ -149,10 +149,16 @@ export const useProjectStore = defineStore('project', () => {
     await rememberKnown(doc.value, opts.handle).catch(() => {});
   }
 
-  /** New, empty project in the units chosen in Settings (library items embed when used). */
-  function newProject(name?: string) {
-    const { units, author, socials } = useSettingsStore().settings;
+  /** New, empty project in the units chosen in Settings (library items embed when used), with every
+   *  built-in block picked for the design tray (owner, 2026-11-16), unless library blocks are hidden
+   *  from projects (they couldn't be unpicked). */
+  async function newProject(name?: string) {
+    const { units, author, socials, hideLibraryBlocks } = useSettingsStore().settings;
     const doc = createProject(name, units, APP);
+    const lib = useLibraryStore();
+    await lib.loaded;
+    const builtin = lib.builtin?.items.flatMap((i) => (i.type === 'block' ? [i.data.id] : []));
+    if (builtin?.length && !hideLibraryBlocks) doc.project.libraryBlocks = builtin;
     if (author) doc.project.author = author;
     const out = socialsOut(socials);
     if (author && out.length) doc.project.authorSocials = out;

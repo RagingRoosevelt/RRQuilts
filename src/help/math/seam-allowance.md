@@ -10,14 +10,17 @@ add a seam allowance on every edge that will be sewn.
 
 ## The standard
 
-Quilters use **¼″** in inches, and **7.5 mm** (a little more than ¼″) in metric. The app uses these
-by default. Change the seam allowance in the Print tab's options. Every cut size, template, and
-calculator in Help follows it.
+Quilters use **¼″** in inches, and **6 mm** (a little less than ¼″) in metric. The app uses these
+by default. English paper piecing uses a wider one, **3/8″** or **10 mm**, folded over the paper.
+
+Both are project settings, saved with the project. Change the standard one in a block's or quilt's
+Print tab (**Cutting**), the EPP one in a rosette's Print tab, an EPP quilt's **Layout** tab or a
+**3D Print** tab. Every cut size, template, and calculator in Help follows the open project's.
 
 ## Why it matters
 
 A seam allowance that is a hair too wide or narrow adds up over a block. Sew a test and
-measure. Three strips cut 2″ wide (5 cm) and sewn together should measure exactly 5″ across (with 5 cm strips and 7.5 mm seams, 12 cm). If not, adjust your
+measure. Three strips cut 2″ wide (5 cm) and sewn together should measure exactly 5″ across (with 5 cm strips and 6 mm seams, 12.6 cm). If not, adjust your
 needle position or presser foot until they do. Accuracy matters more than the exact value, so use the
 same allowance throughout a project.
 

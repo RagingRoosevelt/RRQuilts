@@ -2,6 +2,8 @@
 // colors, and five themed palettes, by RRQuilts contributors. Public Domain Mark.
 // Default colorings are given as sample points: the patch containing (x, y) gets that color.
 import { ASPECT, SHAPE_OUTLINE, shapeSize, type BlockShape } from '@/model/blocks/shape';
+import { EPP_CATEGORIES, eppStarters } from './epp';
+import type { EppShape, Rosette } from '@/model/schema/epp';
 import { SHAPED_BLOCKS, curvedStarter, shapedStarter } from './shaped';
 import { SHAPED_CURVES } from './shaped-curves';
 import { produce } from 'immer';
@@ -906,6 +908,9 @@ const credit = (name: string) => ({
 export interface BuiltinItems {
   colors: Color[];
   blocks: SeamBlock[];
+  /** EPP shapes (with their category) and rosettes (specs 027, 050). */
+  eppShapes?: (EppShape & { category: string })[];
+  rosettes?: Rosette[];
 }
 
 /**
@@ -1034,8 +1039,12 @@ function buildItems(): BuiltinItems {
 
 /** The built-in library with content versions (computed once at startup). */
 export async function builtinLibrary(): Promise<BuiltinItems> {
-  const items = builtinItems();
+  const epp = eppStarters();
+  const items: BuiltinItems = { ...builtinItems(), eppShapes: epp.shapes, rosettes: epp.rosettes };
   for (const x of [...items.colors, ...items.blocks]) x.version = await contentVersion(x, 'in');
+  // The category isn't part of the design.
+  for (const x of epp.shapes) x.version = await contentVersion({ ...x, category: undefined }, 'in');
+  for (const x of epp.rosettes) x.version = await contentVersion(x, 'in');
   return items;
 }
 
@@ -1067,6 +1076,7 @@ const STARTER_CATEGORIES = [
   'Data/Months',
   'Data/Weeks',
   'Data/Days',
+  ...EPP_CATEGORIES,
 ];
 const catId = (path: string) =>
   `rrquilts.category.${path
@@ -1108,6 +1118,16 @@ export function builtinDoc(items: BuiltinItems): LibraryDoc {
           license: STARTER_LIBRARY.license,
           colors: p.colors.map(([name]) => items.colors.find((c) => c.notecard.name === name)!),
         },
+      })),
+      ...(items.eppShapes ?? []).map(({ category, ...data }) => ({
+        type: 'epp-shape' as const,
+        category: catId(`EPP/${category}`),
+        data,
+      })),
+      ...(items.rosettes ?? []).map((data) => ({
+        type: 'rosette' as const,
+        category: catId('EPP/Rosettes'),
+        data,
       })),
     ],
   };
