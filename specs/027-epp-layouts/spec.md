@@ -714,7 +714,13 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
   seams colored (not numbered, owner 2026-11-24) and the folded object below it (the assembly sheet is the quilt picture; owner,
   2026-11-23: "the print out should show both 2d and 3d view"). In the print preview a click on
   the 3D view swaps in a live view to turn by dragging; the pointer leaving or 15 seconds untouched
-  swap the picture back, seen from there, and that view is saved with the quilt (`epp.printView`).
+  swap the picture back, seen from there, and that view is saved with the quilt (`epp.printView`). In
+  the 3D assembly tab, hovering a seam in the flat net (or pressing and holding it on touch) picks it
+  out: its edges (both, for an explicit seam) glow and the other seams fade, and in the 3D view its
+  stitches show, closed up too, thicker and brighter, while the others fade. Owner, 2026-11-24:
+  "when hoving or long pressing a seam in the 2d view, it fades out the other seams and highlights
+  that seam's made in the 2d view and in the 3d view, it fades the other seams and highlights the
+  active seam's stitching".
   Owner, 2026-11-23: "let's allow click-to-orbit on the 3d preview in the printout. we'll record
   the orientation. clicking switches from showing an image to the orbitable view and mouse exit or
   15seconds uninteracted will revert back to image view".

@@ -23,7 +23,12 @@ export interface ViewportOptions {
   onDragStart?: (p: World, e: PointerEvent) => boolean;
   onDrag?: (p: World, e: PointerEvent) => void;
   onDragEnd?: (p: World, e: PointerEvent) => void;
+  /** Touch: a finger held still for a moment hovers (`onHover`) until it lifts, sliding as it
+   *  moves; that press is no tap. For canvases whose hover shows something (the 3D assembly net). */
+  holdHover?: () => boolean;
 }
+
+const HOLD_MS = 450;
 
 export function useViewport(o: ViewportOptions) {
   const size = ref({ w: 0, h: 0 });
@@ -61,6 +66,7 @@ export function useViewport(o: ViewportOptions) {
   onBeforeUnmount(() => {
     observer?.disconnect();
     if (frame) cancelAnimationFrame(frame);
+    clearTimeout(hold);
   });
 
   type P = { x: number; y: number };
@@ -82,7 +88,12 @@ export function useViewport(o: ViewportOptions) {
   const fit = () => o.setView(fitView(o.bounds(), size.value.w, size.value.h));
 
   const pointers = new Map<number, P>();
-  let start: (P & { mode: 'pending' | 'pan' | 'drag' | 'none' }) | null = null;
+  let start: (P & { mode: 'pending' | 'pan' | 'drag' | 'none' | 'hold' }) | null = null;
+  let hold = 0;
+  const stopHold = () => {
+    clearTimeout(hold);
+    hold = 0;
+  };
   let pinch: { dist: number; view: View; mid: P } | null = null;
   const two = () => [...pointers.values()] as [P, P];
 
@@ -99,8 +110,18 @@ export function useViewport(o: ViewportOptions) {
         mid: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
       };
       start = null;
+      stopHold();
     } else {
       start = { ...p, mode: 'pending' };
+      if (e.pointerType !== 'mouse' && o.holdHover?.()) {
+        const at = start;
+        hold = window.setTimeout(() => {
+          hold = 0;
+          if (start !== at || at.mode !== 'pending') return;
+          at.mode = 'hold';
+          o.onHover?.(toWorld(at), e);
+        }, HOLD_MS);
+      }
     }
   }
 
@@ -123,7 +144,9 @@ export function useViewport(o: ViewportOptions) {
       return;
     }
     if (!start) return;
+    if (start.mode === 'hold') return void o.onHover?.(toWorld(p), e);
     if (start.mode === 'pending' && Math.hypot(p.x - start.x, p.y - start.y) > 6) {
+      stopHold();
       const wantsPan = o.panOnly() || e.buttons !== 1;
       if (!wantsPan && o.onDragStart?.(toWorld(start), e)) start.mode = 'drag';
       else start.mode = wantsPan ? 'pan' : 'none';
@@ -142,7 +165,9 @@ export function useViewport(o: ViewportOptions) {
     const s = start;
     pointers.delete(e.pointerId);
     if (pointers.size < 2) pinch = null;
-    if (s?.mode === 'drag') o.onDragEnd?.(toWorld(p), e);
+    stopHold();
+    if (s?.mode === 'hold') o.onHover?.(null, e);
+    else if (s?.mode === 'drag') o.onDragEnd?.(toWorld(p), e);
     else if (s?.mode === 'pending' && e.button === 0 && !o.panOnly()) o.onTap?.(toWorld(p), e);
     else if (s?.mode === 'pending' && e.button === 1) o.onMiddle?.(toWorld(p), e);
     start = null;
@@ -151,6 +176,8 @@ export function useViewport(o: ViewportOptions) {
   function cancel(e: PointerEvent) {
     pointers.delete(e.pointerId);
     pinch = null;
+    stopHold();
+    if (start?.mode === 'hold') o.onHover?.(null, e);
     if (start?.mode === 'drag') o.onDragEnd?.(toWorld(local(e)), e);
     start = null;
   }

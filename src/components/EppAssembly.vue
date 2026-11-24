@@ -18,6 +18,7 @@
           :unit-length="unit"
           :decorate="decorateNet"
           :tick="netTick"
+          hold-hover
           @tap="(p: World) => !ro && seams.tap(p)"
           @hover="onNetHover"
         />
@@ -181,6 +182,7 @@ import {
   type Cloth,
   type PieceMesh,
 } from '@/model/epp/stuff';
+import type { Pt } from '@/model/geometry/path';
 import type { Quilt } from '@/model/schema/quilt';
 import EppCanvas, { type CanvasPoly, type Decor } from '@/components/EppCanvas.vue';
 import { useEppSeams } from '@/composables/epp-seams';
@@ -202,7 +204,7 @@ const swapped = computed(() => app.settings.sidesSwapped);
 
 const HINT = 'Click: explode · Drag: turn · Wheel or pinch: zoom · Double-click a piece: front';
 const NET_HINT =
-  'Tap a free edge, then an equal edge of another piece, to sew them · Tap a numbered edge to unpick it';
+  'Tap a free edge, then an equal edge of another piece, to sew them · Tap a numbered edge to unpick it · Hover a seam (or press and hold) to find it in 3D';
 /** How far pieces move out when exploded, as a share of the object's radius. */
 const EXPLODE = 0.25;
 /** Flat pieces sit a hair off their right side, so two layers folded onto each other (a pillow
@@ -216,6 +218,9 @@ const FOV = 50;
 /** Stitches: a white thread with a soft magenta glow (two see-through sleeves), radii in U. */
 const THREAD = { core: 0.014, glow: [0.026, 0.04], opacity: [0.4, 0.12] };
 const STITCHES_PER_U = 6;
+/** The seam picked out from the net (owner, 2026-11-24): its stitches thicker and brighter, the
+ *  others faded to this share. */
+const HOT = { scale: 1.6, opacity: [0.75, 0.35], fade: 0.2 };
 const CLICK_SLOP = 4;
 const DOUBLE_MS = 250;
 
@@ -374,7 +379,13 @@ const seams = useEppSeams({
 const netHover = ref<World | null>(null);
 const netTick = computed(() => [netHover.value, seams.start.value, openSeams.value]);
 const onNetHover = (p: World | null) => (netHover.value = p);
-const decorateNet = (dec: Decor) => seams.decorate(dec, ro.value ? null : netHover.value);
+/** The seam under the pointer on the net, or under a held finger (owner, 2026-11-24: "when hoving
+ *  or long pressing a seam in the 2d view, it fades out the other seams and highlights that seam's
+ *  [mate]... and in the 3d view, it fades the other seams and highlights the active seam's
+ *  stitching"). Read-only too: it only shows. */
+const activeSeam = computed(() => (netHover.value ? seams.activeAt(netHover.value) : null));
+const decorateNet = (dec: Decor) =>
+  seams.decorate(dec, netHover.value, { pick: !ro.value, active: activeSeam.value });
 
 // ---------- three.js ----------
 const host = ref<HTMLDivElement>();
@@ -389,9 +400,11 @@ let plates: Three.Group[] = [];
 let hitMeshes: Three.Mesh[] = [];
 let gapLines: Three.LineSegments | null = null;
 let threads: Three.InstancedMesh[] = [];
+let hotThreads: Three.InstancedMesh[] = [];
 let lineMat: Three.LineBasicMaterial;
 let gapMat: Three.LineBasicMaterial;
 let threadMats: Three.Material[] = [];
+let hotMats: Three.Material[] = [];
 let threadGeo: Three.CylinderGeometry;
 let frame = 0;
 let dirty = true;
@@ -434,6 +447,18 @@ onMounted(async () => {
         }),
     ),
   ];
+  hotMats = [
+    new three.MeshBasicMaterial({ color: 0xffffff }),
+    ...HOT.opacity.map(
+      (o) =>
+        new three.MeshBasicMaterial({
+          color: 0xff2d95,
+          transparent: true,
+          opacity: o,
+          depthWrite: false,
+        }),
+    ),
+  ];
   threadGeo = new three.CylinderGeometry(1, 1, 1, 10, 1, true);
   setBackground();
   resizeObs = new ResizeObserver(resize);
@@ -449,7 +474,7 @@ onBeforeUnmount(() => {
   resizeObs?.disconnect();
   if (pending) clearTimeout(pending.timer);
   clearMeshes();
-  for (const m of [lineMat, gapMat, ...threadMats]) m?.dispose();
+  for (const m of [lineMat, gapMat, ...threadMats, ...hotMats]) m?.dispose();
   threadGeo?.dispose();
   renderer?.dispose();
   renderer = null;
@@ -514,7 +539,8 @@ function clearMeshes() {
     if ((o as Three.InstancedMesh).isInstancedMesh) (o as Three.InstancedMesh).dispose();
     else if (x.geometry && x.geometry !== threadGeo) x.geometry.dispose();
     const mat = x.material as Three.Material | undefined;
-    if (mat && mat !== lineMat && mat !== gapMat && !threadMats.includes(mat)) mat.dispose();
+    if (mat && mat !== lineMat && mat !== gapMat && ![...threadMats, ...hotMats].includes(mat))
+      mat.dispose();
   });
   root = null;
 }
@@ -576,7 +602,10 @@ function makeMeshes() {
   const segs = m.hinges.reduce((s, h) => s + 2 * stitchCount(h), 0);
   threads = threadMats.map((mat) => new three.InstancedMesh(threadGeo, mat, Math.max(1, segs)));
   threads.forEach((t, i) => (t.renderOrder = i)); // core first, then the glow over it
-  root.add(gapLines, ...threads);
+  const most = Math.max(1, ...m.hinges.map((h) => 2 * stitchCount(h)));
+  hotThreads = hotMats.map((mat) => new three.InstancedMesh(threadGeo, mat, most));
+  hotThreads.forEach((t, i) => (t.renderOrder = threads.length + i));
+  root.add(gapLines, ...threads, ...hotThreads);
   scene.add(root);
 }
 
@@ -673,13 +702,54 @@ function flatten() {
   });
 }
 
+/** The fold's hinge for the seam picked out on the net, or -1. A shared edge's hinge lies along that
+ *  edge of the piece (the net is the pieces with y flipped). */
+function hotHinge(): number {
+  const a = activeSeam.value;
+  const m = fold;
+  if (!a || !m) return -1;
+  if (a.seam !== null) return m.hinges.findIndex((h) => h.seam === a.seam);
+  const poly = leaves.value[a.leaf]?.poly;
+  if (!poly) return -1;
+  const [p, q] = [poly[a.edge]!, poly[(a.edge + 1) % poly.length]!].map(([x, y]): Pt => [
+    x,
+    -y,
+  ]) as [Pt, Pt];
+  const L2 = (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2;
+  const on = ([x, y]: Pt) => {
+    const t = ((x - p[0]) * (q[0] - p[0]) + (y - p[1]) * (q[1] - p[1])) / L2;
+    const off = Math.abs((q[0] - p[0]) * (y - p[1]) - (q[1] - p[1]) * (x - p[0])) / Math.sqrt(L2);
+    return off < 1e-6 && t > -1e-6 && t < 1 + 1e-6;
+  };
+  return m.hinges.findIndex(
+    (h) =>
+      h.seam === null && ((h.A === a.leaf && h.pa.every(on)) || (h.B === a.leaf && h.pb.every(on))),
+  );
+}
+watch(activeSeam, () => (dirty = true));
+
+/** While a seam is picked out, the other stitches fade. */
+function fadeThreads(on: boolean) {
+  const [core, ...glows] = threadMats;
+  if (core && core.transparent !== on) {
+    core.transparent = on;
+    core.needsUpdate = true;
+  }
+  if (core) core.opacity = on ? HOT.fade : 1;
+  glows.forEach((g, i) => (g.opacity = THREAD.opacity[i]! * (on ? HOT.fade : 1)));
+}
+
 // Stitches (owner, 2026-11-19, kept 2026-11-23): exploded, each seam shows thread lacing back and
-// forth between its two edges, inset a little from the corners.
+// forth between its two edges, inset a little from the corners. The seam picked out on the net
+// shows closed up too, thicker and brighter, and the others fade (owner, 2026-11-24).
 function syncStitches(seamAt: SeamAt) {
   const three = T!;
   const show = explodeAmt > 0.01;
+  const hot = hotHinge();
+  fadeThreads(hot >= 0);
   threads.forEach((t) => (t.visible = show));
-  if (!show) return;
+  hotThreads.forEach((t) => (t.visible = hot >= 0));
+  if (!show && hot < 0) return;
   const mtx = new three.Matrix4();
   const q = new three.Quaternion();
   const up = new three.Vector3(0, 1, 0);
@@ -688,7 +758,12 @@ function syncStitches(seamAt: SeamAt) {
   const size = new three.Vector3();
   const radii = [THREAD.core, ...THREAD.glow];
   let k = 0;
+  let kh = 0;
   fold!.hinges.forEach((h, hi) => {
+    const isHot = hi === hot;
+    if (!show && !isHot) return;
+    const set = isHot ? hotThreads : threads;
+    const grow = isHot ? HOT.scale : 1;
     const n = stitchCount(h);
     const at = (side: 0 | 1, s: number) => seamAt(h, hi, side, 0.08 + 0.84 * s);
     for (let i = 0; i < 2 * n; i++) {
@@ -700,16 +775,24 @@ function syncStitches(seamAt: SeamAt) {
       q.setFromUnitVectors(up, dir.set(d[0] / L, d[1] / L, d[2] / L));
       mid.set(...mul3(add3(p, e), 0.5));
       radii.forEach((r, layer) =>
-        threads[layer]!.setMatrixAt(k, mtx.compose(mid, q, size.set(r, L, r))),
+        set[layer]!.setMatrixAt(
+          isHot ? kh : k,
+          mtx.compose(mid, q, size.set(r * grow, L, r * grow)),
+        ),
       );
-      k++;
+      if (isHot) kh++;
+      else k++;
     }
   });
-  for (const t of threads) {
-    t.count = k;
-    t.instanceMatrix.needsUpdate = true;
-    t.computeBoundingSphere();
-  }
+  for (const [set, count] of [
+    [threads, k],
+    [hotThreads, kh],
+  ] as const)
+    for (const t of set) {
+      t.count = count;
+      t.instanceMatrix.needsUpdate = true;
+      t.computeBoundingSphere();
+    }
 }
 
 // ---------- camera ----------
@@ -998,7 +1081,23 @@ if (import.meta.env.DEV)
           exploded: exploded.value,
           seams: seams.placed.value.length,
           openSeams: [...openSeams.value],
+          active: activeSeam.value,
+          hotHinge: hotHinge(),
+          hotStitches: hotThreads[0]?.visible ? hotThreads[0].count : 0,
+          stitches: threads[0]?.visible ? threads[0].count : 0,
         };
+      },
+      /** Page point at the middle of edge k of piece (leaf) i in the net. */
+      edgePoint(i: number, k: number) {
+        const poly = leaves.value[i]?.poly;
+        const v = netView.value;
+        const c = netRef.value?.$el.querySelector('canvas')?.getBoundingClientRect();
+        if (!poly || !v || !c) return null;
+        const [a, b] = [poly[k]!, poly[(k + 1) % poly.length]!];
+        return [
+          c.left + ((a[0] + b[0]) / 2) * v.scale + v.tx,
+          c.top + ((a[1] + b[1]) / 2) * v.scale + v.ty,
+        ];
       },
       /** Page point at the middle of seam n's first edge in the net. */
       seamPoint(n: number) {

@@ -1,7 +1,8 @@
 // 3D EPP seams on a 2D canvas (spec 027 User Story 7): the Design tab's Seam tool and the net in
 // the 3D assembly tab. Tap a free edge, then an equal edge of another piece, to sew them; tap a
 // numbered edge to unpick its seam. Draws each seam's edges in its color with its number (red when
-// the fold can't close it), the edge being picked, and the front piece ringed.
+// the fold can't close it), the edge being picked, and the front piece ringed. In the 3D assembly
+// tab the seam under the pointer (or a held finger) stands out, both its edges, and the others fade.
 import { useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
 import type { Decor } from '@/components/EppCanvas.vue';
@@ -15,6 +16,12 @@ import type { Quilt } from '@/model/schema/quilt';
 
 type At = [number, number];
 const OPEN = '#e53935';
+/** The shared-edge highlight: the stitches' glow color in 3D. */
+const HOT = '#ff2d95';
+
+/** A seam picked out on the net: an explicit seam (its number - 1), or an edge shared with a
+ *  neighbor (leaf, edge of its outline). */
+export type ActiveSeam = { seam: number } | { seam: null; leaf: number; edge: number };
 
 export function useEppSeams(o: {
   quilt: () => Quilt;
@@ -91,6 +98,16 @@ export function useEppSeams(o: {
     ];
     o.edit((q) => addSeam(q, a, b));
   }
+  /** The seam whose edge is under p: explicit, or shared with a neighbor (free edges are none). */
+  function activeAt(p: Pt): ActiveSeam | null {
+    const at = near(p);
+    if (!at) return null;
+    const same = (x: At) => x[0] === at[0] && x[1] === at[1];
+    const k = placed.value.findIndex((s) => same(s.a) || same(s.b));
+    if (k >= 0) return { seam: k };
+    if (free.value.has(edgeKey(...leafEdge(at)))) return null;
+    return { seam: null, leaf: at[0], edge: at[1] };
+  }
   /** The piece that faces front in 3D (picked, or the default for a closed shape). */
   const front = computed(() => {
     const leaves = o.leaves();
@@ -98,26 +115,48 @@ export function useEppSeams(o: {
     const f = frontPiece(buildFold(quiltNet(o.quilt(), o.lookup()).net));
     return f === null ? null : leaves[f]!;
   });
-  /** Seams, the edge being picked and the one under `hover` (null: none), the front ring. */
-  function decorate({ ctx, px: p }: Decor, hover: Pt | null) {
+  /**
+   * Seams, the edge being picked and the one under `hover` (null: none; `pick`: as a pick to sew),
+   * the front ring. `active`: that seam stands out (both its edges, glowing) and the others fade.
+   */
+  function decorate(
+    { ctx, px: p }: Decor,
+    hover: Pt | null,
+    { pick = true, active = null }: { pick?: boolean; active?: ActiveSeam | null } = {},
+  ) {
     const open = o.open?.() ?? new Set<number>();
     ctx.save();
     ctx.lineCap = 'round';
     ctx.font = `bold ${p(13)}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    for (const m of seamMarks(o.leaves(), o.quilt().epp?.seams ?? [], p(12))) {
-      const [a, b] = m.edge;
-      ctx.strokeStyle = ctx.fillStyle = open.has(m.n - 1) ? OPEN : m.color;
-      ctx.lineWidth = p(4);
-      ctx.setLineDash(open.has(m.n - 1) ? [p(6), p(4)] : []);
+    const line = ([a, b]: [Pt, Pt], width: number, alpha = 1) => {
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = width;
       ctx.beginPath();
       ctx.moveTo(a[0], a[1]);
       ctx.lineTo(b[0], b[1]);
       ctx.stroke();
+    };
+    for (const m of seamMarks(o.leaves(), o.quilt().epp?.seams ?? [], p(12))) {
+      const on = active?.seam === m.n - 1;
+      const faded = !!active && !on;
+      ctx.strokeStyle = ctx.fillStyle = open.has(m.n - 1) ? OPEN : m.color;
+      ctx.setLineDash(open.has(m.n - 1) && !on ? [p(6), p(4)] : []);
+      if (on) line(m.edge, p(14), 0.3); // a glow under it
+      line(m.edge, p(on ? 6 : 4), faded ? 0.2 : 1);
       if (m.label) ctx.fillText(String(m.n), m.label[0], m.label[1]);
     }
-    const under = hover ? near(hover) : null;
+    ctx.globalAlpha = 1;
+    if (active && active.seam === null) {
+      ctx.strokeStyle = HOT;
+      ctx.setLineDash([]);
+      const e = leafEdge([active.leaf, active.edge]);
+      line(e, p(14), 0.3);
+      line(e, p(6));
+      ctx.globalAlpha = 1;
+    }
+    const under = hover && pick && !active ? near(hover) : null;
     for (const [e, dash] of [
       [start.value, false],
       [under, true],
@@ -147,5 +186,5 @@ export function useEppSeams(o: {
     }
     ctx.restore();
   }
-  return { placed, start, tap, decorate };
+  return { placed, start, tap, decorate, activeAt };
 }

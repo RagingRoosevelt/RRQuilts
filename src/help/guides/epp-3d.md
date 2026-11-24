@@ -32,6 +32,7 @@ The design folds the way fabric with stiff papers inside does. Each piece stays 
 
 - Drag to turn the object. Use the mouse wheel or pinch to zoom.
 - Click the object to spread its pieces apart and see the stitches across every seam. Click again to close it up.
+- Hover a seam in the flat design, or press and hold it on a touch screen, to find it on the object. Both its edges and its stitches light up and the other seams fade.
 - Once folded, the object turns so its front faces you and the design's up is up. An open shape faces the way its pieces face overall. A closed shape shows one piece in front, the piece nearest the middle of its largest group unless you double-click another. **Default front** goes back to that piece. The Design tab rings the front piece.
 - **Fold again** starts the fold over.
 
@@ -49,6 +50,6 @@ Some designs only close once stuffed. Two stars sewn back to back lie flat as pa
 
 ## Print
 
-The **Print** tab gives paper and fabric templates as for any EPP quilt. The quilt picture page shows the flat design, each seam's two edges in its color with its number so you can match them up while sewing, and below it the folded object as the 3D assembly tab first shows it.
+The **Print** tab gives paper and fabric templates as for any EPP quilt. The quilt picture page shows the flat design, each seam's two edges in its color so you can match them up while sewing, and below it the folded object as the 3D assembly tab first shows it.
 
 To print the object from another side, click it in the preview and drag to turn it. Move the pointer away, or leave it for 15 seconds, and the picture comes back from where you left it. The design keeps that view for its printouts (Undo goes back).

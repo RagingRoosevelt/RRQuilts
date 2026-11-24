@@ -78,6 +78,13 @@ export const CHECKS: Check[] = [
     last: 'for rotation angles, the kite rotates by 90 degree incrments. we should consider the center-to-vertex angles that are present in addition to the number of vertices when deciding which angles to rotate by; let’s use the LCM of edge direction and the 360/#corners we were using before',
     to: '/project',
   },
+  {
+    id: 'TC-340',
+    group: G.epp3d,
+    text: '3D assembly, finding a seam. Open the 3D EPP demo’s d12 (or Soccer ball), 3D assembly tab. Hover a numbered seam in the flat net: its two edges glow, every other seam and number fades, and on the folded object that seam’s stitches show in pink (closed up, where no stitches showed before). Hover an edge where two pieces touch: it glows pink, and its stitches show in 3D. Move off: all back to normal. Click the object to explode it, then hover a seam: its stitches bright and thick, the others faint. On a phone or tablet: press and hold a seam (about half a second) does the same until you lift your finger, and slides along to other seams; lifting doesn’t unpick it, a quick tap still does. Read-only (project open in another tab): hovering still works. Help › 3D EPP describes it.',
+    last: 'in the epp 3d assembly view, let’s add the ability to, when hoving or long pressing a seam in the 2d view, it fades out the other seams and highlights that seam’s made in the 2d view and in the 3d view, it fades the other seams and highlights the active seam’s stitching',
+    to: '/?open_demo=3d-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
