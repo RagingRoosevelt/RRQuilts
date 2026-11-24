@@ -7,6 +7,7 @@
         <q-tab name="print" icon="print" label="Print" />
         <q-tab name="print3d" icon="view_in_ar" label="3D Print" />
       </q-tabs>
+      <HelpLink v-bind="help" />
       <q-btn flat round dense icon="menu" :aria-label="sidebarLabel" @click="sidebar = !sidebar">
         <q-tooltip>{{ sidebarLabel }}</q-tooltip>
       </q-btn>
@@ -200,6 +201,7 @@
 // The shape editor (spec 027 FR-006a): drag corners on a 1U grid, move and mark edges, drag angle
 // markers, lock corners; Multi-shape splits an outline into the shapes of a new rosette.
 import { useQuasar } from 'quasar';
+import HelpLink from '@/components/HelpLink.vue';
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
@@ -260,6 +262,14 @@ const shape = computed<EppShape | undefined>(
 const ro = computed(() => project.readOnly || !own.value || isLibraryItem(own.value));
 
 const tab = ref<'details' | 'draw' | 'print' | 'print3d'>(route.query.print ? 'print' : 'draw');
+/** The Help topic for each tab. */
+const help = computed(() =>
+  tab.value === 'print'
+    ? { topic: 'guides/printing', label: 'Printing' }
+    : tab.value === 'print3d'
+      ? { topic: 'guides/printing#3d-printed-templates', label: '3D-printed templates' }
+      : { topic: 'guides/epp-shapes', label: 'EPP shapes' },
+);
 const stl = useStl(() => (shape.value ? { kind: 'shape', id: shape.value.id } : null));
 const sidebar = ref(!$q.screen.lt.md);
 const sidebarLabel = computed(() => (sidebar.value ? 'Hide sidebar' : 'Show sidebar'));

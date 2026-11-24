@@ -23,8 +23,20 @@
         <q-tab name="details" label="Details" />
       </q-tabs>
       <HelpLink
-        :topic="tab === 'colors' ? 'guides/colors-and-palettes' : 'guides/sketchbook'"
-        :label="tab === 'colors' ? 'Colors and palettes' : 'The project sketchbook'"
+        :topic="
+          tab === 'colors'
+            ? 'guides/colors-and-palettes'
+            : tab === 'epp'
+              ? 'guides/epp-quilts'
+              : 'guides/sketchbook'
+        "
+        :label="
+          tab === 'colors'
+            ? 'Colors and palettes'
+            : tab === 'epp'
+              ? 'English paper piecing'
+              : 'The project sketchbook'
+        "
       />
       <template v-if="!project.readOnly">
         <q-btn

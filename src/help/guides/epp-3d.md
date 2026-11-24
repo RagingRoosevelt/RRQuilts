@@ -1,6 +1,6 @@
 ---
 title: 3D EPP
-order: 37
+order: 39
 summary: Sew EPP pieces into an object with seams between edges that don't touch, fold it in the 3D assembly tab, and stuff it.
 ---
 
@@ -9,7 +9,7 @@ A 3D EPP design is a flat layout of pieces whose edges are sewn into an object, 
 ## Start a 3D design
 
 1. Start a quilt, choose **EPP** and turn on **3D EPP**.
-2. In the **Design** tab, place shapes and rosettes as in any EPP quilt. Pieces that touch are sewn along the edges they share.
+2. In the **Design** tab, place shapes and rosettes as in any EPP quilt (see [English paper piecing](/help/guides/epp-quilts)). Pieces that touch are sewn along the edges they share.
 3. Set the **1U length** in the **Layout** tab. A 3D design has no edge, borders or binding.
 
 An EPP quilt's **Layout** tab has the same **3D EPP** switch. Turning it on removes the quilt's edge and borders (Undo brings them back). Turning it off keeps the seams for when it is 3D again.

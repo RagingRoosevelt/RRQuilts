@@ -7,6 +7,7 @@
         <q-tab name="print" icon="print" label="Print" />
         <q-tab name="print3d" icon="view_in_ar" label="3D Print" />
       </q-tabs>
+      <HelpLink v-bind="help" />
       <q-btn flat round dense icon="menu" :aria-label="sidebarLabel" @click="sidebar = !sidebar">
         <q-tooltip>{{ sidebarLabel }}</q-tooltip>
       </q-btn>
@@ -237,6 +238,7 @@
 // The rosette editor (spec 050, spec 027 FR-003b): place shapes and rosettes in Free, Grow or Grid
 // mode, snap them edge to edge, close gaps, color them like a block.
 import { useQuasar } from 'quasar';
+import HelpLink from '@/components/HelpLink.vue';
 import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
@@ -313,6 +315,14 @@ const rosette = computed<Rosette | undefined>(
 const ro = computed(() => project.readOnly || !own.value || isLibraryItem(own.value));
 
 const tab = ref<'details' | 'design' | 'print' | 'print3d'>(route.query.print ? 'print' : 'design');
+/** The Help topic for each tab. */
+const help = computed(() =>
+  tab.value === 'print'
+    ? { topic: 'guides/printing', label: 'Printing' }
+    : tab.value === 'print3d'
+      ? { topic: 'guides/printing#3d-printed-templates', label: '3D-printed templates' }
+      : { topic: 'guides/rosettes', label: 'Rosettes' },
+);
 /** The 3D Print tab (spec 027): a template for each of the rosette's shapes. */
 const stl = useStl(() => (rosette.value ? { kind: 'rosette', id: rosette.value.id } : null));
 const sidebar = ref(!$q.screen.lt.md);

@@ -134,6 +134,13 @@ export const CHECKS: Check[] = [
     last: 'can you add this quilt to the 3d epp demo?',
     to: '/?open_demo=3d-epp.rrq',
   },
+  {
+    id: 'TC-348',
+    group: G.epp027,
+    text: 'EPP help guides. Help › App Guides lists English paper piecing, EPP shapes and Rosettes after Data quilts, then 3D EPP. Read each against the app: labels as on screen, steps that work. The “?” in the shape editor opens EPP shapes (Printing on its Print and 3D Print tabs), in the rosette editor Rosettes, in an EPP quilt’s Design, Layout and Details tabs English paper piecing (3D designs: 3D EPP), and on the project’s EPP tab English paper piecing. Links between the guides and to the traditional EPP demo work, including the ones to a section (Units, The Design tab, Edge).',
+    last: 'let’s do the help docs',
+    to: '/help/guides/epp-quilts',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
