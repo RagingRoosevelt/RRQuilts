@@ -85,6 +85,13 @@ export const CHECKS: Check[] = [
     last: 'in the epp 3d assembly view, let’s add the ability to, when hoving or long pressing a seam in the 2d view, it fades out the other seams and highlights that seam’s made in the 2d view and in the 3d view, it fades the other seams and highlights the active seam’s stitching',
     to: '/?open_demo=3d-epp.rrq',
   },
+  {
+    id: 'TC-341',
+    group: G.epp027,
+    text: 'Export an EPP quilt. Your 3D EPP project’s Moravian Star (or the 3D EPP demo’s Star pillow, or the traditional EPP demo’s Grandmother’s Flower Garden): card menu › Export. Open the exported file: no “Opened with problem(s)” notice, the quilt’s pieces in their colors (card and Design tab), its rosettes in the EPP tab, and only the shapes and rosettes that quilt uses. Then in another project, Quilts › Import quilts from a project, pick the same file’s quilt: it comes in with its rosettes and colors too.',
+    last: 'exporting an epp / 3d epp quilt doesn’t seem to have the contents in the export',
+    to: '/?open_demo=3d-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
