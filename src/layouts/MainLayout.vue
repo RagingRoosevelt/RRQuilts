@@ -52,6 +52,13 @@
         <q-btn
           flat
           round
+          icon="bug_report"
+          aria-label="Report a problem or suggest an idea"
+          to="/help/about/got-an-idea"
+        />
+        <q-btn
+          flat
+          round
           icon="settings"
           aria-label="Settings"
           :class="{ 'nav-active': settingsOpen }"

@@ -716,11 +716,11 @@ export const PALETTE_COLORINGS: Record<string, string[]> = {
     'Cream=Muslin,Indigo=Prussian Blue,Sky=Cheddar',
   ],
   "Bull's Eye": [
-    'Cream=Lemon Chiffon,Sky=Seafoam,Indigo=Periwinkle,Denim=Powder Blue',
-    'Cream=Slate,Sky=Hunter,Indigo=Midnight,Denim=Deep Teal',
-    'Cream=Aquamarine,Sky=Amethyst,Indigo=Sapphire,Denim=Emerald',
-    'Cream=Neon Yellow,Sky=Neon Green,Indigo=Neon Blue,Denim=Electric Cyan',
-    'Cream=Shirting,Sky=Double Pink,Indigo=Prussian Blue,Denim=Poison Green',
+    'Cream=Lemon Chiffon,Sky=Seafoam,Indigo=Periwinkle',
+    'Cream=Slate,Sky=Hunter,Indigo=Midnight',
+    'Cream=Aquamarine,Sky=Amethyst,Indigo=Sapphire',
+    'Cream=Neon Yellow,Sky=Neon Green,Indigo=Neon Blue',
+    'Cream=Shirting,Sky=Double Pink,Indigo=Prussian Blue',
   ],
   "Queen Charlotte's Crown": [
     'Cream=Lemon Chiffon,Indigo=Lilac,Rose=Blush,Sky=Pistachio,Red=Peach',

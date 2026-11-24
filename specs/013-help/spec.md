@@ -206,6 +206,8 @@ Screens link to the help that explains them.
   It also has a **Roadmap** (`src/help/about/roadmap.md`): planned features grouped by target
   version, in plain words, from the owner's picks among the drafted specs on `specs/backlog`; kept
   current at each release (added 2026-10-20).
+  A bug button in the header, just left of the settings gear, opens **Got an idea?** from any
+  page (owner, 2026-11-24).
 - **FR-023**: Help "?" buttons MUST follow the **Show help buttons** setting (default on).
 - **FR-021**: Each calculator MUST appear as a slightly raised card; inputs that belong together
   (length × width) stay on one line where space allows; length fields use the app's −/+ buttons
