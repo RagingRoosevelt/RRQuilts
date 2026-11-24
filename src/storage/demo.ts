@@ -5,6 +5,13 @@
 /** The demo projects in public/demo, for the welcome wizard and the home page's Open a demo. */
 export const DEMOS = [
   {
+    file: 'block-quilts.rrq',
+    title: 'Block and patch quilts',
+    about:
+      'Medallions on point, diamond blocks with sashing, pieced strips for a shirt back and tumbling cubes.',
+    icon: 'grid_view',
+  },
+  {
     file: 'temperature.rrq',
     title: 'Temperature quilts',
     about:

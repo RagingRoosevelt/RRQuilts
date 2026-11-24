@@ -140,7 +140,16 @@ justification).
   from a gist, both listing the demos (`DEMOS` in src/storage/demo.ts). Owner, 2026-11-23: "and
   let's also have a demo of temperature quilts", "let's add a "demos" step to the welcome wizard
   after help" and "let's add a button to the right of "open rpoject file" and "open github gist"
-  for "open a demo"". The d10 is a real die's: every corner on a sphere, so each kite has two right
+  for "open a demo"". A third demo, listed first, `block-quilts.rrq`: medallions on point with
+  sashing (a Queen bed with its drop as the target), Diamond Point diamond blocks with sashing and a
+  border, pieced horizontal strips with no plain strips between (a men's XL shirt back as the
+  target), and Variable Patch tumbling cubes. Owner, 2026-11-23: "let's add a demo project with a
+  handful of basic block and patch quilts. let's do an on-point quilt with some medalians with
+  sashing between them, a shaped blocks with sashing and a border, a strips (patches) without
+  sashing, and a variable patch without sashing. let's have a men's XL shirt back over the strips
+  one and a queen XL over the on point quilt." Shaped Blocks has no sashing, so the shaped quilt is
+  Diamond Point; the US list has no Queen XL, so the target is Queen (both the owner's picks, the
+  same day). The d10 is a real die's: every corner on a sphere, so each kite has two right
   angles, a 51.8° tip and a 128.2° bottom corner, short edges 1U and long edges 2.06U (marked);
   not the 108°/36° kite of the dual of the uniform antiprism. Owner, 2026-11-23: "the d10 kites
   demo should use the standard kite shape that would be found in a typical d10".

@@ -11,6 +11,10 @@ show or hide the seam lines and the block names, and the bar under the quilt rep
 size. **Download image** in the **Details** tab saves the quilt's picture with seam lines when they
 are shown.
 
+The [block and patch quilts demo](/?open_demo=block-quilts.rrq) has four to look at: medallions on
+point with sashing, diamond blocks with sashing and a border, pieced strips sized for a shirt back,
+and tumbling cubes in Variable Patch.
+
 ## Layout
 
 1. Open the **Layout** tab. **Style** is **Straight Set** (blocks in rows and columns), **On-Point**

@@ -39,7 +39,8 @@ like sketchbook/worktable are fine).
 - **Demo projects**: `public/demo/*.rrq` (deployed, precached), listed in `DEMOS` (`storage/demo.ts`)
   for the welcome wizard's Demos step and the home page's Open a demo (`DemoList.vue`,
   `composables/open-demo.ts`), and opened by `/?open_demo=<name>.rrq` (the demo folder only, never
-  another site), beside `/?open_gist=`. Written by tests: `3d-epp.rrq` by
+  another site), beside `/?open_gist=`. Written by tests: `block-quilts.rrq` by
+  `__tests__/model/blocks-demo.spec.ts` (`BLOCKS_DEMO=<file>`), `3d-epp.rrq` by
   `__tests__/model/epp/demo3d.spec.ts` (`EPP3D_DEMO=<file>`), `temperature.rrq` by
   `__tests__/model/temperature-demo.spec.ts` (`TEMPERATURE_DEMO=<file>`).
 - **Resource repositories**: git repos of extra library content, fetched on user request (the only
