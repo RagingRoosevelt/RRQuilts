@@ -3,11 +3,12 @@ import { describe, expect, it } from 'vitest';
 import { parseProject, serializeProject } from '@/model/io';
 import { copyToMine, emptyPersonal, lookupOf, withSources } from '@/model/library';
 import { parseLibraryValue } from '@/model/library-file';
-import { eppUsed, syncLibraryItems } from '@/model/library-items';
+import { eppUsed, syncLibraryItems, type LibraryLookup } from '@/model/library-items';
 import { createProject } from '@/model/new-project';
 import { createQuilt } from '@/model/new-quilt';
 import type { EppShape, Rosette } from '@/model/schema/epp';
 import type { LibraryDoc } from '@/model/schema/library';
+import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
 
 const hex: EppShape = {
@@ -138,5 +139,26 @@ describe('embedding EPP library items', () => {
     );
     expect(doc.project.rosettes).toEqual([]);
     expect(doc.project.eppShapes).toEqual([]);
+  });
+
+  // Bug (2026-11-23, found building the traditional EPP demo): a library color used only as the
+  // Auto-close fill wasn't embedded, so cards drew the closing pieces white.
+  it('embeds a library color used only as the Auto-close fill', () => {
+    const cream: Color = { id: 'cream', notecard: { name: 'Cream' }, rgb: [244, 236, 216] };
+    const lib: LibraryLookup = {
+      block: () => undefined,
+      color: (id: string) => (id === 'cream' ? cream : undefined),
+    };
+    const close = (fill?: { color: string }) =>
+      produce(eppDoc(), (d) => {
+        d.project.quilts[0]!.layout = {
+          style: 'epp',
+          unit: 1,
+          edge: { kind: 'close', ...(fill ? { fill } : {}) },
+        };
+      });
+    const ids = (doc: RrqDoc) => syncLibraryItems(doc, lib).project.palette.colors.map((c) => c.id);
+    expect(ids(close({ color: 'cream' }))).toEqual(['cream']);
+    expect(ids(close())).toEqual([]);
   });
 });

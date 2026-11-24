@@ -141,11 +141,16 @@ export function eppUsed(p: RrqDoc['project']) {
   return { shapes, rosettes };
 }
 
-/** Colorings EPP items paint with: rosettes' colorings and pieces' repaints. */
+/** Colorings EPP items paint with: rosettes' colorings, pieces' repaints and Auto-close fills. */
 const eppColorings = (p: RrqDoc['project']): ColoringBody[] => [
   ...(p.rosettes ?? []).flatMap((r) => r.colorings),
   ...p.quilts.flatMap((q) =>
     (q.epp?.pieces ?? []).flatMap((x) => (x.fills ? [{ fills: x.fills }] : [])),
+  ),
+  ...p.quilts.flatMap((q) =>
+    q.layout.style === 'epp' && q.layout.edge.kind === 'close' && q.layout.edge.fill
+      ? [{ fills: { '': q.layout.edge.fill } }]
+      : [],
   ),
   ...(p.eppShapes ?? []).flatMap((x) => (x.fill ? [{ fills: { '': x.fill } }] : [])),
 ];

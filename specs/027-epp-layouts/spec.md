@@ -154,7 +154,19 @@ justification).
   sashing, and a variable patch without sashing. let's have a men's XL shirt back over the strips
   one and a queen XL over the on point quilt." Shaped Blocks has no sashing, so the shaped quilt is
   Diamond Point; the US list has no Queen XL, so the target is Queen (both the owner's picks, the
-  same day). Both overlays inverted: the shirt back black at full strength, the bed #757575 at 15%.
+  same day). A fourth demo, `traditional-epp.rrq` (third in the list): Grandmother's Flower Garden
+  (19-hexagon flowers in six colorings on a grid where they leave exactly one four-hexagon diamond
+  between them, the leaves; cut straight, with a border of green squares), a Lone Star (eight
+  points of 6 × 6 45° diamonds in rings, Auto-close setting pieces in cream) and Cube corners (each
+  2U hexagon a cube with a corner cut away: its faces are L shapes of two half hexagons, light,
+  medium and dark, around three 60° diamonds shaded the other way round), the last two with plain
+  borders. Owner, 2026-11-23: "add a demo for traditional epp patterns. do a grandma's garden with
+  little groups of four green hexis between the flowers for leaves. do a cut border of green
+  blocks", "do an epp diamond lone star", "and then do the optical illusion cube corners in the
+  same epp demo", "I believe it's built from half hexis", "put borders on the lone star and cube
+  corners quilt demos". Building it found a bug: a library color used only as the Auto-close fill
+  wasn't embedded in the project, so cards (which color from the project) drew the closing pieces
+  white. Now embedded like any color in use. Both overlays inverted: the shirt back black at full strength, the bed #757575 at 15%.
   Owner, 2026-11-23: "for both overlays, do tint of #000000, max opacity, invert", then "actually,
   for the medalians on point, do #757575 at 15%, inverted". The d10 is a real die's: every corner on a sphere, so each kite has two right
   angles, a 51.8° tip and a 128.2° bottom corner, short edges 1U and long edges 2.06U (marked);

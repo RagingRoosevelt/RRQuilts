@@ -19,6 +19,13 @@ export const DEMOS = [
     icon: 'thermostat',
   },
   {
+    file: 'traditional-epp.rrq',
+    title: 'Traditional English paper piecing',
+    about:
+      'Grandmother’s Flower Garden with leaves and a green border, a Lone Star, and cube corners in half hexagons.',
+    icon: 'hexagon',
+  },
+  {
     file: '3d-epp.rrq',
     title: '3D English paper piecing',
     about:
