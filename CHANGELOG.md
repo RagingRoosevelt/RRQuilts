@@ -2,6 +2,16 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.9.2 (2026-11-24)
+
+### New features
+
+- [major] A bug button in the header, to report a problem or suggest an idea.
+
+### Fixes
+
+- [major] The Bull's Eye block has all its triangles, in the right colors.
+
 ## 0.9.1 (2026-11-24)
 
 ### New features
