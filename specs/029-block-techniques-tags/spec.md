@@ -97,6 +97,10 @@ A block's author marks how it is meant to be made; quilters filter by it.
 
 1. **Given** tags kept for blocks that no installed library has (a pack removed), **Then** the
    Libraries page shows "Tags on N blocks you no longer have" with **Remove**, listing the tags.
+   It is an info alert (info icon, tinted blue, accent edge) with **Remove these tags** right
+   under the message (owner, 2026-11-25: "the "remove them" button is way off to the side and
+   doesn't clearly associate with that warning. also, that warning should be more clearly styled
+   as an info alert").
 2. **Given** removing a pack whose blocks have tags, **When** the quilter confirms, **Then** they are
    asked whether to keep those tags in case the pack comes back.
 3. **Given** a pack that comes back (same block ids), **Then** its kept tags show again.

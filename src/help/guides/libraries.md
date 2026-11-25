@@ -44,7 +44,7 @@ tag any block or palette, including built-in ones and those in packs: choose **T
 **Actions** menu. Tags on your own items are saved with them. Tags on other people's items are kept
 in My library, so they are part of your backups, and they come back if you remove a pack and add it
 again later. When you remove a pack whose items you tagged, you are asked whether to keep those
-tags. Tags on items you no longer have are listed at the top of this page, with **Remove them**.
+tags. Tags on items you no longer have are listed at the top of this page, with **Remove these tags**.
 
 Tags stay yours: packs you make and block files you export leave them out. Suggestions while you
 type come from the tags you already use, and a tag that differs only in capital letters joins the

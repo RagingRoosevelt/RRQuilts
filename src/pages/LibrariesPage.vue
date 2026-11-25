@@ -26,15 +26,32 @@
     <q-banner v-if="!library.stored" dense class="bg-warning text-dark q-mb-md">
       This browser isn't keeping your libraries (storage is blocked). Back up before closing.
     </q-banner>
-    <!-- Spec 029: tags kept for items no installed library has (a removed pack's). -->
-    <q-banner v-if="library.orphanedTags.length" dense rounded class="q-mb-md orphans">
-      Your tags on {{ library.orphanedTags.length }}
-      {{ library.orphanedTags.length === 1 ? 'item' : 'items' }} you no longer have:
-      {{ [...new Set(library.orphanedTags.flatMap((a) => a.tags))].join(', ') }}. They come back if
-      you add the library again.
-      <template #action>
-        <q-btn flat no-caps label="Remove them" @click="removeOrphanTags" />
-      </template>
+    <!-- Spec 029: tags kept for items no installed library has (a removed pack's). An info alert,
+         its button right under the message it acts on (owner, 2026-11-25). -->
+    <q-banner
+      v-if="library.orphanedTags.length"
+      dense
+      rounded
+      class="q-mb-md info-alert"
+      role="status"
+    >
+      <template #avatar><q-icon name="info" class="info-icon" /></template>
+      <div>
+        Your tags on {{ library.orphanedTags.length }}
+        {{ library.orphanedTags.length === 1 ? 'item' : 'items' }} you no longer have:
+        <strong>{{ [...new Set(library.orphanedTags.flatMap((a) => a.tags))].join(', ') }}</strong
+        >. They come back if you add the library again.
+      </div>
+      <q-btn
+        outline
+        dense
+        no-caps
+        :color="$q.dark.isActive ? 'blue-3' : 'blue-9'"
+        icon="label_off"
+        label="Remove these tags"
+        class="q-mt-sm q-px-sm"
+        @click="removeOrphanTags"
+      />
     </q-banner>
 
     <div class="row no-wrap-md" style="gap: 16px">
@@ -2934,6 +2951,21 @@ function downloadPack() {
 </script>
 
 <style scoped>
+/* An info alert: tinted blue with an accent edge, whatever the app's accent color. */
+.info-alert {
+  background: #e3f2fd;
+  border-left: 4px solid #1976d2;
+}
+.info-icon {
+  color: #1976d2;
+}
+:global(.body--dark .info-alert) {
+  background: rgba(100, 181, 246, 0.14);
+  border-left-color: #64b5f6;
+}
+:global(.body--dark .info-icon) {
+  color: #64b5f6;
+}
 .type-pick {
   flex: 0 1 260px;
   margin: 0 8px 0 16px;

@@ -185,6 +185,13 @@ export const CHECKS: Check[] = [
     last: '"when saving an image for a quilt with multiple colorways, include the name of the colorway in the filename: `<quilt name> - <colorway name>.<ext>`"',
     to: '/',
   },
+  {
+    id: 'TC-365',
+    group: G.small,
+    text: 'Libraries: tag a block from a pack, then remove that pack. The notice at the top is an info alert (info icon, light blue with a blue edge; dark theme too) listing the tags in bold, with Remove these tags right under the text, wide window and phone width. The button clears them and the notice goes.',
+    last: '"the “remove them” button is way off to the side and doesn’t clearly associate with that warning. also, that warning should be more clearly styled as an info alert"',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
