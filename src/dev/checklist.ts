@@ -128,6 +128,13 @@ export const CHECKS: Check[] = [
     last: '"let’s also update the color picker that’s in the primary colorway and in the recolor interface so that hovering or long-pressing a color highlights the patches using it"',
     to: '/',
   },
+  {
+    id: 'TC-357',
+    group: G.recolor,
+    text: 'Block editor, Color tab: point at a swatch (or press and hold on a phone) and the coloring shown lights that color’s patches, touching ones sharing one outline (all round the block’s edge too), the rest paled. Switch colorings: it follows the one shown.',
+    last: '"let’s do that in the block color picker, too"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

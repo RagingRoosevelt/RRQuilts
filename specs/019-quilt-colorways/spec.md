@@ -88,7 +88,10 @@ colorway.
   picker that's in the primary colorway and in the recolor interface so that hovering or
   long-pressing a color highlights the patches using it"): pointing (mouse), holding (touch, 450
   ms, as hold-to-hover elsewhere), or while the swatch's menu is open (a long press opens it).
-  Matched against the colors the shown colorway paints (the re-color's own in a re-color). Tapping the row's color keeps it lit (outlined) until tapped again or the
+  Matched against the colors the shown colorway paints (the re-color's own in a re-color). The
+  block editor's Color tab does the same for the coloring shown (owner, 2026-11-25: "let's do that
+  in the block color picker, too"), the block's outline giving the glow's inner half along its
+  edge. Tapping the row's color keeps it lit (outlined) until tapped again or the
   primary is shown. View only (`editor.spotPaint`, draw option `spot`).
 
 ## Assumptions

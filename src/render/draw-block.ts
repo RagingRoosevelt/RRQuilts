@@ -6,7 +6,8 @@ import type { Pt, Seg } from '@/model/geometry/path';
 import type { Block, Drawing } from '@/model/schema/block';
 import type { ColoringBody } from '@/model/schema/coloring';
 import { colorLookup, complement, drawBlock, type View } from './draw';
-import { glowPath, patchGlow } from './glow';
+import { glowGroup, glowPath, patchGlow } from './glow';
+import type { M } from './affine';
 import { blockPaths } from './paths';
 import { OVERLAY_TINT } from '@/model/targets';
 import { drawDataOverlay, type DataMark } from './data-overlay';
@@ -41,6 +42,8 @@ export interface BlockDrawOptions {
   dataOverlay?: { line: boolean } | null;
   /** Color mode: the patch under the pointer, outlined with a glow. */
   hoverPatch?: string | null;
+  /** Color mode: a fill key whose patches glow (one outline round touching ones), the rest pale. */
+  spot?: string | undefined;
 }
 
 function segPath(p: Path2D, g: Seg) {
@@ -74,11 +77,26 @@ export function drawBlockEditor(
 
   // Patches
   if (o.mode === 'color') {
-    drawBlock(ctx, block, o.coloring, colorLookup(doc, [], { ctx, devicePerUnit: k }), {
+    const lit = drawBlock(ctx, block, o.coloring, colorLookup(doc, [], { ctx, devicePerUnit: k }), {
       outlines: true,
       lineWidth: px,
       dark: o.dark,
+      spot: o.spot,
     });
+    if (lit) {
+      // The block's outline too: its edge gives the glow's inner half where a lit patch meets it.
+      const at: M = [k, 0, 0, k, o.dpr * o.view.tx, o.dpr * o.view.ty];
+      const rest = blockPaths(block).flatMap((p) =>
+        lit.includes(p) ? [] : [{ path: p.path, m: at }],
+      );
+      glowGroup(
+        ctx,
+        lit.map((p) => ({ path: p.path, m: at })),
+        [...rest, { path: outline, m: at }],
+        o.dpr,
+        patchGlow(complement(OVERLAY_TINT, 120)),
+      );
+    }
   } else {
     ctx.fillStyle = o.dark ? '#2f2f2f' : '#fbf8f1';
     ctx.fill(outline);
