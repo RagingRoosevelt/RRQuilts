@@ -20,6 +20,10 @@ export const shownColorway = (
   id = q.shownColorway,
 ) => (id ? q.colorways?.find((v) => v.id === id) : undefined);
 
+/** The name of the colorway a quilt shows (its own colors: the primary's). */
+export const shownName = (q: Pick<Quilt, 'colorways' | 'shownColorway' | 'primaryName'>) =>
+  colorwayList(q).find((c) => c.id === shownColorway(q)?.id)!.name;
+
 /** Every colorway to pick: the quilt's own colors (no id) first. */
 export const colorwayList = (
   q: Pick<Quilt, 'colorways' | 'primaryName'>,

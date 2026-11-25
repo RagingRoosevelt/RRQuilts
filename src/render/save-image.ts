@@ -1,4 +1,5 @@
 // "Save image" for quilts and blocks: a PNG at a good size, drawn once fabric images have loaded.
+import { shownName } from '@/model/colorways';
 import type { Block } from '@/model/schema/block';
 import type { Color } from '@/model/schema/palette';
 import type { RrqDoc } from '@/model/schema/project';
@@ -28,7 +29,11 @@ export async function saveQuiltImage(
   await fabricsReady(doc);
   // A fresh object, so the thumbnail cache draws it anew (with the images now loaded).
   const url = quiltThumbnail(doc, { ...quilt }, 2048, false, withTarget, false, outlines);
-  await exportFile(quilt.notecard.name, await pngBytes(url), 'png');
+  // With colorways, the one shown is named too: "<quilt> - <colorway>.png" (owner, 2026-11-25).
+  const name = quilt.colorways?.length
+    ? `${quilt.notecard.name} - ${shownName(quilt)}`
+    : quilt.notecard.name;
+  await exportFile(name, await pngBytes(url), 'png');
 }
 
 export async function saveBlockImage(

@@ -178,6 +178,13 @@ export const CHECKS: Check[] = [
     last: '"and when you pick a colorway mode in that dialog, it should preserve the mode (automapping, palette, recolor)"',
     to: '/',
   },
+  {
+    id: 'TC-364',
+    group: G.follow,
+    text: 'A quilt with colorways: show one, then Details › Download image and the Quilts tab card’s Save image. The file is named “<quilt name> - <colorway name>.png” (the primary too, by its name). A quilt with no colorways saves as “<quilt name>.png”. Rename the quilt or colorway with / : * ? " < > | in it: those are left out of the file name (also when saving the project), with no doubled spaces.',
+    last: '"when saving an image for a quilt with multiple colorways, include the name of the colorway in the filename: `<quilt name> - <colorway name>.<ext>`"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

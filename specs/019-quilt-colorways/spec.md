@@ -119,6 +119,14 @@ colorway.
   Palette with its picks. Deleting a re-color others are built on, or the primary while others
   are built on it and the next is or follows a re-color: those become re-colors of what they
   show. Every colorway looks the same after a delete.
+- **FR-010** (owner, 2026-11-25: "when saving an image for a quilt with multiple colorways,
+  include the name of the colorway in the filename: `<quilt name> - <colorway name>.<ext>`"):
+  Save image (Quilts tab) and Download image (Details) of a quilt with colorways MUST name the
+  file `<quilt name> - <colorway shown>.png`; a quilt with no colorways keeps `<quilt name>.png`.
+  Every saved file's name is cleaned (owner, 2026-11-25: "make sure to clean the filename (strip
+  filesystem incompatible characters)"): `\ / : * ? " < > |` and control characters stripped,
+  spaces collapsed, at most 200 bytes, no trailing dots or spaces, never a Windows device name
+  (`storage/files.ts` `fileNameFor`).
 
 ## Assumptions
 

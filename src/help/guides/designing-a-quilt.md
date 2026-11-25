@@ -9,7 +9,9 @@ editor has five tabs along the top named **Details**, **Layout**, **Borders**, *
 **Print**. The **menu** button at the right hides or shows the sidebar. Two toggles on the left rail
 show or hide the seam lines and the block names, and the bar under the quilt reports its finished
 size. **Download image** in the **Details** tab saves the quilt's picture with seam lines when they
-are shown.
+are shown. A quilt with colorways saves the one shown, named after both, such as
+`Medallion - Neon.png`. Characters some computers don't allow in file names, such as / and :,
+are left out.
 
 The [block and patch quilts demo](/?open_demo=block-quilts.rrq) has four to look at: medallions on
 point with sashing, diamond blocks with sashing and a border, pieced strips sized for a shirt back,
