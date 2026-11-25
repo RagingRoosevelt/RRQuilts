@@ -78,8 +78,10 @@ colorway.
 - **FR-008** (owner, 2026-11-25: "in the palette and auto map modes, hovering over the row or
   tapping/clicking the source color in the map interface should highlight patches in the quilt
   that use that color"): in Palette and Auto mapping, hovering a map row MUST light the patches
-  (and plain pieces) whose primary color is that row's on the Design canvas: a glowing outline,
-  the rest paled. Tapping the row's color keeps it lit (outlined) until tapped again or the
+  (and plain pieces) whose primary color is that row's on the Design canvas: one glowing outline
+  round each group of touching pieces, none along the seams between them (owner, 2026-11-25:
+  "if two patches that share a border both use the same color, the highlight would be just the
+  outline around their outside"), the rest paled. Tapping the row's color keeps it lit (outlined) until tapped again or the
   primary is shown. View only (`editor.spotPaint`, draw option `spot`).
 
 ## Assumptions

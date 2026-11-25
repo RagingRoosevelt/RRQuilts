@@ -99,7 +99,8 @@ export function colorLookup(
   };
 }
 
-/** Draw one block's patches with a coloring, in the current transform (block design units). */
+/** Draw one block's patches with a coloring, in the current transform (block design units). With
+ *  `spot`, the patches of other colors are paled, and those of that color returned. */
 export function drawBlock(
   ctx: CanvasRenderingContext2D,
   block: Block,
@@ -124,21 +125,72 @@ export function drawBlock(
     ctx.strokeStyle = opts.dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
     for (const p of blockPaths(block)) ctx.stroke(p.path);
   }
-  for (const p of lit ?? []) spotGlow(ctx, p.path, opts.lineWidth);
+  return lit;
 }
 
 /** A wash over patches outside the spotlight. */
 const paled = (dark: boolean) => (dark ? 'rgba(40,40,40,0.75)' : 'rgba(255,255,255,0.75)');
-/** A spotlit patch's glowing outline (`lw`: one pixel in the current units). */
-function spotGlow(ctx: CanvasRenderingContext2D, path: Path2D, lw: number) {
+
+/** A spotlit piece: its path in transform `m` (device pixels), clipped to its space; `lw` is one
+ *  device pixel in its units. */
+type Spot = { clip: Path2D; base: M; m: M; path: Path2D; lw: number };
+const spotCanvases: HTMLCanvasElement[] = [];
+/** Scratch canvas `i`, cleared, as big as `w` × `h` device pixels. */
+function scratch(i: number, w: number, h: number) {
+  const c = (spotCanvases[i] ??= document.createElement('canvas'));
+  if (c.width !== w || c.height !== h) Object.assign(c, { width: w, height: h });
+  const g = c.getContext('2d')!;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalCompositeOperation = 'source-over';
+  g.clearRect(0, 0, w, h);
+  return [c, g] as const;
+}
+/**
+ * One glowing outline round the spotlit pieces taken together: a mask of them all (seams between
+ * neighbors filled solid), grown a few pixels, less the mask itself. Pieces of the color that touch
+ * share an outline, with no line between them.
+ */
+function drawSpotOutline(ctx: CanvasRenderingContext2D, spots: Spot[], dpr: number) {
+  const { width: w, height: h } = ctx.canvas;
+  const [mask, mg] = scratch(0, w, h);
+  mg.fillStyle = mg.strokeStyle = '#000';
+  for (const s of spots) {
+    mg.save();
+    mg.setTransform(...s.base);
+    mg.clip(s.clip);
+    mg.setTransform(...s.m);
+    mg.lineWidth = 1.5 * s.lw;
+    mg.fill(s.path);
+    mg.stroke(s.path);
+    mg.restore();
+  }
+  // Edges two pieces share are each partly covered: drawn over itself, the mask is solid there.
+  mg.drawImage(mask, 0, 0);
+  mg.drawImage(mask, 0, 0);
+  const [ring, rg] = scratch(1, w, h);
+  const k = Math.max(2, Math.round(1.5 * dpr));
+  for (const [dx, dy] of [
+    [k, 0],
+    [-k, 0],
+    [0, k],
+    [0, -k],
+    [k, k],
+    [k, -k],
+    [-k, k],
+    [-k, -k],
+  ] as const)
+    rg.drawImage(mask, dx, dy);
+  rg.globalCompositeOperation = 'destination-out';
+  rg.drawImage(mask, 0, 0);
   const glow = complement(OVERLAY_TINT, 120);
+  rg.globalCompositeOperation = 'source-in';
+  rg.fillStyle = glow;
+  rg.fillRect(0, 0, w, h);
   ctx.save();
-  ctx.strokeStyle = glow;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.shadowColor = glow;
-  ctx.shadowBlur = 8;
-  ctx.lineJoin = 'round';
-  ctx.lineWidth = 2 * lw;
-  ctx.stroke(path);
+  ctx.shadowBlur = 6 * dpr;
+  ctx.drawImage(ring, 0, 0);
   ctx.restore();
 }
 
@@ -163,6 +215,7 @@ export function drawQuilt(
     o.dpr * o.view.ty,
   ];
   const px = 1 / (o.dpr * o.view.scale); // one device pixel in quilt units
+  const spots: Spot[] = [];
 
   for (const slot of generated.slots) {
     ctx.setTransform(...base);
@@ -193,7 +246,7 @@ export function drawQuilt(
         ctx.strokeStyle = o.dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
         ctx.stroke(outline);
       }
-      if (lit) spotGlow(ctx, outline, px);
+      if (lit) spots.push({ clip: outline, base, m: base, path: outline, lw: px });
       continue;
     }
     ctx.save();
@@ -201,14 +254,17 @@ export function drawQuilt(
     const m = placementMatrix(slot, content, block);
     ctx.setTransform(...mul(base, m));
     const unitsPerPx = px / Math.sqrt(Math.abs(m[0] * m[3] - m[1] * m[2]));
-    drawBlock(ctx, block, slotColoring(quilt, slot.id, block), fillOf, {
+    const lit = drawBlock(ctx, block, slotColoring(quilt, slot.id, block), fillOf, {
       outlines: o.outlines,
       spot: o.spot,
       lineWidth: unitsPerPx,
       dark: o.dark,
     });
+    for (const p of lit ?? [])
+      spots.push({ clip: outline, base, m: mul(base, m), path: p.path, lw: unitsPerPx });
     ctx.restore();
   }
+  if (spots.length) drawSpotOutline(ctx, spots, o.dpr);
 
   ctx.setTransform(...base);
   if (quilt.layout.style === 'epp') drawEppPieces(ctx, doc, quilt, fillOf, px, o);

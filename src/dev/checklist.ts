@@ -117,7 +117,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-355',
     group: G.recolor,
-    text: 'A Palette colorway, then an Auto mapping one: in the Colors tab, point at a row and the quilt lights that color’s pieces (sashing and borders too), with the rest paled. Tap the row’s color: it stays lit with the swatch outlined after the pointer leaves, and a second tap stops it. On a phone, a tap lights it. Showing the primary clears it.',
+    text: 'A Palette colorway, then an Auto mapping one: in the Colors tab, point at a row and the quilt lights that color’s pieces (sashing and borders too), with the rest paled. Pieces of the color that touch, in one block or across blocks and sashing, share one outline round their outside, with no line along the seams between them. Tap the row’s color: it stays lit with the swatch outlined after the pointer leaves, and a second tap stops it. On a phone, a tap lights it. Showing the primary clears it.',
     last: '"in the palette and auto map modes, hovering over the row or tapping/clicking the source color in the map interface should highlight patches in the quilt that use that color"',
     to: '/',
   },
