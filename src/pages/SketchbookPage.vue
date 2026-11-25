@@ -1,11 +1,13 @@
 <template>
   <q-page v-if="project.doc" padding>
     <div class="row items-center q-gutter-sm q-mb-sm">
+      <!-- As wide as the page, cut off with … only at its edge. -->
       <q-input
         :model-value="project.doc.project.name"
         dense
         borderless
-        input-class="text-h6"
+        class="col"
+        input-class="text-h6 ellipsis"
         :readonly="project.readOnly"
         aria-label="Project name"
         @update:model-value="rename"

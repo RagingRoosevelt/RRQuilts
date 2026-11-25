@@ -135,6 +135,13 @@ export const CHECKS: Check[] = [
     last: '"let’s do that in the block color picker, too"',
     to: '/',
   },
+  {
+    id: 'TC-358',
+    group: G.small,
+    text: 'Project page: a long project name shows in full across the page and is cut off with … only at the page’s edge (wide window and phone width), with no sideways scrolling. Click it and edit as before.',
+    last: '"the project title should be allowed to flow further and only truncate when it hits the edge of the page"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
