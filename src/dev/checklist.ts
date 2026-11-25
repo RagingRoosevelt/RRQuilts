@@ -85,6 +85,13 @@ export const CHECKS: Check[] = [
     last: '"let\'s also add a "bug" button immediatly to the left of the user settings icon that takes the user to the "help / about / Got an Idea?" page"',
     to: '/',
   },
+  {
+    id: 'TC-351',
+    group: G.small,
+    text: 'Home › New project (and Start a quilt with no project open): the Sketchbook’s Fabrics & Colors tab has every built-in palette picked (Basic colors, Pastels, Darks, Gems, Neon, Traditional), and the Design tab’s Colors tray shows them all.',
+    last: '"let’s default the palette selection for new projects to have all built-in palettes selected"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
