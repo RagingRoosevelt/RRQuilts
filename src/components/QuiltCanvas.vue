@@ -44,6 +44,8 @@ const props = defineProps<{
   selected?: Set<string> | undefined;
   /** Spaces given a slight glow. */
   soft?: Set<string> | undefined;
+  /** A fill key whose patches are lit, the others paled. */
+  spot?: string | undefined;
   panOnly: boolean;
   /** Data quilt marks and order lines (spec 025, Data tab). */
   dataMarks?: readonly DataMark[] | null;
@@ -83,6 +85,7 @@ const vp = useViewport({
       labels: props.labels,
       ...(props.selected ? { selected: props.selected } : {}),
       ...(props.soft ? { soft: props.soft } : {}),
+      spot: props.spot,
       hover: props.hover,
       dark: $q.dark.isActive,
     });
@@ -118,6 +121,7 @@ watch(
     props.labels,
     props.selected,
     props.soft,
+    props.spot,
     props.dataMarks,
     props.dayPaths,
     $q.dark.isActive,

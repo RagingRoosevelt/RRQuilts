@@ -234,6 +234,9 @@ In any other colorway, the Colors tab lists each color of the primary colorway w
 it. Pick what that color becomes in this colorway. Pieces are painted in the primary colorway, and
 every colorway follows the design: blocks you place or change show in all of them.
 
+Point at a row to light up the pieces in that color on the quilt, with the rest paled. Tap the
+color to keep it lit, and tap it again to stop.
+
 Each colorway can be renamed or deleted while another is left. Deleting the primary makes the next
 one the primary. The colorway shown is saved with the quilt, and printing and pictures use it.
 

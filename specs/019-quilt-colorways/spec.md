@@ -75,6 +75,12 @@ colorway.
   painted in it. Edits to a block's patches carry over. Deleting the primary makes a re-color the
   quilt's colors as painted (the other colorways keep theirs). Not offered for data quilts or EPP
   quilts.
+- **FR-008** (owner, 2026-11-25: "in the palette and auto map modes, hovering over the row or
+  tapping/clicking the source color in the map interface should highlight patches in the quilt
+  that use that color"): in Palette and Auto mapping, hovering a map row MUST light the patches
+  (and plain pieces) whose primary color is that row's on the Design canvas: a glowing outline,
+  the rest paled. Tapping the row's color keeps it lit (outlined) until tapped again or the
+  primary is shown. View only (`editor.spotPaint`, draw option `spot`).
 
 ## Assumptions
 

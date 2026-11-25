@@ -1,6 +1,7 @@
 // Draw a quilt on a 2-D canvas. View maps quilt units → CSS pixels; `dpr` scales to device pixels.
 import type { Generated, Slot } from '@/model/layout/slots';
 import type { Block } from '@/model/schema/block';
+import { fillKey } from '@/model/coloring';
 import { slotColoring } from '@/model/data-quilt';
 import type { ColoringBody, Fill } from '@/model/schema/coloring';
 import type { Color, Fabric } from '@/model/schema/palette';
@@ -32,6 +33,9 @@ export interface DrawOptions {
   selected?: Set<string>;
   /** Spaces given a slight glow (a data quilt's flash: those matching only part of what's picked). */
   soft?: Set<string>;
+  /** A fill key (before the colorway's swaps): its patches glow, the others pale (a colorway's
+   *  map, its row hovered or its color tapped). */
+  spot?: string | undefined;
   /** Visual theme: patch outline and empty-space colors. */
   dark: boolean;
   /** Draw the quilt's reference overlay when it's switched on (the editor, a Details download);
@@ -101,17 +105,41 @@ export function drawBlock(
   block: Block,
   coloring: ColoringBody | undefined,
   fillOf: ReturnType<typeof colorLookup>,
-  opts: { outlines: boolean; lineWidth: number; dark: boolean },
+  opts: { outlines: boolean; lineWidth: number; dark: boolean; spot?: string | undefined },
 ) {
   for (const p of blockPaths(block)) {
     ctx.fillStyle = fillOf(coloring?.fills[p.id]) ?? hatch(ctx, opts.dark);
     ctx.fill(p.path);
+  }
+  const lit =
+    opts.spot === undefined
+      ? undefined
+      : blockPaths(block).filter((p) => fillKey(coloring?.fills[p.id]) === opts.spot);
+  if (lit) {
+    ctx.fillStyle = paled(opts.dark);
+    for (const p of blockPaths(block)) if (!lit.includes(p)) ctx.fill(p.path);
   }
   if (opts.outlines) {
     ctx.lineWidth = opts.lineWidth;
     ctx.strokeStyle = opts.dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
     for (const p of blockPaths(block)) ctx.stroke(p.path);
   }
+  for (const p of lit ?? []) spotGlow(ctx, p.path, opts.lineWidth);
+}
+
+/** A wash over patches outside the spotlight. */
+const paled = (dark: boolean) => (dark ? 'rgba(40,40,40,0.75)' : 'rgba(255,255,255,0.75)');
+/** A spotlit patch's glowing outline (`lw`: one pixel in the current units). */
+function spotGlow(ctx: CanvasRenderingContext2D, path: Path2D, lw: number) {
+  const glow = complement(OVERLAY_TINT, 120);
+  ctx.save();
+  ctx.strokeStyle = glow;
+  ctx.shadowColor = glow;
+  ctx.shadowBlur = 8;
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 2 * lw;
+  ctx.stroke(path);
+  ctx.restore();
 }
 
 export function drawQuilt(
@@ -155,11 +183,17 @@ export function drawQuilt(
       const coloring = slotColoring(quilt, slot.id, block);
       ctx.fillStyle = fillOf(coloring?.fills[PLAIN_PATCH]) ?? hatch(ctx, o.dark);
       ctx.fill(outline);
+      const lit = o.spot !== undefined && fillKey(coloring?.fills[PLAIN_PATCH]) === o.spot;
+      if (o.spot !== undefined && !lit) {
+        ctx.fillStyle = paled(o.dark);
+        ctx.fill(outline);
+      }
       if (o.outlines) {
         ctx.lineWidth = px;
         ctx.strokeStyle = o.dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
         ctx.stroke(outline);
       }
+      if (lit) spotGlow(ctx, outline, px);
       continue;
     }
     ctx.save();
@@ -169,6 +203,7 @@ export function drawQuilt(
     const unitsPerPx = px / Math.sqrt(Math.abs(m[0] * m[3] - m[1] * m[2]));
     drawBlock(ctx, block, slotColoring(quilt, slot.id, block), fillOf, {
       outlines: o.outlines,
+      spot: o.spot,
       lineWidth: unitsPerPx,
       dark: o.dark,
     });

@@ -5,7 +5,20 @@
     <!-- `stacked` (narrow places, the Design sidebar): the swatch above its name. No `from`: just
          the picker (a data quilt's scale, spec 025). -->
     <template v-if="from">
-      <div v-if="stacked" class="column items-center ps-from">
+      <!-- `spot` (a colorway's map): tapping the color lights its patches on the quilt. -->
+      <button
+        v-if="stacked && spot !== undefined"
+        type="button"
+        class="column items-center ps-from ps-spot"
+        :class="{ lit: spot }"
+        :aria-pressed="spot"
+        :title="`Show where ${from.notecard.name} is`"
+        @click="emit('spot')"
+      >
+        <div class="ps-swatch big" :style="optStyle(from)" />
+        <div class="ellipsis text-caption" style="max-width: 100%">{{ from.notecard.name }}</div>
+      </button>
+      <div v-else-if="stacked" class="column items-center ps-from">
         <div class="ps-swatch big" :style="optStyle(from)" />
         <div class="ellipsis text-caption" style="max-width: 100%">{{ from.notecard.name }}</div>
       </div>
@@ -94,8 +107,10 @@ const props = defineProps<{
   options: Opt[];
   readonly?: boolean;
   stacked?: boolean;
+  /** Stacked: the color is a button that lights its patches (true while lit). */
+  spot?: boolean | undefined;
 }>();
-const emit = defineEmits<{ 'update:modelValue': [id: string] }>();
+const emit = defineEmits<{ 'update:modelValue': [id: string]; spot: [] }>();
 
 const rowEl = ref<HTMLElement>();
 const open = ref(false);
@@ -174,6 +189,18 @@ function foldAll() {
 .ps-from {
   width: 64px;
   flex: none;
+}
+.ps-spot {
+  padding: 2px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.ps-spot.lit {
+  border-color: var(--q-primary);
 }
 /* Looks like an outlined dense field. */
 .ps-field {

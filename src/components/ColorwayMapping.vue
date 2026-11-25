@@ -54,18 +54,23 @@
         paint pieces.
       </div>
     </template>
+    <!-- Hovering a row, or tapping its color (it stays lit), lights its patches on the quilt. -->
     <div
       v-for="r in mode === 'recolor' ? [] : rows"
       :key="r.from.id"
       class="column"
       style="gap: 2px"
+      @mouseenter="hovered = r.from.id"
+      @mouseleave="hovered = null"
     >
       <PaintMapRow
         :from="r.from"
         :model-value="r.to"
         :options="options"
         :readonly="readonly"
+        :spot="pinned === r.from.id"
         stacked
+        @spot="pinned = pinned === r.from.id ? null : r.from.id"
         @update:model-value="(to) => change(r.from.id, to)"
       />
       <div v-if="auto" class="row items-center justify-end text-caption text-grey-7">
@@ -93,7 +98,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, ref, watchEffect } from 'vue';
 import PaintMapRow from '@/components/PaintMapRow.vue';
 import PaletteSelect from '@/components/PaletteSelect.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
@@ -104,6 +109,7 @@ import { fillKey } from '@/model/coloring';
 import { dependents } from '@/model/colorway-auto';
 import { colorwayList, setSwap, shownColorway, startRecolor, swapper } from '@/model/colorways';
 import type { Colorway, Quilt } from '@/model/schema/quilt';
+import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
 
 const props = defineProps<{ quilt: Quilt; readonly?: boolean }>();
@@ -111,7 +117,13 @@ const project = useProjectStore();
 const { paintOpt, swapOptions, swapPalettes } = useSwapOptions();
 
 const $q = useQuasar();
+const editor = useEditorStore();
 const colorway = computed(() => shownColorway(props.quilt));
+/** The color lit on the quilt: the row hovered, else the one tapped. */
+const hovered = ref<string | null>(null);
+const pinned = ref<string | null>(null);
+watchEffect(() => (editor.spotPaint = hovered.value ?? pinned.value));
+onBeforeUnmount(() => (editor.spotPaint = null));
 const auto = computed(() => colorway.value?.auto);
 type Mode = 'palette' | 'auto' | 'recolor';
 const mode = computed<Mode>(() =>

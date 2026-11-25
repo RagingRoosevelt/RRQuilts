@@ -170,6 +170,7 @@
           :labels="editor.labels"
           :selected="found"
           :soft="flashSoft"
+          :spot="spot"
           :pan-only="panOnly"
           :data-marks="dataMarks"
           :day-paths="dayPaths"
@@ -323,7 +324,8 @@ import { useDataTypes } from '@/composables/data-types';
 import DataInspector from '@/components/DataInspector.vue';
 import { castDraft, produce } from 'immer';
 import type { RrqDoc } from '@/model/schema/project';
-import { resolveColoring } from '@/model/coloring';
+import { fillKey, resolveColoring } from '@/model/coloring';
+import { fillFor } from '@/editor/paint';
 import {
   blockLetters,
   dataTap,
@@ -623,6 +625,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
 /** Find tool: outline every placement of the selected block. */
 /** A flash's spaces matching only part of what's picked (a slight glow). */
+/** The colorway map's lit color, while its colorway is shown (Palette or Auto mapping). */
+const spot = computed(() =>
+  editor.spotPaint && quilt.value?.shownColorway && !recoloring.value
+    ? fillKey(fillFor(editor.spotPaint))
+    : undefined,
+);
 const flashSoft = computed(() =>
   editor.flash.on && editor.flash.soft.length ? new Set(editor.flash.soft) : undefined,
 );
