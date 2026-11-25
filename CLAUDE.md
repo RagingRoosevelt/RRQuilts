@@ -172,7 +172,9 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   `composables/swap-options.ts`) = palette swap for block colorings and quilt colorways. Colorway
   modes: Palette (`swaps`), Auto mapping (`auto`, spec 024), Re-color (rrq v13 `recolor`: its own
   coloring per block space; `spaceColoring` feeds `slotColoring`, the paint tools run on
-  `recolorView` and `keepRecolor` stores it; spec 019 FR-007)
+  `recolorView` and `keepRecolor` stores it; spec 019 FR-007). Palette and Auto mapping follow a
+  colorway (`source`, spec 019 FR-009): picks keyed by the base's colors (`baseOf`: the primary,
+  or the re-color the chain of sources reaches; `baseView`)
 - `targets.ts` (+ `garments.ts`) — target sizes (beds, garments…) → outline; quilts store `target`
   (choices + resolved outline); `components/TargetEditor.vue` (wizard + Layout tab `TargetSection`)
 - Fixture with every entity: `test/fixtures/everything.rrq`

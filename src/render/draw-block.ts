@@ -43,7 +43,7 @@ export interface BlockDrawOptions {
   /** Color mode: the patch under the pointer, outlined with a glow. */
   hoverPatch?: string | null;
   /** Color mode: a fill key whose patches glow (one outline round touching ones), the rest pale. */
-  spot?: string | undefined;
+  spot?: ReadonlySet<string> | undefined;
 }
 
 function segPath(p: Path2D, g: Seg) {

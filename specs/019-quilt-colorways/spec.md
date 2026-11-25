@@ -92,7 +92,33 @@ colorway.
   block editor's Color tab does the same for the coloring shown (owner, 2026-11-25: "let's do that
   in the block color picker, too"), the block's outline giving the glow's inner half along its
   edge. Tapping the row's color keeps it lit (outlined) until tapped again or the
-  primary is shown. View only (`editor.spotPaint`, draw option `spot`).
+  primary is shown. View only (`editor.spotPaints`, draw option `spot`: a set of colors, since a
+  row may stand for several, FR-009).
+- **FR-009** (owner, 2026-11-25: "when I'm in auto-mapping mode or palette mode, since
+  auto-mapping mode can follow a select existing colorway, the colors shown for "from" should be
+  based on the colorway we're starting from, not from the primary colorway. we shuould also allow
+  the manual colormapping (aka Palette mode), to select the colorway the mapping follows from.
+  switching from auto-mapping to manual mapping should preserve the selections. switching which
+  palette we're following shouldn't change the mapping, just the visual of which colors we're
+  going from and to. the exception is if we're following a recolor." / "the auto mapping should
+  map from the closest match of colors in the from colorpalette, though, not the primary color
+  palette" / "when you click on "new colorway from palette", it should pick the currently selected
+  colorway as the follow source"): Palette and Auto mapping MUST both have **Follows** (rrq v13
+  `colorway.source`, none = the primary; v12's `auto.source` moves there). The map's rows show the
+  followed colorway's colors (from) and this one's (to). Picks stay keyed by the base's colors
+  (`baseOf`: the primary's), so changing Follows changes no pick, only the from side. Base colors
+  that look alike on both sides share one row, and a pick there sets them all (hover lights them
+  all). Auto mapping picks the nearest to the followed colorway's colors. When the chain of
+  Follows reaches a re-color, its painting is the base: the colorway shows that painting with its
+  picks keyed by the re-color's colors (picks for colors it doesn't use rest unused). Auto mapping
+  → Palette keeps the picks, Follows and the palette (as Pick from). **New colorway from
+  palette…** follows the colorway shown, listing its colors, its Before picture that colorway, and
+  starts in the mode last picked there this session (owner, 2026-11-25: "when you pick a colorway
+  mode in that dialog, it should preserve the mode"; Palette where that mode isn't offered).
+  Deleting a colorway others follow: they follow what it followed, an auto mapping becoming
+  Palette with its picks. Deleting a re-color others are built on, or the primary while others
+  are built on it and the next is or follows a re-color: those become re-colors of what they
+  show. Every colorway looks the same after a delete.
 
 ## Assumptions
 

@@ -15,6 +15,9 @@ picks it has at that moment. The quilt design's Colors list for a colorway gets 
 Manual / Automatic switch. Available from a quilt's menu in the project and from the Design tab's
 Colorways section, next to Save as new colorway. Name: **Auto mapping** (owner, 2026-10-20): the switch reads Manual · Auto mapping, the button "New colorway with auto mapping…" (to a palette).
 Manual is now **Palette**, and a third mode, **Re-color**, paints the colorway piece by piece (owner, 2026-11-25; spec 019 FR-007).
+Both Palette and Auto mapping follow a colorway (**Follows**, rrq v13 `colorway.source`), the rows
+showing its colors, and New colorway from palette… follows the colorway shown (owner, 2026-11-25;
+spec 019 FR-009).
 
 Owner, 2026-10-18 (follow-up): in Automatic mode the quilter can still override single picks: each
 source color keeps its dropdown, which defaults to an **Automatic** option and can be switched to any

@@ -75,3 +75,22 @@ describe('v4 → v5 (On-Point layout)', () => {
     expect(await layoutOf(withLayout(own))).toEqual(own);
   });
 });
+
+describe('v12 → v13 (colorways follow a colorway)', () => {
+  it("moves an auto mapping's source to the colorway", async () => {
+    const f = structuredClone(fixture());
+    const q = f.project.quilts[0]!;
+    q.colorways = [
+      { id: 'a', name: 'A', swaps: [] },
+      { id: 'b', name: 'B', swaps: [], auto: { palette: 'p', source: 'a' } as never },
+      { id: 'c', name: 'C', swaps: [], auto: { palette: 'p' } },
+    ];
+    const r = await parseProject(JSON.stringify({ ...f, version: 12 }));
+    if (!r.ok) throw new Error(r.error);
+    expect(r.doc.project.quilts[0]!.colorways).toEqual([
+      { id: 'a', name: 'A', swaps: [] },
+      { id: 'b', name: 'B', swaps: [], source: 'a', auto: { palette: 'p' } },
+      { id: 'c', name: 'C', swaps: [], auto: { palette: 'p' } },
+    ]);
+  });
+});

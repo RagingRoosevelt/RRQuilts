@@ -174,4 +174,65 @@ describe('Re-color colorways', () => {
     const copy = addColorway(after, 'v2', undefined, shownColorway(after));
     expect(shownColorway(copy)?.recolor).toEqual(shownColorway(after)?.recolor);
   });
+
+  // A Palette or Auto mapping colorway follows another (owner, 2026-11-25): its picks stay keyed by
+  // the primary's colors, unless a re-color is reached, whose painting it then maps.
+  describe('following a colorway', () => {
+    /** As shown in colorway `id` (none: the primary). */
+    const shownAt = (q: Quilt, id: string | undefined, slot: string, block: Block, p: string) => {
+      const x: Quilt = { ...q };
+      if (id) x.shownColorway = id;
+      else delete x.shownColorway;
+      return swapper(shownColorway(x))(fillAt(x, slot, block, p));
+    };
+    const follow = (q: Quilt, id: string, source: string): Quilt => ({
+      ...q,
+      colorways: q.colorways!.map((v) => (v.id === id ? { ...v, source } : v)),
+    });
+    /** v1: a re-color painting space `a` green; v2: Palette, red → blue, on the primary. */
+    function painted() {
+      const s = setup();
+      const r = structuredClone(startRecolor(addColorway(s.q, 'v1'), 'v1', [s.block]));
+      const rc = r.colorways![0]!.recolor!;
+      rc.colorings.g = { fills: { [s.p]: { color: 'green' } } };
+      rc.slots[s.a] = { block: s.block.id, coloring: 'g' };
+      return { ...s, r: setSwap(addColorway(r, 'v2'), 'v2', 'color:red', { color: 'blue' }) };
+    }
+    const blue = { color: 'blue' };
+    const green = { color: 'green' };
+
+    it('following another colorway changes no pick; following a re-color maps its painting', () => {
+      const { r, block, a, b, p } = painted();
+      const at = (q: Quilt, id: string, s: string) => shownAt(q, id, s, block, p);
+      const v3 = follow(setSwap(addColorway(r, 'v3'), 'v3', 'color:red', blue), 'v3', 'v2');
+      expect([at(v3, 'v3', a), at(v3, 'v3', b)]).toEqual([blue, blue]);
+      const onV1 = follow(r, 'v2', 'v1');
+      expect(shownColorway(onV1)!.swaps).toEqual(shownColorway(r)!.swaps);
+      expect([at(onV1, 'v2', a), at(onV1, 'v2', b)]).toEqual([green, blue]);
+    });
+
+    it('deleting a re-color leaves those painted as it looking the same', () => {
+      const { r, block, a, b, p } = painted();
+      const on = follow(r, 'v2', 'v1');
+      const gone = removeColorway(on, 'v1', [block]);
+      expect(gone.colorways!.map((v) => v.id)).toEqual(['v2']);
+      expect(shownColorway(gone)!.source).toBeUndefined();
+      expect(shownColorway(gone)!.recolor).toBeDefined();
+      expect([a, b].map((s) => shownAt(gone, 'v2', s, block, p))).toEqual([green, blue]);
+    });
+
+    it('deleting the primary keeps every colorway’s look', () => {
+      const { r, block, a, b, p } = painted();
+      // v2 (first) follows the re-color v1; v3 maps the primary, red → gold.
+      let q = follow(r, 'v2', 'v1');
+      q = setSwap(addColorway(q, 'v3'), 'v3', 'color:red', { color: 'gold' });
+      q = { ...q, colorways: [q.colorways![1]!, q.colorways![0]!, q.colorways![2]!] };
+      const looks = (x: Quilt, ids: (string | undefined)[]) =>
+        ids.map((id) => [a, b].map((s) => shownAt(x, id, s, block, p)));
+      const before = looks(q, ['v2', 'v1', 'v3']);
+      const after = removeColorway(q, undefined, [block]);
+      expect(after.colorways!.map((v) => v.id)).toEqual(['v1', 'v3']);
+      expect(looks(after, [undefined, 'v1', 'v3'])).toEqual(before);
+    });
+  });
 });

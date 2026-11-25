@@ -45,7 +45,7 @@ const props = defineProps<{
   /** Spaces given a slight glow. */
   soft?: Set<string> | undefined;
   /** A fill key whose patches are lit, the others paled. */
-  spot?: string | undefined;
+  spot?: ReadonlySet<string> | undefined;
   panOnly: boolean;
   /** Data quilt marks and order lines (spec 025, Data tab). */
   dataMarks?: readonly DataMark[] | null;

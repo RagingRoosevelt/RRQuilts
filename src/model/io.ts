@@ -117,8 +117,22 @@ export const migrations: Migrations = {
   10: (doc) => doc,
   // v12 (specs 027, 050): EPP shapes, rosettes and EPP quilts, all optional; nothing to change.
   11: (doc) => doc,
-  // v13: a quilt colorway may be a re-color (its own coloring of each space); nothing to change.
-  12: (doc) => doc,
+  // v13: a quilt colorway may be a re-color (its own coloring of each space), and any colorway may
+  // follow another (`source`, which was the auto mapping's own).
+  12: (doc) => {
+    const project = isObject(doc.project) ? doc.project : undefined;
+    if (!project || !Array.isArray(project.quilts)) return doc;
+    const quilts = project.quilts.map((q: unknown) => {
+      if (!isObject(q) || !Array.isArray(q.colorways)) return q;
+      const colorways = q.colorways.map((v: unknown) => {
+        if (!isObject(v) || !isObject(v.auto) || !('source' in v.auto)) return v;
+        const { source, ...auto } = v.auto;
+        return { ...v, auto, ...(typeof source === 'string' ? { source } : {}) };
+      });
+      return { ...q, colorways };
+    });
+    return { ...doc, project: { ...project, quilts } };
+  },
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */

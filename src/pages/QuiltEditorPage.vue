@@ -325,8 +325,8 @@ import { useDataTypes } from '@/composables/data-types';
 import DataInspector from '@/components/DataInspector.vue';
 import { castDraft, produce } from 'immer';
 import type { RrqDoc } from '@/model/schema/project';
-import { fillKey, resolveColoring } from '@/model/coloring';
-import { fillFor } from '@/editor/paint';
+import { resolveColoring } from '@/model/coloring';
+import { spotKeys } from '@/editor/paint';
 import {
   blockLetters,
   dataTap,
@@ -626,9 +626,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
 /** Find tool: outline every placement of the selected block. */
 /** A flash's spaces matching only part of what's picked (a slight glow). */
-/** The lit color (a colorway map's row, or a swatch in the tray): matched against the colors the
- *  shown colorway paints (the primary's under a Palette or Auto mapping colorway's swaps). */
-const spot = computed(() => (editor.spotPaint ? fillKey(fillFor(editor.spotPaint)) : undefined));
+/** The lit colors (a colorway map's row, or a swatch in the tray): matched against the colors the
+ *  shown colorway paints (its base's, under a Palette or Auto mapping colorway's swaps). */
+const spot = computed(() => spotKeys(editor.spotPaints));
 const flashSoft = computed(() =>
   editor.flash.on && editor.flash.soft.length ? new Set(editor.flash.soft) : undefined,
 );

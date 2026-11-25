@@ -1,9 +1,9 @@
 <template>
-  <!-- A colorway's colors, in place of the Design tab's palettes: each color of the primary colorway
-       and what it is in this one. Palette: picked by hand (from all colors, or one palette). Auto
-       mapping (spec 024): each follows its source colorway's color to the nearest in a palette,
-       unless picked by hand. Re-color: painted patch by patch as the primary, so only the mode
-       shows here, above the palettes. -->
+  <!-- A colorway's colors, in place of the Design tab's palettes: each color of the colorway it
+       follows and what it is in this one. Palette: picked by hand (from all colors, or one
+       palette). Auto mapping (spec 024): each becomes its nearest in a palette, unless picked by
+       hand. Changing what it follows keeps the picks (owner, 2026-11-25). Re-color: painted patch
+       by patch as the primary, so only the mode shows here, above the palettes. -->
   <div class="column no-wrap q-pa-sm" :class="{ 'q-pb-none': mode === 'recolor' }" style="gap: 8px">
     <SlidePicker
       v-if="colorway"
@@ -17,31 +17,32 @@
       {{ colorway?.name }}: paint any patch, as in {{ primary }}. Blocks set later show
       {{ primary }}’s colors until painted here.
     </div>
-    <template v-else-if="auto">
-      <q-select
-        :model-value="auto.source ?? ''"
-        :options="sourceOptions"
-        emit-value
-        map-options
-        dense
-        outlined
-        label="Follows"
-        :readonly="readonly"
-        @update:model-value="(v: string) => setAuto({ source: v || undefined })"
-      />
+    <q-select
+      v-else
+      :model-value="colorway?.source ?? ''"
+      :options="sourceOptions"
+      emit-value
+      map-options
+      dense
+      outlined
+      label="Follows"
+      :readonly="readonly"
+      @update:model-value="(v: string) => setSource(v || undefined)"
+    />
+    <template v-if="auto && mode === 'auto'">
       <PaletteSelect
         :model-value="paletteKey(auto.palette)"
         :options="swapPalettes"
         label="Palette"
         :readonly="readonly"
-        @update:model-value="(v) => v && setAuto({ palette: v.replace(/^project:/, '') })"
+        @update:model-value="(v) => v && setAutoPalette(v.replace(/^project:/, ''))"
       />
       <div class="text-caption text-grey-7">
         Each color of {{ sourceName }} becomes its nearest in the palette, and keeps up as either
         changes. Pick one by hand to keep it.
       </div>
     </template>
-    <template v-else>
+    <template v-else-if="mode === 'palette'">
       <PaletteSelect
         :model-value="colorway?.palette ? paletteKey(colorway.palette) : ''"
         :options="[{ id: '', label: 'All colors and palettes' }, ...swapPalettes]"
@@ -50,17 +51,17 @@
         @update:model-value="(v) => setManualPalette(v ?? '')"
       />
       <div class="text-caption text-grey-7">
-        {{ colorway?.name }}: pick what each color of {{ primary }} becomes. Show {{ primary }} to
-        paint pieces.
+        {{ colorway?.name }}: pick what each color of {{ sourceName }} becomes. Show {{ primary }}
+        to paint pieces.
       </div>
     </template>
     <!-- Hovering a row, or tapping its color (it stays lit), lights its patches on the quilt. -->
     <div
-      v-for="r in mode === 'recolor' ? [] : rows"
-      :key="r.from.id"
+      v-for="r in rows"
+      :key="r.paints[0]"
       class="column"
       style="gap: 2px"
-      @mouseenter="hovered = r.from.id"
+      @mouseenter="hovered = r.paints[0]!"
       @mouseleave="hovered = null"
     >
       <PaintMapRow
@@ -68,10 +69,10 @@
         :model-value="r.to"
         :options="options"
         :readonly="readonly"
-        :spot="pinned === r.from.id"
+        :spot="!!pinned && r.paints.includes(pinned)"
         stacked
-        @spot="pinned = pinned === r.from.id ? null : r.from.id"
-        @update:model-value="(to) => change(r.from.id, to)"
+        @spot="pinned = pinned && r.paints.includes(pinned) ? null : r.paints[0]!"
+        @update:model-value="(to) => change(r, to)"
       />
       <div v-if="auto" class="row items-center justify-end text-caption text-grey-7">
         <template v-if="r.overridden">
@@ -84,14 +85,14 @@
             size="sm"
             icon="autorenew"
             label="Automatic"
-            @click="clearOverride(r.from.id)"
+            @click="clearOverride(r)"
           />
         </template>
         <template v-else>Automatic</template>
       </div>
     </div>
     <div v-if="!rows.length && mode !== 'recolor'" class="text-caption text-grey-8">
-      {{ primary }} has no colors yet.
+      {{ sourceName }} has no colors yet.
     </div>
   </div>
 </template>
@@ -107,7 +108,14 @@ import { quiltPaints } from '@/editor/colors';
 import { fillFor, paintOf } from '@/editor/paint';
 import { fillKey } from '@/model/coloring';
 import { dependents } from '@/model/colorway-auto';
-import { colorwayList, setSwap, shownColorway, startRecolor, swapper } from '@/model/colorways';
+import {
+  baseView,
+  colorwayList,
+  setSwap,
+  shownColorway,
+  startRecolor,
+  swapper,
+} from '@/model/colorways';
 import type { Colorway, Quilt } from '@/model/schema/quilt';
 import { useEditorStore } from '@/stores/editor';
 import { useProjectStore } from '@/stores/project';
@@ -119,11 +127,15 @@ const { paintOpt, swapOptions, swapPalettes } = useSwapOptions();
 const $q = useQuasar();
 const editor = useEditorStore();
 const colorway = computed(() => shownColorway(props.quilt));
-/** The color lit on the quilt: the row hovered, else the one tapped. */
+/** The row lit on the quilt (by one of its base colors): the row hovered, else the one tapped. */
 const hovered = ref<string | null>(null);
 const pinned = ref<string | null>(null);
-watch([hovered, pinned], ([h, p]) => (editor.spotPaint = h ?? p));
-onBeforeUnmount(() => (editor.spotPaint = null));
+const lit = computed(() => {
+  const p = hovered.value ?? pinned.value;
+  return (p && rows.value.find((r) => r.paints.includes(p))?.paints) || null;
+});
+watch(lit, (p) => (editor.spotPaints = p ?? []));
+onBeforeUnmount(() => (editor.spotPaints = []));
 const auto = computed(() => colorway.value?.auto);
 type Mode = 'palette' | 'auto' | 'recolor';
 const mode = computed<Mode>(() =>
@@ -143,7 +155,8 @@ const primary = computed(() => colorwayList(props.quilt)[0]!.name);
 /** A palette as the palette pickers list it (project palettes carry a `project:` prefix there). */
 const paletteKey = (id: string) =>
   swapPalettes.value.some((p) => p.id === `project:${id}`) ? `project:${id}` : id;
-/** What it can follow: the primary or another colorway, never itself or one that follows it. */
+/** What it can follow: the primary or another colorway, never itself or one that follows it. A
+ *  re-color it reaches is its base: the rows are that one's colors, picked anew. */
 const sourceOptions = computed(() => {
   const own = colorway.value ? dependents(props.quilt, colorway.value.id) : new Set<string>();
   return colorwayList(props.quilt)
@@ -151,18 +164,37 @@ const sourceOptions = computed(() => {
     .map((c) => ({ value: c.id ?? '', label: c.name }));
 });
 const sourceName = computed(
-  () => sourceOptions.value.find((o) => o.value === (auto.value?.source ?? ''))?.label ?? '',
+  () => sourceOptions.value.find((o) => o.value === (colorway.value?.source ?? ''))?.label ?? '',
 );
-/** Each primary color (paint id) and what this colorway shows instead. */
+interface Row {
+  from: Opt;
+  to: string;
+  overridden: boolean;
+  /** The base colors (paint ids: the primary's, or a re-color's) it stands for. */
+  paints: string[];
+}
+/** Each color of the colorway followed (from) and what this one shows (to). The picks are keyed by
+ *  the base's colors, so base colors that show alike here and there share a row. */
 const rows = computed(() => {
-  const swap = swapper(colorway.value);
-  const over = new Set((auto.value?.overrides ?? []).map((o) => o.from));
-  return [...quiltPaints(project.doc!, props.quilt)].flatMap((p) => {
-    const from = paintOpt(p);
-    return from
-      ? [{ from, to: paintOf(swap(fillFor(p)))!, overridden: over.has(fillKey(fillFor(p))) }]
-      : [];
-  });
+  const v = colorway.value;
+  if (!v || v.recolor) return [];
+  const followed = props.quilt.colorways?.find((w) => w.id === v.source);
+  const fromOf = swapper(followed);
+  const swap = swapper(v);
+  const over = new Set((v.auto?.overrides ?? []).map((o) => o.from));
+  const out = new Map<string, Row>();
+  for (const p of quiltPaints(project.doc!, baseView(props.quilt, v))) {
+    const f = fillFor(p);
+    const from = paintOpt(paintOf(fromOf(f))!);
+    if (!from) continue;
+    const to = paintOf(swap(f))!;
+    const overridden = over.has(fillKey(f));
+    const key = `${from.id} ${to} ${overridden}`;
+    const r = out.get(key);
+    if (r) r.paints.push(p);
+    else out.set(key, { from, to, overridden, paints: [p] });
+  }
+  return [...out.values()];
 });
 /** Choices: auto mapping, or a manual palette, offers that palette's; else every color (in use first). */
 const IN_USE: Section = ['In use'];
@@ -208,10 +240,10 @@ function setSwapMode(on: boolean) {
   edit(({ recolor: _r, ...v }) => {
     void _r;
     if (!on) {
-      // Palette keeps the picks it shows (overrides included); the link goes.
-      const { auto: _a, ...rest } = v;
-      void _a;
-      return rest;
+      // Palette keeps the picks it shows (overrides included), what it follows and its palette;
+      // they no longer change with them.
+      const { auto, ...rest } = v;
+      return auto ? { ...rest, palette: auto.palette } : rest;
     }
     if (v.auto) return v; // back from a re-color: the mapping it had
     const palette = v.palette ?? swapPalettes.value[0]?.id.replace(/^project:/, '');
@@ -221,21 +253,16 @@ function setSwapMode(on: boolean) {
     return { ...rest, auto: { palette } };
   });
 }
-function setAuto(patch: { source?: string | undefined; palette?: string }) {
+/** Follow another colorway (none: the primary). The picks stay; auto mapping's follow its colors. */
+function setSource(id: string | undefined) {
   edit((v) => {
-    if (!v.auto) return;
-    const { source: _s, ...a } = v.auto;
+    const { source: _s, ...rest } = v;
     void _s;
-    const source = 'source' in patch ? patch.source : v.auto.source;
-    return {
-      ...v,
-      auto: {
-        ...a,
-        ...(patch.palette ? { palette: patch.palette } : {}),
-        ...(source ? { source } : {}),
-      },
-    };
+    return id ? { ...rest, source: id } : rest;
   });
+}
+function setAutoPalette(palette: string) {
+  edit((v) => (v.auto ? { ...v, auto: { ...v.auto, palette } } : undefined));
 }
 function setManualPalette(id: string) {
   edit((v) => {
@@ -244,16 +271,17 @@ function setManualPalette(id: string) {
     return id ? { ...rest, palette: id.replace(/^project:/, '') } : rest;
   });
 }
-function change(from: string, to: string) {
-  const key = fillKey(fillFor(from));
+const keysOf = (r: Row) => r.paints.map((p) => fillKey(fillFor(p)));
+function change(r: Row, to: string) {
+  const keys = keysOf(r);
   if (auto.value)
     return edit((v) => ({
       ...v,
       auto: {
         ...v.auto!,
         overrides: [
-          ...(v.auto!.overrides ?? []).filter((o) => o.from !== key),
-          { from: key, to: fillFor(to) },
+          ...(v.auto!.overrides ?? []).filter((o) => !keys.includes(o.from)),
+          ...keys.map((from) => ({ from, to: fillFor(to) })),
         ],
       },
     }));
@@ -261,14 +289,14 @@ function change(from: string, to: string) {
   if (id)
     edit(
       (v) => v,
-      (q) => setSwap(q, id, key, fillFor(to)),
+      (q) => keys.reduce((x, k) => setSwap(x, id, k, fillFor(to)), q),
     );
 }
-function clearOverride(from: string) {
-  const key = fillKey(fillFor(from));
+function clearOverride(r: Row) {
+  const keys = keysOf(r);
   edit((v) => {
     if (!v.auto) return;
-    const overrides = (v.auto.overrides ?? []).filter((o) => o.from !== key);
+    const overrides = (v.auto.overrides ?? []).filter((o) => !keys.includes(o.from));
     const { overrides: _o, ...a } = v.auto;
     void _o;
     return { ...v, auto: overrides.length ? { ...a, overrides } : a };

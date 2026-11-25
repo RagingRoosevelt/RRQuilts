@@ -293,14 +293,19 @@ const Swap = Type.Object({ from: Type.String({ maxLength: 200 }), to: Fill });
 export const Colorway = Type.Object({
   id: Id,
   name: Type.String({ maxLength: 100 }),
-  /** The picks shown. For an auto mapping (spec 024) they're worked out from `auto` on every change. */
+  /** The picks shown, by the base's fill keys (the primary's, or the re-color `source` leads to).
+   *  For an auto mapping (spec 024) they're worked out from `auto` on every change. */
   swaps: Type.Array(Swap, { maxItems: 1000 }),
-  /** Auto mapping (spec 024, v9): each color of the source colorway (none: the primary) becomes its
-   *  nearest color or fabric in `palette` (a project or library palette id), except `overrides`
-   *  (by the primary's fill key, as `swaps`). */
+  /** The colorway it maps from (v13; none: the primary), in Palette and Auto mapping: its colors are
+   *  the map's "from" side and auto mapping's starting colors. The picks stay keyed by the primary's
+   *  colors, so changing it changes no pick, unless a re-color is reached on the way: then that
+   *  re-color's painting is the base, keyed by its colors (owner, 2026-11-25). */
+  source: Type.Optional(Id),
+  /** Auto mapping (spec 024, v9): each color of the `source` colorway becomes its nearest color or
+   *  fabric in `palette` (a project or library palette id), except `overrides` (by the base's fill
+   *  key, as `swaps`). Up to v12 it held the source itself. */
   auto: Type.Optional(
     Type.Object({
-      source: Type.Optional(Id),
       palette: Type.String({ maxLength: 200 }),
       overrides: Type.Optional(Type.Array(Swap, { maxItems: 1000 })),
     }),

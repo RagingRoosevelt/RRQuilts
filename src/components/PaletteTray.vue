@@ -691,15 +691,22 @@ function removeFabric(id: string) {
 
 /**
  * A color pointed at (mouse), held (touch, after a moment) or with its menu open lights its
- * patches on the quilt (the quilt editor draws `editor.spotPaint`; other editors ignore it).
+ * patches on the quilt (the quilt editor draws `editor.spotPaints`; other editors ignore it).
  */
 const spot = ref<{ hover: string | null; held: string | null; menu: string | null }>({
   hover: null,
   held: null,
   menu: null,
 });
-watch(spot, (s) => (editor.spotPaint = s.hover ?? s.held ?? s.menu), { deep: true });
-onBeforeUnmount(() => (editor.spotPaint = null));
+watch(
+  spot,
+  (s) => {
+    const id = s.hover ?? s.held ?? s.menu;
+    editor.spotPaints = id ? [id] : [];
+  },
+  { deep: true },
+);
+onBeforeUnmount(() => (editor.spotPaints = []));
 let holdTimer: ReturnType<typeof setTimeout> | undefined;
 const letGo = () => {
   clearTimeout(holdTimer);

@@ -235,9 +235,14 @@ A quilt can have colorways: the same quilt in other colors, the way a pattern co
 fabric lines. In the Design tab, **Colorways** shows each one. The first is the primary colorway,
 which you paint as usual. **Save as new colorway** copies the one shown.
 
-In any other colorway, the Colors tab lists each color of the primary colorway with a menu beside
-it. Pick what that color becomes in this colorway. Pieces are painted in the primary colorway, and
-every colorway follows the design: blocks you place or change show in all of them.
+In any other colorway, the Colors tab lists the colors of the colorway it **Follows** (the primary
+colorway unless you pick another), each with a menu beside it. Pick what that color becomes in this
+colorway. Pieces are painted in the primary colorway, and every colorway keeps up with the design:
+blocks you place or change show in all of them.
+
+Changing **Follows** keeps your picks. Only the colors on the left of the list change. Colors that
+look the same on both sides share one row, and a pick on that row changes all of them. If it
+follows a re-color, the list shows the re-color's own colors, and your picks apply to those.
 
 Point at a row to light up the pieces in that color on the quilt, with the rest paled. Pieces of
 the color that touch share one outline. Tap the
@@ -252,17 +257,22 @@ On the project's Quilts tab, the count on a quilt's card picks the colorway show
 values. It only changes the view.
 
 **New colorway from palette…** is on the card's menu and beside **Save as new colorway**. Pick a
-palette (the list shows each palette's swatches), and each color of the primary colorway becomes its
-nearest color or fabric there, whichever colorway is shown. Change any
-you like, then **Add colorway**. Choose **Palette** for a one-time copy, **Auto mapping** to keep
+palette (the list shows each palette's swatches), and each color of the colorway shown becomes its
+nearest color or fabric there. The new colorway follows the one shown. Change any you like, then
+**Add colorway**. Choose **Palette** for a one-time copy, **Auto mapping** to keep
 it following (when the colors it follows or the palette change, its matches change too), or
-**Re-color** to start from these colors and then paint it piece by piece.
+**Re-color** to start from these colors and then paint it piece by piece. The dialog opens in the
+mode you picked last.
 
-An auto-mapped colorway's Colors tab says what it **Follows** (the primary colorway) and
-which **Palette** it maps to. Pick a color by hand to keep it, and **Automatic** puts it back.
-Switching to **Palette** keeps the colors it shows. If the colorway it follows or its palette is
-deleted, it keeps its colors as a Palette colorway. In **Palette**, **Pick from** limits the choices
-to one palette.
+An auto-mapped colorway's Colors tab also says which **Palette** it maps to. Each color of the
+colorway it follows becomes its nearest there. Pick a color by hand to keep it, and **Automatic**
+puts it back. Switching to **Palette** keeps the colors it shows, what it follows and its palette.
+If its palette is deleted, it keeps its colors as a Palette colorway. In **Palette**, **Pick from**
+limits the choices to one palette.
+
+Deleting a colorway that others follow leaves them looking the same. They follow what it followed,
+and an auto-mapped one keeps its colors as a Palette colorway. Those that followed a deleted
+re-color become re-colors themselves, with the colors they showed.
 
 ### Re-color
 

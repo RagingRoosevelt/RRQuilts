@@ -34,9 +34,9 @@ export interface DrawOptions {
   selected?: Set<string>;
   /** Spaces given a slight glow (a data quilt's flash: those matching only part of what's picked). */
   soft?: Set<string>;
-  /** A fill key (before the colorway's swaps): its patches glow, the others pale (a colorway's
+  /** Fill keys (before the colorway's swaps): their patches glow, the others pale (a colorway's
    *  map, its row hovered or its color tapped). */
-  spot?: string | undefined;
+  spot?: ReadonlySet<string> | undefined;
   /** Visual theme: patch outline and empty-space colors. */
   dark: boolean;
   /** Draw the quilt's reference overlay when it's switched on (the editor, a Details download);
@@ -101,13 +101,18 @@ export function colorLookup(
 }
 
 /** Draw one block's patches with a coloring, in the current transform (block design units). With
- *  `spot`, the patches of other colors are paled, and those of that color returned. */
+ *  `spot`, the patches of other colors are paled, and those of its colors returned. */
 export function drawBlock(
   ctx: CanvasRenderingContext2D,
   block: Block,
   coloring: ColoringBody | undefined,
   fillOf: ReturnType<typeof colorLookup>,
-  opts: { outlines: boolean; lineWidth: number; dark: boolean; spot?: string | undefined },
+  opts: {
+    outlines: boolean;
+    lineWidth: number;
+    dark: boolean;
+    spot?: ReadonlySet<string> | undefined;
+  },
 ) {
   for (const p of blockPaths(block)) {
     ctx.fillStyle = fillOf(coloring?.fills[p.id]) ?? hatch(ctx, opts.dark);
@@ -116,7 +121,7 @@ export function drawBlock(
   const lit =
     opts.spot === undefined
       ? undefined
-      : blockPaths(block).filter((p) => fillKey(coloring?.fills[p.id]) === opts.spot);
+      : blockPaths(block).filter((p) => opts.spot!.has(fillKey(coloring?.fills[p.id])));
   if (lit) {
     ctx.fillStyle = paled(opts.dark);
     for (const p of blockPaths(block)) if (!lit.includes(p)) ctx.fill(p.path);
@@ -178,7 +183,7 @@ export function drawQuilt(
       const coloring = slotColoring(quilt, slot.id, block);
       ctx.fillStyle = fillOf(coloring?.fills[PLAIN_PATCH]) ?? hatch(ctx, o.dark);
       ctx.fill(outline);
-      const on = o.spot !== undefined && fillKey(coloring?.fills[PLAIN_PATCH]) === o.spot;
+      const on = !!o.spot?.has(fillKey(coloring?.fills[PLAIN_PATCH]));
       if (o.spot !== undefined) (on ? lit : rest).push({ path: outline, m: base });
       if (o.spot !== undefined && !on) {
         ctx.fillStyle = paled(o.dark);

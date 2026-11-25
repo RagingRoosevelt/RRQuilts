@@ -9298,16 +9298,16 @@
                       },
                       "maxItems": 1000
                     },
+                    "source": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9]{1,32}$"
+                    },
                     "auto": {
                       "type": "object",
                       "required": [
                         "palette"
                       ],
                       "properties": {
-                        "source": {
-                          "type": "string",
-                          "pattern": "^[a-z0-9]{1,32}$"
-                        },
                         "palette": {
                           "type": "string",
                           "maxLength": 200

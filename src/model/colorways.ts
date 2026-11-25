@@ -3,7 +3,9 @@
 // remembers which colorway it shows (none: its own colors). The quilt's own colors are the first
 // colorway (named `primaryName`): any colorway can go while another is left, as a block's colorings.
 // A re-color (`recolor`) is instead a colorway painted patch by patch, as the primary is: each block
-// space has its own coloring there (owner, 2026-11-25).
+// space has its own coloring there (owner, 2026-11-25). A Palette or Auto mapping colorway follows
+// another (`source`): its picks are keyed by its base's colors, the primary's unless the chain of
+// sources reaches a re-color, whose painting it then maps.
 import type { Draft } from 'immer';
 import { fillKey, plainFill, resolveColoring } from './coloring';
 import type { Block } from './schema/block';
@@ -45,12 +47,30 @@ export function swapColoring(
   return { ...c, fills };
 }
 
-/** A block space's coloring as the shown colorway has it: a re-color's own while the space holds the
- *  block it had when painted, else the quilt's. */
+/** The re-color `v` is painted as: itself, or the first its chain of sources reaches (undefined:
+ *  the primary). Its colors key `v`'s picks. */
+export function baseOf(q: Pick<Quilt, 'colorways'>, v: Colorway | undefined): Colorway | undefined {
+  const seen = new Set<string>();
+  while (v && !v.recolor && v.source && !seen.has(v.id)) {
+    seen.add(v.id);
+    const source = v.source;
+    v = q.colorways?.find((w) => w.id === source);
+  }
+  return v?.recolor ? v : undefined;
+}
+
+/** The quilt's spaces and coloring table as `v`'s base paints them (what its picks are keyed by). */
+export const baseView = (q: Quilt, v: Colorway | undefined): Quilt => {
+  const b = baseOf(q, v);
+  return b ? recolorView({ ...q, shownColorway: b.id }) : q;
+};
+
+/** A block space's coloring as the shown colorway has it: its base re-color's own while the space
+ *  holds the block it had when painted, else the quilt's. */
 export function spaceColoring(q: Quilt, slotId: string): ColoringBody | undefined {
   const s = q.layers[0].slots[slotId];
   if (!s) return undefined;
-  const r = shownColorway(q)?.recolor;
+  const r = baseOf(q, shownColorway(q))?.recolor;
   const own = r?.slots[slotId];
   return own && own.block === s.block ? r.colorings[own.coloring] : q.colorings[s.coloring];
 }
@@ -60,6 +80,7 @@ export function addColorway(q: Quilt, id: string, name?: string, from?: Colorway
   const colorways = q.colorways ?? [];
   const swaps = from ? from.swaps.map((s) => ({ ...s })) : [];
   const v: Colorway = { id, name: name ?? `Colorway ${colorways.length + 2}`, swaps };
+  if (from?.source) v.source = from.source;
   if (from?.recolor) v.recolor = structuredClone(from.recolor);
   return { ...q, colorways: [...colorways, v], shownColorway: id };
 }
@@ -68,19 +89,34 @@ export function addColorway(q: Quilt, id: string, name?: string, from?: Colorway
 export function startRecolor(q: Quilt, id: string, blocks: readonly Block[]): Quilt {
   const v = q.colorways?.find((x) => x.id === id);
   if (!v || v.recolor) return q;
+  const recolor = snapshot(q, v, blocks);
+  return { ...q, colorways: q.colorways!.map((x) => (x.id === id ? { ...x, recolor } : x)) };
+}
+
+/** What `v` (not a re-color) shows, painted as a re-color's own colorings. */
+function snapshot(q: Quilt, v: Colorway, blocks: readonly Block[]): Recolor {
+  const base = baseView(q, v);
   const byId = new Map(blocks.map((b) => [b.id, b]));
   const swap = swapper(v);
   const recolor: Recolor = { slots: {}, colorings: {} };
-  for (const [sid, s] of Object.entries(q.layers[0].slots)) {
+  for (const [sid, s] of Object.entries(base.layers[0].slots)) {
     recolor.slots[sid] = { block: s.block, coloring: s.coloring };
     if (s.coloring in recolor.colorings) continue;
-    const r = resolveColoring(q.colorings[s.coloring], byId.get(s.block));
+    const r = resolveColoring(base.colorings[s.coloring], byId.get(s.block));
     if (!r) continue;
     const fills: ColoringBody['fills'] = {};
     for (const [patch, f] of Object.entries(r.fills)) fills[patch] = swap(f) ?? f;
     recolor.colorings[s.coloring] = { fills, ...(r.threads ? { threads: r.threads } : {}) };
   }
-  return { ...q, colorways: q.colorways!.map((x) => (x.id === id ? { ...x, recolor } : x)) };
+  return recolor;
+}
+
+/** `w` following `source` instead (none: the primary); its auto mapping goes unless `keepAuto`
+ *  (it keeps the picks it shows, spec 024 FR-005). */
+function refollow(w: Colorway, source: string | undefined, keepAuto: boolean): Colorway {
+  const { source: _s, auto, ...rest } = w;
+  void _s;
+  return { ...rest, ...(keepAuto && auto ? { auto } : {}), ...(source ? { source } : {}) };
 }
 
 /** The quilt as its shown re-color has it, with no colorway shown, to paint with the primary's tools
@@ -158,29 +194,51 @@ export const renameColorway = (q: Quilt, id: string | undefined, name: string): 
 /**
  * Remove a colorway (showing the quilt's own colors if it was shown). Removing the quilt's own
  * colors (no id) makes the next colorway the quilt's colors: its swaps are painted in (`blocks`
- * give placed blocks' own fills) and the other colorways swap from those colors instead.
+ * give placed blocks' own fills) and the other colorways swap from those colors instead. Every
+ * other colorway looks as it did: those following the one removed follow its source, and those
+ * painted as a re-color that goes become re-colors of what they show.
  */
 export function removeColorway(q: Quilt, id: string | undefined, blocks: readonly Block[]): Quilt {
   if (!id) return removeOwnColors(q, blocks);
-  const colorways = (q.colorways ?? []).filter((v) => v.id !== id);
+  const gone = q.colorways?.find((v) => v.id === id);
+  if (!gone) return q;
+  const colorways = q.colorways!.flatMap((w): Colorway[] => {
+    if (w === gone) return [];
+    const x =
+      gone.recolor && !w.recolor && baseOf(q, w) === gone
+        ? { ...w, recolor: snapshot(q, w, blocks) }
+        : w;
+    return [w.source === id ? refollow(x, gone.source, !!x.recolor) : x];
+  });
   const out: Quilt = { ...q, colorways };
   if (q.shownColorway === id) delete out.shownColorway;
   return out;
 }
 
 function removeOwnColors(q: Quilt, blocks: readonly Block[]): Quilt {
-  const [next, ...rest] = q.colorways ?? [];
-  if (!next) return q;
-  // A re-color becomes the quilt's colors as painted. The others keep their swaps and re-colors.
+  const [first, ...rest] = q.colorways ?? [];
+  if (!first) return q;
+  // One painted as a re-color is painted as it shows first.
+  const next =
+    first.recolor || !baseOf(q, first) ? first : { ...first, recolor: snapshot(q, first, blocks) };
+  // A re-color becomes the quilt's colors as painted. Those on the old colors become re-colors of
+  // what they show; those following it follow the new colors (or, when it was painted as another
+  // re-color, that one).
   if (next.recolor) {
-    const view = recolorView({ ...q, shownColorway: next.id });
+    const view = recolorView({ ...q, colorways: [next, ...rest], shownColorway: next.id });
     const used = new Set(Object.values(view.layers[0].slots).map((s) => s.coloring));
     for (const item of view.layers.flatMap((l) => l.items))
       if (item.coloring) used.add(item.coloring);
     const colorings = Object.fromEntries(
       Object.entries(view.colorings).filter(([id]) => used.has(id)),
     );
-    const out: Quilt = { ...view, colorings, colorways: rest, primaryName: next.name };
+    const colorways = rest.map((w) => {
+      const x = !w.recolor && !baseOf(q, w) ? { ...w, recolor: snapshot(q, w, blocks) } : w;
+      return w.source === first.id
+        ? refollow(x, first.recolor ? undefined : first.source, !!first.recolor || !!x.recolor)
+        : x;
+    });
+    const out: Quilt = { ...view, colorings, colorways, primaryName: next.name };
     if (q.shownColorway && q.shownColorway !== next.id) out.shownColorway = q.shownColorway;
     return out;
   }
@@ -202,8 +260,10 @@ function removeOwnColors(q: Quilt, blocks: readonly Block[]): Quilt {
   }
   // The others swap from the new colors (two colors that became one take the first's swap). An
   // auto mapping (spec 024) keeps the picks it shows and becomes manual, so nothing looks different.
-  const colorways = rest.map(({ auto: _auto, ...w }): Colorway => {
-    void _auto;
+  // Those painted as a re-color keep their picks (that re-color stays).
+  const colorways = rest.map((v): Colorway => {
+    const w = refollow(v, v.source === next.id ? undefined : v.source, false);
+    if (w.recolor || baseOf(q, v)) return w;
     const swapW = swapper(w);
     const swaps: Colorway['swaps'] = [];
     const seen = new Set<string>();

@@ -62,6 +62,7 @@ const G = {
   epp027: 'English paper piecing: shapes, rosettes, EPP section (specs 027, 050)',
   epp3d: '3D EPP (spec 027 User Story 7)',
   recolor: 'Re-color colorways (spec 019 FR-007)',
+  follow: 'Colorways follow a colorway (spec 019 FR-009)',
 };
 
 export const CHECKS: Check[] = [
@@ -147,6 +148,34 @@ export const CHECKS: Check[] = [
     group: G.small,
     text: 'A block or patch quilt’s Layout tab: the heading reads “Layout - <width> × <height> <units>”, the same as Finished under the quilt, and updates as you change blocks, sashing or borders.',
     last: '"the layout tab of the quilt designer should show the overall dimensions. let’s add it to the layout section label “Layout - <x> × <y>”"',
+    to: '/',
+  },
+  {
+    id: 'TC-360',
+    group: G.follow,
+    text: 'A block quilt: New colorway from palette… with Neon, Palette, Add colorway. With that Neon colorway shown, New colorway from palette… again: the list and the Before picture are the Neon colorway’s colors, and pick Basic colors: each becomes its nearest there (Neon Yellow → Yellow). Add it: its Colors tab says Follows the Neon colorway, with Neon colors on the left. Set Follows to Colorway 1: the left side shows the primary’s colors, the quilt doesn’t change. Back to the Neon colorway: rows with the same colors on both sides merge into one, a pick on a merged row changes every piece behind it, and pointing at it lights them all.',
+    last: '"when I’m in auto-mapping mode or palette mode … the colors shown for “from” should be based on the colorway we’re starting from, not from the primary colorway. we shuould also allow the manual colormapping (aka Palette mode), to select the colorway the mapping follows from" / "when you click on “new colorway from palette”, it should pick the currently selected colorway as the follow source"',
+    to: '/',
+  },
+  {
+    id: 'TC-361',
+    group: G.follow,
+    text: 'A Palette colorway following the Neon colorway: switch to Auto mapping with Basic colors. Each Neon color becomes its nearest basic color, not the primary’s nearest. Pick one row by hand, then switch back to Palette: the picks, Follows and the palette (now Pick from) stay. Follows never offers the colorway itself or one that follows it.',
+    last: '"switching from auto-mapping to manual mapping should preserve the selections" / "the auto mapping should map from the closest match of colors in the from colorpalette, though, not the primary color palette"',
+    to: '/',
+  },
+  {
+    id: 'TC-362',
+    group: G.follow,
+    text: 'Make a colorway a Re-color and paint a few patches. Another colorway following it lists the re-color’s colors and shows its painting with that colorway’s picks. Delete the re-color: the one that followed it looks the same and is now a Re-color. Delete a colorway another follows: that one follows what it followed and looks the same (an auto-mapped one becomes Palette). Delete the primary: every other colorway looks the same.',
+    last: '"switching which palette we’re following shouldn’t change the mapping, just the visual of which colors we’re going from and to. the exception is if we’re following a recolor."',
+    to: '/',
+  },
+  {
+    id: 'TC-363',
+    group: G.follow,
+    text: 'New colorway from palette…: pick Auto mapping and add one. Open it again (also from a quilt card’s menu on the Quilts tab): it starts in Auto mapping. Same for Re-color and Palette. On a data quilt or an EPP quilt after picking Re-color, it starts in Palette. A block’s New coloring from palette has no modes and adds as before.',
+    last: '"and when you pick a colorway mode in that dialog, it should preserve the mode (automapping, palette, recolor)"',
     to: '/',
   },
 ];
