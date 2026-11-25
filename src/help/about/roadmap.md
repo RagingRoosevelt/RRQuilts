@@ -14,6 +14,7 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - Drag the sides of an English paper piecing quilt's cut, with the pieces outside it faded.
 - Palette swaps for rosette colorings.
 - Open a shared project from a web link, as you can from a gist.
+- Search blocks by name in a quilt's Design tab.
 
 ## 0.10.0
 
