@@ -284,16 +284,27 @@
                   :data-color="sw.item.id"
                   :style="{ background: `rgb(${sw.item.rgb.join(',')})` }"
                   :title="sw.item.notecard.name"
+                  v-on="spotEvents(sw.item.id)"
                   @click="pickColor(sw.item.id)"
                 >
-                  <q-menu v-if="!project.readOnly && !group.mine" touch-position context-menu>
+                  <q-menu
+                    v-if="!project.readOnly && !group.mine"
+                    touch-position
+                    context-menu
+                    v-on="spotMenu(sw.item.id)"
+                  >
                     <q-list dense style="min-width: 140px">
                       <q-item v-close-popup clickable @click="editCopy(sw.item)">
                         <q-item-section>Edit a copy…</q-item-section>
                       </q-item>
                     </q-list>
                   </q-menu>
-                  <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
+                  <q-menu
+                    v-if="!project.readOnly && group.mine"
+                    touch-position
+                    context-menu
+                    v-on="spotMenu(sw.item.id)"
+                  >
                     <q-list dense style="min-width: 140px">
                       <q-item v-close-popup clickable @click="edit(sw.item.id)">
                         <q-item-section>Edit…</q-item-section>
@@ -311,9 +322,15 @@
                   :data-color="fabricPaint(sw.item.id)"
                   :style="swatchStyle(sw.item)"
                   :title="sw.item.notecard.name + (sw.item.approximate ? ' (size ≈)' : '')"
+                  v-on="spotEvents(fabricPaint(sw.item.id))"
                   @click="pickColor(fabricPaint(sw.item.id))"
                 >
-                  <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
+                  <q-menu
+                    v-if="!project.readOnly && group.mine"
+                    touch-position
+                    context-menu
+                    v-on="spotMenu(fabricPaint(sw.item.id))"
+                  >
                     <q-list dense style="min-width: 140px">
                       <q-item v-close-popup clickable @click="removeFabric(sw.item.id)">
                         <q-item-section class="text-negative">Delete</q-item-section>
@@ -341,10 +358,20 @@
 import { usePaletteSort } from '@/composables/palette-sort';
 import { useQuasar } from 'quasar';
 import { QExpansionItem } from 'quasar';
-import { computed, defineComponent, h, nextTick, onMounted, ref, watch } from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue';
 import ColorEditor from '@/components/ColorEditor.vue';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import { fabricPaint } from '@/editor/paint';
+import { HOLD_MS } from '@/composables/viewport';
 import { swatchStyle } from '@/render/fabric-images';
 import { colorInUse, colorsPainted, deleteColor } from '@/editor/colors';
 import type { RGB } from '@/editor/color';
@@ -661,6 +688,41 @@ function removeFabric(id: string) {
     d.project.palette.fabrics = d.project.palette.fabrics.filter((f) => f.id !== id);
   });
 }
+
+/**
+ * A color pointed at (mouse), held (touch, after a moment) or with its menu open lights its
+ * patches on the quilt (the quilt editor draws `editor.spotPaint`; other editors ignore it).
+ */
+const spot = ref<{ hover: string | null; held: string | null; menu: string | null }>({
+  hover: null,
+  held: null,
+  menu: null,
+});
+watch(spot, (s) => (editor.spotPaint = s.hover ?? s.held ?? s.menu), { deep: true });
+onBeforeUnmount(() => (editor.spotPaint = null));
+let holdTimer: ReturnType<typeof setTimeout> | undefined;
+const letGo = () => {
+  clearTimeout(holdTimer);
+  spot.value.held = null;
+};
+const spotEvents = (id: string) => ({
+  pointerenter: (e: PointerEvent) => e.pointerType === 'mouse' && (spot.value.hover = id),
+  pointerleave: (e: PointerEvent) => {
+    if (e.pointerType === 'mouse') spot.value.hover = null;
+    else letGo();
+  },
+  pointerdown: (e: PointerEvent) => {
+    if (e.pointerType === 'mouse') return;
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(() => (spot.value.held = id), HOLD_MS);
+  },
+  pointerup: letGo,
+  pointercancel: letGo,
+});
+const spotMenu = (id: string) => ({
+  show: () => (spot.value.menu = id),
+  hide: () => spot.value.menu === id && (spot.value.menu = null),
+});
 
 function pickColor(id: string) {
   editor.useColor(id);

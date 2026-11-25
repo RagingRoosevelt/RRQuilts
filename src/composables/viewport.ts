@@ -28,7 +28,8 @@ export interface ViewportOptions {
   holdHover?: () => boolean;
 }
 
-const HOLD_MS = 450;
+/** Press and hold this long (ms) to count as a hover on touch. */
+export const HOLD_MS = 450;
 
 export function useViewport(o: ViewportOptions) {
   const size = ref({ w: 0, h: 0 });

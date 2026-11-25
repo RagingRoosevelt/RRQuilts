@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, onBeforeUnmount, ref, watchEffect } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import PaintMapRow from '@/components/PaintMapRow.vue';
 import PaletteSelect from '@/components/PaletteSelect.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
@@ -122,13 +122,15 @@ const colorway = computed(() => shownColorway(props.quilt));
 /** The color lit on the quilt: the row hovered, else the one tapped. */
 const hovered = ref<string | null>(null);
 const pinned = ref<string | null>(null);
-watchEffect(() => (editor.spotPaint = hovered.value ?? pinned.value));
+watch([hovered, pinned], ([h, p]) => (editor.spotPaint = h ?? p));
 onBeforeUnmount(() => (editor.spotPaint = null));
 const auto = computed(() => colorway.value?.auto);
 type Mode = 'palette' | 'auto' | 'recolor';
 const mode = computed<Mode>(() =>
   colorway.value?.recolor ? 'recolor' : auto.value ? 'auto' : 'palette',
 );
+// A re-color has no rows to light (the tray's swatches light colors instead).
+watch(mode, (m) => m === 'recolor' && (hovered.value = pinned.value = null));
 /** Re-color paints block spaces: not for data quilts or English paper piecing quilts. */
 const modes = computed(() => [
   { value: 'palette', label: 'Palette' },

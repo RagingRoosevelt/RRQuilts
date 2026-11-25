@@ -224,6 +224,9 @@ view.
 3. A placed block follows its block's coloring until you recolor a patch in the quilt. The change
    then applies only to the quilt.
 
+Point at a swatch, or press and hold it on a touch screen, to light up the pieces in that color on
+the quilt, with the rest paled. Pieces of the color that touch share one outline.
+
 ## Colorways
 
 A quilt can have colorways: the same quilt in other colors, the way a pattern comes in several

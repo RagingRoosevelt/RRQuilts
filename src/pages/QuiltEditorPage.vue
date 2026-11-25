@@ -625,12 +625,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
 /** Find tool: outline every placement of the selected block. */
 /** A flash's spaces matching only part of what's picked (a slight glow). */
-/** The colorway map's lit color, while its colorway is shown (Palette or Auto mapping). */
-const spot = computed(() =>
-  editor.spotPaint && quilt.value?.shownColorway && !recoloring.value
-    ? fillKey(fillFor(editor.spotPaint))
-    : undefined,
-);
+/** The lit color (a colorway map's row, or a swatch in the tray): matched against the colors the
+ *  shown colorway paints (the primary's under a Palette or Auto mapping colorway's swaps). */
+const spot = computed(() => (editor.spotPaint ? fillKey(fillFor(editor.spotPaint)) : undefined));
 const flashSoft = computed(() =>
   editor.flash.on && editor.flash.soft.length ? new Set(editor.flash.soft) : undefined,
 );

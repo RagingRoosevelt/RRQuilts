@@ -121,6 +121,13 @@ export const CHECKS: Check[] = [
     last: '"in the palette and auto map modes, hovering over the row or tapping/clicking the source color in the map interface should highlight patches in the quilt that use that color"',
     to: '/',
   },
+  {
+    id: 'TC-356',
+    group: G.recolor,
+    text: 'Design tab, primary colorway: point at a swatch in the Colors tray and the quilt lights that color’s pieces (same glow as a hovered patch in the block editor), the rest paled; moving off clears it. On a phone, press and hold a swatch: it lights while held, and stays lit while the swatch’s menu is open; a plain tap only picks the color. In a re-color, the swatches light the re-color’s own colors (a piece painted only there lights too).',
+    last: '"let’s also update the color picker that’s in the primary colorway and in the recolor interface so that hovering or long-pressing a color highlights the patches using it"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

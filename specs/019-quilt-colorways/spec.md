@@ -83,7 +83,12 @@ colorway.
   "if two patches that share a border both use the same color, the highlight would be just the
   outline around their outside"), the rest paled. The glow looks as the block editor's hovered
   patch (`render/glow.ts` `patchGlow`: blur and halo; owner, 2026-11-25: "the old highlighting had
-  a blur radius that I want this to also use"). Tapping the row's color keeps it lit (outlined) until tapped again or the
+  a blur radius that I want this to also use"). The Colors tray's swatches light their color the
+  same way in the primary and in a re-color (owner, 2026-11-25: "let's also update the color
+  picker that's in the primary colorway and in the recolor interface so that hovering or
+  long-pressing a color highlights the patches using it"): pointing (mouse), holding (touch, 450
+  ms, as hold-to-hover elsewhere), or while the swatch's menu is open (a long press opens it).
+  Matched against the colors the shown colorway paints (the re-color's own in a re-color). Tapping the row's color keeps it lit (outlined) until tapped again or the
   primary is shown. View only (`editor.spotPaint`, draw option `spot`).
 
 ## Assumptions
