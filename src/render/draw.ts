@@ -14,6 +14,7 @@ import { mul, type M } from './affine';
 import { blockPaths, toPath2D } from './paths';
 import { placementMatrix } from './placement';
 import { fabricFill } from './fabric-images';
+import { glowGroup, glowPath, patchGlow, type GlowShape } from './glow';
 import { PLAIN_BLOCK, PLAIN_PATCH } from '@/model/plain';
 import { expandAll, lookupEpp } from '@/model/epp/expand';
 
@@ -131,74 +132,6 @@ export function drawBlock(
 /** A wash over patches outside the spotlight. */
 const paled = (dark: boolean) => (dark ? 'rgba(40,40,40,0.75)' : 'rgba(255,255,255,0.75)');
 
-/** A spotlit piece: its path in transform `m` (device pixels), clipped to its space; `lw` is one
- *  device pixel in its units. */
-type Spot = { clip: Path2D; base: M; m: M; path: Path2D; lw: number };
-const spotCanvases: HTMLCanvasElement[] = [];
-/** Scratch canvas `i`, cleared, as big as `w` × `h` device pixels. */
-function scratch(i: number, w: number, h: number) {
-  const c = (spotCanvases[i] ??= document.createElement('canvas'));
-  if (c.width !== w || c.height !== h) Object.assign(c, { width: w, height: h });
-  const g = c.getContext('2d')!;
-  g.setTransform(1, 0, 0, 1, 0, 0);
-  g.globalCompositeOperation = 'source-over';
-  g.clearRect(0, 0, w, h);
-  return [c, g] as const;
-}
-/**
- * The spotlit pieces' glowing outline, as a lit patch's own (a 2-pixel line on the edge, glowing),
- * but round the pieces taken together: a mask of them all (seams between neighbors filled solid),
- * grown a pixel, less the mask shrunk a pixel. Pieces of the color that touch share an outline,
- * with no line between them.
- */
-function drawSpotOutline(ctx: CanvasRenderingContext2D, spots: Spot[]) {
-  const { width: w, height: h } = ctx.canvas;
-  const [mask, mg] = scratch(0, w, h);
-  mg.fillStyle = mg.strokeStyle = '#000';
-  for (const s of spots) {
-    mg.save();
-    mg.setTransform(...s.base);
-    mg.clip(s.clip);
-    mg.setTransform(...s.m);
-    mg.lineWidth = 1.5 * s.lw;
-    mg.fill(s.path);
-    mg.stroke(s.path);
-    mg.restore();
-  }
-  // Edges two pieces share are each partly covered: drawn over itself, the mask is solid there.
-  mg.drawImage(mask, 0, 0);
-  mg.drawImage(mask, 0, 0);
-  const near = [
-    [1, 0],
-    [-1, 0],
-    [0, 1],
-    [0, -1],
-    [1, 1],
-    [1, -1],
-    [-1, 1],
-    [-1, -1],
-  ] as const;
-  const [inner, ig] = scratch(2, w, h);
-  ig.drawImage(mask, 0, 0);
-  ig.globalCompositeOperation = 'destination-in';
-  for (const [dx, dy] of near) ig.drawImage(mask, dx, dy);
-  const [ring, rg] = scratch(1, w, h);
-  rg.drawImage(mask, 0, 0);
-  for (const [dx, dy] of near) rg.drawImage(mask, dx, dy);
-  rg.globalCompositeOperation = 'destination-out';
-  rg.drawImage(inner, 0, 0);
-  const glow = complement(OVERLAY_TINT, 120);
-  rg.globalCompositeOperation = 'source-in';
-  rg.fillStyle = glow;
-  rg.fillRect(0, 0, w, h);
-  ctx.save();
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.shadowColor = glow;
-  ctx.shadowBlur = 8;
-  ctx.drawImage(ring, 0, 0);
-  ctx.restore();
-}
-
 export function drawQuilt(
   ctx: CanvasRenderingContext2D,
   doc: RrqDoc,
@@ -220,7 +153,10 @@ export function drawQuilt(
     o.dpr * o.view.ty,
   ];
   const px = 1 / (o.dpr * o.view.scale); // one device pixel in quilt units
-  const spots: Spot[] = [];
+  // With `spot`: the pieces of that color (lit) and the others (their edges give the glow's
+  // inner half).
+  const lit: GlowShape[] = [];
+  const rest: GlowShape[] = [];
 
   for (const slot of generated.slots) {
     ctx.setTransform(...base);
@@ -233,6 +169,7 @@ export function drawQuilt(
       ctx.lineWidth = px;
       ctx.strokeStyle = o.dark ? '#555' : '#c9c9c9';
       ctx.stroke(outline);
+      if (o.spot !== undefined) rest.push({ path: outline, m: base });
       continue;
     }
     if (block.id === PLAIN_BLOCK) {
@@ -241,8 +178,9 @@ export function drawQuilt(
       const coloring = slotColoring(quilt, slot.id, block);
       ctx.fillStyle = fillOf(coloring?.fills[PLAIN_PATCH]) ?? hatch(ctx, o.dark);
       ctx.fill(outline);
-      const lit = o.spot !== undefined && fillKey(coloring?.fills[PLAIN_PATCH]) === o.spot;
-      if (o.spot !== undefined && !lit) {
+      const on = o.spot !== undefined && fillKey(coloring?.fills[PLAIN_PATCH]) === o.spot;
+      if (o.spot !== undefined) (on ? lit : rest).push({ path: outline, m: base });
+      if (o.spot !== undefined && !on) {
         ctx.fillStyle = paled(o.dark);
         ctx.fill(outline);
       }
@@ -251,7 +189,6 @@ export function drawQuilt(
         ctx.strokeStyle = o.dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
         ctx.stroke(outline);
       }
-      if (lit) spots.push({ clip: outline, base, m: base, path: outline, lw: px });
       continue;
     }
     ctx.save();
@@ -259,17 +196,24 @@ export function drawQuilt(
     const m = placementMatrix(slot, content, block);
     ctx.setTransform(...mul(base, m));
     const unitsPerPx = px / Math.sqrt(Math.abs(m[0] * m[3] - m[1] * m[2]));
-    const lit = drawBlock(ctx, block, slotColoring(quilt, slot.id, block), fillOf, {
+    const on = drawBlock(ctx, block, slotColoring(quilt, slot.id, block), fillOf, {
       outlines: o.outlines,
       spot: o.spot,
       lineWidth: unitsPerPx,
       dark: o.dark,
     });
-    for (const p of lit ?? [])
-      spots.push({ clip: outline, base, m: mul(base, m), path: p.path, lw: unitsPerPx });
+    if (on) {
+      const at = mul(base, m);
+      for (const p of blockPaths(block))
+        (on.includes(p) ? lit : rest).push({
+          path: p.path,
+          m: at,
+          clip: { path: outline, m: base },
+        });
+    }
     ctx.restore();
   }
-  if (spots.length) drawSpotOutline(ctx, spots);
+  glowGroup(ctx, lit, rest, o.dpr, patchGlow(complement(OVERLAY_TINT, 120)));
 
   ctx.setTransform(...base);
   if (quilt.layout.style === 'epp') drawEppPieces(ctx, doc, quilt, fillOf, px, o);
@@ -286,16 +230,12 @@ export function drawQuilt(
     block: complement(tint, 120),
     other: complement(tint, 240),
   };
-  ctx.save();
-  ctx.shadowBlur = 10 * o.dpr;
-  ctx.lineJoin = 'round';
   for (const slot of generated.slots) {
     const hi =
       slot.id === o.hover ? 2.5 : o.selected?.has(slot.id) ? 3 : o.soft?.has(slot.id) ? 1 : 0;
     if (!hi) continue;
     // A slight glow (soft): a fainter, tighter halo.
     const soft = hi === 1;
-    ctx.shadowBlur = (soft ? 2 : 10) * o.dpr;
     const content = quilt.layers[0].slots[slot.id];
     // Spaces that take blocks (setting and cut-down edge pieces too) as blocks; patch-only ones
     // (sashing, borders, strips, one-patch pieces) as the rest.
@@ -304,17 +244,14 @@ export function drawQuilt(
       : content && blocks.get(content.block)?.data
         ? glows.data
         : glows.block;
-    ctx.strokeStyle = glow;
-    ctx.shadowColor = glow;
-    const path = slotPath(slot);
-    ctx.globalAlpha = soft ? 0.15 : 0.45;
-    ctx.lineWidth = (soft ? 3 : hi + 4) * px;
-    ctx.stroke(path);
-    ctx.globalAlpha = 1;
-    ctx.lineWidth = hi * px;
-    ctx.stroke(path);
+    // In device pixels (`px`), blurred by 10 (2 when soft) CSS pixels.
+    glowPath(ctx, slotPath(slot), px, o.dpr, {
+      color: glow,
+      width: hi,
+      blur: soft ? 2 : 10,
+      halo: { width: soft ? 3 : hi + 4, alpha: soft ? 0.15 : 0.45 },
+    });
   }
-  ctx.restore();
 }
 
 /**

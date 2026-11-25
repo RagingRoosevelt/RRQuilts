@@ -81,7 +81,9 @@ colorway.
   (and plain pieces) whose primary color is that row's on the Design canvas: one glowing outline
   round each group of touching pieces, none along the seams between them (owner, 2026-11-25:
   "if two patches that share a border both use the same color, the highlight would be just the
-  outline around their outside"), the rest paled. Tapping the row's color keeps it lit (outlined) until tapped again or the
+  outline around their outside"), the rest paled. The glow looks as the block editor's hovered
+  patch (`render/glow.ts` `patchGlow`: blur and halo; owner, 2026-11-25: "the old highlighting had
+  a blur radius that I want this to also use"). Tapping the row's color keeps it lit (outlined) until tapped again or the
   primary is shown. View only (`editor.spotPaint`, draw option `spot`).
 
 ## Assumptions

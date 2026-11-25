@@ -6,6 +6,7 @@ import type { Pt, Seg } from '@/model/geometry/path';
 import type { Block, Drawing } from '@/model/schema/block';
 import type { ColoringBody } from '@/model/schema/coloring';
 import { colorLookup, complement, drawBlock, type View } from './draw';
+import { glowPath, patchGlow } from './glow';
 import { blockPaths } from './paths';
 import { OVERLAY_TINT } from '@/model/targets';
 import { drawDataOverlay, type DataMark } from './data-overlay';
@@ -251,18 +252,12 @@ export function drawBlockEditor(
   const path = hovered ? blockPaths(block).find((x) => x.id === hovered)?.path : undefined;
   if (path) {
     const f = o.coloring?.fills[hovered as string];
-    const glow = complement(OVERLAY_TINT, f && 'data' in f ? 180 : 120);
-    ctx.save();
-    ctx.strokeStyle = glow;
-    ctx.shadowColor = glow;
-    ctx.shadowBlur = 10 * o.dpr;
-    ctx.lineJoin = 'round';
-    ctx.globalAlpha = 0.45;
-    ctx.lineWidth = 6.5 * px;
-    ctx.stroke(path);
-    ctx.globalAlpha = 1;
-    ctx.lineWidth = 2.5 * px;
-    ctx.stroke(path);
-    ctx.restore();
+    glowPath(
+      ctx,
+      path,
+      px,
+      o.dpr,
+      patchGlow(complement(OVERLAY_TINT, f && 'data' in f ? 180 : 120)),
+    );
   }
 }

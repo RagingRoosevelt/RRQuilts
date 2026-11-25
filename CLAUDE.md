@@ -181,7 +181,9 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
 
 - `src/render/` — Canvas 2D: `paths.ts` cached `Path2D` per block (design units, true arcs),
   `draw.ts` quilt drawing + `fitView`, `hit.ts` tap → slot/patch (model polygons, testable),
-  `affine.ts` (re-exports `model/geometry/affine.ts`)/`placement.ts` transforms, `thumbnail.ts` cached data URLs
+  `affine.ts` (re-exports `model/geometry/affine.ts`)/`placement.ts` transforms, `thumbnail.ts` cached data URLs,
+  `glow.ts` = every glowing highlight (`glowPath` one path, `glowGroup` one outline round touching
+  shapes; `patchGlow` = a lit patch's look): use it for any new highlight, EPP canvases included
 - `src/editor/` — `actions.ts` (pure: tap + tool → new doc), `scope.ts` (This/All/Alternate),
   `undo.ts` (Immer patch history), `color.ts`/`colors.ts`
 - `src/stores/editor.ts` — session tool/mode/scope/selection/view state
