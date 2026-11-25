@@ -276,6 +276,7 @@
             :readonly="project.readOnly"
             :has-borders="quilt.borders.length > 0"
             :hint="layoutHint"
+            :size="dims(generated.bounds)"
             @change="(l, k) => changeLayout(l, quilt!.borders, k)"
           />
           <TargetSection

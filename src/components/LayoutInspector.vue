@@ -1,6 +1,6 @@
 <template>
   <div class="q-gutter-md">
-    <FieldGroup label="Layout" heading />
+    <FieldGroup :label="size ? `Layout - ${size}` : 'Layout'" heading />
     <q-select
       :model-value="layout.style"
       dense
@@ -543,6 +543,8 @@ const props = defineProps<{
   hint?: string | undefined;
   /** The quilt being edited: Even edge length measures its blocks. */
   quilt?: Quilt;
+  /** The quilt's finished size, borders included ("90 × 108 in"), shown in the heading. */
+  size?: string;
 }>();
 const emit = defineEmits<{ change: [layout: Layout, coalesce: string] }>();
 /** Even edge length: the blocks `k` times the size. */

@@ -29,6 +29,8 @@ and tumbling cubes in Variable Patch.
 4. Set the **Sashing** (the strips between blocks) the same way. 0 means none. **Sashing around the
    outside** adds strips around the edge too. Where sashes cross are cornerstones.
 
+The **Layout** heading shows the quilt's finished size, borders included, as it changes.
+
 ### Reference overlay
 
 Below the layout settings, **Reference overlay** draws a size to aim for as a dashed outline over

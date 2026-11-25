@@ -142,6 +142,13 @@ export const CHECKS: Check[] = [
     last: '"the project title should be allowed to flow further and only truncate when it hits the edge of the page"',
     to: '/',
   },
+  {
+    id: 'TC-359',
+    group: G.small,
+    text: 'A block or patch quilt’s Layout tab: the heading reads “Layout - <width> × <height> <units>”, the same as Finished under the quilt, and updates as you change blocks, sashing or borders.',
+    last: '"the layout tab of the quilt designer should show the overall dimensions. let’s add it to the layout section label “Layout - <x> × <y>”"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
