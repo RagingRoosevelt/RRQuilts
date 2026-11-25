@@ -146,11 +146,12 @@ function scratch(i: number, w: number, h: number) {
   return [c, g] as const;
 }
 /**
- * One glowing outline round the spotlit pieces taken together: a mask of them all (seams between
- * neighbors filled solid), grown a few pixels, less the mask itself. Pieces of the color that touch
- * share an outline, with no line between them.
+ * The spotlit pieces' glowing outline, as a lit patch's own (a 2-pixel line on the edge, glowing),
+ * but round the pieces taken together: a mask of them all (seams between neighbors filled solid),
+ * grown a pixel, less the mask shrunk a pixel. Pieces of the color that touch share an outline,
+ * with no line between them.
  */
-function drawSpotOutline(ctx: CanvasRenderingContext2D, spots: Spot[], dpr: number) {
+function drawSpotOutline(ctx: CanvasRenderingContext2D, spots: Spot[]) {
   const { width: w, height: h } = ctx.canvas;
   const [mask, mg] = scratch(0, w, h);
   mg.fillStyle = mg.strokeStyle = '#000';
@@ -167,21 +168,25 @@ function drawSpotOutline(ctx: CanvasRenderingContext2D, spots: Spot[], dpr: numb
   // Edges two pieces share are each partly covered: drawn over itself, the mask is solid there.
   mg.drawImage(mask, 0, 0);
   mg.drawImage(mask, 0, 0);
+  const near = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+    [1, 1],
+    [1, -1],
+    [-1, 1],
+    [-1, -1],
+  ] as const;
+  const [inner, ig] = scratch(2, w, h);
+  ig.drawImage(mask, 0, 0);
+  ig.globalCompositeOperation = 'destination-in';
+  for (const [dx, dy] of near) ig.drawImage(mask, dx, dy);
   const [ring, rg] = scratch(1, w, h);
-  const k = Math.max(2, Math.round(1.5 * dpr));
-  for (const [dx, dy] of [
-    [k, 0],
-    [-k, 0],
-    [0, k],
-    [0, -k],
-    [k, k],
-    [k, -k],
-    [-k, k],
-    [-k, -k],
-  ] as const)
-    rg.drawImage(mask, dx, dy);
-  rg.globalCompositeOperation = 'destination-out';
   rg.drawImage(mask, 0, 0);
+  for (const [dx, dy] of near) rg.drawImage(mask, dx, dy);
+  rg.globalCompositeOperation = 'destination-out';
+  rg.drawImage(inner, 0, 0);
   const glow = complement(OVERLAY_TINT, 120);
   rg.globalCompositeOperation = 'source-in';
   rg.fillStyle = glow;
@@ -189,7 +194,7 @@ function drawSpotOutline(ctx: CanvasRenderingContext2D, spots: Spot[], dpr: numb
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.shadowColor = glow;
-  ctx.shadowBlur = 6 * dpr;
+  ctx.shadowBlur = 8;
   ctx.drawImage(ring, 0, 0);
   ctx.restore();
 }
@@ -264,7 +269,7 @@ export function drawQuilt(
       spots.push({ clip: outline, base, m: mul(base, m), path: p.path, lw: unitsPerPx });
     ctx.restore();
   }
-  if (spots.length) drawSpotOutline(ctx, spots, o.dpr);
+  if (spots.length) drawSpotOutline(ctx, spots);
 
   ctx.setTransform(...base);
   if (quilt.layout.style === 'epp') drawEppPieces(ctx, doc, quilt, fillOf, px, o);
