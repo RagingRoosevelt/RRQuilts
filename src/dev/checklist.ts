@@ -61,6 +61,7 @@ const G = {
   make041: 'Data Quilts: data entry and printed instructions (spec 041)',
   epp027: 'English paper piecing: shapes, rosettes, EPP section (specs 027, 050)',
   epp3d: '3D EPP (spec 027 User Story 7)',
+  recolor: 'Re-color colorways (spec 019 FR-007)',
 };
 
 export const CHECKS: Check[] = [
@@ -90,6 +91,27 @@ export const CHECKS: Check[] = [
     group: G.small,
     text: 'Home › New project (and Start a quilt with no project open): the Sketchbook’s Fabrics & Colors tab has every built-in palette picked (Basic colors, Pastels, Darks, Gems, Neon, Traditional), and the Design tab’s Colors tray shows them all.',
     last: '"let’s default the palette selection for new projects to have all built-in palettes selected"',
+    to: '/',
+  },
+  {
+    id: 'TC-352',
+    group: G.recolor,
+    text: 'A block quilt’s Design tab: Save as new colorway, then Colors. Mode reads Palette · Auto mapping · Re-color. Choose Re-color: the palettes show under it, starting from the colors the colorway showed. Paint one patch with Apply to This, then All and Alternate, and try Spray, Swap and the eyedropper. Show the primary: it hasn’t changed. The Print tab and the quilt card show the re-color while it’s shown. Save and reopen: it’s kept.',
+    last: '"let’s add a new colorway mode for quilts that’s an outright re-coloring and allows for setting the color of any patch in any block as you would in the primary colorway. we’ll call it “re-color” in the toggle that currently has “manual” (let’s rename to palette) and “auto map”"',
+    to: '/',
+  },
+  {
+    id: 'TC-353',
+    group: G.recolor,
+    text: 'In a re-color: set a different block in one space from the primary, and the re-color shows the primary’s colors there until painted. Redraw a placed block’s seams (block editor): the re-color keeps its colors. Switch Mode back to Palette: it asks, then the earlier mapping returns. New colorway from palette… offers Re-color too. Delete the primary while a re-color is next: the quilt takes the re-color’s colors. A data quilt or an EPP quilt offers only Palette and Auto mapping.',
+    last: '"let’s add a new colorway mode for quilts that’s an outright re-coloring…"',
+    to: '/',
+  },
+  {
+    id: 'TC-354',
+    group: G.recolor,
+    text: 'Paint a re-color with a color used nowhere else, then the quilt card’s Export: the exported file opens with the re-color and that color. Import quilts from a project with it: the re-color and its colors come in.',
+    last: '"make sure that export / import work for the change, too"',
     to: '/',
   },
 ];

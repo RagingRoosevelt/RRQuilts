@@ -61,9 +61,23 @@ colorway.
 - **FR-006**: A **View grayscale** switch above Colorways (quilt editor, Design) and above Colorings (block editor, Color) MUST draw the canvas in grayscale for checking values. View only, session only, shared by both editors.
   colorings (overriding placed blocks' own fills where swapped) and rebase the other colorways'
   swaps so they look the same (two colors that became one keep the first one's swap).
+- **FR-007** (owner, 2026-11-25: "let's add a new colorway mode for quilts that's an outright
+  re-coloring and allows for setting the color of any patch in any block as you would in the
+  primary colorway. we'll call it "re-color" in the toggle that currently has "manual" (let's rename
+  to palette) and "auto map""): the colorway **Mode** (Colors tab and the New colorway from palette
+  dialog) MUST offer **Palette** (was Manual), **Auto mapping** and **Re-color**. A re-color (rrq
+  v13 `colorway.recolor`: each block space's `{block, coloring}` and its own coloring table) starts
+  from the colors the colorway shows (swaps baked in), and is painted with the primary's tools
+  (Paint, Spray, Swap, eyedropper, This / All / Alternate) on its own colorings, leaving the
+  primary alone. Its swaps and auto mapping stay, unused, and come back when the mode goes back
+  (after a confirm, the painting goes). A space whose block changed since, or a new one, shows the
+  primary's colors until painted. Spaces the primary hasn't painted (empty sashing) can't be
+  painted in it. Edits to a block's patches carry over. Deleting the primary makes a re-color the
+  quilt's colors as painted (the other colorways keep theirs). Not offered for data quilts or EPP
+  quilts.
 
 ## Assumptions
 
 - A swap is by color or fabric (all pieces with it), not per piece: one colorway can't differ
-  from the primary in a single piece.
+  from the primary in a single piece. A re-color (FR-007) can.
 - Changing the shown variant is an edit (undoable, saved).

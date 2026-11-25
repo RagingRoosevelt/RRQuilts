@@ -1,6 +1,6 @@
 // What a tap does with the current tool. Pure: (document, tap, tool state) → new document and/or
 // a selection change. The editor page applies the result through project.change (one undo step).
-import { shownColorway, swapper } from '@/model/colorways';
+import { keepRecolor, recolorView, shownColorway, swapper } from '@/model/colorways';
 import { fillFor, paintOf } from './paint';
 import { produce } from 'immer';
 import { allPatches } from '@/model/blocks/patches';
@@ -95,6 +95,8 @@ const withQuilt = (doc: RrqDoc, quilt: Quilt): RrqDoc =>
     d.project.quilts[i] = quilt;
   });
 
+const PAINTING = new Set<Tool>(['paint', 'spray', 'swap', 'eyedropper']);
+
 export function applyTool(
   doc: RrqDoc,
   quiltId: string,
@@ -104,6 +106,10 @@ export function applyTool(
 ): Result {
   let quilt = doc.project.quilts.find((q) => q.id === quiltId);
   if (!quilt) return {};
+  // A re-color is painted as the primary is, on its own colorings (stored back below).
+  const primary = quilt;
+  const recolor = PAINTING.has(s.tool) && !!shownColorway(quilt)?.recolor;
+  if (recolor) quilt = recolorView(quilt);
   const blocks = new Map(doc.project.blocks.map((b) => [b.id, b]));
   const patchesOf = (id: string) =>
     blocks.get(id) ? allPatches(blocks.get(id)!).map((p) => p.id) : [];
@@ -209,17 +215,18 @@ export function applyTool(
     case 'paint':
     case 'spray':
     case 'swap': {
-      // Another colorway than the primary: its colors are set in its mapping (the Colors tab).
+      // Another colorway than the primary (not a re-color): its colors are set in its mapping.
       if (quilt.shownColorway)
         return {
           message:
-            "This colorway's colors are set in the Colors tab. Show the primary colorway to paint.",
+            "This colorway's colors are set in the Colors tab. Show the primary colorway to paint, or make this colorway a re-color.",
         };
       if (!s.color && s.fill === undefined) return { message: 'Pick a color in the tray first.' };
       // An empty block space takes a plain fill, as sashing does (spec 026).
       const plainBlockSpace = group === 'block' && !content;
       if (!content && !isPlainGroup(group) && !plainBlockSpace)
         return { message: 'Set a block here first.' };
+      if (!content && recolor) return { message: 'Paint this in the primary colorway first.' };
       const fill = s.fill !== undefined ? (s.fill ?? undefined) : fillFor(s.color!);
       let next = doc;
       if (isPlainGroup(group) || plainBlockSpace) {
@@ -232,7 +239,8 @@ export function applyTool(
                 .filter((x) => slotGroup(x.id) === group)
                 .filter((x) => !plainBlockSpace || s.scope === 'all' || x.alt === alt)
                 .map((x) => x.id);
-        quilt = ensureSlotContent(quilt, scopeIds);
+        // A re-color paints only the spaces the primary has painted.
+        if (!recolor) quilt = ensureSlotContent(quilt, scopeIds);
       }
       const match = fillAtHit();
       if (s.tool === 'swap') {
@@ -245,7 +253,7 @@ export function applyTool(
         quilt = paint(quilt, targets, hit.patchId ?? PLAIN_PATCH, fill, blockOf);
       }
       if (fillKey(match) === fillKey(fill) && s.tool !== 'paint') return {};
-      return { doc: withQuilt(next, quilt) };
+      return { doc: withQuilt(next, recolor ? keepRecolor(primary, quilt) : quilt) };
     }
     default:
       return {};

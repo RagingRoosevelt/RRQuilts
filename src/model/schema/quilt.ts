@@ -305,8 +305,17 @@ export const Colorway = Type.Object({
       overrides: Type.Optional(Type.Array(Swap, { maxItems: 1000 })),
     }),
   ),
-  /** Manual mode: the palette its replacement choices come from (none: all). */
+  /** Palette mode: the palette its replacement choices come from (none: all). */
   palette: Type.Optional(Type.String({ maxLength: 200 })),
+  /** Re-color mode (v13): the colorway's own coloring of each block space, painted as the primary
+   *  is, in place of `swaps` and `auto` (kept for going back). A space whose block has changed
+   *  since, or that isn't listed, shows the primary's colors. */
+  recolor: Type.Optional(
+    Type.Object({
+      slots: Type.Record(Type.String(), Type.Object({ block: ItemId, coloring: Id })),
+      colorings: Type.Record(Type.String(), ColoringBody),
+    }),
+  ),
 });
 
 export const Quilt = Type.Object({

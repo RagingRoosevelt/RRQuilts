@@ -1,7 +1,7 @@
 // A new quilt colorway from a palette (spec 019, spec 024): the palette swap dialog, from the quilt
-// card's menu (sketchbook) or the Design tab's Colorways section. Manual makes a one-time copy;
-// Auto mapping keeps following the primary colorway's colors and the palette. Both always start
-// from the primary colorway, whichever colorway is shown.
+// card's menu (sketchbook) or the Design tab's Colorways section. Palette makes a one-time copy;
+// Auto mapping keeps following the primary colorway's colors and the palette; Re-color starts from
+// the copy, then is painted. All start from the primary colorway, whichever colorway is shown.
 import { castDraft } from 'immer';
 import { useQuasar } from 'quasar';
 import type PaletteSwapDialog from '@/components/PaletteSwapDialog.vue';
@@ -9,7 +9,7 @@ import { useSwapOptions } from '@/composables/swap-options';
 import { quiltPaints } from '@/editor/colors';
 import { fillFor } from '@/editor/paint';
 import { fillKey } from '@/model/coloring';
-import { addColorway, colorwayList, setSwap } from '@/model/colorways';
+import { addColorway, colorwayList, setSwap, startRecolor } from '@/model/colorways';
 import { newId } from '@/model/ids';
 import type { Quilt } from '@/model/schema/quilt';
 import { quiltThumbnail } from '@/render/thumbnail';
@@ -78,6 +78,17 @@ export function useColorwaySwap() {
         quiltThumbnail(doc, swappedQuilt(q, map, n), 500, $q.dark.isActive, true, true),
       done: (map, n) => put(q, swappedQuilt(q, map, n)),
       auto: { done: (palette, overrides, n) => put(q, autoQuilt(q, palette, overrides, n)) },
+      // Re-color paints block spaces: not for data quilts or English paper piecing quilts.
+      ...(q.data?.on || q.layout.style === 'epp'
+        ? {}
+        : {
+            recolor: {
+              done: (map: Record<string, string>, n: string | undefined) => {
+                const next = swappedQuilt(q, map, n);
+                put(q, startRecolor(next, next.shownColorway!, project.doc!.project.blocks));
+              },
+            },
+          }),
     });
   }
 

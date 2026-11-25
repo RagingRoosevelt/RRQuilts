@@ -10,14 +10,16 @@
           Pick a palette: each color of {{ job.title }} becomes its nearest color or fabric there,
           and you can change any of them.
         </div>
-        <!-- Quilt colorways (spec 024): Manual is a one-time swap; Auto mapping keeps following
-             the source colorway's colors and the palette. -->
+        <!-- Quilt colorways (spec 024): Palette is a one-time swap; Auto mapping keeps following
+             the source colorway's colors and the palette; Re-color starts from the swap, then is
+             painted patch by patch. -->
         <template v-if="job.auto">
           <SlidePicker
             v-model="mode"
             :options="[
-              { value: 'manual', label: 'Manual' },
+              { value: 'manual', label: 'Palette' },
               { value: 'auto', label: 'Auto mapping' },
+              ...(job.recolor ? [{ value: 'recolor', label: 'Re-color' }] : []),
             ]"
             label="Mode"
             class="q-mt-sm"
@@ -26,7 +28,9 @@
             {{
               mode === 'auto'
                 ? `Keeps following ${job.title}: when its colors or the palette change, the matches change too. Colors you pick by hand stay.`
-                : 'A one-time copy: later changes to the colors don’t carry over.'
+                : mode === 'recolor'
+                  ? 'Starts with these colors. Then paint any patch in the Design tab, as in the primary colorway.'
+                  : 'A one-time copy: later changes to the colors don’t carry over.'
             }}
           </div>
         </template>
@@ -97,6 +101,8 @@ type Job = {
   auto?: {
     done: (palette: string, overrides: Record<string, string>, name: string | undefined) => void;
   };
+  /** Quilt colorways: a re-color starting from the mapping. */
+  recolor?: { done: (map: Record<string, string>, name: string | undefined) => void };
 };
 
 const project = useProjectStore();
@@ -150,7 +156,7 @@ const after = computed(() => {
       : project.doc!;
   return job.value.preview({ ...map.value }, name.value, doc);
 });
-const mode = ref<'manual' | 'auto'>('manual');
+const mode = ref<'manual' | 'auto' | 'recolor'>('manual');
 /** Each color's nearest in the chosen palette (Auto mapping keeps only the picks that differ). */
 const nearest = computed(() => {
   const pal = swapPalettes.value.find((p) => p.id === to.value);
@@ -167,6 +173,7 @@ function ok() {
     );
     return j.auto.done(to.value.replace(/^project:/, ''), overrides, name.value);
   }
+  if (mode.value === 'recolor' && j.recolor) return j.recolor.done({ ...map.value }, name.value);
   j.done({ ...map.value }, name.value);
 }
 

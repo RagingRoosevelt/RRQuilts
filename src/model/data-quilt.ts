@@ -6,7 +6,7 @@ import { resolveColoring } from './coloring';
 import { sampleSeries } from './data-samples';
 import type { Block, DataKind, DataVariant } from './schema/block';
 import type { ColoringBody, DataPaint, Fill, PlainFill } from './schema/coloring';
-import { shownColorway, swapper } from './colorways';
+import { shownColorway, spaceColoring, swapper } from './colorways';
 import type { DataPlace, DataPlan, DataPreset, DayMade, ValueSlot } from './schema/data-quilt';
 import type { Quilt } from './schema/quilt';
 
@@ -331,14 +331,14 @@ export function dataFill(
 
 const cache = new WeakMap<Quilt, Map<string, { block: Block; body: ColoringBody | undefined }>>();
 
-/** A block space's fills as shown: its coloring (`resolveColoring`) with data paints worked out. */
+/** A block space's fills as shown: its coloring (`resolveColoring`, a re-color's own in one) with
+ *  data paints worked out. */
 export function slotColoring(
   quilt: Quilt,
   slotId: string,
   block: Block | undefined,
 ): ColoringBody | undefined {
-  const content = quilt.layers[0].slots[slotId];
-  const c = resolveColoring(content && quilt.colorings[content.coloring], block);
+  const c = resolveColoring(spaceColoring(quilt, slotId), block);
   const plan = quilt.data;
   if (!c || !plan?.on || !Object.values(c.fills).some((f) => 'data' in f)) return c;
   let m = cache.get(quilt);

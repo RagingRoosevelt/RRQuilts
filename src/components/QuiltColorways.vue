@@ -48,7 +48,7 @@
       </div>
       <div v-if="!readonly" class="row" style="gap: 8px">
         <q-btn dense outline no-caps icon="add" label="Save as new colorway" @click="make" />
-        <!-- Spec 024: the same dialog as the quilt card's menu (Manual or Auto mapping). -->
+        <!-- Spec 024: the same dialog as the quilt card's menu (Palette, Auto mapping or Re-color). -->
         <q-btn
           dense
           outline
@@ -61,7 +61,7 @@
       <PaletteSwapDialog ref="swapDialog" />
       <div v-if="choices.length > 1" class="text-caption text-grey-7">
         The first is the primary colorway: paint it as usual. In the others, the Colors tab maps
-        each of its colors to a replacement.
+        each of its colors to a replacement, or, with Re-color, you paint them as the primary.
       </div>
     </div>
   </q-expansion-item>

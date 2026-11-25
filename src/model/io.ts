@@ -117,6 +117,8 @@ export const migrations: Migrations = {
   10: (doc) => doc,
   // v12 (specs 027, 050): EPP shapes, rosettes and EPP quilts, all optional; nothing to change.
   11: (doc) => doc,
+  // v13: a quilt colorway may be a re-color (its own coloring of each space); nothing to change.
+  12: (doc) => doc,
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */

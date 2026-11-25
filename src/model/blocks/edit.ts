@@ -3,6 +3,7 @@ import { produce } from 'immer';
 import { pathPolygon } from '../geometry/path';
 import type { Drawing } from '../schema/block';
 import type { RrqDoc } from '../schema/project';
+import { remapRecolors } from '../colorways';
 import { deriveSeamPatches } from './derive';
 import { assignIds, remapColoring, remapSections } from './remap';
 
@@ -64,6 +65,7 @@ export function applySeamEdit(
         const c = q.colorings[id];
         if (c) q.colorings[id] = remapColoring(c, assignments, oldIds);
       }
+      remapRecolors(q, shownId, (c) => remapColoring(c, assignments, oldIds));
     }
   });
   return { doc: out, unconnected: derived.unconnected };

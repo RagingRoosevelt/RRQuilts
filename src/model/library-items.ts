@@ -1,7 +1,7 @@
 // Library items in projects (spec 008): a library item is embedded only while something uses it,
 // keeps its identity (`id@version`), and is never edited in place.
 import { plainFill } from './coloring';
-import { swapColorings } from './colorways';
+import { remapRecolors, swapColorings } from './colorways';
 import { applyPicks, dataBlocks, dataColorings, pruneVariants, syncVariants } from './data-quilt';
 import { castDraft, current, isDraft, produce, type Draft } from 'immer';
 import { refreshAuto, type PaletteSwatch } from './colorway-auto';
@@ -354,6 +354,7 @@ export function swapToLibraryVersion(doc: RrqDoc, libBlock: Block, lib: LibraryL
         const c = q.colorings[id];
         if (c) q.colorings[id] = remapColoring(c, assignments, oldIds);
       }
+      remapRecolors(q, next.id, (c) => remapColoring(c, assignments, oldIds));
     }
   });
   return syncLibraryItems(swapped, lib);

@@ -2,6 +2,7 @@
 import type { Draft } from 'immer';
 import type { ColoringBody } from '@/model/schema/coloring';
 import { resolveColoring, plainFill } from '@/model/coloring';
+import { recolorings } from '@/model/colorways';
 import { dataColorings } from '@/model/data-quilt';
 import { isLibraryItem } from '@/model/library-items';
 import type { RrqDoc } from '@/model/schema/project';
@@ -11,6 +12,7 @@ function allColorings(d: RrqDoc | Draft<RrqDoc>): ColoringBody[] {
   return [
     ...d.project.blocks.flatMap((b) => b.colorings),
     ...d.project.quilts.flatMap((q) => Object.values(q.colorings)),
+    ...d.project.quilts.flatMap((q) => (q.colorways ?? []).flatMap(recolorings)),
   ] as ColoringBody[];
 }
 
@@ -37,6 +39,7 @@ function ownColorings(d: RrqDoc | Draft<RrqDoc>): ColoringBody[] {
   return [
     ...d.project.blocks.filter((b) => !isLibraryItem(b)).flatMap((b) => b.colorings),
     ...d.project.quilts.flatMap((q) => Object.values(q.colorings)),
+    ...d.project.quilts.flatMap((q) => (q.colorways ?? []).flatMap(recolorings)),
   ] as ColoringBody[];
 }
 

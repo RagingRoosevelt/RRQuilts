@@ -1,21 +1,23 @@
 <template>
   <!-- A colorway's colors, in place of the Design tab's palettes: each color of the primary colorway
-       and what it is in this one. Manual: picked by hand (from all colors, or one palette). Auto
+       and what it is in this one. Palette: picked by hand (from all colors, or one palette). Auto
        mapping (spec 024): each follows its source colorway's color to the nearest in a palette,
-       unless picked by hand. -->
-  <div class="column no-wrap q-pa-sm" style="gap: 8px">
+       unless picked by hand. Re-color: painted patch by patch as the primary, so only the mode
+       shows here, above the palettes. -->
+  <div class="column no-wrap q-pa-sm" :class="{ 'q-pb-none': mode === 'recolor' }" style="gap: 8px">
     <SlidePicker
       v-if="colorway"
-      :model-value="auto ? 'auto' : 'manual'"
-      :options="[
-        { value: 'manual', label: 'Manual' },
-        { value: 'auto', label: 'Auto mapping' },
-      ]"
+      :model-value="mode"
+      :options="modes"
       label="Mode"
       :class="{ 'no-pointer': readonly }"
-      @update:model-value="(m) => setMode(m === 'auto')"
+      @update:model-value="(m) => setMode(m as Mode)"
     />
-    <template v-if="auto">
+    <div v-if="mode === 'recolor'" class="text-caption text-grey-7">
+      {{ colorway?.name }}: paint any patch, as in {{ primary }}. Blocks set later show
+      {{ primary }}’s colors until painted here.
+    </div>
+    <template v-else-if="auto">
       <q-select
         :model-value="auto.source ?? ''"
         :options="sourceOptions"
@@ -52,7 +54,12 @@
         paint pieces.
       </div>
     </template>
-    <div v-for="r in rows" :key="r.from.id" class="column" style="gap: 2px">
+    <div
+      v-for="r in mode === 'recolor' ? [] : rows"
+      :key="r.from.id"
+      class="column"
+      style="gap: 2px"
+    >
       <PaintMapRow
         :from="r.from"
         :model-value="r.to"
@@ -78,11 +85,14 @@
         <template v-else>Automatic</template>
       </div>
     </div>
-    <div v-if="!rows.length" class="text-caption text-grey-8">{{ primary }} has no colors yet.</div>
+    <div v-if="!rows.length && mode !== 'recolor'" class="text-caption text-grey-8">
+      {{ primary }} has no colors yet.
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useQuasar } from 'quasar';
 import { computed } from 'vue';
 import PaintMapRow from '@/components/PaintMapRow.vue';
 import PaletteSelect from '@/components/PaletteSelect.vue';
@@ -92,7 +102,7 @@ import { quiltPaints } from '@/editor/colors';
 import { fillFor, paintOf } from '@/editor/paint';
 import { fillKey } from '@/model/coloring';
 import { dependents } from '@/model/colorway-auto';
-import { colorwayList, setSwap, shownColorway, swapper } from '@/model/colorways';
+import { colorwayList, setSwap, shownColorway, startRecolor, swapper } from '@/model/colorways';
 import type { Colorway, Quilt } from '@/model/schema/quilt';
 import { useProjectStore } from '@/stores/project';
 
@@ -100,8 +110,21 @@ const props = defineProps<{ quilt: Quilt; readonly?: boolean }>();
 const project = useProjectStore();
 const { paintOpt, swapOptions, swapPalettes } = useSwapOptions();
 
+const $q = useQuasar();
 const colorway = computed(() => shownColorway(props.quilt));
 const auto = computed(() => colorway.value?.auto);
+type Mode = 'palette' | 'auto' | 'recolor';
+const mode = computed<Mode>(() =>
+  colorway.value?.recolor ? 'recolor' : auto.value ? 'auto' : 'palette',
+);
+/** Re-color paints block spaces: not for data quilts or English paper piecing quilts. */
+const modes = computed(() => [
+  { value: 'palette', label: 'Palette' },
+  { value: 'auto', label: 'Auto mapping' },
+  ...(props.quilt.data?.on || props.quilt.layout.style === 'epp'
+    ? []
+    : [{ value: 'recolor', label: 'Re-color' }]),
+]);
 const primary = computed(() => colorwayList(props.quilt)[0]!.name);
 /** A palette as the palette pickers list it (project palettes carry a `project:` prefix there). */
 const paletteKey = (id: string) =>
@@ -151,16 +174,34 @@ function edit(fn: (v: Colorway) => Colorway | void, q = (x: Quilt) => x) {
     d.project.quilts[i] = quilt;
   });
 }
-function setMode(on: boolean) {
-  edit((v) => {
+function setMode(m: Mode) {
+  if (m === mode.value || props.readonly) return;
+  if (m === 'recolor')
+    return edit(
+      (v) => v,
+      (q) => startRecolor(q, colorway.value!.id, project.doc!.project.blocks),
+    );
+  if (mode.value !== 'recolor') return setSwapMode(m === 'auto');
+  $q.dialog({
+    title: 'Stop re-coloring?',
+    message: `The colors painted in “${colorway.value?.name}” go, and it maps ${primary.value}’s colors again.`,
+    cancel: true,
+    ok: { label: 'Stop re-coloring', color: 'negative', flat: true },
+  }).onOk(() => setSwapMode(m === 'auto'));
+}
+/** Palette or Auto mapping (a re-color's painting goes, its mapping from before comes back). */
+function setSwapMode(on: boolean) {
+  edit(({ recolor: _r, ...v }) => {
+    void _r;
     if (!on) {
-      // Manual keeps the picks it shows (overrides included); the link goes.
+      // Palette keeps the picks it shows (overrides included); the link goes.
       const { auto: _a, ...rest } = v;
       void _a;
       return rest;
     }
+    if (v.auto) return v; // back from a re-color: the mapping it had
     const palette = v.palette ?? swapPalettes.value[0]?.id.replace(/^project:/, '');
-    if (!palette) return;
+    if (!palette) return v;
     const { palette: _p, ...rest } = v;
     void _p;
     return { ...rest, auto: { palette } };

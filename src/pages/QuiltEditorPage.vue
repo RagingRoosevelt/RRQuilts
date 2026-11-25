@@ -218,8 +218,12 @@
             :fits-quilt="fitsQuilt"
             :data="!!quilt.data?.on"
           >
-            <!-- A colorway other than the primary: its mapping instead of the palettes. -->
-            <template v-if="quilt.shownColorway" #colors>
+            <!-- A colorway other than the primary: its mapping instead of the palettes; a re-color
+                 is painted from the palettes, its mode above them. -->
+            <template v-if="quilt.shownColorway && !recoloring" #colors>
+              <ColorwayMapping :quilt="quilt" :readonly="project.readOnly" />
+            </template>
+            <template v-if="recoloring" #colors-top>
               <ColorwayMapping :quilt="quilt" :readonly="project.readOnly" />
             </template>
             <template #blocks>
@@ -307,6 +311,7 @@ import { useDataTab } from '@/composables/data-tab';
 import type { Block } from '@/model/schema/block';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import ColorwayMapping from '@/components/ColorwayMapping.vue';
+import { shownColorway } from '@/model/colorways';
 import { useQuasar } from 'quasar';
 import HelpLink from '@/components/HelpLink.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
@@ -451,6 +456,8 @@ const HINTS: Record<Tool, string> = {
   pan: 'Drag to move around.',
 };
 const toolHint = computed(() => HINTS[editor.tool]);
+/** The shown colorway is a re-color: painted as the primary is. */
+const recoloring = computed(() => !!(quilt.value && shownColorway(quilt.value)?.recolor));
 /** The Help topic for each editor tab. */
 const QUILT_HELP: Record<string, { topic: string; label: string }> = {
   details: { topic: 'guides/designing-a-quilt', label: 'Designing a quilt' },
