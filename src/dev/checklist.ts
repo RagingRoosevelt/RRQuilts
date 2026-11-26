@@ -235,6 +235,13 @@ export const CHECKS: Check[] = [
     last: '"use the pan arrow cross icon for the drag anchor for moving the cut region in epp quilt layout"',
     to: '/?open_demo=traditional-epp.rrq',
   },
+  {
+    id: 'TC-372',
+    group: G.road093,
+    text: 'Add a palette with 30 or more colors, a few with very long names. A quilt colorway in Palette or Auto map mode, Colors tab: open a row’s pick. That palette shows three rows of swatches, the last two places a “+N more” button; it shows the rest, and Show fewer folds them again (the menu remembers until reload). A pick past the first rows opens its palette whole. Pick a long-named color: its name wraps to two lines and ends in …, and the sidebar never scrolls sideways (phone width too). Same in a rosette’s followed coloring and in New colorway from palette….',
+    last: '"when a palette has a ton of members, the list is really long … into an acrodian" / "the sidebar still overflows off the side and adds a horizontal scroll bar. let’s allow palette member names in the dropdown to span two lines and then truncate with an elipis"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

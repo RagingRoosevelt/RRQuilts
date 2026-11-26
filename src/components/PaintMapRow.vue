@@ -40,7 +40,7 @@
       @click="open = !open"
     >
       <div class="ps-swatch field" :style="optStyle(current)" />
-      <div class="col ellipsis text-left">{{ current?.notecard.name }}</div>
+      <div class="col ps-name text-left">{{ current?.notecard.name }}</div>
       <q-icon name="arrow_drop_down" size="20px" />
     </button>
     <!-- As wide as the whole row (so it stays inside the sidebar), under it; at least 300 px, so a
@@ -54,7 +54,7 @@
       anchor="bottom left"
       self="top left"
       class="ps-menu"
-      @before-show="foldAll"
+      @before-show="onShow"
     >
       <div class="q-pa-sm">
         <template v-for="g in groups" :key="g.top">
@@ -70,7 +70,7 @@
               </button>
               <div v-if="!shut.has(s.key)" class="ps-grid">
                 <button
-                  v-for="o in s.items"
+                  v-for="o in cut(s).items"
                   :key="o.id"
                   type="button"
                   class="ps-swatch option"
@@ -79,6 +79,23 @@
                   :title="o.notecard.name"
                   @click="pick(o.id)"
                 />
+                <button
+                  v-if="cut(s).more"
+                  type="button"
+                  class="ps-more"
+                  :aria-label="`Show ${cut(s).more} more`"
+                  @click="whole.add(s.key)"
+                >
+                  +{{ cut(s).more }} more
+                </button>
+                <button
+                  v-else-if="cut(s).long"
+                  type="button"
+                  class="ps-more"
+                  @click="whole.delete(s.key)"
+                >
+                  Show fewer
+                </button>
               </div>
             </template>
           </template>
@@ -93,6 +110,8 @@ import { reactive as r } from 'vue';
 // ponytail: module state, so folds last until reload; localStorage if they should outlive it.
 const folds = r(new Set<string>());
 let folded = false;
+/** Palettes shown whole (by key), likewise. */
+const wholes = r(new Set<string>());
 </script>
 
 <script setup lang="ts">
@@ -141,6 +160,26 @@ const toggle = (k: string) => {
   folded = true;
   return shut.has(k) ? shut.delete(k) : shut.add(k);
 };
+/** A long palette shows its first three rows, the last two places of the third a button for the
+ *  rest (owner, 2026-11-25); `whole` shows them all. Rows: the menu's width (as set below, less its
+ *  padding) in 36 px swatches with 6 px gaps. */
+const ROWS = 3;
+const whole = wholes;
+function cut(s: { key: string; items: Opt[] }) {
+  const w = Math.min(Math.max(rowEl.value?.offsetWidth ?? 300, 300), window.innerWidth * 0.9);
+  const n = ROWS * Math.max(3, Math.floor((w - 24 + 6) / 42));
+  const long = s.items.length > n;
+  if (!long || whole.has(s.key)) return { items: s.items, more: 0, long };
+  return { items: s.items.slice(0, n - 2), more: s.items.length - (n - 2), long };
+}
+/** Opening: fold as below, and show the current pick even when it's past the first rows. */
+function onShow() {
+  foldAll();
+  for (const g of groups.value)
+    for (const s of g.subs)
+      if (cut(s).items.length < s.items.length && s.items.some((o) => o.id === props.modelValue))
+        whole.add(s.key);
+}
 /** First opening: In use and wherever the current pick is stay open; with more than a couple of
  *  palettes the rest start folded, so the list is short. Later openings keep what was folded. */
 function foldAll() {
@@ -205,7 +244,7 @@ function foldAll() {
 /* Looks like an outlined dense field. */
 .ps-field {
   min-width: 0;
-  height: 40px;
+  min-height: 40px;
   gap: 8px;
   padding: 0 4px 0 8px;
   border: 1px solid rgba(0, 0, 0, 0.24);
@@ -223,6 +262,38 @@ function foldAll() {
 }
 .ps-field[disabled] {
   cursor: default;
+}
+/* A long name takes two lines, then ends in … (never widens the sidebar). */
+.ps-name {
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+  padding: 2px 0;
+}
+/* "+N more" / "Show fewer": two swatches wide. */
+.ps-more {
+  width: 78px;
+  height: 36px;
+  padding: 0 4px;
+  border: 1px dashed rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.1;
+  cursor: pointer;
+}
+.body--dark .ps-more {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.ps-more:hover {
+  border-color: currentColor;
 }
 .ps-menu {
   max-width: 90vw;

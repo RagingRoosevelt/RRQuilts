@@ -127,6 +127,15 @@ colorway.
   filesystem incompatible characters)"): `\ / : * ? " < > |` and control characters stripped,
   spaces collapsed, at most 200 bytes, no trailing dots or spaces, never a Windows device name
   (`storage/files.ts` `fileNameFor`).
+- **FR-011** (owner, 2026-11-25: "when a palette has a ton of members, the list is really long.
+  let's put all but the first three rows (minus 2 entries of the last row which are replaced by a
+  label for the number remaining when colapsed) into an acrodian"; "let's allow palette member names
+  in the dropdown to span two lines and then truncate with an elipis"): in a map row's swatch menu
+  (Palette and Auto map, quilt colorways and rosette colorings, and the palette swap dialog), a
+  palette longer than three rows MUST show three rows, the last two places a "+N more" button that
+  shows the rest ("Show fewer" folds them again; the current pick's palette opens whole). The
+  picked name in a row takes up to two lines, then ends in an ellipsis, and never widens the
+  sidebar.
 
 ## Assumptions
 
