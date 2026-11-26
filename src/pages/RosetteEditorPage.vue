@@ -138,21 +138,26 @@
           <!-- Paint: colorings and colors first; the shape picker steps aside. -->
           <template v-if="epp.rosetteTool === 'paint'">
             <div class="text-subtitle2">Colorings</div>
-            <!-- As a quilt's colorways: each a picture, its mode on the corner. -->
+            <!-- As a quilt's colorways: each a picture, its mode on the corner; each followed at
+                 once by the colorings that follow it. -->
             <div class="row" style="gap: 8px">
               <PreviewPick
-                v-for="(c, i) in rosette.colorings"
+                v-for="c in listOrder(rosette)"
                 :key="c.id"
                 :img="previews.get(c.id) ?? ''"
-                :name="c.name ?? `Coloring ${i + 1}`"
+                :name="c.name ?? `Coloring ${rosette.colorings.indexOf(c) + 1}`"
                 :active="c.id === coloringId"
                 :icon="c.source ? (c.auto ? 'auto_awesome' : 'swap_horiz') : undefined"
                 :tip="c.source ? (c.auto ? 'Auto map' : 'Palette') : undefined"
                 :readonly="ro"
                 :deletable="rosette.colorings.length > 1"
                 @pick="coloringId = c.id"
-                @rename="renameColoring(c.id, c.name ?? `Coloring ${i + 1}`)"
-                @remove="removeColoring(c.id, c.name ?? `Coloring ${i + 1}`)"
+                @rename="
+                  renameColoring(c.id, c.name ?? `Coloring ${rosette.colorings.indexOf(c) + 1}`)
+                "
+                @remove="
+                  removeColoring(c.id, c.name ?? `Coloring ${rosette.colorings.indexOf(c) + 1}`)
+                "
               />
             </div>
             <div class="row" style="gap: 8px">
@@ -319,7 +324,7 @@ import PreviewPick from '@/components/PreviewPick.vue';
 import RosetteColoringMap from '@/components/RosetteColoringMap.vue';
 import { useSwapOptions } from '@/composables/swap-options';
 import { fillKey } from '@/model/coloring';
-import { baseColoring, swapperOf } from '@/model/epp/rosette-colorings';
+import { baseColoring, listOrder, swapperOf } from '@/model/epp/rosette-colorings';
 import type { RrqDoc } from '@/model/schema/project';
 import { useEditorStore } from '@/stores/editor';
 import { useEppEditorStore, type RosetteTool } from '@/stores/epp-editor';

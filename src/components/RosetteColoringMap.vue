@@ -95,7 +95,7 @@ import SlidePicker from '@/components/SlidePicker.vue';
 import { useSwapOptions, type Opt, type Section } from '@/composables/swap-options';
 import { fillFor, paintOf } from '@/editor/paint';
 import { fillKey } from '@/model/coloring';
-import { bake, baseColoring, followers, swapperOf } from '@/model/epp/rosette-colorings';
+import { bake, baseColoring, followers, listOrder, swapperOf } from '@/model/epp/rosette-colorings';
 import type { Rosette, RosetteColoring } from '@/model/schema/epp';
 
 const props = defineProps<{
@@ -119,7 +119,7 @@ const mode = computed<Mode>(() =>
 /** What it can follow: another coloring, never one that follows it. */
 const sourceOptions = computed(() => {
   const own = followers(props.rosette, props.coloringId);
-  return props.rosette.colorings
+  return listOrder(props.rosette)
     .filter((c) => !own.has(c.id))
     .map((c) => ({ value: c.id, label: label(c) }));
 });

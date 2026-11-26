@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { PaletteSwatch } from '@/model/colorway-auto';
-import { baseColoring, deleteColoring, refreshColorings } from '@/model/epp/rosette-colorings';
+import {
+  baseColoring,
+  deleteColoring,
+  listOrder,
+  refreshColorings,
+} from '@/model/epp/rosette-colorings';
 import { addColoring, addPiece, newRosette, paintPiece } from '@/model/epp/rosette-ops';
 import type { Fill } from '@/model/schema/coloring';
 import type { Rosette } from '@/model/schema/epp';
@@ -126,5 +131,24 @@ describe('rosette colorings that follow another', () => {
     expect(noA.colorings.every((k) => !k.source)).toBe(true);
     expect(colorsOf(noA, c.id, p, q)).toEqual(before);
     expect(colorsOf(noA, b.id, p, q)).toEqual(['yellow', 'green']);
+  });
+
+  it('lists each coloring right after the one it follows, the stored order kept', () => {
+    const { r: r0, a } = twoSquares();
+    // A, then B (painted), C follows B, D follows A, E follows C.
+    const b = addColoring(r0, undefined, { name: 'B' });
+    const c = addColoring(b.rosette, undefined, { source: b.id, name: 'C' });
+    const d = addColoring(c.rosette, undefined, { source: a, name: 'D' });
+    const e = addColoring(d.rosette, undefined, { source: c.id, name: 'E' });
+    const r = e.rosette;
+    const names = (x: Rosette) => listOrder(x).map((k) => (k.id === a ? 'A' : k.name));
+    expect(names(r)).toEqual(['A', 'D', 'B', 'C', 'E']);
+    expect(r.colorings.map((k) => (k.id === a ? 'A' : k.name))).toEqual(['A', 'B', 'C', 'D', 'E']);
+    // A loop (before refresh bakes it) still lists every coloring once.
+    const looped: Rosette = {
+      ...r,
+      colorings: r.colorings.map((k) => (k.id === b.id ? { ...k, source: e.id } : k)),
+    };
+    expect(names(looped).sort()).toEqual(['A', 'B', 'C', 'D', 'E']);
   });
 });

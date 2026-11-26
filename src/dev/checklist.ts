@@ -249,6 +249,13 @@ export const CHECKS: Check[] = [
     last: '"the list of colorings in the rosette editor should show previews of the colorings the same way we do for quilts"',
     to: '/?open_demo=traditional-epp.rrq',
   },
+  {
+    id: 'TC-376',
+    group: G.road093,
+    text: 'A rosette with several colorings: select the first, New coloring from palette… (Palette), then select it and add an Auto map one from it. In Colorings each sits right after the one it follows (the first, then the Palette one, then the Auto map one, then the rest). Change a coloring’s Follows: it moves after its new one. The same order in Follows and in an EPP quilt’s coloring choices for that rosette. Placements that show the first coloring still show it.',
+    last: '"let’s make sure that rosette colorings that are auto or manual mappings are sorted immediatly after the coloring they are based on"',
+    to: '/?open_demo=traditional-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -236,7 +236,11 @@ menu opens the same.
   previews of the colorings the same way we do for quilts"): the rosette editor's Colorings MUST
   show each coloring as a picture of the rosette in its colors with its name, Rename and Delete
   under it, as a quilt's Colorways (one shared card); a followed coloring's mode is an icon on the
-  picture's corner. Delete asks first.
+  picture's corner. Delete asks first. Lists of a rosette's colorings (its Colorings, an EPP
+  quilt's coloring choices, Follows) MUST show each coloring right after the one it follows, and
+  theirs after it (owner, 2026-11-25: "let's make sure that rosette colorings that are auto or
+  manual mappings are sorted immediatly after the coloring they are based on"); the stored order
+  stays, so a placement with no coloring chosen keeps showing the first.
 - **FR-004**: Placed rosettes MUST stay linked to their rosette (edits update every placement, with undo)
   until broken into patches.
 - **FR-005**: Rosettes MUST NOT nest: a rosette placed into a rosette is copied in as its pieces

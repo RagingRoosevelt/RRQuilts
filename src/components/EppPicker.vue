@@ -92,6 +92,7 @@ import { useEppEditorStore } from '@/stores/epp-editor';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { rosetteLocal, type EppLookup } from '@/model/epp/expand';
 import { place, type Poly } from '@/model/epp/geometry';
+import { listOrder } from '@/model/epp/rosette-colorings';
 import type { EppShape, Rosette } from '@/model/schema/epp';
 import type { Fill } from '@/model/schema/coloring';
 
@@ -153,9 +154,9 @@ function rosetteCard(r: Rosette): Card {
     coloring,
     colorings:
       r.colorings.length > 1
-        ? r.colorings.map((c, i) => ({
+        ? listOrder(r).map((c) => ({
             id: c.id,
-            name: c.name ?? `Coloring ${i + 1}`,
+            name: c.name ?? `Coloring ${r.colorings.indexOf(c) + 1}`,
             polys: css(rosetteLocal(r, props.lookup, c.id)),
           }))
         : [],

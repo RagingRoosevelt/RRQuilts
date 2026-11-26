@@ -44,6 +44,30 @@ export function followers(r: Rosette, id: string): Set<string> {
   return out;
 }
 
+/**
+ * Colorings as lists show them (owner, 2026-11-25): each one followed at once by the colorings
+ * that follow it (Palette, Auto map), and theirs, in stored order otherwise. The stored order
+ * stays (a placement with no coloring shows the first).
+ */
+export function listOrder(r: Rosette): RosetteColoring[] {
+  const kids = new Map<string, RosetteColoring[]>();
+  for (const c of r.colorings)
+    if (c.source && c.source !== c.id && byId(r, c.source))
+      kids.set(c.source, [...(kids.get(c.source) ?? []), c]);
+  const out: RosetteColoring[] = [];
+  const seen = new Set<string>();
+  const visit = (c: RosetteColoring) => {
+    if (seen.has(c.id)) return;
+    seen.add(c.id);
+    out.push(c);
+    for (const k of kids.get(c.id) ?? []) visit(k);
+  };
+  // Those that follow nothing first, with their followers; then any left (a loop), as stored.
+  for (const c of r.colorings) if (!c.source || !byId(r, c.source)) visit(c);
+  for (const c of r.colorings) visit(c);
+  return out;
+}
+
 /** Painted from now on: the colors it shows kept, what it followed dropped. */
 export function bake(c: RosetteColoring): RosetteColoring {
   const { source: _s, swaps: _w, auto: _a, palette: _p, ...rest } = c;
