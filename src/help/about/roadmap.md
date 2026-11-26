@@ -21,14 +21,14 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
 ## 0.11.0
 
-- Quilt shapes besides rectangles: circles, diamonds, and other regular or irregular polygons, with
-  borders and binding that follow the shape.
-- Open a shared project from a web link, as you can from a gist.
+- Foundation paper piecing: split a block into sections with sewing numbers, and print mirrored
+  foundation patterns.
 
 ## 0.12.0
 
-- Foundation paper piecing: split a block into sections with sewing numbers, and print mirrored
-  foundation patterns.
+- Quilt shapes besides rectangles: circles, diamonds, and other regular or irregular polygons, with
+  borders and binding that follow the shape.
+- Open a shared project from a web link, as you can from a gist.
 
 ## 0.13.0
 
