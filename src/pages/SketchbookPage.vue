@@ -18,8 +18,8 @@
       <q-tabs v-model="tab" dense no-caps align="left" class="col proj-tabs">
         <q-tab name="quilts" :label="`Quilts (${quilts.length})`" />
         <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
-        <q-tab name="colors" :label="`Palettes (${ownPalettes.length + pickedPalettes.length})`" />
         <q-tab name="epp" :label="`EPP (${eppCount})`" />
+        <q-tab name="colors" :label="`Palettes (${ownPalettes.length + pickedPalettes.length})`" />
         <q-tab name="photos" label="Photos" />
         <q-tab name="threads" label="Threads" />
         <q-tab name="details" label="Details" />

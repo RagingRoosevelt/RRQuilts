@@ -291,6 +291,13 @@ export const CHECKS: Check[] = [
     last: '"in the project view, rosettes don’t seem to have a coloration count badge"',
     to: '/?open_demo=traditional-epp.rrq',
   },
+  {
+    id: 'TC-383',
+    group: G.small,
+    text: 'Project page: the tabs read Quilts, Blocks, EPP, Palettes, Photos, Threads, Details (EPP next to Blocks), wide and phone width; each opens as before.',
+    last: '"in the project view, let’s move the epp tab to the left of palettes next to blocks"',
+    to: '/?open_demo=traditional-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
