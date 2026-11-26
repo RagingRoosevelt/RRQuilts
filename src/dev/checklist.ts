@@ -114,6 +114,20 @@ export const CHECKS: Check[] = [
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
   },
+  {
+    id: 'TC-385',
+    group: G.small,
+    text: 'Given the built-in Crab Claws block, when you look at its four corners, then each is a quarter turn of the next, the bottom-right triangle included.',
+    steps: [
+      'Open Libraries (the Open link above) and search Crab Claws.',
+      'Look at the block’s corners, then its themed colorings (the count on its picture).',
+      'If a project uses Crab Claws, open it and look at the placed block.',
+    ],
+    expect:
+      'The bottom-right corner triangle has its light half in the outer corner and its dark half inside, as the top-left one does; Dark claws sit top left and bottom right, Medium ones top right and bottom left. The themed colorings match.',
+    last: '"the built in crab claws block has a triangle in the bottom right that is rotated from the orientation it should have"',
+    to: '/libraries',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
