@@ -25,16 +25,18 @@ export const shownName = (q: Pick<Quilt, 'colorways' | 'shownColorway' | 'primar
   colorwayList(q).find((c) => c.id === shownColorway(q)?.id)!.name;
 
 /** Every colorway to pick: the quilt's own colors (no id) first. */
-export const colorwayList = (
+export function colorwayList(
   q: Pick<Quilt, 'colorways' | 'primaryName'>,
-): { id: string | undefined; name: string }[] => [
-  { id: undefined, name: q.primaryName ?? 'Colorway 1' },
-  // A re-color is painted: it follows nothing in the list.
-  ...followOrder(q.colorways ?? [], (v) => (v.recolor ? undefined : v.source)).map((v) => ({
-    id: v.id,
-    name: v.name,
-  })),
-];
+): { id: string | undefined; name: string }[] {
+  // The primary first with what follows it (Palette and Auto map without a source follow it), then
+  // each re-color (painted: it follows nothing) with what follows it.
+  const PRIMARY = '\u0000primary';
+  const primary = { id: PRIMARY, name: q.primaryName ?? 'Colorway 1' };
+  return followOrder<Pick<Colorway, 'id' | 'name' | 'source' | 'recolor'>>(
+    [primary, ...(q.colorways ?? [])],
+    (v) => (v.id === PRIMARY || v.recolor ? undefined : (v.source ?? PRIMARY)),
+  ).map((v) => ({ id: v.id === PRIMARY ? undefined : v.id, name: v.name }));
+}
 
 /**
  * Items as lists show them (owner, 2026-11-25): each one followed at once by those that follow it

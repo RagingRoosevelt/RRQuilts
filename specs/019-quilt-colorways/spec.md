@@ -145,8 +145,10 @@ colorway.
 - **FR-013** (owner, 2026-11-25: "let's apply the same sorting rules for colorations on quilts"):
   lists of a quilt's colorways (Colorways, the card's colorway menu, Follows) MUST show the primary
   first, then each colorway right after the one it follows, and theirs after it, as rosette
-  colorings (spec 050 FR-003b); a re-color follows nothing in the list. Display only: the stored
-  order stays.
+  colorings (spec 050 FR-003b). A Palette or Auto map colorway with no Follows follows the primary
+  (owner, 2026-11-25: "I just created a colorway that's an auto map of the primary and it's showing
+  up after a recolor"), so the primary's come first; a re-color follows nothing, so re-colors come
+  after them, each with its own. Display only: the stored order stays.
 
 ## Assumptions
 

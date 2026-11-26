@@ -238,7 +238,9 @@ describe('Re-color colorways', () => {
 });
 
 describe('colorway list order', () => {
-  it('lists each colorway right after the one it follows; a re-color follows nothing', () => {
+  // Owner, 2026-11-25: "I just created a colorway that's an auto map of the primary and it's
+  // showing up after a recolor": one without a source follows the primary.
+  it('lists each colorway right after the one it follows (the primary first); a re-color follows nothing', () => {
     const v = (id: string, extra: object = {}) => ({ id, name: id, swaps: [], ...extra });
     const q = {
       colorways: [
@@ -253,9 +255,9 @@ describe('colorway list order', () => {
       'primary',
       'a',
       'd',
+      'e',
       'b',
       'c',
-      'e',
     ]);
   });
 });
