@@ -142,6 +142,11 @@ colorway.
   colorway menu) MUST carry its mode on the corner as rosette colorings do: arrows for Palette, a
   sparkle for Auto map (pointing at it names the mode); a re-color, painted as the primary, has
   none; the primary keeps "Primary".
+- **FR-013** (owner, 2026-11-25: "let's apply the same sorting rules for colorations on quilts"):
+  lists of a quilt's colorways (Colorways, the card's colorway menu, Follows) MUST show the primary
+  first, then each colorway right after the one it follows, and theirs after it, as rosette
+  colorings (spec 050 FR-003b); a re-color follows nothing in the list. Display only: the stored
+  order stays.
 
 ## Assumptions
 

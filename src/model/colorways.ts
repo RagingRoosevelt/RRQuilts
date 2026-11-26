@@ -29,8 +29,45 @@ export const colorwayList = (
   q: Pick<Quilt, 'colorways' | 'primaryName'>,
 ): { id: string | undefined; name: string }[] => [
   { id: undefined, name: q.primaryName ?? 'Colorway 1' },
-  ...(q.colorways ?? []).map((v) => ({ id: v.id, name: v.name })),
+  // A re-color is painted: it follows nothing in the list.
+  ...followOrder(q.colorways ?? [], (v) => (v.recolor ? undefined : v.source)).map((v) => ({
+    id: v.id,
+    name: v.name,
+  })),
 ];
+
+/**
+ * Items as lists show them (owner, 2026-11-25): each one followed at once by those that follow it
+ * (`follows`: its source; Palette and Auto map colorways and rosette colorings), and theirs, in
+ * stored order otherwise. Display only: the stored order stays.
+ */
+export function followOrder<T extends { id: string }>(
+  items: readonly T[],
+  follows: (t: T) => string | undefined,
+): T[] {
+  const ids = new Set(items.map((t) => t.id));
+  const parent = (t: T) => {
+    const p = follows(t);
+    return p && p !== t.id && ids.has(p) ? p : undefined;
+  };
+  const kids = new Map<string, T[]>();
+  for (const t of items) {
+    const p = parent(t);
+    if (p) kids.set(p, [...(kids.get(p) ?? []), t]);
+  }
+  const out: T[] = [];
+  const seen = new Set<string>();
+  const visit = (t: T) => {
+    if (seen.has(t.id)) return;
+    seen.add(t.id);
+    out.push(t);
+    for (const k of kids.get(t.id) ?? []) visit(k);
+  };
+  // Those that follow nothing listed first, with their followers; then any left (a loop).
+  for (const t of items) if (!parent(t)) visit(t);
+  for (const t of items) visit(t);
+  return out;
+}
 
 /** A fill as a colorway shows it (the fill itself when nothing swaps it, or in a re-color). */
 export function swapper(v: Colorway | undefined): (f: Fill | undefined) => Fill | undefined {

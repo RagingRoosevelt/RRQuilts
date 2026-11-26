@@ -236,3 +236,26 @@ describe('Re-color colorways', () => {
     });
   });
 });
+
+describe('colorway list order', () => {
+  it('lists each colorway right after the one it follows; a re-color follows nothing', () => {
+    const v = (id: string, extra: object = {}) => ({ id, name: id, swaps: [], ...extra });
+    const q = {
+      colorways: [
+        v('a'),
+        v('b', { source: 'a', recolor: { slots: {}, colorings: {} } }),
+        v('c', { source: 'b' }),
+        v('d', { source: 'a', auto: { palette: 'p' } }),
+        v('e'),
+      ],
+    };
+    expect(colorwayList(q).map((c) => c.id ?? 'primary')).toEqual([
+      'primary',
+      'a',
+      'd',
+      'b',
+      'c',
+      'e',
+    ]);
+  });
+});
