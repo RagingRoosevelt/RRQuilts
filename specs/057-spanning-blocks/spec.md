@@ -13,6 +13,21 @@ Related: spec 016 (layout engine; `merges` already join triangle spaces into big
 026 (shaped spaces), spec 006 (quilt editor, Set/Paint tools), spec 052 (move blocks), spec 003
 (slot ids, `contracts/slot-ids.md`).
 
+## Clarifications
+
+### Session 2026-11-26 (owner, before the prototypes)
+
+- Q: Which spans are allowed? → A: "any shape that is several tiled units that have the same
+  perimeter as a scaled-up single block": the space's own shape scaled up a whole number of times
+  (kU): squares (2 × 2, 3 × 3 …), 2:1 rectangles, triangles of 4, 9 … triangles, diamonds of 2 × 2 …
+  diamonds. Hexagons can't join into a bigger hexagon, so they stay 1U.
+- Q: Which layouts? → A: every block layout.
+- Q: How does a quilter make one? → A: prototype and compare three: select then Merge, drag with
+  Set, and "a slider for block unit size that scales between 1U, 2U, 3U, etc and sets the number of
+  block slots it covers, then when you drag a block over the quilt, the highlighted region shows
+  which slots will be covered". Prototypes: `prototypes/spanning/` on branch
+  `proto/spanning-blocks` (worktree `../Kits Quilts spanning-proto`).
+
 ## Concepts
 
 - **Spanning block**: one block placed over a group of neighboring block spaces (2 × 2, 3 × 3,
