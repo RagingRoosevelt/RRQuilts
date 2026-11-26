@@ -61,7 +61,7 @@ Pieces that overlap show red. **Undo** and **Redo** are at the top of the tools.
 **Edge** decides how the quilt ends.
 
 - **No trimming** follows the outer pieces. There are no borders or binding.
-- **Cut to size** cuts a rectangle across the outer pieces after piecing, and the templates stay whole. Set its **Width** and **Height**, or choose **Largest rectangle the pieces fill** to start from the biggest rectangle with no gaps.
+- **Cut to size** cuts a rectangle across the outer pieces after piecing, and the templates stay whole. With **Largest rectangle** it's the biggest rectangle the pieces fill with no gaps, and it changes as you add, move or remove pieces. With **Manual** you set it yourself. The picture shows the pieces it cuts away faded. Drag a side or a corner to resize it, or the round handle in the middle to move it, or type its **Width** and **Height** (typing a size switches to Manual). **Aspect ratio** keeps its shape, such as **Square (1:1)** or **Tall (3:4)**, and **Freeform** lets each side move on its own. **Snap to vertex** and **Snap to edge** make a dragged side stop at piece corners and along straight up-and-down or level piece edges near it.
 - **Auto-close** fills the notches up to a straight edge with closing pieces, so nothing is cut. Pick a color or fabric in the Design tab, then choose **Use the picked color or fabric** for the closing pieces, or **None**.
 
 ## Borders

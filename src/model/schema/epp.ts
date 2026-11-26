@@ -75,6 +75,13 @@ export const EppEdge = Type.Union([
   Type.Object({
     kind: Type.Literal('cut'),
     rect: Type.Tuple([Type.Number(), Type.Number(), Type.Number(), Type.Number()]),
+    /** Sized by hand (rrq v13): sides dragged or typed. Absent: the largest rectangle the pieces
+     *  fill, found again after every edit. */
+    manual: Type.Optional(Type.Literal(true)),
+    /** Manual: the width to height kept while sizing (absent: freeform). */
+    ratio: Type.Optional(
+      Type.Tuple([Type.Number({ exclusiveMinimum: 0 }), Type.Number({ exclusiveMinimum: 0 })]),
+    ),
   }),
   Type.Object({ kind: Type.Literal('close'), fill: Type.Optional(Fill) }),
   Type.Object({

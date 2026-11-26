@@ -93,4 +93,23 @@ describe('v12 → v13 (colorways follow a colorway)', () => {
       { id: 'c', name: 'C', swaps: [], auto: { palette: 'p' } },
     ]);
   });
+
+  it('keeps an EPP quilt’s cut as it was: Manual (Largest rectangle now follows the pieces)', async () => {
+    const f = structuredClone(fixture());
+    const q = f.project.quilts[0]!;
+    const rect: [number, number, number, number] = [0, 0, 3, 2];
+    f.project.quilts.push({
+      ...q,
+      id: 'epp-q',
+      layout: { style: 'epp', unit: 2, edge: { kind: 'cut', rect } },
+      epp: { pieces: [] },
+    } as never);
+    const r = await parseProject(JSON.stringify({ ...f, version: 12 }));
+    if (!r.ok) throw new Error(r.error);
+    expect(r.doc.project.quilts.at(-1)!.layout).toEqual({
+      style: 'epp',
+      unit: 2,
+      edge: { kind: 'cut', rect, manual: true },
+    });
+  });
 });

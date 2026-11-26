@@ -7916,6 +7916,25 @@
                                   }
                                 ],
                                 "minItems": 4
+                              },
+                              "manual": {
+                                "type": "boolean",
+                                "const": true
+                              },
+                              "ratio": {
+                                "type": "array",
+                                "additionalItems": false,
+                                "items": [
+                                  {
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                  },
+                                  {
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                  }
+                                ],
+                                "minItems": 2
                               }
                             }
                           },

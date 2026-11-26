@@ -207,6 +207,13 @@ export const CHECKS: Check[] = [
     last: '"what we should implement instead is a “find” tool (in the toolbar) that works like it does in a normal quilt (selects the clicked-on block/rosette/shape)"',
     to: '/',
   },
+  {
+    id: 'TC-368',
+    group: G.road093,
+    text: 'An EPP quilt’s Layout tab › Edge › Cut to size: Largest rectangle is the largest rectangle the pieces fill; move or add pieces in Design and it follows them (fast, also on the Traditional EPP demo’s 888-piece garden). Manual: the cut shows on the picture with square handles on its corners and sides and a round one in the middle, the pieces outside faded (under any borders). Drag a side, a corner, the middle: the cursor shows which, and sides stop at piece corners (Snap to vertex) and along upright or level piece edges (Snap to edge); switch both off and they move freely. Aspect ratio Square (1:1), then Wide and Tall ones: the cut takes that shape inside itself, and drags keep it; Freeform lets go. Typing Width or Height switches to Manual (with a ratio, the other follows). Undo steps back one drag at a time. The demo’s cuts open as Manual, unchanged.',
+    last: '"the “largest rectangle the pices fill” should turn into a toggle with the other option being “manual” … should show several toggles for snapping the crop rectange with “snap to vertex” and “snap to edge” options" · "there should also be an “aspect ratio” dropdown that has several common aspect ratios as well as “freeform”"',
+    to: '/?open_demo=traditional-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

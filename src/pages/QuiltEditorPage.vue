@@ -174,6 +174,7 @@
           :pan-only="panOnly"
           :data-marks="dataMarks"
           :day-paths="dayPaths"
+          :overlay="editor.mode === 'layout' ? eppCut.overlay.value : undefined"
           :class="{ gray: gray }"
           @tap="onTap"
           @pick="onPick"
@@ -353,6 +354,7 @@ import StlPreview from '@/components/StlPreview.vue';
 import { useStl } from '@/composables/stl';
 import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
+import { useEppCut } from '@/composables/epp-cut';
 import { applyTool } from '@/editor/actions';
 import { takesBlock } from '@/editor/scope';
 import { STRIP_STYLES, stripOf, swapStrips, setStrip } from '@/model/layout/strips';
@@ -394,6 +396,8 @@ const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === ro
 const stl = useStl(() => (quilt.value ? { kind: 'quilt', id: quilt.value.id } : null));
 /** An EPP quilt (spec 027), and whether its edge is finished (borders need one). */
 const isEpp = computed(() => quilt.value?.layout.style === 'epp');
+/** An EPP quilt's Manual cut, sized on the Layout tab's picture. */
+const eppCut = useEppCut(() => quilt.value);
 /** A 3D EPP quilt: a 3D assembly tab, no borders. */
 const is3d = computed(() => !!quilt.value && is3dQuilt(quilt.value));
 watch(

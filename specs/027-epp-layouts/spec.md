@@ -199,9 +199,10 @@ justification).
   optional, not assumed. Its edge is set by the **edge trim**:
   - **No trimming** (default): the edge is wherever the outer pieces end, often jagged (a hexagon
     garden's zigzag edge).
-  - **Cut to size** (straight trim): a rectangle cuts across the outer pieces. It starts as the
-    largest rectangle the pieces fill with no gaps; the quilter can type a size or move its sides in
-    the Layout tab.
+  - **Cut to size** (straight trim): a rectangle cuts across the outer pieces. **Largest
+    rectangle** is the largest rectangle the pieces fill with no gaps, found again after every
+    edit; **Manual** is sized by hand: its sides, corners or middle dragged on the Layout tab's
+    picture (pieces outside faded), or a size typed (FR-001c).
   - **Auto-close**: nothing is cut. The app fills the notches along the outside with closing pieces
     (internal shapes such as half hexagons, each made whole as a paper) up to a straight line, so the
     edge is straight. Closing pieces print and count like other pieces and take a fill the quilter
@@ -654,6 +655,18 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
 - **FR-001b**: Trimming MUST NOT change the templates: pieces are made whole (papers are whole
   shapes) and trimmed after assembly, so templates and fabric counts are for whole pieces; the
   print notes the trim line and its size.
+- **FR-001c**: Cut to size MUST offer **Largest rectangle** (the default: found again after every
+  edit, so it follows the pieces) and **Manual**. Manual MUST put the cut on the Layout tab's
+  picture with handles on its sides, corners and middle (drag to resize or move; pieces outside it
+  shown faded, under any borders), an **Aspect ratio** (Freeform, Square, or wide and tall common
+  ratios) that keeps its shape, and **Snap to vertex** and **Snap to edge** switches (a dragged side
+  stops at piece corners and along upright or level piece edges near it; app settings). Typing a
+  width or height makes it Manual. Cuts made before rrq v13 open as Manual (they keep their size).
+  Owner, 2026-11-25: "the "largest rectangle the pices fill" should turn into a toggle with the
+  other option being "manual" and activating "manual" should put a crop rectangle in the preview
+  and should show several toggles for snapping the crop rectange with "snap to vertex" and "snap
+  to edge" options", then "there should also be an "aspect ratio" dropdown that has several common
+  aspect ratios as well as "freeform" that control the crop region's shape".
 - **FR-002**: EPP shapes MUST be simple closed convex polygons. Edge lengths SHOULD be whole multiples
   of the quilt's base dimension: other lengths only warn, until the quilter marks them as meant
   (FR-006a). A marked edge snaps to an edge of the same length, a whole multiple of it, or a half or a quarter of it (a shorter edge runs along a longer one in steps of its own length). Owner, 2026-11-10: "let's also allow snapping to an integer multiple of that length or to a 1/2

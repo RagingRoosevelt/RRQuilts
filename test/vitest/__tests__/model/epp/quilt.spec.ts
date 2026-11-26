@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { eppStarters } from '@/content/epp';
-import { autoClose, cutRect, snapCorners } from '@/model/epp/edge';
+import {
+  autoClose,
+  cutRect,
+  cutSnaps,
+  dragCut,
+  fitRatio,
+  snapCorners,
+  type Box,
+} from '@/model/epp/edge';
 import { lookupEpp } from '@/model/epp/expand';
 import { bbox, edges, place } from '@/model/epp/geometry';
 import {
@@ -153,7 +161,8 @@ describe('EPP quilt print pieces', () => {
     const closed = eppQuiltPieces(setEdge(q, { kind: 'close' }, lookup), lookup);
     expect(closed.pieces.length).toBeGreaterThan(19);
     // A small cut in the middle leaves the outer ring out.
-    const cut = eppQuiltPieces(setEdge(q, { kind: 'cut', rect: [-1, -1, 1, 1] }, lookup), lookup);
+    const small = { kind: 'cut' as const, rect: [-1, -1, 1, 1] as Box, manual: true as const };
+    const cut = eppQuiltPieces(setEdge(q, small, lookup), lookup);
     expect(cut.outside).toBeGreaterThan(0);
     expect(cut.pieces.length + cut.outside).toBe(19);
   });
@@ -237,5 +246,85 @@ describe('EPP quilt print pieces', () => {
       0.1, -0.2, 3.9, 3.1,
     ]);
     expect(snapCorners([0, 0, 4, 3], [], 0.25)).toEqual([0, 0, 4, 3]);
+  });
+
+  it('cut to size finds a gap narrower than 1/100 U (exact, not sampled)', () => {
+    // Two 2 × 2 squares with a 0.005 slit between them: the cut stays in one.
+    const sq = (x: number): [number, number][] => [
+      [x, 0],
+      [x + 2, 0],
+      [x + 2, 2],
+      [x, 2],
+    ];
+    const r = cutRect([sq(0), sq(2.005)])!;
+    expect(r[2] - r[0]).toBeCloseTo(2, 6);
+    // Touching, they're one 4 × 2 rectangle.
+    expect(cutRect([sq(0), sq(2)])!.map((v) => +v.toFixed(6))).toEqual([0, 0, 4, 2]);
+  });
+
+  it('Largest rectangle follows the pieces; Manual keeps its size', () => {
+    let q = setEdge(garden(), { kind: 'cut', rect: [0, 0, 0, 0] }, lookup);
+    const rectOf = (x: Quilt) =>
+      x.layout.style === 'epp' && x.layout.edge.kind === 'cut' ? x.layout.edge.rect : null;
+    const before = rectOf(q)!;
+    q = refresh(
+      { ...q, epp: { ...q.epp!, pieces: q.epp!.pieces.map((p) => ({ ...p, at: [5, 3] })) } },
+      lookup,
+    );
+    rectOf(q)!.forEach((v, i) => expect(v).toBeCloseTo(before[i]! + (i % 2 ? 3 : 5), 6));
+    expect(q.epp!.box).toEqual(rectOf(q));
+    // Manual: moving the pieces leaves the cut where it is.
+    const manual: Box = [0, 0, 2, 2];
+    q = setEdge(q, { kind: 'cut', rect: manual, manual: true }, lookup);
+    q = refresh(
+      { ...q, epp: { ...q.epp!, pieces: q.epp!.pieces.map((p) => ({ ...p, at: [0, 0] })) } },
+      lookup,
+    );
+    expect(rectOf(q)).toEqual(manual);
+  });
+
+  it('a Manual cut drags by a side, a corner or its middle, snapping and keeping a ratio', () => {
+    const polys: [number, number][][] = [
+      [
+        [0, 0],
+        [4, 0],
+        [4, 3],
+        [0, 3],
+      ],
+      [
+        [5, 1],
+        [6, 2],
+        [5, 3],
+      ],
+    ];
+    const none = { x: [], y: [] };
+    const o = { snaps: none, reach: 0.2, min: 1 };
+    // A side moves alone; it never comes nearer its opposite than `min`.
+    expect(dragCut([1, 1, 3, 2], 'r', [0.5, 9], o)).toEqual([1, 1, 3.5, 2]);
+    expect(dragCut([1, 1, 3, 2], 'l', [5, 0], o)).toEqual([2, 1, 3, 2]);
+    expect(dragCut([1, 1, 3, 2], 'tl', [-0.5, -0.5], o)).toEqual([0.5, 0.5, 3, 2]);
+    expect(dragCut([1, 1, 3, 2], 'move', [1, 1], o)).toEqual([2, 2, 4, 3]);
+    // Vertex snapping: a corner's line in reach, along the side.
+    const v = { ...o, snaps: cutSnaps(polys, { vertex: true, edge: false }) };
+    expect(dragCut([1, 1, 3, 2], 'r', [1.9, 0], v)).toEqual([1, 1, 5, 2]);
+    // The triangle's tip at (6, 2) is on the side's line; its far corners (5, 1), (5, 3) too.
+    expect(dragCut([1, 1, 3, 2], 'r', [2.9, 0], v)).toEqual([1, 1, 6, 2]);
+    // Edge snapping only: the upright edge x = 5 (y 1 to 3) meets the side; no corner lines.
+    const e = { ...o, snaps: cutSnaps(polys, { vertex: false, edge: true }) };
+    expect(dragCut([1, 1, 3, 2], 'r', [1.85, 0], e)).toEqual([1, 1, 5, 2]);
+    expect(dragCut([1, 1, 3, 2], 'r', [2.5, 0], e)).toEqual([1, 1, 5.5, 2]);
+    // Moving snaps the side nearest a line (here the square's upright edge), keeping the size.
+    const both = { ...o, snaps: cutSnaps(polys, { vertex: true, edge: true }) };
+    dragCut([1, 1, 3, 2], 'move', [0.9, 0], both).forEach((x, i) =>
+      expect(x).toBeCloseTo([2, 1, 4, 2][i]!, 9),
+    );
+    // A ratio: a side keeps the middle across, a corner its opposite corner.
+    const r = { ...o, ratio: [2, 1] as [number, number] };
+    expect(dragCut([0, 0, 2, 1], 'r', [2, 0], r)).toEqual([0, -0.5, 4, 1.5]);
+    expect(dragCut([0, 0, 2, 1], 'br', [0, 1], r)).toEqual([0, 0, 4, 2]);
+    expect(dragCut([0, 0, 2, 1], 'tl', [-2, 0], r)).toEqual([-2, -1, 2, 1]);
+    // Picking a ratio: the largest of that shape inside, about the middle.
+    expect(fitRatio([0, 0, 4, 4], [2, 1])).toEqual([0, 1, 4, 3]);
+    expect(fitRatio([0, 0, 4, 1], [1, 1])).toEqual([1.5, 0, 2.5, 1]);
   });
 });

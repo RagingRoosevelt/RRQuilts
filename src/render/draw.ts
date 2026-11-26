@@ -42,6 +42,8 @@ export interface DrawOptions {
   /** Draw the quilt's reference overlay when it's switched on (the editor, a Details download);
    *  thumbnails and list downloads leave it out. */
   target?: boolean;
+  /** An EPP quilt's Cut to size being sized: the pieces it cuts away drawn faded, not left out. */
+  cutFade?: boolean;
 }
 
 const slotPaths = new WeakMap<Slot, Path2D>();
@@ -163,6 +165,10 @@ export function drawQuilt(
   const lit: GlowShape[] = [];
   const rest: GlowShape[] = [];
 
+  if (o.cutFade && quilt.layout.style === 'epp') {
+    ctx.setTransform(...base);
+    drawEppPieces(ctx, doc, quilt, fillOf, px, o, true);
+  }
   for (const slot of generated.slots) {
     ctx.setTransform(...base);
     const content = quilt.layers[0].slots[slot.id];
@@ -261,7 +267,8 @@ export function drawQuilt(
 
 /**
  * An EPP quilt's pieces and closing pieces (spec 027), in quilt units (1U × the layout's unit),
- * colored through the shown colorway. With Cut to size, clipped to the cut.
+ * colored through the shown colorway. With Cut to size, clipped to the cut; `faded`: all of them,
+ * see-through (drawn first, under the borders, while the cut is sized).
  */
 function drawEppPieces(
   ctx: CanvasRenderingContext2D,
@@ -270,6 +277,7 @@ function drawEppPieces(
   fillOf: (f: Fill | undefined) => string | CanvasPattern | undefined,
   px: number,
   o: DrawOptions,
+  faded = false,
 ) {
   if (quilt.layout.style !== 'epp' || !quilt.epp) return;
   const u = quilt.layout.unit;
@@ -280,25 +288,31 @@ function drawEppPieces(
     ...expandAll(quilt.epp.pieces, lookup).map((l) => ({ poly: l.poly, fill: l.fill })),
     ...(quilt.epp.closing ?? []).map((c) => ({ poly: c.outline, fill: close })),
   ];
+  const draw = () => {
+    for (const p of polys) {
+      ctx.beginPath();
+      p.poly.forEach(([x, y], i) => (i ? ctx.lineTo(x * u, y * u) : ctx.moveTo(x * u, y * u)));
+      ctx.closePath();
+      ctx.fillStyle = fillOf(p.fill) ?? (o.dark ? '#555' : '#ffffff');
+      ctx.fill();
+      if (o.outlines) {
+        ctx.lineWidth = px;
+        ctx.strokeStyle = o.dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
+        ctx.stroke();
+      }
+    }
+  };
   ctx.save();
-  if (edge.kind === 'cut') {
+  if (faded) {
+    ctx.globalAlpha = 0.3;
+    draw();
+  } else if (edge.kind === 'cut') {
     const [x0, y0, x1, y1] = edge.rect;
     ctx.beginPath();
     ctx.rect(x0 * u, y0 * u, (x1 - x0) * u, (y1 - y0) * u);
     ctx.clip();
   }
-  for (const p of polys) {
-    ctx.beginPath();
-    p.poly.forEach(([x, y], i) => (i ? ctx.lineTo(x * u, y * u) : ctx.moveTo(x * u, y * u)));
-    ctx.closePath();
-    ctx.fillStyle = fillOf(p.fill) ?? (o.dark ? '#555' : '#ffffff');
-    ctx.fill();
-    if (o.outlines) {
-      ctx.lineWidth = px;
-      ctx.strokeStyle = o.dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
-      ctx.stroke();
-    }
-  }
+  if (!faded) draw();
   ctx.restore();
 }
 

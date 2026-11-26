@@ -58,6 +58,8 @@ export interface Settings {
   /** EPP editors (specs 027, 050): where dragged corners land, the Angle tool's step, the
    *  placement mode, Place rosettes ungrouped, Sync grid to selected size. */
   epp: EppPrefs;
+  /** What a Manual EPP cut's sides snap to while dragged (0.9.3 roadmap). */
+  eppCutSnap: { vertex: boolean; edge: boolean };
   /** The 3D assembly tab's panes (spec 027 User Story 7): the 2D net above the 3D view, or beside it. */
   epp3dSplit: 'vertical' | 'horizontal';
   /** Labels of inspector sections the user collapsed. */
@@ -131,6 +133,7 @@ export const defaults = (): Settings => ({
   libraryType: 'block',
   epp: { vertexGrid: 'square', angleStep: 15, mode: 'free', ungrouped: false, syncGrid: true },
   epp3dSplit: 'vertical',
+  eppCutSnap: { vertex: true, edge: true },
   socials: [],
   hideLibraryBlocks: false,
   hideLibraryPalettes: false,
@@ -193,6 +196,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
     v === 'none' || v === 'category' || v === 'tags' || v === 'techniques' || v === 'shape',
   libraryType: (v) => v === 'block' || v === 'colors' || v === 'epp' || v === '',
   epp3dSplit: (v) => v === 'vertical' || v === 'horizontal',
+  eppCutSnap: (v) => isObject(v) && typeof v.vertex === 'boolean' && typeof v.edge === 'boolean',
   epp: (v) =>
     isObject(v) &&
     ['free', 'square', 'triangle'].includes(v.vertexGrid as string) &&
