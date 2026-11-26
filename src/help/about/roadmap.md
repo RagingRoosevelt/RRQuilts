@@ -37,6 +37,8 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - Step by step instructions for making a quilt, built from its layout and blocks.
 - A Move tool for quilts: select several blocks to drag, turn or flip together, replacing what they
   land on.
+- Re-color colorways in English paper piecing quilts: paint each piece and choose each placed
+  rosette's coloring apart from the primary colorway.
 
 ## 0.14.0
 
