@@ -1,6 +1,6 @@
 # Bug: `?open_url=` opens only the app's demos (now `?open_demo=`; `?open_url=` for any link to come)
 
-**Reported**: 2026-11-23 (owner) · **Status**: Open · **Area**: open links (`src/storage/demo.ts`,
+**Reported**: 2026-11-23 (owner) · **Status**: Open, target 0.11.0 (owner, 2026-11-26; was 0.9.3) · **Area**: open links (`src/storage/demo.ts`,
 `src/pages/HomePage.vue`), constitution Principle II
 
 Owner, 2026-11-23: "open_url seems to only know how to open demos. it should be able to open any
