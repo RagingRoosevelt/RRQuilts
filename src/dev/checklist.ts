@@ -236,18 +236,11 @@ export const CHECKS: Check[] = [
     to: '/?open_demo=traditional-epp.rrq',
   },
   {
-    id: 'TC-372',
+    id: 'TC-374',
     group: G.road093,
-    text: 'Add a palette with 30 or more colors, a few with very long names. A quilt colorway in Palette or Auto map mode, Colors tab: open a row’s pick. That palette shows three rows of swatches, the last two places a “+N more” button; it shows the rest, and Show fewer folds them again (the menu remembers until reload). A pick past the first rows opens its palette whole. Pick a long-named color: its name wraps to two lines and ends in …, and the sidebar never scrolls sideways (phone width too). Same in a rosette’s followed coloring and in New colorway from palette….',
-    last: '"when a palette has a ton of members, the list is really long … into an acrodian" / "the sidebar still overflows off the side and adds a horizontal scroll bar. let’s allow palette member names in the dropdown to span two lines and then truncate with an elipis"',
+    text: 'Add a palette with 30 or more colors, a few with very long names. A quilt colorway in Auto map: pick that palette. Its swatches under the field show three rows, the last two places a “+N more” button; it shows the rest, and Show fewer folds them again; picking another palette starts folded. Same under Pick from in Palette mode, and in a rosette’s Auto map and Palette colorings. Pick a long-named color in a row: its name wraps to two lines and ends in …, and the sidebar never scrolls sideways (phone width too).',
+    last: '"when a palette has a ton of members, the list is really long … into an acrodian" / "I was in automap where we show a display of the selected palette’s contents" / "let’s allow palette member names in the dropdown to span two lines and then truncate with an elipis"',
     to: '/',
-  },
-  {
-    id: 'TC-373',
-    group: G.road093,
-    text: 'With a palette of 30 or more colors: a rosette’s painted (Re-color) coloring, a quilt colorway in Re-color, and a quilt’s Design › Colors in the primary. In the sidebar palettes, that palette shows three rows of swatches, the last two places a “+N more” button; it shows the rest and Show fewer folds them again (kept until reload), at any sidebar width. Pick a color past the first rows with the eyedropper (or Find a patch painted with it): its palette opens and it scrolls into view.',
-    last: '"I’m in a rosette editor and the palette doesn’t seem to be colapsable"',
-    to: '/?open_demo=traditional-epp.rrq',
   },
 ];
 

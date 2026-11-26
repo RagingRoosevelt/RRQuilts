@@ -130,15 +130,12 @@ colorway.
 - **FR-011** (owner, 2026-11-25: "when a palette has a ton of members, the list is really long.
   let's put all but the first three rows (minus 2 entries of the last row which are replaced by a
   label for the number remaining when colapsed) into an acrodian"; "let's allow palette member names
-  in the dropdown to span two lines and then truncate with an elipis"): in a map row's swatch menu
-  (Palette and Auto map, quilt colorways and rosette colorings, and the palette swap dialog), a
-  palette longer than three rows MUST show three rows, the last two places a "+N more" button that
-  shows the rest ("Show fewer" folds them again; the current pick's palette opens whole). The
-  picked name in a row takes up to two lines, then ends in an ellipsis, and never widens the
-  sidebar. The sidebar palette tray (paint palettes: a quilt's Design Colors tab, a re-color, a
-  rosette's painted coloring) folds its palettes the same way (owner, 2026-11-25: "I'm in a
-  rosette editor and the palette doesn't seem to be colapsable"); Find and the eyedropper open
-  the palette holding the color they pick.
+  in the dropdown to span two lines and then truncate with an elipis"; "I was in automap where we
+  show a display of the selected palette's contents"): under the palette picker of Palette (Pick
+  from) and Auto map, quilt colorways and rosette colorings, a palette longer than three rows of
+  swatches MUST show three, the last two places a "+N more" button that shows the rest ("Show
+  fewer" folds them again; another palette starts folded). The picked name in a map row takes up
+  to two lines, then ends in an ellipsis, and never widens the sidebar.
 
 ## Assumptions
 

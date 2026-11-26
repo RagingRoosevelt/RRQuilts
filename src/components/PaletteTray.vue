@@ -285,7 +285,7 @@
             >
               <!-- Colors, then fabrics (spec 014: the print over its average color); or as the
                  quilter sorted the palette (spec 032). -->
-              <template v-for="sw in cuts.get(group)!.shown" :key="sw.item.id">
+              <template v-for="sw in ordered(group)" :key="sw.item.id">
                 <button
                   v-if="sw.kind === 'color'"
                   class="swatch"
@@ -348,23 +348,6 @@
                   </q-menu>
                 </button>
               </template>
-              <button
-                v-if="cuts.get(group)!.more"
-                type="button"
-                class="tray-more"
-                :aria-label="`Show ${cuts.get(group)!.more} more`"
-                @click="wholePalettes.add(cuts.get(group)!.key)"
-              >
-                +{{ cuts.get(group)!.more }} more
-              </button>
-              <button
-                v-else-if="cuts.get(group)!.key"
-                type="button"
-                class="tray-more"
-                @click="wholePalettes.delete(cuts.get(group)!.key)"
-              >
-                Show fewer
-              </button>
             </component>
           </TraySection>
         </template>
@@ -379,13 +362,6 @@
     />
   </div>
 </template>
-
-<script lang="ts">
-import { reactive } from 'vue';
-// shortcut: module state, so opened palettes last until reload (as folds in PaintMapRow).
-/** Long palettes shown whole (by library and palette). */
-const wholePalettes = reactive(new Set<string>());
-</script>
 
 <script setup lang="ts">
 import { usePaletteSort } from '@/composables/palette-sort';
@@ -468,16 +444,7 @@ const trayRoot = ref<HTMLElement>();
 // list it's in has drawn.
 watch(
   () => editor.revealTick,
-  () => {
-    // A palette showing its first rows only opens whole when the color is past them.
-    if (tab.value === 'colors' && editor.color)
-      for (const c of cuts.value.values())
-        if (
-          c.key &&
-          c.shown.length < c.all.length &&
-          c.all.some((sw) => paintOf(sw) === editor.color)
-        )
-          wholePalettes.add(c.key);
+  () =>
     void nextTick(() =>
       requestAnimationFrame(() => {
         const root = trayRoot.value;
@@ -487,8 +454,7 @@ watch(
           at(`[data-color="${CSS.escape(editor.color)}"]`);
         else if (editor.block) at(`[data-block="${CSS.escape(editor.block)}"]`);
       }),
-    );
-  },
+    ),
 );
 const tab = computed({
   get: () =>
@@ -603,37 +569,6 @@ const ordered = (g: TrayGroup) =>
         ...g.items.map((item, i) => ({ kind: 'color' as const, item, i })),
         ...g.fabrics.map((item, i) => ({ kind: 'fabric' as const, item, i })),
       ];
-/** A swatch's paint id. */
-const paintOf = (sw: ReturnType<typeof ordered>[number]) =>
-  sw.kind === 'color' ? sw.item.id : fabricPaint(sw.item.id);
-/** Sidebar: a long palette shows three rows of swatches, the last two places a "+N more" button
- *  for the rest (owner, 2026-11-25, as the colorway map's menus). Rows: the tray's width, less a
- *  section's 4 px padding each side, in 36 px swatches with 6 px gaps. */
-const ROWS = 3;
-const trayWidth = ref(0);
-let resizeObs: ResizeObserver | undefined;
-onMounted(() => {
-  if (!props.sidebar || !trayRoot.value) return;
-  resizeObs = new ResizeObserver(([e]) => (trayWidth.value = e?.contentRect.width ?? 0));
-  resizeObs.observe(trayRoot.value);
-});
-onBeforeUnmount(() => resizeObs?.disconnect());
-const cuts = computed(() => {
-  const perRow = Math.max(3, Math.floor((trayWidth.value - 8 + 6) / 42));
-  const out = new Map<TrayGroup, { key: string; all: Swatch[]; shown: Swatch[]; more: number }>();
-  for (const node of colorTree.value)
-    for (const g of node.groups) {
-      const all = ordered(g);
-      // Palettes in a library's section (each its own run of rows); not the strip.
-      const key = props.sidebar && trayWidth.value && node.lib ? `${node.lib}:${g.label}` : '';
-      const n = ROWS * perRow;
-      const cut = key && all.length > n && !wholePalettes.has(key);
-      const shown = cut ? all.slice(0, n - 2) : all;
-      out.set(g, { key: all.length > n ? key : '', all, shown, more: all.length - shown.length });
-    }
-  return out;
-});
-type Swatch = ReturnType<typeof ordered>[number];
 const colorTree = computed(() => {
   const colors = doc.value.project.palette.colors;
   const { mine, library: lib } = splitItems(colors, library.items.colors);
@@ -968,27 +903,6 @@ function remove(id: string) {
   width: 36px;
   height: 36px;
   border-color: rgba(0, 0, 0, 0.15);
-}
-/* "+N more" / "Show fewer" after a long palette's first rows: two swatches wide. */
-.tray-more {
-  flex: none;
-  width: 78px;
-  height: 36px;
-  padding: 0 4px;
-  border: 1px dashed rgba(0, 0, 0, 0.3);
-  border-radius: 6px;
-  background: none;
-  color: inherit;
-  font: inherit;
-  font-size: 12px;
-  line-height: 1.1;
-  cursor: pointer;
-}
-:global(.body--dark .tray-more) {
-  border-color: rgba(255, 255, 255, 0.35);
-}
-.tray-more:hover {
-  border-color: currentColor;
 }
 .active {
   border-color: var(--q-primary);
