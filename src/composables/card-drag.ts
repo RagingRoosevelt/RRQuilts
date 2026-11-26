@@ -11,6 +11,9 @@ export interface CardDragOptions {
   enabled: () => boolean;
   /** Put card `from` into gap `gap` (0 = before the first, count = after the last). */
   move: (from: number, gap: number) => void;
+  /** Where card `from` would really land for a drop in `gap` (null: its own place), when lists
+   *  keep some cards together (colorways after the one they follow); the glow shows that. */
+  snap?: (from: number, gap: number) => number | null;
 }
 
 const LONG_PRESS = 350;
@@ -165,7 +168,8 @@ export function useCardDrag(o: CardDragOptions) {
       pos.y,
     );
     const f = from.value!;
-    gap.value = g === null || g === f || g === f + 1 ? null : g;
+    const at = g === null || !o.snap ? g : o.snap(f, g);
+    gap.value = at === null || at === f || at === f + 1 ? null : at;
   }
 
   function onMove(e: PointerEvent) {

@@ -12,12 +12,22 @@
   >
     <div class="column q-pb-md" style="gap: 8px">
       <div class="row" style="gap: 8px">
+        <!-- Drag (or the grip's arrow keys) to reorder; Palette and Auto map colorways stay right
+             after the one they follow, the primary first. -->
         <PreviewPick
-          v-for="c in choices"
+          v-for="(c, i) in choices"
           :key="c.id ?? ''"
+          :class="[glow(i), { dragged: from === i }]"
+          :data-drag="dragList"
+          :data-drag-index="i"
+          :movable="canDrag && !!c.id"
+          :grip-id="c.id"
           :img="thumbOf(c.id, 72)"
           :name="c.name"
           :active="shown === c.id"
+          @pointerdown="c.id && onDown($event, i)"
+          @touchmove="onTouchMove"
+          @grip-key="(e: KeyboardEvent) => c.id && gripKey(e, c.id)"
           :badge="c.id ? undefined : 'Primary'"
           :icon="modeOf(c.id)?.icon"
           :tip="modeOf(c.id)?.tip"
@@ -75,7 +85,8 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
+import { useCardDrag } from '@/composables/card-drag';
 import { newId } from '@/model/ids';
 import {
   addColorway,
@@ -83,6 +94,9 @@ import {
   renameColorway,
   shownColorway,
   colorwayList,
+  colorwayGap,
+  moveColorway,
+  type SiblingMove,
 } from '@/model/colorways';
 import type { Quilt } from '@/model/schema/quilt';
 import { quiltThumbnail } from '@/render/thumbnail';
@@ -150,6 +164,39 @@ function remove(id: string | undefined, name: string) {
     ok: { label: 'Delete', color: 'negative', flat: true },
   }).onOk(() => edit((q) => removeColorway(q, id, project.doc!.project.blocks)));
 }
+// Reordering (owner, 2026-11-26): only among the colorways that follow the same one.
+const canDrag = computed(() => !props.readonly && (props.quilt.colorways?.length ?? 0) > 1);
+/** This panel's cards (one name per panel: the quilt shown can change under it). */
+const dragList = `colorways:${newId()}`;
+const { from, onDown, onTouchMove, glow } = useCardDrag({
+  list: dragList,
+  enabled: () => canDrag.value,
+  move: (f, gap) => {
+    const id = choices.value[f]?.id;
+    if (id) edit((q) => moveColorway(q, id, { gap }));
+  },
+  snap: (f, gap) => {
+    const id = choices.value[f]?.id;
+    return id ? colorwayGap(props.quilt, id, gap) : null;
+  },
+});
+function gripKey(e: KeyboardEvent, id: string) {
+  const how = (
+    {
+      ArrowLeft: { by: -1 },
+      ArrowUp: { by: -1 },
+      ArrowRight: { by: 1 },
+      ArrowDown: { by: 1 },
+      Home: { to: 'first' },
+      End: { to: 'last' },
+    } as Record<string, SiblingMove>
+  )[e.key];
+  if (!how) return;
+  e.preventDefault();
+  edit((q) => moveColorway(q, id, how));
+  void nextTick(() => document.querySelector<HTMLElement>(`[data-grip="${id}"]`)?.focus());
+}
+
 /** The count on the quilt's picture: its menu shows each colorway, Primary or its mode marked. */
 const countItems = computed(() =>
   choices.value.map((c) => ({ ...c, ...(c.id ? modeOf(c.id) : { badge: 'Primary' }) })),

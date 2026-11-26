@@ -252,7 +252,9 @@ the color that touch share one outline. Tap the
 color to keep it lit, and tap it again to stop.
 
 Each colorway can be renamed or deleted while another is left. Deleting the primary makes the next
-one the primary. The colorway shown is saved with the quilt, and printing and pictures use it.
+one the primary. A colorway that follows another always sits right after it. Drag a colorway, or
+its grip with the arrow keys, to move it among the others that follow the same one. Its own
+followers move with it. The colorway shown is saved with the quilt, and printing and pictures use it.
 
 On the project's Quilts tab, the count on a quilt's card picks the colorway shown.
 

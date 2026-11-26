@@ -298,6 +298,13 @@ export const CHECKS: Check[] = [
     last: '"in the project view, let’s move the epp tab to the left of palettes next to blocks" / "let’s also hide photos and threads tabs until we actually do something with them"',
     to: '/?open_demo=traditional-epp.rrq',
   },
+  {
+    id: 'TC-384',
+    group: G.road093,
+    text: 'A quilt with colorways A, B following A, and C (Design › Colorways): drag C before A, and A (B comes along) to the end; the glow shows where it lands, and a colorway that follows another only moves among those following the same one (B stays right after A; the primary stays first). The grip under a card does the same with the arrow keys, Home and End, keeping focus. A rosette’s Colorings the same; drag another coloring to the front: placed rosettes in the project’s EPP quilts look the same. Undo steps back each move. Touch: press and hold a card, or drag its grip.',
+    last: '"let’s allow drag-to-reorder within the constraints we imposed where manual and auto palette swaps show immediatly after the color variant they follow"',
+    to: '/?open_demo=traditional-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

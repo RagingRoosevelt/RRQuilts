@@ -4,6 +4,7 @@ import {
   baseColoring,
   deleteColoring,
   listOrder,
+  moveColoring,
   refreshColorings,
 } from '@/model/epp/rosette-colorings';
 import { addColoring, addPiece, newRosette, paintPiece } from '@/model/epp/rosette-ops';
@@ -150,5 +151,21 @@ describe('rosette colorings that follow another', () => {
       colorings: r.colorings.map((k) => (k.id === b.id ? { ...k, source: e.id } : k)),
     };
     expect(names(looped).sort()).toEqual(['A', 'B', 'C', 'D', 'E']);
+  });
+
+  it('moves a coloring among those following the same one, its followers along', () => {
+    const { r: r0, a } = twoSquares();
+    const b = addColoring(r0, undefined, { name: 'B' });
+    const c = addColoring(b.rosette, undefined, { source: b.id, name: 'C' });
+    const d = addColoring(c.rosette, undefined, { name: 'D' });
+    const r = d.rosette;
+    const names = (x: Rosette) => listOrder(x).map((k) => (k.id === a ? 'A' : k.name));
+    expect(names(r)).toEqual(['A', 'B', 'C', 'D']);
+    // B (and C after it) to the front; D dropped between B and C lands after C.
+    expect(names(moveColoring(r, b.id, { to: 'first' }))).toEqual(['B', 'C', 'A', 'D']);
+    expect(names(moveColoring(r, d.id, { gap: 2 }))).toEqual(['A', 'B', 'C', 'D']);
+    expect(names(moveColoring(r, d.id, { gap: 1 }))).toEqual(['A', 'D', 'B', 'C']);
+    // C follows B: it has no sibling to pass.
+    expect(moveColoring(r, c.id, { gap: 0 })).toBe(r);
   });
 });

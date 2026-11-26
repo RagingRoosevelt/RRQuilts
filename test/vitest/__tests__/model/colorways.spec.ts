@@ -14,7 +14,9 @@ import {
   startRecolor,
   swapColoring,
   swapper,
+  colorwayGap,
   colorwayList,
+  moveColorway,
 } from '@/model/colorways';
 import { fixture } from './helpers';
 
@@ -259,5 +261,52 @@ describe('colorway list order', () => {
       'b',
       'c',
     ]);
+  });
+});
+
+describe('moving colorways (drag and arrow keys)', () => {
+  const v = (id: string, extra: object = {}) => ({ id, name: id, swaps: [], ...extra });
+  // Shown: primary, a, d (follows a), e, b (re-color), c (follows b).
+  const q = {
+    ...structuredClone(fixture().project.quilts[0]!),
+    colorways: [
+      v('a'),
+      v('b', { recolor: { slots: {}, colorings: {} } }),
+      v('c', { source: 'b' }),
+      v('d', { source: 'a' }),
+      v('e'),
+    ],
+  } as Quilt;
+  const shown = (x: Quilt) => colorwayList(x).map((c) => c.id ?? 'primary');
+
+  it('moves among the colorways following the same one, its followers along', () => {
+    expect(shown(moveColorway(q, 'e', { by: -1 }))).toEqual(['primary', 'e', 'a', 'd', 'b', 'c']);
+    // Dropped at the very end: last of the primary's, before the re-colors.
+    expect(shown(moveColorway(q, 'a', { gap: 6 }))).toEqual(['primary', 'e', 'a', 'd', 'b', 'c']);
+    expect(shown(moveColorway(q, 'e', { to: 'first' }))).toEqual([
+      'primary',
+      'e',
+      'a',
+      'd',
+      'b',
+      'c',
+    ]);
+  });
+
+  it('a drag shows where it really lands', () => {
+    // Shown: primary 0, a 1, d 2, e 3, b 4, c 5.
+    expect(colorwayGap(q, 'e', 1)).toBe(1);
+    // A with D, dropped at the end: after E, before the re-color B.
+    expect(colorwayGap(q, 'a', 6)).toBe(4);
+    // Within its own place, or with nowhere else to go: no move.
+    expect(colorwayGap(q, 'a', 2)).toBeNull();
+    expect(colorwayGap(q, 'd', 6)).toBeNull();
+  });
+
+  it('never leaves what it follows, nor passes the primary', () => {
+    // The only one following its colorway, or the only re-color: nowhere else to go.
+    expect(moveColorway(q, 'c', { gap: 0 })).toBe(q);
+    expect(moveColorway(q, 'b', { gap: 1 })).toBe(q);
+    expect(moveColorway(q, 'a', { by: -5 })).toBe(q);
   });
 });

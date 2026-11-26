@@ -6,7 +6,7 @@
 // colors shown, worked out again on every change (syncDraft), so drawing, quilts, printing and
 // files read them as any coloring's.
 import { fillKey } from '../coloring';
-import { followOrder } from '../colorways';
+import { followOrder, siblingGap, siblingMove, type SiblingMove } from '../colorways';
 import { nearestColor, type RGB } from '../color-distance';
 import type { PaletteSwatch } from '../colorway-auto';
 import type { Fill, Swap } from '../schema/coloring';
@@ -45,10 +45,22 @@ export function followers(r: Rosette, id: string): Set<string> {
   return out;
 }
 
-/** Colorings as lists show them: each right after the one it follows (`followOrder`). The stored
- *  order stays (a placement with no coloring shows the first). */
+/** Colorings as lists show them: each right after the one it follows (`followOrder`); otherwise in
+ *  stored order, which dragging changes (`moveColoring`). */
 export const listOrder = (r: Rosette): RosetteColoring[] =>
   followOrder(r.colorings, (c) => c.source);
+
+/** Where coloring `id` lands for a drop in gap `gap` of `listOrder` (null: it doesn't move). */
+export const coloringGap = (r: Rosette, id: string, gap: number) =>
+  siblingGap(r.colorings, (c) => c.source, id, gap);
+
+/** Coloring `id` moved among the colorings that follow what it follows, those following it along
+ *  (`siblingMove`). The first coloring is the one placements without a coloring show: the caller
+ *  keeps theirs. */
+export function moveColoring(r: Rosette, id: string, how: SiblingMove): Rosette {
+  const colorings = siblingMove(r.colorings, (c) => c.source, id, how);
+  return colorings.every((c, i) => c === r.colorings[i]) ? r : { ...r, colorings };
+}
 
 /** Painted from now on: the colors it shows kept, what it followed dropped. */
 export function bake(c: RosetteColoring): RosetteColoring {

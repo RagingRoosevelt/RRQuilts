@@ -28,14 +28,101 @@ export const shownName = (q: Pick<Quilt, 'colorways' | 'shownColorway' | 'primar
 export function colorwayList(
   q: Pick<Quilt, 'colorways' | 'primaryName'>,
 ): { id: string | undefined; name: string }[] {
-  // The primary first with what follows it (Palette and Auto map without a source follow it), then
-  // each re-color (painted: it follows nothing) with what follows it.
-  const PRIMARY = '\u0000primary';
-  const primary = { id: PRIMARY, name: q.primaryName ?? 'Colorway 1' };
-  return followOrder<Pick<Colorway, 'id' | 'name' | 'source' | 'recolor'>>(
-    [primary, ...(q.colorways ?? [])],
-    (v) => (v.id === PRIMARY || v.recolor ? undefined : (v.source ?? PRIMARY)),
-  ).map((v) => ({ id: v.id === PRIMARY ? undefined : v.id, name: v.name }));
+  return followOrder(colorwayItems(q), colorwayFollows).map((v) => ({
+    id: v.id === PRIMARY ? undefined : v.id,
+    name: v.name,
+  }));
+}
+
+// The primary first with what follows it (Palette and Auto map without a source follow it), then
+// each re-color (painted: it follows nothing) with what follows it.
+const PRIMARY = '\u0000primary';
+type Listed = Pick<Colorway, 'id' | 'name' | 'source' | 'recolor'>;
+const colorwayItems = (q: Pick<Quilt, 'colorways' | 'primaryName'>): Listed[] => [
+  { id: PRIMARY, name: q.primaryName ?? 'Colorway 1' },
+  ...(q.colorways ?? []),
+];
+const colorwayFollows = (v: Listed) =>
+  v.id === PRIMARY || v.recolor ? undefined : (v.source ?? PRIMARY);
+
+/** Where colorway `id` lands for a drop in gap `gap` of `colorwayList` (null: it doesn't move). */
+export const colorwayGap = (q: Quilt, id: string, gap: number) =>
+  siblingGap(colorwayItems(q), colorwayFollows, id, gap, PRIMARY);
+
+/** Colorway `id` moved among the colorways that follow what it follows, those following it
+ *  along (`siblingMove`); the primary stays first. */
+export function moveColorway(q: Quilt, id: string, how: SiblingMove): Quilt {
+  const moved = siblingMove(colorwayItems(q), colorwayFollows, id, how, PRIMARY);
+  const colorways = moved.filter((v): v is Colorway => v.id !== PRIMARY);
+  return colorways.every((v, i) => v === q.colorways?.[i]) ? q : { ...q, colorways };
+}
+
+/** Where to: a drop in gap `gap` of the list as shown, `by` places among its siblings, or first or
+ *  last of them. */
+export type SiblingMove = { gap: number } | { by: number } | { to: 'first' | 'last' };
+
+/** Where `id` really lands for a drop in gap `gap` of the list as shown (`siblingMove`): the gap
+ *  before what will follow it and its followers, in the list as it is (null: it doesn't move). */
+export function siblingGap<T extends { id: string }>(
+  items: readonly T[],
+  follows: (t: T) => string | undefined,
+  id: string,
+  gap: number,
+  fixed?: string,
+): number | null {
+  const moved = siblingMove(items, follows, id, { gap }, fixed);
+  if (moved.every((t, i) => t === items[i])) return null;
+  const was = followOrder(items, follows);
+  const now = followOrder(moved, follows);
+  const i = now.findIndex((t) => t.id === id);
+  // It and its followers stay together: the first after them.
+  const span = was.findIndex((t) => t.id === id);
+  let size = 1;
+  const inside = new Set([id]);
+  for (const t of was.slice(span + 1)) {
+    const p = follows(t);
+    if (!p || !inside.has(p)) break;
+    inside.add(t.id);
+    size++;
+  }
+  const next = now[i + size];
+  return next ? was.indexOf(next) : was.length;
+}
+
+/**
+ * `items` with `id` moved among its siblings (the items that follow what it follows, in the list
+ * `followOrder` shows), so the list keeps each item right after the one it follows; its followers
+ * come along. A drop past its siblings stops at the first or last place. `fixed` never moves.
+ */
+export function siblingMove<T extends { id: string }>(
+  items: readonly T[],
+  follows: (t: T) => string | undefined,
+  id: string,
+  how: SiblingMove,
+  fixed?: string,
+): T[] {
+  const ids = new Set(items.map((t) => t.id));
+  const parent = (t: T) => {
+    const p = follows(t);
+    return p && p !== t.id && ids.has(p) ? p : undefined;
+  };
+  const me = items.find((t) => t.id === id);
+  if (!me || id === fixed) return [...items];
+  const others = items.filter((t) => t !== me && t.id !== fixed && parent(t) === parent(me));
+  const now = items.filter((t) => t.id !== fixed && parent(t) === parent(me)).indexOf(me);
+  let to: number;
+  if ('gap' in how) {
+    // Siblings whose place in the list starts before the gap stay before it.
+    const at = new Map(followOrder(items, follows).map((t, i) => [t.id, i]));
+    to = others.filter((t) => at.get(t.id)! < how.gap).length;
+  } else if ('by' in how) to = now + how.by;
+  else to = how.to === 'first' ? 0 : others.length;
+  to = Math.max(0, Math.min(to, others.length));
+  if (to === now || !others.length) return [...items];
+  const rest = items.filter((t) => t !== me);
+  const anchor = to === 0 ? others[0]! : others[to - 1]!;
+  const k = rest.indexOf(anchor) + (to === 0 ? 0 : 1);
+  return [...rest.slice(0, k), me, ...rest.slice(k)];
 }
 
 /**

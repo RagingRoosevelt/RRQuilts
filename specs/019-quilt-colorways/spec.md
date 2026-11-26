@@ -148,7 +148,11 @@ colorway.
   colorings (spec 050 FR-003b). A Palette or Auto map colorway with no Follows follows the primary
   (owner, 2026-11-25: "I just created a colorway that's an auto map of the primary and it's showing
   up after a recolor"), so the primary's come first; a re-color follows nothing, so re-colors come
-  after them, each with its own. Display only: the stored order stays.
+  after them, each with its own. The stored order is the order among siblings: dragging a
+  colorway, or its grip with the arrow keys, Home and End (owner, 2026-11-26: "let's allow
+  drag-to-reorder within the constraints we imposed"), moves it among the colorways that follow
+  the same one, its followers along (`siblingMove`); the glow shows where it really lands; the
+  primary stays first.
 - **FR-014** (owner, 2026-11-26: "the coloration count badge/button for blocks and epp rosettes
   aren't in the same place … we should align the quilt one, too. it would be good to show the names
   as well. I think we should also continue to show the mode badges but those should only show on the

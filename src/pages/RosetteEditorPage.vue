@@ -139,11 +139,20 @@
           <template v-if="epp.rosetteTool === 'paint'">
             <div class="text-subtitle2">Colorings</div>
             <!-- As a quilt's colorways: each a picture, its mode on the corner; each followed at
-                 once by the colorings that follow it. -->
+                 once by the colorings that follow it. Drag (or the grip's arrow keys) to reorder
+                 among the colorings that follow the same one. -->
             <div class="row" style="gap: 8px">
               <PreviewPick
-                v-for="c in listOrder(rosette)"
+                v-for="(c, i) in listOrder(rosette)"
                 :key="c.id"
+                :class="[glow(i), { dragged: dragFrom === i }]"
+                data-drag="rosette-colorings"
+                :data-drag-index="i"
+                :movable="!ro && rosette.colorings.length > 1"
+                :grip-id="c.id"
+                @pointerdown="dragDown($event, i)"
+                @touchmove="dragTouch"
+                @grip-key="(e: KeyboardEvent) => coloringKey(e, c.id)"
                 :img="previews.get(c.id) ?? ''"
                 :name="c.name ?? `Coloring ${rosette.colorings.indexOf(c) + 1}`"
                 :active="c.id === coloringId"
@@ -266,7 +275,8 @@
 // mode, snap them edge to edge, close gaps, color them like a block.
 import { useQuasar } from 'quasar';
 import HelpLink from '@/components/HelpLink.vue';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, nextTick, ref, shallowRef, watch } from 'vue';
+import { castDraft } from 'immer';
 import { useRoute } from 'vue-router';
 import DetailsPanel from '@/components/DetailsPanel.vue';
 import EppCanvas, { type CanvasPoly, type Decor, type Grid } from '@/components/EppCanvas.vue';
@@ -324,7 +334,15 @@ import PreviewPick from '@/components/PreviewPick.vue';
 import RosetteColoringMap from '@/components/RosetteColoringMap.vue';
 import { useSwapOptions } from '@/composables/swap-options';
 import { fillKey } from '@/model/coloring';
-import { baseColoring, listOrder, swapperOf } from '@/model/epp/rosette-colorings';
+import {
+  baseColoring,
+  coloringGap,
+  listOrder,
+  moveColoring,
+  swapperOf,
+} from '@/model/epp/rosette-colorings';
+import type { SiblingMove } from '@/model/colorways';
+import { useCardDrag } from '@/composables/card-drag';
 import type { RrqDoc } from '@/model/schema/project';
 import { useEditorStore } from '@/stores/editor';
 import { useEppEditorStore, type RosetteTool } from '@/stores/epp-editor';
@@ -941,6 +959,62 @@ function picture(r: Rosette, id: string, fills?: Record<string, Fill>, doc: RrqD
     }),
   );
 }
+/**
+ * Coloring `cid` moved among the colorings that follow the same one (owner, 2026-11-26). The first
+ * coloring is what placements without a coloring show: when another becomes first, this project's
+ * EPP quilts keep showing the one they did.
+ */
+function moveColoringTo(cid: string, how: SiblingMove) {
+  const r = own.value;
+  if (ro.value || !r) return;
+  const next = moveColoring(r, cid, how);
+  if (next === r) return;
+  const first = r.colorings[0]!.id;
+  project.change((d) => {
+    const k = (d.project.rosettes ?? []).findIndex((x) => x.id === r.id);
+    if (k < 0) return;
+    d.project.rosettes![k] = castDraft(next);
+    if (next.colorings[0]!.id !== first)
+      for (const q of d.project.quilts)
+        for (const p of q.epp?.pieces ?? [])
+          if (p.rosette === r.id && !p.coloring) p.coloring = first;
+  });
+}
+const {
+  from: dragFrom,
+  onDown: dragDown,
+  onTouchMove: dragTouch,
+  glow,
+} = useCardDrag({
+  list: 'rosette-colorings',
+  enabled: () => !ro.value && (rosette.value?.colorings.length ?? 0) > 1,
+  move: (f, gap) => {
+    const c = rosette.value && listOrder(rosette.value)[f];
+    if (c) moveColoringTo(c.id, { gap });
+  },
+  snap: (f, gap) => {
+    const r = rosette.value;
+    const c = r && listOrder(r)[f];
+    return c ? coloringGap(r, c.id, gap) : null;
+  },
+});
+function coloringKey(e: KeyboardEvent, cid: string) {
+  const how = (
+    {
+      ArrowLeft: { by: -1 },
+      ArrowUp: { by: -1 },
+      ArrowRight: { by: 1 },
+      ArrowDown: { by: 1 },
+      Home: { to: 'first' },
+      End: { to: 'last' },
+    } as Record<string, SiblingMove>
+  )[e.key];
+  if (!how) return;
+  e.preventDefault();
+  moveColoringTo(cid, how);
+  void nextTick(() => document.querySelector<HTMLElement>(`[data-grip="${cid}"]`)?.focus());
+}
+
 /** Each coloring as a picture, for the colorings list. */
 const previews = computed(() => {
   const r = rosette.value;
