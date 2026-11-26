@@ -133,7 +133,8 @@ colorway.
   in the dropdown to span two lines and then truncate with an elipis"; "I was in automap where we
   show a display of the selected palette's contents"): under the palette picker of Palette (Pick
   from) and Auto map, quilt colorways and rosette colorings, a palette longer than three rows of
-  swatches MUST show three, the last two places a "+N more" button that shows the rest ("Show
+  swatches MUST show three, the last three places a "+N more" button (owner, 2026-11-25: "let's
+  reserve the last three spots") that shows the rest ("Show
   fewer" folds them again; another palette starts folded). The picked name in a map row takes up
   to two lines, then ends in an ellipsis, and never widens the sidebar.
 

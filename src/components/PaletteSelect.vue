@@ -56,7 +56,7 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:modelValue': [v: string | null] }>();
 const chosen = computed(() => props.options.find((p) => p.id === props.modelValue));
 
-/** A long palette shows three rows of swatches, the last two places a "+N more" button for the
+/** A long palette shows three rows of swatches, the last three places a "+N more" button for the
  *  rest (owner, 2026-11-25). Rows: the width in 22 px swatches with 3 px gaps. */
 const ROWS = 3;
 const root = ref<HTMLElement>();
@@ -77,7 +77,7 @@ const fold = computed(() => {
   const all = chosen.value?.colors ?? [];
   const n = ROWS * Math.max(3, Math.floor((width.value + 3) / 25));
   const long = !!width.value && all.length > n;
-  return { long, shown: long && !whole.value ? all.slice(0, n - 2) : all };
+  return { long, shown: long && !whole.value ? all.slice(0, n - 3) : all };
 });
 const long = computed(() => fold.value.long);
 const shown = computed(() => fold.value.shown);
@@ -93,7 +93,7 @@ const more = computed(() => (chosen.value?.colors?.length ?? 0) - shown.value.le
 }
 .more {
   height: 22px;
-  min-width: 47px;
+  min-width: 72px; /* three swatches and their gaps */
   padding: 0 4px;
   border: 1px dashed rgba(128, 128, 128, 0.6);
   border-radius: 3px;

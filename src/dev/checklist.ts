@@ -238,7 +238,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-374',
     group: G.road093,
-    text: 'Add a palette with 30 or more colors, a few with very long names. A quilt colorway in Auto map: pick that palette. Its swatches under the field show three rows, the last two places a “+N more” button; it shows the rest, and Show fewer folds them again; picking another palette starts folded. Same under Pick from in Palette mode, and in a rosette’s Auto map and Palette colorings. Pick a long-named color in a row: its name wraps to two lines and ends in …, and the sidebar never scrolls sideways (phone width too).',
+    text: 'Add a palette with 30 or more colors, a few with very long names. A quilt colorway in Auto map: pick that palette. Its swatches under the field show three rows, the “+N more” button in the last three places of the third row (never on a row of its own, at any sidebar width); it shows the rest, and Show fewer folds them again; picking another palette starts folded. Same under Pick from in Palette mode, and in a rosette’s Auto map and Palette colorings. Pick a long-named color in a row: its name wraps to two lines and ends in …, and the sidebar never scrolls sideways (phone width too).',
     last: '"when a palette has a ton of members, the list is really long … into an acrodian" / "I was in automap where we show a display of the selected palette’s contents" / "let’s allow palette member names in the dropdown to span two lines and then truncate with an elipis"',
     to: '/',
   },
