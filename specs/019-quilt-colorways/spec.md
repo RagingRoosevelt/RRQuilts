@@ -155,7 +155,9 @@ colorway.
   quilt view of the component"): one count badge (ColoringCount) MUST serve blocks, rosettes (an EPP
   quilt's picker) and quilts (card, Details): at the picture's bottom right with the larger tap
   zone; its menu shows each coloring or colorway as a picture with its name (the Colorways card);
-  only a quilt's carry Primary or their mode.
+  only a quilt's carry Primary or their mode. Rosette cards on the project's EPP tab and in
+  Libraries carry it too (owner, 2026-11-26: "in the project view, rosettes don't seem to have a
+  coloration count badge"); the project's shares the coloring shown with the EPP quilt picker.
 
 ## Assumptions
 

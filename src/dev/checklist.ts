@@ -284,6 +284,13 @@ export const CHECKS: Check[] = [
     last: '"the coloration count badge/button for blocks and epp rosettes aren’t in the same place" / "we should align the quilt one, too. it would be good to show the names as well … mode badges … should only show on the quilt view of the component"',
     to: '/?open_demo=traditional-epp.rrq',
   },
+  {
+    id: 'TC-382',
+    group: G.road093,
+    text: 'Traditional EPP demo › project › EPP tab: Garden Flower shows a 6 on its picture’s bottom right (Leaf a 2), as block cards. Its menu shows each coloring with its name in the Colorings order; pick one and the card shows it, and an EPP quilt’s Shapes picker places that one. Libraries › EPP shapes and rosettes: rosettes with several colorings have the same count.',
+    last: '"in the project view, rosettes don’t seem to have a coloration count badge"',
+    to: '/?open_demo=traditional-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
