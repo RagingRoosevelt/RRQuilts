@@ -1,5 +1,5 @@
 import Type from 'typebox';
-import { ColoringBody, Fill } from './coloring';
+import { AutoMap, ColoringBody, Swap } from './coloring';
 import { DataPlan } from './data-quilt';
 import { EppDesign, EppLayout } from './epp';
 import { Id, ItemId, Size, Vec2, itemBase } from './shared';
@@ -289,7 +289,6 @@ export const QuiltTarget = Type.Object({
 
 /** A colorway of a quilt (a palette swap of its primary colorway): every piece colored `from` (a
  *  fill key, e.g. "color:<id>") shows `to` instead. Edits to the quilt show in every colorway. */
-const Swap = Type.Object({ from: Type.String({ maxLength: 200 }), to: Fill });
 export const Colorway = Type.Object({
   id: Id,
   name: Type.String({ maxLength: 100 }),
@@ -304,12 +303,7 @@ export const Colorway = Type.Object({
   /** Auto mapping (spec 024, v9): each color of the `source` colorway becomes its nearest color or
    *  fabric in `palette` (a project or library palette id), except `overrides` (by the base's fill
    *  key, as `swaps`). Up to v12 it held the source itself. */
-  auto: Type.Optional(
-    Type.Object({
-      palette: Type.String({ maxLength: 200 }),
-      overrides: Type.Optional(Type.Array(Swap, { maxItems: 1000 })),
-    }),
-  ),
+  auto: Type.Optional(AutoMap),
   /** Palette mode: the palette its replacement choices come from (none: all). */
   palette: Type.Optional(Type.String({ maxLength: 200 })),
   /** Re-color mode (v13): the colorway's own coloring of each block space, painted as the primary

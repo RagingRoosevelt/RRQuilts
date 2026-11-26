@@ -69,7 +69,10 @@ where a step says so. Use the project's Makefile targets (see CLAUDE.md).
    `test/fixtures/formats/`, write samples with this release's code (see that folder's README) and
    add only the new versions. For a new project version, also add the version's new layouts to
    `ADDED` in `write-demo.spec.ts`, write `demo-vN.rrq`, and save its pictures with this release's
-   build (all in that README). Then have the user open the dev server's Tests ›
+   build (all in that README). A new `.rrqlib` version also goes into the library template
+   (`~/Code/rrquilts-library-template`, a branch may be waiting, e.g. `rrqlib-9`): merge it into its
+   `main` and push once this release is live, then upgrade our library repos (CLAUDE.md, Data).
+   Then have the user open the dev server's Tests ›
    Picture check (`make dev`, `/dev/pictures`) and wait for their OK on it (they name problems by
    the reference labels).
 7. **Commit** on the release branch: `make commit MSG="Release X.Y.Z"` (it runs the checks,

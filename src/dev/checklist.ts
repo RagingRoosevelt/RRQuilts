@@ -214,6 +214,13 @@ export const CHECKS: Check[] = [
     last: '"the “largest rectangle the pices fill” should turn into a toggle with the other option being “manual” … should show several toggles for snapping the crop rectange with “snap to vertex” and “snap to edge” options" · "there should also be an “aspect ratio” dropdown that has several common aspect ratios as well as “freeform”"',
     to: '/?open_demo=traditional-epp.rrq',
   },
+  {
+    id: 'TC-369',
+    group: G.road093,
+    text: 'A rosette of your own › Design › Colors: New coloring from palette… opens the quilt colorways’ dialog with Palette, Auto mapping and Re-color, before and after pictures of the rosette. Add one in each mode. Palette and Auto mapping show a Mode, Follows, palette and a row per color in place of the palettes (with a sparkle or arrows icon on their chips); Paint says their colors are set there. Repaint the coloring they follow: they follow (Auto mapping picks the nearest again; picks by hand stay, with Automatic to undo one). Change Follows: the picks stay. Switch to Re-color: the colors stay and you can paint; switch a painted one to Palette: it asks first. Delete a coloring others follow: they look the same. Place the rosette in an EPP quilt in a followed coloring, print it, export it (.rrqepp) and add it to My library: the colors are as shown. Undo steps back each change.',
+    last: '"Palette swaps for rosette colorings (this should use the same mechanism as we use for quilts, with options for palette, auto palette, and recolor)"',
+    to: '/?open_demo=traditional-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

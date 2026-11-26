@@ -44,6 +44,15 @@ export const ColoringBody = Type.Object({
   cleared: Type.Optional(Type.Array(Type.String())),
 });
 
+/** A colorway's pick: every patch colored `from` (a fill key, e.g. "color:<id>") shows `to`. */
+export const Swap = Type.Object({ from: Type.String({ maxLength: 200 }), to: Fill });
+/** Auto mapping (spec 024): each color becomes its nearest color or fabric in `palette` (a project
+ *  or library palette id), except `overrides` (picked by hand, keyed as swaps). */
+export const AutoMap = Type.Object({
+  palette: Type.String({ maxLength: 200 }),
+  overrides: Type.Optional(Type.Array(Swap, { maxItems: 1000 })),
+});
+
 export const Coloring = Type.Object({
   id: Id,
   name: Type.Optional(Type.String()),
@@ -55,3 +64,4 @@ export type PlainFill = Type.Static<typeof PlainFill>;
 export type DataPaint = Type.Static<typeof DataPaint>;
 export type ColoringBody = Type.Static<typeof ColoringBody>;
 export type Coloring = Type.Static<typeof Coloring>;
+export type Swap = Type.Static<typeof Swap>;

@@ -8,8 +8,9 @@ import { itemBase, Links, Socials } from './shared';
 
 export const LIBRARY_FORMAT = 'rrqlib';
 /** v6: data blocks (spec 025: data paints, kind, month variants). v7: 2-day variants (spec 046).
- *  v8: EPP shapes and rosettes (specs 027, 050). */
-export const LIBRARY_VERSION = 8;
+ *  v8: EPP shapes and rosettes (specs 027, 050). v9: rosette colorings that follow another
+ *  (Palette, Auto mapping; 0.9.3). */
+export const LIBRARY_VERSION = 9;
 
 /**
  * A palette: a named set of colors and fabrics (spec 014); each keeps its own `id@version` so

@@ -295,7 +295,7 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   `lookupEpp`), `snap.ts`/`grid.ts`/`grow.ts` (rosette Free/Grid/Grow), `checks.ts`, `faces.ts`
   (gaps, Close space), `match.ts` (outline → shape + pose), `edge.ts` (Cut to size: Largest rectangle, exact line coverage, re-fitted in `refresh`; Manual dragged on the Layout picture via `composables/epp-cut.ts` = a QuiltCanvas `overlay`; Auto-close),
   `quilt-ops.ts`/`rosette-ops.ts`/`shape-ops.ts` (pure edits; `refresh` keeps box/closing current),
-  `as-block.ts` (rosettes as blocks in block quilts: block id `<rosette>-epp`, made by `syncDraft`),
+  `as-block.ts` (rosettes as blocks in block quilts: block id `<rosette>-epp`, made by `syncDraft`), `rosette-colorings.ts` (colorings that follow another, rrqlib v9: `source` + `swaps`/`auto` as quilt colorways, fills worked out in `syncDraft`; UI `RosetteColoringMap.vue`),
   `print.ts` (templates). Built-ins: `content/epp.ts` (shapes by category, rosettes)
 - UI: `ShapeEditorPage`, `RosetteEditorPage`, `EppDesign.vue` (EPP quilt Design tab) on
   `EppCanvas.vue`, `EppLayoutSection.vue` (Layout tab: unit, edge, 3D EPP, Stuffed design),

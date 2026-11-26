@@ -1,6 +1,7 @@
 <template>
-  <!-- A new block coloring or quilt colorway from a palette swap: pick a palette and each color
-       becomes its nearest there (or map each by hand), with before and after pictures. -->
+  <!-- A new block coloring, quilt colorway or rosette coloring from a palette swap: pick a palette
+       and each color becomes its nearest there (or map each by hand), with before and after
+       pictures. -->
   <q-dialog v-model="open">
     <q-card v-if="job" style="width: 520px; max-width: 95vw">
       <DialogClose />
@@ -10,9 +11,9 @@
           Pick a palette: each color of {{ job.title }} becomes its nearest color or fabric there,
           and you can change any of them.
         </div>
-        <!-- Quilt colorways (spec 024): Palette is a one-time swap; Auto mapping keeps following
-             the source colorway's colors and the palette; Re-color starts from the swap, then is
-             painted patch by patch. -->
+        <!-- Quilt colorways (spec 024) and rosette colorings: Palette is picked by hand; Auto
+             mapping keeps following the source's colors and the palette; Re-color starts from the
+             swap, then is painted patch by patch. -->
         <template v-if="job.auto">
           <SlidePicker
             v-model="mode"
@@ -29,8 +30,10 @@
               mode === 'auto'
                 ? `Keeps following ${job.title}: when its colors or the palette change, the matches change too. Colors you pick by hand stay.`
                 : mode === 'recolor'
-                  ? 'Starts with these colors. Then paint any patch in the Design tab, as in the primary colorway.'
-                  : 'A one-time copy: later changes to the colors don’t carry over.'
+                  ? (job.recolor?.hint ??
+                    'Starts with these colors. Then paint any patch in the Design tab, as in the primary colorway.')
+                  : (job.manualHint ??
+                    'A one-time copy: later changes to the colors don’t carry over.')
             }}
           </div>
         </template>
@@ -105,12 +108,17 @@ type Job = {
   before: string;
   preview: (map: Record<string, string>, name: string | undefined, doc: RrqDoc) => string;
   done: (map: Record<string, string>, name: string | undefined) => void;
-  /** Quilt colorways: an Auto mapping instead (palette id; overrides: source paint → pick). */
+  /** Palette mode's caption, when it differs from a one-time copy. */
+  manualHint?: string;
+  /** An Auto mapping instead (palette id; overrides: source paint → pick). */
   auto?: {
     done: (palette: string, overrides: Record<string, string>, name: string | undefined) => void;
   };
-  /** Quilt colorways: a re-color starting from the mapping. */
-  recolor?: { done: (map: Record<string, string>, name: string | undefined) => void };
+  /** A re-color starting from the mapping (`hint`: what happens next, in the caption). */
+  recolor?: {
+    done: (map: Record<string, string>, name: string | undefined) => void;
+    hint?: string;
+  };
 };
 
 const project = useProjectStore();

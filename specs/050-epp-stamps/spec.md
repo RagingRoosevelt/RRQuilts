@@ -114,8 +114,8 @@ place in a quilt.
    Then: "it only filled in one of the spaces produced by the gap fill I made" (the first version
    filled only the smaller side).
 5. **Given** the rosette editor, **Then** the quilter paints pieces with real colors and fabrics in
-   the current coloring, adds, copies and deletes colorings, and swaps palettes, as in the block
-   editor.
+   the current coloring, adds, copies and deletes colorings, and swaps palettes as quilt colorways
+   do (FR-003a).
 
 ---
 
@@ -219,6 +219,19 @@ menu opens the same.
   only), turn, mirror, Scale, copy, delete, paint, libraries, packs, printing.
 - **FR-003**: Rosettes MUST have colorings and color variants as blocks do; a placement picks a
   coloring and can be repainted with the editor's scopes.
+- **FR-003a**: **New coloring from palette** MUST make a coloring from the one shown with the quilt
+  colorways' dialog and modes (spec 019, spec 024): **Palette** (picks by hand) and **Auto mapping**
+  (each color its nearest in a palette, unless picked by hand) keep following the coloring they
+  came from (`source`); **Re-color** is painted. Picks are keyed by the base's colors (the painted
+  coloring the chain of sources reaches), so changing **Follows** changes no pick. A followed
+  coloring's map (mode, Follows, palette, a row per color) shows in place of the palettes, and
+  Paint says its colors are set there; a painted coloring can be switched to follow another
+  (its painting goes, after asking). Deleting a coloring keeps every other's look (its followers
+  follow what it followed; when it was painted, the colorings built on it become painted).
+  Followed colorings' fills are the colors shown, worked out on every change, so placements,
+  printing and files read them as any coloring's. rrq v13, rrqlib v9, rrqepp v2. Owner,
+  2026-11-25: "Palette swaps for rosette colorings (this should use the same mechanism as we use
+  for quilts, with options for palette, auto palette, and recolor)"; live, with .rrqlib bumped.
 - **FR-004**: Placed rosettes MUST stay linked to their rosette (edits update every placement, with undo)
   until broken into patches.
 - **FR-005**: Rosettes MUST NOT nest: a rosette placed into a rosette is copied in as its pieces

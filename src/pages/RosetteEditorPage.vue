@@ -142,6 +142,7 @@
               <q-chip
                 v-for="(c, i) in rosette.colorings"
                 :key="c.id"
+                :icon="c.source ? (c.auto ? 'auto_awesome' : 'swap_horiz') : undefined"
                 clickable
                 :outline="c.id !== coloringId"
                 :color="c.id === coloringId ? 'primary' : undefined"
@@ -172,8 +173,27 @@
                 :disable="ro"
                 @click="newColoring(coloringId)"
               />
+              <q-btn
+                outline
+                dense
+                no-caps
+                icon="palette"
+                label="New coloring from palette…"
+                :disable="ro"
+                @click="startSwap"
+              />
             </div>
+            <!-- Its mode (Palette, Auto mapping, Re-color) as a quilt colorway's; followed, its
+                 colors are set in the map, painted, with the palettes. -->
+            <RosetteColoringMap
+              v-if="coloringId"
+              :rosette="rosette"
+              :coloring-id="coloringId"
+              :readonly="ro"
+              :change="edit"
+            />
             <q-expansion-item
+              v-if="!followed"
               dense
               default-opened
               label="Colors and fabrics"
@@ -231,6 +251,7 @@
         </template>
       </div>
     </div>
+    <PaletteSwapDialog ref="swapDialog" />
   </q-page>
 </template>
 
@@ -256,9 +277,9 @@ import PrintZoom from '@/components/PrintZoom.vue';
 import { useEppSelection } from '@/composables/epp-selection';
 import { DUPLICATE_ID, movePose, turnStops } from '@/model/epp/selection';
 import type { World } from '@/composables/viewport';
-import { fillFor } from '@/editor/paint';
+import { fillFor, paintOf } from '@/editor/paint';
 import { checkOutline, failing, passes, problems, unmarked } from '@/model/epp/checks';
-import { expand, lookupEpp, rosetteLeaves, type Leaf } from '@/model/epp/expand';
+import { expand, lookupEpp, rosetteLeaves, rosetteLocal, type Leaf } from '@/model/epp/expand';
 import {
   outerEdges,
   overlapping,
@@ -291,6 +312,13 @@ import { isLibraryItem } from '@/model/library-items';
 import type { Rosette } from '@/model/schema/epp';
 import type { Fill } from '@/model/schema/coloring';
 import { colorLookup, type View } from '@/render/draw';
+import { eppSvg } from '@/render/epp-svg';
+import PaletteSwapDialog from '@/components/PaletteSwapDialog.vue';
+import RosetteColoringMap from '@/components/RosetteColoringMap.vue';
+import { useSwapOptions } from '@/composables/swap-options';
+import { fillKey } from '@/model/coloring';
+import { baseColoring, swapperOf } from '@/model/epp/rosette-colorings';
+import type { RrqDoc } from '@/model/schema/project';
 import { useEditorStore } from '@/stores/editor';
 import { useEppEditorStore, type RosetteTool } from '@/stores/epp-editor';
 import { useLibraryStore } from '@/stores/library';
@@ -395,7 +423,11 @@ const TOOLS: { id: RosetteTool; icon: string; label: string; hint: string; cls?:
 ];
 const DUPLICATE_HINT =
   'Duplicate (Ctrl+D): the picked pieces become a temporary rosette at the top of the sidebar, to place as often as you like until the next Duplicate';
-const toolHint = computed(() => TOOLS.find((t) => t.id === epp.rosetteTool)?.hint ?? '');
+const toolHint = computed(() =>
+  epp.rosetteTool === 'paint' && followed.value
+    ? 'This coloring follows another: set its colors in the map below.'
+    : (TOOLS.find((t) => t.id === epp.rosetteTool)?.hint ?? ''),
+);
 
 const view = computed({
   get: () => epp.views.get(`rosette:${id.value}`),
@@ -641,6 +673,7 @@ function onTap(p: World) {
     if (t === 'mirror') return sel.flip('x');
     if (t === 'mirrorY') return sel.flip('y');
     if (t === 'turn') return sel.turn();
+    if (t === 'paint' && followed.value) return followedNote();
     if (t === 'paint' && coloringId.value) {
       const [k, f, ids] = [coloringId.value, paintNow() ?? null, [...epp.selection]];
       return edit((r) => ids.reduce((out, id) => paintPiece(out, k, id, f), r));
@@ -651,6 +684,7 @@ function onTap(p: World) {
     const flipped = movePose(piece, { pivot: piece.at, flip: t === 'mirror' ? 'x' : 'y' });
     return edit((r) => movePiece(r, piece.id, { ...flipped, mirror: !!flipped.mirror }));
   }
+  if (t === 'paint' && followed.value) return followedNote();
   if (t === 'paint' && coloringId.value)
     return edit((r) => paintPiece(r, coloringId.value!, piece.id, paintNow() ?? null));
   if (t === 'turn') {
@@ -875,6 +909,91 @@ function onToolClick(t: RosetteTool) {
 function setScale(v: number) {
   if (epp.selection.size) sel.scaleTo(v);
   else epp.scale = v;
+}
+
+/** The coloring shown follows another (Palette, Auto mapping): its colors are set in its map. */
+const followed = computed(
+  () => !!rosette.value?.colorings.find((c) => c.id === coloringId.value)?.source,
+);
+const followedNote = () =>
+  void $q.notify({
+    message: 'This coloring’s colors are set in its map. Make it a Re-color to paint pieces.',
+    timeout: 2000,
+  });
+
+// --- New coloring from palette (0.9.3 roadmap): the quilt colorways' dialog and modes ---
+const swapDialog = ref<InstanceType<typeof PaletteSwapDialog>>();
+const { paintOpt } = useSwapOptions();
+/** Rosette `r` in coloring `id` (or these `fills`) as a picture, colored as `doc` has them. */
+function picture(r: Rosette, id: string, fills?: Record<string, Fill>, doc: RrqDoc = project.doc!) {
+  const css = colorLookup(doc, library.items.colors, undefined, library.items.fabrics);
+  return eppSvg(
+    rosetteLocal(r, lookup.value, id, fills).map((l) => {
+      const v = css(l.fill);
+      return { poly: l.poly, fill: typeof v === 'string' ? v : undefined };
+    }),
+  );
+}
+function startSwap() {
+  const r = rosette.value;
+  const cur = r?.colorings.find((c) => c.id === coloringId.value);
+  const base = r && cur && baseColoring(r, cur);
+  if (!r || !cur || !base) return;
+  const shows = swapperOf(cur);
+  // Each base color with how this coloring shows it: picks are keyed by the base's.
+  const pairs = [...new Map(Object.values(base.fills).map((f) => [fillKey(f), f])).values()].map(
+    (f) => ({ key: fillKey(f), shown: paintOf(shows(f))! }),
+  );
+  const used = [...new Set(pairs.map((p) => p.shown))].flatMap((id) => paintOpt(id) ?? []);
+  const mapped = (map: Record<string, string>) =>
+    Object.fromEntries(
+      Object.entries(cur.fills).map(([k, f]) => {
+        const to = map[paintOf(f)!];
+        return [k, to ? fillFor(to) : f];
+      }),
+    );
+  const keyed = (map: Record<string, string>) =>
+    pairs.flatMap((p) => {
+      const to = map[p.shown] ?? p.shown;
+      return fillKey(fillFor(to)) === p.key ? [] : [{ from: p.key, to: fillFor(to) }];
+    });
+  const add = (extra: Parameters<typeof addColoring>[2], name: string | undefined) => {
+    let made = '';
+    edit((x) => {
+      const out = addColoring(x, undefined, { ...extra, ...(name ? { name } : {}) });
+      made = out.id;
+      return out.rosette;
+    });
+    if (made) coloringId.value = made;
+  };
+  const title = cur.name ? `${r.notecard.name} (${cur.name})` : r.notecard.name;
+  swapDialog.value?.show({
+    heading: 'New coloring from palette swap',
+    title,
+    okLabel: 'Add coloring',
+    used,
+    before: picture(r, cur.id),
+    preview: (map, _name, doc) => picture(r, cur.id, mapped(map), doc),
+    manualHint: `Follows ${title}: repainting it shows in the new coloring too, with these picks.`,
+    done: (map, name) => add({ source: cur.id, swaps: keyed(map) }, name),
+    auto: {
+      // Picked by hand (shown color → pick), keyed by the base's colors.
+      done: (palette, overrides, name) => {
+        const over = pairs.flatMap((p) => {
+          const to = overrides[p.shown];
+          return to ? [{ from: p.key, to: fillFor(to) }] : [];
+        });
+        add(
+          { source: cur.id, auto: { palette, ...(over.length ? { overrides: over } : {}) } },
+          name,
+        );
+      },
+    },
+    recolor: {
+      done: (map, name) => add({ fills: mapped(map) }, name),
+      hint: 'Starts with these colors. Then paint any piece, as in any coloring.',
+    },
+  });
 }
 
 function newColoring(copyOf?: string) {
