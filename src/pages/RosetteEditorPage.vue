@@ -138,21 +138,22 @@
           <!-- Paint: colorings and colors first; the shape picker steps aside. -->
           <template v-if="epp.rosetteTool === 'paint'">
             <div class="text-subtitle2">Colorings</div>
-            <div class="row" style="gap: 6px">
-              <q-chip
+            <!-- As a quilt's colorways: each a picture, its mode on the corner. -->
+            <div class="row" style="gap: 8px">
+              <PreviewPick
                 v-for="(c, i) in rosette.colorings"
                 :key="c.id"
+                :img="previews.get(c.id) ?? ''"
+                :name="c.name ?? `Coloring ${i + 1}`"
+                :active="c.id === coloringId"
                 :icon="c.source ? (c.auto ? 'auto_awesome' : 'swap_horiz') : undefined"
-                clickable
-                :outline="c.id !== coloringId"
-                :color="c.id === coloringId ? 'primary' : undefined"
-                :text-color="c.id === coloringId ? 'white' : undefined"
-                :removable="!ro && rosette.colorings.length > 1"
-                @click="coloringId = c.id"
-                @remove="edit((r) => deleteColoring(r, c.id))"
-              >
-                {{ c.name ?? `Coloring ${i + 1}` }}
-              </q-chip>
+                :tip="c.source ? (c.auto ? 'Auto map' : 'Palette') : undefined"
+                :readonly="ro"
+                :deletable="rosette.colorings.length > 1"
+                @pick="coloringId = c.id"
+                @rename="renameColoring(c.id, c.name ?? `Coloring ${i + 1}`)"
+                @remove="removeColoring(c.id, c.name ?? `Coloring ${i + 1}`)"
+              />
             </div>
             <div class="row" style="gap: 8px">
               <q-btn
@@ -314,6 +315,7 @@ import type { Fill } from '@/model/schema/coloring';
 import { colorLookup, type View } from '@/render/draw';
 import { eppSvg } from '@/render/epp-svg';
 import PaletteSwapDialog from '@/components/PaletteSwapDialog.vue';
+import PreviewPick from '@/components/PreviewPick.vue';
 import RosetteColoringMap from '@/components/RosetteColoringMap.vue';
 import { useSwapOptions } from '@/composables/swap-options';
 import { fillKey } from '@/model/coloring';
@@ -933,6 +935,33 @@ function picture(r: Rosette, id: string, fills?: Record<string, Fill>, doc: RrqD
       return { poly: l.poly, fill: typeof v === 'string' ? v : undefined };
     }),
   );
+}
+/** Each coloring as a picture, for the colorings list. */
+const previews = computed(() => {
+  const r = rosette.value;
+  return new Map((r?.colorings ?? []).map((c) => [c.id, picture(r!, c.id)]));
+});
+function renameColoring(id: string, name: string) {
+  $q.dialog({
+    title: 'Rename the coloring',
+    prompt: { model: name, type: 'text' },
+    cancel: true,
+  }).onOk((n: string) =>
+    n.trim()
+      ? edit((r) => ({
+          ...r,
+          colorings: r.colorings.map((c) => (c.id === id ? { ...c, name: n.trim() } : c)),
+        }))
+      : undefined,
+  );
+}
+function removeColoring(id: string, name: string) {
+  $q.dialog({
+    title: 'Delete the coloring?',
+    message: `“${name}” and its colors go. Colorings that follow it look the same.`,
+    cancel: true,
+    ok: { label: 'Delete', color: 'negative', flat: true },
+  }).onOk(() => edit((r) => deleteColoring(r, id)));
 }
 function startSwap() {
   const r = rosette.value;

@@ -18,7 +18,7 @@ A shape made in the rosette that can't be used yet is outlined in red, and the b
 
 ## Color a rosette
 
-Colors work as in a block. The sidebar's **Colors** tab (the **Paint** tool) shows the rosette's **Colorings**. Tap one to work on it, **New coloring** adds one, **Copy** copies the one shown, and the × on a coloring deletes it. Pick a color or fabric under **Colors and fabrics** and tap pieces to paint them in that coloring.
+Colors work as in a block. The sidebar's **Colors** tab (the **Paint** tool) shows the rosette's **Colorings**, each as a picture of the rosette in its colors, the way a quilt shows its colorways. Tap one to work on it, **New coloring** adds one, and **Copy** copies the one shown. The pencil under a coloring renames it and the bin deletes it. Pick a color or fabric under **Colors and fabrics** and tap pieces to paint them in that coloring.
 
 **New coloring from palette** makes a coloring from the one shown, as a quilt's colorways do (see [Designing a quilt](/help/guides/designing-a-quilt)). Pick a palette and each color becomes its nearest there, and you can change any of them. Then pick a **Mode**:
 

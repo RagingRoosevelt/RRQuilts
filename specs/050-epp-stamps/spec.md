@@ -232,6 +232,11 @@ menu opens the same.
   printing and files read them as any coloring's. rrq v13, rrqlib v9, rrqepp v2. Owner,
   2026-11-25: "Palette swaps for rosette colorings (this should use the same mechanism as we use
   for quilts, with options for palette, auto palette, and recolor)"; live, with .rrqlib bumped.
+- **FR-003b** (owner, 2026-11-25: "the list of colorings in the rosette editor should show
+  previews of the colorings the same way we do for quilts"): the rosette editor's Colorings MUST
+  show each coloring as a picture of the rosette in its colors with its name, Rename and Delete
+  under it, as a quilt's Colorways (one shared card); a followed coloring's mode is an icon on the
+  picture's corner. Delete asks first.
 - **FR-004**: Placed rosettes MUST stay linked to their rosette (edits update every placement, with undo)
   until broken into patches.
 - **FR-005**: Rosettes MUST NOT nest: a rosette placed into a rosette is copied in as its pieces

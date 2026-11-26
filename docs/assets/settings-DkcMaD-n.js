@@ -1,0 +1,1 @@
+import{Hn as e,Un as t,r as n}from"./index-BEN_Pers.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

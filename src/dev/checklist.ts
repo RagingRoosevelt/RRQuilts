@@ -217,7 +217,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-369',
     group: G.road093,
-    text: 'A rosette of your own › Design › Colors: New coloring from palette… opens the quilt colorways’ dialog with Palette, Auto map and Re-color, before and after pictures of the rosette. Add one in each mode. Palette and Auto map show a Mode, Follows, palette and a row per color in place of the palettes (with a sparkle or arrows icon on their chips); Paint says their colors are set there. Repaint the coloring they follow: they follow (Auto map picks the nearest again; picks by hand stay, with Automatic to undo one). Change Follows: the picks stay. Switch to Re-color: the colors stay and you can paint; switch a painted one to Palette: it asks first. Delete a coloring others follow: they look the same. Place the rosette in an EPP quilt in a followed coloring, print it, export it (.rrqepp) and add it to My library: the colors are as shown. Undo steps back each change.',
+    text: 'A rosette of your own › Design › Colors: New coloring from palette… opens the quilt colorways’ dialog with Palette, Auto map and Re-color, before and after pictures of the rosette. Add one in each mode. Palette and Auto map show a Mode, Follows, palette and a row per color in place of the palettes (with a sparkle or arrows icon on their pictures); Paint says their colors are set there. Repaint the coloring they follow: they follow (Auto map picks the nearest again; picks by hand stay, with Automatic to undo one). Change Follows: the picks stay. Switch to Re-color: the colors stay and you can paint; switch a painted one to Palette: it asks first. Delete a coloring others follow: they look the same. Place the rosette in an EPP quilt in a followed coloring, print it, export it (.rrqepp) and add it to My library: the colors are as shown. Undo steps back each change.',
     last: '"Palette swaps for rosette colorings (this should use the same mechanism as we use for quilts, with options for palette, auto palette, and recolor)"',
     to: '/?open_demo=traditional-epp.rrq',
   },
@@ -241,6 +241,13 @@ export const CHECKS: Check[] = [
     text: 'Add a palette with 30 or more colors, a few with very long names. A quilt colorway in Auto map: pick that palette. Its swatches under the field show three rows, the “+N more” button in the last three places of the third row (never on a row of its own, at any sidebar width); it shows the rest, and Show fewer folds them again; picking another palette starts folded. Same under Pick from in Palette mode, and in a rosette’s Auto map and Palette colorings. Pick a long-named color in a row: its name wraps to two lines and ends in …, and the sidebar never scrolls sideways (phone width too).',
     last: '"when a palette has a ton of members, the list is really long … into an acrodian" / "I was in automap where we show a display of the selected palette’s contents" / "let’s allow palette member names in the dropdown to span two lines and then truncate with an elipis"',
     to: '/',
+  },
+  {
+    id: 'TC-375',
+    group: G.road093,
+    text: 'A rosette’s Design › Colors: Colorings shows each coloring as a picture of the rosette in its colors with its name, as a quilt’s Colorways do; the one shown is outlined. Palette and Auto map ones show arrows or a sparkle on the corner (pointing at it says which). Paint a piece: its picture follows, and so do the pictures of colorings that follow it. The pencil renames, the bin asks, then deletes (greyed with one coloring left); read-only shows neither. A quilt’s Colorways look as before.',
+    last: '"the list of colorings in the rosette editor should show previews of the colorings the same way we do for quilts"',
+    to: '/?open_demo=traditional-epp.rrq',
   },
 ];
 
