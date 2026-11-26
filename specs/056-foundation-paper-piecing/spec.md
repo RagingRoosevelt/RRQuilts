@@ -1,6 +1,6 @@
 # Feature Specification: Foundation Paper Piecing (FPP)
 
-**Feature Branch**: `TBD` (target 0.12.0)
+**Feature Branch**: `TBD` (target 0.11.0; was 0.12.0, owner 2026-11-26)
 
 **Created**: 2026-11-10
 
