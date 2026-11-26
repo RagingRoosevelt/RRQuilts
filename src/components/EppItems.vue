@@ -138,6 +138,7 @@ import { eppUsed, isLibraryItem } from '@/model/library-items';
 import { variationName } from '@/model/new-quilt';
 import type { EppShape, Rosette } from '@/model/schema/epp';
 import { colorLookup } from '@/render/draw';
+import { absorbFabrics, embedFabrics } from '@/storage/fabric-files';
 import { exportFile, pickFile } from '@/storage/files';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
@@ -319,7 +320,7 @@ async function copyToProject(c: Card) {
   }
 }
 
-function exportItem(c: Card) {
+async function exportItem(c: Card) {
   const file = eppFile(
     project.doc!,
     c.id,
@@ -330,14 +331,21 @@ function exportItem(c: Card) {
     },
     import.meta.env.APP_VERSION,
   );
-  if (file) void exportFile(c.name, serializeEpp(file), 'rrqepp');
+  if (!file) return;
+  // Its fabrics go with their images, as in a block or palette file.
+  const fabrics = file.fabrics && (await embedFabrics(file.fabrics, app.settings.saveSize));
+  void exportFile(c.name, serializeEpp(fabrics ? { ...file, fabrics } : file), 'rrqepp');
 }
 async function importFile() {
   const f = await pickFile(['rrqepp']);
   if (!f) return;
   const r = parseEppFile(await f.text());
   if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
-  const res = importEpp(project.doc!, r.file, app.settings.author);
+  // Its fabrics' images go into this device's store; the fabrics keep references.
+  const file = r.file.fabrics
+    ? { ...r.file, fabrics: await absorbFabrics(r.file.fabrics) }
+    : r.file;
+  const res = importEpp(project.doc!, file, app.settings.author);
   const name = r.file.item.data.notecard.name;
   if (res.doc === project.doc)
     return void $q.notify({ message: `"${name}" is already in this project.` });

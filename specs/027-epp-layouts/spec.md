@@ -721,6 +721,12 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
   right representing an increasing value, to the left representing decreasing"
 - **FR-007**: EPP shapes and rosettes (spec 050) MUST be library items: built-in starters, My library, packs,
   embedding, sync and credits, as blocks are (specs 008, 009, 011).
+  - **FR-007a** (0.9.3, found by the export and import test the owner asked for on 2026-11-25): a
+    rosette carries its own colors and fabrics as a block does, into My library (and so backups,
+    zips with images and packs) and in its `.rrqepp` file, where its fabrics' images go embedded
+    and are stored on import. Before, a rosette placed from My library in another project, or a
+    `.rrqepp` opened on another device, lost its own fabrics' images (and a library rosette its own
+    colors).
 - **FR-008**: Printing MUST produce paper templates (no seam allowance) and fabric templates (with
   seam allowance) at true size, with counts per fill, labels, packing and yardage.
 - **FR-009**: The project format MUST gain a version with EPP quilts, shapes and pieces, and a

@@ -221,6 +221,13 @@ export const CHECKS: Check[] = [
     last: '"Palette swaps for rosette colorings (this should use the same mechanism as we use for quilts, with options for palette, auto palette, and recolor)"',
     to: '/?open_demo=traditional-epp.rrq',
   },
+  {
+    id: 'TC-370',
+    group: G.road093,
+    text: 'Import a fabric photo and paint a rosette of your own with it and with a color of your own (not a built-in one). EPP tab: export it (.rrqepp) and Add to My library. In a private window (or another browser profile), import the .rrqepp into a new project: the fabric shows its picture. In the first browser, a new project: place that rosette from My library in an EPP quilt, every piece shows its fabric and color. Back up My library and restore it in the private window: same.',
+    last: '"can you add a test for exporting and importing the various files from the app (rqq, individual quilts of various types, blocks, epp, etc) to make sure that the various asepcts of content survive export and import?" (the test found these two)',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

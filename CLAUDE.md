@@ -65,6 +65,10 @@ like sketchbook/worktable are fine).
   by a test; `demo-vN.rrq` = a demo project with a quilt per layout capability each version added
   (`write-demo.spec.ts`), `demo-vN/` = PNGs of its quilts and blocks drawn by that release
   (`scripts/format-images.py`). A release that ships a new format version adds them (`scripts/release.md`).
+  `__tests__/formats/export-import.spec.ts`: every file the app writes (project, one quilt, `.rrqbl`,
+  `.rrqepp`, `.rrqplt`, `.rrqlib` plain/zip/pack, `.rrqconf`) read back on an empty image store into a
+  fresh project or library, items and pictures compared; new format fields go into its extras
+  (`withV13`).
 - **Tests tab** (testing aids, `make dev` only; first tab **Checklist**: `dev/checklist.ts` manual checks shown as
   `<build>-TC-###` (build = version + commit after the release, from a dev-only `__dev/build` endpoint reading .git), Not tested / Works / Needs iteration / Problem with notes, sample files to download; progress per release line in localStorage `rrq.dev.checklist` (apart from
   app data), text blocks between checks (+ in each gap, `rrq.dev.checklist.notes`), **Copy results** for pasting back; add checks for new features; a check for a fix or a reworked check gets a new id and quotes the owner's note in `last`; checks that worked are removed after a round; route and nav behind `import.meta.env.DEV`;
