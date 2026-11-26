@@ -37,6 +37,12 @@
     </div>
     <!-- Rosettes whose outline is a space's shape (spec 027 FR-015), behind their own filter. -->
     <template v-else-if="tab === 'blocks'">
+      <!-- Search by name (owner's 0.9.3 roadmap), over blocks and rosettes alike. -->
+      <div v-if="sidebar" class="q-px-sm q-pt-sm">
+        <q-input v-model="search" dense outlined clearable placeholder="Search block names">
+          <template #prepend><q-icon name="search" /></template>
+        </q-input>
+      </div>
       <div v-if="rosetteTiles.length" class="q-px-sm q-pt-sm">
         <SlidePicker
           v-model="blockKind"
@@ -55,8 +61,11 @@
           English paper piecing rosettes that are exactly this quilt's space shapes. They print as
           paper and fabric templates.
         </div>
+        <div v-if="!shownRosettes.length" class="text-caption text-grey-7 q-pa-xs">
+          No rosettes match the search.
+        </div>
         <button
-          v-for="b in rosetteTiles"
+          v-for="b in shownRosettes"
           :key="b.id"
           class="tile"
           :class="{ active: editor.block === b.id }"
@@ -112,7 +121,7 @@
             class="q-mb-sm"
           />
           <div
-            v-if="!blockSectionGroups.length && (compatibleOnly || filterShape)"
+            v-if="!blockSectionGroups.length && (compatibleOnly || filterShape || search)"
             class="text-caption text-grey-7 q-pa-xs"
           >
             No blocks fit. Clear a filter to see more.
@@ -384,7 +393,7 @@ import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { usePaletteOffer } from '@/composables/palette-offer';
 import { fabricsIn, isLibraryItem, projectColorings, splitItems } from '@/model/library-items';
-import { blocksByLibrary, libraryGroups } from '@/model/library';
+import { blocksByLibrary, libraryGroups, notecardMatches } from '@/model/library';
 import { projectPalettes } from '@/model/project-palettes';
 import BlockSections from '@/components/BlockSections.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
@@ -512,12 +521,17 @@ const blockKind = ref<'blocks' | 'rosettes'>('blocks');
 const rosetteTiles = computed(() =>
   props.fitsQuilt ? rosetteBlocks.blocks.value.filter(props.fitsQuilt) : [],
 );
+/** Block and rosette names holding every word typed. */
+const search = ref<string | null>(null);
+const named = (b: Block) => notecardMatches({ name: b.notecard.name }, search.value ?? '', []);
+const shownRosettes = computed(() => rosetteTiles.value.filter(named));
 /** Sidebar: Mine, then each library's available blocks in category sections. */
 const filterShape = ref<ShapeFilter | null>(null);
 const compatibleOnly = computed(() => !!props.fitsQuilt && app.settings.compatibleBlocks);
 /** A data quilt's Other blocks leave data blocks out: those go on through numbering. */
 const fits = (b: Block) =>
   !(props.data && b.data) &&
+  named(b) &&
   (compatibleOnly.value ? props.fitsQuilt!(b) : blockFits(b.shape, null, filterShape.value));
 const blockSectionGroups = computed(() => {
   const [all, ...libs] = blockGroups.value;

@@ -63,6 +63,7 @@ const G = {
   epp3d: '3D EPP (spec 027 User Story 7)',
   recolor: 'Re-color colorways (spec 019 FR-007)',
   follow: 'Colorways follow a colorway (spec 019 FR-009)',
+  road093: '0.9.3 roadmap',
 };
 
 export const CHECKS: Check[] = [
@@ -191,6 +192,13 @@ export const CHECKS: Check[] = [
     text: 'Libraries: tag a block from a pack, then remove that pack. The notice at the top is an info alert (info icon, light blue with a blue edge; dark theme too) listing the tags in bold, with Remove these tags right under the text, wide window and phone width. The button clears them and the notice goes.',
     last: '"the “remove them” button is way off to the side and doesn’t clearly associate with that warning. also, that warning should be more clearly styled as an info alert"',
     to: '/libraries',
+  },
+  {
+    id: 'TC-366',
+    group: G.road093,
+    text: 'A quilt’s Design tab › Blocks: type part of a block’s name in Search block names. Only blocks whose names hold every word typed show, in Mine and each library, with Compatible with this layout or Shape still applied. Nothing matching says so. In a quilt that takes rosettes, the Rosettes list is searched too. The x clears it.',
+    last: '"Search blocks by name in a quilt’s Design tab" (0.9.3 roadmap)',
+    to: '/',
   },
 ];
 
