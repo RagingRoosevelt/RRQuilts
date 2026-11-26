@@ -149,6 +149,13 @@ colorway.
   (owner, 2026-11-25: "I just created a colorway that's an auto map of the primary and it's showing
   up after a recolor"), so the primary's come first; a re-color follows nothing, so re-colors come
   after them, each with its own. Display only: the stored order stays.
+- **FR-014** (owner, 2026-11-26: "the coloration count badge/button for blocks and epp rosettes
+  aren't in the same place … we should align the quilt one, too. it would be good to show the names
+  as well. I think we should also continue to show the mode badges but those should only show on the
+  quilt view of the component"): one count badge (ColoringCount) MUST serve blocks, rosettes (an EPP
+  quilt's picker) and quilts (card, Details): at the picture's bottom right with the larger tap
+  zone; its menu shows each coloring or colorway as a picture with its name (the Colorways card);
+  only a quilt's carry Primary or their mode.
 
 ## Assumptions
 

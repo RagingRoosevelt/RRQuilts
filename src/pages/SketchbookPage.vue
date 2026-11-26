@@ -294,11 +294,10 @@
                   </button>
                   <FavoriteBadge v-if="tagsOfBlock(b).includes(FAVORITE)" />
                   <ColoringCount
-                    :block="b"
-                    :colorings="projectColorings(b, library.lookup)?.own"
+                    :items="projectColorings(b, library.lookup)?.own ?? b.colorings"
                     :model-value="shownColoring(b)"
-                    :thumb="(id) => thumb(b, 64, id)"
-                    @update:model-value="(id) => editor.coloringOf.set(b.id, id)"
+                    :thumb="(id) => thumb(b, 72, id)"
+                    @update:model-value="(id) => id && editor.coloringOf.set(b.id, id)"
                   />
                 </div>
                 <q-badge
@@ -499,10 +498,10 @@
                         </button>
                         <FavoriteBadge v-if="tagsOfBlock(b).includes(FAVORITE)" />
                         <ColoringCount
-                          :block="b"
+                          :items="b.colorings"
                           :model-value="shownColoring(b)"
-                          :thumb="(id) => thumb(b, 64, id)"
-                          @update:model-value="(id) => editor.coloringOf.set(b.id, id)"
+                          :thumb="(id) => thumb(b, 72, id)"
+                          @update:model-value="(id) => id && editor.coloringOf.set(b.id, id)"
                         />
                       </div>
                       <div class="row items-center no-wrap">

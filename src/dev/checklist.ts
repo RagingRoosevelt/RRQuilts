@@ -277,6 +277,13 @@ export const CHECKS: Check[] = [
     last: '"epp quilts don’t seem to handle auto map colorations right"',
     to: '/?open_demo=traditional-epp.rrq',
   },
+  {
+    id: 'TC-381',
+    group: G.road093,
+    text: 'The colorings count badge is the same everywhere, at the bottom right of the picture: a block in Libraries and the project’s Blocks tab, a rosette in an EPP quilt’s Shapes picker, a quilt card with colorways and Details › colorway. Its menu shows each as a picture with its name; picking one shows it (a rosette’s is the one placed). Only a quilt’s menu marks Primary and Palette / Auto map. Phone width too.',
+    last: '"the coloration count badge/button for blocks and epp rosettes aren’t in the same place" / "we should align the quilt one, too. it would be good to show the names as well … mode badges … should only show on the quilt view of the component"',
+    to: '/?open_demo=traditional-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -49,13 +49,13 @@ defineProps<{
   icon?: string | undefined;
   tip?: string | undefined;
   readonly?: boolean;
-  deletable: boolean;
+  deletable?: boolean;
 }>();
 const emit = defineEmits<{ pick: []; rename: []; remove: [] }>();
 </script>
 
 <style>
-/* Also the quilt card's colorway menu (QuiltColorways, rendered in <body>), so not scoped. */
+/* Also in ColoringCount's menu (rendered in <body>), so not scoped. */
 .qv-pick {
   position: relative;
   width: 72px;

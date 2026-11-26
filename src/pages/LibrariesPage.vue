@@ -533,10 +533,10 @@
                         v-if="tagsFor(b.notecard.tags, [b.id], library.kept).includes(FAVORITE)"
                       />
                       <ColoringCount
-                        :block="b"
+                        :items="b.colorings"
                         :model-value="shown.get(`${g.v.doc.id}:${b.id}`)"
-                        :thumb="(id) => thumb(b, 64, id)"
-                        @update:model-value="(id) => shown.set(`${g.v.doc.id}:${b.id}`, id)"
+                        :thumb="(id) => thumb(b, 72, id)"
+                        @update:model-value="(id) => id && shown.set(`${g.v.doc.id}:${b.id}`, id)"
                       />
                     </div>
                     <div class="row items-center no-wrap">

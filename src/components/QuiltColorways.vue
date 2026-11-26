@@ -50,19 +50,32 @@
   <div v-else-if="mode === 'row'" class="row items-center no-wrap" style="gap: 10px">
     <div class="relative-position">
       <img :src="thumbOf(shown)" alt="" class="row-thumb" />
-      <ColorwayCount />
+      <ColoringCount
+        :items="countItems"
+        :model-value="shown"
+        :thumb="(id) => thumbOf(id)"
+        title="Choose colorway"
+        @update:model-value="show"
+      />
     </div>
     <div class="col">
       <div class="text-caption text-grey-7">{{ shown ? 'Colorway' : 'Primary colorway' }}</div>
       <div>{{ choices.find((c) => c.id === shown)?.name }}</div>
     </div>
   </div>
-  <ColorwayCount v-else />
+  <ColoringCount
+    v-else
+    :items="countItems"
+    :model-value="shown"
+    :thumb="(id) => thumbOf(id)"
+    title="Choose colorway"
+    @update:model-value="show"
+  />
 </template>
 
 <script setup lang="ts">
-import { ClosePopup, QIcon, QMenu, useQuasar } from 'quasar';
-import { computed, defineComponent, h, ref, withDirectives } from 'vue';
+import { useQuasar } from 'quasar';
+import { computed, ref } from 'vue';
 import { newId } from '@/model/ids';
 import {
   addColorway,
@@ -75,6 +88,7 @@ import type { Quilt } from '@/model/schema/quilt';
 import { quiltThumbnail } from '@/render/thumbnail';
 import { useProjectStore } from '@/stores/project';
 import PaletteSwapDialog from './PaletteSwapDialog.vue';
+import ColoringCount from './ColoringCount.vue';
 import PreviewPick from './PreviewPick.vue';
 import { useColorwaySwap } from '@/composables/colorway-swap';
 
@@ -136,55 +150,9 @@ function remove(id: string | undefined, name: string) {
     ok: { label: 'Delete', color: 'negative', flat: true },
   }).onOk(() => edit((q) => removeColorway(q, id, project.doc!.project.blocks)));
 }
-
-/** The count, as on block cards (ColoringCount): its menu picks the colorway shown. */
-const ColorwayCount = defineComponent(
-  () => () =>
-    choices.value.length < 2
-      ? null
-      : h(
-          'span',
-          {
-            class: ['qv-count', { overlay: props.mode === 'badge' }],
-            role: 'button',
-            title: 'Choose colorway',
-            onClick: (e: Event) => e.stopPropagation(),
-          },
-          [
-            String(choices.value.length),
-            h(QMenu, null, () =>
-              h(
-                'div',
-                { class: 'row q-pa-sm', style: 'gap: 6px; max-width: 340px' },
-                choices.value.map((c) =>
-                  withDirectives(
-                    h(
-                      'button',
-                      {
-                        class: ['qv-pick', { active: shown.value === c.id }],
-                        title: c.name,
-                        onClick: () => show(c.id),
-                      },
-                      [
-                        h('img', { src: thumbOf(c.id), alt: '' }),
-                        c.id
-                          ? modeOf(c.id) &&
-                            h(
-                              'span',
-                              { class: 'qv-primary row items-center', title: modeOf(c.id)!.tip },
-                              [h(QIcon, { name: modeOf(c.id)!.icon, size: '11px' })],
-                            )
-                          : h('span', { class: 'qv-primary' }, 'Primary'),
-                        h('div', { class: 'qv-pick-name' }, c.name),
-                      ],
-                    ),
-                    [[ClosePopup]],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+/** The count on the quilt's picture: its menu shows each colorway, Primary or its mode marked. */
+const countItems = computed(() =>
+  choices.value.map((c) => ({ ...c, ...(c.id ? modeOf(c.id) : { badge: 'Primary' }) })),
 );
 </script>
 
@@ -194,39 +162,5 @@ const ColorwayCount = defineComponent(
   width: 56px;
   height: 56px;
   border-radius: 4px;
-}
-</style>
-
-<style>
-/* The count badge, as on block cards (ColoringCount); the menu is rendered in <body>, so these
-   aren't scoped. */
-.qv-count {
-  position: absolute;
-  right: -10px;
-  bottom: -10px;
-  isolation: isolate;
-  min-width: 34px;
-  padding: 8px 12px;
-  border-radius: 17px;
-  font-size: 11px;
-  line-height: 18px;
-  text-align: center;
-  color: white;
-  cursor: pointer;
-  backdrop-filter: blur(3px);
-  mask-image: radial-gradient(farthest-side, #000 70%, transparent);
-}
-.qv-count.overlay {
-  right: -4px;
-  bottom: -4px;
-}
-.qv-count::before {
-  content: '';
-  position: absolute;
-  inset: 8px;
-  z-index: -1;
-  border-radius: 9px;
-  background: var(--q-primary);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 </style>
