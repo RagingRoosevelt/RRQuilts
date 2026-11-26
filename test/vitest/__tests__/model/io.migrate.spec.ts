@@ -75,3 +75,41 @@ describe('v4 → v5 (On-Point layout)', () => {
     expect(await layoutOf(withLayout(own))).toEqual(own);
   });
 });
+
+describe('v12 → v13 (colorways follow a colorway)', () => {
+  it("moves an auto mapping's source to the colorway", async () => {
+    const f = structuredClone(fixture());
+    const q = f.project.quilts[0]!;
+    q.colorways = [
+      { id: 'a', name: 'A', swaps: [] },
+      { id: 'b', name: 'B', swaps: [], auto: { palette: 'p', source: 'a' } as never },
+      { id: 'c', name: 'C', swaps: [], auto: { palette: 'p' } },
+    ];
+    const r = await parseProject(JSON.stringify({ ...f, version: 12 }));
+    if (!r.ok) throw new Error(r.error);
+    expect(r.doc.project.quilts[0]!.colorways).toEqual([
+      { id: 'a', name: 'A', swaps: [] },
+      { id: 'b', name: 'B', swaps: [], source: 'a', auto: { palette: 'p' } },
+      { id: 'c', name: 'C', swaps: [], auto: { palette: 'p' } },
+    ]);
+  });
+
+  it('keeps an EPP quilt’s cut as it was: Manual (Largest rectangle now follows the pieces)', async () => {
+    const f = structuredClone(fixture());
+    const q = f.project.quilts[0]!;
+    const rect: [number, number, number, number] = [0, 0, 3, 2];
+    f.project.quilts.push({
+      ...q,
+      id: 'epp-q',
+      layout: { style: 'epp', unit: 2, edge: { kind: 'cut', rect } },
+      epp: { pieces: [] },
+    } as never);
+    const r = await parseProject(JSON.stringify({ ...f, version: 12 }));
+    if (!r.ok) throw new Error(r.error);
+    expect(r.doc.project.quilts.at(-1)!.layout).toEqual({
+      style: 'epp',
+      unit: 2,
+      edge: { kind: 'cut', rect, manual: true },
+    });
+  });
+});

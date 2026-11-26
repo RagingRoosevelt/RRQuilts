@@ -6,6 +6,8 @@ import type { Pt, Seg } from '@/model/geometry/path';
 import type { Block, Drawing } from '@/model/schema/block';
 import type { ColoringBody } from '@/model/schema/coloring';
 import { colorLookup, complement, drawBlock, type View } from './draw';
+import { glowGroup, glowPath, patchGlow } from './glow';
+import type { M } from './affine';
 import { blockPaths } from './paths';
 import { OVERLAY_TINT } from '@/model/targets';
 import { drawDataOverlay, type DataMark } from './data-overlay';
@@ -40,6 +42,8 @@ export interface BlockDrawOptions {
   dataOverlay?: { line: boolean } | null;
   /** Color mode: the patch under the pointer, outlined with a glow. */
   hoverPatch?: string | null;
+  /** Color mode: a fill key whose patches glow (one outline round touching ones), the rest pale. */
+  spot?: ReadonlySet<string> | undefined;
 }
 
 function segPath(p: Path2D, g: Seg) {
@@ -73,11 +77,26 @@ export function drawBlockEditor(
 
   // Patches
   if (o.mode === 'color') {
-    drawBlock(ctx, block, o.coloring, colorLookup(doc, [], { ctx, devicePerUnit: k }), {
+    const lit = drawBlock(ctx, block, o.coloring, colorLookup(doc, [], { ctx, devicePerUnit: k }), {
       outlines: true,
       lineWidth: px,
       dark: o.dark,
+      spot: o.spot,
     });
+    if (lit) {
+      // The block's outline too: its edge gives the glow's inner half where a lit patch meets it.
+      const at: M = [k, 0, 0, k, o.dpr * o.view.tx, o.dpr * o.view.ty];
+      const rest = blockPaths(block).flatMap((p) =>
+        lit.includes(p) ? [] : [{ path: p.path, m: at }],
+      );
+      glowGroup(
+        ctx,
+        lit.map((p) => ({ path: p.path, m: at })),
+        [...rest, { path: outline, m: at }],
+        o.dpr,
+        patchGlow(complement(OVERLAY_TINT, 120)),
+      );
+    }
   } else {
     ctx.fillStyle = o.dark ? '#2f2f2f' : '#fbf8f1';
     ctx.fill(outline);
@@ -251,18 +270,12 @@ export function drawBlockEditor(
   const path = hovered ? blockPaths(block).find((x) => x.id === hovered)?.path : undefined;
   if (path) {
     const f = o.coloring?.fills[hovered as string];
-    const glow = complement(OVERLAY_TINT, f && 'data' in f ? 180 : 120);
-    ctx.save();
-    ctx.strokeStyle = glow;
-    ctx.shadowColor = glow;
-    ctx.shadowBlur = 10 * o.dpr;
-    ctx.lineJoin = 'round';
-    ctx.globalAlpha = 0.45;
-    ctx.lineWidth = 6.5 * px;
-    ctx.stroke(path);
-    ctx.globalAlpha = 1;
-    ctx.lineWidth = 2.5 * px;
-    ctx.stroke(path);
-    ctx.restore();
+    glowPath(
+      ctx,
+      path,
+      px,
+      o.dpr,
+      patchGlow(complement(OVERLAY_TINT, f && 'data' in f ? 180 : 120)),
+    );
   }
 }

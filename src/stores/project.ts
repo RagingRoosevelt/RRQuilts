@@ -151,7 +151,7 @@ export const useProjectStore = defineStore('project', () => {
 
   /** New, empty project in the units chosen in Settings (library items embed when used), with every
    *  built-in block picked for the design tray (owner, 2026-11-16), unless library blocks are hidden
-   *  from projects (they couldn't be unpicked). */
+   *  from projects (they couldn't be unpicked), and every built-in palette (owner, 2026-11-25). */
   async function newProject(name?: string) {
     const { units, author, socials, hideLibraryBlocks } = useSettingsStore().settings;
     const doc = createProject(name, units, APP);
@@ -159,6 +159,8 @@ export const useProjectStore = defineStore('project', () => {
     await lib.loaded;
     const builtin = lib.builtin?.items.flatMap((i) => (i.type === 'block' ? [i.data.id] : []));
     if (builtin?.length && !hideLibraryBlocks) doc.project.libraryBlocks = builtin;
+    const palettes = lib.builtin?.items.flatMap((i) => (i.type === 'colors' ? [i.data.id] : []));
+    if (palettes?.length) doc.project.libraryPalettes = palettes;
     if (author) doc.project.author = author;
     const out = socialsOut(socials);
     if (author && out.length) doc.project.authorSocials = out;

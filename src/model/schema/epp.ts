@@ -2,7 +2,7 @@
 // units: 1U is one edge of a scale-1 piece. Shapes and rosettes have no real size; an EPP quilt's
 // `unit` gives 1U a length.
 import Type from 'typebox';
-import { Coloring, Fill } from './coloring';
+import { AutoMap, Coloring, Fill, Swap } from './coloring';
 import { Id, ItemId, itemBase, PathCommand, Vec2 } from './shared';
 
 const Outline = Type.Array(Vec2, { minItems: 3, maxItems: 24 });
@@ -43,13 +43,29 @@ export const RosettePiece = Type.Object({
   scale: Scale,
 });
 
+/**
+ * A rosette's coloring (fills keyed by piece id). One that follows another (`source`, rrq v13,
+ * rrqlib v9, rrqepp v2; 0.9.3 roadmap) maps that one's colors as a quilt colorway does: picked by
+ * hand (`swaps`, Palette) or each its nearest in a palette (`auto`, Auto mapping), keyed by the
+ * colors of its base (the painted coloring the chain of sources reaches). Its `fills` are the
+ * colors shown, worked out again on every change. One without a source is painted (Re-color).
+ */
+export const RosetteColoring = Type.Object({
+  ...Coloring.properties,
+  source: Type.Optional(Id),
+  swaps: Type.Optional(Type.Array(Swap, { maxItems: 1000 })),
+  auto: Type.Optional(AutoMap),
+  /** Palette mode: the palette its choices come from (none: all). */
+  palette: Type.Optional(Type.String({ maxLength: 200 })),
+});
+
 /** A rosette (spec 050): pieces snapped edge to edge, colored like a block. Never holds rosettes. */
 export const Rosette = Type.Object({
   ...itemBase,
   shapes: Type.Optional(Type.Array(InternalShape, { maxItems: 500 })),
   pieces: Type.Array(RosettePiece, { maxItems: 500 }),
   /** Fills keyed by piece id, as block colorings key by patch id. */
-  colorings: Type.Array(Coloring, { minItems: 1, maxItems: 100 }),
+  colorings: Type.Array(RosetteColoring, { minItems: 1, maxItems: 100 }),
   /** A recoloring of a library rosette: arrangement locked, only colorings change. */
   colorVariant: Type.Optional(Type.Boolean()),
 });
@@ -75,6 +91,13 @@ export const EppEdge = Type.Union([
   Type.Object({
     kind: Type.Literal('cut'),
     rect: Type.Tuple([Type.Number(), Type.Number(), Type.Number(), Type.Number()]),
+    /** Sized by hand (rrq v13): sides dragged or typed. Absent: the largest rectangle the pieces
+     *  fill, found again after every edit. */
+    manual: Type.Optional(Type.Literal(true)),
+    /** Manual: the width to height kept while sizing (absent: freeform). */
+    ratio: Type.Optional(
+      Type.Tuple([Type.Number({ exclusiveMinimum: 0 }), Type.Number({ exclusiveMinimum: 0 })]),
+    ),
   }),
   Type.Object({ kind: Type.Literal('close'), fill: Type.Optional(Fill) }),
   Type.Object({
@@ -130,6 +153,7 @@ export type EppShape = Type.Static<typeof EppShape>;
 export type InternalShape = Type.Static<typeof InternalShape>;
 export type RosettePiece = Type.Static<typeof RosettePiece>;
 export type Rosette = Type.Static<typeof Rosette>;
+export type RosetteColoring = Type.Static<typeof RosetteColoring>;
 export type EppPiece = Type.Static<typeof EppPiece>;
 export type EppEdge = Type.Static<typeof EppEdge>;
 export type EppLayout = Type.Static<typeof EppLayout>;

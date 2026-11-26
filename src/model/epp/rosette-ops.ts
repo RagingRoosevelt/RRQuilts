@@ -4,7 +4,13 @@ import { DEFAULT_LICENSE } from '../credits';
 import { itemId } from '../identity';
 import { newId } from '../ids';
 import type { Fill } from '../schema/coloring';
-import type { EppPiece, InternalShape, Rosette, RosettePiece } from '../schema/epp';
+import type {
+  EppPiece,
+  InternalShape,
+  Rosette,
+  RosetteColoring,
+  RosettePiece,
+} from '../schema/epp';
 import type { Pt } from '../geometry/path';
 import { rosetteLocal, type EppLookup } from './expand';
 import { centroid, type Pose, type Poly } from './geometry';
@@ -207,18 +213,23 @@ export function paintPiece(
   };
 }
 
-export function addColoring(r: Rosette, copyOf?: string): { rosette: Rosette; id: string } {
+/** A new coloring: empty, a copy of `copyOf` (following what it follows, if it does), or `extra`
+ *  (a palette swap's: what it follows and its picks). */
+export function addColoring(
+  r: Rosette,
+  copyOf?: string,
+  extra: Partial<Omit<RosetteColoring, 'id'>> = {},
+): { rosette: Rosette; id: string } {
   const from = r.colorings.find((c) => c.id === copyOf);
   const id = newId();
   const name = `Coloring ${r.colorings.length + 1}`;
-  return {
-    rosette: { ...r, colorings: [...r.colorings, { id, name, fills: { ...(from?.fills ?? {}) } }] },
-    id,
-  };
+  const made: RosetteColoring = from
+    ? { ...from, id, name, fills: { ...from.fills } }
+    : { id, name, fills: {}, ...extra };
+  return { rosette: { ...r, colorings: [...r.colorings, made] }, id };
 }
 
-export const deleteColoring = (r: Rosette, id: string): Rosette =>
-  r.colorings.length <= 1 ? r : { ...r, colorings: r.colorings.filter((c) => c.id !== id) };
+export { deleteColoring } from './rosette-colorings';
 
 export const renameColoring = (r: Rosette, id: string, name: string): Rosette => ({
   ...r,

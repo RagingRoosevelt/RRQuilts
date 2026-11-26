@@ -57,8 +57,24 @@ export const supportsFileAccess = () =>
   typeof window.showOpenFilePicker === 'function' &&
   typeof window.showSaveFilePicker === 'function';
 
-export const fileNameFor = (name: string, ext = 'rrq') =>
-  `${name.replace(/[\\/:*?"<>|]+/g, '_').trim() || 'Untitled'}.${ext}`;
+/** Characters some file system refuses in a name (Windows refuses the most). */
+const REFUSED = new Set('\\/:*?"<>|');
+
+/** A file name every system can save (owner, 2026-11-25): refused and control characters
+ *  stripped, spaces collapsed, at most 200 bytes, no trailing dots or spaces, never a Windows
+ *  device name. */
+export function fileNameFor(name: string, ext = 'rrq') {
+  let base = Array.from(name.replace(/\s/g, ' '))
+    .filter((c) => c >= ' ' && c !== '\x7f' && !REFUSED.has(c))
+    .join('')
+    .replace(/ +/g, ' ')
+    .trim();
+  const utf8 = new TextEncoder();
+  while (utf8.encode(base).length > 200) base = Array.from(base).slice(0, -1).join('');
+  base = base.replace(/[. ]+$/, '');
+  if (/^(con|prn|aux|nul|com\d|lpt\d)$/i.test(base)) base += '_';
+  return `${base || 'Untitled'}.${ext}`;
+}
 
 const isAbort = (e: unknown) => e instanceof DOMException && e.name === 'AbortError';
 

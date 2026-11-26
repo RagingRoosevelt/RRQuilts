@@ -19,11 +19,26 @@ export async function fetchBuild(): Promise<string> {
 /** Where a check's progress is kept: per release line. */
 export const stateKey = (c: Check) => `${VERSION}:${c.id}`;
 
+/** A sub-case of a check: its name and its own steps. */
+export interface StepCase {
+  case: string;
+  steps: string[];
+}
+
+/**
+ * A manual check. Written as (owner, 2026-11-26): `text`, a short given-when-then; `steps`, the
+ * high-level steps to run it (one list, or several sub-cases each with its own); `expect`, the
+ * expected outcome; `last`, the owner's note that asked for it. Older checks have `text` only.
+ */
 export interface Check {
   /** TC-###. */
   id: string;
   group: string;
+  /** Given-when-then, short (older checks: the whole check). */
   text: string;
+  steps?: string[] | StepCase[];
+  /** What should happen. */
+  expect?: string;
   /** Where to test it (an app route). */
   to?: string;
   /** The owner's note from the last round this check (or the fix it checks) answers. */
@@ -61,28 +76,42 @@ const G = {
   make041: 'Data Quilts: data entry and printed instructions (spec 041)',
   epp027: 'English paper piecing: shapes, rosettes, EPP section (specs 027, 050)',
   epp3d: '3D EPP (spec 027 User Story 7)',
+  recolor: 'Re-color colorways (spec 019 FR-007)',
+  follow: 'Colorways follow a colorway (spec 019 FR-009)',
+  road093: '0.9.3 roadmap',
 };
 
 export const CHECKS: Check[] = [
   {
     id: 'TC-188',
     group: G.data046,
-    text: 'Leap day: a Weeks quilt from 1 January 2028. Details › Data quilt shows Leap day (hidden for 2027 and for Months). Extra single-day number: the list runs Jan 1, Wk 1 … Wk 52, Dec 31. Use a 2-day block variant: the last number is Dec 30–31 and a week block’s 2-day variant (Draw tab › Variant › 2 days) shows there. Average and Ignore: 53 numbers, and the Entries dialog marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value (Mood) and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra; switching to Ignore with a block on Feb 29 asks first.',
+    text: 'Given a Weeks data quilt that covers a leap day, when you choose how Feb 29 is handled in Details › Data quilt, then the numbers and the Entries dialog follow that choice.',
+    steps: [
+      {
+        case: 'Weeks in 2028',
+        steps: [
+          'Start a data quilt by weeks from 1 January 2028.',
+          'Open Details › Data quilt and find Leap day.',
+          'Choose Extra single-day number and look at the list of numbers.',
+          'Give the week block a 2-day variant (Draw tab › Variant › 2 days).',
+          'Choose Average, then Ignore, and each time open the Entries dialog on Feb 29.',
+        ],
+      },
+      {
+        case: 'Category values',
+        steps: ['Add a category value such as Mood, with Leap day on Average.'],
+      },
+      {
+        case: 'Other years and plans',
+        steps: [
+          'Change the start to 2027, then the plan to Months.',
+          'Change the plan to Days, place a block on Feb 29, then choose Ignore.',
+        ],
+      },
+    ],
+    expect:
+      'Leap day shows only when the quilt covers Feb 29 (not for 2027 or Months). Extra: the numbers run Jan 1, Wk 1 … Wk 52, Dec 31; with the 2-day variant the last number is Dec 30–31 and shows that variant. Average and Ignore: 53 numbers, and Entries marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra, and switching to Ignore with a block on Feb 29 asks first.',
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
-    to: '/',
-  },
-  {
-    id: 'TC-349',
-    group: G.small,
-    text: "Libraries: search Bull's Eye. The block is the same top to bottom and left to right: half-square triangles on the left edge of the lower half, and the dark triangles at the top and bottom middle are the same dark blue as the squares beside them. Check its themed colorings too.",
-    last: '"the bull\'s eye block is missing the two half-square triangles that are needed along the left edge on the lower side. also, there are two half-square triangles that use the wrong dark blue color that should match the dark blue of their immediate neighbors"',
-    to: '/libraries',
-  },
-  {
-    id: 'TC-350',
-    group: G.small,
-    text: 'Header: a bug button sits just left of the settings gear on every page (phone width too). It opens Help › About › Got an idea?.',
-    last: '"let\'s also add a "bug" button immediatly to the left of the user settings icon that takes the user to the "help / about / Got an Idea?" page"',
     to: '/',
   },
 ];

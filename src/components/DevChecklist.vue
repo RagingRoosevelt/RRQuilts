@@ -66,7 +66,20 @@
               class="q-ml-xs"
               >Download {{ c.file }}</a
             >
-            <div v-if="c.last" class="last">Your note last time: “{{ c.last }}”</div>
+            <!-- Steps: one list, or several sub-cases each with its own; then the outcome. -->
+            <ol v-if="stepCases(c).length === 1 && !stepCases(c)[0]!.case" class="steps">
+              <li v-for="(s, i) in stepCases(c)[0]!.steps" :key="i">{{ s }}</li>
+            </ol>
+            <ul v-else-if="stepCases(c).length" class="steps">
+              <li v-for="k in stepCases(c)" :key="k.case">
+                {{ k.case }}
+                <ol>
+                  <li v-for="(s, i) in k.steps" :key="i">{{ s }}</li>
+                </ol>
+              </li>
+            </ul>
+            <div v-if="c.expect" class="expect"><b>Expected:</b> {{ c.expect }}</div>
+            <div v-if="c.last" class="last">Your note last time: {{ c.last }}</div>
             <q-input
               v-if="
                 state[stateKey(c)]?.status === 'problem' || state[stateKey(c)]?.status === 'iterate'
@@ -113,6 +126,7 @@ import {
   type Check,
   type ChecklistNote,
   type CheckState,
+  type StepCase,
 } from '@/dev/checklist';
 
 const $q = useQuasar();
@@ -128,6 +142,13 @@ const openOnly = ref(false);
 const build = ref(VERSION);
 onMounted(async () => (build.value = await fetchBuild()));
 /** As shown: tested on (or, untested, to be tested on) which build. */
+/** A check's steps as sub-cases (one unnamed case: a plain list). */
+const stepCases = (c: Check): StepCase[] =>
+  !c.steps?.length
+    ? []
+    : typeof c.steps[0] === 'string'
+      ? [{ case: '', steps: c.steps as string[] }]
+      : (c.steps as StepCase[]);
 const checkId = (c: Check) => `${state.value[stateKey(c)]?.build ?? build.value}-${c.id}`;
 const statusColor = (s?: string) =>
   s === 'ok' ? 'positive' : s === 'problem' ? 'negative' : s === 'iterate' ? 'warning' : 'grey-7';
@@ -322,6 +343,16 @@ function reset() {
 }
 .text {
   max-width: 80ch;
+}
+.steps {
+  margin: 4px 0 0;
+  padding-left: 22px;
+}
+.steps ol {
+  padding-left: 20px;
+}
+.expect {
+  margin-top: 4px;
 }
 .last {
   margin-top: 4px;

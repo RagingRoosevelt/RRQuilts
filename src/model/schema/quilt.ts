@@ -1,5 +1,5 @@
 import Type from 'typebox';
-import { ColoringBody, Fill } from './coloring';
+import { AutoMap, ColoringBody, Swap } from './coloring';
 import { DataPlan } from './data-quilt';
 import { EppDesign, EppLayout } from './epp';
 import { Id, ItemId, Size, Vec2, itemBase } from './shared';
@@ -289,24 +289,32 @@ export const QuiltTarget = Type.Object({
 
 /** A colorway of a quilt (a palette swap of its primary colorway): every piece colored `from` (a
  *  fill key, e.g. "color:<id>") shows `to` instead. Edits to the quilt show in every colorway. */
-const Swap = Type.Object({ from: Type.String({ maxLength: 200 }), to: Fill });
 export const Colorway = Type.Object({
   id: Id,
   name: Type.String({ maxLength: 100 }),
-  /** The picks shown. For an auto mapping (spec 024) they're worked out from `auto` on every change. */
+  /** The picks shown, by the base's fill keys (the primary's, or the re-color `source` leads to).
+   *  For an auto mapping (spec 024) they're worked out from `auto` on every change. */
   swaps: Type.Array(Swap, { maxItems: 1000 }),
-  /** Auto mapping (spec 024, v9): each color of the source colorway (none: the primary) becomes its
-   *  nearest color or fabric in `palette` (a project or library palette id), except `overrides`
-   *  (by the primary's fill key, as `swaps`). */
-  auto: Type.Optional(
+  /** The colorway it maps from (v13; none: the primary), in Palette and Auto mapping: its colors are
+   *  the map's "from" side and auto mapping's starting colors. The picks stay keyed by the primary's
+   *  colors, so changing it changes no pick, unless a re-color is reached on the way: then that
+   *  re-color's painting is the base, keyed by its colors (owner, 2026-11-25). */
+  source: Type.Optional(Id),
+  /** Auto mapping (spec 024, v9): each color of the `source` colorway becomes its nearest color or
+   *  fabric in `palette` (a project or library palette id), except `overrides` (by the base's fill
+   *  key, as `swaps`). Up to v12 it held the source itself. */
+  auto: Type.Optional(AutoMap),
+  /** Palette mode: the palette its replacement choices come from (none: all). */
+  palette: Type.Optional(Type.String({ maxLength: 200 })),
+  /** Re-color mode (v13): the colorway's own coloring of each block space, painted as the primary
+   *  is, in place of `swaps` and `auto` (kept for going back). A space whose block has changed
+   *  since, or that isn't listed, shows the primary's colors. */
+  recolor: Type.Optional(
     Type.Object({
-      source: Type.Optional(Id),
-      palette: Type.String({ maxLength: 200 }),
-      overrides: Type.Optional(Type.Array(Swap, { maxItems: 1000 })),
+      slots: Type.Record(Type.String(), Type.Object({ block: ItemId, coloring: Id })),
+      colorings: Type.Record(Type.String(), ColoringBody),
     }),
   ),
-  /** Manual mode: the palette its replacement choices come from (none: all). */
-  palette: Type.Optional(Type.String({ maxLength: 200 })),
 });
 
 export const Quilt = Type.Object({

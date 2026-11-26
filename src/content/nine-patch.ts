@@ -1606,6 +1606,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
     ]),
     open: 'v 1 0, h 0 1, v 5 0, h 5 1, v 1 5, h 0 5, v 5 5, h 5 5, v 3 2, v 3 3, h 2 3, h 3 3',
   },
+  // Four 3 × 3 corners, each a quarter turn of the last (Dark and Medium claws taking turns).
   {
     name: 'Crab Claws',
     size: 12,
@@ -1617,7 +1618,7 @@ export const NINE_PATCH_DEFS: GridDef[] = [
         'L D . . \\MD /ML',
         '/LM \\DM . . D L',
         'L M M /MD D \\LD',
-        '\\ML /ML L \\DL L \\LD',
+        '\\ML /ML L \\DL L /DL',
       ]),
       rect(2, 2, 2, 2, 'L'),
     ],

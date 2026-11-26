@@ -37,6 +37,12 @@
     </div>
     <!-- Rosettes whose outline is a space's shape (spec 027 FR-015), behind their own filter. -->
     <template v-else-if="tab === 'blocks'">
+      <!-- Search by name (owner's 0.9.3 roadmap), over blocks and rosettes alike. -->
+      <div v-if="sidebar" class="q-px-sm q-pt-sm">
+        <q-input v-model="search" dense outlined clearable placeholder="Search block names">
+          <template #prepend><q-icon name="search" /></template>
+        </q-input>
+      </div>
       <div v-if="rosetteTiles.length" class="q-px-sm q-pt-sm">
         <SlidePicker
           v-model="blockKind"
@@ -55,8 +61,11 @@
           English paper piecing rosettes that are exactly this quilt's space shapes. They print as
           paper and fabric templates.
         </div>
+        <div v-if="!shownRosettes.length" class="text-caption text-grey-7 q-pa-xs">
+          No rosettes match the search.
+        </div>
         <button
-          v-for="b in rosetteTiles"
+          v-for="b in shownRosettes"
           :key="b.id"
           class="tile"
           :class="{ active: editor.block === b.id }"
@@ -112,7 +121,7 @@
             class="q-mb-sm"
           />
           <div
-            v-if="!blockSectionGroups.length && (compatibleOnly || filterShape)"
+            v-if="!blockSectionGroups.length && (compatibleOnly || filterShape || search)"
             class="text-caption text-grey-7 q-pa-xs"
           >
             No blocks fit. Clear a filter to see more.
@@ -226,101 +235,124 @@
       </div>
     </template>
 
-    <!-- Colors: the slot's content instead when given (a quilt colorway's mapping). -->
+    <!-- Colors: the slot's content instead when given (a quilt colorway's mapping); `colors-top`
+         goes above the palettes (a re-color's mode). -->
     <slot v-else-if="$slots.colors" name="colors" />
-    <div v-else class="strip q-pa-sm" style="gap: 4px">
-      <q-btn
-        v-if="!project.readOnly"
-        round
-        dense
-        flat
-        icon="add"
-        aria-label="Add color"
-        @click="editorDialog?.show()"
-      />
-      <q-btn
-        v-if="!project.readOnly"
-        round
-        dense
-        flat
-        icon="add_photo_alternate"
-        aria-label="Add fabric images"
-        @click="importDialog?.show()"
-      >
-        <q-tooltip>Add fabric images</q-tooltip>
-      </q-btn>
-      <div v-if="sidebar" class="text-caption text-grey-7 q-px-xs" style="width: 100%">
-        Add library palettes: tick their checkbox in the project's Palettes tab{{
-          app.settings.hideLibraryPalettes ? ' (show them via Settings › Project)' : ''
-        }}.
-      </div>
-      <!-- Project colors, In use, then each library with its picked palettes (nested sections). -->
-      <template v-for="node in colorTree" :key="node.label">
-        <TraySection
-          v-if="node.groups.some((g) => g.items.length || g.fabrics.length)"
-          :label="node.label"
-          :kind="node.lib ? 'colorlib' : 'colors'"
+    <template v-else>
+      <slot name="colors-top" />
+      <div class="strip q-pa-sm" style="gap: 4px">
+        <q-btn
+          v-if="!project.readOnly"
+          round
+          dense
+          flat
+          icon="add"
+          aria-label="Add color"
+          @click="editorDialog?.show()"
+        />
+        <q-btn
+          v-if="!project.readOnly"
+          round
+          dense
+          flat
+          icon="add_photo_alternate"
+          aria-label="Add fabric images"
+          @click="importDialog?.show()"
         >
-          <component
-            :is="node.lib ? TraySection : 'span'"
-            v-for="group in node.groups.filter((g) => g.items.length || g.fabrics.length)"
-            :key="group.label"
-            v-bind="
-              node.lib ? { label: group.label, kind: `colors:${node.lib}` } : { class: 'contents' }
-            "
+          <q-tooltip>Add fabric images</q-tooltip>
+        </q-btn>
+        <div v-if="sidebar" class="text-caption text-grey-7 q-px-xs" style="width: 100%">
+          Add library palettes: tick their checkbox in the project's Palettes tab{{
+            app.settings.hideLibraryPalettes ? ' (show them via Settings › Project)' : ''
+          }}.
+        </div>
+        <!-- Project colors, In use, then each library with its picked palettes (nested sections). -->
+        <template v-for="node in colorTree" :key="node.label">
+          <TraySection
+            v-if="node.groups.some((g) => g.items.length || g.fabrics.length)"
+            :label="node.label"
+            :kind="node.lib ? 'colorlib' : 'colors'"
           >
-            <!-- Colors, then fabrics (spec 014: the print over its average color); or as the
+            <component
+              :is="node.lib ? TraySection : 'span'"
+              v-for="group in node.groups.filter((g) => g.items.length || g.fabrics.length)"
+              :key="group.label"
+              v-bind="
+                node.lib
+                  ? { label: group.label, kind: `colors:${node.lib}` }
+                  : { class: 'contents' }
+              "
+            >
+              <!-- Colors, then fabrics (spec 014: the print over its average color); or as the
                  quilter sorted the palette (spec 032). -->
-            <template v-for="sw in ordered(group)" :key="sw.item.id">
-              <button
-                v-if="sw.kind === 'color'"
-                class="swatch"
-                :class="{ active: !editor.data.on && editor.color === sw.item.id }"
-                :data-color="sw.item.id"
-                :style="{ background: `rgb(${sw.item.rgb.join(',')})` }"
-                :title="sw.item.notecard.name"
-                @click="pickColor(sw.item.id)"
-              >
-                <q-menu v-if="!project.readOnly && !group.mine" touch-position context-menu>
-                  <q-list dense style="min-width: 140px">
-                    <q-item v-close-popup clickable @click="editCopy(sw.item)">
-                      <q-item-section>Edit a copy…</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-                <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
-                  <q-list dense style="min-width: 140px">
-                    <q-item v-close-popup clickable @click="edit(sw.item.id)">
-                      <q-item-section>Edit…</q-item-section>
-                    </q-item>
-                    <q-item v-close-popup clickable @click="remove(sw.item.id)">
-                      <q-item-section class="text-negative">Delete</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </button>
-              <button
-                v-else
-                class="swatch fabric"
-                :class="{ active: !editor.data.on && editor.color === fabricPaint(sw.item.id) }"
-                :data-color="fabricPaint(sw.item.id)"
-                :style="swatchStyle(sw.item)"
-                :title="sw.item.notecard.name + (sw.item.approximate ? ' (size ≈)' : '')"
-                @click="pickColor(fabricPaint(sw.item.id))"
-              >
-                <q-menu v-if="!project.readOnly && group.mine" touch-position context-menu>
-                  <q-list dense style="min-width: 140px">
-                    <q-item v-close-popup clickable @click="removeFabric(sw.item.id)">
-                      <q-item-section class="text-negative">Delete</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </button>
-            </template>
-          </component>
-        </TraySection>
-      </template>
-    </div>
+              <template v-for="sw in ordered(group)" :key="sw.item.id">
+                <button
+                  v-if="sw.kind === 'color'"
+                  class="swatch"
+                  :class="{ active: !editor.data.on && editor.color === sw.item.id }"
+                  :data-color="sw.item.id"
+                  :style="{ background: `rgb(${sw.item.rgb.join(',')})` }"
+                  :title="sw.item.notecard.name"
+                  v-on="spotEvents(sw.item.id)"
+                  @click="pickColor(sw.item.id)"
+                >
+                  <q-menu
+                    v-if="!project.readOnly && !group.mine"
+                    touch-position
+                    context-menu
+                    v-on="spotMenu(sw.item.id)"
+                  >
+                    <q-list dense style="min-width: 140px">
+                      <q-item v-close-popup clickable @click="editCopy(sw.item)">
+                        <q-item-section>Edit a copy…</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                  <q-menu
+                    v-if="!project.readOnly && group.mine"
+                    touch-position
+                    context-menu
+                    v-on="spotMenu(sw.item.id)"
+                  >
+                    <q-list dense style="min-width: 140px">
+                      <q-item v-close-popup clickable @click="edit(sw.item.id)">
+                        <q-item-section>Edit…</q-item-section>
+                      </q-item>
+                      <q-item v-close-popup clickable @click="remove(sw.item.id)">
+                        <q-item-section class="text-negative">Delete</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </button>
+                <button
+                  v-else
+                  class="swatch fabric"
+                  :class="{ active: !editor.data.on && editor.color === fabricPaint(sw.item.id) }"
+                  :data-color="fabricPaint(sw.item.id)"
+                  :style="swatchStyle(sw.item)"
+                  :title="sw.item.notecard.name + (sw.item.approximate ? ' (size ≈)' : '')"
+                  v-on="spotEvents(fabricPaint(sw.item.id))"
+                  @click="pickColor(fabricPaint(sw.item.id))"
+                >
+                  <q-menu
+                    v-if="!project.readOnly && group.mine"
+                    touch-position
+                    context-menu
+                    v-on="spotMenu(fabricPaint(sw.item.id))"
+                  >
+                    <q-list dense style="min-width: 140px">
+                      <q-item v-close-popup clickable @click="removeFabric(sw.item.id)">
+                        <q-item-section class="text-negative">Delete</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </button>
+              </template>
+            </component>
+          </TraySection>
+        </template>
+      </div>
+    </template>
     <ColorEditor ref="editorDialog" @done="saveColor" />
     <FabricImportDialog
       ref="importDialog"
@@ -335,10 +367,20 @@
 import { usePaletteSort } from '@/composables/palette-sort';
 import { useQuasar } from 'quasar';
 import { QExpansionItem } from 'quasar';
-import { computed, defineComponent, h, nextTick, onMounted, ref, watch } from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue';
 import ColorEditor from '@/components/ColorEditor.vue';
 import FabricImportDialog from '@/components/FabricImportDialog.vue';
 import { fabricPaint } from '@/editor/paint';
+import { HOLD_MS } from '@/composables/viewport';
 import { swatchStyle } from '@/render/fabric-images';
 import { colorInUse, colorsPainted, deleteColor } from '@/editor/colors';
 import type { RGB } from '@/editor/color';
@@ -351,7 +393,7 @@ import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { usePaletteOffer } from '@/composables/palette-offer';
 import { fabricsIn, isLibraryItem, projectColorings, splitItems } from '@/model/library-items';
-import { blocksByLibrary, libraryGroups } from '@/model/library';
+import { blocksByLibrary, libraryGroups, notecardMatches } from '@/model/library';
 import { projectPalettes } from '@/model/project-palettes';
 import BlockSections from '@/components/BlockSections.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
@@ -479,12 +521,17 @@ const blockKind = ref<'blocks' | 'rosettes'>('blocks');
 const rosetteTiles = computed(() =>
   props.fitsQuilt ? rosetteBlocks.blocks.value.filter(props.fitsQuilt) : [],
 );
+/** Block and rosette names holding every word typed. */
+const search = ref<string | null>(null);
+const named = (b: Block) => notecardMatches({ name: b.notecard.name }, search.value ?? '', []);
+const shownRosettes = computed(() => rosetteTiles.value.filter(named));
 /** Sidebar: Mine, then each library's available blocks in category sections. */
 const filterShape = ref<ShapeFilter | null>(null);
 const compatibleOnly = computed(() => !!props.fitsQuilt && app.settings.compatibleBlocks);
 /** A data quilt's Other blocks leave data blocks out: those go on through numbering. */
 const fits = (b: Block) =>
   !(props.data && b.data) &&
+  named(b) &&
   (compatibleOnly.value ? props.fitsQuilt!(b) : blockFits(b.shape, null, filterShape.value));
 const blockSectionGroups = computed(() => {
   const [all, ...libs] = blockGroups.value;
@@ -655,6 +702,48 @@ function removeFabric(id: string) {
     d.project.palette.fabrics = d.project.palette.fabrics.filter((f) => f.id !== id);
   });
 }
+
+/**
+ * A color pointed at (mouse), held (touch, after a moment) or with its menu open lights its
+ * patches on the quilt (the quilt editor draws `editor.spotPaints`; other editors ignore it).
+ */
+const spot = ref<{ hover: string | null; held: string | null; menu: string | null }>({
+  hover: null,
+  held: null,
+  menu: null,
+});
+watch(
+  spot,
+  (s) => {
+    const id = s.hover ?? s.held ?? s.menu;
+    editor.spotPaints = id ? [id] : [];
+  },
+  { deep: true },
+);
+onBeforeUnmount(() => (editor.spotPaints = []));
+let holdTimer: ReturnType<typeof setTimeout> | undefined;
+const letGo = () => {
+  clearTimeout(holdTimer);
+  spot.value.held = null;
+};
+const spotEvents = (id: string) => ({
+  pointerenter: (e: PointerEvent) => e.pointerType === 'mouse' && (spot.value.hover = id),
+  pointerleave: (e: PointerEvent) => {
+    if (e.pointerType === 'mouse') spot.value.hover = null;
+    else letGo();
+  },
+  pointerdown: (e: PointerEvent) => {
+    if (e.pointerType === 'mouse') return;
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(() => (spot.value.held = id), HOLD_MS);
+  },
+  pointerup: letGo,
+  pointercancel: letGo,
+});
+const spotMenu = (id: string) => ({
+  show: () => (spot.value.menu = id),
+  hide: () => spot.value.menu === id && (spot.value.menu = null),
+});
 
 function pickColor(id: string) {
   editor.useColor(id);

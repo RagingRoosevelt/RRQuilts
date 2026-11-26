@@ -148,7 +148,7 @@ function garden(flower: Rosette, leaf: Rosette, lookup: EppLookup): Quilt {
       const mid = centroid(leafCells.map(([a, b]) => cell(a, b)));
       if (inCut(leafCells)) q = addPiece(q, { rosette: leaf.id, at: mid, turn: 0, scale: 1 }).quilt;
     }
-  q = setEdge(q, { kind: 'cut', rect: GARDEN }, lookup);
+  q = setEdge(q, { kind: 'cut', rect: GARDEN, manual: true }, lookup);
   return { ...q, borders: [{ style: 'blocks', sides: [3, 3, 3, 3] }] };
 }
 
@@ -221,7 +221,7 @@ function cubes(known: Known, lookup: EppLookup): Quilt {
     }
   const q = shapesQuilt('Cube corners', 1.5, pieces, known);
   return {
-    ...setEdge(q, { kind: 'cut', rect: [0, -CUBES.h, CUBES.w, 0] }, lookup),
+    ...setEdge(q, { kind: 'cut', rect: [0, -CUBES.h, CUBES.w, 0], manual: true }, lookup),
     borders: [plain(1), plain(3)],
   };
 }

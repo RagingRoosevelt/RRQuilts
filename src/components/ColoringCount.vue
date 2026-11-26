@@ -1,40 +1,53 @@
 <template>
-  <!-- A block with several colorings: the count; click it to choose which coloring is shown. A color
-       variant offers only its project colorings. -->
-  <span v-if="list.length > 1" class="count" role="button" title="Choose coloring" @click.stop
-    >{{ list.length }}
+  <!-- Several colorings (a block's, a rosette's) or colorways (a quilt's): the count on a card's
+       picture; its menu shows each as a picture with its name (a quilt's with Primary or its mode)
+       to choose the one shown. -->
+  <span v-if="items.length > 1" class="count" role="button" :title="title" @click.stop
+    >{{ items.length }}
     <q-menu>
-      <div class="row q-pa-sm" style="gap: 6px; max-width: 320px">
-        <button
-          v-for="(c, i) in list"
-          :key="c.id"
+      <div class="row q-pa-sm" style="gap: 6px; max-width: 340px">
+        <PreviewPick
+          v-for="(c, i) in items"
+          :key="c.id ?? ''"
           v-close-popup
-          class="pick-coloring"
-          :class="{ active: (modelValue ?? block.colorings[0]?.id) === c.id }"
-          :title="c.name ?? `Coloring ${i + 1}`"
-          @click="emit('update:modelValue', c.id)"
-        >
-          <img :src="thumb(c.id)" :alt="c.name ?? ''" />
-        </button>
+          :img="thumb(c.id)"
+          :name="c.name ?? `Coloring ${i + 1}`"
+          :active="c.id === active"
+          :badge="c.badge"
+          :icon="c.icon"
+          :tip="c.tip"
+          readonly
+          @pick="emit('update:modelValue', c.id)"
+        />
       </div> </q-menu
   ></span>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { Block } from '@/model/schema/block';
+import PreviewPick from '@/components/PreviewPick.vue';
 
-const props = defineProps<{
-  block: Block;
-  /** The colorings to offer (default: all the block's). */
-  colorings?: Block['colorings'] | undefined;
-  /** The coloring shown (undefined: the block's first). */
-  modelValue: string | undefined;
-  /** A small thumbnail of the block in a coloring. */
-  thumb: (coloringId: string) => string;
-}>();
-const emit = defineEmits<{ 'update:modelValue': [id: string] }>();
-const list = computed(() => props.colorings ?? props.block.colorings);
+/** A coloring or colorway (a quilt's primary has no id). Only a quilt's carry a badge or icon. */
+export interface CountItem {
+  id: string | undefined;
+  name?: string | undefined;
+  badge?: string | undefined;
+  icon?: string | undefined;
+  tip?: string | undefined;
+}
+const props = withDefaults(
+  defineProps<{
+    items: readonly CountItem[];
+    /** The one shown (undefined: the first). */
+    modelValue: string | undefined;
+    /** A small picture of it. */
+    thumb: (id: string | undefined) => string;
+    title?: string;
+  }>(),
+  { title: 'Choose coloring' },
+);
+const emit = defineEmits<{ 'update:modelValue': [id: string | undefined] }>();
+const active = computed(() => props.modelValue ?? props.items[0]?.id);
 </script>
 
 <style scoped>
@@ -51,8 +64,8 @@ const list = computed(() => props.colorings ?? props.block.colorings);
   text-align: center;
   color: white;
   cursor: pointer;
-  /* The tap zone (bigger than the badge) softly blurs the block behind it, fading out to its edge
-     (the badge sits well inside the opaque middle of the mask). */
+  /* The tap zone (bigger than the badge) softly blurs the picture behind it, fading out to its
+     edge (the badge sits well inside the opaque middle of the mask). */
   backdrop-filter: blur(3px);
   mask-image: radial-gradient(farthest-side, #000 70%, transparent);
 }
@@ -65,20 +78,5 @@ const list = computed(() => props.colorings ?? props.block.colorings);
   border-radius: 9px;
   background: var(--q-primary);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
-}
-.pick-coloring {
-  padding: 0;
-  border: 2px solid transparent;
-  border-radius: 6px;
-  background: none;
-  cursor: pointer;
-}
-.pick-coloring.active {
-  border-color: var(--q-primary);
-}
-.pick-coloring img {
-  display: block;
-  width: 56px;
-  height: 56px;
 }
 </style>

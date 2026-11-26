@@ -15,7 +15,8 @@ import { Color, Fabric } from './schema/palette';
 import type { RrqDoc } from './schema/project';
 
 export const EPP_FORMAT = 'rrqepp';
-export const EPP_VERSION = 1;
+/** v2: rosette colorings that follow another (Palette, Auto mapping; 0.9.3). */
+export const EPP_VERSION = 2;
 
 export const EppFile = Type.Object({
   format: Type.Literal(EPP_FORMAT),

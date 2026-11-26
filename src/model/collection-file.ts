@@ -1,11 +1,12 @@
 // Single color-collection files (.rrqplt, spec 011): like .rrqbl for one block.
-import { produce } from 'immer';
+import { castDraft, produce } from 'immer';
 import Type from 'typebox';
 import Value from 'typebox/value';
 import { DEFAULT_LICENSE, settleCredits } from './credits';
 import { ColorCollection } from './schema/library';
 import { colorsIn, isLibraryItem } from './library-items';
-import type { Color } from './schema/palette';
+import { addPalette, fileInto } from './project-palettes';
+import type { Color, Fabric } from './schema/palette';
 import { Units, type RrqDoc } from './schema/project';
 
 export const COLLECTION_FORMAT = 'rrqplt';
@@ -96,4 +97,32 @@ export function importCollectionColors(
     added: added.length,
     removed,
   };
+}
+
+/**
+ * A palette file opened in a project: its colors join (`importCollectionColors`), and its fabrics
+ * not here yet (`fabrics`: the file's, images already stored), in a new project palette `id` of its
+ * name. Undefined when everything in it is already here.
+ */
+export function importPaletteFile(
+  doc: RrqDoc,
+  c: ColorCollection,
+  fabrics: readonly Fabric[],
+  id: string,
+) {
+  const res = importCollectionColors(doc, c);
+  const have = new Set(doc.project.palette.fabrics.map((f) => f.id));
+  const added = fabrics.filter((f) => !have.has(f.id));
+  if (!res.added && !added.length) return undefined;
+  const next = produce(res.doc, (d) => {
+    d.project.palette.fabrics.push(...castDraft(added));
+    addPalette(d, id, c.notecard.name);
+    fileInto(
+      d,
+      id,
+      c.colors.map((x) => x.id),
+      added.map((f) => f.id),
+    );
+  });
+  return { doc: next, colors: res.added, fabrics: added.length };
 }

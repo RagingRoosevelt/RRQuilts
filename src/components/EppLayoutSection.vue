@@ -69,6 +69,25 @@
       <div class="text-caption text-grey-7 q-mt-xs">{{ EDGE_HINTS[layout.edge.kind] }}</div>
     </div>
     <template v-if="layout.edge.kind === 'cut'">
+      <!-- Largest rectangle follows the pieces; Manual is sized on the picture (0.9.3 roadmap). -->
+      <div>
+        <SlidePicker
+          :model-value="layout.edge.manual ? 'manual' : 'largest'"
+          :options="[
+            { value: 'largest', label: 'Largest rectangle' },
+            { value: 'manual', label: 'Manual' },
+          ]"
+          :disable="readonly"
+          @update:model-value="(v: string) => setManual(v === 'manual')"
+        />
+        <div class="text-caption text-grey-7 q-mt-xs">
+          {{
+            layout.edge.manual
+              ? 'Drag the cut’s sides or corners on the picture, or its middle to move it. The pieces it cuts away show faded.'
+              : 'The largest rectangle the pieces fill with no gaps, found again as you edit. Type a size or pick Manual to set your own.'
+          }}
+        </div>
+      </div>
       <div class="row no-wrap" style="gap: 8px">
         <LengthInput
           class="col"
@@ -77,7 +96,7 @@
           :units="units"
           :min="layout.unit"
           :readonly="readonly"
-          @update:model-value="(v: number) => resize(v, cutSize[1])"
+          @update:model-value="(v: number) => resize(v, null)"
         />
         <LengthInput
           class="col"
@@ -86,19 +105,42 @@
           :units="units"
           :min="layout.unit"
           :readonly="readonly"
-          @update:model-value="(v: number) => resize(cutSize[0], v)"
+          @update:model-value="(v: number) => resize(null, v)"
         />
       </div>
-      <q-btn
-        outline
-        dense
-        no-caps
-        icon="crop_free"
-        label="Largest rectangle the pieces fill"
-        class="self-start q-px-sm"
-        :disable="readonly"
-        @click="setEdgeKind('cut', true)"
-      />
+      <template v-if="layout.edge.manual">
+        <q-select
+          :model-value="ratioKey"
+          dense
+          outlined
+          options-dense
+          emit-value
+          map-options
+          label="Aspect ratio"
+          :options="RATIOS"
+          :disable="readonly"
+          @update:model-value="setRatio"
+        />
+        <div class="column">
+          <q-toggle
+            :model-value="app.settings.eppCutSnap.vertex"
+            dense
+            label="Snap to vertex"
+            @update:model-value="(v: boolean) => setSnap('vertex', v)"
+          />
+          <q-toggle
+            :model-value="app.settings.eppCutSnap.edge"
+            dense
+            label="Snap to edge"
+            class="q-mt-sm"
+            @update:model-value="(v: boolean) => setSnap('edge', v)"
+          />
+          <div class="text-caption text-grey-7 q-mt-xs">
+            While dragging, the cut’s sides snap to piece corners and along upright or level piece
+            edges near them.
+          </div>
+        </div>
+      </template>
     </template>
     <template v-if="layout.edge.kind === 'close'">
       <div class="row items-center" style="gap: 8px">
@@ -130,6 +172,7 @@ import { computed } from 'vue';
 import LengthInput from '@/components/LengthInput.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { fillFor } from '@/editor/paint';
+import { fitRatio } from '@/model/epp/edge';
 import { lookupEpp } from '@/model/epp/expand';
 import { refresh, setEdge, setStuffedDesign } from '@/model/epp/quilt-ops';
 import { useProjectSeams } from '@/composables/seams';
@@ -140,11 +183,13 @@ import { colorLookup } from '@/render/draw';
 import { useEditorStore } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
+import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{ quilt: Quilt; units: string; readonly: boolean }>();
 const project = useProjectStore();
 const library = useLibraryStore();
 const editor = useEditorStore();
+const app = useSettingsStore();
 const { seams: seamsRef, set: setSeam } = useProjectSeams();
 const seams = computed(() => seamsRef.value);
 
@@ -184,18 +229,57 @@ function setThreeD(on: boolean) {
   });
 }
 
-function setEdgeKind(kind: string, fresh = false) {
+function setEdgeKind(kind: string) {
+  const was = layout.value.edge;
   const e: EppEdge =
     kind === 'cut'
-      ? {
-          kind: 'cut',
-          rect: fresh || layout.value.edge.kind !== 'cut' ? [0, 0, 0, 0] : layout.value.edge.rect,
-        }
+      ? was.kind === 'cut'
+        ? was
+        : { kind: 'cut', rect: [0, 0, 0, 0] }
       : kind === 'close'
         ? { kind: 'close' }
         : { kind: 'none' };
   change((q) => setEdge(q, e, lookup.value));
 }
+
+/** Largest rectangle (found again after every edit) or Manual (kept as sized, from where it is). */
+function setManual(on: boolean) {
+  const e = layout.value.edge;
+  if (e.kind !== 'cut') return;
+  const { manual: _m, ratio: _r, ...rest } = e;
+  void _m;
+  void _r;
+  change((q) => setEdge(q, on ? { ...rest, manual: true } : rest, lookup.value));
+}
+
+/** Common shapes, width : height; Freeform keeps none. */
+const RATIOS = [
+  { value: '', label: 'Freeform' },
+  { value: '1:1', label: 'Square (1:1)' },
+  ...['5:4', '4:3', '3:2', '16:9', '2:1'].map((v) => ({ value: v, label: `Wide (${v})` })),
+  ...['4:5', '3:4', '2:3', '9:16', '1:2'].map((v) => ({ value: v, label: `Tall (${v})` })),
+];
+const ratioKey = computed(() => {
+  const e = layout.value.edge;
+  return e.kind === 'cut' && e.ratio ? `${e.ratio[0]}:${e.ratio[1]}` : '';
+});
+/** A ratio reshapes the cut to the largest of that shape inside it, about its middle. */
+function setRatio(v: string) {
+  const e = layout.value.edge;
+  if (e.kind !== 'cut') return;
+  const [w, h] = v.split(':').map(Number);
+  const { ratio: _r, ...rest } = e;
+  void _r;
+  change((q) =>
+    setEdge(
+      q,
+      w && h ? { ...rest, ratio: [w, h], rect: fitRatio(e.rect, [w, h]) } : rest,
+      lookup.value,
+    ),
+  );
+}
+const setSnap = (k: 'vertex' | 'edge', v: boolean) =>
+  (app.settings.eppCutSnap = { ...app.settings.eppCutSnap, [k]: v });
 
 /** The cut's size in project units; typing a size keeps the cut's middle. */
 const cutSize = computed<[number, number]>(() => {
@@ -204,16 +288,19 @@ const cutSize = computed<[number, number]>(() => {
   const u = layout.value.unit;
   return [(e.rect[2] - e.rect[0]) * u, (e.rect[3] - e.rect[1]) * u];
 });
-function resize(w: number, h: number) {
+/** A typed width or height (the other kept, or following an aspect ratio): Manual from then on. */
+function resize(width: number | null, height: number | null) {
   const e = layout.value.edge;
   if (e.kind !== 'cut') return;
   const u = layout.value.unit;
+  const r = e.ratio ? e.ratio[0] / e.ratio[1] : null;
+  let [w, h] = cutSize.value;
+  if (width !== null) [w, h] = [width, r ? width / r : h];
+  if (height !== null) [w, h] = [r ? height * r : w, height];
   const [cx, cy] = [(e.rect[0] + e.rect[2]) / 2, (e.rect[1] + e.rect[3]) / 2];
   const [hw, hh] = [w / u / 2, h / u / 2];
-  change(
-    (q) => setEdge(q, { kind: 'cut', rect: [cx - hw, cy - hh, cx + hw, cy + hh] }, lookup.value),
-    'epp-cut',
-  );
+  const rect: [number, number, number, number] = [cx - hw, cy - hh, cx + hw, cy + hh];
+  change((q) => setEdge(q, { ...e, manual: true, rect }, lookup.value), 'epp-cut');
 }
 
 const closeCss = computed(() => {

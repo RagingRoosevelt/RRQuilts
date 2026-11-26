@@ -5,9 +5,18 @@
     <BlockSections :sections="sections" :lib="`epp:${view.doc.id}`" title="EPP shapes and rosettes">
       <template #default="{ block: x }">
         <div v-for="c in cardFor(x)" :key="c.id" class="card">
-          <button class="thumb" :aria-label="`Preview ${c.name}`" @click="preview(c)">
-            <EppThumb :polys="c.polys" :size="0" />
-          </button>
+          <div class="relative-position">
+            <button class="thumb" :aria-label="`Preview ${c.name}`" @click="preview(c)">
+              <EppThumb :polys="c.polys" :size="0" />
+            </button>
+            <ColoringCount
+              v-if="c.colorings"
+              :items="c.colorings"
+              :model-value="shown.get(c.id)"
+              :thumb="c.thumb"
+              @update:model-value="(id) => id && shown.set(c.id, id)"
+            />
+          </div>
           <div class="row items-center no-wrap">
             <q-icon
               v-if="c.kind === 'rosette'"
@@ -92,9 +101,10 @@
 // EPP shapes and rosettes of one library on the Libraries page (spec 027 FR-013). Pack items are
 // read-only: copy them to My library to make them yours.
 import { useQuasar } from 'quasar';
-import { computed, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import BlockSections from '@/components/BlockSections.vue';
 import DialogClose from '@/components/DialogClose.vue';
+import ColoringCount from '@/components/ColoringCount.vue';
 import EppThumb from '@/components/EppThumb.vue';
 import StlOptions from '@/components/StlOptions.vue';
 import StlPreview from '@/components/StlPreview.vue';
@@ -102,6 +112,8 @@ import { useStl } from '@/composables/stl';
 import FullName from '@/components/FullName.vue';
 import { useAuthor } from '@/composables/author';
 import { lookupEpp, rosetteLocal } from '@/model/epp/expand';
+import { listOrder } from '@/model/epp/rosette-colorings';
+import { eppSvg } from '@/render/epp-svg';
 import { place } from '@/model/epp/geometry';
 import { DEFAULT_LICENSE } from '@/model/credits';
 import {
@@ -132,19 +144,33 @@ const css = (f: unknown) => {
 const lookup = computed(() =>
   lookupEpp({ eppShapes: props.view.eppShapes, rosettes: props.view.rosettes }, [], library.lookup),
 );
+/** The coloring each rosette card shows (this page). */
+const shown = reactive(new Map<string, string>());
 const cards = computed(() => [
   ...props.shapes.map((s) => ({
     id: s.id,
     name: s.notecard.name,
     kind: 'shape' as const,
     polys: [{ poly: place(s.outline, { at: [0, 0], turn: 0, scale: 1 }), fill: css(s.fill) }],
+    colorings: undefined,
+    thumb: undefined,
   })),
-  ...props.rosettes.map((r) => ({
-    id: r.id,
-    name: r.notecard.name,
-    kind: 'rosette' as const,
-    polys: rosetteLocal(r, lookup.value).map((l) => ({ poly: l.poly, fill: css(l.fill) })),
-  })),
+  ...props.rosettes.map((r) => {
+    const polys = (id: string | undefined) =>
+      rosetteLocal(r, lookup.value, id).map((l) => ({ poly: l.poly, fill: css(l.fill) }));
+    return {
+      id: r.id,
+      name: r.notecard.name,
+      kind: 'rosette' as const,
+      polys: polys(shown.get(r.id)),
+      // Several colorings: the count chooses the one the card shows.
+      colorings: listOrder(r).map((c) => ({
+        id: c.id,
+        name: c.name ?? `Coloring ${r.colorings.indexOf(c) + 1}`,
+      })),
+      thumb: (id: string | undefined) => eppSvg(polys(id)),
+    };
+  }),
 ]);
 
 type Card = (typeof cards.value)[number];

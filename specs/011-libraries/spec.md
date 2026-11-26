@@ -46,7 +46,8 @@
   the project's own blocks and quilts use that would be left without a palette, with a picker of
   the colors still available (own colors and other picked palettes), pre-set to the nearest match.
   Swap and remove recolors and unpicks in one undo step; Cancel changes nothing. New projects start
-  with Basic colors picked.
+  with every built-in palette picked (owner, 2026-11-25: "let's default the palette selection for
+  new projects to have all built-in palettes selected"; was Basic colors only).
   The same dialog clears My colors (a Clear button, available while a palette is picked). The
   last picked palette can't be unpicked while there are no colors of your own. The dialog shows a
   carousel with one page per quilt: before and after side by side, updating as the mapping changes.

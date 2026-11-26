@@ -15,6 +15,9 @@ which one each placed block starts from.
    with the same color, **Eyedropper** picks up a patch's color, and **Pan** moves the view.
 4. Undo with Ctrl+Z.
 
+Point at a swatch, or press and hold it on a touch screen, to light up the patches in that color,
+with the rest paled. Patches of the color that touch share one outline.
+
 ## Several colorings
 
 Under **Colorings** in the sidebar, each coloring is a thumbnail. Click one to work on it.

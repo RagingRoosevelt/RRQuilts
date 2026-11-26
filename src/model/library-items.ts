@@ -1,7 +1,7 @@
 // Library items in projects (spec 008): a library item is embedded only while something uses it,
 // keeps its identity (`id@version`), and is never edited in place.
 import { plainFill } from './coloring';
-import { swapColorings } from './colorways';
+import { remapRecolors, swapColorings } from './colorways';
 import { applyPicks, dataBlocks, dataColorings, pruneVariants, syncVariants } from './data-quilt';
 import { castDraft, current, isDraft, produce, type Draft } from 'immer';
 import { refreshAuto, type PaletteSwatch } from './colorway-auto';
@@ -14,6 +14,7 @@ import { variationName } from './new-quilt';
 import type { Block } from './schema/block';
 import { rosetteOfBlockId, syncRosetteBlocks } from './epp/as-block';
 import { lookupEpp } from './epp/expand';
+import { refreshColorings } from './epp/rosette-colorings';
 import type { EppShape, Rosette } from './schema/epp';
 import type { ColoringBody, Fill } from './schema/coloring';
 import type { Color, Fabric } from './schema/palette';
@@ -162,6 +163,8 @@ export const eppColorings = (p: RrqDoc['project']): ColoringBody[] => [
 export function syncDraft(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   const p = d.project;
   syncPalettes(d, newId);
+  // Before rosettes become blocks: their followed colorings' colors as they are now.
+  refreshRosetteColorings(d, lib);
   if (lib) {
     const have = new Set(p.blocks.map((b) => b.id));
     for (const id of blocksUsed(p)) {
@@ -273,9 +276,8 @@ function syncEpp(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   }
 }
 
-function refreshAutoMappings(d: Draft<RrqDoc>, lib?: LibraryLookup) {
-  const p = d.project;
-  if (!p.quilts.some((q) => q.colorways?.some((v) => v.auto))) return;
+/** Palettes' picks and fills' colors as auto mappings read them (quilt colorways, rosettes). */
+function mappingLookups(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   const doc = current(d);
   const own = new Map(projectPalettes(doc).map((pp) => [pp.palette.id, pp]));
   const color = (id: string) =>
@@ -300,11 +302,36 @@ function refreshAutoMappings(d: Draft<RrqDoc>, lib?: LibraryLookup) {
     const f = plainFill(x);
     return !f ? undefined : 'color' in f ? color(f.color)?.rgb : fabric(f.fabric)?.average;
   };
-  p.quilts.forEach((q, i) => {
-    const next = refreshAuto(doc.project.quilts[i]!, doc.project.blocks, paletteOf, rgbOf);
+  return { doc, paletteOf, rgbOf };
+}
+
+function refreshAutoMappings(d: Draft<RrqDoc>, lib?: LibraryLookup) {
+  const p = d.project;
+  if (!p.quilts.some((q) => q.colorways?.some((v) => v.auto))) return;
+  const { doc, paletteOf, rgbOf } = mappingLookups(d, lib);
+  p.quilts.forEach((_q, i) => {
+    const was = doc.project.quilts[i]!;
+    const epp =
+      was.layout.style === 'epp' ? lookupEpp(doc.project, was.epp?.shapes ?? [], lib) : undefined;
+    const next = refreshAuto(was, doc.project.blocks, paletteOf, rgbOf, epp);
     if (next !== doc.project.quilts[i] && next.colorways)
       p.quilts[i]!.colorways = castDraft(next.colorways);
   });
+}
+
+/** Your rosettes' colorings that follow another (0.9.3): worked out from what they follow. Library
+ *  rosettes stay as their library has them. */
+function refreshRosetteColorings(d: Draft<RrqDoc>, lib?: LibraryLookup) {
+  const own = (d.project.rosettes ?? []).flatMap((r, i) =>
+    !isLibraryItem(r) && r.colorings.some((c) => c.source) ? [i] : [],
+  );
+  if (!own.length) return;
+  const { doc, paletteOf, rgbOf } = mappingLookups(d, lib);
+  for (const i of own) {
+    const was = doc.project.rosettes![i]!;
+    const next = refreshColorings(was, paletteOf, rgbOf);
+    if (next !== was) d.project.rosettes![i]!.colorings = castDraft(next.colorings);
+  }
 }
 
 export const syncLibraryItems = (doc: RrqDoc, lib?: LibraryLookup): RrqDoc =>
@@ -354,6 +381,7 @@ export function swapToLibraryVersion(doc: RrqDoc, libBlock: Block, lib: LibraryL
         const c = q.colorings[id];
         if (c) q.colorings[id] = remapColoring(c, assignments, oldIds);
       }
+      remapRecolors(q, next.id, (c) => remapColoring(c, assignments, oldIds));
     }
   });
   return syncLibraryItems(swapped, lib);

@@ -45,6 +45,7 @@ The tools on the left:
 - **Mirror left to right** and **Mirror up and down** flip a piece where it is.
 - **Break into patches** turns a placed rosette into loose pieces.
 - **Delete** removes a piece.
+- **Find** picks what a piece was placed from. Tap a piece and its shape or rosette is picked in the sidebar, at the piece's scale and, for a rosette, in the coloring it shows. Every piece placed from it glows. To change a placed rosette's coloring, pick another coloring on its card and place it over the old one.
 - **Close space** fills a gap. Tap a gap to fill it with a shape, or drag from corner to corner to close part of a gap or to split a piece. A filled area that matches one of your shapes or a library's uses it. Any other becomes a shape of the quilt's own.
 - **Paint** paints a piece with the picked color or fabric. **Apply to** paints **This** piece, **All** pieces, every piece of the **Same shape**, or every piece with the **Same fill**. Painting a piece of a placed rosette changes it in this quilt only.
 - **Duplicate** (Ctrl+D) turns the picked pieces into a temporary rosette at the top of the sidebar, to place as often as you like until the next Duplicate.
@@ -60,7 +61,7 @@ Pieces that overlap show red. **Undo** and **Redo** are at the top of the tools.
 **Edge** decides how the quilt ends.
 
 - **No trimming** follows the outer pieces. There are no borders or binding.
-- **Cut to size** cuts a rectangle across the outer pieces after piecing, and the templates stay whole. Set its **Width** and **Height**, or choose **Largest rectangle the pieces fill** to start from the biggest rectangle with no gaps.
+- **Cut to size** cuts a rectangle across the outer pieces after piecing, and the templates stay whole. With **Largest rectangle** it's the biggest rectangle the pieces fill with no gaps, and it changes as you add, move or remove pieces. With **Manual** you set it yourself. The picture shows the pieces it cuts away faded. Drag a side or a corner to resize it, or the round handle with four arrows in the middle to move it, or type its **Width** and **Height** (typing a size switches to Manual). **Aspect ratio** keeps its shape, such as **Square (1:1)** or **Tall (3:4)**, and **Freeform** lets each side move on its own. **Snap to vertex** and **Snap to edge** make a dragged side stop at piece corners and along straight up-and-down or level piece edges near it.
 - **Auto-close** fills the notches up to a straight edge with closing pieces, so nothing is cut. Pick a color or fabric in the Design tab, then choose **Use the picked color or fabric** for the closing pieces, or **None**.
 
 ## Borders

@@ -7,7 +7,7 @@ import { createProject } from '@/model/new-project';
 import { FIVE_PATCH_BLOCKS } from '@/content/five-patch';
 import { FOUR_PATCH_BLOCKS } from '@/content/four-patch';
 import { LETTER_BLOCKS, NUMBER_BLOCKS } from '@/content/letters';
-import { NINE_PATCH_BLOCKS } from '@/content/nine-patch';
+import { NINE_PATCH_BLOCKS, NINE_PATCH_DEFS } from '@/content/nine-patch';
 import { SEVEN_PATCH_BLOCKS } from '@/content/seven-patch';
 import { LOG_CABIN_BLOCKS, STRIP_BLOCKS } from '@/content/strips';
 import { MEDALLION_BLOCKS } from '@/content/medallions';
@@ -57,6 +57,27 @@ describe('starter content', () => {
   it('Latticed Irish Chain matches its cutting list', () => {
     const lic = FOUR_PATCH_BLOCKS.find((b) => b.name === 'Latticed Irish Chain')!;
     expect(lic.counts).toEqual({ L: 26, K: 11, D: 11, M: 22, S: 24, Q: 24, P: 22 });
+  });
+
+  // Owner, 2026-11-26: "the built in crab claws block has a triangle in the bottom right that is
+  // rotated from the orientation it should have".
+  it('Crab Claws: each corner a quarter turn of the last, Dark and Medium claws taking turns', () => {
+    const def = NINE_PATCH_DEFS.find((d) => d.name === 'Crab Claws')!;
+    const key = (poly: readonly (readonly number[])[], c: string) =>
+      `${c} ${poly
+        .map(([x, y]) => `${x},${y}`)
+        .sort()
+        .join(' ')}`;
+    const swap: Record<string, string> = { D: 'M', M: 'D' };
+    const have = new Set(def.pieces.map((p) => key(p.poly, p.c)));
+    // A quarter turn clockwise (y down): (x, y) → (n − y, x).
+    const turned = def.pieces.map((p) =>
+      key(
+        p.poly.map(([x, y]) => [def.n - y, x]),
+        swap[p.c] ?? p.c,
+      ),
+    );
+    expect(turned.filter((k) => !have.has(k))).toEqual([]);
   });
 
   it('gives every starter block a unique name', () => {

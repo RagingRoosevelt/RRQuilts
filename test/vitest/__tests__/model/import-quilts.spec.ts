@@ -1,11 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { produce } from 'immer';
 import { describe, expect, it } from 'vitest';
+import { addColorway, startRecolor } from '@/model/colorways';
+import { quiltProject } from '@/model/export-quilt';
 import { importProjectQuilts } from '@/model/import-quilts';
 import { parseProject, serializeProject } from '@/model/io';
 import { createProject } from '@/model/new-project';
 import type { RrqDoc } from '@/model/schema/project';
 import { addEppV12 } from '../formats/epp-v12';
+import { fixture } from './helpers';
 
 const demo = async () => {
   const r = await parseProject(readFileSync('test/fixtures/formats/demo-v6.rrq', 'utf8'));
@@ -90,5 +93,45 @@ describe('import quilts from a project', () => {
     for (const c of ['Gold', 'Rose', 'Teal', 'Yellow']) expect(colors).toContain(c);
     const r = await parseProject(serializeProject(doc));
     expect(r.ok && r.report).toEqual([]);
+  });
+});
+
+// Owner, 2026-11-25: "make sure that export / import work for the change, too" (re-color, spec 019
+// FR-007).
+describe('a re-color colorway through export and import', () => {
+  it('goes along with the colors only it uses, and follows a block that comes in as a copy', async () => {
+    const doc = fixture();
+    const q = doc.project.quilts.find((x) => !x.data && x.layout.style !== 'epp')!;
+    const [sid, slot] = Object.entries(q.layers[0].slots).find(([, s]) => s.block !== 'plain')!;
+    doc.project.palette.colors.push({
+      ...structuredClone(doc.project.palette.colors[0]!),
+      id: 'only-recolor',
+      notecard: { name: 'Only in the re-color' },
+    });
+    const r = structuredClone(startRecolor(addColorway(q, 'v1'), 'v1', doc.project.blocks));
+    const own = r.colorways![0]!.recolor!;
+    own.colorings[own.slots[sid]!.coloring]!.fills.extra = { color: 'only-recolor' };
+    doc.project.quilts = doc.project.quilts.map((x) => (x.id === q.id ? r : x));
+
+    const exported = quiltProject(doc, q.id, 'exported')!;
+    expect(exported.project.palette.colors.map((c) => c.id)).toContain('only-recolor');
+    const file = await reopen(exported);
+    expect(file.report).toEqual([]);
+    expect(file.doc.project.quilts[0]!.colorways![0]!.recolor).toEqual(own);
+
+    // Into a project whose own block of that id has another design: the quilt points at a copy.
+    const mine = produce(doc, (d) => {
+      d.project.quilts = [];
+      const b = d.project.blocks.find((x) => x.id === slot.block)!;
+      delete b.source;
+      b.size = [b.size[0] + 1, b.size[1]];
+    });
+    const { doc: into } = importProjectQuilts(mine, file.doc, 'Sam', [q.id]);
+    const got = into.project.quilts[0]!;
+    const copy = got.layers[0].slots[sid]!.block;
+    expect(copy).not.toBe(slot.block);
+    expect(got.colorways![0]!.recolor!.slots[sid]!.block).toBe(copy);
+    expect(into.project.palette.colors.map((c) => c.id)).toContain('only-recolor');
+    expect((await reopen(into)).report).toEqual([]);
   });
 });

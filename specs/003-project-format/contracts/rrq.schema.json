@@ -14,7 +14,7 @@
     },
     "version": {
       "type": "number",
-      "const": 12
+      "const": 13
     },
     "app": {
       "type": "string"
@@ -7916,6 +7916,25 @@
                                   }
                                 ],
                                 "minItems": 4
+                              },
+                              "manual": {
+                                "type": "boolean",
+                                "const": true
+                              },
+                              "ratio": {
+                                "type": "array",
+                                "additionalItems": false,
+                                "items": [
+                                  {
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                  },
+                                  {
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                  }
+                                ],
+                                "minItems": 2
                               }
                             }
                           },
@@ -9298,16 +9317,16 @@
                       },
                       "maxItems": 1000
                     },
+                    "source": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9]{1,32}$"
+                    },
                     "auto": {
                       "type": "object",
                       "required": [
                         "palette"
                       ],
                       "properties": {
-                        "source": {
-                          "type": "string",
-                          "pattern": "^[a-z0-9]{1,32}$"
-                        },
                         "palette": {
                           "type": "string",
                           "maxLength": 200
@@ -9452,6 +9471,218 @@
                     "palette": {
                       "type": "string",
                       "maxLength": 200
+                    },
+                    "recolor": {
+                      "type": "object",
+                      "required": [
+                        "slots",
+                        "colorings"
+                      ],
+                      "properties": {
+                        "slots": {
+                          "type": "object",
+                          "patternProperties": {
+                            "^.*$": {
+                              "type": "object",
+                              "required": [
+                                "block",
+                                "coloring"
+                              ],
+                              "properties": {
+                                "block": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                },
+                                "coloring": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9]{1,32}$"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "colorings": {
+                          "type": "object",
+                          "patternProperties": {
+                            "^.*$": {
+                              "type": "object",
+                              "required": [
+                                "fills"
+                              ],
+                              "properties": {
+                                "fills": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {
+                                      "anyOf": [
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "fabric",
+                                            "offset",
+                                            "rotation"
+                                          ],
+                                          "properties": {
+                                            "fabric": {
+                                              "type": "string",
+                                              "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                            },
+                                            "offset": {
+                                              "type": "array",
+                                              "additionalItems": false,
+                                              "items": [
+                                                {
+                                                  "type": "number"
+                                                },
+                                                {
+                                                  "type": "number"
+                                                }
+                                              ],
+                                              "minItems": 2
+                                            },
+                                            "rotation": {
+                                              "type": "number"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "color"
+                                          ],
+                                          "properties": {
+                                            "color": {
+                                              "type": "string",
+                                              "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "data"
+                                          ],
+                                          "properties": {
+                                            "data": {
+                                              "type": "object",
+                                              "required": [
+                                                "n"
+                                              ],
+                                              "properties": {
+                                                "n": {
+                                                  "type": "integer",
+                                                  "minimum": 1,
+                                                  "maximum": 366
+                                                },
+                                                "slot": {
+                                                  "type": "integer",
+                                                  "minimum": 0,
+                                                  "maximum": 3
+                                                }
+                                              }
+                                            },
+                                            "under": {
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "required": [
+                                                    "fabric",
+                                                    "offset",
+                                                    "rotation"
+                                                  ],
+                                                  "properties": {
+                                                    "fabric": {
+                                                      "type": "string",
+                                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                                    },
+                                                    "offset": {
+                                                      "type": "array",
+                                                      "additionalItems": false,
+                                                      "items": [
+                                                        {
+                                                          "type": "number"
+                                                        },
+                                                        {
+                                                          "type": "number"
+                                                        }
+                                                      ],
+                                                      "minItems": 2
+                                                    },
+                                                    "rotation": {
+                                                      "type": "number"
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "required": [
+                                                    "color"
+                                                  ],
+                                                  "properties": {
+                                                    "color": {
+                                                      "type": "string",
+                                                      "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "threads": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {
+                                      "type": "object",
+                                      "required": [
+                                        "thread",
+                                        "style",
+                                        "weight"
+                                      ],
+                                      "properties": {
+                                        "thread": {
+                                          "type": "string",
+                                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                        },
+                                        "style": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "const": "solid"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "dashed"
+                                            }
+                                          ]
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "exclusiveMinimum": 0
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "base": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9]{1,32}$"
+                                },
+                                "cleared": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 },
@@ -11194,6 +11425,296 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "source": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9]{1,32}$"
+                    },
+                    "swaps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "from",
+                          "to"
+                        ],
+                        "properties": {
+                          "from": {
+                            "type": "string",
+                            "maxLength": 200
+                          },
+                          "to": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "required": [
+                                  "fabric",
+                                  "offset",
+                                  "rotation"
+                                ],
+                                "properties": {
+                                  "fabric": {
+                                    "type": "string",
+                                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                  },
+                                  "offset": {
+                                    "type": "array",
+                                    "additionalItems": false,
+                                    "items": [
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "number"
+                                      }
+                                    ],
+                                    "minItems": 2
+                                  },
+                                  "rotation": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "color"
+                                ],
+                                "properties": {
+                                  "color": {
+                                    "type": "string",
+                                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "data"
+                                ],
+                                "properties": {
+                                  "data": {
+                                    "type": "object",
+                                    "required": [
+                                      "n"
+                                    ],
+                                    "properties": {
+                                      "n": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 366
+                                      },
+                                      "slot": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 3
+                                      }
+                                    }
+                                  },
+                                  "under": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "fabric",
+                                          "offset",
+                                          "rotation"
+                                        ],
+                                        "properties": {
+                                          "fabric": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                          },
+                                          "offset": {
+                                            "type": "array",
+                                            "additionalItems": false,
+                                            "items": [
+                                              {
+                                                "type": "number"
+                                              },
+                                              {
+                                                "type": "number"
+                                              }
+                                            ],
+                                            "minItems": 2
+                                          },
+                                          "rotation": {
+                                            "type": "number"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "color"
+                                        ],
+                                        "properties": {
+                                          "color": {
+                                            "type": "string",
+                                            "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "maxItems": 1000
+                    },
+                    "auto": {
+                      "type": "object",
+                      "required": [
+                        "palette"
+                      ],
+                      "properties": {
+                        "palette": {
+                          "type": "string",
+                          "maxLength": 200
+                        },
+                        "overrides": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "from",
+                              "to"
+                            ],
+                            "properties": {
+                              "from": {
+                                "type": "string",
+                                "maxLength": 200
+                              },
+                              "to": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "fabric",
+                                      "offset",
+                                      "rotation"
+                                    ],
+                                    "properties": {
+                                      "fabric": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                      },
+                                      "offset": {
+                                        "type": "array",
+                                        "additionalItems": false,
+                                        "items": [
+                                          {
+                                            "type": "number"
+                                          },
+                                          {
+                                            "type": "number"
+                                          }
+                                        ],
+                                        "minItems": 2
+                                      },
+                                      "rotation": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "color"
+                                    ],
+                                    "properties": {
+                                      "color": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "data"
+                                    ],
+                                    "properties": {
+                                      "data": {
+                                        "type": "object",
+                                        "required": [
+                                          "n"
+                                        ],
+                                        "properties": {
+                                          "n": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 366
+                                          },
+                                          "slot": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 3
+                                          }
+                                        }
+                                      },
+                                      "under": {
+                                        "anyOf": [
+                                          {
+                                            "type": "object",
+                                            "required": [
+                                              "fabric",
+                                              "offset",
+                                              "rotation"
+                                            ],
+                                            "properties": {
+                                              "fabric": {
+                                                "type": "string",
+                                                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                              },
+                                              "offset": {
+                                                "type": "array",
+                                                "additionalItems": false,
+                                                "items": [
+                                                  {
+                                                    "type": "number"
+                                                  },
+                                                  {
+                                                    "type": "number"
+                                                  }
+                                                ],
+                                                "minItems": 2
+                                              },
+                                              "rotation": {
+                                                "type": "number"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "object",
+                                            "required": [
+                                              "color"
+                                            ],
+                                            "properties": {
+                                              "color": {
+                                                "type": "string",
+                                                "pattern": "^[a-z0-9][a-z0-9-]{0,63}(\\.[a-z0-9-]{1,64})?$"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "maxItems": 1000
+                        }
+                      }
+                    },
+                    "palette": {
+                      "type": "string",
+                      "maxLength": 200
                     }
                   }
                 },
@@ -11226,6 +11747,6 @@
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v12.json",
-  "title": "RRQuilts project (.rrq) v12"
+  "$id": "https://ragingroosevelt.github.io/RRQuilts/schemas/rrq.v13.json",
+  "title": "RRQuilts project (.rrq) v13"
 }

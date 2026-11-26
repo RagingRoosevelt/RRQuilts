@@ -49,6 +49,7 @@ import type { View } from '@/render/draw';
 import { drawBlockEditor } from '@/render/draw-block';
 import { blockPolygons } from '@/render/hit';
 import { useEditorStore } from '@/stores/editor';
+import { spotKeys } from '@/editor/paint';
 import { useSettingsStore } from '@/stores/settings';
 
 const props = defineProps<{
@@ -213,6 +214,8 @@ const vp = useViewport({
       liveDrawing: liveDrawing.value,
       dataOverlay: editor.data.numbers ? { line: editor.data.line } : null,
       hoverPatch: hoverPatch.value,
+      // A swatch pointed at or held in the Colors tray (spec 019 FR-008, as in the quilt editor).
+      spot: spotKeys(editor.spotPaints),
     });
   },
 
@@ -397,6 +400,7 @@ watch(
     imagesTick.value, // fabric images arriving (spec 014)
     editor.data.numbers,
     editor.data.line,
+    editor.spotPaints,
   ],
   vp.schedule,
 );
