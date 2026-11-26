@@ -19,11 +19,26 @@ export async function fetchBuild(): Promise<string> {
 /** Where a check's progress is kept: per release line. */
 export const stateKey = (c: Check) => `${VERSION}:${c.id}`;
 
+/** A sub-case of a check: its name and its own steps. */
+export interface StepCase {
+  case: string;
+  steps: string[];
+}
+
+/**
+ * A manual check. Written as (owner, 2026-11-26): `text`, a short given-when-then; `steps`, the
+ * high-level steps to run it (one list, or several sub-cases each with its own); `expect`, the
+ * expected outcome; `last`, the owner's note that asked for it. Older checks have `text` only.
+ */
 export interface Check {
   /** TC-###. */
   id: string;
   group: string;
+  /** Given-when-then, short (older checks: the whole check). */
   text: string;
+  steps?: string[] | StepCase[];
+  /** What should happen. */
+  expect?: string;
   /** Where to test it (an app route). */
   to?: string;
   /** The owner's note from the last round this check (or the fix it checks) answers. */
@@ -280,7 +295,40 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-381',
     group: G.road093,
-    text: 'The colorings count badge is the same everywhere, at the bottom right of the picture: a block in Libraries and the project’s Blocks tab, a rosette in an EPP quilt’s Shapes picker, a quilt card with colorways and Details › colorway. Its menu shows each as a picture with its name; picking one shows it (a rosette’s is the one placed). Only a quilt’s menu marks Primary and Palette / Auto map. Phone width too.',
+    text: 'Given blocks, rosettes and quilts with several colorings or colorways, when you tap the count on their picture, then it sits in the same place everywhere and its menu lists each by picture and name.',
+    steps: [
+      {
+        case: 'Block',
+        steps: [
+          'Open Libraries and find a built-in block with a count on its picture.',
+          'Tap the count and pick another coloring.',
+          'Do the same on a block with several colorings in the project’s Blocks tab.',
+        ],
+      },
+      {
+        case: 'Rosette',
+        steps: [
+          'Open the Traditional EPP demo (the Open link above).',
+          'Open Grandmother’s Flower Garden › Design › Shapes.',
+          'Tap the count on Garden Flower’s card and pick Purple.',
+          'Place it in the quilt.',
+        ],
+      },
+      {
+        case: 'Quilt',
+        steps: [
+          'Give a quilt a Palette colorway and an Auto map colorway (Design › New colorway from palette…).',
+          'On the project’s Quilts tab, tap the count on its card and pick another colorway.',
+          'Open the quilt’s Details tab and tap the count beside its colorway.',
+        ],
+      },
+      {
+        case: 'Phone width',
+        steps: ['Narrow the window to phone width and repeat one of each above.'],
+      },
+    ],
+    expect:
+      'The count sits at the bottom right of every picture, the same size, with room around it to tap. Its menu shows each coloring or colorway as a picture with its name under it. Picking one shows it on the card; the rosette placed is in the coloring picked. Only quilt menus mark Primary and the Palette (arrows) or Auto map (sparkle) badges.',
     last: '"the coloration count badge/button for blocks and epp rosettes aren’t in the same place" / "we should align the quilt one, too. it would be good to show the names as well … mode badges … should only show on the quilt view of the component"',
     to: '/?open_demo=traditional-epp.rrq',
   },

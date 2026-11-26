@@ -71,7 +71,7 @@ like sketchbook/worktable are fine).
   (`withV13`).
 - **Tests tab** (testing aids, `make dev` only; first tab **Checklist**: `dev/checklist.ts` manual checks shown as
   `<build>-TC-###` (build = version + commit after the release, from a dev-only `__dev/build` endpoint reading .git), Not tested / Works / Needs iteration / Problem with notes, sample files to download; progress per release line in localStorage `rrq.dev.checklist` (apart from
-  app data), text blocks between checks (+ in each gap, `rrq.dev.checklist.notes`), **Copy results** for pasting back; add checks for new features; a check for a fix or a reworked check gets a new id and quotes the owner's note in `last`; checks that worked are removed after a round; route and nav behind `import.meta.env.DEV`;
+  app data), text blocks between checks (+ in each gap, `rrq.dev.checklist.notes`), **Copy results** for pasting back; add checks for new features, each as `text` (a short given-when-then), `steps` (a list, or `{ case, steps }` sub-cases), `expect` (the outcome) and `last` (the owner's note); a check for a fix or a reworked check gets a new id and quotes the owner's note in `last`; checks that worked are removed after a round; route and nav behind `import.meta.env.DEV`;
   `make build` fails if any of it reaches `docs/`): `pages/DevPage.vue` + `src/dev/`.
   **Layout gallery** (`/dev/gallery`): `dev/variations.ts` = quilts per layout and setting with
   blocks/solids/mixes (`dev/fill-quilt.ts`), each with what it should show, drawn live with seams;
