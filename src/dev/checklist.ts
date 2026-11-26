@@ -85,7 +85,32 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-188',
     group: G.data046,
-    text: 'Leap day: a Weeks quilt from 1 January 2028. Details › Data quilt shows Leap day (hidden for 2027 and for Months). Extra single-day number: the list runs Jan 1, Wk 1 … Wk 52, Dec 31. Use a 2-day block variant: the last number is Dec 30–31 and a week block’s 2-day variant (Draw tab › Variant › 2 days) shows there. Average and Ignore: 53 numbers, and the Entries dialog marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value (Mood) and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra; switching to Ignore with a block on Feb 29 asks first.',
+    text: 'Given a Weeks data quilt that covers a leap day, when you choose how Feb 29 is handled in Details › Data quilt, then the numbers and the Entries dialog follow that choice.',
+    steps: [
+      {
+        case: 'Weeks in 2028',
+        steps: [
+          'Start a data quilt by weeks from 1 January 2028.',
+          'Open Details › Data quilt and find Leap day.',
+          'Choose Extra single-day number and look at the list of numbers.',
+          'Give the week block a 2-day variant (Draw tab › Variant › 2 days).',
+          'Choose Average, then Ignore, and each time open the Entries dialog on Feb 29.',
+        ],
+      },
+      {
+        case: 'Category values',
+        steps: ['Add a category value such as Mood, with Leap day on Average.'],
+      },
+      {
+        case: 'Other years and plans',
+        steps: [
+          'Change the start to 2027, then the plan to Months.',
+          'Change the plan to Days, place a block on Feb 29, then choose Ignore.',
+        ],
+      },
+    ],
+    expect:
+      'Leap day shows only when the quilt covers Feb 29 (not for 2027 or Months). Extra: the numbers run Jan 1, Wk 1 … Wk 52, Dec 31; with the 2-day variant the last number is Dec 30–31 and shows that variant. Average and Ignore: 53 numbers, and Entries marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra, and switching to Ignore with a block on Feb 29 asks first.',
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
   },
@@ -281,14 +306,41 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-379',
     group: G.road093,
-    text: 'A quilt with a Re-color colorway: New colorway from palette… on the primary, Auto map, add it. In the Design sidebar’s Colorways, the card’s colorway menu and Follows, it sits right after the primary, before the Re-color. A Palette colorway set to follow another sits right after that one, and one following it after that. Re-colors come after everything that follows the primary, each with what follows it.',
+    text: 'Given a quilt with a Re-color colorway, when you add colorways that follow the primary or another colorway, then each is listed right after the one it follows, before the re-colors.',
+    steps: [
+      'Open a block quilt’s Design tab and make one colorway a Re-color.',
+      'Show the primary, then New colorway from palette…, Auto map, and add it.',
+      'Add a Palette colorway and set its Follows to another colorway (not the primary).',
+      'Add one more colorway following that Palette one.',
+      'Look at the Colorways list, the colorway menu on the quilt’s card (project Quilts tab) and the Follows menu.',
+    ],
+    expect:
+      'The primary is first, then the Auto map colorway (it follows the primary), before the Re-color. The Palette colorway sits right after the one it follows, and the one following it right after that. Re-colors come after everything that follows the primary, each with what follows it. All three lists show the same order.',
     last: '"let’s apply the same sorting rules for colorations on quilts" / "I just created a colorway that’s an auto map of the primary and it’s showing up after a recolor"',
     to: '/',
   },
   {
     id: 'TC-380',
     group: G.road093,
-    text: 'Traditional EPP demo, Grandmother’s Flower Garden › Design: New colorway from palette… lists the quilt’s colors; pick Neon and Auto map, add it. The quilt shows Neon colors (borders too), and the Colors tab shows Mode, Follows, Palette and a row per color, as in a block quilt; change the palette or pick a row by hand: the quilt follows. Tapping a piece with Paint says to show the primary. Palette mode works the same way. Print shows the colorway’s colors.',
+    text: 'Given an EPP quilt, when you add an Auto map or Palette colorway, then it recolors the quilt’s pieces and its Colors tab maps them as a block quilt’s does.',
+    steps: [
+      {
+        case: 'Auto map',
+        steps: [
+          'Open the Traditional EPP demo (the Open link above), then Grandmother’s Flower Garden › Design.',
+          'In Colorways, New colorway from palette…: pick Neon and Auto map, and add it.',
+          'Open the Colors tab; change the palette, then pick one row by hand.',
+          'With the Paint tool, tap a piece.',
+          'Open the Print tab.',
+        ],
+      },
+      {
+        case: 'Palette',
+        steps: ['Add a colorway the same way in Palette mode and pick a few rows by hand.'],
+      },
+    ],
+    expect:
+      'New colorway from palette… lists the quilt’s colors. The quilt shows Neon colors, borders too. The Colors tab shows Mode, Follows, Palette and a row per color, and changing the palette or a row changes the quilt. Tapping a piece says to show the primary colorway to paint. Palette mode works the same way. Print shows the colorway’s colors.',
     last: '"epp quilts don’t seem to handle auto map colorations right"',
     to: '/?open_demo=traditional-epp.rrq',
   },
@@ -335,21 +387,71 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-382',
     group: G.road093,
-    text: 'Traditional EPP demo › project › EPP tab: Garden Flower shows a 6 on its picture’s bottom right (Leaf a 2), as block cards. Its menu shows each coloring with its name in the Colorings order; pick one and the card shows it, and an EPP quilt’s Shapes picker places that one. Libraries › EPP shapes and rosettes: rosettes with several colorings have the same count.',
+    text: 'Given rosettes with several colorings, when you look at their cards on the project’s EPP tab or in Libraries, then each shows the colorings count, and picking a coloring there shows it.',
+    steps: [
+      {
+        case: 'Project EPP tab',
+        steps: [
+          'Open the Traditional EPP demo (the Open link above), then its EPP tab.',
+          'Tap the count on Garden Flower’s picture and pick another coloring.',
+          'Open a quilt’s Design › Shapes and place Garden Flower.',
+        ],
+      },
+      {
+        case: 'Libraries',
+        steps: ['Open Libraries › EPP shapes and rosettes and tap the count on a rosette.'],
+      },
+    ],
+    expect:
+      'Garden Flower shows 6 and Leaf 2, at the bottom right of the picture as on block cards. The menu lists the colorings by name in the Colorings order. The card shows the coloring picked, and the Shapes picker places that one. Rosettes in Libraries with several colorings have the same count.',
     last: '"in the project view, rosettes don’t seem to have a coloration count badge"',
     to: '/?open_demo=traditional-epp.rrq',
   },
   {
     id: 'TC-383',
     group: G.small,
-    text: 'Project page: the tabs read Quilts, Blocks, EPP, Palettes, Details (EPP next to Blocks; no Photos or Threads), wide and phone width; each opens as before. A browser that last had Photos or Threads open opens on Quilts.',
+    text: 'Given the project page, when you look at its tabs, then EPP sits next to Blocks and Photos and Threads are gone.',
+    steps: [
+      'Open a project (the Open link above opens a demo).',
+      'Look at the tabs, wide and at phone width, and open each.',
+      'If this browser last had Photos or Threads open on an older build, reload the project page.',
+    ],
+    expect:
+      'The tabs read Quilts, Blocks, EPP, Palettes, Details, and each opens as before. A browser that last had Photos or Threads open opens on Quilts.',
     last: '"in the project view, let’s move the epp tab to the left of palettes next to blocks" / "let’s also hide photos and threads tabs until we actually do something with them"',
     to: '/?open_demo=traditional-epp.rrq',
   },
   {
     id: 'TC-384',
     group: G.road093,
-    text: 'A quilt with colorways A, B following A, and C (Design › Colorways): drag C before A, and A (B comes along) to the end; the glow shows where it lands, and a colorway that follows another only moves among those following the same one (B stays right after A; the primary stays first). The grip under a card does the same with the arrow keys, Home and End, keeping focus. A rosette’s Colorings the same; drag another coloring to the front: placed rosettes in the project’s EPP quilts look the same. Undo steps back each move. Touch: press and hold a card, or drag its grip.',
+    text: 'Given colorways or rosette colorings where some follow others, when you drag one or move it with its grip, then it moves only among those following the same one, its followers along.',
+    steps: [
+      {
+        case: 'Quilt colorways',
+        steps: [
+          'In a quilt’s Design tab, make colorways A, B following A, and C.',
+          'Drag C before A, then drag A to the end, watching the glow.',
+          'Try to drag B away from A.',
+          'Tab to the grip under a card and use the arrow keys, Home and End.',
+          'Undo each move.',
+        ],
+      },
+      {
+        case: 'Rosette colorings',
+        steps: [
+          'Open the Traditional EPP demo (the Open link above), then the Garden Flower rosette › Design › Colors.',
+          'Drag Orange to the front, then open the quilts that use the rosette.',
+        ],
+      },
+      {
+        case: 'Touch',
+        steps: [
+          'On a phone or tablet, press and hold a card, then drag; then drag a grip straight away.',
+        ],
+      },
+    ],
+    expect:
+      'The glow shows where the card will land. C lands before A; A lands last of the colorways following the primary, with B right after it; B can’t leave A, and the primary stays first. The grip moves the card the same way and keeps focus. Undo steps back each move. Orange becomes first, and the placed rosettes in the project’s EPP quilts look the same. On touch, a press and hold or the grip starts the drag; a swipe still scrolls.',
     last: '"let’s allow drag-to-reorder within the constraints we imposed where manual and auto palette swaps show immediatly after the color variant they follow"',
     to: '/?open_demo=traditional-epp.rrq',
   },

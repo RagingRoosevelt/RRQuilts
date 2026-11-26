@@ -79,7 +79,7 @@
               </li>
             </ul>
             <div v-if="c.expect" class="expect"><b>Expected:</b> {{ c.expect }}</div>
-            <div v-if="c.last" class="last">Your note last time: “{{ c.last }}”</div>
+            <div v-if="c.last" class="last">Your note last time: {{ c.last }}</div>
             <q-input
               v-if="
                 state[stateKey(c)]?.status === 'problem' || state[stateKey(c)]?.status === 'iterate'
