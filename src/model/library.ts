@@ -9,6 +9,7 @@ import { canonicalContent, contentVersion, itemId, stableStringify } from './ide
 import { creditCopy, noSharing, settleCredits } from './credits';
 import type { LibraryLookup } from './library-items';
 import type { Block } from './schema/block';
+import type { Fill } from './schema/coloring';
 import type { EppShape, Rosette } from './schema/epp';
 import {
   LIBRARY_FORMAT,
@@ -64,11 +65,14 @@ const link = (lib: LibraryDoc, data: { id: string; version?: string; revision?: 
   derived: true,
 });
 
+/** What has colorings: a block or a rosette. */
+type Colored = { colorings: readonly { fills: Record<string, Fill> }[] };
+
 /**
  * The project's own colors a block uses (library colors are found through their library), plus
  * colors it carried before (`kept`) that it still uses.
  */
-async function ownColors(doc: RrqDoc, block: Block, kept: readonly Color[] = []) {
+async function ownColors(doc: RrqDoc, block: Colored, kept: readonly Color[] = []) {
   const used = new Set(
     block.colorings.flatMap((c) =>
       Object.values(c.fills)
@@ -85,10 +89,11 @@ async function ownColors(doc: RrqDoc, block: Block, kept: readonly Color[] = [])
 }
 
 /**
- * The fabrics a block's colorings use, as library content (sizes in inches), so they travel with it;
- * fabrics whose license forbids sharing stay behind (spec 014). `kept`: ones it already carries.
+ * The fabrics a block's (or rosette's) colorings use, as library content (sizes in inches), so they
+ * travel with it; fabrics whose license forbids sharing stay behind (spec 014). `kept`: ones it
+ * already carries.
  */
-async function blockFabrics(doc: RrqDoc, block: Block, kept: readonly Fabric[] = []) {
+async function blockFabrics(doc: RrqDoc, block: Colored, kept: readonly Fabric[] = []) {
   const used = new Set(
     block.colorings.flatMap((c) =>
       Object.values(c.fills)
@@ -177,6 +182,9 @@ export async function addEpp(
       ...cat,
       data: await asLibraryData(rosette!, 1),
       ...(shapes.length ? { shapes } : {}),
+      // Its own colors and fabrics go along, as a block's do.
+      ...(await ownColors(doc, rosette!)),
+      ...(await blockFabrics(doc, rosette!)),
     };
   }
   const data = item.data;

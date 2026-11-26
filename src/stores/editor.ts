@@ -88,6 +88,9 @@ export const useEditorStore = defineStore('editor', () => {
   const dataHot = ref<string | null>(null);
   /** The block space of the card last clicked in the list (stays highlighted). */
   const dataSel = ref<string | null>(null);
+  /** Colors (paint ids) whose patches are lit on the quilt (none: nothing lit): a colorway map's
+   *  row hovered or tapped, a swatch pointed at or held. */
+  const spotPaints = ref<readonly string[]>([]);
   /** The data block picked to place (spec 046), with the kind of number it was picked for (a
    *  week block's 1-day variant is picked as a day block), and the quilt value each of its own
    *  values reads (by its letter). */
@@ -163,6 +166,7 @@ export const useEditorStore = defineStore('editor', () => {
     dataNext,
     dataHot,
     dataSel,
+    spotPaints,
     dataPick,
     dataSeries,
     dataOther,

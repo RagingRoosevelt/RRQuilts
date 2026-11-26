@@ -61,9 +61,110 @@ colorway.
 - **FR-006**: A **View grayscale** switch above Colorways (quilt editor, Design) and above Colorings (block editor, Color) MUST draw the canvas in grayscale for checking values. View only, session only, shared by both editors.
   colorings (overriding placed blocks' own fills where swapped) and rebase the other colorways'
   swaps so they look the same (two colors that became one keep the first one's swap).
+- **FR-007** (owner, 2026-11-25: "let's add a new colorway mode for quilts that's an outright
+  re-coloring and allows for setting the color of any patch in any block as you would in the
+  primary colorway. we'll call it "re-color" in the toggle that currently has "manual" (let's rename
+  to palette) and "auto map""): the colorway **Mode** (Colors tab and the New colorway from palette
+  dialog) MUST offer **Palette** (was Manual), **Auto mapping** and **Re-color**. A re-color (rrq
+  v13 `colorway.recolor`: each block space's `{block, coloring}` and its own coloring table) starts
+  from the colors the colorway shows (swaps baked in), and is painted with the primary's tools
+  (Paint, Spray, Swap, eyedropper, This / All / Alternate) on its own colorings, leaving the
+  primary alone. Its swaps and auto mapping stay, unused, and come back when the mode goes back
+  (after a confirm, the painting goes). A space whose block changed since, or a new one, shows the
+  primary's colors until painted. Spaces the primary hasn't painted (empty sashing) can't be
+  painted in it. Edits to a block's patches carry over. Deleting the primary makes a re-color the
+  quilt's colors as painted (the other colorways keep theirs). Not offered for data quilts or EPP
+  quilts.
+- **FR-008** (owner, 2026-11-25: "in the palette and auto map modes, hovering over the row or
+  tapping/clicking the source color in the map interface should highlight patches in the quilt
+  that use that color"): in Palette and Auto mapping, hovering a map row MUST light the patches
+  (and plain pieces) whose primary color is that row's on the Design canvas: one glowing outline
+  round each group of touching pieces, none along the seams between them (owner, 2026-11-25:
+  "if two patches that share a border both use the same color, the highlight would be just the
+  outline around their outside"), the rest paled. The glow looks as the block editor's hovered
+  patch (`render/glow.ts` `patchGlow`: blur and halo; owner, 2026-11-25: "the old highlighting had
+  a blur radius that I want this to also use"). The Colors tray's swatches light their color the
+  same way in the primary and in a re-color (owner, 2026-11-25: "let's also update the color
+  picker that's in the primary colorway and in the recolor interface so that hovering or
+  long-pressing a color highlights the patches using it"): pointing (mouse), holding (touch, 450
+  ms, as hold-to-hover elsewhere), or while the swatch's menu is open (a long press opens it).
+  Matched against the colors the shown colorway paints (the re-color's own in a re-color). The
+  block editor's Color tab does the same for the coloring shown (owner, 2026-11-25: "let's do that
+  in the block color picker, too"), the block's outline giving the glow's inner half along its
+  edge. Tapping the row's color keeps it lit (outlined) until tapped again or the
+  primary is shown. View only (`editor.spotPaints`, draw option `spot`: a set of colors, since a
+  row may stand for several, FR-009).
+- **FR-009** (owner, 2026-11-25: "when I'm in auto-mapping mode or palette mode, since
+  auto-mapping mode can follow a select existing colorway, the colors shown for "from" should be
+  based on the colorway we're starting from, not from the primary colorway. we shuould also allow
+  the manual colormapping (aka Palette mode), to select the colorway the mapping follows from.
+  switching from auto-mapping to manual mapping should preserve the selections. switching which
+  palette we're following shouldn't change the mapping, just the visual of which colors we're
+  going from and to. the exception is if we're following a recolor." / "the auto mapping should
+  map from the closest match of colors in the from colorpalette, though, not the primary color
+  palette" / "when you click on "new colorway from palette", it should pick the currently selected
+  colorway as the follow source"): Palette and Auto mapping MUST both have **Follows** (rrq v13
+  `colorway.source`, none = the primary; v12's `auto.source` moves there). The map's rows show the
+  followed colorway's colors (from) and this one's (to). Picks stay keyed by the base's colors
+  (`baseOf`: the primary's), so changing Follows changes no pick, only the from side. Base colors
+  that look alike on both sides share one row, and a pick there sets them all (hover lights them
+  all). Auto mapping picks the nearest to the followed colorway's colors. When the chain of
+  Follows reaches a re-color, its painting is the base: the colorway shows that painting with its
+  picks keyed by the re-color's colors (picks for colors it doesn't use rest unused). Auto mapping
+  → Palette keeps the picks, Follows and the palette (as Pick from). **New colorway from
+  palette…** follows the colorway shown, listing its colors, its Before picture that colorway, and
+  starts in the mode last picked there this session (owner, 2026-11-25: "when you pick a colorway
+  mode in that dialog, it should preserve the mode"; Palette where that mode isn't offered).
+  Deleting a colorway others follow: they follow what it followed, an auto mapping becoming
+  Palette with its picks. Deleting a re-color others are built on, or the primary while others
+  are built on it and the next is or follows a re-color: those become re-colors of what they
+  show. Every colorway looks the same after a delete.
+- **FR-010** (owner, 2026-11-25: "when saving an image for a quilt with multiple colorways,
+  include the name of the colorway in the filename: `<quilt name> - <colorway name>.<ext>`"):
+  Save image (Quilts tab) and Download image (Details) of a quilt with colorways MUST name the
+  file `<quilt name> - <colorway shown>.png`; a quilt with no colorways keeps `<quilt name>.png`.
+  Every saved file's name is cleaned (owner, 2026-11-25: "make sure to clean the filename (strip
+  filesystem incompatible characters)"): `\ / : * ? " < > |` and control characters stripped,
+  spaces collapsed, at most 200 bytes, no trailing dots or spaces, never a Windows device name
+  (`storage/files.ts` `fileNameFor`).
+- **FR-011** (owner, 2026-11-25: "when a palette has a ton of members, the list is really long.
+  let's put all but the first three rows (minus 2 entries of the last row which are replaced by a
+  label for the number remaining when colapsed) into an acrodian"; "let's allow palette member names
+  in the dropdown to span two lines and then truncate with an elipis"; "I was in automap where we
+  show a display of the selected palette's contents"): under the palette picker of Palette (Pick
+  from) and Auto map, quilt colorways and rosette colorings, a palette longer than three rows of
+  swatches MUST show three, the last three places a "+N more" button (owner, 2026-11-25: "let's
+  reserve the last three spots") that shows the rest ("Show
+  fewer" folds them again; another palette starts folded). The picked name in a map row takes up
+  to two lines, then ends in an ellipsis, and never widens the sidebar.
+- **FR-012** (owner, 2026-11-25: "let's use the same badges we're using for rosette colorations for
+  the colorations for quilts"): a colorway's picture (Design sidebar's Colorways, the quilt card's
+  colorway menu) MUST carry its mode on the corner as rosette colorings do: arrows for Palette, a
+  sparkle for Auto map (pointing at it names the mode); a re-color, painted as the primary, has
+  none; the primary keeps "Primary".
+- **FR-013** (owner, 2026-11-25: "let's apply the same sorting rules for colorations on quilts"):
+  lists of a quilt's colorways (Colorways, the card's colorway menu, Follows) MUST show the primary
+  first, then each colorway right after the one it follows, and theirs after it, as rosette
+  colorings (spec 050 FR-003b). A Palette or Auto map colorway with no Follows follows the primary
+  (owner, 2026-11-25: "I just created a colorway that's an auto map of the primary and it's showing
+  up after a recolor"), so the primary's come first; a re-color follows nothing, so re-colors come
+  after them, each with its own. The stored order is the order among siblings: dragging a
+  colorway, or its grip with the arrow keys, Home and End (owner, 2026-11-26: "let's allow
+  drag-to-reorder within the constraints we imposed"), moves it among the colorways that follow
+  the same one, its followers along (`siblingMove`); the glow shows where it really lands; the
+  primary stays first.
+- **FR-014** (owner, 2026-11-26: "the coloration count badge/button for blocks and epp rosettes
+  aren't in the same place … we should align the quilt one, too. it would be good to show the names
+  as well. I think we should also continue to show the mode badges but those should only show on the
+  quilt view of the component"): one count badge (ColoringCount) MUST serve blocks, rosettes (an EPP
+  quilt's picker) and quilts (card, Details): at the picture's bottom right with the larger tap
+  zone; its menu shows each coloring or colorway as a picture with its name (the Colorways card);
+  only a quilt's carry Primary or their mode. Rosette cards on the project's EPP tab and in
+  Libraries carry it too (owner, 2026-11-26: "in the project view, rosettes don't seem to have a
+  coloration count badge"); the project's shares the coloring shown with the EPP quilt picker.
 
 ## Assumptions
 
 - A swap is by color or fabric (all pieces with it), not per piece: one colorway can't differ
-  from the primary in a single piece.
+  from the primary in a single piece. A re-color (FR-007) can.
 - Changing the shown variant is an edit (undoable, saved).

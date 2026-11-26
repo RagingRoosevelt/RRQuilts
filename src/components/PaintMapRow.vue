@@ -5,7 +5,20 @@
     <!-- `stacked` (narrow places, the Design sidebar): the swatch above its name. No `from`: just
          the picker (a data quilt's scale, spec 025). -->
     <template v-if="from">
-      <div v-if="stacked" class="column items-center ps-from">
+      <!-- `spot` (a colorway's map): tapping the color lights its patches on the quilt. -->
+      <button
+        v-if="stacked && spot !== undefined"
+        type="button"
+        class="column items-center ps-from ps-spot"
+        :class="{ lit: spot }"
+        :aria-pressed="spot"
+        :title="`Show where ${from.notecard.name} is`"
+        @click="emit('spot')"
+      >
+        <div class="ps-swatch big" :style="optStyle(from)" />
+        <div class="ellipsis text-caption" style="max-width: 100%">{{ from.notecard.name }}</div>
+      </button>
+      <div v-else-if="stacked" class="column items-center ps-from">
         <div class="ps-swatch big" :style="optStyle(from)" />
         <div class="ellipsis text-caption" style="max-width: 100%">{{ from.notecard.name }}</div>
       </div>
@@ -27,7 +40,7 @@
       @click="open = !open"
     >
       <div class="ps-swatch field" :style="optStyle(current)" />
-      <div class="col ellipsis text-left">{{ current?.notecard.name }}</div>
+      <div class="col ps-name text-left">{{ current?.notecard.name }}</div>
       <q-icon name="arrow_drop_down" size="20px" />
     </button>
     <!-- As wide as the whole row (so it stays inside the sidebar), under it; at least 300 px, so a
@@ -94,8 +107,10 @@ const props = defineProps<{
   options: Opt[];
   readonly?: boolean;
   stacked?: boolean;
+  /** Stacked: the color is a button that lights its patches (true while lit). */
+  spot?: boolean | undefined;
 }>();
-const emit = defineEmits<{ 'update:modelValue': [id: string] }>();
+const emit = defineEmits<{ 'update:modelValue': [id: string]; spot: [] }>();
 
 const rowEl = ref<HTMLElement>();
 const open = ref(false);
@@ -175,10 +190,22 @@ function foldAll() {
   width: 64px;
   flex: none;
 }
+.ps-spot {
+  padding: 2px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.ps-spot.lit {
+  border-color: var(--q-primary);
+}
 /* Looks like an outlined dense field. */
 .ps-field {
   min-width: 0;
-  height: 40px;
+  min-height: 40px;
   gap: 8px;
   padding: 0 4px 0 8px;
   border: 1px solid rgba(0, 0, 0, 0.24);
@@ -196,6 +223,18 @@ function foldAll() {
 }
 .ps-field[disabled] {
   cursor: default;
+}
+/* A long name takes two lines, then ends in … (never widens the sidebar). */
+.ps-name {
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+  padding: 2px 0;
 }
 .ps-menu {
   max-width: 90vw;

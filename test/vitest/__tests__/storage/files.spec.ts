@@ -9,8 +9,15 @@ afterEach(() => {
 
 describe('file saving', () => {
   it('makes safe file names', () => {
-    expect(fileNameFor('Mom: "Star" quilt')).toBe('Mom_ _Star_ quilt.rrq');
+    expect(fileNameFor('Mom: "Star" quilt')).toBe('Mom Star quilt.rrq');
     expect(fileNameFor('  ')).toBe('Untitled.rrq');
+    expect(fileNameFor('Spring / Summer - Neon?', 'png')).toBe('Spring Summer - Neon.png');
+    expect(fileNameFor('Tab\there\u0000 ok...  ', 'png')).toBe('Tab here ok.png');
+    expect(fileNameFor('con', 'png')).toBe('con_.png');
+    expect(fileNameFor('<>|*', 'png')).toBe('Untitled.png');
+    const long = fileNameFor('🧵'.repeat(100), 'png');
+    expect(new TextEncoder().encode(long).length).toBeLessThanOrEqual(204);
+    expect(long).toBe(`${'🧵'.repeat(50)}.png`);
   });
 
   it('falls back to downloading <name>.rrq', () => {

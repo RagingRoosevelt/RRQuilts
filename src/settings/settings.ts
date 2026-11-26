@@ -43,7 +43,7 @@ export interface Settings {
   /** Quilt editor block sidebar: only blocks the quilt's layout takes. */
   compatibleBlocks: boolean;
   /** Project (sketchbook) page: last tab. */
-  projectTab: 'quilts' | 'blocks' | 'colors' | 'epp' | 'photos' | 'threads' | 'details';
+  projectTab: 'quilts' | 'blocks' | 'colors' | 'epp' | 'details';
   /** Id of the project opened last: reopening it keeps `projectTab`, another starts fresh. */
   lastProject: string;
   /** Your socials (GitHub, a pattern shop, …): a known or free-text type and a handle (or link). */
@@ -58,6 +58,8 @@ export interface Settings {
   /** EPP editors (specs 027, 050): where dragged corners land, the Angle tool's step, the
    *  placement mode, Place rosettes ungrouped, Sync grid to selected size. */
   epp: EppPrefs;
+  /** What a Manual EPP cut's sides snap to while dragged (0.9.3 roadmap). */
+  eppCutSnap: { vertex: boolean; edge: boolean };
   /** The 3D assembly tab's panes (spec 027 User Story 7): the 2D net above the 3D view, or beside it. */
   epp3dSplit: 'vertical' | 'horizontal';
   /** Labels of inspector sections the user collapsed. */
@@ -131,6 +133,7 @@ export const defaults = (): Settings => ({
   libraryType: 'block',
   epp: { vertexGrid: 'square', angleStep: 15, mode: 'free', ungrouped: false, syncGrid: true },
   epp3dSplit: 'vertical',
+  eppCutSnap: { vertex: true, edge: true },
   socials: [],
   hideLibraryBlocks: false,
   hideLibraryPalettes: false,
@@ -193,6 +196,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
     v === 'none' || v === 'category' || v === 'tags' || v === 'techniques' || v === 'shape',
   libraryType: (v) => v === 'block' || v === 'colors' || v === 'epp' || v === '',
   epp3dSplit: (v) => v === 'vertical' || v === 'horizontal',
+  eppCutSnap: (v) => isObject(v) && typeof v.vertex === 'boolean' && typeof v.edge === 'boolean',
   epp: (v) =>
     isObject(v) &&
     ['free', 'square', 'triangle'].includes(v.vertexGrid as string) &&
@@ -218,8 +222,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   hideLibraryPalettes: (v) => typeof v === 'boolean',
   hideSyncedMine: (v) => typeof v === 'boolean',
   projectTab: (v) =>
-    typeof v === 'string' &&
-    ['quilts', 'blocks', 'colors', 'epp', 'photos', 'threads', 'details'].includes(v),
+    typeof v === 'string' && ['quilts', 'blocks', 'colors', 'epp', 'details'].includes(v),
   compatibleBlocks: (v) => typeof v === 'boolean',
   lastProject: (v) => typeof v === 'string' && v.length <= 200,
   print: (v) => isObject(v),

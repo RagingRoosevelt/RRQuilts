@@ -170,9 +170,11 @@
           :labels="editor.labels"
           :selected="found"
           :soft="flashSoft"
+          :spot="spot"
           :pan-only="panOnly"
           :data-marks="dataMarks"
           :day-paths="dayPaths"
+          :overlay="editor.mode === 'layout' ? eppCut.overlay.value : undefined"
           :class="{ gray: gray }"
           @tap="onTap"
           @pick="onPick"
@@ -218,8 +220,12 @@
             :fits-quilt="fitsQuilt"
             :data="!!quilt.data?.on"
           >
-            <!-- A colorway other than the primary: its mapping instead of the palettes. -->
-            <template v-if="quilt.shownColorway" #colors>
+            <!-- A colorway other than the primary: its mapping instead of the palettes; a re-color
+                 is painted from the palettes, its mode above them. -->
+            <template v-if="quilt.shownColorway && !recoloring" #colors>
+              <ColorwayMapping :quilt="quilt" :readonly="project.readOnly" />
+            </template>
+            <template v-if="recoloring" #colors-top>
               <ColorwayMapping :quilt="quilt" :readonly="project.readOnly" />
             </template>
             <template #blocks>
@@ -271,6 +277,7 @@
             :readonly="project.readOnly"
             :has-borders="quilt.borders.length > 0"
             :hint="layoutHint"
+            :size="dims(generated.bounds)"
             @change="(l, k) => changeLayout(l, quilt!.borders, k)"
           />
           <TargetSection
@@ -307,6 +314,7 @@ import { useDataTab } from '@/composables/data-tab';
 import type { Block } from '@/model/schema/block';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import ColorwayMapping from '@/components/ColorwayMapping.vue';
+import { shownColorway } from '@/model/colorways';
 import { useQuasar } from 'quasar';
 import HelpLink from '@/components/HelpLink.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
@@ -319,6 +327,7 @@ import DataInspector from '@/components/DataInspector.vue';
 import { castDraft, produce } from 'immer';
 import type { RrqDoc } from '@/model/schema/project';
 import { resolveColoring } from '@/model/coloring';
+import { spotKeys } from '@/editor/paint';
 import {
   blockLetters,
   dataTap,
@@ -345,6 +354,7 @@ import StlPreview from '@/components/StlPreview.vue';
 import { useStl } from '@/composables/stl';
 import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
+import { useEppCut } from '@/composables/epp-cut';
 import { applyTool } from '@/editor/actions';
 import { takesBlock } from '@/editor/scope';
 import { STRIP_STYLES, stripOf, swapStrips, setStrip } from '@/model/layout/strips';
@@ -386,6 +396,8 @@ const quilt = computed(() => project.doc?.project.quilts.find((q) => q.id === ro
 const stl = useStl(() => (quilt.value ? { kind: 'quilt', id: quilt.value.id } : null));
 /** An EPP quilt (spec 027), and whether its edge is finished (borders need one). */
 const isEpp = computed(() => quilt.value?.layout.style === 'epp');
+/** An EPP quilt's Manual cut, sized on the Layout tab's picture. */
+const eppCut = useEppCut(() => quilt.value);
 /** A 3D EPP quilt: a 3D assembly tab, no borders. */
 const is3d = computed(() => !!quilt.value && is3dQuilt(quilt.value));
 watch(
@@ -451,6 +463,8 @@ const HINTS: Record<Tool, string> = {
   pan: 'Drag to move around.',
 };
 const toolHint = computed(() => HINTS[editor.tool]);
+/** The shown colorway is a re-color: painted as the primary is. */
+const recoloring = computed(() => !!(quilt.value && shownColorway(quilt.value)?.recolor));
 /** The Help topic for each editor tab. */
 const QUILT_HELP: Record<string, { topic: string; label: string }> = {
   details: { topic: 'guides/designing-a-quilt', label: 'Designing a quilt' },
@@ -616,6 +630,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
 /** Find tool: outline every placement of the selected block. */
 /** A flash's spaces matching only part of what's picked (a slight glow). */
+/** The lit colors (a colorway map's row, or a swatch in the tray): matched against the colors the
+ *  shown colorway paints (its base's, under a Palette or Auto mapping colorway's swaps). */
+const spot = computed(() => spotKeys(editor.spotPaints));
 const flashSoft = computed(() =>
   editor.flash.on && editor.flash.soft.length ? new Set(editor.flash.soft) : undefined,
 );

@@ -1,11 +1,13 @@
 <template>
   <q-page v-if="project.doc" padding>
     <div class="row items-center q-gutter-sm q-mb-sm">
+      <!-- As wide as the page, cut off with … only at its edge. -->
       <q-input
         :model-value="project.doc.project.name"
         dense
         borderless
-        input-class="text-h6"
+        class="col"
+        input-class="text-h6 ellipsis"
         :readonly="project.readOnly"
         aria-label="Project name"
         @update:model-value="rename"
@@ -16,10 +18,8 @@
       <q-tabs v-model="tab" dense no-caps align="left" class="col proj-tabs">
         <q-tab name="quilts" :label="`Quilts (${quilts.length})`" />
         <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
-        <q-tab name="colors" :label="`Palettes (${ownPalettes.length + pickedPalettes.length})`" />
         <q-tab name="epp" :label="`EPP (${eppCount})`" />
-        <q-tab name="photos" label="Photos" />
-        <q-tab name="threads" label="Threads" />
+        <q-tab name="colors" :label="`Palettes (${ownPalettes.length + pickedPalettes.length})`" />
         <q-tab name="details" label="Details" />
       </q-tabs>
       <HelpLink
@@ -292,11 +292,10 @@
                   </button>
                   <FavoriteBadge v-if="tagsOfBlock(b).includes(FAVORITE)" />
                   <ColoringCount
-                    :block="b"
-                    :colorings="projectColorings(b, library.lookup)?.own"
+                    :items="projectColorings(b, library.lookup)?.own ?? b.colorings"
                     :model-value="shownColoring(b)"
-                    :thumb="(id) => thumb(b, 64, id)"
-                    @update:model-value="(id) => editor.coloringOf.set(b.id, id)"
+                    :thumb="(id) => thumb(b, 72, id)"
+                    @update:model-value="(id) => id && editor.coloringOf.set(b.id, id)"
                   />
                 </div>
                 <q-badge
@@ -497,10 +496,10 @@
                         </button>
                         <FavoriteBadge v-if="tagsOfBlock(b).includes(FAVORITE)" />
                         <ColoringCount
-                          :block="b"
+                          :items="b.colorings"
                           :model-value="shownColoring(b)"
-                          :thumb="(id) => thumb(b, 64, id)"
-                          @update:model-value="(id) => editor.coloringOf.set(b.id, id)"
+                          :thumb="(id) => thumb(b, 72, id)"
+                          @update:model-value="(id) => id && editor.coloringOf.set(b.id, id)"
                         />
                       </div>
                       <div class="row items-center no-wrap">
@@ -1572,7 +1571,7 @@ import {
   coloringSections,
 } from '@/model/library-items';
 import { exportFile, pickFile } from '@/storage/files';
-import { importCollectionColors, parseCollectionFile } from '@/model/collection-file';
+import { importPaletteFile, parseCollectionFile } from '@/model/collection-file';
 import {
   MY_LIBRARY,
   addBlock,
@@ -2776,26 +2775,13 @@ async function importCollectionFile() {
   const r = parseCollectionFile(await file.text());
   if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
   const c = r.file.collection;
-  const res = importCollectionColors(project.doc!, c);
-  const have = new Set(project.doc!.project.palette.fabrics.map((f) => f.id));
-  const fabrics = (await absorbFabrics(c.fabrics ?? [])).filter((f) => !have.has(f.id));
-  if (!res.added && !fabrics.length)
-    return void $q.notify({ message: `“${c.notecard.name}” is already here.` });
-  const colorIds = c.colors.map((x) => x.id);
-  project.change((d) => {
-    if (res.added) d.project.palette.colors = castDraft(res.doc.project.palette.colors);
-    d.project.palette.fabrics.push(...castDraft(fabrics));
-    const id = addPalette(d, itemId(settings.settings.author), c.notecard.name);
-    fileInto(
-      d,
-      id,
-      colorIds,
-      fabrics.map((f) => f.id),
-    );
-  });
+  const fabrics = await absorbFabrics(c.fabrics ?? []);
+  const res = importPaletteFile(project.doc!, c, fabrics, itemId(settings.settings.author));
+  if (!res) return void $q.notify({ message: `“${c.notecard.name}” is already here.` });
+  project.change(() => res.doc);
   $q.notify({
     type: 'positive',
-    message: `Added “${c.notecard.name}”: ${res.added} color(s), ${fabrics.length} fabric(s).`,
+    message: `Added “${c.notecard.name}”: ${res.colors} color(s), ${res.fabrics} fabric(s).`,
   });
 }
 

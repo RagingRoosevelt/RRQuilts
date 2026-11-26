@@ -2,6 +2,7 @@
   <div ref="host" class="quilt-canvas" :class="panOnly ? 'cursor-grab' : 'cursor-pointer'">
     <canvas
       ref="canvas"
+      :style="cursor ? { cursor } : undefined"
       @pointerdown="vp.handlers.pointerdown"
       @mousedown.middle.prevent
       @pointermove="vp.handlers.pointermove"
@@ -23,7 +24,7 @@
 import { imagesTick } from '@/render/fabric-images';
 import { useQuasar } from 'quasar';
 import { computed, ref, watch } from 'vue';
-import { useViewport } from '@/composables/viewport';
+import { useViewport, type CanvasOverlay } from '@/composables/viewport';
 import type { Generated } from '@/model/layout/slots';
 import type { RrqDoc } from '@/model/schema/project';
 import type { Quilt } from '@/model/schema/quilt';
@@ -44,11 +45,15 @@ const props = defineProps<{
   selected?: Set<string> | undefined;
   /** Spaces given a slight glow. */
   soft?: Set<string> | undefined;
+  /** A fill key whose patches are lit, the others paled. */
+  spot?: ReadonlySet<string> | undefined;
   panOnly: boolean;
   /** Data quilt marks and order lines (spec 025, Data tab). */
   dataMarks?: readonly DataMark[] | null;
   /** Each data block's days in order, drawn as light arrows. */
   dayPaths?: readonly Pt[][] | null;
+  /** Drawn over the quilt, taking its own drags; an EPP cut's pieces outside it drawn faded. */
+  overlay?: CanvasOverlay | undefined;
 }>();
 const emit = defineEmits<{
   tap: [hit: Hit];
@@ -64,12 +69,21 @@ const canvas = ref<HTMLCanvasElement>();
 const blocks = computed(() => new Map(props.doc.project.blocks.map((b) => [b.id, b])));
 const hitAt = (p: [number, number]) => hitTest(blocks.value, props.quilt, props.generated, p);
 
+const cursor = ref<string | null>(null);
+/** One CSS pixel in quilt units, at the view shown (the fitted one until zoomed). */
+const px = () => vp.worldPerPx();
 const vp = useViewport({
   host,
   canvas,
   getView: () => props.view,
   setView: (v) => emit('update:view', v),
-  bounds: () => boundsWithTarget(props.quilt, props.generated.bounds, props.generated.anchor),
+  bounds: () => {
+    const b = boundsWithTarget(props.quilt, props.generated.bounds, props.generated.anchor);
+    const o = props.overlay?.bounds;
+    return o
+      ? [Math.min(b[0], o[0]), Math.min(b[1], o[1]), Math.max(b[2], o[2]), Math.max(b[3], o[3])]
+      : b;
+  },
   panOnly: () => props.panOnly,
   draw(ctx, view, dpr) {
     const c = canvas.value!;
@@ -83,9 +97,16 @@ const vp = useViewport({
       labels: props.labels,
       ...(props.selected ? { selected: props.selected } : {}),
       ...(props.soft ? { soft: props.soft } : {}),
+      spot: props.spot,
       hover: props.hover,
       dark: $q.dark.isActive,
+      cutFade: !!props.overlay,
     });
+    if (props.overlay) {
+      const k = dpr * view.scale;
+      ctx.setTransform(k, 0, 0, k, dpr * view.tx, dpr * view.ty);
+      props.overlay.decorate(ctx, 1 / view.scale);
+    }
     if (props.dataMarks?.length || props.dayPaths?.length) {
       const k = dpr * view.scale;
       ctx.setTransform(k, 0, 0, k, dpr * view.tx, dpr * view.ty);
@@ -104,7 +125,14 @@ const vp = useViewport({
     const hit = hitAt(p);
     if (hit) emit('pick', hit);
   },
-  onHover: (p) => emit('hover', p ? hitAt(p) : null),
+  onHover: (p) => {
+    cursor.value = p && props.overlay ? props.overlay.cursor(p, px()) : null;
+    emit('hover', p ? hitAt(p) : null);
+  },
+  onDragStart: (p) => !!props.overlay?.claim(p, px()),
+  claimOverPan: () => !!props.overlay,
+  onDrag: (p) => props.overlay?.drag(p),
+  onDragEnd: () => props.overlay?.end(),
 });
 
 watch(
@@ -118,8 +146,10 @@ watch(
     props.labels,
     props.selected,
     props.soft,
+    props.spot,
     props.dataMarks,
     props.dayPaths,
+    props.overlay,
     $q.dark.isActive,
     imagesTick.value, // fabric images arriving (spec 014)
   ],

@@ -12,43 +12,35 @@
   >
     <div class="column q-pb-md" style="gap: 8px">
       <div class="row" style="gap: 8px">
-        <div v-for="c in choices" :key="c.id ?? ''" class="column items-center">
-          <button class="qv-pick big" :class="{ active: shown === c.id }" @click="show(c.id)">
-            <img :src="thumbOf(c.id, 72)" :alt="c.name" />
-            <span v-if="!c.id" class="qv-primary">Primary</span>
-            <div class="qv-pick-name">{{ c.name }}</div>
-          </button>
-          <div v-if="!readonly" class="row no-wrap">
-            <q-btn
-              flat
-              round
-              dense
-              size="sm"
-              icon="edit"
-              :aria-label="`Rename ${c.name}`"
-              @click="rename(c.id, c.name)"
-            >
-              <q-tooltip>Rename</q-tooltip>
-            </q-btn>
-            <q-btn
-              flat
-              round
-              dense
-              size="sm"
-              icon="delete"
-              color="negative"
-              :disable="choices.length < 2"
-              :aria-label="`Delete ${c.name}`"
-              @click="remove(c.id, c.name)"
-            >
-              <q-tooltip>Delete</q-tooltip>
-            </q-btn>
-          </div>
-        </div>
+        <!-- Drag (or the grip's arrow keys) to reorder; Palette and Auto map colorways stay right
+             after the one they follow, the primary first. -->
+        <PreviewPick
+          v-for="(c, i) in choices"
+          :key="c.id ?? ''"
+          :class="[glow(i), { dragged: from === i }]"
+          :data-drag="dragList"
+          :data-drag-index="i"
+          :movable="canDrag && !!c.id"
+          :grip-id="c.id"
+          :img="thumbOf(c.id, 72)"
+          :name="c.name"
+          :active="shown === c.id"
+          @pointerdown="c.id && onDown($event, i)"
+          @touchmove="onTouchMove"
+          @grip-key="(e: KeyboardEvent) => c.id && gripKey(e, c.id)"
+          :badge="c.id ? undefined : 'Primary'"
+          :icon="modeOf(c.id)?.icon"
+          :tip="modeOf(c.id)?.tip"
+          :readonly="readonly"
+          :deletable="choices.length > 1"
+          @pick="show(c.id)"
+          @rename="rename(c.id, c.name)"
+          @remove="remove(c.id, c.name)"
+        />
       </div>
       <div v-if="!readonly" class="row" style="gap: 8px">
         <q-btn dense outline no-caps icon="add" label="Save as new colorway" @click="make" />
-        <!-- Spec 024: the same dialog as the quilt card's menu (Manual or Auto mapping). -->
+        <!-- Spec 024: the same dialog as the quilt card's menu (Palette, Auto mapping or Re-color). -->
         <q-btn
           dense
           outline
@@ -61,26 +53,40 @@
       <PaletteSwapDialog ref="swapDialog" />
       <div v-if="choices.length > 1" class="text-caption text-grey-7">
         The first is the primary colorway: paint it as usual. In the others, the Colors tab maps
-        each of its colors to a replacement.
+        each of its colors to a replacement, or, with Re-color, you paint them as the primary.
       </div>
     </div>
   </q-expansion-item>
   <div v-else-if="mode === 'row'" class="row items-center no-wrap" style="gap: 10px">
     <div class="relative-position">
       <img :src="thumbOf(shown)" alt="" class="row-thumb" />
-      <ColorwayCount />
+      <ColoringCount
+        :items="countItems"
+        :model-value="shown"
+        :thumb="(id) => thumbOf(id)"
+        title="Choose colorway"
+        @update:model-value="show"
+      />
     </div>
     <div class="col">
       <div class="text-caption text-grey-7">{{ shown ? 'Colorway' : 'Primary colorway' }}</div>
       <div>{{ choices.find((c) => c.id === shown)?.name }}</div>
     </div>
   </div>
-  <ColorwayCount v-else />
+  <ColoringCount
+    v-else
+    :items="countItems"
+    :model-value="shown"
+    :thumb="(id) => thumbOf(id)"
+    title="Choose colorway"
+    @update:model-value="show"
+  />
 </template>
 
 <script setup lang="ts">
-import { ClosePopup, QMenu, useQuasar } from 'quasar';
-import { computed, defineComponent, h, ref, withDirectives } from 'vue';
+import { useQuasar } from 'quasar';
+import { computed, nextTick, ref } from 'vue';
+import { useCardDrag } from '@/composables/card-drag';
 import { newId } from '@/model/ids';
 import {
   addColorway,
@@ -88,11 +94,16 @@ import {
   renameColorway,
   shownColorway,
   colorwayList,
+  colorwayGap,
+  moveColorway,
+  type SiblingMove,
 } from '@/model/colorways';
 import type { Quilt } from '@/model/schema/quilt';
 import { quiltThumbnail } from '@/render/thumbnail';
 import { useProjectStore } from '@/stores/project';
 import PaletteSwapDialog from './PaletteSwapDialog.vue';
+import ColoringCount from './ColoringCount.vue';
+import PreviewPick from './PreviewPick.vue';
 import { useColorwaySwap } from '@/composables/colorway-swap';
 
 const swapDialog = ref<InstanceType<typeof PaletteSwapDialog>>();
@@ -107,6 +118,15 @@ const project = useProjectStore();
 /** The quilt's own colors (no id), then each colorway. */
 const choices = computed(() => colorwayList(props.quilt));
 const shown = computed(() => shownColorway(props.quilt)?.id);
+/** A colorway's mode on its picture's corner, as rosette colorings: Palette or Auto map (a
+ *  re-color is painted, as the primary: none). */
+function modeOf(id: string | undefined) {
+  const v = id ? props.quilt.colorways?.find((x) => x.id === id) : undefined;
+  if (!v || v.recolor) return undefined;
+  return v.auto
+    ? { icon: 'auto_awesome', tip: 'Auto map' }
+    : { icon: 'swap_horiz', tip: 'Palette' };
+}
 const thumbOf = (id: string | undefined, px = 112) => {
   const q: Quilt = { ...props.quilt };
   if (id) q.shownColorway = id;
@@ -144,48 +164,42 @@ function remove(id: string | undefined, name: string) {
     ok: { label: 'Delete', color: 'negative', flat: true },
   }).onOk(() => edit((q) => removeColorway(q, id, project.doc!.project.blocks)));
 }
+// Reordering (owner, 2026-11-26): only among the colorways that follow the same one.
+const canDrag = computed(() => !props.readonly && (props.quilt.colorways?.length ?? 0) > 1);
+/** This panel's cards (one name per panel: the quilt shown can change under it). */
+const dragList = `colorways:${newId()}`;
+const { from, onDown, onTouchMove, glow } = useCardDrag({
+  list: dragList,
+  enabled: () => canDrag.value,
+  move: (f, gap) => {
+    const id = choices.value[f]?.id;
+    if (id) edit((q) => moveColorway(q, id, { gap }));
+  },
+  snap: (f, gap) => {
+    const id = choices.value[f]?.id;
+    return id ? colorwayGap(props.quilt, id, gap) : null;
+  },
+});
+function gripKey(e: KeyboardEvent, id: string) {
+  const how = (
+    {
+      ArrowLeft: { by: -1 },
+      ArrowUp: { by: -1 },
+      ArrowRight: { by: 1 },
+      ArrowDown: { by: 1 },
+      Home: { to: 'first' },
+      End: { to: 'last' },
+    } as Record<string, SiblingMove>
+  )[e.key];
+  if (!how) return;
+  e.preventDefault();
+  edit((q) => moveColorway(q, id, how));
+  void nextTick(() => document.querySelector<HTMLElement>(`[data-grip="${id}"]`)?.focus());
+}
 
-/** The count, as on block cards (ColoringCount): its menu picks the colorway shown. */
-const ColorwayCount = defineComponent(
-  () => () =>
-    choices.value.length < 2
-      ? null
-      : h(
-          'span',
-          {
-            class: ['qv-count', { overlay: props.mode === 'badge' }],
-            role: 'button',
-            title: 'Choose colorway',
-            onClick: (e: Event) => e.stopPropagation(),
-          },
-          [
-            String(choices.value.length),
-            h(QMenu, null, () =>
-              h(
-                'div',
-                { class: 'row q-pa-sm', style: 'gap: 6px; max-width: 340px' },
-                choices.value.map((c) =>
-                  withDirectives(
-                    h(
-                      'button',
-                      {
-                        class: ['qv-pick', { active: shown.value === c.id }],
-                        title: c.name,
-                        onClick: () => show(c.id),
-                      },
-                      [
-                        h('img', { src: thumbOf(c.id), alt: '' }),
-                        c.id ? null : h('span', { class: 'qv-primary' }, 'Primary'),
-                        h('div', { class: 'qv-pick-name' }, c.name),
-                      ],
-                    ),
-                    [[ClosePopup]],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+/** The count on the quilt's picture: its menu shows each colorway, Primary or its mode marked. */
+const countItems = computed(() =>
+  choices.value.map((c) => ({ ...c, ...(c.id ? modeOf(c.id) : { badge: 'Primary' }) })),
 );
 </script>
 
@@ -195,83 +209,5 @@ const ColorwayCount = defineComponent(
   width: 56px;
   height: 56px;
   border-radius: 4px;
-}
-</style>
-
-<style>
-/* The count badge, as on block cards (ColoringCount); the menu is rendered in <body>, so these
-   aren't scoped. */
-.qv-count {
-  position: absolute;
-  right: -10px;
-  bottom: -10px;
-  isolation: isolate;
-  min-width: 34px;
-  padding: 8px 12px;
-  border-radius: 17px;
-  font-size: 11px;
-  line-height: 18px;
-  text-align: center;
-  color: white;
-  cursor: pointer;
-  backdrop-filter: blur(3px);
-  mask-image: radial-gradient(farthest-side, #000 70%, transparent);
-}
-.qv-count.overlay {
-  right: -4px;
-  bottom: -4px;
-}
-.qv-count::before {
-  content: '';
-  position: absolute;
-  inset: 8px;
-  z-index: -1;
-  border-radius: 9px;
-  background: var(--q-primary);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
-}
-.qv-pick {
-  position: relative;
-  width: 72px;
-  padding: 2px;
-  border: 2px solid transparent;
-  border-radius: 6px;
-  background: none;
-  color: inherit;
-  cursor: pointer;
-  font-size: 11px;
-}
-/* "Primary" on the primary colorway's thumbnail. */
-.qv-primary {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  padding: 0 4px;
-  border-radius: 3px;
-  font-size: 9px;
-  line-height: 14px;
-  color: white;
-  background: var(--q-primary);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-}
-.qv-pick.active {
-  border-color: var(--q-primary);
-}
-.qv-pick.big {
-  width: 80px;
-}
-.qv-pick img {
-  display: block;
-  width: 64px;
-  height: 64px;
-}
-.qv-pick.big img {
-  width: 72px;
-  height: 72px;
-}
-.qv-pick-name {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 </style>

@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-18
 
-**Status**: Released in 0.9.0 (2026-11-24); 0.9.1 (2026-11-24) added the help guides and 3D assembly tools (seam finder, unsewn and stretched highlights); placed rosette colorings, cut handles, rosette palette swap and any-link opening planned for 0.9.3 (owner, 2026-11-24, moved from 0.9.2). Was: Draft (spec only; not implemented). **2D** (User Stories 1-6) and **3D** (User Story
+**Status**: Released in 0.9.0 (2026-11-24); 0.9.1 (2026-11-24) added the help guides and 3D assembly tools (seam finder, unsewn and stretched highlights); a Find tool, cut handles and rosette palette swap planned for 0.9.3 (owner, 2026-11-24, moved from 0.9.2); any-link opening moved to 0.12.0 (owner, 2026-11-26). Was: Draft (spec only; not implemented). **2D** (User Stories 1-6) and **3D** (User Story
 7; User Story 8 later) both ship in 0.9.0 (owner, 2026-11-23; first planned as two releases). STL
 cutting templates are a stretch goal.
 
@@ -199,9 +199,10 @@ justification).
   optional, not assumed. Its edge is set by the **edge trim**:
   - **No trimming** (default): the edge is wherever the outer pieces end, often jagged (a hexagon
     garden's zigzag edge).
-  - **Cut to size** (straight trim): a rectangle cuts across the outer pieces. It starts as the
-    largest rectangle the pieces fill with no gaps; the quilter can type a size or move its sides in
-    the Layout tab.
+  - **Cut to size** (straight trim): a rectangle cuts across the outer pieces. **Largest
+    rectangle** is the largest rectangle the pieces fill with no gaps, found again after every
+    edit; **Manual** is sized by hand: its sides, corners or middle dragged on the Layout tab's
+    picture (pieces outside faded), or a size typed (FR-001c).
   - **Auto-close**: nothing is cut. The app fills the notches along the outside with closing pieces
     (internal shapes such as half hexagons, each made whole as a paper) up to a straight line, so the
     edge is straight. Closing pieces print and count like other pieces and take a fill the quilter
@@ -654,6 +655,18 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
 - **FR-001b**: Trimming MUST NOT change the templates: pieces are made whole (papers are whole
   shapes) and trimmed after assembly, so templates and fabric counts are for whole pieces; the
   print notes the trim line and its size.
+- **FR-001c**: Cut to size MUST offer **Largest rectangle** (the default: found again after every
+  edit, so it follows the pieces) and **Manual**. Manual MUST put the cut on the Layout tab's
+  picture with handles on its sides, corners and middle (drag to resize or move; pieces outside it
+  shown faded, under any borders), an **Aspect ratio** (Freeform, Square, or wide and tall common
+  ratios) that keeps its shape, and **Snap to vertex** and **Snap to edge** switches (a dragged side
+  stops at piece corners and along upright or level piece edges near it; app settings). Typing a
+  width or height makes it Manual. Cuts made before rrq v13 open as Manual (they keep their size).
+  Owner, 2026-11-25: "the "largest rectangle the pices fill" should turn into a toggle with the
+  other option being "manual" and activating "manual" should put a crop rectangle in the preview
+  and should show several toggles for snapping the crop rectange with "snap to vertex" and "snap
+  to edge" options", then "there should also be an "aspect ratio" dropdown that has several common
+  aspect ratios as well as "freeform" that control the crop region's shape".
 - **FR-002**: EPP shapes MUST be simple closed convex polygons. Edge lengths SHOULD be whole multiples
   of the quilt's base dimension: other lengths only warn, until the quilter marks them as meant
   (FR-006a). A marked edge snaps to an edge of the same length, a whole multiple of it, or a half or a quarter of it (a shorter edge runs along a longer one in steps of its own length). Owner, 2026-11-10: "let's also allow snapping to an integer multiple of that length or to a 1/2
@@ -676,6 +689,11 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
 - **FR-004**: Each piece MUST have exactly one fill: a color or a fabric.
 - **FR-005**: Pieces MUST support select, group, move, turn, mirror, copy, delete and recolor, with
   undo; groups can be saved as rosettes (spec 050).
+- **FR-005a**: The EPP quilt editor MUST have a **Find** tool, as the quilt editor's: tapping a piece
+  picks its shape or rosette in the sidebar (a rosette in the coloring it shows, at the piece's
+  scale, the card scrolled into view) and every piece placed from it glows. It works read-only too.
+  Owner, 2026-11-25: "what we should implement instead is a "find" tool (in the toolbar) that works
+  like it does in a normal quilt (selects the clicked-on block/rosette/shape)".
 - **FR-006**: Quilters MUST be able to create, copy and edit EPP shapes (by dragging, FR-006a) with
   validation that the outline closes, doesn't cross itself, has whole-unit edges and is convex.
   Owner, 2026-11-10: "we should have a shape/stamp/rosette editor. it should have a banner that
@@ -703,6 +721,12 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
   right representing an increasing value, to the left representing decreasing"
 - **FR-007**: EPP shapes and rosettes (spec 050) MUST be library items: built-in starters, My library, packs,
   embedding, sync and credits, as blocks are (specs 008, 009, 011).
+  - **FR-007a** (0.9.3, found by the export and import test the owner asked for on 2026-11-25): a
+    rosette carries its own colors and fabrics as a block does, into My library (and so backups,
+    zips with images and packs) and in its `.rrqepp` file, where its fabrics' images go embedded
+    and are stored on import. Before, a rosette placed from My library in another project, or a
+    `.rrqepp` opened on another device, lost its own fabrics' images (and a library rosette its own
+    colors).
 - **FR-008**: Printing MUST produce paper templates (no seam allowance) and fabric templates (with
   seam allowance) at true size, with counts per fill, labels, packing and yardage.
 - **FR-009**: The project format MUST gain a version with EPP quilts, shapes and pieces, and a

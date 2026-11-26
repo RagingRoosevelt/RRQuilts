@@ -117,6 +117,28 @@ export const migrations: Migrations = {
   10: (doc) => doc,
   // v12 (specs 027, 050): EPP shapes, rosettes and EPP quilts, all optional; nothing to change.
   11: (doc) => doc,
+  // v13: a quilt colorway may be a re-color (its own coloring of each space), and any colorway may
+  // follow another (`source`, which was the auto mapping's own). An EPP cut may be Manual.
+  12: (doc) => {
+    const project = isObject(doc.project) ? doc.project : undefined;
+    if (!project || !Array.isArray(project.quilts)) return doc;
+    const quilts = project.quilts.map((q: unknown) => {
+      if (!isObject(q)) return q;
+      // An EPP cut so far stayed as made: Manual, so it keeps its size (Largest rectangle now
+      // follows the pieces).
+      const l = q.layout;
+      if (isObject(l) && l.style === 'epp' && isObject(l.edge) && l.edge.kind === 'cut')
+        q = { ...q, layout: { ...l, edge: { ...l.edge, manual: true } } };
+      if (!isObject(q) || !Array.isArray(q.colorways)) return q;
+      const colorways = q.colorways.map((v: unknown) => {
+        if (!isObject(v) || !isObject(v.auto) || !('source' in v.auto)) return v;
+        const { source, ...auto } = v.auto;
+        return { ...v, auto, ...(typeof source === 'string' ? { source } : {}) };
+      });
+      return { ...q, colorways };
+    });
+    return { ...doc, project: { ...project, quilts } };
+  },
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */

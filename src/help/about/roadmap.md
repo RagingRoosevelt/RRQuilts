@@ -10,10 +10,10 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
 ## 0.9.3
 
-- Change the coloring of a rosette already placed in a quilt.
+- A Find tool in English paper piecing quilts: tap a piece to pick its shape or rosette.
 - Drag the sides of an English paper piecing quilt's cut, with the pieces outside it faded.
 - Palette swaps for rosette colorings.
-- Open a shared project from a web link, as you can from a gist.
+- Search blocks by name in a quilt's Design tab.
 
 ## 0.10.0
 
@@ -21,13 +21,14 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
 ## 0.11.0
 
-- Quilt shapes besides rectangles: circles, diamonds, and other regular or irregular polygons, with
-  borders and binding that follow the shape.
+- Foundation paper piecing: split a block into sections with sewing numbers, and print mirrored
+  foundation patterns.
 
 ## 0.12.0
 
-- Foundation paper piecing: split a block into sections with sewing numbers, and print mirrored
-  foundation patterns.
+- Quilt shapes besides rectangles: circles, diamonds, and other regular or irregular polygons, with
+  borders and binding that follow the shape.
+- Open a shared project from a web link, as you can from a gist.
 
 ## 0.13.0
 
@@ -36,6 +37,8 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - Step by step instructions for making a quilt, built from its layout and blocks.
 - A Move tool for quilts: select several blocks to drag, turn or flip together, replacing what they
   land on.
+- Re-color colorways in English paper piecing quilts: paint each piece and choose each placed
+  rosette's coloring apart from the primary colorway.
 
 ## 0.14.0
 

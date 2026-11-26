@@ -1,6 +1,7 @@
 // Draw a quilt on a 2-D canvas. View maps quilt units → CSS pixels; `dpr` scales to device pixels.
 import type { Generated, Slot } from '@/model/layout/slots';
 import type { Block } from '@/model/schema/block';
+import { fillKey } from '@/model/coloring';
 import { slotColoring } from '@/model/data-quilt';
 import type { ColoringBody, Fill } from '@/model/schema/coloring';
 import type { Color, Fabric } from '@/model/schema/palette';
@@ -13,6 +14,7 @@ import { mul, type M } from './affine';
 import { blockPaths, toPath2D } from './paths';
 import { placementMatrix } from './placement';
 import { fabricFill } from './fabric-images';
+import { glowGroup, glowPath, patchGlow, type GlowShape } from './glow';
 import { PLAIN_BLOCK, PLAIN_PATCH } from '@/model/plain';
 import { expandAll, lookupEpp } from '@/model/epp/expand';
 
@@ -32,11 +34,16 @@ export interface DrawOptions {
   selected?: Set<string>;
   /** Spaces given a slight glow (a data quilt's flash: those matching only part of what's picked). */
   soft?: Set<string>;
+  /** Fill keys (before the colorway's swaps): their patches glow, the others pale (a colorway's
+   *  map, its row hovered or its color tapped). */
+  spot?: ReadonlySet<string> | undefined;
   /** Visual theme: patch outline and empty-space colors. */
   dark: boolean;
   /** Draw the quilt's reference overlay when it's switched on (the editor, a Details download);
    *  thumbnails and list downloads leave it out. */
   target?: boolean;
+  /** An EPP quilt's Cut to size being sized: the pieces it cuts away drawn faded, not left out. */
+  cutFade?: boolean;
 }
 
 const slotPaths = new WeakMap<Slot, Path2D>();
@@ -95,24 +102,42 @@ export function colorLookup(
   };
 }
 
-/** Draw one block's patches with a coloring, in the current transform (block design units). */
+/** Draw one block's patches with a coloring, in the current transform (block design units). With
+ *  `spot`, the patches of other colors are paled, and those of its colors returned. */
 export function drawBlock(
   ctx: CanvasRenderingContext2D,
   block: Block,
   coloring: ColoringBody | undefined,
   fillOf: ReturnType<typeof colorLookup>,
-  opts: { outlines: boolean; lineWidth: number; dark: boolean },
+  opts: {
+    outlines: boolean;
+    lineWidth: number;
+    dark: boolean;
+    spot?: ReadonlySet<string> | undefined;
+  },
 ) {
   for (const p of blockPaths(block)) {
     ctx.fillStyle = fillOf(coloring?.fills[p.id]) ?? hatch(ctx, opts.dark);
     ctx.fill(p.path);
+  }
+  const lit =
+    opts.spot === undefined
+      ? undefined
+      : blockPaths(block).filter((p) => opts.spot!.has(fillKey(coloring?.fills[p.id])));
+  if (lit) {
+    ctx.fillStyle = paled(opts.dark);
+    for (const p of blockPaths(block)) if (!lit.includes(p)) ctx.fill(p.path);
   }
   if (opts.outlines) {
     ctx.lineWidth = opts.lineWidth;
     ctx.strokeStyle = opts.dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
     for (const p of blockPaths(block)) ctx.stroke(p.path);
   }
+  return lit;
 }
+
+/** A wash over patches outside the spotlight. */
+const paled = (dark: boolean) => (dark ? 'rgba(40,40,40,0.75)' : 'rgba(255,255,255,0.75)');
 
 export function drawQuilt(
   ctx: CanvasRenderingContext2D,
@@ -135,7 +160,15 @@ export function drawQuilt(
     o.dpr * o.view.ty,
   ];
   const px = 1 / (o.dpr * o.view.scale); // one device pixel in quilt units
+  // With `spot`: the pieces of that color (lit) and the others (their edges give the glow's
+  // inner half).
+  const lit: GlowShape[] = [];
+  const rest: GlowShape[] = [];
 
+  if (o.cutFade && quilt.layout.style === 'epp') {
+    ctx.setTransform(...base);
+    drawEppPieces(ctx, doc, quilt, fillOf, px, o, true);
+  }
   for (const slot of generated.slots) {
     ctx.setTransform(...base);
     const content = quilt.layers[0].slots[slot.id];
@@ -147,6 +180,7 @@ export function drawQuilt(
       ctx.lineWidth = px;
       ctx.strokeStyle = o.dark ? '#555' : '#c9c9c9';
       ctx.stroke(outline);
+      if (o.spot !== undefined) rest.push({ path: outline, m: base });
       continue;
     }
     if (block.id === PLAIN_BLOCK) {
@@ -155,6 +189,12 @@ export function drawQuilt(
       const coloring = slotColoring(quilt, slot.id, block);
       ctx.fillStyle = fillOf(coloring?.fills[PLAIN_PATCH]) ?? hatch(ctx, o.dark);
       ctx.fill(outline);
+      const on = !!o.spot?.has(fillKey(coloring?.fills[PLAIN_PATCH]));
+      if (o.spot !== undefined) (on ? lit : rest).push({ path: outline, m: base });
+      if (o.spot !== undefined && !on) {
+        ctx.fillStyle = paled(o.dark);
+        ctx.fill(outline);
+      }
       if (o.outlines) {
         ctx.lineWidth = px;
         ctx.strokeStyle = o.dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
@@ -167,13 +207,24 @@ export function drawQuilt(
     const m = placementMatrix(slot, content, block);
     ctx.setTransform(...mul(base, m));
     const unitsPerPx = px / Math.sqrt(Math.abs(m[0] * m[3] - m[1] * m[2]));
-    drawBlock(ctx, block, slotColoring(quilt, slot.id, block), fillOf, {
+    const on = drawBlock(ctx, block, slotColoring(quilt, slot.id, block), fillOf, {
       outlines: o.outlines,
+      spot: o.spot,
       lineWidth: unitsPerPx,
       dark: o.dark,
     });
+    if (on) {
+      const at = mul(base, m);
+      for (const p of blockPaths(block))
+        (on.includes(p) ? lit : rest).push({
+          path: p.path,
+          m: at,
+          clip: { path: outline, m: base },
+        });
+    }
     ctx.restore();
   }
+  glowGroup(ctx, lit, rest, o.dpr, patchGlow(complement(OVERLAY_TINT, 120)));
 
   ctx.setTransform(...base);
   if (quilt.layout.style === 'epp') drawEppPieces(ctx, doc, quilt, fillOf, px, o);
@@ -190,16 +241,12 @@ export function drawQuilt(
     block: complement(tint, 120),
     other: complement(tint, 240),
   };
-  ctx.save();
-  ctx.shadowBlur = 10 * o.dpr;
-  ctx.lineJoin = 'round';
   for (const slot of generated.slots) {
     const hi =
       slot.id === o.hover ? 2.5 : o.selected?.has(slot.id) ? 3 : o.soft?.has(slot.id) ? 1 : 0;
     if (!hi) continue;
     // A slight glow (soft): a fainter, tighter halo.
     const soft = hi === 1;
-    ctx.shadowBlur = (soft ? 2 : 10) * o.dpr;
     const content = quilt.layers[0].slots[slot.id];
     // Spaces that take blocks (setting and cut-down edge pieces too) as blocks; patch-only ones
     // (sashing, borders, strips, one-patch pieces) as the rest.
@@ -208,22 +255,20 @@ export function drawQuilt(
       : content && blocks.get(content.block)?.data
         ? glows.data
         : glows.block;
-    ctx.strokeStyle = glow;
-    ctx.shadowColor = glow;
-    const path = slotPath(slot);
-    ctx.globalAlpha = soft ? 0.15 : 0.45;
-    ctx.lineWidth = (soft ? 3 : hi + 4) * px;
-    ctx.stroke(path);
-    ctx.globalAlpha = 1;
-    ctx.lineWidth = hi * px;
-    ctx.stroke(path);
+    // In device pixels (`px`), blurred by 10 (2 when soft) CSS pixels.
+    glowPath(ctx, slotPath(slot), px, o.dpr, {
+      color: glow,
+      width: hi,
+      blur: soft ? 2 : 10,
+      halo: { width: soft ? 3 : hi + 4, alpha: soft ? 0.15 : 0.45 },
+    });
   }
-  ctx.restore();
 }
 
 /**
  * An EPP quilt's pieces and closing pieces (spec 027), in quilt units (1U × the layout's unit),
- * colored through the shown colorway. With Cut to size, clipped to the cut.
+ * colored through the shown colorway. With Cut to size, clipped to the cut; `faded`: all of them,
+ * see-through (drawn first, under the borders, while the cut is sized).
  */
 function drawEppPieces(
   ctx: CanvasRenderingContext2D,
@@ -232,6 +277,7 @@ function drawEppPieces(
   fillOf: (f: Fill | undefined) => string | CanvasPattern | undefined,
   px: number,
   o: DrawOptions,
+  faded = false,
 ) {
   if (quilt.layout.style !== 'epp' || !quilt.epp) return;
   const u = quilt.layout.unit;
@@ -242,25 +288,31 @@ function drawEppPieces(
     ...expandAll(quilt.epp.pieces, lookup).map((l) => ({ poly: l.poly, fill: l.fill })),
     ...(quilt.epp.closing ?? []).map((c) => ({ poly: c.outline, fill: close })),
   ];
+  const draw = () => {
+    for (const p of polys) {
+      ctx.beginPath();
+      p.poly.forEach(([x, y], i) => (i ? ctx.lineTo(x * u, y * u) : ctx.moveTo(x * u, y * u)));
+      ctx.closePath();
+      ctx.fillStyle = fillOf(p.fill) ?? (o.dark ? '#555' : '#ffffff');
+      ctx.fill();
+      if (o.outlines) {
+        ctx.lineWidth = px;
+        ctx.strokeStyle = o.dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
+        ctx.stroke();
+      }
+    }
+  };
   ctx.save();
-  if (edge.kind === 'cut') {
+  if (faded) {
+    ctx.globalAlpha = 0.3;
+    draw();
+  } else if (edge.kind === 'cut') {
     const [x0, y0, x1, y1] = edge.rect;
     ctx.beginPath();
     ctx.rect(x0 * u, y0 * u, (x1 - x0) * u, (y1 - y0) * u);
     ctx.clip();
   }
-  for (const p of polys) {
-    ctx.beginPath();
-    p.poly.forEach(([x, y], i) => (i ? ctx.lineTo(x * u, y * u) : ctx.moveTo(x * u, y * u)));
-    ctx.closePath();
-    ctx.fillStyle = fillOf(p.fill) ?? (o.dark ? '#555' : '#ffffff');
-    ctx.fill();
-    if (o.outlines) {
-      ctx.lineWidth = px;
-      ctx.strokeStyle = o.dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
-      ctx.stroke();
-    }
-  }
+  if (!faded) draw();
   ctx.restore();
 }
 

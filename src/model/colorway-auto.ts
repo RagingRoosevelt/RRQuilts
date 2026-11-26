@@ -1,11 +1,13 @@
-// Auto mapping (spec 024): a colorway that follows another colorway's colors (none: the primary),
-// each becoming its nearest color or fabric in a palette, except the quilter's overrides. Its
+// Auto mapping (spec 024): a colorway that follows another colorway's colors (`source`, none: the
+// primary), each becoming its nearest color or fabric in a palette, except the quilter's overrides.
+// Picks and overrides are keyed by its base's colors (`baseOf`: the primary, or a re-color). Its
 // `swaps` are worked out again on every project change (syncDraft), so drawing, printing and
 // embedding read them like any colorway's.
 import { fillKey, resolveColoring } from './coloring';
 import { nearestColor, type RGB } from './color-distance';
-import { swapper } from './colorways';
+import { baseOf, baseView, swapper } from './colorways';
 import { dataColorings } from './data-quilt';
+import { eppQuiltFills, type EppLookup } from './epp/expand';
 import type { Block } from './schema/block';
 import type { Fill } from './schema/coloring';
 import type { Colorway, Quilt } from './schema/quilt';
@@ -16,8 +18,13 @@ export interface PaletteSwatch {
   rgb: RGB;
 }
 
-/** The quilt's own fills (its primary colorway), by fill key, in the order pieces show them. */
-export function primaryFills(q: Quilt, blocks: readonly Block[]): Map<string, Fill> {
+/** The quilt's own fills (its primary colorway), by fill key, in the order pieces show them; an
+ *  EPP quilt's from its pieces (`epp`: its shapes and rosettes). */
+export function primaryFills(
+  q: Quilt,
+  blocks: readonly Block[],
+  epp?: EppLookup,
+): Map<string, Fill> {
   const byId = new Map(blocks.map((b) => [b.id, b]));
   const out = new Map<string, Fill>();
   for (const s of Object.values(q.layers[0].slots)) {
@@ -28,6 +35,8 @@ export function primaryFills(q: Quilt, blocks: readonly Block[]): Map<string, Fi
   // A data quilt's scale colors (spec 025).
   for (const c of dataColorings([q]))
     for (const f of Object.values(c.fills)) if (!out.has(fillKey(f))) out.set(fillKey(f), f);
+  // An EPP quilt's pieces (0.9.3 fix: Auto map had no colors to map there).
+  if (epp) for (const f of eppQuiltFills(q, epp)) if (!out.has(fillKey(f))) out.set(fillKey(f), f);
   return out;
 }
 
@@ -37,7 +46,7 @@ export function dependents(q: Pick<Quilt, 'colorways'>, id: string): Set<string>
   for (let grew = true; grew;) {
     grew = false;
     for (const v of q.colorways ?? [])
-      if (v.auto?.source && out.has(v.auto.source) && !out.has(v.id)) grew = !!out.add(v.id);
+      if (v.source && out.has(v.source) && !out.has(v.id)) grew = !!out.add(v.id);
   }
   return out;
 }
@@ -53,10 +62,17 @@ export function refreshAuto(
   blocks: readonly Block[],
   paletteOf: (id: string) => readonly PaletteSwatch[] | undefined | null,
   rgbOf: (f: Fill) => RGB | undefined,
+  epp?: EppLookup,
 ): Quilt {
   const list = q.colorways ?? [];
-  if (!list.some((v) => v.auto)) return q;
-  const primary = primaryFills(q, blocks);
+  if (!list.some((v) => v.auto && !v.recolor)) return q;
+  /** Each base's colors (undefined: the primary's). */
+  const bases = new Map<Colorway | undefined, Map<string, Fill>>();
+  const keysOf = (v: Colorway) => {
+    const b = baseOf(q, v);
+    if (!bases.has(b)) bases.set(b, primaryFills(baseView(q, v), blocks, epp));
+    return bases.get(b)!;
+  };
   const done = new Map<string, Colorway>();
   const out = list.map((v) => v);
   // Sources first: each pass settles the colorways whose source is settled (or the primary).
@@ -64,28 +80,32 @@ export function refreshAuto(
     list.forEach((v, i) => {
       if (done.has(v.id)) return;
       const a = v.auto;
-      if (!a) return void done.set(v.id, v);
-      const src = a.source ? list.find((w) => w.id === a.source) : undefined;
+      // A re-color keeps its mapping only for going back.
+      if (!a || v.recolor) return void done.set(v.id, v);
+      const src = v.source ? list.find((w) => w.id === v.source) : undefined;
       const manual = (): Colorway => {
         const { auto: _a, ...rest } = v;
         void _a;
+        if (v.source && !src) delete rest.source;
         return rest;
       };
       const pal = paletteOf(a.palette);
       if (pal === null) return void done.set(v.id, v);
-      if ((a.source && !src) || !pal?.length) return void done.set(v.id, (out[i] = manual()));
+      if ((v.source && !src) || !pal?.length) return void done.set(v.id, (out[i] = manual()));
       if (src && !done.has(src.id)) {
         if (pass === list.length) done.set(v.id, (out[i] = manual())); // a loop
         return;
       }
+      // Each base color as the source shows it (a re-color source is the base itself).
       const shown = swapper(src ? done.get(src.id) : undefined);
+      const keys = keysOf(v);
       const inPalette = new Set(pal.map((p) => fillKey(p.fill)));
       const overrides = (a.overrides ?? []).filter(
-        (o) => primary.has(o.from) && inPalette.has(fillKey(o.to)),
+        (o) => keys.has(o.from) && inPalette.has(fillKey(o.to)),
       );
       const over = new Map(overrides.map((o) => [o.from, o.to]));
       const swaps: Colorway['swaps'] = [];
-      for (const [from, f] of primary) {
+      for (const [from, f] of keys) {
         const srcFill = shown(f)!;
         const rgb = rgbOf(srcFill);
         const to = over.get(from) ?? (rgb && nearestColor(rgb, pal)?.fill);

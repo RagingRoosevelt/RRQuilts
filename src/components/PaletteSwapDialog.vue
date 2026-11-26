@@ -1,6 +1,7 @@
 <template>
-  <!-- A new block coloring or quilt colorway from a palette swap: pick a palette and each color
-       becomes its nearest there (or map each by hand), with before and after pictures. -->
+  <!-- A new block coloring, quilt colorway or rosette coloring from a palette swap: pick a palette
+       and each color becomes its nearest there (or map each by hand), with before and after
+       pictures. -->
   <q-dialog v-model="open">
     <q-card v-if="job" style="width: 520px; max-width: 95vw">
       <DialogClose />
@@ -10,14 +11,16 @@
           Pick a palette: each color of {{ job.title }} becomes its nearest color or fabric there,
           and you can change any of them.
         </div>
-        <!-- Quilt colorways (spec 024): Manual is a one-time swap; Auto mapping keeps following
-             the source colorway's colors and the palette. -->
+        <!-- Quilt colorways (spec 024) and rosette colorings: Palette is picked by hand; Auto
+             mapping keeps following the source's colors and the palette; Re-color starts from the
+             swap, then is painted patch by patch. -->
         <template v-if="job.auto">
           <SlidePicker
             v-model="mode"
             :options="[
-              { value: 'manual', label: 'Manual' },
-              { value: 'auto', label: 'Auto mapping' },
+              { value: 'manual', label: 'Palette' },
+              { value: 'auto', label: 'Auto map' },
+              ...(job.recolor ? [{ value: 'recolor', label: 'Re-color' }] : []),
             ]"
             label="Mode"
             class="q-mt-sm"
@@ -26,7 +29,11 @@
             {{
               mode === 'auto'
                 ? `Keeps following ${job.title}: when its colors or the palette change, the matches change too. Colors you pick by hand stay.`
-                : 'A one-time copy: later changes to the colors don’t carry over.'
+                : mode === 'recolor'
+                  ? (job.recolor?.hint ??
+                    'Starts with these colors. Then paint any patch in the Design tab, as in the primary colorway.')
+                  : (job.manualHint ??
+                    'A one-time copy: later changes to the colors don’t carry over.')
             }}
           </div>
         </template>
@@ -71,6 +78,14 @@
   </q-dialog>
 </template>
 
+<script lang="ts">
+import { ref as r } from 'vue';
+type Mode = 'manual' | 'auto' | 'recolor';
+// shortcut: module state, so the mode lasts until reload; a setting if it should outlive it.
+/** The quilt colorway mode last picked, the next one's start (owner, 2026-11-25). */
+const lastMode = r<Mode>('manual');
+</script>
+
 <script setup lang="ts">
 import DialogClose from './DialogClose.vue';
 import SlidePicker from './SlidePicker.vue';
@@ -93,9 +108,16 @@ type Job = {
   before: string;
   preview: (map: Record<string, string>, name: string | undefined, doc: RrqDoc) => string;
   done: (map: Record<string, string>, name: string | undefined) => void;
-  /** Quilt colorways: an Auto mapping instead (palette id; overrides: source paint → pick). */
+  /** Palette mode's caption, when it differs from a one-time copy. */
+  manualHint?: string;
+  /** An Auto mapping instead (palette id; overrides: source paint → pick). */
   auto?: {
     done: (palette: string, overrides: Record<string, string>, name: string | undefined) => void;
+  };
+  /** A re-color starting from the mapping (`hint`: what happens next, in the caption). */
+  recolor?: {
+    done: (map: Record<string, string>, name: string | undefined) => void;
+    hint?: string;
   };
 };
 
@@ -113,7 +135,6 @@ const name = computed(() => chosen.value?.label.split(' · ')[0]);
 
 function show(j: Job) {
   job.value = j;
-  mode.value = 'manual';
   pick(null);
   open.value = true;
 }
@@ -122,7 +143,10 @@ function pick(id: string | null) {
   const used = job.value?.used ?? [];
   const pal = swapPalettes.value.find((p) => p.id === id);
   to.value = pal ? pal.id : null;
-  options.value = pal ? pal.colors : swapOptions(); // only the chosen palette's colors and fabrics
+  // Only the chosen palette's colors and fabrics; else every one, the colors listed first.
+  options.value = pal
+    ? pal.colors
+    : [...used, ...swapOptions()].filter((o, i, a) => a.findIndex((x) => x.id === o.id) === i);
   map.value = Object.fromEntries(
     used.map((c) => [c.id, (pal && nearestColor(c.rgb, pal.colors)?.id) ?? c.id]),
   );
@@ -150,7 +174,14 @@ const after = computed(() => {
       : project.doc!;
   return job.value.preview({ ...map.value }, name.value, doc);
 });
-const mode = ref<'manual' | 'auto'>('manual');
+/** The mode last picked, where this swap offers it (else Palette). */
+const mode = computed<Mode>({
+  get: () =>
+    !job.value?.auto || (lastMode.value === 'recolor' && !job.value.recolor)
+      ? 'manual'
+      : lastMode.value,
+  set: (m) => (lastMode.value = m),
+});
 /** Each color's nearest in the chosen palette (Auto mapping keeps only the picks that differ). */
 const nearest = computed(() => {
   const pal = swapPalettes.value.find((p) => p.id === to.value);
@@ -167,6 +198,7 @@ function ok() {
     );
     return j.auto.done(to.value.replace(/^project:/, ''), overrides, name.value);
   }
+  if (mode.value === 'recolor' && j.recolor) return j.recolor.done({ ...map.value }, name.value);
   j.done({ ...map.value }, name.value);
 }
 

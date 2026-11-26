@@ -73,14 +73,29 @@ export function setFront(q: Quilt, front: { piece: string; part?: string } | nul
 export const piecePolys = (q: Quilt, lookup: EppLookup) =>
   expandAll(q.epp?.pieces ?? [], lookup).map((l) => l.poly);
 
+/** The last Largest rectangle found, by the pieces' outlines (painting doesn't move them). */
+let fitted: { key: string; rect: Box | null } | undefined;
+function largest(polys: readonly Poly[]): Box | null {
+  const key = polys.map((p) => p.flat().join(',')).join(';');
+  if (fitted?.key !== key) fitted = { key, rect: cutRect(polys) };
+  return fitted.rect;
+}
+
 /**
- * Bring the derived parts up to date after an edit: the box (pieces' bounds, or the cut) and, with
- * Auto-close, the closing pieces. Call inside the same change as the edit.
+ * Bring the derived parts up to date after an edit: the box (pieces' bounds, or the cut), a Cut to
+ * size that isn't Manual (the largest rectangle the pieces fill) and, with Auto-close, the closing
+ * pieces. Call inside the same change as the edit.
  */
 export function refresh(q: Quilt, lookup: EppLookup): Quilt {
   if (!isEpp(q) || !q.epp) return q;
   const polys = piecePolys(q, lookup);
-  const edge = q.layout.edge;
+  const was = q.layout.edge;
+  const fit = was.kind === 'cut' && !was.manual ? largest(polys) : null;
+  const edge =
+    fit && was.kind === 'cut' && fit.some((v, i) => v !== was.rect[i])
+      ? { ...was, rect: fit }
+      : was;
+  const layout = edge === was ? q.layout : { ...q.layout, edge };
   const closing = edge.kind === 'close' ? autoClose(polys) : [];
   const box: Box | undefined =
     edge.kind === 'cut' ? edge.rect : polys.length ? bbox(polys) : undefined;
@@ -97,7 +112,7 @@ export function refresh(q: Quilt, lookup: EppLookup): Quilt {
     if (!seams.length) delete epp.seams;
   }
   if (epp.front && !ids.has(epp.front.piece)) delete epp.front;
-  return { ...q, epp };
+  return { ...q, layout, epp };
 }
 
 export function setEdge(q: Quilt, edge: EppEdge, lookup: EppLookup): Quilt {
@@ -105,7 +120,7 @@ export function setEdge(q: Quilt, edge: EppEdge, lookup: EppLookup): Quilt {
   // Cut to size starts as the largest rectangle the pieces fill.
   const e: EppEdge =
     edge.kind === 'cut' && !edge.rect.some(Boolean)
-      ? { kind: 'cut', rect: cutRect(piecePolys(q, lookup)) ?? [0, 0, 1, 1] }
+      ? { ...edge, rect: largest(piecePolys(q, lookup)) ?? [0, 0, 1, 1] }
       : edge;
   return refresh({ ...q, layout: { ...q.layout, edge: e } }, lookup);
 }

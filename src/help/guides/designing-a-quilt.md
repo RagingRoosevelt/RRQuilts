@@ -9,7 +9,9 @@ editor has five tabs along the top named **Details**, **Layout**, **Borders**, *
 **Print**. The **menu** button at the right hides or shows the sidebar. Two toggles on the left rail
 show or hide the seam lines and the block names, and the bar under the quilt reports its finished
 size. **Download image** in the **Details** tab saves the quilt's picture with seam lines when they
-are shown.
+are shown. A quilt with colorways saves the one shown, named after both, such as
+`Medallion - Neon.png`. Characters some computers don't allow in file names, such as / and :,
+are left out.
 
 The [block and patch quilts demo](/?open_demo=block-quilts.rrq) has four to look at: medallions on
 point with sashing, diamond blocks with sashing and a border, pieced strips sized for a shirt back,
@@ -28,6 +30,8 @@ and tumbling cubes in Variable Patch.
    equal** to keep blocks square.
 4. Set the **Sashing** (the strips between blocks) the same way. 0 means none. **Sashing around the
    outside** adds strips around the edge too. Where sashes cross are cornerstones.
+
+The **Layout** heading shows the quilt's finished size, borders included, as it changes.
 
 ### Reference overlay
 
@@ -187,9 +191,10 @@ For cutting lengths, see [Borders](/help/math/borders).
 ## Place blocks
 
 1. Open the **Design** tab. The sidebar shows the tray with **Blocks** and **Colors** tabs. Library
-   blocks appear only if ticked in the sketchbook's **Blocks** tab. Above the blocks, **Fits layout**
-   shows only blocks that fit a layout's spaces (pick one from the pictures), and **Shape** shows only
-   square, triangle, diamond or hexagon blocks. Clear a filter with its **x**.
+   blocks appear only if ticked in the sketchbook's **Blocks** tab. Above the blocks, type in
+   **Search block names** to show only the blocks whose names hold every word you type. **Compatible
+   with this layout** shows only blocks that fit this quilt's spaces. Switched off, **Shape** shows
+   only square, triangle, diamond or hexagon blocks. Clear the search or a filter with its **x**.
 2. Click a block in the **Blocks** tab. If it has several colorings, a small number on its tile lets
    you choose which coloring to place.
 3. Pick the **Set block** tool (the first tool on the left rail) and tap a space in the quilt.
@@ -224,18 +229,32 @@ view.
 3. A placed block follows its block's coloring until you recolor a patch in the quilt. The change
    then applies only to the quilt.
 
+Point at a swatch, or press and hold it on a touch screen, to light up the pieces in that color on
+the quilt, with the rest paled. Pieces of the color that touch share one outline.
+
 ## Colorways
 
 A quilt can have colorways: the same quilt in other colors, the way a pattern comes in several
 fabric lines. In the Design tab, **Colorways** shows each one. The first is the primary colorway,
 which you paint as usual. **Save as new colorway** copies the one shown.
 
-In any other colorway, the Colors tab lists each color of the primary colorway with a menu beside
-it. Pick what that color becomes in this colorway. Pieces are painted in the primary colorway, and
-every colorway follows the design: blocks you place or change show in all of them.
+In any other colorway, the Colors tab lists the colors of the colorway it **Follows** (the primary
+colorway unless you pick another), each with a menu beside it. Pick what that color becomes in this
+colorway. Pieces are painted in the primary colorway, and every colorway keeps up with the design:
+blocks you place or change show in all of them.
+
+Changing **Follows** keeps your picks. Only the colors on the left of the list change. Colors that
+look the same on both sides share one row, and a pick on that row changes all of them. If it
+follows a re-color, the list shows the re-color's own colors, and your picks apply to those.
+
+Point at a row to light up the pieces in that color on the quilt, with the rest paled. Pieces of
+the color that touch share one outline. Tap the
+color to keep it lit, and tap it again to stop.
 
 Each colorway can be renamed or deleted while another is left. Deleting the primary makes the next
-one the primary. The colorway shown is saved with the quilt, and printing and pictures use it.
+one the primary. A colorway that follows another always sits right after it. Drag a colorway, or
+its grip with the arrow keys, to move it among the others that follow the same one. Its own
+followers move with it. The colorway shown is saved with the quilt, and printing and pictures use it.
 
 On the project's Quilts tab, the count on a quilt's card picks the colorway shown.
 
@@ -243,16 +262,35 @@ On the project's Quilts tab, the count on a quilt's card picks the colorway show
 values. It only changes the view.
 
 **New colorway from palette…** is on the card's menu and beside **Save as new colorway**. Pick a
-palette (the list shows each palette's swatches), and each color of the primary colorway becomes its
-nearest color or fabric there, whichever colorway is shown. Change any
-you like, then **Add colorway**. Choose **Manual** for a one-time copy, or **Auto mapping** to keep
-it following: when the colors it follows or the palette change, its matches change too.
+palette (the list shows each palette's swatches), and each color of the colorway shown becomes its
+nearest color or fabric there. The new colorway follows the one shown. Change any you like, then
+**Add colorway**. Choose **Palette** for a one-time copy, **Auto map** to keep
+it following (when the colors it follows or the palette change, its matches change too), or
+**Re-color** to start from these colors and then paint it piece by piece. The dialog opens in the
+mode you picked last.
 
-An auto-mapped colorway's Colors tab says what it **Follows** (the primary colorway) and
-which **Palette** it maps to. Pick a color by hand to keep it, and **Automatic** puts it back.
-Switching to **Manual** keeps the colors it shows. If the colorway it follows or its palette is
-deleted, it keeps its colors as a manual colorway. In **Manual**, **Pick from** limits the choices
-to one palette.
+An Auto map colorway's Colors tab also says which **Palette** it maps to. Each color of the
+colorway it follows becomes its nearest there. Pick a color by hand to keep it, and **Automatic**
+puts it back. Switching to **Palette** keeps the colors it shows, what it follows and its palette.
+If its palette is deleted, it keeps its colors as a Palette colorway. In **Palette**, **Pick from**
+limits the choices to one palette.
+
+Deleting a colorway that others follow leaves them looking the same. They follow what it followed,
+and an Auto map one keeps its colors as a Palette colorway. Those that followed a deleted
+re-color become re-colors themselves, with the colors they showed.
+
+### Re-color
+
+A colorway in **Re-color** mode is painted as the primary is, any patch of any block. Choose
+**Re-color** under **Mode** at the top of the colorway's Colors tab, and the palettes show below
+it. It starts from the colors the colorway showed. The paint tools, **Apply to** and the eyedropper
+work as in the primary, and the primary doesn't change.
+
+A block you set or change in the primary later shows the primary's colors in the re-color until you
+paint it there. Sashing or borders the primary hasn't painted can't be painted in a re-color.
+Switching back to **Palette** or **Auto map** asks first, then drops what you painted and
+brings back the colorway's mapping from before. Re-color isn't offered for data quilts or English
+paper piecing quilts.
 
 ## Apply to
 

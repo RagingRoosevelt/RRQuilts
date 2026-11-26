@@ -43,6 +43,10 @@ Today, adding a fabric image to a palette under a name already in that palette a
    why when tapped (as now). The Shape filter shows only while the switch is off (round 2, TC-071).
 2. **Given** a Shaped Blocks quilt, **Then** the same switch filters to the shapes its spaces take.
 3. The sketchbook and Libraries keep their Fits layout filter (no quilt there).
+4. **Given** the quilt editor's block sidebar, **Then** **Search block names** above the switch shows
+   only blocks (and placeable rosettes) whose names hold every word typed, with the switch or Shape
+   filter still applied, and says so when none match. Done on 0.9.3 (owner's 0.9.3 roadmap:
+   "Search blocks by name in a quilt's Design tab"; TC-366).
 
 ## Part D - Shapes on the wizard's Shaped Blocks card (TC-037) · done on 0.6.0 (TC-051)
 

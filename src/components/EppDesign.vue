@@ -36,7 +36,7 @@
         :icon="t.icon"
         :class="t.cls"
         :aria-label="t.label"
-        :disable="ro"
+        :disable="ro && t.id !== 'find'"
         @click="onToolClick(t.id)"
       >
         <q-tooltip anchor="center right" self="center left">{{ t.hint }}</q-tooltip>
@@ -86,8 +86,15 @@
         <q-tab name="colors" label="Colors" />
       </q-tabs>
       <div class="text-caption text-grey-7">{{ toolHint }}</div>
+      <!-- A colorway other than the primary: its color map (Palette, Auto map) in place of the
+           palettes, as in a block quilt. -->
+      <ColorwayMapping
+        v-if="tool === 'paint' && quilt.shownColorway"
+        :quilt="quilt"
+        :readonly="ro"
+      />
       <!-- Paint: where it applies and the colors first; the shape picker steps aside. -->
-      <template v-if="tool === 'paint'">
+      <template v-else-if="tool === 'paint'">
         <div class="row items-center" style="gap: 8px">
           <span class="text-caption">Apply to</span>
           <q-btn-toggle
@@ -166,6 +173,7 @@ import { computed, ref, shallowRef, watch } from 'vue';
 import EppCanvas, { type CanvasPoly, type Decor, type Grid } from '@/components/EppCanvas.vue';
 import EppPicker, { type PickerGroup } from '@/components/EppPicker.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
+import ColorwayMapping from '@/components/ColorwayMapping.vue';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { ERASER } from '@/components/icons';
@@ -204,7 +212,9 @@ import { shownColorway, swapper } from '@/model/colorways';
 import type { Fill } from '@/model/schema/coloring';
 import type { EppPiece } from '@/model/schema/epp';
 import type { Quilt } from '@/model/schema/quilt';
-import { colorLookup, type View } from '@/render/draw';
+import { colorLookup, complement, type View } from '@/render/draw';
+import { OVERLAY_TINT } from '@/model/targets';
+import { glowPath, patchGlow } from '@/render/glow';
 import { useEditorStore } from '@/stores/editor';
 import { useEppEditorStore } from '@/stores/epp-editor';
 import { useLibraryStore } from '@/stores/library';
@@ -220,6 +230,7 @@ type Tool =
   | 'mirrorY'
   | 'break'
   | 'erase'
+  | 'find'
   | 'close'
   | 'seam'
   | 'paint';
@@ -292,6 +303,12 @@ const TOOLS: { id: Tool; icon: string; label: string; hint: string; cls?: string
     hint: 'Break into patches: tap a placed rosette to make it loose pieces',
   },
   { id: 'erase', icon: ERASER, label: 'Delete', hint: 'Delete: tap a piece to remove it' },
+  {
+    id: 'find',
+    icon: 'search',
+    label: 'Find',
+    hint: 'Find: tap a piece to pick its shape or rosette (in its coloring and scale) in the sidebar; every piece of it glows',
+  },
   {
     id: 'close',
     icon: 'format_shapes',
@@ -498,9 +515,10 @@ function placeAt(pose: Pose) {
 }
 
 function onTap(p: World) {
-  if (ro.value) return;
   const hit = leafAt(p);
   const t = tool.value;
+  if (t === 'find') return find(hit?.piece);
+  if (ro.value) return;
   if (t === 'seam') return seamTap(p);
   if (t === 'select') return sel.pick(hit?.piece ?? null);
   if (t === 'place') {
@@ -517,6 +535,13 @@ function onTap(p: World) {
   }
   if (!hit) return;
   const piece = pieces.value.find((x) => x.id === hit.piece)!;
+  // Another colorway than the primary: its colors are set in its map.
+  if (t === 'paint' && props.quilt.shownColorway)
+    return void $q.notify({
+      message:
+        "This colorway's colors are set in the Colors tab. Show the primary colorway to paint.",
+      timeout: 2500,
+    });
   // A tap on a piece of a selection acts on the whole selection.
   if (epp.selection.size > 1 && epp.selection.has(piece.id)) {
     if (t === 'erase') return sel.remove();
@@ -549,6 +574,30 @@ function onTap(p: World) {
     const s = snap(polysOf({ ...piece, turn: pose.turn }), others, px(16), Math.PI / 12);
     return edit((q) => movePiece(q, piece.id, s ? snapPose(pose, s) : pose));
   }
+}
+/** Find (owner, 2026-11-25, as the quilt editor's): the piece's shape or rosette picked in the
+ *  sidebar, a rosette in the coloring it shows, at its scale. */
+function find(id: string | undefined) {
+  const piece = pieces.value.find((x) => x.id === id);
+  const item = piece?.rosette ?? piece?.shape;
+  if (!piece || !item) return;
+  if (piece.rosette && piece.coloring) epp.coloringOf.set(item, piece.coloring);
+  else if (piece.rosette) epp.coloringOf.delete(item);
+  epp.picked = item;
+  epp.scale = piece.scale;
+}
+/** Find: every piece placed from the picked shape or rosette glows, a rosette round its outside. */
+function drawFound({ ctx, dpr, px: p }: Decor) {
+  const item = tool.value === 'find' ? epp.picked : null;
+  if (!item) return;
+  const path = new Path2D();
+  for (const x of pieces.value)
+    if ((x.rosette ?? x.shape) === item)
+      for (const [a, b] of outerEdges(polysOf(x))) {
+        path.moveTo(a[0], a[1]);
+        path.lineTo(b[0], b[1]);
+      }
+  glowPath(ctx, path, p(1), dpr, patchGlow(complement(OVERLAY_TINT, 120)));
 }
 /** Shapes Close space uses when an area is one of them (yours, then the libraries'). */
 const known = computed(() =>
@@ -781,6 +830,8 @@ const seams = useEppSeams({
 });
 watch(seams.start, () => tick.value++);
 watch(tool, () => (seams.start.value = null));
+// Find's glow follows the tool and what's picked.
+watch([tool, () => epp.picked], () => tick.value++);
 const seamTap = (p: Pt) => seams.tap(p);
 function drawSeams(dec: Decor) {
   if (threeD.value) seams.decorate(dec, tool.value === 'seam' ? hover.value : null);
@@ -801,6 +852,7 @@ function decorate(dec: Decor) {
   const { ctx, px: p } = dec;
   drawCloseLine(dec);
   drawSeams(dec);
+  drawFound(dec);
   sel.decorate(dec);
   // Cut to size: the cut line.
   const e0 = edge.value;

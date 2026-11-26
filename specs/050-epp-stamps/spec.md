@@ -114,8 +114,8 @@ place in a quilt.
    Then: "it only filled in one of the spaces produced by the gap fill I made" (the first version
    filled only the smaller side).
 5. **Given** the rosette editor, **Then** the quilter paints pieces with real colors and fabrics in
-   the current coloring, adds, copies and deletes colorings, and swaps palettes, as in the block
-   editor.
+   the current coloring, adds, copies and deletes colorings, and swaps palettes as quilt colorways
+   do (FR-003a).
 
 ---
 
@@ -140,9 +140,12 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
    for this placement only (scope This), or for every placement of the rosette (scope All), as
    painting a block in a quilt does. The rosette's colorings can be picked per placement. In the
    picker, a rosette card with several colorings has a count badge to choose the one it's placed in.
-   Still to do: a way to change the coloring of a rosette already placed. Owner, 2026-11-10: "We
-   should have a method to change a rosette's selected color variation. We can leave that as a note
-   for now".
+   A placed rosette's coloring changes by placing the rosette, in another coloring, over it.
+   Owner, 2026-11-10: "We should have a method to change a rosette's selected color variation. We
+   can leave that as a note for now". Then, 2026-11-25: "this isn't needed because if you change
+   the selected coloring of the roset, you can place it over the existing rosette to replace it.
+   what we should implement instead is a "find" tool (in the toolbar) that works like it does in a
+   normal quilt (selects the clicked-on block/rosette/shape)" (spec 027 FR-005a).
 5. **Given** a placed rosette, **When** the quilter uses the **Break into patches** tool, **Then** it becomes its
    individual pieces (fills kept, undoable), no longer linked. A rosette stays together until broken
    into patches.
@@ -216,6 +219,30 @@ menu opens the same.
   only), turn, mirror, Scale, copy, delete, paint, libraries, packs, printing.
 - **FR-003**: Rosettes MUST have colorings and color variants as blocks do; a placement picks a
   coloring and can be repainted with the editor's scopes.
+- **FR-003a**: **New coloring from palette** MUST make a coloring from the one shown with the quilt
+  colorways' dialog and modes (spec 019, spec 024): **Palette** (picks by hand) and **Auto mapping**
+  (each color its nearest in a palette, unless picked by hand) keep following the coloring they
+  came from (`source`); **Re-color** is painted. Picks are keyed by the base's colors (the painted
+  coloring the chain of sources reaches), so changing **Follows** changes no pick. A followed
+  coloring's map (mode, Follows, palette, a row per color) shows in place of the palettes, and
+  Paint says its colors are set there; a painted coloring can be switched to follow another
+  (its painting goes, after asking). Deleting a coloring keeps every other's look (its followers
+  follow what it followed; when it was painted, the colorings built on it become painted).
+  Followed colorings' fills are the colors shown, worked out on every change, so placements,
+  printing and files read them as any coloring's. rrq v13, rrqlib v9, rrqepp v2. Owner,
+  2026-11-25: "Palette swaps for rosette colorings (this should use the same mechanism as we use
+  for quilts, with options for palette, auto palette, and recolor)"; live, with .rrqlib bumped.
+- **FR-003b** (owner, 2026-11-25: "the list of colorings in the rosette editor should show
+  previews of the colorings the same way we do for quilts"): the rosette editor's Colorings MUST
+  show each coloring as a picture of the rosette in its colors with its name, Rename and Delete
+  under it, as a quilt's Colorways (one shared card); a followed coloring's mode is an icon on the
+  picture's corner. Delete asks first. Lists of a rosette's colorings (its Colorings, an EPP
+  quilt's coloring choices, Follows) MUST show each coloring right after the one it follows, and
+  theirs after it (owner, 2026-11-25: "let's make sure that rosette colorings that are auto or
+  manual mappings are sorted immediatly after the coloring they are based on"). Dragging a
+  coloring (or its grip's arrow keys) moves it among those following the same one (owner,
+  2026-11-26, as quilt colorways, spec 019 FR-013). When another coloring becomes first, the
+  project's EPP placements with no coloring chosen get the one they showed, so none changes.
 - **FR-004**: Placed rosettes MUST stay linked to their rosette (edits update every placement, with undo)
   until broken into patches.
 - **FR-005**: Rosettes MUST NOT nest: a rosette placed into a rosette is copied in as its pieces

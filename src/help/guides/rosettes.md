@@ -18,7 +18,15 @@ A shape made in the rosette that can't be used yet is outlined in red, and the b
 
 ## Color a rosette
 
-Colors work as in a block. The sidebar's **Colors** tab (the **Paint** tool) shows the rosette's **Colorings**. Tap one to work on it, **New coloring** adds one, **Copy** copies the one shown, and the × on a coloring deletes it. Pick a color or fabric under **Colors and fabrics** and tap pieces to paint them in that coloring.
+Colors work as in a block. The sidebar's **Colors** tab (the **Paint** tool) shows the rosette's **Colorings**, each as a picture of the rosette in its colors, the way a quilt shows its colorways. Tap one to work on it, **New coloring** adds one, and **Copy** copies the one shown. The pencil under a coloring renames it and the bin deletes it. A coloring that follows another sits right after it. Drag a coloring, or its grip with the arrow keys, to move it among the others that follow the same one. Pick a color or fabric under **Colors and fabrics** and tap pieces to paint them in that coloring.
+
+**New coloring from palette** makes a coloring from the one shown, as a quilt's colorways do (see [Designing a quilt](/help/guides/designing-a-quilt)). Pick a palette and each color becomes its nearest there, and you can change any of them. Then pick a **Mode**:
+
+- **Palette** keeps following the coloring it came from. Repaint that one and the new coloring changes too, with your picks.
+- **Auto map** also follows the palette. Each color stays its nearest in the palette as either changes, except the ones you pick by hand.
+- **Re-color** starts with the new colors, and then you paint it like any coloring.
+
+A coloring that follows another shows its mode under the buttons, with what it **Follows** and a row for each color. Pick a different coloring under **Follows** and your picks stay. Switch the mode to **Re-color** to paint it yourself. A painted coloring can follow another too: pick **Palette** or **Auto map** (its painting goes, and Undo brings it back). Deleting a coloring leaves the others looking as they did.
 
 A rosette with several colorings shows how many on its card in the shape picker. Tap the number to choose the coloring before you place it. In an EPP quilt, painting a piece of a placed rosette changes it in that quilt only.
 

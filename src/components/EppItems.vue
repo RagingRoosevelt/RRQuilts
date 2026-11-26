@@ -32,9 +32,19 @@
         <BlockSections :sections="g.sections" :lib="`epp:${g.lib}`" :title="g.label">
           <template #default="{ block: x }">
             <div v-for="c in cardFor(x)" :key="c.id" class="card">
-              <button class="thumb" :aria-label="`Open ${c.name}`" @click="open(c)">
-                <EppThumb :polys="c.polys" :size="0" />
-              </button>
+              <!-- A rosette with several colorings: its count chooses the one shown (and placed). -->
+              <div class="relative-position">
+                <button class="thumb" :aria-label="`Open ${c.name}`" @click="open(c)">
+                  <EppThumb :polys="c.polys" :size="0" />
+                </button>
+                <ColoringCount
+                  v-if="c.colorings && c.thumb"
+                  :items="c.colorings"
+                  :model-value="c.coloring"
+                  :thumb="c.thumb"
+                  @update:model-value="(id) => id && epp.coloringOf.set(c.id, id)"
+                />
+              </div>
               <div class="row items-center no-wrap">
                 <q-icon
                   v-if="c.kind === 'rosette'"
@@ -122,13 +132,17 @@ import { useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import BlockSections from '@/components/BlockSections.vue';
+import ColoringCount from '@/components/ColoringCount.vue';
 import EppThumb from '@/components/EppThumb.vue';
 import FullName from '@/components/FullName.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { useAuthor } from '@/composables/author';
 import { lookupEpp, rosetteLocal } from '@/model/epp/expand';
 import { place, type Poly } from '@/model/epp/geometry';
+import { listOrder } from '@/model/epp/rosette-colorings';
 import { newRosette } from '@/model/epp/rosette-ops';
+import { eppSvg } from '@/render/epp-svg';
+import { useEppEditorStore } from '@/stores/epp-editor';
 import { newShape } from '@/model/epp/shape-ops';
 import { eppFile, importEpp, parseEppFile, serializeEpp } from '@/model/epp-file';
 import { creditCopy } from '@/model/credits';
@@ -138,6 +152,7 @@ import { eppUsed, isLibraryItem } from '@/model/library-items';
 import { variationName } from '@/model/new-quilt';
 import type { EppShape, Rosette } from '@/model/schema/epp';
 import { colorLookup } from '@/render/draw';
+import { absorbFabrics, embedFabrics } from '@/storage/fabric-files';
 import { exportFile, pickFile } from '@/storage/files';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
@@ -152,6 +167,10 @@ interface Card {
   mine: boolean;
   inProject: boolean;
   linked: boolean;
+  /** A rosette's colorings (list order), the one shown, and each as a picture. */
+  colorings?: { id: string; name: string }[];
+  coloring?: string | undefined;
+  thumb?: (id: string | undefined) => string;
 }
 
 const project = useProjectStore();
@@ -161,6 +180,8 @@ const router = useRouter();
 const askAuthor = useAuthor();
 const $q = useQuasar();
 const ro = computed(() => project.readOnly);
+/** The coloring each rosette card shows, shared with the EPP quilt picker (the one placed). */
+const epp = useEppEditorStore();
 const filter = ref<'all' | 'shapes' | 'rosettes'>('all');
 
 const lookup = computed(() => lookupEpp(project.doc!.project, [], library.lookup));
@@ -184,14 +205,24 @@ function shapeCard(s: EppShape, inProject: boolean): Card {
   };
 }
 function rosetteCard(r: Rosette, inProject: boolean): Card {
+  const chosen = epp.coloringOf.get(r.id);
+  const coloring = r.colorings.some((c) => c.id === chosen) ? chosen : undefined;
+  const polys = (id: string | undefined) =>
+    rosetteLocal(r, lookup.value, id).map((l) => ({ poly: l.poly, fill: css.value(l.fill) }));
   return {
     id: r.id,
     name: r.notecard.name,
     kind: 'rosette',
-    polys: rosetteLocal(r, lookup.value).map((l) => ({ poly: l.poly, fill: css.value(l.fill) })),
+    polys: polys(coloring),
     mine: inProject && !isLibraryItem(r),
     inProject,
     linked: !!r.source?.derived,
+    colorings: listOrder(r).map((c) => ({
+      id: c.id,
+      name: c.name ?? `Coloring ${r.colorings.indexOf(c) + 1}`,
+    })),
+    coloring,
+    thumb: (id) => eppSvg(polys(id)),
   };
 }
 
@@ -319,7 +350,7 @@ async function copyToProject(c: Card) {
   }
 }
 
-function exportItem(c: Card) {
+async function exportItem(c: Card) {
   const file = eppFile(
     project.doc!,
     c.id,
@@ -330,14 +361,21 @@ function exportItem(c: Card) {
     },
     import.meta.env.APP_VERSION,
   );
-  if (file) void exportFile(c.name, serializeEpp(file), 'rrqepp');
+  if (!file) return;
+  // Its fabrics go with their images, as in a block or palette file.
+  const fabrics = file.fabrics && (await embedFabrics(file.fabrics, app.settings.saveSize));
+  void exportFile(c.name, serializeEpp(fabrics ? { ...file, fabrics } : file), 'rrqepp');
 }
 async function importFile() {
   const f = await pickFile(['rrqepp']);
   if (!f) return;
   const r = parseEppFile(await f.text());
   if (!r.ok) return void $q.notify({ type: 'negative', message: r.error });
-  const res = importEpp(project.doc!, r.file, app.settings.author);
+  // Its fabrics' images go into this device's store; the fabrics keep references.
+  const file = r.file.fabrics
+    ? { ...r.file, fabrics: await absorbFabrics(r.file.fabrics) }
+    : r.file;
+  const res = importEpp(project.doc!, file, app.settings.author);
   const name = r.file.item.data.notecard.name;
   if (res.doc === project.doc)
     return void $q.notify({ message: `"${name}" is already in this project.` });

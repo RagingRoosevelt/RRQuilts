@@ -8,6 +8,21 @@ import { fitView, type View } from '@/render/draw';
 
 export type World = [number, number];
 
+/** Something drawn over the quilt that takes its own drags (an EPP cut being sized). Points and
+ *  lengths in quilt units. */
+export interface CanvasOverlay {
+  /** `px`: one CSS pixel in quilt units. */
+  decorate: (ctx: CanvasRenderingContext2D, px: number) => void;
+  /** A drag starting at p: true to take it. */
+  claim: (p: World, px: number) => boolean;
+  drag: (p: World) => void;
+  end: () => void;
+  /** The pointer's look over p (null: the canvas's own). */
+  cursor: (p: World, px: number) => string | null;
+  /** Shown when fitting, besides the quilt. */
+  bounds?: [number, number, number, number] | undefined;
+}
+
 export interface ViewportOptions {
   host: Ref<HTMLElement | undefined>;
   canvas: Ref<HTMLCanvasElement | undefined>;
@@ -21,6 +36,8 @@ export interface ViewportOptions {
   onMiddle?: (p: World, e: PointerEvent) => void;
   onHover?: (p: World | null, e: PointerEvent | null) => void;
   onDragStart?: (p: World, e: PointerEvent) => boolean;
+  /** Offer drags to `onDragStart` even when panning (it pans what it doesn't take). */
+  claimOverPan?: () => boolean;
   onDrag?: (p: World, e: PointerEvent) => void;
   onDragEnd?: (p: World, e: PointerEvent) => void;
   /** Touch: a finger held still for a moment hovers (`onHover`) until it lifts, sliding as it
@@ -28,7 +45,8 @@ export interface ViewportOptions {
   holdHover?: () => boolean;
 }
 
-const HOLD_MS = 450;
+/** Press and hold this long (ms) to count as a hover on touch. */
+export const HOLD_MS = 450;
 
 export function useViewport(o: ViewportOptions) {
   const size = ref({ w: 0, h: 0 });
@@ -148,7 +166,8 @@ export function useViewport(o: ViewportOptions) {
     if (start.mode === 'pending' && Math.hypot(p.x - start.x, p.y - start.y) > 6) {
       stopHold();
       const wantsPan = o.panOnly() || e.buttons !== 1;
-      if (!wantsPan && o.onDragStart?.(toWorld(start), e)) start.mode = 'drag';
+      const offer = e.buttons === 1 && (!wantsPan || !!o.claimOverPan?.());
+      if (offer && o.onDragStart?.(toWorld(start), e)) start.mode = 'drag';
       else start.mode = wantsPan ? 'pan' : 'none';
     }
     if (start.mode === 'pan') {
