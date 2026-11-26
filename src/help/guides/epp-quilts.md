@@ -45,6 +45,7 @@ The tools on the left:
 - **Mirror left to right** and **Mirror up and down** flip a piece where it is.
 - **Break into patches** turns a placed rosette into loose pieces.
 - **Delete** removes a piece.
+- **Find** picks what a piece was placed from. Tap a piece and its shape or rosette is picked in the sidebar, at the piece's scale and, for a rosette, in the coloring it shows. Every piece placed from it glows. To change a placed rosette's coloring, pick another coloring on its card and place it over the old one.
 - **Close space** fills a gap. Tap a gap to fill it with a shape, or drag from corner to corner to close part of a gap or to split a piece. A filled area that matches one of your shapes or a library's uses it. Any other becomes a shape of the quilt's own.
 - **Paint** paints a piece with the picked color or fabric. **Apply to** paints **This** piece, **All** pieces, every piece of the **Same shape**, or every piece with the **Same fill**. Painting a piece of a placed rosette changes it in this quilt only.
 - **Duplicate** (Ctrl+D) turns the picked pieces into a temporary rosette at the top of the sidebar, to place as often as you like until the next Duplicate.

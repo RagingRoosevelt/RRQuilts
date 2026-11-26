@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-18
 
-**Status**: Released in 0.9.0 (2026-11-24); 0.9.1 (2026-11-24) added the help guides and 3D assembly tools (seam finder, unsewn and stretched highlights); placed rosette colorings, cut handles, rosette palette swap and any-link opening planned for 0.9.3 (owner, 2026-11-24, moved from 0.9.2). Was: Draft (spec only; not implemented). **2D** (User Stories 1-6) and **3D** (User Story
+**Status**: Released in 0.9.0 (2026-11-24); 0.9.1 (2026-11-24) added the help guides and 3D assembly tools (seam finder, unsewn and stretched highlights); a Find tool, cut handles, rosette palette swap and any-link opening planned for 0.9.3 (owner, 2026-11-24, moved from 0.9.2). Was: Draft (spec only; not implemented). **2D** (User Stories 1-6) and **3D** (User Story
 7; User Story 8 later) both ship in 0.9.0 (owner, 2026-11-23; first planned as two releases). STL
 cutting templates are a stretch goal.
 
@@ -676,6 +676,11 @@ Prototype (2026-11-19): `prototypes/epp3d/fold.html` on branch `proto/epp-3d`.
 - **FR-004**: Each piece MUST have exactly one fill: a color or a fabric.
 - **FR-005**: Pieces MUST support select, group, move, turn, mirror, copy, delete and recolor, with
   undo; groups can be saved as rosettes (spec 050).
+- **FR-005a**: The EPP quilt editor MUST have a **Find** tool, as the quilt editor's: tapping a piece
+  picks its shape or rosette in the sidebar (a rosette in the coloring it shows, at the piece's
+  scale, the card scrolled into view) and every piece placed from it glows. It works read-only too.
+  Owner, 2026-11-25: "what we should implement instead is a "find" tool (in the toolbar) that works
+  like it does in a normal quilt (selects the clicked-on block/rosette/shape)".
 - **FR-006**: Quilters MUST be able to create, copy and edit EPP shapes (by dragging, FR-006a) with
   validation that the outline closes, doesn't cross itself, has whole-unit edges and is convex.
   Owner, 2026-11-10: "we should have a shape/stamp/rosette editor. it should have a banner that

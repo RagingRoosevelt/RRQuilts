@@ -140,9 +140,12 @@ Flower against the first: each snaps flush, as shapes do. Turn one Flower 60°, 
    for this placement only (scope This), or for every placement of the rosette (scope All), as
    painting a block in a quilt does. The rosette's colorings can be picked per placement. In the
    picker, a rosette card with several colorings has a count badge to choose the one it's placed in.
-   Still to do: a way to change the coloring of a rosette already placed. Owner, 2026-11-10: "We
-   should have a method to change a rosette's selected color variation. We can leave that as a note
-   for now".
+   A placed rosette's coloring changes by placing the rosette, in another coloring, over it.
+   Owner, 2026-11-10: "We should have a method to change a rosette's selected color variation. We
+   can leave that as a note for now". Then, 2026-11-25: "this isn't needed because if you change
+   the selected coloring of the roset, you can place it over the existing rosette to replace it.
+   what we should implement instead is a "find" tool (in the toolbar) that works like it does in a
+   normal quilt (selects the clicked-on block/rosette/shape)" (spec 027 FR-005a).
 5. **Given** a placed rosette, **When** the quilter uses the **Break into patches** tool, **Then** it becomes its
    individual pieces (fills kept, undoable), no longer linked. A rosette stays together until broken
    into patches.

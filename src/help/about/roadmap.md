@@ -10,7 +10,7 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
 ## 0.9.3
 
-- Change the coloring of a rosette already placed in a quilt.
+- A Find tool in English paper piecing quilts: tap a piece to pick its shape or rosette.
 - Drag the sides of an English paper piecing quilt's cut, with the pieces outside it faded.
 - Palette swaps for rosette colorings.
 - Open a shared project from a web link, as you can from a gist.

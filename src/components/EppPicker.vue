@@ -1,5 +1,5 @@
 <template>
-  <div class="column" style="gap: 8px">
+  <div ref="root" class="column" style="gap: 8px">
     <q-toggle
       v-if="showUngrouped"
       :model-value="ungrouped"
@@ -86,7 +86,7 @@
 <script setup lang="ts">
 // The EPP picker (specs 027, 050): shapes and rosettes to place, at the Scale picked above them.
 // In Grow mode, while an edge is hovered, cards show whether they fit it (`fit`).
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import EppThumb from '@/components/EppThumb.vue';
 import { useEppEditorStore } from '@/stores/epp-editor';
 import SlidePicker from '@/components/SlidePicker.vue';
@@ -120,6 +120,17 @@ const emit = defineEmits<{
 
 const epp = useEppEditorStore();
 const filter = ref<'all' | 'shapes' | 'rosettes'>('all');
+const root = ref<HTMLElement>();
+// Picked from outside (the Find tool): shown, even when the filter hid it, and scrolled to.
+watch(
+  () => props.picked,
+  async (id) => {
+    if (!id) return;
+    if (!groups.value.some((g) => g.cards.some((c) => c.id === id))) filter.value = 'all';
+    await nextTick();
+    root.value?.querySelector('.card.on')?.scrollIntoView({ block: 'nearest' });
+  },
+);
 const css = (polys: { poly: Poly; fill?: Fill | undefined }[]) =>
   polys.map((p) => ({ poly: p.poly, fill: props.paint(p.fill) }));
 interface Card {

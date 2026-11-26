@@ -200,6 +200,13 @@ export const CHECKS: Check[] = [
     last: '"Search blocks by name in a quilt’s Design tab" (0.9.3 roadmap)',
     to: '/',
   },
+  {
+    id: 'TC-367',
+    group: G.road093,
+    text: 'An EPP quilt’s Design tab: pick the Find tool (magnifier) and tap a placed rosette. Its card is picked in the sidebar (scrolled to, shown even with the Shapes filter on), in the coloring that placement shows and at its scale, and every placement of it glows. Tap a loose shape: same for the shape. Change the card’s coloring and place it over a placement to replace it. Find also works on a read-only tab.',
+    last: '"what we should implement instead is a “find” tool (in the toolbar) that works like it does in a normal quilt (selects the clicked-on block/rosette/shape)"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
