@@ -19,7 +19,7 @@
             v-model="mode"
             :options="[
               { value: 'manual', label: 'Palette' },
-              { value: 'auto', label: 'Auto mapping' },
+              { value: 'auto', label: 'Auto map' },
               ...(job.recolor ? [{ value: 'recolor', label: 'Re-color' }] : []),
             ]"
             label="Mode"

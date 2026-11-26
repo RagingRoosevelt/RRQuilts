@@ -98,14 +98,14 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-352',
     group: G.recolor,
-    text: 'A block quilt’s Design tab: Save as new colorway, then Colors. Mode reads Palette · Auto mapping · Re-color. Choose Re-color: the palettes show under it, starting from the colors the colorway showed. Paint one patch with Apply to This, then All and Alternate, and try Spray, Swap and the eyedropper. Show the primary: it hasn’t changed. The Print tab and the quilt card show the re-color while it’s shown. Save and reopen: it’s kept.',
+    text: 'A block quilt’s Design tab: Save as new colorway, then Colors. Mode reads Palette · Auto map · Re-color. Choose Re-color: the palettes show under it, starting from the colors the colorway showed. Paint one patch with Apply to This, then All and Alternate, and try Spray, Swap and the eyedropper. Show the primary: it hasn’t changed. The Print tab and the quilt card show the re-color while it’s shown. Save and reopen: it’s kept.',
     last: '"let’s add a new colorway mode for quilts that’s an outright re-coloring and allows for setting the color of any patch in any block as you would in the primary colorway. we’ll call it “re-color” in the toggle that currently has “manual” (let’s rename to palette) and “auto map”"',
     to: '/',
   },
   {
     id: 'TC-353',
     group: G.recolor,
-    text: 'In a re-color: set a different block in one space from the primary, and the re-color shows the primary’s colors there until painted. Redraw a placed block’s seams (block editor): the re-color keeps its colors. Switch Mode back to Palette: it asks, then the earlier mapping returns. New colorway from palette… offers Re-color too. Delete the primary while a re-color is next: the quilt takes the re-color’s colors. A data quilt or an EPP quilt offers only Palette and Auto mapping.',
+    text: 'In a re-color: set a different block in one space from the primary, and the re-color shows the primary’s colors there until painted. Redraw a placed block’s seams (block editor): the re-color keeps its colors. Switch Mode back to Palette: it asks, then the earlier mapping returns. New colorway from palette… offers Re-color too. Delete the primary while a re-color is next: the quilt takes the re-color’s colors. A data quilt or an EPP quilt offers only Palette and Auto map.',
     last: '"let’s add a new colorway mode for quilts that’s an outright re-coloring…"',
     to: '/',
   },
@@ -119,7 +119,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-355',
     group: G.recolor,
-    text: 'A Palette colorway, then an Auto mapping one: in the Colors tab, point at a row and the quilt lights that color’s pieces (sashing and borders too), with the rest paled. Pieces of the color that touch, in one block or across blocks and sashing, share one outline round their outside, with no line along the seams between them. Tap the row’s color: it stays lit with the swatch outlined after the pointer leaves, and a second tap stops it. On a phone, a tap lights it. Showing the primary clears it.',
+    text: 'A Palette colorway, then an Auto map one: in the Colors tab, point at a row and the quilt lights that color’s pieces (sashing and borders too), with the rest paled. Pieces of the color that touch, in one block or across blocks and sashing, share one outline round their outside, with no line along the seams between them. Tap the row’s color: it stays lit with the swatch outlined after the pointer leaves, and a second tap stops it. On a phone, a tap lights it. Showing the primary clears it.',
     last: '"in the palette and auto map modes, hovering over the row or tapping/clicking the source color in the map interface should highlight patches in the quilt that use that color"',
     to: '/',
   },
@@ -161,7 +161,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-361',
     group: G.follow,
-    text: 'A Palette colorway following the Neon colorway: switch to Auto mapping with Basic colors. Each Neon color becomes its nearest basic color, not the primary’s nearest. Pick one row by hand, then switch back to Palette: the picks, Follows and the palette (now Pick from) stay. Follows never offers the colorway itself or one that follows it.',
+    text: 'A Palette colorway following the Neon colorway: switch to Auto map with Basic colors. Each Neon color becomes its nearest basic color, not the primary’s nearest. Pick one row by hand, then switch back to Palette: the picks, Follows and the palette (now Pick from) stay. Follows never offers the colorway itself or one that follows it.',
     last: '"switching from auto-mapping to manual mapping should preserve the selections" / "the auto mapping should map from the closest match of colors in the from colorpalette, though, not the primary color palette"',
     to: '/',
   },
@@ -175,7 +175,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-363',
     group: G.follow,
-    text: 'New colorway from palette…: pick Auto mapping and add one. Open it again (also from a quilt card’s menu on the Quilts tab): it starts in Auto mapping. Same for Re-color and Palette. On a data quilt or an EPP quilt after picking Re-color, it starts in Palette. A block’s New coloring from palette has no modes and adds as before.',
+    text: 'New colorway from palette…: pick Auto map and add one. Open it again (also from a quilt card’s menu on the Quilts tab): it starts in Auto map. Same for Re-color and Palette. On a data quilt or an EPP quilt after picking Re-color, it starts in Palette. A block’s New coloring from palette has no modes and adds as before.',
     last: '"and when you pick a colorway mode in that dialog, it should preserve the mode (automapping, palette, recolor)"',
     to: '/',
   },
@@ -217,7 +217,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-369',
     group: G.road093,
-    text: 'A rosette of your own › Design › Colors: New coloring from palette… opens the quilt colorways’ dialog with Palette, Auto mapping and Re-color, before and after pictures of the rosette. Add one in each mode. Palette and Auto mapping show a Mode, Follows, palette and a row per color in place of the palettes (with a sparkle or arrows icon on their chips); Paint says their colors are set there. Repaint the coloring they follow: they follow (Auto mapping picks the nearest again; picks by hand stay, with Automatic to undo one). Change Follows: the picks stay. Switch to Re-color: the colors stay and you can paint; switch a painted one to Palette: it asks first. Delete a coloring others follow: they look the same. Place the rosette in an EPP quilt in a followed coloring, print it, export it (.rrqepp) and add it to My library: the colors are as shown. Undo steps back each change.',
+    text: 'A rosette of your own › Design › Colors: New coloring from palette… opens the quilt colorways’ dialog with Palette, Auto map and Re-color, before and after pictures of the rosette. Add one in each mode. Palette and Auto map show a Mode, Follows, palette and a row per color in place of the palettes (with a sparkle or arrows icon on their chips); Paint says their colors are set there. Repaint the coloring they follow: they follow (Auto map picks the nearest again; picks by hand stay, with Automatic to undo one). Change Follows: the picks stay. Switch to Re-color: the colors stay and you can paint; switch a painted one to Palette: it asks first. Delete a coloring others follow: they look the same. Place the rosette in an EPP quilt in a followed coloring, print it, export it (.rrqepp) and add it to My library: the colors are as shown. Undo steps back each change.',
     last: '"Palette swaps for rosette colorings (this should use the same mechanism as we use for quilts, with options for palette, auto palette, and recolor)"',
     to: '/?open_demo=traditional-epp.rrq',
   },

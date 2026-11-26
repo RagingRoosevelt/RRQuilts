@@ -128,7 +128,7 @@ const modes = computed(() => [
   ...(sourceOptions.value.length
     ? [
         { value: 'palette', label: 'Palette' },
-        { value: 'auto', label: 'Auto mapping' },
+        { value: 'auto', label: 'Auto map' },
       ]
     : []),
   { value: 'recolor', label: 'Re-color' },

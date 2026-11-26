@@ -262,19 +262,19 @@ values. It only changes the view.
 **New colorway from palette…** is on the card's menu and beside **Save as new colorway**. Pick a
 palette (the list shows each palette's swatches), and each color of the colorway shown becomes its
 nearest color or fabric there. The new colorway follows the one shown. Change any you like, then
-**Add colorway**. Choose **Palette** for a one-time copy, **Auto mapping** to keep
+**Add colorway**. Choose **Palette** for a one-time copy, **Auto map** to keep
 it following (when the colors it follows or the palette change, its matches change too), or
 **Re-color** to start from these colors and then paint it piece by piece. The dialog opens in the
 mode you picked last.
 
-An auto-mapped colorway's Colors tab also says which **Palette** it maps to. Each color of the
+An Auto map colorway's Colors tab also says which **Palette** it maps to. Each color of the
 colorway it follows becomes its nearest there. Pick a color by hand to keep it, and **Automatic**
 puts it back. Switching to **Palette** keeps the colors it shows, what it follows and its palette.
 If its palette is deleted, it keeps its colors as a Palette colorway. In **Palette**, **Pick from**
 limits the choices to one palette.
 
 Deleting a colorway that others follow leaves them looking the same. They follow what it followed,
-and an auto-mapped one keeps its colors as a Palette colorway. Those that followed a deleted
+and an Auto map one keeps its colors as a Palette colorway. Those that followed a deleted
 re-color become re-colors themselves, with the colors they showed.
 
 ### Re-color
@@ -286,7 +286,7 @@ work as in the primary, and the primary doesn't change.
 
 A block you set or change in the primary later shows the primary's colors in the re-color until you
 paint it there. Sashing or borders the primary hasn't painted can't be painted in a re-color.
-Switching back to **Palette** or **Auto mapping** asks first, then drops what you painted and
+Switching back to **Palette** or **Auto map** asks first, then drops what you painted and
 brings back the colorway's mapping from before. Re-color isn't offered for data quilts or English
 paper piecing quilts.
 

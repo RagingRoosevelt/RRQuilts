@@ -13,7 +13,7 @@ colorway keeps its link: whenever it is drawn, it takes the source colorway's co
 best match for each in the palette. Deleting the source colorway leaves the automatic one with the
 picks it has at that moment. The quilt design's Colors list for a colorway gets the same
 Manual / Automatic switch. Available from a quilt's menu in the project and from the Design tab's
-Colorways section, next to Save as new colorway. Name: **Auto mapping** (owner, 2026-10-20): the switch reads Manual · Auto mapping, the button "New colorway with auto mapping…" (to a palette).
+Colorways section, next to Save as new colorway. Name: **Auto mapping** (owner, 2026-10-20): the switch reads Manual · Auto mapping, the button "New colorway with auto mapping…" (to a palette). Renamed **Auto map** (owner, 2026-11-25: "let's change the name of “auto mapping” to “auto map”"): the mode buttons read Palette · Auto map · Re-color, for quilt colorways and rosette colorings.
 Manual is now **Palette**, and a third mode, **Re-color**, paints the colorway piece by piece (owner, 2026-11-25; spec 019 FR-007).
 Both Palette and Auto mapping follow a colorway (**Follows**, rrq v13 `colorway.source`), the rows
 showing its colors, and New colorway from palette… follows the colorway shown (owner, 2026-11-25;

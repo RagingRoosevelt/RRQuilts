@@ -146,7 +146,7 @@ watch(mode, (m) => m === 'recolor' && (hovered.value = pinned.value = null));
 /** Re-color paints block spaces: not for data quilts or English paper piecing quilts. */
 const modes = computed(() => [
   { value: 'palette', label: 'Palette' },
-  { value: 'auto', label: 'Auto mapping' },
+  { value: 'auto', label: 'Auto map' },
   ...(props.quilt.data?.on || props.quilt.layout.style === 'epp'
     ? []
     : [{ value: 'recolor', label: 'Re-color' }]),
