@@ -15,6 +15,8 @@ import { fixtureText } from '../model/helpers';
 import { eppFile, serializeEpp, EPP_VERSION } from '@/model/epp-file';
 import { eppStarters } from '@/content/epp';
 import { addEppV12, domino, sampleFlower } from './epp-v12';
+import { addV13 } from './v13';
+import { starterKit } from '@/dev/fill-quilt';
 
 const dir = process.env.FORMAT_SAMPLES;
 const app = 'samples';
@@ -25,8 +27,10 @@ it.skipIf(!dir)('write format samples', async () => {
 
   const parsed = await parseProject(fixtureText());
   if (!parsed.ok) throw new Error(parsed.error);
-  // v12 (specs 027, 050): EPP shapes, rosettes, EPP and 3D EPP quilts, rosettes as blocks.
-  const doc = addEppV12(parsed.doc);
+  // v12 (specs 027, 050): EPP shapes, rosettes, EPP and 3D EPP quilts, rosettes as blocks; v13
+  // (0.9.3): colorways in every mode, an EPP quilt cut by hand, followed rosette colorings.
+  const doc = addV13(addEppV12(parsed.doc), await starterKit());
+  const flower = doc.project.rosettes!.find((r) => r.id === sampleFlower().id)!;
   put(`project-v${RRQ}.rrq`, serializeProject(doc));
 
   // A few starter blocks (a shaped one too, where the format has them) and a palette.
@@ -52,7 +56,7 @@ it.skipIf(!dir)('write format samples', async () => {
     { type: 'epp-shape' as const, data: domino },
     {
       type: 'rosette' as const,
-      data: sampleFlower(),
+      data: flower,
       shapes: eppStarters().shapes.filter((s) => s.id === 'rrquilts.epp-hexagon'),
     },
   ];
@@ -60,7 +64,8 @@ it.skipIf(!dir)('write format samples', async () => {
 
   put(`settings-v${CONF}.rrqconf`, JSON.stringify(toConf(defaults(), app)));
 
-  // One rosette as its own file (.rrqepp, v1): its shapes and colors go with it.
+  // One rosette as its own file (.rrqepp; v2: its colorings that follow another): its shapes and
+  // colors go with it.
   const hexagon = eppStarters().shapes.find((s) => s.id === 'rrquilts.epp-hexagon');
   const file = eppFile(
     doc,

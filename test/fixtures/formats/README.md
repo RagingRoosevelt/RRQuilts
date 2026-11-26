@@ -29,6 +29,10 @@ that release's code, plus a quilt for each layout capability the version added (
   Auto-close, a border), 3D EPP Cube, Rosette Blocks (Tumbling Block rosettes in hexagon spaces),
   plus a project shape (Domino) and rosette (Sample Flower): `__tests__/formats/epp-v12.ts`, which
   the project sample uses too
+- v13: Colorways (the first quilt's layout with a Palette colorway, one following it, an Auto map
+  one and a Re-color, shown), EPP Cut by Hand (the EPP Quilt cut by hand to a square, shown in an
+  Auto map colorway), and the Sample Flower's colorings following another (Palette, Auto map):
+  `__tests__/formats/v13.ts`, which the project, library and EPP samples use too
 
 `demo-v<N>/` holds a PNG of each of its quilts and blocks, saved with the app's Save image by a
 release that writes that version.
@@ -69,7 +73,8 @@ uv run scripts/format-images.py docs test/fixtures/formats/demo-vN.rrq
 - project v10, library v7, block v5: written by release v0.7.2's code.
 - project v11: written by release v0.8.0's code.
 - project v12, library v8, EPP v1: written by release v0.9.0's code.
-- demo v4, v5, v6, v7, v8, v9, v10, v11, v12: written by releases v0.1.0, v0.3.0, v0.4.0, v0.5.0,
-  v0.6.0, v0.7.0, v0.7.2, v0.8.0 and v0.9.0. Pictures: v4 by v0.2.0 (v0.1.0 had no Save image;
-  both write v4), v5 by v0.3.0, v6 by v0.4.0, v7 by v0.5.0, v8 by v0.6.0, v9 by v0.7.0, v10 by
-  v0.7.2, v11 by v0.8.0, v12 by v0.9.0.
+- project v13, library v9, EPP v2: written by release v0.9.3's code.
+- demo v4, v5, v6, v7, v8, v9, v10, v11, v12, v13: written by releases v0.1.0, v0.3.0, v0.4.0,
+  v0.5.0, v0.6.0, v0.7.0, v0.7.2, v0.8.0, v0.9.0 and v0.9.3. Pictures: v4 by v0.2.0 (v0.1.0 had no
+  Save image; both write v4), v5 by v0.3.0, v6 by v0.4.0, v7 by v0.5.0, v8 by v0.6.0, v9 by v0.7.0,
+  v10 by v0.7.2, v11 by v0.8.0, v12 by v0.9.0, v13 by v0.9.3.

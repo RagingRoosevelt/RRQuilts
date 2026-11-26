@@ -1,0 +1,244 @@
+{
+  "format": "rrqepp",
+  "version": 2,
+  "app": "samples",
+  "item": {
+    "type": "rosette",
+    "data": {
+      "id": "sample-author.flower",
+      "notecard": {"name": "Sample Flower"},
+      "author": "Sample Author",
+      "license": "CC-BY-SA-4.0",
+      "pieces": [
+        {
+          "shape": "rrquilts.epp-hexagon",
+          "at": [0, 0],
+          "turn": 0,
+          "scale": 1,
+          "id": "p1"
+        },
+        {
+          "shape": "rrquilts.epp-hexagon",
+          "at": [-1.4999999999999996, 0.8660254037844394],
+          "turn": 0,
+          "scale": 1,
+          "id": "p2"
+        },
+        {
+          "shape": "rrquilts.epp-hexagon",
+          "at": [7.771561172376096e-16, 1.7320508075688776],
+          "turn": 0,
+          "scale": 1,
+          "id": "p3"
+        },
+        {
+          "shape": "rrquilts.epp-hexagon",
+          "at": [1.5000000000000007, 0.8660254037844388],
+          "turn": 0,
+          "scale": 1,
+          "id": "p4"
+        },
+        {
+          "shape": "rrquilts.epp-hexagon",
+          "at": [1.5000000000000004, -0.8660254037844384],
+          "turn": 0,
+          "scale": 1,
+          "id": "p5"
+        },
+        {
+          "shape": "rrquilts.epp-hexagon",
+          "at": [4.440892098500626e-16, -1.732050807568877],
+          "turn": 0,
+          "scale": 1,
+          "id": "p6"
+        },
+        {
+          "shape": "rrquilts.epp-hexagon",
+          "at": [-1.5, -0.866025403784438],
+          "turn": 0,
+          "scale": 1,
+          "id": "p7"
+        }
+      ],
+      "colorings": [
+        {
+          "id": "c1",
+          "name": "Rose petals",
+          "fills": {
+            "p1": {"color": "rrquilts.gold"},
+            "p2": {"color": "rrquilts.rose"},
+            "p3": {"color": "rrquilts.rose"},
+            "p4": {"color": "rrquilts.rose"},
+            "p5": {"color": "rrquilts.rose"},
+            "p6": {"color": "rrquilts.rose"},
+            "p7": {"color": "rrquilts.rose"}
+          }
+        },
+        {
+          "id": "c2",
+          "name": "Teal petals",
+          "fills": {
+            "p1": {"color": "rrquilts.yellow"},
+            "p2": {"color": "rrquilts.teal"},
+            "p3": {"color": "rrquilts.teal"},
+            "p4": {"color": "rrquilts.teal"},
+            "p5": {"color": "rrquilts.teal"},
+            "p6": {"color": "rrquilts.teal"},
+            "p7": {"color": "rrquilts.teal"}
+          }
+        },
+        {
+          "id": "cvlklamry0",
+          "name": "Swapped",
+          "fills": {
+            "p1": {"color": "rrquilts.teal"},
+            "p2": {"color": "rrquilts.rose"},
+            "p3": {"color": "rrquilts.rose"},
+            "p4": {"color": "rrquilts.rose"},
+            "p5": {"color": "rrquilts.rose"},
+            "p6": {"color": "rrquilts.rose"},
+            "p7": {"color": "rrquilts.rose"}
+          },
+          "source": "c1",
+          "swaps": [{"from": "color:rrquilts.gold", "to": {"color": "rrquilts.teal"}}]
+        },
+        {
+          "id": "8f9un2wbc4",
+          "name": "Neon",
+          "fills": {
+            "p1": {"color": "rrquilts.neon-blue"},
+            "p2": {"color": "rrquilts.hot-coral"},
+            "p3": {"color": "rrquilts.hot-coral"},
+            "p4": {"color": "rrquilts.hot-coral"},
+            "p5": {"color": "rrquilts.hot-coral"},
+            "p6": {"color": "rrquilts.hot-coral"},
+            "p7": {"color": "rrquilts.hot-coral"}
+          },
+          "source": "cvlklamry0",
+          "auto": {"palette": "rrquilts.neon"},
+          "swaps": [
+            {
+              "from": "color:rrquilts.gold",
+              "to": {"color": "rrquilts.neon-blue"}
+            },
+            {
+              "from": "color:rrquilts.rose",
+              "to": {"color": "rrquilts.hot-coral"}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "shapes": [
+    {
+      "id": "rrquilts.epp-hexagon",
+      "notecard": {"name": "Hexagon"},
+      "author": "RRQuilts contributors",
+      "license": "PDM-1.0",
+      "outline": [
+        [-1, 4.440892098500626e-16],
+        [-0.4999999999999996, 0.8660254037844389],
+        [0.5000000000000004, 0.8660254037844387],
+        [1.0000000000000002, 1.1102230246251565e-16],
+        [0.5000000000000002, -0.8660254037844385],
+        [-0.49999999999999983, -0.8660254037844385]
+      ],
+      "category": "Regular Polygons"
+    }
+  ],
+  "colors": [
+    {
+      "id": "rrquilts.gold",
+      "notecard": {"name": "Gold"},
+      "rgb": [218, 168, 40],
+      "source": {
+        "libraryId": "rrquilts-starter",
+        "itemId": "rrquilts.gold",
+        "revision": 1,
+        "name": "Gold",
+        "library": "Built-In",
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0"
+      },
+      "revision": 1
+    },
+    {
+      "id": "rrquilts.rose",
+      "notecard": {"name": "Rose"},
+      "rgb": [208, 92, 120],
+      "source": {
+        "libraryId": "rrquilts-starter",
+        "itemId": "rrquilts.rose",
+        "revision": 1,
+        "name": "Rose",
+        "library": "Built-In",
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0"
+      },
+      "revision": 1
+    },
+    {
+      "id": "rrquilts.yellow",
+      "notecard": {"name": "Yellow"},
+      "rgb": [248, 216, 72],
+      "source": {
+        "libraryId": "rrquilts-starter",
+        "itemId": "rrquilts.yellow",
+        "revision": 1,
+        "name": "Yellow",
+        "library": "Built-In",
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0"
+      },
+      "revision": 1
+    },
+    {
+      "id": "rrquilts.teal",
+      "notecard": {"name": "Teal"},
+      "rgb": [32, 128, 128],
+      "source": {
+        "libraryId": "rrquilts-starter",
+        "itemId": "rrquilts.teal",
+        "revision": 1,
+        "name": "Teal",
+        "library": "Built-In",
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0"
+      },
+      "revision": 1
+    },
+    {
+      "id": "rrquilts.neon-blue",
+      "notecard": {"name": "Neon Blue"},
+      "rgb": [30, 140, 255],
+      "source": {
+        "libraryId": "rrquilts-starter",
+        "itemId": "rrquilts.neon-blue",
+        "revision": 1,
+        "name": "Neon Blue",
+        "library": "Built-In",
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0"
+      },
+      "revision": 1,
+      "version": "b95ac6636ec2"
+    },
+    {
+      "id": "rrquilts.hot-coral",
+      "notecard": {"name": "Hot Coral"},
+      "rgb": [255, 80, 90],
+      "source": {
+        "libraryId": "rrquilts-starter",
+        "itemId": "rrquilts.hot-coral",
+        "revision": 1,
+        "name": "Hot Coral",
+        "library": "Built-In",
+        "author": "RRQuilts contributors",
+        "license": "PDM-1.0"
+      },
+      "revision": 1,
+      "version": "565a92482da8"
+    }
+  ]
+}
