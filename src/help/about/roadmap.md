@@ -13,7 +13,6 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 - A Find tool in English paper piecing quilts: tap a piece to pick its shape or rosette.
 - Drag the sides of an English paper piecing quilt's cut, with the pieces outside it faded.
 - Palette swaps for rosette colorings.
-- Open a shared project from a web link, as you can from a gist.
 - Search blocks by name in a quilt's Design tab.
 
 ## 0.10.0
@@ -24,6 +23,7 @@ isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
 - Quilt shapes besides rectangles: circles, diamonds, and other regular or irregular polygons, with
   borders and binding that follow the shape.
+- Open a shared project from a web link, as you can from a gist.
 
 ## 0.12.0
 
