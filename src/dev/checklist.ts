@@ -264,10 +264,10 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-378',
+    id: 'TC-379',
     group: G.road093,
-    text: 'A quilt with several colorways: make a new Palette colorway, then set its Follows to an earlier one (not the primary). In the Design sidebar’s Colorways, the card’s colorway menu and Follows, it now sits right after the one it follows, and one following it after that; the primary stays first. Make one a Re-color: it stays where it was stored, no longer under what it followed.',
-    last: '"let’s apply the same sorting rules for colorations on quilts"',
+    text: 'A quilt with a Re-color colorway: New colorway from palette… on the primary, Auto map, add it. In the Design sidebar’s Colorways, the card’s colorway menu and Follows, it sits right after the primary, before the Re-color. A Palette colorway set to follow another sits right after that one, and one following it after that. Re-colors come after everything that follows the primary, each with what follows it.',
+    last: '"let’s apply the same sorting rules for colorations on quilts" / "I just created a colorway that’s an auto map of the primary and it’s showing up after a recolor"',
     to: '/',
   },
 ];
