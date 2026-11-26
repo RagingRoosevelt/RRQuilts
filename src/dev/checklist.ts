@@ -242,6 +242,13 @@ export const CHECKS: Check[] = [
     last: '"when a palette has a ton of members, the list is really long … into an acrodian" / "the sidebar still overflows off the side and adds a horizontal scroll bar. let’s allow palette member names in the dropdown to span two lines and then truncate with an elipis"',
     to: '/',
   },
+  {
+    id: 'TC-373',
+    group: G.road093,
+    text: 'With a palette of 30 or more colors: a rosette’s painted (Re-color) coloring, a quilt colorway in Re-color, and a quilt’s Design › Colors in the primary. In the sidebar palettes, that palette shows three rows of swatches, the last two places a “+N more” button; it shows the rest and Show fewer folds them again (kept until reload), at any sidebar width. Pick a color past the first rows with the eyedropper (or Find a patch painted with it): its palette opens and it scrolls into view.',
+    last: '"I’m in a rosette editor and the palette doesn’t seem to be colapsable"',
+    to: '/?open_demo=traditional-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -135,7 +135,10 @@ colorway.
   palette longer than three rows MUST show three rows, the last two places a "+N more" button that
   shows the rest ("Show fewer" folds them again; the current pick's palette opens whole). The
   picked name in a row takes up to two lines, then ends in an ellipsis, and never widens the
-  sidebar.
+  sidebar. The sidebar palette tray (paint palettes: a quilt's Design Colors tab, a re-color, a
+  rosette's painted coloring) folds its palettes the same way (owner, 2026-11-25: "I'm in a
+  rosette editor and the palette doesn't seem to be colapsable"); Find and the eyedropper open
+  the palette holding the color they pick.
 
 ## Assumptions
 
