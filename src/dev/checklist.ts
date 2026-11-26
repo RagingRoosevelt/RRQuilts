@@ -294,8 +294,8 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-383',
     group: G.small,
-    text: 'Project page: the tabs read Quilts, Blocks, EPP, Palettes, Photos, Threads, Details (EPP next to Blocks), wide and phone width; each opens as before.',
-    last: '"in the project view, let’s move the epp tab to the left of palettes next to blocks"',
+    text: 'Project page: the tabs read Quilts, Blocks, EPP, Palettes, Details (EPP next to Blocks; no Photos or Threads), wide and phone width; each opens as before. A browser that last had Photos or Threads open opens on Quilts.',
+    last: '"in the project view, let’s move the epp tab to the left of palettes next to blocks" / "let’s also hide photos and threads tabs until we actually do something with them"',
     to: '/?open_demo=traditional-epp.rrq',
   },
 ];

@@ -20,8 +20,6 @@
         <q-tab name="blocks" :label="`Blocks (${blocks.length})`" />
         <q-tab name="epp" :label="`EPP (${eppCount})`" />
         <q-tab name="colors" :label="`Palettes (${ownPalettes.length + pickedPalettes.length})`" />
-        <q-tab name="photos" label="Photos" />
-        <q-tab name="threads" label="Threads" />
         <q-tab name="details" label="Details" />
       </q-tabs>
       <HelpLink

@@ -43,7 +43,7 @@ export interface Settings {
   /** Quilt editor block sidebar: only blocks the quilt's layout takes. */
   compatibleBlocks: boolean;
   /** Project (sketchbook) page: last tab. */
-  projectTab: 'quilts' | 'blocks' | 'colors' | 'epp' | 'photos' | 'threads' | 'details';
+  projectTab: 'quilts' | 'blocks' | 'colors' | 'epp' | 'details';
   /** Id of the project opened last: reopening it keeps `projectTab`, another starts fresh. */
   lastProject: string;
   /** Your socials (GitHub, a pattern shop, …): a known or free-text type and a handle (or link). */
@@ -222,8 +222,7 @@ const validators: Partial<Record<string, (v: unknown) => boolean>> = {
   hideLibraryPalettes: (v) => typeof v === 'boolean',
   hideSyncedMine: (v) => typeof v === 'boolean',
   projectTab: (v) =>
-    typeof v === 'string' &&
-    ['quilts', 'blocks', 'colors', 'epp', 'photos', 'threads', 'details'].includes(v),
+    typeof v === 'string' && ['quilts', 'blocks', 'colors', 'epp', 'details'].includes(v),
   compatibleBlocks: (v) => typeof v === 'boolean',
   lastProject: (v) => typeof v === 'string' && v.length <= 200,
   print: (v) => isObject(v),
