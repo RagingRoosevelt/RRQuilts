@@ -4,6 +4,7 @@ import type { ColoringBody } from '@/model/schema/coloring';
 import { resolveColoring, plainFill } from '@/model/coloring';
 import { recolorings } from '@/model/colorways';
 import { dataColorings } from '@/model/data-quilt';
+import { eppQuiltFills, lookupEpp } from '@/model/epp/expand';
 import { isLibraryItem } from '@/model/library-items';
 import type { RrqDoc } from '@/model/schema/project';
 import { fillFor, paintOf } from './paint';
@@ -64,7 +65,14 @@ function shown(doc: RrqDoc | Draft<RrqDoc>, quilt: RrqDoc['project']['quilts'][n
       const r = resolveColoring(quilt.colorings[s.coloring], blocks.get(s.block));
       return r ? [r] : [];
     })
-    .concat(dataColorings([quilt]));
+    .concat(dataColorings([quilt]))
+    .concat(eppShown(doc, quilt));
+}
+/** An EPP quilt's piece fills as one coloring (its library shapes and rosettes are embedded). */
+function eppShown(doc: RrqDoc | Draft<RrqDoc>, quilt: RrqDoc['project']['quilts'][number]) {
+  if (quilt.layout.style !== 'epp') return [];
+  const fills = eppQuiltFills(quilt, lookupEpp(doc.project, quilt.epp?.shapes ?? []));
+  return [{ fills: Object.fromEntries(fills.map((f, i) => [String(i), f])) }];
 }
 
 /** Colors a quilt shows, its library blocks' designer colors included. */

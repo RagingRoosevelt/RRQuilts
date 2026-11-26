@@ -86,8 +86,15 @@
         <q-tab name="colors" label="Colors" />
       </q-tabs>
       <div class="text-caption text-grey-7">{{ toolHint }}</div>
+      <!-- A colorway other than the primary: its color map (Palette, Auto map) in place of the
+           palettes, as in a block quilt. -->
+      <ColorwayMapping
+        v-if="tool === 'paint' && quilt.shownColorway"
+        :quilt="quilt"
+        :readonly="ro"
+      />
       <!-- Paint: where it applies and the colors first; the shape picker steps aside. -->
-      <template v-if="tool === 'paint'">
+      <template v-else-if="tool === 'paint'">
         <div class="row items-center" style="gap: 8px">
           <span class="text-caption">Apply to</span>
           <q-btn-toggle
@@ -166,6 +173,7 @@ import { computed, ref, shallowRef, watch } from 'vue';
 import EppCanvas, { type CanvasPoly, type Decor, type Grid } from '@/components/EppCanvas.vue';
 import EppPicker, { type PickerGroup } from '@/components/EppPicker.vue';
 import PaletteTray from '@/components/PaletteTray.vue';
+import ColorwayMapping from '@/components/ColorwayMapping.vue';
 import QuiltColorways from '@/components/QuiltColorways.vue';
 import SlidePicker from '@/components/SlidePicker.vue';
 import { ERASER } from '@/components/icons';
@@ -527,6 +535,13 @@ function onTap(p: World) {
   }
   if (!hit) return;
   const piece = pieces.value.find((x) => x.id === hit.piece)!;
+  // Another colorway than the primary: its colors are set in its map.
+  if (t === 'paint' && props.quilt.shownColorway)
+    return void $q.notify({
+      message:
+        "This colorway's colors are set in the Colors tab. Show the primary colorway to paint.",
+      timeout: 2500,
+    });
   // A tap on a piece of a selection acts on the whole selection.
   if (epp.selection.size > 1 && epp.selection.has(piece.id)) {
     if (t === 'erase') return sel.remove();

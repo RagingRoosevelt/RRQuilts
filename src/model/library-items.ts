@@ -309,8 +309,11 @@ function refreshAutoMappings(d: Draft<RrqDoc>, lib?: LibraryLookup) {
   const p = d.project;
   if (!p.quilts.some((q) => q.colorways?.some((v) => v.auto))) return;
   const { doc, paletteOf, rgbOf } = mappingLookups(d, lib);
-  p.quilts.forEach((q, i) => {
-    const next = refreshAuto(doc.project.quilts[i]!, doc.project.blocks, paletteOf, rgbOf);
+  p.quilts.forEach((_q, i) => {
+    const was = doc.project.quilts[i]!;
+    const epp =
+      was.layout.style === 'epp' ? lookupEpp(doc.project, was.epp?.shapes ?? [], lib) : undefined;
+    const next = refreshAuto(was, doc.project.blocks, paletteOf, rgbOf, epp);
     if (next !== doc.project.quilts[i] && next.colorways)
       p.quilts[i]!.colorways = castDraft(next.colorways);
   });

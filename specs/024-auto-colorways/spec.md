@@ -14,6 +14,13 @@ best match for each in the palette. Deleting the source colorway leaves the auto
 picks it has at that moment. The quilt design's Colors list for a colorway gets the same
 Manual / Automatic switch. Available from a quilt's menu in the project and from the Design tab's
 Colorways section, next to Save as new colorway. Name: **Auto mapping** (owner, 2026-10-20): the switch reads Manual · Auto mapping, the button "New colorway with auto mapping…" (to a palette). Renamed **Auto map** (owner, 2026-11-25: "let's change the name of “auto mapping” to “auto map”"): the mode buttons read Palette · Auto map · Re-color, for quilt colorways and rosette colorings.
+
+EPP quilts (owner, 2026-11-25: "epp quilts don't seem to handle auto map colorations right"): an
+EPP quilt's colors are its pieces' (rosettes as placed) and Auto-close's fill (`eppQuiltFills`), so
+Auto map maps them and New colorway from palette lists them (both used only block spaces, so an EPP
+quilt's Auto map colorway showed its primary unchanged). Its Design tab's Colors shows the
+colorway's map in another colorway than the primary, as a block quilt's; a paint tap there says
+to show the primary.
 Manual is now **Palette**, and a third mode, **Re-color**, paints the colorway piece by piece (owner, 2026-11-25; spec 019 FR-007).
 Both Palette and Auto mapping follow a colorway (**Follows**, rrq v13 `colorway.source`), the rows
 showing its colors, and New colorway from palette… follows the colorway shown (owner, 2026-11-25;

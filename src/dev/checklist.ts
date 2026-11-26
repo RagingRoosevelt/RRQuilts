@@ -270,6 +270,13 @@ export const CHECKS: Check[] = [
     last: '"let’s apply the same sorting rules for colorations on quilts" / "I just created a colorway that’s an auto map of the primary and it’s showing up after a recolor"',
     to: '/',
   },
+  {
+    id: 'TC-380',
+    group: G.road093,
+    text: 'Traditional EPP demo, Grandmother’s Flower Garden › Design: New colorway from palette… lists the quilt’s colors; pick Neon and Auto map, add it. The quilt shows Neon colors (borders too), and the Colors tab shows Mode, Follows, Palette and a row per color, as in a block quilt; change the palette or pick a row by hand: the quilt follows. Tapping a piece with Paint says to show the primary. Palette mode works the same way. Print shows the colorway’s colors.',
+    last: '"epp quilts don’t seem to handle auto map colorations right"',
+    to: '/?open_demo=traditional-epp.rrq',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

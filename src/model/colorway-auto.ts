@@ -7,6 +7,7 @@ import { fillKey, resolveColoring } from './coloring';
 import { nearestColor, type RGB } from './color-distance';
 import { baseOf, baseView, swapper } from './colorways';
 import { dataColorings } from './data-quilt';
+import { eppQuiltFills, type EppLookup } from './epp/expand';
 import type { Block } from './schema/block';
 import type { Fill } from './schema/coloring';
 import type { Colorway, Quilt } from './schema/quilt';
@@ -17,8 +18,13 @@ export interface PaletteSwatch {
   rgb: RGB;
 }
 
-/** The quilt's own fills (its primary colorway), by fill key, in the order pieces show them. */
-export function primaryFills(q: Quilt, blocks: readonly Block[]): Map<string, Fill> {
+/** The quilt's own fills (its primary colorway), by fill key, in the order pieces show them; an
+ *  EPP quilt's from its pieces (`epp`: its shapes and rosettes). */
+export function primaryFills(
+  q: Quilt,
+  blocks: readonly Block[],
+  epp?: EppLookup,
+): Map<string, Fill> {
   const byId = new Map(blocks.map((b) => [b.id, b]));
   const out = new Map<string, Fill>();
   for (const s of Object.values(q.layers[0].slots)) {
@@ -29,6 +35,8 @@ export function primaryFills(q: Quilt, blocks: readonly Block[]): Map<string, Fi
   // A data quilt's scale colors (spec 025).
   for (const c of dataColorings([q]))
     for (const f of Object.values(c.fills)) if (!out.has(fillKey(f))) out.set(fillKey(f), f);
+  // An EPP quilt's pieces (0.9.3 fix: Auto map had no colors to map there).
+  if (epp) for (const f of eppQuiltFills(q, epp)) if (!out.has(fillKey(f))) out.set(fillKey(f), f);
   return out;
 }
 
@@ -54,6 +62,7 @@ export function refreshAuto(
   blocks: readonly Block[],
   paletteOf: (id: string) => readonly PaletteSwatch[] | undefined | null,
   rgbOf: (f: Fill) => RGB | undefined,
+  epp?: EppLookup,
 ): Quilt {
   const list = q.colorways ?? [];
   if (!list.some((v) => v.auto && !v.recolor)) return q;
@@ -61,7 +70,7 @@ export function refreshAuto(
   const bases = new Map<Colorway | undefined, Map<string, Fill>>();
   const keysOf = (v: Colorway) => {
     const b = baseOf(q, v);
-    if (!bases.has(b)) bases.set(b, primaryFills(baseView(q, v), blocks));
+    if (!bases.has(b)) bases.set(b, primaryFills(baseView(q, v), blocks, epp));
     return bases.get(b)!;
   };
   const done = new Map<string, Colorway>();

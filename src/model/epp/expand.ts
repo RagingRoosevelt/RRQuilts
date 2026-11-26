@@ -3,6 +3,7 @@
 import type { Fill } from '../schema/coloring';
 import type { EppPiece, EppShape, InternalShape, Rosette, RosettePiece } from '../schema/epp';
 import type { RrqDoc } from '../schema/project';
+import type { Quilt } from '../schema/quilt';
 import { place, type Poly, type Pose } from './geometry';
 
 export interface Leaf {
@@ -146,3 +147,15 @@ export function expand(piece: EppPiece, lookup: EppLookup): Leaf[] {
 
 export const expandAll = (pieces: readonly EppPiece[], lookup: EppLookup) =>
   pieces.flatMap((p) => expand(p, lookup));
+
+/** The fills an EPP quilt shows before any colorway: every piece's (a rosette's as placed) and the
+ *  Auto-close pieces' fill. Colorways map these (Palette, Auto map). */
+export function eppQuiltFills(q: Quilt, lookup: EppLookup): Fill[] {
+  if (q.layout.style !== 'epp') return [];
+  const edge = q.layout.edge;
+  const close = edge.kind === 'close' && q.epp?.closing?.length ? edge.fill : undefined;
+  return [
+    ...expandAll(q.epp?.pieces ?? [], lookup).flatMap((l) => (l.fill ? [l.fill] : [])),
+    ...(close ? [close] : []),
+  ];
+}
