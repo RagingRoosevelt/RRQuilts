@@ -210,7 +210,7 @@ export const CHECKS: Check[] = [
   {
     id: 'TC-368',
     group: G.road093,
-    text: 'An EPP quilt’s Layout tab › Edge › Cut to size: Largest rectangle is the largest rectangle the pieces fill; move or add pieces in Design and it follows them (fast, also on the Traditional EPP demo’s 888-piece garden). Manual: the cut shows on the picture with square handles on its corners and sides and a round one in the middle, the pieces outside faded (under any borders). Drag a side, a corner, the middle: the cursor shows which, and sides stop at piece corners (Snap to vertex) and along upright or level piece edges (Snap to edge); switch both off and they move freely. Aspect ratio Square (1:1), then Wide and Tall ones: the cut takes that shape inside itself, and drags keep it; Freeform lets go. Typing Width or Height switches to Manual (with a ratio, the other follows). Undo steps back one drag at a time. The demo’s cuts open as Manual, unchanged.',
+    text: 'An EPP quilt’s Layout tab › Edge › Cut to size: Largest rectangle is the largest rectangle the pieces fill; move or add pieces in Design and it follows them (fast, also on the Traditional EPP demo’s 888-piece garden). Manual: the cut shows on the picture with square handles on its corners and sides and a round one with four arrows in the middle, the pieces outside faded (under any borders). Drag a side, a corner, the middle: the cursor shows which, and sides stop at piece corners (Snap to vertex) and along upright or level piece edges (Snap to edge); switch both off and they move freely. Aspect ratio Square (1:1), then Wide and Tall ones: the cut takes that shape inside itself, and drags keep it; Freeform lets go. Typing Width or Height switches to Manual (with a ratio, the other follows). Undo steps back one drag at a time. The demo’s cuts open as Manual, unchanged.',
     last: '"the “largest rectangle the pices fill” should turn into a toggle with the other option being “manual” … should show several toggles for snapping the crop rectange with “snap to vertex” and “snap to edge” options" · "there should also be an “aspect ratio” dropdown that has several common aspect ratios as well as “freeform”"',
     to: '/?open_demo=traditional-epp.rrq',
   },
@@ -227,6 +227,13 @@ export const CHECKS: Check[] = [
     text: 'Import a fabric photo and paint a rosette of your own with it and with a color of your own (not a built-in one). EPP tab: export it (.rrqepp) and Add to My library. In a private window (or another browser profile), import the .rrqepp into a new project: the fabric shows its picture. In the first browser, a new project: place that rosette from My library in an EPP quilt, every piece shows its fabric and color. Back up My library and restore it in the private window: same.',
     last: '"can you add a test for exporting and importing the various files from the app (rqq, individual quilts of various types, blocks, epp, etc) to make sure that the various asepcts of content survive export and import?" (the test found these two)',
     to: '/',
+  },
+  {
+    id: 'TC-371',
+    group: G.road093,
+    text: 'An EPP quilt’s Layout tab › Edge › Cut to size › Manual: the handle in the middle of the cut is a white circle with the four-arrow pan icon (as Drag grid), dark red; pressing it to drag turns it red with white arrows, and it moves the cut. Dark theme too.',
+    last: '"use the pan arrow cross icon for the drag anchor for moving the cut region in epp quilt layout"',
+    to: '/?open_demo=traditional-epp.rrq',
   },
 ];
 

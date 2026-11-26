@@ -26,6 +26,11 @@ const CURSORS: Record<CutHandle, string> = {
   move: 'move',
 };
 
+/** Material's open_with icon (24 × 24), the app's pan arrows. */
+const PAN_ARROWS =
+  'M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z';
+let panArrows: Path2D | undefined;
+
 /** The handle at p (units) within `tol`: a corner, then a side, then the middle. */
 export function handleAt(r: Box, p: readonly [number, number], tol: number): CutHandle | null {
   const [x0, y0, x1, y1] = r;
@@ -119,18 +124,18 @@ export function useEppCut(quilt: () => Quilt | undefined) {
       ctx.fillRect(x - s / 2, y - s / 2, s, s);
       ctx.strokeRect(x - s / 2, y - s / 2, s, s);
     }
-    // The middle: a round handle with a cross, for moving the whole cut.
-    ctx.fillStyle = held.value === 'move' ? '#d32f2f' : '#ffffff';
+    // The middle: a round handle with the pan arrows (open_with, as Drag grid), for moving the cut.
+    const moving = held.value === 'move';
+    ctx.fillStyle = moving ? '#d32f2f' : '#ffffff';
     ctx.beginPath();
-    ctx.arc(mx, my, 9 * px, 0, 2 * Math.PI);
+    ctx.arc(mx, my, 12 * px, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(mx - 5 * px, my);
-    ctx.lineTo(mx + 5 * px, my);
-    ctx.moveTo(mx, my - 5 * px);
-    ctx.lineTo(mx, my + 5 * px);
-    ctx.stroke();
+    const k = (18 * px) / 24;
+    ctx.translate(mx - 12 * k, my - 12 * k);
+    ctx.scale(k, k);
+    ctx.fillStyle = moving ? '#ffffff' : '#b71c1c';
+    ctx.fill((panArrows ??= new Path2D(PAN_ARROWS)));
     ctx.restore();
   }
 

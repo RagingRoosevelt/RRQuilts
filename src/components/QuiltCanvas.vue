@@ -70,8 +70,8 @@ const blocks = computed(() => new Map(props.doc.project.blocks.map((b) => [b.id,
 const hitAt = (p: [number, number]) => hitTest(blocks.value, props.quilt, props.generated, p);
 
 const cursor = ref<string | null>(null);
-/** One CSS pixel in quilt units. */
-const px = () => 1 / (props.view?.scale ?? 1);
+/** One CSS pixel in quilt units, at the view shown (the fitted one until zoomed). */
+const px = () => vp.worldPerPx();
 const vp = useViewport({
   host,
   canvas,
