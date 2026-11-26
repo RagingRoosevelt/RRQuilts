@@ -137,6 +137,11 @@ colorway.
   reserve the last three spots") that shows the rest ("Show
   fewer" folds them again; another palette starts folded). The picked name in a map row takes up
   to two lines, then ends in an ellipsis, and never widens the sidebar.
+- **FR-012** (owner, 2026-11-25: "let's use the same badges we're using for rosette colorations for
+  the colorations for quilts"): a colorway's picture (Design sidebar's Colorways, the quilt card's
+  colorway menu) MUST carry its mode on the corner as rosette colorings do: arrows for Palette, a
+  sparkle for Auto map (pointing at it names the mode); a re-color, painted as the primary, has
+  none; the primary keeps "Primary".
 
 ## Assumptions
 

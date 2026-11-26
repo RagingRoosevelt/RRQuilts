@@ -256,6 +256,13 @@ export const CHECKS: Check[] = [
     last: '"let’s make sure that rosette colorings that are auto or manual mappings are sorted immediatly after the coloring they are based on"',
     to: '/?open_demo=traditional-epp.rrq',
   },
+  {
+    id: 'TC-377',
+    group: G.road093,
+    text: 'A quilt with a Palette colorway, an Auto map one and a Re-color: in the Design sidebar’s Colorways and in the quilt card’s colorway menu (the count on its picture), the Palette one shows arrows on its picture’s corner and the Auto map one a sparkle, as rosette colorings; pointing at the sidebar’s names the mode. The Re-color has none; the primary still says Primary. Switch a colorway’s mode: its badge follows.',
+    last: '"let’s use the same badges we’re using for rosette colorations for the colorations for quilts"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

@@ -19,6 +19,8 @@
           :name="c.name"
           :active="shown === c.id"
           :badge="c.id ? undefined : 'Primary'"
+          :icon="modeOf(c.id)?.icon"
+          :tip="modeOf(c.id)?.tip"
           :readonly="readonly"
           :deletable="choices.length > 1"
           @pick="show(c.id)"
@@ -59,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ClosePopup, QMenu, useQuasar } from 'quasar';
+import { ClosePopup, QIcon, QMenu, useQuasar } from 'quasar';
 import { computed, defineComponent, h, ref, withDirectives } from 'vue';
 import { newId } from '@/model/ids';
 import {
@@ -88,6 +90,15 @@ const project = useProjectStore();
 /** The quilt's own colors (no id), then each colorway. */
 const choices = computed(() => colorwayList(props.quilt));
 const shown = computed(() => shownColorway(props.quilt)?.id);
+/** A colorway's mode on its picture's corner, as rosette colorings: Palette or Auto map (a
+ *  re-color is painted, as the primary: none). */
+function modeOf(id: string | undefined) {
+  const v = id ? props.quilt.colorways?.find((x) => x.id === id) : undefined;
+  if (!v || v.recolor) return undefined;
+  return v.auto
+    ? { icon: 'auto_awesome', tip: 'Auto map' }
+    : { icon: 'swap_horiz', tip: 'Palette' };
+}
 const thumbOf = (id: string | undefined, px = 112) => {
   const q: Quilt = { ...props.quilt };
   if (id) q.shownColorway = id;
@@ -156,7 +167,14 @@ const ColorwayCount = defineComponent(
                       },
                       [
                         h('img', { src: thumbOf(c.id), alt: '' }),
-                        c.id ? null : h('span', { class: 'qv-primary' }, 'Primary'),
+                        c.id
+                          ? modeOf(c.id) &&
+                            h(
+                              'span',
+                              { class: 'qv-primary row items-center', title: modeOf(c.id)!.tip },
+                              [h(QIcon, { name: modeOf(c.id)!.icon, size: '11px' })],
+                            )
+                          : h('span', { class: 'qv-primary' }, 'Primary'),
                         h('div', { class: 'qv-pick-name' }, c.name),
                       ],
                     ),
