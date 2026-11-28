@@ -764,6 +764,12 @@ const onKey = (e: KeyboardEvent) => {
   }
 };
 onMounted(() => window.addEventListener('keydown', onKey));
+// Opening a quilt starts Set at 1U (owner, 2026-11-28).
+watch(
+  () => quilt.value?.id,
+  () => (editor.spanSize = 1),
+  { immediate: true },
+);
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 const outlinesLabel = computed(() => (editor.outlines ? 'Hide seam lines' : 'Show seam lines'));
 /** Find tool: outline every placement of the selected block. */

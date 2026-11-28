@@ -74,7 +74,8 @@ release the block fills them as one block at twice the size; the Block size slid
 the drag and is back at 1U.
 
 1. **Given** the Set block tool where blocks can span, **Then** a **Block size** slider (1U up to the
-   largest span the layout has room for, with − and +) sits under Apply to. Pointing at the quilt
+   largest span the layout has room for, with − and +) sits under Apply to, at 1U each time a
+   quilt is opened (owner, 2026-11-28). Pointing at the quilt
    lights the spaces a block of that size would cover nearest the pointer: the quilt stays as it
    is and the new block is drawn over them at 30% (owner, after trying 85%), the old ones washed out under it so
    the new one reads (owner: the first, at 60%, "isn't visibly identifyable"), at 1U too (owner, 2026-11-28: "continue to
