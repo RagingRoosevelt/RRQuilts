@@ -88,7 +88,9 @@ the drag and is back at 1U.
    (All, Alternate) works at 1U only; Set with All or Alternate keeps spanning blocks their size.
 6. **Given** a tap on a spanning block with Set (or the data brush), at any Block size, **Then** the
    selected block replaces it at its size and the slider changes to that size and stays there;
-   pointing at it lights the whole block. Making it smaller or bigger is Split, then a new block.
+   pointing at it (its sashing too) lights the whole block and the slider shows its size until the
+   pointer leaves it (owner, 2026-11-28: "the u-slider should show the size of the multi-slot block
+   when you're hovering over one and might replace it"). Making it smaller or bigger is Split, then a new block.
 7. **Given** a spanning block on the quilt, **Then** no other span may take part of it or hold it
    (pointing, tapping and dragging skip such spans; a tap with none left says the size doesn't fit
    there). Only a block in exactly its spaces goes there (owner, 2026-11-28: "the only place the

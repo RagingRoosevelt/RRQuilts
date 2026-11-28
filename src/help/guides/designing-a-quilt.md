@@ -214,7 +214,8 @@ so hexagon blocks always fill one space.
   stays one of its corners, and **Block size** follows the drag. Let go to place it. **Block size**
   then goes back to where it was.
 - Tap a block that already fills several spaces to put the selected block there at the same size,
-  whatever **Block size** says. **Block size** then changes to that size. A block can't cover part
+  whatever **Block size** says. While you point at it, **Block size** shows its size, and after the
+  tap it keeps that size. A block can't cover part
   of a big block, or a big block and more: to change its size, split it first.
 - The line under the quilt says how many spaces the block will cover and how many placed blocks it
   replaces.

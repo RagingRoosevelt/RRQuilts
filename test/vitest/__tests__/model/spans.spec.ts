@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { layoutDefaults, onPointDefaults } from '@/model/io';
 import { generateFor, generateSlots, reconcile } from '@/model/layout/slots';
-import { maxSpan, spanGrow, spanIndex, spanNear, spanOf, spannable } from '@/model/layout/spans';
+import {
+  maxSpan,
+  spanAt,
+  spanGrow,
+  spanIndex,
+  spanNear,
+  spanOf,
+  spannable,
+} from '@/model/layout/spans';
 import type { HorizontalLayout, Layout, Quilt } from '@/model/schema/quilt';
 import { fixture } from './helpers';
 
@@ -46,6 +54,9 @@ describe('spanning blocks (spec 057)', () => {
     expect(sp.covers.filter((id) => id.startsWith('cs:'))).toHaveLength(1);
     expect(sp.slot.size).toEqual([20, 20]);
     expect(maxSpan(slots)).toBe(4);
+    // Its sashing crossing in the middle is part of it.
+    expect(spanAt([sp], [10, 10])).toBe(sp);
+    expect(spanAt([sp], [25, 25])).toBeNull();
   });
 
   it('works on point, in triangles and diamonds; hexagons stay 1U', () => {

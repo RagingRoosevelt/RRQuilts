@@ -239,6 +239,20 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
+    id: 'TC-396',
+    group: G.span057,
+    text: 'Given a block that fills several spaces, when you point at it with Set, then Block size shows its size, and goes back when you point away.',
+    steps: [
+      'Place a 2U block, with Block size back at 1U.',
+      'Point at the 2U block, also at the sashing crossing its middle; then point away.',
+      'Point at it again and tap; then point away.',
+    ],
+    expect:
+      'Pointing at any part of the 2U block lights it and Block size shows 2U. Pointing away puts it back to 1U. After the tap it stays at 2U.',
+    last: '"the u-slider should show the size of the multi-slot block when you’re hovering over one and might replace it"',
+    to: '/',
+  },
+  {
     id: 'TC-392',
     group: G.span057,
     text: 'Given a quilt with the same block at 1U and at 2U, when you print it, then each size has its own block page and templates, and cutting and yardage count the 2U at its big size.',

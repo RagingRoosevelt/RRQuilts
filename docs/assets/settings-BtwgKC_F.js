@@ -1,0 +1,1 @@
+import{Jn as e,Yn as t,r as n}from"./index-BL2OwM8Q.js";var r=n(async()=>{t().applyTheme(),await e().loaded});export{r as default};

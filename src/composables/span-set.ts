@@ -5,7 +5,15 @@
 import { computed, ref } from 'vue';
 import type { CanvasOverlay, World } from '@/composables/viewport';
 import type { Generated } from '@/model/layout/slots';
-import { cellAt, maxSpan, spanGrow, spanIndex, spanNear, type Span } from '@/model/layout/spans';
+import {
+  cellAt,
+  maxSpan,
+  spanAt,
+  spanGrow,
+  spanIndex,
+  spanNear,
+  type Span,
+} from '@/model/layout/spans';
 import { useEditorStore } from '@/stores/editor';
 
 export function useSpanSet(o: {
@@ -30,6 +38,12 @@ export function useSpanSet(o: {
   /** The span the block would fill: under the pointer, or the one a drag has grown to. */
   const lit = ref<Span | null>(null);
   let drag: { from: string; k: number } | null = null;
+  /** The slider's own size while it shows a hovered spanning block's (owner, 2026-11-28). */
+  let shown: number | null = null;
+  const unshow = () => {
+    if (shown !== null) editor.spanSize = shown;
+    shown = null;
+  };
 
   /** A span a block can go in: none of the quilt's spanning blocks inside it, unless it's exactly
    *  that block's spaces (owner, 2026-11-28: a block of another size goes only in the spanning
@@ -41,8 +55,7 @@ export function useSpanSet(o: {
   }
   /** The spanning block already on the quilt under p, if any. */
   function placed(p: World): Span | null {
-    const cell = cellAt(ix.value, p);
-    return (cell && o.generated().spans?.find((s) => s.cells.includes(cell))) || null;
+    return spanAt(o.generated().spans, p);
   }
   /** Where a tap at p places: over a spanning block, that block's spaces (whatever the slider);
    *  else the span of the slider's size nearest p (one the pointer is on). */
@@ -55,7 +68,10 @@ export function useSpanSet(o: {
   /** `near` for a tap: on a spanning block the slider takes its size (owner, 2026-11-28). */
   function tap(p: World): Span | null {
     const sp = near(p);
-    if (sp && sp.k > 1 && placed(p) === sp) editor.spanSize = sp.k;
+    if (sp && sp.k > 1 && placed(p) === sp) {
+      editor.spanSize = sp.k;
+      shown = null; // placed there: the slider keeps its size
+    }
     return sp;
   }
 
@@ -66,9 +82,11 @@ export function useSpanSet(o: {
     return {
       decorate: () => {},
       claim(p) {
-        const cell = cellAt(ix.value, p);
+        // On a spanning block's sashing, its first space.
+        const cell = cellAt(ix.value, p) ?? placed(p)?.at;
         if (!cell) return false;
-        drag = { from: cell, k: size.value };
+        drag = { from: cell, k: shown ?? size.value };
+        shown = null;
         lit.value = placed(p) ?? spanNear(ix.value, cell, 1, p);
         return true;
       },
@@ -89,7 +107,13 @@ export function useSpanSet(o: {
       cursor: () => null,
       hover(p) {
         if (drag) return;
-        const next = p ? (placed(p) ?? (size.value > 1 ? near(p) : null)) : null;
+        // Over a spanning block the slider shows its size, the size a tap places there.
+        const on = p && placed(p);
+        if (on) {
+          shown ??= editor.spanSize;
+          editor.spanSize = on.k;
+        } else unshow();
+        const next = on || (p && size.value > 1 ? near(p) : null);
         if (next?.at !== lit.value?.at || next?.k !== lit.value?.k) lit.value = next;
       },
     };

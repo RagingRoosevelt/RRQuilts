@@ -240,6 +240,11 @@ export function spanGrow(
   return null;
 }
 
+/** The span among `spans` whose block covers point p (its sashing inside too), if any. */
+export function spanAt(spans: readonly Span[] | undefined, p: Pt): Span | null {
+  return spans?.find((s) => pointInPolygon(p, corners(s.slot)!)) ?? null;
+}
+
 /** The block space that can span under point p (spaces before spans merge), if any. */
 export function cellAt(ix: SpanIndex, p: Pt): string | null {
   for (const s of ix.slots) {
