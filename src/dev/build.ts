@@ -7,6 +7,7 @@ import { createProject } from '@/model/new-project';
 import { createQuilt } from '@/model/new-quilt';
 import type { RrqDoc, Units } from '@/model/schema/project';
 import type { Border, Layout } from '@/model/schema/quilt';
+import { spanIndex, spanOf } from '@/model/layout/spans';
 import { fillQuilt, starterKit, type FillMode, type Kit } from './fill-quilt';
 
 export interface DevVariation {
@@ -27,6 +28,8 @@ export interface DevVariation {
   fill?: FillMode;
   /** Every third block turned, every third flipped. */
   turns?: boolean;
+  /** Spanning blocks (spec 057): first space → k, each set over k × k spaces after the fill. */
+  spans?: Record<string, number>;
   /** Drawn in View grayscale's grays (the editors' `#rrq-gray` filter). */
   gray?: boolean;
   units?: Units;
@@ -95,6 +98,21 @@ let kit: Promise<Kit> | undefined;
 
 /** The variation as its own one-quilt project, built when asked for (cards build as they scroll
  *  into view). Failures are kept, not thrown. */
+/** Each span set where it fits: its first space's block grows, the spaces it covers emptied. */
+function withSpans(doc: RrqDoc, quiltId: string, spans: Record<string, number>): RrqDoc {
+  return produce(doc, (d) => {
+    const q = d.project.quilts.find((x) => x.id === quiltId)!;
+    const ix = spanIndex(generateSlots(q.layout, q.borders).slots);
+    for (const [at, k] of Object.entries(spans)) {
+      const sp = ix.byId.get(at) && spanOf(ix, ix.byId.get(at)!, k);
+      const c = q.layers[0].slots[at];
+      if (!sp || !c) throw new Error(`No ${k}U span at ${at}`);
+      for (const id of sp.cells) if (id !== at) delete q.layers[0].slots[id];
+      c.span = k;
+    }
+  });
+}
+
 export async function buildOne(v: DevVariation): Promise<Built> {
   const k = await (kit ??= starterKit());
   const units = v.units ?? 'in';
@@ -119,6 +137,7 @@ export async function buildOne(v: DevVariation): Promise<Built> {
     ).length;
     doc = produce(doc, (d) => void d.project.quilts.push(quilt));
     doc = fillQuilt(doc, quilt.id, k, v.fill, { turns: !!v.turns });
+    if (v.spans) doc = withSpans(doc, quilt.id, v.spans);
     quiltId = quilt.id;
   } catch (e) {
     error = (e as Error).message;

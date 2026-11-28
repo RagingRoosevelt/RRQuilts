@@ -15,6 +15,7 @@ export type Tool =
   | 'rotate'
   | 'flip'
   | 'erase'
+  | 'split'
   | 'find'
   | 'paint'
   | 'spray'
@@ -30,12 +31,14 @@ export type BlockTool =
 
 export type LayoutTool = 'swap-strips' | 'strip-style';
 
-export const BLOCK_TOOLS: Tool[] = ['set', 'rotate', 'flip', 'erase', 'find'];
+export const BLOCK_TOOLS: Tool[] = ['set', 'rotate', 'flip', 'erase', 'split', 'find'];
 export const COLOR_TOOLS: Tool[] = ['paint', 'spray', 'swap', 'eyedropper'];
 
 export const useEditorStore = defineStore('editor', () => {
   const mode = ref<Mode>('design');
   const tool = ref<Tool>('set');
+  /** The Set tool's block size (spec 057): 1U, or a block spanning k × k spaces. */
+  const spanSize = ref(1);
   const scope = ref<Scope>('this');
   const block = ref<string | null>(null);
   const color = ref<string | null>(null);
@@ -139,6 +142,7 @@ export const useEditorStore = defineStore('editor', () => {
   return {
     mode,
     tool,
+    spanSize,
     scope,
     block,
     color,

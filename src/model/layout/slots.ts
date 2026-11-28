@@ -11,6 +11,7 @@ import { PLAIN_BLOCK } from '../plain';
 import { flattenLoop, pathToSegs, signedArea, type Pt } from '../geometry/path';
 import { toPath } from './clip';
 import { tile } from './engine';
+import { spansIn, withSpans, type Span } from './spans';
 import {
   asBlocks,
   flowTiling,
@@ -69,6 +70,9 @@ export interface Generated {
   edge: PathCommand[];
   /** Pieces are cut larger than the edge (trim the quilt top after piecing). */
   trim: boolean;
+  /** Spanning blocks merged into `slots` (spec 057), and the spaces before merging. */
+  spans?: Span[];
+  unspanned?: Slot[];
 }
 
 /** Checkerboard class from the numbers in an id (rows + cols, sash indices, …). */
@@ -261,21 +265,25 @@ export function edgeBlocks(quilt: Quilt): Map<string, string> {
   return out;
 }
 
-/** The quilt's spaces, given what's placed in it. */
-export const generateFor = (quilt: Quilt) =>
-  generateSlots(quilt.layout, quilt.borders, edgeBlocks(quilt), quilt.epp?.box);
+/** The quilt's spaces, given what's placed in it (spanning blocks merge theirs, spec 057). */
+export function generateFor(quilt: Quilt): Generated {
+  const g = generateSlots(quilt.layout, quilt.borders, edgeBlocks(quilt), quilt.epp?.box);
+  const spans = spansIn(g.slots, quilt.layers[0].slots);
+  return spans.length ? { ...g, slots: withSpans(g.slots, spans), spans, unspanned: g.slots } : g;
+}
 
 export interface Reconciled {
   slots: Record<string, SlotContent>;
   /** Slot ids whose content would be lost (warn before applying, FR-057). */
   dropped: string[];
+  /** Spanning blocks that no longer fit: they stay, in their first space only (spec 057). */
+  split: string[];
 }
 
 /** Which placed content survives a layout/border change. */
 export function reconcile(quilt: Quilt, layout: Layout, borders: Border[]): Reconciled {
-  const ids = new Set(
-    generateSlots(layout, borders, edgeBlocks(quilt), quilt.epp?.box).slots.map((s) => s.id),
-  );
+  const generated = generateSlots(layout, borders, edgeBlocks(quilt), quilt.epp?.box).slots;
+  const ids = new Set(generated.map((s) => s.id));
   // Borders set aside by No fill keep their pieces' colors for when they come back.
   const setAside = layout.style === 'on-point' && layout.edge.finish === 'none';
   const slots: Record<string, SlotContent> = {};
@@ -294,7 +302,16 @@ export function reconcile(quilt: Quilt, layout: Layout, borders: Border[]): Reco
       else dropped.push(id);
     }
   }
-  return { slots, dropped };
+  const fit = new Set(spansIn(generated, slots).map((s) => s.at));
+  const split: string[] = [];
+  for (const [id, c] of Object.entries(slots))
+    if (c.span && !fit.has(id)) {
+      const rest = { ...c };
+      delete rest.span;
+      slots[id] = rest;
+      split.push(id);
+    }
+  return { slots, dropped, split };
 }
 
 /** Apply a new layout/borders, keeping content in slots that still exist. Returns a copy. */

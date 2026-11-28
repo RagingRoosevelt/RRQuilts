@@ -1,10 +1,11 @@
 # Feature Specification: Blocks Spanning Several Block Spaces
 
-**Feature Branch**: `TBD` (target 0.10.0)
+**Feature Branch**: `057-spanning-blocks` (target 0.10.0)
 
 **Created**: 2026-11-10
 
-**Status**: Draft (spec only; not implemented).
+**Status**: In progress: User Stories 1 and 2 built the prototype D way (2026-11-27); data quilts
+and printing checks to follow.
 
 **Input**: Owner, 2026-11-10: "let's also add a spec for allowing a given block to take up several
 block spaces (eg like you'd want to do with a medalion block)".
@@ -13,35 +14,72 @@ Related: spec 016 (layout engine; `merges` already join triangle spaces into big
 026 (shaped spaces), spec 006 (quilt editor, Set/Paint tools), spec 052 (move blocks), spec 003
 (slot ids, `contracts/slot-ids.md`).
 
+## Clarifications
+
+### Session 2026-11-26 (owner, before the prototypes)
+
+- Q: Which spans are allowed? → A: "any shape that is several tiled units that have the same
+  perimeter as a scaled-up single block": the space's own shape scaled up a whole number of times
+  (kU): squares (2 × 2, 3 × 3 …), 2:1 rectangles, triangles of 4, 9 … triangles, diamonds of 2 × 2 …
+  diamonds. Hexagons can't join into a bigger hexagon, so they stay 1U.
+- Q: Which layouts? → A: every block layout.
+- Q: How does a quilter make one? → A: prototype and compare three: select then Merge, drag with
+  Set, and "a slider for block unit size that scales between 1U, 2U, 3U, etc and sets the number of
+  block slots it covers, then when you drag a block over the quilt, the highlighted region shows
+  which slots will be covered". Prototypes: `prototypes/spanning/` on branch
+  `proto/spanning-blocks` (worktree `../Kits Quilts spanning-proto`).
+
+### Session 2026-11-26/27 (owner, with the prototypes)
+
+- A fourth prototype, D: drag with Set and the size slider together, "As you drag to increase the
+  size the slider will match the current size", and "after placing, the size slider should return
+  to whatever size it was before your placement". Owner, 2026-11-27: "ok, I like the way that
+  feels. let's migrate that learning into the app". So there is no separate Merge step: a spanning
+  block is made by setting it, and an empty merged space doesn't exist.
+- Left as prototype D had them (its open questions, not yet answered): a drag can go below the
+  slider's size; a drag grows from the space pressed, which stays a corner; covering placed blocks
+  replaces them (shown, and counted under the quilt) rather than refusing.
+
 ## Concepts
 
-- **Spanning block**: one block placed over a group of neighboring block spaces (2 × 2, 3 × 3,
-  2 × 1...), drawn once at the group's size, like a medallion center in a grid quilt.
-- **Merged space**: the group, treated as one space while merged. Sashing and cornerstones inside it
-  are dropped; sashing around it stays.
+- **Spanning block**: one block placed over a group of neighboring block spaces that is the space's
+  own shape scaled up k times (kU: k × k squares or rectangles, a triangle of k² triangles, a
+  diamond of k × k diamonds), drawn once at the group's size, like a medallion center in a grid
+  quilt. Sashing and cornerstones inside the group are covered; sashing around it stays.
+- **First space**: the space in the corner the span grows from (a rectangle's top-left in its own
+  axes, a triangle's or diamond's tip). The block is stored there with `span: k` (rrq v14); the
+  layout then shows that space grown and the others it covers gone.
 
 ## User Scenarios & Testing
 
-### User Story 1 - Merge spaces and place a big block (Priority: P1)
+### User Story 1 - Set a big block (Priority: P1)
 
-**Independent Test**: 6 × 6 straight-set quilt, select the middle 2 × 2, **Merge**, Set a medallion
-block: it fills the four spaces as one block at twice the size.
+**Independent Test**: 6 × 6 straight-set quilt, Set block, drag from one middle space to the one
+diagonally next to it: four spaces light, the line under the quilt says "2U · 4 spaces", and on
+release the block fills them as one block at twice the size; the Block size slider showed 2U during
+the drag and is back at 1U.
 
-1. **Given** the quilt editor, **When** the quilter selects neighboring spaces that together form a
-   rectangle (or for shaped spaces a shape the layout allows, as triangle merges do), **Then**
-   **Merge spaces** makes them one space.
-2. **Given** a merged space, **Then** Set places a block scaled to it; blocks whose shape or aspect
-   doesn't fit aren't offered (as `takesBlock` does today).
-3. **Given** a merged space, **Then** **Split** restores the spaces; the block stays in the top-left
-   space (or is removed, undoable).
-4. Paint, rotate, colorings and scopes work on a spanning block as on any block; scope All counts it
-   with other placements of the same block.
+1. **Given** the Set block tool where blocks can span, **Then** a **Block size** slider (1U up to the
+   largest span the layout has room for, with − and +) sits under Apply to. Pointing at the quilt
+   lights the spaces a block of that size would cover nearest the pointer (the quilt drawn as it
+   would be); a tap places it there. At 1U a tap sets the space tapped, as before.
+2. **Given** a drag with Set block, **Then** the block grows from the space pressed (it stays a
+   corner) to the smallest span holding the space under the pointer; the slider follows the size;
+   release places it and the slider goes back to its size from before the drag.
+3. **Given** a span over placed blocks, **Then** they are replaced (a spanning block overlapping it
+   goes whole); the line under the quilt says how many it replaces. Sashing inside keeps its fabric,
+   hidden, for when the block is split.
+4. **Given** a spanning block, **Then** **Split spanning block** (a tool shown where blocks can span)
+   leaves the block in its first space only; the others are empty. Undo works throughout.
+5. Paint, rotate, flip, erase, find and colorings work on a spanning block as on any block. Apply to
+   (All, Alternate) works at 1U only; Set with All or Alternate keeps spanning blocks their size.
 
 ### User Story 2 - Layout changes keep merges (Priority: P1)
 
-1. **Given** rows or columns added, removed or resized, **Then** merges still inside the layout stay;
-   a merge that no longer fits is split, with a note.
-2. **Given** sashing, **Then** it runs around merged spaces, not through them.
+1. **Given** rows or columns added, removed or resized, **Then** spanning blocks that still fit stay;
+   one that no longer fits goes back to its first space.
+2. **Given** sashing, **Then** it runs around spanning blocks, not through them; a span with sashing
+   is k blocks plus the k − 1 sashes between them across.
 
 ### User Story 3 - Print and count (Priority: P1)
 
@@ -50,18 +88,24 @@ block: it fills the four spaces as one block at twice the size.
 
 ### Edge Cases
 
-- Overlapping merges are refused; a merge can't include a border or setting triangle.
-- Variable layouts (spec 018) merge only where the spaces form one clean shape.
+- Spans never overlap (a later one overlapping an earlier one in a file is left out); a span can't
+  include a border, a setting triangle, or a trimmed space at the edge.
+- A span is real only when exactly k² whole spaces of its shape, plus sashing and cornerstones,
+  tile it with nothing else inside, so layouts of uneven spaces (strips, Variable layouts) span only
+  where they form one clean shape. Hexagons, clamshells and spools never span.
+- Data quilts (Set is off there): not yet; whether a 2U data block holds one week or four is open
+  (prototype D's question 3).
 
 ## Requirements
 
-- **FR-001**: Quilters MUST be able to merge neighboring block spaces into one space and split it
-  again, with undo.
-- **FR-002**: A merged space MUST take one block at its size, with sashing and cornerstones inside it
-  removed.
-- **FR-003**: Merges MUST survive layout edits where they still fit (spec 016 `reconcile`).
-- **FR-004**: The project format MUST store merges (a new version and migration if the slot id
-  grammar or quilt schema changes).
+- **FR-001**: Quilters MUST be able to set one block over a kU span with the Set tool's Block size
+  or a drag, and split it again, with undo.
+- **FR-002**: A spanning block MUST be drawn once at the span's size, covering the sashing and
+  cornerstones inside it.
+- **FR-003**: Spanning blocks MUST survive layout edits where they still fit (spec 016 `reconcile`,
+  which reports the others as `split`).
+- **FR-004**: The project format stores a spanning block on its first space (`SlotContent.span`,
+  rrq v14; v13 files need no change).
 - **FR-005**: Printing and yardage MUST count spanning blocks at their spanned size.
 
 ## Success Criteria

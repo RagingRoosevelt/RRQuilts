@@ -79,6 +79,7 @@ const G = {
   recolor: 'Re-color colorways (spec 019 FR-007)',
   follow: 'Colorways follow a colorway (spec 019 FR-009)',
   road093: '0.9.3 roadmap',
+  span057: 'Blocks over several spaces (spec 057)',
 };
 
 export const CHECKS: Check[] = [
@@ -112,6 +113,75 @@ export const CHECKS: Check[] = [
     expect:
       'Leap day shows only when the quilt covers Feb 29 (not for 2027 or Months). Extra: the numbers run Jan 1, Wk 1 … Wk 52, Dec 31; with the 2-day variant the last number is Dec 30–31 and shows that variant. Average and Ignore: 53 numbers, and Entries marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra, and switching to Ignore with a block on Feb 29 asks first.',
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
+    to: '/',
+  },
+  {
+    id: 'TC-387',
+    group: G.span057,
+    text: 'Given a block quilt and Set block, when you choose a Block size and point at the quilt, then the spaces a block that size would cover light up, and a tap places it there.',
+    steps: [
+      {
+        case: 'Straight Set',
+        steps: [
+          'Make a 6 × 6 Straight Set quilt with sashing and pick a block in the tray.',
+          'Under Apply to, set Block size to 2U, then 3U (slider, or − and +).',
+          'Point at different spaces, then tap.',
+        ],
+      },
+      {
+        case: 'Other layouts',
+        steps: [
+          'Try the same in an On-Point quilt, a Shaped Blocks quilt of triangles, and one of diamonds.',
+          'Try a Shaped Blocks quilt of hexagons.',
+        ],
+      },
+    ],
+    expect:
+      'The quilt is drawn with the block over the lit spaces, outlined, and the line under the quilt says “2U · 4 spaces” (and “replaces N blocks” over placed ones). A tap places it: one block at twice (three times) the size, covering the sashing and cornerstone inside, with the sashing around it in line. Triangles make triangles of 4 or 9, diamonds diamonds of 4 or 9. Hexagons show no Block size and no Split tool. Near the edge, the block lights where it fits.',
+    last: '"ok, I like the way that feels.  let’s migrate that learning into the app" (prototype D: "As you drag to increase the size the slider will match the current size" / "after placing, the size slider should return to whatever size it was before your placement")',
+    to: '/',
+  },
+  {
+    id: 'TC-388',
+    group: G.span057,
+    text: 'Given Set block, when you drag across the quilt, then the block grows from the space you pressed, Block size follows, and it goes back once the block is placed.',
+    steps: [
+      'With Block size at 1U, press on a space and drag two spaces right and down; let go.',
+      'Set Block size to 2U, then drag from a space up and to the left.',
+      'On a phone or tablet, drag with one finger, and tap without dragging.',
+    ],
+    expect:
+      'While dragging, the lit block grows from the pressed space (it stays a corner) and the slider shows its size (3U for two spaces across). After letting go the block is placed and the slider is back where it was (1U, then 2U). A drag can make a block smaller than the slider. On touch, a drag grows the block and a tap places one at the slider’s size.',
+    last: '"ok, I like the way that feels.  let’s migrate that learning into the app" (prototype D: "As you drag to increase the size the slider will match the current size" / "after placing, the size slider should return to whatever size it was before your placement")',
+    to: '/',
+  },
+  {
+    id: 'TC-389',
+    group: G.span057,
+    text: 'Given blocks that fill several spaces, when you replace, split, erase, rotate, use Apply to All, undo, and change the layout, then each keeps to its rules.',
+    steps: [
+      'Set a 2U block over four placed blocks, then a 1U block on one of its spaces.',
+      'Set a 2U block again, then use Rotate, Flip and Paint on it.',
+      'Pick Split spanning block and tap it; then Undo.',
+      'With Block size at 1U and Apply to All, set another block.',
+      'In Layout, make the quilt smaller so a big block no longer fits; then save and reopen the project.',
+    ],
+    expect:
+      'The 1U block takes the whole big block out (the others it covered stay empty). Rotate, Flip and Paint work on the big block as on any block. Split leaves the block in its first space only, the sashing inside comes back with its fabric, and Undo makes it big again. Apply to All changes every block but big ones stay big. A big block with no room left goes back to its first space. Reopened, everything is as it was.',
+    last: '"ok, I like the way that feels.  let’s migrate that learning into the app" (prototype D: "As you drag to increase the size the slider will match the current size" / "after placing, the size slider should return to whatever size it was before your placement")',
+    to: '/',
+  },
+  {
+    id: 'TC-390',
+    group: G.span057,
+    text: 'Given a quilt with a big block, when you print it, then its templates, cutting and yardage are for the block at its big size.',
+    steps: [
+      'In a quilt with the same block at 1U and at 2U, open the Print tab with Templates, Rotary cutting and Yardage.',
+      'Look at the Layout gallery’s Spanning blocks section (Tests tab, G034 to G037).',
+    ],
+    expect:
+      'The block’s pieces at 2U are listed apart from the same block at 1U, at twice the finished size, and the yardage counts them. The gallery quilts look as each card says.',
+    last: '"ok, I like the way that feels.  let’s migrate that learning into the app" (prototype D: "As you drag to increase the size the slider will match the current size" / "after placing, the size slider should return to whatever size it was before your placement")',
     to: '/',
   },
 ];

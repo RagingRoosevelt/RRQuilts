@@ -20,6 +20,8 @@ export interface Variation {
   fill?: FillMode;
   /** Drawn in View grayscale's grays. */
   gray?: boolean;
+  /** Spanning blocks: first space → k (each set over k × k spaces). */
+  spans?: Record<string, number>;
 }
 
 const strip = (id: string, style: string, width: number, along = 4, across = 1) => ({
@@ -31,6 +33,47 @@ const strip = (id: string, style: string, width: number, along = 4, across = 1) 
 });
 
 export const VARIATIONS: Variation[] = [
+  {
+    id: 'G037',
+    title: 'Diamonds spanning 2 × 2 and 3 × 3 diamonds',
+    added: 'Spanning blocks (spec 057, 0.10.0)',
+    expect:
+      'The 60° diamond grid, its diamonds alternating blocks and solids, with two big diamonds (both plain colors here): one three times the size covering nine diamonds, one twice the size covering four. Each one’s top point sits on a small diamond’s top point and its sides run along the grid lines, with no gaps or overlaps around it.',
+    style: 'shaped-blocks',
+    layout: { shape: 'diamonds', cols: 6, rows: 6, width: 4 },
+    fill: 'mix',
+    spans: { 'b:i1j1': 3, 'b:i4j2': 2 },
+  },
+  {
+    id: 'G036',
+    title: 'Triangle blocks spanning 4 and 9 triangles',
+    added: 'Spanning blocks (spec 057, 0.10.0)',
+    expect:
+      'Rows of up and down triangles with two big upward triangle blocks: one covering four triangles (twice the size), one covering nine (three times). Each big one’s tip sits on a small triangle’s tip and its base on a row line.',
+    style: 'shaped-blocks',
+    layout: { shape: 'triangles', cols: 6, rows: 6, width: 4 },
+    spans: { 'b:i1j0u': 3, 'b:i3j2u': 2 },
+  },
+  {
+    id: 'G035',
+    title: 'On-Point with sashing and a 3 × 3 medallion',
+    added: 'Spanning blocks (spec 057, 0.10.0)',
+    expect:
+      'On-Point 4 × 4 with sashing: one block spans 3 × 3 spaces on point, three times the size plus the sashing between them. The sashing inside it is gone; the sashing around it runs straight past it.',
+    style: 'on-point',
+    layout: { cols: 4, rows: 4, sash: 1.5 },
+    spans: { 'b:r2c2': 3 },
+  },
+  {
+    id: 'G034',
+    title: 'Straight Set with sashing, 2 × 2 and 3 × 3 spanning blocks',
+    added: 'Spanning blocks (spec 057, 0.10.0)',
+    expect:
+      'A 6 × 6 Straight Set with sashing. Top left, one block covers 2 × 2 spaces; lower right, one covers 3 × 3. Each is the same block bigger, filling its spaces and the sashing between them (no sashing or cornerstones inside), its edges in line with the sashing around it.',
+    style: 'straight-set',
+    layout: { cols: 6, rows: 6, sash: [2, 2] },
+    spans: { 'b:r1c1': 2, 'b:r4c4': 3 },
+  },
   {
     id: 'G033',
     title: 'Straight Set with blocks, in grays',

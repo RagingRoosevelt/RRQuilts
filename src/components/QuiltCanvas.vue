@@ -56,7 +56,8 @@ const props = defineProps<{
   overlay?: CanvasOverlay | undefined;
 }>();
 const emit = defineEmits<{
-  tap: [hit: Hit];
+  /** `p`: where, in quilt units. */
+  tap: [hit: Hit, p: Pt];
   /** A middle click: pick up what's there. */
   pick: [hit: Hit];
   hover: [hit: Hit | null];
@@ -119,7 +120,7 @@ const vp = useViewport({
   },
   onTap: (p) => {
     const hit = hitAt(p);
-    if (hit) emit('tap', hit);
+    if (hit) emit('tap', hit, p);
   },
   onMiddle: (p) => {
     const hit = hitAt(p);
@@ -127,6 +128,7 @@ const vp = useViewport({
   },
   onHover: (p) => {
     cursor.value = p && props.overlay ? props.overlay.cursor(p, px()) : null;
+    props.overlay?.hover?.(p);
     emit('hover', p ? hitAt(p) : null);
   },
   onDragStart: (p) => !!props.overlay?.claim(p, px()),

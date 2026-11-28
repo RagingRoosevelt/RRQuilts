@@ -139,6 +139,8 @@ export const migrations: Migrations = {
     });
     return { ...doc, project: { ...project, quilts } };
   },
+  // v14 (spec 057): a placed block may span several spaces (`span`); nothing to change.
+  13: (doc) => doc,
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */

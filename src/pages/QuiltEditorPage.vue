@@ -162,10 +162,10 @@
         <QuiltCanvas
           ref="canvas"
           v-model:view="view"
-          :doc="project.doc"
-          :quilt="quilt"
-          :generated="generated"
-          :hover="highlight"
+          :doc="spanPreview?.doc ?? project.doc"
+          :quilt="spanPreview?.quilt ?? quilt"
+          :generated="spanPreview?.generated ?? generated"
+          :hover="spanPreview?.at ?? highlight"
           :outlines="editor.outlines"
           :labels="editor.labels"
           :selected="found"
@@ -174,7 +174,7 @@
           :pan-only="panOnly"
           :data-marks="dataMarks"
           :day-paths="dayPaths"
-          :overlay="editor.mode === 'layout' ? eppCut.overlay.value : undefined"
+          :overlay="editor.mode === 'layout' ? eppCut.overlay.value : spanSet.overlay.value"
           :class="{ gray: gray }"
           @tap="onTap"
           @pick="onPick"
@@ -182,7 +182,8 @@
         />
         <div class="sizes q-pa-xs text-caption">
           Finished {{ dims(generated.bounds) }} · Center {{ dims(generated.center) }}
-          <span v-if="hoverSize"> · {{ hoverSize }}</span>
+          <span v-if="spanNote"> · {{ spanNote }}</span>
+          <span v-else-if="hoverSize"> · {{ hoverSize }}</span>
         </div>
       </div>
 
@@ -206,12 +207,52 @@
               v-model="editor.scope"
               dense
               no-caps
+              :disable="editor.tool === 'set' && spanSet.size.value > 1"
               :options="[
                 { label: 'This', value: 'this' },
                 { label: 'All', value: 'all' },
                 { label: 'Alternate', value: 'alternate' },
               ]"
             />
+          </div>
+          <div
+            v-if="editor.tool === 'set' && spanSet.maxK.value > 1"
+            class="row items-center no-wrap q-mb-xs"
+            style="gap: 8px"
+          >
+            <span class="text-caption">Block size</span>
+            <q-btn
+              flat
+              dense
+              round
+              size="sm"
+              icon="remove"
+              aria-label="Smaller"
+              :disable="spanSet.size.value <= 1"
+              @click="spanSet.size.value--"
+            />
+            <q-slider
+              v-model="spanSet.size.value"
+              :min="1"
+              :max="spanSet.maxK.value"
+              :step="1"
+              markers
+              snap
+              dense
+              class="col"
+              aria-label="Block size"
+            />
+            <q-btn
+              flat
+              dense
+              round
+              size="sm"
+              icon="add"
+              aria-label="Bigger"
+              :disable="spanSet.size.value >= spanSet.maxK.value"
+              @click="spanSet.size.value++"
+            />
+            <span class="text-caption" style="min-width: 2em">{{ spanSet.size.value }}U</span>
           </div>
           <div class="text-caption text-grey-7 q-mb-sm">{{ toolHint }}</div>
           <PaletteTray
@@ -355,7 +396,10 @@ import { useStl } from '@/composables/stl';
 import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { useEppCut } from '@/composables/epp-cut';
-import { applyTool } from '@/editor/actions';
+import { applyTool, setSpan } from '@/editor/actions';
+import { useSpanSet } from '@/composables/span-set';
+import type { Span } from '@/model/layout/spans';
+import type { Pt } from '@/model/geometry/path';
 import { takesBlock } from '@/editor/scope';
 import { STRIP_STYLES, stripOf, swapStrips, setStrip } from '@/model/layout/strips';
 import { is3d as is3dQuilt } from '@/model/epp/quilt-ops';
@@ -425,6 +469,57 @@ watch(
   { immediate: true },
 );
 const generated = computed(() => generateFor(quilt.value!));
+/** Spanning blocks (spec 057): the Set tool's Block size, lit spaces and drag to grow. */
+const spanSet = useSpanSet({
+  generated: () => generated.value,
+  active: () =>
+    editor.mode === 'design' &&
+    editor.tool === 'set' &&
+    !!editor.block &&
+    !project.readOnly &&
+    !quilt.value?.data?.on,
+  place: placeSpan,
+});
+/** The quilt as it would be with the lit span set, drawn in its place. */
+const spanPreview = computed(() => {
+  const sp = spanSet.lit.value;
+  const q = quilt.value;
+  if (!sp || !q || !project.doc) return null;
+  const r = setSpan(project.doc, q.id, generated.value, sp, {
+    ...editor.$state,
+    library: toolLibrary.value,
+  });
+  const pq = r.doc?.project.quilts.find((x) => x.id === q.id);
+  if (!r.doc || !pq) return null;
+  return {
+    doc: r.doc,
+    quilt: pq,
+    generated: generateFor(pq),
+    at: sp.at,
+    span: sp,
+    replaced: r.replaced ?? 0,
+  };
+});
+const spanNote = computed(() => {
+  const p = spanPreview.value;
+  if (!p) return '';
+  const n = p.span.cells.length;
+  const r = p.replaced;
+  return `${p.span.k}U · ${n} space${n > 1 ? 's' : ''}${r ? ` · replaces ${r} block${r > 1 ? 's' : ''}` : ''}`;
+});
+function placeSpan(sp: Span) {
+  const q = quilt.value;
+  if (!project.doc || !q || project.readOnly) return;
+  const r = setSpan(project.doc, q.id, generated.value, sp, {
+    ...editor.$state,
+    library: toolLibrary.value,
+  });
+  if (r.message) $q.notify({ message: r.message, timeout: 1500 });
+  if (r.doc) {
+    const next = dropNumbers(q.id, project.doc, r.doc);
+    project.change(() => next);
+  }
+}
 const units = computed(() => project.doc?.units ?? 'in');
 const border = ref(0);
 const hover = ref<Hit | null>(null);
@@ -441,6 +536,7 @@ const tools: { id: Tool; icon: string; label: string }[] = [
   { id: 'rotate', icon: 'rotate_right', label: 'Rotate' },
   { id: 'flip', icon: 'flip', label: 'Flip' },
   { id: 'erase', icon: ERASER, label: 'Erase block' },
+  { id: 'split', icon: 'grid_view', label: 'Split spanning block' },
   { id: 'find', icon: 'search', label: 'Find block' },
   { id: 'paint', icon: 'brush', label: 'Paint' },
   { id: 'spray', icon: 'format_color_fill', label: 'Spray (same color)' },
@@ -453,6 +549,7 @@ const HINTS: Record<Tool, string> = {
   rotate: 'Tap a block to turn it 90°.',
   flip: 'Tap a block to mirror it. Tap the Flip tool again to switch left↔right / top↕bottom.',
   erase: 'Tap a block to remove it.',
+  split: 'Tap a spanning block to make it fill one space again (its first one).',
   find: 'Tap a block to select it in the tray.',
   number: 'Tap a block space to place the highlighted number.',
   entry: 'Tap a day’s piece to open its entry.',
@@ -462,7 +559,11 @@ const HINTS: Record<Tool, string> = {
   eyedropper: 'Tap a patch to pick up its color.',
   pan: 'Drag to move around.',
 };
-const toolHint = computed(() => HINTS[editor.tool]);
+const toolHint = computed(() =>
+  editor.tool === 'set' && spanSet.maxK.value > 1
+    ? 'Tap a space to set the selected block at the Block size, or drag across spaces to make it bigger.'
+    : HINTS[editor.tool],
+);
 /** The shown colorway is a re-color: painted as the primary is. */
 const recoloring = computed(() => !!(quilt.value && shownColorway(quilt.value)?.recolor));
 /** The Help topic for each editor tab. */
@@ -487,7 +588,12 @@ const help = computed(() =>
 /** A data quilt places its blocks by number (spec 025): no Set, Erase or Find. */
 const shownTools = computed(() =>
   // A data quilt sets blocks with its numbering brush (Other blocks: Set from the tray).
-  quilt.value?.data?.on ? tools.filter((t) => t.id !== 'set') : tools,
+  tools.filter(
+    (t) =>
+      !(t.id === 'set' && quilt.value?.data?.on) &&
+      // Split only where blocks can span (spec 057).
+      !(t.id === 'split' && spanSet.maxK.value < 2 && !generated.value.spans),
+  ),
 );
 const labelOf = (t: { id: Tool; label: string }) =>
   t.id === 'flip' ? (editor.flipAxis === 'v' ? 'Flip top↕bottom' : 'Flip left↔right') : t.label;
@@ -727,10 +833,24 @@ function onStripTap(hit: Hit, l: StripLayout) {
   } else editor.selectedStrip = id;
 }
 
-function onTap(hit: Hit) {
+function onTap(hit: Hit, p?: Pt) {
   if (!project.doc || !quilt.value) return;
   if (editor.mode === 'layout') return strips.value ? onStripTap(hit, strips.value) : undefined;
   if (editor.tool === 'number' || editor.tool === 'entry') return onDataTap(hit);
+  // Set where blocks can span (spec 057): at the Block size, in the spaces nearest the tap; at
+  // 1U with This, in the very space tapped (so a spanning block there gives way).
+  if (p && spanSet.overlay.value && (spanSet.size.value > 1 || editor.scope === 'this')) {
+    const sp = spanSet.near(p);
+    if (sp) return placeSpan(sp);
+    if (
+      spanSet.size.value > 1 &&
+      takesBlock(generated.value.slots.find((s) => s.id === hit.slotId) ?? { id: '', alt: 0 })
+    )
+      return void $q.notify({
+        message: `A ${spanSet.size.value}U block doesn’t fit here.`,
+        timeout: 1500,
+      });
+  }
   const r = applyTool(project.doc, quilt.value.id, generated.value.slots, hit, {
     ...editor.$state,
     library: toolLibrary.value,

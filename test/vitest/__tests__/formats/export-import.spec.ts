@@ -39,6 +39,8 @@ import { backupDoc, packDoc, parseLibrary, restore, serializeLibrary } from '@/m
 import { isLibraryItem, syncDraft, type LibraryLookup } from '@/model/library-items';
 import { createProject } from '@/model/new-project';
 import { PLAIN_BLOCK } from '@/model/plain';
+import { generateFor } from '@/model/layout/slots';
+import { spanIndex, spanOf } from '@/model/layout/spans';
 import { blockPieces, quiltPieces } from '@/model/print/pieces';
 import type { Block } from '@/model/schema/block';
 import type { Fill } from '@/model/schema/coloring';
@@ -107,7 +109,7 @@ async function ownFabric(): Promise<Fabric> {
 /**
  * Where the project has room for them: colorways in every mode (one following another, an auto
  * mapping, a re-color) on the first plain block quilt, a Manual cut with an aspect ratio on EPP
- * quilts, and rosette colorings that follow another; the own fabric used in each.
+ * quilts, rosette colorings that follow another, and a spanning block; the own fabric used in each.
  */
 function withV13(doc0: RrqDoc, fabric: Fabric): RrqDoc {
   const doc = structuredClone(doc0);
@@ -145,6 +147,19 @@ function withV13(doc0: RrqDoc, fabric: Fabric): RrqDoc {
     }
     return { ...v, shownColorway: 'cwfollow' };
   });
+  // v14 (spec 057): a block spanning 2 × 2 spaces in the first quilt with room for one.
+  for (const q of p.quilts) {
+    if (q.data?.on) continue;
+    const ix = spanIndex(generateFor(q).slots);
+    const sp = Object.keys(q.layers[0].slots)
+      .map((id) => ix.byId.get(id))
+      .map((at) => at && spanOf(ix, at, 2))
+      .find((x) => x);
+    if (!sp) continue;
+    for (const id of sp.covers) if (id !== sp.at) delete q.layers[0].slots[id];
+    q.layers[0].slots[sp.at]!.span = 2;
+    break;
+  }
   if (p.rosettes)
     p.rosettes = p.rosettes.map((r) => {
       const base = r.colorings[0];
@@ -285,6 +300,10 @@ it('the projects carry what rrq v13 added', async () => {
   const colorings = docs.flatMap((d) => d.project.rosettes ?? []).flatMap((r) => r.colorings);
   expect(colorings.some((c) => c.source && c.auto)).toBe(true);
   expect(colorings.some((c) => c.source && c.swaps?.length)).toBe(true);
+  // v14 (spec 057): a spanning block, merged into its quilt's spaces.
+  const spanned = quilts.filter((q) => Object.values(q.layers[0].slots).some((c) => c.span));
+  expect(spanned.length).toBeGreaterThan(0);
+  expect(spanned.every((q) => generateFor(q).spans?.length)).toBe(true);
 });
 
 describe.each(SOURCES)('export and import: %s', (path) => {
