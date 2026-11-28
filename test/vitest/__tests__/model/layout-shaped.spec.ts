@@ -102,6 +102,12 @@ describe('Baby Blocks and Diamond Point hold diamond blocks; their twins hold pa
     const blocks = g.slots.filter((s) => s.kind === 'block');
     expect(blocks.length).toBeGreaterThan(10);
     expect(blocks.every((s) => s.shape === 'diamond60')).toBe(true);
+    // Each is the diamond's own width × height (printed block pages use it), not a square.
+    const w = (layoutDefaults('diamond-point', 1) as { width: number }).width;
+    for (const b of blocks) {
+      expect(b.size[0]).toBeCloseTo(w);
+      expect(b.size[1]).toBeCloseTo(w * Math.sqrt(3));
+    }
     expect(g.slots.filter((s) => s.id.startsWith('set:')).every((s) => s.kind === 'patch')).toBe(
       true,
     );

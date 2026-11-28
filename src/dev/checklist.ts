@@ -293,6 +293,19 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
+    id: 'TC-399',
+    group: G.span057,
+    text: 'Given a Diamond Point quilt, when you print it, then each block page shows its block as a 60° diamond at the diamond’s finished size, lettered like its templates.',
+    steps: [
+      'Open “Diamonds with sashing” in the block quilts demo, then the Print tab with Block pages and Templates.',
+      'Look at a block page and its template pages.',
+    ],
+    expect:
+      'The block picture is a 60° diamond standing on its point, “Finished size 6″ × 10.392″”, and its letters match the template pages’ letters.',
+    last: '"in the diamond point block quilt, the block print previews are showing squares and not 60-degree diamonds"',
+    to: '/',
+  },
+  {
     id: 'TC-392',
     group: G.span057,
     text: 'Given a quilt with the same block at 1U and at 2U, when you print it, then each size has its own block page and templates, and cutting and yardage count the 2U at its big size.',
