@@ -120,7 +120,7 @@ const vp = useViewport({
           outlines: props.outlines,
           hover: g.at,
           dark: $q.dark.isActive,
-          ghost: 0.6,
+          ghost: 0.85,
         },
       );
     if (props.overlay) {

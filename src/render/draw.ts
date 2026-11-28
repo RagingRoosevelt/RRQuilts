@@ -44,7 +44,8 @@ export interface DrawOptions {
   target?: boolean;
   /** An EPP quilt's Cut to size being sized: the pieces it cuts away drawn faded, not left out. */
   cutFade?: boolean;
-  /** Draw the spaces see-through at this opacity (a block about to be set, over the old one). */
+  /** Draw the spaces see-through at this opacity (a block about to be set, over the old one,
+   *  which is first washed out so the new one reads). */
   ghost?: number;
 }
 
@@ -177,6 +178,12 @@ export function drawQuilt(
     const content = quilt.layers[0].slots[slot.id];
     const block: Block | undefined = content && blocks.get(content.block);
     const outline = slotPath(slot);
+    if (o.ghost !== undefined) {
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = paled(o.dark);
+      ctx.fill(outline);
+      ctx.globalAlpha = o.ghost;
+    }
     if (!content || !block) {
       ctx.fillStyle = o.dark ? '#2b2b2b' : '#fbfbfb';
       ctx.fill(outline);
