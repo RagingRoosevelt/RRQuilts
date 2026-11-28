@@ -209,7 +209,8 @@ so hexagon blocks always fill one space.
 
 - **Block size** under **Apply to** sets how big **Set block** places: 1U is one space, 2U covers
   2 × 2 spaces, 3U covers 3 × 3, as far as the layout has room for. Point at the quilt to see which
-  spaces the block would cover, then tap to place it there.
+  spaces the block would cover: the block you picked shows see-through over what's there now, at
+  any size. Tap to place it there.
 - Or drag across the quilt with **Set block**. The block grows from the space you press on, which
   stays one of its corners, and **Block size** follows the drag. Let go to place it. **Block size**
   then goes back to where it was.

@@ -279,6 +279,20 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
+    id: 'TC-398',
+    group: G.span057,
+    text: 'Given Set block with a block picked, when you point at placed blocks at 1U and at 2U, then the placed blocks stay and the picked block shows see-through over them.',
+    steps: [
+      'In “Medallions on point”, pick a block different from the ones placed.',
+      'At 1U, point at a placed block; then at 2U, point at four placed blocks; then drag.',
+      'Place a 2U block and point at it with another block picked.',
+    ],
+    expect:
+      'Every time, the blocks there stay drawn and the picked block shows over them see-through, at the size it would be placed, with the glowing outline. Nothing goes blank.',
+    last: '"when you hover over an already-placed block, we have divergent behavior. a 1u block shows the old block. a multi-u block goes blank. let’s set both to behave the same: continue to show the old block and then show a ghost of the new block over the old one"',
+    to: '/',
+  },
+  {
     id: 'TC-392',
     group: G.span057,
     text: 'Given a quilt with the same block at 1U and at 2U, when you print it, then each size has its own block page and templates, and cutting and yardage count the 2U at its big size.',

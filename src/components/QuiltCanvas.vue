@@ -54,6 +54,9 @@ const props = defineProps<{
   dayPaths?: readonly Pt[][] | null;
   /** Drawn over the quilt, taking its own drags; an EPP cut's pieces outside it drawn faded. */
   overlay?: CanvasOverlay | undefined;
+  /** A block about to be set (spec 057): the quilt as it would be, its space `at` drawn
+   *  see-through over the old block, outlined. */
+  ghost?: { doc: RrqDoc; quilt: Quilt; generated: Generated; at: string } | null;
 }>();
 const emit = defineEmits<{
   /** `p`: where, in quilt units. */
@@ -103,6 +106,23 @@ const vp = useViewport({
       dark: $q.dark.isActive,
       cutFade: !!props.overlay,
     });
+    const g = props.ghost;
+    const at = g?.generated.slots.find((s) => s.id === g.at);
+    if (g && at)
+      drawQuilt(
+        ctx,
+        g.doc,
+        g.quilt,
+        { ...g.generated, slots: [at] },
+        {
+          dpr,
+          view,
+          outlines: props.outlines,
+          hover: g.at,
+          dark: $q.dark.isActive,
+          ghost: 0.6,
+        },
+      );
     if (props.overlay) {
       const k = dpr * view.scale;
       ctx.setTransform(k, 0, 0, k, dpr * view.tx, dpr * view.ty);
@@ -152,6 +172,7 @@ watch(
     props.dataMarks,
     props.dayPaths,
     props.overlay,
+    props.ghost,
     $q.dark.isActive,
     imagesTick.value, // fabric images arriving (spec 014)
   ],

@@ -114,7 +114,7 @@ export function useSpanSet(o: {
           shown ??= editor.spanSize;
           editor.spanSize = on.k;
         } else unshow();
-        const next = on || (p && size.value > 1 ? near(p) : null);
+        const next = on || (p ? near(p) : null);
         if (next?.at !== lit.value?.at || next?.k !== lit.value?.k) lit.value = next;
       },
     };

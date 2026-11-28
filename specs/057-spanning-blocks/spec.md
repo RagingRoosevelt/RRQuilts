@@ -75,8 +75,10 @@ the drag and is back at 1U.
 
 1. **Given** the Set block tool where blocks can span, **Then** a **Block size** slider (1U up to the
    largest span the layout has room for, with − and +) sits under Apply to. Pointing at the quilt
-   lights the spaces a block of that size would cover nearest the pointer (the quilt drawn as it
-   would be); a tap places it there. At 1U a tap sets the space tapped, as before.
+   lights the spaces a block of that size would cover nearest the pointer: the quilt stays as it
+   is and the new block is drawn see-through over them, at 1U too (owner, 2026-11-28: "continue to
+   show the old block and then show a ghost of the new block over the old one"); a tap places it
+   there. At 1U a tap sets the space tapped, as before.
 2. **Given** a drag with Set block, **Then** the block grows from the space pressed (it stays a
    corner) to the smallest span holding the space under the pointer; the slider follows the size;
    release places it and the slider goes back to its size from before the drag.
