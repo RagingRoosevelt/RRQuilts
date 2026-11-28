@@ -23,7 +23,8 @@ export function useSpanSet(o: {
   const maxK = computed(() => maxSpan(ix.value.slots));
   /** The slider, kept within what fits. */
   const size = computed({
-    get: () => Math.max(1, Math.min(editor.spanSize, maxK.value)),
+    // `|| 1`: a store kept from before spans (hot reload) has none.
+    get: () => Math.max(1, Math.min(editor.spanSize || 1, maxK.value)),
     set: (k: number) => (editor.spanSize = k),
   });
   /** The span the block would fill: under the pointer, or the one a drag has grown to. */

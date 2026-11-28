@@ -172,16 +172,29 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-390',
+    id: 'TC-391',
     group: G.span057,
-    text: 'Given a quilt with a big block, when you print it, then its templates, cutting and yardage are for the block at its big size.',
+    text: 'Given the app just opened, when you drag a block bigger with Set and let go, then Block size goes back to a number, never “NaNU”.',
     steps: [
-      'In a quilt with the same block at 1U and at 2U, open the Print tab with Templates, Rotary cutting and Yardage.',
+      'Reload the page, open a block quilt, pick a block and drag across two spaces.',
+      'Let go and look at the Block size label.',
+    ],
+    expect: 'The label shows 1U again (or the size the slider had before the drag).',
+    last: '"the first time you load up there’s a nanU block size that shows up after placed a dragged block"',
+    to: '/',
+  },
+  {
+    id: 'TC-392',
+    group: G.span057,
+    text: 'Given a quilt with the same block at 1U and at 2U, when you print it, then each size has its own block page and templates, and cutting and yardage count the 2U at its big size.',
+    steps: [
+      'In a quilt, set a block at 2U and the same block at 1U somewhere else.',
+      'Open the Print tab with Block pages, Templates, Rotary cutting and Yardage.',
       'Look at the Layout gallery’s Spanning blocks section (Tests tab, G034 to G037).',
     ],
     expect:
-      'The block’s pieces at 2U are listed apart from the same block at 1U, at twice the finished size, and the yardage counts them. The gallery quilts look as each card says.',
-    last: '"ok, I like the way that feels.  let’s migrate that learning into the app" (prototype D: "As you drag to increase the size the slider will match the current size" / "after placing, the size slider should return to whatever size it was before your placement")',
+      'Two block pages for that block: one at the 1U finished size counting the 1U blocks, one at the 2U size (twice the block plus the sashing inside) counting the 2U ones, each with its own templates and key letters. The rotary chart and yardage include the 2U pieces at their size. The gallery quilts look as each card says.',
+    last: '"please check that" (printing)',
     to: '/',
   },
 ];

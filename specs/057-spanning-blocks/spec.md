@@ -4,8 +4,8 @@
 
 **Created**: 2026-11-10
 
-**Status**: In progress: User Stories 1 and 2 built the prototype D way (2026-11-27); data quilts
-and printing checks to follow.
+**Status**: In progress: User Stories 1 to 3 built (prototype D's way for 1 and 2, 2026-11-27;
+printing checked 2026-11-28); data quilts to follow.
 
 **Input**: Owner, 2026-11-10: "let's also add a spec for allowing a given block to take up several
 block spaces (eg like you'd want to do with a medalion block)".
@@ -39,6 +39,16 @@ Related: spec 016 (layout engine; `merges` already join triangle spaces into big
 - Left as prototype D had them (its open questions, not yet answered): a drag can go below the
   slider's size; a drag grows from the space pressed, which stays a corner; covering placed blocks
   replaces them (shown, and counted under the quilt) rather than refusing.
+
+### Session 2026-11-28 (owner, trying the app)
+
+- Q: Should a 2U data block hold one week or four? → A: One. "the number of spots for it to hold
+  something hasn't changed. it can only hold one week." A spanning data block is the same data
+  block drawn bigger, holding one value.
+- The prototype worked well on the owner's phone.
+- Printing: "please check that". Checked: templates, cutting and yardage come from the quilt's
+  spaces with spans merged; a block used at more than one size now gets a block page and templates
+  per size (it had one page at its first size, counting both).
 
 ## Concepts
 
@@ -84,7 +94,8 @@ the drag and is back at 1U.
 ### User Story 3 - Print and count (Priority: P1)
 
 1. **Given** spanning blocks, **Then** templates, cutting and yardage use the block at its spanned
-   size (spec 010), listed apart from the same block at the normal size.
+   size (spec 010), listed apart from the same block at the normal size: in a quilt printout each
+   size gets its own block page (finished size, count, fabric) and its own template pages and key.
 
 ### Edge Cases
 
@@ -93,8 +104,8 @@ the drag and is back at 1U.
 - A span is real only when exactly k² whole spaces of its shape, plus sashing and cornerstones,
   tile it with nothing else inside, so layouts of uneven spaces (strips, Variable layouts) span only
   where they form one clean shape. Hexagons, clamshells and spools never span.
-- Data quilts (Set is off there): not yet; whether a 2U data block holds one week or four is open
-  (prototype D's question 3).
+- Data quilts (Set is off there): not yet. A 2U data block holds one value (one week for a week
+  block), as at 1U (owner, 2026-11-28).
 
 ## Requirements
 
