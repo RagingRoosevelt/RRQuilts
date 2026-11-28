@@ -175,6 +175,29 @@ describe('spanning blocks (spec 057)', () => {
     expect(up.at).toBe('b:r2c2');
   });
 
+  it('a dragged triangle faces the way of the one pressed, through rows of the other way', () => {
+    const tri = slotsOf({
+      ...(layoutDefaults('shaped-blocks', 1) as Layout & { style: 'shaped-blocks' }),
+      shape: 'triangles',
+    });
+    const ix = spanIndex(tri);
+    const axes = (id: string) =>
+      ix.byId
+        .get(id)!
+        .transform.slice(0, 4)
+        .map((v) => Math.round(v * 1e4));
+    const cells = tri.filter(spannable).map((s) => s.id);
+    let grew = 0;
+    for (const from of cells.slice(0, 20))
+      for (const to of cells) {
+        const sp = spanGrow(ix, from, to);
+        if (!sp) continue;
+        expect(axes(sp.at), `${from} → ${to}`).toEqual(axes(from));
+        if (sp.k > 1) grew++;
+      }
+    expect(grew).toBeGreaterThan(0);
+  });
+
   it('keeps clear of a spanning block already placed, but for its own spaces', () => {
     const ix = spanIndex(slotsOf(straight(6, 6)));
     const there = spanOf(ix, ix.byId.get('b:r3c3')!, 2)!;

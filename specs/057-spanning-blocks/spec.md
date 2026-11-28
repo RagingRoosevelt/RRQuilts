@@ -85,7 +85,9 @@ the drag and is back at 1U.
    show the old block and then show a ghost of the new block over the old one"); a tap places it
    there. At 1U a tap sets the space tapped, as before.
 2. **Given** a drag with Set block, **Then** the block grows from the space pressed (it stays a
-   corner) to the smallest span holding the space under the pointer; the slider follows the size;
+   corner) to the smallest span holding the space under the pointer that faces the way the pressed
+   space does (from a point-up triangle, only point-up big triangles: owner, 2026-11-28, "the
+   multi-slot block should stay the orientation of the block I started with as I expand"); the slider follows the size;
    release places it and the slider goes back to its size from before the drag.
 3. **Given** a span over placed 1U blocks, **Then** they are replaced; the line under the quilt says how many it replaces. Sashing inside keeps its fabric,
    hidden, for when the block is split.

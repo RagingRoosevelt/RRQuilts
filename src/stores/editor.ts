@@ -27,7 +27,7 @@ export type Tool =
 
 export type BlockMode = 'draw' | 'color' | 'print' | 'print3d' | 'details';
 export type BlockTool =
-  'select' | 'node' | 'line' | 'arc' | 'grid' | 'pan' | 'paint' | 'spray' | 'eyedropper';
+  'select' | 'node' | 'line' | 'arc' | 'grid' | 'delete' | 'pan' | 'paint' | 'spray' | 'eyedropper';
 
 export type LayoutTool = 'swap-strips' | 'strip-style';
 

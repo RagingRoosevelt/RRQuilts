@@ -262,7 +262,8 @@ export function spanNear(
 }
 
 /** A drag from space `from` to `to`: the smallest span holding both (that passes `ok`), `from`
- *  nearest its corner (the space pressed stays a corner as the block grows). */
+ *  nearest its corner (the space pressed stays a corner as the block grows). The block faces the
+ *  way the space pressed does: from a point-up triangle, only point-up ones (owner, 2026-11-28). */
 export function spanGrow(
   ix: SpanIndex,
   from: string,
@@ -271,9 +272,11 @@ export function spanGrow(
   ok: (s: Span) => boolean = () => true,
 ): Span | null {
   const start = ix.mids.get(from);
-  if (!start) return null;
+  const pressed = ix.byId.get(from);
+  if (!start || !pressed) return null;
+  const facing = (s: Span) => sameAxes(ix.byId.get(s.at)!.transform, pressed.transform);
   for (let k = 1; k <= maxK; k++) {
-    const fit = spansOver(ix, from, k).filter((s) => s.cells.includes(to) && ok(s));
+    const fit = spansOver(ix, from, k).filter((s) => s.cells.includes(to) && facing(s) && ok(s));
     if (!fit.length) continue;
     const corner = (s: Span) =>
       Math.min(...corners(s.slot)!.map((v) => Math.hypot(v[0] - start[0], v[1] - start[1])));

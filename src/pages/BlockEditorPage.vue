@@ -508,6 +508,8 @@ const DRAW_TOOLS: { id: BlockTool; icon: string; label: string }[] = [
   { id: 'line', icon: 'horizontal_rule', label: 'Line' },
   { id: 'arc', icon: 'architecture', label: 'Arc' },
   { id: 'grid', icon: 'grid_4x4', label: 'Grid' },
+  // Tap a seam to take it out: no keyboard needed, for phones (owner, 2026-11-28).
+  { id: 'delete', icon: 'backspace', label: 'Delete seams' },
   { id: 'pan', icon: 'pan_tool', label: 'Pan' },
 ];
 const COLOR_TOOLS: { id: BlockTool; icon: string; label: string }[] = [

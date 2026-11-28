@@ -117,221 +117,31 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
-    id: 'TC-387',
+    id: 'TC-401',
     group: G.span057,
-    text: 'Given a block quilt and Set block, when you choose a Block size and point at the quilt, then the spaces a block that size would cover light up, and a tap places it there.',
+    text: 'Given a Shaped Blocks quilt of triangles, when you drag from a point-up triangle down across the rows, then the big triangle stays point-up the whole way.',
     steps: [
-      {
-        case: 'Straight Set',
-        steps: [
-          'Make a 6 × 6 Straight Set quilt with sashing and pick a block in the tray.',
-          'Under Apply to, set Block size to 2U, then 3U (slider, or − and +).',
-          'Point at different spaces, then tap.',
-        ],
-      },
-      {
-        case: 'Other layouts',
-        steps: [
-          'Try the same in an On-Point quilt, a Shaped Blocks quilt of triangles, and one of diamonds.',
-          'Try a Shaped Blocks quilt of hexagons.',
-        ],
-      },
+      'Make a Shaped Blocks quilt of triangles and pick a triangle block.',
+      'Press on a point-up triangle and drag down onto the point-down triangle below it, then on to the next row.',
+      'Do the same from a point-down triangle, dragging up.',
     ],
     expect:
-      'The quilt is drawn with the block over the lit spaces, outlined, and the line under the quilt says “2U · 4 spaces” (and “replaces N blocks” over placed ones). A tap places it: one block at twice (three times) the size, covering the sashing and cornerstone inside, with the sashing around it in line. Triangles make triangles of 4 or 9, diamonds diamonds of 4 or 9. Hexagons show no Block size and no Split tool. Near the edge, the block lights where it fits.',
-    last: '"ok, I like the way that feels.  let’s migrate that learning into the app" (prototype D: "As you drag to increase the size the slider will match the current size" / "after placing, the size slider should return to whatever size it was before your placement")',
+      'Over the point-down triangle the lit block stays the one triangle you pressed. Once the pointer reaches the next row down, a point-up triangle of 4 lights, and it grows point-up from there. From a point-down triangle, every big triangle is point-down.',
+    last: '"Ran into an issue on shaped blocks/triangles where dragging from a point-up triangle, past a point down triangle (row below) caused the orientation of the mulit-slot block to flip. the multi-slot block should stay the orientation of the block I started with as I expand. that means that there shouldn’t be a multi-slot block proposed until I’ve dragged down to the next row that has a point-up orientation"',
     to: '/',
   },
   {
-    id: 'TC-388',
-    group: G.span057,
-    text: 'Given Set block, when you drag across the quilt, then the block grows from the space you pressed, Block size follows, and it goes back once the block is placed.',
-    steps: [
-      'With Block size at 1U, press on a space and drag two spaces right and down; let go.',
-      'Set Block size to 2U, then drag from a space up and to the left.',
-      'On a phone or tablet, drag with one finger, and tap without dragging.',
-    ],
-    expect:
-      'While dragging, the lit block grows from the pressed space (it stays a corner) and the slider shows its size (3U for two spaces across). After letting go the block is placed and the slider is back where it was (1U, then 2U). A drag can make a block smaller than the slider. On touch, a drag grows the block and a tap places one at the slider’s size.',
-    last: '"ok, I like the way that feels.  let’s migrate that learning into the app" (prototype D: "As you drag to increase the size the slider will match the current size" / "after placing, the size slider should return to whatever size it was before your placement")',
-    to: '/',
-  },
-  {
-    id: 'TC-389',
-    group: G.span057,
-    text: 'Given blocks that fill several spaces, when you replace, split, erase, rotate, use Apply to All, undo, and change the layout, then each keeps to its rules.',
-    steps: [
-      'Set a 2U block over four placed blocks.',
-      'Set a 2U block again, then use Rotate, Flip and Paint on it.',
-      'Pick Split spanning block and tap it; then Undo.',
-      'With Block size at 1U and Apply to All, set another block.',
-      'In Layout, make the quilt smaller so a big block no longer fits; then save and reopen the project.',
-    ],
-    expect:
-      'The 2U block replaces the four. Rotate, Flip and Paint work on the big block as on any block. Split leaves the block in its first space only, the sashing inside comes back with its fabric, and Undo makes it big again. Apply to All changes every block but big ones stay big. A big block with no room left goes back to its first space. Reopened, everything is as it was.',
-    last: '"ok, I like the way that feels.  let’s migrate that learning into the app" (prototype D: "As you drag to increase the size the slider will match the current size" / "after placing, the size slider should return to whatever size it was before your placement")',
-    to: '/',
-  },
-  {
-    id: 'TC-391',
-    group: G.span057,
-    text: 'Given the app just opened, when you drag a block bigger with Set and let go, then Block size goes back to a number, never “NaNU”.',
-    steps: [
-      'Reload the page, open a block quilt, pick a block and drag across two spaces.',
-      'Let go and look at the Block size label.',
-    ],
-    expect: 'The label shows 1U again (or the size the slider had before the drag).',
-    last: '"the first time you load up there’s a nanU block size that shows up after placed a dragged block"',
-    to: '/',
-  },
-  {
-    id: 'TC-393',
-    group: G.span057,
-    text: 'Given a data quilt on the Data blocks tab, when you set a Block size or drag across spaces, then one data block fills them and holds one number.',
-    steps: [
-      'Open the Temperature quilts demo, “Highs and lows”, Design tab, Data blocks, with a week block picked.',
-      'Drag from Wk 1 one space right and down; let go.',
-      'Set Block size to 2U, point at the quilt, and tap a space; then Undo.',
-    ],
-    expect:
-      'The drag lights four spaces with the note “2U · 4 spaces”, and letting go places one big Wk 1 holding one week, with the slider back at 1U. The weeks that were on the covered spaces go back to the list. A tap at 2U places the highlighted week big.',
-    last: '"didn’t we already make data quilts work with this multi-U block?" / "it can only hold one week."',
-    to: '/',
-  },
-  {
-    id: 'TC-394',
-    group: G.span057,
-    text: 'Given a block that fills several spaces, when you tap it with Set (or the Data blocks brush) at any Block size, then the selected block replaces it at its size and Block size changes to that size.',
-    steps: [
-      {
-        case: 'Block quilt',
-        steps: [
-          'Place a 3U block.',
-          'Pick another block, set Block size to 1U, and point at the 3U block, then tap it.',
-          'Set Block size to 2U and tap the 3U block again.',
-        ],
-      },
-      {
-        case: 'Data quilt',
-        steps: [
-          'On “Highs and lows”, drag Wk 1 to 2U.',
-          'With Block size at 1U, pick another week block and tap the 2U Wk 1.',
-        ],
-      },
-    ],
-    expect:
-      'Pointing at the big block lights all of it. Each tap puts the selected block in its place at the same size, and Block size shows that size afterwards (3U, 2U) and stays there. In the data quilt the big block keeps its week and takes the new block.',
-    last: '"let’s update where if you place a block (regardless of slider size), on top of a multi-slot block, the slider changes to the size of the multi-slot block and replaces the multi-block with the currently selected block"',
-    to: '/',
-  },
-  {
-    id: 'TC-395',
-    group: G.span057,
-    text: 'Given a block that fills several spaces, when you point, tap or drag next to it at another size, then no block takes part of it; only a block in exactly its spaces goes there.',
-    steps: [
-      'Place a 2U block in the middle of a straight-set quilt.',
-      'Set Block size to 2U and point at the spaces just beside it and across its corner, then tap.',
-      'Set Block size to 3U and point and tap around it.',
-      'At 1U, drag from a space beside it across it, then drag from inside it.',
-    ],
-    expect:
-      'The lit block never covers part of the 2U one (nor holds it inside a 3U): it goes to the nearest spaces clear of it, or the tap says the size doesn’t fit. A drag stops short of the 2U block, and a drag inside it lights just that block.',
-    last: '"the only place the multi-slot block should be able to go when the slot size differs from the slider-selected size is in the multi-slot that’s already occupied"',
-    to: '/',
-  },
-  {
-    id: 'TC-396',
-    group: G.span057,
-    text: 'Given a block that fills several spaces, when you point at it with Set, then Block size shows its size, and goes back when you point away.',
-    steps: [
-      'Place a 2U block, with Block size back at 1U.',
-      'Point at the 2U block, also at the sashing crossing its middle; then point away.',
-      'Point at it again and tap; then point away.',
-    ],
-    expect:
-      'Pointing at any part of the 2U block lights it and Block size shows 2U. Pointing away puts it back to 1U. After the tap it stays at 2U.',
-    last: '"the u-slider should show the size of the multi-slot block when you’re hovering over one and might replace it"',
-    to: '/',
-  },
-  {
-    id: 'TC-397',
-    group: G.span057,
-    text: 'Given an On-Point quilt, when you set a 2U or 3U block at its edge, then it can take the half blocks and setting triangles there, start in one, and is cut off at the edge.',
-    steps: [
-      {
-        case: 'Setting triangles cut exact',
-        steps: [
-          'Open “Medallions on point” in the block quilts demo.',
-          'Set Block size to 2U and point at a setting triangle on the top edge, then tap.',
-          'Drag from a half block on a side edge two spaces inward.',
-        ],
-      },
-      {
-        case: 'Partial blocks',
-        steps: [
-          'In Layout, set the edge to partial blocks trimmed by the edge.',
-          'Place a 2U block from an edge half block, then print the quilt.',
-        ],
-      },
-    ],
-    expect:
-      'The lit block takes the edge pieces it covers and is cut off at the quilt’s edge, like the half blocks are. Placed, it draws trimmed at the edge, and printing shows its pieces cut there. Blocks never run past the edge where there are no spaces.',
-    last: '"yeah, the first space should be allowed to sit in a trimmed space."',
-    to: '/',
-  },
-  {
-    id: 'TC-398',
-    group: G.span057,
-    text: 'Given Set block with a block picked, when you point at placed blocks at 1U and at 2U, then the placed blocks stay and the picked block shows see-through over them.',
-    steps: [
-      'In “Medallions on point”, pick a block different from the ones placed.',
-      'At 1U, point at a placed block; then at 2U, point at four placed blocks; then drag.',
-      'Place a 2U block and point at it with another block picked.',
-    ],
-    expect:
-      'Every time, the blocks there stay drawn and the picked block shows over them see-through, at the size it would be placed, with the glowing outline. Nothing goes blank.',
-    last: '"when you hover over an already-placed block, we have divergent behavior. a 1u block shows the old block. a multi-u block goes blank. let’s set both to behave the same: continue to show the old block and then show a ghost of the new block over the old one"',
-    to: '/',
-  },
-  {
-    id: 'TC-399',
-    group: G.span057,
-    text: 'Given a Diamond Point quilt, when you print it, then each block page shows its block as a 60° diamond at the diamond’s finished size, lettered like its templates.',
-    steps: [
-      'Open “Diamonds with sashing” in the block quilts demo, then the Print tab with Block pages and Templates.',
-      'Look at a block page and its template pages.',
-    ],
-    expect:
-      'The block picture is a 60° diamond standing on its point, “Finished size 6″ × 10.392″”, and its letters match the template pages’ letters.',
-    last: '"in the diamond point block quilt, the block print previews are showing squares and not 60-degree diamonds"',
-    to: '/',
-  },
-  {
-    id: 'TC-400',
+    id: 'TC-402',
     group: G.ui0100,
-    text: 'Given a phone-width window, when you tap the icon at the top left, then it goes to that page, and tapping the name beside it opens the menu.',
+    text: 'Given the block editor on a phone, when you pick Delete seams and tap a seam, then that seam is taken out.',
     steps: [
-      'On a phone (or a narrow window), open a quilt from a project.',
-      'Tap the name “Project” with its arrow; close the menu.',
-      'Tap the Project icon to its left.',
+      'Open one of your own blocks (or make one) in the block editor, Draw tab.',
+      'Pick Delete seams (the backspace icon in the tool rail) and tap a seam; then Undo.',
+      'With a mouse, point at seams with Delete seams on.',
     ],
     expect:
-      'The name and arrow open the menu of pages (RRQuilts, Project, Libraries, Help, Tests). The icon goes straight to the project page.',
-    last: '"in the mobile view … clicking the icon will return you to whatever that icon corresponds to (project page, home, etc) and clickign the label or chevron icon will open the menu"',
-    to: '/',
-  },
-  {
-    id: 'TC-392',
-    group: G.span057,
-    text: 'Given a quilt with the same block at 1U and at 2U, when you print it, then each size has its own block page and templates, and cutting and yardage count the 2U at its big size.',
-    steps: [
-      'In a quilt, set a block at 2U and the same block at 1U somewhere else.',
-      'Open the Print tab with Block pages, Templates, Rotary cutting and Yardage.',
-      'Look at the Layout gallery’s Spanning blocks section (Tests tab, G034 to G037).',
-    ],
-    expect:
-      'Two block pages for that block: one at the 1U finished size counting the 1U blocks, one at the 2U size (twice the block plus the sashing inside) counting the 2U ones, each with its own templates and key letters. The rotary chart and yardage include the 2U pieces at their size. The gallery quilts look as each card says.',
-    last: '"please check that" (printing)',
+      'The tapped seam is gone and the patches beside it join; Undo brings it back. With a mouse, the seam under the pointer lights up before you click. Library blocks can’t be changed this way, as with the other drawing tools.',
+    last: '"we should add a delete tool to the block editor so that edges can be deleted from blocks while on mobile"',
     to: '/',
   },
 ];
