@@ -31,6 +31,14 @@ export function useSpanSet(o: {
   const lit = ref<Span | null>(null);
   let drag: { from: string; k: number } | null = null;
 
+  /** A span a block can go in: none of the quilt's spanning blocks inside it, unless it's exactly
+   *  that block's spaces (owner, 2026-11-28: a block of another size goes only in the spanning
+   *  block already there). */
+  function free(sp: Span): boolean {
+    return !(o.generated().spans ?? []).some(
+      (x) => !(x.at === sp.at && x.k === sp.k) && x.cells.some((c) => sp.cells.includes(c)),
+    );
+  }
   /** The spanning block already on the quilt under p, if any. */
   function placed(p: World): Span | null {
     const cell = cellAt(ix.value, p);
@@ -42,7 +50,7 @@ export function useSpanSet(o: {
     const on = placed(p);
     if (on) return on;
     const cell = cellAt(ix.value, p);
-    return cell ? spanNear(ix.value, cell, size.value, p) : null;
+    return cell ? spanNear(ix.value, cell, size.value, p, free) : null;
   }
   /** `near` for a tap: on a spanning block the slider takes its size (owner, 2026-11-28). */
   function tap(p: World): Span | null {
@@ -61,12 +69,12 @@ export function useSpanSet(o: {
         const cell = cellAt(ix.value, p);
         if (!cell) return false;
         drag = { from: cell, k: size.value };
-        lit.value = spanNear(ix.value, cell, 1, p);
+        lit.value = placed(p) ?? spanNear(ix.value, cell, 1, p);
         return true;
       },
       drag(p) {
         const cell = drag && cellAt(ix.value, p);
-        const sp = cell && spanGrow(ix.value, drag!.from, cell, maxK.value);
+        const sp = cell && spanGrow(ix.value, drag!.from, cell, maxK.value, free);
         if (!sp) return;
         lit.value = sp;
         editor.spanSize = sp.k;

@@ -111,4 +111,20 @@ describe('spanning blocks (spec 057)', () => {
     expect(up.k).toBe(3);
     expect(up.at).toBe('b:r2c2');
   });
+
+  it('keeps clear of a spanning block already placed, but for its own spaces', () => {
+    const ix = spanIndex(slotsOf(straight(6, 6)));
+    const there = spanOf(ix, ix.byId.get('b:r3c3')!, 2)!;
+    const free = (s: { at: string; k: number; cells: string[] }) =>
+      (s.at === there.at && s.k === there.k) || !s.cells.some((c) => there.cells.includes(c));
+    // On r2c2's lower right the nearest 2U (from r2c2) would run into it: one clear of it instead.
+    expect(spanNear(ix, 'b:r2c2', 2, [17, 17])!.at).toBe('b:r2c2');
+    const near = spanNear(ix, 'b:r2c2', 2, [17, 17], free)!;
+    expect(near.at).not.toBe('b:r2c2');
+    expect(free(near)).toBe(true);
+    // A drag from r2c2 to r3c3 can't take part of it, nor all of it in a 3U.
+    expect(spanGrow(ix, 'b:r2c2', 'b:r3c3', 6, free)).toBeNull();
+    // Inside it, a drag finds only it.
+    expect(spanGrow(ix, 'b:r3c3', 'b:r4c4', 6, free)).toMatchObject({ at: 'b:r3c3', k: 2 });
+  });
 });

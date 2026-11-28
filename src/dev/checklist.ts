@@ -224,6 +224,21 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
+    id: 'TC-395',
+    group: G.span057,
+    text: 'Given a block that fills several spaces, when you point, tap or drag next to it at another size, then no block takes part of it; only a block in exactly its spaces goes there.',
+    steps: [
+      'Place a 2U block in the middle of a straight-set quilt.',
+      'Set Block size to 2U and point at the spaces just beside it and across its corner, then tap.',
+      'Set Block size to 3U and point and tap around it.',
+      'At 1U, drag from a space beside it across it, then drag from inside it.',
+    ],
+    expect:
+      'The lit block never covers part of the 2U one (nor holds it inside a 3U): it goes to the nearest spaces clear of it, or the tap says the size doesn’t fit. A drag stops short of the 2U block, and a drag inside it lights just that block.',
+    last: '"the only place the multi-slot block should be able to go when the slot size differs from the slider-selected size is in the multi-slot that’s already occupied"',
+    to: '/',
+  },
+  {
     id: 'TC-392',
     group: G.span057,
     text: 'Given a quilt with the same block at 1U and at 2U, when you print it, then each size has its own block page and templates, and cutting and yardage count the 2U at its big size.',

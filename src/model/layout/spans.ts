@@ -202,9 +202,15 @@ export function spansOver(ix: SpanIndex, cell: string, k: number): Span[] {
   return out;
 }
 
-/** The kU span nearest a point on block space `cell`, among those covering it. */
-export function spanNear(ix: SpanIndex, cell: string, k: number, p?: Pt): Span | null {
-  const all = spansOver(ix, cell, k);
+/** The kU span nearest a point on block space `cell`, among those covering it (that pass `ok`). */
+export function spanNear(
+  ix: SpanIndex,
+  cell: string,
+  k: number,
+  p?: Pt,
+  ok: (s: Span) => boolean = () => true,
+): Span | null {
+  const all = spansOver(ix, cell, k).filter(ok);
   const to = p ?? ix.mids.get(cell)!;
   const d = (s: Span) => {
     const m = mid(corners(s.slot)!);
@@ -213,13 +219,19 @@ export function spanNear(ix: SpanIndex, cell: string, k: number, p?: Pt): Span |
   return all.reduce<Span | null>((best, s) => (!best || d(s) < d(best) ? s : best), null);
 }
 
-/** A drag from space `from` to `to`: the smallest span holding both, `from` nearest its corner
- *  (the space pressed stays a corner as the block grows). */
-export function spanGrow(ix: SpanIndex, from: string, to: string, maxK = MAX_SPAN): Span | null {
+/** A drag from space `from` to `to`: the smallest span holding both (that passes `ok`), `from`
+ *  nearest its corner (the space pressed stays a corner as the block grows). */
+export function spanGrow(
+  ix: SpanIndex,
+  from: string,
+  to: string,
+  maxK = MAX_SPAN,
+  ok: (s: Span) => boolean = () => true,
+): Span | null {
   const start = ix.mids.get(from);
   if (!start) return null;
   for (let k = 1; k <= maxK; k++) {
-    const fit = spansOver(ix, from, k).filter((s) => s.cells.includes(to));
+    const fit = spansOver(ix, from, k).filter((s) => s.cells.includes(to) && ok(s));
     if (!fit.length) continue;
     const corner = (s: Span) =>
       Math.min(...corners(s.slot)!.map((v) => Math.hypot(v[0] - start[0], v[1] - start[1])));

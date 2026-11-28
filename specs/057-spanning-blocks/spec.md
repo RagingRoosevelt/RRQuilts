@@ -80,8 +80,7 @@ the drag and is back at 1U.
 2. **Given** a drag with Set block, **Then** the block grows from the space pressed (it stays a
    corner) to the smallest span holding the space under the pointer; the slider follows the size;
    release places it and the slider goes back to its size from before the drag.
-3. **Given** a span over placed blocks, **Then** they are replaced (a spanning block overlapping it
-   goes whole); the line under the quilt says how many it replaces. Sashing inside keeps its fabric,
+3. **Given** a span over placed 1U blocks, **Then** they are replaced; the line under the quilt says how many it replaces. Sashing inside keeps its fabric,
    hidden, for when the block is split.
 4. **Given** a spanning block, **Then** **Split spanning block** (a tool shown where blocks can span)
    leaves the block in its first space only; the others are empty. Undo works throughout.
@@ -89,7 +88,12 @@ the drag and is back at 1U.
    (All, Alternate) works at 1U only; Set with All or Alternate keeps spanning blocks their size.
 6. **Given** a tap on a spanning block with Set (or the data brush), at any Block size, **Then** the
    selected block replaces it at its size and the slider changes to that size and stays there;
-   pointing at it lights the whole block. Making it smaller or bigger is a drag, or Split.
+   pointing at it lights the whole block. Making it smaller or bigger is Split, then a new block.
+7. **Given** a spanning block on the quilt, **Then** no other span may take part of it or hold it
+   (pointing, tapping and dragging skip such spans; a tap with none left says the size doesn't fit
+   there). Only a block in exactly its spaces goes there (owner, 2026-11-28: "the only place the
+   multi-slot block should be able to go when the slot size differs from the slider-selected size
+   is in the multi-slot that's already occupied").
 
 ### User Story 2 - Layout changes keep merges (Priority: P1)
 
