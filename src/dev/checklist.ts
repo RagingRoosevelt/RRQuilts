@@ -116,6 +116,33 @@ export const CHECKS: Check[] = [
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
   },
+  {
+    id: 'TC-386',
+    group: G.small,
+    text: 'Given a block printout with templates, when you look at a template’s size, then it says Finished size and, right under it, Cut size.',
+    steps: [
+      {
+        case: 'Size printed on the template',
+        steps: [
+          'Open a quilt or block with squares, rectangles and triangles, and open its Print tab.',
+          'Turn on Templates and check Size under the labels on the template.',
+          'Look at a square, a half-square triangle, and a template off the ruler grid.',
+        ],
+      },
+      {
+        case: 'Size printed under the template',
+        steps: ['Uncheck Size, so it prints under each template.'],
+      },
+      {
+        case: 'No seam allowance',
+        steps: ['Turn Seam allowance off.'],
+      },
+    ],
+    expect:
+      'Each template shows “Finished size …” with “Cut size …” right under it, as the cutting table gives it (a 3″ square: Cut size 3½″ squares; a half-square triangle with 3″ legs: Cut size 3⅞″ squares). Ruler fractions (~ …) stay under the size they belong to. Under the template, the cut size is on its own line under the finished size. With Seam allowance off, only the finished size shows.',
+    last: '"in the printout, when stating the cut sizes in each of the block templates, we currently show the finished size. we should label it as such and then also show the cut size right below it, also labeled,"',
+    to: '/',
+  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */

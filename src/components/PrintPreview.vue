@@ -1391,6 +1391,9 @@ function templateItems(
           ? ` · ${days.get(`${t.letter}|${fills[0]}`)!.join(', ')}`
           : ''),
       size: finishedLabel(cutFor({ poly: t.poly, curved: t.curved, fill: '', marks: [] }, 0, 0)),
+      cutSize: seamAllowance
+        ? cutLabel(cutFor({ poly: t.poly, curved: t.curved, fill: '', marks: [] }, sa, step.value))
+        : undefined,
       tint: fills.length === 1 && fills[0] !== 'none' ? fillInfo(fills[0]!).css : undefined,
       marks: t.marks.map((m) => ({ p: shift(turnVec(m.p)), n: turnVec(m.n) })),
       fabrics: fills

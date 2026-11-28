@@ -62,7 +62,7 @@ describe('template labels', () => {
 
   it('lie in a row on long low pieces: letter left, size middle, count right', () => {
     const l = labels(piece(4, 0.5));
-    expect(l.map((x) => x.text)).toEqual(['A', 'Finished 4″ × 0.5″', 'Cut 24']);
+    expect(l.map((x) => x.text)).toEqual(['A', 'Finished size 4″ × 0.5″', 'Cut 24']);
     expect(l.map((x) => x.anchor)).toEqual(['start', 'middle', 'end']);
     expect(l[0]!.x).toBeLessThan(l[1]!.x);
     expect(l[1]!.x).toBeLessThan(l[2]!.x);
@@ -76,7 +76,7 @@ describe('template labels', () => {
     const l = labels({ ...piece(4, 0.5), size: '3.333″ (~ 3 5/16″) × 0.5″' });
     expect(l.map((x) => x.text)).toEqual([
       'A',
-      'Finished 3.333″ × 0.5″',
+      'Finished size 3.333″ × 0.5″',
       '(~ 3 5/16″ × 0.5″)',
       'Cut 24',
     ]);
@@ -84,6 +84,27 @@ describe('template labels', () => {
     expect(l[2]!.y).toBeGreaterThan(l[1]!.y);
     const stacked = labels({ ...piece(4, 4), size: '3.333″ (~ 3 5/16″) × 4″' });
     expect(stacked[2]!.text).toBe('(~ 3 5/16″ × 4″)');
+    expect(stacked[2]!.y).toBeGreaterThan(stacked[1]!.y);
+  });
+
+  it('show the cut size, labelled, right under the finished size', () => {
+    const cut = { cutSize: '4.5″ × 1″' };
+    const l = labels({ ...piece(4, 0.5), ...cut });
+    expect(l.map((x) => x.text)).toEqual([
+      'A',
+      'Finished size 4″ × 0.5″',
+      'Cut size 4.5″ × 1″',
+      'Cut 24',
+    ]);
+    expect(l[1]!.x).toBe(l[2]!.x);
+    expect(l[2]!.y).toBeGreaterThan(l[1]!.y);
+    const stacked = labels({ ...piece(4, 4), ...cut });
+    expect(stacked.map((x) => x.text)).toEqual([
+      'A',
+      'Finished size 4″ × 4″',
+      'Cut size 4.5″ × 1″',
+      'Cut 24',
+    ]);
     expect(stacked[2]!.y).toBeGreaterThan(stacked[1]!.y);
   });
 
