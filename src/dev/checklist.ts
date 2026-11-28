@@ -136,7 +136,7 @@ export const CHECKS: Check[] = [
     text: 'Given the block editor on a phone, when you pick Delete seams and tap a seam, then that seam is taken out.',
     steps: [
       'Open one of your own blocks (or make one) in the block editor, Draw tab.',
-      'Pick Delete seams (the backspace icon in the tool rail) and tap a seam; then Undo.',
+      'Pick Delete seams (the eraser in the tool rail) and tap a seam; then Undo.',
       'With a mouse, point at seams with Delete seams on.',
     ],
     expect:

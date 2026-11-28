@@ -333,6 +333,7 @@ import { useEditorStore, type BlockTool } from '@/stores/editor';
 import { useLibraryStore } from '@/stores/library';
 import { useProjectStore } from '@/stores/project';
 import { useSettingsStore } from '@/stores/settings';
+import { ERASER } from '@/components/icons';
 
 const $q = useQuasar();
 const appSettings = useSettingsStore();
@@ -509,7 +510,7 @@ const DRAW_TOOLS: { id: BlockTool; icon: string; label: string }[] = [
   { id: 'arc', icon: 'architecture', label: 'Arc' },
   { id: 'grid', icon: 'grid_4x4', label: 'Grid' },
   // Tap a seam to take it out: no keyboard needed, for phones (owner, 2026-11-28).
-  { id: 'delete', icon: 'backspace', label: 'Delete seams' },
+  { id: 'delete', icon: ERASER, label: 'Delete seams' },
   { id: 'pan', icon: 'pan_tool', label: 'Pan' },
 ];
 const COLOR_TOOLS: { id: BlockTool; icon: string; label: string }[] = [
