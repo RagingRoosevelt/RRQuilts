@@ -142,6 +142,34 @@ describe('rotary cutting', () => {
     expect(border.filter((p) => cutFor(p, 0.25, 0.125).kind === 'miter')).toHaveLength(4);
   });
 
+  it('prints a spanning block at its spanned size (spec 057)', () => {
+    const doc = structuredClone(fixture());
+    doc.project.blocks.push(structuredClone(star()));
+    const q = doc.project.quilts[0]!;
+    q.layout = {
+      style: 'straight-set',
+      cols: 4,
+      rows: 4,
+      block: [9, 9],
+      sash: [0, 0],
+      sashBorder: false,
+    };
+    q.borders = [];
+    const set = {
+      block: star().id,
+      coloring: star().colorings[0]!.id,
+      rotation: 0 as const,
+      flip: false,
+    };
+    q.layers[0].slots = { 'b:r1c1': { ...set, span: 2 }, 'b:r4c4': set };
+    const pieces = quiltPieces(doc, q);
+    const sum = (ps: Piece[]) => ps.reduce((t, p) => t + area(p.poly), 0);
+    // A 2U Ohio Star (18″) and a 1U one (9″), nothing for the spaces the 2U covers.
+    expect(pieces).toHaveLength(2 * blockPieces(star(), [9, 9]).length);
+    expect(sum(pieces)).toBeCloseTo(18 * 18 + 9 * 9);
+    expect(templates(pieces).length).toBe(2 * templates(blockPieces(star(), [9, 9])).length);
+  });
+
   it('Ohio Star: 4 squares + center, 8 QSTs; strips across the fabric', () => {
     const lines = cutPlan(blockPieces(star(), [9, 9], star().colorings[0]), 0.25, 0.125, 40);
     const kinds = lines.map((l) => `${l.cut.kind}:${l.count}`).sort();

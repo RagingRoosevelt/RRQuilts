@@ -29,12 +29,13 @@ export async function saveQuiltImage(
   await fabricsReady(doc);
   // A fresh object, so the thumbnail cache draws it anew (with the images now loaded).
   const url = quiltThumbnail(doc, { ...quilt }, 2048, false, withTarget, false, outlines);
-  // With colorways, the one shown is named too: "<quilt> - <colorway>.png" (owner, 2026-11-25).
-  const name = quilt.colorways?.length
-    ? `${quilt.notecard.name} - ${shownName(quilt)}`
-    : quilt.notecard.name;
-  await exportFile(name, await pngBytes(url), 'png');
+  await exportFile(quiltImageName(quilt), await pngBytes(url), 'png');
 }
+
+/** A quilt picture's name: with colorways, the one shown too, "<quilt> - <colorway>" (owner,
+ *  2026-11-25). The picture check names its pictures the same way. */
+export const quiltImageName = (quilt: Quilt) =>
+  quilt.colorways?.length ? `${quilt.notecard.name} - ${shownName(quilt)}` : quilt.notecard.name;
 
 export async function saveBlockImage(
   doc: RrqDoc,

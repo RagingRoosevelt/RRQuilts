@@ -39,6 +39,9 @@ import { backupDoc, packDoc, parseLibrary, restore, serializeLibrary } from '@/m
 import { isLibraryItem, syncDraft, type LibraryLookup } from '@/model/library-items';
 import { createProject } from '@/model/new-project';
 import { PLAIN_BLOCK } from '@/model/plain';
+import { generateFor, spanSpaces } from '@/model/layout/slots';
+import { takeBack } from '@/model/data-quilt';
+import { spanIndex, spanOf } from '@/model/layout/spans';
 import { blockPieces, quiltPieces } from '@/model/print/pieces';
 import type { Block } from '@/model/schema/block';
 import type { Fill } from '@/model/schema/coloring';
@@ -107,7 +110,8 @@ async function ownFabric(): Promise<Fabric> {
 /**
  * Where the project has room for them: colorways in every mode (one following another, an auto
  * mapping, a re-color) on the first plain block quilt, a Manual cut with an aspect ratio on EPP
- * quilts, and rosette colorings that follow another; the own fabric used in each.
+ * quilts, rosette colorings that follow another, and spanning blocks (inside a quilt, at an
+ * On-Point edge, and a data block); the own fabric used in each.
  */
 function withV13(doc0: RrqDoc, fabric: Fabric): RrqDoc {
   const doc = structuredClone(doc0);
@@ -145,6 +149,52 @@ function withV13(doc0: RrqDoc, fabric: Fabric): RrqDoc {
     }
     return { ...v, shownColorway: 'cwfollow' };
   });
+  // v14 (spec 057): a block spanning 2 × 2 spaces in the first quilt with room for one.
+  for (const q of p.quilts) {
+    if (q.data?.on) continue;
+    const ix = spanIndex(generateFor(q).slots);
+    const sp = Object.keys(q.layers[0].slots)
+      .map((id) => ix.byId.get(id))
+      .map((at) => at && spanOf(ix, at, 2))
+      .find((x) => x);
+    if (!sp) continue;
+    for (const id of sp.covers) if (id !== sp.at) delete q.layers[0].slots[id];
+    q.layers[0].slots[sp.at]!.span = 2;
+    break;
+  }
+  // …one at the quilt's edge: On-Point setting triangles taken in (held, then cut to the edge)…
+  for (const q of p.quilts) {
+    if (q.data?.on || q.layout.style !== 'on-point' || q.layout.edge.finish !== 'exact') continue;
+    const content = Object.values(q.layers[0].slots).find(
+      (c) => c.block !== PLAIN_BLOCK && !c.span,
+    );
+    const ix = spanIndex(spanSpaces(q), generateFor(q).center);
+    const taken = new Set((generateFor(q).spans ?? []).flatMap((x) => x.covers));
+    const sp = ix.slots
+      .filter((s) => s.id.startsWith('set:'))
+      .map((s) => spanOf(ix, s, 2))
+      .find((x) => x && !x.covers.some((id) => taken.has(id)));
+    if (!sp || !content) continue;
+    for (const id of sp.covers) delete q.layers[0].slots[id];
+    q.layers[0].slots[sp.at] = { ...content, span: 2 };
+    break;
+  }
+  // …and a data block over 2 × 2 spaces, holding one number: the others give theirs back.
+  for (const q of p.quilts) {
+    const plan = q.data;
+    if (!plan?.on) continue;
+    const ix = spanIndex(generateFor(q).slots, generateFor(q).center);
+    const sp = plan.places
+      .map((x) => ix.byId.get(x.space))
+      .map((at) => at && spanOf(ix, at, 2))
+      .find((x) => x);
+    if (!sp) continue;
+    const others = sp.cells.filter((id) => id !== sp.at);
+    q.data = others.reduce((pl, id) => takeBack(pl, id), plan);
+    for (const id of others) delete q.layers[0].slots[id];
+    q.layers[0].slots[sp.at]!.span = 2;
+    break;
+  }
   if (p.rosettes)
     p.rosettes = p.rosettes.map((r) => {
       const base = r.colorings[0];
@@ -273,7 +323,7 @@ async function expectImages(doc: RrqDoc) {
     expect(await getImage(f.image.sha256), `${f.notecard.name}'s image`).toBeDefined();
 }
 
-it('the projects carry what rrq v13 added', async () => {
+it('the projects carry what rrq v13 and v14 added', async () => {
   const docs = await Promise.all(SOURCES.map(source));
   const quilts = docs.flatMap((d) => d.project.quilts);
   const colorways = quilts.flatMap((q) => q.colorways ?? []);
@@ -285,6 +335,17 @@ it('the projects carry what rrq v13 added', async () => {
   const colorings = docs.flatMap((d) => d.project.rosettes ?? []).flatMap((r) => r.colorings);
   expect(colorings.some((c) => c.source && c.auto)).toBe(true);
   expect(colorings.some((c) => c.source && c.swaps?.length)).toBe(true);
+  // v14 (spec 057): spanning blocks, merged into their quilts' spaces: inside a quilt, at an
+  // On-Point edge over setting triangles, and a data block.
+  const spanned = quilts.filter((q) => Object.values(q.layers[0].slots).some((c) => c.span));
+  expect(spanned.length).toBeGreaterThan(0);
+  const stored = (q: Quilt) => Object.values(q.layers[0].slots).filter((c) => c.span).length;
+  expect(spanned.every((q) => generateFor(q).spans?.length === stored(q))).toBe(true);
+  const spans = spanned.flatMap((q) => generateFor(q).spans!.map((x) => ({ q, x })));
+  expect(spans.some(({ x }) => x.at.startsWith('set:'))).toBe(true);
+  expect(
+    spans.some(({ q, x }) => q.data?.on && q.data.places.some((pl) => pl.space === x.at)),
+  ).toBe(true);
 });
 
 describe.each(SOURCES)('export and import: %s', (path) => {

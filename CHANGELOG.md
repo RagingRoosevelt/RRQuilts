@@ -2,6 +2,33 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.9.3 (2026-11-26)
+
+### New features
+
+- Re-color colorways, painted piece by piece apart from the primary.
+- Colorways that follow another colorway.
+- Point at a color to see every piece that uses it.
+- [major] Palette swaps for rosette colorings, with Palette, Auto map and Re-color.
+- A Find tool in English paper piecing quilts.
+- [major] Size an English paper piecing quilt's cut by hand, with aspect ratios and snapping.
+- Search blocks by name in a quilt's Design tab.
+- Drag colorways and rosette colorings into order.
+- Saved quilt pictures are named after the colorway shown.
+- The Layout tab shows the quilt's finished size.
+- [major] New projects start with every built-in palette.
+- Older projects, libraries, and English paper piecing files open and are upgraded. Files saved with
+  this version need 0.9.3 or later to open.
+
+### Fixes
+
+- [major] Auto map works in English paper piecing quilts.
+- The largest rectangle cut is found in a moment, and no longer crosses narrow gaps.
+- English paper piecing files keep their fabric photos.
+- Rosettes added to My library keep their own colors and fabrics.
+- The Crab Claws block's corner triangle faces the right way.
+- Long color names no longer widen the sidebar.
+
 ## 0.9.2 (2026-11-24)
 
 ### New features

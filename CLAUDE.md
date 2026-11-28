@@ -165,7 +165,10 @@ Framework-free (lint forbids Vue/Quasar/stores imports) — pure functions over 
   delete/swap/set, square fixes); `slots.ts` `Slot` has kind/shape/turns/
   alt/size/cut, `Generated` has edge/trim; `reconcile`/`applyLayout`/`convertLayout` on changes. Add
   a style = a preset + its id grammar in `specs/003-project-format/contracts/slot-ids.md`; test-only
-  presets (`__tests__/model/layout-presets.ts`) prove the planned ones. `even-edge.ts` +
+  presets (`__tests__/model/layout-presets.ts`) prove the planned ones. `spans.ts` = spanning blocks (spec
+  057, rrq v14 `SlotContent.span`: a block over k × k spaces, stored on its first space;
+  `generateFor` merges them, `Generated.spans`/`unspanned`; spans may take trimmed edge spaces and, On-Point cut exact, setting pieces, which they then hold: `spanSpaces`); Set's Block size and drag-to-grow in
+  `composables/span-set.ts` (a QuiltCanvas overlay), `setSpan` in `editor/actions.ts`, tool `split`. `even-edge.ts` +
   `components/EvenEdge.vue` = Even edge length (block quilts' Layout tab, under the block size): a
   placed block's patch edges at their real length, `scaleBlockSize`
 - `colorways.ts` — quilt colorways (palette swaps of the primary colorway, the quilt's own colors:

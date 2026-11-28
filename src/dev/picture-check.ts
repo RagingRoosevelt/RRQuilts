@@ -3,6 +3,7 @@
 // Save image, at the same size, so only real drawing changes show.
 import { parseProject } from '@/model/io';
 import type { Color } from '@/model/schema/palette';
+import { quiltImageName } from '@/render/save-image';
 import { blockThumbnail, quiltThumbnail } from '@/render/thumbnail';
 
 const demos = import.meta.glob<string>('/test/fixtures/formats/demo-v*.rrq', {
@@ -101,7 +102,7 @@ export async function* pictureCheck(libraryColors: readonly Color[]): AsyncGener
     // Save image's pictures: quilts at 2048, blocks at 1024 in their first coloring.
     const now = new Map<string, () => string>();
     for (const q of doc.project.quilts)
-      now.set(q.notecard.name, () => quiltThumbnail(doc, { ...q }, 2048, false));
+      now.set(quiltImageName(q), () => quiltThumbnail(doc, { ...q }, 2048, false));
     for (const b of doc.project.blocks)
       if (b.id !== 'plain')
         now.set(b.notecard.name, () =>

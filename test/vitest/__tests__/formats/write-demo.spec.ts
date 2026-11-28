@@ -68,6 +68,9 @@ const ADDED: Record<number, Add[]> = {
   // v12 (specs 027, 050): EPP quilts, 3D EPP and rosettes as blocks, built by epp-v12.ts (they
   // need pieces, not Set and Paint).
   12: [],
+  // v13 (0.9.3) added colorway modes, a Manual cut and followed rosette colorings, no layouts:
+  // built by v13.ts.
+  13: [],
   10: [
     {
       name: 'Data Weeks, Two Values',
@@ -114,6 +117,8 @@ it.skipIf(!dir)('write the demo project', async () => {
   if ((VERSION as number) === 11) doc = madeMarks(doc);
   // Loaded only here: older releases' code (which this file also runs on) has no EPP.
   if ((VERSION as number) === 12) doc = (await import('./epp-v12')).addEppV12(doc);
+  // v13 (0.9.3): colorways in every mode, an EPP quilt cut by hand, followed rosette colorings.
+  if ((VERSION as number) === 13) doc = (await import('./v13')).addV13(doc, kit);
   writeFileSync(`${dir}/demo-v${VERSION}.rrq`, serializeProject(doc));
 });
 

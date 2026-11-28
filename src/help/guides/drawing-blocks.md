@@ -63,6 +63,8 @@ On them, **Aligned to nearest neighbors** follows the grid's three directions in
    dashed guides that snap), **Rotate**, **Flip**, **Scale**, and **Add nodes** (**Midpoint**,
    **Thirds**, **Equal parts**, **At crossings**). Rotate, flip, and scale work around the **Block center** or **Selection center**.
 4. The Delete key removes selected seams. Escape clears the selection. Undo with Ctrl+Z.
+5. **Delete seams** takes out the seam you tap, with no keyboard needed. With a mouse, the seam
+   under the pointer lights up first.
 
 ## Then color it
 

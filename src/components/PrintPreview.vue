@@ -1391,6 +1391,9 @@ function templateItems(
           ? ` · ${days.get(`${t.letter}|${fills[0]}`)!.join(', ')}`
           : ''),
       size: finishedLabel(cutFor({ poly: t.poly, curved: t.curved, fill: '', marks: [] }, 0, 0)),
+      cutSize: seamAllowance
+        ? cutLabel(cutFor({ poly: t.poly, curved: t.curved, fill: '', marks: [] }, sa, step.value))
+        : undefined,
       tint: fills.length === 1 && fills[0] !== 'none' ? fillInfo(fills[0]!).css : undefined,
       marks: t.marks.map((m) => ({ p: shift(turnVec(m.p)), n: turnVec(m.n) })),
       fabrics: fills
@@ -1629,8 +1632,8 @@ const logical = computed<Sheet[]>(() => {
             u.block,
             u.size,
             blockPieces(u.block, u.size, u.coloring),
-            quiltPieces(doc.value!, u.quilt, u.block.id),
-            count(u.quilt, u.block.id),
+            quiltPieces(doc.value!, u.quilt, u.block.id, u.slots),
+            u.slots.length,
             undefined,
             u.number,
           ),
@@ -1732,7 +1735,7 @@ const logical = computed<Sheet[]>(() => {
       for (const u of quiltBlocks()) {
         out.push(
           ...templateSheets({
-            pieces: quiltPieces(doc.value!, u.quilt, u.block.id),
+            pieces: quiltPieces(doc.value!, u.quilt, u.block.id, u.slots),
             size: u.size,
             keyPieces: blockPieces(u.block, u.size, u.coloring),
             heading: `Templates: ${u.number} · ${u.block.notecard.name}`,
@@ -1887,19 +1890,30 @@ function keyLabels(keyPieces: Piece[], prefix: string) {
   });
 }
 
-/** Blocks placed in the quilt being printed, in layout order: size and coloring of the first. */
+/** Blocks placed in the quilt being printed, in layout order: size and coloring of the first. A
+ *  block set at more than one span size (spec 057: 1U and 2U) is listed once per size, each with
+ *  its own spaces (`slots`), so pages, counts, templates and keys follow the size. */
 function quiltBlocks() {
   const dd = doc.value!;
   const quilt = dd.project.quilts.find((q) => q.id === props.id);
   if (!quilt) return [];
+  const g = generateFor(quilt);
+  const all = g.slots;
+  // The span placed (an overlapped one is left out, so its space is 1U), not the one stored.
+  const k = new Map(g.spans?.map((sp) => [sp.at, sp.k]));
+  const keyOf = (id: string) => {
+    const c = quilt.layers[0].slots[id];
+    return c && `${c.block}|${k.get(id) ?? 1}`;
+  };
   const seen = new Set<string>();
-  return generateFor(quilt).slots.flatMap((slot) => {
+  return all.flatMap((slot) => {
     const content = quilt.layers[0].slots[slot.id];
     const block = content && dd.project.blocks.find((b) => b.id === content.block);
     // Hidden blocks stay out, but a data block's variants (Month Strip (30 days)) print.
     const hidden = block?.notecard.tags?.includes('system') && !block.data?.of;
-    if (!content || !block || seen.has(block.id) || hidden) return [];
-    seen.add(block.id);
+    const key = keyOf(slot.id)!;
+    if (!content || !block || seen.has(key) || hidden) return [];
+    seen.add(key);
     const size = slot.size;
     return [
       {
@@ -1908,6 +1922,7 @@ function quiltBlocks() {
         size,
         coloring: slotColoring(quilt, slot.id, block),
         number: seen.size,
+        slots: all.filter((s) => keyOf(s.id) === key),
       },
     ];
   });

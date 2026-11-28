@@ -44,6 +44,9 @@ export interface DrawOptions {
   target?: boolean;
   /** An EPP quilt's Cut to size being sized: the pieces it cuts away drawn faded, not left out. */
   cutFade?: boolean;
+  /** Draw the spaces see-through at this opacity (a block about to be set, over the old one,
+   *  which is first washed out so the new one reads). */
+  ghost?: number;
 }
 
 const slotPaths = new WeakMap<Slot, Path2D>();
@@ -169,11 +172,18 @@ export function drawQuilt(
     ctx.setTransform(...base);
     drawEppPieces(ctx, doc, quilt, fillOf, px, o, true);
   }
+  ctx.globalAlpha = o.ghost ?? 1;
   for (const slot of generated.slots) {
     ctx.setTransform(...base);
     const content = quilt.layers[0].slots[slot.id];
     const block: Block | undefined = content && blocks.get(content.block);
     const outline = slotPath(slot);
+    if (o.ghost !== undefined) {
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = paled(o.dark);
+      ctx.fill(outline);
+      ctx.globalAlpha = o.ghost;
+    }
     if (!content || !block) {
       ctx.fillStyle = o.dark ? '#2b2b2b' : '#fbfbfb';
       ctx.fill(outline);
@@ -224,6 +234,7 @@ export function drawQuilt(
     }
     ctx.restore();
   }
+  ctx.globalAlpha = 1;
   glowGroup(ctx, lit, rest, o.dpr, patchGlow(complement(OVERLAY_TINT, 120)));
 
   ctx.setTransform(...base);
@@ -235,7 +246,11 @@ export function drawQuilt(
   // Hovered and found spaces: a glowing outline over everything, in one of three hues spread
   // round the wheel from the overlay's tint (none near it): the opposite for data blocks, a third
   // of the way round each side for other spaces that take blocks and for patch-only ones.
-  const tint = overlay ? (quilt.target!.tint ?? OVERLAY_TINT) : OVERLAY_TINT;
+  // A ghost leaves the overlay to the quilt under it, but glows in its hues.
+  const tint =
+    overlay || (o.ghost !== undefined && quilt.target?.visible)
+      ? (quilt.target!.tint ?? OVERLAY_TINT)
+      : OVERLAY_TINT;
   const glows = {
     data: complement(tint),
     block: complement(tint, 120),

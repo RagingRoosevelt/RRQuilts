@@ -120,6 +120,14 @@
     >
       (~ {{ captionApprox }})
     </text>
+    <text
+      v-if="caption.length && captionCut"
+      :x="bounds[0]"
+      :y="bounds[3] + look.font * (1.3 * captionK + (captionApprox ? 2.1 : 1.1))"
+      :font-size="look.font * 0.85"
+    >
+      {{ captionCut }}
+    </text>
     <!-- Color key off: a pill per fabric under the template -->
     <g v-for="p in pills" :key="p.n" :transform="`translate(${p.x} ${pillY + p.y})`">
       <rect
@@ -187,7 +195,7 @@ const caption = computed(() => {
   const l = props.look.labels;
   return [
     l.letter ? null : { text: props.piece.letter, k: 1 },
-    l.size ? null : { text: splitApprox(props.piece.size)[0], k: 1 },
+    l.size ? null : { text: `Finished size ${splitApprox(props.piece.size)[0]}`, k: 1 },
     l.counts ? null : { text: props.piece.note, k: 1 },
   ]
     .filter((x) => !!x?.text)
@@ -198,12 +206,20 @@ const captionK = computed(() => Math.max(1, ...caption.value.map((x) => x.k)));
 const captionApprox = computed(() =>
   props.look.labels.size ? null : splitApprox(props.piece.size)[1],
 );
+/** The caption's cut size, on its own line under the finished size. */
+const captionCut = computed(() => {
+  if (props.look.labels.size || !props.piece.cutSize) return null;
+  const [exact, approx] = splitApprox(props.piece.cutSize);
+  return `Cut size ${exact}${approx ? ` (~ ${approx})` : ''}`;
+});
 /** Fabric pills (color key unchecked), laid left to right under the caption. */
 const pillY = computed(
   () =>
     bounds.value[3] +
     props.look.font *
-      ((caption.value.length ? 0.6 + 1.3 * captionK.value : 0.4) + (captionApprox.value ? 1.1 : 0)),
+      ((caption.value.length ? 0.6 + 1.3 * captionK.value : 0.4) +
+        (captionApprox.value ? 1.1 : 0) +
+        (caption.value.length && captionCut.value ? 1.1 : 0)),
 );
 const pills = computed(() => {
   if (props.look.labels.color) return [];
@@ -221,10 +237,14 @@ const pills = computed(() => {
 const insideLines = computed(() => {
   const l = props.look.labels;
   const [exact, approx] = splitApprox(props.piece.size);
+  const [cutExact, cutApprox] = splitApprox(props.piece.cutSize ?? '');
   return [
-    l.size ? { text: `Finished ${exact}`, em: 0.9 } : null,
+    l.size ? { text: `Finished size ${exact}`, em: 0.9 } : null,
     // Ruler fractions for sizes off the grid, on their own line under the exact size.
     l.size && approx ? { text: `(~ ${approx})`, em: 0.7, under: true } : null,
+    // The cut size (with seam allowance) right under it, kept with it in a row layout.
+    l.size && cutExact ? { text: `Cut size ${cutExact}`, em: 0.9, under: true } : null,
+    l.size && cutApprox ? { text: `(~ ${cutApprox})`, em: 0.7, under: true } : null,
     l.counts ? { text: props.piece.note, em: 0.9 } : null,
   ].filter((x) => !!x?.text) as { text: string; em: number; under?: boolean }[];
 });
@@ -270,16 +290,19 @@ const layout = computed(() => {
   const kStack = Math.max(0, Math.min(1, room / (height || 1), room / (width || 1)));
   // A row along the piece's longer side: three items (start, middle, end); the ruler fractions stay
   // stacked under the size they belong to.
-  type Item = (typeof rows)[number] & { sub?: { text: string; em: number } };
+  type Item = (typeof rows)[number] & { subs?: { text: string; em: number }[] };
   const items = rows.reduce<Item[]>(
     (out, x) =>
       'under' in x && x.under && out.length
-        ? [...out.slice(0, -1), { ...out.at(-1)!, sub: { text: x.text, em: x.em } }]
+        ? [
+            ...out.slice(0, -1),
+            { ...out.at(-1)!, subs: [...(out.at(-1)!.subs ?? []), { text: x.text, em: x.em }] },
+          ]
         : [...out, x],
     [],
   );
-  const itemH = (x: Item) => (x.em + (x.sub?.em ?? 0)) * 1.15;
-  const itemW = (x: Item) => Math.max(textW(x), x.sub ? textW(x.sub) : 0);
+  const itemH = (x: Item) => (x.em + (x.subs ?? []).reduce((a, s) => a + s.em, 0)) * 1.15;
+  const itemW = (x: Item) => Math.max(textW(x), ...(x.subs ?? []).map(textW));
   const xs = props.piece.sew.map((p) => p[0]);
   const ys = props.piece.sew.map((p) => p[1]);
   const up = Math.max(...ys) - Math.min(...ys) > Math.max(...xs) - Math.min(...xs);
@@ -340,10 +363,13 @@ const stack = computed(() => {
         anchor: anchors[i]!,
         up: L.up,
       });
-      const main = at(top + x.em * 0.9 * f * k, x.text, x.em, x.bold);
-      return x.sub
-        ? [main, at(top + (x.em * 1.15 + x.sub.em * 0.9) * f * k, x.sub.text, x.sub.em, false)]
-        : [main];
+      let d = top + x.em * 1.15 * f * k;
+      const subs = (x.subs ?? []).map((s) => {
+        const line = at(d + s.em * 0.9 * f * k, s.text, s.em, false);
+        d += s.em * 1.15 * f * k;
+        return line;
+      });
+      return [at(top + x.em * 0.9 * f * k, x.text, x.em, x.bold), ...subs];
     });
     const arrowAt: Pt = L.up
       ? [cx - (L.rowH * k) / 2 + f * 0.5 * k, cy]

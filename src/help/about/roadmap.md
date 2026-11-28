@@ -8,13 +8,6 @@ These are the plans for the next few versions. Plans change as people use the ap
 may move to another version, arrive in a different form, or not at all. To ask for something that
 isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
-## 0.9.3
-
-- A Find tool in English paper piecing quilts: tap a piece to pick its shape or rosette.
-- Drag the sides of an English paper piecing quilt's cut, with the pieces outside it faded.
-- Palette swaps for rosette colorings.
-- Search blocks by name in a quilt's Design tab.
-
 ## 0.10.0
 
 - Let one block fill several block spaces, such as a medallion in the middle of a quilt.

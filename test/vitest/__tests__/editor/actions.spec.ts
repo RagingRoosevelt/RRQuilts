@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { addStarterContent } from '@/content/starter';
-import { applyTool, type ToolState } from '@/editor/actions';
+import { applyTool, setSpan, type ToolState } from '@/editor/actions';
 import type { Space } from '@/editor/scope';
 import { allPatches } from '@/model/blocks/patches';
 import { paint, resolveColoring } from '@/model/coloring';
 import { castDraft, produce } from 'immer';
 import { mul, orient, type M } from '@/render/affine';
-import { convertLayout, generateSlots } from '@/model/layout/slots';
+import { convertLayout, generateFor, generateSlots } from '@/model/layout/slots';
+import { spanIndex, spanOf } from '@/model/layout/spans';
 import { PLAIN_BLOCK } from '@/model/plain';
 import { createProject } from '@/model/new-project';
 import { expectFast } from '../timing';
@@ -339,6 +340,52 @@ describe('editor actions', () => {
       .map((p) => p.id)
       .filter((p) => p !== p1 && p !== p2);
     expect(others.every((p) => fills[p]?.['color' as never] === color('Black'))).toBe(true);
+  });
+});
+
+describe('spanning blocks (spec 057)', () => {
+  it('sets a block over 2 × 2 spaces, replaces what it overlaps, keeps its size with All, splits', () => {
+    const { doc: d0, byName } = setup();
+    const doc = produce(d0, (d) => {
+      Object.assign(d.project.quilts[0]!.layout, { cols: 3, rows: 3 });
+    });
+    const star = byName('Ohio Star').id;
+    const nine = byName('Nine Patch').id;
+    const set = (block: string, scope: ToolState['scope'] = 'this'): ToolState => ({
+      tool: 'set',
+      scope,
+      block,
+      color: null,
+    });
+    const span = (d: RrqDoc, at: string, k: number) => {
+      const g = generateFor(q(d));
+      const ix = spanIndex(g.unspanned ?? g.slots);
+      return k === 1
+        ? { at, k, slot: ix.byId.get(at)!, covers: [at], cells: [at] }
+        : spanOf(ix, ix.byId.get(at)!, k)!;
+    };
+    let d = run(doc, generateFor(q(doc)).slots, 'b:r1c1', set(nine, 'all')).doc!;
+    const big = setSpan(d, 'q', generateFor(q(d)), span(d, 'b:r1c1', 2), set(star));
+    expect(big.replaced).toBe(4);
+    d = big.doc!;
+    let slots = q(d).layers[0].slots;
+    expect(slots['b:r1c1']).toMatchObject({ block: star, span: 2 });
+    expect(slots['b:r1c2'] ?? slots['b:r2c1'] ?? slots['b:r2c2']).toBeUndefined();
+    expect(slots['b:r3c3']!.block).toBe(nine);
+    expect(generateFor(q(d)).slots.find((x) => x.id === 'b:r1c1')!.size).toEqual([21, 21]);
+    // Set All keeps the big block big.
+    d = run(d, generateFor(q(d)).slots, 'b:r3c3', set(nine, 'all')).doc!;
+    expect(q(d).layers[0].slots['b:r1c1']).toMatchObject({ block: nine, span: 2 });
+    // Split: back to its first space.
+    d = run(d, generateFor(q(d)).slots, 'b:r1c1', { ...set(nine), tool: 'split' }).doc!;
+    expect(q(d).layers[0].slots['b:r1c1']!.span).toBeUndefined();
+    // A 1U block set in a space a big block covers takes the big block out.
+    d = setSpan(d, 'q', generateFor(q(d)), span(d, 'b:r1c1', 2), set(star)).doc!;
+    d = setSpan(d, 'q', generateFor(q(d)), span(d, 'b:r2c2', 1), set(nine)).doc!;
+    slots = q(d).layers[0].slots;
+    expect(slots['b:r1c1']).toBeUndefined();
+    expect(slots['b:r2c2']).toMatchObject({ block: nine });
+    expect(slots['b:r2c2']!.span).toBeUndefined();
   });
 });
 

@@ -789,7 +789,13 @@ export function variablePoint(l: VariablePointLayout) {
     return {
       ...s,
       ...(fit
-        ? { shape: 'diamond60' as const, turns: TURNS.diamond60, transform: fit }
+        ? {
+            shape: 'diamond60' as const,
+            turns: TURNS.diamond60,
+            transform: fit,
+            // The diamond's own width × height (not the On-Point square it was built from).
+            size: [Math.hypot(fit[0], fit[1]), Math.hypot(fit[2], fit[3])] as [number, number],
+          }
         : {
             id: s.id.replace(/^b:/, 'p:'),
             kind: s.kind === 'sash' ? 'sash' : 'patch',

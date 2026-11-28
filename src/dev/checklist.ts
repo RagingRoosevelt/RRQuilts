@@ -79,6 +79,8 @@ const G = {
   recolor: 'Re-color colorways (spec 019 FR-007)',
   follow: 'Colorways follow a colorway (spec 019 FR-009)',
   road093: '0.9.3 roadmap',
+  span057: 'Blocks over several spaces (spec 057)',
+  ui0100: '0.10.0 other changes',
 };
 
 export const CHECKS: Check[] = [
@@ -112,6 +114,33 @@ export const CHECKS: Check[] = [
     expect:
       'Leap day shows only when the quilt covers Feb 29 (not for 2027 or Months). Extra: the numbers run Jan 1, Wk 1 … Wk 52, Dec 31; with the 2-day variant the last number is Dec 30–31 and shows that variant. Average and Ignore: 53 numbers, and Entries marks Feb 29 “Averaged into Feb 28” or “Not shown in the quilt”. With a category value and Average, Categories round (Down / Up) appears. A Days plan offers Average, Ignore and Extra, and switching to Ignore with a block on Feb 29 asks first.',
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
+    to: '/',
+  },
+  {
+    id: 'TC-386',
+    group: G.small,
+    text: 'Given a block printout with templates, when you look at a template’s size, then it says Finished size and, right under it, Cut size.',
+    steps: [
+      {
+        case: 'Size printed on the template',
+        steps: [
+          'Open a quilt or block with squares, rectangles and triangles, and open its Print tab.',
+          'Turn on Templates and check Size under the labels on the template.',
+          'Look at a square, a half-square triangle, and a template off the ruler grid.',
+        ],
+      },
+      {
+        case: 'Size printed under the template',
+        steps: ['Uncheck Size, so it prints under each template.'],
+      },
+      {
+        case: 'No seam allowance',
+        steps: ['Turn Seam allowance off.'],
+      },
+    ],
+    expect:
+      'Each template shows “Finished size …” with “Cut size …” right under it, as the cutting table gives it (a 3″ square: Cut size 3½″ squares; a half-square triangle with 3″ legs: Cut size 3⅞″ squares). Ruler fractions (~ …) stay under the size they belong to. Under the template, the cut size is on its own line under the finished size. With Seam allowance off, only the finished size shows.',
+    last: '"in the printout, when stating the cut sizes in each of the block templates, we currently show the finished size. we should label it as such and then also show the cut size right below it, also labeled,"',
     to: '/',
   },
 ];
