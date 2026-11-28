@@ -99,8 +99,9 @@ blocks. Draw those in the block editor (see Drawing blocks). A space takes only 
 - **Baby Blocks** are cubes of three 60° diamond blocks. **Alternate** sets the tops, lefts, and
   rights apart.
 - **Diamond Point** is like On-Point with 60° diamonds standing on their points. Set the **Leg**,
-  **Width**, or **Height** of a diamond and the other two are worked out. Setting pieces take colors
-  and fabrics.
+  **Width**, or **Height** of a diamond and the other two are worked out. A new Diamond Point quilt
+  starts with **Trimmed blocks** at the edge; with setting pieces instead, they take colors and
+  fabrics.
 
 **Rotate** turns a shaped block by the steps its shape allows: a third of a turn for triangles, half
 a turn for diamonds, and a sixth for hexagons. **Flip** mirrors it left to right.

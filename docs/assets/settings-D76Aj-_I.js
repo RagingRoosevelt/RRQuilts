@@ -1,1 +1,0 @@
-import{Xn as e,Yn as t,r as n}from"./index-DpSFogKU.js";var r=n(async()=>{e().applyTheme(),await t().loaded});export{r as default};

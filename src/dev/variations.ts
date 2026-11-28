@@ -157,7 +157,8 @@ export const VARIATIONS: Variation[] = [
     expect:
       '60° diamond blocks on point ending on a short row at the bottom (3 diamonds), setting triangles around it.',
     style: 'diamond-point',
-    layout: { cols: 4, rows: 3.5 },
+    // Setting triangles, not the default Trimmed blocks.
+    layout: { cols: 4, rows: 3.5, edge: { finish: 'exact', float: 1 } },
   },
   {
     id: 'G024',

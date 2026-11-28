@@ -46,6 +46,9 @@ Related: spec 016 (layout engine; `merges` already join triangle spaces into big
   something hasn't changed. it can only hold one week." A spanning data block is the same data
   block drawn bigger, holding one value.
 - The prototype worked well on the owner's phone.
+- New Diamond Point quilts start with **Trimmed blocks** at the edge, not setting triangles (owner:
+  "let's change the default edge for diamond point block quilt to \"trimmed blocks\""), so blocks
+  and spanning blocks reach the edge. Existing quilts keep theirs.
 - Owner: "let's update where if you place a block (regardless of slider size), on top of a multi-slot block, the slider changes to the size of the multi-slot block and replaces the multi-block with the currently selected block". So a tap on a spanning block no longer
   goes by the slider (a 1U tap on one used to make it 1U).
 - Owner: "didn't we already make data quilts work with this multi-U block?" Prototype D had data
