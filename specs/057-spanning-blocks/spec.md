@@ -5,7 +5,7 @@
 **Created**: 2026-11-10
 
 **Status**: In progress: User Stories 1 to 3 built (prototype D's way for 1 and 2, 2026-11-27;
-printing checked 2026-11-28); data quilts to follow.
+printing checked and data quilts added 2026-11-28).
 
 **Input**: Owner, 2026-11-10: "let's also add a spec for allowing a given block to take up several
 block spaces (eg like you'd want to do with a medalion block)".
@@ -46,6 +46,8 @@ Related: spec 016 (layout engine; `merges` already join triangle spaces into big
   something hasn't changed. it can only hold one week." A spanning data block is the same data
   block drawn bigger, holding one value.
 - The prototype worked well on the owner's phone.
+- Owner: "didn't we already make data quilts work with this multi-U block?" Prototype D had data
+  blocks; the app now does too (the number brush with Block size and drag).
 - Printing: "please check that". Checked: templates, cutting and yardage come from the quilt's
   spaces with spans merged; a block used at more than one size now gets a block page and templates
   per size (it had one page at its first size, counting both).
@@ -104,8 +106,10 @@ the drag and is back at 1U.
 - A span is real only when exactly k² whole spaces of its shape, plus sashing and cornerstones,
   tile it with nothing else inside, so layouts of uneven spaces (strips, Variable layouts) span only
   where they form one clean shape. Hexagons, clamshells and spools never span.
-- Data quilts (Set is off there): not yet. A 2U data block holds one value (one week for a week
-  block), as at 1U (owner, 2026-11-28).
+- Data quilts: the Data tab's number brush takes the Block size and drag, as Set does. A 2U data
+  block holds one number (one week for a week block), as at 1U (owner, 2026-11-28); the spaces it
+  covers give their numbers back. Tapping a placed block again takes it off, except when the tap
+  changes its size. A month's shorter variant keeps the span.
 
 ## Requirements
 

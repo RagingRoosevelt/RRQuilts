@@ -499,6 +499,8 @@ export function applyPicks(q: Draft<Quilt>, blocks: readonly Block[], newId: () 
       coloring,
       rotation: now?.rotation ?? 0,
       flip: now?.flip ?? false,
+      // A spanning block (spec 057) stays as big with its number's variant.
+      ...(now?.span ? { span: now.span } : {}),
     };
     const old = now?.coloring;
     if (old && !used(old)) delete q.colorings[old];

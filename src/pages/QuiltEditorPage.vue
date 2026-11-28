@@ -216,7 +216,7 @@
             />
           </div>
           <div
-            v-if="editor.tool === 'set' && spanSet.maxK.value > 1"
+            v-if="spanSet.overlay.value || (editor.tool === 'set' && spanSet.maxK.value > 1)"
             class="row items-center no-wrap q-mb-xs"
             style="gap: 8px"
           >
@@ -396,7 +396,8 @@ import { useStl } from '@/composables/stl';
 import PrintZoom from '@/components/PrintZoom.vue';
 import QuiltCanvas from '@/components/QuiltCanvas.vue';
 import { useEppCut } from '@/composables/epp-cut';
-import { applyTool, setSpan } from '@/editor/actions';
+import { applyTool, dataSpan, setSpan } from '@/editor/actions';
+import { syncLibraryItems } from '@/model/library-items';
 import { useSpanSet } from '@/composables/span-set';
 import type { Span } from '@/model/layout/spans';
 import type { Pt } from '@/model/geometry/path';
@@ -472,23 +473,30 @@ const generated = computed(() => generateFor(quilt.value!));
 /** Spanning blocks (spec 057): the Set tool's Block size, lit spaces and drag to grow. */
 const spanSet = useSpanSet({
   generated: () => generated.value,
+  // Set in block quilts; the Data tab's number brush in data quilts.
   active: () =>
     editor.mode === 'design' &&
-    editor.tool === 'set' &&
-    !!editor.block &&
     !project.readOnly &&
-    !quilt.value?.data?.on,
-  place: placeSpan,
+    (quilt.value?.data?.on
+      ? editor.tool === 'number' && !!dataTypes.picked.value
+      : editor.tool === 'set' && !!editor.block),
+  place: (sp) => (quilt.value?.data?.on ? onDataTap({ slotId: sp.at }, sp) : placeSpan(sp)),
 });
 /** The quilt as it would be with the lit span set, drawn in its place. */
 const spanPreview = computed(() => {
   const sp = spanSet.lit.value;
   const q = quilt.value;
   if (!sp || !q || !project.doc) return null;
-  const r = setSpan(project.doc, q.id, generated.value, sp, {
-    ...editor.$state,
-    library: toolLibrary.value,
-  });
+  const brush = q.data?.on ? dataBrush(sp.at, sp.k) : undefined;
+  if (brush && 'error' in brush) return null;
+  const r = brush
+    ? (({ doc, replaced }) => ({ doc: syncLibraryItems(doc, toolLibrary.value), replaced }))(
+        dataSpan(project.doc, q.id, generated.value, sp, brush.plan),
+      )
+    : setSpan(project.doc, q.id, generated.value, sp, {
+        ...editor.$state,
+        library: toolLibrary.value,
+      });
   const pq = r.doc?.project.quilts.find((x) => x.id === q.id);
   if (!r.doc || !pq) return null;
   return {
@@ -642,7 +650,26 @@ watch(
 );
 /** Data quilt taps: the brush places the highlighted number (or takes a space's back); in the
  *  Data tab a day's piece opens its entry. */
-function onDataTap(hit: Hit) {
+/** The Data tab's brush on a space: `dataTap`'s result, or what to say. `k`: the size it's set
+ *  at (spec 057); tapping a placed block again takes it off, unless the tap resizes it. */
+function dataBrush(space: string, k = 1): ReturnType<typeof dataTap> {
+  const q = quilt.value;
+  const plan = q?.data;
+  const pick = dataTypes.picked.value;
+  if (!plan || !pick) return { error: 'Pick a data block in the Blocks tab first.' };
+  const r = dataTap(plan, space, {
+    n: editor.dataNext,
+    block: pick.block,
+    kind: pick.kind,
+    series: editor.dataSeries,
+  });
+  const resized = k !== (q.layers[0].slots[space]?.span ?? 1);
+  if (!('error' in r) && resized && placeOf(plan, space) && !placeOf(r.plan, space))
+    return { plan, next: editor.dataNext };
+  return r;
+}
+/** A tap with the Data tab's tools; `sp`: the number brush over a span (spec 057, any size). */
+function onDataTap(hit: Hit, sp?: Span) {
   const q = quilt.value;
   const plan = q?.data;
   if (!q || !plan || !project.doc) return;
@@ -658,23 +685,19 @@ function onDataTap(hit: Hit) {
     return;
   }
   if (project.readOnly) return;
-  if (!blockSpaceNumbers(generated.value).has(hit.slotId))
+  if (!sp && !blockSpaceNumbers(generated.value).has(hit.slotId))
     return say('Numbers go on whole block spaces, not ones cut down at the edge.');
-  const pick = dataTypes.picked.value;
-  if (!pick) return say('Pick a data block in the Blocks tab first.');
-  const r = dataTap(plan, hit.slotId, {
-    n: editor.dataNext,
-    block: pick.block,
-    kind: pick.kind,
-    series: editor.dataSeries,
-  });
+  const r = dataBrush(sp?.at ?? hit.slotId, sp?.k);
   if ('error' in r) return say(r.error);
+  const doc = project.doc;
+  const spanned = sp && dataSpan(doc, q.id, generated.value, sp, r.plan).doc;
   const apply = () => {
     // Undo and redo walk the highlighted number back and forth with the placement.
     const before = editor.dataNext;
     editor.dataNext = r.next;
     project.change(
       (d) => {
+        if (spanned) return spanned;
         d.project.quilts.find((x) => x.id === q.id)!.data = castDraft(r.plan);
       },
       {
@@ -836,7 +859,18 @@ function onStripTap(hit: Hit, l: StripLayout) {
 function onTap(hit: Hit, p?: Pt) {
   if (!project.doc || !quilt.value) return;
   if (editor.mode === 'layout') return strips.value ? onStripTap(hit, strips.value) : undefined;
-  if (editor.tool === 'number' || editor.tool === 'entry') return onDataTap(hit);
+  if (editor.tool === 'entry') return onDataTap(hit);
+  // The number brush where blocks can span: as Set below, then placed with its number.
+  if (editor.tool === 'number' && p && spanSet.overlay.value) {
+    const sp = spanSet.near(p);
+    if (sp) return onDataTap(hit, sp);
+    if (spanSet.size.value > 1)
+      return void $q.notify({
+        message: `A ${spanSet.size.value}U block doesn’t fit here.`,
+        timeout: 1500,
+      });
+  }
+  if (editor.tool === 'number') return onDataTap(hit);
   // Set where blocks can span (spec 057): at the Block size, in the spaces nearest the tap; at
   // 1U with This, in the very space tapped (so a spanning block there gives way).
   if (p && spanSet.overlay.value && (spanSet.size.value > 1 || editor.scope === 'this')) {

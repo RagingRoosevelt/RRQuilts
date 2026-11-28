@@ -184,6 +184,21 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
+    id: 'TC-393',
+    group: G.span057,
+    text: 'Given a data quilt on the Data blocks tab, when you set a Block size or drag across spaces, then one data block fills them and holds one number.',
+    steps: [
+      'Open the Temperature quilts demo, “Highs and lows”, Design tab, Data blocks, with a week block picked.',
+      'Drag from Wk 1 one space right and down; let go.',
+      'Set Block size to 2U, point at the quilt, and tap a space; then Undo.',
+      'Tap the 2U Wk 1 at 1U.',
+    ],
+    expect:
+      'The drag lights four spaces with the note “2U · 4 spaces”, and letting go places one big Wk 1 holding one week, with the slider back at 1U. The weeks that were on the covered spaces go back to the list. A tap at 2U places the highlighted week big. Tapping the 2U Wk 1 at 1U makes it one space again, without taking it off.',
+    last: '"didn’t we already make data quilts work with this multi-U block?" / "it can only hold one week."',
+    to: '/',
+  },
+  {
     id: 'TC-392',
     group: G.span057,
     text: 'Given a quilt with the same block at 1U and at 2U, when you print it, then each size has its own block page and templates, and cutting and yardage count the 2U at its big size.',

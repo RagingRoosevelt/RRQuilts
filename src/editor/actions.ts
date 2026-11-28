@@ -2,7 +2,9 @@
 // a selection change. The editor page applies the result through project.change (one undo step).
 import { keepRecolor, recolorView, shownColorway, swapper } from '@/model/colorways';
 import { fillFor, paintOf } from './paint';
-import { produce } from 'immer';
+import { castDraft, produce } from 'immer';
+import { takeBack } from '@/model/data-quilt';
+import type { DataPlan } from '@/model/schema/data-quilt';
 import { allPatches } from '@/model/blocks/patches';
 import type { LibraryLookup } from '@/model/library-items';
 import { fillKey, paint, resolveColoring, spray, swap } from '@/model/coloring';
@@ -327,6 +329,44 @@ export function setSpan(
       }),
     ),
   };
+}
+
+/**
+ * A data quilt's block over a span (spec 057): `plan` (from `dataTap` on the span's first space)
+ * with the spaces the span covers, and spanning blocks it overlaps, emptied and their places taken
+ * back; the first space marked kU. A 2U data block holds one number, as at 1U (owner, 2026-11-28).
+ * The placed block itself is made by `syncDraft` (`applyPicks`), so run that on the result.
+ */
+export function dataSpan(
+  doc: RrqDoc,
+  quiltId: string,
+  generated: Generated,
+  span: Span,
+  plan: DataPlan,
+): { doc: RrqDoc; replaced: number } {
+  const quilt = doc.project.quilts.find((q) => q.id === quiltId);
+  if (!quilt) return { doc, replaced: 0 };
+  const covers = new Set(span.covers);
+  const over = (generated.spans ?? []).filter(
+    (o) => o.at !== span.at && o.covers.some((x) => covers.has(x)),
+  );
+  const out = [...span.cells.filter((x) => x !== span.at), ...over.map((o) => o.at)];
+  const before = quilt.layers[0].slots;
+  const replaced = [...out, span.at].filter(
+    (x) => before[x] && before[x].block !== PLAIN_BLOCK,
+  ).length;
+  const next = produce(quilt, (q) => {
+    const slots = q.layers[0].slots;
+    q.data = castDraft(out.reduce((p, x) => takeBack(p, x), plan));
+    for (const x of out) delete slots[x];
+    if (!q.data.places.some((p) => p.space === span.at)) return;
+    // A space not placed yet gets its block from applyPicks, which keeps the span.
+    if (span.k > 1)
+      (slots[span.at] ??= { block: '', coloring: '', rotation: 0, flip: false }).span = span.k;
+    else if (slots[span.at]) delete slots[span.at]!.span;
+    pruneColorings(q);
+  });
+  return { doc: withQuilt(doc, next), replaced };
 }
 
 function pruneColorings(q: { layers: Quilt['layers']; colorings: Quilt['colorings'] }) {
