@@ -83,6 +83,8 @@ describe('spanning blocks (spec 057)', () => {
     const dx = spanIndex(dia);
     expect(dia.filter((s) => spanOf(dx, s, 2)).length).toBeGreaterThan(10);
     expect(maxSpan(slotsOf(shaped('hexagons')))).toBe(1);
+    // Baby Blocks: no four diamonds of one cube face make a bigger diamond, so none span.
+    expect(maxSpan(slotsOf(layoutDefaults('baby-blocks', 1) as Layout))).toBe(1);
   });
 
   it('on point, takes in partial blocks at the edge, its first space one of them too', () => {

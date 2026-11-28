@@ -206,7 +206,7 @@ One block can fill a group of neighboring block spaces, such as a medallion in t
 quilt. The group is the space's own shape made bigger: 2 × 2 or 3 × 3 squares or rectangles, a
 triangle of 4 or 9 triangles, a diamond of 2 × 2 diamonds, and so on. Any sashing and cornerstones
 inside it are covered too, and the sashing around it stays. Hexagons can't make a bigger hexagon,
-so hexagon blocks always fill one space.
+so hexagon blocks always fill one space. Neither do Baby Blocks, whose diamonds face three ways.
 
 - **Block size** under **Apply to** sets how big **Set block** places: 1U is one space, 2U covers
   2 × 2 spaces, 3U covers 3 × 3, as far as the layout has room for. Point at the quilt to see which

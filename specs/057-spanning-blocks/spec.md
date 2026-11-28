@@ -129,7 +129,9 @@ the drag and is back at 1U.
   positions already holding a block count (holding one moves that side's edge).
 - A span is real only when exactly k² whole spaces of its shape, plus sashing and cornerstones,
   tile it with nothing else inside, so layouts of uneven spaces (strips, Variable layouts) span only
-  where they form one clean shape. Hexagons, clamshells and spools never span.
+  where they form one clean shape. Hexagons, clamshells and spools never span. A big diamond is
+  made of diamonds lying its way, so Baby Blocks (cube faces turned three ways) never spans (owner,
+  2026-11-28: scaling there "seems incompatible with that layout").
 - Data quilts: the Data tab's number brush takes the Block size and drag, as Set does. A 2U data
   block holds one number (one week for a week block), as at 1U (owner, 2026-11-28); the spaces it
   covers give their numbers back. Tapping a placed block again takes it off, except when the tap

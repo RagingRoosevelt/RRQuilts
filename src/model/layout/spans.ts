@@ -61,6 +61,10 @@ const det = (t: M) => Math.abs(t[0] * t[3] - t[1] * t[2]);
 const sameAxes = (a: M, b: M) =>
   a.slice(0, 4).every((v, i) => Math.abs(v - b[i]!) < 1e-6 * det(a) ** 0.5);
 
+/** Same axes, or the same turned half a turn (the same diamond). */
+const alongside = (a: M, b: M) =>
+  sameAxes(a, b) || sameAxes(a, [-b[0], -b[1], -b[2], -b[3], b[4], b[5]]);
+
 /** A block space of a shape that can span, whole or trimmed at the quilt's edge (owner,
  *  2026-11-28: a span's first space may be a trimmed one). */
 export function spannable(s: Slot): boolean {
@@ -161,6 +165,9 @@ export function spanOf(ix: SpanIndex, at: Slot, k: number): Span | null {
       continue;
     if (s.kind === 'block') {
       if (s.shape !== at.shape || !spannable(s)) return null;
+      // A big diamond is made of diamonds lying its way (Baby Blocks' cube faces turn three ways:
+      // owner, 2026-11-28). Triangles mix up and down ones, as a big triangle does.
+      if (at.shape === 'diamond60' && !alongside(s.transform, at.transform)) return null;
       cells.push(s.id);
     } else if (s.kind !== 'sash' && s.kind !== 'cs') return null;
     covers.push(s.id);
