@@ -496,10 +496,16 @@ const spanPreview = computed(() => {
     ? (({ doc, replaced }) => ({ doc: syncLibraryItems(doc, toolLibrary.value), replaced }))(
         dataSpan(project.doc, q.id, generated.value, sp, brush.plan),
       )
-    : setSpan(project.doc, q.id, generated.value, sp, {
-        ...editor.$state,
-        library: toolLibrary.value,
-      });
+    : (({ doc, replaced }) => ({
+        // A library block picked but not used yet comes into the project, as placing it does.
+        doc: doc && syncLibraryItems(doc, toolLibrary.value),
+        replaced,
+      }))(
+        setSpan(project.doc, q.id, generated.value, sp, {
+          ...editor.$state,
+          library: toolLibrary.value,
+        }),
+      );
   const pq = r.doc?.project.quilts.find((x) => x.id === q.id);
   if (!r.doc || !pq) return null;
   return {
