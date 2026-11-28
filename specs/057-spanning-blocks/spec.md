@@ -113,7 +113,13 @@ the drag and is back at 1U.
 ### Edge Cases
 
 - Spans never overlap (a later one overlapping an earlier one in a file is left out); a span can't
-  include a border, a setting triangle, or a trimmed space at the edge.
+  include a border.
+- At the quilt's edge a span may take partial (trimmed) block spaces, its first space too, and is
+  then cut to the edge like them (owner, 2026-11-28: "the first space should be allowed to sit in a
+  trimmed space"). It still takes all k² spaces: it can't run past the edge where there are none.
+  On-Point with setting pieces cut exact: a span may take setting pieces, which then hold its parts
+  as trimmed blocks do (`spanSpaces`, `generateFor`). With floating setting pieces only edge
+  positions already holding a block count (holding one moves that side's edge).
 - A span is real only when exactly k² whole spaces of its shape, plus sashing and cornerstones,
   tile it with nothing else inside, so layouts of uneven spaces (strips, Variable layouts) span only
   where they form one clean shape. Hexagons, clamshells and spools never span.

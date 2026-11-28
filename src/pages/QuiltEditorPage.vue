@@ -404,7 +404,7 @@ import type { Pt } from '@/model/geometry/path';
 import { takesBlock } from '@/editor/scope';
 import { STRIP_STYLES, stripOf, swapStrips, setStrip } from '@/model/layout/strips';
 import { is3d as is3dQuilt } from '@/model/epp/quilt-ops';
-import { applyLayout, generateFor, reconcile, type Bounds } from '@/model/layout/slots';
+import { applyLayout, generateFor, reconcile, spanSpaces, type Bounds } from '@/model/layout/slots';
 import { PLAIN_BLOCK, slotGroup } from '@/model/plain';
 import type { Border, Layout, QuiltTarget, StripLayout, StripStyle } from '@/model/schema/quilt';
 import type { View } from '@/render/draw';
@@ -471,8 +471,10 @@ watch(
 );
 const generated = computed(() => generateFor(quilt.value!));
 /** Spanning blocks (spec 057): the Set tool's Block size, lit spaces and drag to grow. */
+const spaces = computed(() => (quilt.value ? spanSpaces(quilt.value) : []));
 const spanSet = useSpanSet({
   generated: () => generated.value,
+  spaces: () => spaces.value,
   // Set in block quilts; the Data tab's number brush in data quilts.
   active: () =>
     editor.mode === 'design' &&

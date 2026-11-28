@@ -4,7 +4,7 @@
 // once the block is placed.
 import { computed, ref } from 'vue';
 import type { CanvasOverlay, World } from '@/composables/viewport';
-import type { Generated } from '@/model/layout/slots';
+import type { Generated, Slot } from '@/model/layout/slots';
 import {
   cellAt,
   maxSpan,
@@ -18,14 +18,15 @@ import { useEditorStore } from '@/stores/editor';
 
 export function useSpanSet(o: {
   generated: () => Generated;
+  /** The spaces a span may cover (`spanSpaces`: On-Point setting pieces as held blocks). */
+  spaces: () => Slot[];
   /** The Set tool is on with a block chosen, in a quilt that can be edited. */
   active: () => boolean;
   place: (span: Span) => void;
 }) {
   const editor = useEditorStore();
   const ix = computed(() => {
-    const g = o.generated();
-    return spanIndex(g.unspanned ?? g.slots);
+    return spanIndex(o.spaces(), o.generated().center);
   });
   /** The largest block the layout has room for (1: no spanning here). */
   const maxK = computed(() => maxSpan(ix.value.slots));

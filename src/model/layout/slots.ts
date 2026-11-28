@@ -257,19 +257,76 @@ export function generateSlots(
 
 /** On-Point edge positions (setting pieces) holding a block: position → the id it's under. */
 export function edgeBlocks(quilt: Quilt): Map<string, string> {
+  return edgeBlocksOf(quilt.layers[0].slots);
+}
+function edgeBlocksOf(content: Record<string, SlotContent>): Map<string, string> {
   const out = new Map<string, string>();
-  for (const [id, c] of Object.entries(quilt.layers[0].slots)) {
+  for (const [id, c] of Object.entries(content)) {
     const at = /^set:(m:r\d+c\d+)(?::[12])?$/.exec(id)?.[1];
     if (at && c.block !== PLAIN_BLOCK && !out.has(at)) out.set(at, id);
   }
   return out;
 }
 
+const EDGE = /^set:(m:r\d+c\d+)(?::[12])?$/;
+
+/** On-Point with setting pieces cut exact: every edge position as if it held a block, so a
+ *  spanning block can take setting pieces (spec 057; they then hold its parts). Else null. */
+function allHeld(layout: Layout, slots: readonly Slot[], held: ReadonlyMap<string, string>) {
+  if (layout.style !== 'on-point' || layout.edge.finish !== 'exact') return null;
+  const out = new Map(held);
+  for (const s of slots) {
+    const at = EDGE.exec(s.id)?.[1];
+    if (at && !out.has(at)) out.set(at, s.id);
+  }
+  return out;
+}
+
+/** The layout's spaces for `content`, its spanning blocks found and the setting pieces they take
+ *  held (spec 057). */
+function spanned(
+  layout: Layout,
+  borders: Border[],
+  content: Record<string, SlotContent>,
+  held: Map<string, string>,
+  box: Bounds | undefined,
+) {
+  let g = generateSlots(layout, borders, held, box);
+  const all = Object.values(content).some((c) => c.span) && allHeld(layout, g.slots, held);
+  if (all) {
+    const ga = generateSlots(layout, borders, all, box);
+    const more = new Map(held);
+    for (const sp of spansIn(ga.slots, content, ga.center))
+      for (const id of sp.cells) {
+        const at = EDGE.exec(id)?.[1];
+        if (at && !more.has(at)) more.set(at, id);
+      }
+    if (more.size > held.size) g = generateSlots(layout, borders, more, box);
+  }
+  return { g, spans: spansIn(g.slots, content, g.center) };
+}
+
 /** The quilt's spaces, given what's placed in it (spanning blocks merge theirs, spec 057). */
 export function generateFor(quilt: Quilt): Generated {
-  const g = generateSlots(quilt.layout, quilt.borders, edgeBlocks(quilt), quilt.epp?.box);
-  const spans = spansIn(g.slots, quilt.layers[0].slots);
+  const content = quilt.layers[0].slots;
+  const { g, spans } = spanned(
+    quilt.layout,
+    quilt.borders,
+    content,
+    edgeBlocks(quilt),
+    quilt.epp?.box,
+  );
   return spans.length ? { ...g, slots: withSpans(g.slots, spans), spans, unspanned: g.slots } : g;
+}
+
+/** The spaces a spanning block may be set over (spec 057): the quilt's spaces before merging,
+ *  with On-Point setting pieces (cut exact) as the trimmed blocks they'd be when held. */
+export function spanSpaces(quilt: Quilt): Slot[] {
+  const g = generateFor(quilt);
+  const held = edgeBlocks(quilt);
+  const base = g.unspanned ?? g.slots;
+  const all = allHeld(quilt.layout, base, held);
+  return all ? generateSlots(quilt.layout, quilt.borders, all, quilt.epp?.box).slots : base;
 }
 
 export interface Reconciled {
@@ -282,7 +339,9 @@ export interface Reconciled {
 
 /** Which placed content survives a layout/border change. */
 export function reconcile(quilt: Quilt, layout: Layout, borders: Border[]): Reconciled {
-  const generated = generateSlots(layout, borders, edgeBlocks(quilt), quilt.epp?.box).slots;
+  const g = generateSlots(layout, borders, edgeBlocks(quilt), quilt.epp?.box);
+  const generated = g.slots;
+  const box = quilt.epp?.box;
   const ids = new Set(generated.map((s) => s.id));
   // Borders set aside by No fill keep their pieces' colors for when they come back.
   const setAside = layout.style === 'on-point' && layout.edge.finish === 'none';
@@ -302,7 +361,9 @@ export function reconcile(quilt: Quilt, layout: Layout, borders: Border[]): Reco
       else dropped.push(id);
     }
   }
-  const fit = new Set(spansIn(generated, slots).map((s) => s.at));
+  const fit = new Set(
+    spanned(layout, borders, slots, edgeBlocksOf(slots), box).spans.map((s) => s.at),
+  );
   const split: string[] = [];
   for (const [id, c] of Object.entries(slots))
     if (c.span && !fit.has(id)) {

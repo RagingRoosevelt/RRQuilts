@@ -6,9 +6,9 @@
 import type { SlotContent } from '../schema/quilt';
 import { apply, invert, type M } from '../geometry/affine';
 import { pointInPolygon, signedArea, type Pt } from '../geometry/path';
-import { SHAPE_AREA } from '../blocks/shape';
-import { toPath } from './clip';
-import type { Slot } from './slots';
+import { SHAPE_AREA, SHAPE_OUTLINE } from '../blocks/shape';
+import { clipPolygon, toPath } from './clip';
+import type { Bounds, Slot } from './slots';
 
 /** The largest span offered (8U). */
 export const MAX_SPAN = 8;
@@ -30,6 +30,17 @@ const SPANNING: Record<string, number> = {
   triangle: SHAPE_AREA.triangle,
   diamond60: SHAPE_AREA.diamond60,
 };
+/** Each shape's whole outline in the space's unit square. */
+const UNIT: Record<string, Pt[]> = {
+  rect: [
+    [0, 0],
+    [1, 0],
+    [1, 1],
+    [0, 1],
+  ],
+  triangle: SHAPE_OUTLINE.triangle,
+  diamond60: SHAPE_OUTLINE.diamond60,
+};
 /** The corner a span grows from, in the space's unit square. */
 const PIVOT: Record<string, Pt> = { rect: [0, 0], triangle: [0.5, 0], diamond60: [0.5, 0] };
 
@@ -50,11 +61,16 @@ const det = (t: M) => Math.abs(t[0] * t[3] - t[1] * t[2]);
 const sameAxes = (a: M, b: M) =>
   a.slice(0, 4).every((v, i) => Math.abs(v - b[i]!) < 1e-6 * det(a) ** 0.5);
 
-/** A whole (untrimmed) block space of a shape that can span. */
+/** A block space of a shape that can span, whole or trimmed at the quilt's edge (owner,
+ *  2026-11-28: a span's first space may be a trimmed one). */
 export function spannable(s: Slot): boolean {
   const share = SPANNING[s.shape];
   const pts = share !== undefined && s.kind === 'block' ? corners(s) : null;
-  return !!pts && Math.abs(area(pts) - det(s.transform) * share!) < 1e-6 * det(s.transform);
+  return (
+    !!pts &&
+    area(pts) > 1e-6 * det(s.transform) &&
+    area(pts) <= det(s.transform) * share! * (1 + 1e-6)
+  );
 }
 
 /** Facts about one layout's spaces, worked out once: centers, and the step between rectangles
@@ -64,12 +80,17 @@ export interface SpanIndex {
   mids: Map<string, Pt>;
   areas: Map<string, number>;
   byId: Map<string, Slot>;
+  /** The quilt's center (without borders), where block spaces are trimmed: a span is cut to it. */
+  clip?: Bounds;
 }
 
 const indexes = new WeakMap<readonly Slot[], SpanIndex>();
-export function spanIndex(slots: readonly Slot[]): SpanIndex {
+export function spanIndex(slots: readonly Slot[], clip?: Bounds): SpanIndex {
   let ix = indexes.get(slots);
-  if (ix) return ix;
+  if (ix) {
+    if (clip && !ix.clip) ix.clip = clip;
+    return ix;
+  }
   const mids = new Map<string, Pt>();
   const areas = new Map<string, number>();
   for (const s of slots) {
@@ -78,7 +99,13 @@ export function spanIndex(slots: readonly Slot[]): SpanIndex {
     mids.set(s.id, mid(pts));
     areas.set(s.id, area(pts));
   }
-  ix = { slots, mids, areas, byId: new Map(slots.map((s) => [s.id, s])) };
+  ix = {
+    slots,
+    mids,
+    areas,
+    byId: new Map(slots.map((s) => [s.id, s])),
+    ...(clip ? { clip } : {}),
+  };
   indexes.set(slots, ix);
   return ix;
 }
@@ -99,8 +126,9 @@ function steps(ix: SpanIndex, at: Slot): [number, number] {
   return [Number.isFinite(su) ? su : 1, Number.isFinite(sv) ? sv : 1];
 }
 
-/** The kU span stored on space `at`, if the spaces there make one: exactly k² whole spaces of its
- *  shape, plus sashing and cornerstones, tiling it with nothing else inside. */
+/** The kU span stored on space `at`, if the spaces there make one: k² spaces of its shape, plus
+ *  sashing and cornerstones, tiling it with nothing else inside. Where the quilt's edge trims its
+ *  spaces it is cut to the edge too, like a trimmed space. */
 export function spanOf(ix: SpanIndex, at: Slot, k: number): Span | null {
   if (!Number.isInteger(k) || k < 2 || k > MAX_SPAN || !spannable(at)) return null;
   const [su, sv] = steps(ix, at);
@@ -118,8 +146,9 @@ export function spanOf(ix: SpanIndex, at: Slot, k: number): Span | null {
     px - (px - at.transform[4]) * ku,
     py - (py - at.transform[5]) * kv,
   ];
-  const inv = invert(at.transform);
-  const poly = corners(at)!.map((p) => apply(t, apply(inv, p)));
+  const poly = UNIT[at.shape]!.map((p) => apply(t, p));
+  const vis = ix.clip ? clipPolygon(poly, ix.clip) : poly;
+  if (vis.length < 3) return null;
   const xs = poly.map((p) => p[0]);
   const ys = poly.map((p) => p[1]);
   const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
@@ -138,11 +167,13 @@ export function spanOf(ix: SpanIndex, at: Slot, k: number): Span | null {
     sum += ix.areas.get(s.id)!;
   }
   const whole = area(poly);
-  if (cells.length !== k * k || !cells.includes(at.id) || Math.abs(sum - whole) > 1e-6 * whole)
+  const seen = area(vis);
+  // All k² spaces, some of them trimmed where the quilt's edge cuts it.
+  if (cells.length !== k * k || !cells.includes(at.id) || Math.abs(sum - seen) > 1e-6 * whole)
     return null;
   const slot: Slot = {
     ...at,
-    outline: toPath(poly),
+    outline: toPath(vis),
     transform: t,
     size: [at.size[0] * ku, at.size[1] * kv],
   };
@@ -151,8 +182,12 @@ export function spanOf(ix: SpanIndex, at: Slot, k: number): Span | null {
 
 /** The spans set on a quilt that still fit its layout, first placed first; a span overlapping an
  *  earlier one is left out. */
-export function spansIn(slots: readonly Slot[], content: Record<string, SlotContent>): Span[] {
-  const ix = spanIndex(slots);
+export function spansIn(
+  slots: readonly Slot[],
+  content: Record<string, SlotContent>,
+  clip?: Bounds,
+): Span[] {
+  const ix = spanIndex(slots, clip);
   const taken = new Set<string>();
   const out: Span[] = [];
   for (const [id, c] of Object.entries(content)) {

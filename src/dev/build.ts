@@ -102,7 +102,8 @@ let kit: Promise<Kit> | undefined;
 function withSpans(doc: RrqDoc, quiltId: string, spans: Record<string, number>): RrqDoc {
   return produce(doc, (d) => {
     const q = d.project.quilts.find((x) => x.id === quiltId)!;
-    const ix = spanIndex(generateSlots(q.layout, q.borders).slots);
+    const g = generateSlots(q.layout, q.borders);
+    const ix = spanIndex(g.slots, g.center);
     for (const [at, k] of Object.entries(spans)) {
       const sp = ix.byId.get(at) && spanOf(ix, ix.byId.get(at)!, k);
       const c = q.layers[0].slots[at];

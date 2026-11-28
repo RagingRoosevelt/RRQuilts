@@ -224,6 +224,8 @@ so hexagon blocks always fill one space.
   empty.
 - **Apply to** works at 1U only, and a bigger block always goes where you tap. With **All** or
   **Alternate**, blocks that fill several spaces keep their size.
+- At the quilt's edge a big block can take partial blocks, and On-Point setting triangles, and is
+  cut off at the edge like them. It can start in one of them too.
 - When a layout change leaves no room for a big block, it goes back to its first space.
 
 ## Tools

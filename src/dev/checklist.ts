@@ -253,6 +253,32 @@ export const CHECKS: Check[] = [
     to: '/',
   },
   {
+    id: 'TC-397',
+    group: G.span057,
+    text: 'Given an On-Point quilt, when you set a 2U or 3U block at its edge, then it can take the half blocks and setting triangles there, start in one, and is cut off at the edge.',
+    steps: [
+      {
+        case: 'Setting triangles cut exact',
+        steps: [
+          'Open “Medallions on point” in the block quilts demo.',
+          'Set Block size to 2U and point at a setting triangle on the top edge, then tap.',
+          'Drag from a half block on a side edge two spaces inward.',
+        ],
+      },
+      {
+        case: 'Partial blocks',
+        steps: [
+          'In Layout, set the edge to partial blocks trimmed by the edge.',
+          'Place a 2U block from an edge half block, then print the quilt.',
+        ],
+      },
+    ],
+    expect:
+      'The lit block takes the edge pieces it covers and is cut off at the quilt’s edge, like the half blocks are. Placed, it draws trimmed at the edge, and printing shows its pieces cut there. Blocks never run past the edge where there are no spaces.',
+    last: '"yeah, the first space should be allowed to sit in a trimmed space."',
+    to: '/',
+  },
+  {
     id: 'TC-392',
     group: G.span057,
     text: 'Given a quilt with the same block at 1U and at 2U, when you print it, then each size has its own block page and templates, and cutting and yardage count the 2U at its big size.',

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { layoutDefaults, onPointDefaults } from '@/model/io';
-import { generateFor, generateSlots, reconcile } from '@/model/layout/slots';
+import { generateFor, generateSlots, reconcile, spanSpaces } from '@/model/layout/slots';
 import {
   maxSpan,
   spanAt,
@@ -83,6 +83,56 @@ describe('spanning blocks (spec 057)', () => {
     const dx = spanIndex(dia);
     expect(dia.filter((s) => spanOf(dx, s, 2)).length).toBeGreaterThan(10);
     expect(maxSpan(slotsOf(shaped('hexagons')))).toBe(1);
+  });
+
+  it('on point, takes in partial blocks at the edge, its first space one of them too', () => {
+    const l = onPointDefaults(1);
+    if (l.style !== 'on-point') throw new Error('on point expected');
+    const g = generateSlots({ ...l, edge: { ...l.edge, finish: 'trim' } }, []);
+    const ix = spanIndex(g.slots, g.center);
+    const whole = (s: { transform: number[] }) =>
+      Math.abs(s.transform[0]! * s.transform[3]! - s.transform[1]! * s.transform[2]!);
+    const trimmed = g.slots.filter((s) => spannable(s) && ix.areas.get(s.id)! < whole(s) * 0.999);
+    expect(trimmed.length).toBeGreaterThan(0);
+    const firsts = trimmed.flatMap((s) => spanOf(ix, s, 2) ?? []);
+    expect(firsts.length).toBeGreaterThan(0);
+    for (const sp of firsts) {
+      // Cut to the quilt like its spaces: its outline holds just what's left of them.
+      const left = sp.covers.reduce((t, id) => t + ix.areas.get(id)!, 0);
+      const out = spanIndex([sp.slot]).areas.get(sp.at)!;
+      expect(out).toBeCloseTo(left);
+      expect(out).toBeLessThan(sp.slot.size[0] * sp.slot.size[1]);
+    }
+    // Without the quilt's edge to cut to, a span running off it isn't one.
+    expect(
+      spanOf(spanIndex(slotsOf({ ...l, edge: { ...l.edge, finish: 'trim' } })), trimmed[0]!, 2),
+    ).toBeNull();
+    // Setting triangles (an exact finish) take no blocks, so no span reaches them.
+    const exact = generateSlots(l, []);
+    const ex = spanIndex(exact.slots, exact.center);
+    for (const s of exact.slots.filter(spannable))
+      for (let k = 2; k <= 3; k++)
+        expect(spanOf(ex, s, k)?.covers.some((id) => !/^(b|sash|cs):/.test(id)) ?? false).toBe(
+          false,
+        );
+  });
+
+  it('on point with setting triangles, takes them in as the blocks they hold, first space too', () => {
+    const q = quiltOf(onPointDefaults(1));
+    const spaces = spanSpaces(q);
+    const g0 = generateFor(q);
+    const ix = spanIndex(spaces, g0.center);
+    const first = spaces.find((s) => s.id.startsWith('set:') && spanOf(ix, s, 2));
+    expect(first).toBeDefined();
+    q.layers[0].slots[first!.id] = { ...place, span: 2 };
+    const g = generateFor(q);
+    expect(g.spans!.map((s) => [s.at, s.k])).toEqual([[first!.id, 2]]);
+    // The setting pieces it takes now hold its parts: none left as setting pieces under it.
+    expect(g.spans![0]!.cells.length).toBe(4);
+    expect(g.slots.filter((s) => g.spans![0]!.covers.includes(s.id) && s.id !== first!.id)).toEqual(
+      [],
+    );
+    expect(reconcile(q, q.layout, []).split).toEqual([]);
   });
 
   it('merges a span into the quilt’s spaces, under its first space’s id', () => {
