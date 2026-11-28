@@ -31,10 +31,24 @@ export function useSpanSet(o: {
   const lit = ref<Span | null>(null);
   let drag: { from: string; k: number } | null = null;
 
-  /** The span of the slider's size nearest p (one the pointer is on). */
+  /** The spanning block already on the quilt under p, if any. */
+  function placed(p: World): Span | null {
+    const cell = cellAt(ix.value, p);
+    return (cell && o.generated().spans?.find((s) => s.cells.includes(cell))) || null;
+  }
+  /** Where a tap at p places: over a spanning block, that block's spaces (whatever the slider);
+   *  else the span of the slider's size nearest p (one the pointer is on). */
   function near(p: World): Span | null {
+    const on = placed(p);
+    if (on) return on;
     const cell = cellAt(ix.value, p);
     return cell ? spanNear(ix.value, cell, size.value, p) : null;
+  }
+  /** `near` for a tap: on a spanning block the slider takes its size (owner, 2026-11-28). */
+  function tap(p: World): Span | null {
+    const sp = near(p);
+    if (sp && sp.k > 1 && placed(p) === sp) editor.spanSize = sp.k;
+    return sp;
   }
 
   const overlay = computed((): CanvasOverlay | undefined => {
@@ -67,11 +81,11 @@ export function useSpanSet(o: {
       cursor: () => null,
       hover(p) {
         if (drag) return;
-        const next = p && size.value > 1 ? near(p) : null;
+        const next = p ? (placed(p) ?? (size.value > 1 ? near(p) : null)) : null;
         if (next?.at !== lit.value?.at || next?.k !== lit.value?.k) lit.value = next;
       },
     };
   });
 
-  return { overlay, lit, maxK, size, near, index: ix };
+  return { overlay, lit, maxK, size, near, tap, index: ix };
 }

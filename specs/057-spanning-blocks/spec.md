@@ -46,6 +46,8 @@ Related: spec 016 (layout engine; `merges` already join triangle spaces into big
   something hasn't changed. it can only hold one week." A spanning data block is the same data
   block drawn bigger, holding one value.
 - The prototype worked well on the owner's phone.
+- Owner: "let's update where if you place a block (regardless of slider size), on top of a multi-slot block, the slider changes to the size of the multi-slot block and replaces the multi-block with the currently selected block". So a tap on a spanning block no longer
+  goes by the slider (a 1U tap on one used to make it 1U).
 - Owner: "didn't we already make data quilts work with this multi-U block?" Prototype D had data
   blocks; the app now does too (the number brush with Block size and drag).
 - Printing: "please check that". Checked: templates, cutting and yardage come from the quilt's
@@ -85,6 +87,9 @@ the drag and is back at 1U.
    leaves the block in its first space only; the others are empty. Undo works throughout.
 5. Paint, rotate, flip, erase, find and colorings work on a spanning block as on any block. Apply to
    (All, Alternate) works at 1U only; Set with All or Alternate keeps spanning blocks their size.
+6. **Given** a tap on a spanning block with Set (or the data brush), at any Block size, **Then** the
+   selected block replaces it at its size and the slider changes to that size and stays there;
+   pointing at it lights the whole block. Making it smaller or bigger is a drag, or Split.
 
 ### User Story 2 - Layout changes keep merges (Priority: P1)
 
@@ -109,7 +114,7 @@ the drag and is back at 1U.
 - Data quilts: the Data tab's number brush takes the Block size and drag, as Set does. A 2U data
   block holds one number (one week for a week block), as at 1U (owner, 2026-11-28); the spaces it
   covers give their numbers back. Tapping a placed block again takes it off, except when the tap
-  changes its size. A month's shorter variant keeps the span.
+  makes it bigger. A month's shorter variant keeps the span.
 
 ## Requirements
 

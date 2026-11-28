@@ -862,7 +862,7 @@ function onTap(hit: Hit, p?: Pt) {
   if (editor.tool === 'entry') return onDataTap(hit);
   // The number brush where blocks can span: as Set below, then placed with its number.
   if (editor.tool === 'number' && p && spanSet.overlay.value) {
-    const sp = spanSet.near(p);
+    const sp = spanSet.tap(p);
     if (sp) return onDataTap(hit, sp);
     if (spanSet.size.value > 1)
       return void $q.notify({
@@ -874,7 +874,7 @@ function onTap(hit: Hit, p?: Pt) {
   // Set where blocks can span (spec 057): at the Block size, in the spaces nearest the tap; at
   // 1U with This, in the very space tapped (so a spanning block there gives way).
   if (p && spanSet.overlay.value && (spanSet.size.value > 1 || editor.scope === 'this')) {
-    const sp = spanSet.near(p);
+    const sp = spanSet.tap(p);
     if (sp) return placeSpan(sp);
     if (
       spanSet.size.value > 1 &&

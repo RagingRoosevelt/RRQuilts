@@ -213,6 +213,8 @@ so hexagon blocks always fill one space.
 - Or drag across the quilt with **Set block**. The block grows from the space you press on, which
   stays one of its corners, and **Block size** follows the drag. Let go to place it. **Block size**
   then goes back to where it was.
+- Tap a block that already fills several spaces to put the selected block there at the same size,
+  whatever **Block size** says. **Block size** then changes to that size.
 - The line under the quilt says how many spaces the block will cover and how many placed blocks it
   replaces.
 - **Rotate**, **Flip**, **Erase block** and the color tools work on a big block as on any other.

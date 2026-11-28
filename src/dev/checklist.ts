@@ -160,14 +160,14 @@ export const CHECKS: Check[] = [
     group: G.span057,
     text: 'Given blocks that fill several spaces, when you replace, split, erase, rotate, use Apply to All, undo, and change the layout, then each keeps to its rules.',
     steps: [
-      'Set a 2U block over four placed blocks, then a 1U block on one of its spaces.',
+      'Set a 2U block over four placed blocks.',
       'Set a 2U block again, then use Rotate, Flip and Paint on it.',
       'Pick Split spanning block and tap it; then Undo.',
       'With Block size at 1U and Apply to All, set another block.',
       'In Layout, make the quilt smaller so a big block no longer fits; then save and reopen the project.',
     ],
     expect:
-      'The 1U block takes the whole big block out (the others it covered stay empty). Rotate, Flip and Paint work on the big block as on any block. Split leaves the block in its first space only, the sashing inside comes back with its fabric, and Undo makes it big again. Apply to All changes every block but big ones stay big. A big block with no room left goes back to its first space. Reopened, everything is as it was.',
+      'The 2U block replaces the four. Rotate, Flip and Paint work on the big block as on any block. Split leaves the block in its first space only, the sashing inside comes back with its fabric, and Undo makes it big again. Apply to All changes every block but big ones stay big. A big block with no room left goes back to its first space. Reopened, everything is as it was.',
     last: '"ok, I like the way that feels.  let’s migrate that learning into the app" (prototype D: "As you drag to increase the size the slider will match the current size" / "after placing, the size slider should return to whatever size it was before your placement")',
     to: '/',
   },
@@ -191,11 +191,36 @@ export const CHECKS: Check[] = [
       'Open the Temperature quilts demo, “Highs and lows”, Design tab, Data blocks, with a week block picked.',
       'Drag from Wk 1 one space right and down; let go.',
       'Set Block size to 2U, point at the quilt, and tap a space; then Undo.',
-      'Tap the 2U Wk 1 at 1U.',
     ],
     expect:
-      'The drag lights four spaces with the note “2U · 4 spaces”, and letting go places one big Wk 1 holding one week, with the slider back at 1U. The weeks that were on the covered spaces go back to the list. A tap at 2U places the highlighted week big. Tapping the 2U Wk 1 at 1U makes it one space again, without taking it off.',
+      'The drag lights four spaces with the note “2U · 4 spaces”, and letting go places one big Wk 1 holding one week, with the slider back at 1U. The weeks that were on the covered spaces go back to the list. A tap at 2U places the highlighted week big.',
     last: '"didn’t we already make data quilts work with this multi-U block?" / "it can only hold one week."',
+    to: '/',
+  },
+  {
+    id: 'TC-394',
+    group: G.span057,
+    text: 'Given a block that fills several spaces, when you tap it with Set (or the Data blocks brush) at any Block size, then the selected block replaces it at its size and Block size changes to that size.',
+    steps: [
+      {
+        case: 'Block quilt',
+        steps: [
+          'Place a 3U block.',
+          'Pick another block, set Block size to 1U, and point at the 3U block, then tap it.',
+          'Set Block size to 2U and tap the 3U block again.',
+        ],
+      },
+      {
+        case: 'Data quilt',
+        steps: [
+          'On “Highs and lows”, drag Wk 1 to 2U.',
+          'With Block size at 1U, pick another week block and tap the 2U Wk 1.',
+        ],
+      },
+    ],
+    expect:
+      'Pointing at the big block lights all of it. Each tap puts the selected block in its place at the same size, and Block size shows that size afterwards (3U, 2U) and stays there. In the data quilt the big block keeps its week and takes the new block.',
+    last: '"let’s update where if you place a block (regardless of slider size), on top of a multi-slot block, the slider changes to the size of the multi-slot block and replaces the multi-block with the currently selected block"',
     to: '/',
   },
   {

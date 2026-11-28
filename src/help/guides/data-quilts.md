@@ -161,7 +161,8 @@ different block changes its block, and a different value changes its value.
 A data block can fill several spaces, as in **Blocks over several spaces** (Designing a quilt).
 Set **Block size** above the tabs, or drag across the quilt from the space to start in. The big
 block still holds one number, a 2U week block shows one week, and the spaces it covers give their
-numbers back. A tap at a new size on a placed block makes it that size, without taking it off.
+numbers back. A tap at a bigger size on a placed block makes it that size, without taking it off. A tap on a big
+block keeps its size and sets **Block size** to it.
 
 **Fill empty numbers** puts the block spaces still empty on the numbers with no block yet, by
 **Rows**, **Columns**, or **Snake**, with the picked block. **Clear** takes every block off.
