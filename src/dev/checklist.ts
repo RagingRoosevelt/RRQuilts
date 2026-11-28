@@ -80,6 +80,7 @@ const G = {
   follow: 'Colorways follow a colorway (spec 019 FR-009)',
   road093: '0.9.3 roadmap',
   span057: 'Blocks over several spaces (spec 057)',
+  ui0100: '0.10.0 other changes',
 };
 
 export const CHECKS: Check[] = [
@@ -303,6 +304,20 @@ export const CHECKS: Check[] = [
     expect:
       'The block picture is a 60° diamond standing on its point, “Finished size 6″ × 10.392″”, and its letters match the template pages’ letters.',
     last: '"in the diamond point block quilt, the block print previews are showing squares and not 60-degree diamonds"',
+    to: '/',
+  },
+  {
+    id: 'TC-400',
+    group: G.ui0100,
+    text: 'Given a phone-width window, when you tap the icon at the top left, then it goes to that page, and tapping the name beside it opens the menu.',
+    steps: [
+      'On a phone (or a narrow window), open a quilt from a project.',
+      'Tap the name “Project” with its arrow; close the menu.',
+      'Tap the Project icon to its left.',
+    ],
+    expect:
+      'The name and arrow open the menu of pages (RRQuilts, Project, Libraries, Help, Tests). The icon goes straight to the project page.',
+    last: '"in the mobile view … clicking the icon will return you to whatever that icon corresponds to (project page, home, etc) and clickign the label or chevron icon will open the menu"',
     to: '/',
   },
   {
