@@ -2,6 +2,24 @@
 
 What changed in each version of RRQuilts, newest first.
 
+## 0.10.0 (2026-11-28)
+
+### New features
+
+- [major] Blocks that span several block spaces.
+- Spanning blocks in data quilts.
+- A preview of the block about to be placed.
+- Block pages and templates for each block size in a printout.
+- Cut sizes on templates.
+- [major] A Delete seams tool in the block editor.
+- Quicker page switching in the phone title bar.
+- Trimmed blocks as the default edge for new Diamond Point quilts.
+- Older projects open and are upgraded. Files saved with this version need 0.10.0 or later to open.
+
+### Fixes
+
+- Diamond Point block pages show 60° diamonds at their finished size.
+
 ## 0.9.3 (2026-11-26)
 
 ### New features

@@ -8,10 +8,6 @@ These are the plans for the next few versions. Plans change as people use the ap
 may move to another version, arrive in a different form, or not at all. To ask for something that
 isn't listed, see [Got an idea?](/help/about/got-an-idea).
 
-## 0.10.0
-
-- Let one block fill several block spaces, such as a medallion in the middle of a quilt.
-
 ## 0.11.0
 
 - Foundation paper piecing: split a block into sections with sewing numbers, and print mirrored

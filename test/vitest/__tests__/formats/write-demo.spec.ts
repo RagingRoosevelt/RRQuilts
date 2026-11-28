@@ -71,6 +71,8 @@ const ADDED: Record<number, Add[]> = {
   // v13 (0.9.3) added colorway modes, a Manual cut and followed rosette colorings, no layouts:
   // built by v13.ts.
   13: [],
+  // v14 (0.10.0) added spanning blocks, no layouts: built by v14.ts.
+  14: [],
   10: [
     {
       name: 'Data Weeks, Two Values',
@@ -119,6 +121,8 @@ it.skipIf(!dir)('write the demo project', async () => {
   if ((VERSION as number) === 12) doc = (await import('./epp-v12')).addEppV12(doc);
   // v13 (0.9.3): colorways in every mode, an EPP quilt cut by hand, followed rosette colorings.
   if ((VERSION as number) === 13) doc = (await import('./v13')).addV13(doc, kit);
+  // v14 (0.10.0): spanning blocks (Straight Set with sashing, triangles, an On-Point edge, data).
+  if ((VERSION as number) === 14) doc = (await import('./v14')).addV14(doc, kit);
   writeFileSync(`${dir}/demo-v${VERSION}.rrq`, serializeProject(doc));
 });
 

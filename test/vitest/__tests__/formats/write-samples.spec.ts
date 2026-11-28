@@ -16,6 +16,7 @@ import { eppFile, serializeEpp, EPP_VERSION } from '@/model/epp-file';
 import { eppStarters } from '@/content/epp';
 import { addEppV12, domino, sampleFlower } from './epp-v12';
 import { addV13 } from './v13';
+import { addV14 } from './v14';
 import { starterKit } from '@/dev/fill-quilt';
 
 const dir = process.env.FORMAT_SAMPLES;
@@ -28,8 +29,10 @@ it.skipIf(!dir)('write format samples', async () => {
   const parsed = await parseProject(fixtureText());
   if (!parsed.ok) throw new Error(parsed.error);
   // v12 (specs 027, 050): EPP shapes, rosettes, EPP and 3D EPP quilts, rosettes as blocks; v13
-  // (0.9.3): colorways in every mode, an EPP quilt cut by hand, followed rosette colorings.
-  const doc = addV13(addEppV12(parsed.doc), await starterKit());
+  // (0.9.3): colorways in every mode, an EPP quilt cut by hand, followed rosette colorings; v14
+  // (0.10.0): spanning blocks.
+  const kit = await starterKit();
+  const doc = addV14(addV13(addEppV12(parsed.doc), kit), kit);
   const flower = doc.project.rosettes!.find((r) => r.id === sampleFlower().id)!;
   put(`project-v${RRQ}.rrq`, serializeProject(doc));
 
