@@ -116,34 +116,6 @@ export const CHECKS: Check[] = [
     last: '"let’s have the leap year question be a setting in the details / data quilt section" / "for day mode, let’s give the user the option between “average feb 28 & feb 29”…" / "no let’s just have this as a setting for the whole quilt for any category series"',
     to: '/',
   },
-  {
-    id: 'TC-401',
-    group: G.span057,
-    text: 'Given a Shaped Blocks quilt of triangles, when you drag from a point-up triangle down across the rows, then the big triangle stays point-up the whole way.',
-    steps: [
-      'Make a Shaped Blocks quilt of triangles and pick a triangle block.',
-      'Press on a point-up triangle and drag down onto the point-down triangle below it, then on to the next row.',
-      'Do the same from a point-down triangle, dragging up.',
-    ],
-    expect:
-      'Over the point-down triangle the lit block stays the one triangle you pressed. Once the pointer reaches the next row down, a point-up triangle of 4 lights, and it grows point-up from there. From a point-down triangle, every big triangle is point-down.',
-    last: '"Ran into an issue on shaped blocks/triangles where dragging from a point-up triangle, past a point down triangle (row below) caused the orientation of the mulit-slot block to flip. the multi-slot block should stay the orientation of the block I started with as I expand. that means that there shouldn’t be a multi-slot block proposed until I’ve dragged down to the next row that has a point-up orientation"',
-    to: '/',
-  },
-  {
-    id: 'TC-402',
-    group: G.ui0100,
-    text: 'Given the block editor on a phone, when you pick Delete seams and tap a seam, then that seam is taken out.',
-    steps: [
-      'Open one of your own blocks (or make one) in the block editor, Draw tab.',
-      'Pick Delete seams (the eraser in the tool rail) and tap a seam; then Undo.',
-      'With a mouse, point at seams with Delete seams on.',
-    ],
-    expect:
-      'The tapped seam is gone and the patches beside it join; Undo brings it back. With a mouse, the seam under the pointer lights up before you click. Library blocks can’t be changed this way, as with the other drawing tools.',
-    last: '"we should add a delete tool to the block editor so that edges can be deleted from blocks while on mobile"',
-    to: '/',
-  },
 ];
 
 /** `build`: the exact build it was tested on. `iterate`: works, but needs another round (see note). */
