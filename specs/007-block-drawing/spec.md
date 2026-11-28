@@ -168,7 +168,10 @@ existing seam's midpoint; zoomed to 800% the ends coincide.
 
 **Drawing (seam-line)**
 
-- **FR-010**: Tools: Select, Node, Line, Arc, Grid, Pan.
+- **FR-010**: Tools: Select, Node, Line, Arc, Grid, Delete seams, Pan. Delete seams takes out the
+  seam tapped (lit under the pointer first), so seams go without a keyboard on phones (owner,
+  2026-11-28: "we should add a delete tool to the block editor so that edges can be deleted from
+  blocks while on mobile").
 - **FR-011**: Line/Arc/Grid MUST snap per the enabled snaps; endpoints within the snap radius
   (8 px on screen) of a node or seam MUST connect exactly.
 - **FR-012**: Arcs MUST be drawn as true circular arcs (default 90° sweep), with direction flip while

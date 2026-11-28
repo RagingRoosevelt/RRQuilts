@@ -139,6 +139,8 @@ export const migrations: Migrations = {
     });
     return { ...doc, project: { ...project, quilts } };
   },
+  // v14 (spec 057): a placed block may span several spaces (`span`); nothing to change.
+  13: (doc) => doc,
 };
 
 /** Defaults for the spec 018 layouts (`k` = project units per inch: 2.5 for cm). */
@@ -184,7 +186,8 @@ export function layoutDefaults(style: string, k: number) {
         height: r(6) * Math.sqrt(3),
         sash: 0,
         corner: 'triangle' as const,
-        edge: { finish: 'exact' as const, float: r(1) },
+        // Trimmed blocks at the edge (owner, 2026-11-28), so spanning blocks reach it.
+        edge: { finish: 'trim' as const, float: r(1) },
       };
     case 'baby-blocks':
       return {

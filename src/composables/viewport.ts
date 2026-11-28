@@ -21,6 +21,8 @@ export interface CanvasOverlay {
   cursor: (p: World, px: number) => string | null;
   /** Shown when fitting, besides the quilt. */
   bounds?: [number, number, number, number] | undefined;
+  /** The pointer over p (null: gone). */
+  hover?: (p: World | null) => void;
 }
 
 export interface ViewportOptions {

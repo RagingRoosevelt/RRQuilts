@@ -99,8 +99,9 @@ blocks. Draw those in the block editor (see Drawing blocks). A space takes only 
 - **Baby Blocks** are cubes of three 60° diamond blocks. **Alternate** sets the tops, lefts, and
   rights apart.
 - **Diamond Point** is like On-Point with 60° diamonds standing on their points. Set the **Leg**,
-  **Width**, or **Height** of a diamond and the other two are worked out. Setting pieces take colors
-  and fabrics.
+  **Width**, or **Height** of a diamond and the other two are worked out. A new Diamond Point quilt
+  starts with **Trimmed blocks** at the edge; with setting pieces instead, they take colors and
+  fabrics.
 
 **Rotate** turns a shaped block by the steps its shape allows: a third of a turn for triangles, half
 a turn for diamonds, and a sixth for hexagons. **Flip** mirrors it left to right.
@@ -199,6 +200,36 @@ For cutting lengths, see [Borders](/help/math/borders).
    you choose which coloring to place.
 3. Pick the **Set block** tool (the first tool on the left rail) and tap a space in the quilt.
 
+### Blocks over several spaces
+
+One block can fill a group of neighboring block spaces, such as a medallion in the middle of a
+quilt. The group is the space's own shape made bigger: 2 × 2 or 3 × 3 squares or rectangles, a
+triangle of 4 or 9 triangles, a diamond of 2 × 2 diamonds, and so on. Any sashing and cornerstones
+inside it are covered too, and the sashing around it stays. Hexagons can't make a bigger hexagon,
+so hexagon blocks always fill one space. Neither do Baby Blocks, whose diamonds face three ways.
+
+- **Block size** under **Apply to** sets how big **Set block** places: 1U is one space, 2U covers
+  2 × 2 spaces, 3U covers 3 × 3, as far as the layout has room for. Point at the quilt to see which
+  spaces the block would cover: the block you picked shows over what's there now, which fades, at
+  any size. Tap to place it there.
+- Or drag across the quilt with **Set block**. The block grows from the space you press on, which
+  stays one of its corners, and **Block size** follows the drag. Let go to place it. **Block size**
+  then goes back to where it was.
+- Tap a block that already fills several spaces to put the selected block there at the same size,
+  whatever **Block size** says. While you point at it, **Block size** shows its size, and after the
+  tap it keeps that size. A block can't cover part
+  of a big block, or a big block and more: to change its size, split it first.
+- The line under the quilt says how many spaces the block will cover and how many placed blocks it
+  replaces.
+- **Rotate**, **Flip**, **Erase block** and the color tools work on a big block as on any other.
+  **Split spanning block** makes it fill only its first space again, and the other spaces are left
+  empty.
+- **Apply to** works at 1U only, and a bigger block always goes where you tap. With **All** or
+  **Alternate**, blocks that fill several spaces keep their size.
+- At the quilt's edge a big block can take partial blocks, and On-Point setting triangles, and is
+  cut off at the edge like them. It can start in one of them too.
+- When a layout change leaves no room for a big block, it goes back to its first space.
+
 ## Tools
 
 The left rail holds the tools. Tooltips and a hint line above the tray say what each does.
@@ -209,6 +240,7 @@ The left rail holds the tools. Tooltips and a hint line above the tray say what 
 | **Rotate**                | Turns a block 90°                                                                                                                                                    |
 | **Flip**                  | Mirrors a block across the quilt, tap the tool again to switch left↔right and top↕bottom. On a turned block, such as in On-Point, it still mirrors as the quilt runs |
 | **Erase block**           | Removes a block                                                                                                                                                      |
+| **Split spanning block**  | Makes a block that fills several spaces fill only its first one (shown where blocks can span)                                                                        |
 | **Find block**            | Selects that block in the tray and outlines every place it's used                                                                                                    |
 | **Paint**                 | Colors one patch                                                                                                                                                     |
 | **Spray (same color)**    | Recolors every patch of the same color                                                                                                                               |

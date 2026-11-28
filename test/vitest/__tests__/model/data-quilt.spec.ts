@@ -221,6 +221,57 @@ describe('data block types and variants', () => {
     expect(takesKind(withDay, 'day')).toBe(true);
     expect(takesKind(month(), 'day')).toBe(false);
   });
+
+  it('a data block over a 2U span holds one number; the spaces it covers give theirs back (spec 057)', async () => {
+    const { syncLibraryItems } = await import('@/model/library-items');
+    const { generateFor } = await import('@/model/layout/slots');
+    const { spanIndex, spanOf } = await import('@/model/layout/spans');
+    const { dataSpan } = await import('@/editor/actions');
+    const doc = structuredClone(fixture());
+    doc.project.blocks.push(month());
+    const q = doc.project.quilts[0]!;
+    q.layout = {
+      style: 'straight-set',
+      cols: 4,
+      rows: 4,
+      block: [9, 9],
+      sash: [0, 0],
+      sashBorder: false,
+    };
+    q.borders = [];
+    q.layers[0].slots = {};
+    const place = (space: string, n: number) => ({ space, n, block: 'ms' });
+    q.data = plan({ places: [place('b:r1c2', 2), place('b:r2c2', 3), place('b:r3c3', 4)] });
+    const placed = syncLibraryItems(doc);
+    const g = generateFor(placed.project.quilts[0]!);
+    const ix = spanIndex(g.unspanned ?? g.slots);
+    const sp = spanOf(ix, ix.byId.get('b:r1c1')!, 2)!;
+    // What dataTap gives for month 1 on the span's first space.
+    const tapped = {
+      ...placed.project.quilts[0]!.data!,
+      places: [...placed.project.quilts[0]!.data!.places, place('b:r1c1', 1)],
+    };
+    const r = dataSpan(placed, q.id, g, sp, tapped);
+    expect(r.replaced).toBe(2);
+    const next = syncLibraryItems(r.doc).project.quilts[0]!;
+    expect(next.data!.places.map((p) => [p.space, p.n])).toEqual([
+      ['b:r3c3', 4],
+      ['b:r1c1', 1],
+    ]);
+    expect(next.layers[0].slots['b:r1c1']).toMatchObject({ block: 'ms', span: 2 });
+    expect(next.layers[0].slots['b:r1c2']).toBeUndefined();
+    expect(generateFor(next).spans!.map((s) => s.at)).toEqual(['b:r1c1']);
+    // February is shorter: the variant swaps in and the block stays 2U.
+    const feb = produce(next, (d) => {
+      d.data!.places.find((p) => p.space === 'b:r1c1')!.n = 2;
+      applyPicks(
+        d,
+        [...r.doc.project.blocks, ...syncLibraryItems(r.doc).project.blocks],
+        () => 'f',
+      );
+    });
+    expect(feb.layers[0].slots['b:r1c1']!.span).toBe(2);
+  });
 });
 
 describe('setting a plan up', () => {

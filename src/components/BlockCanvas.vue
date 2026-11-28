@@ -30,6 +30,7 @@ import {
   addGrid,
   addLine,
   arcMidpoint,
+  deleteSegments,
   moveNode,
   withoutNode,
   segGeom,
@@ -180,6 +181,8 @@ function previewSeg(a: Pt, b: Pt): Seg {
 let lastTap: { at: number; seam: string | null } = { at: 0, seam: null };
 /** Color tab: the patch under the mouse, drawn with a glow. */
 const hoverPatch = ref<string | null>(null);
+/** Delete seams: the seam a tap would take out, lit as if selected. */
+const hoverSeam = ref<string | null>(null);
 
 const vp = useViewport({
   host,
@@ -202,7 +205,10 @@ const vp = useViewport({
       snap: props.settings.snap,
       graph: props.settings.graph,
       guides: props.settings.guides,
-      selection: props.selection,
+      selection:
+        editor.blockTool === 'delete'
+          ? new Set(hoverSeam.value ? [hoverSeam.value] : [])
+          : props.selection,
       unconnected: props.unconnected,
       showNodes: editor.blockTool === 'node' || editor.blockTool === 'select',
       preview: preview.value,
@@ -221,6 +227,8 @@ const vp = useViewport({
 
   onHover(p, e) {
     hoverPatch.value = p && editor.blockMode === 'color' ? patchAt(p) : null;
+    hoverSeam.value =
+      p && editor.blockMode === 'draw' && editor.blockTool === 'delete' ? seamAt(p) : null;
     if (!p) {
       mark(null);
       emit('pointer', null);
@@ -239,6 +247,11 @@ const vp = useViewport({
     if (editor.blockMode === 'color') {
       const patch = patchAt(p);
       if (patch) emit('patch', patch);
+      return;
+    }
+    if (editor.blockTool === 'delete') {
+      const seam = seamAt(p);
+      if (seam) emit('drawing', deleteSegments(drawing.value, new Set([seam])));
       return;
     }
     if (editor.blockTool === 'select' || editor.blockTool === 'node') {
@@ -404,7 +417,10 @@ watch(
   ],
   vp.schedule,
 );
-watch([preview, previewRect, marquee, snapPoint, lineGuide, liveDrawing, hoverPatch], vp.schedule);
+watch(
+  [preview, previewRect, marquee, snapPoint, lineGuide, liveDrawing, hoverPatch, hoverSeam],
+  vp.schedule,
+);
 defineExpose({ fit: vp.fit });
 </script>
 

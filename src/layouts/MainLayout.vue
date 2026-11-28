@@ -2,28 +2,36 @@
   <q-layout view="hHh lpR fFf">
     <q-header ref="header" bordered>
       <q-toolbar>
-        <q-btn-dropdown
-          v-if="$q.screen.xs"
-          flat
-          no-caps
-          :icon="current.icon"
-          :label="current.label"
-          aria-label="Go to"
-        >
-          <q-list>
-            <q-item
-              v-for="n in nav"
-              :key="n.to"
-              v-close-popup
-              clickable
-              :to="n.to"
-              :active="n === current"
-            >
-              <q-item-section avatar><q-icon :name="n.icon" /></q-item-section>
-              <q-item-section>{{ n.label }}</q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
+        <!-- Phones: the icon goes to its page (back to the project from a quilt, say); the label
+             and chevron open the menu (owner, 2026-11-28). -->
+        <div v-if="$q.screen.xs" class="row no-wrap items-center">
+          <q-btn flat round :icon="current.icon" :to="current.to" :aria-label="current.label" />
+          <q-btn
+            flat
+            no-caps
+            dense
+            :label="current.label"
+            icon-right="arrow_drop_down"
+            aria-label="Go to"
+            class="q-pr-xs"
+          >
+            <q-menu>
+              <q-list>
+                <q-item
+                  v-for="n in nav"
+                  :key="n.to"
+                  v-close-popup
+                  clickable
+                  :to="n.to"
+                  :active="n === current"
+                >
+                  <q-item-section avatar><q-icon :name="n.icon" /></q-item-section>
+                  <q-item-section>{{ n.label }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
+        </div>
         <template v-else>
           <q-btn
             v-for="n in nav"

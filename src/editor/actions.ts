@@ -2,12 +2,15 @@
 // a selection change. The editor page applies the result through project.change (one undo step).
 import { keepRecolor, recolorView, shownColorway, swapper } from '@/model/colorways';
 import { fillFor, paintOf } from './paint';
-import { produce } from 'immer';
+import { castDraft, produce } from 'immer';
+import { takeBack } from '@/model/data-quilt';
+import type { DataPlan } from '@/model/schema/data-quilt';
 import { allPatches } from '@/model/blocks/patches';
 import type { LibraryLookup } from '@/model/library-items';
 import { fillKey, paint, resolveColoring, spray, swap } from '@/model/coloring';
 import { newId } from '@/model/ids';
 import {
+  PLAIN_BLOCK,
   ensurePlainBlock,
   ensureSlotContent,
   isPlainGroup,
@@ -20,6 +23,8 @@ import type { Quilt, Rotation } from '@/model/schema/quilt';
 import { SHAPE_NAME, SHAPE_TURN, shapeOrient, type BlockShape } from '@/model/blocks/shape';
 import { mul, orient, type M } from '@/model/geometry/affine';
 import type { Hit } from '@/render/hit';
+import type { Generated } from '@/model/layout/slots';
+import type { Span } from '@/model/layout/spans';
 import type { Tool } from '@/stores/editor';
 import {
   placementTargets,
@@ -169,8 +174,12 @@ export function applyTool(
             const src = block.colorings.find((c) => c.id === chosen) ?? block.colorings[0];
             // Follows the block's coloring; recoloring in the quilt adds overrides.
             q.colorings[coloring] = src ? { base: src.id, fills: {} } : { fills: {} };
-            for (const t of targets)
+            for (const t of targets) {
+              // A spanning block keeps its size (spec 057).
+              const span = q.layers[0].slots[t]?.span;
               q.layers[0].slots[t] = { block: block.id, coloring, rotation: 0, flip: false };
+              if (span) q.layers[0].slots[t].span = span;
+            }
             pruneColorings(q);
           }),
         ),
@@ -202,6 +211,18 @@ export function applyTool(
               else c.rotation = norm(c.rotation + (shape ? SHAPE_TURN[shape] : 90));
             }
             pruneColorings(q);
+          }),
+        ),
+      };
+    }
+    case 'split': {
+      // A spanning block goes back to its first space (spec 057); the others are left empty.
+      if (!content?.span) return content ? { message: 'This block fills one space.' } : {};
+      return {
+        doc: withQuilt(
+          doc,
+          produce(quilt, (q) => {
+            delete q.layers[0].slots[hit.slotId]!.span;
           }),
         ),
       };
@@ -258,6 +279,94 @@ export function applyTool(
     default:
       return {};
   }
+}
+
+/**
+ * Set the tool's block over a span (spec 057; k = 1: one space): its first space takes the block,
+ * the other block spaces it covers are emptied, and spanning blocks it overlaps are taken out.
+ * `replaced`: how many placed blocks (other than plain fills) it takes the place of.
+ */
+export function setSpan(
+  doc: RrqDoc,
+  quiltId: string,
+  generated: Generated,
+  span: Span,
+  s: ToolState,
+): Result & { replaced?: number } {
+  const quilt = doc.project.quilts.find((q) => q.id === quiltId);
+  if (!quilt) return {};
+  const spaces = generated.unspanned ?? generated.slots;
+  const r = applyTool(
+    doc,
+    quiltId,
+    spaces,
+    { slotId: span.at },
+    { ...s, tool: 'set', scope: 'this' },
+  );
+  if (!r.doc) return r;
+  const covers = new Set(span.covers);
+  // Spanning blocks it overlaps go whole (their first space may lie outside it).
+  const over = (generated.spans ?? []).filter(
+    (o) => o.at !== span.at && o.covers.some((x) => covers.has(x)),
+  );
+  // Its sashing keeps its fabric, hidden, for when the block is split again.
+  const out = new Set([...span.cells.filter((x) => x !== span.at), ...over.map((o) => o.at)]);
+  const before = quilt.layers[0].slots;
+  const replaced = [...out, span.at].filter(
+    (x) => before[x] && before[x].block !== PLAIN_BLOCK,
+  ).length;
+  const next = r.doc.project.quilts.find((q) => q.id === quiltId)!;
+  return {
+    ...r,
+    replaced,
+    doc: withQuilt(
+      r.doc,
+      produce(next, (q) => {
+        for (const x of out) delete q.layers[0].slots[x];
+        if (span.k > 1) q.layers[0].slots[span.at]!.span = span.k;
+        else delete q.layers[0].slots[span.at]!.span;
+        pruneColorings(q);
+      }),
+    ),
+  };
+}
+
+/**
+ * A data quilt's block over a span (spec 057): `plan` (from `dataTap` on the span's first space)
+ * with the spaces the span covers, and spanning blocks it overlaps, emptied and their places taken
+ * back; the first space marked kU. A 2U data block holds one number, as at 1U (owner, 2026-11-28).
+ * The placed block itself is made by `syncDraft` (`applyPicks`), so run that on the result.
+ */
+export function dataSpan(
+  doc: RrqDoc,
+  quiltId: string,
+  generated: Generated,
+  span: Span,
+  plan: DataPlan,
+): { doc: RrqDoc; replaced: number } {
+  const quilt = doc.project.quilts.find((q) => q.id === quiltId);
+  if (!quilt) return { doc, replaced: 0 };
+  const covers = new Set(span.covers);
+  const over = (generated.spans ?? []).filter(
+    (o) => o.at !== span.at && o.covers.some((x) => covers.has(x)),
+  );
+  const out = [...span.cells.filter((x) => x !== span.at), ...over.map((o) => o.at)];
+  const before = quilt.layers[0].slots;
+  const replaced = [...out, span.at].filter(
+    (x) => before[x] && before[x].block !== PLAIN_BLOCK,
+  ).length;
+  const next = produce(quilt, (q) => {
+    const slots = q.layers[0].slots;
+    q.data = castDraft(out.reduce((p, x) => takeBack(p, x), plan));
+    for (const x of out) delete slots[x];
+    if (!q.data.places.some((p) => p.space === span.at)) return;
+    // A space not placed yet gets its block from applyPicks, which keeps the span.
+    if (span.k > 1)
+      (slots[span.at] ??= { block: '', coloring: '', rotation: 0, flip: false }).span = span.k;
+    else if (slots[span.at]) delete slots[span.at]!.span;
+    pruneColorings(q);
+  });
+  return { doc: withQuilt(doc, next), replaced };
 }
 
 function pruneColorings(q: { layers: Quilt['layers']; colorings: Quilt['colorings'] }) {

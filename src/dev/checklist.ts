@@ -79,6 +79,8 @@ const G = {
   recolor: 'Re-color colorways (spec 019 FR-007)',
   follow: 'Colorways follow a colorway (spec 019 FR-009)',
   road093: '0.9.3 roadmap',
+  span057: 'Blocks over several spaces (spec 057)',
+  ui0100: '0.10.0 other changes',
 };
 
 export const CHECKS: Check[] = [

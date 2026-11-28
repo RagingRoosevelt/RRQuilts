@@ -222,6 +222,8 @@ export const SlotContent = Type.Object({
   /** Degrees clockwise: 90° steps in square spaces, the shape's turn in shaped ones (spec 026). */
   rotation: Rotation,
   flip: Type.Boolean(),
+  /** A spanning block (spec 057, v14): set over k × k spaces, this one their first. */
+  span: Type.Optional(Type.Integer({ minimum: 2, maximum: 8 })),
 });
 
 export const Text = Type.Object({
