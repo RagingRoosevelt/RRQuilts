@@ -141,6 +141,12 @@ these units from neighboring patches and offer the method alongside the per-patc
   lie in a row, stacked in the middle item), under templates, and in the cutting chart; the chart's
   rounding warning prints smaller than the chart text. Template labels carry a light halo so they
   read across the seam lines (light labels on dark fabric get a dark one). *Added 2026-10-16 (owner).*
+- **FR-007a**: A template's size MUST be labeled "Finished size …", with "Cut size …" (the cutting
+  chart's cut size, seam allowance included: "3½″ squares", "3⅞″ squares" for a half-square
+  triangle) on the line right under it: on the template (in a row layout, stacked in the middle
+  item) and under it. Without a seam allowance only the finished size prints. *Added 2026-11-27
+  (owner: "we should label it as such and then also show the cut size right below it, also
+  labeled").*
 
 ## Success Criteria *(mandatory)*
 

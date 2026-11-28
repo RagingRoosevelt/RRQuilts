@@ -163,6 +163,9 @@ export interface PlacedPiece {
   note: string;
   /** "3″ square" */
   size: string;
+  /** Its cut size with seam allowance, as the cutting table gives it ("3½″ squares"); unset when
+   *  the template has no seam allowance. */
+  cutSize?: string | undefined;
   /** Pale wash of its fabric (one fabric only). */
   tint?: string | undefined;
   marks: { p: Pt; n: Pt }[];
